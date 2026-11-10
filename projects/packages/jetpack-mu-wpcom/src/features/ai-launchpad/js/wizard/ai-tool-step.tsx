@@ -1,11 +1,21 @@
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useId, useState } from '@wordpress/element';
-import { ButtonLink, Dialog, Icon, Stack, Text } from '@wordpress/ui';
-import { trackWizardMcpLinkClicked } from '../lib/tracks.ts';
+import { comment, copySmall } from '@wordpress/icons';
+import { Button, ButtonLink, Dialog, Icon, Stack, Text } from '@wordpress/ui';
+import {
+	trackWizardMcpLinkClicked,
+	trackWizardMcpPromptCopied,
+	trackWizardMcpWaitingViewed,
+} from '../lib/tracks.ts';
 import { chatGptIcon, claudeIcon } from './connector-icons.tsx';
 import { bringYourAiToolCopy } from './goals-step.tsx';
 import {
 	AI_TOOL_URLS,
+	aiToolRowStatus,
+	aiToolView,
+	CONNECT_YOURSELF_PROMPT,
+	COPIED_RESET_MS,
 	findNewConnection,
 	MCP_POLL_INTERVAL_MS,
 	MCP_POLL_TIMEOUT_MS,
@@ -27,6 +37,8 @@ interface Props {
 	readOnly: boolean;
 	// Called on each check with whether the account's MCP access is read only.
 	onReadOnlyChange: ( readOnly: boolean ) => void;
+	// Called each time the prompt for another AI tool is copied.
+	onPromptCopied: () => void;
 	titleRef?: Ref< HTMLHeadingElement >;
 }
 
@@ -44,6 +56,7 @@ interface Props {
  * @param props.onConnected        - Called with the AI tool once its new connection shows up.
  * @param props.readOnly           - Whether a connected tool has only read-only access.
  * @param props.onReadOnlyChange   - Called on each check with whether the account's access is read only.
+ * @param props.onPromptCopied     - Called each time the prompt for another AI tool is copied.
  * @param props.titleRef           - Ref to the view title, focused when the view opens.
  * @return The AI tool view.
  */
@@ -54,6 +67,7 @@ export default function AiToolStep( {
 	onConnected,
 	readOnly,
 	onReadOnlyChange,
+	onPromptCopied,
 	titleRef,
 }: Props ) {
 	const id = useId();
@@ -62,22 +76,25 @@ export default function AiToolStep( {
 	const [ clicks, setClicks ] = useState< Partial< Record< AiTool, number > > >( {} );
 	// The tool clicked most recently, while still waiting for a connection.
 	const [ waitingFor, setWaitingFor ] = useState< AiTool | null >( null );
+	// When Copy prompt last copied, in milliseconds, or 0 while it shows Copy prompt.
+	const [ copiedAt, setCopiedAt ] = useState( 0 );
 	const tools = [
 		{ tool: 'chatgpt' as const, icon: chatGptIcon },
 		{ tool: 'claude' as const, icon: claudeIcon },
 	];
+	const view = aiToolView( connected, waitingFor, readOnly );
 	let title: string = copy.viewTitle;
 	let subtitle: string = copy.viewSubtitle;
-	if ( readOnly ) {
+	if ( view === 'read_only' ) {
 		title = copy.readOnlyTitle( connected[ connected.length - 1 ] );
 		subtitle = copy.readOnlySubtitle;
-	} else if ( connected.length === tools.length ) {
+	} else if ( view === 'both_connected' ) {
 		title = copy.bothConnectedTitle;
 		subtitle = copy.bothConnectedSubtitle;
-	} else if ( waitingFor ) {
+	} else if ( view === 'waiting' && waitingFor ) {
 		title = copy.waitingTitle( waitingFor );
 		subtitle = copy.waitingSubtitle;
-	} else if ( connected.length ) {
+	} else if ( view === 'connected' ) {
 		const other = connected[ 0 ] === 'chatgpt' ? 'claude' : 'chatgpt';
 		title = copy.connectedTitle( connected[ 0 ] );
 		subtitle = copy.connectedSubtitle( connected[ 0 ], other );
@@ -126,6 +143,15 @@ export default function AiToolStep( {
 		};
 	}, [ waitingFor, clicks, connected, onConnected, onReadOnlyChange ] );
 
+	// Like Copy prompt on /me/mcp, the label goes back after a moment.
+	useEffect( () => {
+		if ( ! copiedAt ) {
+			return;
+		}
+		const timeout = setTimeout( () => setCopiedAt( 0 ), COPIED_RESET_MS );
+		return () => clearTimeout( timeout );
+	}, [ copiedAt ] );
+
 	// Once a read-only wait times out, coming back to the tab waits again, so allowing full access still shows.
 	useEffect( () => {
 		if ( ! readOnly || waitingFor ) {
@@ -154,20 +180,19 @@ export default function AiToolStep( {
 				{ tools.map( item => {
 					const titleId = `${ id }-${ item.tool }-title`;
 					const descriptionId = `${ id }-${ item.tool }-description`;
-					const isConnected = connected.includes( item.tool );
-					const isWaiting = ! isConnected && waitingFor === item.tool;
+					const rowStatus = aiToolRowStatus( item.tool, connected, waitingFor, readOnly );
+					const isConnected = rowStatus === 'connected' || rowStatus === 'read_only';
 					let description: string = copy.opensInNewTab;
 					if ( isConnected ) {
 						description = readOnly ? copy.readOnlyDescription : copy.connectedToAccount;
 					} else if ( clicks[ item.tool ] !== undefined ) {
 						description = copy.openedInNewTab;
 					}
-					let status = '';
-					if ( isConnected ) {
-						status = readOnly ? copy.readOnly : copy.connected;
-					} else if ( isWaiting ) {
-						status = copy.waiting;
-					}
+					const status = rowStatus
+						? { connected: copy.connected, read_only: copy.readOnly, waiting: copy.waiting }[
+								rowStatus
+							]
+						: '';
 					return (
 						<div
 							key={ item.tool }
@@ -216,6 +241,10 @@ export default function AiToolStep( {
 												[ item.tool ]: Math.floor( Date.now() / 1000 ),
 											} ) );
 											if ( detectsConnections ) {
+												trackWizardMcpWaitingViewed( {
+													goals_variation: variation,
+													integration: item.tool,
+												} );
 												setWaitingFor( item.tool );
 											}
 										} }
@@ -227,6 +256,44 @@ export default function AiToolStep( {
 						</div>
 					);
 				} ) }
+				<div className="ai-launchpad-wizard__card ai-launchpad-wizard__ai-tool-row">
+					<Icon icon={ comment } size={ 28 } />
+					<Stack
+						direction="column"
+						gap="xs"
+						render={ <span /> }
+						className="ai-launchpad-wizard__card-text"
+					>
+						<Text variant="heading-md" id={ `${ id }-other-title` }>
+							{ copy.otherToolTitle }
+						</Text>
+						<Text
+							variant="body-sm"
+							id={ `${ id }-other-description` }
+							className="ai-launchpad-wizard__card-description"
+						>
+							{ copy.otherToolDescription }
+						</Text>
+					</Stack>
+					<Button
+						variant="outline"
+						aria-describedby={ `${ id }-other-title ${ id }-other-description` }
+						onClick={ () => {
+							navigator.clipboard
+								?.writeText( CONNECT_YOURSELF_PROMPT )
+								.then( () => {
+									trackWizardMcpPromptCopied( { goals_variation: variation } );
+									setCopiedAt( Date.now() );
+									speak( copy.copied );
+									onPromptCopied();
+								} )
+								.catch( () => {} );
+						} }
+					>
+						{ copiedAt ? copy.copied : copy.copyPrompt }
+						<Icon icon={ copySmall } />
+					</Button>
+				</div>
 			</Stack>
 		</Stack>
 	);

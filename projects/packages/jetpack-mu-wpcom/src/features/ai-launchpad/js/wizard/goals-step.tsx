@@ -22,7 +22,7 @@ export function bringYourAiToolCopy() {
 	const toolName = ( aiTool: AiTool ) =>
 		aiTool === 'chatgpt' ? __( 'ChatGPT', 'jetpack-mu-wpcom' ) : __( 'Claude', 'jetpack-mu-wpcom' );
 	return {
-		choiceTitle: __( 'How do you want to build your site?', 'jetpack-mu-wpcom' ),
+		choiceTitle: __( 'How would you like to get set up?', 'jetpack-mu-wpcom' ),
 		guideTitle: __( 'Guide me', 'jetpack-mu-wpcom' ),
 		guideDescription: __(
 			"Pick a goal and we'll tailor a setup checklist for you.",
@@ -89,6 +89,10 @@ export function bringYourAiToolCopy() {
 		openedInNewTab: __( 'Opened in a new tab', 'jetpack-mu-wpcom' ),
 		connectedToAccount: __( 'Connected to your WordPress.com account', 'jetpack-mu-wpcom' ),
 		setUp: __( 'Set up', 'jetpack-mu-wpcom' ),
+		otherToolTitle: __( 'Another AI tool', 'jetpack-mu-wpcom' ),
+		otherToolDescription: __( 'Copy a prompt and paste it into your AI', 'jetpack-mu-wpcom' ),
+		copyPrompt: __( 'Copy prompt', 'jetpack-mu-wpcom' ),
+		copied: __( 'Copied', 'jetpack-mu-wpcom' ),
 		waiting: __( 'Waiting', 'jetpack-mu-wpcom' ),
 		connected: __( 'Connected', 'jetpack-mu-wpcom' ),
 		openTool: ( aiTool: AiTool ) =>

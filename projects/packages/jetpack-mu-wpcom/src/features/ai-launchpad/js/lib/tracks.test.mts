@@ -18,6 +18,10 @@ import {
 	trackWizardMcpConnectedViewed,
 	trackWizardMcpGoToDashboardClicked,
 	trackWizardMcpLinkClicked,
+	trackWizardMcpPromptCopied,
+	trackWizardMcpReadOnlyViewed,
+	trackWizardMcpWaitingViewed,
+	trackWizardSetupChoiceSelected,
 	trackWizardMcpScreenViewed,
 	trackWizardSiteDetailsChanged,
 	trackWizardStepCompleted,
@@ -78,6 +82,32 @@ describe( 'ai-launchpad tracks', () => {
 	// The context is all null here, so these also pin that null keys never override the bootstrap.
 	const RECORDERS: Array< [ event: string, fired: () => TrackEventProps ] > = [
 		[ 'viewed', fire( trackViewed, { step: 'goal' } ) ],
+		[ 'viewed', fire( trackViewed, { step: 'setup_choice' } ) ],
+		[
+			'wizard_setup_choice_selected',
+			fire( trackWizardSetupChoiceSelected, {
+				choice: 'guide',
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_waiting_viewed',
+			fire( trackWizardMcpWaitingViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+			} ),
+		],
+		[
+			'wizard_mcp_read_only_viewed',
+			fire( trackWizardMcpReadOnlyViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+			} ),
+		],
+		[
+			'wizard_mcp_prompt_copied',
+			fire( trackWizardMcpPromptCopied, { goals_variation: 'bring_your_ai_tool' } ),
+		],
 		[ 'wizard_goal_clicked', fire( trackWizardGoalClicked, { goal_clicked: 'sell' } ) ],
 		[
 			'wizard_goal_clicked',

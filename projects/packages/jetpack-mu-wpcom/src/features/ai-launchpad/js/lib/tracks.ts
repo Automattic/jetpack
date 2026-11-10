@@ -18,7 +18,7 @@ declare global {
 }
 
 /** The screens the Site Setup page can open on. */
-export type ViewedStep = 'goal' | 'site_details' | 'launchpad';
+export type ViewedStep = 'setup_choice' | 'goal' | 'site_details' | 'launchpad';
 
 /** How far a tailoring run had got: waiting on the AI call, or saving the result. */
 export type TailoringStage = 'ai' | 'saving';
@@ -222,6 +222,20 @@ export function trackWizardConnectAiClicked( props: { goals_variation: string } 
 }
 
 /**
+ * Records Continue on the "How would you like to get set up?" choice.
+ *
+ * @param props                 - The event properties.
+ * @param props.choice          - `guide` for Guide me, `ai` for Build with my AI.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardSetupChoiceSelected( props: {
+	choice: 'guide' | 'ai';
+	goals_variation: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_wizard_setup_choice_selected', props );
+}
+
+/**
  * Records a click on the "Bring your AI tool" card's link to an agent's WordPress.com app.
  *
  * @param tool                  - The agent whose link was clicked.
@@ -245,11 +259,35 @@ export function trackWizardMcpScreenViewed( props: { goals_variation: string } )
 	record( 'jetpack_ai_launchpad_wizard_mcp_screen_viewed', props );
 }
 
+/**
+ * Records the "Which AI do you use?" view waiting for a connection after a Set up click.
+ *
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ * @param props.integration     - The AI tool it waits for.
+ */
+export function trackWizardMcpWaitingViewed( props: {
+	goals_variation: string;
+	integration: 'chatgpt' | 'claude';
+} ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_waiting_viewed', props );
+}
+
+/**
+ * Records a click on Copy prompt, for an AI tool without a Set up link.
+ *
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardMcpPromptCopied( props: { goals_variation: string } ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_prompt_copied', props );
+}
+
 /** The props every event about a connected AI tool carries. */
 interface McpConnectedProps extends TrackEventProps {
 	goals_variation: string;
-	// The AI tool that connected, or the latest one when both did.
-	integration: 'chatgpt' | 'claude';
+	// The AI tool that connected, the latest one when both did, or `other` after copying the prompt for another tool.
+	integration: 'chatgpt' | 'claude' | 'other';
 }
 
 /**
@@ -259,6 +297,15 @@ interface McpConnectedProps extends TrackEventProps {
  */
 export function trackWizardMcpConnectedViewed( props: McpConnectedProps ): void {
 	record( 'jetpack_ai_launchpad_wizard_mcp_connected_viewed', props );
+}
+
+/**
+ * Records a connected AI tool showing as read only.
+ *
+ * @param props - The event properties.
+ */
+export function trackWizardMcpReadOnlyViewed( props: McpConnectedProps ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_read_only_viewed', props );
 }
 
 /**

@@ -11,7 +11,9 @@ import {
 	trackWizardGoalClicked,
 	trackWizardMcpConnectedViewed,
 	trackWizardMcpGoToDashboardClicked,
+	trackWizardMcpReadOnlyViewed,
 	trackWizardMcpScreenViewed,
+	trackWizardSetupChoiceSelected,
 	trackWizardSiteDetailsChanged,
 	trackWizardStepCompleted,
 	trackWizardStepSkipped,
@@ -28,6 +30,7 @@ import {
 	MCP_SETTINGS_URL,
 	showsSetupChoice,
 	TOTAL_STEPS,
+	viewedStep,
 	type AiTool,
 	type WizardState,
 	type WizardStep,
@@ -100,6 +103,7 @@ export function Wizard( {
 	const [ connectedTools, setConnectedTools ] = useState< AiTool[] >( [] );
 	// Whether the account's MCP access was read only at the AI tool view's last check. It applies to every tool.
 	const [ readOnlyAccess, setReadOnlyAccess ] = useState( false );
+	const [ promptCopied, setPromptCopied ] = useState( false );
 	const readOnly = readOnlyAccess && connectedTools.length > 0;
 	// The treatment opens on "Guide me" or "Build with my AI" before the goals.
 	const [ choosing, setChoosing ] = useState( showsSetupChoice( variation ) );
@@ -111,10 +115,14 @@ export function Wizard( {
 	// The analytics name of the current step, shared by every event that reports one.
 	const stepName = 0 === step ? 'goal' : 'site_details';
 
-	// One viewed event per screen shown, re-firing when Back re-shows the goal step.
+	const viewed = viewedStep( step, choosing, showAiTool );
+
+	// One viewed event per screen shown, re-firing when Back re-shows the setup choice or goal step.
 	useEffect( () => {
-		trackViewed( { step: stepName } );
-	}, [ stepName ] );
+		if ( viewed ) {
+			trackViewed( { step: viewed } );
+		}
+	}, [ viewed ] );
 
 	// Back unmounts its own button, so move focus to the goals title instead of losing it to the page.
 	useEffect( () => {
@@ -141,16 +149,28 @@ export function Wizard( {
 		[ variation ]
 	);
 
+	useEffect( () => {
+		if ( readOnly ) {
+			trackWizardMcpReadOnlyViewed( {
+				goals_variation: variation,
+				integration: connectedTools[ connectedTools.length - 1 ],
+			} );
+		}
+	}, [ readOnly, connectedTools, variation ] );
+
 	const handleGoToDashboard = () => {
 		trackWizardMcpGoToDashboardClicked( {
 			goals_variation: variation,
-			integration: connectedTools[ connectedTools.length - 1 ],
+			integration: connectedTools[ connectedTools.length - 1 ] ?? 'other',
 		} );
 		window.location.assign( 'index.php' );
 	};
 
 	const handleNext = () => {
 		if ( choosing ) {
+			if ( setupChoice ) {
+				trackWizardSetupChoiceSelected( { choice: setupChoice, goals_variation: variation } );
+			}
 			if ( setupChoice === 'ai' ) {
 				trackWizardConnectAiClicked( { goals_variation: variation } );
 				setShowAiTool( true );
@@ -206,6 +226,7 @@ export function Wizard( {
 	const handleBack = () => {
 		if ( showAiTool || step === 0 ) {
 			setShowAiTool( false );
+			setPromptCopied( false );
 			setChoosing( true );
 			return;
 		}
@@ -269,6 +290,7 @@ export function Wizard( {
 							onConnected={ handleConnected }
 							readOnly={ readOnly }
 							onReadOnlyChange={ setReadOnlyAccess }
+							onPromptCopied={ () => setPromptCopied( true ) }
 						/>
 					) }
 					{ step === 0 && ! showAiTool && ! choosing && (
@@ -338,6 +360,11 @@ export function Wizard( {
 							{ step > 0 && ! backReplacesSkip && (
 								<Button variant="outline" onClick={ handleBack } disabled={ skipping }>
 									{ __( 'Back', 'jetpack-mu-wpcom' ) }
+								</Button>
+							) }
+							{ showAiTool && promptCopied && (
+								<Button variant="solid" onClick={ handleGoToDashboard }>
+									{ aiCopy.goToDashboard }
 								</Button>
 							) }
 							{ ! showAiTool && (

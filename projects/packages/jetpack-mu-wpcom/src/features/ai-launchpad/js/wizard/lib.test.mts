@@ -1,14 +1,20 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	aiToolRowStatus,
+	aiToolView,
 	BRING_YOUR_AI_TOOL,
 	buildWizardPayload,
 	canContinue,
+	CONNECT_YOURSELF_PROMPT,
 	findNewConnection,
 	goalsVariation,
 	isLastStep,
+	MCP_SERVER_URL,
+	MCP_SETTINGS_URL,
 	pickPlaceholder,
 	showsSetupChoice,
+	viewedStep,
 	type WizardState,
 } from './lib.ts';
 
@@ -155,5 +161,70 @@ describe( 'rotating placeholder', () => {
 			pickPlaceholder( variants, () => 0.99 ),
 			'five'
 		);
+	} );
+} );
+
+describe( 'AI tool view', () => {
+	it( 'starts on the choice of AI tool', () => {
+		assert.equal( aiToolView( [], null, false ), 'choose' );
+	} );
+
+	it( 'waits after a Set up click', () => {
+		assert.equal( aiToolView( [], 'claude', false ), 'waiting' );
+	} );
+
+	it( 'shows one tool as connected, even while waiting on the other', () => {
+		assert.equal( aiToolView( [ 'chatgpt' ], null, false ), 'connected' );
+		assert.equal( aiToolView( [ 'chatgpt' ], 'claude', false ), 'waiting' );
+	} );
+
+	it( 'shows both tools as connected once each one is', () => {
+		assert.equal( aiToolView( [ 'chatgpt', 'claude' ], null, false ), 'both_connected' );
+	} );
+
+	it( 'puts read-only access ahead of every other state', () => {
+		assert.equal( aiToolView( [ 'claude' ], 'claude', true ), 'read_only' );
+		assert.equal( aiToolView( [ 'chatgpt', 'claude' ], null, true ), 'read_only' );
+	} );
+} );
+
+describe( 'AI tool row status', () => {
+	it( 'shows Set up on a tool that is neither connected nor waiting', () => {
+		assert.equal( aiToolRowStatus( 'chatgpt', [], null, false ), null );
+		assert.equal( aiToolRowStatus( 'chatgpt', [], 'claude', false ), null );
+	} );
+
+	it( 'shows Waiting only on the tool being waited for', () => {
+		assert.equal( aiToolRowStatus( 'claude', [], 'claude', false ), 'waiting' );
+	} );
+
+	it( 'shows Connected, or Read only with read-only access', () => {
+		assert.equal( aiToolRowStatus( 'claude', [ 'claude' ], 'claude', false ), 'connected' );
+		assert.equal( aiToolRowStatus( 'claude', [ 'claude' ], null, true ), 'read_only' );
+	} );
+} );
+
+describe( 'viewed step', () => {
+	it( 'reports the setup choice while it is shown', () => {
+		assert.equal( viewedStep( 0, true, false ), 'setup_choice' );
+	} );
+
+	it( 'reports nothing for the AI tool view, which records its own event', () => {
+		assert.equal( viewedStep( 0, false, true ), null );
+	} );
+
+	it( 'reports the goal and details steps', () => {
+		assert.equal( viewedStep( 0, false, false ), 'goal' );
+		assert.equal( viewedStep( 1, false, false ), 'site_details' );
+	} );
+} );
+
+describe( 'another AI tool', () => {
+	it( 'gives the copied prompt the MCP server address', () => {
+		assert.ok( CONNECT_YOURSELF_PROMPT.includes( MCP_SERVER_URL ) );
+	} );
+
+	it( 'sends Allow full access to the write settings', () => {
+		assert.equal( MCP_SETTINGS_URL, 'https://my.wordpress.com/me/preferences/mcp/write' );
 	} );
 } );
