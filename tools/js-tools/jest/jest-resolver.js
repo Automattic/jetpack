@@ -17,7 +17,7 @@ const badBrowserPackages = new Set( [
 const forceEsmPackages = new Set( [ '@wordpress/components', '@wordpress/block-editor' ] );
 
 /**
- * Resolve a module, through its ESM entry for the packages listed above.
+ * Custom jest resolver, adjusting resolution for some packages that break in jest.
  *
  * @param {string} path    - Path to the module.
  * @param {object} options - Jest resolver options, including `defaultResolver` and `conditions`.
