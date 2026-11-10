@@ -55,7 +55,9 @@ function a11yProbe() {
 		}
 		for ( const live of touched ) {
 			const text = live.textContent?.trim();
-			if ( text && politeness( live ) !== 'off' ) {
+			// Screen readers don't speak regions in hidden apps or the inert header stand-in.
+			const silent = !! live.closest( '[aria-hidden="true"], [inert]' ) || ! live.checkVisibility();
+			if ( text && ! silent && politeness( live ) !== 'off' ) {
 				said.push( { politeness: politeness( live ), text } );
 			}
 		}
