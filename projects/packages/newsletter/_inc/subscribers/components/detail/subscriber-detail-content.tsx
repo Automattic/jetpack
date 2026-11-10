@@ -58,7 +58,7 @@ function ratePercent( numerator: number, denominator: number ): number | null {
 }
 
 /**
- * Stat tile in the detail view's hero row (Newsletters sent / Open rate / Click rate).
+ * Stat tile in the detail view's hero row.
  *
  * @param props       - Tile props.
  * @param props.label - Stat label.
@@ -224,10 +224,7 @@ function BounceRetryNotice( {
 }
 
 /**
- * Body content for the subscriber detail view — header (avatar + name + email), 3-column stat
- * row (Newsletters sent / Open rate / Click rate), then grouped Subscription details and Subscriber
- * information sections. Layout-agnostic: renders identically inside the desktop side-panel and
- * the mobile Modal.
+ * Content shared by the desktop side-panel and mobile Modal.
  *
  * @param props      - Component props.
  * @param props.open - Subscriber identifiers (must be non-null; the parent gates rendering).
