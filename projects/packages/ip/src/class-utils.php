@@ -25,7 +25,7 @@ class Utils {
 		if ( isset( $trusted_header_data->trusted_header ) && isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
 			$ip = self::pick_ip(
 				wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
-				isset( $trusted_header_data->segments ) ? $trusted_header_data->segments : 1,
+				$trusted_header_data->segments ?? 1,
 				! empty( $trusted_header_data->reverse ),
 				$remote_addr
 			);
