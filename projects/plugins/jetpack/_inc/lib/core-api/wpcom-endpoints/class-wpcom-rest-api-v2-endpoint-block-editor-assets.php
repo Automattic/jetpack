@@ -125,6 +125,13 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	);
 
 	/**
+	 * Callbacks skipped because they threw while a guarded hook ran.
+	 *
+	 * @var array[] List of `hook` and `source` pairs.
+	 */
+	private $skipped_callbacks = array();
+
+	/**
 	 * Get the list of allowed core block types.
 	 *
 	 * @return array List of core block types.
@@ -193,6 +200,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$current_wp_styles  = $wp_styles;
 		$current_wp_scripts = $wp_scripts;
 
+		$this->skipped_callbacks = array();
+
 		try {
 			// Preserve allowed plugin assets before reinitializing
 			$preserved = $this->preserve_allowed_plugin_assets();
@@ -210,7 +219,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 			// Trigger wp_loaded action that plugins frequently use to enqueue assets.
 			// This must happen after screen setup and before we collect enqueued assets.
-			do_action( 'wp_loaded' );
+			$this->do_guarded_action( 'wp_loaded' );
 
 			// Enqueue all core WordPress editor assets
 			$this->enqueue_core_editor_assets();
@@ -220,8 +229,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 			// Trigger block editor asset actions with forced script/style loading
 			add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
-			do_action( 'enqueue_block_assets' );
-			do_action( 'enqueue_block_editor_assets' );
+			$this->do_guarded_action( 'enqueue_block_assets' );
+			$this->do_guarded_action( 'enqueue_block_editor_assets' );
 			remove_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
 
 			// Enqueue editor-specific assets for all registered block types
@@ -259,6 +268,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 					'scripts'             => $html['scripts'],
 					// @phan-suppress-next-line PhanTypePossiblyInvalidDimOffset -- Keys are guaranteed by callback above
 					'styles'              => $html['styles'],
+					'skipped_callbacks'   => $this->skipped_callbacks,
 				)
 			);
 
@@ -471,6 +481,278 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			$current_screen->is_block_editor( true );
 			$current_screen->post_type = $post_type;
 		}
+	}
+
+	/**
+	 * Fires an action with each callback isolated, so a callback that throws is skipped instead of failing the request.
+	 *
+	 * @param string $hook_name Action name.
+	 */
+	private function do_guarded_action( $hook_name ) {
+		global $wp_filter, $wp_current_filter;
+
+		$hook     = $wp_filter[ $hook_name ] ?? null;
+		$wrapped  = $hook instanceof WP_Hook ? $this->wrap_hook_callbacks( $hook_name, $hook ) : array();
+		$depth    = count( $wp_current_filter );
+		$ob_level = ob_get_level();
+
+		// Anything these hooks print would corrupt the JSON response.
+		ob_start();
+		try {
+			do_action( $hook_name );
+		} catch ( \Throwable $e ) {
+			// Only callbacks added during the run get here unwrapped; the hook's own nesting state stays off by one.
+			$wp_current_filter = array_slice( $wp_current_filter, 0, $depth );
+			$this->record_skipped_callback( $hook_name, null, $e );
+		} finally {
+			while ( ob_get_level() > $ob_level ) {
+				ob_end_clean();
+			}
+			if ( $hook instanceof WP_Hook ) {
+				$this->unwrap_hook_callbacks( $hook, $wrapped );
+			}
+		}
+	}
+
+	/**
+	 * Swaps each callback on a hook for a guarded wrapper.
+	 *
+	 * Entries keep their priority, `accepted_args` and key, so remove_action() and has_action() on the original still match mid-run.
+	 *
+	 * @param string  $hook_name Hook name.
+	 * @param WP_Hook $hook      Hook object.
+	 * @return array[] Wrapped entries, for unwrap_hook_callbacks().
+	 */
+	private function wrap_hook_callbacks( $hook_name, WP_Hook $hook ) {
+		$wrapped = array();
+
+		foreach ( $hook->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $id => $entry ) {
+				$original = $entry['function'];
+				$wrapper  = function ( ...$args ) use ( $hook_name, $original ) {
+					return $this->call_guarded( $hook_name, $original, $args );
+				};
+
+				$hook->callbacks[ $priority ][ $id ]['function'] = $wrapper;
+
+				$wrapped[] = array(
+					'priority' => $priority,
+					'id'       => $id,
+					'wrapper'  => $wrapper,
+					'original' => $original,
+				);
+			}
+		}
+
+		return $wrapped;
+	}
+
+	/**
+	 * Puts back the original callbacks, leaving any that were removed or replaced during the run alone.
+	 *
+	 * @param WP_Hook $hook    Hook object.
+	 * @param array[] $wrapped Entries returned by wrap_hook_callbacks().
+	 */
+	private function unwrap_hook_callbacks( WP_Hook $hook, $wrapped ) {
+		foreach ( $wrapped as $item ) {
+			$priority = $item['priority'];
+			$id       = $item['id'];
+
+			if ( isset( $hook->callbacks[ $priority ][ $id ] ) && $hook->callbacks[ $priority ][ $id ]['function'] === $item['wrapper'] ) {
+				$hook->callbacks[ $priority ][ $id ]['function'] = $item['original'];
+			}
+		}
+	}
+
+	/**
+	 * Runs one hook callback, undoing its asset changes, output and filter stack if it throws.
+	 *
+	 * @param string   $hook_name Hook name.
+	 * @param callable $callback  Original callback.
+	 * @param array    $args      Arguments from WP_Hook, already trimmed to `accepted_args`.
+	 * @return mixed Callback return value, or null if it threw.
+	 */
+	private function call_guarded( $hook_name, $callback, $args ) {
+		global $wp_current_filter;
+
+		$depth    = count( $wp_current_filter );
+		$ob_level = ob_get_level();
+		$snapshot = $this->snapshot_asset_state();
+
+		try {
+			return call_user_func_array( $callback, $args );
+		} catch ( \Throwable $e ) {
+			// A nested do_action() that threw never popped its entry.
+			$wp_current_filter = array_slice( $wp_current_filter, 0, $depth );
+			while ( ob_get_level() > $ob_level ) {
+				ob_end_clean();
+			}
+			$this->restore_asset_state( $snapshot );
+			$this->record_skipped_callback( $hook_name, $callback, $e );
+			return null;
+		}
+	}
+
+	/**
+	 * Captures the script and style queues and registrations; arrays are copy-on-write, so this is cheap.
+	 *
+	 * @return array[] Snapshot keyed by global name.
+	 */
+	private function snapshot_asset_state() {
+		$snapshot = array();
+
+		foreach ( array( 'wp_scripts', 'wp_styles' ) as $global ) {
+			$deps = $GLOBALS[ $global ] ?? null;
+			if ( $deps instanceof WP_Dependencies ) {
+				$snapshot[ $global ] = array(
+					'deps'       => $deps,
+					'queue'      => $deps->queue,
+					'registered' => $deps->registered,
+				);
+			}
+		}
+
+		return $snapshot;
+	}
+
+	/**
+	 * Rolls the script and style registries back to a snapshot.
+	 *
+	 * Edits made in place to an already-registered handle, such as wp_add_inline_script(), are not undone.
+	 *
+	 * @param array[] $snapshot Value from snapshot_asset_state().
+	 */
+	private function restore_asset_state( $snapshot ) {
+		foreach ( $snapshot as $global => $state ) {
+			$deps               = $state['deps'];
+			$GLOBALS[ $global ] = $deps; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+			// dequeue() and enqueue() also reset WP_Dependencies' private queue caches.
+			$deps->dequeue( array_values( array_diff( $deps->queue, $state['queue'] ) ) );
+			$deps->registered = $state['registered'];
+			$deps->enqueue( array_values( array_diff( $state['queue'], $deps->queue ) ) );
+		}
+	}
+
+	/**
+	 * Records and logs a skipped callback.
+	 *
+	 * @param string        $hook_name Hook name.
+	 * @param callable|null $callback  Callback that threw, if known.
+	 * @param \Throwable    $e         What it threw.
+	 */
+	private function record_skipped_callback( $hook_name, $callback, \Throwable $e ) {
+		$file   = null !== $callback ? $this->get_callback_file( $callback ) : null;
+		$source = $this->get_source_from_file( $file ?? $e->getFile() );
+		$name   = null !== $callback ? $this->get_callback_name( $callback ) : 'unknown';
+
+		// Only the hook and owning extension reach the response; paths and messages stay in the server log.
+		$this->skipped_callbacks[] = array(
+			'hook'   => $hook_name,
+			'source' => $source,
+		);
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Stands in for the fatal error PHP would otherwise have logged.
+		error_log(
+			sprintf(
+				'Jetpack editor-assets: skipped %1$s callback %2$s (%3$s) after %4$s: %5$s in %6$s:%7$d',
+				$hook_name,
+				$name,
+				$source,
+				get_class( $e ),
+				$e->getMessage(),
+				$e->getFile(),
+				$e->getLine()
+			)
+		);
+
+		/**
+		 * Fires when the editor assets endpoint skips a hook callback that threw.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string     $hook_name Hook that was running.
+		 * @param string     $source    Owner of the callback, such as `plugin:wpforms-lite`, or `unknown`.
+		 * @param \Throwable $e         What the callback threw.
+		 */
+		do_action( 'jetpack_editor_assets_skipped_callback', $hook_name, $source, $e );
+	}
+
+	/**
+	 * Finds the file that defines a callback.
+	 *
+	 * @param callable $callback Callback.
+	 * @return string|null File path, or null for internal or unresolvable callbacks.
+	 */
+	private function get_callback_file( $callback ) {
+		try {
+			if ( is_string( $callback ) && str_contains( $callback, '::' ) ) {
+				list( $class, $method ) = explode( '::', $callback, 2 );
+				$reflection             = new ReflectionMethod( $class, $method );
+			} elseif ( is_array( $callback ) && 2 === count( $callback ) ) {
+				$reflection = new ReflectionMethod( $callback[0], $callback[1] );
+			} elseif ( is_string( $callback ) || $callback instanceof Closure ) {
+				$reflection = new ReflectionFunction( $callback );
+			} elseif ( is_object( $callback ) ) {
+				$reflection = new ReflectionMethod( $callback, '__invoke' );
+			} else {
+				return null;
+			}
+		} catch ( ReflectionException $e ) {
+			return null;
+		}
+
+		$file = $reflection->getFileName();
+		return $file ? $file : null;
+	}
+
+	/**
+	 * Names a callback for logging.
+	 *
+	 * @param callable $callback Callback.
+	 * @return string Callback name.
+	 */
+	private function get_callback_name( $callback ) {
+		if ( is_string( $callback ) ) {
+			return $callback;
+		}
+		if ( is_array( $callback ) && 2 === count( $callback ) ) {
+			$class = is_object( $callback[0] ) ? get_class( $callback[0] ) : (string) $callback[0];
+			return $class . '::' . $callback[1];
+		}
+		if ( $callback instanceof Closure ) {
+			return 'Closure';
+		}
+		return is_object( $callback ) ? get_class( $callback ) . '::__invoke' : 'unknown';
+	}
+
+	/**
+	 * Maps a file to the extension that owns it, such as `plugin:wpforms-lite` or `theme:twentytwentyfive`.
+	 *
+	 * @param string $file File path.
+	 * @return string Owner, or `unknown`.
+	 */
+	private function get_source_from_file( $file ) {
+		$file  = wp_normalize_path( (string) $file );
+		$roots = array(
+			'mu-plugin' => WPMU_PLUGIN_DIR,
+			'plugin'    => WP_PLUGIN_DIR,
+			'theme'     => get_theme_root(),
+			'core'      => ABSPATH,
+		);
+
+		foreach ( $roots as $type => $root ) {
+			$root = trailingslashit( wp_normalize_path( $root ) );
+			if ( '' !== $file && str_starts_with( $file, $root ) ) {
+				if ( 'core' === $type ) {
+					return 'core';
+				}
+				$slug = strtok( substr( $file, strlen( $root ) ), '/' );
+				return $type . ':' . preg_replace( '/\.php$/', '', (string) $slug );
+			}
+		}
+
+		return 'unknown';
 	}
 
 	/**
@@ -1090,6 +1372,22 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 				'styles'              => array(
 					'description' => esc_html__( 'Style link tags for the block editor.', 'jetpack' ),
 					'type'        => 'string',
+				),
+				'skipped_callbacks'   => array(
+					'description' => esc_html__( 'Hook callbacks skipped because they threw an error, so their assets are missing.', 'jetpack' ),
+					'type'        => 'array',
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'hook'   => array(
+								'type' => 'string',
+							),
+							'source' => array(
+								'description' => esc_html__( 'Owner of the callback, such as "plugin:wpforms-lite", or "unknown".', 'jetpack' ),
+								'type'        => 'string',
+							),
+						),
+					),
 				),
 			),
 		);

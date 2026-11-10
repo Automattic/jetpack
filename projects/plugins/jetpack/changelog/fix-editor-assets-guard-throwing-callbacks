@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Editor assets endpoint: Skip plugin hook callbacks that throw errors instead of failing the whole request.

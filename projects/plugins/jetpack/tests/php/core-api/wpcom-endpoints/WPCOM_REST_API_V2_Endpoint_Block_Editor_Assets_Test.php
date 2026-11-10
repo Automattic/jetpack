@@ -36,6 +36,179 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
+	 * Declares the endpoint's skipped-callback log line, which PHPUnit 12 captures; older versions lack the method.
+	 */
+	private function expect_skipped_callback_log() {
+		if ( method_exists( $this, 'expectErrorLog' ) ) {
+			$this->expectErrorLog();
+		}
+	}
+
+	/**
+	 * Hooks the endpoint fires on behalf of plugins.
+	 *
+	 * @return array[]
+	 */
+	public static function guarded_hooks_data_provider() {
+		return array(
+			'wp_loaded'                   => array( 'wp_loaded' ),
+			'enqueue_block_assets'        => array( 'enqueue_block_assets' ),
+			'enqueue_block_editor_assets' => array( 'enqueue_block_editor_assets' ),
+		);
+	}
+
+	/**
+	 * Test that a throwing callback is skipped, its partial assets dropped, and the rest of the hook still runs.
+	 *
+	 * @param string $hook_name Hook to add the callbacks to.
+	 * @dataProvider guarded_hooks_data_provider
+	 */
+	#[DataProvider( 'guarded_hooks_data_provider' )]
+	public function test_throwing_callback_is_skipped_and_later_callbacks_run( $hook_name ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$this->expect_skipped_callback_log();
+
+		$reported = array();
+		add_action(
+			'jetpack_editor_assets_skipped_callback',
+			function ( $hook, $source, $e ) use ( &$reported ) {
+				$reported[] = array( $hook, $e->getMessage() );
+			},
+			10,
+			3
+		);
+
+		$ran = array();
+		add_action(
+			$hook_name,
+			function () {
+				wp_enqueue_script( 'jetpack-partial-script', 'http://example.org/partial.js', array(), '1.0', true );
+				throw new Error( 'Call to undefined function wpforms_get_admin_helper()' );
+			}
+		);
+		add_action(
+			$hook_name,
+			function () use ( &$ran ) {
+				$ran[] = 'same-priority';
+				wp_enqueue_script( 'jetpack-after-script', 'http://example.org/after.js', array(), '1.0', true );
+			}
+		);
+		add_action(
+			$hook_name,
+			function () use ( &$ran ) {
+				$ran[] = 'later-priority';
+			},
+			20
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' ) );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array( 'same-priority', 'later-priority' ), $ran );
+		$this->assertStringContainsString( 'jetpack-after-script', $data['scripts'] );
+		$this->assertStringNotContainsString( 'jetpack-partial-script', $data['scripts'] );
+		$this->assertSame( array( $hook_name ), array_column( $data['skipped_callbacks'], 'hook' ) );
+		$this->assertSame( array( 'hook', 'source' ), array_keys( $data['skipped_callbacks'][0] ), 'Error details must stay out of the response' );
+		$this->assertSame( array( array( $hook_name, 'Call to undefined function wpforms_get_admin_helper()' ) ), $reported );
+	}
+
+	/**
+	 * Test that the original callbacks are back on the hook afterwards, and ones removed mid-run stay removed.
+	 *
+	 * @param string $hook_name Hook to add the callbacks to.
+	 * @dataProvider guarded_hooks_data_provider
+	 */
+	#[DataProvider( 'guarded_hooks_data_provider' )]
+	public function test_original_callbacks_are_restored( $hook_name ) {
+		global $wp_filter;
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$this->expect_skipped_callback_log();
+
+		$kept         = function () {
+			throw new Error( 'Broken plugin' );
+		};
+		$self_removed = function () use ( $hook_name, &$self_removed ) {
+			remove_action( $hook_name, $self_removed, 15 );
+		};
+		add_action( $hook_name, $kept, 15 );
+		add_action( $hook_name, $self_removed, 15 );
+
+		$this->server->dispatch( new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' ) );
+
+		$entry = $wp_filter[ $hook_name ]->callbacks[15][ _wp_filter_build_unique_id( $hook_name, $kept, 15 ) ];
+		$this->assertSame( $kept, $entry['function'] );
+		$this->assertFalse( has_action( $hook_name, $self_removed ) );
+	}
+
+	/**
+	 * Test that output printed by hook callbacks, and buffers a throwing callback left open, don't reach the response.
+	 */
+	public function test_hook_output_does_not_leak() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$this->expect_skipped_callback_log();
+
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				echo '<p>Notice from a working plugin</p>';
+			}
+		);
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				ob_start();
+				echo '<p>Half-rendered admin notice';
+				throw new Error( 'Broken plugin' );
+			}
+		);
+
+		$ob_level = ob_get_level();
+		ob_start();
+		$response = $this->server->dispatch( new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' ) );
+		$printed  = ob_get_clean();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( '', $printed );
+		$this->assertSame( $ob_level, ob_get_level() );
+	}
+
+	/**
+	 * Test that a callback throwing from inside a nested hook doesn't leave that hook on the current filter stack.
+	 */
+	public function test_filter_stack_is_repaired_after_nested_hook_throws() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$this->expect_skipped_callback_log();
+
+		add_action(
+			'jetpack_test_nested_hook',
+			function () {
+				throw new Error( 'Broken plugin' );
+			}
+		);
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				do_action( 'jetpack_test_nested_hook' );
+			}
+		);
+
+		$filter_in_later_callback = null;
+		add_action(
+			'enqueue_block_editor_assets',
+			function () use ( &$filter_in_later_callback ) {
+				$filter_in_later_callback = current_filter();
+			},
+			20
+		);
+
+		$this->server->dispatch( new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' ) );
+
+		$this->assertSame( 'enqueue_block_editor_assets', $filter_in_later_callback );
+		$this->assertFalse( doing_action( 'jetpack_test_nested_hook' ) );
+	}
+
+	/**
 	 * Mock the asset path to prevent actual file loading
 	 *
 	 * @param string $path The original asset path.
