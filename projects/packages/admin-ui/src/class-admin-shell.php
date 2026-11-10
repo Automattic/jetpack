@@ -230,7 +230,7 @@ class Admin_Shell {
 	 */
 	private static function enqueue_client() {
 		$deps = array();
-		foreach ( array( 'adapter', 'app', 'chrome', 'guest-assets' ) as $name ) {
+		foreach ( array( 'adapter', 'app', 'chrome', 'debug', 'guest-assets', 'header' ) as $name ) {
 			$deps[] = self::CLIENT_MODULE . '/' . $name;
 			wp_register_script_module( self::CLIENT_MODULE . '/' . $name, plugins_url( "admin-shell/$name.js", __FILE__ ), array(), self::client_version( $name ) );
 		}

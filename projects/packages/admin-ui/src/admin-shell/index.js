@@ -9,7 +9,9 @@
 import { bootFor, isolateRouters, notifyRouters } from '@automattic/jetpack-admin-shell/adapter';
 import { createApp, whenRendered } from '@automattic/jetpack-admin-shell/app';
 import { pageOf, updateChrome } from '@automattic/jetpack-admin-shell/chrome';
+import { debugEnabled, log, stopwatch } from '@automattic/jetpack-admin-shell/debug';
 import { applyGuestAssets } from '@automattic/jetpack-admin-shell/guest-assets';
+import { rememberHeader, showHeader } from '@automattic/jetpack-admin-shell/header';
 /* eslint-enable import/no-unresolved */
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
@@ -23,8 +25,10 @@ const readConfig = () => {
 	}
 };
 
-const emit = ( type, detail ) =>
+const emit = ( type, detail ) => {
+	log( 'shell', `event jetpack-admin-shell:${ type }`, detail );
 	window.dispatchEvent( new CustomEvent( `jetpack-admin-shell:${ type }`, { detail } ) );
+};
 
 const start = ( { host, members, guestAssetsUrl } ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
@@ -32,6 +36,11 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 		return;
 	}
 
+	log(
+		'shell',
+		`started on ${ host }; members: ${ Object.keys( members ).join( ', ' ) }`,
+		members
+	);
 	let visible = host;
 	const apps = new Map();
 	// Where each page was left, so its menu link reopens it there.
@@ -58,28 +67,47 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 	const ranInit = new Set( members[ host ].initModules );
 	const warm = {};
 	// Everything short of mounting: a mounted router would start reading the visible page's URL.
-	const prewarm = slug =>
-		( warm[ slug ] ??= ( async () => {
-			await applyGuestAssets( guestAssetsUrl, slug );
+	const prewarm = ( slug, reason ) => {
+		if ( warm[ slug ] ) {
+			return warm[ slug ];
+		}
+		const total = stopwatch();
+		log( 'prewarm', `${ slug }: start (${ reason })` );
+		warm[ slug ] = ( async () => {
+			let step = stopwatch();
+			const added = await applyGuestAssets( guestAssetsUrl, slug );
+			log( 'prewarm', `${ slug }: page data fetched and applied in ${ step() }`, added );
 			for ( const id of members[ slug ].initModules ) {
 				if ( ! ranInit.has( id ) ) {
 					ranInit.add( id );
+					step = stopwatch();
 					const initModule = await import( id );
 					await initModule.init?.();
+					log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
 				}
 			}
 			const boot = await bootFor( slug );
 			const modules = members[ slug ].routes
 				.flatMap( route => [ route.route_module, route.content_module ] )
 				.filter( Boolean );
+			step = stopwatch();
 			await Promise.all( modules.map( id => import( id ) ) );
+			log(
+				'prewarm',
+				`${ slug }: imported ${ modules.length } route modules in ${ step() }`,
+				modules
+			);
+			log( 'prewarm', `${ slug }: ready to boot, ${ total() } in all` );
 			return boot;
 		} )().catch( error => {
+			log( 'prewarm', `${ slug }: failed after ${ total() }`, error );
 			delete warm[ slug ];
 			throw error;
-		} ) );
+		} );
+		return warm[ slug ];
+	};
 
-	const bootGuest = async slug => {
+	const bootGuest = async ( slug, previous ) => {
 		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
 		const el = document.createElement( 'section' );
 		el.id = members[ slug ].mountId;
@@ -88,35 +116,49 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 		const app = createApp( slug, el );
 		apps.set( slug, app );
 		app.place( true );
+		const removeHeader = showHeader( slug, el, {
+			from: apps.get( previous )?.el,
+			title: members[ slug ].title,
+		} );
 
 		try {
-			const boot = await prewarm( slug );
+			const waited = stopwatch();
+			const boot = await prewarm( slug, 'switch' );
+			log( 'switch', `${ slug }: waited ${ waited() } for prewarm` );
 			if ( visible !== slug ) {
 				// Left before it could boot; it boots on the next visit, at that visit's URL.
+				log( 'switch', `${ slug }: left before it booted` );
+				removeHeader();
 				apps.delete( slug );
 				el.remove();
 				return;
 			}
 			gate.mount( slug );
+			const render = stopwatch();
+			log( 'switch', `${ slug }: initSinglePage into #${ el.id }` );
 			boot.initSinglePage( { mountId: el.id, routes: members[ slug ].routes } );
 			await whenRendered( el, RENDER_TIMEOUT );
+			log( 'switch', `${ slug }: first route rendered ${ render() } after boot` );
 		} catch ( error ) {
 			apps.delete( slug );
 			el.remove();
 			throw error;
 		} finally {
+			removeHeader();
 			gate.mounted( slug );
 		}
 
 		app.to( 'ready' );
 		app.place( visible === slug );
+		rememberHeader( slug, el );
 		return true;
 	};
 
-	const show = async ( url, { push } ) => {
+	const show = async ( url, { push, via } ) => {
 		const slug = pageOf( url );
 		const previous = visible;
 		if ( slug === previous ) {
+			log( 'switch', `${ via }: already on ${ slug }, only the URL changes` );
 			if ( push ) {
 				gate.pushUrl( url );
 			}
@@ -124,6 +166,11 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 			return;
 		}
 
+		const elapsed = stopwatch();
+		log( 'switch', `${ via }: ${ previous } → ${ slug }`, url );
+		if ( apps.get( previous )?.state === 'visible' ) {
+			rememberHeader( previous, apps.get( previous ).el );
+		}
 		// Hide the outgoing app before the URL changes, so its router never sees the new URL.
 		visible = slug;
 		apps.get( previous )?.place( false );
@@ -138,15 +185,22 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 			const app = apps.get( slug );
 			let firstShow = false;
 			if ( app ) {
+				log( 'switch', `${ slug } is already booted, showing it` );
 				app.place( true );
 				// On Back/Forward the browser's own popstate reaches the app; a second one would re-navigate.
 				if ( push ) {
 					notifyRouters();
 				}
 			} else {
-				firstShow = await bootGuest( slug );
+				log( 'switch', `${ slug } has not booted yet` );
+				firstShow = await bootGuest( slug, previous );
 			}
 			if ( visible === slug && apps.get( slug )?.state === 'visible' ) {
+				log(
+					'switch',
+					`${ slug } on screen ${ elapsed() } after the switch started`,
+					location.search
+				);
 				emit( 'page-shown', {
 					page: slug,
 					previous,
@@ -159,28 +213,30 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 			console.error( 'Admin shell: falling back to a page load.', error );
 			// The user may have moved on to another page while this one failed to boot.
 			if ( visible === slug ) {
+				log( 'switch', `${ slug }: falling back to a page load` );
 				location.assign( url );
 			}
 		}
 	};
 
-	const navigate = href => {
+	const navigate = ( href, via ) => {
 		const url = new URL( href, location.href );
 		const slug = url.searchParams.get( 'page' );
 		const bare = [ ...url.searchParams.keys() ].length === 1 && ! url.hash;
 		if ( bare && slug !== visible && lastUrl[ slug ] ) {
-			return show( lastUrl[ slug ], { push: true } );
+			log( 'switch', `bare menu link: reopening ${ slug } where it was left` );
+			return show( lastUrl[ slug ], { push: true, via } );
 		}
 		if ( ! url.searchParams.has( 'p' ) && members[ slug ].defaultPath ) {
 			url.searchParams.set( 'p', members[ slug ].defaultPath );
 		}
-		return show( url.href, { push: true } );
+		return show( url.href, { push: true, via } );
 	};
 
 	// Not gated: the shell itself must hear Back/Forward across pages.
 	gate.listen( 'popstate', event => {
 		if ( event.isTrusted && isMemberUrl( location.href ) && pageOf( location.href ) !== visible ) {
-			show( location.href, { push: false } );
+			show( location.href, { push: false, via: 'back/forward' } );
 		}
 	} );
 
@@ -207,7 +263,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 				return;
 			}
 			event.preventDefault();
-			navigate( a.href );
+			navigate( a.href, a.closest( '#adminmenu' ) ? 'menu click' : 'link click' );
 		},
 		true
 	);
@@ -215,18 +271,23 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 	document.getElementById( 'adminmenu' )?.addEventListener( 'pointerover', event => {
 		const a = event.target.closest?.( 'a[href]' );
 		if ( a && isMemberUrl( a.href ) && ! apps.has( pageOf( a.href ) ) ) {
-			prewarm( pageOf( a.href ) ).catch( () => {} );
+			prewarm( pageOf( a.href ), 'menu hover' ).catch( () => {} );
 		}
 	} );
 
 	// The host boots on DOMContentLoaded, after this module runs, so its routers are tagged too.
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
+	const removeHostHeader = showHeader( host, hostEl );
 	gate.mount( host );
+	log( 'host', `${ host } boots from the page load` );
 	whenRendered( hostEl, 30000 )
 		.then( () => {
+			log( 'host', `${ host } rendered its first route` );
+			removeHostHeader();
 			hostApp.to( 'ready' );
 			hostApp.place( visible === host );
+			rememberHeader( host, hostEl );
 			if ( visible === host ) {
 				emit( 'page-shown', { page: host, previous: null, firstShow: true, url: location.href } );
 			}
@@ -235,17 +296,33 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 			idle( async () => {
 				for ( const slug of Object.keys( members ) ) {
 					if ( ! apps.has( slug ) ) {
-						await prewarm( slug ).catch( () => {} );
+						await prewarm( slug, 'idle' ).catch( () => {} );
 						await new Promise( idle );
 					}
 				}
 			} );
 		} )
-		.catch( () => {} )
+		.catch( error => {
+			removeHostHeader();
+			log( 'host', `${ host } did not render`, error );
+		} )
 		.finally( () => gate.mounted( host ) );
+
+	if ( debugEnabled ) {
+		window.jetpackAdminShell = {
+			apps,
+			members,
+			get visible() {
+				return visible;
+			},
+		};
+		log( 'shell', 'inspect it with window.jetpackAdminShell' );
+	}
 };
 
 const config = readConfig();
 if ( config?.members?.[ config.host ] ) {
 	start( config );
+} else {
+	log( 'shell', 'no config on this page, staying off', config );
 }

@@ -48,7 +48,7 @@ const addStylesheet = node =>
  *
  * @param {string} endpoint - Guest endpoint URL, nonce included.
  * @param {string} slug     - Guest page slug.
- * @return {Promise<void>} Resolves once applied.
+ * @return {Promise<object>} How many scripts and styles were added, and how many the page already had.
  */
 export async function applyGuestAssets( endpoint, slug ) {
 	const url = new URL( endpoint, location.href );
@@ -66,23 +66,28 @@ export async function applyGuestAssets( endpoint, slug ) {
 		'link[rel="stylesheet"], style, script:not([type="importmap"]):not([type="module"])'
 	);
 	const stylesheets = [];
+	const added = { scripts: 0, styles: 0, skipped: 0 };
 	for ( const node of nodes ) {
 		const existing = node.id && document.getElementById( node.id );
 		if ( node.tagName === 'LINK' ) {
 			if ( ! existing ) {
 				stylesheets.push( addStylesheet( node ) );
 			}
+			added[ existing ? 'skipped' : 'styles' ]++;
 			continue;
 		}
 		if ( node.tagName === 'STYLE' ) {
 			if ( ! existing ) {
 				document.head.append( node.cloneNode( true ) );
 			}
+			added[ existing ? 'skipped' : 'styles' ]++;
 			continue;
 		}
 		if ( node.src ? existing : existing?.textContent === node.textContent ) {
+			added.skipped++;
 			continue;
 		}
+		added.scripts++;
 		if ( node.id === 'jetpack-script-data-js-before' && window.JetpackScriptData ) {
 			const host = window.JetpackScriptData;
 			await runScript( node );
@@ -94,4 +99,5 @@ export async function applyGuestAssets( endpoint, slug ) {
 		await runScript( node );
 	}
 	await Promise.all( stylesheets );
+	return added;
 }

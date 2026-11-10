@@ -2,6 +2,7 @@
  * Every workaround for @wordpress/boot and TanStack Router internals lives here, so when
  * Gutenberg ships APIs for several apps in one document only this file changes (JETPACK-3414).
  */
+import { log } from '@automattic/jetpack-admin-shell/debug'; // eslint-disable-line import/no-unresolved -- Resolved by the import map.
 
 /**
  * Keep each app's router deaf to URLs that belong to another app.
@@ -23,10 +24,16 @@ export function isolateRouters( getVisible, onWrite ) {
 		if ( mounting && listener && ( type === 'popstate' || type === 'hashchange' ) ) {
 			const owner = mounting;
 			if ( ! gated.has( listener ) ) {
+				log(
+					'router',
+					`${ owner }'s router listens for ${ type }; it only hears it while ${ owner } is on screen`
+				);
 				gated.set( listener, event => {
 					if ( owner !== getVisible() ) {
+						log( 'router', `${ type } kept from ${ owner } (hidden)` );
 						return;
 					}
+					log( 'router', `${ type } delivered to ${ owner }`, location.search );
 					return typeof listener === 'function'
 						? listener.call( window, event )
 						: listener.handleEvent( event );
@@ -62,6 +69,7 @@ export function isolateRouters( getVisible, onWrite ) {
 			get: () => callBelow( wrappers.length ),
 			set: fn => {
 				wrappers.push( { fn, owner: mounting } );
+				log( 'router', `${ mounting ?? 'unknown code' } wrapped history.${ method }` );
 			},
 		} );
 	}
@@ -69,12 +77,14 @@ export function isolateRouters( getVisible, onWrite ) {
 	return {
 		mount: slug => {
 			mounting = slug;
+			log( 'router', `tagging routers that subscribe now as ${ slug }'s` );
 		},
 		// Routers subscribe in effects shortly after the first render, so keep the window open a little.
 		mounted: slug =>
 			setTimeout( () => {
 				if ( mounting === slug ) {
 					mounting = null;
+					log( 'router', `stopped tagging for ${ slug }` );
 				}
 			}, 1000 ),
 		listen,
@@ -84,6 +94,7 @@ export function isolateRouters( getVisible, onWrite ) {
 			const key = Math.random().toString( 36 ).slice( 2 );
 			const index = ( history.state?.__TSR_index ?? 0 ) + 1;
 			native.pushState( { __TSR_index: index, key, __TSR_key: key }, '', url );
+			log( 'router', 'URL pushed by the shell', new URL( url, location.href ).search );
 			onWrite();
 		},
 	};
@@ -93,6 +104,7 @@ export function isolateRouters( getVisible, onWrite ) {
  * Tell the visible app's router to read the URL again.
  */
 export function notifyRouters() {
+	log( 'router', 'synthetic popstate so the visible router reads the URL' );
 	window.dispatchEvent( new PopStateEvent( 'popstate', { state: history.state } ) );
 }
 
@@ -124,6 +136,7 @@ export async function bootFor( slug ) {
 		return response.text();
 	} );
 	const source = await bootSource;
+	log( 'prewarm', `${ slug }: own copy of @wordpress/boot, store "wordpress/boot--${ slug }"` );
 	if ( ! source.includes( '"wordpress/boot"' ) ) {
 		throw new Error( '@wordpress/boot no longer names its store "wordpress/boot"' );
 	}
