@@ -920,7 +920,7 @@ describe( 'useReportDateFilters', () => {
 		expect( mockSearch.to ).toBe( '2026-09-14T15:30:00.000+00:00' );
 	} );
 
-	// The cue is let go once the applied range differs from the one the card raised.
+	// The cue fires before the range lands, and is let go if the landed range differs from it.
 	it( 'keeps a raised period change once a card commits its range exactly', () => {
 		const wrapper = ( { children }: { children: ReactNode } ) => (
 			<PeriodChangeSignalProvider>{ children }</PeriodChangeSignalProvider>
@@ -942,8 +942,8 @@ describe( 'useReportDateFilters', () => {
 			to: new TZDate( '2026-09-14T15:30:00.000Z', 'UTC' ),
 		};
 
+		act( () => result.current.raise( 'post:1', currentMonth ) );
 		act( () => {
-			result.current.raise( 'post:1', currentMonth );
 			result.current.filters.onChange( currentMonth, 'custom', { exactRange: true } );
 			result.current.filters.onApply();
 		} );

@@ -245,8 +245,8 @@ mounted once per stage) naming the surface and the range, and commits the range 
 history entry. `useSettlePeriodChange()` fires the signal as soon as it names the host's surface
 and the host's control shows, so a change on the same surface fires at once and one for another
 section waits for that section. It hands out the `PeriodChange` (`id` and `range`) for 1.6
-seconds, or until the control hides, the surface moves on, or the applied range moves to another
-range than the one raised; a signal whose surface lands elsewhere, or older than 5 seconds, is
+seconds, or until the control hides, the surface moves on, or the reader moves the applied range
+away from the one raised; a signal whose surface lands elsewhere, or older than 5 seconds, is
 dropped unused, so a period the reader picked, a tab switch or Customize never replay it.
 
 The host passes the change's `id` to the date control (`DatePeriodDropdown` draws a fading fill)
