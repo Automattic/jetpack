@@ -27,6 +27,13 @@ class A8c_Mc_Stats {
 	public $use_transparent_pixel = true;
 
 	/**
+	 * Whether do_server_side_stat() waits for the response. Only do_server_side_stats() turns it off.
+	 *
+	 * @var bool
+	 */
+	private $wait_for_response = true;
+
+	/**
 	 * Class Constructor
 	 *
 	 * @param boolean $use_transparent_pixel Use the transparent pixel instead of the smiley.
@@ -122,8 +129,15 @@ class A8c_Mc_Stats {
 	 */
 	public function do_server_side_stats() {
 		$urls = $this->get_stats_urls();
-		foreach ( $urls as $url ) {
-			$this->do_server_side_stat_without_waiting( $url );
+
+		// Routed through do_server_side_stat() so subclass overrides of it still run.
+		$this->wait_for_response = false;
+		try {
+			foreach ( $urls as $url ) {
+				$this->do_server_side_stat( $url );
+			}
+		} finally {
+			$this->wait_for_response = true;
 		}
 		$this->stats = array();
 	}
@@ -136,7 +150,7 @@ class A8c_Mc_Stats {
 	 * @return bool If it worked.
 	 */
 	public function do_server_side_stat( $url ) {
-		return $this->request_stat( $url, true );
+		return $this->request_stat( $url, $this->wait_for_response );
 	}
 
 	/**

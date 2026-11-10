@@ -81,7 +81,7 @@ class StatsTest extends TestCase {
 	}
 
 	/**
-	 * Test that do_server_side_stats sends every group without waiting, then clears the stats.
+	 * Test that do_server_side_stats sends every group without waiting, through do_server_side_stat overrides, then clears the stats.
 	 */
 	public function test_do_server_side_stats_does_not_block() {
 		$stats = new class() extends A8c_Mc_Stats {
@@ -97,23 +97,25 @@ class StatsTest extends TestCase {
 			 * @param string $url The URL.
 			 */
 			public function do_server_side_stat( $url ) {
-				$this->calls[] = array( $url, true );
-				return true;
-			}
-
-			public function do_server_side_stat_without_waiting( $url ) {
-				$this->calls[] = array( $url, false );
-				return true;
+				$this->calls[] = $url;
+				return parent::do_server_side_stat( $url );
 			}
 		};
 		$stats->add( 'group', 'test' );
 
-		$stats->do_server_side_stats();
+		$filter = function ( $pre, $args, $url ) {
+			$this->requests[] = array( $url, $args );
+			return array( 'response' => array( 'code' => false ) );
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+		try {
+			$stats->do_server_side_stats();
+		} finally {
+			remove_filter( 'pre_http_request', $filter, 10 );
+		}
 
-		$this->assertSame(
-			array( array( 'https://example.com/a', false ), array( 'https://example.com/b', false ) ),
-			$stats->calls
-		);
+		$this->assertSame( array( 'https://example.com/a', 'https://example.com/b' ), $stats->calls );
+		$this->assertSame( array( false, false ), array_column( array_column( $this->requests, 1 ), 'blocking' ) );
 		$this->assertEmpty( $stats->get_current_stats() );
 	}
 
