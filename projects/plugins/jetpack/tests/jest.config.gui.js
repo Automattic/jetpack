@@ -1,4 +1,3 @@
-const { transformIgnorePattern } = require( 'jetpack-js-tools/jest/transform-ignore.js' );
 const baseConfig = require( './jest.config.base.js' );
 
 module.exports = {
@@ -24,10 +23,6 @@ module.exports = {
 	],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
 	coverageDirectory: baseConfig.coverageDirectory + '/gui',
-	// This is necessary to allow css from uplot, @wordpress/admin-ui, and @gravatar-com (the
-	// latter for the lifted Gravatar component's hovercard styles) to be imported, and
-	// @wordpress/theme's untranspiled ESM to be transformed (mirroring the base config —
-	// this override otherwise shadows the base pattern's exception).
 	collectCoverageFrom: [
 		'<rootDir>/_inc/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/3rd-party/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
