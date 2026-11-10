@@ -37,7 +37,6 @@ use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Podcast\Podcast;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Scan_Page\Jetpack_Scan as Scan_Page_Init;
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -1209,7 +1208,6 @@ class Jetpack {
 			add_action( 'rest_api_init', array( My_Jetpack_Initializer::class, 'init' ), 0 );
 		}
 
-		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
 
 		if ( ( new Modules() )->is_active( 'podcast' ) ) {

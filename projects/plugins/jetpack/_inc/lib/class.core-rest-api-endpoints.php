@@ -1962,6 +1962,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'protect',
 			),
+			// Not a module option: the free check runs without the Brute Force Protection module.
+			'jetpack_protect_vulnerability_checks'      => array(
+				'description'       => esc_html__( 'Check the site every day for known vulnerabilities in WordPress, plugins and themes.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
 
 			// Sharing.
 			'sharing_services'                          => array(

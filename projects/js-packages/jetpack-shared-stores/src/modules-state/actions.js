@@ -8,6 +8,7 @@ import { store } from '.';
 
 export const SET_JETPACK_MODULES = 'SET_JETPACK_MODULES';
 export const SET_MODULE_UPDATING = 'SET_MODULE_UPDATING';
+export const SEED_JETPACK_MODULES = 'SEED_JETPACK_MODULES';
 
 /**
  * Yield actions to update module status
@@ -91,4 +92,14 @@ export function setJetpackModules( options ) {
 	return { type: SET_JETPACK_MODULES, options };
 }
 
-export default { updateJetpackModuleStatus, setJetpackModules, fetchModules };
+/**
+ * Fill in module data from the page's initial state, unless the store already has some.
+ *
+ * @param {object} data - Jetpack modules, keyed by slug.
+ * @return {object} - an action object.
+ */
+export function seedJetpackModules( data ) {
+	return { type: SEED_JETPACK_MODULES, data };
+}
+
+export default { updateJetpackModuleStatus, setJetpackModules, seedJetpackModules, fetchModules };

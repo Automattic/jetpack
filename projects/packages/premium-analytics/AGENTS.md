@@ -388,6 +388,12 @@ export const Default: Story = {
 };
 ```
 
+That canvas follows the **Widget sizes** control, which the Storybook toolbar shows on these
+close-up stories only: the usual card, a matrix of six boxes, or a card to resize, each
+captioned with the box the widget gets. Use it to see how a widget adapts to the size it is
+handed before writing a story for one size. A story that mounts the real dashboard instead
+carries `tags: [ 'widget-dashboard' ]`, which hides the control there.
+
 **2. `WidgetDashboardWithWidget`**:
 
 ```tsx
@@ -404,6 +410,7 @@ function MyWidgetDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControl
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <MyWidgetDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
