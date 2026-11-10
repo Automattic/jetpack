@@ -6,6 +6,7 @@ const oldCwd = process.cwd();
 beforeAll( () =>
 	process.chdir( fileURLToPath( new URL( '../../data/monorepo-dev-edges', import.meta.url ) ) )
 );
+afterEach( () => jest.restoreAllMocks() );
 afterAll( () => process.chdir( oldCwd ) );
 
 // packages/a require-devs packages/x, packages/b requires packages/a.
@@ -23,6 +24,5 @@ describe( 'dependencies list --add-dependents', () => {
 			extra,
 		} );
 		expect( log.mock.calls[ 0 ][ 0 ].split( '\n' ).sort() ).toEqual( expected );
-		log.mockRestore();
 	} );
 } );
