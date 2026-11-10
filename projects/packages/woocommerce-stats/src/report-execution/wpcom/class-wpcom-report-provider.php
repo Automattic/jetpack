@@ -13,7 +13,7 @@ use WP_Error;
 /**
  * The `wpcom` provider: every WordPress.com handler needs the Jetpack connection.
  *
- * @since $$next-version$$
+ * @since 0.3.3
  */
 class Wpcom_Report_Provider implements Report_Provider {
 

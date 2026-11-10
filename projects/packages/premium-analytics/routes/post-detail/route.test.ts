@@ -59,6 +59,7 @@ describe( 'post detail route report origin', () => {
 		).rejects.toMatchObject( {
 			to: '/post/$postId',
 			replace: true,
+			viewTransition: true,
 			search: {
 				post_id: '42',
 				ref: 'comments',
@@ -127,6 +128,7 @@ describe( 'post detail route report origin', () => {
 		} );
 
 		await expect( result ).rejects.toMatchObject( {
+			viewTransition: false,
 			search: {
 				from: '2026-06-01',
 				to: '2026-06-16',

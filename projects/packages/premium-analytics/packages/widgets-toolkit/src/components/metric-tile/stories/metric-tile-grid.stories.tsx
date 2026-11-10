@@ -16,10 +16,8 @@ const TILES = [
 	{ key: 'comments', icon: comment, label: 'Comments', value: 42 },
 ];
 
-/* Frames a story as a dashboard widget body, inset by the dashboard's
- * `--wp-ui-card-padding` override. Outside a dashboard grid the layout picker
- * falls back to `WIDE_MIN_INLINE_SIZE`, so the canvas width stands in for the
- * column span. */
+/* Frames a story as a widget body of a given size, inset by the dashboard's
+ * `--wp-ui-card-padding` override. The grid lays itself out from that size. */
 const makeCanvas = ( width: string, height: string ): Decorator =>
 	function CanvasDecorator( Story ) {
 		return (
@@ -50,11 +48,11 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Metric tiles laid out from the widget size, as in the design prototype. A ' +
-					'one-column widget gets a vertical list (icon and label on the left, value on ' +
+					'Metric tiles laid out from the size of their own box, wherever the widget is ' +
+					'placed. A narrow box gets a vertical list (icon and label on the left, value on ' +
 					'the right): stretched to fill when each row has room, compact and scrolling ' +
-					'when it does not. A wider widget gets a single row of centered tiles, or a ' +
-					'two-column grid once the body is tall enough for every tile row, the last tile ' +
+					'when it does not. A wider box gets a single row of centered tiles, or a ' +
+					'two-column grid once it is tall enough for every tile row, the last tile ' +
 					'taking the whole row when the count is odd.',
 			},
 		},
@@ -74,7 +72,7 @@ export const Default: Story = {
 };
 
 /**
- * A one-column widget at height 2: the rows stretch to share the body.
+ * Narrow and tall: the rows stretch to share the body.
  */
 export const Stacked: Story = {
 	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
@@ -82,8 +80,7 @@ export const Stacked: Story = {
 };
 
 /**
- * A one-column widget at height 1: each row keeps its own height and the list
- * scrolls.
+ * Narrow and short: each row keeps its own height and the list scrolls.
  */
 export const Compact: Story = {
 	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
@@ -91,7 +88,7 @@ export const Compact: Story = {
 };
 
 /**
- * A wide widget at height 1: one row of centered tiles.
+ * Wide and short: one row of centered tiles.
  */
 export const Row: Story = {
 	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
@@ -175,8 +172,7 @@ export const Skeleton: SkeletonStory = {
 };
 
 /**
- * The stand-ins for a one-column widget at height 2 stretch like the loaded
- * rows do.
+ * Narrow and tall: the stand-ins stretch like the loaded rows do.
  */
 export const SkeletonStacked: SkeletonStory = {
 	render: args => <MetricTileGridSkeleton { ...args } />,
@@ -185,8 +181,8 @@ export const SkeletonStacked: SkeletonStory = {
 };
 
 /**
- * A one-column widget at height 1: the stand-ins keep their own height, as the
- * compact list does.
+ * Narrow and short: the stand-ins keep their own height, as the compact list
+ * does.
  */
 export const SkeletonCompact: SkeletonStory = {
 	render: args => <MetricTileGridSkeleton { ...args } />,
@@ -195,7 +191,7 @@ export const SkeletonCompact: SkeletonStory = {
 };
 
 /**
- * A wide, height-1 widget: the stand-ins sit on one row.
+ * Wide and short: the stand-ins sit on one row.
  */
 export const SkeletonRow: SkeletonStory = {
 	render: args => <MetricTileGridSkeleton { ...args } />,

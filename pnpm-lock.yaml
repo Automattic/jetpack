@@ -3452,9 +3452,21 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
+      '@automattic/jetpack-connection':
+        specifier: workspace:*
+        version: link:../../js-packages/connection
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@jetpack-monetize/init':
         specifier: link:packages/init
         version: link:packages/init
+      '@tanstack/react-query':
+        specifier: 5.102.8
+        version: 5.102.8(react@19.3.0)
+      '@wordpress/api-fetch':
+        specifier: 8.1.0
+        version: 8.1.0
       '@wordpress/element':
         specifier: 10.1.0
         version: 10.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -3467,6 +3479,9 @@ importers:
       '@wordpress/ui':
         specifier: 0.26.0
         version: 0.26.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/url':
+        specifier: 5.1.0
+        version: 5.1.0
       react:
         specifier: 19.3.0
         version: 19.3.0
