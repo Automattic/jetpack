@@ -11,6 +11,8 @@ import { useSearch } from '@wordpress/route';
 import { usePostSummary } from './use-post-summary';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	getApiErrorCode: jest.requireActual( '../../../../packages/data/src/utils/api-error' )
+		.getApiErrorCode,
 	usePostThumbnail: jest.fn(),
 	useSiteHomeUrl: jest.fn(),
 	useStatsPost: jest.fn(),
@@ -108,18 +110,20 @@ describe( 'usePostSummary', () => {
 		} );
 		mockUsePostThumbnail.mockReturnValue( 'https://example.com/thumb.jpg' );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current ).toEqual( {
 			title: 'Hello world',
 			type: 'post',
 			// The GMT date wins over the local one when both are present.
 			publishedDate: '2026-06-22 10:00:00',
+			allTimeStart: '2026-06-22 10:00:00',
 			imageUrl: 'https://example.com/thumb.jpg',
 			url: 'https://example.com/hello-world/',
 			isLoading: false,
 			isError: false,
 			error: null,
+			isNotFound: false,
 			refetch: expect.any( Function ),
 		} );
 		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( POST_ID, 'post' );
@@ -132,7 +136,7 @@ describe( 'usePostSummary', () => {
 		mockStatsPost( { post_title: 'Hello world', post_type: 'post' } );
 		mockEntities( { 'post:41': {} } );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.url ).toBeUndefined();
 		expect( result.current.imageUrl ).toBeUndefined();
@@ -143,7 +147,7 @@ describe( 'usePostSummary', () => {
 		mockEntities( {} );
 		mockUseSearch.mockReturnValue( { post_url: 'https://example.com/hidden-post/' } as never );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.url ).toBe( 'https://example.com/hidden-post/' );
 	} );
@@ -156,7 +160,7 @@ describe( 'usePostSummary', () => {
 		mockEntities( {} );
 		mockUseSearch.mockReturnValue( { post_url: postUrl } as never );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.url ).toBeUndefined();
 	} );
@@ -168,7 +172,7 @@ describe( 'usePostSummary', () => {
 		} );
 		mockUseSearch.mockReturnValue( { post_url: 'https://example.com/carried-fallback/' } as never );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.url ).toBe( 'https://example.com/canonical/' );
 	} );
@@ -177,7 +181,7 @@ describe( 'usePostSummary', () => {
 		mockStatsPost( undefined, true );
 		mockEntities( { 'post:41': { link: 'https://example.com/hello-world/' } } );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.url ).toBeUndefined();
 		expect( result.current.imageUrl ).toBeUndefined();
@@ -194,7 +198,7 @@ describe( 'usePostSummary', () => {
 		} as unknown as ReturnType< typeof useStatsPost > );
 		mockEntities( {} );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.isLoading ).toBe( true );
 	} );
@@ -210,13 +214,15 @@ describe( 'usePostSummary', () => {
 		} as unknown as ReturnType< typeof useStatsPost > );
 		mockEntities( {} );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current ).toMatchObject( { title: 'Hello', isError: false, error: null } );
 	} );
 
-	it( 'reports a failed load with no post as an error, with the request error', () => {
-		const error = { code: 'rest_forbidden', status: 403 };
+	it.each( [
+		[ 'a refused request', { code: 'rest_forbidden', status: 403 } ],
+		[ 'a 404 that does not name the post', { code: 'rest_no_route', status: 404 } ],
+	] )( 'reports %s with no post as an error, with the request error', ( _case, error ) => {
 		mockUseStatsPost.mockReturnValue( {
 			data: undefined,
 			isLoading: false,
@@ -227,17 +233,33 @@ describe( 'usePostSummary', () => {
 		} as unknown as ReturnType< typeof useStatsPost > );
 		mockEntities( {} );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.isError ).toBe( true );
 		expect( result.current.error ).toBe( error );
+	} );
+
+	it( 'reports a post WPCOM does not know as not found rather than as an error', () => {
+		mockUseStatsPost.mockReturnValue( {
+			data: undefined,
+			isLoading: false,
+			isPending: false,
+			isPaused: false,
+			isError: true,
+			error: { error: 'unknown_post', message: 'Unknown post', status: 404 },
+		} as unknown as ReturnType< typeof useStatsPost > );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
+
+		expect( result.current ).toMatchObject( { isNotFound: true, isError: false, error: null } );
 	} );
 
 	it( 'skips the entity lookups for an invalid post ID', () => {
 		mockStatsPost( { post_title: 'Homepage', post_type: 'post' } );
 		mockEntities( { 'post:0': { link: 'https://example.com/' } } );
 
-		const { result } = renderHook( () => usePostSummary( 0 ) );
+		const { result } = renderHook( () => usePostSummary( '0' ) );
 
 		expect( result.current.url ).toBeUndefined();
 		expect( result.current.imageUrl ).toBeUndefined();
@@ -249,7 +271,7 @@ describe( 'usePostSummary', () => {
 			'page:41': { link: 'https://example.com/a-page/' },
 		} );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		// Only the local date is present, so it stands in for the GMT one.
 		expect( result.current.publishedDate ).toBe( '2026-06-01 09:00:00' );
