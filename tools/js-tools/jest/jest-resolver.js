@@ -8,12 +8,13 @@ const badBrowserPackages = new Set( [
 
 /**
  * Load these packages as ESM: their CommonJS builds snapshot a circular
- * import as `undefined`. Remove once WordPress/gutenberg#86322 and #86323 ship.
+ * import as `undefined`. `transform-ignore.js` lets babel-jest transpile them.
+ * Remove once WordPress/gutenberg#86322 and #86323 ship.
  *
  * @see https://github.com/WordPress/gutenberg/pull/86322
  * @see https://github.com/WordPress/gutenberg/pull/86323
  */
-const ESM_PACKAGES = new Set( [ '@wordpress/components', '@wordpress/block-editor' ] );
+const forceEsmPackages = new Set( [ '@wordpress/components', '@wordpress/block-editor' ] );
 
 /**
  * Resolve a module, through its ESM entry for the packages listed above.
@@ -23,7 +24,7 @@ const ESM_PACKAGES = new Set( [ '@wordpress/components', '@wordpress/block-edito
  * @return {string} Resolved path.
  */
 module.exports = ( path, options ) => {
-	if ( ESM_PACKAGES.has( path ) ) {
+	if ( forceEsmPackages.has( path ) ) {
 		return options.defaultResolver( path, {
 			...options,
 			conditions: [ ...( options.conditions ?? [] ), 'import' ],
@@ -53,4 +54,4 @@ module.exports = ( path, options ) => {
 	return resolver( path, opts );
 };
 
-module.exports.ESM_PACKAGES = ESM_PACKAGES;
+module.exports.forceEsmPackages = forceEsmPackages;

@@ -11,7 +11,7 @@ const TRANSFORMED_NODE_MODULES = [
 	'marked/',
 	'uuid/',
 	'@wordpress/theme/',
-	// loaded as ESM through jest-resolver.js; remove with its ESM_PACKAGES
+	// loaded as ESM through jest-resolver.js; remove with its forceEsmPackages
 	'@wordpress/components/',
 	'@wordpress/block-editor/',
 	// stylesheets imported by components
