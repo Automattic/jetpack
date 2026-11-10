@@ -153,42 +153,23 @@ export function rememberHeader( slug, el ) {
 		try {
 			localStorage.setItem( storageKey( slug ), JSON.stringify( { html, css } ) );
 		} catch {
-			// Storage full or blocked: the next opening shows a borrowed header instead.
+			// Storage full or blocked: the next opening shows no stand-in.
 		}
 	} );
 }
 
 /**
- * Show a page's header in front of its app until the app renders.
+ * Show a page's saved header in front of its app until the app renders.
  *
- * Uses the page's saved header, or else the header on screen with the page's title in it.
- *
- * @param {string}      slug           - Page being opened.
- * @param {HTMLElement} el             - Its mount element; the stand-in goes right before it.
- * @param {object}      fallback       - Used when nothing was saved for this page.
- * @param {HTMLElement} fallback.from  - Mount element of the app on screen.
- * @param {string}      fallback.title - Title to put in that header.
+ * @param {string}      slug - Page being opened.
+ * @param {HTMLElement} el   - Its mount element; the stand-in goes right before it.
  * @return {Function} Removes the stand-in.
  */
-export function showHeader( slug, el, { from, title } = {} ) {
-	const saved = readSaved( slug );
-	const css = saved?.css;
-	let html = saved?.html;
-	let source = 'saved';
-	if ( ! html && from ) {
-		const frame = frameOf( from );
-		if ( frame ) {
-			frame.querySelector( 'h1' ).textContent = title;
-			// Actions and tabs belong to the other page.
-			frame
-				.querySelectorAll( 'button, a, input, select, [role="tablist"]' )
-				.forEach( node => node.remove() );
-			html = frame.outerHTML;
-			source = 'borrowed';
-		}
-	}
+export function showHeader( slug, el ) {
+	const { html, css } = readSaved( slug ) ?? {};
+	// No borrowing another page's header: its title and layout differ, so the real one would jump.
 	if ( ! html ) {
-		log( 'header', `no header to show for ${ slug }` );
+		log( 'header', `no saved header for ${ slug }` );
 		return () => {};
 	}
 
@@ -207,7 +188,7 @@ export function showHeader( slug, el, { from, title } = {} ) {
 	el.before( standIn );
 	// The empty mount can be styled as a blank page that would cover the stand-in.
 	el.style.visibility = 'hidden';
-	log( 'header', `showing ${ source } header for ${ slug }` );
+	log( 'header', `showing the saved header for ${ slug }` );
 
 	const remove = () => {
 		clearTimeout( timer );

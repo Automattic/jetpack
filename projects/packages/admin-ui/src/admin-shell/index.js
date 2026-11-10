@@ -61,8 +61,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	);
 	let visible = host;
 	const apps = new Map();
-	// Where each page was left, so its menu link reopens it there.
+	// Where each page was left, so its menu link reopens it there, and how far it was scrolled.
 	const lastUrl = { [ host ]: location.href };
+	const scrollOf = {};
 	const gate = isolateRouters(
 		() => visible,
 		() => {
@@ -133,7 +134,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		rememberHeader( app.slug, app.el );
 	};
 
-	const bootGuest = async ( slug, previous ) => {
+	const bootGuest = async slug => {
 		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
 		const el = document.createElement( 'section' );
 		el.id = members[ slug ].mountId;
@@ -145,10 +146,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			apps.delete( slug );
 			el.remove();
 		};
-		const removeStandIn = showHeader( slug, el, {
-			from: apps.get( previous )?.el,
-			title: members[ slug ].title,
-		} );
+		const removeStandIn = showHeader( slug, el );
 
 		try {
 			const waited = stopwatch();
@@ -193,6 +191,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		log( 'switch', `${ via }: ${ previous } → ${ slug }`, url );
 		if ( apps.get( previous )?.state === 'visible' ) {
 			rememberHeader( previous, apps.get( previous ).el );
+			scrollOf[ previous ] = window.scrollY;
 		}
 		// Hide the outgoing app before the URL changes, so its router never sees the new URL.
 		visible = slug;
@@ -206,20 +205,21 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			gate.pushUrl( url );
 		}
 		updateChrome( slug, members );
-		window.scrollTo( 0, 0 );
 
 		try {
 			const app = apps.get( slug );
 			if ( app ) {
 				log( 'switch', `${ slug } is already booted, showing it` );
 				app.place( true );
+				window.scrollTo( 0, scrollOf[ slug ] ?? 0 );
 				// On Back/Forward the browser's own popstate reaches the app; a second one would re-navigate.
 				if ( push ) {
 					notifyRouters();
 				}
 			} else {
 				log( 'switch', `${ slug } has not booted yet` );
-				await bootGuest( slug, previous );
+				window.scrollTo( 0, 0 );
+				await bootGuest( slug );
 			}
 			if ( visible === slug && apps.get( slug )?.state === 'visible' ) {
 				log(
@@ -240,8 +240,11 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			// The user may have moved on to another page while this one failed to boot.
 			if ( visible === slug ) {
 				log( 'switch', `${ slug }: falling back to a page load` );
-				// Replace: the shell has already pushed this URL.
-				location.replace( url );
+				// Replace: the shell has already pushed this URL. Only its query and hash come from the link.
+				const target = new URL( location.pathname, location.origin );
+				const { search, hash } = new URL( url, location.href );
+				Object.assign( target, { search, hash } );
+				location.replace( target.href );
 			}
 		}
 	};
@@ -263,6 +266,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	// Not gated: the shell itself must hear Back/Forward across pages.
 	gate.listen( 'popstate', event => {
 		if ( event.isTrusted && isMemberUrl( location.href ) && pageOf( location.href ) !== visible ) {
+			if ( gate.isMounting() ) {
+				location.reload();
+				return;
+			}
 			show( location.href, { push: false, via: 'back/forward' } );
 		}
 	} );
@@ -287,6 +294,11 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		// In-app links within the visible member belong to its router.
 		const inMenu = !! a.closest( '#adminmenu' );
 		if ( pageOf( a.href ) === visible && ! inMenu ) {
+			return;
+		}
+		// While an app mounts, routers set up now are tagged as its; a page load can't mix them up.
+		if ( gate.isMounting() ) {
+			log( 'switch', 'an app is still mounting: letting the link load the page' );
 			return;
 		}
 		event.preventDefault();

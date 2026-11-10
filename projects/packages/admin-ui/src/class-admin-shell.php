@@ -411,7 +411,7 @@ class Admin_Shell {
 		if ( is_int( $html ) ) {
 			wp_send_json_error( null, $html, JSON_UNESCAPED_SLASHES );
 		}
-		wp_send_json_success( array( 'html' => $html ), null, JSON_UNESCAPED_SLASHES );
+		wp_send_json_success( array( 'html' => $html ), 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**

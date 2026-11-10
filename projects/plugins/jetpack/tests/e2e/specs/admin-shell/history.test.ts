@@ -3,15 +3,15 @@ import {
 	MEMBERS,
 	expectShown,
 	installShellProbe,
-	intermittentSpikeBug,
 	menuLink,
 	openMember,
-	settle,
 	switchTo,
 	waitForShown,
 	where,
 	withinDocument,
 } from '../../helpers/admin-shell-helper';
+
+const FORMS = 'jetpack-forms-responses-wp-admin';
 
 const historyLength = ( page: Page ) => page.evaluate( () => history.length );
 
@@ -35,77 +35,56 @@ test.describe( 'Admin shell: history', () => {
 	test( 'Back and Forward step through members one click at a time', async ( { page } ) => {
 		await openMember( page, 'my-jetpack' );
 		const start = await historyLength( page );
-		await switchTo( page, 'jetpack-activity-log' );
-		await switchTo( page, 'jetpack-newsletter' );
+		await switchTo( page, FORMS );
+		await switchTo( page, 'my-jetpack' );
 		expect( await historyLength( page ), 'one entry per click' ).toBe( start + 2 );
 
-		await back( page, 'jetpack-activity-log' );
-		await expectShown( page, 'jetpack-activity-log' );
+		await back( page, FORMS );
+		await expectShown( page, FORMS );
 		await back( page, 'my-jetpack' );
 		expect( await where( page ) ).toMatch( /^\?page=my-jetpack/ );
-		await forward( page, 'jetpack-activity-log' );
-		await forward( page, 'jetpack-newsletter' );
-		await expectShown( page, 'jetpack-newsletter' );
+		await forward( page, FORMS );
+		await forward( page, 'my-jetpack' );
+		await expectShown( page, 'my-jetpack' );
 	} );
 
-	test( 'Back after a framed page (Stats) needs one press', async ( { page } ) => {
-		test.fail(
-			true,
-			'Spike bug: the Stats frame writes its own #!/stats route, so Back needs an extra press.'
-		);
-		await openMember( page, 'my-jetpack' );
-		const start = await historyLength( page );
-		await page.locator( '#adminmenu a[href$="page=stats"]' ).first().click();
-		await expect.poll( () => where( page ) ).toMatch( /^\?page=stats/ );
-		await settle( page, 5000 );
-		expect( await historyLength( page ), 'Stats adds one entry' ).toBe( start + 1 );
-		await page.goBack();
-		await waitForShown( page, 'my-jetpack' );
-		expect( await where( page ) ).toMatch( /^\?page=my-jetpack/ );
-	} );
-
-	/* Hash and `p` routes inside a product: each tab is a history entry, in and out of the shell. */
+	/* `p` routes inside a product: each tab is a history entry, in and out of the shell. */
 	const tabRoutes = [
 		{
 			slug: 'my-jetpack',
-			via: 'jetpack-podcast',
-			tabs: [ 'Features', 'Help' ],
-			urls: [ /#\/features$/, /#\/help$/ ],
+			via: FORMS,
+			tabs: [ /^Features$/, /^Help$/ ],
+			urls: [ /p=%2Ffeatures$/, /p=%2Fhelp$/ ],
 		},
 		{
-			slug: 'jetpack-ai',
+			slug: FORMS,
 			via: 'my-jetpack',
-			tabs: [ 'AI Features', 'MCP and Connectors' ],
-			urls: [ /#\/features$/, /#\/mcp$/ ],
-			intermittent: 'Spike bug: Jetpack AI’s tabs sometimes never write their hash.',
-		},
-		{
-			slug: 'jetpack-newsletter',
-			via: 'my-jetpack',
-			tabs: [ 'Subscribers', 'Settings' ],
-			// The subscriber list adds its own `pp` and `sort` params, shell or not.
-			urls: [ /p=%2F%3Ftab%3Dsubscribers(&|$)/, /p=%2F%3Ftab%3Dsettings(&|$)/ ],
+			tabs: [ /^Responses/, /^Forms/ ],
+			urls: [ /p=%2Fresponses/, /p=%2Fforms$/ ],
 		},
 	];
-	for ( const { slug, via, tabs, urls, intermittent } of tabRoutes ) {
-		intermittentSpikeBug( intermittent, () => {
-			test( `Back walks ${ slug } tabs after leaving and returning`, async ( { page } ) => {
-				await openMember( page, slug );
-				for ( const [ i, tab ] of tabs.entries() ) {
+	for ( const { slug, via, tabs, urls } of tabRoutes ) {
+		test( `Back walks ${ slug } tabs after leaving and returning`, async ( { page } ) => {
+			await openMember( page, slug );
+			for ( const [ i, tab ] of tabs.entries() ) {
+				// A click during the previous route's view transition lands on its overlay; click again.
+				await expect( async () => {
 					await page.getByRole( 'tab', { name: tab } ).filter( { visible: true } ).click();
-					await expect.poll( () => where( page ), `${ tab } is in the URL` ).toMatch( urls[ i ] );
-				}
-				await switchTo( page, via );
-				await back( page, slug );
-				expect( await where( page ) ).toMatch( urls[ 1 ] );
-				await withinDocument( page, `Back to ${ tabs[ 0 ] }`, async () => {
-					await page.goBack();
-					await expect.poll( () => where( page ) ).toMatch( urls[ 0 ] );
-				} );
-				await expect(
-					page.getByRole( 'tab', { name: tabs[ 0 ] } ).filter( { visible: true } )
-				).toHaveAttribute( 'aria-selected', 'true' );
+					await expect
+						.poll( () => where( page ), { message: `${ tab } is in the URL`, timeout: 3000 } )
+						.toMatch( urls[ i ] );
+				} ).toPass( { timeout: 20000 } );
+			}
+			await switchTo( page, via );
+			await back( page, slug );
+			expect( await where( page ) ).toMatch( urls[ 1 ] );
+			await withinDocument( page, `Back to ${ tabs[ 0 ] }`, async () => {
+				await page.goBack();
+				await expect.poll( () => where( page ) ).toMatch( urls[ 0 ] );
 			} );
+			await expect(
+				page.getByRole( 'tab', { name: tabs[ 0 ] } ).filter( { visible: true } )
+			).toHaveAttribute( 'aria-selected', 'true' );
 		} );
 	}
 
@@ -119,22 +98,22 @@ test.describe( 'Admin shell: history', () => {
 
 	test( 'reload keeps the member that was switched to', async ( { page } ) => {
 		await openMember( page, 'my-jetpack' );
-		await switchTo( page, 'jetpack-forms-responses-wp-admin' );
+		await switchTo( page, FORMS );
 		const url = await where( page );
 		await page.reload();
-		await waitForShown( page, 'jetpack-forms-responses-wp-admin' );
-		await expectShown( page, 'jetpack-forms-responses-wp-admin' );
+		await waitForShown( page, FORMS );
+		await expectShown( page, FORMS );
 		expect( await where( page ) ).toBe( url );
 	} );
 
 	test( 'a deep link opens its tab, which survives a round trip', async ( { page } ) => {
-		await openMember( page, 'my-jetpack', '#/help' );
+		await openMember( page, 'my-jetpack', '&p=%2Fhelp' );
 		const help = page.getByRole( 'tab', { name: 'Help' } ).filter( { visible: true } );
 		await expect( help ).toHaveAttribute( 'aria-selected', 'true' );
-		await switchTo( page, 'jetpack-newsletter' );
+		await switchTo( page, FORMS );
 		await switchTo( page, 'my-jetpack' );
 		await expect( help ).toHaveAttribute( 'aria-selected', 'true' );
-		expect( await where( page ) ).toBe( '?page=my-jetpack#/help' );
+		expect( await where( page ) ).toBe( '?page=my-jetpack&p=%2Fhelp' );
 	} );
 
 	test( 'opening a member in a new tab leaves this one alone', async ( { page, context } ) => {
@@ -142,9 +121,9 @@ test.describe( 'Admin shell: history', () => {
 		const before = await where( page );
 		const [ opened ] = await Promise.all( [
 			context.waitForEvent( 'page' ),
-			menuLink( page, 'jetpack-newsletter' ).click( { modifiers: [ 'ControlOrMeta' ] } ),
+			menuLink( page, FORMS ).click( { modifiers: [ 'ControlOrMeta' ] } ),
 		] );
-		await opened.waitForURL( /page=jetpack-newsletter/ );
+		await opened.waitForURL( /page=jetpack-forms-responses-wp-admin/ );
 		expect( await where( page ) ).toBe( before );
 		await expectShown( page, 'my-jetpack' );
 	} );

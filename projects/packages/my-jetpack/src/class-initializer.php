@@ -230,6 +230,10 @@ class Initializer {
 
 		if ( class_exists( Admin_Shell::class ) ) {
 			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+			// Standalone plugins reach admin-ui only through the admin menu, which admin-ajax never builds.
+			if ( method_exists( Admin_Shell::class, 'init' ) ) {
+				Admin_Shell::init();
+			}
 		}
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );

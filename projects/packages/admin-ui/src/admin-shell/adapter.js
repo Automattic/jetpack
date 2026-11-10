@@ -15,7 +15,7 @@ import { log } from '@automattic/jetpack-admin-shell/debug';
  *
  * @param {Function} getVisible - Returns the slug of the app on screen.
  * @param {Function} onWrite    - Called after every history write reaches the browser.
- * @return {object} `mount( slug )`, `mounted( slug )`, `listen( type, listener )` and `pushUrl( url )`.
+ * @return {object} `mount( slug )`, `mounted( slug )`, `isMounting()`, `listen( type, listener )` and `pushUrl( url )`.
  */
 export function isolateRouters( getVisible, onWrite ) {
 	// Apps mounting now, latest last: what subscribes is tagged as the latest one's.
@@ -103,6 +103,7 @@ export function isolateRouters( getVisible, onWrite ) {
 				log( 'router', `stopped tagging for ${ slug }` );
 			}
 		},
+		isMounting: () => mountingStack.length > 0,
 		listen,
 		// Bypasses the routers' wrappers: notifyRouters() tells the visible one, and two navigations
 		// in a row cancel the first one's view transition. TanStack keeps its position in the state.
