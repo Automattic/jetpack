@@ -26,15 +26,18 @@ import type { TZDate } from '@date-fns/tz';
  * `hour` is absent: an hour is the finest bucket the report offers, so a bar
  * drawn in hours has nothing below it to open.
  */
-const BUCKET_BOUNDS: Partial<
-	Record< IntervalType, { start: ( date: TZDate ) => TZDate; end: ( date: TZDate ) => TZDate } >
-> = {
+const BUCKET_BOUNDS = {
 	day: { start: startOfDay, end: endOfDay },
 	week: { start: startOfISOWeek, end: endOfISOWeek },
 	month: { start: startOfMonth, end: endOfMonth },
 	quarter: { start: startOfQuarter, end: endOfQuarter },
 	year: { start: startOfYear, end: endOfYear },
-};
+} satisfies Partial<
+	Record< IntervalType, { start: ( date: TZDate ) => TZDate; end: ( date: TZDate ) => TZDate } >
+>;
+
+/** An interval whose bucket a click can open. */
+export type DrillableInterval = keyof typeof BUCKET_BOUNDS;
 
 /**
  * Whether a bucket of this interval has a smaller period below it for a click to open.
@@ -42,7 +45,7 @@ const BUCKET_BOUNDS: Partial<
  * @param interval - The interval the chart draws.
  * @return False for an hour, the finest bucket the report draws.
  */
-export function isDrillableInterval( interval: IntervalType ): boolean {
+export function isDrillableInterval( interval: IntervalType ): interval is DrillableInterval {
 	return Object.hasOwn( BUCKET_BOUNDS, interval );
 }
 
@@ -56,19 +59,15 @@ export function isDrillableInterval( interval: IntervalType ): boolean {
  * @param interval - The interval the bucket was drawn in.
  * @param now      - The current instant, for the clamp.
  * @param end      - The bucket's last day as the report states it, with `date` on its first day, for a report whose buckets are not calendar ones (store weeks start on the site's first day of the week); the calendar bounds otherwise.
- * @return The bucket's range, or null when the interval has nothing below it.
+ * @return The bucket's range, or null when the bucket starts after `now`.
  */
 export function drillDateRange(
 	date: TZDate,
-	interval: IntervalType,
+	interval: DrillableInterval,
 	now: TZDate,
 	end?: TZDate
 ): DateRange | null {
 	const bounds = BUCKET_BOUNDS[ interval ];
-
-	if ( ! bounds ) {
-		return null;
-	}
 
 	const from = end ? startOfDay( date ) : bounds.start( date );
 

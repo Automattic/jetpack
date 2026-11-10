@@ -122,12 +122,6 @@ describe( 'bucketRange', () => {
 		} );
 	} );
 
-	it( 'opens nothing for an hourly bucket, the finest reading there is', () => {
-		expect(
-			bucketRange( { date: new Date( '2026-07-21T13:00:00Z' ) }, 'hour', window, clock )
-		).toBeNull();
-	} );
-
 	it.each( [
 		[
 			'leading',

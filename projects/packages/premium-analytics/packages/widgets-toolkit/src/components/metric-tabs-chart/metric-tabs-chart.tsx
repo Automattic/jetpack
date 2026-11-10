@@ -420,7 +420,7 @@ function MetricChart( {
 	const reportDatum = useCallback(
 		( datum: unknown ) => {
 			// `alignSeriesDates` rewrites a comparison point's date to the primary point
-			// it is drawn under, so either series' datum carries the current-period date.
+			// it is drawn under, so a click on either series opens the current-period bucket.
 			const date = ( datum as { date?: unknown } | undefined )?.date;
 
 			if ( date instanceof Date ) {

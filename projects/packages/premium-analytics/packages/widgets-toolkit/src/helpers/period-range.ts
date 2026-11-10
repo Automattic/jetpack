@@ -4,10 +4,10 @@
 import {
 	createTZDateFromParts,
 	drillDateRange,
+	type DrillableInterval,
 	startOfDayTZ,
 	toLocalTZ,
 	type DateRange,
-	type IntervalType,
 } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
@@ -78,7 +78,7 @@ export function yearRange( year: number, bounds: PeriodBounds ): Required< DateR
 
 /**
  * The chart bucket holding `date`, cut to the window the chart draws. `null` for
- * an hourly bucket, the finest reading there is, or one outside the window.
+ * a bucket outside the window.
  *
  * @param clicked         - The clicked bucket.
  * @param clicked.date    - A date inside the bucket, its first day when `endDate` is set.
@@ -90,7 +90,7 @@ export function yearRange( year: number, bounds: PeriodBounds ): Required< DateR
  */
 export function bucketRange(
 	{ date, endDate }: { date: Date; endDate?: Date },
-	interval: IntervalType,
+	interval: DrillableInterval,
 	window: DateRange,
 	bounds: Omit< PeriodBounds, 'lifeStartsAt' >
 ): Required< DateRange > | null {
