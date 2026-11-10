@@ -29,7 +29,7 @@ const defer = (): Deferred => {
  * Answer the next settings GET and the next POST with the given promises.
  *
  * @param responses      - The promises to answer with.
- * @param responses.get  - Answers `GET /jetpack/v4/settings`.
+ * @param responses.get  - Answers `GET /jetpack/v4/protect-dashboard/settings`.
  * @param responses.post - Answers any POST.
  */
 const respondWith = ( { get, post }: { get?: Promise< unknown >; post?: Promise< unknown > } ) => {
@@ -37,13 +37,14 @@ const respondWith = ( { get, post }: { get?: Promise< unknown >; post?: Promise<
 		if ( method === 'POST' ) {
 			return post;
 		}
-		return path === '/jetpack/v4/settings' ? get : Promise.resolve( null );
+		return path === '/jetpack/v4/protect-dashboard/settings' ? get : Promise.resolve( null );
 	} );
 };
 
 const settingsRequests = () =>
 	mockApiFetch.mock.calls.filter(
-		( [ { path, method } ] ) => path === '/jetpack/v4/settings' && method !== 'POST'
+		( [ { path, method } ] ) =>
+			path === '/jetpack/v4/protect-dashboard/settings' && method !== 'POST'
 	);
 
 const snackbars = () =>

@@ -3428,13 +3428,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "63e02638a85ef51ba0a8717a2569e88786cc73a3"
+                "reference": "47ada4c783af93b555057fb2f8bdc41ce9e80976"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-menu-badges": "@dev",
+                "automattic/jetpack-monitor": "@dev",
                 "automattic/jetpack-protect-models": "@dev",
                 "automattic/jetpack-protect-status": "@dev",
                 "automattic/jetpack-status": "@dev",
