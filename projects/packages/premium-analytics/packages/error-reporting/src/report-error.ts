@@ -21,6 +21,7 @@ const PAGE_LIMIT = 3;
 const MESSAGE_LIMIT = 1000;
 const TRACE_LIMIT = 8000;
 const ABSOLUTE_URL = /https?:\/\/[^\s'")]+/g;
+const USERINFO = /^(https?:\/\/)[^/?#]*@/;
 
 // Broader than an RFC address on purpose, but the domain must carry a dot, so a Firefox stack
 // frame such as `render@https://host/x.js:1:1` is not mistaken for one and erased.
@@ -89,17 +90,21 @@ function describeThrown( error: unknown ): ThrownDetails {
 /**
  * Cuts an absolute URL at its first query or hash, keeping a trailing stack position.
  *
+ * Credentials go with them. The email pattern catches those of a named host by chance, and never
+ * those of an IP address or `localhost`.
+ *
  * @param url - An absolute http(s) URL found in free text.
- * @return The URL without its query string or hash.
+ * @return The URL without its credentials, query string or hash.
  */
 function redactUrl( url: string ): string {
-	const cut = url.search( /[?#]/ );
+	const clean = url.replace( USERINFO, '$1' );
+	const cut = clean.search( /[?#]/ );
 	if ( cut === -1 ) {
-		return url;
+		return clean;
 	}
 
-	const position = /(?::\d+){1,2}$/.exec( url )?.[ 0 ] ?? '';
-	return `${ url.slice( 0, cut ) }${ url[ cut ] }[redacted]${ position }`;
+	const position = /(?::\d+){1,2}$/.exec( clean )?.[ 0 ] ?? '';
+	return `${ clean.slice( 0, cut ) }${ clean[ cut ] }[redacted]${ position }`;
 }
 
 /**
