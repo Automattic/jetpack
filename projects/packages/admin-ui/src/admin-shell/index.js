@@ -189,7 +189,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			removeHeader( previous );
 		}
 		apps.get( previous )?.place( false );
-		closeDialogsOf( previous );
+		const dialogsClosed = closeDialogsOf( previous );
 		showOverlaysOf( slug );
 		emit( 'page-hidden', { page: previous, previous: null, firstShow: false, url: location.href } );
 		if ( push ) {
@@ -212,6 +212,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				window.scrollTo( 0, 0 );
 				await bootGuest( slug );
 			}
+			// Focus and speech inside a closing modal's `aria-hidden` would go unheard.
+			await dialogsClosed;
 			if ( visible === slug && apps.get( slug )?.state === 'visible' ) {
 				log(
 					'switch',

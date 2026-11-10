@@ -54,6 +54,23 @@ describe( 'focusHeading', () => {
 		expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
 	} );
 
+	it.each( [
+		[ 'follows it to the heading a later route renders', false, 'h1' ],
+		[ 'leaves focus the user moved elsewhere', true, 'button' ],
+	] )( 'when the heading is replaced, %s', async ( _, userMoved, focused ) => {
+		const app = newApp();
+		app.el.innerHTML = '<button>Other</button><h1>Forms</h1>';
+		app.focusHeading();
+		if ( userMoved ) {
+			app.el.querySelector( 'button' ).focus();
+		}
+		const next = Object.assign( document.createElement( 'h1' ), { textContent: 'Responses' } );
+		app.el.querySelector( 'h1' ).replaceWith( next );
+		await new Promise( resolve => setTimeout( resolve ) );
+
+		expect( app.el.querySelector( focused ) ).toHaveFocus();
+	} );
+
 	it( 'keeps a heading’s own tabindex', () => {
 		const app = newApp();
 		app.el.innerHTML = '<h1 tabindex="0">Forms</h1>';

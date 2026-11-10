@@ -85,8 +85,14 @@ export function showOverlaysOf( slug ) {
 	} );
 }
 
+const DIALOGS = '[role="dialog"], [role="alertdialog"]';
+
+// Dialogs already sent Escape: a second one reaches their close handler again while they animate out.
+const escaped = new WeakSet();
+
 // Dialogs from @wordpress/ui and @wordpress/components both close on Escape.
-const pressEscape = target =>
+const pressEscape = target => {
+	escaped.add( target.closest( DIALOGS ) ?? target );
 	target.dispatchEvent(
 		new KeyboardEvent( 'keydown', {
 			key: 'Escape',
@@ -95,8 +101,10 @@ const pressEscape = target =>
 			cancelable: true,
 		} )
 	);
+};
 
-const DIALOGS = '[role="dialog"], [role="alertdialog"]';
+// The longest a closing dialog gets to leave the document: modals close after an exit animation.
+const CLOSE_TIMEOUT = 500;
 
 /**
  * Close the dialogs of a page being hidden, as leaving it with a page load would.
@@ -104,15 +112,18 @@ const DIALOGS = '[role="dialog"], [role="alertdialog"]';
  * An open modal keeps the rest of the document, `#wpwrap` included, `aria-hidden` until it closes.
  *
  * @param {string} slug - Page being hidden.
+ * @return {Promise<void>} Resolves once they have left the document, or after a timeout.
  */
-export function closeDialogsOf( slug ) {
-	document.querySelectorAll( OVERLAYS ).forEach( el => {
-		if ( el.getAttribute( PAGE ) === slug ) {
-			[ el, ...el.querySelectorAll( DIALOGS ) ]
-				.filter( d => d.matches( DIALOGS ) )
-				.forEach( pressEscape );
-		}
-	} );
+export async function closeDialogsOf( slug ) {
+	const dialogs = [ ...document.querySelectorAll( OVERLAYS ) ]
+		.filter( el => el.getAttribute( PAGE ) === slug )
+		.flatMap( el => [ el, ...el.querySelectorAll( DIALOGS ) ] )
+		.filter( el => el.matches( DIALOGS ) );
+	dialogs.filter( d => ! escaped.has( d ) ).forEach( pressEscape );
+	const start = performance.now();
+	while ( dialogs.some( d => d.isConnected ) && performance.now() - start < CLOSE_TIMEOUT ) {
+		await new Promise( resolve => requestAnimationFrame( resolve ) );
+	}
 }
 
 // The longest a page gets to update its URL after its overlay closes.

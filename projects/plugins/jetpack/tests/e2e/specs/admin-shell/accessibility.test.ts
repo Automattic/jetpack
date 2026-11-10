@@ -265,6 +265,13 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 				await expect
 					.poll( () => ariaHiddenAncestors( page, MJ ), 'aria-hidden around the shown app' )
 					.toEqual( [] );
+				// The probe skips live regions that are aria-hidden when they change.
+				await expect
+					.poll( () => announcements( page ), 'announcement for the page Back showed' )
+					.toContainEqual(
+						expect.objectContaining( { text: expect.stringContaining( member( MJ ).title ) } )
+					);
+				await expect( mainHeading( page, MJ ) ).toBeFocused();
 				await expect( mainHeading( page, MJ ) ).toBeVisible();
 			},
 		} );

@@ -54,16 +54,41 @@ export function createApp( slug, el ) {
 			if ( ! heading ) {
 				return;
 			}
-			if ( ! heading.hasAttribute( 'tabindex' ) ) {
-				heading.tabIndex = -1;
-			}
-			heading.focus( { preventScroll: true } );
+			focusOn( heading );
+			// The route a switch opens can render after this and replace the heading: follow it once.
+			const observer = new MutationObserver( () => {
+				const next = headingOf( el );
+				if ( heading.isConnected || ! next ) {
+					return;
+				}
+				stop();
+				// eslint-disable-next-line @wordpress/no-global-active-element -- The shell owns the whole document.
+				if ( document.activeElement === document.body ) {
+					focusOn( next );
+				}
+			} );
+			const timer = setTimeout( () => observer.disconnect(), FOLLOW_TIMEOUT );
+			const stop = () => {
+				observer.disconnect();
+				clearTimeout( timer );
+			};
+			observer.observe( el, { childList: true, subtree: true } );
 		},
 	};
 	return app;
 }
 
+// How long a focused heading is followed if the app replaces it.
+const FOLLOW_TIMEOUT = 2000;
+
 const headingOf = el => [ ...el.querySelectorAll( 'h1' ) ].find( h => h.textContent.trim() );
+
+const focusOn = heading => {
+	if ( ! heading.hasAttribute( 'tabindex' ) ) {
+		heading.tabIndex = -1;
+	}
+	heading.focus( { preventScroll: true } );
+};
 
 /**
  * Resolve once the app has rendered its first route: a page heading in its container.
