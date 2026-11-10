@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Start downloading the open screen's code while the page loads, so the first widgets appear sooner on slow connections.
