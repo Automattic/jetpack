@@ -514,7 +514,7 @@ const FirewallPage = () => {
 					) }
 					{ jetpackWafIpAllowListEnabled && (
 						<div className={ styles[ 'allow-list-button-container' ] }>
-							{ currentIp && (
+							{ currentIp ? (
 								<div>
 									<Text variant="body-small" className={ styles[ 'allow-list-current-ip' ] }>
 										{ createInterpolateElement(
@@ -537,6 +537,8 @@ const FirewallPage = () => {
 										{ __( '+ Add to Allow List', 'jetpack-protect' ) }
 									</Button>
 								</div>
+							) : (
+								<div />
 							) }
 							<Button
 								onClick={ saveIpAllowListChanges }

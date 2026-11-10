@@ -63,7 +63,8 @@ class Firewall implements Dashboard_Section {
 			array(
 				'hasScan'        => Dashboard::has_scan_plan(),
 				'upgradeUrl'     => Dashboard::get_scan_upgrade_url(),
-				'currentIp'      => self::get_current_ip(),
+				// Don't suggest the fallback address when the configured trusted header can't be resolved.
+				'currentIp'      => method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ? '' : self::get_current_ip(),
 				'ipRules'        => self::get_ip_rules(),
 				'rulesUpdatedAt' => self::get_rules_updated_at(),
 				'providedByHost' => method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host(),
@@ -238,10 +239,6 @@ class Firewall implements Dashboard_Section {
 	 */
 	public static function get_current_ip() {
 		if ( ! class_exists( Waf_Request::class ) ) {
-			return '';
-		}
-
-		if ( method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ) {
 			return '';
 		}
 
