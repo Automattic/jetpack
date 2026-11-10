@@ -6057,9 +6057,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      react-router:
-        specifier: 7.18.2
-        version: 7.18.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react-use-measure:
         specifier: 2.1.1
         version: 2.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

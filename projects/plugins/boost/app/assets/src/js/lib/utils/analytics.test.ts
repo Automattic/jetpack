@@ -21,7 +21,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	default: { tracks: { recordEvent: jest.fn() } },
 } ) );
 
-import { LEGACY_ROOT_ID, MODERN_ROOT_ID } from '$lib/modern/mode';
+import { MODERN_ROOT_ID } from '$lib/modern/mode';
 
 const settingsEvents = [
 	'cornerstone_pages_save',
@@ -91,27 +91,24 @@ describe( 'Settings event context', () => {
 		document.body.replaceChildren();
 	} );
 
-	it.each( [
-		[ LEGACY_ROOT_ID, 'legacy' ],
-		[ MODERN_ROOT_ID, 'modern' ],
-	] )( 'uses the rendered %s for every Settings action and page view', async ( root, mode ) => {
-		const element = document.createElement( 'div' );
-		element.id = root;
-		document.body.append( element );
-		for ( const event of settingsEvents ) {
-			await recordBoostEvent( event, { count: 2 } );
-			expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
-				count: 2,
-				boost_version: '4.8.1',
-				dashboard_variant: mode,
-			} );
+	it.each( [ [ MODERN_ROOT_ID, 'modern' ] ] )(
+		'uses the rendered %s for every Settings action and page view',
+		async ( root, mode ) => {
+			const element = document.createElement( 'div' );
+			element.id = root;
+			document.body.append( element );
+			for ( const event of settingsEvents ) {
+				await recordBoostEvent( event, { count: 2 } );
+				expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
+					count: 2,
+					boost_version: '4.8.1',
+					dashboard_variant: mode,
+				} );
+			}
 		}
-	} );
+	);
 
-	it.each( [
-		[ LEGACY_ROOT_ID, 'legacy', 'all_options', 'section' ],
-		[ MODERN_ROOT_ID, 'modern', 'exceptions', 'editor' ],
-	] )(
+	it.each( [ [ MODERN_ROOT_ID, 'modern', 'exceptions', 'editor' ] ] )(
 		'annotates the two panel meanings in %s',
 		async ( root, mode, cacheScope, cornerstoneScope ) => {
 			const element = document.createElement( 'div' );
