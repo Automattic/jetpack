@@ -14,8 +14,8 @@ import {
 } from 'react';
 
 /**
- * How long a signal raised for another surface may wait for it to show. Keeps a
- * click that went nowhere from firing on a later visit to that surface.
+ * How long a signal may wait for its surface or date control to show before it is
+ * dropped. Keeps a click that went nowhere from firing on a later visit.
  */
 export const PERIOD_CHANGE_SIGNAL_TTL_MS = 5000;
 
@@ -100,7 +100,8 @@ export function PeriodChangeSignalProvider( { children }: { children: ReactNode 
 
 /**
  * Raise a signal that a widget set `range` on `surface`: a dashboard section slug, or a
- * detail page's own key.
+ * detail page's own key. The navigation must commit `range` exactly as given
+ * (`exactRange`): the cue is let go once the applied range differs from it.
  *
  * @return The raise function.
  */
@@ -144,7 +145,7 @@ export function useSettlePeriodChange(
 
 		if ( signal.surface === surface ) {
 			if ( isShown ) {
-				// Keep the object when the effect re-runs, so the timer below does not restart.
+				// Strict Mode runs this effect twice on mount; keep the object so the timer below does not restart.
 				setAttention( current =>
 					current?.id === signal.id ? current : { id: signal.id, range: signal.range, surface }
 				);

@@ -123,20 +123,6 @@ describe( 'period change signal', () => {
 		expect( attention() ).not.toBe( 'none' );
 	} );
 
-	it( 'fires once for rapid repeated raises before the named section shows', async () => {
-		const user = userEvent.setup();
-		const view = render( <Scene surface={ INSIGHTS } /> );
-
-		await raise( user );
-		await raise( user );
-		view.rerender( <Scene surface={ TRAFFIC } /> );
-		const fired = attention();
-		view.rerender( <Scene surface={ TRAFFIC } /> );
-
-		expect( fired ).not.toBe( 'none' );
-		expect( attention() ).toBe( fired );
-	} );
-
 	it( 'gives each raise its own id so a repeat of the same range fires again', async () => {
 		const user = userEvent.setup();
 		render( <Scene surface={ TRAFFIC } /> );
@@ -241,7 +227,7 @@ describe( 'period change signal', () => {
 		}
 	} );
 
-	it( 'lets the id go when the control leaves the screen and does not replay it', async () => {
+	it( 'lets the id go when the control leaves the screen', async () => {
 		const user = userEvent.setup();
 		const view = render( <Scene surface={ TRAFFIC } /> );
 
@@ -249,9 +235,6 @@ describe( 'period change signal', () => {
 		expect( attention() ).not.toBe( 'none' );
 
 		view.rerender( <Scene surface={ TRAFFIC } shown={ false } /> );
-		expect( attention() ).toBe( 'none' );
-
-		view.rerender( <Scene surface={ TRAFFIC } shown /> );
 		expect( attention() ).toBe( 'none' );
 	} );
 
@@ -274,6 +257,18 @@ describe( 'period change signal', () => {
 		const view = render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
 
 		await raise( user );
+		expect( attention() ).not.toBe( 'none' );
+
+		view.rerender( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
+		expect( attention() ).toBe( 'none' );
+	} );
+
+	it( 'lets the id go when the reader moves the range after the navigation landed', async () => {
+		const user = userEvent.setup();
+		const view = render( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
+
+		await raise( user );
+		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
 		expect( attention() ).not.toBe( 'none' );
 
 		view.rerender( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );

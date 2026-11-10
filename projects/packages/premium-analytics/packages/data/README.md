@@ -251,9 +251,13 @@ dropped unused, so a period the reader picked, a tab switch or Customize never r
 
 The host passes the change's `id` to the date control (`DatePeriodDropdown` draws a fading fill)
 and, on a detail page, to the layout's `returnToTopKey`, and the change itself to
-`PeriodChangeStatus`, whose live region reads the range out. A host that renders its control
-through the `jpa/report-params` field puts the `id` on `ReportScopeProvider` as `attentionId`, next
-to `openPeriod`, and the field reads it there.
+`PeriodChangeStatus`, whose live region reads the range out. `ReportScope` also carries an
+`attentionId` for the `jpa/report-params` field to read; the stages in this package hand the `id`
+straight to their date control instead.
+
+A range the surface's plan will move (one starting before `dateLimits.earliestDate`) is committed
+but not signalled: the route redirects to the plan's window and explains it, and the control never
+draws attention to a period it does not show.
 
 ## Architecture
 
