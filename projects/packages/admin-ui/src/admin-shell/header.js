@@ -37,15 +37,28 @@ export function configureHeaders( prefix ) {
 // Stand-ins on screen, by page.
 const standIns = new Map();
 
+// Take a stand-in down and give its mount back.
+const takeDown = ( slug, entry ) => {
+	clearTimeout( entry.timer );
+	if ( standIns.get( slug ) === entry ) {
+		standIns.delete( slug );
+	}
+	if ( entry.standIn.isConnected ) {
+		entry.standIn.remove();
+		entry.el.style.visibility = '';
+		log( 'header', `removed stand-in header for ${ slug }` );
+	}
+};
+
 /**
  * Remove a page's stand-in header, if it has one.
  *
  * @param {string} slug - Page slug.
  */
 export function removeHeader( slug ) {
-	const remove = standIns.get( slug );
-	if ( typeof remove === 'function' ) {
-		remove();
+	const entry = standIns.get( slug );
+	if ( entry ) {
+		takeDown( slug, entry );
 	}
 }
 
@@ -193,19 +206,9 @@ export function showHeader( slug, el ) {
 	el.style.visibility = 'hidden';
 	log( 'header', `showing the saved header for ${ slug }` );
 
-	const remove = () => {
-		clearTimeout( timer );
-		if ( standIns.get( slug ) === remove ) {
-			standIns.delete( slug );
-		}
-		if ( standIn.isConnected ) {
-			standIn.remove();
-			el.style.visibility = '';
-			log( 'header', `removed stand-in header for ${ slug }` );
-		}
-	};
-	const timer = setTimeout( remove, STAND_IN_TIMEOUT );
 	removeHeader( slug );
-	standIns.set( slug, remove );
-	return remove;
+	const entry = { standIn, el, timer: 0 };
+	entry.timer = setTimeout( () => takeDown( slug, entry ), STAND_IN_TIMEOUT );
+	standIns.set( slug, entry );
+	return () => takeDown( slug, entry );
 }
