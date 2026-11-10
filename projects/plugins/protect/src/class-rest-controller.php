@@ -451,7 +451,8 @@ class REST_Controller {
 		return new WP_REST_Response(
 			array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
-				'currentIp'           => IP_Utils::get_ip(),
+				// Don't suggest the fallback address when the configured trusted header can't be resolved.
+				'currentIp'           => method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ? false : IP_Utils::get_ip(),
 				'upgradeIsSeen'       => Jetpack_Protect::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => Jetpack_Protect::get_waf_upgrade_badge_display_status(),
 				'isEnabled'           => Waf_Runner::is_enabled(),

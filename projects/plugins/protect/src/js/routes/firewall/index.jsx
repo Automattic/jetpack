@@ -514,28 +514,30 @@ const FirewallPage = () => {
 					) }
 					{ jetpackWafIpAllowListEnabled && (
 						<div className={ styles[ 'allow-list-button-container' ] }>
-							<div>
-								<Text variant="body-small" className={ styles[ 'allow-list-current-ip' ] }>
-									{ createInterpolateElement(
-										sprintf(
-											// translators: %s: current IP address of the user
-											__( 'Your current IP: <strong>%s</strong>', 'jetpack-protect' ),
-											currentIp
-										),
-										{
-											strong: <strong />,
-										}
-									) }
-								</Text>
-								<Button
-									variant={ 'secondary' }
-									size={ 'small' }
-									onClick={ addCurrentIpToAllowList }
-									disabled={ ! canEditIpAllowList || isCurrentIpAllowed || isUpdating }
-								>
-									{ __( '+ Add to Allow List', 'jetpack-protect' ) }
-								</Button>
-							</div>
+							{ currentIp && (
+								<div>
+									<Text variant="body-small" className={ styles[ 'allow-list-current-ip' ] }>
+										{ createInterpolateElement(
+											sprintf(
+												// translators: %s: current IP address of the user
+												__( 'Your current IP: <strong>%s</strong>', 'jetpack-protect' ),
+												currentIp
+											),
+											{
+												strong: <strong />,
+											}
+										) }
+									</Text>
+									<Button
+										variant={ 'secondary' }
+										size={ 'small' }
+										onClick={ addCurrentIpToAllowList }
+										disabled={ ! canEditIpAllowList || isCurrentIpAllowed || isUpdating }
+									>
+										{ __( '+ Add to Allow List', 'jetpack-protect' ) }
+									</Button>
+								</div>
+							) }
 							<Button
 								onClick={ saveIpAllowListChanges }
 								isLoading={ isUpdating }
