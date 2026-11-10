@@ -73,18 +73,24 @@ class Launchpad_No_Guidance_Test extends \WorDBless\BaseTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 *
-	 * @param int|null $cutoff   WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID, or null to leave it undefined.
-	 * @param int      $blog_id  The site's WordPress.com blog ID.
-	 * @param bool     $enabled  Whether wpcom_ai_launchpad_enabled is set.
-	 * @param bool     $expected Expected result.
+	 * @param int|null   $cutoff          WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID, or null to leave it undefined.
+	 * @param int        $blog_id         The site's WordPress.com blog ID.
+	 * @param bool       $enabled         Whether wpcom_ai_launchpad_enabled is set.
+	 * @param bool       $expected        Expected result.
+	 * @param array|null $persistent_data Atomic persistent data, or null to leave Atomic_Persistent_Data undefined.
 	 */
 	#[DataProvider( 'provide_cutoff_states' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_is_no_guidance_from_the_cutoff( $cutoff, $blog_id, $enabled, $expected ) {
+	public function test_is_no_guidance_from_the_cutoff( $cutoff, $blog_id, $enabled, $expected, $persistent_data = null ) {
 		define( 'IS_ATOMIC', true );
 		if ( null !== $cutoff ) {
 			define( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID', $cutoff );
+		}
+		if ( null !== $persistent_data ) {
+			require_once __DIR__ . '/fixtures/class-atomic-persistent-data.php';
+			// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Phan reads wpcomsh's blank stub, not this fixture.
+			Atomic_Persistent_Data::$data = $persistent_data;
 		}
 		update_option( 'jetpack_options', array( 'id' => $blog_id ) );
 		if ( $enabled ) {
@@ -105,6 +111,7 @@ class Launchpad_No_Guidance_Test extends \WorDBless\BaseTestCase {
 			'created before the cutoff'      => array( 200, 199, false, false ),
 			'new site with the AI Launchpad' => array( 200, 200, true, false ),
 			'no cutoff defined'              => array( null, 200, false, false ),
+			'staging copy of an older site'  => array( 200, 300, false, false, array( 'WPCOM_PRODUCTION_BLOG_ID' => '199' ) ),
 		);
 	}
 }

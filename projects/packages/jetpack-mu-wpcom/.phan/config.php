@@ -27,6 +27,8 @@ return make_phan_config(
 			'tests/php/features/editor-welcome-guides/fixtures/tracks-spy.php',
 			// Stands in for a Jetpack package the code reaches through a class_exists() guard.
 			'tests/php/features/wpcom-admin-menu/fixtures/class-jetpack-activity-log.php',
+			// Redefines Atomic_Persistent_Data, which wpcomsh's class-atomic-persistent-data.php already declares.
+			'tests/php/common/fixtures/class-atomic-persistent-data.php',
 		),
 		'exclude_file_regex'              => array(
 			'build/',
@@ -44,6 +46,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/wpcomsh/wpcomsh.php',                              // function wpcomsh_record_tracks_event
 			__DIR__ . '/../../../plugins/wpcomsh/functions.php',                            // function wpcomsh_get_wpcom_active_subscriptions
 			__DIR__ . '/../../../plugins/wpcomsh/support-session.php',
+			__DIR__ . '/../../../plugins/wpcomsh/class-atomic-persistent-data.php',         // class Atomic_Persistent_Data
 		),
 		'exclude_analysis_directory_list' => array(
 			'src/features/custom-css/csstidy/',
