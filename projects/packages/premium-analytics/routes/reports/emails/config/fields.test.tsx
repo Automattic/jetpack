@@ -46,7 +46,7 @@ describe( 'emails fields', () => {
 
 		const link = screen.getByRole( 'link', { name: 'Weekly update' } );
 		const url = getMockRouteLinkUrl( link );
-		expect( url.pathname ).toBe( '/post/91' );
+		expect( url.pathname ).toBe( '/report/post/91' );
 		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
 			from: '2026-06-01',
 			to: '2026-06-16',

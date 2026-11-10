@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Metric tiles: Pick the layout from the size of the tiles' own box, so highlights stay in columns after switching dashboard tabs.

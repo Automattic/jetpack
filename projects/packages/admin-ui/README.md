@@ -153,7 +153,6 @@ Keys are fixed strings, so they survive a page's slug changing.
 | `jetpack-podcast` | Podcast, except on WordPress.com Simple and Atomic sites |
 | `jetpack-premium-analytics` | Premium Analytics (top level) |
 | `jetpack-protect` | Protect, from the Jetpack plugin or the Protect plugin |
-| `jetpack-scan` | Scan |
 | `jetpack-scan-cloud` | Scan ↗, the link to Jetpack Cloud |
 | `jetpack-search` | Search |
 | `jetpack-seo` | SEO |

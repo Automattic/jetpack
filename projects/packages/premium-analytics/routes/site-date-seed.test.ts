@@ -127,6 +127,7 @@ describe( 'seedSiteDateParams', () => {
 		expect( seeded.comp ).toBeUndefined();
 	} );
 
+	// The preset is kept and measured from the window the page opens on, not the dates it came with.
 	it( 'keeps the comparison a fresh URL already carries', () => {
 		const seeded = seedSiteDateParams( {
 			comp: '1',
@@ -136,7 +137,8 @@ describe( 'seedSiteDateParams', () => {
 		} );
 
 		expect( seeded ).toMatchObject( {
-			compare_from: '2025-02-18T00:00:00.000-05:00',
+			compare_from: '2025-02-12T00:00:00.000-05:00',
+			compare_to: '2025-02-18T23:59:59.999-05:00',
 			compare_preset: 'previous-year',
 		} );
 	} );

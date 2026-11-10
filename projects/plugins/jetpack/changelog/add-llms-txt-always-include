@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+SEO: Add an "Always include in llms.txt" switch for pages, which lists a page first in llms.txt even when it is not in a menu.

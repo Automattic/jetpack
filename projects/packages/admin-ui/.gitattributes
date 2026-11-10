@@ -7,5 +7,7 @@ build/**          production-include
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 src/**.scss       production-exclude
+# Bundled into build/admin-shell.js.
+src/admin-shell/** production-exclude
 # Nothing imports the shared modules until a dashboard opts in (JETPACK-3397).
 build/shared-modules/** production-exclude

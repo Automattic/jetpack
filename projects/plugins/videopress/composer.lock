@@ -151,9 +151,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "f43dba75b5f21db4d2f691b450ee7b70c5f80760"
+                "reference": "114c85c94d30632d5aa4c9b16e39522c8a78e0c9"
             },
             "require": {
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
@@ -201,6 +202,12 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1888,7 +1895,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "42918e9b82786b6e650baad9b894a318dfbaf7ce"
+                "reference": "075cdd20e31283c091633ebcf2b6e37c5870f9f7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1917,7 +1924,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.61.x-dev"
+                    "dev-trunk": "0.62.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
@@ -2054,5 +2061,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }

@@ -15,6 +15,8 @@
 
 /**
  * Redirects to a random post on the site.
+ *
+ * @deprecated $$next-version$$ WordPress 7.2 and later handle random content redirects in core, and this loads only on older versions.
  */
 function jetpack_matt_random_redirect() {
 	// Verify that the Random Redirect plugin this code is from is not active
