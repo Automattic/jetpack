@@ -19,6 +19,7 @@ import promptForProject from '../helpers/promptForProject.js';
 
 export const command = 'test [test] [project...]';
 export const describe = 'Run tests on a monorepo project';
+
 /**
  * Options definition for the test subcommand.
  *
@@ -31,10 +32,17 @@ export async function builder( yargs ) {
 			COMPLETION_COMMAND,
 			false,
 			completionHook( yargs, {
-				test: () =>
-					[
-						...new Set( allProjects().flatMap( project => availableTests( project, false ) ) ),
-					].sort(),
+				test: () => [
+					'coverage-html',
+					'js',
+					'js-coverage',
+					'js-watch',
+					'php',
+					'php-coverage',
+					'php-integration',
+					'php-unit',
+					'typecheck',
+				],
 				project: current => [ ...completeProject( current ), 'monorepo' ],
 			} )
 		)
@@ -552,27 +560,6 @@ export async function runTests( argv, opts ) {
 }
 
 /**
- * List the tests a project defines: its `test-*` composer scripts, plus `typecheck` when package.json has it.
- *
- * @param {string}  project - The project.
- * @param {boolean} output  - Whether to mention missing manifest files.
- * @return {string[]} Test names.
- */
-export function availableTests( project, output = true ) {
-	const composerJson = readComposerJson( project, output );
-	const packageJson = readPackageJson( project, output );
-	const tests = Object.keys( composerJson?.scripts ?? {} )
-		.filter( test => test.startsWith( 'test-' ) )
-		.map( test => test.substring( 5 ) )
-		// Hide the legacy `coverage` script; use `js-coverage`/`php-coverage` instead.
-		.filter( test => test !== 'coverage' );
-	if ( packageJson?.scripts?.typecheck ) {
-		tests.push( 'typecheck' );
-	}
-	return tests;
-}
-
-/**
  * Prompts for the test we want to run.
  *
  * @param {argv} argv - the arguments passed.
@@ -580,7 +567,16 @@ export function availableTests( project, output = true ) {
  */
 export async function promptForTest( argv ) {
 	const project = argv.project[ 0 ];
-	const tests = availableTests( project );
+	const composerJson = await readComposerJson( project );
+	const packageJson = await readPackageJson( project );
+	const tests = Object.keys( composerJson.scripts ?? {} )
+		.filter( test => test.startsWith( 'test-' ) )
+		.map( test => test.substring( 5 ) )
+		// Hide the legacy `coverage` script; use `js-coverage`/`php-coverage` instead.
+		.filter( test => test !== 'coverage' );
+	if ( packageJson?.scripts?.typecheck ) {
+		tests.push( 'typecheck' );
+	}
 	if ( tests.length === 0 ) {
 		console.log( chalk.red( `No tests found in ${ project }'s composer.json file!` ) );
 		process.exit( 1 );
