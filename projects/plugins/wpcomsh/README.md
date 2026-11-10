@@ -221,7 +221,7 @@ Enables setting a site to "private." Doing so prevents viewing or interacting wi
 
 As this module is currently being developed & evaluated, it is only enabled when the `AT_PRIVACY_MODEL` constant is set is set to `wp_uploads` (such that `\Private_Site\is_module_active()` returns `true`).
 
-Jetpack's `Status::is_private_site()` follows that same `AT_PRIVACY_MODEL` setting, through the `jetpack_is_private_site` filter, rather than the `blog_public` option, which can disagree with it.
+Through the `jetpack_is_private_site` filter, Jetpack's `Status::is_private_site()` also reports the site as private when `AT_PRIVACY_MODEL` is `wp_uploads`, even if the `blog_public` option says it is public.
 
 ### Experimental Jetpack Blocks
 

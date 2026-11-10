@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Private Site: Let Jetpack features follow the site's privacy setting, even when the stored visibility option is out of date.
+Private Site: Make Jetpack features treat a private site as private, even when its stored visibility option says it is public.

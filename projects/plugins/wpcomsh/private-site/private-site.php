@@ -263,13 +263,15 @@ function site_is_private() {
 /**
  * Hooked into filter: `jetpack_is_private_site`.
  *
- * Jetpack's `Status::is_private_site()` reads `blog_public`, which can disagree with the privacy model
- * that decides who can see an Atomic site. Registered on load, before anything caches Jetpack's answer.
+ * Jetpack's `Status::is_private_site()` reads `blog_public`, which can say public on a site the privacy model keeps private.
+ * A stored -1 still counts: nothing here tells whether it or the privacy model is the stale one.
+ * Registered on load, before anything caches Jetpack's answer.
  *
+ * @param bool $is_private_site Whether Jetpack considers the site private.
  * @return bool
  */
-function filter_jetpack_is_private_site() {
-	return site_is_private();
+function filter_jetpack_is_private_site( $is_private_site ) {
+	return $is_private_site || site_is_private();
 }
 add_filter( 'jetpack_is_private_site', '\Private_Site\filter_jetpack_is_private_site' );
 

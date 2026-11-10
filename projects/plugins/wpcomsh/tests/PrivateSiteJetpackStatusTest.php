@@ -33,7 +33,7 @@ class PrivateSiteJetpackStatusTest extends WP_UnitTestCase {
 	#[DataProvider( 'provide_privacy_states' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_status_follows_the_privacy_model( $privacy_model, $blog_public, $expected ) {
+	public function test_jetpack_status_counts_the_privacy_model( $privacy_model, $blog_public, $expected ) {
 		if ( null !== $privacy_model ) {
 			define( 'AT_PRIVACY_MODEL', $privacy_model );
 		}
@@ -46,14 +46,15 @@ class PrivateSiteJetpackStatusTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Sites whose stored blog_public disagrees with the privacy model.
+	 * Privacy model and stored blog_public combinations.
 	 *
 	 * @return array
 	 */
 	public static function provide_privacy_states(): array {
 		return array(
 			'private site with a public blog_public' => array( 'wp_uploads', '1', true ),
-			'public site with a private blog_public' => array( null, '-1', false ),
+			'public site with a private blog_public' => array( null, '-1', true ),
+			'public site with a public blog_public'  => array( null, '1', false ),
 		);
 	}
 }
