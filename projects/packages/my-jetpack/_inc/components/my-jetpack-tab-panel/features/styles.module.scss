@@ -7,7 +7,6 @@
 // The Jetpack brand icon palette.
 $feature-icon-background: #003010;
 $feature-icon-foreground: #0ced57;
-$banner-foreground: #daffdc;
 $band-ground: #f8f8f8;
 
 .content {
@@ -18,79 +17,23 @@ $band-ground: #f8f8f8;
 	padding-block-end: var(--wpds-dimension-padding-3xl);
 }
 
-// The AI Hub's dark-green banner, rebuilt: a package cannot import the
-// Jetpack plugin's shell.
+// Jetpack components' HighlightBanner, larger for this page's only heading.
 .banner {
-	align-items: flex-start;
-	background: $feature-icon-background;
-	border-radius: var(--wpds-border-radius-lg);
-	box-sizing: border-box;
-	display: flex;
-	// Keeps the orbs' stacking inside the banner, away from the sticky toolbar.
-	isolation: isolate;
 	margin-block-end: var(--wpds-dimension-gap-sm);
-	overflow: hidden;
-	padding: var(--wpds-dimension-padding-3xl);
-	position: relative;
-}
 
-.banner__content {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-sm);
-	max-inline-size: 32.5rem;
-	position: relative;
-	z-index: 1;
-}
-
-// Two classes, to outweigh the tab wrapper's rule for every h2.
-.banner .banner__title {
-	color: $banner-foreground;
-	font-size: 32px;
-	font-weight: 500;
-	line-height: 40px;
-	margin: 0;
-}
-
-.banner__description {
-	color: $banner-foreground;
-	font-size: 13px;
-	line-height: 20px;
-	margin: 0;
-}
-
-// Two classes, to outweigh the Button's own colour rules.
-.banner .banner__close {
-	color: #fff;
-	inset-block-start: var(--wpds-dimension-padding-sm);
-	inset-inline-end: var(--wpds-dimension-padding-sm);
-	position: absolute;
-	z-index: 1;
-
-	&:hover:not(:disabled) {
-		color: $banner-foreground;
+	:global(.jp-highlight-banner__content) {
+		gap: var(--wpds-dimension-gap-sm);
 	}
-}
 
-.banner__orb {
-	background: linear-gradient(to right, #04c, #48ff50);
-	block-size: 180px;
-	border-radius: 50%;
-	inline-size: 180px;
-	// Shared by both orbs, so the glow and the sphere share a vertical axis.
-	inset-inline-end: 56px;
-	pointer-events: none;
-	position: absolute;
-}
+	// Three classes, to beat the shared rule whatever the load order.
+	&:global(.jp-highlight-banner) :global(.jp-highlight-banner__title) {
+		font-size: 32px;
+	}
 
-.banner__orb--top {
-	filter: blur(25px);
-	inset-block-start: -96px;
-}
-
-// Deep enough that this short banner shows a glow, not the sphere's hard edge.
-.banner__orb--bottom {
-	inset-block-end: -140px;
+	// Deep enough that this short banner shows a glow, not the sphere's hard edge.
+	:global(.jp-highlight-banner__orb--bottom) {
+		inset-block-end: -140px;
+	}
 }
 
 .feature-grid {
