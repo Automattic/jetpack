@@ -348,14 +348,14 @@ class Firewall implements Dashboard_Section {
 	/**
 	 * Returns the blocks unchanged, since the card no longer reads the request log.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.6.0
 	 *
 	 * @param array $blocks  Blocks from the blocklog table, newest first.
 	 * @param array $entries Decoded request log entries, oldest first.
 	 * @return array The blocks, unchanged.
 	 */
 	public static function add_request_details( array $blocks, array $entries ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Kept for callers.
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.6.0' );
 		return $blocks;
 	}
 

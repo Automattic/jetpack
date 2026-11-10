@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix running out of memory when exporting a large number of responses to CSV or Google Drive.

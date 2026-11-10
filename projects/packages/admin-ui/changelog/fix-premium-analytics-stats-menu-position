@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Document that add_top_level_menu() takes a float position, as add_menu_page() does. Docblock only, no change in behavior.
-
