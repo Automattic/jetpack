@@ -37,7 +37,7 @@ class Report_Definition {
 	public $routes;
 
 	/**
-	 * Summary fields by type (`int`, `money` or `number`), or null for an undescribed report.
+	 * Summary fields by Premium Analytics metric type (`number`, `currency` or `average`), or null for an undescribed report.
 	 *
 	 * @var array<string, string>|null
 	 */

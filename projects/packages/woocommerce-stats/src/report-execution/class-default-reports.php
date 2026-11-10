@@ -20,32 +20,32 @@ class Default_Reports {
 	 * Summary fields of `orders.by_date`, from WordPress.com's orders data store. The averages are null without orders.
 	 */
 	private const ORDERS_BY_DATE_FIELDS = array(
-		'orders_no'                => 'int',
-		'orders_value_net'         => 'money',
-		'orders_value_gross'       => 'money',
-		'total_sales'              => 'money',
-		'average_order_value'      => 'money',
-		'avg_items'                => 'number',
-		'coupons'                  => 'money',
-		'refunds'                  => 'money',
-		'total_items'              => 'int',
-		'total_items_refunded'     => 'int',
-		'total_orders_with_refund' => 'int',
-		'paid_orders_count'        => 'int',
-		'paid_net_sales'           => 'money',
-		'unpaid_orders_count'      => 'int',
-		'unpaid_net_sales'         => 'money',
-		'product_net_revenue'      => 'money',
-		'cogs_amount'              => 'money',
-		'profit_margin'            => 'money',
+		'orders_no'                => 'number',
+		'orders_value_net'         => 'currency',
+		'orders_value_gross'       => 'currency',
+		'total_sales'              => 'currency',
+		'average_order_value'      => 'currency',
+		'avg_items'                => 'average',
+		'coupons'                  => 'currency',
+		'refunds'                  => 'currency',
+		'total_items'              => 'number',
+		'total_items_refunded'     => 'number',
+		'total_orders_with_refund' => 'number',
+		'paid_orders_count'        => 'number',
+		'paid_net_sales'           => 'currency',
+		'unpaid_orders_count'      => 'number',
+		'unpaid_net_sales'         => 'currency',
+		'product_net_revenue'      => 'currency',
+		'cogs_amount'              => 'currency',
+		'profit_margin'            => 'currency',
 	);
 
 	/**
 	 * Summary fields of `sessions.by_device`, from WordPress.com's sessions data store.
 	 */
 	private const SESSIONS_BY_DEVICE_FIELDS = array(
-		'active_sessions' => 'int',
-		'total_orders'    => 'int',
+		'active_sessions' => 'number',
+		'total_orders'    => 'number',
 	);
 
 	/**
