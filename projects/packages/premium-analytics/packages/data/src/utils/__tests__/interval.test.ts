@@ -309,28 +309,19 @@ describe( 'needsReportDateParamsSeed', () => {
 		).toBe( false );
 	} );
 
-	it( 'reseeds a to-date bookmark whose window has grown past the interval it kept', () => {
-		jest.useFakeTimers().setSystemTime( Date.parse( '2026-11-10T12:00:00.000Z' ) );
+	it.each( [
+		[ 'year-to-date', '2026-01-01T00:00:00.000+00:00', '2026-01-05T23:59:59.999+00:00', 'day' ],
+		[ 'all-time', '2025-01-01T00:00:00.000+00:00', '2025-12-31T23:59:59.999+00:00', 'week' ],
+	] as const )(
+		'reseeds a %s link whose window has grown past the interval it kept',
+		( preset, from, to, interval ) => {
+			jest.useFakeTimers().setSystemTime( Date.parse( '2026-11-10T12:00:00.000Z' ) );
 
-		expect(
-			needsReportDateParamsSeed( {
-				from: '2026-01-01T00:00:00.000+00:00',
-				to: '2026-01-05T23:59:59.999+00:00',
-				preset: 'year-to-date',
-				interval: 'day',
-			} )
-		).toBe( true );
-	} );
+			expect( needsReportDateParamsSeed( { from, to, preset, interval } ) ).toBe( true );
+		}
+	);
 
-	it( 'treats custom and year-surface presets as range-based', () => {
-		expect(
-			needsReportDateParamsSeed( {
-				from: '2020-01-01T00:00:00.000Z',
-				to: '2026-06-30T23:59:59.999Z',
-				preset: 'all-time',
-				interval: 'year',
-			} )
-		).toBe( false );
+	it( 'reads a custom range as the dates the URL carries', () => {
 		expect(
 			needsReportDateParamsSeed( {
 				from: '2026-06-01T00:00:00.000Z',
