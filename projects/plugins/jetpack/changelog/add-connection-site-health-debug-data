@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Site Health: List the plugins using the connection, and their package versions, in the Jetpack Connection section of the Info tab.

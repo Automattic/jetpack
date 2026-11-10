@@ -73,13 +73,20 @@ const mockStates = [
 			name: 'Stats',
 			description: '',
 			plans: [ { slug: 'complete' } ],
+			groups: [],
 			essential: true,
 		},
 		status: 'active',
 		control: { kind: 'none' },
 	},
 	{
-		feature: { slug: 'boost', name: 'Boost', description: '', plans: [ { slug: 'complete' } ] },
+		feature: {
+			slug: 'boost',
+			name: 'Boost',
+			description: '',
+			plans: [ { slug: 'complete' } ],
+			groups: [],
+		},
 		status: 'inactive',
 		control: { kind: 'none' },
 	},
@@ -166,7 +173,7 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 // A row as the More Features section builds one: a module, carrying no plan.
 const moduleRow = ( slug: string, name: string ): FeatureState =>
 	( {
-		feature: { slug, name, description: '', plans: [], essential: false },
+		feature: { slug, name, description: '', plans: [], groups: [], essential: false },
 		status: 'inactive',
 		control: { kind: 'module', module: { module: slug, name, description: '' } },
 	} ) as unknown as FeatureState;
@@ -836,7 +843,7 @@ describe( 'A search left behind', () => {
 describe( 'Which list a module was switched from', () => {
 	const moduleState = () =>
 		( {
-			feature: { slug: 'monitor', name: 'Monitor', plans: [] },
+			feature: { slug: 'monitor', name: 'Monitor', plans: [], groups: [] },
 			status: 'inactive',
 			control: { kind: 'module', module: { module: 'monitor', activated: false } },
 		} ) as unknown as FeatureState;

@@ -18,7 +18,7 @@ add_filter( 'jetpack_disable_canonical_urls', 'jetpack_canonical_urls_check_conf
  * Check if a conflicting SEO plugin is active and disable canonical URL output.
  *
  * @since 15.6
- * @since $$next-version$$ Reads the `jetpack_seo_conflicting_plugin` filter instead of its own plugin list.
+ * @since 16.5 Reads the `jetpack_seo_conflicting_plugin` filter instead of its own plugin list.
  *
  * @param bool $disabled Whether canonical URL output is already disabled.
  * @return bool Whether canonical URL output should be disabled.
