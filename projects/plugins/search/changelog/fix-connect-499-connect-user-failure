@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Show what went wrong and let users retry when the onboarding connection to WordPress.com fails.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Uploads: Report failures when an upload cannot be initialized.

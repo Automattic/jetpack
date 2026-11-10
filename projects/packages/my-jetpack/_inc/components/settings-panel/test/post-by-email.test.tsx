@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { clearRequestedSwitch, setRequestedSwitch } from '../../../data/requested-switch-state';
 import { PostByEmailSettings } from '../post-by-email';
@@ -10,11 +11,12 @@ const mockCreateErrorNotice = jest.fn();
 const mockCreateSuccessNotice = jest.fn();
 const mockCopyRef = jest.fn();
 const mockRecordEvent = jest.fn();
-const mockUseCopyToClipboard = jest.fn< typeof mockCopyRef, [ string, () => void ] >(
+const mockUseCopyToClipboard = jest.fn< typeof mockCopyRef, [ string, () => void, () => void ] >(
 	() => mockCopyRef
 );
 let mockAccountConnected = true;
 
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: {} } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
@@ -26,8 +28,8 @@ jest.mock( '@wordpress/data', () => ( {
 	} ),
 } ) );
 jest.mock( '@wordpress/compose', () => ( {
-	useCopyToClipboard: ( text: string, onSuccess: () => void ) =>
-		mockUseCopyToClipboard( text, onSuccess ),
+	useCopyToClipboard: ( text: string, onSuccess: () => void, onError: () => void ) =>
+		mockUseCopyToClipboard( text, onSuccess, onError ),
 } ) );
 jest.mock( '../../my-jetpack-tab-panel/features/feature-state', () => ( {
 	useAccountConnected: () => mockAccountConnected,
@@ -94,8 +96,24 @@ describe( 'PostByEmailSettings', () => {
 			'aria-disabled',
 			'true'
 		);
-		expect( mockUseCopyToClipboard ).toHaveBeenLastCalledWith( ADDRESS, expect.any( Function ) );
+		expect( mockUseCopyToClipboard ).toHaveBeenLastCalledWith(
+			ADDRESS,
+			expect.any( Function ),
+			expect.any( Function )
+		);
 		expect( mockCopyRef ).toHaveBeenCalledWith( screen.getByRole( 'button', { name: 'Copy' } ) );
+	} );
+
+	it.each( [
+		[ 'success', 1, 'Copied to clipboard' ],
+		[ 'failure', 2, 'Couldn’t copy to clipboard.' ],
+	] as const )( 'announces a copy %s and keeps the button name', ( _result, callback, message ) => {
+		render( <PostByEmailSettings module={ build() } disabled={ false } /> );
+
+		act( () => mockUseCopyToClipboard.mock.lastCall?.[ callback ]() );
+
+		expect( speak ).toHaveBeenCalledWith( message );
+		expect( screen.getByRole( 'button', { name: 'Copy' } ) ).toBeInTheDocument();
 	} );
 
 	it.each( [ false, '1', null, 'NULL' ] )(
