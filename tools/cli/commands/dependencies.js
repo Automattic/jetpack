@@ -128,6 +128,12 @@ export async function handler( argv ) {
 	const debug = argv.v ? m => console.error( chalkStderr.blue( m ) ) : () => {};
 	let deps = await getDependencies( process.cwd(), argv.extra, argv.dev === false );
 
+	// Tests of a dependent can't observe a change that only reaches it through a dev edge.
+	const prodDeps =
+		argv.addDependents && argv.extra === 'test'
+			? await getDependencies( process.cwd(), 'build', true )
+			: undefined;
+
 	if ( argv.ignoreRoot ) {
 		deps.delete( 'monorepo' );
 	}
@@ -201,7 +207,11 @@ export async function handler( argv ) {
 			( argv.extra === 'build' || argv.extra === 'test' ) &&
 			! projset.has( 'js-packages/storybook' )
 		) {
-			const tmpdeps = filterDeps( deps, [ ...projset ], { dependencies: false, dependents: true } );
+			const tmpdeps = filterDeps( deps, [ ...projset ], {
+				dependencies: false,
+				dependents: true,
+				prodDeps,
+			} );
 			const { projects: storybookProjects } = await import(
 				path.join( process.cwd(), 'projects/js-packages/storybook/storybook/projects.js' )
 			);
@@ -230,6 +240,7 @@ export async function handler( argv ) {
 		deps = filterDeps( deps, argv.projects, {
 			dependencies: argv.addDependencies,
 			dependents: argv.addDependents,
+			prodDeps,
 		} );
 	}
 

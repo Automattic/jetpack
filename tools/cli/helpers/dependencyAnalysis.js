@@ -109,10 +109,12 @@ export async function getDependencies( root, extra = null, noDev = false ) {
  * @param {object}   options              - Options.
  * @param {boolean}  options.dependencies - Keep the dependencies of the specified projects too.
  * @param {boolean}  options.dependents   - Keep the dependents of the specified projects too.
+ * @param {Map}      options.prodDeps     - Runtime-only edges. If set, dependents are followed transitively over these, then one hop over `deps`.
  * @return {Map} Filtered dependencies.
  */
 export function filterDeps( deps, projects, options = {} ) {
 	const keep = new Set( projects );
+	const dependentDeps = options.prodDeps ?? deps;
 
 	// Apply options.dependencies and options.dependents until there is no further change.
 	let l = 0;
@@ -130,8 +132,8 @@ export function filterDeps( deps, projects, options = {} ) {
 
 		if ( options.dependents ) {
 			// Keep dependents: For everything in deps (and not already kept), add it if any of its dependencies are in keep.
-			for ( const [ p, pd ] of deps.entries() ) {
-				if ( ! keep.has( p ) ) {
+			for ( const [ p, pd ] of dependentDeps.entries() ) {
+				if ( deps.has( p ) && ! keep.has( p ) ) {
 					for ( const d of pd ) {
 						if ( keep.has( d ) ) {
 							keep.add( p );
@@ -141,6 +143,17 @@ export function filterDeps( deps, projects, options = {} ) {
 				}
 			}
 		}
+	}
+
+	// A dev edge doesn't ship, so projects reached through one can't pass the change on.
+	if ( options.dependents && options.prodDeps ) {
+		const devHop = [];
+		for ( const [ p, pd ] of deps.entries() ) {
+			if ( ! keep.has( p ) && [ ...pd ].some( d => keep.has( d ) ) ) {
+				devHop.push( p );
+			}
+		}
+		devHop.forEach( p => keep.add( p ) );
 	}
 
 	const ret = new Map();
