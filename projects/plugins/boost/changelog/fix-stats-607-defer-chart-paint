@@ -1,4 +1,5 @@
 Significance: patch
 Type: fixed
+Comment: Charts now wait for their size before drawing; Boost's history chart has no legend and showed no visible change.
 
-Charts: Wait for a chart's size before drawing it, so charts and their legends no longer jump into place as a page loads.
+
