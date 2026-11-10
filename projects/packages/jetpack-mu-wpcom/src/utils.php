@@ -195,6 +195,15 @@ function get_wpcom_blog_id() {
 
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		/*
+		 * Use wpcomsh's value when wpcomsh is loaded. wpcomsh compares the ID that a
+		 * caller passes to wpcom_site_has_feature() with its own value, and throws an
+		 * Error when they differ. One source keeps the two equal.
+		 */
+		if ( function_exists( '_wpcom_get_current_blog_id' ) ) {
+			return (int) _wpcom_get_current_blog_id();
+		}
+
+		/*
 		 * Atomic sites have the WP.com blog ID stored as a Jetpack option.
 		 * `Jetpack_Options` reads it from the platform's external storage first,
 		 * then from the `jetpack_options` row. The row alone is not enough: after

@@ -48,6 +48,19 @@ class Get_Wpcom_Blog_Id_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * With wpcomsh loaded, its value wins, even when it differs from Jetpack_Options.
+	 * wpcomsh throws an Error when the ID that a caller passes differs from its own.
+	 */
+	public function test_atomic_uses_the_wpcomsh_value_when_wpcomsh_is_loaded() {
+		define( 'IS_ATOMIC', true );
+		update_option( 'jetpack_options', array( 'version' => '14.0:1700000000' ) );
+		$this->register_external_storage( array( 'id' => 22222 ) );
+		require __DIR__ . '/fixtures/wpcomsh-current-blog-id-stub.php';
+
+		$this->assertSame( 33333, get_wpcom_blog_id() );
+	}
+
+	/**
 	 * Without external storage, the ID comes from the row, as before.
 	 */
 	public function test_atomic_reads_the_id_from_the_row_without_external_storage() {

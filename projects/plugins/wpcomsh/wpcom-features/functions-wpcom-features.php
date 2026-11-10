@@ -28,9 +28,19 @@ function _wpcom_get_current_blog_id() {
 	}
 
 	/*
-	 * Atomic sites have the WP.com blog ID stored as a Jetpack option. This code deliberately
-	 * doesn't use `Jetpack_Options::get_option` so it works even when Jetpack has not been loaded.
+	 * Atomic sites have the WP.com blog ID stored as a Jetpack option. `Jetpack_Options` reads it
+	 * from the platform's external storage first, then from the `jetpack_options` row. The row
+	 * alone is not enough: after a site migration, the row comes from the source site's database
+	 * and has no `id`. get_wpcom_blog_id() in jetpack-mu-wpcom returns this value too.
 	 */
+	if ( class_exists( 'Jetpack_Options' ) ) {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( $blog_id > 0 ) {
+			return $blog_id;
+		}
+	}
+
+	// Read the row directly, so that this works when Jetpack is not loaded.
 	$jetpack_options = get_option( 'jetpack_options' );
 	if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
 		return (int) $jetpack_options['id'];
