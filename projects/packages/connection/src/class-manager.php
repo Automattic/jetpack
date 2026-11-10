@@ -3154,7 +3154,10 @@ class Manager {
 	 *
 	 * Branches on the current user's tokens, not the owner's. A user with no token of their own is sent
 	 * to authorize(), where WordPress.com may make an admin the owner in place of a broken one.
+	 * When both the blog token and the user's token are healthy but the owner has a recorded error,
+	 * only the current user is relinked, the same way, rather than reconnecting the whole site.
 	 *
+	 * @since $$next-version$$ Relink only the current user when the owner's connection is broken and both tokens are healthy.
 	 * @since 9.8.1 When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
 	 *
 	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
@@ -3182,6 +3185,11 @@ class Manager {
 			$user_token_healthy = false; // Unknown, treated as unhealthy.
 		}
 
+		// Both healthy, but the owner is recorded as broken: relink only this user, not the whole site.
+		if ( $blog_token_healthy && $user_token_healthy && $this->can_relink_as_owner() ) {
+			return ( true === $this->refresh_user_token() ) ? 'authorize' : false;
+		}
+
 		// Tokens are both valid, or both invalid. We can't fix the problem we don't see, so the full reconnection is needed.
 		if ( $blog_token_healthy === $user_token_healthy ) {
 			$result = $this->reconnect();
@@ -3197,6 +3205,24 @@ class Manager {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Whether relinking the current user would repair a recorded broken connection owner.
+	 *
+	 * True when the owner has a recorded error and the current user is the owner or could become one.
+	 * A locked-ownership non-owner would only be linked, so unlinking them would fix nothing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private function can_relink_as_owner() {
+		if ( ! $this->has_owner_connection_error() ) {
+			return false;
+		}
+
+		return get_current_user_id() === $this->get_connection_owner_id() || $this->is_ownership_transferable();
 	}
 
 	/**
