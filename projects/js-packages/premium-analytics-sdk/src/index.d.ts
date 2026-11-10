@@ -75,11 +75,11 @@ export declare const MetricTabsChartSkeleton: AnyComponent;
 export declare const MetricTileGrid: AnyComponent;
 export declare const MetricTileGridSkeleton: AnyComponent;
 export declare function buildMetricTab( ...args: any[] ): any;
-// The `MetricTabsChart` `onDatumClick` handler that opens the clicked bucket as the dashboard period. `interval` is the bucket size the chart draws.
+// The `MetricTabsChart` `onDatumClick` handler that opens the clicked bucket, from either period, as the dashboard period. `interval` is the bucket size the chart draws.
 // Undefined where the host sets no period, and for an hourly chart, which has nothing smaller to open.
 export declare function useOpenChartBucket(
 	interval: 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'
-): ( ( date: Date, endDate?: Date ) => void ) | undefined;
+): ( ( clicked: { date: Date; endDate?: Date; isComparison: boolean } ) => void ) | undefined;
 export type DataFormat = any;
 export type CountLabel = any;
 export type ChartDisplayChartType = any;

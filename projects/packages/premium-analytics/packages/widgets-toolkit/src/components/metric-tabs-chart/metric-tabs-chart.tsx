@@ -95,6 +95,15 @@ export interface MetricTabDatum {
 	missing?: boolean;
 }
 
+/** The bucket a chart click lands on, in the period of the series it was drawn in. */
+export interface ClickedBucket {
+	date: Date;
+	/** The bucket's last instant, when the report states it. */
+	endDate?: Date;
+	/** A click on the previous-period series, whose bucket lies in the comparison range. */
+	isComparison: boolean;
+}
+
 /**
  * One selectable metric: a headline value + delta for its card, and the current
  * (and optional previous) period series for the chart.
@@ -214,10 +223,9 @@ export interface MetricTabsChartProps {
 	tickResolution?: BucketResolution;
 	/**
 	 * A click on the plot, or Enter on the keyboard-selected point, carrying the
-	 * date of that bucket and its `endDate` when the current point has one. Omit
-	 * to leave the chart non-interactive.
+	 * bucket under it. Omit to leave the chart non-interactive.
 	 */
-	onDatumClick?: ( date: Date, endDate?: Date ) => void;
+	onDatumClick?: ( clicked: ClickedBucket ) => void;
 	/**
 	 * Which metrics the tooltip reads out at the hovered date: the drawn one
 	 * (`active`, the default), or every metric in the list (`all`), the way the
@@ -325,7 +333,7 @@ function MetricChart( {
 	chartId: string;
 	chartTitle?: string;
 	tickResolution?: BucketResolution;
-	onDatumClick?: ( date: Date, endDate?: Date ) => void;
+	onDatumClick?: ( clicked: ClickedBucket ) => void;
 	comparisonLabel?: string;
 	empty?: ReactNode;
 	previousPeriodShown?: boolean;
@@ -419,20 +427,18 @@ function MetricChart( {
 
 	const reportDatum = useCallback(
 		( datum: unknown ) => {
-			// `alignSeriesDates` rewrites a comparison point's date to the primary point
-			// it is drawn under, so a click on either series opens the current-period bucket.
-			const date = ( datum as { date?: unknown } | undefined )?.date;
+			const point = datum as Partial< MetricTabDatum > | undefined;
 
-			if ( date instanceof Date ) {
-				// A comparison point keeps its own period's end, so the end comes from the current point.
-				const endDate = metric.current.find(
-					point => point.date.getTime() === date.getTime()
-				)?.endDate;
-
-				onDatumClick?.( date, endDate );
+			if ( point?.date instanceof Date ) {
+				// A comparison point is drawn under the current bucket it pairs with, so its own start is `realDate`.
+				onDatumClick?.( {
+					date: point.realDate ?? point.date,
+					endDate: point.endDate,
+					isComparison: point.realDate !== undefined,
+				} );
 			}
 		},
-		[ onDatumClick, metric ]
+		[ onDatumClick ]
 	);
 
 	const handlePointerDown = useCallback( ( { svgPoint }: ChartPointerParams ) => {

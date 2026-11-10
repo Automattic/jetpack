@@ -878,7 +878,7 @@ describe( 'MetricTabsChart', () => {
 
 			pressAndRelease( spy, { date: CLICKED, value: 200 } );
 
-			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED, undefined );
+			expect( onDatumClick ).toHaveBeenCalledWith( { date: CLICKED, isComparison: false } );
 		} );
 
 		// Literal on purpose. Importing the component's tolerance would move both
@@ -960,40 +960,34 @@ describe( 'MetricTabsChart', () => {
 
 			recordedProps( spy ).onDatumActivate?.( { datum: { date: CLICKED, value: 200 } } );
 
-			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED, undefined );
+			expect( onDatumClick ).toHaveBeenCalledWith( { date: CLICKED, isComparison: false } );
 		} );
 
-		it( "reports the current point's end for a click on a comparison point", () => {
+		it( 'reports the previous-period bucket for a click on a comparison point, not the current one it is drawn under', () => {
 			const onDatumClick = jest.fn();
-			const currentEnd = new Date( '2026-07-02T23:59:59Z' );
-			const weekly: MetricTab = {
-				...METRIC,
-				current: [ { date: CLICKED, endDate: currentEnd, value: 200 } ],
-				previous: [
-					{
-						date: new Date( '2026-06-02T00:00:00Z' ),
-						endDate: new Date( '2026-06-02T23:59:59Z' ),
-						value: 120,
-					},
-				],
-			};
+			const previousStart = new Date( '2026-06-02T00:00:00Z' );
+			const previousEnd = new Date( '2026-06-02T23:59:59Z' );
 
 			render(
 				<MetricTabsChart
-					metrics={ [ weekly ] }
+					metrics={ [ METRIC ] }
 					dataFormat={ DATA_FORMAT }
 					onDatumClick={ onDatumClick }
 				/>
 			);
 
-			// Drawn under the current point, the comparison datum carries the current date and its own end.
 			pressAndRelease( mockLineSpy, {
 				date: CLICKED,
-				endDate: new Date( '2026-06-02T23:59:59Z' ),
+				realDate: previousStart,
+				endDate: previousEnd,
 				value: 120,
 			} );
 
-			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED, currentEnd );
+			expect( onDatumClick ).toHaveBeenCalledWith( {
+				date: previousStart,
+				endDate: previousEnd,
+				isComparison: true,
+			} );
 		} );
 
 		it( 'leaves the chart without pointer or keyboard handlers when nothing listens', () => {

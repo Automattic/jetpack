@@ -9,6 +9,7 @@ import { getSettings, setSettings } from '@wordpress/date';
  */
 import { WidgetRootContext } from '../../components/widget-root';
 import { useOpenChartBucket } from '../use-open-chart-bucket';
+import type { ClickedBucket } from '../../components/metric-tabs-chart/metric-tabs-chart';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
@@ -17,7 +18,13 @@ setSettings( {
 	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
 } );
 
-const OCTOBER = { from: '2026-10-01', to: '2026-10-31', interval: 'week' } as ReportParams;
+const OCTOBER = {
+	from: '2026-10-01T00:00:00',
+	to: '2026-10-31T23:59:59',
+	interval: 'week',
+	compare_from: '2026-09-01T00:00:00',
+	compare_to: '2026-09-30T23:59:59',
+} as ReportParams;
 
 // A store week, cut Sunday to Saturday where an ISO week runs Monday to Sunday.
 const SUNDAY = new Date( '2026-10-18T00:00:00Z' );
@@ -46,7 +53,7 @@ function renderOpenChartBucket( initialParams: ReportParams ) {
 	return {
 		openPeriod,
 		setReportParams,
-		click: ( ...args: [ Date, Date? ] ) => view.result.current?.( ...args ),
+		click: ( clicked: ClickedBucket ) => view.result.current?.( clicked ),
 	};
 }
 
@@ -54,7 +61,7 @@ describe( 'useOpenChartBucket', () => {
 	it( 'opens the week the report stated, not the ISO week holding the date', () => {
 		const { openPeriod, click } = renderOpenChartBucket( OCTOBER );
 
-		click( SUNDAY, SATURDAY_END );
+		click( { date: SUNDAY, endDate: SATURDAY_END, isComparison: false } );
 
 		expect( openPeriod ).toHaveBeenCalledWith( {
 			from: new Date( '2026-10-18T00:00:00.000Z' ),
@@ -65,12 +72,39 @@ describe( 'useOpenChartBucket', () => {
 	it( 'cuts the bucket to the window of the current period after the period changes', () => {
 		const { openPeriod, setReportParams, click } = renderOpenChartBucket( OCTOBER );
 
-		setReportParams( { ...OCTOBER, from: '2026-10-20' } );
-		click( SUNDAY, SATURDAY_END );
+		setReportParams( { ...OCTOBER, from: '2026-10-20T00:00:00' } );
+		click( { date: SUNDAY, endDate: SATURDAY_END, isComparison: false } );
 
 		expect( openPeriod ).toHaveBeenCalledWith( {
 			from: new Date( '2026-10-20T00:00:00.000Z' ),
 			to: new Date( '2026-10-24T23:59:59.999Z' ),
+		} );
+	} );
+
+	// The store week of Sep 27 runs into October, so the window it is cut to shows which period opened it.
+	it.each( [
+		[
+			'cuts a previous-period bucket to the comparison range',
+			true,
+			{ from: '2026-09-27T00:00:00.000Z', to: '2026-09-30T23:59:59.000Z' },
+		],
+		[
+			'cuts a current-period bucket to the report range',
+			false,
+			{ from: '2026-10-01T00:00:00.000Z', to: '2026-10-03T23:59:59.999Z' },
+		],
+	] )( '%s', ( _label, isComparison, expected ) => {
+		const { openPeriod, click } = renderOpenChartBucket( OCTOBER );
+
+		click( {
+			date: new Date( '2026-09-27T00:00:00Z' ),
+			endDate: new Date( '2026-10-03T23:59:59Z' ),
+			isComparison,
+		} );
+
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( expected.from ),
+			to: new Date( expected.to ),
 		} );
 	} );
 } );

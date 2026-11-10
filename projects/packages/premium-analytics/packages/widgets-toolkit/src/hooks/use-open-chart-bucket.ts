@@ -14,9 +14,10 @@ import { useMemo } from 'react';
  */
 import { useWidgetRootContext } from '../components/widget-root/context';
 import { bucketRange } from '../helpers/period-range';
+import type { ClickedBucket } from '../components/metric-tabs-chart/metric-tabs-chart';
 
 /**
- * Opens the clicked chart bucket as the surface's period, cut to the widget's report window.
+ * Opens the clicked chart bucket as the surface's period, cut to the range its series covers: the report range, or the comparison range for a previous-period bucket.
  *
  * @param interval - The bucket size the chart draws, which may differ from the saved one.
  * @return The `MetricTabsChart` `onDatumClick` handler; undefined where the host sets no period or the bucket has nothing smaller to open.
@@ -30,13 +31,18 @@ export function useOpenChartBucket( interval: IntervalType ) {
 			return undefined;
 		}
 
-		const window = {
+		const current = {
 			from: parseSiteDateTime( reportParams.from ),
 			to: parseSiteDateTime( reportParams.to ),
 		};
+		const comparison = {
+			from: parseSiteDateTime( reportParams.compare_from ),
+			to: parseSiteDateTime( reportParams.compare_to ),
+		};
 
-		return ( date: Date, endDate?: Date ) => {
-			const range = bucketRange( { date, endDate }, interval, window, {
+		return ( clicked: ClickedBucket ) => {
+			const window = clicked.isComparison ? comparison : current;
+			const range = bucketRange( clicked, interval, window, {
 				timeZone: reportingTimeZone(),
 			} );
 
@@ -44,5 +50,12 @@ export function useOpenChartBucket( interval: IntervalType ) {
 				openPeriod( range );
 			}
 		};
-	}, [ openPeriod, interval, reportParams.from, reportParams.to ] );
+	}, [
+		openPeriod,
+		interval,
+		reportParams.from,
+		reportParams.to,
+		reportParams.compare_from,
+		reportParams.compare_to,
+	] );
 }
