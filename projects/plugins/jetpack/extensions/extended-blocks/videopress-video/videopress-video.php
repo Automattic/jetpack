@@ -83,7 +83,6 @@ if ( method_exists( 'Automattic\Jetpack\VideoPress\Channel', 'init' ) ) {
 	VideoPress_Pkg_Channel::init();
 }
 
-
 // The searchable transcript index, for the same reason.
 if ( method_exists( 'Automattic\Jetpack\VideoPress\Transcript_Index', 'init' ) ) {
 	\Automattic\Jetpack\VideoPress\Transcript_Index::init();
