@@ -514,8 +514,8 @@ $band-ground: #f8f8f8;
 	padding-block-start: var(--wpds-dimension-padding-md);
 }
 
-// Checked selection checkboxes take the selected pill's fill and, like the
-// pills, show a focus ring only for keyboard focus, not after a click.
+// Checked and partly checked boxes take the selected pill's fill and text color
+// and, like the pills, show a focus ring for keyboard focus, not after a click.
 .bulk-bar,
 .feature-leading-slot {
 
@@ -532,6 +532,10 @@ $band-ground: #f8f8f8;
 			box-shadow: none;
 			outline-color: transparent;
 		}
+	}
+
+	:global(.components-checkbox-control:not(:has(:disabled))) :global(svg:is(.components-checkbox-control__checked, .components-checkbox-control__indeterminate)) {
+		color: var(--wpds-color-foreground-interactive-neutral-strong);
 	}
 }
 
