@@ -2,7 +2,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { isChunkLoadError, recoverFromChunkLoad } from './chunk-recovery';
 import { findDashboardFrame } from './dashboard-frame';
 import { detectDomInterference } from './dom-interference';
-import { redactQuery } from './redact-query';
+import { redactQuery, routePathname } from './redact-query';
 import type { DashboardFrame } from './dashboard-frame';
 
 export type ReportSource = 'boundary' | 'error' | 'unhandledrejection';
@@ -276,7 +276,7 @@ function buildPayload(
 			source,
 			// Not the top-level `jetpack_version`, which conventionally carries the plugin version.
 			version: data?.premium_analytics?.error_reporting?.version,
-			route: new URLSearchParams( search ).get( 'p' ) ?? '/',
+			route: routePathname( new URLSearchParams( search ).get( 'p' ) ?? '/' ),
 			module: frame?.path,
 			widget: frame?.widget,
 			error_name: name,
