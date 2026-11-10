@@ -8,6 +8,7 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
+import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
 import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
@@ -656,8 +657,10 @@ function Dashboard(): JSX.Element {
  */
 export function stage(): JSX.Element {
 	return (
-		<PeriodChangeSignalProvider>
-			<Dashboard />
-		</PeriodChangeSignalProvider>
+		<StatsErrorBoundary>
+			<PeriodChangeSignalProvider>
+				<Dashboard />
+			</PeriodChangeSignalProvider>
+		</StatsErrorBoundary>
 	);
 }
