@@ -509,6 +509,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		}
 
 		$publicize = $input['publicize'] ?? null;
+		// The (array|bool) input type casts a JSON boolean to array( true ) or array( false ).
+		if ( array( true ) === $publicize || array( false ) === $publicize ) {
+			$publicize = $publicize[0];
+		}
 		unset( $input['publicize'] );
 
 		$publicize_custom_message = $input['publicize_message'] ?? null;
@@ -585,6 +589,26 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		 */
 		do_action( 'jetpack_dtp_fb_media', $is_dtp_fb_post, $blog_id, $input, $media_files, $media_urls, $media_attrs, $media_results );
 
+		$skip_publicize = false === $publicize;
+
+		$block_publicize_flag = $skip_publicize && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+
+		/**
+		 * On Jetpack sites, Sync flags the post for sharing on publish, before the skip meta below exists.
+		 * WordPress.com unhooks sharing from save_post above instead.
+		 *
+		 * @return false
+		 */
+		$block_publicize = static function () {
+			return false;
+		};
+		if ( $block_publicize_flag ) {
+			add_filter( 'publicize_should_publicize_published_post', $block_publicize, PHP_INT_MAX );
+		}
+
+		$skip_meta_post_id = 0;
+		$skip_meta_hook    = $this->hook_publicize_skip_meta( $new ? 0 : (int) $post_id, $post_type->name, $publicize, $skip_meta_post_id );
+
 		if ( $new ) {
 			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {
@@ -641,6 +665,14 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			} else {
 				$post_id = wp_update_post( (object) $insert );
 			}
+		}
+
+		if ( $block_publicize_flag ) {
+			remove_filter( 'publicize_should_publicize_published_post', $block_publicize, PHP_INT_MAX );
+		}
+
+		if ( $skip_meta_hook ) {
+			remove_action( 'wp_insert_post', $skip_meta_hook, PHP_INT_MAX );
 		}
 
 		if ( ! $post_id || is_wp_error( $post_id ) ) {
@@ -745,74 +777,8 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 		}
 
-		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
-		// to instead flag the ones we don't want to be skipped. proceed with said logic.
-		// any posts coming from Path (client ID 25952) should also not publicize.
-		if ( false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 === (int) $this->api->token_details['client_id'] ) ) {
-			// No publicize at all, skip all by ID.
-			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
-				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
-				$service_connections = $GLOBALS['publicize_ui']->publicize->get_connections( $name );
-				if ( ! $service_connections ) {
-					continue;
-				}
-				foreach ( $service_connections as $service_connection ) {
-					update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ), 1 );
-				}
-			}
-		} elseif ( is_array( $publicize ) && ( count( $publicize ) > 0 ) ) {
-			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
-				/*
-				 * We support both indexed and associative arrays:
-				 * * indexed are to pass entire services
-				 * * associative are to pass specific connections per service
-				 *
-				 * We do support mixed arrays: mixed integer and string keys (see 3rd example below).
-				 *
-				 * EG: array( 'linkedin', 'facebook') will only publicize to those, ignoring the other available services
-				 *      Form data: publicize[]=linkedin&publicize[]=facebook
-				 * EG: array( 'linkedin' => '(int) $pub_conn_id_0, (int) $pub_conn_id_3', 'facebook' => (int) $pub_conn_id_7 ) will publicize to two LinkedIn accounts, and one Facebook connection, of potentially many.
-				 *      Form data: publicize[linkedin]=$pub_conn_id_0,$pub_conn_id_3&publicize[facebook]=$pub_conn_id_7
-				 * EG: array( 'linkedin', 'facebook' => '(int) $pub_conn_id_0, (int) $pub_conn_id_3' ) will publicize to all available LinkedIn accounts, but only 2 of potentially many Facebook connections
-				 *      Form data: publicize[]=linkedin&publicize[facebook]=$pub_conn_id_0,$pub_conn_id_3
-				 */
-
-				// Delete any stale SKIP value for the service by name. We'll add it back by ID.
-				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
-
-				// Get the user's connections.
-				$service_connections = $GLOBALS['publicize_ui']->publicize->get_connections( $name );
-
-				// if the user doesn't have any connections for this service, move on.
-				if ( ! $service_connections ) {
-					continue;
-				}
-
-				if ( ! in_array( $name, $publicize, true ) && ! array_key_exists( $name, $publicize ) ) {
-					// Skip the whole service by adding each connection ID.
-					foreach ( $service_connections as $service_connection ) {
-						update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ), 1 );
-					}
-				} elseif ( ! empty( $publicize[ $name ] ) ) {
-					// Seems we're being asked to only push to [a] specific connection[s].
-					// Explode the list on commas, which will also support a single passed ID.
-					$requested_connections = explode( ',', ( preg_replace( '/[\s]*/', '', $publicize[ $name ] ) ) );
-
-					// Flag the connections we can't match with the requested list to be skipped.
-					foreach ( $service_connections as $service_connection ) {
-						if ( ! in_array( (string) $GLOBALS['publicize_ui']->publicize->get_connection_id( $service_connection ), $requested_connections, true ) ) {
-							update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ), 1 );
-						} else {
-							delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ) );
-						}
-					}
-				} else {
-					// delete all SKIP values; it's okay to publish to all connected IDs for this service.
-					foreach ( $service_connections as $service_connection ) {
-						delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ) );
-					}
-				}
-			}
+		if ( (int) $post_id !== $skip_meta_post_id ) {
+			$this->update_publicize_skip_meta( $post_id, $publicize );
 		}
 
 		if ( $publicize_custom_message !== null ) {
