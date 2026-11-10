@@ -58,6 +58,13 @@ export function getDaysBetweenInclusive( from: string, to: string ): number {
 	return days + 1;
 }
 
+function getCalendarYearSpan( from: string, to: string ): number {
+	const fromYear = Number( getDatePart( from ).slice( 0, 4 ) );
+	const toYear = Number( getDatePart( to ).slice( 0, 4 ) );
+
+	return toYear - fromYear + 1;
+}
+
 function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] {
 	// Hours, not days, so a range one second short of a full year (8759 hours)
 	// still rounds to 365 and categorizes as yearly.
@@ -71,7 +78,10 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		return [ 'day' ];
 	}
 
-	if ( daysDiff >= 1095 ) {
+	// Three calendar years is three yearly bars, the shortest window that reads
+	// as a series. A day count cannot say that: a range covers three years well
+	// before it holds three years of days.
+	if ( getCalendarYearSpan( from, to ) >= 3 ) {
 		return [ 'month', 'quarter', 'year' ];
 	} else if ( daysDiff > 366 ) {
 		return [ 'month', 'quarter' ];
@@ -176,8 +186,8 @@ function allowedIntervalsForPreset(
 		case PRESET_LAST_365_DAYS:
 		case PRESET_LAST_YEAR:
 			return [ 'month', 'week', 'quarter' ];
-		// Named rather than left to the range: the window is under the 1095 days
-		// the range wants for years until the last days of its third year.
+		// Named for the order, not the options: the range offers this window
+		// years too, but behind months, and this preset is read in years.
 		case PRESET_LAST_3_YEARS:
 			return [ 'year', 'month', 'quarter' ];
 		default:
