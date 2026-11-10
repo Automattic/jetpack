@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.17.1] - 2026-11-09
+### Changed
+- Connection: Return to My Jetpack after connecting from the connection screen, instead of showing the plans page. [#54572]
+- Connection: Show the WordPress.com connection screen made for the site's plugins when connecting an account from the missing user connection or connection error notice. [#54580]
+- Protect: Use the Protect page's feature names on the Protect card, its product page and the Features tab. [#54592]
+- Reduce repeated requests on page load: reuse product ownership data and refresh the historically active modules list at most hourly. [#54322]
+- Scan: Read the Scan product slug prefix from Protect Status instead of keeping a separate list. [#54590]
+- Show the firewall, login protection and other Protect modules under the Security filter on the Features tab. [#54677]
+
+### Fixed
+- Features: Move a wide card button under the text instead of squeezing the text. [#54586]
+- Fix the Overview showing a product's old status after a feature is switched on or off on the Features tab. [#54311]
+- Fix the Security and Growth filters on the Features tab showing no features. [#54496]
+- Settings panel: Keep the Post by Email Copy button on one line and announce the copy result, behind the settings consolidation flag. [#54617]
+
+## [6.17.0] - 2026-11-06
+### Added
+- Settings panel: Add the Infinite Scroll settings, behind the settings consolidation flag.
+- Settings panel: Add the Post by Email settings, behind the settings consolidation flag.
+- Settings panel: Record Tracks events when a module or option is switched, behind the settings consolidation flag.
+
+### Changed
+- Scan: Decide whether the site owns Scan with the same check as the Protect card and page.
+
+### Fixed
+- Protect card: Show that a site with Scan hasn't been scanned yet instead of calling it secure.
+- Protect card: Show when the last scan didn't complete instead of calling the site secure.
+- Settings panel: Record the Tracks event for the Post by Email switch, behind the settings consolidation flag.
+
 ## [6.16.0] - 2026-11-04
 ### Added
 - Add a settings panel that Configure on a More Features row opens, behind a feature flag that is off by default. [#54431]
@@ -3215,6 +3244,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.17.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.17.0...6.17.1
+[6.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.16.0...6.17.0
 [6.16.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.15.0...6.16.0
 [6.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.14.0...6.15.0
 [6.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.13.0...6.14.0

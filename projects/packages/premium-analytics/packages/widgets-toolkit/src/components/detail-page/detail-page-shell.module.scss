@@ -1,7 +1,3 @@
-@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
-
 .page {
 	min-block-size: 0;
-
-	@include jetpack-admin-page-header;
 }

@@ -34,7 +34,7 @@ wp-build also generates an ungated full-page route at `?page=jetpack-premium-ana
 `Analytics::remove_full_page_interceptor()` disables it. Use only the `-wp-admin` page hooks and
 filters.
 
-On connected sites the Jetpack plugin boots the package, or the Jetpack Stats plugin when Jetpack is
+On Jetpack sites the Jetpack plugin boots the package, or the Jetpack Stats plugin when Jetpack is
 absent; both ask `Enablement::is_enabled()`. `Classic_Stats` owns the flag that retires the classic
 Stats page.
 
@@ -388,6 +388,12 @@ export const Default: Story = {
 };
 ```
 
+That canvas follows the **Widget sizes** control, which the Storybook toolbar shows on these
+close-up stories only: the usual card, a matrix of six boxes, or a card to resize, each
+captioned with the box the widget gets. Use it to see how a widget adapts to the size it is
+handed before writing a story for one size. A story that mounts the real dashboard instead
+carries `tags: [ 'widget-dashboard' ]`, which hides the control there.
+
 **2. `WidgetDashboardWithWidget`**:
 
 ```tsx
@@ -404,6 +410,7 @@ function MyWidgetDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControl
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <MyWidgetDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -562,10 +569,12 @@ it owns the list with flags, the map and the states. Everything else renders its
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
-shared `describeError()` mapper so 403 access failures have neutral copy and no retry action,
-while other failures — including the proxy's `no_connection` 403, which can heal after
-reconnecting — offer Retry. Pass the retryable copy as a full sentence (not a fragment
-interpolated into a shared frame) so translators see the whole sentence:
+shared `describeError()` mapper so failures a retry cannot fix (403 access failures, an
+unusable response, the author post limit and an outdated WooCommerce analytics schema) get
+their own copy and no retry action, while other failures — including the proxy's
+`no_connection` 403, which can heal after reconnecting — offer Retry. Pass the retryable copy
+as a full sentence (not a fragment interpolated into a shared frame) so translators see the whole
+sentence:
 
 ```tsx
 <WidgetState

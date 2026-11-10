@@ -2,7 +2,7 @@
 
 One dynamic route serves every report. The `$report` path segment selects a
 report from the registry in `registry.ts`; the stage (`stage.tsx`) looks up the
-definition and lazily renders that report's page component. Adding a report does
+definition and renders that report's page component. Adding a report does
 **not** require a new route — you register it here.
 
 ## How to add a report
@@ -29,13 +29,15 @@ definition and lazily renders that report's page component. Adding a report does
    };
    ```
 
-3. **Add its page loader** to `REPORT_PAGE_LOADERS` in `report-page-loaders.ts`, keyed by the same id:
+3. **Add its component** to `REPORT_PAGES` in `report-pages.ts`, keyed by the same id:
 
    ```ts
-   posts: () => import( './posts/page' ),
+   import PostsPage from './posts/page';
+
+   posts: PostsPage,
    ```
 
-   The docblock on `REPORT_PAGE_LOADERS` says why the loaders stay out of `registry.ts`. A registry test fails when a report has no loader.
+   The component registry stays out of `registry.ts` because route guards import that metadata and must remain React-free. A registry test fails when a report has no page.
 
 That's it. The report is reachable at `/reports/<id>`. An unknown or missing
 `$report` redirects to the dashboard (`route.ts`).
@@ -64,6 +66,7 @@ page can read them from the URL search without re-implementing the seed:
 - `from`, `to`, `interval` — the current period and chart granularity.
 - `comp`, `compare_from`, `compare_to`, `compare_preset` — comparison state.
 - `preset`, `period` — the resolved date-range preset and period.
+- `step` — how the date arrows step the window, set by a step and cleared by any other range change.
 - `section` — resolved through the report's `resolveSection` when the report
   defines one, so a shared URL never persists a section the report can't render.
 
@@ -71,15 +74,15 @@ A report may add its own report-specific params on top of these (e.g. a view
 selector or filters); those live alongside the shared params in the URL and are
 owned by the report's page component.
 
-## Note on lazy-loading
+## Loading boundary
 
-Each page loader is a dynamic `import()` behind a `React.lazy` + `Suspense` boundary in the
-stage, which is the correct seam for lazy report modules. Today the route build
-(`@wordpress/build`) bundles each route with esbuild using `outfile` and no code
-splitting, so a `import()` of an in-route module is inlined into the route's
-single `content.js` bundle rather than emitted as a separate network chunk — the
-lazy interface works, but does not (yet) split at the network level. True
-network-level lazy-loading would slot in if a report is instead shipped as its
-own registered `@wordpress/build` module and imported by module id through the
-page import map (the mechanism dashboard widget render modules already use — see
-`src/widget-modules.php`).
+`@wordpress/build` lazy-loads this route's `content.js`; that route bundle is the
+loading boundary for every report page. The route build uses esbuild with
+`outfile` and no code splitting, so an additional dynamic `import()` inside the
+stage would still inline every report into `content.js` while adding an
+unnecessary asynchronous render boundary.
+
+True report-level lazy-loading would require each report to ship as its own
+registered `@wordpress/build` module and be imported by module id through the
+page import map. Dashboard widget render modules already use that mechanism; see
+`src/widget-modules.php`.

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
@@ -51,14 +52,15 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Status_Model properties that may be exposed to users without `manage_options`.
 	 *
-	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts and the
-	 * last scan time from these. The rest of the status report -- the scan state, the error
-	 * details, the list of fixable threat IDs -- is administrator-only.
+	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts, the
+	 * last scan time and whether that scan failed from these. The rest of the status report --
+	 * the scan state, the error details, the list of fixable threat IDs -- is administrator-only.
 	 *
 	 * @var string[]
 	 */
 	private const NON_ADMIN_SCAN_DATA_KEYS = array(
 		'last_checked',
+		'last_scan_failed',
 		'num_threats',
 		'num_plugins_threats',
 		'num_themes_threats',
@@ -334,7 +336,7 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
-				'name'  => __( 'Web Application Firewall', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Firewall', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array(
 						'included'    => false,
@@ -347,7 +349,7 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
-				'name'  => __( 'Brute force protection', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Login protection', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array( 'included' => true ),
 					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
@@ -459,11 +461,7 @@ class Protect extends Hybrid_Product {
 	 * @return array
 	 */
 	public static function get_paid_plan_product_slugs() {
-		return array(
-			'jetpack_scan',
-			'jetpack_scan_monthly',
-			'jetpack_scan_bi_yearly',
-		);
+		return Scan::get_paid_plan_product_slugs();
 	}
 
 	/**
@@ -473,6 +471,22 @@ class Protect extends Hybrid_Product {
 	 */
 	public static function has_paid_plan_for_product() {
 		return Plan::has_required_plan();
+	}
+
+	/**
+	 * Get the card's status, Expired for a lapsed purchase that Protect Status no longer counts.
+	 *
+	 * @return string
+	 */
+	public static function get_status() {
+		$status = parent::get_status();
+
+		// Plan only sees active purchases; the purchases lookup still lists a lapsed one, as for other products.
+		if ( Products::STATUS_CAN_UPGRADE === $status && static::is_paid_plan_expired() ) {
+			return Products::STATUS_EXPIRED;
+		}
+
+		return $status;
 	}
 
 	/**

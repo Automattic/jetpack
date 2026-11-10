@@ -14,7 +14,7 @@ use Automattic\Jetpack\Protect_Models\Status_Model;
  */
 class Status {
 
-	const PACKAGE_VERSION = '0.10.0';
+	const PACKAGE_VERSION = '0.10.2';
 	/**
 	 * Name of the option where status is stored
 	 *
@@ -144,7 +144,7 @@ class Status {
 	/**
 	 * Updated the cached status and its timestamp
 	 *
-	 * @param array $status The new status to be cached.
+	 * @param object $status The new status to be cached, as decoded from the API response.
 	 * @return void
 	 */
 	public static function update_status_option( $status ) {
@@ -182,13 +182,17 @@ class Status {
 	}
 
 	/**
-	 * Whether threats may be announced outside the Protect page.
+	 * Whether threats may be announced outside the Protect page; never while the site owner has the free check off.
 	 *
 	 * @since 0.10.0
 	 *
 	 * @return bool
 	 */
 	public static function should_notify_threats() {
+		if ( ! Protect_Status::are_checks_enabled() && Protect_Status::class === self::get_status_class() ) {
+			return false;
+		}
+
 		/**
 		 * Filters whether threats are announced outside the Protect page. Hosts that handle threats themselves can turn this off.
 		 *
@@ -197,6 +201,18 @@ class Status {
 		 * @param bool $enabled Whether to announce threats. Default true.
 		 */
 		return (bool) apply_filters( 'jetpack_protect_threat_notifications_enabled', true );
+	}
+
+	/**
+	 * Whether the request is for the Protect page, served by the Protect plugin or the Protect dashboard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_protect_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only compared against the page slug.
+		return isset( $_GET['page'] ) && 'jetpack-protect' === $_GET['page'];
 	}
 
 	/**
