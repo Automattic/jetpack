@@ -1,7 +1,8 @@
 /*
  * Modals, popovers and snackbars render into `<body>`, outside their app, so hiding the app
- * leaves them on screen. Each overlay is tagged with the page showing when it appeared, and
- * hidden while another page shows.
+ * leaves them on screen. What is added to `<body>` is tagged with the page showing when it
+ * appeared, and hidden while another page shows if it holds an overlay. Anything else, such as
+ * another plugin's chat launcher, stays put.
  */
 import { log } from '@automattic/jetpack-admin-shell/debug'; // eslint-disable-line import/no-unresolved -- Resolved by the import map.
 
@@ -25,6 +26,21 @@ const SHARED_CONTAINERS = [
 	'[data-wp-compat-overlay-slot]',
 	'.components-popover__fallback-container',
 ].join( ', ' );
+
+// What makes an element an overlay: dialogs, popovers, menus and notices.
+const OVERLAY_CONTENT = [
+	'[role="dialog"]',
+	'[role="alertdialog"]',
+	'[role="menu"]',
+	'[role="listbox"]',
+	'[role="tooltip"]',
+	'.components-modal__screen-overlay',
+	'.components-popover',
+	'.components-snackbar-list',
+	'[data-base-ui-portal]',
+].join( ', ' );
+
+const holdsOverlay = el => el.matches( OVERLAY_CONTENT ) || !! el.querySelector( OVERLAY_CONTENT );
 
 // Where overlays can be: right under <body>, or right under a shared container.
 const OVERLAYS = `body > [${ PAGE }], :is(${ SHARED_CONTAINERS }) > [${ PAGE }]`;
@@ -65,7 +81,7 @@ export function trackOverlays( getVisible ) {
  */
 export function showOverlaysOf( slug ) {
 	document.querySelectorAll( OVERLAYS ).forEach( el => {
-		el.toggleAttribute( HIDDEN, el.getAttribute( PAGE ) !== slug );
+		el.toggleAttribute( HIDDEN, el.getAttribute( PAGE ) !== slug && holdsOverlay( el ) );
 	} );
 }
 
@@ -79,12 +95,12 @@ const SETTLE_TIMEOUT = 100;
  * before the switch and the page reopens without it.
  *
  * @param {Element} link - The clicked link.
- * @return {Promise<void>} Resolves when it is safe to switch pages.
+ * @return {Promise<boolean>} Resolves when it is safe to switch pages: whether an overlay closed.
  */
 export async function closeOverlayAround( link ) {
 	const overlay = link.closest( OVERLAYS );
 	if ( ! overlay ) {
-		return;
+		return false;
 	}
 	const before = location.href;
 	// Dialogs from @wordpress/ui and @wordpress/components both close on Escape.
@@ -107,4 +123,5 @@ export async function closeOverlayAround( link ) {
 		}`,
 		location.search
 	);
+	return true;
 }

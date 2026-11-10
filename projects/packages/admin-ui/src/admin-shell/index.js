@@ -8,12 +8,19 @@ import {
 	isolateRouters,
 	notifyRouters,
 	prefetchBoot,
+	trackViewTransitions,
+	transitionSettled,
 } from '@automattic/jetpack-admin-shell/adapter';
 import { createApp, whenRendered } from '@automattic/jetpack-admin-shell/app';
 import { pageOf, updateChrome } from '@automattic/jetpack-admin-shell/chrome';
 import { debugEnabled, log, stopwatch } from '@automattic/jetpack-admin-shell/debug';
 import { applyGuestAssets } from '@automattic/jetpack-admin-shell/guest-assets';
-import { rememberHeader, showHeader } from '@automattic/jetpack-admin-shell/header';
+import {
+	configureHeaders,
+	rememberHeader,
+	removeHeader,
+	showHeader,
+} from '@automattic/jetpack-admin-shell/header';
 import {
 	closeOverlayAround,
 	showOverlaysOf,
@@ -37,11 +44,15 @@ const emit = ( type, detail ) => {
 	window.dispatchEvent( new CustomEvent( `jetpack-admin-shell:${ type }`, { detail } ) );
 };
 
-const start = ( { host, members, guestAssetsUrl } ) => {
+const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
 	if ( ! hostEl ) {
 		return;
 	}
+	// The title the host page was printed with, filters included.
+	members[ host ].adminTitle = document.title;
+	configureHeaders( headerStorageKey );
+	trackViewTransitions();
 
 	log(
 		'shell',
@@ -134,7 +145,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 			apps.delete( slug );
 			el.remove();
 		};
-		const removeHeader = showHeader( slug, el, {
+		const removeStandIn = showHeader( slug, el, {
 			from: apps.get( previous )?.el,
 			title: members[ slug ].title,
 		} );
@@ -146,7 +157,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 			if ( visible !== slug ) {
 				// Left before it could boot; it boots on the next visit, at that visit's URL.
 				log( 'switch', `${ slug }: left before it booted` );
-				removeHeader();
+				removeStandIn();
 				discard();
 				return;
 			}
@@ -160,7 +171,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 			discard();
 			throw error;
 		} finally {
-			removeHeader();
+			removeStandIn();
 			gate.mounted( slug );
 		}
 		markReady( app );
@@ -185,6 +196,9 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 		}
 		// Hide the outgoing app before the URL changes, so its router never sees the new URL.
 		visible = slug;
+		if ( apps.get( previous )?.state === 'loading' ) {
+			removeHeader( previous );
+		}
 		apps.get( previous )?.place( false );
 		showOverlaysOf( slug );
 		emit( 'page-hidden', { page: previous, previous: null, firstShow: false, url: location.href } );
@@ -226,7 +240,8 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 			// The user may have moved on to another page while this one failed to boot.
 			if ( visible === slug ) {
 				log( 'switch', `${ slug }: falling back to a page load` );
-				location.assign( url );
+				// Replace: the shell has already pushed this URL.
+				location.replace( url );
 			}
 		}
 	};
@@ -252,36 +267,33 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 		}
 	} );
 
-	document.addEventListener(
-		'click',
-		event => {
-			const a = event.target.closest?.( 'a[href]' );
-			if (
-				! a ||
-				( a.target && a.target !== '_self' ) ||
-				a.hasAttribute( 'download' ) ||
-				event.defaultPrevented ||
-				event.button !== 0 ||
-				event.metaKey ||
-				event.ctrlKey ||
-				event.shiftKey ||
-				event.altKey ||
-				! isMemberUrl( a.href )
-			) {
-				return;
-			}
-			// In-app links within the visible member belong to its router.
-			const inMenu = !! a.closest( '#adminmenu' );
-			if ( pageOf( a.href ) === visible && ! inMenu ) {
-				return;
-			}
-			event.preventDefault();
-			closeOverlayAround( a ).then( () =>
-				navigate( a.href, inMenu ? 'menu click' : 'link click' )
-			);
-		},
-		true
-	);
+	// Bubble phase: an app that handles a link itself (preventDefault) keeps it.
+	document.addEventListener( 'click', event => {
+		const a = event.target.closest?.( 'a[href]' );
+		if (
+			! a ||
+			( a.target && a.target !== '_self' ) ||
+			a.hasAttribute( 'download' ) ||
+			event.defaultPrevented ||
+			event.button !== 0 ||
+			event.metaKey ||
+			event.ctrlKey ||
+			event.shiftKey ||
+			event.altKey ||
+			! isMemberUrl( a.href )
+		) {
+			return;
+		}
+		// In-app links within the visible member belong to its router.
+		const inMenu = !! a.closest( '#adminmenu' );
+		if ( pageOf( a.href ) === visible && ! inMenu ) {
+			return;
+		}
+		event.preventDefault();
+		closeOverlayAround( a )
+			.then( closed => closed && transitionSettled() )
+			.then( () => navigate( a.href, inMenu ? 'menu click' : 'link click' ) );
+	} );
 
 	document.getElementById( 'adminmenu' )?.addEventListener( 'pointerover', event => {
 		const a = event.target.closest?.( 'a[href]' );

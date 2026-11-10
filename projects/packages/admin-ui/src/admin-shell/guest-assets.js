@@ -34,6 +34,55 @@ const runScript = node =>
 		}
 	} );
 
+// Every global's current value, to tell which ones a script reassigned.
+const globalsSnapshot = () => {
+	const values = new Map();
+	for ( const key of Object.keys( window ) ) {
+		try {
+			values.set( key, window[ key ] );
+		} catch {
+			// A throwing getter: nothing a page script can reassign through `var` either.
+		}
+	}
+	return values;
+};
+
+/**
+ * Run a guest's inline script, keeping the host's value of every global it reassigns.
+ *
+ * Guest data printed as `var X = …` would otherwise replace what the host's app reads; objects
+ * get the guest's extra keys merged in, so the guest still finds its own data.
+ *
+ * @param {HTMLScriptElement} node - Inline script.
+ * @return {Promise<string[]>} Globals the host kept.
+ */
+const runInline = async node => {
+	const before = globalsSnapshot();
+	await runScript( node );
+	const kept = [];
+	for ( const [ key, hostValue ] of before ) {
+		let guestValue;
+		try {
+			guestValue = window[ key ];
+		} catch {
+			continue;
+		}
+		if ( guestValue === hostValue ) {
+			continue;
+		}
+		try {
+			window[ key ] = hostValue;
+		} catch {
+			continue;
+		}
+		if ( isPlainObject( hostValue ) && isPlainObject( guestValue ) ) {
+			mergeInto( hostValue, guestValue );
+		}
+		kept.push( key );
+	}
+	return kept;
+};
+
 const addStylesheet = node =>
 	new Promise( resolve => {
 		const link = node.cloneNode( true );
@@ -68,7 +117,11 @@ export async function applyGuestAssets( endpoint, slug ) {
 	const stylesheets = [];
 	// Inserted with async=false, external scripts download in parallel and still run in order.
 	let loading = [];
-	const added = { scripts: 0, styles: 0, skipped: 0 };
+	const added = { scripts: 0, styles: 0, skipped: 0, keptGlobals: [] };
+	// Inline scripts carry no id when printed without a handle; match those by their text.
+	const inlineTexts = new Set(
+		[ ...document.querySelectorAll( 'script:not([src])' ) ].map( script => script.textContent )
+	);
 	for ( const node of nodes ) {
 		const existing = node.id && document.getElementById( node.id );
 		if ( node.tagName !== 'SCRIPT' ) {
@@ -84,7 +137,7 @@ export async function applyGuestAssets( endpoint, slug ) {
 			}
 			continue;
 		}
-		if ( node.src ? existing : existing?.textContent === node.textContent ) {
+		if ( node.src ? existing : inlineTexts.has( node.textContent ) ) {
 			added.skipped++;
 			continue;
 		}
@@ -96,13 +149,7 @@ export async function applyGuestAssets( endpoint, slug ) {
 		// An inline script runs as soon as it is added, so the scripts before it must have run.
 		await Promise.all( loading );
 		loading = [];
-		const host = node.id === 'jetpack-script-data-js-before' && window.JetpackScriptData;
-		await runScript( node );
-		if ( host ) {
-			const guest = window.JetpackScriptData;
-			window.JetpackScriptData = host;
-			mergeInto( host, guest );
-		}
+		added.keptGlobals.push( ...( await runInline( node ) ) );
 	}
 	await Promise.all( loading );
 	await Promise.all( stylesheets );

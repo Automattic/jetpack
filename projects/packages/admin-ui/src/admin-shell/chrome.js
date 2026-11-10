@@ -42,11 +42,11 @@ const highlightMenu = slug => {
  */
 export function updateChrome( slug, members ) {
 	// Dashboards scope their layout styles to WordPress's per-page body class.
-	for ( const member of Object.keys( members ) ) {
-		document.body.classList.toggle( `jetpack_page_${ member }`, member === slug );
+	for ( const [ member, { bodyClass } ] of Object.entries( members ) ) {
+		document.body.classList.toggle( bodyClass, member === slug );
 	}
 	highlightMenu( slug );
-	document.title = document.title.replace( /^[^‹]*/, `${ members[ slug ].title } ` );
+	document.title = members[ slug ].adminTitle;
 
 	// After Back/Forward, focus would keep the previous page's menu link lit.
 	// eslint-disable-next-line @wordpress/no-global-active-element -- The shell owns the whole document.

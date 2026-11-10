@@ -135,6 +135,8 @@ class Dashboard {
 	/**
 	 * Register Forms with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
 	 */
@@ -150,6 +152,8 @@ class Dashboard {
 			/** "Jetpack Forms" is a product name, do not translate. */
 			'title'        => 'Jetpack Forms',
 			'capability'   => 'edit_pages',
+			// The connection initial state and REST preload are inline scripts on wp-api-fetch.
+			'handles'      => array( 'jetpack-forms-layout', 'jetpack-script-data', 'wp-api-fetch', 'wp-jp-i18n-loader', 'jp-tracks-functions' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -157,6 +161,8 @@ class Dashboard {
 
 	/**
 	 * Ready the Forms routes while another dashboard's page is open.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */

@@ -5,7 +5,46 @@
  */
 import { log } from '@automattic/jetpack-admin-shell/debug'; // eslint-disable-line import/no-unresolved -- Resolved by the import map.
 
-const storageKey = slug => `jetpack-admin-shell-header:${ slug }`;
+const KEY_ROOT = 'jetpack-admin-shell-header:';
+// The longest a stand-in stays up: an app showing no page heading would otherwise stay hidden.
+const STAND_IN_TIMEOUT = 3000;
+
+let keyPrefix = KEY_ROOT;
+const storageKey = slug => keyPrefix + slug;
+
+/**
+ * Set where headers are saved, and drop the ones an earlier release saved for this site and user.
+ *
+ * @param {string} prefix - `jetpack-admin-shell-header:<blog>:<user>:<version>:`.
+ */
+export function configureHeaders( prefix ) {
+	keyPrefix = prefix;
+	const scope = prefix.split( ':' ).slice( 0, 3 ).join( ':' ) + ':';
+	try {
+		for ( const key of Object.keys( localStorage ) ) {
+			const stale = key.startsWith( scope ) && ! key.startsWith( prefix );
+			// Keys from before headers were saved per site and user have no blog ID.
+			const unscoped = key.startsWith( KEY_ROOT ) && ! /^\d+:/.test( key.slice( KEY_ROOT.length ) );
+			if ( stale || unscoped ) {
+				localStorage.removeItem( key );
+			}
+		}
+	} catch {
+		// Blocked storage: nothing was saved either.
+	}
+}
+
+// Stand-ins on screen, by page.
+const standIns = new Map();
+
+/**
+ * Remove a page's stand-in header, if it has one.
+ *
+ * @param {string} slug - Page slug.
+ */
+export function removeHeader( slug ) {
+	standIns.get( slug )?.();
+}
 
 // The app's page wrappers, empty, around a copy of its header.
 const frameOf = el => {
@@ -27,10 +66,13 @@ const frameOf = el => {
 const inertCopy = html => {
 	const template = document.createElement( 'template' );
 	template.innerHTML = html;
-	template.content.querySelectorAll( 'script' ).forEach( node => node.remove() );
+	template.content
+		.querySelectorAll( 'script, iframe, frame, object, embed, base, form' )
+		.forEach( node => node.remove() );
 	for ( const node of template.content.querySelectorAll( '*' ) ) {
-		for ( const { name } of [ ...node.attributes ] ) {
-			if ( name === 'id' || name.startsWith( 'on' ) ) {
+		for ( const { name, value } of [ ...node.attributes ] ) {
+			const runs = name.startsWith( 'on' ) || name === 'srcdoc' || /^\s*javascript:/i.test( value );
+			if ( name === 'id' || runs ) {
 				node.removeAttribute( name );
 			}
 		}
@@ -167,11 +209,19 @@ export function showHeader( slug, el, { from, title } = {} ) {
 	el.style.visibility = 'hidden';
 	log( 'header', `showing ${ source } header for ${ slug }` );
 
-	return () => {
+	const remove = () => {
+		clearTimeout( timer );
+		if ( standIns.get( slug ) === remove ) {
+			standIns.delete( slug );
+		}
 		if ( standIn.isConnected ) {
 			standIn.remove();
 			el.style.visibility = '';
 			log( 'header', `removed stand-in header for ${ slug }` );
 		}
 	};
+	const timer = setTimeout( remove, STAND_IN_TIMEOUT );
+	standIns.get( slug )?.();
+	standIns.set( slug, remove );
+	return remove;
 }

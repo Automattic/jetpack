@@ -128,7 +128,7 @@ class Admin_Shell {
 		 * - default_path (string)   Optional. The `p` a bare menu link opens.
 		 * - load (callable)         Registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
-		 * - handles (string[])      Optional. Script and style handles the shell may return for the page.
+		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -171,7 +171,9 @@ class Admin_Shell {
 	private static function resolve_host() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which page this is.
 		$page = isset( $_GET['page'] ) && is_string( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
-		if ( '' === $page || ! self::is_enabled() ) {
+		// Members are Jetpack submenu pages; checking the screen first keeps the members filter off other admin pages.
+		$on_jetpack_screen = isset( $GLOBALS['hook_suffix'] ) && self::screen_id( $page ) === $GLOBALS['hook_suffix'];
+		if ( '' === $page || ! $on_jetpack_screen || ! self::is_enabled() ) {
 			return array( null, array() );
 		}
 
@@ -180,6 +182,16 @@ class Admin_Shell {
 			return array( null, $members );
 		}
 		return array( $page, $members );
+	}
+
+	/**
+	 * The screen ID, hook suffix and body class of a member page.
+	 *
+	 * @param string $slug Admin page slug.
+	 * @return string
+	 */
+	public static function screen_id( $slug ) {
+		return 'jetpack_page_' . $slug;
 	}
 
 	/**
@@ -333,9 +345,11 @@ class Admin_Shell {
 	 */
 	private static function get_client_config( $host, $members, $guests ) {
 		$config = array(
-			'host'           => $host,
-			'members'        => array(),
-			'guestAssetsUrl' => add_query_arg(
+			'host'             => $host,
+			'members'          => array(),
+			// Saved headers are per site, user and release: subdirectory multisite sites share one origin.
+			'headerStorageKey' => sprintf( 'jetpack-admin-shell-header:%d:%d:%s:', get_current_blog_id(), get_current_user_id(), Admin_Menu::PACKAGE_VERSION ),
+			'guestAssetsUrl'   => add_query_arg(
 				array(
 					'action' => self::GUEST_ACTION,
 					'nonce'  => wp_create_nonce( self::GUEST_ACTION ),
@@ -351,41 +365,89 @@ class Admin_Shell {
 				'initModules' => $member['init_modules'],
 				'defaultPath' => $member['default_path'],
 				'title'       => $member['title'],
+				'adminTitle'  => self::admin_title( $slug, $member['title'] ),
+				'bodyClass'   => self::screen_id( $slug ),
 			);
 		}
 		return $config;
 	}
 
 	/**
-	 * Return the styles and scripts a guest prints on its own page, for the client to run before booting it.
+	 * The document title a member page gets on its own page load.
+	 *
+	 * @param string $slug     Admin page slug.
+	 * @param string $fallback Title to use when the page isn't in the admin menu.
+	 * @return string
+	 */
+	private static function admin_title( $slug, $fallback ) {
+		global $submenu;
+		$title = $fallback;
+		foreach ( is_array( $submenu ) ? $submenu : array() as $items ) {
+			foreach ( $items as $item ) {
+				if ( isset( $item[2] ) && $slug === $item[2] ) {
+					$title = wp_strip_all_tags( $item[3] ?? $item[0] );
+					break 2;
+				}
+			}
+		}
+		/* translators: Admin screen title. 1: Admin screen name, 2: Network or site name. */
+		$admin_title = sprintf( __( '%1$s &lsaquo; %2$s &#8212; WordPress' ), $title, get_bloginfo( 'name' ) ); // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Core's string, so the title matches the one core prints.
+		/** This filter is documented in wp-admin/admin-header.php */
+		$admin_title = apply_filters( 'admin_title', $admin_title, $title ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter.
+		return html_entity_decode( wp_strip_all_tags( $admin_title ), ENT_QUOTES, 'UTF-8' );
+	}
+
+	/**
+	 * Send the styles and scripts a guest prints on its own page, for the client to run before booting it.
 	 *
 	 * @return void
 	 */
 	public static function ajax_guest_assets() {
 		check_ajax_referer( self::GUEST_ACTION, 'nonce' );
 		// Not `page`: products treat a `page` naming them as a visit to their own screen.
-		$slug    = isset( $_GET['member'] ) && is_string( $_GET['member'] ) ? sanitize_key( wp_unslash( $_GET['member'] ) ) : '';
+		$slug = isset( $_GET['member'] ) && is_string( $_GET['member'] ) ? sanitize_key( wp_unslash( $_GET['member'] ) ) : '';
+
+		$html = self::guest_assets( $slug );
+		if ( is_int( $html ) ) {
+			wp_send_json_error( null, $html, JSON_UNESCAPED_SLASHES );
+		}
+		wp_send_json_success( array( 'html' => $html ), null, JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * The styles and scripts a member prints on its own page.
+	 *
+	 * @param string $slug Member page slug.
+	 * @return string|int The HTML, or an HTTP status: 404 for no such member while the shell is on, 403 when the user can't open it.
+	 */
+	public static function guest_assets( $slug ) {
 		$members = self::is_enabled() ? self::get_members() : array();
 		if ( ! isset( $members[ $slug ] ) ) {
-			wp_send_json_error( null, 404, JSON_UNESCAPED_SLASHES );
+			return 404;
 		}
 		if ( ! current_user_can( $members[ $slug ]['capability'] ) ) {
-			wp_send_json_error( null, 403, JSON_UNESCAPED_SLASHES );
+			return 403;
 		}
 
 		call_user_func( $members[ $slug ]['load'] );
-		$hook_suffix = 'jetpack_page_' . $slug;
+		$hook_suffix = self::screen_id( $slug );
 		set_current_screen( $hook_suffix );
 		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- One script tag per handle, so the client can skip what the host already has.
 
 		ob_start();
 		do_action( 'admin_enqueue_scripts', $hook_suffix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
+		// Only the member's own handles, and what they depend on, go back to the page. Printing them
+		// even when nothing enqueued them: a page can rely on another script pulling one in.
+		foreach ( array( wp_scripts(), wp_styles() ) as $dependencies ) {
+			$dependencies->queue = array_values( array_filter( $members[ $slug ]['handles'], array( $dependencies, 'query' ) ) );
+		}
 		wp_print_styles();
+		// The print hooks attach data to handles (Script_Data does), so they run in full.
 		do_action( 'admin_print_scripts' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
 		print_head_scripts();
 		print_footer_scripts();
 		do_action( 'admin_print_footer_scripts' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
-		wp_send_json_success( array( 'html' => ob_get_clean() ), null, JSON_UNESCAPED_SLASHES );
+		return ob_get_clean();
 	}
 
 	/**
@@ -408,20 +470,42 @@ class Admin_Shell {
 	}
 
 	/**
+	 * Callbacks added to the deferred hooks since the snapshot, in the order the hooks would run them.
+	 *
+	 * @param array<string, array<string, true>> $snapshot From hook_snapshot().
+	 * @return array<string, array<array{function: callable, priority: int}>> Keyed by every deferred hook.
+	 */
+	private static function added_callbacks( $snapshot ) {
+		global $wp_filter;
+		$added = array();
+		foreach ( self::DEFERRED_HOOKS as $hook ) {
+			$added[ $hook ] = array();
+			$callbacks      = isset( $wp_filter[ $hook ] ) ? $wp_filter[ $hook ]->callbacks : array();
+			ksort( $callbacks );
+			foreach ( $callbacks as $priority => $by_id ) {
+				foreach ( $by_id as $id => $callback ) {
+					if ( ! isset( $snapshot[ $hook ][ $priority . '|' . $id ] ) ) {
+						$added[ $hook ][] = array(
+							'function' => $callback['function'],
+							'priority' => $priority,
+						);
+					}
+				}
+			}
+		}
+		return $added;
+	}
+
+	/**
 	 * Remove callbacks added to the deferred hooks since the snapshot.
 	 *
 	 * @param array<string, array<string, true>> $snapshot From hook_snapshot().
 	 * @return void
 	 */
 	private static function remove_added_callbacks( $snapshot ) {
-		global $wp_filter;
-		foreach ( self::DEFERRED_HOOKS as $hook ) {
-			foreach ( isset( $wp_filter[ $hook ] ) ? $wp_filter[ $hook ]->callbacks : array() as $priority => $callbacks ) {
-				foreach ( $callbacks as $id => $callback ) {
-					if ( ! isset( $snapshot[ $hook ][ $priority . '|' . $id ] ) ) {
-						remove_filter( $hook, $callback['function'], $priority );
-					}
-				}
+		foreach ( self::added_callbacks( $snapshot ) as $hook => $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				remove_filter( $hook, $callback['function'], $callback['priority'] );
 			}
 		}
 	}
