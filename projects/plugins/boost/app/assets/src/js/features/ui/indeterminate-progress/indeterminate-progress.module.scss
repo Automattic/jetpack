@@ -22,7 +22,7 @@
 	// Keep while core still animates under reduced motion.
 	@media (prefers-reduced-motion: reduce) {
 
-		.indicator {
+		.indicator[data-indeterminate] {
 			animation: none;
 			inset-inline-start: 25%;
 		}

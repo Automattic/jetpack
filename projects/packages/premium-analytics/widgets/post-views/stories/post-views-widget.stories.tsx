@@ -151,6 +151,7 @@ function PostViewsDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< PostViewsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PostViewsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

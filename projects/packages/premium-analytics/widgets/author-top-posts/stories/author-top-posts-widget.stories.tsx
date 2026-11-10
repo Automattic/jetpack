@@ -102,6 +102,7 @@ function AuthorTopPostsDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< AuthorTopPostsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <AuthorTopPostsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

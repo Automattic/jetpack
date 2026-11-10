@@ -192,6 +192,7 @@ function SiteOverviewDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< SiteOverviewDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <SiteOverviewDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

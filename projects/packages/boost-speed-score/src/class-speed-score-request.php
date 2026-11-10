@@ -60,6 +60,20 @@ class Speed_Score_Request extends Cacheable {
 	private $retry_count;
 
 	/**
+	 * When this request was last polled, in seconds since epoch.
+	 *
+	 * @var int|float|null $last_polled Last poll timestamp, or null before the first poll.
+	 */
+	private $last_polled;
+
+	/**
+	 * Seconds between this poll and the one before it (or the dispatch), set by poll_update().
+	 *
+	 * @var float|null $poll_gap Gap in seconds, or null when not polled in this request.
+	 */
+	private $poll_gap;
+
+	/**
 	 * The error returned
 	 *
 	 * @var array $error Speed Scores error.
@@ -132,6 +146,24 @@ class Speed_Score_Request extends Cacheable {
 	}
 
 	/**
+	 * When this request was dispatched, or last restarted.
+	 *
+	 * @return int|float Seconds since epoch.
+	 */
+	public function get_created() {
+		return $this->created;
+	}
+
+	/**
+	 * Seconds between the latest poll and the one before it, or null when not polled in this request.
+	 *
+	 * @return float|null
+	 */
+	public function get_poll_gap() {
+		return $this->poll_gap;
+	}
+
+	/**
 	 * Convert this object to a plain array for JSON serialization.
 	 */
 	#[\ReturnTypeWillChange]
@@ -145,6 +177,7 @@ class Speed_Score_Request extends Cacheable {
 			'error'          => $this->error,
 			'client'         => $this->client,
 			'retry_count'    => $this->retry_count,
+			'last_polled'    => $this->last_polled,
 		);
 	}
 
@@ -171,6 +204,10 @@ class Speed_Score_Request extends Cacheable {
 
 		if ( ! empty( $data['retry_count'] ) ) {
 			$object->retry_count = intval( $data['retry_count'] );
+		}
+
+		if ( ! empty( $data['last_polled'] ) ) {
+			$object->last_polled = $data['last_polled'];
 		}
 
 		return $object;
@@ -239,6 +276,10 @@ class Speed_Score_Request extends Cacheable {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function poll_update() {
+		$now               = microtime( true );
+		$this->poll_gap    = $now - ( $this->last_polled ?? $this->created );
+		$this->last_polled = $now;
+
 		$response = Boost_API::get(
 			sprintf(
 				'speed-scores/%s',
@@ -261,6 +302,8 @@ class Speed_Score_Request extends Cacheable {
 				if ( $this->created <= strtotime( '-15 mins' ) ) {
 					return $this->restart();
 				}
+				// As long as WordPress.com keeps the result; the default would drop a run the user left mid-way.
+				$this->store( 3600 );
 				break;
 
 			case 'error':
