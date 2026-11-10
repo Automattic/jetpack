@@ -11,11 +11,11 @@ import {
 	transitionSettled,
 } from './adapter';
 import { createApp, whenRendered } from './app';
-import { pageOf, updateChrome } from './chrome';
+import { announcePage, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
 import { applyGuestAssets } from './guest-assets';
 import { configureHeaders, rememberHeader, removeHeader, showHeader } from './header';
-import { closeOverlayAround, showOverlaysOf, trackOverlays } from './overlays';
+import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } from './overlays';
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
 const RENDER_TIMEOUT = 15000;
@@ -189,6 +189,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			removeHeader( previous );
 		}
 		apps.get( previous )?.place( false );
+		closeDialogsOf( previous );
 		showOverlaysOf( slug );
 		emit( 'page-hidden', { page: previous, previous: null, firstShow: false, url: location.href } );
 		if ( push ) {
@@ -217,6 +218,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 					`${ slug } on screen ${ elapsed() } after the switch started`,
 					location.search
 				);
+				apps.get( slug ).focusHeading();
+				announcePage( members[ slug ].adminTitle );
 				emit( 'page-shown', {
 					page: slug,
 					previous,

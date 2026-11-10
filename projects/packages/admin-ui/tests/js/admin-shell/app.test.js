@@ -12,6 +12,9 @@ describe( 'createApp', () => {
 
 		expect( app.el.dataset ).toMatchObject( { shellPage: 'forms', shellState: 'loading' } );
 		expect( app.el ).toHaveStyle( { display: 'none' } );
+		expect( app.el.inert ).toBe( true );
+		app.place( true );
+		expect( app.el.inert ).toBe( false );
 	} );
 
 	it.each( [
@@ -35,6 +38,28 @@ describe( 'createApp', () => {
 		app.place( true );
 		expect( app.el.inert ).toBe( false );
 		expect( app.el ).not.toHaveStyle( { display: 'none' } );
+	} );
+} );
+
+describe( 'focusHeading', () => {
+	it( 'focuses the first page heading with text, without scrolling to it', () => {
+		const app = newApp();
+		app.el.innerHTML = '<h1></h1><h1>Forms</h1>';
+		const heading = app.el.querySelectorAll( 'h1' )[ 1 ];
+		const focus = jest.spyOn( heading, 'focus' );
+		app.focusHeading();
+
+		expect( heading ).toHaveFocus();
+		expect( heading ).toHaveAttribute( 'tabindex', '-1' );
+		expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
+	} );
+
+	it( 'keeps a heading’s own tabindex', () => {
+		const app = newApp();
+		app.el.innerHTML = '<h1 tabindex="0">Forms</h1>';
+		app.focusHeading();
+
+		expect( app.el.querySelector( 'h1' ) ).toHaveAttribute( 'tabindex', '0' );
 	} );
 } );
 

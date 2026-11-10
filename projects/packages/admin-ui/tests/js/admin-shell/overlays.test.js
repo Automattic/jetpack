@@ -1,4 +1,5 @@
 import {
+	closeDialogsOf,
 	closeOverlayAround,
 	showOverlaysOf,
 	trackOverlays,
@@ -68,5 +69,22 @@ describe( 'overlays', () => {
 		await expect( closeOverlayAround( modal.querySelector( 'a' ) ) ).resolves.toBe( true );
 		expect( escape ).toHaveBeenCalled();
 		await expect( closeOverlayAround( document.createElement( 'a' ) ) ).resolves.toBe( false );
+	} );
+
+	it( 'closes only the hidden page’s dialogs with Escape', async () => {
+		const formsModal = await addToBody( '<div><div role="dialog"></div></div>' );
+		visible = 'jetpack-forms';
+		const otherModal = await addToBody( '<div role="alertdialog"></div>' );
+		const escapes = [];
+		document.addEventListener( 'keydown', event => {
+			if ( event.key === 'Escape' ) {
+				escapes.push( event.target );
+			}
+		} );
+
+		closeDialogsOf( 'my-jetpack' );
+
+		expect( escapes ).toEqual( [ formsModal.firstChild.firstChild ] );
+		expect( otherModal ).toBeInTheDocument();
 	} );
 } );

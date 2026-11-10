@@ -43,13 +43,27 @@ export function createApp( slug, el ) {
 		place( onScreen ) {
 			if ( app.state === 'loading' ) {
 				el.style.display = onScreen ? '' : 'none';
+				el.inert = ! onScreen;
 				return;
 			}
 			app.to( onScreen ? 'visible' : 'hidden' );
 		},
+		// After a switch, so keyboard and screen reader users start on the page they opened.
+		focusHeading() {
+			const heading = headingOf( el );
+			if ( ! heading ) {
+				return;
+			}
+			if ( ! heading.hasAttribute( 'tabindex' ) ) {
+				heading.tabIndex = -1;
+			}
+			heading.focus( { preventScroll: true } );
+		},
 	};
 	return app;
 }
+
+const headingOf = el => [ ...el.querySelectorAll( 'h1' ) ].find( h => h.textContent.trim() );
 
 /**
  * Resolve once the app has rendered its first route: a page heading in its container.
@@ -59,7 +73,7 @@ export function createApp( slug, el ) {
  * @return {Promise<void>} Resolves when rendered, rejects on timeout.
  */
 export function whenRendered( el, timeout ) {
-	const rendered = () => !! el.querySelector( 'h1' )?.textContent.trim();
+	const rendered = () => !! headingOf( el );
 	if ( rendered() ) {
 		return Promise.resolve();
 	}

@@ -85,6 +85,36 @@ export function showOverlaysOf( slug ) {
 	} );
 }
 
+// Dialogs from @wordpress/ui and @wordpress/components both close on Escape.
+const pressEscape = target =>
+	target.dispatchEvent(
+		new KeyboardEvent( 'keydown', {
+			key: 'Escape',
+			code: 'Escape',
+			bubbles: true,
+			cancelable: true,
+		} )
+	);
+
+const DIALOGS = '[role="dialog"], [role="alertdialog"]';
+
+/**
+ * Close the dialogs of a page being hidden, as leaving it with a page load would.
+ *
+ * An open modal keeps the rest of the document, `#wpwrap` included, `aria-hidden` until it closes.
+ *
+ * @param {string} slug - Page being hidden.
+ */
+export function closeDialogsOf( slug ) {
+	document.querySelectorAll( OVERLAYS ).forEach( el => {
+		if ( el.getAttribute( PAGE ) === slug ) {
+			[ el, ...el.querySelectorAll( DIALOGS ) ]
+				.filter( d => d.matches( DIALOGS ) )
+				.forEach( pressEscape );
+		}
+	} );
+}
+
 // The longest a page gets to update its URL after its overlay closes.
 const SETTLE_TIMEOUT = 100;
 
@@ -103,15 +133,7 @@ export async function closeOverlayAround( link ) {
 		return false;
 	}
 	const before = location.href;
-	// Dialogs from @wordpress/ui and @wordpress/components both close on Escape.
-	link.dispatchEvent(
-		new KeyboardEvent( 'keydown', {
-			key: 'Escape',
-			code: 'Escape',
-			bubbles: true,
-			cancelable: true,
-		} )
-	);
+	pressEscape( link );
 	const start = performance.now();
 	while ( location.href === before && performance.now() - start < SETTLE_TIMEOUT ) {
 		await new Promise( resolve => requestAnimationFrame( resolve ) );
