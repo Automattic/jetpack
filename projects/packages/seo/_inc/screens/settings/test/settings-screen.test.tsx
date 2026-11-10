@@ -548,21 +548,23 @@ describe( 'WordPress.com Simple settings', () => {
 	);
 
 	it.each( [ true, false ] )(
-		'keeps the sitemap control read-only without claiming publication when indexing is %s',
+		'makes the read-only Simple sitemap switch follow indexing, not the module, when indexing is %s',
 		searchEnginesVisible => {
 			setSimpleSite();
 			const form = buildForm( {
 				search_engines_visible: searchEnginesVisible,
-				sitemap_active: true,
+				sitemap_active: false,
 				sitemap_switchable: true,
 				sitemap_url: 'https://example.com/sitemap.xml',
 			} );
 
 			render( <SettingsScreen form={ form } /> );
 
-			const toggle = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+			const toggle = screen.getByRole( 'checkbox', {
+				name: /Generate an XML sitemap/i,
+				checked: searchEnginesVisible,
+			} );
 			expect( toggle ).toBeDisabled();
-			expect( toggle ).not.toBeChecked();
 			expect( statusFor( 'Site visibility' ) ).toBe(
 				searchEnginesVisible ? 'Complete' : 'Not started'
 			);
@@ -573,7 +575,7 @@ describe( 'WordPress.com Simple settings', () => {
 				'href',
 				'https://wordpress.com/support/activate-your-plan/'
 			);
-			expect( screen.queryByRole( 'link', { name: 'View sitemap' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: /View sitemap/ } ) ).not.toBeInTheDocument();
 			expect( form.commit ).not.toHaveBeenCalled();
 		}
 	);

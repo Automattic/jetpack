@@ -36,7 +36,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.7",
+		"@babel/core": "7.29.13",
 		"jest": "30.5.2",
 		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
