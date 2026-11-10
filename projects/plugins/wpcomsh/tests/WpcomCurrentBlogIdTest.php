@@ -23,7 +23,10 @@ class WpcomCurrentBlogIdTest extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$provider = new ReflectionProperty( External_Storage::class, 'provider' );
-		$provider->setAccessible( true ); // @phan-suppress-current-line PhanDeprecatedFunctionInternal -- Needed for PHP < 8.1.
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$provider->setAccessible( true );
+		}
 		$provider->setValue( null, null );
 		delete_option( 'jetpack_options' );
 		parent::tear_down();
