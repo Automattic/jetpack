@@ -33,8 +33,6 @@ module.exports = {
 	transformIgnorePatterns: [ transformIgnorePattern() ],
 	moduleNameMapper: {
 		jetpackConfig: path.join( __dirname, 'jest-jetpack-config.js' ),
-		// Give @automattic/charts a measured parent, which jsdom's lack of layout denies it.
-		'^@visx/responsive$': path.join( __dirname, 'visx-responsive-stub.cjs' ),
 	},
 	setupFiles: [ path.join( __dirname, 'setup-globals.js' ) ],
 	setupFilesAfterEnv: [

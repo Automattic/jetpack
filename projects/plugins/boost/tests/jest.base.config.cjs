@@ -33,7 +33,7 @@ module.exports = {
 	// modules that use the `$lib`/`$features`/`$layout`/`$svg` aliases.
 	moduleNameMapper: {
 		// Give @automattic/charts a measured parent, which jsdom's lack of layout denies it.
-		'^@visx/responsive$': baseConfig.moduleNameMapper[ '^@visx/responsive$' ],
+		'^@visx/responsive$': require.resolve( 'jetpack-js-tools/jest/visx-responsive-stub.cjs' ),
 		// The build externalizes this to a single `wp.components`, so shared React
 		// context works across packages. pnpm gives the plugin and the components
 		// package separate copies, which would break that context here.
