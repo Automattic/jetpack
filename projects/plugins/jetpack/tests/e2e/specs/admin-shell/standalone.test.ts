@@ -91,6 +91,10 @@ test.describe( 'Admin shell: standalone plugins only', () => {
 			await expect( page.locator( '#wpbody-content' ) ).not.toContainText(
 				'Sorry, you are not allowed to access this page.'
 			);
+			// The heading check below would also accept an error screen's heading.
+			await expect( page.locator( '#wpbody-content' ) ).not.toContainText(
+				/no route found|route not found|there has been a critical error/i
+			);
 			await expect(
 				page
 					.locator( '#wpbody-content h1, #wpbody-content h2' )
