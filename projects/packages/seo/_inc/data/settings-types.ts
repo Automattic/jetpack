@@ -11,7 +11,14 @@ export interface TitleFormatToken {
 	value: string;
 }
 
+export interface ShareImage {
+	id: number;
+	src: string;
+	alt_text: string;
+}
+
 export interface SettingsResponse {
+	default_share_image?: ShareImage | null;
 	front_page_description: string;
 	// True when the site kept a front-page description from the era it was free for
 	// all WordPress.com Simple sites. Such sites keep editing that one field even

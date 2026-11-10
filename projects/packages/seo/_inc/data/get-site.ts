@@ -10,6 +10,7 @@ export interface SiteData {
 	url: string;
 	icon: string;
 	image: string;
+	content_image?: string;
 }
 
 interface SeoScriptData {

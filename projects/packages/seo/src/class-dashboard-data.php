@@ -185,6 +185,8 @@ class Dashboard_Data {
 	 * @return void
 	 */
 	public static function register_rest_settings() {
+		add_filter( 'rest_request_before_callbacks', array( Share_Image::class, 'validate_request' ), 10, 3 );
+
 		// Search-engine visibility is a WordPress core option, not a Jetpack one.
 		register_setting(
 			'reading',
@@ -295,6 +297,7 @@ class Dashboard_Data {
 	 */
 	private static function option_names() {
 		return array(
+			Share_Image::OPTION,
 			self::AI_SEO_ENHANCER_OPTION,
 			Llms_Txt::OPTION,
 			Ai_Crawlers::OPTION,
@@ -315,6 +318,16 @@ class Dashboard_Data {
 	 */
 	private static function settings_definitions() {
 		return array(
+			Share_Image::OPTION                   => array(
+				'type'         => 'integer',
+				'default'      => 0,
+				'show_in_rest' => array(
+					'schema' => array(
+						'type'    => 'integer',
+						'minimum' => 0,
+					),
+				),
+			),
 			self::AI_SEO_ENHANCER_OPTION          => array(
 				'type'         => 'boolean',
 				'default'      => false,
@@ -1112,6 +1125,7 @@ class Dashboard_Data {
 			// Settings tab replays that composition to preview it.
 			'title_separator'            => self::get_default_title_separator(),
 			'title_formats_editable'     => $title_formats_editable,
+			'default_share_image'        => Share_Image::image( (int) get_option( Share_Image::OPTION, 0 ) ),
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
@@ -1258,12 +1272,31 @@ class Dashboard_Data {
 			$image_url = $logo_url ? $logo_url : $icon_url;
 		}
 
+		if ( preg_match( '/\.svg(?:[?#]|$)/i', $image_url ) || 'https://s0.wp.com/i/blank.jpg' === $image_url ) {
+			$image_url = '';
+		}
+		$content_image = '';
+		$front_page_id = 'page' === get_option( 'show_on_front' ) ? (int) get_option( 'page_on_front' ) : 0;
+		if ( $front_page_id && ! post_password_required( $front_page_id ) && class_exists( '\Automattic\Jetpack\Post_Media\Images' ) ) {
+			$args = array(
+				'width'  => 200,
+				'height' => 200,
+			);
+			if ( Content_Gate::is_gated( get_post( $front_page_id ) ) ) {
+				$args += array_fill_keys( array( 'from_slideshow', 'from_gallery', 'from_attachment', 'from_blocks', 'from_html' ), false );
+			}
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional host package, guarded above.
+			$image         = \Automattic\Jetpack\Post_Media\Images::get_image( $front_page_id, $args );
+			$content_image = $image['src'] ?? '';
+		}
+
 		return array(
-			'title'   => (string) get_bloginfo( 'name' ),
-			'tagline' => (string) get_bloginfo( 'description' ),
-			'url'     => (string) home_url(),
-			'icon'    => $icon_url,
-			'image'   => $image_url,
+			'content_image' => $content_image,
+			'title'         => (string) get_bloginfo( 'name' ),
+			'tagline'       => (string) get_bloginfo( 'description' ),
+			'url'           => (string) home_url(),
+			'icon'          => $icon_url,
+			'image'         => $image_url,
 		);
 	}
 

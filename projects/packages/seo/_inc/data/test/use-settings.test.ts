@@ -63,6 +63,28 @@ describe( 'useSettingsForm', () => {
 		mockApiFetch.mockResolvedValue( {} );
 	} );
 
+	it( 'restores the previous share image after a failed save without losing unsaved text', async () => {
+		const previous = { id: 1, src: 'https://example.com/old.jpg', alt_text: '' };
+		storeState = { ...SEED, default_share_image: previous };
+		mockApiFetch
+			.mockRejectedValueOnce( { message: 'Image was rejected' } )
+			.mockResolvedValueOnce( storeState );
+		const { result } = renderHook( () => useSettingsForm() );
+		act( () => result.current.setField( { front_page_description: 'Unsaved description' } ) );
+		act( () =>
+			result.current.commit( {
+				default_share_image: { id: 2, src: 'https://example.com/new.jpg', alt_text: '' },
+			} )
+		);
+		await waitFor( () => expect( createErrorNotice ).toHaveBeenCalled() );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( result.current.local?.default_share_image ).toEqual( previous );
+		expect( result.current.local?.front_page_description ).toBe( 'Unsaved description' );
+		expect( mockApiFetch.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
+			data: { jetpack_seo_default_share_image: 2 },
+		} );
+	} );
+
 	it( 'reports a section dirty only once its field diverges from the baseline', () => {
 		const { result } = renderHook( () => useSettingsForm() );
 

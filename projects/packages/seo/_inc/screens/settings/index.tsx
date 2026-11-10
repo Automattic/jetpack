@@ -461,15 +461,18 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					/>
 
 					{ frontPageDescriptionCard }
-
-					<SocialPreviewsCard
-						description={ local.front_page_description }
-						frontPageTitleFormat={ local.title_formats.front_page ?? [] }
-						titleSeparator={ local.title_separator }
-						paused={ outputLocked }
-					/>
 				</>
 			) }
+
+			<SocialPreviewsCard
+				description={ local.front_page_description }
+				frontPageTitleFormat={ local.title_formats.front_page ?? [] }
+				titleSeparator={ local.title_separator }
+				paused={ outputLocked }
+				defaultImage={ local.default_share_image }
+				onImageChange={ image => commit( { default_share_image: image } ) }
+				disabled={ isSaving || outputLocked }
+			/>
 
 			{ /* Grandfathered exception: a gated site that kept a front-page description
 			   from the era it was free for all Simple sites keeps editing that one

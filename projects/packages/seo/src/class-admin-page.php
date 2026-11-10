@@ -119,6 +119,7 @@ class Admin_Page {
 			return;
 		}
 
+		wp_enqueue_media();
 		self::load_wp_build_with_screen_alias();
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
 
