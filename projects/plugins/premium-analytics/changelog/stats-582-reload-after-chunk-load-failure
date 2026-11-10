@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Reload the analytics dashboard once when part of it fails to load after an update, instead of showing an error.
+Reload the analytics dashboard once when part of it fails to load after an update, instead of showing an error. WordPress.com sites only.
