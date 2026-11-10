@@ -65,11 +65,14 @@ describe( 'useNormalizedReportParams', () => {
 			from: '2026-08-15T00:00:00.000+00:00',
 			to: '2026-08-21T23:59:59.999+00:00',
 		} );
-		expect( result.current.controls.appliedRange.from?.getTime() ).toBe(
-			Date.parse( '2026-08-15T00:00:00.000Z' )
-		);
-		expect( result.current.controls.appliedRange.to?.getTime() ).toBe(
-			Date.parse( '2026-08-21T23:59:59.999Z' )
-		);
+		const newWeek = {
+			from: Date.parse( '2026-08-15T00:00:00.000Z' ),
+			to: Date.parse( '2026-08-21T23:59:59.999Z' ),
+		};
+		const { appliedRange, range } = result.current.controls;
+		expect( appliedRange.from?.getTime() ).toBe( newWeek.from );
+		expect( appliedRange.to?.getTime() ).toBe( newWeek.to );
+		expect( range.from?.getTime() ).toBe( newWeek.from );
+		expect( range.to?.getTime() ).toBe( newWeek.to );
 	} );
 } );
