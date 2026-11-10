@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_REST_Server;
 
@@ -28,7 +29,66 @@ class Widget_Modules_Test extends TestCase {
 	protected function tearDown(): void {
 		global $wp_rest_server;
 		$wp_rest_server = null;
+		unset( $_GET['p'] );
 		parent::tearDown();
+	}
+
+	/**
+	 * The route content preload runs after the widget modules join the boot dependencies.
+	 */
+	public function test_route_content_preload_is_hooked_after_the_widget_modules() {
+		$this->assertSame( 20, has_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\preload_requested_route_content' ) );
+	}
+
+	/**
+	 * Only the requested route's content module turns static.
+	 *
+	 * @param string|null $location The `p` query arg, or null for none.
+	 * @param string[]    $static   Content routes expected static.
+	 * @dataProvider provide_requested_routes
+	 */
+	#[DataProvider( 'provide_requested_routes' )]
+	public function test_preloads_only_the_requested_route_content( $location, $static ) {
+		if ( null !== $location ) {
+			$_GET['p'] = $location;
+		}
+
+		$dependencies = array(
+			array(
+				'import' => 'dynamic',
+				'id'     => 'jetpack-premium-analytics/widgets/traffic-chart/render',
+			),
+			array(
+				'import' => 'static',
+				'id'     => 'jetpack-premium-analytics/routes/video-detail/route',
+			),
+		);
+		$expected     = $dependencies;
+		foreach ( array( 'dashboard', 'post-detail' ) as $route ) {
+			$content        = array(
+				'import' => 'dynamic',
+				'id'     => 'jetpack-premium-analytics/routes/' . $route . '/content',
+			);
+			$dependencies[] = $content;
+			$expected[]     = in_array( $route, $static, true ) ? array( 'import' => 'static' ) + $content : $content;
+		}
+
+		$this->assertSame( $expected, preload_requested_route_content( $dependencies, __DIR__ . '/fixtures/boot-preload/registry.php' ) );
+	}
+
+	/**
+	 * Requested locations and the routes whose content they preload.
+	 *
+	 * @return array
+	 */
+	public static function provide_requested_routes() {
+		return array(
+			'no location is the dashboard'     => array( null, array( 'dashboard' ) ),
+			'search params are ignored'        => array( '/?section=store', array( 'dashboard' ) ),
+			'a param segment matches any id'   => array( '/post/12?from=x', array( 'post-detail' ) ),
+			'a route without a content module' => array( '/video/3', array() ),
+			'an unknown path'                  => array( '/nope', array() ),
+		);
 	}
 
 	/**

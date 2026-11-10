@@ -3,7 +3,8 @@
  * Dashboard widget modules: REST exposure + import-map wiring.
  *
  * Reads get_available_widget_types() and exposes it two ways: the `/wpcom/v2/widget-modules`
- * REST list, and the page import map, for dynamic `import()`.
+ * REST list, and the page import map, for dynamic `import()`. Also preloads the requested
+ * route's content module through the same import map.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -118,3 +119,78 @@ function add_widget_modules_to_boot_deps( $boot_dependencies ) {
 	return $boot_dependencies;
 }
 add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\add_widget_modules_to_boot_deps' );
+
+/**
+ * Make the requested route's content module static, so core modulepreloads it with the page.
+ *
+ * The page's loader module is empty, so this only fetches and compiles it early; boot still runs it.
+ * Widget modules stay dynamic: preloading them too delayed the first widget on slow connections.
+ *
+ * @param array       $boot_dependencies Boot dependencies for the page.
+ * @param string|null $routes_file       The wp-build route registry. Defaults to the build's.
+ * @return array Updated boot dependencies.
+ */
+function preload_requested_route_content( $boot_dependencies, $routes_file = null ) {
+	if ( ! is_array( $boot_dependencies ) ) {
+		return $boot_dependencies;
+	}
+
+	$route = get_requested_dashboard_route( $routes_file ?? __DIR__ . '/../build/routes/registry.php' );
+	if ( null === $route ) {
+		return $boot_dependencies;
+	}
+
+	foreach ( $boot_dependencies as $index => $dependency ) {
+		if (
+			is_array( $dependency )
+			&& isset( $dependency['id'] )
+			&& is_string( $dependency['id'] )
+			&& preg_match( '#/routes/([^/]+)/content$#', $dependency['id'], $matches )
+			&& $matches[1] === $route
+		) {
+			$boot_dependencies[ $index ]['import'] = 'static';
+		}
+	}
+
+	return $boot_dependencies;
+}
+add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\preload_requested_route_content', 20 );
+
+/**
+ * The wp-build route the `p` query arg resolves to.
+ *
+ * @param string $routes_file The wp-build route registry.
+ * @return string|null Route name, or null when the registry is missing or no route matches.
+ */
+function get_requested_dashboard_route( $routes_file ) {
+	if ( ! file_exists( $routes_file ) ) {
+		return null;
+	}
+	$routes = require $routes_file;
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read-only routing input, only compared against known route paths.
+	$location = isset( $_GET['p'] ) && is_string( $_GET['p'] ) ? wp_unslash( $_GET['p'] ) : '/';
+	$segments = array_values( array_filter( explode( '/', (string) wp_parse_url( $location, PHP_URL_PATH ) ), 'strlen' ) );
+
+	foreach ( is_array( $routes ) ? $routes : array() as $route ) {
+		if ( ! isset( $route['name'] ) || ! isset( $route['path'] ) ) {
+			continue;
+		}
+
+		$pattern = array_values( array_filter( explode( '/', $route['path'] ), 'strlen' ) );
+		if ( count( $pattern ) !== count( $segments ) ) {
+			continue;
+		}
+
+		foreach ( $pattern as $position => $segment ) {
+			// `$postId`-style segments are params and match any value.
+			if ( '$' !== $segment[0] && $segment !== $segments[ $position ] ) {
+				continue 2;
+			}
+		}
+
+		return $route['name'];
+	}
+
+	return null;
+}
