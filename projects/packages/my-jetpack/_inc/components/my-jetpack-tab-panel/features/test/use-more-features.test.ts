@@ -35,7 +35,7 @@ const features = [
 
 const groups = [
 	// Listed out of order: the group sorts by name, not by this list.
-	{ label: 'Security', modules: [ 'sso', 'waf', 'monitor' ] },
+	{ label: 'Security', groups: [ 'security' ], modules: [ 'sso', 'waf', 'monitor' ] },
 	{ label: 'Design', modules: [ 'google-fonts' ] },
 	{ label: 'Analytics', modules: [ 'zeta' ] },
 	{ label: 'Earn', modules: [ 'wordads' ] },
@@ -119,7 +119,7 @@ describe( 'groupMoreFeatures', () => {
 		}
 	);
 
-	it( 'filters by status and hides modules under plan and essential filters', () => {
+	it( 'filters by status and heading group, and hides modules under essential', () => {
 		const filtered = ( filter: Parameters< typeof filterMoreFeatures >[ 1 ] ) =>
 			filterMoreFeatures( grouped, filter, '' ).flatMap( group =>
 				group.states.map( state => state.feature.slug )
@@ -127,7 +127,8 @@ describe( 'groupMoreFeatures', () => {
 
 		expect( filtered( 'active' ) ).toEqual( [ 'sso' ] );
 		expect( filtered( 'inactive' ) ).toEqual( [ 'zeta', 'monitor', 'waf', 'alpha' ] );
-		expect( filtered( 'security' ) ).toEqual( [] );
+		expect( filtered( 'security' ) ).toEqual( [ 'monitor', 'sso', 'waf' ] );
+		expect( filtered( 'growth' ) ).toEqual( [] );
 		expect( filtered( 'essential' ) ).toEqual( [] );
 	} );
 

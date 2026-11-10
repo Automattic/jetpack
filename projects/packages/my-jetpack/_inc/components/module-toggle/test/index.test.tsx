@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MyJetpackModule } from '../../../types';
@@ -321,6 +322,32 @@ describe( 'ModuleToggle', () => {
 		expect( reloadPage ).not.toHaveBeenCalled();
 		expect( setPendingSuccessNotice ).not.toHaveBeenCalled();
 		expect( mockCreateSuccessNotice ).toHaveBeenCalled();
+	} );
+
+	it.each( [
+		[
+			'marks product ownership stale after a switch succeeds',
+			true,
+			[ [ { queryKey: [ 'product ownership' ] } ] ],
+		],
+		[ 'leaves product ownership alone when a switch fails', false, [] ],
+	] )( '%s', async ( _name, succeeded, expectedCalls ) => {
+		mockToggleModule.mockResolvedValueOnce( succeeded );
+		const queryClient = new QueryClient();
+		const invalidate = jest.spyOn( queryClient, 'invalidateQueries' );
+
+		render(
+			<QueryClientProvider client={ queryClient }>
+				<ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } />
+			</QueryClientProvider>
+		);
+		await userEvent.click( screen.getByRole( 'switch' ) );
+
+		// The notice comes last either way, so the switch has settled once it shows.
+		await waitFor( () =>
+			expect( succeeded ? mockCreateSuccessNotice : mockCreateErrorNotice ).toHaveBeenCalled()
+		);
+		expect( invalidate.mock.calls ).toEqual( expectedCalls );
 	} );
 
 	it( 'is named by the element it is pointed at, in place of its own label', () => {

@@ -13,6 +13,11 @@ export type EditorProps = {
 	placeholder: string;
 	/** Draw embeds and images. Off on the edit-comment screen, where the URL is enough. */
 	previewEmbeds?: boolean;
+	/**
+	 * Asks for an embed's preview, for a host whose preview route needs the request signed in.
+	 * Left out, the editor fetches `labels.embedUrl` without credentials.
+	 */
+	fetchEmbed?: ( url: string ) => Promise< Response >;
 	onChange: ( content: string ) => void;
 	/** The editor broke; the caller brings its textarea back. */
 	onError: ( error: unknown ) => void;

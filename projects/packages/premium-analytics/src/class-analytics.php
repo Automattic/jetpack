@@ -23,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.16.0';
+	const PACKAGE_VERSION = '0.17.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -506,6 +506,15 @@ class Analytics {
 	const MENU_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
 	/**
+	 * Where the dashboard sits in the admin menu: under the Dashboard, and on WordPress.com
+	 * between My Home (2.01) and Hosting (2.98).
+	 *
+	 * Not 2, which the Dashboard holds: core gives a second entry there a hashed fraction to
+	 * tell the two apart, and the menu's natural sort reads one such as .21518 as past .99.
+	 */
+	private const MENU_POSITION = 2.1;
+
+	/**
 	 * Whether the current request is rendering the Premium Analytics dashboard.
 	 *
 	 * Scopes the wp-build polyfill registration (which force-replaces core script handles) to
@@ -572,8 +581,9 @@ class Analytics {
 	 * List the dashboard in a menu built outside wp-admin, such as the one the admin-menu REST endpoint returns.
 	 *
 	 * Loads the section registry but not the build: the menu capability depends on the sections.
+	 * Do not rename: wpcomsh retires classic Stats on Atomic only while this method exists.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 *
 	 * @return void
 	 */
@@ -596,13 +606,13 @@ class Analytics {
 
 		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
 		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
-			add_menu_page( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2 );
+			add_menu_page( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', self::MENU_POSITION );
 			return;
 		}
 
 		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
 		// the dashboard has no My Jetpack product class and no module to name.
-		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
+		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', self::MENU_POSITION, array( 'key' => 'jetpack-premium-analytics' ) );
 	}
 
 	/**

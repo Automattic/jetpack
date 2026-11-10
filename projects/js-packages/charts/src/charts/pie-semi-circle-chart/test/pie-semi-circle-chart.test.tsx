@@ -466,3 +466,42 @@ describe( 'PieSemiCircleChart tooltip position', () => {
 		} );
 	} );
 } );
+
+describe( 'PieSemiCircleChart segment labels', () => {
+	it( 'names every segment, so the application container is not empty', () => {
+		renderPieChart( { data: mockData } );
+
+		expect( screen.getByRole( 'img', { name: 'Category A: 30%' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'img', { name: 'Category B: 70%' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'names a segment by its share, whatever units the value carries', () => {
+		renderPieChart( {
+			data: [
+				{ label: 'Desktop', value: 0.867 },
+				{ label: 'Mobile', value: 0.133 },
+			],
+		} );
+
+		expect( screen.getByRole( 'img', { name: 'Desktop: 86.7%' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'names a segment by its label alone when the legend states no figure', () => {
+		renderPieChart( { data: mockData, legendValueDisplay: 'none' } );
+
+		expect( screen.getByRole( 'img', { name: 'Category A' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'names a segment with the figure its legend entry shows', () => {
+		renderPieChart( {
+			data: [
+				{ label: 'Desktop', value: 3, valueDisplay: '3K' },
+				{ label: 'Mobile', value: 1, valueDisplay: '1K' },
+			],
+			legendValueDisplay: 'valueDisplay',
+		} );
+
+		expect( screen.getByRole( 'img', { name: 'Desktop: 3K' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'img', { name: 'Mobile: 1K' } ) ).toBeInTheDocument();
+	} );
+} );
