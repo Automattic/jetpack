@@ -43,11 +43,6 @@ export const MEMBERS: Member[] = [
 	},
 ];
 
-/** Member slug to wp-build mount ID, for code that runs in the page. */
-export const MOUNT_IDS: Record< string, string > = Object.fromEntries(
-	MEMBERS.map( m => [ m.slug, m.mountId ] )
-);
-
 export const member = ( slug: string ): Member => {
 	const found = MEMBERS.find( m => m.slug === slug );
 	if ( ! found ) {
@@ -205,7 +200,10 @@ function shellProbe( mountIds: Record< string, string > ) {
  * @param page - Page under test.
  */
 export async function installShellProbe( page: Page ): Promise< void > {
-	await page.addInitScript( shellProbe, MOUNT_IDS );
+	await page.addInitScript(
+		shellProbe,
+		Object.fromEntries( MEMBERS.map( m => [ m.slug, m.mountId ] ) )
+	);
 }
 
 /**

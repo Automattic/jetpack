@@ -4,6 +4,7 @@ import {
 	ariaHiddenAncestors,
 	axeViolations,
 	focusOwner,
+	hasSavedHeader,
 	hiddenApps,
 	installA11yProbe,
 	keyboardSwitchTo,
@@ -192,6 +193,9 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 	} );
 
 	test( 'the header placeholder is inert and hidden from screen readers', async ( { page } ) => {
+		// A fresh browser has no saved headers, so load Forms once to get a stand-in for it.
+		await openMember( page, FORMS );
+		await expect.poll( () => hasSavedHeader( page, FORMS ), 'Forms header saved' ).toBe( true );
 		await openMember( page, MJ );
 		await resetA11yProbe( page );
 		await switchTo( page, FORMS );

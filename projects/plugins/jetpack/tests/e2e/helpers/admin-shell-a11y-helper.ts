@@ -1,6 +1,6 @@
 import { createRequire } from 'module';
 import { type Page } from '@playwright/test';
-import { MOUNT_IDS, member, menuLink, waitForShown, withinDocument } from './admin-shell-helper';
+import { member, menuLink, waitForShown, withinDocument } from './admin-shell-helper';
 import type { AxeResults, ElementContext, RunOptions } from 'axe-core';
 
 export interface Announcement {
@@ -23,14 +23,10 @@ type ProbeWindow = {
 	axe: { run: ( context: ElementContext, options: RunOptions ) => Promise< AxeResults > };
 };
 
-const PLACEHOLDERS = '[data-shell-header], .jetpack-admin-shell-placeholder';
-
 /**
- * Records live-region text and the short-lived header placeholders, before the page's scripts run.
- *
- * @param placeholderSelector - Placeholder elements: the client's, then the spike's.
+ * Records live-region text and the short-lived header stand-ins, before the page's scripts run.
  */
-function a11yProbe( placeholderSelector: string ) {
+function a11yProbe() {
 	const LIVE = '[aria-live], [role="status"], [role="alert"], [role="log"]';
 	const said: unknown[] = [];
 	const placeholders: unknown[] = [];
@@ -63,7 +59,7 @@ function a11yProbe( placeholderSelector: string ) {
 				said.push( { politeness: politeness( live ), text } );
 			}
 		}
-		for ( const el of document.querySelectorAll< HTMLElement >( placeholderSelector ) ) {
+		for ( const el of document.querySelectorAll< HTMLElement >( '[data-shell-header]' ) ) {
 			if ( ! seen.has( el ) && el.isConnected && getComputedStyle( el ).display !== 'none' ) {
 				seen.add( el );
 				placeholders.push( {
@@ -93,7 +89,7 @@ function a11yProbe( placeholderSelector: string ) {
  * @param page - Page under test.
  */
 export async function installA11yProbe( page: Page ): Promise< void > {
-	await page.addInitScript( a11yProbe, PLACEHOLDERS );
+	await page.addInitScript( a11yProbe );
 }
 
 /**
@@ -134,6 +130,23 @@ export function placeholderSightings( page: Page ): Promise< PlaceholderSighting
 }
 
 /**
+ * Whether this browser has saved `slug`'s header: the shell shows a stand-in only for a saved one.
+ *
+ * @param page - Page under test.
+ * @param slug - Member page slug.
+ * @return True once the header is in local storage.
+ */
+export function hasSavedHeader( page: Page, slug: string ): Promise< boolean > {
+	return page.evaluate(
+		s =>
+			Object.keys( localStorage ).some(
+				key => key.startsWith( 'jetpack-admin-shell-header:' ) && key.endsWith( `:${ s }` )
+			),
+		slug
+	);
+}
+
+/**
  * Every member container that is not on screen, with whether it is inert.
  *
  * @param page - Page under test.
@@ -142,7 +155,7 @@ export function placeholderSightings( page: Page ): Promise< PlaceholderSighting
 export function hiddenApps(
 	page: Page
 ): Promise< { slug: string; state: string; inert: boolean }[] > {
-	return page.evaluate( mountIds => {
+	return page.evaluate( () => {
 		const shell = (
 			window as unknown as {
 				__jpShell: { read: () => { apps: Record< string, string > } };
@@ -151,12 +164,10 @@ export function hiddenApps(
 		return Object.entries( shell.apps )
 			.filter( ( [ , state ] ) => state !== 'visible' )
 			.map( ( [ slug, state ] ) => {
-				const el =
-					document.querySelector( `[data-shell-page="${ slug }"]` ) ??
-					document.getElementById( mountIds[ slug ] );
+				const el = document.querySelector( `[data-shell-page="${ slug }"]` );
 				return { slug, state, inert: !! el?.closest( '[inert]' ) };
 			} );
-	}, MOUNT_IDS );
+	} );
 }
 
 /**
@@ -191,20 +202,15 @@ export async function keyboardSwitchTo( page: Page, slug: string ): Promise< voi
  * @return Owner of the focused element.
  */
 export function focusOwner( page: Page ): Promise< string > {
-	return page.evaluate( mountIds => {
+	return page.evaluate( () => {
 		// eslint-disable-next-line @wordpress/no-global-active-element -- The test reads the whole document.
 		const el = document.activeElement;
 		if ( ! el || el === document.body ) {
 			return 'body';
 		}
-		const app = Object.keys( mountIds ).find( slug =>
-			(
-				document.querySelector( `[data-shell-page="${ slug }"]` ) ??
-				document.getElementById( mountIds[ slug ] )
-			)?.contains( el )
-		);
+		const app = el.closest( '[data-shell-page]' )?.getAttribute( 'data-shell-page' );
 		return app ?? ( el.closest( '#adminmenu' ) ? 'menu' : 'other' );
-	}, MOUNT_IDS );
+	} );
 }
 
 /**
@@ -215,24 +221,19 @@ export function focusOwner( page: Page ): Promise< string > {
  * @return Hidden elements, innermost first.
  */
 export async function ariaHiddenAncestors( page: Page, slug: string ): Promise< string[] > {
-	const hidden = await page.evaluate(
-		( [ s, mountId ] ) => {
-			const app =
-				document.querySelector( `[data-shell-page="${ s }"]` ) ??
-				document.getElementById( mountId );
-			if ( ! app ) {
-				return null;
+	const hidden = await page.evaluate( s => {
+		const app = document.querySelector( `[data-shell-page="${ s }"]` );
+		if ( ! app ) {
+			return null;
+		}
+		const found: string[] = [];
+		for ( let el: Element | null = app; el; el = el.parentElement ) {
+			if ( el.getAttribute( 'aria-hidden' ) === 'true' ) {
+				found.push( el.id ? `#${ el.id }` : el.tagName.toLowerCase() );
 			}
-			const found: string[] = [];
-			for ( let el: Element | null = app; el; el = el.parentElement ) {
-				if ( el.getAttribute( 'aria-hidden' ) === 'true' ) {
-					found.push( el.id ? `#${ el.id }` : el.tagName.toLowerCase() );
-				}
-			}
-			return found;
-		},
-		[ slug, MOUNT_IDS[ slug ] ]
-	);
+		}
+		return found;
+	}, slug );
 	if ( ! hidden ) {
 		throw new Error( `No app container for ${ slug } in the document` );
 	}
