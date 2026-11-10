@@ -123,6 +123,17 @@ function renderSeo( initialState ) {
 }
 
 describe( 'SEO card enhancer row explanation', () => {
+	it( 'offers manual SEO settings on a free plan without offering the AI enhancer', () => {
+		const state = buildInitialState( { seoToolsOn: true } );
+		state.jetpack.siteData.data.site.features.active = [];
+		state.jetpack.siteData.data.plan.product_slug = 'jetpack_free';
+
+		renderSeo( state );
+
+		expect( screen.getByRole( 'checkbox', { name: 'Customize your SEO settings' } ) ).toBeEnabled();
+		expect( enhancerToggle() ).toBeUndefined();
+	} );
+
 	it( 'shows the AI-off message while seo-tools is on and AI is off', () => {
 		renderSeo( buildInitialState( { seoToolsOn: true } ) );
 

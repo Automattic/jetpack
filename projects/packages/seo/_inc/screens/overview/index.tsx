@@ -4,14 +4,12 @@ import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Notice, Stack } from '@wordpress/ui';
+import { Notice } from '@wordpress/ui';
 import SeoPausedBanner from '../../components/seo-paused-banner';
-import UpsellBanner from '../../components/upsell-banner';
 import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { coverageStore } from '../../data/coverage-store';
 import { geoStore } from '../../data/geo-store';
 import getOverview from '../../data/get-overview';
-import { isGated } from '../../data/is-gated';
 import { settingsStore } from '../../data/settings-store';
 import AiCrawlerCard from './ai-crawler-card';
 import ContentCoverageCard, { type ContentNeed } from './content-coverage-card';
@@ -74,42 +72,13 @@ const OverviewScreen: FC = () => {
 
 	// Overlay the live Settings-store visibility values on the Overview bootstrap so a
 	// toggle reflects here without a reload; rendered by the Site visibility card in
-	// both the gated and ungated layouts.
+	// the dashboard.
 	const siteVisibilityData = {
 		...data.site_visibility,
 		search_engines_visible:
 			settings?.search_engines_visible ?? data.site_visibility.search_engines_visible,
 		sitemap_active: settings?.sitemap_active ?? data.site_visibility.sitemap_active,
 	};
-
-	// On plan-gated sites (below-Premium WordPress.com) the Overview reduces to the
-	// two always-valid cards (site visibility + verification, both backed by core
-	// WordPress options) topped with the upsell banner. The AI-crawler and
-	// content-coverage cards and the disable control are paid surfaces, hidden here.
-	// The paused banner stays, because a gated site's own SEO output pauses too. It
-	// needs SEO tools on: this layout also shows while they're off, and then the pause
-	// isn't what stops the output.
-	if ( isGated() ) {
-		return (
-			// Column Stack (matching the Settings tab) so the upsell banner — which sits
-			// below the cards and isn't dismissible — has space above it.
-			<Stack direction="column" gap="lg" className={ styles.root }>
-				{ data.site_visibility.seo_tools_active && <SeoPausedBanner /> }
-				<div className={ styles.grid }>
-					<SiteVisibilityCard
-						data={ siteVisibilityData }
-						onManage={ () => goToSection( 'visibility' ) }
-					/>
-					<SiteVerificationCard
-						data={ data.site_verification }
-						active={ settings?.verification_tools_active ?? false }
-						onManage={ () => goToSection( 'verification' ) }
-					/>
-				</div>
-				<UpsellBanner />
-			</Stack>
-		);
-	}
 
 	return (
 		<div className={ styles.root }>

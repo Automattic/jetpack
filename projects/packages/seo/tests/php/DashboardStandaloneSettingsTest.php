@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
@@ -54,12 +57,22 @@ class DashboardStandaloneSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Settings read and save the public description without Jetpack's plugin helper.
-	 *
-	 * Other suites always load that helper's stub, so they cannot detect a dashboard
-	 * that incorrectly treats its absence as disabled SEO or an empty description.
+	 * @dataProvider hosts
+	 * @param string $host Hosting environment.
 	 */
-	public function test_settings_read_and_save_without_the_plugin_helper() {
+	#[DataProvider( 'hosts' )]
+	public function test_settings_read_and_save_without_the_plugin_helper( $host ) {
+		if ( 'simple' === $host ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		} elseif ( 'atomic' === $host ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
+		}
+		Status_Cache::clear();
+		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
+		\Wpcom_Test_Features::$entitled = array();
+
 		$this->assertFalse( class_exists( 'Jetpack_SEO_Utils' ) );
 
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
@@ -88,5 +101,16 @@ class DashboardStandaloneSettingsTest extends TestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'Modern description.', Dashboard_Data::get_settings_data()['front_page_description'] );
 		$this->assertFalse( get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
+	}
+
+	/**
+	 * @return array<string, array{string}>
+	 */
+	public static function hosts() {
+		return array(
+			'self-hosted' => array( 'self-hosted' ),
+			'Simple'      => array( 'simple' ),
+			'Atomic'      => array( 'atomic' ),
+		);
 	}
 }

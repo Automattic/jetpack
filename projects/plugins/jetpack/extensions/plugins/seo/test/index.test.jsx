@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 // jest.isolateModules() would otherwise hand the re-required module its own copy of
 // React, which breaks hooks. Pin every registry to one instance.
@@ -8,6 +8,9 @@ jest.mock( 'react', () => {
 } );
 
 let mockEnhancerAvailable = false;
+let mockEnhancerRequiresPlan = false;
+let mockSeoRequiresPlan = false;
+let mockIsWpcomPlatform = false;
 let mockCanAutoEnhance = true;
 const mockEnhancer = jest.fn( () => null );
 let mockIsModuleActive = true;
@@ -47,7 +50,8 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	} ),
 	getJetpackExtensionAvailability: feature =>
 		feature === 'ai-seo-enhancer' ? { available: mockEnhancerAvailable } : { available: true },
-	getRequiredPlan: () => false,
+	getRequiredPlan: feature =>
+		feature === 'ai-seo-enhancer' ? mockEnhancerRequiresPlan : mockSeoRequiresPlan,
 } ) );
 jest.mock( '@automattic/jetpack-shared-extension-utils/components', () => ( {
 	JetpackEditorPanelLogo: () => null,
@@ -56,7 +60,7 @@ jest.mock( '@automattic/jetpack-publicize/link-preview', () => ( {
 	LinkPreviewModalWithTrigger: () => null,
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	isWpcomPlatformSite: () => false,
+	isWpcomPlatformSite: () => mockIsWpcomPlatform,
 } ) );
 
 jest.mock( '@wordpress/editor', () => ( {
@@ -96,13 +100,12 @@ jest.mock(
 		( { children } ) =>
 			children
 );
-jest.mock( '../title-panel', () => () => null );
+jest.mock( '../title-panel', () => () => <span>Manual title settings</span> );
 jest.mock( '../description-panel', () => () => null );
 jest.mock( '../noindex-panel', () => () => null );
 jest.mock( '../schema-panel', () => () => null );
 jest.mock( '../components/placeholder', () => ( { SeoPlaceholder: () => null } ) );
 jest.mock( '../components/skeleton-loader', () => ( { SeoSkeletonLoader: () => null } ) );
-jest.mock( '../components/upsell', () => () => null );
 jest.mock( '../show-seo-section', () => ( { showSeoSection: jest.fn() } ) );
 
 // The AI gates are module-scope constants, so the module is re-evaluated per case.
@@ -120,9 +123,25 @@ describe( 'Seo panel', () => {
 		mockUpdateSeoData.mockClear();
 		mockEnhancer.mockClear();
 		mockEnhancerAvailable = false;
+		mockEnhancerRequiresPlan = false;
+		mockSeoRequiresPlan = false;
+		mockIsWpcomPlatform = false;
 		mockCanAutoEnhance = true;
 		mockIsModuleActive = true;
 		mockPublishSidebarOpen = false;
+	} );
+
+	it( 'offers manual SEO on hosted free sites without unlocking the AI enhancer', () => {
+		mockIsWpcomPlatform = true;
+		mockSeoRequiresPlan = 'value_bundle';
+		mockEnhancerRequiresPlan = 'value_bundle';
+		mockEnhancerAvailable = true;
+		mockCanAutoEnhance = false;
+
+		renderSeo();
+
+		expect( screen.getAllByText( 'Manual title settings' ) ).toHaveLength( 3 );
+		expect( mockEnhancer ).not.toHaveBeenCalled();
 	} );
 
 	it( 'does not reach the AI feature when the SEO enhancer is unavailable', () => {

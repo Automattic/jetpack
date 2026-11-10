@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { LinkPreviewModalWithTrigger } from '@automattic/jetpack-publicize/link-preview';
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	useModuleStatus,
 	getJetpackExtensionAvailability,
@@ -33,7 +32,6 @@ import { useSeoModuleSettings } from '../ai-assistant-plugin/components/seo-enha
 import { useSeoRequests } from '../ai-assistant-plugin/components/seo-enhancer/use-seo-requests';
 import { SeoPlaceholder } from './components/placeholder';
 import { SeoSkeletonLoader } from './components/skeleton-loader';
-import UpsellNotice from './components/upsell';
 import SeoDescriptionPanel from './description-panel';
 import SeoNoindexPanel from './noindex-panel';
 import SeoSchemaPanel from './schema-panel';
@@ -110,33 +108,7 @@ const Seo = () => {
 		return null;
 	}
 
-	const requiredPlan = getRequiredPlan( 'advanced-seo' );
-	const canShowUpsell = isWpcomPlatformSite();
 	const hasRequiredPlanForEnhancer = ! getRequiredPlan( 'ai-seo-enhancer' );
-
-	if ( canShowUpsell && requiredPlan !== false ) {
-		return (
-			<>
-				<JetpackPluginSidebar>
-					<PanelBody
-						title={ __( 'Optimize SEO', 'jetpack' ) }
-						initialOpen={ false }
-						className="jetpack-seo-panel"
-					>
-						<UpsellNotice requiredPlan={ requiredPlan } />
-					</PanelBody>
-				</JetpackPluginSidebar>
-				<PluginDocumentSettingPanel
-					className="jetpack-seo-panel"
-					title={ __( 'Optimize SEO', 'jetpack' ) }
-					name="jetpack-seo"
-					icon={ <JetpackEditorPanelLogo /> }
-				>
-					<UpsellNotice requiredPlan={ requiredPlan } />
-				</PluginDocumentSettingPanel>
-			</>
-		);
-	}
 
 	if ( ! isModuleActive ) {
 		const moduleInactiveContent = isLoadingModules ? (

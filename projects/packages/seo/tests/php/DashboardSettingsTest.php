@@ -649,15 +649,6 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertFalse( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
 	}
 
-	/**
-	 * The site's plan does not get a vote where the plugin helper is loaded.
-	 *
-	 * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` plan-gates only behind `IS_WPCOM`, so
-	 * an Atomic site below the SEO plan still has SEO enabled and its front end still
-	 * prefers the modern description. A gate of our own that also covered Atomic would
-	 * send that site's edits to the legacy option, report success, and never change the
-	 * public description.
-	 */
 	public function test_a_plan_gate_does_not_override_the_plugin_helper() {
 		self::set_plan( 'free_plan' );
 		// Plan-gated, but the helper — which is what the front end reads by — says SEO
@@ -673,14 +664,6 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertFalse( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
 	}
 
-	/**
-	 * The rule used where `Jetpack_SEO_Utils` isn't loaded — the WordPress.com Simple
-	 * path this PR exists to fix, and what decides which option a save targets there.
-	 *
-	 * It has to match `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` exactly, and that
-	 * helper plan-gates only behind `IS_WPCOM`. Reached directly because the package's
-	 * own test suite always loads a stand-in for the helper.
-	 */
 	public function test_seo_enabled_without_the_plugin_helper() {
 		$enabled = function () {
 			$method = new \ReflectionMethod( Dashboard_Data::class, 'is_jetpack_seo_enabled_without_helper' );
@@ -700,13 +683,11 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertFalse( $enabled() );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 
-		// WordPress.com Simple: the site's `advanced-seo` entitlement decides, which is
-		// exactly what the helper's IS_WPCOM branch asks `wpcom_site_has_feature()`.
-		Constants::set_constant( 'IS_WPCOM', true );
+		// Ordinary SEO does not require the AI entitlement on WordPress.com.
 		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
 		\Wpcom_Test_Features::$entitled = array();
 		self::reset_active_plan_cache();
-		$this->assertFalse( $enabled() );
+		$this->assertTrue( $enabled() );
 
 		\Wpcom_Test_Features::$entitled = array( 'advanced-seo' );
 		self::reset_active_plan_cache();

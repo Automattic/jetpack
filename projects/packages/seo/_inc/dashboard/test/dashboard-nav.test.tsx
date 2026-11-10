@@ -50,14 +50,15 @@ describe( 'DashboardNav', () => {
 		] );
 	} );
 
-	it( 'hides the Content and GEO tabs when the dashboard is gated', () => {
+	it( 'keeps all four tabs accessible without a paid plan', () => {
 		isGated.mockReturnValue( true );
 
 		render( <DashboardNav active="overview">content</DashboardNav> );
 
-		// The two free tabs remain; the paid Content and GEO tabs are gone.
 		expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
 			'Overview',
+			'Content',
+			'GEO',
 			'Settings',
 		] );
 	} );

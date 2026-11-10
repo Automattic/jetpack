@@ -20,7 +20,7 @@ add_action(
 			return;
 		}
 
-		\Jetpack_Gutenberg::set_availability_for_plan( 'advanced-seo' );
+		\Jetpack_Gutenberg::set_extension_available( 'advanced-seo' );
 	}
 );
 

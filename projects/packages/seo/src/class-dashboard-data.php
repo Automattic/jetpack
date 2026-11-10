@@ -247,8 +247,7 @@ class Dashboard_Data {
 	public static function force_setting_args( $args, $defaults, $group, $option ) {
 		// Cheap membership test first. This filter fires for every `register_setting()`
 		// call in the request — core alone registers ~20 — and building the definitions
-		// rebuilds the title-format schemas and re-decides which option the front page
-		// description lives in, which on WordPress.com Simple is a plan lookup.
+		// rebuilds the title-format schemas and re-decides which description option is live.
 		if ( ! in_array( $option, self::option_names(), true ) ) {
 			return $args;
 		}
@@ -459,15 +458,7 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * The option the front page meta description is stored in for this site.
-	 *
-	 * A WordPress.com site that set a description while SEO tools were free for every
-	 * Simple site keeps editing that legacy option while it's plan-gated, because the
-	 * front end still reads the description from there. Decided from the site's own
-	 * state — the gate and the stored value — rather than from `Jetpack_SEO_Utils`,
-	 * which ships with the Jetpack plugin: reading it through `class_exists()` would
-	 * quietly answer "modern" wherever the plugin's SEO files aren't loaded, and the
-	 * save would then overwrite the wrong option and drop a live legacy description.
+	 * Select the description option that the site currently reads for output.
 	 *
 	 * @return string
 	 */
@@ -552,29 +543,12 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` reproduced for sites that don't load
-	 * it — which includes WordPress.com Simple, where this decides which option a save
-	 * targets.
-	 *
-	 * Exactly, not approximately: the conflicting-plugin filter, then the plan gate on
-	 * WordPress.com **Simple only**. The helper plan-gates behind `IS_WPCOM`, so an
-	 * Atomic site is never gated by it even without `advanced-seo`, and a wider copy
-	 * would send that site's edits to the legacy option while its front end kept reading
-	 * the modern one.
-	 *
-	 * Split out from {@see self::is_jetpack_seo_enabled()} so this branch is reachable
-	 * from a test even where the helper class is loaded.
+	 * Match the helper's conflict policy when the host does not load it.
 	 *
 	 * @return bool
 	 */
 	private static function is_jetpack_seo_enabled_without_helper() {
-		if ( Seo_Tools::is_disabled() ) {
-			return false;
-		}
-
-		// `Initializer::is_gated()` on Simple reduces to the helper's own
-		// `wpcom_site_has_feature( 'advanced-seo' )` check.
-		return ( new Host() )->is_wpcom_simple() ? ! Initializer::is_gated() : true;
+		return ! Seo_Tools::is_disabled();
 	}
 
 	/**
@@ -584,7 +558,7 @@ class Dashboard_Data {
 	 * empty, so leaving it in place would let a cleared description resurrect text the
 	 * site set years ago. Matches what the Jetpack settings endpoint did on the same
 	 * write, including its condition: only where Jetpack's SEO output is actually live,
-	 * so a gated site's legacy description is never touched.
+	 * so a site with disabled output keeps its legacy description.
 	 *
 	 * Hooked to the option-scoped `add_option_*` / `update_option_*` actions rather
 	 * than the site-wide ones, so it fires on a real change to this one option instead
@@ -1069,10 +1043,7 @@ class Dashboard_Data {
 			$front_page_desc = $modern ? $modern : get_option( self::LEGACY_FRONT_PAGE_META_OPTION, '' );
 		}
 
-		// A site that set a front-page description back when it was free for all
-		// WordPress.com Simple sites keeps editing it, even when otherwise plan-gated:
-		// the value stays live in the legacy option. The gated Settings uses this to keep
-		// that one field editable, and it's the same rule the save writes by.
+		// Keep the description source consistent with the option selected for saves.
 		$has_legacy_front_page_meta = self::has_legacy_front_page_meta();
 
 		$codes = get_option( 'verification_services_codes', array() );

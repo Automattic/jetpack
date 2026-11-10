@@ -39,10 +39,6 @@ class Jetpack_SEO_Utils {
 			return false;
 		}
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return wpcom_site_has_feature( 'advanced-seo', get_current_blog_id() );
-		}
-
 		return true;
 	}
 
@@ -116,7 +112,7 @@ class Jetpack_SEO_Utils {
 		$did_update = update_option( $option_name, $front_page_description );
 
 		if ( $did_update && $has_old_meta && $can_set_meta ) {
-			// Delete legacy option if user has switched to Business or eCommerce plan and updated the front page meta description.
+			// Remove the legacy value after saving the modern description.
 			delete_option( self::LEGACY_META_OPTION );
 		}
 

@@ -20,9 +20,8 @@ class Ai_Seo {
 	 * Whether the site can offer AI SEO, independent of the admin's toggle.
 	 * Callers own the outer AI master and host gates.
 	 *
-	 * The plan term is `advanced-seo`, the entitlement for the SEO title and
-	 * meta description fields every AI SEO surface writes to. Automatic
-	 * generation needs `ai-seo-enhancer` on top, checked where it runs.
+	 * AI keeps the legacy `advanced-seo` entitlement; ordinary SEO no longer uses it.
+	 * Automatic generation also checks `ai-seo-enhancer` where it runs.
 	 *
 	 * @since 0.8.2
 	 *

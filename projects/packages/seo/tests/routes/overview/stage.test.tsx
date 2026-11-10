@@ -63,13 +63,13 @@ describe( 'Overview route stage', () => {
 		expect( screen.queryByText( 'overview-screen' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps the reduced Overview on plan-gated sites even with SEO tools off', () => {
+	it( 'requires activation without an entitlement when SEO tools are off', () => {
 		isSeoToolsActive.mockReturnValue( false );
 		isGated.mockReturnValue( true );
 
 		render( <Stage /> );
 
-		expect( screen.getByText( 'overview-screen' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'seo-disabled:overview' ) ).toBeInTheDocument();
 	} );
 
 	// The module state lives in the Overview slice, so it isn't known until it loads.

@@ -61,22 +61,22 @@ describe( 'OverviewScreen — plan gating', () => {
 		getOverview.mockReturnValue( buildOverview() );
 	} );
 
-	it( 'shows the upsell banner and only the free cards when gated', () => {
+	it( 'shows the full overview without an upgrade prompt on formerly gated sites', () => {
 		isGated.mockReturnValue( true );
 
 		render( <OverviewScreen /> );
 
-		expect( screen.getByText( UPSELL_TITLE ) ).toBeInTheDocument();
+		expect( screen.queryByText( UPSELL_TITLE ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Site visibility' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Site verification' ) ).toBeInTheDocument();
 	} );
 
-	it( 'hides the paid surfaces when gated', () => {
+	it( 'keeps content coverage on formerly gated sites', () => {
 		isGated.mockReturnValue( true );
 
 		render( <OverviewScreen /> );
 
-		expect( screen.queryByText( 'Content SEO' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Content SEO' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the full Overview with no banner when ungated', () => {
@@ -100,7 +100,7 @@ describe( 'OverviewScreen — plan gating', () => {
 			delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 		} );
 
-		// The banner isn't a paid surface: the reduced Overview explains the pause too.
+		// Plugin conflicts still explain why output is paused.
 		it.each( [
 			[
 				'Yoast SEO',
@@ -110,17 +110,20 @@ describe( 'OverviewScreen — plan gating', () => {
 				'',
 				'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
 			],
-		] )( 'shows the banner when gated, with "%s" in charge', ( plugin, banner ) => {
-			isGated.mockReturnValue( true );
-			setPaused( plugin );
+		] )(
+			'shows the pause banner without an upgrade prompt, with "%s" in charge',
+			( plugin, banner ) => {
+				isGated.mockReturnValue( true );
+				setPaused( plugin );
 
-			render( <OverviewScreen /> );
+				render( <OverviewScreen /> );
 
-			expect( screen.getByText( banner ) ).toBeInTheDocument();
-			expect( screen.getByText( UPSELL_TITLE ) ).toBeInTheDocument();
-		} );
+				expect( screen.getByText( banner ) ).toBeInTheDocument();
+				expect( screen.queryByText( UPSELL_TITLE ) ).not.toBeInTheDocument();
+			}
+		);
 
-		it( 'leaves the banner out when gated with SEO tools off', () => {
+		it( 'preserves the pause notice while SEO tools are off', () => {
 			isGated.mockReturnValue( true );
 			setPaused( 'Yoast SEO' );
 			const overview = buildOverview();
@@ -129,7 +132,7 @@ describe( 'OverviewScreen — plan gating', () => {
 
 			render( <OverviewScreen /> );
 
-			expect( screen.queryByText( /SEO titles, descriptions/ ) ).not.toBeInTheDocument();
+			expect( screen.getByText( /SEO titles, descriptions/ ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Site visibility' ) ).toBeInTheDocument();
 		} );
 	} );

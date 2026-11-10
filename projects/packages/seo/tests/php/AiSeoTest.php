@@ -80,6 +80,21 @@ class AiSeoTest extends SeoTestCase {
 		$this->assertTrue( Ai_Seo::is_available() );
 	}
 
+	public function test_free_seo_does_not_unlock_ai_without_the_wpcom_entitlement() {
+		self::set_plan( 'jetpack_free' );
+		self::set_seo_tools_active( true );
+		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
+		\Wpcom_Test_Features::$entitled = array();
+
+		try {
+			$this->assertFalse( Ai_Seo::is_available() );
+			\Wpcom_Test_Features::$entitled = array( 'advanced-seo' );
+			$this->assertTrue( Ai_Seo::is_available() );
+		} finally {
+			\Wpcom_Test_Features::reset();
+		}
+	}
+
 	/**
 	 * A conflicting SEO plugin (jetpack_disable_seo_tools) vetoes on its own.
 	 */

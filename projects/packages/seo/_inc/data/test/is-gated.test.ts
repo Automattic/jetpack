@@ -15,12 +15,12 @@ describe( 'isGated', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'is true when the bootstrap reports the site as gated', () => {
+	it( 'ignores a stale gated bootstrap', () => {
 		getScriptData.mockReturnValue( {
 			seo: { gating: { is_gated: true, upsell_url: 'https://example.com/checkout' } },
 		} );
 
-		expect( isGated() ).toBe( true );
+		expect( isGated() ).toBe( false );
 	} );
 
 	it( 'is false when the bootstrap reports the site as ungated', () => {
@@ -57,14 +57,14 @@ describe( 'getUpsellUrl', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'returns the bootstrapped checkout URL', () => {
+	it( 'ignores a stale checkout URL', () => {
 		getScriptData.mockReturnValue( {
 			seo: {
 				gating: { is_gated: true, upsell_url: 'https://wordpress.com/checkout/x/value_bundle' },
 			},
 		} );
 
-		expect( getUpsellUrl() ).toBe( 'https://wordpress.com/checkout/x/value_bundle' );
+		expect( getUpsellUrl() ).toBe( '' );
 	} );
 
 	it( 'returns an empty string when the slice is absent', () => {
