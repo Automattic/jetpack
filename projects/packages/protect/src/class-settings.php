@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\SSO\Helpers as SSO_Helpers;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Monitor\Monitor;
 use Automattic\Jetpack\Protect\Sections\Firewall;
@@ -50,13 +51,13 @@ class Settings {
 	const MONITOR_NOTIFICATIONS_FAILED = 'jetpack_protect_monitor_notifications_failed_';
 
 	/**
-	 * SSO's options, stored locally as plain booleans, with the value SSO assumes while each is unset.
+	 * SSO's options, saved locally as 0 or 1, each with the SSO helper that reads its value in effect.
 	 *
-	 * @var bool[]
+	 * @var string[]
 	 */
 	const SSO_OPTIONS = array(
-		'jetpack_sso_match_by_email'   => true,
-		'jetpack_sso_require_two_step' => false,
+		'jetpack_sso_match_by_email'   => 'match_by_email',
+		'jetpack_sso_require_two_step' => 'is_two_step_required',
 	);
 
 	/**
@@ -127,8 +128,9 @@ class Settings {
 		}
 
 		if ( isset( $settings['sso'] ) ) {
-			foreach ( self::SSO_OPTIONS as $option => $default ) {
-				$settings[ $option ] = (bool) get_option( $option, $default );
+			// The helpers apply the constant and filters that can force a value, which the dashboard then shows as locked.
+			foreach ( self::SSO_OPTIONS as $option => $helper ) {
+				$settings[ $option ] = (bool) call_user_func( array( SSO_Helpers::class, $helper ) );
 			}
 		}
 

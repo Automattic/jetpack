@@ -63,6 +63,8 @@ class Settings_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'jetpack_sso_match_by_email' );
+		delete_option( 'jetpack_sso_match_by_email' );
 		Jetpack_Options::delete_option( array( 'active_modules', 'id', 'blog_token', 'user_tokens' ) );
 		wp_set_current_user( 0 );
 		parent::tear_down();
@@ -194,6 +196,40 @@ class Settings_Test extends BaseTestCase {
 
 		$this->assertFalse( get_option( 'jetpack_sso_require_two_step' ) );
 		$this->assertArrayNotHasKey( 'jetpack_sso_require_two_step', $result );
+	}
+
+	public function test_module_switches_on_and_off() {
+		$on  = self::save( array( 'protect' => true ) );
+		$off = self::save( array( 'protect' => false ) );
+
+		$this->assertTrue( $on['protect'] );
+		$this->assertFalse( $off['protect'] );
+		$this->assertSame( array(), Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	public function test_module_the_site_does_not_offer_is_refused() {
+		$result = self::save( array( 'sso' => true ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'module_unavailable', $result->get_error_code() );
+		$this->assertSame( array(), Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	public function test_sso_option_turned_off_stays_off() {
+		$this->available = array( 'sso' );
+
+		$result = self::save( array( 'jetpack_sso_match_by_email' => false ) );
+
+		$this->assertFalse( $result['jetpack_sso_match_by_email'] );
+		$this->assertFalse( Settings::get_settings()['jetpack_sso_match_by_email'] );
+	}
+
+	public function test_sso_option_forced_by_a_filter_reports_the_forced_value() {
+		$this->available = array( 'sso' );
+		update_option( 'jetpack_sso_match_by_email', 1 );
+		add_filter( 'jetpack_sso_match_by_email', '__return_false' );
+
+		$this->assertFalse( Settings::get_settings()['jetpack_sso_match_by_email'] );
 	}
 
 	public function test_failed_monitor_lookup_is_not_retried_on_every_load() {
