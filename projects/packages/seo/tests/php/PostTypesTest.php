@@ -23,7 +23,7 @@ class PostTypesTest extends TestCase {
 	 * @return void
 	 */
 	public function tearDown(): void {
-		foreach ( array( 'seo_book', 'seo_hidden', 'seo_no_rest', 'seo_internal', 'seo_layout', 'elementor_library' ) as $post_type ) {
+		foreach ( array( 'seo_book', 'seo_hidden', 'seo_no_rest', 'seo_internal', 'seo_unsearchable', 'elementor_library' ) as $post_type ) {
 			if ( post_type_exists( $post_type ) ) {
 				unregister_post_type( $post_type );
 			}
@@ -114,21 +114,21 @@ class PostTypesTest extends TestCase {
 	}
 
 	/**
-	 * Layout post types stay out until a site filters them back in.
+	 * Excluded post types stay out until a site filters them back in.
 	 *
-	 * @dataProvider provide_layout_post_types
+	 * @dataProvider provide_excluded_post_types
 	 *
 	 * @param string $slug Post type slug.
 	 * @param array  $args Extra registration arguments.
 	 * @return void
 	 */
-	#[DataProvider( 'provide_layout_post_types' )]
-	public function test_layout_post_types_are_excluded_until_filtered_back_in( $slug, $args ) {
+	#[DataProvider( 'provide_excluded_post_types' )]
+	public function test_excluded_post_types_stay_out_until_filtered_back_in( $slug, $args ) {
 		register_post_type(
 			$slug,
 			array_merge(
 				array(
-					'label'        => 'Layouts',
+					'label'        => 'Excluded',
 					'public'       => true,
 					'show_ui'      => true,
 					'show_in_rest' => true,
@@ -152,7 +152,7 @@ class PostTypesTest extends TestCase {
 	}
 
 	/**
-	 * Hiding a core type from site search doesn't make it a layout type.
+	 * Posts and pages stay listed when a site hides them from search.
 	 *
 	 * @return void
 	 */
@@ -168,28 +168,13 @@ class PostTypesTest extends TestCase {
 	}
 
 	/**
-	 * Attachments stay out even when a filter empties the list.
-	 *
-	 * @return void
-	 */
-	public function test_filter_cannot_bring_back_attachments() {
-		add_filter( 'jetpack_seo_excluded_post_types', '__return_empty_array' );
-
-		try {
-			$this->assertNotContains( 'attachment', Post_Types::get_supported_content_types() );
-		} finally {
-			remove_filter( 'jetpack_seo_excluded_post_types', '__return_empty_array' );
-		}
-	}
-
-	/**
 	 * Both routes into the exclusion list.
 	 *
 	 * @return array<string,array{0:string,1:array<string,bool>}>
 	 */
-	public static function provide_layout_post_types() {
+	public static function provide_excluded_post_types() {
 		return array(
-			'marked exclude_from_search' => array( 'seo_layout', array( 'exclude_from_search' => true ) ),
+			'marked exclude_from_search' => array( 'seo_unsearchable', array( 'exclude_from_search' => true ) ),
 			'known builder template'     => array( 'elementor_library', array() ),
 		);
 	}

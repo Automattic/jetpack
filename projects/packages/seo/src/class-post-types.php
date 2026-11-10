@@ -17,19 +17,13 @@ class Post_Types {
 	 *
 	 * @var string[]
 	 */
-	const EXCLUDED_POST_TYPES = array( 'attachment' );
-
-	/**
-	 * Theme and page builder template types, which a site can list again with a filter.
-	 *
-	 * @var string[]
-	 */
-	const LAYOUT_POST_TYPES = array(
-		'elementor_library',
-		'et_pb_layout',
-		'fl-builder-template',
-		'fl-theme-layout',
-		'kadence_element',
+	const EXCLUDED_POST_TYPES = array(
+		'attachment',
+		'elementor_library',   // Elementor saved templates.
+		'et_pb_layout',        // Divi Library layouts.
+		'fl-builder-template', // Beaver Builder saved templates.
+		'fl-theme-layout',     // Beaver Themer header, footer and archive layouts.
+		'kadence_element',     // Kadence Elements, hooked header and footer pieces.
 	);
 
 	/**
@@ -63,9 +57,8 @@ class Post_Types {
 	 * Return supported post type objects keyed by slug.
 	 *
 	 * Supported means public, UI-visible, and REST-enabled so the SEO dashboard
-	 * can both display and save the post through core-data. Attachments have a
-	 * media-specific REST endpoint, and themes and page builders mark layout
-	 * pieces with exclude_from_search, so both are left out.
+	 * can both display and save the post through core-data. Excluded types and
+	 * types hidden from search are left out.
 	 *
 	 * @return \WP_Post_Type[]
 	 */
@@ -79,25 +72,24 @@ class Post_Types {
 			'objects'
 		);
 
-		// Sites hide posts or pages from search to tidy results, which doesn't make them layouts.
-		$layout_types = array_diff(
-			array_keys( wp_filter_object_list( $post_types, array( 'exclude_from_search' => true ) ) ),
-			array( 'post', 'page' )
-		);
+		$hidden_from_search = wp_filter_object_list( $post_types, array( 'exclude_from_search' => true ) );
+		$hidden_from_search = array_keys( $hidden_from_search );
+		// Sites hide posts or pages from search to tidy results, so keep listing them.
+		$hidden_from_search = array_diff( $hidden_from_search, array( 'post', 'page' ) );
+
+		$excluded = array_merge( self::EXCLUDED_POST_TYPES, $hidden_from_search );
+		$excluded = array_unique( $excluded );
 
 		/**
-		 * Filters the layout post types left out of llms.txt, the SEO Content tab, Content coverage and the SEO admin columns.
+		 * Filters the post types left out of llms.txt, the SEO Content tab, Content coverage and the SEO admin columns.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string[] $layout_types Post type slugs to leave out. Remove a slug to include that type.
+		 * @param string[] $excluded Post type slugs to leave out. Remove a slug to include that type.
 		 */
-		$layout_types = (array) apply_filters(
-			'jetpack_seo_excluded_post_types',
-			array_unique( array_merge( self::LAYOUT_POST_TYPES, $layout_types ) )
-		);
+		$excluded = (array) apply_filters( 'jetpack_seo_excluded_post_types', $excluded );
 
-		foreach ( array_merge( self::EXCLUDED_POST_TYPES, $layout_types ) as $post_type ) {
+		foreach ( $excluded as $post_type ) {
 			unset( $post_types[ $post_type ] );
 		}
 
