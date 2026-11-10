@@ -18,14 +18,14 @@ const mockConnection: {
 	userIsConnecting: boolean;
 	isRegistered: boolean;
 	isUserConnected: boolean;
-	registrationError: Record< string, unknown > | false;
+	connectError: Record< string, unknown > | false;
 } = {
 	handleRegisterSite: jest.fn(),
 	siteIsRegistering: false,
 	userIsConnecting: false,
 	isRegistered: false,
 	isUserConnected: false,
-	registrationError: false,
+	connectError: false,
 };
 
 const mockUseConnection = jest.fn( () => mockConnection );
@@ -34,6 +34,13 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 	__esModule: true,
 	CONNECTION_FROM: jest.requireActual( '@automattic/jetpack-connection' ).CONNECTION_FROM,
 	useConnection: ( ...args: unknown[] ) => mockUseConnection( ...( args as [] ) ),
+	// The real helpers: what counts as a mapped message is part of what is under test.
+	getRegistrationErrorSummary: jest.requireActual( '@automattic/jetpack-connection' )
+		.getRegistrationErrorSummary,
+	getRegistrationErrorCode: jest.requireActual( '@automattic/jetpack-connection' )
+		.getRegistrationErrorCode,
+	getConnectScreenErrorMessage: jest.requireActual( '@automattic/jetpack-connection' )
+		.getConnectScreenErrorMessage,
 } ) );
 
 const mockRecordEvent = jest.fn();
@@ -85,7 +92,7 @@ beforeEach( () => {
 	mockConnection.userIsConnecting = false;
 	mockConnection.isRegistered = false;
 	mockConnection.isUserConnected = false;
-	mockConnection.registrationError = false;
+	mockConnection.connectError = false;
 } );
 
 /**
@@ -260,18 +267,15 @@ describe( 'Wizard start screen', () => {
 			)
 		);
 
-		mockConnection.registrationError = error;
+		mockConnection.connectError = error;
 		refresh();
 
 		// It does not advance, and the button comes back so they can retry.
 		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
 
-		// A sentence first, the server's own words second.
-		expect(
-			screen.getByText( 'We could not connect this site. Please try again.' )
-		).toBeInTheDocument();
-		expect( screen.getByText( 'Site is inaccessible (Status 403)' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'We could not connect this site.' ) ).toBeInTheDocument();
+		expect( screen.getByText( /couldn’t reach your site to verify it/ ) ).toBeInTheDocument();
 
 		// The message interpolates the server's prose; only the code is reported.
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
@@ -280,22 +284,53 @@ describe( 'Wizard start screen', () => {
 		);
 	} );
 
-	it( 'reports a hand-off failure too, which never reaches the store', async () => {
+	it( 'reports a hand-off failure and lets the user retry', async () => {
 		// Fetching the authorization URL failed, so `registrationError` stays empty.
-		mockConnection.handleRegisterSite.mockRejectedValue( { message: '', name: 'JsonParseError' } );
+		const error = { message: '', name: 'JsonParseError' };
+		mockConnection.handleRegisterSite.mockRejectedValue( error );
 
-		const { user } = setupWizard();
+		const { user, refresh } = setupWizard();
 
 		await user.click( getStarted() );
 
-		await expect(
-			screen.findByText( 'We could not connect this site. Please try again.' )
-		).resolves.toBeInTheDocument();
-		// No message to show, so the code stands in for it.
-		expect( screen.getByText( 'JsonParseError' ) ).toBeInTheDocument();
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_my_jetpack_onboarding_connect_error', {
-			error_code: 'JsonParseError',
-		} );
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_my_jetpack_onboarding_connect_error',
+				{ error_code: 'JsonParseError' }
+			)
+		);
+
+		mockConnection.connectError = error;
+		refresh();
+
+		expect(
+			screen.getByText( /The connection request got an unexpected response/ )
+		).toBeInTheDocument();
+		expect( screen.getByText( 'We could not connect this site.' ) ).toBeInTheDocument();
+		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
+
+		await user.click( getStarted() );
+
+		expect( mockConnection.handleRegisterSite ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'keeps the retry instruction when the server sends text for an unmapped code', async () => {
+		const error = {
+			name: 'ApiError',
+			response: { code: 'upstream_failed', message: 'Upstream request failed.' },
+		};
+		mockConnection.handleRegisterSite.mockRejectedValue( error );
+
+		const { user, refresh } = setupWizard();
+
+		await user.click( getStarted() );
+		mockConnection.connectError = error;
+		refresh();
+
+		expect( screen.getByText( 'Upstream request failed.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'We could not connect this site. Please try again.' )
+		).toBeInTheDocument();
 	} );
 
 	it( 'names what Jetpack does, one free feature group per row', () => {
