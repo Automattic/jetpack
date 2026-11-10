@@ -23,6 +23,11 @@
 // The body under the pinned header, its grid lined up with the header's
 // padding.
 .content {
+	// Fills the page as a column, so a page-level state can centre itself.
+	display: flex;
+	flex-direction: column;
+	flex: 1 0 auto;
+
 	// Caps every layer the widget grid raises under the pinned header.
 	isolation: isolate;
 
