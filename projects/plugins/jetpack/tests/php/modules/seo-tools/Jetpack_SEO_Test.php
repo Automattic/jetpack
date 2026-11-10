@@ -39,6 +39,7 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		update_option( 'show_on_front', 'posts' );
 		delete_option( 'page_on_front' );
+		delete_option( 'page_for_posts' );
 		delete_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION );
 		parent::tear_down();
 	}
@@ -108,6 +109,82 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 		$tags = $this->seo->set_custom_og_tags( array() );
 
 		$this->assertSame( 'Static front page description.', $tags['og:description'] ?? '', 'og:description should use the static front page\'s custom description when front-page meta is blank.' );
+	}
+
+	/**
+	 * The posts page shows its own description, or the homepage's when it has none to show.
+	 *
+	 * @dataProvider provide_posts_page_descriptions
+	 *
+	 * @param array  $page_args            Post fields for the posts page.
+	 * @param string $seo_description      SEO description saved on the posts page.
+	 * @param string $expected_description The posts page's description in its tags, or empty for none.
+	 * @param string $expected_title       The og:title set for the posts page, or empty for none.
+	 */
+	#[DataProvider( 'provide_posts_page_descriptions' )]
+	public function test_posts_page_description( $page_args, $seo_description, $expected_description, $expected_title ) {
+		$this->go_to_posts_page( $page_args, $seo_description );
+
+		ob_start();
+		$this->seo->meta_tags();
+		$output = ob_get_clean();
+		$tags   = $this->seo->set_custom_og_tags( array() );
+
+		$this->assertStringContainsString( '<meta name="description" content="' . ( $expected_description ? $expected_description : 'Front page description.' ) . '" />', $output );
+		$this->assertSame( $expected_description, $tags['og:description'] ?? '' );
+		$this->assertSame( $expected_title, $tags['og:title'] ?? '' );
+	}
+
+	/**
+	 * Data provider for test_posts_page_description.
+	 *
+	 * @return array
+	 */
+	public static function provide_posts_page_descriptions() {
+		$excerpt = array( 'post_excerpt' => 'Blog excerpt.' );
+
+		return array(
+			'SEO description wins over excerpt' => array( $excerpt, 'Blog SEO description.', 'Blog SEO description.', 'Our Blog' ),
+			'excerpt when no SEO description'   => array( $excerpt, '', 'Blog excerpt.', 'Our Blog' ),
+			'neither set'                       => array( array( 'post_excerpt' => '' ), '', '', 'Our Blog' ),
+			'password-protected'                => array( $excerpt + array( 'post_password' => 'secret' ), 'Blog SEO description.', '', 'Our Blog' ),
+			'private page'                      => array( $excerpt + array( 'post_status' => 'private' ), 'Blog SEO description.', '', '' ),
+		);
+	}
+
+	/**
+	 * A site that hands SEO to another plugin keeps its Open Graph tags on the posts page.
+	 */
+	public function test_posts_page_og_tags_unchanged_when_seo_tools_disabled() {
+		$this->go_to_posts_page( array( 'post_excerpt' => 'Blog excerpt.' ), '' );
+
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+
+		$this->assertSame( array(), $this->seo->set_custom_og_tags( array() ) );
+	}
+
+	/**
+	 * Creates a posts page on a site with a static front page, and views it.
+	 *
+	 * @param array  $page_args       Post fields for the posts page.
+	 * @param string $seo_description SEO description saved on the posts page.
+	 */
+	private function go_to_posts_page( $page_args, $seo_description ) {
+		$front_page_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		$posts_page_id = self::factory()->post->create(
+			$page_args + array(
+				'post_type'  => 'page',
+				'post_title' => 'Our Blog',
+			)
+		);
+		update_post_meta( $posts_page_id, Jetpack_SEO_Posts::DESCRIPTION_META_KEY, $seo_description );
+
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $front_page_id );
+		update_option( 'page_for_posts', $posts_page_id );
+		update_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, 'Front page description.' );
+
+		$this->go_to( get_permalink( $posts_page_id ) );
 	}
 
 	/**

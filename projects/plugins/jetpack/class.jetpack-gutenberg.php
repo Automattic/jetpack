@@ -444,7 +444,7 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg array( 'publicize', 'markdown' )
 	 */
 	public static function get_available_extensions( $allowed_extensions = null ) {
-		$exclusions         = get_option( 'jetpack_excluded_extensions', array() );
+		$exclusions         = self::get_excluded_extensions();
 		$allowed_extensions = $allowed_extensions === null ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
 
 		// Avoid errors if option data is not as expected.
@@ -453,6 +453,20 @@ class Jetpack_Gutenberg {
 		}
 
 		return array_diff( $allowed_extensions, $exclusions );
+	}
+
+	/**
+	 * Returns the extensions a site has excluded via the `jetpack_excluded_extensions` option.
+	 *
+	 * @return mixed The stored option value, or an empty array when none is set.
+	 */
+	private static function get_excluded_extensions() {
+		// Without a persistent object cache, a missing option costs a query on every request, so store the empty default.
+		if ( ! wp_using_ext_object_cache() ) {
+			return Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_excluded_extensions', array() );
+		}
+
+		return get_option( 'jetpack_excluded_extensions', array() );
 	}
 
 	/**

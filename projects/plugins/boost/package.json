@@ -76,7 +76,7 @@
 		"@automattic/jetpack-image-guide": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@babel/core": "7.29.7",
+		"@babel/core": "7.29.13",
 		"@storybook/react": "10.6.3",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "16.3.3",

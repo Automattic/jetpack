@@ -454,9 +454,16 @@ class Test_Plugin_Factory {
 
 		// We can finally execute Composer now that we're ready.
 		putenv( 'COMPOSER_HOME=' . TEST_TEMP_BIN_DIR );
-		exec( 'php ' . escapeshellarg( $composer_bin ) . ' install -q -d ' . escapeshellarg( $plugin_dir ) );
-		if ( ! is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) ) {
-			throw new \RuntimeException( 'Unable to execute the `' . $composer_bin . '` archive for tests.' );
+		for ( $tries = 1;; $tries++ ) {
+			exec( 'php ' . escapeshellarg( $composer_bin ) . ' install -q -d ' . escapeshellarg( $plugin_dir ) );
+			if ( is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) ) {
+				break;
+			}
+			if ( $tries > 3 ) {
+				throw new \RuntimeException( 'Unable to execute the `' . $composer_bin . '` archive for tests.' );
+			}
+			fprintf( STDERR, "\nFailed to `composer install` with %s. Will try again in %ds.\n", $composer_bin, $tries );
+			sleep( $tries );
 		}
 		if ( isset( $this->autoloader_version ) && ! is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload_packages.php' ) ) {
 			throw new \RuntimeException( 'Failed to install the autoloader.' );

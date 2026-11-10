@@ -7,6 +7,8 @@ import {
 	DISCONNECT_USER_SUCCESS,
 	CLEAR_REGISTRATION_ERROR,
 	SET_REGISTRATION_ERROR,
+	CLEAR_USER_CONNECTION_ERROR,
+	SET_USER_CONNECTION_ERROR,
 	SET_AUTHORIZATION_URL,
 	SET_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
@@ -73,6 +75,17 @@ const registrationError = ( state, action ) => {
 			return false;
 		case SET_REGISTRATION_ERROR:
 			return action.registrationError;
+		default:
+			return state;
+	}
+};
+
+const userConnectionError = ( state, action ) => {
+	switch ( action.type ) {
+		case CLEAR_USER_CONNECTION_ERROR:
+			return false;
+		case SET_USER_CONNECTION_ERROR:
+			return action.userConnectionError;
 		default:
 			return state;
 	}
@@ -172,6 +185,7 @@ const reducers = combineReducers( {
 	siteIsRegistering,
 	userIsConnecting,
 	registrationError,
+	userConnectionError,
 	authorizationUrl,
 	userConnectionData,
 	connectedPlugins,

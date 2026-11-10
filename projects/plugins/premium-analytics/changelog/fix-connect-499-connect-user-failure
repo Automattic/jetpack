@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Upgrade page: Fix retrying the user connection after it fails to start.

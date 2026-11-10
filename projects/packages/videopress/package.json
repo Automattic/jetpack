@@ -87,7 +87,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@babel/core": "7.29.7",
+		"@babel/core": "7.29.13",
 		"@jest/globals": "30.5.2",
 		"@storybook/addon-docs": "10.6.3",
 		"@storybook/react": "10.6.3",
