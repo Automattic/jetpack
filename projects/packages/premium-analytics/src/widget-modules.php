@@ -208,22 +208,18 @@ function preload_dashboard_rest_responses() {
 		return;
 	}
 
-	$paths = array();
-	foreach (
-		array(
-			'/wp/v2/settings',
-			'/' . DASHBOARD_REST_NAMESPACE . '/dashboards/' . DASHBOARD_NAME . '/sections?per_page=100',
-			'/' . DASHBOARD_REST_NAMESPACE . '/widget-modules?per_page=100',
-		) as $path
-	) {
-		// Both forms, as the Forms dashboard does: whether `_locale` is on the path depends on middleware order.
-		$paths[] = $path;
-		$paths[] = add_query_arg( '_locale', 'user', $path );
-	}
+	$paths = array(
+		'/wp/v2/settings',
+		'/' . DASHBOARD_REST_NAMESPACE . '/dashboards/' . DASHBOARD_NAME . '/sections?per_page=100',
+		'/' . DASHBOARD_REST_NAMESPACE . '/widget-modules?per_page=100',
+	);
 
 	$preloaded = array();
 	foreach ( array_reduce( $paths, 'rest_preload_api_request', array() ) as $key => $response ) {
-		$preloaded[ preg_replace( '#^https?://[^/]+/wp-json#', '', $key ) ] = $response;
+		$path = preg_replace( '#^https?://[^/]+/wp-json#', '', $key );
+		// Keyed both ways, as the Forms dashboard does: whether `_locale` is on the path depends on middleware order.
+		$preloaded[ $path ]                                     = $response;
+		$preloaded[ add_query_arg( '_locale', 'user', $path ) ] = $response;
 	}
 	if ( array() === $preloaded ) {
 		return;
