@@ -66,8 +66,7 @@ describe( 'useBarLegendItems', () => {
 		);
 	} );
 
-	test( 'colors and lists only the series a stacked chart draws', () => {
-		const drawn = twoMetricData.filter( series => series.options?.type !== 'comparison' );
+	test( 'lists the stacked primaries, then one static item in the comparison total color', () => {
 		const { result } = renderHook(
 			() => ( {
 				items: useBarLegendItems( twoMetricData, { layout: 'stacked', comparisonItem: true } ),
@@ -75,13 +74,16 @@ describe( 'useBarLegendItems', () => {
 			} ),
 			{ wrapper }
 		);
-		const chartColors = result.current.getBarColors( drawn, { layout: 'stacked' } );
 		const colors = result.current.getBarColors( twoMetricData, { layout: 'stacked' } );
 
-		expect( [ colors[ 0 ], colors[ 2 ] ] ).toEqual( chartColors );
-		expect( result.current.items.map( item => [ item.label, item.color ] ) ).toEqual(
-			drawn.map( ( series, index ) => [ series.label, chartColors[ index ] ] )
-		);
+		expect( colors[ 1 ] ).toBe( colors[ 3 ] );
+		expect(
+			result.current.items.map( item => [ item.label, item.color, item.interactive !== false ] )
+		).toEqual( [
+			[ 'Views', colors[ 0 ], true ],
+			[ 'Visitors', colors[ 2 ], true ],
+			[ 'Comparison period', colors[ 1 ], false ],
+		] );
 	} );
 
 	test( "returns the chart legend's own items without a layout", () => {

@@ -43,6 +43,8 @@ import {
 	MAX_GROUP_PADDING,
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
+	COMPARISON_SLOT,
+	getComparisonTotalLabel,
 	isBarRendered,
 	SlotTooltipMembers,
 	useBarStops,
@@ -50,7 +52,6 @@ import {
 	getSelectedSlot,
 	isSameCategory,
 	membersAt,
-	getDrawnSeries,
 } from './private';
 import { useBarColors } from './use-bar-colors';
 import { useBarLegendItems } from './use-bar-legend-items';
@@ -146,12 +147,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			'BarChart: showZeroValues has no effect in a stacked layout.'
 		);
 	}
-	if ( layout === 'stacked' && data?.some( series => series.options?.type === 'comparison' ) ) {
-		warnOnce(
-			'bar-chart-stacked-comparison',
-			'BarChart: a stacked layout does not draw comparison series yet.'
-		);
-	}
 	const valueScaleOptions = orientation === 'horizontal' ? options.xScale : options.yScale;
 	if ( layout === 'stacked' && valueScaleOptions?.type && valueScaleOptions.type !== 'linear' ) {
 		warnOnce(
@@ -189,11 +184,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const theme = useXYChartTheme( data );
 
 	const transformedData = useChartDataTransform( data );
-	// A stacked layout does not draw comparisons yet, so they must not shade a primary's color or join the legend either.
-	const dataSorted = useMemo(
-		() => getDrawnSeries( transformedData, layout ),
-		[ layout, transformedData ]
-	);
+	const dataSorted = transformedData;
 
 	// Transform data to add a small value for zero bars to make them visible
 	// For vertical bars, height determines bar pixel height; for horizontal bars, width does
@@ -285,7 +276,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ seriesWithVisibility ]
 	);
 
-	const barSlots = useBarSlots( layout, seriesWithVisibility );
+	const barSlots = useBarSlots(
+		layout,
+		seriesWithVisibility,
+		getComparisonTotalLabel( legendComparisonItem )
+	);
 
 	const chartOptions = useBarChartOptions(
 		dataWithVisibleZeros,
@@ -361,7 +356,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	const comparisonEntries = useMemo( () => {
-		// An overlap layout draws its comparisons as slotted bars, and a stacked one does not draw them yet.
+		// An overlap layout draws its comparisons as slotted bars, and a stacked one sums them into one.
 		if ( barSlots ) {
 			return [];
 		}
@@ -485,7 +480,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartOptions.tooltip, dataSorted ]
 	);
 
-	// Lists the stack last series first, a null reading as "No data", then the total.
+	// Lists the stack last series first, a null reading as "No data", then the total and the comparison total.
 	const renderStackedTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
 			const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -498,10 +493,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				[]
 			);
 
-			const rows = [ ...barSlots.entries ].reverse().flatMap( ( { series } ) => {
+			const datumOf = ( { series }: { series: SeriesData } ) => {
 				const datum = datumByKey[ series.label ]?.datum;
 				return datum ? [ { label: series.label, datum } ] : [];
-			} );
+			};
+			const isPrimary = ( { series }: { series: SeriesData } ) =>
+				barSlots.slotOf( series.label ) !== COMPARISON_SLOT;
+			const rows = barSlots.entries.filter( isPrimary ).reverse().flatMap( datumOf );
+			const comparisonRows = barSlots.entries
+				.filter( entry => ! isPrimary( entry ) )
+				.flatMap( datumOf )
+				.filter( ( { datum } ) => isBarRendered( datum ) );
 			const readings = rows.filter( ( { datum } ) => isBarRendered( datum ) ).length;
 			const [ negative, positive ] = barSlots.stack.extentAt( nearestDatum );
 
@@ -518,6 +520,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							__( 'Total', 'jetpack-charts' ),
 							formatReading( negative + positive )
 						) }
+					{ comparisonRows.map( ( { label, datum } ) => (
+						<Fragment key={ label }>
+							{ renderTooltipRow( label, formatReading( datum.value ) ) }
+						</Fragment>
+					) ) }
 				</div>
 			);
 		},

@@ -959,6 +959,45 @@ export const Stacked: Story = {
 	},
 };
 
+// The same devices over the four weeks before, each paired with its current series by `group`.
+const deviceViewsWithPrevious: SeriesData[] = [
+	...deviceViewsData.map( series => ( { ...series, group: series.label } ) ),
+	...deviceViewsData.map( ( series, index ) => ( {
+		label: `${ series.label } (previous)`,
+		group: series.label,
+		options: { type: 'comparison' as const },
+		data: series.data.map( ( point, day ) => ( {
+			...point,
+			value: Math.round( Number( point.value ) * ( 0.75 + ( ( day + index ) % 5 ) * 0.1 ) ),
+		} ) ),
+	} ) ),
+];
+
+export const StackedComparison: Story = {
+	args: {
+		...Default.args,
+		layout: 'stacked',
+		data: deviceViewsWithPrevious,
+		showLegend: true,
+		legendInteractive: true,
+		gridVisibility: 'x',
+	},
+	render: args => (
+		<BarChart
+			{ ...args }
+			legend={ { ...extractLegendConfig( args ), comparisonItem: 'Prev. 28 days' } }
+		/>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"A stacked chart with a `type: 'comparison'` series per device. The comparisons are summed into one bar beside each stack, the previous period's total, in a gray that keeps 3:1 against the background; `legend.comparisonItem` names it in the legend and the tooltip. Hide a device from the legend and its previous period leaves the total too, so both bars sum the same devices.",
+			},
+		},
+	},
+};
+
 export const StackedHorizontal: Story = {
 	args: {
 		...Default.args,
