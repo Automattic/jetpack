@@ -181,7 +181,7 @@ export function normalizeReportParams(
 }
 
 /**
- * Whether report date params are incomplete or the interval is invalid for the range.
+ * Whether report date params are incomplete or the interval is invalid for the window the report reads.
  */
 export function needsReportDateParamsSeed(
 	search?: ReportDateWindowSearch,
