@@ -1,5 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -163,10 +163,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 						'Your site is unlaunched, private, or hidden from search engines. Check your site visibility before submitting your feed to podcast directories.',
 						'jetpack-podcast'
 					) }{ ' ' }
-					<Button
-						variant="link"
-						href={ `${ getSiteData()?.admin_url ?? '/wp-admin/' }options-reading.php` }
-					>
+					<Button variant="link" href={ getAdminUrl( 'options-reading.php' ) }>
 						{ __( 'Edit site visibility', 'jetpack-podcast' ) }
 					</Button>
 				</Notice>
