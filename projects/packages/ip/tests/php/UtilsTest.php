@@ -66,34 +66,34 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	 */
 	public static function provide_get_ip() {
 		return array(
-			'Basic IPv4 address'                    => array(
+			'Basic IPv4 address'                          => array(
 				'192.0.2.1',
 				array( 'REMOTE_ADDR' => '192.0.2.1' ),
 				null,
 			),
-			'Invalid IPv4 address'                  => array(
+			'Invalid IPv4 address'                        => array(
 				false,
 				array( 'REMOTE_ADDR' => '192.0.2.256' ),
 				null,
 			),
-			'IPv4-as-IPv6 address'                  => array(
+			'IPv4-as-IPv6 address'                        => array(
 				'192.0.2.3',
 				array( 'REMOTE_ADDR' => '::FfFf:192.0.2.3' ),
 				null,
 			),
 
-			'Basic IPv6 address'                    => array(
+			'Basic IPv6 address'                          => array(
 				'2001:db8::1',
 				array( 'REMOTE_ADDR' => '2001:DB8::1' ),
 				null,
 			),
-			'Invalid IPv6 address'                  => array(
+			'Invalid IPv6 address'                        => array(
 				false,
 				array( 'REMOTE_ADDR' => '2001:DB8::12345' ),
 				null,
 			),
 
-			'Missing trusted header'                => array(
+			'Missing trusted header'                      => array(
 				'192.0.2.1',
 				array( 'REMOTE_ADDR' => '192.0.2.1' ),
 				(object) array(
@@ -102,7 +102,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 					'reverse'        => true,
 				),
 			),
-			'Use trusted header'                    => array(
+			'Use trusted header'                          => array(
 				'192.0.2.1',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
@@ -114,7 +114,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 					'reverse'        => true,
 				),
 			),
-			'Use trusted header, segments = 2'      => array(
+			'Use trusted header, segments = 2'            => array(
 				'192.0.2.2',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
@@ -126,7 +126,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 					'reverse'        => true,
 				),
 			),
-			'Use trusted header, segments = 3'      => array(
+			'Use trusted header, segments = 3'            => array(
 				'2001:db8::3',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
@@ -138,7 +138,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 					'reverse'        => true,
 				),
 			),
-			'Use trusted header, too many segments' => array(
+			'Use trusted header, too many segments'       => array(
 				'192.0.2.55',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
@@ -162,7 +162,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 					'reverse'        => true,
 				),
 			),
-			'Use trusted header, unreversed'        => array(
+			'Use trusted header, unreversed'              => array(
 				'2001:db8::3',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
@@ -174,7 +174,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 					'reverse'        => false,
 				),
 			),
-			'Trusted header is empty'               => array(
+			'Trusted header is empty'                     => array(
 				'192.0.2.55',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
@@ -186,7 +186,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 					'reverse'        => true,
 				),
 			),
-			'Trusted header has invalid IP'         => array(
+			'Trusted header has invalid IP'               => array(
 				'192.0.2.55',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
@@ -198,7 +198,19 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 					'reverse'        => true,
 				),
 			),
-			'Trusted header has "unless"'           => array(
+			'Trusted header and REMOTE_ADDR both invalid' => array(
+				false,
+				array(
+					'REMOTE_ADDR'          => 'not-an-ip',
+					'HTTP_X_FORWARDED_FOR' => 'unknown',
+				),
+				(object) array(
+					'trusted_header' => 'HTTP_X_FORWARDED_FOR',
+					'segments'       => 1,
+					'reverse'        => false,
+				),
+			),
+			'Trusted header has "unless"'                 => array(
 				'192.0.2.2',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
@@ -211,7 +223,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 				),
 			),
 
-			'Trusted header includes port'          => array(
+			'Trusted header includes port'                => array(
 				'192.0.2.1',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
@@ -223,7 +235,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 					'reverse'        => true,
 				),
 			),
-			'Trusted header includes IPv6 brackets' => array(
+			'Trusted header includes IPv6 brackets'       => array(
 				'2001:db8::3',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
