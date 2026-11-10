@@ -205,7 +205,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 */
 	private static function build_consent_gate( $pushes ) {
 		// A delay-JS optimizer can load the WP Consent API after `load` without any event, so recheck on each script load (captured: it doesn't bubble).
-		// That recheck needs a stored allow: until a banner sets the consent type (waitfor_consent_hook), wp_has_consent() reads a fallback that can allow anyone.
+		// That recheck needs a stored allow, a type a banner has set, or an opt-out fallback: an empty fallback allows anyone, even where a delayed banner has yet to set opt-in.
 		// A stored deny wins: without a consent type, which some banners set only on the first visit, wp_has_consent() ignores it.
 		return sprintf(
 			'_stq = window._stq || [];
@@ -217,6 +217,9 @@ function _jpStatsFire() {
 function _jpStatsStoredChoice() {
 	return typeof window.consent_api_get_cookie === "function" && !! window.consent_api ?
 		window.consent_api_get_cookie( window.consent_api.cookie_prefix + "_statistics" ) : "";
+}
+function _jpStatsSafeToRecheck() {
+	return _jpStatsStoredChoice() === "allow" || typeof window.wp_consent_type !== "undefined" || String( window.wp_fallback_consent_type || "" ).indexOf( "optout" ) !== -1;
 }
 function _jpStatsCheck() {
 	if ( _jpStatsFire.done || typeof window.wp_has_consent !== "function" ) { return; }
@@ -236,7 +239,7 @@ document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 document.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 window.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 document.addEventListener( "load", function ( event ) {
-	if ( event && event.target && event.target.tagName === "SCRIPT" && _jpStatsStoredChoice() === "allow" ) { _jpStatsCheck(); }
+	if ( event && event.target && event.target.tagName === "SCRIPT" && _jpStatsSafeToRecheck() ) { _jpStatsCheck(); }
 }, true );
 window.addEventListener( "load", function () {
 	if ( typeof window.wp_has_consent !== "function" ) {
