@@ -21,7 +21,10 @@ interface A11yProbe {
 type ProbeWindow = {
 	__jpShellA11y: A11yProbe;
 	__jpShell: { read: () => { apps: Record< string, string > } };
-	axe: { run: ( context: ElementContext, options: RunOptions ) => Promise< AxeResults > };
+	axe?: {
+		version: string;
+		run: ( context: ElementContext, options: RunOptions ) => Promise< AxeResults >;
+	};
 };
 
 /**
@@ -239,20 +242,24 @@ export async function ariaHiddenAncestors( page: Page, slug: string ): Promise< 
 	return hidden;
 }
 
-const axePath = createRequire( import.meta.url ).resolve( 'axe-core/axe.min.js' );
+const local = createRequire( import.meta.url );
+const axePath = local.resolve( 'axe-core/axe.min.js' );
+const axeVersion: string = local( 'axe-core/package.json' ).version;
 
 /**
  * Serious and critical WCAG 2.1 A/AA violations on the page as it is now, keyed by rule.
  *
  * @param page - Page under test.
- * @return Rule ID to the selectors of the failing nodes.
+ * @return Rule ID to the HTML of the failing nodes.
  */
 export async function axeViolations( page: Page ): Promise< Record< string, string[] > > {
-	if ( ! ( await page.evaluate( () => 'axe' in window ) ) ) {
+	// Inject ours unless it is already there: a page's own axe could be another version.
+	const loaded = await page.evaluate( () => ( window as unknown as ProbeWindow ).axe?.version );
+	if ( loaded !== axeVersion ) {
 		await page.addScriptTag( { path: axePath } );
 	}
 	const results: AxeResults = await page.evaluate( () =>
-		( window as unknown as ProbeWindow ).axe.run( document, {
+		( window as unknown as ProbeWindow ).axe!.run( document, {
 			runOnly: { type: 'tag', values: [ 'wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa' ] },
 			resultTypes: [ 'violations' ],
 		} )
@@ -260,7 +267,7 @@ export async function axeViolations( page: Page ): Promise< Record< string, stri
 	return Object.fromEntries(
 		results.violations
 			.filter( v => v.impact === 'serious' || v.impact === 'critical' )
-			.map( v => [ v.id, v.nodes.map( n => n.target.join( ' ' ) ) ] )
+			.map( v => [ v.id, v.nodes.map( n => n.html ) ] )
 	);
 }
 
@@ -269,17 +276,27 @@ export async function axeViolations( page: Page ): Promise< Record< string, stri
  *
  * @param page     - Page under test.
  * @param baseline - `axeViolations()` from a full load of the shown page.
- * @return Rule ID to failing selectors, for rules the baseline doesn't fail or fails on fewer nodes.
+ * @return Rule ID to the failing nodes the baseline doesn't have.
  */
 export async function newViolations(
 	page: Page,
 	baseline: Record< string, string[] >
 ): Promise< Record< string, string[] > > {
 	const now = await axeViolations( page );
-	// Compare node counts, not selectors: the shell's DOM shifts axe's positional selectors.
-	return Object.fromEntries(
-		Object.entries( now ).filter(
-			( [ rule, nodes ] ) => nodes.length > ( baseline[ rule ]?.length ?? 0 )
-		)
-	);
+	// Match nodes by HTML, not selector: the shell's DOM shifts axe's positional selectors.
+	const added = Object.entries( now ).map( ( [ rule, nodes ] ): [ string, string[] ] => {
+		const left = [ ...( baseline[ rule ] ?? [] ) ];
+		return [
+			rule,
+			nodes.filter( html => {
+				const i = left.indexOf( html );
+				if ( i === -1 ) {
+					return true;
+				}
+				left.splice( i, 1 );
+				return false;
+			} ),
+		];
+	} );
+	return Object.fromEntries( added.filter( ( [ , nodes ] ) => nodes.length > 0 ) );
 }

@@ -34,6 +34,9 @@ const AXE_SETTLE_MS = 8000;
 
 const NO_FOCUS = 'Not implemented: a switch leaves focus where it was instead of on the heading.';
 
+// Called right before the failing assertion, so a setup error before it still fails the test.
+const knownGap = ( reason: string ) => test.fail( true, reason );
+
 const back = ( page: Page, slug: string ) =>
 	withinDocument( page, `Back to ${ slug }`, async () => {
 		await page.goBack();
@@ -144,7 +147,7 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		await installA11yProbe( page );
 	} );
 
-	// The expected-fail tests pass on any error, so these run their setup where a break shows.
+	// An expected-fail test stops at its first gap, so these run every step of its setup.
 	// eslint-disable-next-line playwright/expect-expect -- walk() asserts.
 	test( 'setup: the switches and Back stay in the shell', async ( { page } ) => {
 		await walk( page, ROUND_TRIP );
@@ -158,9 +161,11 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 	} );
 
 	test( 'focus moves to the shown page’s heading on every switch', async ( { page } ) => {
-		test.fail( true, NO_FOCUS );
 		await walk( page, ROUND_TRIP, {
-			after: ( p, slug ) => expect( mainHeading( p, slug ) ).toBeFocused(),
+			after: ( p, slug ) => {
+				knownGap( NO_FOCUS );
+				return expect( mainHeading( p, slug ) ).toBeFocused();
+			},
 		} );
 	} );
 
@@ -179,18 +184,19 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 	} );
 
 	test( 'every switch announces the new page title politely', async ( { page } ) => {
-		test.fail( true, 'Not implemented: no live region announces a switch.' );
 		await walk( page, ROUND_TRIP.slice( 0, 2 ), {
 			before: resetA11yProbe,
-			after: ( p, slug ) =>
-				expect
+			after: ( p, slug ) => {
+				knownGap( 'Not implemented: no live region announces a switch.' );
+				return expect
 					.poll( () => announcements( p ), `announcement for ${ slug }` )
 					.toContainEqual(
 						expect.objectContaining( {
 							politeness: 'polite',
 							text: expect.stringContaining( member( slug ).title ),
 						} )
-					),
+					);
+			},
 		} );
 	} );
 
@@ -216,8 +222,10 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		await openMember( page, MJ );
 		await resetA11yProbe( page );
 		await switchTo( page, FORMS );
+		await expect
+			.poll( async () => ( await placeholderSightings( page ) ).length, 'a placeholder showed' )
+			.toBeGreaterThan( 0 );
 		const sightings = await placeholderSightings( page );
-		expect( sightings.length, 'a placeholder showed during the first switch' ).toBeGreaterThan( 0 );
 		expect( sightings ).toEqual( sightings.map( () => ( { inert: true, ariaHidden: true } ) ) );
 	} );
 
@@ -262,9 +270,9 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 	} );
 
 	test( 'keyboard: sidebar, page, modal, Back', async ( { page } ) => {
-		test.fail( true, NO_FOCUS );
 		await keyboardPass( page, {
 			afterSwitch: async () => {
+				knownGap( NO_FOCUS );
 				await expect( mainHeading( page, FORMS ) ).toBeFocused();
 				await page.keyboard.press( 'Tab' );
 				expect( await focusOwner( page ), 'Tab after a switch stays in the page' ).toBe( FORMS );
@@ -276,9 +284,9 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 	test( 'going Back with a modal open leaves the shown page in the accessibility tree', async ( {
 		page,
 	} ) => {
-		test.fail( true, 'Shell bug: Back from an open modal leaves the admin wrapper aria-hidden.' );
 		await keyboardPass( page, {
 			afterBack: async () => {
+				knownGap( 'Shell bug: Back from an open modal leaves the admin wrapper aria-hidden.' );
 				expect( await ariaHiddenAncestors( page, MJ ), 'aria-hidden around the shown app' ).toEqual(
 					[]
 				);
