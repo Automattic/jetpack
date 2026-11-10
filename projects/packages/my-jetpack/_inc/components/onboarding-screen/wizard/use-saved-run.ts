@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { clampStep, TOTAL_STEPS } from './lib';
 import type { WizardState, WizardStep } from './lib';
+import type { SetupModuleResult } from './use-setup-modules';
 
 const KEY = 'jetpack-onboarding-run';
 
@@ -20,14 +21,36 @@ export type SavedRun = {
 	choices: WizardState[ 'choices' ];
 	freeText: string;
 	wanted: Record< string, boolean >;
+	// What the apply did, kept so a reload on the finish step reports it again.
+	results?: SetupModuleResult[];
 };
+
+/**
+ * Whether a stored value is a list of apply results this wizard wrote.
+ *
+ * @param value - Whatever was in storage.
+ * @return True for a non-empty, well-formed list.
+ */
+function isResults( value: unknown ): value is SetupModuleResult[] {
+	return (
+		Array.isArray( value ) &&
+		value.length > 0 &&
+		value.every(
+			row =>
+				typeof row?.slug === 'string' &&
+				typeof row?.name === 'string' &&
+				typeof row?.wanted === 'boolean' &&
+				typeof row?.ok === 'boolean' &&
+				typeof row?.changed === 'boolean'
+		)
+	);
+}
 
 /**
  * What was read back at the start of this page load, if anything.
  *
  * Session storage, not local: the run belongs to this visit, and the connection
- * round trip is inside one session either way. What became of the modules is
- * deliberately not kept — it is the outcome of a request this page never made.
+ * round trip is inside one session either way.
  *
  * @return The saved run, or null when there is nothing to restore.
  */
@@ -52,20 +75,19 @@ export function readSavedRun(): SavedRun | null {
 			return null;
 		}
 
-		/*
-		 * Never onto the finish step. It reports what an apply did, and after a
-		 * reload there is no apply to report: restoring it would state that nothing
-		 * changed on a site where something just had.
-		 */
-		const step = clampStep( Math.min( parsed.step, TOTAL_STEPS - 2 ) );
+		// The finish step only comes back with the results it reports; without them it
+		// would compare against a site that already matches and say nothing changed.
+		const results = isResults( parsed.results ) ? parsed.results : undefined;
+		const lastStep = results ? TOTAL_STEPS - 1 : TOTAL_STEPS - 2;
+		const step = clampStep( Math.min( parsed.step, lastStep ) );
 
 		return {
 			step,
-			// Held off the finish step too, or its rail row reopens it with nothing to report.
-			furthestStep: clampStep( Math.min( Math.max( parsed.furthestStep, step ), TOTAL_STEPS - 2 ) ),
+			furthestStep: clampStep( Math.min( Math.max( parsed.furthestStep, step ), lastStep ) ),
 			choices: parsed.choices ?? {},
 			freeText: typeof parsed.freeText === 'string' ? parsed.freeText : '',
 			wanted: parsed.wanted ?? {},
+			results,
 		};
 	} catch {
 		// Private browsing, blocked site data, and anything unparseable. A run that

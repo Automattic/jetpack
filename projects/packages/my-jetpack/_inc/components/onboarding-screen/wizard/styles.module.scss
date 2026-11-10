@@ -68,14 +68,14 @@ $brand-gradient-green-mid: #108642;
 $brand-gradient-blue: #2e38fa;
 
 /*
- * Four blurred blobs drifting behind the glow, on prime periods so they never
- * visibly re-align. Keep them this short:
- * at 17/19/23/29 the field could not be seen moving behind a 64px blur.
+ * Four blurred blobs that drift once and settle, staggered so they land apart.
+ * All within 5s: longer motion beside a form needs a pause control
+ * (WCAG 2.2.2).
  */
-$mesh-period-1: 7s;
-$mesh-period-2: 11s;
-$mesh-period-3: 13s;
-$mesh-period-4: 17s;
+$mesh-period-1: 4.1s;
+$mesh-period-2: 4.4s;
+$mesh-period-3: 4.7s;
+$mesh-period-4: 5s;
 
 /*
  * Blur is what makes four circles read as one field, so it is large next to
@@ -385,12 +385,15 @@ $rail-row-min-height: 40px;
 	margin-block-end: var(--wpds-dimension-gap-md);
 }
 
-/*
- * Heading writes its size and colour as runtime styles at one class of
- * specificity, so the line height is set from two.
- */
+// Looser than heading-xl's own, so a wrapped title doesn't crowd the count.
 .rail-head .rail-title {
 	line-height: var(--wpds-typography-line-height-xl);
+}
+
+// Takes the row's spare width, as FlexBlock did, and lets a long label wrap.
+.rail-step__label {
+	flex: 1;
+	min-width: 0;
 }
 
 .rail-count {
@@ -596,7 +599,7 @@ $rail-row-min-height: 40px;
 	mix-blend-mode: screen;
 	filter: blur($mesh-blur);
 	animation-timing-function: ease-in-out;
-	animation-iteration-count: infinite;
+	animation-iteration-count: 1;
 }
 
 .brand-panel__blob--1 {

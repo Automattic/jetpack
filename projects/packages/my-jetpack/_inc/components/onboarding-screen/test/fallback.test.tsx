@@ -18,6 +18,8 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 		userIsConnecting: false,
 		registrationError: false,
 	} ),
+	getRegistrationErrorCode: () => undefined,
+	getRegistrationErrorDisplay: () => ( { message: '' } ),
 } ) );
 
 jest.mock( '../../../hooks/use-analytics', () => ( {

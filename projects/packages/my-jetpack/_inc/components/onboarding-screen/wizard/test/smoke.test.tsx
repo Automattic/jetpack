@@ -1173,6 +1173,27 @@ describe( 'Coming back to a run in progress', () => {
 		expect( railStep( 'Finish' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
+	it( 'reopens the finish step with the summary it had before a reload', () => {
+		window.sessionStorage.setItem(
+			'jetpack-onboarding-run',
+			JSON.stringify( {
+				step: 3,
+				furthestStep: 3,
+				choices: { 1: 'blog' },
+				freeText: '',
+				wanted: { monitor: true },
+				results: [
+					{ slug: 'monitor', name: 'Downtime Monitor', wanted: true, ok: true, changed: true },
+				],
+			} )
+		);
+
+		setupWizard( { isUserConnected: true } );
+
+		expect( heading() ).toHaveTextContent( "You're all set" );
+		expect( mockApply ).not.toHaveBeenCalled();
+	} );
+
 	// A step index that is not a step would land the wizard on a screen that is
 	// not there, so anything unrecognisable is thrown away rather than trusted.
 	it( 'ignores a saved run it cannot read', () => {

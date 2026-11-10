@@ -1,4 +1,5 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
+import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { bell, chartBar, envelope, listView, postCommentsForm, shield } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
@@ -167,6 +168,24 @@ export function useSetupModules(
 }
 
 /**
+ * Whether the site runs a module right now, read from the site rather than the store.
+ *
+ * @param slug - The module's slug.
+ * @return Its state, or null when the site could not be asked.
+ */
+export async function readModuleActive( slug: string ): Promise< boolean | null > {
+	try {
+		const module = await apiFetch< { activated?: boolean } >( {
+			path: `/jetpack/v4/module/${ slug }`,
+		} );
+
+		return typeof module?.activated === 'boolean' ? module.activated : null;
+	} catch {
+		return null;
+	}
+}
+
+/**
  * Switch the chosen modules on, and the unchosen ones off.
  *
  * Every switch is reported, including the ones that did not take. The bulk route
@@ -196,7 +215,13 @@ export function useApplySetupModules() {
 				// not be counted as though it had: the finish screen reports what this
 				// run did, and a run that sent no request did nothing.
 				const changed = want !== module.activated;
-				const ok = changed ? await requestModuleSwitch( toggleModule, module.slug, want ) : true;
+				let ok = changed ? await requestModuleSwitch( toggleModule, module.slug, want ) : true;
+
+				// False can mean the store's follow-up read failed or the queue gave up on a
+				// request still running, so ask the site before reporting "Not changed".
+				if ( ! ok ) {
+					ok = ( await readModuleActive( module.slug ) ) === want;
+				}
 
 				results.push( { slug: module.slug, name: module.name, wanted: want, ok, changed } );
 			}

@@ -1,9 +1,7 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { NavigableRegion } from '@wordpress/admin-ui';
 import {
-	FlexBlock,
-	// The Site Editor's own rail is built from these three; there is no stable alias.
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	// The Site Editor's own rail is built from these two; there is no stable alias.
 	__experimentalItem as Item, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalItemGroup as ItemGroup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
@@ -118,7 +116,7 @@ type WizardProps = {
  * The onboarding wizard's shell: the step rail, the questions, and the brand panel.
  *
  * The rail is built from the components the Site Editor's own sidebar uses:
- * `NavigableRegion`, `ItemGroup`/`Item`, `Stack`, `Icon`, and `FlexBlock`, inside
+ * `NavigableRegion`, `ItemGroup`/`Item`, `Stack`, and `Icon`, inside
  * a `ThemeProvider` seeded dark.
  *
  * @param props              - The component props.
@@ -191,7 +189,9 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const [ wantedModules, setWantedModules ] = useState< Record< string, boolean > >(
 		saved?.wanted ?? {}
 	);
-	const [ moduleResults, setModuleResults ] = useState< SetupModuleResult[] >( [] );
+	const [ moduleResults, setModuleResults ] = useState< SetupModuleResult[] >(
+		saved?.results ?? []
+	);
 
 	// Bound to the step's slug, which is what every event carries; see telemetry.ts.
 	const meta = steps[ step ];
@@ -240,8 +240,9 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 			choices,
 			freeText: siteTypeDetail,
 			wanted: wantedModules,
+			results: moduleResults.length ? moduleResults : undefined,
 		} );
-	}, [ saveRun, step, furthestStep, choices, siteTypeDetail, wantedModules ] );
+	}, [ saveRun, step, furthestStep, choices, siteTypeDetail, wantedModules, moduleResults ] );
 
 	// Keyed on the slug rather than the index, so the step a connected user opens on
 	// is reported once and the same screen is never two different numbers.
@@ -513,9 +514,9 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
 							</ButtonLink>
 
-							<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
+							<Text variant="heading-xl" render={ <h2 /> } className={ styles[ 'rail-title' ] }>
 								{ wizardTitle }
-							</Heading>
+							</Text>
 							<Text variant="body-md" className={ styles[ 'rail-count' ] }>
 								{ stepCount }
 							</Text>
@@ -544,7 +545,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 									>
 										<Stack direction="row" gap="sm" align="center" justify="start">
 											<Icon icon={ stepGlyph( index, step ) } aria-hidden="true" />
-											<FlexBlock>{ item.label }</FlexBlock>
+											<span className={ styles[ 'rail-step__label' ] }>{ item.label }</span>
 										</Stack>
 									</Item>
 								) ) }

@@ -3,6 +3,12 @@ import { useApplySetupModules, useSetupModules } from '../use-setup-modules';
 import type { SetupModule } from '../use-setup-modules';
 
 const mockRequestModuleSwitch = jest.fn();
+const mockApiFetch = jest.fn();
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
+} ) );
 
 jest.mock( '../../../../data/module-switch', () => ( {
 	__esModule: true,
@@ -40,6 +46,7 @@ const module = ( slug: SetupModule[ 'slug' ], activated: boolean, locked = false
 
 beforeEach( () => {
 	mockRequestModuleSwitch.mockReset();
+	mockApiFetch.mockReset().mockRejectedValue( new Error( 'offline' ) );
 	mockStore.modules = {};
 	mockStore.isLoading = false;
 	mockStore.resolved = true;
@@ -68,6 +75,30 @@ describe( 'Applying the wizard’s switches', () => {
 			// A failed switch is reported, never folded into the rest.
 			{ slug: 'monitor', name: 'monitor', wanted: true, ok: false, changed: true },
 			{ slug: 'contact-form', name: 'contact-form', wanted: false, ok: true, changed: false },
+		] );
+	} );
+
+	it.each( [
+		[ 'took after all', { activated: true }, true ],
+		[ 'did not take', { activated: false }, false ],
+		[ 'cannot be confirmed', new Error( 'offline' ), false ],
+	] )( 'asks the site about a switch that reported false, and it %s', async ( _name, read, ok ) => {
+		mockRequestModuleSwitch.mockResolvedValue( false );
+		if ( read instanceof Error ) {
+			mockApiFetch.mockRejectedValue( read );
+		} else {
+			mockApiFetch.mockResolvedValue( read );
+		}
+		const { result } = renderHook( () => useApplySetupModules() );
+
+		let results;
+		await act( async () => {
+			results = await result.current.apply( [ module( 'monitor', false ) ], { monitor: true } );
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/module/monitor' } );
+		expect( results ).toEqual( [
+			{ slug: 'monitor', name: 'monitor', wanted: true, ok, changed: true },
 		] );
 	} );
 

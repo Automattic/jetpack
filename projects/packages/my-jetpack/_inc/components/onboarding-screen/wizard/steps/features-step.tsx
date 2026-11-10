@@ -83,7 +83,8 @@ function FeatureRow( {
 					 * things about to happen. Saying which are already running is the
 					 * difference between asking permission and reporting the state.
 					 */ }
-					{ module.activated && (
+					{ /* Only while the switch still agrees, or it reads "Already on" beside "off". */ }
+					{ module.activated && checked && (
 						<>
 							{ /* A real space: the dot before it is drawn in CSS, which a screen
 							     reader does not read, so the words would run together. */ }{ ' ' }
