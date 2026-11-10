@@ -58,7 +58,7 @@ function ratePercent( numerator: number, denominator: number ): number | null {
 }
 
 /**
- * Stat tile in the detail view's hero row (Emails sent / Open rate / Click rate).
+ * Stat tile in the detail view's hero row (Newsletters sent / Open rate / Click rate).
  *
  * @param props       - Tile props.
  * @param props.label - Stat label.
@@ -225,7 +225,7 @@ function BounceRetryNotice( {
 
 /**
  * Body content for the subscriber detail view — header (avatar + name + email), 3-column stat
- * row (Emails sent / Open rate / Click rate), then grouped Subscription details and Subscriber
+ * row (Newsletters sent / Open rate / Click rate), then grouped Subscription details and Subscriber
  * information sections. Layout-agnostic: renders identically inside the desktop side-panel and
  * the mobile Modal.
  *
@@ -328,7 +328,7 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 
 			<Stack direction="row" gap="sm" wrap="wrap" className="jetpack-newsletter__detail-stats">
 				<StatCard
-					label={ __( 'Emails sent', 'jetpack-newsletter' ) }
+					label={ __( 'Newsletters sent', 'jetpack-newsletter' ) }
 					value={ statsQuery.isLoading ? dash : formatMetric( emailsSent ) }
 				/>
 				<StatCard
