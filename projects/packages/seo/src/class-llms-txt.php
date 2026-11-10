@@ -80,12 +80,12 @@ class Llms_Txt {
 			)
 		);
 		foreach ( array( 'added_post_meta', 'updated_post_meta' ) as $hook ) {
-			add_action( $hook, array( __CLASS__, 'clear_always_include_on_hide' ), 10, 4 );
+			add_action( $hook, array( __CLASS__, 'clear_always_include_if_hidden' ), 10, 4 );
 		}
 	}
 
 	/**
-	 * Switch "Always include" off when a page is hidden from search engines, from any editor,
+	 * Keep "Always include" off while a page is hidden from search engines, from any editor,
 	 * so un-hiding the page doesn't bring it back.
 	 *
 	 * @param int    $meta_id    Meta ID.
@@ -94,8 +94,13 @@ class Llms_Txt {
 	 * @param mixed  $meta_value Meta value.
 	 * @return void
 	 */
-	public static function clear_always_include_on_hide( $meta_id, $post_id, $meta_key, $meta_value ) {
-		if ( Content_Coverage::META_NOINDEX === $meta_key && $meta_value && 'page' === get_post_type( $post_id ) ) {
+	public static function clear_always_include_if_hidden( $meta_id, $post_id, $meta_key, $meta_value ) {
+		if (
+			$meta_value
+			&& in_array( $meta_key, array( Content_Coverage::META_NOINDEX, self::META_ALWAYS_INCLUDE ), true )
+			&& 'page' === get_post_type( $post_id )
+			&& get_post_meta( $post_id, Content_Coverage::META_NOINDEX, true )
+		) {
 			delete_post_meta( $post_id, self::META_ALWAYS_INCLUDE );
 		}
 	}
