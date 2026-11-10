@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Protect\Dashboard as Protect_Dashboard;
@@ -79,6 +80,10 @@ class Jetpack_Admin {
 		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_about, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_ai, 'add_actions' ) );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( $jetpack_settings, 'add_admin_shell_member' ) );
+		}
 
 		// Add redirect to current page for activation/deactivation of modules.
 		add_action( 'jetpack_pre_activate_module', array( $this, 'fix_redirect' ), 10, 2 );

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
@@ -57,6 +58,11 @@ class Dashboard {
 	 * @var string
 	 */
 	const RENDER_FUNCTION = 'jetpack_protect_jetpack_protect_dashboard_wp_admin_render_page';
+
+	/**
+	 * Script that carries the page data when the admin shell shows the dashboard on another page.
+	 */
+	const GUEST_DATA_HANDLE = 'jetpack-protect-dashboard-data';
 
 	/**
 	 * The settings section that owns each Jetpack security module, for links from other screens.
@@ -115,6 +121,9 @@ class Dashboard {
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
 		Threat_Count::init();
 		Settings::init();
 		add_action( 'add_option_' . Scan_Status::OPTION_NAME, array( Dashboard_Threats::class, 'prune_on_stored_scan' ), 10, 2 );
@@ -223,8 +232,17 @@ class Dashboard {
 	 * @return void
 	 */
 	public static function print_initial_state() {
+		wp_print_inline_script_tag( self::get_initial_state_script() );
+	}
+
+	/**
+	 * The script that sets `window.jetpackProtectDashboard`.
+	 *
+	 * @return string
+	 */
+	private static function get_initial_state_script() {
 		$state = wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		wp_print_inline_script_tag( 'window.jetpackProtectDashboard = ' . ( false === $state ? '{}' : $state ) . ';' );
+		return 'window.jetpackProtectDashboard = ' . ( false === $state ? '{}' : $state ) . ';';
 	}
 
 	/**
@@ -344,6 +362,64 @@ class Dashboard {
 	}
 
 	/**
+	 * Register Protect with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ( new Host() )->is_wpcom_simple() || ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			return $members;
+		}
+
+		$members[ self::MENU_SLUG ] = array(
+			'build_prefix' => 'jetpack_protect',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-protect/init' ),
+			// "Protect" is a product name and is not translated.
+			'title'        => 'Protect',
+			'capability'   => 'manage_options',
+			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Protect routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		if ( ! self::load_wp_build( dirname( __DIR__ ) . '/build/build.php', false ) ) {
+			return;
+		}
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_tracks_identity' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
+	}
+
+	/**
+	 * Attach what render() prints in the page body to a script, since the guest endpoint prints no body.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_guest_initial_state() {
+		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), self::PACKAGE_VERSION, true );
+		wp_enqueue_script( self::GUEST_DATA_HANDLE );
+		wp_add_inline_script( self::GUEST_DATA_HANDLE, self::get_initial_state_script(), 'before' );
+		if ( self::can_use_analytics() ) {
+			wp_add_inline_script( self::GUEST_DATA_HANDLE, 'window.jetpackProtectTracks = true;', 'before' );
+		}
+	}
+
+	/**
 	 * Load the Tracks script that sends queued events; other packages only load it for some plans.
 	 *
 	 * @return void
@@ -438,10 +514,13 @@ class Dashboard {
 	/**
 	 * Load a wp-build index and, if it can render the page, its scripts and polyfills.
 	 *
+	 * @since $$next-version$$ Added the `$alias` parameter.
+	 *
 	 * @param string $build_index Path to the generated build.php.
+	 * @param bool   $alias       Whether to alias the screen ID. Pass false to ready the routes on another page, which must not boot it.
 	 * @return bool Whether the build can render the page.
 	 */
-	public static function load_wp_build( $build_index ) {
+	public static function load_wp_build( $build_index, $alias = true ) {
 		if ( ! file_exists( $build_index ) ) {
 			return false;
 		}
@@ -450,14 +529,16 @@ class Dashboard {
 			require_once $build_index;
 		};
 
-		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
-		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+		if ( ! $alias ) {
+			$load_wp_build();
+		} elseif ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
 			WP_Build_Screen_Id::load_with_alias(
 				array( __CLASS__, 'alias_screen_id' ),
 				array( __CLASS__, 'restore_screen_id' ),
 				$load_wp_build
 			);
 		} else {
+			// An older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
 			$load_wp_build();
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
