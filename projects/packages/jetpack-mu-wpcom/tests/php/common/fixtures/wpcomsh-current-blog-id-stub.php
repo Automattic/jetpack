@@ -10,6 +10,10 @@
 /**
  * Returns a fixed WordPress.com blog ID, like wpcomsh does on an Atomic site.
  *
+ * Intentional stub of the wpcomsh function, loaded only in a separate test process.
+ *
+ * @suppress PhanRedefineFunction
+ *
  * @return int
  */
 function _wpcom_get_current_blog_id() {
