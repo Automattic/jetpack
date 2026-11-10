@@ -664,6 +664,24 @@ describe( 'BaseLegend', () => {
 			expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
 		} );
 
+		it( 'ignores the items of a chart it does not name', () => {
+			render(
+				<GlobalChartsProvider>
+					<ChartInstanceContext.Provider
+						value={ {
+							chartId: 'test-chart',
+							chartType: 'line',
+							legendItems: defaultItems,
+						} }
+					>
+						<Legend chartId="another-chart" />
+					</ChartInstanceContext.Provider>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.queryByText( 'Item 1' ) ).not.toBeInTheDocument();
+		} );
+
 		it( 'uses chart-instance visibility before provider state', () => {
 			render(
 				<GlobalChartsProvider>
