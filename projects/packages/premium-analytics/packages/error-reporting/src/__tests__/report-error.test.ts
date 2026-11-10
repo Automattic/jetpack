@@ -236,19 +236,14 @@ describe( 'reportError', () => {
 		expect( trace ).not.toContain( '[redacted]' );
 	} );
 
-	it( 'redacts an email address from the message', () => {
-		reportError( dashboardError( 'save failed for jane.doe+stats@example.co.uk' ), 'error' );
-
-		expect( sentPayload().message ).toBe( 'save failed for [email]' );
-	} );
-
-	it( 'redacts an email address from the trace', () => {
-		const error = dashboardError( 'boom' );
+	it( 'redacts an email address from the message and the trace', () => {
+		const error = dashboardError( 'save failed for jane.doe+stats@example.co.uk' );
 		error.stack += '\n    at notify (owner@example.com)';
 
 		reportError( error, 'error' );
 
-		const { trace } = sentPayload();
+		const { message, trace } = sentPayload();
+		expect( message ).toBe( 'save failed for [email]' );
 		expect( trace ).toContain( '[email]' );
 		expect( trace ).not.toContain( 'owner@example.com' );
 	} );
@@ -466,38 +461,31 @@ describe( 'reportError', () => {
 		expect( fetchMock ).toHaveBeenCalledTimes( 3 );
 	} );
 
-	it.each( [ 403, 429 ] )( 'stops reporting for the rest of the hour after a %i', async status => {
-		fetchMock.mockResolvedValue( { ok: false, status } );
+	// 400 as well as the rate-limit statuses: any refusal stops the hour.
+	it.each( [ 400, 403, 429 ] )(
+		'stops reporting for the rest of the hour after a %i',
+		async status => {
+			fetchMock.mockResolvedValue( { ok: false, status } );
 
-		reportError( dashboardError( 'first' ), 'error' );
-		await flush();
-		reportError( dashboardError( 'second' ), 'error' );
-		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+			reportError( dashboardError( 'first' ), 'error' );
+			await flush();
+			reportError( dashboardError( 'second' ), 'error' );
+			expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 
-		resetErrorReporterForTests();
-		reportError( dashboardError( 'fresh page' ), 'error' );
-		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+			resetErrorReporterForTests();
+			reportError( dashboardError( 'fresh page' ), 'error' );
+			expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 
-		jest.advanceTimersByTime( HOUR );
-		reportError( dashboardError( 'next hour' ), 'error' );
-		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
-		expect( console ).toHaveWarned();
-	} );
+			jest.advanceTimersByTime( HOUR );
+			reportError( dashboardError( 'next hour' ), 'error' );
+			expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+			expect( console ).toHaveWarned();
+		}
+	);
 
 	it( 'stops after a 429 even when localStorage throws', async () => {
 		spies = failStorage();
 		fetchMock.mockResolvedValue( { ok: false, status: 429 } );
-
-		reportError( dashboardError( 'first' ), 'error' );
-		await flush();
-		reportError( dashboardError( 'second' ), 'error' );
-
-		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
-		expect( console ).toHaveWarned();
-	} );
-
-	it( 'stops reporting for the rest of the hour after a 400, not only after a rate-limit status', async () => {
-		fetchMock.mockResolvedValue( { ok: false, status: 400 } );
 
 		reportError( dashboardError( 'first' ), 'error' );
 		await flush();
