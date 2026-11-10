@@ -24,13 +24,6 @@ const forceEsmPackages = new Set( [ '@wordpress/components', '@wordpress/block-e
  * @return {string} Resolved path.
  */
 module.exports = ( path, options ) => {
-	if ( forceEsmPackages.has( path ) ) {
-		return options.defaultResolver( path, {
-			...options,
-			conditions: [ ...( options.conditions ?? [] ), 'import' ],
-		} );
-	}
-
 	const basedir = options.basedir;
 	const conditions = options.conditions ? new Set( options.conditions ) : options.conditions;
 
@@ -42,6 +35,10 @@ module.exports = ( path, options ) => {
 	if ( conditions && conditions.has( 'browser' ) && badBrowserPackages.has( pkg ) ) {
 		conditions.delete( 'browser' );
 		conditions.add( 'node' );
+	}
+	if ( conditions && forceEsmPackages.has( pkg ) ) {
+		conditions.delete( 'require' );
+		conditions.add( 'import' );
 	}
 
 	const resolver = options.defaultResolver;
