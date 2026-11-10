@@ -8,8 +8,10 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionMethod;
 use WP_Post;
+use WP_REST_Request;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Llms_Txt
@@ -436,6 +438,136 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
+	 * Pages the owner always includes come first, once, ahead of the main menu; hiding a
+	 * page from search engines still leaves it out.
+	 *
+	 * @return void
+	 */
+	public function test_included_pages_come_first_unless_hidden_from_search() {
+		for ( $i = 1; $i <= 50; $i++ ) {
+			$this->insert_page( sprintf( 'Page %02d', $i ) );
+		}
+		$scan            = $this->insert_page( 'Zz Scan' );
+		$in_menu         = $this->insert_page( 'Zx Included' );
+		$always_included = $this->insert_page( 'Zw Included' );
+		$hidden          = $this->insert_page( 'Zv Hidden' );
+		foreach ( array( $in_menu, $always_included, $hidden ) as $page ) {
+			update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+		}
+		update_post_meta( $hidden->ID, Content_Coverage::META_NOINDEX, '1' );
+		$this->add_nav_menu( array( $scan->ID, $in_menu->ID ), 'primary' );
+
+		$expected = array( 'Zw Included', 'Zx Included', 'Zz Scan' );
+		for ( $i = 1; $i <= 47; $i++ ) {
+			$expected[] = sprintf( 'Page %02d', $i );
+		}
+		$this->assertSame( $expected, $this->page_titles() );
+	}
+
+	/**
+	 * Hiding a page from search engines, from any editor, switches "Always include" off.
+	 *
+	 * @return void
+	 */
+	public function test_hiding_a_page_switches_always_include_off() {
+		$page = $this->insert_page( 'Hidden Later' );
+		update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+
+		$this->with_always_include_hooks(
+			static function () use ( $page ) {
+				update_post_meta( $page->ID, Content_Coverage::META_NOINDEX, '1' );
+			}
+		);
+
+		$this->assertFalse( metadata_exists( 'post', $page->ID, Llms_Txt::META_ALWAYS_INCLUDE ) );
+	}
+
+	/**
+	 * Core REST always saves noindex first, whatever the order of the request's fields.
+	 *
+	 * @param array[] $saves    Meta for each REST save, in order.
+	 * @param bool    $expected Whether "Always include" is on after the last save.
+	 * @return void
+	 * @dataProvider provide_rest_saves
+	 */
+	#[DataProvider( 'provide_rest_saves' )]
+	public function test_rest_saves_only_turn_always_include_on_for_visible_pages( array $saves, bool $expected ) {
+		$page    = $this->insert_page( 'Saved Through REST' );
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'llms_txt_admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $user_id );
+		wp_set_current_user( $user_id );
+		register_meta(
+			'post',
+			Content_Coverage::META_NOINDEX,
+			array(
+				'type'         => 'boolean',
+				'single'       => true,
+				'show_in_rest' => true,
+			)
+		);
+
+		$responses = array();
+		try {
+			$this->with_always_include_hooks(
+				static function () use ( $page, $saves, &$responses ) {
+					foreach ( $saves as $meta ) {
+						$request = new WP_REST_Request( 'POST', '/wp/v2/pages/' . $page->ID );
+						$request->set_body_params( array( 'meta' => $meta ) );
+						$responses[] = rest_do_request( $request );
+					}
+				}
+			);
+		} finally {
+			unregister_meta_key( 'post', Content_Coverage::META_NOINDEX );
+			unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' );
+			$GLOBALS['wp_rest_server'] = null;
+			wp_set_current_user( 0 );
+			wp_delete_user( $user_id );
+		}
+
+		foreach ( $responses as $response ) {
+			$this->assertSame( 200, $response->get_status() );
+		}
+		$this->assertSame( $expected, end( $responses )->get_data()['meta'][ Llms_Txt::META_ALWAYS_INCLUDE ] );
+	}
+
+	/**
+	 * REST saves, and whether "Always include" ends up on.
+	 *
+	 * @return array<string, array{array[], bool}>
+	 */
+	public static function provide_rest_saves(): array {
+		return array(
+			'hide and include together, then un-hide' => array(
+				array(
+					array(
+						Llms_Txt::META_ALWAYS_INCLUDE  => true,
+						Content_Coverage::META_NOINDEX => true,
+					),
+					array( Content_Coverage::META_NOINDEX => false ),
+				),
+				false,
+			),
+			'un-hide and include together'            => array(
+				array(
+					array( Content_Coverage::META_NOINDEX => true ),
+					array(
+						Content_Coverage::META_NOINDEX => false,
+						Llms_Txt::META_ALWAYS_INCLUDE  => true,
+					),
+				),
+				true,
+			),
+		);
+	}
+
+	/**
 	 * Main-menu pages are listed past the per-type limit, up to their own.
 	 *
 	 * @return void
@@ -481,6 +613,27 @@ class LlmsTxtTest extends SeoTestCase {
 		$this->add_nav_menu( array( $draft->ID, $locked->ID, $noindex->ID, $shown->ID ), 'primary' );
 
 		$this->assertSame( array( 'Shown' ), $this->page_titles() );
+	}
+
+	/**
+	 * Run a callback with the "Always include" hooks attached, then restore the global hooks.
+	 *
+	 * @param callable $callback Code to run.
+	 * @return void
+	 */
+	private function with_always_include_hooks( callable $callback ) {
+		$hooks = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		try {
+			Llms_Txt::register_always_include();
+			$callback();
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
 	}
 
 	/**

@@ -45,12 +45,64 @@ class Llms_Txt {
 	const MAX_MAIN_MENU_PAGES = 100;
 
 	/**
+	 * Page meta an owner sets to always list a page in llms.txt.
+	 *
+	 * @var string
+	 */
+	const META_ALWAYS_INCLUDE = 'jetpack_seo_llms_txt_always_include';
+
+	/**
 	 * Wire the front-end request handler.
 	 *
 	 * @return void
 	 */
 	public static function init() {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_serve' ) );
+	}
+
+	/**
+	 * Register the always-include page meta, so the Content tab can read and save it
+	 * through core REST like the page's other SEO fields, and keep it off on hidden pages.
+	 *
+	 * @return void
+	 */
+	public static function register_always_include() {
+		register_post_meta(
+			'page',
+			self::META_ALWAYS_INCLUDE,
+			array(
+				'type'         => 'boolean',
+				// Not translated: this runs before `init`, too early to load the text domain.
+				'description'  => 'Whether to always list the page in llms.txt.',
+				'single'       => true,
+				'default'      => false,
+				'show_in_rest' => true,
+			)
+		);
+		foreach ( array( 'added_post_meta', 'updated_post_meta' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'clear_always_include_if_hidden' ), 10, 4 );
+		}
+	}
+
+	/**
+	 * Keep "Always include" off while a page is hidden from search engines, from any editor,
+	 * so un-hiding the page doesn't bring it back.
+	 *
+	 * @param int    $meta_id    Meta ID.
+	 * @param int    $post_id    Post ID.
+	 * @param string $meta_key   Meta key.
+	 * @param mixed  $meta_value Meta value.
+	 * @return void
+	 */
+	public static function clear_always_include_if_hidden( $meta_id, $post_id, $meta_key, $meta_value ) {
+		if (
+			$meta_value
+			&& in_array( $meta_key, array( Content_Coverage::META_NOINDEX, self::META_ALWAYS_INCLUDE ), true )
+			&& 'page' === get_post_type( $post_id )
+			&& get_post_meta( $post_id, Content_Coverage::META_NOINDEX, true )
+		) {
+			delete_post_meta( $post_id, self::META_ALWAYS_INCLUDE );
+		}
 	}
 
 	/**
@@ -196,26 +248,49 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Pages ranked main menu first, then other displayed menus, then the rest by
-	 * {@see get_pages_by_order()}.
+	 * Pages ranked: the ones the owner always includes, then the main menu, then other
+	 * displayed menus, then the rest by {@see get_pages_by_order()}.
 	 *
 	 * @return \WP_Post[]
 	 */
 	private static function get_pages() {
-		$menus = Nav_Menu_Pages::get();
-		$main  = self::get_pages_in_order( $menus['main'], self::MAX_MAIN_MENU_PAGES );
-		$room  = max( 0, self::MAX_POSTS_PER_TYPE - count( $main ) );
-		$other = self::get_pages_in_order( $menus['other'], $room );
-		$room -= count( $other );
+		$always_included = self::get_always_included_pages();
+		$skip            = wp_list_pluck( $always_included, 'ID' );
+		$menus           = Nav_Menu_Pages::get();
+		$main            = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), self::MAX_MAIN_MENU_PAGES );
+		$room            = max( 0, self::MAX_POSTS_PER_TYPE - count( $always_included ) - count( $main ) );
+		$other           = self::get_pages_in_order( array_values( array_diff( $menus['other'], $skip ) ), $room );
+		$room           -= count( $other );
 		if ( $room <= 0 ) {
-			return array_merge( $main, $other );
+			return array_merge( $always_included, $main, $other );
 		}
 
 		$args                   = self::query_args( 'page' );
 		$args['posts_per_page'] = $room;
-		$args['post__not_in']   = array_merge( $menus['main'], $menus['other'] );
+		$args['post__not_in']   = array_merge( $skip, $menus['main'], $menus['other'] );
 
-		return array_merge( $main, $other, self::get_pages_by_order( $args ) );
+		return array_merge( $always_included, $main, $other, self::get_pages_by_order( $args ) );
+	}
+
+	/**
+	 * Listable pages the owner switched on to always include, sorted by {@see get_pages_by_order()}.
+	 *
+	 * @return \WP_Post[]
+	 */
+	private static function get_always_included_pages() {
+		$args                   = self::query_args( 'page' );
+		$args['meta_query']     = array(
+			// @phan-suppress-next-line PhanPluginMixedKeyNoKey
+			'relation' => 'AND',
+			$args['meta_query'],
+			array(
+				'key'   => self::META_ALWAYS_INCLUDE,
+				'value' => '1',
+			),
+		);
+		$args['posts_per_page'] = -1;
+
+		return self::get_pages_by_order( $args );
 	}
 
 	/**
