@@ -56,6 +56,7 @@ describe( 'useNormalizedReportParams', () => {
 			widgets: useNormalizedReportParams(),
 			controls: useReportDateFilters( '/' ),
 		} ) );
+		expect( result.current.widgets.from ).toBe( '2026-08-14T00:00:00.000+00:00' );
 
 		act( () => {
 			jest.advanceTimersByTime( 60 * 1000 );
