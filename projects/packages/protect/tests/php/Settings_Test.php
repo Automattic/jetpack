@@ -284,7 +284,6 @@ class Settings_Test extends BaseTestCase {
 		$response = rest_do_request( $request );
 
 		remove_all_actions( 'rest_api_init' );
-		$wp_rest_server = null;
 		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( array(), Jetpack_Options::get_option( 'active_modules', array() ) );
 	}
