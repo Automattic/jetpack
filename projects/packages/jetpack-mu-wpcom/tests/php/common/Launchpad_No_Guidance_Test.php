@@ -107,11 +107,12 @@ class Launchpad_No_Guidance_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_cutoff_states() {
 		return array(
-			'created at the cutoff'          => array( 200, 200, false, true ),
-			'created before the cutoff'      => array( 200, 199, false, false ),
-			'new site with the AI Launchpad' => array( 200, 200, true, false ),
-			'no cutoff defined'              => array( null, 200, false, false ),
-			'staging copy of an older site'  => array( 200, 300, false, false, array( 'WPCOM_PRODUCTION_BLOG_ID' => '199' ) ),
+			'created at the cutoff'                  => array( 200, 200, false, true ),
+			'created before the cutoff'              => array( 200, 199, false, false ),
+			'new site with the AI Launchpad'         => array( 200, 200, true, false ),
+			'no cutoff defined'                      => array( null, 200, false, false ),
+			'staging copy of an older site'          => array( 200, 300, false, false, array( 'WPCOM_PRODUCTION_BLOG_ID' => '199' ) ),
+			'Atomic site with no production blog ID' => array( 200, 200, false, true, array() ),
 		);
 	}
 }
