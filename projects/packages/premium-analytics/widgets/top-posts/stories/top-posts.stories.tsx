@@ -20,7 +20,7 @@ import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import TopPostsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -40,12 +40,6 @@ interface TopPostsStoryControls {
 
 interface TopPostsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls, TopPostsStoryControls {}
-
-const withTopPostsCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '340px' } }>
-		<Story />
-	</div>
-);
 
 function renderTopPostsWidget( { withComparison, contentView }: TopPostsStoryControls ) {
 	return (
@@ -111,19 +105,19 @@ type DashboardStory = StoryObj< TopPostsDashboardStoryProps >;
 export const Default: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: false, contentView: 'posts' },
-	decorators: [ withTopPostsCanvas, withStoryRouter ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: true, contentView: 'posts' },
-	decorators: [ withTopPostsCanvas, withStoryRouter ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const Archives: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: true, contentView: 'archives' },
-	decorators: [ withTopPostsCanvas, withStoryRouter ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	parameters: {
 		docs: {
 			description: {

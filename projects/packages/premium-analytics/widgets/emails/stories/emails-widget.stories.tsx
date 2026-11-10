@@ -257,47 +257,6 @@ export const LongLabels: Story = {
 	decorators: [ withWidgetCanvas, withEmailsWidgetRoot, withStoryRouter ],
 };
 
-/**
- * Creates a decorator that wraps the story in a fixed-size container so the
- * widget's responsiveness can be inspected at a given width.
- */
-const createSizeDecorator = ( width: string, height = 'auto' ): Decorator => {
-	return Story => (
-		<div
-			style={ {
-				width,
-				height,
-				border: '1px dashed #ccc',
-				borderRadius: '8px',
-				containerType: 'inline-size',
-				containerName: 'widget',
-			} }
-		>
-			<Story />
-		</div>
-	);
-};
-
-/**
- * Medium container (448px / md breakpoint).
- */
-export const SizeMedium: Story = {
-	args: {
-		rows: mockRows,
-	},
-	decorators: [ createSizeDecorator( '448px' ), withEmailsWidgetRoot, withStoryRouter ],
-};
-
-/**
- * Large container (576px / xl breakpoint).
- */
-export const SizeLarge: Story = {
-	args: {
-		rows: mockRows,
-	},
-	decorators: [ createSizeDecorator( '576px' ), withEmailsWidgetRoot, withStoryRouter ],
-};
-
 function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
