@@ -530,8 +530,7 @@ describe( 'useReportDateFilters', () => {
 
 	it( 'lists and checks the buckets of the window a preset names today, not of the dates the URL kept', () => {
 		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
-		// Bookmarked three days into the year with the day bucket those dates allowed, so the route
-		// guard lets the URL through; the widgets draw the grown window by weeks.
+		// Bookmarked three days into the year with the day bucket those dates allowed.
 		const { result } = renderDateFilters( {
 			from: '2026-01-01T00:00:00.000+00:00',
 			to: '2026-01-03T23:59:59.999+00:00',
