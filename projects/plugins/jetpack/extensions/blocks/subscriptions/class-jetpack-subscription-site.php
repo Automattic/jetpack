@@ -169,7 +169,7 @@ class Jetpack_Subscription_Site {
 
 				$is_navigation_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/navigation';
 
-				if ( $is_navigation_anchor_block && $relative_position === 'last_child' && has_block( 'jetpack/subscriptions', serialize_blocks( $anchor_block['innerBlocks'] ?? array() ) ) ) {
+				if ( $is_navigation_anchor_block && $relative_position === 'last_child' && has_block( 'jetpack/subscriptions', serialize_blocks( $anchor_block['innerBlocks'] ) ) ) {
 					return null;
 				}
 
