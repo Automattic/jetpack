@@ -280,7 +280,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "c4f19aaa3a5f564f831f5d31109ee239e786f8e8"
+                "reference": "114c85c94d30632d5aa4c9b16e39522c8a78e0c9"
             },
             "require": {
                 "automattic/jetpack-feature-flags": "@dev",
@@ -331,6 +331,12 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -3428,13 +3434,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "63e02638a85ef51ba0a8717a2569e88786cc73a3"
+                "reference": "47ada4c783af93b555057fb2f8bdc41ce9e80976"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-menu-badges": "@dev",
+                "automattic/jetpack-monitor": "@dev",
                 "automattic/jetpack-protect-models": "@dev",
                 "automattic/jetpack-protect-status": "@dev",
                 "automattic/jetpack-status": "@dev",

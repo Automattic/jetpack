@@ -1941,6 +1941,9 @@ importers:
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      jest:
+        specifier: 30.5.2
+        version: 30.5.2
       react:
         specifier: 19.3.0
         version: 19.3.0
