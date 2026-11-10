@@ -332,7 +332,7 @@ jobs:
     name: Check WordPress.com test reminder
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [ build_all, merge_artifacts ]
+    needs: build_all
     if: >
       ! cancelled() &&
       github.event_name == 'pull_request' &&
@@ -360,11 +360,11 @@ jobs:
             const data = await checkTestPendingComment( github, context, core );
             return data;
 
-      # The testing instructions point at the merged build, so only post them once it exists.
+      # The testing instructions are only useful once there is a build to test.
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        if: ${{ needs.merge_artifacts.result == 'success' && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
+        if: ${{ needs.build_all.result == 'success' && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
           DATA: ${{ steps.check-test-reminder-comment.outputs.result }}
