@@ -2,7 +2,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { isChunkLoadError, recoverFromChunkLoad } from './chunk-recovery';
 import { findDashboardFrame, namesDashboardOrigin } from './dashboard-frame';
 import { detectDomInterference } from './dom-interference';
-import { redactQuery, routePathname } from './redact-query';
+import { redactQuery, routePathname, stripUrlCredentials } from './redact-query';
 import type { DashboardFrame } from './dashboard-frame';
 
 export type ReportSource = 'boundary' | 'error' | 'unhandledrejection';
@@ -20,12 +20,18 @@ const HOURLY_LIMIT = 10;
 const PAGE_LIMIT = 3;
 const MESSAGE_LIMIT = 1000;
 const TRACE_LIMIT = 8000;
-const ABSOLUTE_URL = /https?:\/\/[^\s'")]+/g;
-const USERINFO = /^(https?:\/\/)[^/?#]*@/;
+const NAME_LIMIT = 100;
+const ABSOLUTE_URL = /https?:\/\/[^\s'")]+/gi;
+
+// A path with a query, of any scheme or none: an admin URL written relative, or a
+// protocol-relative one. Without this only the page's own live query would be caught.
+const PATH_QUERY = /\/[^\s'"()?#]*[?#][^\s'")]*/g;
 
 // Broader than an RFC address on purpose, but the domain must carry a dot, so a Firefox stack
-// frame such as `render@https://host/x.js:1:1` is not mistaken for one and erased.
-const EMAIL = /[^\s<>()[\]{}",;:@]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+// frame such as `render@https://host/x.js:1:1` is not mistaken for one and erased. The local part
+// stops at the delimiters of a query string as well, so one in a parameter value loses the value
+// and not the name beside it.
+const EMAIL = /[^\s<>()[\]{}",;:@&=]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 
 interface ErrorProperties {
 	source: ReportSource;
@@ -93,11 +99,11 @@ function describeThrown( error: unknown ): ThrownDetails {
  * Credentials go with them. The email pattern catches those of a named host by chance, and never
  * those of an IP address or `localhost`.
  *
- * @param url - An absolute http(s) URL found in free text.
+ * @param url - A URL or path found in free text.
  * @return The URL without its credentials, query string or hash.
  */
 function redactUrl( url: string ): string {
-	const clean = url.replace( USERINFO, '$1' );
+	const clean = stripUrlCredentials( url );
 	const cut = clean.search( /[?#]/ );
 	if ( cut === -1 ) {
 		return clean;
@@ -126,7 +132,11 @@ function sanitizeText( text: string, limit: number ): string {
 	}
 
 	// Truncation comes last, so it cannot cut a redaction in half.
-	return clean.replace( ABSOLUTE_URL, redactUrl ).replace( EMAIL, '[email]' ).slice( 0, limit );
+	return clean
+		.replace( ABSOLUTE_URL, redactUrl )
+		.replace( PATH_QUERY, redactUrl )
+		.replace( EMAIL, '[email]' )
+		.slice( 0, limit );
 }
 
 /**
@@ -284,13 +294,14 @@ function buildPayload(
 			route: routePathname( new URLSearchParams( search ).get( 'p' ) ?? '/' ),
 			module: frame?.path,
 			widget: frame?.widget,
-			error_name: name,
+			error_name: name === undefined ? undefined : sanitizeText( name, NAME_LIMIT ),
 			dom_interference: domInterference,
 			component_stack:
 				source === 'boundary' && typeof extra?.componentStack === 'string'
 					? sanitizeText( extra.componentStack, TRACE_LIMIT )
 					: undefined,
-			query: redactQuery( search ),
+			// The allowlist keeps a value whole, and a link someone shares decides what is in it.
+			query: redactQuery( search ).replace( EMAIL, '[email]' ),
 		} ),
 		extra: definedMembers( { line: frame?.line, column: frame?.column } ),
 	} satisfies ErrorPayload;

@@ -251,6 +251,40 @@ describe( 'reportError', () => {
 		expect( trace ).not.toContain( '[redacted]' );
 	} );
 
+	it.each( [
+		[ 'a relative admin URL', '/wp-admin/admin.php?page=x&_wpnonce=abc', '/wp-admin/admin.php' ],
+		[ 'a protocol-relative URL', '//other.example/a.js?token=s3cret', '//other.example/a.js' ],
+		[
+			'an uppercase scheme',
+			'HTTPS://other.example/a.js?token=s3cret',
+			'HTTPS://other.example/a.js',
+		],
+	] )( 'redacts the query of %s in the message', ( _label, url, kept ) => {
+		reportError( dashboardError( `save failed for ${ url }` ), 'error' );
+
+		expect( sentPayload().message ).toBe( `save failed for ${ kept }?[redacted]` );
+	} );
+
+	it( 'redacts an email address in a query value the allowlist keeps whole', () => {
+		window.history.replaceState( {}, '', '/wp-admin/admin.php?from=alice@example.com' );
+
+		reportError( dashboardError(), 'error' );
+
+		expect( sentPayload().properties.query ).toBe( 'from=[email]' );
+	} );
+
+	it( 'sanitizes and caps properties.error_name, which code can set to anything', () => {
+		const error = dashboardError();
+		error.name = `Error at https://other.example/a.js?token=s3cret ${ 'x'.repeat( 200 ) }`;
+
+		reportError( error, 'error' );
+
+		const { error_name: errorName } = sentPayload().properties;
+		expect( errorName ).toHaveLength( 100 );
+		expect( errorName ).toContain( '?[redacted]' );
+		expect( errorName ).not.toContain( 's3cret' );
+	} );
+
 	it( 'redacts the credentials of a URL whose host no email pattern covers', () => {
 		reportError( dashboardError( 'no route to https://user:s3cret@127.0.0.1/wp-json' ), 'error' );
 
