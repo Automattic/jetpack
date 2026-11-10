@@ -3,7 +3,6 @@ import {
 	type GoogleAnalyticsSettings,
 } from '@jetpack-premium-analytics/data';
 import {
-	Button,
 	Card,
 	InputControl,
 	Link,
@@ -26,7 +25,7 @@ const SUPPORT_URL = 'https://wordpress.com/support/google-analytics/';
 const CODE_PATTERN = /^(|UA-\d+-\d+|G-[A-Z0-9]+)$/i;
 
 /**
- * The Google Analytics card: the switch and IP anonymizing save at once, the Measurement ID on Save.
+ * The Google Analytics card: the switches save at once, the Measurement ID on blur.
  *
  * @return The card.
  */
@@ -89,9 +88,14 @@ export function GoogleAnalyticsCard(): JSX.Element {
 
 	const code = draft ?? settings?.code ?? '';
 	const isValid = CODE_PATTERN.test( code.trim() );
-	const onSaveCode = useCallback( () => {
-		save( { code: code.trim() } ).then( saved => saved && setDraft( null ) );
-	}, [ code, save ] );
+	// The tab saves as it goes, so the ID saves on blur rather than with its own button.
+	const onCodeBlur = useCallback( () => {
+		const next = code.trim();
+		if ( ! isValid || next === settings?.code ) {
+			return;
+		}
+		save( { code: next } ).then( saved => saved && setDraft( null ) );
+	}, [ code, isValid, save, settings?.code ] );
 
 	let content: JSX.Element;
 	if ( settings ) {
@@ -114,31 +118,22 @@ export function GoogleAnalyticsCard(): JSX.Element {
 				/>
 				{ settings.is_active && (
 					<>
-						<Stack direction="column" gap="sm" align="start">
-							<InputControl
-								label={ __( 'Google Analytics Measurement ID', 'jetpack-premium-analytics-pkg' ) }
-								placeholder="G-XXXXXXX"
-								value={ code }
-								disabled={ saving }
-								onValueChange={ setDraft }
-								description={
-									isValid
-										? undefined
-										: __(
-												'Enter a Measurement ID, such as G-XXXXXXX.',
-												'jetpack-premium-analytics-pkg'
-											)
-								}
-							/>
-							<Button
-								variant="outline"
-								size="compact"
-								disabled={ saving || ! isValid || code.trim() === settings.code }
-								onClick={ onSaveCode }
-							>
-								{ __( 'Save', 'jetpack-premium-analytics-pkg' ) }
-							</Button>
-						</Stack>
+						<InputControl
+							label={ __( 'Google Analytics Measurement ID', 'jetpack-premium-analytics-pkg' ) }
+							placeholder="G-XXXXXXX"
+							value={ code }
+							disabled={ saving }
+							onValueChange={ setDraft }
+							onBlur={ onCodeBlur }
+							description={
+								isValid
+									? undefined
+									: __(
+											'Enter a Measurement ID, such as G-XXXXXXX.',
+											'jetpack-premium-analytics-pkg'
+										)
+							}
+						/>
 						<SwitchControl
 							label={ __( 'Anonymize IP addresses', 'jetpack-premium-analytics-pkg' ) }
 							description={ __(

@@ -6,7 +6,7 @@
  */
 
 /**
- * Keep `admin_bar` and the Reader setting: Simple's Stats ignores `roles`, never counts the logged-in views `count_roles` picks,
+ * Keep `admin_bar`, the Reader setting and Google Analytics: Simple's Stats ignores `roles`, never counts the logged-in views `count_roles` picks,
  * and does not ask the WP Consent API, which Simple sites cannot install anyway.
  *
  * @since $$next-version$$
@@ -15,7 +15,7 @@
  * @return string[]
  */
 function wpcom_premium_analytics_simple_stats_settings_fields( $fields ) {
-	return array_values( array_intersect( $fields, array( 'admin_bar', 'wpcom_reader_views_enabled' ) ) );
+	return array_values( array_intersect( $fields, array( 'admin_bar', 'wpcom_reader_views_enabled', 'google_analytics' ) ) );
 }
 
 add_filter( 'jetpack_premium_analytics_stats_settings_fields', 'wpcom_premium_analytics_simple_stats_settings_fields' );

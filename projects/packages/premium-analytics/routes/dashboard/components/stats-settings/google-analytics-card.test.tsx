@@ -39,7 +39,7 @@ describe( 'GoogleAnalyticsCard', () => {
 		} );
 	} );
 
-	it( 'saves the Measurement ID on Save, not as it is typed', async () => {
+	it( 'saves the Measurement ID on blur, not as it is typed', async () => {
 		const user = userEvent.setup();
 		render( <GoogleAnalyticsCard /> );
 
@@ -48,23 +48,22 @@ describe( 'GoogleAnalyticsCard', () => {
 		await user.type( input, ' G-NEW123 ' );
 		expect( saveChange ).not.toHaveBeenCalled();
 
-		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await user.tab();
 		expect( saveChange ).toHaveBeenCalledTimes( 1 );
 		expect( saveChange ).toHaveBeenCalledWith( { code: 'G-NEW123' } );
 	} );
 
-	it( 'keeps Save off for an ID the site would refuse', async () => {
+	it( 'does not save an ID the site would refuse, and says why', async () => {
 		const user = userEvent.setup();
 		render( <GoogleAnalyticsCard /> );
 
 		const input = screen.getByRole( 'textbox', { name: 'Google Analytics Measurement ID' } );
 		await user.clear( input );
 		await user.type( input, 'not-an-id' );
+		await user.tab();
 
-		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+		expect( saveChange ).not.toHaveBeenCalled();
+		expect( screen.getByText( 'Enter a Measurement ID, such as G-XXXXXXX.' ) ).toBeVisible();
 	} );
 
 	it.each( [

@@ -17,9 +17,9 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/premium-analytics/stats-s
 #[CoversFunction( 'wpcom_premium_analytics_simple_stats_settings_fields' )]
 class Stats_Settings_Fields_Test extends \WorDBless\BaseTestCase {
 
-	public function test_simple_keeps_the_admin_bar_and_reader_settings_on_the_package_filter() {
-		$fields = apply_filters( Stats_Settings::FIELDS_FILTER, array( 'admin_bar', 'roles', 'count_roles', 'wpcom_reader_views_enabled', 'consent' ) );
+	public function test_simple_keeps_the_admin_bar_reader_and_google_analytics_settings_on_the_package_filter() {
+		$fields = apply_filters( Stats_Settings::FIELDS_FILTER, array( 'admin_bar', 'roles', 'count_roles', 'wpcom_reader_views_enabled', 'consent', 'google_analytics' ) );
 
-		$this->assertSame( array( 'admin_bar', 'wpcom_reader_views_enabled' ), $fields );
+		$this->assertSame( array( 'admin_bar', 'wpcom_reader_views_enabled', 'google_analytics' ), $fields );
 	}
 }

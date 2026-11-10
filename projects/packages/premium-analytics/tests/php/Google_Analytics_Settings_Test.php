@@ -232,4 +232,20 @@ class Google_Analytics_Settings_Test extends BaseTestCase {
 		$this->post_settings( array( Google_Analytics_Settings::REST_NAME => 'changed' ) );
 		$this->assertSame( 'changed', get_option( 'other_plugin_ga' ) );
 	}
+
+	public function test_saving_the_stored_value_again_succeeds_without_counting_a_change() {
+		update_option( 'jetpack_wga', array( 'code' => 'G-SAME' ) );
+		$bumps = 0;
+		add_action(
+			'jetpack_bump_stats_extras',
+			function () use ( &$bumps ) {
+				++$bumps;
+			}
+		);
+
+		$response = $this->post_settings( array( Google_Analytics_Settings::REST_NAME => array( 'code' => 'G-SAME' ) ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 0, $bumps );
+	}
 }
