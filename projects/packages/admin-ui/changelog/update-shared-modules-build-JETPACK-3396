@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Build shared script modules for the libraries that wp-build dashboards use, pruned to a committed export list.

@@ -15,8 +15,10 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && webpack --config webpack.config.js",
-		"build-production": "pnpm run clean && NODE_ENV=production BABEL_ENV=production webpack --config webpack.config.js && pnpm run validate",
+		"build": "pnpm run clean && webpack --config webpack.config.js && pnpm run build:shared",
+		"build:shared": "wp-build-shared",
+		"build:shared-exports": "wp-build-shared --update-exports",
+		"build-production": "pnpm run clean && NODE_ENV=production BABEL_ENV=production webpack --config webpack.config.js && pnpm run build:shared && pnpm run validate",
 		"clean": "rm -rf build/",
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
@@ -27,10 +29,25 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"devDependencies": {
+		"@automattic/charts": "workspace:*",
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
+		"@babel/core": "7.29.7",
+		"@tanstack/react-query": "5.102.8",
+		"@types/react": "19.3.0",
+		"@wordpress/admin-ui": "3.1.0",
+		"@wordpress/base-styles": "15.0.0",
 		"@wordpress/browserslist-config": "7.1.0",
+		"@wordpress/build": "0.27.0",
+		"@wordpress/dataviews": "22.0.0",
 		"@wordpress/theme": "4.0.0",
+		"@wordpress/ui": "0.26.0",
 		"jest": "30.5.2",
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
@@ -38,5 +55,36 @@
 		"sass-loader": "16.0.5",
 		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
+	},
+	"wpSharedModules": {
+		"namespace": "jetpack-shared",
+		"outdir": "build/shared-modules",
+		"modules": {
+			"@wordpress/ui": "ui",
+			"@wordpress/dataviews": "dataviews",
+			"@wordpress/admin-ui": "admin-ui",
+			"@tanstack/react-query": "react-query",
+			"@automattic/jetpack-components": "components",
+			"@automattic/jetpack-connection": "connection",
+			"@automattic/jetpack-script-data": "script-data",
+			"@automattic/jetpack-api": "api",
+			"@automattic/jetpack-analytics": "analytics",
+			"@automattic/number-formatters": "number-formatters",
+			"@automattic/charts": "charts"
+		},
+		"styles": {
+			"dataviews": [
+				"@wordpress/dataviews/build-style/style.css"
+			]
+		},
+		"exports": "shared-modules-exports.json",
+		"consumers": [
+			"../*/build/routes/*/*.min.js",
+			"../*/build/modules/*/*.min.js",
+			"../*/build/widgets/*/*.min.js",
+			"../../plugins/*/build/routes/*/*.min.js",
+			"../../plugins/*/build/modules/*/*.min.js",
+			"../../plugins/*/build/widgets/*/*.min.js"
+		]
 	}
 }
