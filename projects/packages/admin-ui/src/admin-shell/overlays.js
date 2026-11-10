@@ -121,9 +121,12 @@ export async function closeDialogsOf( slug ) {
 		.filter( el => el.matches( DIALOGS ) );
 	dialogs.filter( d => ! escaped.has( d ) ).forEach( pressEscape );
 	const start = performance.now();
+	// Timers, not frames: a Back in a background tab gets no animation frames.
 	while ( dialogs.some( d => d.isConnected ) && performance.now() - start < CLOSE_TIMEOUT ) {
-		await new Promise( resolve => requestAnimationFrame( resolve ) );
+		await new Promise( resolve => setTimeout( resolve, 16 ) );
 	}
+	// One that stayed open, such as behind a confirm, gets Escape again the next time.
+	dialogs.forEach( d => escaped.delete( d ) );
 }
 
 // The longest a page gets to update its URL after its overlay closes.

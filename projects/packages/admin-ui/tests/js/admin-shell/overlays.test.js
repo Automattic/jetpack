@@ -77,12 +77,13 @@ describe( 'overlays', () => {
 		visible = 'jetpack-forms';
 		const otherModal = await addToBody( '<div role="alertdialog"></div>' );
 		const escapes = [];
-		document.addEventListener( 'keydown', event => {
+		const onKey = event => {
 			if ( event.key === 'Escape' ) {
 				escapes.push( event.target );
 				setTimeout( () => event.target.remove(), 50 );
 			}
-		} );
+		};
+		document.addEventListener( 'keydown', onKey );
 
 		const closed = closeDialogsOf( 'my-jetpack' );
 		const gone = jest.fn();
@@ -91,6 +92,7 @@ describe( 'overlays', () => {
 		expect( gone ).not.toHaveBeenCalled();
 		await closed;
 
+		document.removeEventListener( 'keydown', onKey );
 		expect( escapes ).toEqual( [ dialog ] );
 		expect( dialog ).not.toBeInTheDocument();
 		expect( otherModal ).toBeInTheDocument();
@@ -106,5 +108,20 @@ describe( 'overlays', () => {
 		await closeDialogsOf( 'my-jetpack' );
 
 		expect( escape ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'presses Escape again on a dialog that stayed open the last time', async () => {
+		const modal = await addToBody( '<div role="dialog"></div>' );
+		const escape = jest.fn();
+		modal.addEventListener( 'keydown', escape );
+		jest.useFakeTimers();
+
+		const first = closeDialogsOf( 'my-jetpack' );
+		await jest.advanceTimersByTimeAsync( 1000 );
+		await first;
+		closeDialogsOf( 'my-jetpack' );
+		jest.useRealTimers();
+
+		expect( escape ).toHaveBeenCalledTimes( 2 );
 	} );
 } );
