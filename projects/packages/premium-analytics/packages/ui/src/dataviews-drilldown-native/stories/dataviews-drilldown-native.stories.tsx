@@ -158,38 +158,6 @@ const archiveRows: ArchiveRow[] = [
 	},
 ];
 
-function buildPaginatedRows(): ReferrerRow[] {
-	const paginatedRows: ReferrerRow[] = [];
-
-	for ( let index = 1; index <= 12; index++ ) {
-		const id = `referrer-${ String( index ).padStart( 2, '0' ) }`;
-		const label = `Referrer ${ String( index ).padStart( 2, '0' ) }`;
-
-		paginatedRows.push( {
-			id,
-			referrer: label,
-			views: ( 13 - index ) * 10,
-		} );
-
-		if ( index !== 1 ) {
-			continue;
-		}
-
-		for ( let childIndex = 1; childIndex <= 15; childIndex++ ) {
-			paginatedRows.push( {
-				id: `${ id }-source-${ String( childIndex ).padStart( 2, '0' ) }`,
-				parentId: id,
-				referrer: `${ label } / Source ${ String( childIndex ).padStart( 2, '0' ) }`,
-				views: 16 - childIndex,
-			} );
-		}
-	}
-
-	return paginatedRows;
-}
-
-const PAGINATED_ROWS: ReferrerRow[] = buildPaginatedRows();
-
 const mediumElements = [
 	{ value: 'organic', label: 'Organic' },
 	{ value: 'social', label: 'Social' },
@@ -497,22 +465,6 @@ export const Archives: ArchiveStory = {
 	},
 };
 
-export const Paginated: Story = {
-	args: {
-		...Default.args,
-		data: PAGINATED_ROWS,
-		hideLevelMarkers: true,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Pagination counts every row and slices the hierarchy-ordered list. Until the parent-on-page-boundary refinement lands, a deep subtree can still span pages (its child rows appear on the next page without their parent).',
-			},
-		},
-	},
-};
-
 export const Collapsible: Story = {
 	args: {
 		...Default.args,
@@ -523,7 +475,7 @@ export const Collapsible: Story = {
 		docs: {
 			description: {
 				story:
-					'The local collapse layer over the static native rendering: rows with children get a chevron, and folding one drops its whole subtree from the table — including from the pagination count. Sits behind a prop so it can be dropped once core ships native collapse (WordPress/gutenberg#80360).',
+					'The local collapse layer over the static native rendering: rows with children get a chevron, and folding one drops its whole subtree from the table. Sits behind a prop so it can be dropped once core ships native collapse (WordPress/gutenberg#80360).',
 			},
 		},
 	},

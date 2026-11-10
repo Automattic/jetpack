@@ -80,6 +80,165 @@
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
+	&__connect-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+
+		@media (min-width: 600px) {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+
+		// wp-admin gives every li a bottom margin.
+		li {
+			margin: 0;
+		}
+	}
+
+	// A Card rendered as a link or button.
+	&__connect-tile {
+		--wp-ui-card-padding: 14px;
+
+		width: 100%;
+		height: 100%;
+		min-height: 124px;
+		padding: 0;
+		font: inherit;
+		text-align: start;
+		text-decoration: none;
+		cursor: pointer;
+
+		&,
+		&:visited {
+			color: inherit;
+		}
+
+		&:hover {
+			border-color: color-mix(in srgb, var(--wp-admin-theme-color, #3858e9) 12%, transparent);
+			background: color-mix(in srgb, var(--wp-admin-theme-color, #3858e9) 2%, transparent);
+			color: var(--wp-admin-theme-color, #3858e9);
+		}
+
+		&:focus {
+			box-shadow: none;
+		}
+
+		&:focus-visible {
+			outline: var(--wp-admin-border-width-focus, 2px) solid var(--wp-admin-theme-color, #3858e9);
+			outline-offset: 1px;
+		}
+	}
+
+	&__connect-tile-content {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	&__connect-logo {
+		display: grid;
+		flex: none;
+		place-items: center;
+		width: 32px;
+		height: 32px;
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+		background: var(--wpds-color-background-surface-neutral);
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: 600;
+
+		img {
+			display: block;
+			width: 20px;
+			height: 20px;
+			object-fit: contain;
+		}
+	}
+
+	&__connect-tile-action {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		margin-block-start: auto;
+		color: var(--wp-admin-theme-color, #3858e9);
+		font-weight: 600;
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	&__connect-footer {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px 16px;
+		box-sizing: border-box;
+		margin-block-start: var(--wpds-dimension-gap-xl);
+		padding-block: 12px;
+		padding-inline: 24px;
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		background: var(--wpds-color-background-surface-neutral-weak);
+	}
+
+	// Pinned in the page's scroll area. Padding hides tools scrolling beneath;
+	// the negative margin keeps the unpinned spacing unchanged.
+	&__toolbar {
+		position: sticky;
+		inset-block-start: 0;
+		z-index: 2;
+		padding-block: var(--wpds-dimension-gap-md);
+		margin-block: calc(-1 * var(--wpds-dimension-gap-md));
+		background-color: var(--wpds-color-background-surface-neutral);
+	}
+
+	// Sit below the sticky tab strip (about 48px) when the page has one.
+	.jp-admin-page__page:has(.jp-admin-page-tabs) &__toolbar {
+		inset-block-start: 48px;
+	}
+
+	&__card-content {
+		padding-block: 16px;
+		padding-inline: 24px;
+	}
+
+	&__copy-fallback textarea {
+		font-family: monospace;
+		font-size: 12px;
+	}
+
+	&__muted {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__group-title {
+		font-size: 14px;
+		font-weight: 600;
+	}
+
+	&__tool-row {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--wpds-dimension-gap-sm);
+		// Clears the sticky tab strip and toolbar.
+		scroll-margin-block-start: 260px;
+
+		> :first-child {
+			flex: 1;
+		}
+	}
+
+	// Hashed class name on the description: match its stable suffix.
+	&__tool-switch [class*="__description"] {
+		margin-block-start: var(--wpds-dimension-gap-xs);
+		line-height: 18px;
+	}
+
 	&__badge-content {
 		display: inline-flex;
 		align-items: center;
@@ -164,55 +323,6 @@
 	// row rather than as a separate paragraph.
 	.components-base-control__help {
 		margin-top: 0;
-	}
-
-	// Explainer steps: icon beside the text in one column on phones, icon
-	// above the text in three columns from the tab's 600px breakpoint up.
-	&__how-it-works-steps {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr);
-		gap: var(--wpds-dimension-gap-lg);
-
-		@media (min-width: 600px) {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
-		}
-	}
-
-	&__how-it-works-step {
-		display: grid;
-		grid-template-columns: auto minmax(0, 1fr);
-		column-gap: var(--wpds-dimension-gap-lg);
-		row-gap: var(--wpds-dimension-gap-xs);
-		padding-block-start: var(--wpds-dimension-padding-lg);
-		border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
-
-		@media (min-width: 600px) {
-			grid-template-columns: minmax(0, 1fr);
-			padding-block: var(--wpds-dimension-padding-lg);
-			border-block-start: 0;
-			padding-inline-start: var(--wpds-dimension-padding-lg);
-			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
-		}
-
-		&:first-child {
-			padding-inline: 0;
-			border: 0;
-		}
-	}
-
-	&__how-it-works-icon {
-		grid-row: 1 / span 2;
-		align-self: start;
-		margin-block-start: 2px;
-
-		@media (min-width: 600px) {
-			grid-row: auto;
-			margin-block: 0 var(--wpds-dimension-gap-sm);
-		}
-	}
-
-	&__how-it-works-description {
-		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	// Callout card shared by the plan upsell and the connect-account card.

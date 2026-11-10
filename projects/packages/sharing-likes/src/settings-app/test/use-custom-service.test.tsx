@@ -1,14 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { queryKeys, useServices } from '../data/queries';
 import { useCustomService } from '../data/use-custom-service';
-import {
-	apiCalls,
-	createTestQueryClient,
-	resetNotices,
-	snackbarMessages,
-	wrapperFor,
-} from './helpers';
+import { apiCalls, createTestRegistry, snackbarMessages, wrapperFor } from './helpers';
 import type { Service, Services } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -63,25 +56,17 @@ function respond(
 }
 
 /**
- * Render the hook beside an active services query.
+ * Render the hook in a registry seeded with the services.
  *
  * @return Render result.
  */
 function renderCustom() {
-	const queryClient = createTestQueryClient();
-	queryClient.setQueryData( queryKeys.services, services );
-	return renderHook(
-		() => {
-			useServices( true );
-			return useCustomService();
-		},
-		{ wrapper: wrapperFor( queryClient ) }
-	);
+	const registry = createTestRegistry( { services } );
+	return renderHook( () => useCustomService(), { wrapper: wrapperFor( registry ) } );
 }
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
-	resetNotices();
 } );
 
 describe( 'useCustomService', () => {

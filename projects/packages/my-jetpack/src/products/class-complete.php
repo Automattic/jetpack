@@ -101,7 +101,7 @@ class Complete extends Module_Product {
 		if ( empty( Pro::get_pricing_for_ui()['catalog_available'] ) ) {
 			return array_merge(
 				array(
-					'available'          => true,
+					'available'          => false !== ( Wpcom_Products::get_product( static::get_wpcom_product_slug() )->available ?? null ),
 					'wpcom_product_slug' => static::get_wpcom_product_slug(),
 				),
 				Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )

@@ -32,7 +32,7 @@ This page covers sections only. Widget types have their own page, [Dashboard wid
 | `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                       |
 | `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                 |
 | `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                 |
-| `routes/site-readiness.ts`                         | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data.                                                                                  |
+| `packages/data/src/utils/dashboard-sections.ts`   | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data, and `isPostDetailAvailable()`, which post links read before linking to `/post/:id`. |
 
 ## When the section files load
 
@@ -43,8 +43,6 @@ The same three files load on three paths, at three moments. In wp-admin `Analyti
 On a connected site's REST request, `Dashboard_Support_Routes::boot_routes()` requires them on `rest_api_init`, after `init`.
 
 On WordPress.com Simple, the public-api process calls `Dashboard_Support_Routes::register()` directly, and the same `boot_routes()` runs.
-
-Each include is guarded by a symbol the file declares, because two copies of the package can be loaded in one request on Simple.
 
 That is why the registration moment is not `init`: a registrant hooked on `init` reaches the navigation in wp-admin and misses the REST response the navigation is built from. The registry hydrates on its first read, whichever path reads it, and fires one action then.
 
@@ -81,7 +79,7 @@ add_action(
 				'is_available'   => array( Capabilities::class, 'current_user_can_view_stats' ),
 				'default_layout' => static function () {
 					return array(
-						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, 2 ),
+						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, DASHBOARD_TILE_LIST ),
 					);
 				},
 			)
@@ -121,7 +119,7 @@ The stage then builds the navigation from `{ slug, label }`, resolves the active
 
 A second, smaller channel carries only slugs. `inject_dashboard_sections_script_data()` puts `premium_analytics.sections`, and `premium_analytics.plan_date_limited_sections` for the sections that set `follows_plan_date_limits`, in `JetpackScriptData`, which `jetpack-assets` prints inline on the page.
 
-`isDashboardSectionAvailable()` reads it, and `getReportDefinition()` treats a report behind a hidden section as unknown, so the report and detail routes can redirect in `beforeLoad`, before any request. `getSectionDatePolicy()` reads the second list, so a route applies the plan's date limits there too.
+`isDashboardSectionAvailable()` reads it, and `getReportDefinition()` treats a report behind a hidden section as unknown, so the report and detail routes can redirect in `beforeLoad`, before any request. `PostTitleLink` reads the same gate, so a reader who cannot open a post's details gets its public page instead. `getSectionDatePolicy()` reads the second list, so a route applies the plan's date limits there too.
 
 The slug list exists because the report registry lives in the client today. Once reports register on the server, it goes away.
 
@@ -129,7 +127,7 @@ The slug list exists because the report registry lives in the client today. Once
 
 ![A section declares its default layout; get_default_layout() runs it through the default-layout filter, where a plugin adds instances at priority 10 and the package removes unsupported widget types at priority 100, before it reaches the client as the fallback for the stored layout.](diagrams/sections-default-layout.svg)
 
-A section owns its default layout. The registration passes the instances, built with `get_dashboard_default_widget_instance( $uuid, $type, $order, $width, $height, $attributes )`, as an array or as a callable returning one.
+A section owns its default layout. The registration passes the instances, built with `get_dashboard_default_widget_instance( $uuid, $type, $order, $width, $height, $attributes )`, as an array or as a callable returning one. `$height` counts dashboard rows: pass `DASHBOARD_TILE_LIST` for a leaderboard, `DASHBOARD_TILE_CARD` for a chart or a figure, `DASHBOARD_TILE_STRIP` for a one-line strip. These heights reach the default layout only: a stored layout keeps the heights it was saved with, so a reader who rearranged a tab before a default changed does not see the change.
 
 `Dashboard_Section::get_default_layout()` runs the declared array through `jetpack_premium_analytics_dashboard_default_layout` with the section id and the section, and returns whatever comes back as a list.
 
@@ -149,7 +147,7 @@ add_filter(
 			}
 		}
 
-		$layout[] = get_dashboard_default_widget_instance( 'default-videopress-widget-instance', 'videopress/top-videos', 8, 1, 2 );
+		$layout[] = get_dashboard_default_widget_instance( 'default-videopress-widget-instance', 'videopress/top-videos', 8, 1, DASHBOARD_TILE_LIST );
 
 		return $layout;
 	},
@@ -170,7 +168,7 @@ Reset deletes the stored entry rather than copying the default into it, so a sec
 
 A section that declares no layout opens in customize mode on the empty state, since `WidgetDashboard` treats an empty layout as "no widgets". A section meant to be read declares one.
 
-A section the site's plan locks is the exception: it shows only its open widgets, never enters customize mode, and renders the upgrade prompt below them (see [Locking a widget by plan](dashboard-widgets.md#locking-a-widget-by-plan)).
+A section the site's plan locks is the exception: it shows only its open widgets, enters customize mode only while it shows some, and renders the upgrade prompt below them (see [Locking a widget by plan](dashboard-widgets.md#locking-a-widget-by-plan)).
 
 ## Insertable widget types
 
@@ -241,7 +239,7 @@ Both register the same layout, `Analytics_Dashboard::get_default_layout()`, of t
 
 ## A second consumer: a widget inside a bundled section
 
-The VideoPress package owns no section. It owns one widget type, `videopress/top-videos`, and a place for it in the Traffic default layout, through the filter above. Who calls its registrants follows the Ads shape: `Initializer::active_initialization()` where VideoPress is active outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the plan includes VideoPress (`src/features/premium-analytics/videopress-widgets.php`).
+The VideoPress package owns no section. It owns two widget types, `videopress/top-videos` and `videopress/video-player`, and a place for Top videos in the Traffic default layout, through the filter above. Who calls its registrants follows the Ads shape: `Initializer::active_initialization()` where VideoPress is active outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the plan includes VideoPress (`src/features/premium-analytics/videopress-widgets.php`).
 
 The seed runs at priority 10 and asks nothing about the contract version. Whether the instance survives is decided here: the rename at 99 maps a former name, the policy at 100 drops a type that never registered. A consumer that seeds a bundled section's default therefore needs no guard of its own, only an idempotent callback.
 
@@ -259,7 +257,7 @@ The widget it seeds is the registrant's story, in [Dashboard widget types](dashb
 | The VideoPress package's layout seed, with and without the widget contract loaded, and its WordPress.com registrant | `projects/packages/videopress/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/videopress/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`, `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Videopress_Widgets_Test.php` |
 | The REST entry point WordPress.com calls                                                                            | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                                                                                                                                            |
 | Navigation, active section, stored layouts, section heading                                                         | `routes/dashboard/**/*.test.ts(x)`                                                                                                                                                                                                                                       |
-| Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                                                                                                                                                                                                     |
+| Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `packages/data/src/utils/__tests__/dashboard-sections.test.ts`                                                                                                                                                                        |
 
 ## Not covered here
 

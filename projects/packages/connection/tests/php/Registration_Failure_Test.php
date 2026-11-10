@@ -377,6 +377,7 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( Registration_Failure::is_terminal( 'siteurl_private_ip' ) );
 		$this->assertTrue( Registration_Failure::is_terminal( 'secret_1_missing' ) );
 		$this->assertTrue( Registration_Failure::is_terminal( 'siteurl_malformed' ) );
+		$this->assertTrue( Registration_Failure::is_terminal( 'xml_extension_missing' ) );
 
 		$this->assertFalse( Registration_Failure::is_terminal( 'site_inaccessible' ) );
 		// Returned by the XML-RPC fallback after any failed REST verify.

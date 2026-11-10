@@ -169,6 +169,7 @@ describe( 'NewsletterAccessRadioButtons', () => {
 						paidSubscribersByTier,
 					} ),
 					getNewsletterTierProducts: () => tierProducts,
+					isApiStateLoading: () => false,
 				};
 			}
 			return {};

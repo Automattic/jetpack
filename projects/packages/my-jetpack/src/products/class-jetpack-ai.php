@@ -533,18 +533,35 @@ class Jetpack_Ai extends Module_Product {
 	 * @return bool
 	 */
 	public static function is_feature_ui_enabled() {
+		return self::is_feature_ui_ready() && ( new Connection_Manager() )->has_connected_owner();
+	}
+
+	/**
+	 * Whether My Jetpack's AI feature controls are waiting only for the site's owner to connect.
+	 *
+	 * @since 6.13.0
+	 *
+	 * @return bool True when Jetpack is active with its AI module and settings, the site is registered,
+	 *              it is self-hosted or an Atomic internal testing environment, and no owner is connected yet.
+	 */
+	public static function is_feature_ui_waiting_for_owner() {
+		return self::is_feature_ui_ready() && ! ( new Connection_Manager() )->has_connected_owner();
+	}
+
+	/**
+	 * Whether the AI feature controls could show on this site, leaving out whether its owner is connected.
+	 *
+	 * @return bool
+	 */
+	private static function is_feature_ui_ready() {
 		if (
 			! self::is_plugin_active()
 			|| ! method_exists( '\\Jetpack', 'is_module' )
 			|| ! \Jetpack::is_module( 'ai' )
 			// @phan-suppress-next-line PhanUndeclaredClassReference -- Supplied by the optional Jetpack plugin.
 			|| ! method_exists( '\\Jetpack_AI_Settings', 'is_feature_enabled' )
+			|| ! self::is_site_connected()
 		) {
-			return false;
-		}
-
-		$connection = new Connection_Manager();
-		if ( ! $connection->is_connected() || ! $connection->has_connected_owner() ) {
 			return false;
 		}
 

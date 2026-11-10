@@ -3,7 +3,7 @@ import { getUserConnectionUrl } from '@automattic/jetpack-connection/get-user-co
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { getSiteData, getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import NewsletterPage, { type NewsletterTab } from '../../_inc/components/newsletter-page';
@@ -50,6 +50,7 @@ const Stage = () => {
 		from: '/' as unknown as never,
 		strict: false,
 	} ) as StageSearch;
+	const [ hasUnsavedChanges, setHasUnsavedChanges ] = useState( false );
 
 	// When `jetpack_wp_admin_subscriber_management_enabled` is filtered to
 	// false on the server, the page is Settings-only — pin `activeTab`
@@ -153,6 +154,7 @@ const Stage = () => {
 					return (
 						<NewsletterPage
 							activeTab={ activeTab }
+							hasUnsavedChanges={ hasUnsavedChanges }
 							actions={ activeTab === 'subscribers' && canManageSubscribers ? actions : undefined }
 							contentHasPadding={ activeTab !== 'subscribers' }
 							hideFooter={ activeTab === 'subscribers' }
@@ -173,6 +175,7 @@ const Stage = () => {
 												isModernized
 												hasConnectedOwner={ settingsHasConnectedOwner }
 												connectUrl={ connectUrl }
+												onDirtyChange={ setHasUnsavedChanges }
 											/>
 										) : null }
 									</Tabs.Panel>
@@ -182,6 +185,7 @@ const Stage = () => {
 									isModernized
 									hasConnectedOwner={ settingsHasConnectedOwner }
 									connectUrl={ connectUrl }
+									onDirtyChange={ setHasUnsavedChanges }
 								/>
 							) }
 						</NewsletterPage>

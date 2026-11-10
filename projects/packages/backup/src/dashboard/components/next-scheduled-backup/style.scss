@@ -2,6 +2,12 @@
 .jpb-next-scheduled-backup {
 	margin: 0;
 
+	// A `<button>` has no default underline, and a link in a sentence needs a
+	// cue besides color (WCAG 1.4.1). The line only, so `Link`'s offset holds.
+	.jpb-link-button {
+		text-decoration-line: underline;
+	}
+
 	// Stands in while the reads are in flight. The skeleton replaces the
 	// element, so the two are never in the DOM together.
 	&__placeholder {

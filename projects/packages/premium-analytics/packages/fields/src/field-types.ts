@@ -6,6 +6,7 @@ import { registerFieldType } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import { ArrayCheckboxField } from './field-array-checkbox';
+import { ReportParamsField } from './field-report-params';
 import { SelectField } from './field-select';
 import { ToggleGroupField } from './field-toggle-group';
 import type { FieldTypeDefinition } from '@wordpress/widget-primitives';
@@ -18,6 +19,7 @@ export const FIELD_TYPES: readonly FieldTypeDefinition[] = [
 	{ name: 'jpa/select', baseType: 'text', Edit: SelectField },
 	{ name: 'jpa/toggle-group', baseType: 'text', Edit: ToggleGroupField },
 	{ name: 'jpa/array-checkbox', baseType: 'array', Edit: ArrayCheckboxField },
+	{ name: 'jpa/report-params', baseType: 'text', Edit: ReportParamsField },
 ];
 
 /**

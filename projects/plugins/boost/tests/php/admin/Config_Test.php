@@ -305,7 +305,7 @@ class Config_Test extends TestCase {
 			$method->setAccessible( true );
 		}
 
-		$result = $method->invokeArgs( new Config(), array() );
+		$result = $method->invokeArgs( null, array() );
 
 		$this->assertIsArray( $result );
 		$this->assertArrayNotHasKey( 'attachment', $result );

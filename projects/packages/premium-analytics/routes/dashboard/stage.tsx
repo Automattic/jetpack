@@ -5,8 +5,13 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Stack } from '@jetpack-premium-analytics/externals';
-import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
+import {
+	DashboardWidgetHostProvider,
+	usePeriodHost,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
 import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
 	DateFiltersPanel,
@@ -17,13 +22,13 @@ import {
 	SectionHeader,
 	SectionTabPanel,
 	StatsBreadcrumbs,
-	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
 	canSendFeedback,
 	DashboardSectionProvider,
 	PageOptionsMenu,
 	ResetLayoutAction,
+	useHostLinkSearch,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -37,14 +42,12 @@ import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
+	DashboardNotices,
 	DashboardSections,
 	FeedbackBanner,
 	OnboardingTour,
 	onboardingTourSteps,
-	hasPurchaseSuccess,
 	LockedSection,
-	PlanLimitNotice,
-	PurchaseSuccessNotice,
 	RefreshFailureNotice,
 	SectionNotice,
 	SectionSyncNotice,
@@ -52,6 +55,7 @@ import {
 } from './components';
 import {
 	buildWidgetTypeRenames,
+	DASHBOARD_GRID,
 	DATE_FILTER_YEAR,
 	getInsertableWidgetTypeNames,
 	hasStoreSection,
@@ -64,7 +68,6 @@ import {
 } from './config';
 import {
 	useActiveSection,
-	useDashboardGridSettings,
 	useDashboardPolicy,
 	useDashboardSectionLayout,
 	useDashboardSections,
@@ -124,6 +127,10 @@ function Dashboard(): JSX.Element {
 		switchSearch
 	);
 	const isSettingsActive = activeSection === SETTINGS_SECTION;
+	const openSettings = useCallback(
+		() => setActiveSection( SETTINGS_SECTION ),
+		[ setActiveSection ]
+	);
 	const widgetSection = widgetSectionOf( activeSection, sections );
 	const widgetModules = useWidgetModules();
 	const widgetTypeRenames = useMemo(
@@ -135,8 +142,6 @@ function Dashboard(): JSX.Element {
 		sections,
 		widgetTypeRenames
 	);
-	const [ gridSettings ] = useDashboardGridSettings();
-
 	const activeSectionRecord = sections.find( section => section.slug === widgetSection );
 
 	// The inserter offers the active section's default layout types plus those it declares insertable.
@@ -144,7 +149,6 @@ function Dashboard(): JSX.Element {
 		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
 		[ activeSectionRecord ]
 	);
-	const dashboardPolicy = useDashboardPolicy( { insertableWidgetTypes } );
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -204,33 +208,71 @@ function Dashboard(): JSX.Element {
 		},
 		[ layout, setLayout, trackCustomize ]
 	);
-	const { lockedSection, visibleLayout, onVisibleLayoutChange } = useLockedSectionLayout(
-		widgetSection,
-		layout,
-		onLayoutChange
-	);
+	const { lockedSection, visibleLayout, onVisibleLayoutChange, isHiddenWidget } =
+		useLockedSectionLayout( widgetSection, layout, onLayoutChange );
 	const isSectionLocked = !! lockedSection;
+	const dashboardPolicy = useDashboardPolicy( {
+		insertableWidgetTypes,
+		lockedLayout: isSectionLocked ? visibleLayout : undefined,
+	} );
+	const canCustomizeSection = dashboardPolicy( { operation: 'customize' } );
 	// Edit mode survives a tab switch, so leave it on arriving at a section that cannot be arranged.
 	// The exit is recorded against the section arrived at, as Done after any tab switch is.
 	useEffect( () => {
-		if ( editMode && isSectionLocked ) {
+		if ( editMode && ! canCustomizeSection ) {
 			onEditChange( false );
 		}
-	}, [ editMode, isSectionLocked, onEditChange ] );
-	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
-	// A locked section has nothing to add, and its visible layout is often empty.
+	}, [ editMode, canCustomizeSection, onEditChange ] );
+
+	// Settings has no layout to customize.
 	const canPerform = useMemo< typeof dashboardPolicy >(
 		() =>
-			isSettingsActive || isSectionLocked
+			isSettingsActive
 				? request => request.operation !== 'customize' && dashboardPolicy( request )
 				: dashboardPolicy,
-		[ dashboardPolicy, isSettingsActive, isSectionLocked ]
+		[ dashboardPolicy, isSettingsActive ]
 	);
 	const resetToDefault = useCallback( () => {
 		trackCustomize.reset();
-		resetLayout();
+		// A locked section resets only what it shows, so an upgrade brings back the rest as arranged.
+		resetLayout( isHiddenWidget );
 		setEditMode( false );
-	}, [ resetLayout, trackCustomize ] );
+	}, [ isHiddenWidget, resetLayout, trackCustomize ] );
+
+	// Only the widgets this section renders need metadata at boot; the full registry
+	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
+		visibleNames: hasResolvedSections ? visibleLayout.map( widget => widget.type ) : null,
+		includeAll: editMode,
+	} );
+
+	const { dateLimits, offersComparison: planOffersComparison } = useStatsDateLimits(
+		isPlanDateLimitedSection( widgetSection )
+	);
+
+	useDateWindowNotice();
+	const lockedIntervals = dateLimits?.lockedIntervals;
+
+	/*
+	 * Date-range state lives in the URL search params; the controller stages edits
+	 * locally and commits on Apply, so widgets re-fetch only on commit.
+	 */
+	const dateFilters = useReportDateFilters( '/', { dateLimits } );
+
+	/*
+	 * Also reconciles the preset in the URL with the resolved surface, so a section
+	 * switch never leaves the visible control unable to represent the selection.
+	 */
+	const dateFilterSurface = useSectionDateFilter(
+		activeSectionRecord,
+		dateFilters,
+		isSectionCommitted
+	);
+
+	// Server-driven, like the surface above, and only where the plan has room for one.
+	const offersComparison =
+		offersDateComparison( dateFilterSurface, activeSectionRecord?.date_filter_options ) &&
+		planOffersComparison;
 
 	// The tour's anchors, handed in by the elements below once they mount.
 	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
@@ -249,7 +291,8 @@ function Dashboard(): JSX.Element {
 		onboardingTourSteps( tourAnchors, {
 			withFeedback: canSendFeedback(),
 			flow,
-			withCustomize: ! isSectionLocked,
+			withCustomize: canCustomizeSection,
+			withComparison: offersComparison,
 		} ).filter( step => step.anchor );
 	// Built every render rather than memoized: the anchors are looked up fresh, since the
 	// first widget mounts after its frame.
@@ -273,40 +316,6 @@ function Dashboard(): JSX.Element {
 		},
 	} );
 	const tourSteps = tourStepsByFlow[ onboarding.flow ];
-
-	// Only the widgets this section renders need metadata at boot; the full registry
-	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
-		visibleNames: hasResolvedSections ? visibleLayout.map( widget => widget.type ) : null,
-		includeAll: editMode,
-	} );
-
-	const { dateLimits, offersComparison: planOffersComparison } = useStatsDateLimits(
-		isPlanDateLimitedSection( widgetSection )
-	);
-	useDateWindowNotice();
-	const lockedIntervals = dateLimits?.lockedIntervals;
-
-	/*
-	 * Date-range state lives in the URL search params; the controller stages edits
-	 * locally and commits on Apply, so widgets re-fetch only on commit.
-	 */
-	const dateFilters = useReportDateFilters( '/', { lockedIntervals } );
-
-	/*
-	 * Also reconciles the preset in the URL with the resolved surface, so a section
-	 * switch never leaves the visible control unable to represent the selection.
-	 */
-	const dateFilterSurface = useSectionDateFilter(
-		activeSectionRecord,
-		dateFilters,
-		isSectionCommitted
-	);
-
-	// Server-driven, like the surface above, and only where the plan has room for one.
-	const offersComparison =
-		offersDateComparison( dateFilterSurface, activeSectionRecord?.date_filter_options ) &&
-		planOffersComparison;
 
 	// Placement only: the date state is the same either way.
 	const showHeaderDateControl =
@@ -332,7 +341,9 @@ function Dashboard(): JSX.Element {
 		onChange: changeDateRange,
 		onComparisonChange: changeComparison,
 		onApply: applyDateRange,
+		stepping,
 	} = dateFilters;
+
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
 			presetId: dateFilters.presetId,
@@ -366,12 +377,36 @@ function Dashboard(): JSX.Element {
 		trackedOnApply();
 		rememberOnApply();
 	}, [ applyDateRange, trackedOnApply, rememberOnApply ] );
+
 	const onComparisonChange = useCallback< typeof changeComparison >(
 		( range, presetId ) => {
 			changeComparison( range, presetId );
 			rememberOnComparisonChange( range, presetId );
 		},
 		[ changeComparison, rememberOnComparisonChange ]
+	);
+	// A step applies at once and is tracked like a range the reader picked. It
+	// never changes the remembered preset: turning the page is not picking one.
+	const stepDateRange = stepping.onStep;
+	const onDateStep = useCallback< typeof stepDateRange >(
+		direction => {
+			const stepped = stepDateRange( direction );
+
+			if ( stepped ) {
+				trackedOnChange( stepped.range, stepped.presetId, {
+					exactRange: true,
+					interval: stepped.interval,
+				} );
+				trackedOnApply();
+			}
+
+			return stepped;
+		},
+		[ stepDateRange, trackedOnChange, trackedOnApply ]
+	);
+	const dateStepping = useMemo(
+		() => ( { ...stepping, onStep: onDateStep } ),
+		[ stepping, onDateStep ]
 	);
 
 	/*
@@ -454,6 +489,7 @@ function Dashboard(): JSX.Element {
 					onChange={ onDateChange }
 					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
+					stepping={ dateStepping }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
 				/>
@@ -477,142 +513,142 @@ function Dashboard(): JSX.Element {
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
-				<WidgetDashboard.Policy canPerform={ canPerform }>
-					<WidgetDashboard
-						widgetTypes={ widgetTypes }
-						isResolvingWidgetTypes={ isResolvingWidgetTypes }
-						resolveWidgetModule={ resolveWidgetModule }
-						layout={ visibleLayout }
-						onLayoutChange={ onVisibleLayoutChange }
-						onLayoutReset={ resetLayout }
-						gridSettings={ gridSettings }
-						editMode={ editMode }
-						onEditChange={ onEditChange }
-					>
-						<Page
-							visual={ <StatsPageIcon /> }
-							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-							actions={
-								<Stack direction="row" gap="sm">
-									{ /* At rest these would add a second Customize beside the menu's. */ }
-									{ editMode && (
-										<>
-											<WidgetDashboard.Actions />
-											<ResetLayoutAction onReset={ resetToDefault } />
-										</>
-									) }
-									<Stack ref={ setOptionsMenuFrame } direction="row">
-										<PageOptionsMenu
-											onCustomize={
-												editMode || isSettingsActive || isSectionLocked
-													? undefined
-													: startCustomizing
-											}
-										/>
-									</Stack>
-								</Stack>
-							}
-							className={ styles.dashboard }
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
+					<WidgetDashboard.Policy canPerform={ canPerform }>
+						<WidgetDashboard
+							widgetTypes={ widgetTypes }
+							isResolvingWidgetTypes={ isResolvingWidgetTypes }
+							resolveWidgetModule={ resolveWidgetModule }
+							layout={ visibleLayout }
+							onLayoutChange={ onVisibleLayoutChange }
+							onLayoutReset={ resetLayout }
+							gridSettings={ DASHBOARD_GRID }
+							editMode={ editMode }
+							onEditChange={ onEditChange }
 						>
-							<DashboardSections
-								sections={ sections }
-								withSettingsTab={ hasSettingsTab }
-								isSettingsTabDisabled={ editMode }
-								value={ activeSection }
-								onChange={ setActiveSection }
-								tabListRef={ setTabListFrame }
+							<Page
+								visual={ <Icon icon={ jetpack } /> }
+								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+								actions={
+									<Stack direction="row" gap="sm">
+										{ /* At rest these would add a second Customize beside the menu's. */ }
+										{ editMode && (
+											<>
+												<WidgetDashboard.Actions />
+												<ResetLayoutAction onReset={ resetToDefault } />
+											</>
+										) }
+										<Stack ref={ setOptionsMenuFrame } direction="row">
+											<PageOptionsMenu
+												onCustomize={
+													editMode || isSettingsActive || ! canCustomizeSection
+														? undefined
+														: startCustomizing
+												}
+											/>
+										</Stack>
+									</Stack>
+								}
+								className={ styles.dashboard }
 							>
-								{ sections.map( section => (
-									<SectionTabPanel
-										key={ section.slug }
-										value={ section.slug }
-										className={ styles.content }
-									>
-										<SectionHeader
-											ref={ setHeaderRef }
-											title={ resolveSectionHeading( section ) }
-											pinned
-											notice={ <RefreshFailureNotice /> }
-											controlsRef={ setControlsAnchor }
+								<DashboardSections
+									sections={ sections }
+									withSettingsTab={ hasSettingsTab }
+									isSettingsTabDisabled={ editMode }
+									value={ activeSection }
+									onChange={ setActiveSection }
+									tabListRef={ setTabListFrame }
+								>
+									{ sections.map( section => (
+										<SectionTabPanel
+											key={ section.slug }
+											value={ section.slug }
+											className={ styles.content }
 										>
-											{ dateControls }
-										</SectionHeader>
+											<SectionHeader
+												ref={ setHeaderRef }
+												title={ resolveSectionHeading( section ) }
+												pinned
+												controlsRef={ setControlsAnchor }
+											>
+												{ dateControls }
+											</SectionHeader>
 
-										{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
-										{ activeSection === section.slug && isSectionCommitted ? (
-											<div className={ styles.body }>
-												{ /* A checkout return holds the plan limit notice back for the
-												     whole load, even once dismissed. */ }
-												{ ! editMode &&
-													( hasPurchaseSuccess() ? (
-														<PurchaseSuccessNotice />
-													) : (
-														<PlanLimitNotice />
-													) ) }
+											{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
+											{ activeSection === section.slug && isSectionCommitted ? (
+												<DashboardSectionProvider section={ section.slug }>
+													<div className={ styles.body }>
+														<RefreshFailureNotice />
+														{ ! editMode && <DashboardNotices onOpenSettings={ openSettings } /> }
 
-												{ /* Behind the onboarding journey: it introduces the tabs
-												     the banner asks about. */ }
-												<FeedbackBanner
-													enabled={
-														canSendFeedback() &&
-														! editMode &&
-														section.slug === defaultSection &&
-														onboarding.phase === 'closed'
-													}
-												/>
+														{ /* Behind the onboarding journey: it introduces the tabs
+														     the banner asks about. */ }
+														<FeedbackBanner
+															enabled={
+																canSendFeedback() &&
+																! editMode &&
+																section.slug === defaultSection &&
+																onboarding.phase === 'closed'
+															}
+														/>
 
-												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
-													<SectionSyncNotice
-														canRunSync={ canRunSync }
-														percentage={ syncStatus?.percentage ?? 0 }
-														hasError={ !! syncError }
-														onRetry={ retrySync }
-														isRetrying={ isRetryingSync }
-													/>
-												) : (
-													section.notice && <SectionNotice message={ section.notice } />
-												) }
+														{ isSectionAwaitingSync( section, isSyncFinished ) &&
+														! isSyncComplete ? (
+															<SectionSyncNotice
+																canRunSync={ canRunSync }
+																percentage={ syncStatus?.percentage ?? 0 }
+																hasError={ !! syncError }
+																onRetry={ retrySync }
+																isRetrying={ isRetryingSync }
+															/>
+														) : (
+															section.notice && <SectionNotice message={ section.notice } />
+														) }
 
-												{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
-												<div ref={ setWidgetsFrame }>
-													<DashboardSectionProvider section={ section.slug }>
-														<WidgetDashboard.Widgets className={ styles.widgets } />
-													</DashboardSectionProvider>
+														{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
+														<div ref={ setWidgetsFrame }>
+															<WidgetDashboard.Widgets className={ styles.widgets } />
+														</div>
+														{ isSectionLocked && <LockedSection section={ section.slug } /> }
+													</div>
+												</DashboardSectionProvider>
+											) : null }
+										</SectionTabPanel>
+									) ) }
+
+									{ hasSettingsTab && (
+										<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
+											<DashboardSectionProvider section={ SETTINGS_SECTION }>
+												<div className={ styles.body }>
+													<StatsSettingsPanel />
 												</div>
-												{ isSectionLocked && <LockedSection section={ section.slug } /> }
-											</div>
-										) : null }
-									</SectionTabPanel>
-								) ) }
+											</DashboardSectionProvider>
+										</SectionTabPanel>
+									) }
 
-								{ hasSettingsTab && (
-									<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
-										<div className={ styles.body }>
-											<StatsSettingsPanel />
-										</div>
-									</SectionTabPanel>
-								) }
-							</DashboardSections>
+									<JetpackFooter />
+								</DashboardSections>
 
-							<WidgetDashboard.Commands />
+								<WidgetDashboard.Commands />
 
-							<OnboardingWelcomeModal
-								open={ onboarding.phase === 'modal' }
-								variant={ onboarding.flow }
-								onStart={ onboarding.start }
-								onDismiss={ onboarding.dismiss }
-							/>
-							{ onboarding.phase === 'tour' && (
-								<OnboardingTour
-									steps={ tourSteps }
-									current={ onboarding.step }
-									onNext={ onboarding.next }
+								<OnboardingWelcomeModal
+									open={ onboarding.phase === 'modal' }
+									variant={ onboarding.flow }
+									onStart={ onboarding.start }
 									onDismiss={ onboarding.dismiss }
 								/>
-							) }
-						</Page>
-					</WidgetDashboard>
-				</WidgetDashboard.Policy>
+								{ onboarding.phase === 'tour' && (
+									<OnboardingTour
+										steps={ tourSteps }
+										current={ onboarding.step }
+										onNext={ onboarding.next }
+										onDismiss={ onboarding.dismiss }
+									/>
+								) }
+							</Page>
+						</WidgetDashboard>
+					</WidgetDashboard.Policy>
+				</DashboardWidgetHostProvider>
 			</ReportScopeProvider>
 		</>
 	);

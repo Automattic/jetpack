@@ -79,6 +79,7 @@ const OPENING_HOURS_PAIR_ERROR = __(
 interface Props {
 	/** The schema-settings form controller, owned by the Schema card. */
 	form: SchemaSettingsForm;
+	disabled?: boolean;
 }
 
 const isCoordinate = ( value: string, max: number ) => {
@@ -128,11 +129,12 @@ export const hasLocalBusinessErrors = ( form: SchemaSettingsForm ) => {
 /**
  * LocalBusiness settings fields shown when the LocalBusiness toggle is enabled.
  *
- * @param props      - Component props.
- * @param props.form - The schema-settings form controller from the card.
+ * @param props          - Component props.
+ * @param props.form     - The schema-settings form controller from the card.
+ * @param props.disabled - Whether editing is disabled.
  * @return LocalBusiness settings fields.
  */
-const LocalBusinessFields: FC< Props > = ( { form } ) => {
+const LocalBusinessFields: FC< Props > = ( { form, disabled = false } ) => {
 	const { localBusiness, localBusinessDefaults, isSaving, setLocalBusinessField } = form;
 	const { address, geo, openingHours } = localBusiness;
 	const storedAddressEmpty = Object.values( address ).every( value => ! value );
@@ -207,7 +209,7 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 									onChange={ next =>
 										setAddress( field, field === 'addressCountry' ? uppercaseAscii( next ) : next )
 									}
-									disabled={ isSaving }
+									disabled={ disabled || isSaving }
 									aria-invalid={ Boolean( fieldError ) }
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
@@ -234,7 +236,7 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 						}
 						value={ localBusiness.telephone }
 						onChange={ next => setLocalBusinessField( { telephone: next } ) }
-						disabled={ isSaving }
+						disabled={ disabled || isSaving }
 						aria-invalid={ ! isPhoneNumber( localBusiness.telephone ) }
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
@@ -256,7 +258,7 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 						}
 						value={ localBusiness.priceRange }
 						onChange={ next => setLocalBusinessField( { priceRange: next } ) }
-						disabled={ isSaving }
+						disabled={ disabled || isSaving }
 						aria-invalid={ ! isPriceRange( localBusiness.priceRange ) }
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
@@ -274,7 +276,7 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 								inputMode="decimal"
 								value={ geo[ field ] }
 								onChange={ next => setGeo( field, next ) }
-								disabled={ isSaving }
+								disabled={ disabled || isSaving }
 								aria-invalid={ Boolean( fieldError ) }
 								aria-describedby={ geoError ? GEO_ERROR_ID : undefined }
 								__next40pxDefaultSize
@@ -325,7 +327,7 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 										value={ openingHours[ code ].opens }
 										onChange={ next => setHours( code, 'opens', next ) }
 										onBlur={ event => clearInvalidTime( code, 'opens', event ) }
-										disabled={ isSaving }
+										disabled={ disabled || isSaving }
 										aria-invalid={ opensError }
 										aria-describedby={ hasPairError ? errorId : undefined }
 										__next40pxDefaultSize
@@ -344,7 +346,7 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 										value={ openingHours[ code ].closes }
 										onChange={ next => setHours( code, 'closes', next ) }
 										onBlur={ event => clearInvalidTime( code, 'closes', event ) }
-										disabled={ isSaving }
+										disabled={ disabled || isSaving }
 										aria-invalid={ closesError }
 										aria-describedby={ hasPairError ? errorId : undefined }
 										__next40pxDefaultSize

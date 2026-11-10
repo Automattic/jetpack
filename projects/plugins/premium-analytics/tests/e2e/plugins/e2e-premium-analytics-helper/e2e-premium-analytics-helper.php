@@ -35,7 +35,19 @@ add_filter( 'jetpack_offline_mode', '__return_false', 99 );
 
 add_filter( 'pre_http_request', 'e2e_pa_intercept_wpcom', 10, 3 );
 add_filter( 'nonce_life', 'e2e_pa_nonce_life' );
+add_filter( 'jetpack_premium_analytics_stats_plan_tier', 'e2e_pa_stats_tier' );
 add_action( 'rest_api_init', 'e2e_pa_register_site_state_route' );
+
+/**
+ * Forces the Stats plan tier while a spec sets `e2e_pa_stats_tier`, since the mocked plans only reach the self-hosted tiers.
+ *
+ * @param string $tier Tier from the site's plan.
+ * @return string
+ */
+function e2e_pa_stats_tier( $tier ) {
+	$forced = get_option( 'e2e_pa_stats_tier' );
+	return $forced ? $forced : $tier;
+}
 
 /**
  * Registers the route specs reset the site through: one request instead of a wp-cli process per setting.
@@ -51,21 +63,29 @@ function e2e_pa_register_site_state_route() {
 				return current_user_can( 'manage_options' );
 			},
 			'args'                => array(
-				'enabled'       => array(
+				'enabled'           => array(
 					'type'     => 'boolean',
 					'required' => true,
 				),
-				'subscriptions' => array(
+				'subscriptions'     => array(
 					'type'     => 'boolean',
 					'required' => true,
 				),
-				'wordads'       => array(
+				'wordads'           => array(
 					'type'     => 'boolean',
 					'required' => true,
 				),
-				'timezone'      => array(
+				'timezone'          => array(
 					'type'    => 'string',
 					'default' => 'UTC',
+				),
+				'tier'              => array(
+					'type'    => 'string',
+					'default' => '',
+				),
+				'remembered_preset' => array(
+					'type'    => 'string',
+					'default' => '',
 				),
 			),
 		)
@@ -75,22 +95,31 @@ function e2e_pa_register_site_state_route() {
 /**
  * Puts the site in one dashboard state. The mocked plan must already be set, since WordAds activates only on a plan that includes it.
  *
- * @param WP_REST_Request $request Request with the `enabled`, `subscriptions`, `wordads` and `timezone` params.
+ * @param WP_REST_Request $request Request with the `enabled`, `subscriptions`, `wordads`, `timezone`, `tier` and `remembered_preset` params.
  * @return WP_REST_Response|WP_Error
  */
 function e2e_pa_set_site_state( $request ) {
 	update_option( 'timezone_string', $request['timezone'] );
 	delete_option( 'e2e_pa_stats_fault' );
 	delete_option( 'e2e_pa_nonce_life' );
+	if ( $request['tier'] ) {
+		update_option( 'e2e_pa_stats_tier', $request['tier'] );
+	} else {
+		delete_option( 'e2e_pa_stats_tier' );
+	}
 	update_option( Enablement_Setting::ENABLED_OPTION, $request['enabled'] ? 1 : 0 );
 	// The welcome dialog marks everything behind it inert, so specs start with onboarding done.
 	// Do not move above the opt-in update: turning the dashboard on resets onboarding.
+	$dashboard_preferences = array( Enablement_Setting::ONBOARDING_KEY => '2026-01-01T00:00:00.000Z' );
+	if ( $request['remembered_preset'] ) {
+		$dashboard_preferences['datePreset'] = $request['remembered_preset'];
+	}
 	global $wpdb;
 	update_user_meta(
 		get_current_user_id(),
 		$wpdb->get_blog_prefix() . 'persisted_preferences',
 		array(
-			Enablement_Setting::PREFERENCES_SCOPE => array( Enablement_Setting::ONBOARDING_KEY => '2026-01-01T00:00:00.000Z' ),
+			Enablement_Setting::PREFERENCES_SCOPE => $dashboard_preferences,
 			'_modified'                           => '2026-01-01T00:00:00.000Z',
 		)
 	);

@@ -1,0 +1,26 @@
+@use "../selectable-card/selectable-card";
+
+.jp-radio-card-grid {
+
+	@include selectable-card.grid;
+}
+
+.jp-radio-card {
+
+	@include selectable-card.card( ":has(.jp-radio-card__radio[data-checked])" );
+}
+
+.jp-radio-card__surface {
+
+	@include selectable-card.surface;
+}
+
+.jp-radio-card__illustration {
+
+	@include selectable-card.illustration;
+}
+
+.jp-radio-card__radio {
+
+	@include selectable-card.control;
+}

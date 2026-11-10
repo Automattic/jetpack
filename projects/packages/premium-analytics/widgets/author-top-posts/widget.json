@@ -7,5 +7,13 @@
 		"content": "This author’s posts, ranked by views for the selected period."
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"actions": [
+		{
+			"id": "view-all",
+			"label": "View all",
+			"relevance": "high",
+			"href": "admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Fauthors"
+		}
+	]
 }

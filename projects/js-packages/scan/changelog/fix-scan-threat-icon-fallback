@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Threats list: Show a default icon for threats of an unknown type instead of crashing the list layout.

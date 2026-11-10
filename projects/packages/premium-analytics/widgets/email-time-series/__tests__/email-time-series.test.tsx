@@ -4,6 +4,7 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -40,7 +41,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-count-labels={ `${ metrics[ 0 ]?.countLabel?.( 1 ) }|${ metrics[ 0 ]?.countLabel?.( 2 ) }` }
 			data-metric-total={ String( metrics[ 0 ]?.value ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
-			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
+			data-dates={ metrics[ 0 ]?.current.map( point => point.date.toISOString() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
 			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 		>
@@ -112,23 +113,33 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'stats_fields=timeline' );
 	} );
 
-	// Passes under UTC either way; the `test-tz` pass west of UTC is what can fail it.
 	it( 'builds chart points on the bucket days the site names', async () => {
 		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
+		const defaultSettings = getSettings();
+		setSettings( {
+			...defaultSettings,
+			timezone: { ...defaultSettings.timezone, string: 'America/Los_Angeles' },
+		} );
 
-		render(
-			<EmailTimeSeriesWidget
-				attributes={ {
-					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
-					metric: 'opens',
-				} }
-			/>
-		);
+		try {
+			render(
+				<EmailTimeSeriesWidget
+					attributes={ {
+						reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
+						metric: 'opens',
+					} }
+				/>
+			);
 
-		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		// Reading these buckets in the runner's zone would report the previous
-		// day (3,4,5).
-		expect( chart ).toHaveAttribute( 'data-days', '4,5,6' );
+			const chart = await screen.findByTestId( 'metric-tabs-chart' );
+			// Los Angeles midnights: a bucket read in UTC, or in the runner's zone, lands elsewhere.
+			expect( chart ).toHaveAttribute(
+				'data-dates',
+				'2026-07-04T07:00:00.000Z,2026-07-05T07:00:00.000Z,2026-07-06T07:00:00.000Z'
+			);
+		} finally {
+			setSettings( defaultSettings );
+		}
 	} );
 
 	it( 'reads the clicks endpoint when metric is clicks', async () => {

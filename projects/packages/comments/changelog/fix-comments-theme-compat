@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the comment form's layout intact in themes whose styles resize, hide or pad parts of it.

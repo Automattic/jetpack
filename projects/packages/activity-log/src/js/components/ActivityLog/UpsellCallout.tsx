@@ -1,22 +1,12 @@
 /**
- * Free-tier upsell shown beneath the Activity Log table. Title, copy,
- * and illustration are a 1:1 port of Calypso's `ActivityLogsCallout`
- * (client/dashboard/sites/logs-activity/activity-logs-callout.tsx).
- * The CTA is wp-admin-native: it routes through Jetpack's standard
- * `useProductCheckoutWorkflow` into wordpress.com/checkout/{siteSuffix}/
- * {productSlug}?source=activity-log-page-purchase&redirect_to=<back>.
- *
- * Destination product: `jetpack_security_t1_yearly` — the Security
- * bundle unlocks 30 days of activity history (the cap documented on
- * cloud.jetpack.com/features/comparison). WordPress.com Simple sites
- * upgrade to a WordPress.com plan instead, via `config.wpcomUpgradeUrl`.
+ * Free-tier purchase callout beneath the Activity Log table.
  */
 // Deep import (not the package barrel): wp-build's esbuild bundles the whole
 // re-export graph of a barrel, and the connection barrel pulls in the
 // disconnect-dialog's `.jpg` imports, which esbuild has no loader for.
 import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
 import { Button, __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useCallback } from 'react';
 import { config } from '../../config';
@@ -30,6 +20,7 @@ const UPSELL_SOURCE = 'activity-log-page-purchase';
 
 interface InitialStateWithNonce {
 	nonces?: { refreshAccess?: string };
+	upgrade?: { slug: string; title: string; wpcom_product_slug: string } | null;
 }
 
 declare const JPACTIVITYLOG_INITIAL_STATE: InitialStateWithNonce | undefined;
@@ -58,6 +49,7 @@ const buildPostCheckoutReturnUrl = (): string => {
 };
 
 type UpgradeButtonProps = {
+	productSlug: string;
 	onClick: () => void;
 };
 
@@ -65,13 +57,14 @@ type UpgradeButtonProps = {
  * Jetpack product checkout. Kept out of the Simple path: the workflow registers
  * an unconnected site before checkout, and Simple sites have no Jetpack connection.
  *
- * @param props         - Component props.
- * @param props.onClick - Called before checkout starts.
+ * @param props             - Component props.
+ * @param props.productSlug - Available Jetpack bundle.
+ * @param props.onClick     - Called before checkout starts.
  * @return The upgrade button.
  */
-function JetpackCheckoutButton( { onClick }: UpgradeButtonProps ) {
+function JetpackCheckoutButton( { productSlug, onClick }: UpgradeButtonProps ) {
 	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: PRODUCT_SLUG,
+		productSlug,
 		redirectUrl: buildPostCheckoutReturnUrl(),
 		from: UPSELL_SOURCE,
 	} );
@@ -103,12 +96,42 @@ function JetpackCheckoutButton( { onClick }: UpgradeButtonProps ) {
 export function UpsellCallout() {
 	const { tracks } = useAnalytics();
 	const { wpcomUpgradeUrl } = config;
+	const initialState =
+		typeof JPACTIVITYLOG_INITIAL_STATE !== 'undefined' ? JPACTIVITYLOG_INITIAL_STATE : undefined;
+	const offer =
+		initialState && 'upgrade' in initialState
+			? initialState.upgrade
+			: { slug: 'security', title: 'Jetpack Security', wpcom_product_slug: PRODUCT_SLUG };
 
 	const recordUpgradeClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_activity_log_upsell_cta_click', {
 			source: 'free_tier_callout',
 		} );
 	}, [ tracks ] );
+
+	if ( ! wpcomUpgradeUrl && ! offer ) {
+		return null;
+	}
+
+	let description: string = __(
+		'Upgrade to get complete activity history for the last 30 days, advanced filtering and date range selection. Available on the Jetpack Security and Complete plans.',
+		'jetpack-activity-log'
+	);
+	if ( wpcomUpgradeUrl ) {
+		description = __(
+			'Upgrade to get complete activity history for the last 30 days, advanced filtering and date range selection. Available on WordPress.com paid plans.',
+			'jetpack-activity-log'
+		);
+	} else if ( offer && offer.slug !== 'security' ) {
+		description = sprintf(
+			/* translators: %s is the name of an available Jetpack bundle. */
+			__(
+				'Upgrade to %s for at least 30 days of activity history, advanced filtering and date range selection.',
+				'jetpack-activity-log'
+			),
+			offer.title
+		);
+	}
 
 	const card = (
 		<div className="jp-activity-log__upsell-callout">
@@ -123,22 +146,17 @@ export function UpsellCallout() {
 					) }
 				</Text>
 				<Text as="p" variant="muted">
-					{ wpcomUpgradeUrl
-						? __(
-								'Upgrade to get complete activity history for the last 30 days, advanced filtering and date range selection. Available on WordPress.com paid plans.',
-								'jetpack-activity-log'
-							)
-						: __(
-								'Upgrade to get complete activity history for the last 30 days, advanced filtering and date range selection. Available on the Jetpack Security and Complete plans.',
-								'jetpack-activity-log'
-							) }
+					{ description }
 				</Text>
 				{ wpcomUpgradeUrl ? (
 					<Button variant="primary" href={ wpcomUpgradeUrl } onClick={ recordUpgradeClick }>
 						{ __( 'Upgrade plan', 'jetpack-activity-log' ) }
 					</Button>
 				) : (
-					<JetpackCheckoutButton onClick={ recordUpgradeClick } />
+					<JetpackCheckoutButton
+						productSlug={ offer?.wpcom_product_slug ?? PRODUCT_SLUG }
+						onClick={ recordUpgradeClick }
+					/>
 				) }
 			</div>
 			<img

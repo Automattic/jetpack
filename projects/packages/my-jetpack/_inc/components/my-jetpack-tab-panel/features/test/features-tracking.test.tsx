@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import useAnalytics from '../../../../hooks/use-analytics';
-import { reloadPage } from '../../../../utils/reload-page';
+import { leavePageFor, reloadPage } from '../../../../utils/reload-page';
 import { FeaturesContent } from '../content';
 import { FeaturesEmptyState } from '../empty-state';
 import { FeatureAction } from '../feature-action';
@@ -15,12 +15,21 @@ import type { FeatureFilter } from '../use-feature-filter';
 import type { MoreFeaturesGroup } from '../use-more-features';
 import type { ReactNode } from 'react';
 
-const mockRun = jest.fn();
+const mockRun = jest.fn< Promise< boolean >, [ unknown ] >( () => Promise.resolve( true ) );
 const mockSetModuleActive = jest.fn();
 const recordEvent = jest.fn();
 
 jest.mock( '../../../../hooks/use-analytics' );
-jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( {
+	reloadPage: jest.fn(),
+	leavePageFor: jest.fn(),
+} ) );
+
+// The Features tab sends no `from` yet (CONNECT-571), and the real helper warns about that.
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	...jest.requireActual( '@automattic/jetpack-connection' ),
+	getUserConnectionUrl: jest.fn( () => '/wp-admin/admin.php?connect_url_redirect=1' ),
+} ) );
 
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( { modules: {}, isLoading: false, hasLoaded: true } ),
@@ -38,22 +47,23 @@ jest.mock( '../use-main-features', () => ( {
 	} ),
 } ) );
 
-// The real switch calls this; that it does is covered by the module-toggle tests, so here
-// it is held onto and called directly.
-const mockModuleSwitch: { onSwitch?: ( active: boolean ) => void } = {};
+// The real switch calls these; that it does is covered by the module-toggle tests, so here
+// they are held onto and called directly.
+type MockModuleSwitch = { onSwitch?: ( active: boolean ) => void; onManageClick?: () => void };
+const mockModuleSwitch: MockModuleSwitch = {};
 
 jest.mock( '../../../module-toggle', () => ( {
-	ModuleToggle: ( { onSwitch }: { onSwitch?: ( active: boolean ) => void } ) => {
-		mockModuleSwitch.onSwitch = onSwitch;
+	ModuleToggle: ( { onSwitch, onManageClick }: MockModuleSwitch ) => {
+		Object.assign( mockModuleSwitch, { onSwitch, onManageClick } );
 
 		// ds-allow: input -- stands in for the real ModuleToggle, which reaches the modules store.
-		return <input type="checkbox" aria-label="Module toggle" readOnly />;
+		return <input type="checkbox" role="switch" aria-label="Module toggle" readOnly />;
 	},
-	useModuleActivation: () => ( {
-		setModuleActive: mockSetModuleActive,
-		isUpdating: false,
-		isActive: false,
-	} ),
+	useModuleActivation: ( _module: unknown, { onSwitch, onManageClick }: MockModuleSwitch ) => {
+		Object.assign( mockModuleSwitch, { onSwitch, onManageClick } );
+
+		return { setModuleActive: mockSetModuleActive, isUpdating: false, isActive: false };
+	},
 } ) );
 
 const mockStates = [
@@ -63,13 +73,20 @@ const mockStates = [
 			name: 'Stats',
 			description: '',
 			plans: [ { slug: 'complete' } ],
+			groups: [],
 			essential: true,
 		},
 		status: 'active',
 		control: { kind: 'none' },
 	},
 	{
-		feature: { slug: 'boost', name: 'Boost', description: '', plans: [ { slug: 'complete' } ] },
+		feature: {
+			slug: 'boost',
+			name: 'Boost',
+			description: '',
+			plans: [ { slug: 'complete' } ],
+			groups: [],
+		},
 		status: 'inactive',
 		control: { kind: 'none' },
 	},
@@ -87,7 +104,11 @@ jest.mock( '../feature-state', () => ( {
 	} ),
 	// Nothing here is forced by a host, which is what leaves the switches on show.
 	getForcedReason: () => null,
+	useAccountConnected: () => false,
+	isPlanExpired: () => false,
 	getFeatureManageUrl: ( state: FeatureState ) => state.feature.manage_url || '',
+	offersConnect: jest.requireActual( '../feature-state' ).offersConnect,
+	needsAccountWithoutConnect: jest.requireActual( '../feature-state' ).needsAccountWithoutConnect,
 } ) );
 
 // The card's own click target is covered elsewhere; here the handler is held onto.
@@ -152,7 +173,7 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 // A row as the More Features section builds one: a module, carrying no plan.
 const moduleRow = ( slug: string, name: string ): FeatureState =>
 	( {
-		feature: { slug, name, description: '', plans: [], essential: false },
+		feature: { slug, name, description: '', plans: [], groups: [], essential: false },
 		status: 'inactive',
 		control: { kind: 'module', module: { module: slug, name, description: '' } },
 	} ) as unknown as FeatureState;
@@ -192,14 +213,22 @@ const eventNames = () => recordEvent.mock.calls.map( ( [ name ] ) => name );
 const lastEvent = ( name: string ) =>
 	recordEvent.mock.calls.filter( ( [ event ] ) => event === name ).at( -1 )?.[ 1 ];
 
+const setAccountConnectFlag = ( accountConnect: boolean ) => {
+	window.myJetpackInitialState.myJetpackFlags = {
+		accountConnect,
+	} as typeof window.myJetpackInitialState.myJetpackFlags;
+};
+
 beforeEach( () => {
 	jest.clearAllMocks();
 	mockMoreFeatures = [];
 	mockPending = false;
 	mockModuleSwitch.onSwitch = undefined;
+	mockModuleSwitch.onManageClick = undefined;
 	mockModal.onStep = undefined;
 	mockGrid.onOpen = undefined;
 	mockUseAnalytics.mockReturnValue( { recordEvent } );
+	setAccountConnectFlag( false );
 } );
 
 describe( 'Features tab toolbar tracking', () => {
@@ -335,6 +364,42 @@ describe( 'Features tab modal tracking', () => {
 } );
 
 describe( 'Feature action tracking', () => {
+	beforeEach( () => setAccountConnectFlag( true ) );
+
+	it.each( [
+		[ 'an install from the card, then one connection start', 'card', 'install' ],
+		[ 'Connect as a connection start alone', 'more_features', 'connect' ],
+	] as const )( 'records %s, never an activation', async ( _, origin, action ) => {
+		const state = buildState(
+			action === 'connect'
+				? { kind: 'module', module: { module: 'monitor', activated: false } as never }
+				: { kind: 'install-plugin', plugin: 'jetpack-boost' },
+			{ accountNeeded: true }
+		);
+		state.feature.product = 'boost';
+		renderTracked( <FeatureAction state={ state } origin={ origin } /> );
+
+		await userEvent.click(
+			screen.getByRole( 'button', { name: action === 'connect' ? /^Connect account/ : 'Install' } )
+		);
+
+		await waitFor( () => expect( leavePageFor ).toHaveBeenCalledTimes( 1 ) );
+		expect( recordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			...( action === 'install' ? [ 'jetpack_myjetpack_feature_action' ] : [] ),
+			'jetpack_myjetpack_feature_connection_start',
+		] );
+		expect( lastEvent( 'jetpack_myjetpack_feature_connection_start' ) ).toMatchObject( {
+			action,
+			origin,
+			product: 'boost',
+			feature_slug: 'boost',
+			account_needed: true,
+			current_filter: 'all',
+			view: 'grid',
+			event_version: 1,
+		} );
+	} );
+
 	it( 'records an install from the card, and says it came from the card', async () => {
 		renderTracked(
 			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
@@ -375,7 +440,7 @@ describe( 'Feature action tracking', () => {
 			/>
 		);
 
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 
 		expect( lastEvent( 'jetpack_myjetpack_feature_action' ) ).toMatchObject( {
 			action: 'deactivate',
@@ -523,6 +588,20 @@ describe( 'The grid every event is measured against', () => {
 			search_term: 'boo',
 			view: 'list',
 		} );
+	} );
+
+	it.each( [
+		[ 'sends', true, false ],
+		[ 'leaves out', false, undefined ],
+	] )( '%s account_needed as the account-connect flag says', async ( _, flagOn, sent ) => {
+		setAccountConnectFlag( flagOn );
+		renderTracked(
+			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Install' } ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_feature_action' )?.account_needed ).toBe( sent );
 	} );
 
 	it( 'leaves out a search term there is none of, rather than sending it empty', async () => {
@@ -764,7 +843,7 @@ describe( 'A search left behind', () => {
 describe( 'Which list a module was switched from', () => {
 	const moduleState = () =>
 		( {
-			feature: { slug: 'monitor', name: 'Monitor', plans: [] },
+			feature: { slug: 'monitor', name: 'Monitor', plans: [], groups: [] },
 			status: 'inactive',
 			control: { kind: 'module', module: { module: 'monitor', activated: false } },
 		} ) as unknown as FeatureState;
@@ -792,6 +871,23 @@ describe( 'Which list a module was switched from', () => {
 			origin: 'card',
 		} );
 	} );
+
+	it.each( [
+		[ 'card', FeatureAction ],
+		[ 'details window', FeatureModalActions ],
+	] as const )(
+		"records leaving for Blaze's campaigns from the warning the %s switch opened",
+		( _origin, Control ) => {
+			renderTracked( <Control state={ { ...moduleState(), status: 'active' } } /> );
+
+			act( () => mockModuleSwitch.onManageClick?.() );
+
+			expect( lastEvent( 'jetpack_myjetpack_feature_manage_click' ) ).toMatchObject( {
+				source: 'campaigns_warning',
+				feature_slug: 'monitor',
+			} );
+		}
+	);
 } );
 
 describe( "The modal's own switches", () => {
@@ -806,6 +902,7 @@ describe( "The modal's own switches", () => {
 		);
 
 		await userEvent.click( screen.getByRole( 'button', { name: /Activate/ } ) );
+		act( () => mockModuleSwitch.onSwitch?.( true ) );
 
 		expect( lastEvent( 'jetpack_myjetpack_feature_action' ) ).toMatchObject( {
 			action: 'activate',

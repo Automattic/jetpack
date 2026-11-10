@@ -17,6 +17,7 @@ use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
 
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
@@ -1408,26 +1409,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * Older copies' Dashboard_Section::is_available() still asks the removed preview scope.
-	 */
-	public function test_previous_preview_scope_check_leaves_every_section_in_scope() {
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Covers the stub older copies call.
-		$this->assertTrue( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'store' ) );
-	}
-
-	/**
-	 * Older copies of the package call the configurator by its previous name.
-	 */
-	public function test_previous_configurator_name_still_hooks_the_section_slugs() {
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Covers the stub older copies call.
-		configure_dashboard_preview_scope();
-
-		$this->assertNotFalse(
-			has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data' )
-		);
-	}
-
 	public function test_section_script_data_keeps_the_other_premium_analytics_keys() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
@@ -1440,11 +1421,43 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array(
 				'has_videopress'             => true,
 				'can_view_stats'             => true,
+				'classic_stats_url'          => null,
+				'classic_stats_retired'      => false,
 				'sections'                   => array( 'traffic', 'insights', 'subscribers' ),
 				'plan_date_limited_sections' => array( 'traffic' ),
 			),
 			$data['premium_analytics']
 		);
+	}
+
+	/**
+	 * Switching the dashboard off lands on classic Stats, so the client is told where that page
+	 * is, also when the Jetpack plugin registers it under its own menu rather than top-level.
+	 */
+	public function test_section_script_data_carries_the_classic_stats_page_url() {
+		$this->assertNull( inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url'] );
+
+		$GLOBALS['_parent_pages']['jetpack'] = false;
+		$GLOBALS['_parent_pages']['stats']   = 'jetpack';
+		try {
+			$this->assertSame(
+				admin_url( 'admin.php?page=stats' ),
+				inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url']
+			);
+		} finally {
+			unset( $GLOBALS['_parent_pages']['jetpack'], $GLOBALS['_parent_pages']['stats'] );
+		}
+	}
+
+	public function test_section_script_data_offers_no_classic_stats_page_once_retired_despite_simples_index_stats_page() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
+		$GLOBALS['_parent_pages']['stats'] = 'index.php';
+		try {
+			$this->assertNull( inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url'] );
+		} finally {
+			unset( $GLOBALS['_parent_pages']['stats'] );
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
+		}
 	}
 
 	/**

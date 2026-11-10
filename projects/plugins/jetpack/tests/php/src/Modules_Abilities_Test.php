@@ -514,4 +514,20 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 		$this->assertTrue( $result['changed'], 'Flipping a state change must report changed=true.' );
 		$this->assertFalse( Jetpack::is_module_active( $slug ), 'Module should be inactive after deactivation.' );
 	}
+
+	public function test_set_module_status_switches_backup_off_and_says_backups_keep_running() {
+		wp_set_current_user( $this->admin_id );
+		\Jetpack_Options::update_option( 'active_modules', array( 'backup' ) );
+
+		$result = Modules_Abilities::set_module_status(
+			array(
+				'slug'   => 'backup',
+				'active' => false,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertFalse( Jetpack::is_module_active( 'backup' ) );
+		$this->assertSame( Jetpack::get_module_deactivation_note( 'backup' ), $result['note'] ?? null );
+	}
 }

@@ -5,7 +5,9 @@ import {
 	PRESET_ALL_TIME,
 	isSelectablePreset,
 	isYearPresetId,
+	parseDateStepId,
 	readSiteTimestamp,
+	toComparisonPresetId,
 	type SelectablePresetId,
 	type ComparisonPresetId,
 	type ComputablePresetId,
@@ -14,7 +16,7 @@ import {
 /**
  * Internal dependencies
  */
-import { getDefaultQueryParams } from '../defaults';
+import { getDefaultQueryParams, withComparisonPreset } from '../defaults';
 import {
 	NO_LOCKED_INTERVALS,
 	resolveIntervalForRange,
@@ -46,6 +48,7 @@ export type ReportParams = {
 	to: string;
 	preset?: ReportPresetId;
 	interval: IntervalType;
+	step?: string; // How the window steps, set by the date arrows; see `planDateStep`.
 	period?: string;
 	compare_from?: string;
 	compare_to?: string;
@@ -140,12 +143,15 @@ export function normalizeReportParams(
 
 	const postId = toPostId( search?.post_id );
 	const authorId = toAuthorId( search?.author_id );
+	// Only a hand-picked window carries its step: a preset steps by its own unit.
+	const step = preset ? undefined : parseDateStepId( search?.step );
 
 	const normalized: ReportParams = {
 		from,
 		to,
 		interval,
 		preset,
+		...( step ? { step } : {} ),
 		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
 		// Preserve the post_id / author_id scope so detail-page widgets stay bound
 		// to their resource; drop an invalid one so a hand-edited deep link can't
@@ -157,6 +163,14 @@ export function normalizeReportParams(
 	// Comparison only ever comes from the URL; a fresh load gets its default
 	// from the routes' `seedSiteDateParams`.
 	if ( search && hasComparisonEnabled( search ) ) {
+		// A preset window was re-read as today's above, so its comparison preset is measured again
+		// from it; a hand-picked window, or one that cannot be measured, keeps the URL's comparison.
+		const comparisonPresetId = presetRange && toComparisonPresetId( search.compare_preset );
+		const measured = comparisonPresetId && withComparisonPreset( normalized, comparisonPresetId );
+		if ( measured?.comp ) {
+			return measured;
+		}
+
 		normalized.compare_from = canonicalTimestamp( search.compare_from );
 		normalized.compare_to = canonicalTimestamp( search.compare_to );
 		normalized.compare_preset = search.compare_preset;

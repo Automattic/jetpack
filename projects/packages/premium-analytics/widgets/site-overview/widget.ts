@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Identifier persisted in the widget's `metrics` attribute for each metric
@@ -39,18 +38,6 @@ export const DEFAULT_SITE_OVERVIEW_METRICS: SiteOverviewMetricId[] = SITE_OVERVI
  * doubles as the defaults applied to new instances.
  */
 export default {
-	attributes: [
-		{
-			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
-			type: 'jpa/array-checkbox',
-			relevance: 'high',
-			elements: SITE_OVERVIEW_METRICS.map( metric => ( {
-				value: metric.id,
-				label: metric.label,
-			} ) ),
-		},
-	] as WidgetAttributeField< SiteOverviewAttributes >[],
 	example: {
 		attributes: {
 			metrics: DEFAULT_SITE_OVERVIEW_METRICS,

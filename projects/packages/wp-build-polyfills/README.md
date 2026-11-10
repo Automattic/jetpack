@@ -34,14 +34,14 @@ This package provides those missing or updated packages so that plugins using `@
 | `@wordpress/a11y`  | `@wordpress/a11y`    |
 | `@wordpress/widget-primitives` | `@wordpress/widget-primitives` |
 
-Script modules use "first-wins" semantics — if Core or Gutenberg already registered the module, the polyfill is silently ignored. The exception is `@wordpress/widget-primitives`, which replaces the copy an active Gutenberg older than 23.9.0 registers.
+Script modules use "first-wins" semantics — if Core or Gutenberg already registered the module, the polyfill is silently ignored. The exception is `@wordpress/widget-primitives`, which replaces the copy an active Gutenberg older than 24.4.0 registers.
 
 ## How it works
 
 1. `WP_Build_Polyfills::register()` hooks into `wp_default_scripts` at **priority 20**, after Core and Gutenberg (both at the default priority 10) have registered their scripts.
 2. For each polyfill, it checks whether a built asset file exists (`build/scripts/*/index.asset.php` or `build/modules/*/index.asset.php`).
 3. For classic scripts, it checks whether the handle is already registered. Scripts marked for force replacement are deregistered and re-registered with the polyfill version when the WordPress version is below the script's threshold and active Gutenberg is not known to provide a compatible implementation. Non-force scripts are skipped if already registered.
-4. For script modules, it calls `wp_register_script_module()`, which ignores duplicates, except that `@wordpress/widget-primitives` first deregisters the copy an active Gutenberg older than 23.9.0 registers.
+4. For script modules, it calls `wp_register_script_module()`, which ignores duplicates, except that `@wordpress/widget-primitives` first deregisters the copy an active Gutenberg older than 24.4.0 registers.
 
 `wp-private-apis` has an additional Gutenberg-version guard because the dashboard packages require a private-apis allowlist that includes `@wordpress/widget-dashboard`. Gutenberg 23.4.0 and older do not include that allowlist entry; Gutenberg 23.5.0 is expected to be the first active-Gutenberg version that matches the current `@next` package build used here.
 
@@ -91,6 +91,16 @@ Consuming packages should add `@automattic/jetpack-wp-build-polyfills` as a devD
 ```json
 "build:boot-proxy": "provide-boot-asset-file"
 ```
+
+## widget.json strings
+
+wp-build copies each widget's `widget.json` metadata into `build/widgets/registry.php` as plain literals, and the widget registry translates them at hydration with `_x( value, context, domain )`, the contexts coming from the widget i18n schema (`widget-i18n.json`). No extractor reads either file, so this package ships `emit-widget-strings`: run from a package directory after `wp-build`, it writes `build/widgets/widget-strings.php`, one `_x()` per translatable value with the exact context and the widget's text domain (or the package's `extra.textdomain` from composer.json). Nothing loads the file; it exists so `wp i18n make-pot` and translate.wordpress.org see the strings.
+
+```json
+"build:widget-strings": "emit-widget-strings --schema ../premium-analytics/src/widget-i18n.json"
+```
+
+`--schema` defaults to `src/widget-i18n.json`; `--domain` (composer.json `extra.textdomain`), `--widgets` (`widgets`) and `--out` (`build/widgets/widget-strings.php`) override the package domain, the widgets directory and the output path.
 
 ## Safety checks
 

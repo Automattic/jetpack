@@ -96,7 +96,10 @@ const ProductDetailCard = ( {
 
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
 	const { detail: proDetail } = useProduct( 'pro' );
-	const isProExperience = slug === 'pro' || proDetail?.pricingForUi?.catalogAvailable === true;
+	const isProExperience =
+		slug === 'pro' ||
+		proDetail?.pricingForUi?.catalogAvailable === true ||
+		( detail?.isBundle && detail?.pricingForUi?.available === false );
 
 	const {
 		name,

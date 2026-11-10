@@ -1,7 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, within } from '@testing-library/react';
+import { render, renderHook, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router';
+import {
+	ConnectResume,
+	rememberConnectIntent,
+	resetConnectIntentForTests,
+	useConnectResume,
+} from '../connect-resume';
 import { FeaturesContent } from '../content';
 import { getModuleFeatureState } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
@@ -9,7 +15,7 @@ import type { FeatureState } from '../feature-state';
 import type { MoreFeaturesGroup } from '../use-more-features';
 
 const activeStats = {
-	feature: { slug: 'stats', name: 'Stats', description: '', plans: [] },
+	feature: { slug: 'stats', name: 'Stats', description: '', plans: [], groups: [] },
 	status: 'active',
 	control: { kind: 'none' },
 } as unknown as FeatureState;
@@ -30,16 +36,31 @@ let mockMainFeatures: Record< string, unknown > = {
 
 let mockModules: Record< string, MyJetpackModule > = {};
 let mockModulesLoaded = true;
+let mockModulesFailed = false;
 const mockRecordEvent = jest.fn();
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( {
 		modules: mockModules,
 		isLoading: false,
 		hasLoaded: mockModulesLoaded,
+		hasFailed: mockModulesFailed,
 	} ),
 } ) );
 
-jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
+const mockRun = jest.fn();
+const mockSetModuleActive = jest.fn();
+jest.mock( '../use-main-features', () => ( {
+	useMainFeatures: () => mockMainFeatures,
+	useFeaturePlugin: ( plugin: string ) => ( {
+		run: ( action: string ) => mockRun( plugin, action ),
+	} ),
+} ) );
+jest.mock( '../../../module-toggle', () => ( {
+	// Records the reload option too: Activity Log reloads the page after switching unless it is false.
+	useModuleActivation: ( $module: MyJetpackModule, options?: { reload?: boolean } ) => ( {
+		setModuleActive: ( active: boolean ) => mockSetModuleActive( $module.module, active, options ),
+	} ),
+} ) );
 
 let mockIsLoading = false;
 
@@ -53,7 +74,9 @@ jest.mock( '../../../../hooks/use-analytics', () => ( {
 jest.mock( '../feature-state', () => ( {
 	...jest.requireActual( '../feature-state' ),
 	useFeatureStates: () => ( { states: mockStates, isLoading: mockIsLoading } ),
+	useAccountConnected: () => mockConnected,
 } ) );
+let mockConnected = true;
 
 jest.mock( '../feature-item', () => ( {
 	FeatureItem: ( { state }: { state: FeatureState } ) => (
@@ -101,6 +124,7 @@ describe( 'FeaturesContent', () => {
 	beforeEach( () => {
 		mockModules = {};
 		mockModulesLoaded = true;
+		mockModulesFailed = false;
 		mockRecordEvent.mockClear();
 		mockStates = [ activeStats ];
 		mockIsLoading = false;
@@ -323,6 +347,35 @@ describe( 'FeaturesContent', () => {
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
 	} );
 
+	it( 'says the list is incomplete when the modules failed and none arrived', () => {
+		mockModulesFailed = true;
+		renderAt( '/' );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'This list is incomplete' );
+	} );
+
+	it.each( [
+		[ 'the modules loaded', false ],
+		[ 'a refresh failed over a full list', true ],
+	] )( 'shows no incomplete-list notice when %s', ( _, failed ) => {
+		mockModulesFailed = failed;
+		mockModules = { stats: { module: 'stats', activated: true } as MyJetpackModule };
+		renderAt( '/' );
+
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'drops the incomplete-list notice once another request refills the modules', () => {
+		mockModulesFailed = true;
+		const { rerenderAt } = renderAt( '/' );
+		expect( screen.getByRole( 'alert' ) ).toBeInTheDocument();
+
+		mockModules = { stats: { module: 'stats', activated: true } as MyJetpackModule };
+		rerenderAt();
+
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'waits for the read to settle before calling an empty catalog a failure', () => {
 		mockStates = [];
 		mockMainFeatures = { features: [], isPlaceholderData: true };
@@ -457,6 +510,39 @@ describe( 'FeaturesContent', () => {
 
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'a filter', 'hidden', 40, 1 ],
+		[ 'a search', 'hidden', 40, 1 ],
+		[ 'a filter', 'in view', 140, 0 ],
+	] )(
+		'after %s, with the start of the list %s, scrolls to it %d time(s)',
+		async ( trigger, _where, listTop, scrolls ) => {
+			const scrollIntoView = jest.fn();
+			Element.prototype.scrollIntoView = scrollIntoView;
+			// The toolbar is the one holding the search box; the list start is the only other box read.
+			const boxes = jest
+				.spyOn( HTMLElement.prototype, 'getBoundingClientRect' )
+				.mockImplementation( function ( this: HTMLElement ) {
+					// eslint-disable-next-line testing-library/no-node-access -- jsdom has no layout, so boxes are told apart by content.
+					const isToolbar = this.querySelector( 'input[type="search"]' ) !== null;
+					return ( isToolbar ? { top: 0, bottom: 100, height: 100 } : { top: listTop } ) as DOMRect;
+				} );
+			try {
+				renderAt( '/features' );
+				if ( trigger === 'a filter' ) {
+					await userEvent.click( screen.getByRole( 'button', { name: /^Available/ } ) );
+				} else {
+					await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), 's' );
+				}
+
+				expect( scrollIntoView ).toHaveBeenCalledTimes( scrolls );
+			} finally {
+				boxes.mockRestore();
+				delete ( Element.prototype as Partial< Element > ).scrollIntoView;
+			}
+		}
+	);
 
 	it( 'opens on the list when the URL asks for it', () => {
 		renderAt( '/features?view=list' );
@@ -600,5 +686,211 @@ describe( 'FeaturesContent', () => {
 
 		expect( mockModalProps ).toMatchObject( { next: { slug: 'podcast' }, position: 1, total: 2 } );
 		expect( mockModalProps?.previous ).toBeUndefined();
+	} );
+} );
+
+describe( 'FeaturesContent after connecting the account', () => {
+	const off = ( slug: string, control: FeatureState[ 'control' ], overrides = {} ) =>
+		( {
+			feature: { slug, name: slug, plans: [], groups: [] },
+			status: 'inactive',
+			control,
+			...overrides,
+		} ) as unknown as FeatureState;
+	const $module = { module: 'monitor', name: 'Monitor', available: true, activated: false };
+	const monitor = off( 'monitor', { kind: 'module', module: $module as MyJetpackModule } );
+	const social = off( 'social', { kind: 'plugin', plugin: 'jetpack-social' } );
+	const requests = () => [ ...mockSetModuleActive.mock.calls, ...mockRun.mock.calls ];
+	const setFlag = ( accountConnect: boolean ) => {
+		window.myJetpackInitialState = {
+			...window.myJetpackInitialState,
+			myJetpackFlags: { accountConnect },
+		} as typeof window.myJetpackInitialState;
+	};
+
+	let nowSpy: jest.SpyInstance | undefined;
+	const anHourLater = () => {
+		const at = Date.now();
+		nowSpy = jest.spyOn( Date, 'now' ).mockReturnValue( at + 60 * 60 * 1000 );
+	};
+
+	beforeEach( () => {
+		window.sessionStorage.clear();
+		resetConnectIntentForTests();
+		setFlag( true );
+		mockConnected = true;
+		mockRun.mockClear();
+		mockSetModuleActive.mockClear();
+		mockMainFeatures = { jetpack: 'active', features: [], isPlaceholderData: false };
+		mockGroups = [];
+		mockIsLoading = false;
+	} );
+	afterEach( () => nowSpy?.mockRestore() );
+
+	it.each( [
+		[ 'a module that is off', [ monitor ], 'monitor', [ [ 'monitor', true, { reload: false } ] ] ],
+		[ 'a plugin that is off', [ social ], 'social', [ [ 'jetpack-social', 'activate' ] ] ],
+	] as const )( 'turns on once, after the return, %s', ( _, states, slug, expected ) => {
+		mockStates = [ ...states ] as FeatureState[];
+		const id = rememberConnectIntent( slug );
+
+		renderAt( `/features?view=list&connect_intent=${ id }` );
+
+		expect( requests() ).toEqual( expected );
+		expect( screen.getByTestId( 'route' ) ).toHaveTextContent( /^\?view=list$/ );
+	} );
+
+	it.each( [
+		[ 'a feature Jetpack already turned on', [ { ...monitor, status: 'active' } ], 'monitor' ],
+		[
+			'a feature unavailable for another reason',
+			[
+				off( 'monitor', {
+					kind: 'module',
+					module: { ...$module, available: false } as MyJetpackModule,
+				} ),
+			],
+			'monitor',
+		],
+	] as const )( 'leaves %s as it is after the return', ( _, states, slug ) => {
+		mockStates = [ ...states ] as FeatureState[];
+		const id = rememberConnectIntent( slug );
+
+		renderAt( `/features?view=list&connect_intent=${ id }` );
+
+		expect( requests() ).toEqual( [] );
+		expect( screen.getByTestId( 'route' ) ).toHaveTextContent( /^\?view=list$/ );
+	} );
+
+	it.each< [ string, () => string | void ] >( [
+		[
+			'the account is still missing',
+			() => {
+				mockConnected = false;
+			},
+		],
+		[ 'the return is for another tab', () => 'another' ],
+		[ 'the click is over an hour old', anHourLater ],
+		[
+			'Back from WordPress.com showed the cached page',
+			() => {
+				const event = new Event( 'pageshow' );
+				Object.defineProperty( event, 'persisted', { value: true } );
+				window.dispatchEvent( event );
+			},
+		],
+		[ 'the account-connect flag is off', () => setFlag( false ) ],
+	] )( 'turns nothing on when %s', ( _, setup ) => {
+		mockStates = [ monitor ];
+		const id = rememberConnectIntent( 'monitor' );
+		const returnId = setup() ?? id;
+
+		renderAt( `/features?connect_intent=${ returnId }` );
+
+		expect( requests() ).toEqual( [] );
+	} );
+
+	it.each( [
+		[
+			'turns on an available module that is off',
+			monitor,
+			[ [ 'monitor', true, { reload: false } ] ],
+		],
+		[ 'leaves off a module still waiting for an account', { ...monitor, accountNeeded: true }, [] ],
+	] as const )( "%s after Jetpack's reload, with no account linked", ( _, state, expected ) => {
+		mockConnected = false;
+		mockStates = [ state ] as FeatureState[];
+		const id = rememberConnectIntent( 'monitor', 'reload' );
+
+		renderAt( `/features?connect_intent=${ id }` );
+
+		expect( requests() ).toEqual( expected );
+	} );
+
+	it( 'forgets the click on a return with the flag off, so a reload with it on turns nothing on', () => {
+		mockStates = [ monitor ];
+		const id = rememberConnectIntent( 'monitor' );
+		setFlag( false );
+		renderAt( `/features?connect_intent=${ id }` ).unmount();
+
+		// A reload of the same return URL is a new page load.
+		resetConnectIntentForTests();
+		setFlag( true );
+		renderAt( `/features?connect_intent=${ id }` );
+
+		expect( requests() ).toEqual( [] );
+	} );
+
+	it( 'still turns the feature on once when the mount that decided goes away first', () => {
+		const id = rememberConnectIntent( 'monitor' );
+		const wrapper = ( { children }: { children: React.ReactNode } ) => (
+			<MemoryRouter initialEntries={ [ `/features?connect_intent=${ id }` ] }>
+				{ children }
+			</MemoryRouter>
+		);
+		renderHook( () => useConnectResume( [ monitor ], true ), { wrapper } ).unmount();
+
+		const { result } = renderHook( () => useConnectResume( [ monitor ], true ), { wrapper } );
+		const target = result.current as FeatureState;
+		render( <ConnectResume state={ target } /> ).unmount();
+		render( <ConnectResume state={ target } /> );
+
+		expect( requests() ).toEqual( [ [ 'monitor', true, { reload: false } ] ] );
+	} );
+
+	it.each( [
+		[ 'it went on meanwhile', () => ( { ...monitor, status: 'active' } ) as FeatureState ],
+		[
+			'the hour ran out meanwhile',
+			() => {
+				anHourLater();
+				return monitor;
+			},
+		],
+	] )( 'checks the feature again when a mount claims it, and sends nothing if %s', ( _, later ) => {
+		const id = rememberConnectIntent( 'monitor' );
+		const wrapper = ( { children }: { children: React.ReactNode } ) => (
+			<MemoryRouter initialEntries={ [ `/features?connect_intent=${ id }` ] }>
+				{ children }
+			</MemoryRouter>
+		);
+		renderHook( () => useConnectResume( [ monitor ], true ), { wrapper } ).unmount();
+
+		render( <ConnectResume state={ later() } /> );
+
+		expect( requests() ).toEqual( [] );
+	} );
+
+	it( 'does nothing when the hour runs out before the feature rows load', () => {
+		mockIsLoading = true;
+		mockStates = [ monitor ];
+		const id = rememberConnectIntent( 'monitor' );
+		const view = renderAt( `/features?connect_intent=${ id }` );
+
+		anHourLater();
+		mockIsLoading = false;
+		view.rerenderAt();
+
+		expect( requests() ).toEqual( [] );
+	} );
+
+	it( 'finds a More Features row after loading and never replays the click', () => {
+		mockStates = [];
+		mockIsLoading = true;
+		mockGroups = [ { label: 'Other', states: [ monitor ] } ];
+		const id = rememberConnectIntent( 'monitor' );
+		const view = renderAt( `/features?connect_intent=${ id }` );
+		expect( requests() ).toEqual( [] );
+
+		mockIsLoading = false;
+		view.rerenderAt();
+		view.rerenderAt();
+		view.unmount();
+		renderAt( `/features?connect_intent=${ id }` );
+		// A reload of the same return URL is a new page load.
+		resetConnectIntentForTests();
+		renderAt( `/features?connect_intent=${ id }` );
+
+		expect( requests() ).toEqual( [ [ 'monitor', true, { reload: false } ] ] );
 	} );
 } );

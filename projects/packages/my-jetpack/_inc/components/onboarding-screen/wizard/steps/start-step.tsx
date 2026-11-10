@@ -1,5 +1,5 @@
 import { JetpackLogo, TermsOfService } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM, useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { ThemeProvider } from '@wordpress/theme';
 import { Button, Icon, Notice, Text } from '@wordpress/ui';
@@ -7,7 +7,6 @@ import clsx from 'clsx';
 import { useCallback, useRef, useState } from 'react';
 import {
 	BRAND_COLOR,
-	CONNECTION_FROM,
 	CONNECTION_RETURN_URL,
 	connectionErrorCode,
 	connectionErrorDetail,
@@ -42,7 +41,7 @@ type StartStepProps = {
 export function StartStep( { titleId, title, description }: StartStepProps ) {
 	const { handleRegisterSite, siteIsRegistering, userIsConnecting, registrationError } =
 		useConnection( {
-			from: CONNECTION_FROM,
+			from: CONNECTION_FROM.myJetpackOnboarding,
 			redirectUri: CONNECTION_RETURN_URL,
 			skipPricingPage: true,
 		} );
@@ -165,7 +164,11 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 					</Button>
 				</ThemeProvider>
 
-				<TermsOfService className={ styles[ 'start-terms' ] } agreeButtonLabel={ primaryLabel } />
+				<TermsOfService
+					className={ styles[ 'start-terms' ] }
+					variant="body-md"
+					agreeButtonLabel={ primaryLabel }
+				/>
 			</div>
 		</div>
 	);

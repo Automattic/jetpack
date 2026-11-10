@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix a bad mock supplying an empty URL that React 19 complains about receiving.
-
-

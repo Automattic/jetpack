@@ -102,6 +102,11 @@ describe( 'isBulkSwitchable', () => {
 			false,
 		],
 		[
+			'a plugin waiting for an account',
+			{ ...pluginState( 'jetpack-social', 'active' ), accountNeeded: true } as FeatureState,
+			false,
+		],
+		[
 			'a plugin that needs installing',
 			{ ...pluginState( 'akismet', 'inactive' ), control: { kind: 'install-plugin', plugin: 'a' } },
 			false,
@@ -275,6 +280,21 @@ describe( 'useBulkFeatureSwitch', () => {
 		expect( mockError ).toHaveBeenCalledWith( 'Server error.' );
 		expect( mockSuccess ).not.toHaveBeenCalled();
 		expect( result.current.requested ).toEqual( {} );
+	} );
+
+	it.each( [
+		[ 'succeeds', () => settled() ],
+		[ 'fails', () => Promise.reject( new Error( 'Server error.' ) ) ],
+	] )( 'marks product ownership stale when the run %s', async ( _, post ) => {
+		mockApiFetch.mockImplementation( post );
+		const invalidate = jest.spyOn( QueryClient.prototype, 'invalidateQueries' );
+
+		const { result } = renderBulk();
+
+		await act( () => result.current.bulk.run( [ pluginState( 'akismet', 'inactive' ) ], true ) );
+
+		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'product ownership' ] } );
+		invalidate.mockRestore();
 	} );
 
 	it( 'does nothing when every feature is already in the asked-for state', async () => {

@@ -11,7 +11,11 @@ export default function useStartScanMutation(): UseMutationResult {
 	const queryClient = useQueryClient();
 	return useMutation( {
 		mutationFn: API.scan,
-		onMutate() {
+		async onMutate() {
+			// A status poll landing mid-request would undo the optimistic status, so stop it and arm the guard first.
+			await queryClient.cancelQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
+			localStorage.setItem( 'last_requested_scan', Date.now().toString() );
+
 			// Optimistically update the scan status to 'scanning'.
 			queryClient.setQueryData( [ QUERY_SCAN_STATUS_KEY ], ( currentStatus: object ) => ( {
 				...currentStatus,
@@ -28,6 +32,7 @@ export default function useStartScanMutation(): UseMutationResult {
 			localStorage.setItem( 'last_requested_scan', Date.now().toString() );
 		},
 		onError() {
+			localStorage.removeItem( 'last_requested_scan' );
 			// The scan failed to enqueue, invalidate the scan status query to reset the current status.
 			queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
 		},

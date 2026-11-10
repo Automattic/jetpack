@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Another use of the global `JSX` namespace was added since the last time.
-
-

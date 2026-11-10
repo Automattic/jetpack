@@ -74,7 +74,7 @@ Runs a report's primary query, and its comparison query when `params` carry
 
 - `queryFactory`: builds the query definition from the params of each request
 - `params`: `ReportParams` with `from`, `to`, `interval`, and optional comparison params
-- `options`: optional, e.g. `enabled`
+- `options`: optional. `enabled` turns the queries off, `disabledComparisonKey` parks the comparison query, and `refreshNotice: false` keeps a failed refresh out of the stale-data notice (default `true`)
 
 **Returns:** `{ primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error, refetch }`
 
@@ -92,7 +92,9 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 **Defaults:** The reader's last applied preset, else their Jetpack Stats v1 range, else Last 7 days; daily interval when not specified
 
-**Validation:** Ensures required fields are present for API calls
+**Validation:** Ensures required fields are present for API calls; a `step` the arrows set is kept with a hand-picked window only, so a link from a widget steps the way the dashboard did
+
+**Presets:** A computable preset is the window it names today, whatever `from`/`to` the URL kept (all time keeps its `from`), and its `compare_preset` is measured again from that window, falling back to the previous period where the window no longer offers it. A hand-picked window is its dates, and so is its comparison.
 
 ### `getDefaultIntervalForPeriod( preset, from, to )`
 
@@ -104,7 +106,7 @@ Returns the default interval for a preset / date range: the first one it allows.
 - `from`: `string` - Start date
 - `to`: `string` - End date
 
-**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'year'`
+**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'`
 
 **Example:**
 
@@ -147,18 +149,20 @@ allowed.
 
 **Returns:** `IntervalType`
 
-### `intervalMenuOptions( params, locked, periods? )`
+### `intervalMenuOptions( params, locked, periods?, extension? )`
 
-Returns what an interval menu lists: the buckets it can pick, and the ones the range could draw but
-`locked` withholds, to list after them with a lock. A bucket never lands in both.
+Returns what an interval menu lists: the buckets it can pick, the ones the widget withholds for
+now, and the ones the range could draw but `locked` withholds, to list after them with a lock. A
+bucket lands in one list only.
 
 **Parameters:**
 
-- `params`: `{ preset?: PrimaryPresetId; from?: string; to?: string }` - The range being edited
+- `params`: `IntervalRange` (`{ preset?: PrimaryPresetId; from?: string; to?: string }`) - The range being edited
 - `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
 - `periods`: `readonly [ StatsPeriod, ...StatsPeriod[] ] | undefined` - The periods the chart draws; every bucket when omitted
+- `extension`: `IntervalExtension | undefined` - The widget's own changes: `extra` buckets added after the range's, and `unavailable` ones listed unpickable with a `hint`. Pass the same one to `chartInterval`
 
-**Returns:** `{ options: IntervalType[]; lockedOptions: LockableInterval[] }` - Each in the range's order
+**Returns:** `{ options: IntervalType[]; lockedOptions: LockableInterval[]; unavailableOptions: IntervalType[]; unavailableHint?: string }` - Each in the range's order, a widget's `extra` buckets last
 
 ### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
@@ -230,6 +234,21 @@ The date options the surface's plan locks, as `DateLimits`: the policy's `locked
 `intervalUpsell` for locked chart intervals, each copy carrying its own `onUpgradeClick`.
 The date controls read it through `useReportScope()`; absent where the host applies no limits.
 
+### Period changes a widget sets
+
+A widget never writes the surface's window itself. It calls `openPeriod` from `useReportScope()`,
+which the host built with `usePeriodHost()` (routing package). That call raises a period-change
+signal (`PeriodChangeSignalProvider`, mounted once per stage) and commits the range to the URL in
+one history entry. Once the host's control shows the applied range, `useSettlePeriodChange()`
+matches the pending signal to the surface and hands out an `attentionId` for 1.6 seconds, then
+drops it; a signal whose navigation landed elsewhere, or older than 5 seconds, is dropped unused,
+so a period the reader picked, a tab switch or Customize never replay it.
+
+The host passes `attentionId` to the date control (`DatePeriodDropdown` draws a fading fill),
+to `PeriodChangeStatus` (the live region reads the new range out) and, on a detail page, to the
+layout's `returnToTopKey`. A host that renders its control through the `jpa/report-params` field
+puts `attentionId` on `ReportScopeProvider` next to `openPeriod`, and the field reads it there.
+
 ## Architecture
 
 ```
@@ -238,7 +257,7 @@ src/
 ├── queries/                # React Query definitions, one per Stats endpoint
 ├── hooks/                  # useReport and the Stats hooks built on it
 ├── processing/             # Response sanitization (author, latest post, stats)
-├── providers/              # React Query client provider
+├── providers/              # React Query client, the report scope, the period-change signal
 ├── defaults/               # Default report params and presets
 └── utils/                  # Report params, intervals, timezone, API errors
 ```
@@ -300,7 +319,8 @@ This package exports the following public API:
 - `getDefaultIntervalForPeriod` - Default interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
-- `intervalMenuOptions` - The open and the locked buckets an interval menu lists
+- `intervalMenuOptions` - The open, withheld and locked buckets an interval menu lists
+- `getDaysBetweenInclusive` - The calendar days a range spans, both ends counted
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 - `getStatsDatePolicy` - The date limits the site's plan sets
 - `getSectionDatePolicy` - The date limits a dashboard section follows
@@ -322,7 +342,9 @@ This package exports the following public API:
 ### Types
 
 - `ReportParams` - The report params every hook takes
-- `LockableInterval` - A bucket a plan can lock (`week`, `month`, `year`)
+- `LockableInterval` - A bucket a plan can lock (`week`, `month`, `quarter`, `year`)
+- `IntervalRange` - A range as the interval helpers read it (`preset`, `from`, `to`)
+- `IntervalExtension` - The buckets a widget adds to its range (`extra`) or lists unpickable with a hint (`unavailable`)
 - `StatsDatePolicy` - The date limits a plan sets: open, the last 7 days, or no long presets
 - `DateLimitFeature` - The Stats gate a date limit comes from
 - `DateLimits` - The date limits a report scope declares to its controls
