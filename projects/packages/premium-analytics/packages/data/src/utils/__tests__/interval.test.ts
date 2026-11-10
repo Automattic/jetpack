@@ -310,14 +310,34 @@ describe( 'needsReportDateParamsSeed', () => {
 	} );
 
 	it.each( [
-		[ 'year-to-date', '2026-01-01T00:00:00.000+00:00', '2026-01-05T23:59:59.999+00:00', 'day' ],
-		[ 'all-time', '2025-01-01T00:00:00.000+00:00', '2025-12-31T23:59:59.999+00:00', 'week' ],
+		[
+			'year-to-date',
+			'2026-01-01T00:00:00.000+00:00',
+			'2026-01-05T23:59:59.999+00:00',
+			'day',
+			true,
+		],
+		[
+			'year-to-date',
+			'2026-01-01T00:00:00.000+00:00',
+			'2026-03-15T23:59:59.999+00:00',
+			'week',
+			false,
+		],
+		[ 'all-time', '2025-01-01T00:00:00.000+00:00', '2025-12-31T23:59:59.999+00:00', 'week', true ],
+		[
+			'all-time',
+			'2025-01-01T00:00:00.000+00:00',
+			'2025-12-31T23:59:59.999+00:00',
+			'month',
+			false,
+		],
 	] as const )(
-		'reseeds a %s link whose window has grown past the interval it kept',
-		( preset, from, to, interval ) => {
+		'reads a %s link saved %s to %s by %s against the window it names today: reseed %s',
+		( preset, from, to, interval, expected ) => {
 			jest.useFakeTimers().setSystemTime( Date.parse( '2026-11-10T12:00:00.000Z' ) );
 
-			expect( needsReportDateParamsSeed( { from, to, preset, interval } ) ).toBe( true );
+			expect( needsReportDateParamsSeed( { from, to, preset, interval } ) ).toBe( expected );
 		}
 	);
 

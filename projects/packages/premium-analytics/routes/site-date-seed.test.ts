@@ -1,7 +1,11 @@
 import { dispatch } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { DASHBOARD_PREFERENCES_SCOPE, type StatsDatePolicy } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_PREFERENCES_SCOPE,
+	needsReportDateParamsSeed,
+	type StatsDatePolicy,
+} from '@jetpack-premium-analytics/data';
 import { seedSiteDateParams } from './site-date-seed';
 
 type PreferencesActions = { set: ( scope: string, name: string, value: unknown ) => void };
@@ -125,6 +129,25 @@ describe( 'seedSiteDateParams', () => {
 
 		expect( seeded.preset ).toBe( 'last-7-days' );
 		expect( seeded.comp ).toBeUndefined();
+	} );
+
+	// The seed and the seed check read one window, or the route would redirect forever.
+	it.each( [
+		[ 'year-to-date', '2026-01-01T00:00:00.000-05:00', '2026-01-05T23:59:59.999-05:00', 'hour' ],
+		[ 'all-time', '2010-01-01T00:00:00.000-05:00', '2025-12-31T23:59:59.999-05:00', 'day' ],
+	] )( 'seeds a stale %s link into one the seed check accepts', ( preset, from, to, interval ) => {
+		const policy: StatsDatePolicy = {
+			feature: 'long-date-presets',
+			lockedPresetIds: [],
+			fallbackPresetId: 'last-30-days',
+			lockedIntervals: [ 'week' ],
+			offersComparison: true,
+		};
+
+		const seeded = seedSiteDateParams( { section: 'traffic', preset, from, to, interval }, policy );
+
+		expect( seeded.interval ).not.toBe( interval );
+		expect( needsReportDateParamsSeed( seeded, policy.lockedIntervals ) ).toBe( false );
 	} );
 
 	// The preset is kept and measured from the window the page opens on, not the dates it came with.
