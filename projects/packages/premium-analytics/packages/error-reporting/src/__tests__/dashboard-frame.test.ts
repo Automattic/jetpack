@@ -3,6 +3,7 @@ import { findDashboardFrame } from '../dashboard-frame';
 const base =
 	'https://example.com/wp-content/plugins/jetpack/jetpack_vendor/automattic/jetpack-premium-analytics/build/';
 const origins = [ base ];
+const dashboardStack = `Error: boom\n    at render (${ base }routes/dashboard/content.min.js:3:4)`;
 
 describe( 'findDashboardFrame', () => {
 	it( 'returns the first frame under an allowlisted origin', () => {
@@ -33,9 +34,7 @@ describe( 'findDashboardFrame', () => {
 	} );
 
 	it( 'leaves widget undefined for a route frame', () => {
-		const stack = `Error: boom\n    at render (${ base }routes/dashboard/content.min.js:3:4)`;
-
-		expect( findDashboardFrame( stack, origins )?.widget ).toBeUndefined();
+		expect( findDashboardFrame( dashboardStack, origins )?.widget ).toBeUndefined();
 	} );
 
 	it( 'returns null when no frame is under an allowlisted origin', () => {
@@ -44,14 +43,15 @@ describe( 'findDashboardFrame', () => {
 		expect( findDashboardFrame( stack, origins ) ).toBeNull();
 	} );
 
-	it( 'returns null for an undefined stack', () => {
-		expect( findDashboardFrame( undefined, origins ) ).toBeNull();
+	it.each( [
+		[ 'an undefined stack', undefined, origins ],
+		[ 'an absent origin list', dashboardStack, undefined ],
+	] )( 'returns null for %s', ( _label, stack, list ) => {
+		expect( findDashboardFrame( stack, list ) ).toBeNull();
 	} );
 
 	it( 'returns null for an empty origin list', () => {
-		const stack = `Error: boom\n    at render (${ base }routes/dashboard/content.min.js:3:4)`;
-
-		expect( findDashboardFrame( stack, [] ) ).toBeNull();
+		expect( findDashboardFrame( dashboardStack, [] ) ).toBeNull();
 	} );
 
 	it( 'ignores an error message that contains a dashboard URL', () => {
@@ -61,12 +61,6 @@ describe( 'findDashboardFrame', () => {
 		].join( '\n' );
 
 		expect( findDashboardFrame( stack, origins ) ).toBeNull();
-	} );
-
-	it( 'returns null when the origin list is absent', () => {
-		const stack = `Error: boom\n    at render (${ base }routes/dashboard/content.min.js:3:4)`;
-
-		expect( findDashboardFrame( stack, undefined ) ).toBeNull();
 	} );
 
 	it( 'returns null when an origin is an empty string', () => {

@@ -80,20 +80,14 @@ describe( 'installGlobalErrorHandlers', () => {
 		expect( report ).not.toHaveBeenCalled();
 	} );
 
-	it( 'ignores an unhandledrejection whose reason is a plain object', async () => {
+	it.each( [
+		[ 'a plain object', { code: 'rest_forbidden', message: 'No' } ],
+		[ 'a string', 'nope' ],
+	] )( 'ignores an unhandledrejection whose reason is %s', async ( _label, reason ) => {
 		const { install, report } = await loadFresh();
 		install();
 
-		window.dispatchEvent( rejection( { code: 'rest_forbidden', message: 'No' } ) );
-
-		expect( report ).not.toHaveBeenCalled();
-	} );
-
-	it( 'ignores an unhandledrejection whose reason is a string', async () => {
-		const { install, report } = await loadFresh();
-		install();
-
-		window.dispatchEvent( rejection( 'nope' ) );
+		window.dispatchEvent( rejection( reason ) );
 
 		expect( report ).not.toHaveBeenCalled();
 	} );
