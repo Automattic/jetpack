@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
-import { useChartLegendItems } from '../../components/legend/hooks/use-chart-legend-items';
-import { getComparisonTotalLabel } from './private/stack-layout';
+import {
+	useChartLegendItems,
+	getComparisonItemLabel,
+} from '../../components/legend/hooks/use-chart-legend-items';
 import { useBarColors } from './use-bar-colors';
 import type { ChartLegendOptions } from '../../components/legend/hooks/use-chart-legend-items';
 import type { BaseLegendItem } from '../../components/legend/types';
@@ -19,12 +21,12 @@ const isComparison = ( data: SeriesData[], label: string | undefined ) =>
  *
  * @param data           - The chart's series.
  * @param comparisonItem - The legend's `comparisonItem` option.
- * @return The series, and each one's index in `data`.
+ * @return The series, each one's index in `data`, and the comparison the total's item is shown with.
  */
 function getStackedLegendSeries(
 	data: SeriesData[],
 	comparisonItem: BarLegendOptions[ 'comparisonItem' ]
-): { series: SeriesData[]; indexes: number[] } {
+): { series: SeriesData[]; indexes: number[]; describes?: string } {
 	const indexes = data.flatMap( ( series, index ) =>
 		series.options?.type === 'comparison' ? [] : [ index ]
 	);
@@ -39,12 +41,13 @@ function getStackedLegendSeries(
 		series: [
 			...series,
 			{
-				label: getComparisonTotalLabel( comparisonItem ),
+				label: getComparisonItemLabel( comparisonItem ),
 				data: [],
 				options: { type: 'comparison' },
 			},
 		],
 		indexes: [ ...indexes, comparison ],
+		describes: data[ comparison ].label,
 	};
 }
 
@@ -55,19 +58,21 @@ function getStackedLegendSeries(
  * @param items        - The legend items.
  * @param layout       - The layout the bars are drawn in.
  * @param seriesColors - Each series' bar color, by index.
+ * @param describes    - The comparison a stacked total's item leaves the legend with while it is hidden.
  * @return The legend items.
  */
 function forBarLayout(
 	data: SeriesData[],
 	items: BaseLegendItem[],
 	layout: BarChartLayout,
-	seriesColors: string[]
+	seriesColors: string[],
+	describes?: string
 ): BaseLegendItem[] {
 	if ( layout === 'stacked' ) {
 		// The comparison total is not a series to toggle: hiding a primary already drops its comparison from it.
 		return items.map( item =>
 			isComparison( data, item.seriesLabels?.[ 0 ] )
-				? { ...item, seriesLabels: undefined, interactive: false }
+				? { ...item, seriesLabels: undefined, interactive: false, describesSeries: describes }
 				: item
 		);
 	}
@@ -139,7 +144,10 @@ export function useBarLegendItems(
 	const items = useChartLegendItems( data, chartLegendOptions, legendShape );
 
 	return useMemo(
-		() => ( layout && seriesColors ? forBarLayout( data, items, layout, seriesColors ) : items ),
-		[ data, items, layout, seriesColors ]
+		() =>
+			layout && seriesColors
+				? forBarLayout( data, items, layout, seriesColors, stacked?.describes )
+				: items,
+		[ data, items, layout, seriesColors, stacked ]
 	);
 }

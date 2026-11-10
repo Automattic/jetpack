@@ -28,7 +28,7 @@ type Props = Pick<
 };
 
 /**
- * The side a segment rounds when it ends its drawn stack: the far end of the positives or of the negatives.
+ * The side a segment rounds when it ends its drawn stack: the far end of the positives or of the negatives, or both for a comparison total that spans zero.
  *
  * @param stack      - The stack layout.
  * @param key        - The series the segment is drawn for.
@@ -45,12 +45,15 @@ function getStackEnd(
 	category: DataPointDate,
 	horizontal: boolean,
 	clamp: ( value: number ) => number
-): 'top' | 'bottom' | 'left' | 'right' | undefined {
+): 'top' | 'bottom' | 'left' | 'right' | 'both' | undefined {
 	const [ start, end ] = [ segment.start, segment.end ].map( clamp );
 	if ( start === end ) {
 		return undefined;
 	}
 	const extent = stack.extentAt( category, key ).map( clamp );
+	if ( segment.start < 0 && segment.end > 0 && start === extent[ 0 ] && end === extent[ 1 ] ) {
+		return 'both';
+	}
 	if ( segment.end > 0 && end === extent[ 1 ] ) {
 		return horizontal ? 'right' : 'top';
 	}

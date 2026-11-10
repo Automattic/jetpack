@@ -21,4 +21,3 @@ export { isBarRendered } from './value-domain';
 export { BandHighlight } from './band-highlight';
 export { BandTooltip } from './band-tooltip';
 export { COMPARISON_SLOT } from './overlap-bars';
-export { getComparisonTotalLabel } from './stack-layout';

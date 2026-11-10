@@ -1,4 +1,3 @@
-import { __ } from '@wordpress/i18n';
 import { getTickDecimalsDomain } from '../../private/tick-decimals';
 import { categoryKey } from './category';
 import { EMPTY_DOMAIN, getBarValue } from './value-domain';
@@ -102,18 +101,6 @@ export function getStackLayout( series: SeriesData[], comparison?: ComparisonTot
 		},
 		extent,
 	};
-}
-
-/**
- * Names a stacked layout's comparison total after the legend's comparison item, or as that item is named by default.
- *
- * @param comparisonItem - The legend's `comparisonItem` option.
- * @return The label.
- */
-export function getComparisonTotalLabel( comparisonItem?: boolean | string ): string {
-	return typeof comparisonItem === 'string'
-		? comparisonItem
-		: __( 'Comparison period', 'jetpack-charts' );
 }
 
 /**

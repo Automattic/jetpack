@@ -1,6 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { useChartLegendItems } from '../../../components/legend';
 import { GlobalChartsProvider } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
+import { neutralWithContrast } from '../private/overlap-bars';
 import { useBarColors } from '../use-bar-colors';
 import { useBarLegendItems } from '../use-bar-legend-items';
 import type { SeriesData } from '../../../types';
@@ -84,6 +86,41 @@ describe( 'useBarLegendItems', () => {
 			[ 'Visitors', colors[ 2 ], true ],
 			[ 'Comparison period', colors[ 1 ], false ],
 		] );
+	} );
+
+	test.each( [ undefined, false ] )(
+		'lists only the stacked primaries with comparisonItem %p',
+		comparisonItem => {
+			const { result } = renderHook(
+				() => useBarLegendItems( twoMetricData, { layout: 'stacked', comparisonItem } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Visitors' ] );
+		}
+	);
+
+	test.each( [
+		[ 'a gray with 3:1 against the background', undefined ],
+		[ "the first comparison's own stroke", '#aa3355' ],
+	] )( 'colors every stacked comparison in %s', ( _case, stroke ) => {
+		const data = twoMetricData.map( series =>
+			series.label === 'Visitors — previous' && stroke
+				? { ...series, options: { ...series.options, stroke } }
+				: series
+		);
+		const { result } = renderHook(
+			() => ( {
+				colors: useBarColors()( data, { layout: 'stacked' } ),
+				background: useGlobalChartsContext().backgroundColor ?? '#ffffff',
+			} ),
+			{ wrapper }
+		);
+		const { colors, background } = result.current;
+
+		expect( [ colors[ 1 ], colors[ 3 ] ] ).toEqual(
+			Array( 2 ).fill( stroke ?? neutralWithContrast( background ) )
+		);
 	} );
 
 	test( "returns the chart legend's own items without a layout", () => {

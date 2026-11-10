@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Fragment, useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend } from '../../components/legend';
+import { getComparisonItemLabel } from '../../components/legend/hooks/use-chart-legend-items';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
@@ -44,7 +45,6 @@ import {
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
 	COMPARISON_SLOT,
-	getComparisonTotalLabel,
 	isBarRendered,
 	SlotTooltipMembers,
 	useBarStops,
@@ -262,11 +262,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ dataWithVisibleZeros, isSeriesRendered ]
 	);
 
-	// Check if all series are hidden
-	const allSeriesHidden = useMemo( () => {
-		return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
-	}, [ seriesWithVisibility ] );
-
 	// Derive primary vs comparison entries for comparison mode support.
 	const primaryEntries = useMemo(
 		() =>
@@ -279,8 +274,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const barSlots = useBarSlots(
 		layout,
 		seriesWithVisibility,
-		getComparisonTotalLabel( legendComparisonItem )
+		getComparisonItemLabel( legendComparisonItem )
 	);
+
+	// A stack's comparisons leave with their primaries, so it is empty once it draws nothing.
+	const allSeriesHidden =
+		barSlots?.kind === 'stacked'
+			? barSlots.entries.length === 0
+			: seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 
 	const chartOptions = useBarChartOptions(
 		dataWithVisibleZeros,

@@ -355,6 +355,75 @@ describe( 'BarChart stacked layout', () => {
 		expect( rounded( selectedRing() ) ).toEqual( rounded( previousBar() ) );
 	} );
 
+	it.each( [
+		[ 'vertical', [ 300, 150, 50 ], 'top' ],
+		[ 'horizontal', [ 300, 150, 50 ], 'right' ],
+		[ 'vertical', [ -30, -20, 0 ], 'bottom' ],
+		[ 'vertical', [ 30, -20, 0 ], 'both' ],
+	] as const )(
+		'rounds the outer end of a %s comparison total of %p as %s',
+		( orientation, monday, end ) => {
+			const data = WITH_PREVIOUS.map( series =>
+				series.options?.type === 'comparison'
+					? {
+							...series,
+							data: [
+								day(
+									'Mon',
+									monday[ [ 'Desktop', 'Mobile', 'Tablet' ].indexOf( series.group as string ) ]
+								),
+							],
+						}
+					: series
+			);
+			renderStacked( { data, orientation } );
+
+			expect( barRects()[ 5 ] ).toHaveAttribute( 'data-stack-end', end );
+		}
+	);
+
+	it( 'shows the empty state once every stacked series is hidden, comparisons and all', () => {
+		renderStacked( {
+			data: WITH_PREVIOUS,
+			showLegend: true,
+			legend: { interactive: true },
+			defaultHiddenSeries: DATA.map( series => series.label ),
+		} );
+
+		expect( screen.queryAllByTestId( 'bar-chart-stacked-bar' ) ).toHaveLength( 0 );
+		expect( screen.getByText( /All series are hidden/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves the comparison item out of the legend while the comparisons are hidden', () => {
+		renderStacked( {
+			data: WITH_PREVIOUS,
+			showLegend: true,
+			legend: { comparisonItem: 'Prev. 7 days' },
+			defaultHiddenSeries: WITH_PREVIOUS.slice( 3 ).map( series => series.label ),
+		} );
+
+		expect( barRects() ).toHaveLength( 5 );
+		expect( screen.queryByText( 'Prev. 7 days' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps a comparison in the total while a primary of its group is shown', async () => {
+		const user = userEvent.setup();
+		const data: SeriesData[] = [
+			{ label: 'Posts', group: 'web', data: [ day( 'Mon', 100 ) ] },
+			{ label: 'Pages', group: 'web', data: [ day( 'Mon', 50 ) ] },
+			{
+				label: 'Web (prev)',
+				group: 'web',
+				options: { type: 'comparison' },
+				data: [ day( 'Mon', 300 ) ],
+			},
+		];
+		renderStacked( { data, showLegend: true, legend: { interactive: true } } );
+
+		await user.click( screen.getByRole( 'button', { name: /Pages/ } ) );
+		expect( previousBar( 0, 1 ).height / barIn( data, 'Posts' ).height ).toBeCloseTo( 300 / 100 );
+	} );
+
 	it( "drops a hidden series' comparison from the total", async () => {
 		const user = userEvent.setup();
 		renderStacked( { data: WITH_PREVIOUS, showLegend: true, legend: { interactive: true } } );
