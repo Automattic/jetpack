@@ -174,7 +174,7 @@ class Main {
 		add_action( 'wp_enqueue_scripts', array( Tracking_Pixel::class, 'enqueue_stats_script' ), 101 );
 		add_action( 'wp_footer', array( Tracking_Pixel::class, 'add_amp_pixel' ), 101 );
 
-		// Web Stories have no way to ask for consent, so they go uncounted where the WP Consent API is active.
+		// Web Stories polyfill amp_is_request() but have no amp-consent and never run AMP_Consent_Sanitizer, so they go uncounted.
 		if ( ! function_exists( 'wp_has_consent' ) ) {
 			add_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ), 101 );
 		}

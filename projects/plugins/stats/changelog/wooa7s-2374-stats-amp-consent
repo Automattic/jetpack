@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Stop counting visitors who have not allowed statistics cookies on AMP pages and Web Stories on sites that run the WP Consent API.
+On sites running the WP Consent API, count AMP views only after the visitor allows statistics in an AMP consent banner. AMP pages without one, AMP pages not rendered by the AMP plugin, and Web Stories are no longer counted there.

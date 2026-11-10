@@ -493,6 +493,24 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_add_amp_pixel_holds_the_pixel_for_consent_on_the_amp_plugin() {
+		require_once __DIR__ . '/mocks/wp-consent-api-mock.php';
+		require_once __DIR__ . '/mocks/amp-is-request-mock.php';
+		global $wp_the_query;
+		$wp_the_query->is_home = true;
+		$_SERVER['HTTP_HOST']  = '127.0.0.1';
+
+		ob_start();
+		Tracking_Pixel::add_amp_pixel();
+		$this->assertStringStartsWith( '<amp-pixel data-block-on-consent src="https://pixel.wp.com/g.gif?', (string) ob_get_clean() );
+	}
+
+	/**
 	 * AMP renderers with the WP Consent API active, and the pixel each should get.
 	 *
 	 * @return array

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Tracking pixel: Honor the WP Consent API on AMP pages and Web Stories, so visitors who have not allowed statistics are not counted there.
+Tracking pixel: On sites running the WP Consent API, count AMP views only after an AMP consent banner is accepted, and stop counting AMP pages without one, AMP pages not rendered by the AMP plugin, and Web Stories.

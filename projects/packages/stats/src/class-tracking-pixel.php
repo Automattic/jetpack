@@ -431,7 +431,7 @@ if ( document.readyState === "loading" ) {
 			return;
 		}
 
-		// Only the AMP plugin runs AMP_Consent_Sanitizer, which drops the pixel when no `amp-consent` can hold it.
+		// Only the AMP plugin runs AMP_Consent_Sanitizer.
 		if ( ! function_exists( 'amp_is_request' ) || ! amp_is_request() ) {
 			return;
 		}
@@ -440,8 +440,10 @@ if ( document.readyState === "loading" ) {
 	}
 
 	/**
-	 * With the WP Consent API active, add the sanitizer that drops the Stats AMP pixel when the page has no `amp-consent`.
+	 * Register AMP_Consent_Sanitizer when the WP Consent API is active.
 	 * Do not use this function directly, it is hooked into `amp_content_sanitizers`.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $sanitizers Sanitizer classes and their args.
 	 * @return array

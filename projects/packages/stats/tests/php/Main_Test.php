@@ -468,8 +468,6 @@ class Main_Test extends StatsBaseTestCase {
 	}
 
 	/**
-	 * The AMP plugin applies `amp_content_sanitizers` on `wp`, before `template_redirect`, so only `init()` runs here.
-	 *
 	 * @dataProvider amp_sanitizers_by_consent_api
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
