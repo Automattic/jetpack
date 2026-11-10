@@ -20,22 +20,46 @@ class Utils {
 	 * @return string|false IP address.
 	 */
 	public static function get_ip() {
-		$remote_addr         = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
-		$trusted_header_data = get_site_option( 'trusted_ip_header' );
-		if ( isset( $trusted_header_data->trusted_header ) && isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
-			$ip = self::pick_ip(
-				wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
-				$trusted_header_data->segments ?? 1,
-				! empty( $trusted_header_data->reverse ),
-				$remote_addr
-			);
-			// The stored header setting can go stale, leaving the header empty or without a valid address.
-			if ( false !== $ip ) {
-				return $ip;
-			}
+		$ip = self::get_ip_from_trusted_header();
+		if ( $ip ) {
+			return $ip;
 		}
 
+		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
 		return self::pick_ip( $remote_addr, 1, false, $remote_addr );
+	}
+
+	/**
+	 * Whether the request carries the configured trusted header but it holds no valid address,
+	 * so `get_ip()` fell back to `REMOTE_ADDR`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_trusted_header_unresolved() {
+		return false === self::get_ip_from_trusted_header();
+	}
+
+	/**
+	 * Read the address from the configured trusted header.
+	 *
+	 * @return string|false|null IP address, false if the header holds no valid address, or null if no header is configured or the request lacks it.
+	 */
+	private static function get_ip_from_trusted_header() {
+		$trusted_header_data = get_site_option( 'trusted_ip_header' );
+		if ( ! isset( $trusted_header_data->trusted_header ) || ! isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
+			return null;
+		}
+
+		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
+		// The stored header setting can go stale, leaving the header empty or without a valid address.
+		return self::pick_ip(
+			wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
+			$trusted_header_data->segments ?? 1,
+			! empty( $trusted_header_data->reverse ),
+			$remote_addr
+		);
 	}
 
 	/**

@@ -275,6 +275,68 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Test `is_trusted_header_unresolved`.
+	 *
+	 * @dataProvider provide_is_trusted_header_unresolved
+	 * @param bool        $expect              Expected output.
+	 * @param array       $server              Data for `$_SERVER`.
+	 * @param object|null $trusted_header_data Trusted header data.
+	 */
+	#[DataProvider( 'provide_is_trusted_header_unresolved' )]
+	public function test_is_trusted_header_unresolved( $expect, $server, $trusted_header_data ) {
+		Functions\expect( 'get_site_option' )
+			->with( 'trusted_ip_header' )
+			->andReturn( $trusted_header_data );
+
+		$old_server = $_SERVER;
+		$_SERVER    = $server;
+		try {
+			$this->assertSame( $expect, Utils::is_trusted_header_unresolved() );
+		} finally {
+			$_SERVER = $old_server;
+		}
+	}
+
+	/**
+	 * Data provider for `test_is_trusted_header_unresolved`.
+	 */
+	public static function provide_is_trusted_header_unresolved() {
+		$header = (object) array(
+			'trusted_header' => 'HTTP_X_FORWARDED_FOR',
+			'segments'       => 1,
+			'reverse'        => false,
+		);
+		return array(
+			'No trusted header configured' => array( false, array( 'REMOTE_ADDR' => '192.0.2.1' ), false ),
+			'Trusted header missing'       => array( false, array( 'REMOTE_ADDR' => '192.0.2.1' ), $header ),
+			'Trusted header valid'         => array(
+				false,
+				array(
+					'REMOTE_ADDR'          => '192.0.2.1',
+					'HTTP_X_FORWARDED_FOR' => '203.0.113.7',
+				),
+				$header,
+			),
+			'Trusted header empty'         => array(
+				true,
+				array(
+					'REMOTE_ADDR'          => '192.0.2.1',
+					'HTTP_X_FORWARDED_FOR' => '',
+				),
+				$header,
+			),
+			'Trusted header invalid'       => array(
+				true,
+				array(
+					'REMOTE_ADDR'          => '192.0.2.1',
+					'HTTP_X_FORWARDED_FOR' => 'unknown',
+				),
+				$header,
+			),
+		);
+	}
+
+	/**
 	 * Test `ip_is_private`.
 	 */
 	public function test_ip_is_private() {
