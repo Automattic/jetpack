@@ -139,20 +139,19 @@ class A8c_Mc_Stats {
 	 * @return bool If it worked.
 	 */
 	public function do_server_side_stat( $url, $blocking = true ) {
-		if ( ! $blocking ) {
-			$response = wp_remote_get(
-				esc_url_raw( $url ),
-				array(
-					'blocking' => false,
-					'timeout'  => 1,
-				)
-			);
-			return ! is_wp_error( $response );
-		}
+		$args = $blocking ? array() : array(
+			'blocking' => false,
+			'timeout'  => 1,
+		);
 
-		$response = wp_remote_get( esc_url_raw( $url ) );
+		$response = wp_remote_get( esc_url_raw( $url ), $args );
 		if ( is_wp_error( $response ) ) {
 			return false;
+		}
+
+		// A non-blocking request returns no status code to check.
+		if ( ! $blocking ) {
+			return true;
 		}
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
