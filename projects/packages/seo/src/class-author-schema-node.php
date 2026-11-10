@@ -372,7 +372,7 @@ class Author_Schema_Node {
 		if ( ! is_scalar( $value ) ) {
 			return '';
 		}
-		return trim( html_entity_decode( wp_strip_all_tags( (string) $value ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+		return trim( \WP_HTML_Decoder::decode_text_node( wp_strip_all_tags( (string) $value ) ) );
 	}
 
 	/**
