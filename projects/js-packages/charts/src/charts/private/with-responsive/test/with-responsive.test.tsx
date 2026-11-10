@@ -120,6 +120,73 @@ describe( 'withResponsive', () => {
 		} );
 	} );
 
+	describe( 'first paint', () => {
+		const UNMEASURED = { parentRef: () => {}, width: 0, height: 0 };
+
+		test( 'renders no chart until the parent is measured, and keeps the wrapper in place', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			render( <ResponsiveComponent data={ [] } /> );
+			expect( screen.queryByTestId( 'mock-component' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'responsive-wrapper' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders at the measured size once the measurement lands', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			const { rerender } = render( <ResponsiveComponent data={ [] } /> );
+
+			useParentSize.mockImplementation( () => DEFAULT_SIZE );
+			rerender( <ResponsiveComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '600px',
+				height: '300px',
+			} );
+		} );
+
+		test( 'renders before any measurement when width and height are explicit', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			render( <ResponsiveComponent data={ [] } width={ 200 } height={ 120 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '200px',
+				height: '120px',
+			} );
+		} );
+
+		test( 'renders before any measurement when an aspectRatio derives the height from an explicit width', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			render( <ResponsiveComponent data={ [] } width={ 500 } aspectRatio={ 0.5 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '500px',
+				height: '250px',
+			} );
+		} );
+
+		test( 'renders in a parent with no definite height, which reports a width alone', () => {
+			// Waiting for that parent's height would hold the chart back for good, and one
+			// that grows from its own content would never get a height to report.
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 0,
+			} ) );
+			render( <ResponsiveComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '600px',
+				height: '0px',
+			} );
+		} );
+
+		test( 'stays mounted when an ancestor hides the chart and it measures 0 again', () => {
+			const { rerender } = render( <ResponsiveComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
+
+			// display: none measures 0×0; unmounting there would drop the chart's zoom and
+			// series state and re-run its entry animation on the way back.
+			useParentSize.mockImplementation( () => UNMEASURED );
+			rerender( <ResponsiveComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
+		} );
+	} );
+
 	describe( 'wrapper dimensions', () => {
 		test( 'wrapper has no inline dimensions by default (fills the parent via CSS)', () => {
 			render( <ResponsiveComponent data={ [] } /> );

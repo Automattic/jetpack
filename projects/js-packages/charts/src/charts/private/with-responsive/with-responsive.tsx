@@ -136,14 +136,26 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			}
 		}, [ hasAspectRatio, availableWidth, aspectRatio, containedHeight, parentHeight ] );
 
-		const wrappedComponent = (
+		// Nothing is drawn until the box has real dimensions: handed 0×0 the chart paints its
+		// plot and legend at a size it loses a frame later, and jumps. The wrapper fills the
+		// parent meanwhile, so the wait takes no space. Width and height are reported together,
+		// so a measured width settles the height too, whether or not the parent has one.
+		const isMeasured = parentWidth > 0;
+		const hasDimensions = boxWidth > 0 && ( boxHeight > 0 || isMeasured );
+
+		// Only the first paint waits: a hidden ancestor measures the chart at 0×0, and
+		// unmounting it there would drop its zoom and series state.
+		const hasBeenSized = useRef( false );
+		hasBeenSized.current = hasBeenSized.current || hasDimensions;
+
+		const wrappedComponent = hasBeenSized.current ? (
 			<WrappedComponent
 				width={ boxWidth }
 				height={ boxHeight }
 				size={ size }
 				{ ...( chartProps as T ) }
 			/>
-		);
+		) : null;
 
 		// The outer element fills the parent (via CSS) so its live height reflects the
 		// real available space; JS sets width/height only when they are passed

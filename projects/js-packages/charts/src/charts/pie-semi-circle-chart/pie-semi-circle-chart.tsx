@@ -338,7 +338,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	);
 
 	return (
-		<ChartInstanceContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId, legendItems, chartType: 'pie-semi-circle' } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }

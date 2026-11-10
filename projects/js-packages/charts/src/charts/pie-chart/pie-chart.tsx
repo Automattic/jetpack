@@ -353,7 +353,7 @@ const PieChartInternal = ( {
 	);
 
 	return (
-		<ChartInstanceContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId, legendItems, chartType: 'pie' } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }

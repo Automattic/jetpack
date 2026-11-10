@@ -643,6 +643,28 @@ describe( 'BaseLegend', () => {
 			expect( buttons ).toHaveLength( 0 );
 		} );
 
+		it( 'renders the items the chart around it passes, with nothing registered', () => {
+			// The registry fills from an effect, a frame after the chart renders. A legend
+			// that waits for it takes no height until then, and the chart sizes its plot
+			// over the room the legend is about to take.
+			render(
+				<GlobalChartsProvider>
+					<ChartInstanceContext.Provider
+						value={ {
+							chartId: 'test-chart',
+							chartType: 'line',
+							legendItems: defaultItems,
+						} }
+					>
+						<Legend />
+					</ChartInstanceContext.Provider>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByText( 'Item 1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+		} );
+
 		it( 'uses chart-instance visibility before provider state', () => {
 			render(
 				<GlobalChartsProvider>

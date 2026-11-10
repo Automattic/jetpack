@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Test setup only: give jsdom's charts a measured parent, which they now wait for.
+
+

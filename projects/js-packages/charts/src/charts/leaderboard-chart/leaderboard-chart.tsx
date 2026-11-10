@@ -444,7 +444,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	);
 
 	return (
-		<ChartInstanceContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId, legendItems, chartType: 'leaderboard' } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }

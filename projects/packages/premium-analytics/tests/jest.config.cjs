@@ -60,6 +60,8 @@ module.exports = {
 		// externals, or local `*.module.css`). jest's transformIgnorePatterns
 		// skips nested node_modules CSS, so it would otherwise be parsed as JS.
 		'\\.s?css$': path.join( __dirname, 'style-stub.cjs' ),
+		// Give the charts package a measured parent, which jsdom's lack of layout denies it.
+		'^@visx/responsive$': path.join( __dirname, 'visx-responsive-stub.cjs' ),
 		// Resolve internal `packages/*` imports to their TypeScript source.
 		'^@jetpack-premium-analytics/(.*)$': path.join( __dirname, '..', 'packages', '$1', 'src' ),
 	},
