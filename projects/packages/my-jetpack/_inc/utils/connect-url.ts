@@ -15,6 +15,8 @@ export function getConnectUrl( from: string, returnTo: string = window.location.
 	return getUserConnectionUrl( { from, redirect_url: returnTo, skip_pricing: true } );
 }
 
+// An older shared jetpack-connection script may lack CONNECTION_FROM: the `*From()` helpers below fall back to the `my-jetpack` its links send.
+
 /**
  * The name a product's own connect links send, such as `my_jetpack_products_backup`.
  *
@@ -22,8 +24,17 @@ export function getConnectUrl( from: string, returnTo: string = window.location.
  * @return The name.
  */
 export function productsFrom( slug: string ): string {
-	// An older shared jetpack-connection script may lack CONNECTION_FROM: use the `my-jetpack` its links send.
 	return CONNECTION_FROM?.myJetpackProducts( slug ) ?? 'my-jetpack';
+}
+
+/**
+ * The name a recommendation's connect link sends, such as `my_jetpack_recommendations_newsletter`.
+ *
+ * @param slug - My Jetpack's product slug.
+ * @return The name.
+ */
+export function recommendationsFrom( slug: string ): string {
+	return CONNECTION_FROM?.myJetpackRecommendations( slug ) ?? 'my-jetpack';
 }
 
 /**

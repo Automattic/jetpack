@@ -1,4 +1,4 @@
-import { CONNECTION_FROM, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -12,7 +12,7 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import { getConnectUrl } from '../../utils/connect-url';
+import { getConnectUrl, recommendationsFrom } from '../../utils/connect-url';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
 	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi || {};
@@ -78,10 +78,7 @@ const getFeaturePrimaryAction = (
 		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 			return {
 				label: __( 'Connect', 'jetpack-my-jetpack' ),
-				// An older shared jetpack-connection script may lack CONNECTION_FROM: use the `my-jetpack` its links send.
-				href: getConnectUrl(
-					CONNECTION_FROM?.myJetpackRecommendations( detail.slug ) ?? 'my-jetpack'
-				),
+				href: getConnectUrl( recommendationsFrom( detail.slug ) ),
 			};
 		default:
 			return {

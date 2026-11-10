@@ -3,7 +3,7 @@ import { PRODUCT_STATUSES } from '../../../constants';
 import useProductStatusAction from '../use-product-status-action';
 
 const mockUseProduct = jest.fn();
-const mockUseMyJetpackNavigate = jest.fn();
+const mockNavigate = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	...jest.requireActual( '@automattic/jetpack-script-data' ),
@@ -36,7 +36,7 @@ jest.mock( '../../../hooks/use-my-jetpack-connection', () => {
 } );
 jest.mock( '../../../hooks/use-my-jetpack-navigate', () => ( {
 	__esModule: true,
-	default: ( route: string ) => mockUseMyJetpackNavigate( route ),
+	default: ( route: string ) => () => mockNavigate( route ),
 } ) );
 jest.mock( '../../../hooks/use-analytics', () => {
 	const result = { recordEvent: () => {} };
@@ -54,7 +54,6 @@ const connectUrlParams = ( href: string ) => new URL( href ).searchParams;
 
 beforeEach( () => {
 	jest.clearAllMocks();
-	mockUseMyJetpackNavigate.mockReturnValue( jest.fn() );
 } );
 
 describe( 'useProductStatusAction connect links', () => {
@@ -73,13 +72,13 @@ describe( 'useProductStatusAction connect links', () => {
 
 		result.current.action.onClick( undefined );
 
-		expect( mockUseMyJetpackNavigate ).toHaveBeenLastCalledWith(
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockNavigate ).toHaveBeenCalledWith(
 			'/connection?from=my_jetpack_products_ai&skip_pricing=true'
 		);
-		expect( mockUseMyJetpackNavigate.mock.results.at( -1 ).value ).toHaveBeenCalled();
 	} );
 
-	it( 'sends the name a caller passes', () => {
+	it( 'sends the name a caller passes from "Connect"', () => {
 		withStatus( PRODUCT_STATUSES.USER_CONNECTION_ERROR );
 		const { result } = renderHook( () =>
 			useProductStatusAction( 'backup', { from: 'my_jetpack_overview_backup' } )
@@ -87,6 +86,20 @@ describe( 'useProductStatusAction connect links', () => {
 
 		expect( connectUrlParams( result.current.action.href ).get( 'from' ) ).toBe(
 			'my_jetpack_overview_backup'
+		);
+	} );
+
+	it( 'opens the connection screen with the name a caller passes from "Activate"', () => {
+		withStatus( PRODUCT_STATUSES.INACTIVE );
+		const { result } = renderHook( () =>
+			useProductStatusAction( 'backup', { from: 'my_jetpack_overview_backup' } )
+		);
+
+		result.current.action.onClick( undefined );
+
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockNavigate ).toHaveBeenCalledWith(
+			'/connection?from=my_jetpack_overview_backup&skip_pricing=true'
 		);
 	} );
 } );

@@ -25,7 +25,7 @@ export type ProductStatusActionOptions = {
  * The action a product's card offers for its status.
  *
  * @param {JetpackModule}              slug      - The product slug.
- * @param {ProductStatusActionOptions} [options] - Label overrides, the site connection handler, the Tracks prefix and the connect links' `from`, `my_jetpack_products_<slug>` by default.
+ * @param {ProductStatusActionOptions} [options] - Label overrides, the site connection handler, the Tracks prefix and the connect links' `from`, `productsFrom( slug )` by default.
  * @return {{action: Partial<SecondaryButtonProps>, isBusy: boolean, forcedOffReason: string | null}} The action, whether it is busy, and why the host keeps the product off.
  */
 const useProductStatusAction = (
@@ -54,7 +54,7 @@ const useProductStatusAction = (
 	const isManageDisabled = ! manageUrl;
 	const { recordEvent } = useAnalytics();
 	const connectFrom = from ?? productsFrom( slug );
-	// `skip_pricing` keeps a legacy `my-jetpack` fallback off the plans page, as on trunk.
+	// `skip_pricing` keeps a legacy `my-jetpack` fallback off the plans page.
 	const navigateToConnectionPage = useMyJetpackNavigate(
 		`${ connectionScreenRoute( connectFrom ) }&skip_pricing=true`
 	);
