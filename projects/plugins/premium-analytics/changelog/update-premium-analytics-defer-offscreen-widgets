@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fill in the dashboard widgets on screen sooner by loading the ones below the fold as you scroll.

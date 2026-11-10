@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Load widgets below the fold only as they near the screen, so the widgets on screen fill in sooner.

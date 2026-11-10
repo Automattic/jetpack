@@ -66,6 +66,7 @@ import {
 	SETTINGS_SECTION,
 	type DashboardSection,
 } from './config';
+import { useDeferOffscreenWidgets } from './deferred-widget-modules';
 import {
 	useActiveSection,
 	useDashboardPolicy,
@@ -184,7 +185,10 @@ function Dashboard(): JSX.Element {
 		}
 	}, [ isSyncComplete ] );
 
-	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
+	const resolveWidgetModule = useDeferOffscreenWidgets(
+		useWidgetModuleResolver( widgetModules ),
+		widgetModules
+	);
 
 	const trackCustomize = useTrackCustomize( 'dashboard', widgetSection );
 	// Every way into and out of edit mode arrives here: the menu below, the command
