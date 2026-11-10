@@ -763,7 +763,7 @@ class ManagerTest extends TestCase {
 		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
 		$manager->method( 'is_ownership_transferable' )->willReturn( ! $locked );
 
-		$sent_body = null;
+		$sent_body = array();
 		$response  = array(
 			'access_token' => 'usertoken.secret',
 			'token_type'   => 'X_JETPACK',
