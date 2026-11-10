@@ -239,6 +239,31 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
+	 * Whether the site was public from the moment it was created.
+	 *
+	 * WordPress.com only writes `launch-status` for a site created private or coming soon, as `unlaunched`, and flips
+	 * it to `launched` at launch. A public site without it never had anything to launch.
+	 *
+	 * Limited to sites created past the no-guidance cutoff, so the launch task of an older site doesn't flip to done
+	 * (and report a completion) on deploy.
+	 *
+	 * @return bool
+	 */
+	private function was_launched_at_creation() {
+		if ( get_option( 'launch-status' ) ) {
+			return false;
+		}
+
+		if ( $this->is_private_site() || 1 === (int) get_option( 'wpcom_public_coming_soon' ) ) {
+			return false;
+		}
+
+		$blog_id = function_exists( 'get_wpcom_blog_id' ) ? get_wpcom_blog_id() : false;
+
+		return $blog_id && wpcom_launchpad_is_past_no_guidance_cutoff( $blog_id );
+	}
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -1495,7 +1520,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$is_private_site = $this->is_private_site();
+		$is_private_site      = $this->is_private_site();
+		$launched_at_creation = $this->was_launched_at_creation();
 
 		foreach ( $tasks as $task ) {
 			if ( ! is_array( $task ) || ! isset( $task['id'] ) || ! isset( $task['subtitle'] ) ) {
@@ -1571,6 +1597,12 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				$completed = AI_Launchpad_Memberships::has_override( $task['id'] )
 					? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
 					: wpcom_launchpad_checklists()->is_task_complete( $definition );
+
+				// The catalog's launch tasks wait for `launch-status` to become `launched`, which never happens on a
+				// site that was launched from the start.
+				if ( $launched_at_creation && in_array( $task['id'], self::LAUNCH_TASK_IDS, true ) ) {
+					$completed = true;
+				}
 
 				// The theme-picker task points at the showcase pre-filtered for the site (Store category on sell,
 				// the AI's inferred category elsewhere) instead of plain themes.php. The legacy design_selected/

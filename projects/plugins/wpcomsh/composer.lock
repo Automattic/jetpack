@@ -174,9 +174,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "7b7aa995c2cb0256bd6b1bc5d516a6b0e2c6f9c8"
+                "reference": "f997d354525ea5e38f5cacea2ae0f9843b2ec4c7"
             },
             "require": {
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"

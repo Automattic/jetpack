@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Storybook: Let the widget stories render at several sizes from the toolbar.
