@@ -243,6 +243,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 			)
 		);
 		self::factory()->post->create( array( 'post_author' => $author_id ) );
+		$this->set_permalink_structure( '' );
 		$this->go_to( get_author_posts_url( $author_id ) );
 
 		$output = $this->get_og_output();
