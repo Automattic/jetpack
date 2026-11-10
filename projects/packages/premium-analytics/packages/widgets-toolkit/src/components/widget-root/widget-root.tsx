@@ -6,6 +6,7 @@ import {
 	useReportScope,
 	withoutComparison,
 } from '@jetpack-premium-analytics/data';
+import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
 import { useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
@@ -56,12 +57,14 @@ export function WidgetRoot( { attributes, children, setError }: WidgetRootProps 
 	);
 
 	return (
-		<AnalyticsQueryClientProvider>
-			<ChartsProvider>
-				<WidgetRootContext.Provider value={ contextValue }>
-					<div className={ styles.root }>{ children }</div>
-				</WidgetRootContext.Provider>
-			</ChartsProvider>
-		</AnalyticsQueryClientProvider>
+		<StatsErrorBoundary>
+			<AnalyticsQueryClientProvider>
+				<ChartsProvider>
+					<WidgetRootContext.Provider value={ contextValue }>
+						<div className={ styles.root }>{ children }</div>
+					</WidgetRootContext.Provider>
+				</ChartsProvider>
+			</AnalyticsQueryClientProvider>
+		</StatsErrorBoundary>
 	);
 }
