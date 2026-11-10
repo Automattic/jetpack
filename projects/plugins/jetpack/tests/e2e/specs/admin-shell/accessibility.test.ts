@@ -13,8 +13,10 @@ import {
 } from '../../helpers/admin-shell-a11y-helper';
 import {
 	installShellProbe,
+	isShellActive,
 	member,
 	openMember,
+	readShell,
 	settle,
 	switchTo,
 	waitForShown,
@@ -36,38 +38,141 @@ const back = ( page: Page, slug: string ) =>
 const createForm = ( page: Page ) =>
 	page.getByRole( 'button', { name: 'Create a form' } ).filter( { visible: true } );
 
+const openCreateForm = async ( page: Page ) => {
+	await createForm( page ).focus();
+	await page.keyboard.press( 'Enter' );
+	const dialog = page.getByRole( 'dialog' );
+	await expect( dialog ).toBeVisible();
+	return dialog;
+};
+
+/**
+ * Setup the expected-fail tests rely on: still in the shell, `slug` on screen, `other` hidden.
+ *
+ * @param page  - Page under test.
+ * @param slug  - Member that should be shown.
+ * @param other - Member that should be hidden.
+ */
+async function expectSwitched( page: Page, slug: string, other: string ): Promise< void > {
+	expect( await isShellActive( page ), `the shell still runs after showing ${ slug }` ).toBe(
+		true
+	);
+	const { apps } = await readShell( page );
+	expect( [ apps[ slug ], apps[ other ] ], `${ slug } shown, ${ other } hidden` ).toEqual( [
+		'visible',
+		'hidden',
+	] );
+	// On screen, whatever the accessibility tree says: the tests themselves check that.
+	await expect(
+		page
+			.getByRole( 'heading', {
+				level: 1,
+				name: member( slug ).heading,
+				exact: true,
+				includeHidden: true,
+			} )
+			.filter( { visible: true } )
+	).toBeVisible();
+}
+
+type Go = ( page: Page, slug: string ) => Promise< void >;
+
+/* Each step shows the first slug and leaves the second hidden. */
+const ROUND_TRIP: [ string, string, Go ][] = [
+	[ FORMS, MJ, switchTo ],
+	[ MJ, FORMS, switchTo ],
+	[ FORMS, MJ, back ],
+];
+
+/**
+ * Open My Jetpack, then take `steps`, checking each landed in the shell before `after` runs.
+ *
+ * @param page         - Page under test.
+ * @param steps        - Steps from `ROUND_TRIP`.
+ * @param hooks        - Checks around each step.
+ * @param hooks.before - Runs before the step.
+ * @param hooks.after  - Runs once the step's setup holds.
+ */
+async function walk(
+	page: Page,
+	steps: [ string, string, Go ][],
+	{ before, after }: { before?: Go; after?: Go } = {}
+): Promise< void > {
+	await openMember( page, MJ );
+	for ( const [ slug, other, go ] of steps ) {
+		await before?.( page, slug );
+		await go( page, slug );
+		await expectSwitched( page, slug, other );
+		await after?.( page, slug );
+	}
+}
+
+/**
+ * Keyboard switch to Forms, open its modal, go Back to My Jetpack, checking the setup on the way.
+ *
+ * @param page              - Page under test.
+ * @param hooks             - Checks at each stop.
+ * @param hooks.afterSwitch - Runs once Forms is shown.
+ * @param hooks.afterBack   - Runs once My Jetpack is shown again and the modal is gone.
+ */
+async function keyboardPass(
+	page: Page,
+	{
+		afterSwitch,
+		afterBack,
+	}: { afterSwitch?: () => Promise< void >; afterBack?: () => Promise< void > } = {}
+): Promise< void > {
+	await openMember( page, MJ );
+	await keyboardSwitchTo( page, FORMS );
+	await expectSwitched( page, FORMS, MJ );
+	await afterSwitch?.();
+	const dialog = await openCreateForm( page );
+	await back( page, MJ );
+	await expectSwitched( page, MJ, FORMS );
+	await expect( dialog ).toBeHidden();
+	await afterBack?.();
+}
+
 test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 	test.beforeEach( async ( { page } ) => {
 		await installShellProbe( page );
 		await installA11yProbe( page );
 	} );
 
+	// The expected-fail tests pass on any error, so these run their setup where a break shows.
+	// eslint-disable-next-line playwright/expect-expect -- walk() asserts.
+	test( 'setup: the switches and Back stay in the shell', async ( { page } ) => {
+		await walk( page, ROUND_TRIP );
+	} );
+
+	// eslint-disable-next-line playwright/expect-expect -- keyboardPass() asserts.
+	test( 'setup: the keyboard pass reaches the modal and goes Back in the shell', async ( {
+		page,
+	} ) => {
+		await keyboardPass( page );
+	} );
+
 	test( 'focus moves to the shown page’s heading on every switch', async ( { page } ) => {
 		test.fail( true, NO_FOCUS );
-		await openMember( page, MJ );
-		await switchTo( page, FORMS );
-		await expect( mainHeading( page, FORMS ) ).toBeFocused();
-		await switchTo( page, MJ );
-		await expect( mainHeading( page, MJ ) ).toBeFocused();
-		await back( page, FORMS );
-		await expect( mainHeading( page, FORMS ) ).toBeFocused();
+		await walk( page, ROUND_TRIP, {
+			after: ( p, slug ) => expect( mainHeading( p, slug ) ).toBeFocused(),
+		} );
 	} );
 
 	test( 'every switch announces the new page title politely', async ( { page } ) => {
 		test.fail( true, 'Not implemented: no live region announces a switch.' );
-		await openMember( page, MJ );
-		for ( const slug of [ FORMS, MJ ] ) {
-			await resetA11yProbe( page );
-			await switchTo( page, slug );
-			await expect
-				.poll( () => announcements( page ), `announcement for ${ slug }` )
-				.toContainEqual(
-					expect.objectContaining( {
-						politeness: 'polite',
-						text: expect.stringContaining( member( slug ).title ),
-					} )
-				);
-		}
+		await walk( page, ROUND_TRIP.slice( 0, 2 ), {
+			before: resetA11yProbe,
+			after: ( p, slug ) =>
+				expect
+					.poll( () => announcements( p ), `announcement for ${ slug }` )
+					.toContainEqual(
+						expect.objectContaining( {
+							politeness: 'polite',
+							text: expect.stringContaining( member( slug ).title ),
+						} )
+					),
+		} );
 	} );
 
 	test( 'hidden apps are inert and out of the accessibility tree', async ( { page } ) => {
@@ -120,10 +225,7 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 	test( 'a switched-in app’s modal takes focus and returns it on Escape', async ( { page } ) => {
 		await openMember( page, MJ );
 		await keyboardSwitchTo( page, FORMS );
-		await createForm( page ).focus();
-		await page.keyboard.press( 'Enter' );
-		const dialog = page.getByRole( 'dialog' );
-		await expect( dialog ).toBeVisible();
+		const dialog = await openCreateForm( page );
 		const focusInDialog = () =>
 			expect
 				.poll( () => dialog.evaluate( d => d.contains( d.ownerDocument.activeElement ) ) )
@@ -140,18 +242,13 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 
 	test( 'keyboard: sidebar, page, modal, Back', async ( { page } ) => {
 		test.fail( true, NO_FOCUS );
-		await openMember( page, MJ );
-		await keyboardSwitchTo( page, FORMS );
-		await expect( mainHeading( page, FORMS ) ).toBeFocused();
-		await page.keyboard.press( 'Tab' );
-		expect( await focusOwner( page ), 'Tab after a switch stays in the page' ).toBe( FORMS );
-
-		await createForm( page ).focus();
-		await page.keyboard.press( 'Enter' );
-		const dialog = page.getByRole( 'dialog' );
-		await expect( dialog ).toBeVisible();
-		await back( page, MJ );
-		await expect( dialog ).toBeHidden();
-		await expect( mainHeading( page, MJ ) ).toBeFocused();
+		await keyboardPass( page, {
+			afterSwitch: async () => {
+				await expect( mainHeading( page, FORMS ) ).toBeFocused();
+				await page.keyboard.press( 'Tab' );
+				expect( await focusOwner( page ), 'Tab after a switch stays in the page' ).toBe( FORMS );
+			},
+			afterBack: () => expect( mainHeading( page, MJ ) ).toBeFocused(),
+		} );
 	} );
 } );
