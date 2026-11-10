@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a loop that could flood the database with writes when the standalone default switches the module on.

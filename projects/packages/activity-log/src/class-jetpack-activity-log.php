@@ -115,6 +115,13 @@ class Jetpack_Activity_Log {
 	private static $jitm_opt_out_screen_id = null;
 
 	/**
+	 * Whether activate_standalone_default() has run in this request.
+	 *
+	 * @var bool
+	 */
+	private static $standalone_default_attempted = false;
+
+	/**
 	 * Entry point. Idempotent: safe to call from multiple bootstraps.
 	 *
 	 * Bootstraps only while the `activity-log` module is on, so the toggle
@@ -198,6 +205,12 @@ class Jetpack_Activity_Log {
 	 * @return void
 	 */
 	public static function activate_standalone_default() {
+		// initialize() calls back into here, so the option alone cannot stop the cycle if it fails to read back.
+		if ( self::$standalone_default_attempted ) {
+			return;
+		}
+		self::$standalone_default_attempted = true;
+
 		if ( class_exists( 'Jetpack' ) || Jetpack_Options::get_option( self::DEFAULT_ACTIVATED_OPTION ) ) {
 			return;
 		}
@@ -206,7 +219,6 @@ class Jetpack_Activity_Log {
 			return;
 		}
 
-		// Record before re-entering initialize(), which calls back into here.
 		Jetpack_Options::update_option( self::DEFAULT_ACTIVATED_OPTION, true );
 
 		// initialize() ran before this and found the module off, so wire up now
