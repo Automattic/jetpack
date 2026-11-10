@@ -10,6 +10,13 @@ use PHPUnit\Framework\TestCase;
 class StatsTest extends TestCase {
 
 	/**
+	 * HTTP requests captured by the `pre_http_request` filter, as `[ url, args ]` pairs.
+	 *
+	 * @var array[]
+	 */
+	private $requests = array();
+
+	/**
 	 * Test add and get_current_status methods
 	 */
 	public function test_add_get() {
@@ -111,9 +118,8 @@ class StatsTest extends TestCase {
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_do_server_side_stat' )]
 	public function test_do_server_side_stat( $blocking, $response, $expected ) {
-		$requests = array();
-		$filter   = function ( $pre, $args, $url ) use ( &$requests, $response ) {
-			$requests[] = array( $url, $args );
+		$filter = function ( $pre, $args, $url ) use ( $response ) {
+			$this->requests[] = array( $url, $args );
 			return $response;
 		};
 		add_filter( 'pre_http_request', $filter, 10, 3 );
@@ -125,14 +131,14 @@ class StatsTest extends TestCase {
 		}
 
 		$this->assertSame( $expected, $result );
-		$this->assertCount( 1, $requests );
-		$this->assertSame( 'https://example.com/g.gif?x_jetpack-group=test', $requests[0][0] );
+		$this->assertCount( 1, $this->requests );
+		$this->assertSame( 'https://example.com/g.gif?x_jetpack-group=test', $this->requests[0][0] );
 		if ( $blocking ) {
-			$this->assertTrue( $requests[0][1]['blocking'] );
-			$this->assertNotSame( 1, $requests[0][1]['timeout'] );
+			$this->assertTrue( $this->requests[0][1]['blocking'] );
+			$this->assertNotSame( 1, $this->requests[0][1]['timeout'] );
 		} else {
-			$this->assertFalse( $requests[0][1]['blocking'] );
-			$this->assertSame( 1, $requests[0][1]['timeout'] );
+			$this->assertFalse( $this->requests[0][1]['blocking'] );
+			$this->assertSame( 1, $this->requests[0][1]['timeout'] );
 		}
 	}
 
