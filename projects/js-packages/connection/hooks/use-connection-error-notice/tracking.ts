@@ -1,5 +1,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { placementProps } from '../../helpers/connection-tracking.ts';
 import type { ConnectionErrorObject, ConnectionErrorTrackingCallback } from './types.ts';
+import type { ConnectionPlacement } from '../../helpers/connection-tracking.ts';
 
 /**
  * Canonical Tracks events for interactions inside a connection error notice.
@@ -31,13 +33,15 @@ export interface ConnectionErrorTrackingOptions {
 	trackingCallback?: ConnectionErrorTrackingCallback | null;
 	/** The surface reporting the event, e.g. 'my-jetpack', 'protect'. */
 	trackingContext?: string;
+	/** Where on the page the notice sits; sent as `placement` only when set. */
+	trackingPlacement?: ConnectionPlacement;
 	/** The error the notice is describing, for the standard payload. */
 	error?: ConnectionErrorObject;
 }
 
 /**
  * Fire one connection-error-notice Tracks event with the standard payload
- * (`context`, `error_code`, `audience`), plus any event-specific `extra`.
+ * (`context`, `error_code`, `audience`, and `placement` when set), plus any event-specific `extra`.
  *
  * @param {string}                         event   - One of CONNECTION_ERROR_NOTICE_EVENTS.
  * @param {ConnectionErrorTrackingOptions} options - Dispatch target and payload context.
@@ -45,7 +49,7 @@ export interface ConnectionErrorTrackingOptions {
  */
 export function trackConnectionErrorNoticeEvent(
 	event: string,
-	{ trackingCallback, trackingContext, error }: ConnectionErrorTrackingOptions,
+	{ trackingCallback, trackingContext, trackingPlacement, error }: ConnectionErrorTrackingOptions,
 	extra: object = {}
 ): void {
 	const payload = {
@@ -57,6 +61,7 @@ export function trackConnectionErrorNoticeEvent(
 		// strings rather than sending Tracks whatever arrived.
 		error_code: typeof error?.error_code === 'string' ? error.error_code : null,
 		audience: typeof error?.audience === 'string' ? error.audience : 'site',
+		...placementProps( trackingPlacement ),
 	};
 
 	try {

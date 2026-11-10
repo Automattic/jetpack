@@ -62,6 +62,15 @@ class Admin_Page {
 	private static $jitm_opt_out_screen_id = null;
 
 	/**
+	 * The SEO page's wp-admin URL.
+	 *
+	 * @return string
+	 */
+	public static function get_url() {
+		return admin_url( 'admin.php?page=' . self::MENU_SLUG );
+	}
+
+	/**
 	 * Register the admin menu item.
 	 *
 	 * Uses Admin_Menu so the page is reachable on wp-admin across all site
@@ -84,11 +93,10 @@ class Admin_Page {
 			self::MENU_SLUG,
 			$callback,
 			null,
-			// No module gate: the menu must stay visible even when seo-tools is off so the
-			// user can turn it back on from the page. Hosts may still use the
-			// jetpack_admin_menu_visibility filter to hide it via the 'jetpack-seo' key.
+			// Hidden while seo-tools is off, like other Jetpack modules; My Jetpack turns it back on.
 			array(
-				'key' => 'jetpack-seo',
+				'module' => 'seo-tools',
+				'key'    => 'jetpack-seo',
 			)
 		);
 
@@ -336,6 +344,7 @@ class Admin_Page {
 		// the load-error path.
 		$data[ Initializer::SCRIPT_DATA_KEY ]['google_verify'] = Dashboard_Data::get_google_verify_data();
 		$data[ Initializer::SCRIPT_DATA_KEY ]['site']          = Dashboard_Data::get_site_data();
+		$data[ Initializer::SCRIPT_DATA_KEY ]['output']        = Dashboard_Data::get_output_data();
 
 		// Plan-gating signal for below-Premium WordPress.com sites: when gated, the
 		// dashboard reduces to a free subset and surfaces the upsell banner. Self-hosted

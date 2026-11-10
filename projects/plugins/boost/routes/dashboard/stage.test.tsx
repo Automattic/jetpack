@@ -1,7 +1,5 @@
 /* eslint-disable testing-library/no-node-access */
 import 'jetpack-js-tools/jest/setup-jest-dom';
-// Test dependencies come from the plugin, not the wp-build route package.
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { act, render, screen, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { observeLegacyOnboarding } from '../../_inc/overview/lib/modules-state-bridge';

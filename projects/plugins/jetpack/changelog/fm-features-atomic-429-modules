@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-My Jetpack: Retry loading the Features list after a rate-limited or unreadable response, and say the list is incomplete when it cannot be loaded.

@@ -2,9 +2,11 @@ import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordSettingEvents } from '../setting-events';
 import useProtectSettings from '../use-protect-settings';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../setting-events', () => ( { recordSettingEvents: jest.fn() } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -27,7 +29,7 @@ const defer = (): Deferred => {
  * Answer the next settings GET and the next POST with the given promises.
  *
  * @param responses      - The promises to answer with.
- * @param responses.get  - Answers `GET /jetpack/v4/settings`.
+ * @param responses.get  - Answers `GET /jetpack/v4/protect-dashboard/settings`.
  * @param responses.post - Answers any POST.
  */
 const respondWith = ( { get, post }: { get?: Promise< unknown >; post?: Promise< unknown > } ) => {
@@ -35,13 +37,14 @@ const respondWith = ( { get, post }: { get?: Promise< unknown >; post?: Promise<
 		if ( method === 'POST' ) {
 			return post;
 		}
-		return path === '/jetpack/v4/settings' ? get : Promise.resolve( null );
+		return path === '/jetpack/v4/protect-dashboard/settings' ? get : Promise.resolve( null );
 	} );
 };
 
 const settingsRequests = () =>
 	mockApiFetch.mock.calls.filter(
-		( [ { path, method } ] ) => path === '/jetpack/v4/settings' && method !== 'POST'
+		( [ { path, method } ] ) =>
+			path === '/jetpack/v4/protect-dashboard/settings' && method !== 'POST'
 	);
 
 const snackbars = () =>
@@ -59,15 +62,23 @@ describe( 'useProtectSettings', () => {
 	} );
 
 	it.each( [
-		[ 'confirms a save', Promise.resolve( {} ), [ 'Settings updated.' ] ],
-		[ 'stays quiet when a save fails', Promise.reject( { message: 'Nope' } ), [] ],
-	] )( '%s in a snackbar', async ( _name, post, expected ) => {
-		respondWith( { post } );
+		[
+			'confirms a save',
+			Promise.resolve( {} ),
+			[ 'Settings updated.' ],
+			[ [ { list: 'new' }, { list: 'old' } ] ],
+		],
+		[ 'stays quiet when a save fails', Promise.reject( { message: 'Nope' } ), [], [] ],
+	] )( '%s in a snackbar and Tracks', async ( _name, post, expected, tracked ) => {
+		respondWith( { get: Promise.resolve( { list: 'old' } ), post } );
+		( recordSettingEvents as jest.Mock ).mockClear();
 		const { result } = renderHook( () => useProtectSettings() );
+		await act( async () => result.current.load() );
 
 		await act( () => result.current.save( { list: 'new' } ) );
 
 		expect( snackbars() ).toEqual( expected );
+		expect( ( recordSettingEvents as jest.Mock ).mock.calls ).toEqual( tracked );
 	} );
 
 	it.each( [
@@ -102,12 +113,18 @@ describe( 'useProtectSettings', () => {
 		],
 		[ 'waf_error', 'The firewall couldn’t finish applying your change.', { list: 'stored' } ],
 		[ 'other_error', 'Raw server text', {} ],
+		[
+			'rest_invalid_param',
+			'Your IP address is on the block list.',
+			{},
+			{ params: { list: 'Your IP address is on the block list.' } },
+		],
 	] )(
 		'a failed save with the code %s shows "%s" and leaves %j',
-		async ( code, message, expected ) => {
+		async ( code, message, expected, data: object = {} ) => {
 			respondWith( {
 				get: Promise.resolve( { list: 'stored', other: 1 } ),
-				post: Promise.reject( { code, message: 'Raw server text' } ),
+				post: Promise.reject( { code, message: 'Raw server text', data } ),
 			} );
 			const { result } = renderHook( () => useProtectSettings() );
 

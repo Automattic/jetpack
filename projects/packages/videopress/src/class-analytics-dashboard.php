@@ -1,6 +1,6 @@
 <?php
 /**
- * The Top videos widget of the Premium Analytics dashboard.
+ * VideoPress widgets of the Premium Analytics dashboard.
  *
  * @package automattic/jetpack-videopress
  */
@@ -10,12 +10,13 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Status\Host;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_LIST;
 
 /**
- * Registers the Top videos widget type on the Premium Analytics dashboard and seeds it into the
- * Traffic section's default layout.
+ * Registers the package's widget types on the Premium Analytics dashboard and seeds Top videos
+ * into the Traffic section's default layout.
  *
- * The package decides nothing about who gets the widget: `Initializer` calls `init()` where
+ * The package decides nothing about who gets the widgets: `Initializer` calls `init()` where
  * VideoPress is active outside the WordPress.com platform, jetpack-mu-wpcom calls the registrants
  * on Simple and Atomic where the plan includes VideoPress. Everything registers when the
  * dashboard's widget registry hydrates, so a call on a site without the dashboard is inert.
@@ -28,6 +29,11 @@ class Analytics_Dashboard {
 	 * Widget type name the package builds, from `widgets/top-videos/widget.json`.
 	 */
 	const TOP_VIDEOS_TYPE = 'videopress/top-videos';
+
+	/**
+	 * Widget type name the package builds, from `widgets/video-player/widget.json`.
+	 */
+	const VIDEO_PLAYER_TYPE = 'videopress/video-player';
 
 	/**
 	 * Names the widget type registered under before it moved here. A persisted layout that still
@@ -53,9 +59,10 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-videopress-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: 2.0.0, the start of the major it is built for.
+	 * Lowest widget contract the build works against: Top videos renders the `@wordpress/ui`
+	 * primitives the SDK shares, which the dashboard ships from 2.1.0.
 	 */
-	const MIN_WIDGET_API_VERSION = '2.0.0';
+	const MIN_WIDGET_API_VERSION = '2.1.0';
 
 	/**
 	 * Hook the registrant on the dashboard's registry action and the seed on its layout filter.
@@ -95,7 +102,10 @@ class Analytics_Dashboard {
 				'textdomain'    => self::TEXTDOMAIN,
 				'i18n_manifest' => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, plugins_url( 'i18n-manifest.json', self::build_dir() . '/build.php' ) ),
 				'former_names'  => array( self::TOP_VIDEOS_TYPE => self::TOP_VIDEOS_FORMER_NAMES ),
-				'plan_features' => array( self::TOP_VIDEOS_TYPE => 'videos' ),
+				'plan_features' => array(
+					self::TOP_VIDEOS_TYPE   => 'videos',
+					self::VIDEO_PLAYER_TYPE => 'videos',
+				),
 			),
 			$registry
 		);
@@ -126,7 +136,7 @@ class Analytics_Dashboard {
 			}
 		}
 
-		$layout[] = get_dashboard_default_widget_instance( self::TOP_VIDEOS_INSTANCE_UUID, self::TOP_VIDEOS_TYPE, 8, 1, 2 );
+		$layout[] = get_dashboard_default_widget_instance( self::TOP_VIDEOS_INSTANCE_UUID, self::TOP_VIDEOS_TYPE, 8, 1, DASHBOARD_TILE_LIST );
 
 		return $layout;
 	}

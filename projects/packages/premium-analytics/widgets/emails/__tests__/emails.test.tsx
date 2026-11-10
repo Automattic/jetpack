@@ -72,7 +72,7 @@ describe( 'EmailsList', () => {
 		const link = screen.getByRole( 'link', { name: 'Monthly newsletter' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/12' );
+		expect( url.pathname ).toBe( '/report/post/12' );
 		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
 		expect( url.searchParams.get( 'section' ) ).toBe( expectedSection );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'emails' );
@@ -100,6 +100,33 @@ describe( 'EmailsList', () => {
 			).toBeInTheDocument();
 		}
 	);
+
+	it( 'offers the live email in a new tab beside the title', () => {
+		renderEmailsList( 'opens' );
+
+		expect(
+			screen.getByRole( 'link', { name: 'View "Monthly newsletter" in a new tab' } )
+		).toHaveAttribute( 'href', 'https://example.com/newsletter/' );
+	} );
+
+	it.each( [
+		[ 'no post ID', { link: 'https://example.com/digest/' }, 1 ],
+		[ 'no public URL', { postId: 7 }, 1 ],
+	] )( 'offers no "View" action for an email with %s', ( _case, overrides, links ) => {
+		render(
+			<WidgetRoot attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-30' } } }>
+				<EmailsList rows={ [ row( { id: 7, label: 'Digest', ...overrides } ) ] } metric="opens" />
+			</WidgetRoot>
+		);
+
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( links );
+		expect( screen.queryByRole( 'link', { name: /^View / } ) ).not.toBeInTheDocument();
+		// An empty action slot beside the label would still space it; the label holds the title alone.
+		// eslint-disable-next-line testing-library/no-node-access -- An empty slot has no accessible query target.
+		const label = screen.getByText( 'Digest' ).closest( 'li' )?.firstElementChild;
+		// eslint-disable-next-line testing-library/no-node-access -- Its child count is the check.
+		expect( label?.childElementCount ).toBe( 1 );
+	} );
 
 	it( 'keeps rows in the same order for either metric', () => {
 		const orderRows = [
@@ -195,7 +222,7 @@ describe( 'EmailsList', () => {
 		const link = await screen.findByRole( 'link', { name: 'API newsletter' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/71' );
+		expect( url.pathname ).toBe( '/report/post/71' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/api-newsletter/' );
 		expect( url.searchParams.get( 'section' ) ).toBe( 'email-opens' );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'emails' );

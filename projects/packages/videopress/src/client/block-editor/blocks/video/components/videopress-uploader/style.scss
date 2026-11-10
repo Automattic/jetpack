@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 // Progress Footer
 
@@ -8,7 +8,7 @@
 	width: 100%;
 	align-items: center;
 	justify-content: space-between;
-	border-top: 1px solid gb.$gray-200;
+	border-top: 1px solid colors.$gray-200;
 	padding-top: 8px;
 	gap: 16px;
 
@@ -21,7 +21,7 @@
 	}
 
 	&__file-size {
-		color: gb.$gray-600;
+		color: colors.$gray-600;
 	}
 
 	&__progress {
@@ -76,7 +76,7 @@
 	}
 
 	&__scrubber-help {
-		color: gb.$gray-700;
+		color: colors.$gray-700;
 	}
 
 	&__poster-buttons {
@@ -133,8 +133,8 @@
 	}
 
 	&.is-error {
-		background-color: gb.$gray-100;
-		border-left-color: gb.$alert-red;
+		background-color: colors.$gray-100;
+		border-left-color: colors.$alert-red;
 		border-radius: 2px;
 		position: relative;
 	}

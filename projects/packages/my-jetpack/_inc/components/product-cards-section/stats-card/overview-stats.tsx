@@ -3,6 +3,7 @@ import { Button, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 import formatNumber from '../../../utils/format-number';
+import LoadingBlock from '../../loading-block';
 import { transformStatsDataForChart } from '../../stats-section/cards';
 import StatsChart from '../../stats-section/stats-chart';
 import styles from './overview-stats.module.scss';
@@ -11,6 +12,7 @@ import type { FC } from 'react';
 type Metric = 'views' | 'visitors' | 'likes' | 'comments';
 
 type OverviewStatsProps = {
+	isLoading?: boolean;
 	counts: Partial< Record< Metric, number > >;
 	chartData: object | null;
 	detailedStatsHref?: string;
@@ -30,11 +32,12 @@ type TabProps = {
 	metric: Metric;
 	label: string;
 	count?: number;
+	isLoading: boolean;
 	isSelected: boolean;
 	onSelect: ( metric: Metric ) => void;
 };
 
-const Tab: FC< TabProps > = ( { metric, label, count, isSelected, onSelect } ) => {
+const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onSelect } ) => {
 	const handleClick = useCallback( () => onSelect( metric ), [ metric, onSelect ] );
 
 	return (
@@ -42,23 +45,32 @@ const Tab: FC< TabProps > = ( { metric, label, count, isSelected, onSelect } ) =
 			variant="unstyled"
 			className={ clsx( styles.tab, { [ styles[ 'is-selected' ] ]: isSelected } ) }
 			aria-pressed={ isSelected }
+			disabled={ isLoading }
 			onClick={ handleClick }
 		>
 			<Text variant="body-md">{ label }</Text>
-			<Text variant="heading-2xl" title={ Number.isFinite( count ) ? String( count ) : undefined }>
-				{ formatNumber( count ?? 0 ) }
-			</Text>
+			{ isLoading ? (
+				<LoadingBlock width="64px" height="40px" />
+			) : (
+				<Text
+					variant="heading-2xl"
+					title={ Number.isFinite( count ) ? String( count ) : undefined }
+				>
+					{ formatNumber( count ?? 0 ) }
+				</Text>
+			) }
 		</Button>
 	);
 };
 
 /**
- * The Overview's Stats: a tab per metric with its 7-day total, above an area chart of the selected one.
+ * The Overview's Stats: a tab per metric with its total for the period, above an area chart of the selected one.
  *
  * @param {OverviewStatsProps} props - Component props.
  * @return {import('react').JSX.Element} The stats.
  */
 const OverviewStats: FC< OverviewStatsProps > = ( {
+	isLoading = false,
 	counts,
 	chartData,
 	detailedStatsHref,
@@ -72,21 +84,22 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 
 	return (
 		<Stack direction="column" gap="lg">
-			<div className={ styles.tabs }>
+			<div className={ styles.tabs } aria-busy={ isLoading }>
 				{ getMetrics().map( ( { metric, label } ) => (
 					<Tab
 						key={ metric }
 						metric={ metric }
 						label={ label }
 						count={ counts?.[ metric ] }
-						isSelected={ selectedMetric === metric }
+						isLoading={ isLoading }
+						isSelected={ ! isLoading && selectedMetric === metric }
 						onSelect={ setSelectedMetric }
 					/>
 				) ) }
 			</div>
 			<StatsChart
 				data={ series }
-				isLoading={ false }
+				isLoading={ isLoading }
 				href={ detailedStatsHref }
 				onClick={ onDetailedStatsClick }
 				selectedMetric={ selectedMetric }

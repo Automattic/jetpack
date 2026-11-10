@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Tokens;
@@ -116,7 +117,7 @@ class Jetpack_Network {
 	 * @param WP_Site $site the WordPress site object.
 	 **/
 	public function do_automatically_add_new_site( $site ) {
-		if ( is_a( $site, 'WP_Site' ) ) {
+		if ( $site instanceof \WP_Site ) {
 			$this->do_subsiteregister( $site->id );
 		}
 	}
@@ -143,7 +144,7 @@ class Jetpack_Network {
 	 * @return Jetpack_Network
 	 */
 	public static function init() {
-		if ( ! self::$instance || ! is_a( self::$instance, 'Jetpack_Network' ) ) {
+		if ( ! self::$instance || ! self::$instance instanceof \Jetpack_Network ) {
 			self::$instance = new Jetpack_Network();
 		}
 
@@ -542,24 +543,16 @@ class Jetpack_Network {
 			return;
 		}
 
-		$script_asset = require $script_asset_path;
-
-		wp_enqueue_script(
+		Assets::register_script(
 			'jetpack-network-admin',
-			plugins_url( '_inc/build/network-admin.js', JETPACK__PLUGIN_FILE ),
-			$script_asset['dependencies'],
-			$script_asset['version'],
-			true
+			'_inc/build/network-admin.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
+				'enqueue'    => true,
+			)
 		);
-
-		wp_enqueue_style(
-			'jetpack-network-admin',
-			plugins_url( '_inc/build/network-admin.css', JETPACK__PLUGIN_FILE ),
-			array(),
-			$script_asset['version']
-		);
-
-		wp_set_script_translations( 'jetpack-network-admin', 'jetpack' );
 
 		wp_localize_script(
 			'jetpack-network-admin',

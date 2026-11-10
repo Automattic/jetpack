@@ -2,9 +2,7 @@
 set -euo pipefail
 
 function ensure_composer() {
-	if [ ! -d "$HOME/.composer" ]; then
-		mkdir "$HOME/.composer"
-	fi
+	mkdir -p "$HOME/.composer"
 
 	if [ -f "$HOME/composer" ]; then
 		echo "OK: $HOME/composer"
@@ -16,36 +14,16 @@ function ensure_composer() {
 			exit 1
 		fi
 
-		echo "export PATH=$HOME/.composer/vendor/bin:$PATH" >> "$HOME/.bashrc"
-		source "$HOME/.bashrc"
-
 		php /tmp/composer-setup.php --install-dir="$HOME" --filename=composer
 
 		echo "Composer set up successfully"
 	fi
 }
 
-function checkout_project() {
-	cd "$HOME/htdocs/wp-content/mu-plugins"
-
-	if [ ! -d wpcomsh ]; then
-		git clone git@github.com:Automattic/wpcomsh.git
-	else
-		cd "$HOME/htdocs/wp-content/mu-plugins/wpcomsh"
-		git checkout .
-		git fetch --all
-		eval "git checkout $GITHUB_REF_NAME"
-		eval "git pull origin $GITHUB_REF_NAME --rebase"
-	fi
-}
-
 function setup_tests() {
 	cd "$HOME/htdocs/wp-content/mu-plugins/wpcomsh"
-	chmod 700 bin/install-wp-tests.sh
-	"$HOME/composer" global remove "phpunit/phpunit" --dev --no-update
 	VER=$( jq -r '.["require-dev"]["yoast/phpunit-polyfills"]' composer.json )
 	"$HOME/composer" global require "yoast/phpunit-polyfills=$VER" --dev -W
-	# "$HOME/composer" install --no-dev --optimize-autoloader
 
 	bin/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASSWORD" "$DB_HOST" latest true
 
@@ -55,12 +33,10 @@ function setup_tests() {
 function run_tests() {
 	cd "$HOME/htdocs/wp-content/mu-plugins/wpcomsh"
 
-	source "$HOME/.bashrc"
-
 	# Caching causes issues, so move it.
 	[[ -f "$WP_CONTENT_DIR/object-cache.php" ]] && mv -v "$WP_CONTENT_DIR"/object-cache{,_disabled}.php
 
-	$HOME/.composer/vendor/bin/phpunit --testsuite wpcloud
+	"$HOME/.composer/vendor/bin/phpunit" --testsuite wpcloud
 
 	# Move it back into place
 	[[ -f "$WP_CONTENT_DIR/object-cache_disabled.php" ]] && mv -v "$WP_CONTENT_DIR"/object-cache{_disabled,}.php

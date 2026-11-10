@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the routes and client the dashboard uses to reach WordPress.com, and a prompt to connect a WordPress.com account.

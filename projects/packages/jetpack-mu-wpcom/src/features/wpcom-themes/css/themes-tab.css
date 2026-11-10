@@ -30,3 +30,23 @@
 	width: fit-content;
 	margin-block-start: 10px;
 }
+
+/* Between core's tabs and its Feature Filter button. */
+.wpcom-themes-tab__pricing {
+	margin-inline: 10px;
+}
+
+/* Sized like core's own selects in this bar, to match its search box.
+   Core middle-aligns selects; baseline puts the text level with the tabs. */
+.wp-filter .wpcom-themes-tab__pricing select {
+	min-height: 32px;
+	line-height: 2.14286;
+	vertical-align: baseline;
+}
+
+@media screen and (max-width: 782px) {
+
+	.wp-filter .wpcom-themes-tab__pricing select {
+		min-height: 40px;
+	}
+}

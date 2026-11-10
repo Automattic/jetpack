@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show that Backup is unavailable in Offline Mode instead of the dashboard, and refuse Backup requests while Jetpack is in Offline Mode.

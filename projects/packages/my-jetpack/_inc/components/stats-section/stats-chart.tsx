@@ -163,6 +163,8 @@ const StatsChart: FC< StatsChartProps > = ( {
 							data={ data }
 							height={ 200 }
 							withGradientFill
+							// The default Catmull-Rom curve dips below 0 between a 0 day and a high one.
+							curveType="monotone"
 							withTooltips
 							showLegend={ false }
 							gridVisibility="y"

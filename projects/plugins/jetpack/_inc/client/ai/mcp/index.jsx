@@ -207,8 +207,8 @@ export default function McpHub( {
 			: defaultBadge;
 
 	const handleMcpToggle = useCallback(
-		enabled => {
-			recordMcpTracksEvent( 'jetpack_mcp_enabled_toggled', { enabled } );
+		( enabled, source = 'toggle' ) => {
+			recordMcpTracksEvent( 'jetpack_mcp_enabled_toggled', { enabled, source } );
 			const abilities = {};
 			if ( enabled ) {
 				// Enable all tools (read + write) by default, matching the backend's

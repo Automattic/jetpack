@@ -10,14 +10,14 @@
 	margin-bottom: 1.5rem;
 	max-width: 50%;
 
-	> div {
-		height: 12px;
-	}
-
-	span {
+	> span {
 		margin-top: rem.convert(10px);
 		display: block;
 	}
+}
+
+.media__videopress-storage-track {
+	block-size: 12px;
 }
 
 

@@ -452,7 +452,7 @@ class Backup extends Hybrid_Product {
 	 *
 	 * An older Jetpack plugin still opens its dashboard only while the module is on.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.0
 	 *
 	 * @return bool
 	 */
@@ -486,7 +486,7 @@ class Backup extends Hybrid_Product {
 	/**
 	 * Whether the Jetpack plugin offers its bundled Backup dashboard, which Jetpack::configure_backup_package() asks.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.0
 	 *
 	 * @return bool
 	 */
@@ -573,7 +573,7 @@ class Backup extends Hybrid_Product {
 	/**
 	 * Whether the site's stored plan or products include Backup, current or expired, without asking WordPress.com.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.0
 	 *
 	 * @return bool
 	 */
@@ -588,7 +588,7 @@ class Backup extends Hybrid_Product {
 
 		// An expired bundle stays the stored plan without listing its features, so match its family by slug.
 		$plan_slug = (string) ( $plan['product_slug'] ?? '' );
-		foreach ( array( 'jetpack_starter_', 'jetpack_security_', 'jetpack_complete', 'jetpack_personal', 'jetpack_premium', 'jetpack_business' ) as $prefix ) {
+		foreach ( array( 'jetpack_starter_', 'jetpack_security_', 'jetpack_complete', 'jetpack_pro_', 'jetpack_personal', 'jetpack_premium', 'jetpack_business' ) as $prefix ) {
 			if ( str_starts_with( $plan_slug, $prefix ) ) {
 				return true;
 			}

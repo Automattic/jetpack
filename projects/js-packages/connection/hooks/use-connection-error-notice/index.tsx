@@ -51,6 +51,7 @@ export default function useConnectionErrorNotice( {
 	actionHandlers = NO_ACTION_HANDLERS,
 	trackingCallback = null,
 	trackingContext,
+	trackingPlacement,
 	customActions = null,
 	reconnectTrackingEvent,
 	navigate,
@@ -158,6 +159,7 @@ export default function useConnectionErrorNotice( {
 						actionHandlers,
 						trackingCallback,
 						trackingContext,
+						trackingPlacement,
 						customActions,
 						restoreConnection,
 						isRestoringConnection,
@@ -170,6 +172,7 @@ export default function useConnectionErrorNotice( {
 			actionHandlers,
 			trackingCallback,
 			trackingContext,
+			trackingPlacement,
 			customActions,
 			restoreConnection,
 			isRestoringConnection,
@@ -200,11 +203,11 @@ export default function useConnectionErrorNotice( {
 			}
 			trackConnectionErrorNoticeEvent(
 				CONNECTION_ERROR_NOTICE_EVENTS.noticeLink,
-				{ trackingCallback, trackingContext, error: source },
+				{ trackingCallback, trackingContext, trackingPlacement, error: source },
 				{ link_url: linkPath }
 			);
 		},
-		[ trackingCallback, trackingContext, displayableErrors, actionError ]
+		[ trackingCallback, trackingContext, trackingPlacement, displayableErrors, actionError ]
 	);
 
 	const trackSupportLinkClick = useCallback( () => {
@@ -214,9 +217,10 @@ export default function useConnectionErrorNotice( {
 		trackConnectionErrorNoticeEvent( CONNECTION_ERROR_NOTICE_EVENTS.supportLink, {
 			trackingCallback,
 			trackingContext,
+			trackingPlacement,
 			error: source,
 		} );
-	}, [ trackingCallback, trackingContext, displayableErrors, actionError ] );
+	}, [ trackingCallback, trackingContext, trackingPlacement, displayableErrors, actionError ] );
 
 	return {
 		hasConnectionError,

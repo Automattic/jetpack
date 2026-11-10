@@ -5,7 +5,8 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
+import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
 	usePeriodHost,
@@ -21,7 +22,6 @@ import {
 	SectionHeader,
 	SectionTabPanel,
 	StatsBreadcrumbs,
-	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
 	canSendFeedback,
@@ -55,6 +55,7 @@ import {
 } from './components';
 import {
 	buildWidgetTypeRenames,
+	DASHBOARD_GRID,
 	DATE_FILTER_YEAR,
 	getInsertableWidgetTypeNames,
 	hasStoreSection,
@@ -67,7 +68,6 @@ import {
 } from './config';
 import {
 	useActiveSection,
-	useDashboardGridSettings,
 	useDashboardPolicy,
 	useDashboardSectionLayout,
 	useDashboardSections,
@@ -127,6 +127,10 @@ function Dashboard(): JSX.Element {
 		switchSearch
 	);
 	const isSettingsActive = activeSection === SETTINGS_SECTION;
+	const openSettings = useCallback(
+		() => setActiveSection( SETTINGS_SECTION ),
+		[ setActiveSection ]
+	);
 	const widgetSection = widgetSectionOf( activeSection, sections );
 	const widgetModules = useWidgetModules();
 	const widgetTypeRenames = useMemo(
@@ -138,8 +142,6 @@ function Dashboard(): JSX.Element {
 		sections,
 		widgetTypeRenames
 	);
-	const [ gridSettings ] = useDashboardGridSettings();
-
 	const activeSectionRecord = sections.find( section => section.slug === widgetSection );
 
 	// The inserter offers the active section's default layout types plus those it declares insertable.
@@ -221,6 +223,7 @@ function Dashboard(): JSX.Element {
 			onEditChange( false );
 		}
 	}, [ editMode, canCustomizeSection, onEditChange ] );
+
 	// Settings has no layout to customize.
 	const canPerform = useMemo< typeof dashboardPolicy >(
 		() =>
@@ -246,6 +249,7 @@ function Dashboard(): JSX.Element {
 	const { dateLimits, offersComparison: planOffersComparison } = useStatsDateLimits(
 		isPlanDateLimitedSection( widgetSection )
 	);
+
 	useDateWindowNotice();
 	const lockedIntervals = dateLimits?.lockedIntervals;
 
@@ -253,7 +257,7 @@ function Dashboard(): JSX.Element {
 	 * Date-range state lives in the URL search params; the controller stages edits
 	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
-	const dateFilters = useReportDateFilters( '/', { lockedIntervals } );
+	const dateFilters = useReportDateFilters( '/', { dateLimits } );
 
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section
@@ -337,7 +341,9 @@ function Dashboard(): JSX.Element {
 		onChange: changeDateRange,
 		onComparisonChange: changeComparison,
 		onApply: applyDateRange,
+		stepping,
 	} = dateFilters;
+
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
 			presetId: dateFilters.presetId,
@@ -371,12 +377,36 @@ function Dashboard(): JSX.Element {
 		trackedOnApply();
 		rememberOnApply();
 	}, [ applyDateRange, trackedOnApply, rememberOnApply ] );
+
 	const onComparisonChange = useCallback< typeof changeComparison >(
 		( range, presetId ) => {
 			changeComparison( range, presetId );
 			rememberOnComparisonChange( range, presetId );
 		},
 		[ changeComparison, rememberOnComparisonChange ]
+	);
+	// A step applies at once and is tracked like a range the reader picked. It
+	// never changes the remembered preset: turning the page is not picking one.
+	const stepDateRange = stepping.onStep;
+	const onDateStep = useCallback< typeof stepDateRange >(
+		direction => {
+			const stepped = stepDateRange( direction );
+
+			if ( stepped ) {
+				trackedOnChange( stepped.range, stepped.presetId, {
+					exactRange: true,
+					interval: stepped.interval,
+				} );
+				trackedOnApply();
+			}
+
+			return stepped;
+		},
+		[ stepDateRange, trackedOnChange, trackedOnApply ]
+	);
+	const dateStepping = useMemo(
+		() => ( { ...stepping, onStep: onDateStep } ),
+		[ stepping, onDateStep ]
 	);
 
 	/*
@@ -459,6 +489,7 @@ function Dashboard(): JSX.Element {
 					onChange={ onDateChange }
 					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
+					stepping={ dateStepping }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
 				/>
@@ -491,12 +522,12 @@ function Dashboard(): JSX.Element {
 							layout={ visibleLayout }
 							onLayoutChange={ onVisibleLayoutChange }
 							onLayoutReset={ resetLayout }
-							gridSettings={ gridSettings }
+							gridSettings={ DASHBOARD_GRID }
 							editMode={ editMode }
 							onEditChange={ onEditChange }
 						>
 							<Page
-								visual={ <StatsPageIcon /> }
+								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 								actions={
 									<Stack direction="row" gap="sm">
@@ -538,7 +569,6 @@ function Dashboard(): JSX.Element {
 												ref={ setHeaderRef }
 												title={ resolveSectionHeading( section ) }
 												pinned
-												notice={ <RefreshFailureNotice /> }
 												controlsRef={ setControlsAnchor }
 											>
 												{ dateControls }
@@ -546,54 +576,58 @@ function Dashboard(): JSX.Element {
 
 											{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
 											{ activeSection === section.slug && isSectionCommitted ? (
-												<div className={ styles.body }>
-													{ ! editMode && <DashboardNotices /> }
+												<DashboardSectionProvider section={ section.slug }>
+													<div className={ styles.body }>
+														<RefreshFailureNotice />
+														{ ! editMode && <DashboardNotices onOpenSettings={ openSettings } /> }
 
-													{ /* Behind the onboarding journey: it introduces the tabs
-													     the banner asks about. */ }
-													<FeedbackBanner
-														enabled={
-															canSendFeedback() &&
-															! editMode &&
-															section.slug === defaultSection &&
-															onboarding.phase === 'closed'
-														}
-													/>
-
-													{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
-														<SectionSyncNotice
-															canRunSync={ canRunSync }
-															percentage={ syncStatus?.percentage ?? 0 }
-															hasError={ !! syncError }
-															onRetry={ retrySync }
-															isRetrying={ isRetryingSync }
+														{ /* Behind the onboarding journey: it introduces the tabs
+														     the banner asks about. */ }
+														<FeedbackBanner
+															enabled={
+																canSendFeedback() &&
+																! editMode &&
+																section.slug === defaultSection &&
+																onboarding.phase === 'closed'
+															}
 														/>
-													) : (
-														section.notice && <SectionNotice message={ section.notice } />
-													) }
 
-													{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
-													<div ref={ setWidgetsFrame }>
-														<DashboardSectionProvider section={ section.slug }>
+														{ isSectionAwaitingSync( section, isSyncFinished ) &&
+														! isSyncComplete ? (
+															<SectionSyncNotice
+																canRunSync={ canRunSync }
+																percentage={ syncStatus?.percentage ?? 0 }
+																hasError={ !! syncError }
+																onRetry={ retrySync }
+																isRetrying={ isRetryingSync }
+															/>
+														) : (
+															section.notice && <SectionNotice message={ section.notice } />
+														) }
+
+														{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
+														<div ref={ setWidgetsFrame }>
 															<WidgetDashboard.Widgets className={ styles.widgets } />
-														</DashboardSectionProvider>
+														</div>
+														{ isSectionLocked && <LockedSection section={ section.slug } /> }
 													</div>
-													{ isSectionLocked && <LockedSection section={ section.slug } /> }
-												</div>
+												</DashboardSectionProvider>
 											) : null }
 										</SectionTabPanel>
 									) ) }
 
 									{ hasSettingsTab && (
 										<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
-											<div className={ styles.body }>
-												<StatsSettingsPanel />
-											</div>
+											<DashboardSectionProvider section={ SETTINGS_SECTION }>
+												<div className={ styles.body }>
+													<StatsSettingsPanel />
+												</div>
+											</DashboardSectionProvider>
 										</SectionTabPanel>
 									) }
-								</DashboardSections>
 
-								<JetpackFooter />
+									<JetpackFooter />
+								</DashboardSections>
 
 								<WidgetDashboard.Commands />
 

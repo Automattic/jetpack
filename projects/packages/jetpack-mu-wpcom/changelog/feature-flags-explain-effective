@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Feature Flags: Show on the Tools > Feature Flags screen when code changed a flag's effective value, and fix the effective value of all-digit flag names.

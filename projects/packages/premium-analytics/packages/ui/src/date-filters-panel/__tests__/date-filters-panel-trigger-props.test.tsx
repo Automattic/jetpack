@@ -22,7 +22,6 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	return {
 		...actual,
 		Button: recordLook( actual.Button ),
-		IconButton: recordLook( actual.IconButton ),
 	};
 } );
 

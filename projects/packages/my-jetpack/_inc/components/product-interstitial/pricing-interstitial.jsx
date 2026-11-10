@@ -24,11 +24,13 @@ import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
 import useProduct from '../../data/products/use-product';
+import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
@@ -63,7 +65,7 @@ export default function PricingInterstitial( { slug } ) {
 	const bundleSlug = proIsOnSale ? preferredBundle : fallbackBundle;
 	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( bundleSlug );
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
@@ -138,8 +140,10 @@ export default function PricingInterstitial( { slug } ) {
 			? {
 					...detail.pricingForUi.tiers.upgraded,
 					// Calculate monthly prices from annual if needed
-					fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
-					discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
+					fullPricePerMonth: tierPricePerMonth( detail.pricingForUi.tiers.upgraded.fullPrice ),
+					discountPricePerMonth: tierPricePerMonth(
+						detail.pricingForUi.tiers.upgraded.discountPrice
+					),
 				}
 			: detail?.pricingForUi;
 	}, [ detail?.pricingForUi ] );
@@ -413,14 +417,17 @@ export default function PricingInterstitial( { slug } ) {
 		} );
 	}, [ recordEvent, slug ] );
 
-	const handleGoBack = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_interstitial_go_back', {
-			product_slug: slug,
-		} );
+	const handleGoBack = useCallback(
+		event => {
+			recordEvent( 'jetpack_myjetpack_interstitial_go_back', {
+				product_slug: slug,
+			} );
 
-		// Call the original go back functionality
-		onClickGoBack();
-	}, [ recordEvent, slug, onClickGoBack ] );
+			// Call the original go back functionality
+			onClickGoBack( event );
+		},
+		[ recordEvent, slug, onClickGoBack ]
+	);
 
 	// If no config exists, fallback to old ProductInterstitial
 	if ( ! config ) {
@@ -436,7 +443,7 @@ export default function PricingInterstitial( { slug } ) {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ handleGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -444,7 +451,7 @@ export default function PricingInterstitial( { slug } ) {
 				<ButtonLink
 					size="compact"
 					variant="outline"
-					href={ getMyJetpackUrl( '#/add-license' ) }
+					href={ getMyJetpackRouteUrl( '/add-license' ) }
 					onClick={ handleLicenseActivationClick }
 				>
 					{ __( 'Use license key', 'jetpack-my-jetpack' ) }

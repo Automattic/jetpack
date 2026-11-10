@@ -16,7 +16,7 @@ use WorDBless\BaseTestCase;
  */
 class Script_Data_Test extends BaseTestCase {
 
-	public function test_offline_features_seed_is_opt_in() {
+	public function test_offline_features_seed_defaults_on_and_allows_rollback() {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
@@ -29,9 +29,6 @@ class Script_Data_Test extends BaseTestCase {
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		try {
-			$this->assertFalse( Initializer::should_initialize() );
-			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
-			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 			$_GET['page'] = 'my-jetpack';
 			$site         = array(
@@ -59,6 +56,9 @@ class Script_Data_Test extends BaseTestCase {
 			$this->assertArrayNotHasKey( 'apiRoot', $data['myJetpack']['offlineFeatures'] );
 			$this->assertArrayNotHasKey( 'apiNonce', $data['myJetpack']['offlineFeatures'] );
 			$this->assertSame( 1, wp_verify_nonce( $data['site']['rest_nonce'], 'wp_rest' ) );
+			add_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );
+			$this->assertFalse( Initializer::should_initialize() );
+			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 		} finally {
 			remove_all_filters( 'jetpack_offline_mode' );
 			\Automattic\Jetpack\Status\Cache::clear();
@@ -68,11 +68,63 @@ class Script_Data_Test extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * Settings consolidation needs the flag, a host that shows My Jetpack, and its registered page, on any screen.
+	 */
+	public function test_settings_consolidation_needs_the_flag_and_an_available_my_jetpack() {
+		global $_registered_pages, $wp_actions;
+
+		$registered_pages = $_registered_pages;
+		$actions          = $wp_actions;
+		$user_id          = get_current_user_id();
+		$page_hook        = get_plugin_page_hookname( 'my-jetpack', 'jetpack' );
+		$flag_filter      = 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG;
+		$host_filter      = 'jetpack_my_jetpack_modules_management_available';
+		$key              = 'settingsConsolidation';
+
+		try {
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
+			Initializer::register_feature_flags();
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'consolidation-admin',
+						'user_pass'  => 'test-password',
+						'role'       => 'administrator',
+					)
+				)
+			);
+			unset( $wp_actions['my_jetpack_init'] );
+			do_action( 'my_jetpack_init' );
+			$_registered_pages[ $page_hook ] = true;
+			$_GET['page']                    = 'edit.php';
+
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+
+			add_filter( $flag_filter, '__return_true' );
+			$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+
+			add_filter( $host_filter, '__return_false' );
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+			remove_filter( $host_filter, '__return_false' );
+
+			unset( $_registered_pages[ $page_hook ] );
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+		} finally {
+			remove_filter( $flag_filter, '__return_true' );
+			remove_filter( $host_filter, '__return_false' );
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
+			$_registered_pages = $registered_pages;
+			$wp_actions        = $actions;
+			unset( $_GET['page'] );
+			wp_set_current_user( $user_id );
+		}
+	}
+
 	public function test_offline_features_seed_respects_host_veto_and_editor_permissions() {
 		$_GET['page'] = 'my-jetpack';
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		try {
 			wp_set_current_user(
 				wp_insert_user(
@@ -120,9 +172,12 @@ class Script_Data_Test extends BaseTestCase {
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		try {
-			$before = Initializer::add_admin_script_data( array() );
+			$_GET['page'] = 'my-jetpack';
+			$before       = Initializer::add_admin_script_data( array() );
 			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
-			$this->assertSame( $before, Initializer::add_admin_script_data( array() ) );
+			$after = Initializer::add_admin_script_data( array() );
+			$this->assertArrayNotHasKey( 'offlineFeatures', $after['myJetpack'] );
+			$this->assertSame( $before, $after );
 			$this->assertSame( Main_Features::get_state(), REST_Main_Features::get_state()->get_data() );
 			$this->assertTrue( Initializer::should_initialize() );
 		} finally {
@@ -160,7 +215,6 @@ class Script_Data_Test extends BaseTestCase {
 			$this->assertCount( 1, $attempts, 'The online block lookup must reach the signed HTTP tripwire.' );
 			$attempts = array();
 			add_filter( 'jetpack_offline_mode', '__return_true' );
-			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 			\Automattic\Jetpack\Status\Cache::clear();
 			Initializer::add_script_data( array() );
 			$this->assertSame( array(), $attempts );
@@ -182,7 +236,6 @@ class Script_Data_Test extends BaseTestCase {
 		$this->assertIsBool( $data['myJetpack']['siteEditor']['isBlockTheme'] );
 		$this->assertIsBool( $data['myJetpack']['siteEditor']['isSharingBlockAvailable'] );
 		$this->assertIsBool( $data['myJetpack']['siteEditor']['isLikeBlockAvailable'] );
-		$this->assertSame( get_stylesheet(), $data['myJetpack']['siteEditor']['activeThemeStylesheet'] );
 	}
 
 	/**

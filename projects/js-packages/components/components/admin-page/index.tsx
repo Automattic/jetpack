@@ -36,6 +36,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	actions,
 	globalControls,
 	breadcrumbs,
+	ariaLabel,
 	tabs,
 	showBottomBorder = true,
 	unwrapped = false,
@@ -85,6 +86,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 					visual={ logo || <JetpackLogo showText={ false } height={ 20 } /> }
 					breadcrumbs={ breadcrumbs }
 					title={ title }
+					ariaLabel={ ariaLabel }
 					subTitle={ subTitle }
 					actions={
 						globalControls ? (
@@ -109,7 +111,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 					{ unwrapped ? (
 						children
 					) : (
-						<Container fluid horizontalSpacing={ 0 }>
+						<Container className="jp-admin-page__content" fluid horizontalSpacing={ 0 }>
 							<Col>{ children }</Col>
 						</Container>
 					) }

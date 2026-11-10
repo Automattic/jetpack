@@ -163,8 +163,15 @@ abstract class Jetpack_Admin_Page {
 		if ( ! apply_filters( 'rest_enabled', true ) ) {
 			return false;
 		}
-		/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-		$auth = apply_filters( 'rest_authentication_errors', true );
+		// Keep this probe from changing the admin user; see My Jetpack's Initializer::is_modules_rest_api_enabled().
+		$user = wp_get_current_user();
+		$auth = false;
+		try {
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			$auth = apply_filters( 'rest_authentication_errors', true );
+		} finally {
+			wp_set_current_user( $user->ID );
+		}
 		return $auth && ! is_wp_error( $auth );
 	}
 
@@ -410,7 +417,9 @@ abstract class Jetpack_Admin_Page {
 					</div>
 					<?php if ( ! ( new Host() )->is_wpcom_platform() && $my_jetpack_available ) : ?>
 					<div class="jp-footer__menu">
+						<?php if ( current_user_can( 'manage_options' ) ) : ?>
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/features' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Features', 'Navigation item', 'jetpack' ); ?></a>
+						<?php endif; ?>
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>
 					</div>
 					<?php endif; ?>

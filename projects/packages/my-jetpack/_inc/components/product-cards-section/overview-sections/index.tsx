@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { dashboard, shield, trendingUp } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
@@ -13,6 +13,8 @@ import ProductOverviewItem from '../overview-item/product-item';
 import OverviewSection from '../overview-section';
 import ProtectOverviewItem from '../protect-card/overview';
 import StatsOverviewItem from '../stats-card/overview';
+import StatsPeriodControl from '../stats-card/period-control';
+import { useStatsPeriod } from '../stats-card/use-stats-period';
 import VideoPressOverviewItem from '../videopress-card/overview';
 import styles from './style.module.scss';
 import type { FC } from 'react';
@@ -20,9 +22,11 @@ import type { FC } from 'react';
 /**
  * The Overview sections.
  *
+ * @param {object} props           - Component props.
+ * @param {string} props.className - Added once the sections have loaded.
  * @return {import('react').JSX.Element} The sections.
  */
-const OverviewSections: FC = () => {
+const OverviewSections: FC< { className?: string } > = ( { className = '' } ) => {
 	const { filteredOwnedProducts: slugs, isLoading } = useFilteredProducts();
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { userIsAdmin = false, canUserViewStats = false } = getMyJetpackWindowInitialState();
@@ -34,6 +38,7 @@ const OverviewSections: FC = () => {
 	const isStatsActive =
 		statsDetail?.status === PRODUCT_STATUSES.ACTIVE ||
 		statsDetail?.status === PRODUCT_STATUSES.CAN_UPGRADE;
+	const statsPeriod = useStatsPeriod();
 	const owns = ( slug: JetpackModule ) => slugs.includes( slug );
 	const protectedItems = [
 		owns( PRODUCT_SLUGS.ANTI_SPAM ) && (
@@ -90,7 +95,7 @@ const OverviewSections: FC = () => {
 	}
 
 	return (
-		<div className={ styles.sections }>
+		<div className={ clsx( styles.sections, { [ className ]: ! isLoading } ) }>
 			{ isLoading ? (
 				<>
 					<LoadingBlock width="100%" height="350px" />
@@ -103,13 +108,9 @@ const OverviewSections: FC = () => {
 						<OverviewSection
 							icon={ trendingUp }
 							title={ __( 'How is your site growing?', 'jetpack-my-jetpack' ) }
-							headerEnd={
-								isStatsActive && (
-									<Text variant="body-md">{ __( 'Last 7 days', 'jetpack-my-jetpack' ) }</Text>
-								)
-							}
+							headerEnd={ isStatsActive && <StatsPeriodControl period={ statsPeriod } /> }
 						>
-							<StatsOverviewItem admin={ admin } />
+							<StatsOverviewItem admin={ admin } period={ statsPeriod } />
 						</OverviewSection>
 					) }
 					{ protectedItems.length > 0 && (

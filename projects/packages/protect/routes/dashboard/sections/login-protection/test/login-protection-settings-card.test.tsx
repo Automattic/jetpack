@@ -11,28 +11,39 @@ const ALLOW_LIST = 'Always allowed IP addresses';
 const BRUTE_FORCE = 'Block repeated failed login attempts';
 const ACCOUNT_PROTECTION = 'Protect accounts with weak or leaked passwords';
 
+const BRUTE_FORCE_HELP =
+	'Stops brute force attacks by blocking IP addresses that keep failing to log in.';
+const ACCOUNT_PROTECTION_HELP =
+	'Asks users with a compromised password to verify their identity and choose a new one.';
+
 const available = { available: true, active: true };
+const unavailable = { available: false, active: false };
 
 type CardOptions = {
-	state?: Partial< LoginProtectionState >;
+	/** Null stands for a site where PHP registered no Login protection section. */
+	state?: Partial< LoginProtectionState > | null;
 	settings?: ProtectSettings;
 	save?: jest.Mock;
 };
 
 const card = ( { state = {}, settings = {}, save = jest.fn() }: CardOptions = {} ) => (
 	<LoginProtectionSettingsCard
-		state={ {
-			bruteForce: available,
-			accountProtection: available,
-			sso: available,
-			blockedCount: '0',
-			ssoUsable: true,
-			isOffline: false,
-			ssoLocks: { matchByEmail: false, twoStep: false },
-			ssoEffective: { matchByEmail: false, twoStep: false },
-			currentIp: '203.0.113.7',
-			...state,
-		} }
+		state={
+			state
+				? {
+						bruteForce: available,
+						accountProtection: available,
+						sso: available,
+						blockedCount: '0',
+						ssoUsable: true,
+						isOffline: false,
+						ssoLocks: { matchByEmail: false, twoStep: false },
+						ssoEffective: { matchByEmail: false, twoStep: false },
+						currentIp: '203.0.113.7',
+						...state,
+					}
+				: undefined
+		}
 		settings={
 			{
 				settings: { sso: true, ...settings },
@@ -97,7 +108,7 @@ describe( 'LoginProtectionSettingsCard', () => {
 		[
 			'the site is in offline mode',
 			{ ssoUsable: false, isOffline: true },
-			'WordPress.com login isn’t available in offline mode.',
+			'WordPress.com login isn’t available in Offline Mode.',
 		],
 		[
 			'the module is unavailable',
@@ -119,6 +130,31 @@ describe( 'LoginProtectionSettingsCard', () => {
 		expect( screen.getByRole( 'switch', { name: label } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
+		);
+	} );
+
+	it.each( [
+		[ BRUTE_FORCE, 'it is available', {}, BRUTE_FORCE_HELP ],
+		[
+			BRUTE_FORCE,
+			'it is unavailable',
+			{ bruteForce: unavailable },
+			'Login protection isn’t available on this site.',
+		],
+		[ BRUTE_FORCE, 'PHP registered no section', null, BRUTE_FORCE_HELP ],
+		[ ACCOUNT_PROTECTION, 'it is available', {}, ACCOUNT_PROTECTION_HELP ],
+		[
+			ACCOUNT_PROTECTION,
+			'it is unavailable',
+			{ accountProtection: unavailable },
+			'Account protection isn’t available on this site.',
+		],
+		[ ACCOUNT_PROTECTION, 'PHP registered no section', null, ACCOUNT_PROTECTION_HELP ],
+	] )( 'describes "%s" when %s', ( label, _name, state, description ) => {
+		renderCard( { state } );
+
+		expect( screen.getByRole( 'switch', { name: label } ) ).toHaveAccessibleDescription(
+			description
 		);
 	} );
 

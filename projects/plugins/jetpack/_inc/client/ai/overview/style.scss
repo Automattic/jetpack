@@ -289,22 +289,18 @@
 		margin-block-start: calc(var(--wpds-dimension-gap-xl) - var(--wpds-dimension-gap-3xl));
 	}
 
-	// Doubled class beats the component's runtime-injected rules. ProgressBar
-	// derives its track from the foreground colour (accent at 10%); the frame
-	// wants a neutral track under a rounded brand-coloured fill.
-	&__meter#{&}__meter {
+	&__meter {
 		inline-size: 100%;
-		block-size: 4px;
 		// The frame's meter sits flush under the number's line box, so the
 		// cell's own gap is cancelled here.
 		margin-block-start: calc(-1 * var(--wpds-dimension-gap-sm));
-		border-radius: var(--wpds-border-radius-lg);
-		overflow: hidden;
-		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	}
 
-		> div {
-			background-color: var(--wpds-color-foreground-interactive-brand);
-		}
+	// The frame wants a neutral track under the brand-coloured fill, which
+	// the Indicator's `color` prop sets.
+	&__meter-track {
+		block-size: 4px;
+		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
 	}
 }
 

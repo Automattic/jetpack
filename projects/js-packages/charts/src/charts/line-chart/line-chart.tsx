@@ -16,6 +16,7 @@ import {
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { getKeyboardStops } from '../../components/tooltip/private/keyboard-stops';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -40,9 +41,15 @@ import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { formatReading, isInvalidReading, isReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
+import {
+	getTickDecimals,
+	getTickDecimalsDomain,
+	hasOnlyWholeNumbers,
+	TickDecimals,
+} from '../private/tick-decimals';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
-import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
+import { useCompactWhenShort } from '../private/use-compact-when-short';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -266,6 +273,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			children,
 			gridVisibility,
 			gap = 'md',
+			compactWhenShort = false,
 		},
 		ref
 	) => {
@@ -300,6 +308,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 
 		// Process children for composition API (Legend, etc.)
 		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LineChart' );
+		const { isCompact, compactMargin } = useCompactWhenShort( compactWhenShort, height );
 		const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
 
 		// Callback for ChartLayout to notify us when the measured content height changes.
@@ -387,17 +396,18 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return min < max ? [ min, max ] : undefined;
 		}, [ rescaleYOnVisibilityChange, dataSorted, isSeriesVisible, options?.yScale ] );
 
-		// Keyboard navigation steps through x positions, and the grouped tooltip reads every
-		// visible series at that position; the first visible series with a point there names it.
-		const activateSelectedPoint = useCallback(
-			( index: number ) => {
-				const series = visibleSeries.find( candidate => candidate.data[ index ] );
+		const stops = useMemo( () => getKeyboardStops( visibleSeries ), [ visibleSeries ] );
 
-				if ( series ) {
-					onDatumActivate?.( { datum: series.data[ index ], index, key: series.label } );
+		// The grouped tooltip reads every visible series at a stop; the first visible series with a point there names it.
+		const activateSelectedPoint = useCallback(
+			( stop: number ) => {
+				const match = stops.membersAt( stop )[ 0 ];
+
+				if ( match ) {
+					onDatumActivate?.( { datum: match.datum, index: match.index, key: match.series.label } );
 				}
 			},
-			[ visibleSeries, onDatumActivate ]
+			[ stops, onDatumActivate ]
 		);
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -406,7 +416,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: Math.max( 0, ...visibleSeries.map( series => series.data.length ) ),
+			totalPoints: stops.count,
 			visibleSeriesKey,
 			onActivate: activateSelectedPoint,
 			preventTooltipScroll: tooltipPlacement === 'below-axis',
@@ -436,31 +446,47 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			() => hasOnlyWholeNumbers( visibleSeries ),
 			[ visibleSeries ]
 		);
+		const isLogScale = options?.yScale?.type === 'log';
+		// A log axis has no decimal steps to hold ticks to.
+		const callerTickDecimals = isLogScale ? undefined : options?.axis?.y?.tickDecimals;
+		const yTickDecimals = getTickDecimals( hasWholeNumberValues, callerTickDecimals );
 
 		const chartOptions = useMemo( () => {
-			const fallbackYDomain = getFallbackYDomain(
-				visibleReadingExtent,
-				options?.yScale?.type === 'log'
-			);
+			const fallbackYDomain = getFallbackYDomain( visibleReadingExtent, isLogScale );
+			const { tickDecimals, ...yAxisOptions } = options?.axis?.y ?? {};
+			const tickDecimalsDomain =
+				isLogScale ||
+				tickDecimals === undefined ||
+				options?.yScale?.domain ||
+				yAxisOptions.tickValues
+					? undefined
+					: getTickDecimalsDomain(
+							yDomain ?? fallbackYDomain ?? visibleReadingExtent,
+							yTickDecimals
+						);
 
 			return {
 				axis: {
-					x: buildTimeAxisOptions( {
-						dataSorted,
-						width,
-						axisOptions: options?.axis?.x,
-						scaleDomain: options?.xScale?.domain,
-						zoomDomain: zoom.domain,
-						formatting,
-						// A hidden line is unmounted, so visx scales to the rest.
-						isSeriesRendered: series => isSeriesVisible( series.label ),
-					} ),
+					x: {
+						...buildTimeAxisOptions( {
+							dataSorted,
+							width,
+							axisOptions: options?.axis?.x,
+							scaleDomain: options?.xScale?.domain,
+							zoomDomain: zoom.domain,
+							formatting,
+							// A hidden line is unmounted, so visx scales to the rest.
+							isSeriesRendered: series => isSeriesVisible( series.label ),
+						} ),
+						...( isCompact && { display: false } ),
+					},
 					y: {
 						orientation: 'left' as const,
 						numTicks: 4,
 						tickFormat: formatNumberCompact as TickFormatter< number >,
 						display: true,
-						...options?.axis?.y,
+						...yAxisOptions,
+						...( isCompact && { display: false } ),
 					},
 				},
 				xScale: {
@@ -474,6 +500,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					zero: false,
 					...( fallbackYDomain ? { domain: fallbackYDomain } : {} ),
 					...( yDomain ? { domain: yDomain } : {} ),
+					...( tickDecimalsDomain ? { domain: tickDecimalsDomain } : {} ),
 					...options?.yScale,
 				},
 			};
@@ -484,8 +511,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			zoom.domain,
 			yDomain,
 			visibleReadingExtent,
+			isLogScale,
+			yTickDecimals,
 			formatting,
 			isSeriesVisible,
+			isCompact,
 		] );
 
 		// Classified from the rendered series, like the axis above: a hidden
@@ -586,7 +616,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 		}
 
-		const legendElement = showLegend && (
+		const legendElement = showLegend && ! isCompact && (
 			<Legend
 				orientation={ legend.orientation ?? 'horizontal' }
 				alignment={ legend.alignment ?? 'center' }
@@ -615,7 +645,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				<ChartLayout
 					legendPosition={ legendPosition }
 					legendElement={ legendElement }
-					legendChildren={ legendChildren }
+					legendChildren={ isCompact ? [] : legendChildren }
 					gap={ gap }
 					className={ clsx(
 						'line-chart',
@@ -653,6 +683,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											height={ chartHeight }
 											margin={ {
 												...defaultMargin,
+												...compactMargin,
 												...margin,
 											} }
 											// xScale and yScale could be set in Axis as well, but they are `scale` props there.
@@ -664,18 +695,18 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											{ /* With every series hidden there is no data to scale against, so the grid and
 											     axes are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }
-											<WholeNumberTicks
+											<TickDecimals
 												axis="y"
 												numTicks={ chartOptions.axis.y.numTicks }
-												enabled={
-													hasWholeNumberValues &&
-													! chartOptions.axis.y.tickValues &&
-													! options?.yScale?.domain
+												decimals={
+													! chartOptions.axis.y.tickValues && ! options?.yScale?.domain
+														? yTickDecimals
+														: undefined
 												}
 											>
 												{ tickValues => (
 													<>
-														{ ! allSeriesHidden && gridVisibility !== 'none' && (
+														{ ! allSeriesHidden && gridVisibility !== 'none' && ! isCompact && (
 															<Grid
 																columns={ false }
 																numTicks={ chartOptions.axis.y.numTicks }
@@ -693,7 +724,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 														) }
 													</>
 												) }
-											</WholeNumberTicks>
+											</TickDecimals>
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState
@@ -702,7 +733,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ getAllHiddenMessage( legendInteractive, 'series' ) }
+													{ getAllHiddenMessage( legendInteractive && ! isCompact, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 

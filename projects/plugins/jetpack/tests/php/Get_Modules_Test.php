@@ -217,7 +217,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 
 		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		$this->assertSame( 'Unavailable in Offline mode', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+		$this->assertSame( 'Unavailable in Offline Mode', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		StatusCache::clear();
 
@@ -233,7 +233,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	 */
 	public function test_get_module_valid_module() {
 		$module_info = array(
-			'name'                      => 'Secure Sign On',
+			'name'                      => 'WordPress.com login',
 			'description'               => 'Let users log in with their WordPress.com account for quick, secure access.',
 			'sort'                      => 30,
 			'recommendation_order'      => 5,
@@ -246,7 +246,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 			'auto_activate'             => 'No',
 			'module_tags'               => array( 'Developers' ),
 			'feature'                   => array( 'Security' ),
-			'additional_search_queries' => 'sso, single sign on, login, log in, 2fa, two-factor',
+			'additional_search_queries' => 'secure sign on, secure sign-on, sso, single sign on, login, log in, 2fa, two-factor',
 			'plan_classes'              => array( 'free' ),
 		);
 

@@ -77,11 +77,9 @@ export function Disconnect( {
 	return (
 		<>
 			{ /*
-			 * A WPDS dialog rather than a `@wordpress/components` ConfirmDialog, so
-			 * the confirmation matches the connections modal it opens from. Both
-			 * portal to `document.body` at z-index auto, so the later-mounted
-			 * confirmation stacks above the modal on DOM order alone — do not move
-			 * either into the compat overlay slot without moving both.
+			 * A WPDS dialog rather than a `@wordpress/components` ConfirmDialog: it
+			 * shares the connections modal's compat overlay slot, so mounting later
+			 * stacks it above the modal. Give neither a custom portal container.
 			 */ }
 			<AlertDialog.Root
 				open={ isConfirmOpen }

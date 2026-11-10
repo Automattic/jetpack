@@ -27,7 +27,7 @@ class Sync_Status_Tracker {
 	/**
 	 * First full-sync start timestamps, keyed by analytics module name.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.14.0
 	 */
 	const ANALYTICS_SYNC_STARTED_OPTION = 'jetpack_premium_analytics_analytics_sync_started';
 
@@ -234,7 +234,7 @@ class Sync_Status_Tracker {
 	 *
 	 * A milestone set before start records existed counts as a start of every module registered then.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.14.0
 	 *
 	 * @param array|mixed $config Sync configuration of the full sync that began.
 	 * @return void
@@ -260,7 +260,7 @@ class Sync_Status_Tracker {
 	/**
 	 * Whether the given module's full sync has ever started on this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.14.0
 	 *
 	 * @param string $module_name Sync module name.
 	 * @return bool
@@ -366,7 +366,7 @@ class Sync_Status_Tracker {
 	/**
 	 * Whether the first analytics full sync has finished.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.14.0
 	 *
 	 * @return bool
 	 */

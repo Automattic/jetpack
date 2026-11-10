@@ -166,6 +166,7 @@ function VideoDetailViewsPerformanceDashboardStory( {
 
 export const WidgetDashboardWithWidget: StoryObj< VideoDetailViewsPerformanceDashboardStoryProps > =
 	{
+		tags: [ 'widget-dashboard' ],
 		render: args => <VideoDetailViewsPerformanceDashboardStory { ...args } />,
 		args: {
 			...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
