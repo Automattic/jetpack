@@ -100,7 +100,11 @@ export function redactQuery( search: string ): string {
 		const cut = pair.indexOf( '=' );
 		const name = decodeName( cut === -1 ? pair : pair.slice( 0, cut ) );
 
-		if ( ! SAFE_NAME.test( name ) ) {
+		// A parameter with no value is nothing but its name, and an identifier shape cannot tell a
+		// key apart from a bare token appended to the URL, so only a known name survives that way.
+		const unnamed = cut === -1 && ! ALLOWED_PARAMS.has( name );
+
+		if ( ! SAFE_NAME.test( name ) || unnamed ) {
 			if ( ! marked ) {
 				marked = true;
 				parts.push( UNREPORTABLE );
