@@ -194,7 +194,11 @@ function pollPackagist( name, versionRange ) {
 									const data = JSON.parse( chunks.join( '' ) );
 									for ( const ver of data.packages[ name ] ) {
 										const sver = semver.coerce( ver.version_normalized );
-										if ( sver && semver.satisfies( sver, versionRange ) ) {
+										// Semver can't handle four-point versions, so check for an exact match against Packagist's normalized version.
+										if (
+											ver.version_normalized === versionRange ||
+											( sver && semver.satisfies( sver, versionRange ) )
+										) {
 											task.title = `${ name } ${ ver.version }`;
 											return resolve( ver.version );
 										}

@@ -15,9 +15,11 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 VERSION_REGEX='^[0-9]+(\.[0-9]+)+(-.*)?$'
 CUR_STEP=0
+FROM_RELEASE_BRANCH=false
+LIST_STEPS=false
 
 RELEASE_STEPS=(
-	'do_trunk_and_prelease_branch_prep' 
+	'do_prerelease_branch_prep'
 	'do_changelogs'
 	'do_readme'
 	'do_push_and_build'
@@ -27,14 +29,27 @@ RELEASE_STEPS=(
 	'do_final_instructions'
 )
 
+FROM_RELEASE_BRANCH_STEPS=(
+	'do_create_release_branch_from_release_branch'
+	'do_apply_patches'
+	'do_changelogs'
+	'do_readme'
+	'do_prerelease_branch_prep'
+	# 'do_push_and_build'
+	# 'do_packagist_check'
+	# 'do_push_release_branch'
+	# 'do_create_backport_PR'
+)
+
 # Instructions
 function usage {
 	cat <<-EOH
 		Usage:
-		    $0 [-s <step>] <plugin> [<version>] [<plugin> [<version>] ...]
+		    $0 [-R] [-s <step>] <plugin> [<version>]
 
 		Options:
 		    -h, --help                 Show this help message.
+		    -R, --from-release-branch  Release from an existing release branch.
 		    -s <step>, --step <step>   Start at a given step.
 		    <plugin>                   Plugin name to release (e.g. jetpack)
 		    <version>                  Version number (defaults to next stable)
@@ -86,9 +101,43 @@ function preflight_checks {
 	fi
 }
 
-function verify_prerelease_branch {
-	[[ $(git branch --show-current) != "prerelease" ]] && die 'Not on prerelease branch!'
+function verify_on_branch {
+	[[ $(git branch --show-current) != "$1" ]] && die "Not on $1 branch!"
 	return 0
+}
+
+# Find the existing release branch on which to base the new release. For example:
+#  - 16.4.X: jetpack/branch-16.4.W or jetpack/branch-16.4
+#  - 16.4: jetpack/branch-16.4-beta.X or jetpack/branch-16.4-beta
+#  - 16.4-beta.X: jetpack/branch-16.4-beta.W or jetpack/branch-16.4-beta
+#  - 16.4-a.x: trunk
+#
+# @todo: Consider if it's easy or even worth supporting semver.
+function find_base_branch {
+	local prefix stable suffix potential_base_branch branch_ver
+	if ! $FROM_RELEASE_BRANCH; then
+		BASE_BRANCH=trunk
+		return
+	fi
+	prefix=$(jq -r '.extra["release-branch-prefix"] | if type == "array" then first else . end' "$BASE/projects/$PLUGIN/composer.json")
+	stable=$(grep -oE '^[0-9]+\.[0-9]+' <<<"$VERSION")
+	# We only fetch the subset of branches needed, as no one sort order fits both: branch-x.y must sort below
+	# x.y-beta.N for stable and beta releases, but above it for point releases.
+	if [[ ${VERSION%%-*} == "$stable" ]]; then
+		suffix='-beta'
+	else
+		suffix='.'
+	fi
+	BASE_BRANCH=
+	while read -r potential_base_branch; do
+		branch_ver=${potential_base_branch#"$prefix/branch-"}
+		if ! version_compare "$branch_ver" "$VERSION"; then
+			BASE_BRANCH=$potential_base_branch
+			break
+		fi
+	done < <(git ls-remote --heads origin "refs/heads/$prefix/branch-$stable" "refs/heads/$prefix/branch-$stable$suffix*" | sed 's|.*refs/heads/||' | sort -rV)
+	[[ -n $BASE_BRANCH ]] || die "No release branch found for $PLUGIN $VERSION."
+	echo "Found base release branch: $BASE_BRANCH"
 }
 
 function normalize_plugin_name {
@@ -107,6 +156,11 @@ function normalize_plugin_name {
 	echo "$SLUG"
 }
 
+function current_version {
+	process_plugin_arg "$PLUGIN"
+	git show "origin/$BASE_BRANCH:${PLUGIN_FILE#"$BASE/"}" | sed -n -E 's/^ \* Version:[[:blank:]]+([^[:blank:]](.*[^[:blank:]])?)[[:blank:]]*$/\1/p'
+}
+
 # Generates a command that can be used to resume the release script from the current step.
 # Currently unused.
 function generate_resume_command() {
@@ -117,20 +171,11 @@ function generate_resume_command() {
 	echo "$cmd"
 }
 
-function do_trunk_and_prelease_branch_prep() {
-	# Make sure we're standing on trunk and working directory is clean
-	CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
-	if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
-		proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?" Y
-		git checkout trunk && git pull
-	fi
-
+# Create the prerelease branch from the local release branch with -R, else from origin/trunk.
+function do_prerelease_branch_prep() {
 	if [[ -n "$(git status --porcelain)" ]]; then
 		die "Working directory not clean, make sure you're working from a clean checkout and try again."
 	fi
-
-	yellow "Installing root packages."
-	pnpm jetpack install --root
 
 	yellow "Checking out prerelease branch."
 	# Is there an upstream prerelease branch already?
@@ -163,7 +208,16 @@ function do_trunk_and_prelease_branch_prep() {
 		git branch -D prerelease
 	fi
 
-	git checkout -b prerelease
+	if $FROM_RELEASE_BRANCH; then
+		git checkout --no-track -b prerelease "$RELEASE_BRANCH"
+	else
+		git fetch origin "$BASE_BRANCH"
+		git checkout --no-track -b prerelease "origin/$BASE_BRANCH"
+	fi
+	yellow "Installing root packages."
+	pnpm jetpack install --root
+	# @todo: Push once we're ready to test more lively.
+	$FROM_RELEASE_BRANCH && return
 	if ! git push -u origin HEAD; then
 		send_tracks_event "jetpack_release_prerelease_push" '{"result": "failure"}'
 		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
@@ -171,8 +225,51 @@ function do_trunk_and_prelease_branch_prep() {
 	send_tracks_event "jetpack_release_prerelease_push" '{"result": "success"}'
 }
 
+function do_create_release_branch_from_release_branch {
+	if [[ -n "$(git status --porcelain)" ]]; then
+		die "Working directory not clean, make sure you're working from a clean checkout and try again."
+	fi
+	if [[ -n "$(git ls-remote --heads origin "$RELEASE_BRANCH")" ]]; then
+		die "Release branch $RELEASE_BRANCH already exists on GitHub."
+	fi
+	if git rev-parse --verify "refs/heads/$RELEASE_BRANCH" &>/dev/null; then
+		proceed_p "Existing local $RELEASE_BRANCH branch found." "Delete it?" Y
+		git branch -D "$RELEASE_BRANCH"
+	fi
+
+	git checkout --no-track -b "$RELEASE_BRANCH" "origin/$BASE_BRANCH"
+	yellow "Installing root packages."
+	pnpm jetpack install --root
+}
+
+# Prompt for PRs or commits to apply, committing each.
+function do_apply_patches {
+	verify_on_branch "$RELEASE_BRANCH"
+
+	local pr_or_commit commits
+
+	START_COMMIT=$(git rev-parse HEAD)
+	while true; do
+		read -rep "PR or commit to cherry-pick, or 'done' if finished: " pr_or_commit
+		[[ $pr_or_commit == "done" ]] && break
+		[[ -n $pr_or_commit ]] || continue
+
+		# Abort if a failure left changes behind (e.g. an aborted commit).
+		if ! "$BASE/tools/apply-patch.sh" "$pr_or_commit" && [[ -n $(git status --porcelain) ]]; then
+			exit 1
+		fi
+	done
+
+	commits=$(git log --reverse --format='  %h %s' "$START_COMMIT..HEAD")
+	echo 'Commits added:'
+	echo "${commits:-  (none)}"
+
+	# Add changelogs for any projects that need them.
+	pnpm jetpack changelog add
+}
+
 function do_changelogs {
-	verify_prerelease_branch
+	verify_on_branch "${RELEASE_BRANCH:-prerelease}"
 	# Loop through the projects and update the changelogs after building the arguments.
 	for PLUGIN in "${!PROJECTS[@]}"; do
 		yellow "Updating the changelog files for $PLUGIN."
@@ -190,7 +287,11 @@ function do_changelogs {
 		# Explicitly pass the version number we want so there are no surprises.
 		ARGS+=( '-r' "${PROJECTS[$PLUGIN]}" )
 		ARGS+=("$PLUGIN");
-		tools/changelogger-release.sh "${ARGS[@]}"
+		if $FROM_RELEASE_BRANCH; then
+			tools/changelogger-release.sh -R "${ARGS[@]}"
+		else
+			tools/changelogger-release.sh "${ARGS[@]}"
+		fi
 	done
 
 	git add --all
@@ -206,7 +307,7 @@ function do_changelogs {
 }
 
 function do_readme {
-	verify_prerelease_branch
+	verify_on_branch "${RELEASE_BRANCH:-prerelease}"
 	for PLUGIN in "${!PROJECTS[@]}"; do
 		# check if the plugin even has a readme.txt file.
 		if [[ ! -e "$BASE/projects/$PLUGIN/readme.txt" ]]; then
@@ -237,7 +338,7 @@ function do_readme {
 }
 
 function do_push_and_build {
-	verify_prerelease_branch
+	verify_on_branch prerelease
 	HEADSHA=$(git rev-parse HEAD)
 	yellow "Pushing changes."
 	git push -u origin prerelease
@@ -269,12 +370,12 @@ function do_push_and_build {
 }
 
 function do_packagist_check {
-	verify_prerelease_branch
+	verify_on_branch prerelease
 	# Wait for new versions of any composer packages to be up.
 	# We expect a new version when (1) the package is touched in this release and (2) it has no change entry files remaining.
 	POLL_ARGS=()
 	cd "$BASE"
-	GITBASE=$(git merge-base origin/trunk HEAD)
+	GITBASE=$(git merge-base "origin/$BASE_BRANCH" HEAD)
 	for PKGDIR in $(git -c core.quotepath=off diff --name-only "$GITBASE..HEAD" projects/packages/ | sed 's!^\(projects/packages/[^/]*\)/.*!\1!' | sort -u); do
 		cd "$BASE/$PKGDIR"
 		CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
@@ -288,6 +389,11 @@ function do_packagist_check {
 		tools/js-tools/await-packagist-updates.mjs "${POLL_ARGS[@]}"
 		yellow "Packagist is updated!"
 	fi
+}
+
+function do_push_release_branch {
+	yellow "Pushing release branch $RELEASE_BRANCH."
+	git push -u origin "$RELEASE_BRANCH"
 }
 
 function do_create_release_branches {
@@ -344,6 +450,24 @@ function do_create_prerelease_PR {
 	rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
 }
 
+# @todo: Implement. Prints what's needed until then.
+function do_create_backport_PR {
+	cat <<-EOF
+		The changes on $RELEASE_BRANCH still needs backporting to trunk:
+		  1. Verify prerelease matches $RELEASE_BRANCH, then delete it remotely and locally. Otherwise stop.
+		  2. Create a new prerelease branch from origin/trunk.
+		  3. Cherry-pick the patch commits from $RELEASE_BRANCH onto it, skipping the changelog and readme
+		     commits. Patches already in trunk drop out as empty.
+		  4. Bring over the changelog changes, without changing any versions:
+		     - For the plugin and packages released normally, copy the new CHANGELOG.md files from
+		       $RELEASE_BRANCH and delete the change files they came from.
+		     - For packages released with a four-point version, add no entry and leave their change files.
+		     - Maybe update the readme.txt stable tag.
+		  5. Run tools/fixup-project-versions.sh and commit any changes.
+		  6. Push, and open a PR to merge prerelease into trunk.
+	EOF
+}
+
 function do_final_instructions {
 	yellow "Release script complete!"
 
@@ -398,43 +522,69 @@ trap 'handle_exit' EXIT
 
 preflight_checks
 
-# No args, help flag, or invalid flag, so show usage.
-if [[ $# -eq 0 || $1 == '-h' || $1 == '--help' ]]; then
-	usage
-elif [[ $1 == '-s' || $1 == '--step' ]]; then
-	if [[ $2 =~ ^[0-9]$ ]]; then
-		CUR_STEP="$2"
-		shift 2
-	else
-		usage
-	fi
-elif [[ $1 == '--list-steps' ]]; then
+while [[ $# -gt 0 ]]; do
+	case $1 in
+		-h|--help)
+			usage
+			;;
+		-R|--from-release-branch)
+			FROM_RELEASE_BRANCH=true
+			shift
+			;;
+		-s|--step)
+			[[ $2 =~ ^[0-9]$ ]] || usage
+			CUR_STEP=$2
+			shift 2
+			;;
+		--list-steps)
+			LIST_STEPS=true
+			shift
+			;;
+		-*)
+			usage
+			;;
+		*)
+			[[ -z $PLUGIN ]] || usage
+			PLUGIN=$(normalize_plugin_name "$1")
+			shift
+			if [[ $1 =~ $VERSION_REGEX ]]; then
+				VERSION=$1
+				shift
+			fi
+			;;
+	esac
+done
+
+if $FROM_RELEASE_BRANCH; then
+	STEPS=( "${FROM_RELEASE_BRANCH_STEPS[@]}" )
+else
+	STEPS=( "${RELEASE_STEPS[@]}" )
+fi
+
+if $LIST_STEPS; then
 	echo 'Use the following steps at your own risk:'
-	for i in "${!RELEASE_STEPS[@]}"; do
-		echo "  $i: ${RELEASE_STEPS[$i]}"
+	for i in "${!STEPS[@]}"; do
+		echo "  $i: ${STEPS[$i]}"
 	done
 	exit 1
 fi
 
-# Parse arguments in associated array of plugin => version format.
-declare -A PROJECTS
-while [[ $# -gt 0 ]]; do
-	# Grab plugin name
-	PLUGIN=$(normalize_plugin_name "$1")
-	shift
+[[ -n $PLUGIN ]] || usage
 
-	# Grab version number if provided.
-	if [[ "$1" =~ $VERSION_REGEX ]]; then
-		VERSION=$1
-		shift
-	else
-		cd "$BASE/projects/$PLUGIN"
-		VERSION=$(changelogger version next) || die "Cannot determine version number for $PLUGIN. Please supply one on the command line."
-	fi
+if [[ -z $VERSION ]]; then
+	cd "$BASE/projects/$PLUGIN"
+	VERSION=$(changelogger version next) || die "Cannot determine version number for $PLUGIN. Please supply one on the command line."
+	cd "$BASE"
+fi
 
-	PROJECTS["$PLUGIN"]="$VERSION"
-done
-cd "$BASE"
+# @todo: Rip out multi-plugin release support altogether.
+declare -A PROJECTS=( ["$PLUGIN"]="$VERSION" )
+
+find_base_branch
+git fetch origin "$BASE_BRANCH"
+if $FROM_RELEASE_BRANCH; then
+	RELEASE_BRANCH="${BASE_BRANCH%%/*}/branch-$VERSION"
+fi
 
 for PLUGIN in "${!PROJECTS[@]}"; do
 	normalize_version_number "${PROJECTS[$PLUGIN]}"
@@ -442,7 +592,7 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 		red "\"$NORMALIZED_VERSION\" does not appear to be a valid version number."
 		die "Please specify a valid version number."
 	fi
-	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
+	CUR_VERSION=$(current_version)
 	# shellcheck disable=SC2310
 	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
 		proceed_p "$PLUGIN: Version $NORMALIZED_VERSION is not higher than $CUR_VERSION." || die "User aborted script."
@@ -456,7 +606,7 @@ proceed_p "" "Proceed releasing above projects?" Y
 RELEASED_PLUGINS="{}"
 for PLUGIN in "${!PROJECTS[@]}"; do
 
-	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
+	CUR_VERSION=$(current_version)
 	VERSION_DIFF=$( version_diff "$CUR_VERSION" "${PROJECTS[$PLUGIN]}" )
 
 	if [[ "${PROJECTS[$PLUGIN]}" == *-* ]]; then
@@ -506,8 +656,8 @@ if [[ ${#PREFIXES[@]} -gt 1 ]]; then
 fi
 
 # Run each release step.
-for ((i = CUR_STEP; i < ${#RELEASE_STEPS[@]}; i++)); do
-	green "Step $i: ${RELEASE_STEPS[$i]}"
-	"${RELEASE_STEPS[$i]}"
+for ((i = CUR_STEP; i < ${#STEPS[@]}; i++)); do
+	green "Step $i: ${STEPS[$i]}"
+	"${STEPS[$i]}"
 	((CUR_STEP+=1))
 done

@@ -521,6 +521,9 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			rules: {
 				'package-json/require-description': 'off',
 				'package-json/require-version': 'off',
+				// Sometimes we need four-point versions, which semver disallows.
+				// @todo: Remove version key from projects/packages/*/package.json files.
+				'package-json/valid-version': 'off',
 				'package-json/require-license': 'off',
 			},
 		},
