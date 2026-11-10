@@ -2,10 +2,8 @@
  * Every workaround for @wordpress/boot and TanStack Router internals lives here, so when
  * Gutenberg ships APIs for several apps in one document only this file changes (JETPACK-3414).
  */
-/* eslint-disable import/no-unresolved -- Resolved by the import map. */
-import { pageOf } from '@automattic/jetpack-admin-shell/chrome';
-import { log } from '@automattic/jetpack-admin-shell/debug';
-/* eslint-enable import/no-unresolved */
+import { pageOf } from './chrome';
+import { log } from './debug';
 
 /**
  * Keep each app's router deaf to URLs that belong to another app.
@@ -228,7 +226,7 @@ export async function bootFor( slug ) {
 	);
 	const blobUrl = URL.createObjectURL( new Blob( [ renamed ], { type: 'text/javascript' } ) );
 	try {
-		return await import( blobUrl );
+		return await import( /* webpackIgnore: true */ blobUrl );
 	} finally {
 		URL.revokeObjectURL( blobUrl );
 	}

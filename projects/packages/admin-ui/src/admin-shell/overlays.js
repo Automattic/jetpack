@@ -4,7 +4,7 @@
  * appeared, and hidden while another page shows if it holds an overlay. Anything else, such as
  * another plugin's chat launcher, stays put.
  */
-import { log } from '@automattic/jetpack-admin-shell/debug'; // eslint-disable-line import/no-unresolved -- Resolved by the import map.
+import { log } from './debug';
 
 const PAGE = 'data-shell-overlay-of';
 const HIDDEN = 'data-shell-overlay-hidden';

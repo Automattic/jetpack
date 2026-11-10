@@ -237,29 +237,17 @@ class Admin_Shell {
 	}
 
 	/**
-	 * Enqueue the client. Each file is its own module, so each URL carries a version that changes with the file.
+	 * Enqueue the client: one script module, built from `src/admin-shell/` by webpack.
 	 *
 	 * @return void
 	 */
 	private static function enqueue_client() {
-		$deps = array();
-		foreach ( array( 'adapter', 'app', 'chrome', 'debug', 'guest-assets', 'header', 'overlays' ) as $name ) {
-			$deps[] = self::CLIENT_MODULE . '/' . $name;
-			wp_register_script_module( self::CLIENT_MODULE . '/' . $name, plugins_url( "admin-shell/$name.js", __FILE__ ), array(), self::client_version( $name ) );
+		$file = dirname( __DIR__ ) . '/build/admin-shell.js';
+		if ( ! is_readable( $file ) ) {
+			return;
 		}
-		wp_enqueue_script_module( self::CLIENT_MODULE, plugins_url( 'admin-shell/index.js', __FILE__ ), $deps, self::client_version( 'index' ) );
-	}
-
-	/**
-	 * Version for a client file: the package version, plus the file's modification time where it can be read.
-	 *
-	 * @param string $name File name without extension.
-	 * @return string
-	 */
-	private static function client_version( $name ) {
-		$file  = __DIR__ . "/admin-shell/$name.js";
-		$mtime = is_readable( $file ) ? filemtime( $file ) : false;
-		return $mtime ? Admin_Menu::PACKAGE_VERSION . '-' . $mtime : Admin_Menu::PACKAGE_VERSION;
+		// A hash of the file: CDNs cache script URLs by their version for a long time.
+		wp_enqueue_script_module( self::CLIENT_MODULE, plugins_url( 'build/admin-shell.js', __DIR__ ), array(), substr( (string) md5_file( $file ), 0, 12 ) );
 	}
 
 	/**

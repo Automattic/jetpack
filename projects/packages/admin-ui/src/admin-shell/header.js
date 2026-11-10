@@ -3,7 +3,7 @@
  * renders the real one. Each page's header, and the CSS it uses, is saved whenever it is on
  * screen: the dashboards add most of their CSS from JavaScript, which hasn't run yet.
  */
-import { log } from '@automattic/jetpack-admin-shell/debug'; // eslint-disable-line import/no-unresolved -- Resolved by the import map.
+import { log } from './debug';
 
 const KEY_ROOT = 'jetpack-admin-shell-header:';
 // The longest a stand-in stays up: an app showing no page heading would otherwise stay hidden.

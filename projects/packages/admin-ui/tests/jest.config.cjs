@@ -6,9 +6,4 @@ module.exports = {
 	...baseConfig,
 	...coverageConfig,
 	rootDir: path.join( __dirname, '..' ),
-	moduleNameMapper: {
-		...baseConfig.moduleNameMapper,
-		// The shell's modules import each other by their import-map IDs.
-		'^@automattic/jetpack-admin-shell/(.*)$': '<rootDir>/src/admin-shell/$1.js',
-	},
 };

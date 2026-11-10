@@ -2,7 +2,6 @@
  * Admin shell client: switch between Jetpack wp-build dashboards without a page load.
  * Anything that goes wrong falls back to a normal page load.
  */
-/* eslint-disable import/no-unresolved -- Resolved by the import map; Admin_Shell registers each file as a module. */
 import {
 	bootFor,
 	isolateRouters,
@@ -10,23 +9,13 @@ import {
 	prefetchBoot,
 	trackViewTransitions,
 	transitionSettled,
-} from '@automattic/jetpack-admin-shell/adapter';
-import { createApp, whenRendered } from '@automattic/jetpack-admin-shell/app';
-import { pageOf, updateChrome } from '@automattic/jetpack-admin-shell/chrome';
-import { debugEnabled, log, stopwatch } from '@automattic/jetpack-admin-shell/debug';
-import { applyGuestAssets } from '@automattic/jetpack-admin-shell/guest-assets';
-import {
-	configureHeaders,
-	rememberHeader,
-	removeHeader,
-	showHeader,
-} from '@automattic/jetpack-admin-shell/header';
-import {
-	closeOverlayAround,
-	showOverlaysOf,
-	trackOverlays,
-} from '@automattic/jetpack-admin-shell/overlays';
-/* eslint-enable import/no-unresolved */
+} from './adapter';
+import { createApp, whenRendered } from './app';
+import { pageOf, updateChrome } from './chrome';
+import { debugEnabled, log, stopwatch } from './debug';
+import { applyGuestAssets } from './guest-assets';
+import { configureHeaders, rememberHeader, removeHeader, showHeader } from './header';
+import { closeOverlayAround, showOverlaysOf, trackOverlays } from './overlays';
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
 const RENDER_TIMEOUT = 15000;
@@ -101,7 +90,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				if ( ! ranInit.has( id ) ) {
 					ranInit.add( id );
 					step = stopwatch();
-					const initModule = await import( id );
+					// Not bundled: wp-build's modules resolve through the page's import map at runtime.
+					const initModule = await import( /* webpackIgnore: true */ id );
 					await initModule.init?.();
 					log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
 				}
@@ -111,7 +101,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				.flatMap( route => [ route.route_module, route.content_module ] )
 				.filter( Boolean );
 			step = stopwatch();
-			await Promise.all( modules.map( id => import( id ) ) );
+			await Promise.all( modules.map( id => import( /* webpackIgnore: true */ id ) ) );
 			log(
 				'prewarm',
 				`${ slug }: imported ${ modules.length } route modules in ${ step() }`,
