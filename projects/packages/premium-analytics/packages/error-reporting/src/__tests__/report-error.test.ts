@@ -185,6 +185,21 @@ describe( 'reportError', () => {
 		expect( sentPayload().properties.route ).toBe( '/' );
 	} );
 
+	it( 'keeps the query a route path carries out of route and masks it in query', () => {
+		window.history.replaceState(
+			{},
+			'',
+			'/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%3Ftoken%3Ds3cret'
+		);
+
+		reportError( dashboardError(), 'error' );
+
+		const { route, query } = sentPayload().properties;
+		expect( route ).toBe( '/reports' );
+		expect( query ).not.toContain( 's3cret' );
+		expect( decodeURIComponent( query ) ).toContain( 'p=/reports?token=[redacted]' );
+	} );
+
 	it( 'sends properties.component_stack only for a boundary report', () => {
 		const componentStack = '\n    at Widget\n    at Dashboard';
 

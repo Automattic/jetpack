@@ -26,6 +26,20 @@ describe( 'redactQuery', () => {
 		expect( redactQuery( '?john@example.com&a%3Db=1&p=/posts' ) ).toBe( '[unreportable]&p=/posts' );
 	} );
 
+	it.each( [
+		[
+			'masks a value in the query a route path carries',
+			'/reports?token=s3cret',
+			'/reports?token=[redacted]',
+		],
+		[ 'keeps an allowlisted value in that query', '/reports?post_id=7', '/reports?post_id=7' ],
+		[ 'drops the fragment of a route path', '/reports#top', '/reports' ],
+	] )( '%s', ( _label, path, expected ) => {
+		expect( decodeURIComponent( redactQuery( `?p=${ encodeURIComponent( path ) }` ) ) ).toBe(
+			`p=${ expected }`
+		);
+	} );
+
 	it( 'keeps only the first value of a repeated parameter', () => {
 		expect( redactQuery( '?from=a&from=b' ) ).toBe( 'from=a' );
 	} );

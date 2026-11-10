@@ -1,6 +1,7 @@
 const REDACTED = '[redacted]';
 const UNREPORTABLE = '[unreportable]';
 const SAFE_NAME = /^[A-Za-z0-9_-]{1,64}$/;
+const ROUTE_PARAM = 'p';
 
 const ALLOWED_PARAMS = new Set( [
 	'page',
@@ -31,6 +32,50 @@ const ALLOWED_PARAMS = new Set( [
  */
 function decodeName( raw: string ): string {
 	return [ ...new URLSearchParams( raw ).keys() ][ 0 ] ?? '';
+}
+
+/**
+ * Decodes one raw parameter value, tolerating a malformed percent sequence.
+ *
+ * @param raw - The value as it appears in the search string.
+ * @return The decoded value.
+ */
+function decodeValue( raw: string ): string {
+	return new URLSearchParams( `v=${ raw }` ).get( 'v' ) ?? '';
+}
+
+/**
+ * The pathname of a route path, without the query or the fragment it may carry.
+ *
+ * @param path - A route path, as the `p` parameter carries it.
+ * @return The pathname alone.
+ */
+export function routePathname( path: string ): string {
+	return path.split( /[?#]/, 1 )[ 0 ];
+}
+
+/**
+ * Redacts the query a route path carries, by the same rules as the page's own query.
+ *
+ * A route query is a second search string nested inside one parameter value, so without this it
+ * would reach the report whole, with none of its own names checked against the allowlist.
+ *
+ * @param raw - The route path as it appears in the search string.
+ * @return The path with its query redacted and its fragment dropped, encoded as a value.
+ */
+function redactRoutePath( raw: string ): string {
+	const path = decodeValue( raw );
+	const cut = path.search( /[?#]/ );
+
+	if ( cut === -1 ) {
+		return raw;
+	}
+
+	const nested = path[ cut ] === '?' ? path.slice( cut + 1 ).split( /[?#]/, 1 )[ 0 ] : '';
+	const query = redactQuery( nested );
+	const pathname = path.slice( 0, cut );
+
+	return encodeURIComponent( query === '' ? pathname : `${ pathname }?${ query }` );
 }
 
 /**
@@ -69,6 +114,12 @@ export function redactQuery( search: string ): string {
 		emitted.add( name );
 
 		const raw = cut === -1 ? '' : pair.slice( cut + 1 );
+
+		if ( name === ROUTE_PARAM ) {
+			parts.push( `${ name }=${ redactRoutePath( raw ) }` );
+			continue;
+		}
+
 		parts.push( `${ name }=${ ALLOWED_PARAMS.has( name ) ? raw : REDACTED }` );
 	}
 
