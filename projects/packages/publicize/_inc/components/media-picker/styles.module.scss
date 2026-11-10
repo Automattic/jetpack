@@ -6,7 +6,10 @@
 }
 
 .preview-image {
+	display: block;
 	width: auto;
+	max-width: 100%;
+	margin-inline: auto;
 }
 
 .container {
