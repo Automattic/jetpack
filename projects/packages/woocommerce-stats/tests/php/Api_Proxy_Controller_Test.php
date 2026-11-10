@@ -624,8 +624,14 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_lists_the_contract_fields_a_partial_handler_leaves_out() {
-		$this->register_partial_local_handler();
+	/**
+	 * @dataProvider data_handler_bodies
+	 *
+	 * @param bool $as_object Whether the handler answers with an object, as decoded JSON is.
+	 */
+	#[DataProvider( 'data_handler_bodies' )]
+	public function test_lists_the_contract_fields_a_partial_handler_leaves_out( $as_object ) {
+		$this->register_partial_local_handler( $as_object );
 
 		$response = $this->get_report(
 			'orders/by-date',
@@ -635,19 +641,32 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertContains( 'total_sales', $response->get_data()['unsupported_fields'] );
-		$this->assertNotContains( 'orders_no', $response->get_data()['unsupported_fields'] );
-		$this->assertSame( 3, $response->get_data()['summary']['orders_no'] );
+		$data = (array) $response->get_data();
+		$this->assertContains( 'total_sales', $data['unsupported_fields'] );
+		$this->assertNotContains( 'orders_no', $data['unsupported_fields'] );
+		$this->assertSame( 3, ( (array) $data['summary'] )['orders_no'] );
 		$this->assertSame( 'local', $response->get_headers()['X-Jetpack-Report-Provider'] );
 	}
 
 	/**
-	 * Register a `local` provider whose `orders.by_date` handler serves only `orders_no`, by `from` and `to`.
+	 * @return array<string, array{0: bool}>
 	 */
-	private function register_partial_local_handler() {
+	public static function data_handler_bodies() {
+		return array(
+			'an array body'  => array( false ),
+			'an object body' => array( true ),
+		);
+	}
+
+	/**
+	 * Register a `local` provider whose `orders.by_date` handler serves only `orders_no`, by `from` and `to`.
+	 *
+	 * @param bool $as_object Whether the handler answers with an object.
+	 */
+	private function register_partial_local_handler( $as_object = false ) {
 		add_action(
 			Report_Registry::REGISTER_ACTION,
-			static function ( Report_Registry $registry ) {
+			function ( Report_Registry $registry ) use ( $as_object ) {
 				$registry->register_provider(
 					'local',
 					// @phan-suppress-next-line PhanAccessClassInternal -- The test stands in for step 3's local provider.
@@ -666,7 +685,23 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 					'orders.by_date',
 					'local',
 					// @phan-suppress-next-line PhanAccessClassInternal -- The test stands in for step 3's local handler.
-					new class() implements Report_Handler {
+					new class( $as_object ) implements Report_Handler {
+						/**
+						 * Whether to answer with an object.
+						 *
+						 * @var bool
+						 */
+						private $as_object;
+
+						/**
+						 * Constructor.
+						 *
+						 * @param bool $as_object Whether to answer with an object.
+						 */
+						public function __construct( $as_object ) {
+							$this->as_object = $as_object;
+						}
+
 						/**
 						 * Serves `orders_no` only.
 						 *
@@ -686,8 +721,10 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 						 * @return array
 						 */
 						public function run( Report_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+							$summary = array( 'orders_no' => 3 );
+
 							return array(
-								'data'    => array( 'summary' => array( 'orders_no' => 3 ) ),
+								'data'    => $this->as_object ? (object) array( 'summary' => (object) $summary ) : array( 'summary' => $summary ),
 								'status'  => 200,
 								'headers' => array(),
 							);

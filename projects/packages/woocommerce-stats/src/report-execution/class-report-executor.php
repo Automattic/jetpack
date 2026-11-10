@@ -140,8 +140,16 @@ class Report_Executor {
 			);
 		}
 
+		if ( ! $fields ) {
+			return new WP_Error(
+				'unknown_field',
+				__( 'Name at least one field of the report.', 'jetpack-woocommerce-stats-pkg' ),
+				array( 'status' => 422 )
+			);
+		}
+
 		$unknown = array_values( array_diff( $fields, $definition->get_field_names() ) );
-		if ( ! $fields || $unknown ) {
+		if ( $unknown ) {
 			return new WP_Error(
 				'unknown_field',
 				/* translators: %s: comma-separated field names. */
@@ -198,8 +206,7 @@ class Report_Executor {
 			return array();
 		}
 
-		$data    = $payload['data'];
-		$summary = is_object( $data ) ? ( $data->summary ?? null ) : ( is_array( $data ) ? ( $data['summary'] ?? null ) : null );
+		$summary = ( (array) $payload['data'] )['summary'] ?? null;
 		$present = is_object( $summary ) || is_array( $summary ) ? array_keys( (array) $summary ) : array();
 
 		return array_values( array_diff( $request->fields, $present ) );
@@ -218,6 +225,7 @@ class Report_Executor {
 	private static function describe( array $payload, $provider, Report_Handler $handler, Report_Definition $definition ) {
 		$unsupported = self::uncovered( $definition->get_field_names(), $handler->get_capability()['fields'] );
 		if ( $unsupported && is_object( $payload['data'] ) ) {
+			$payload['data']                     = clone $payload['data'];
 			$payload['data']->unsupported_fields = $unsupported;
 		} elseif ( $unsupported && is_array( $payload['data'] ) && ! wp_is_numeric_array( $payload['data'] ) ) {
 			$payload['data']['unsupported_fields'] = $unsupported;
