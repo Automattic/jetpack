@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.1] - 2026-11-09
+### Fixed
+- Tracking pixel: Count visitors who allowed statistics when a performance plugin delays the WP Consent API script until they interact with the page. [#54520]
+
 ## [0.24.0] - 2026-11-02
 ### Changed
 - Abilities: get-visits takes and returns `period` and `num`, matching get-top-content and get-post-views, in place of `unit` and `quantity`. [#54227]
@@ -414,6 +418,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.24.1]: https://github.com/Automattic/jetpack-stats/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/Automattic/jetpack-stats/compare/v0.23.2...v0.24.0
 [0.23.2]: https://github.com/Automattic/jetpack-stats/compare/v0.23.1...v0.23.2
 [0.23.1]: https://github.com/Automattic/jetpack-stats/compare/v0.23.0...v0.23.1

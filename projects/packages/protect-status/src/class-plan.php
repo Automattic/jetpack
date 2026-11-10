@@ -35,7 +35,7 @@ class Plan {
 	/**
 	 * Every Scan product's slug starts with this: monthly, bi-yearly and the legacy real-time ones.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.10.2
 	 *
 	 * @var string
 	 */
