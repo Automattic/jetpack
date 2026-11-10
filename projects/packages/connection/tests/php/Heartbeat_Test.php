@@ -19,6 +19,13 @@ use WorDBless\BaseTestCase;
 class Heartbeat_Test extends BaseTestCase {
 
 	/**
+	 * HTTP requests captured by the `pre_http_request` filter, as `[ url, blocking, timeout ]`.
+	 *
+	 * @var array[]
+	 */
+	private $requests = array();
+
+	/**
 	 * Pre-seed the SSL test transient so `get_environment_stats()` does not make a network request.
 	 */
 	public function set_up() {
@@ -140,30 +147,36 @@ class Heartbeat_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The daily heartbeat waits for each stats response.
+	 * The daily heartbeat sends one request per stat group and waits for each response.
 	 */
 	public function test_cron_exec_sends_stats_blocking() {
-		$blocking = array();
-		$filter   = function ( $pre, $args ) use ( &$blocking ) {
-			$blocking[] = $args['blocking'];
+		$filter = function ( $pre, $args, $url ) {
+			$this->requests[] = array( $url, $args['blocking'], $args['timeout'] );
 			return array( 'response' => array( 'code' => 200 ) );
 		};
-		$stats    = function () {
+		$stats  = function () {
 			return array(
 				'a' => 'one',
 				'b' => 'two',
 			);
 		};
-		add_filter( 'pre_http_request', $filter, 10, 2 );
+		add_filter( 'pre_http_request', $filter, 10, 3 );
 		add_filter( 'jetpack_heartbeat_stats_array', $stats );
 		try {
-			Heartbeat::init()->cron_exec();
+			// Bypass init() so the singleton and its hooks are not left behind for other tests.
+			( new \ReflectionClass( Heartbeat::class ) )->newInstanceWithoutConstructor()->cron_exec();
 		} finally {
 			remove_filter( 'pre_http_request', $filter, 10 );
 			remove_filter( 'jetpack_heartbeat_stats_array', $stats );
 			\Jetpack_Options::delete_option( 'last_heartbeat' );
 		}
 
-		$this->assertSame( array( true, true ), $blocking );
+		$this->assertCount( 2, $this->requests );
+		$this->assertStringContainsString( 'x_jetpack-v2-a=one', $this->requests[0][0] );
+		$this->assertStringContainsString( 'x_jetpack-v2-b=two', $this->requests[1][0] );
+		foreach ( $this->requests as $request ) {
+			$this->assertTrue( $request[1] );
+			$this->assertSame( 5, $request[2] );
+		}
 	}
 }
