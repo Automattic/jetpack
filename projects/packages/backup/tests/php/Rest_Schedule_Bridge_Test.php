@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup\V0005\REST;
+namespace Automattic\Jetpack\Backup\V0006\REST;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +22,7 @@ require_once __DIR__ . '/trait-wpcom-request-mock.php';
 /**
  * Tests for the POST /jetpack/v4/site/backup/schedule route.
  *
- * @covers \Automattic\Jetpack\Backup\V0005\REST\Schedule_Bridge
+ * @covers \Automattic\Jetpack\Backup\V0006\REST\Schedule_Bridge
  */
 #[CoversClass( Schedule_Bridge::class )]
 class Rest_Schedule_Bridge_Test extends TestCase {

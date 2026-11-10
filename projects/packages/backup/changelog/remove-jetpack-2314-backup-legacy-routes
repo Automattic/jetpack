@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the `backup-capabilities`, `has-backup-plan`, `site/current-purchases` and `site/dismissed-review-request` REST routes. Only the legacy dashboard called them.

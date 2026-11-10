@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup\V0005\REST;
+namespace Automattic\Jetpack\Backup\V0006\REST;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
@@ -28,7 +28,7 @@ require_once __DIR__ . '/trait-wpcom-request-mock.php';
 /**
  * Tests for the /jetpack/v4/rewind/* routes.
  *
- * @covers \Automattic\Jetpack\Backup\V0005\REST\Restore_Bridge
+ * @covers \Automattic\Jetpack\Backup\V0006\REST\Restore_Bridge
  */
 #[CoversClass( Restore_Bridge::class )]
 class Rest_Restore_Bridge_Test extends TestCase {
