@@ -131,9 +131,10 @@ class Jetpack_Media_Summary {
 							}
 
 							$video = self::get_videopress_video( $data['id'][0] );
-							if ( null !== $video ) {
-								$return = self::set_video( $return, $video );
+							if ( null === $video ) {
+								break;
 							}
+							$return = self::set_video( $return, $video );
 						}
 						++$return['count']['video'];
 						break;
@@ -206,11 +207,16 @@ class Jetpack_Media_Summary {
 			}
 		}
 
+		$videopress_looked_up = false;
 		foreach ( $block_videos as $video ) {
 			if ( 0 === $return['count']['video'] ) {
-				// Only look up VideoPress details for the video that will be used.
+				// Each lookup can be a remote request, so only try the first VideoPress video.
 				if ( isset( $video['guid'] ) ) {
-					$video = self::get_videopress_video( $video['guid'] );
+					if ( $videopress_looked_up ) {
+						continue;
+					}
+					$videopress_looked_up = true;
+					$video                = self::get_videopress_video( $video['guid'] );
 					if ( null === $video ) {
 						continue;
 					}
@@ -386,7 +392,7 @@ class Jetpack_Media_Summary {
 	 *
 	 * @param string $html The block's saved markup.
 	 *
-	 * @return array|null Video data, or null without both a file and a poster, since share cards need an image.
+	 * @return array|null Video data, or null without a poster (share cards need an image) or a known video file type.
 	 */
 	private static function get_core_video( $html ) {
 		$tags = new WP_HTML_Tag_Processor( $html );
@@ -402,10 +408,14 @@ class Jetpack_Media_Summary {
 
 		// Check against all known types, not the upload allow-list, which hosts can restrict.
 		$filetype = wp_check_filetype( (string) wp_parse_url( $src, PHP_URL_PATH ), wp_get_mime_types() );
+		// Open Graph would otherwise label the file text/html.
+		if ( ! is_string( $filetype['type'] ) || ! str_starts_with( $filetype['type'], 'video/' ) ) {
+			return null;
+		}
 
 		return array(
 			'video'      => $src,
-			'video_type' => $filetype['type'] ? $filetype['type'] : '',
+			'video_type' => $filetype['type'],
 			'image'      => $poster,
 		);
 	}
