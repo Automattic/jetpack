@@ -60,15 +60,16 @@ jobs:
       - name: Detect changed projects
         id: changed
         run: |
-          if [[ "$GITHUB_EVENT_NAME" == 'push' && "$GITHUB_REF" == 'refs/heads/trunk' ]]; then
-            # Written outside the checkout so the build doesn't see them.
-            pnpm jetpack dependencies list --extra=build --ignore-root | sort > "$RUNNER_TEMP/all.txt"
-            pnpm jetpack dependencies list --extra=build --ignore-root --add-dependencies plugins/jetpack plugins/mu-wpcom-plugin | sort > "$RUNNER_TEMP/wpcom.txt"
-            comm -23 "$RUNNER_TEMP/all.txt" "$RUNNER_TEMP/wpcom.txt" > "$RUNNER_TEMP/nonwpcom.txt"
-
-            CHANGED=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' "$RUNNER_TEMP/$BUILD_SET.txt" )
-          else
+          if [[ "$BUILD_SET" == all ]]; then
             CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
+          else
+            # Written outside the checkout so the build doesn't see them.
+            pnpm jetpack dependencies list --extra=build --ignore-root --add-dependencies plugins/jetpack plugins/mu-wpcom-plugin | sort > "$RUNNER_TEMP/wpcom.txt"
+            if [[ "$BUILD_SET" == nonwpcom ]]; then
+              pnpm jetpack dependencies list --extra=build --ignore-root | sort > "$RUNNER_TEMP/all.txt"
+              comm -23 "$RUNNER_TEMP/all.txt" "$RUNNER_TEMP/wpcom.txt" > "$RUNNER_TEMP/nonwpcom.txt"
+            fi
+            CHANGED=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' "$RUNNER_TEMP/$BUILD_SET.txt" )
           fi
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
 
