@@ -48,6 +48,11 @@
 			"types": "./build/components/gravatar/index.d.ts",
 			"default": "./build/components/gravatar/index.js"
 		},
+		"./highlight-banner": {
+			"jetpack:src": "./components/highlight-banner/index.tsx",
+			"types": "./build/components/highlight-banner/index.d.ts",
+			"default": "./build/components/highlight-banner/index.js"
+		},
 		"./jetpack-footer": {
 			"jetpack:src": "./components/jetpack-footer/index.tsx",
 			"types": "./build/components/jetpack-footer/index.d.ts",

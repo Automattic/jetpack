@@ -26,6 +26,7 @@ import {
 import {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_24_HOURS,
+	PRESET_LAST_3_YEARS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_365_DAYS,
 	PRESET_LAST_7_DAYS,
@@ -77,6 +78,7 @@ const PRESET_STEP_SPANS: Record< SelectablePresetId, DateRangeSpan > = {
 	[ PRESET_YEAR_TO_DATE ]: { unit: 'year', value: 1 },
 	[ PRESET_LAST_12_MONTHS ]: { unit: 'month', value: 12 },
 	[ PRESET_LAST_YEAR ]: { unit: 'year', value: 1 },
+	[ PRESET_LAST_3_YEARS ]: { unit: 'year', value: 3 },
 };
 
 const DURATION_PATTERN = /^P(?:T(\d+)H|(\d+)D|(\d+)M|(\d+)Y)$/;
