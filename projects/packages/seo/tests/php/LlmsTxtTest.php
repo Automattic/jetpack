@@ -27,6 +27,13 @@ class LlmsTxtTest extends SeoTestCase {
 	private $post_ids = array();
 
 	/**
+	 * Site title before the test.
+	 *
+	 * @var string
+	 */
+	private $blogname = '';
+
+	/**
 	 * Reset the enable option before each test.
 	 *
 	 * @return void
@@ -34,6 +41,8 @@ class LlmsTxtTest extends SeoTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		delete_option( Llms_Txt::OPTION );
+		Llms_Txt::clear_cache();
+		$this->blogname = get_option( 'blogname' );
 	}
 
 	/**
@@ -50,6 +59,16 @@ class LlmsTxtTest extends SeoTestCase {
 		if ( post_type_exists( 'seo_book' ) ) {
 			unregister_post_type( 'seo_book' );
 		}
+
+		foreach ( wp_get_nav_menus() as $menu ) {
+			wp_delete_nav_menu( $menu->term_id );
+		}
+		$category = get_term_by( 'name', 'Listed Category', 'category' );
+		if ( $category ) {
+			wp_delete_term( $category->term_id, 'category' );
+		}
+		update_option( 'blogname', $this->blogname );
+		Llms_Txt::clear_cache();
 
 		parent::tearDown();
 	}
@@ -473,7 +492,7 @@ class LlmsTxtTest extends SeoTestCase {
 		$page = $this->insert_page( 'Hidden Later' );
 		update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
 
-		$this->with_always_include_hooks(
+		$this->with_write_hooks(
 			static function () use ( $page ) {
 				update_post_meta( $page->ID, Content_Coverage::META_NOINDEX, '1' );
 			}
@@ -514,7 +533,7 @@ class LlmsTxtTest extends SeoTestCase {
 
 		$responses = array();
 		try {
-			$this->with_always_include_hooks(
+			$this->with_write_hooks(
 				static function () use ( $page, $saves, &$responses ) {
 					foreach ( $saves as $meta ) {
 						$request = new WP_REST_Request( 'POST', '/wp/v2/pages/' . $page->ID );
@@ -616,12 +635,12 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Run a callback with the "Always include" hooks attached, then restore the global hooks.
+	 * Run a callback with the write hooks attached, keeping them out of the rest of the suite.
 	 *
 	 * @param callable $callback Code to run.
 	 * @return void
 	 */
-	private function with_always_include_hooks( callable $callback ) {
+	private function with_write_hooks( callable $callback ) {
 		$hooks = array_map(
 			static function ( $hook ) {
 				return clone $hook;
@@ -630,6 +649,7 @@ class LlmsTxtTest extends SeoTestCase {
 		);
 		try {
 			Llms_Txt::register_always_include();
+			Llms_Txt::register_invalidation();
 			$callback();
 		} finally {
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -662,5 +682,190 @@ class LlmsTxtTest extends SeoTestCase {
 		preg_match( '/^## Pages\n\n(.*?)(?:\n\n## |\n\z)/ms', Llms_Txt::generate(), $section );
 		preg_match_all( '/^- \[(.+?)\]/m', $section[1] ?? '', $titles );
 		return $titles[1];
+	}
+
+	/**
+	 * A stored llms.txt is served as is; without one, the file is built and stored.
+	 *
+	 * @return void
+	 */
+	public function test_stored_copy_is_served_without_rebuilding() {
+		set_transient( Llms_Txt::CACHE_KEY, 'stored body', HOUR_IN_SECONDS );
+		$this->assertSame( 'stored body', Llms_Txt::get_stored() );
+
+		Llms_Txt::clear_cache();
+		update_option( 'blogname', 'Built Title' );
+		$built = Llms_Txt::get_stored();
+		$this->assertStringStartsWith( '# Built Title', $built );
+		$this->assertSame( $built, get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Changes to what llms.txt lists clear the stored copy; the editor's own bookkeeping doesn't.
+	 *
+	 * @dataProvider provide_changes
+	 *
+	 * @param callable $change Makes the change, given a published page's ID.
+	 * @param bool     $clears Whether the stored copy should be cleared.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_changes' )]
+	public function test_changes_clear_the_stored_copy( $change, $clears ) {
+		update_option( Llms_Txt::OPTION, true );
+		$page = $this->insert_post(
+			array(
+				'post_type'  => 'page',
+				'post_title' => 'Existing Page',
+			)
+		);
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+
+		$this->with_write_hooks(
+			static function () use ( $change, $page ) {
+				$change( $page->ID );
+			}
+		);
+
+		$this->assertSame( $clears ? false : 'stored', get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Changes and whether each clears the stored llms.txt.
+	 *
+	 * @return array
+	 */
+	public static function provide_changes() {
+		return array(
+			'page edited'              => array(
+				static function ( $page_id ) {
+					wp_update_post(
+						array(
+							'ID'         => $page_id,
+							'post_title' => 'Renamed Page',
+						)
+					);
+				},
+				true,
+			),
+			'page deleted permanently' => array(
+				static function ( $page_id ) {
+					wp_delete_post( $page_id, true );
+				},
+				true,
+			),
+			'page hidden from search'  => array(
+				static function ( $page_id ) {
+					update_post_meta( $page_id, Content_Coverage::META_NOINDEX, '1' );
+				},
+				true,
+			),
+			'site title changed'       => array(
+				static function () {
+					update_option( 'blogname', 'Renamed Site' );
+				},
+				true,
+			),
+			'llms.txt turned off'      => array(
+				static function () {
+					update_option( Llms_Txt::OPTION, false );
+				},
+				true,
+			),
+			'classic menu saved'       => array(
+				static function () {
+					wp_create_nav_menu( 'Main' );
+				},
+				true,
+			),
+			'oEmbed cache saved'       => array(
+				static function () {
+					wp_insert_post(
+						array(
+							'post_type'   => 'oembed_cache',
+							'post_status' => 'publish',
+							'post_title'  => 'Embed',
+						)
+					);
+				},
+				false,
+			),
+			'category renamed'         => array(
+				static function () {
+					$term = wp_insert_term( 'Listed Category', 'category' );
+					wp_update_term( $term['term_id'], 'category', array( 'slug' => 'renamed-category' ) );
+				},
+				true,
+			),
+			'editor lock refreshed'    => array(
+				static function ( $page_id ) {
+					update_post_meta( $page_id, '_edit_lock', time() . ':1' );
+				},
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Clearing asks WordPress.com to purge its edge copy only when a stored copy existed.
+	 *
+	 * @return void
+	 */
+	public function test_clearing_purges_the_edge_copy_only_when_one_was_stored() {
+		\Wpcom_Test_Async_Jobs::$queued = array();
+		Llms_Txt::clear_cache();
+		$this->assertSame( array(), \Wpcom_Test_Async_Jobs::$queued );
+
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+		Llms_Txt::clear_cache();
+		$this->assertSame(
+			array(
+				array(
+					'type' => 'wpcom_invalidate_output_cache_job',
+					'data' => array( 'output_cache' => array( 'url' => array( home_url( '/llms.txt' ) ) ) ),
+				),
+			),
+			\Wpcom_Test_Async_Jobs::$queued
+		);
+	}
+
+	/**
+	 * Theme changes clear the stored copy for the theme active when they're saved, not when the
+	 * hooks were registered: WordPress.com API requests register them before switching sites.
+	 *
+	 * @return void
+	 */
+	public function test_theme_mods_clear_the_stored_copy_for_the_theme_active_when_saved() {
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+		$api_host_theme = static function () {
+			return 'api-host-theme';
+		};
+		add_filter( 'stylesheet', $api_host_theme );
+		try {
+			$this->with_write_hooks(
+				static function () use ( $api_host_theme ) {
+					remove_filter( 'stylesheet', $api_host_theme );
+					set_theme_mod( 'llms_txt_test', 'changed' );
+				}
+			);
+		} finally {
+			remove_filter( 'stylesheet', $api_host_theme );
+			remove_theme_mod( 'llms_txt_test' );
+		}
+		$this->assertFalse( get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Turning llms.txt on purges the edge copy even when nothing is stored here.
+	 *
+	 * @return void
+	 */
+	public function test_turning_llms_txt_on_purges_the_edge_copy_with_nothing_stored() {
+		\Wpcom_Test_Async_Jobs::$queued = array();
+		$this->with_write_hooks(
+			static function () {
+				update_option( Llms_Txt::OPTION, true );
+			}
+		);
+		$this->assertCount( 1, \Wpcom_Test_Async_Jobs::$queued );
 	}
 }

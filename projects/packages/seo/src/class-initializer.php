@@ -239,14 +239,16 @@ class Initializer {
 	}
 
 	/**
-	 * Hook what any request that saves content needs: clearing the Overview counts and the
-	 * page fields the SEO page saves. WordPress.com calls this on its API requests, which skip init().
+	 * Hook what any request that saves content needs: the page fields the SEO page saves, and
+	 * clearing the Overview counts and the stored llms.txt. WordPress.com calls this on its API
+	 * requests, which skip init().
 	 *
 	 * @return void
 	 */
 	public static function register_write_hooks() {
 		Content_Coverage::register_invalidation();
 		Llms_Txt::register_always_include();
+		Llms_Txt::register_invalidation();
 	}
 
 	/**
