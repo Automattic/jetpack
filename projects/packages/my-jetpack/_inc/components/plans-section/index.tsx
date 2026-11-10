@@ -254,7 +254,7 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 
 	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
 
-	// Connecting returns to an absolute URL: Calypso ignores a relative one, and the header shows this link on Boost's page.
+	// Not getMyJetpackRouteUrl() for the return: on My Jetpack itself it's a bare hash, which Calypso ignores.
 	const activateLicenseUrl = isUserConnected
 		? getMyJetpackRouteUrl( MyJetpackRoutes.AddLicense )
 		: getConnectUrl( connectFrom, getMyJetpackUrl( `#${ MyJetpackRoutes.AddLicense }` ) );
