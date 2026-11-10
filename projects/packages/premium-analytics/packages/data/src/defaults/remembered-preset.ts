@@ -5,6 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_30_DAYS,
+	PRESET_LAST_3_YEARS,
 	PRESET_LAST_7_DAYS,
 	PRESET_MONTH_TO_DATE,
 	PRESET_TODAY,
@@ -32,7 +33,7 @@ export type RememberedComparison = ComparisonPresetId | typeof NO_COMPARISON;
 // By name: importing `@wordpress/preferences` would pull its UI into every consumer of this package.
 const PREFERENCES_STORE = 'core/preferences';
 
-// wp-calypso's date-range shortcut IDs. v2 has no three-year window, so that one takes the longest it has.
+// wp-calypso's date-range shortcut IDs.
 const STATS_V1_SHORTCUTS = new Map< string, PresetType >( [
 	[ 'today', PRESET_TODAY ],
 	[ 'last_7_days', PRESET_LAST_7_DAYS ],
@@ -40,7 +41,7 @@ const STATS_V1_SHORTCUTS = new Map< string, PresetType >( [
 	[ 'month_to_date', PRESET_MONTH_TO_DATE ],
 	[ 'year_to_date', PRESET_YEAR_TO_DATE ],
 	[ 'last_12_months', PRESET_LAST_12_MONTHS ],
-	[ 'last_3_years', PRESET_LAST_12_MONTHS ],
+	[ 'last_3_years', PRESET_LAST_3_YEARS ],
 ] );
 
 type PreferencesSelectors = { get: ( scope: string, name: string ) => unknown };
