@@ -1024,6 +1024,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			case 'dropdown_page':
 				$return[ $key ] = (array) $this->cast_and_filter( $value, $this->dropdown_page_object_format, false, $for_output );
 				break;
+			case 'none':
+				// A field documented without a (type) prefix has nothing to cast to, so leave it out.
+				break;
 			default:
 				$method_name = $type['type'] . '_docs';
 				if ( method_exists( 'WPCOM_JSON_API_Jetpack_Overrides', $method_name ) ) {
