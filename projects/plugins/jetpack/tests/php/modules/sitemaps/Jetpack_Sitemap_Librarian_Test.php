@@ -193,12 +193,12 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 		$librarian->store_sitemap_data( 'name-3', JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
 
 		// Delete it.
-		$librarian->delete_numbered_sitemap_rows_after( 0, 'type' );
+		$librarian->delete_numbered_sitemap_rows_after( 0, JP_PAGE_SITEMAP_TYPE );
 
 		// It's gone!
-		$this->assertTrue( $librarian->read_sitemap_data( 'name-1', 'type' ) === null );
-		$this->assertTrue( $librarian->read_sitemap_data( 'name-2', 'type' ) === null );
-		$this->assertTrue( $librarian->read_sitemap_data( 'name-3', 'type' ) === null );
+		$this->assertTrue( $librarian->read_sitemap_data( 'name-1', JP_PAGE_SITEMAP_TYPE ) === null );
+		$this->assertTrue( $librarian->read_sitemap_data( 'name-2', JP_PAGE_SITEMAP_TYPE ) === null );
+		$this->assertTrue( $librarian->read_sitemap_data( 'name-3', JP_PAGE_SITEMAP_TYPE ) === null );
 	}
 
 	/**

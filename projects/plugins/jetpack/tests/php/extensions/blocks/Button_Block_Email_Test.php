@@ -303,24 +303,6 @@ class Button_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test render_email returns empty when WooCommerce Email Editor helper classes are missing.
-	 */
-	public function test_render_email_returns_empty_when_helpers_missing() {
-		$parsed_block = $this->create_parsed_block_with_attributes();
-		$mock_context = $this->create_rendering_context_mock();
-
-		// Verify that with mocked classes, the function works
-		$result_with_mocks = \Automattic\Jetpack\Extensions\Button\render_email( '', $parsed_block, $mock_context );
-		$this->assertNotEmpty( $result_with_mocks );
-
-		// Test the class existence check logic directly
-		$button_renderer_exists = class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' );
-
-		// The class should exist due to our mocks
-		$this->assertTrue( $button_renderer_exists, 'Button renderer class should be mocked and available' );
-	}
-
-	/**
 	 * Test render_email with custom background color.
 	 */
 	public function test_render_email_with_custom_background_color() {

@@ -138,61 +138,6 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		}
 	}
 
-	/**
-	 * Jetpack user identified by cookie.
-	 */
-	public function test_jetpack_cookie_user() {
-		$this->markTestSkipped( 'setting cookies does not work well with tests. But the logic is here.' );
-		// @phan-suppress-next-line PhanPluginUnreachableCode
-		$post_id         = $this->setup_jetpack_paid_newsletters();
-		$GLOBALS['post'] = get_post( $post_id );
-
-		wp_set_current_user( 0 );
-
-		$token_subscription_service = $this->set_returned_token(
-			array(
-				'blog_sub'      => 'inactive',
-				'subscriptions' => array(
-					$this->product_id => array(
-						'status'     => 'active',
-						'end_date'   => time() + HOUR_IN_SECONDS,
-						'product_id' => $this->product_id,
-					),
-				),
-			)
-		);
-
-		unset( $_COOKIE[ Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-
-		$this->assertNotContains( Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $_COOKIE );
-
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), '' ) );
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'everybody' ) );
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'subscribers' ) );
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'paid_subscribers' ) );
-
-		// Now we make sure we have the cookie
-		$this->assertNotNull( $_COOKIE[ Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-
-		// We remove the token
-		unset( $_GET['token'] );
-
-		// We make sure everything still works
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), '' ) );
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'everybody' ) );
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'subscribers' ) );
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'paid_subscribers' ) );
-
-		// We remove the cookie
-		unset( $_COOKIE[ Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-
-		// We make sure everything nothing works anymore
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), '' ) );
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'everybody' ) );
-		$this->assertFalse( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'subscribers' ) );
-		$this->assertFalse( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'paid_subscribers' ) );
-	}
-
 	public function test_publishing_post_first_time_does_not_set_do_not_send_subscription_flag() {
 		$post_id = $this->factory->post->create();
 		wp_publish_post( $post_id );
@@ -368,40 +313,6 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			'The capability filter should still be able to restrict access.'
 		);
 		remove_all_filters( 'jetpack_subscriptions_post_was_ever_published_capability' );
-	}
-
-	/**
-	 * Test that wpcom_newsletter_send_default option defaults to true.
-	 */
-	public function test_newsletter_send_default_option_defaults_to_true() {
-		delete_option( 'wpcom_newsletter_send_default' );
-		$this->assertTrue( (bool) get_option( 'wpcom_newsletter_send_default', true ) );
-	}
-
-	/**
-	 * Test that wpcom_newsletter_send_default=true means emails are sent (meta default false).
-	 */
-	public function test_newsletter_send_default_true_sends_email() {
-		update_option( 'wpcom_newsletter_send_default', 1 );
-		$this->assertFalse( ! get_option( 'wpcom_newsletter_send_default', true ) );
-		delete_option( 'wpcom_newsletter_send_default' );
-	}
-
-	/**
-	 * Test that wpcom_newsletter_send_default=false means emails are skipped (meta default true).
-	 */
-	public function test_newsletter_send_default_false_skips_email() {
-		update_option( 'wpcom_newsletter_send_default', 0 );
-		$this->assertTrue( ! get_option( 'wpcom_newsletter_send_default', true ) );
-		delete_option( 'wpcom_newsletter_send_default' );
-	}
-
-	/**
-	 * Test that when option is missing, the default behavior is to send email.
-	 */
-	public function test_newsletter_send_default_missing_sends_email() {
-		delete_option( 'wpcom_newsletter_send_default' );
-		$this->assertFalse( ! get_option( 'wpcom_newsletter_send_default', true ) );
 	}
 
 	/**

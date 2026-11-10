@@ -41,20 +41,4 @@ class Jetpack_Shortcodes_Kickstarter_Test extends WP_UnitTestCase {
 
 		$this->assertEquals( '<!-- Invalid Kickstarter URL -->', $shortcode_content );
 	}
-
-	/**
-	 * Verify that rendering the shortcode returns a Kickstarter link.
-	 *
-	 * @since 4.5.0
-	 */
-	public function test_shortcodes_kickstarter_image() {
-		$this->markTestSkipped();
-		// @phan-suppress-next-line PhanPluginUnreachableCode
-		$url     = 'https://www.kickstarter.com/projects/peaktoplateau/yak-wool-baselayers-from-tibet-to-the-world';
-		$content = "[kickstarter url='$url']";
-
-		$shortcode_content = apply_shortcodes( $content );
-
-		$this->assertStringContainsString( '<a href="https://www.kickstarter.com/projects/peaktoplateau/yak-wool-baselayers-from-tibet-to-the-world">', $shortcode_content );
-	}
 }

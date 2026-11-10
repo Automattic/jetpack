@@ -501,7 +501,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 		remove_filter( 'jetpack_sync_send_data', array( $this, 'run_filter' ) );
 
-		$this->assertFalse( false, 'ran filter jetpack_sync_send_data' );
+		$this->assertFalse( $this->filter_ran, 'ran filter jetpack_sync_send_data' );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'foo_action' );
 		$this->assertFalse( $event, 'Event data present' );

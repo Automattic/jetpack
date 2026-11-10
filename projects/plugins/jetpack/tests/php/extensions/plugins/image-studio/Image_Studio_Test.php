@@ -1714,14 +1714,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// get_ai_image_extensions() tests
 	// -------------------------------------------------------------------------
 
-	/**
-	 * Test get_ai_image_extensions returns all expected extensions.
-	 */
-	public function test_get_ai_image_extensions_returns_expected_list() {
-		$extensions = ImageStudio\get_ai_image_extensions();
-		$this->assertEquals( self::get_ai_image_extensions(), $extensions );
-	}
-
 	// -------------------------------------------------------------------------
 	// determine_iso_639_locale() tests
 	// -------------------------------------------------------------------------
