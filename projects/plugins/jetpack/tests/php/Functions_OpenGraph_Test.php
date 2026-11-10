@@ -79,6 +79,25 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		}
 	}
 
+	public function test_dashboard_image_stays_independent_of_saved_share_image() {
+		$share_image = \Automattic\Jetpack\SEO\Share_Image::class;
+		$share_image::init();
+		update_option( $share_image::OPTION, $this->icon_id );
+		$fallback = static function ( $image ) {
+			return empty( $image ) ? array( 'src' => 'https://example.org/site-image.jpg' ) : $image;
+		};
+		add_filter( 'jetpack_og_default_site_image', $fallback, 30 );
+		try {
+			$site = \Automattic\Jetpack\SEO\Dashboard_Data::get_site_data();
+			$this->assertSame( 'https://example.org/site-image.jpg', $site['image'] );
+			$this->assertSame( wp_get_attachment_url( $this->icon_id ), jetpack_og_get_fallback_social_image( 200, 200 )['src'] );
+		} finally {
+			remove_filter( 'jetpack_og_default_site_image', $fallback, 30 );
+			remove_filter( 'jetpack_og_default_site_image', array( $share_image, 'fallback_image' ), 20 );
+			delete_option( $share_image::OPTION );
+		}
+	}
+
 	/** Social overrides must retain their image without the default's unrelated alt text. */
 	public function test_social_image_override_does_not_inherit_default_alt() {
 		\Automattic\Jetpack\SEO\Share_Image::init();

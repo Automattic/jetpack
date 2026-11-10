@@ -1265,11 +1265,22 @@ class Dashboard_Data {
 
 		$logo_id  = (int) get_theme_mod( 'custom_logo' );
 		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+		$image_url = $logo_url ? $logo_url : $icon_url;
 		if ( class_exists( 'Jetpack_Redux_State_Helper' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_Redux_State_Helper lives in plugins/jetpack and is guarded by class_exists.
-			$image_url = (string) \Jetpack_Redux_State_Helper::get_site_image();
-		} else {
-			$image_url = $logo_url ? $logo_url : $icon_url;
+			$callback = array( Share_Image::class, 'fallback_image' );
+			$priority = has_filter( 'jetpack_og_default_site_image', $callback );
+			// The picker supplies the selected default separately, so removing it can reveal this fallback.
+			if ( false !== $priority ) {
+				remove_filter( 'jetpack_og_default_site_image', $callback, $priority );
+			}
+			try {
+				// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_Redux_State_Helper lives in plugins/jetpack and is guarded by class_exists.
+				$image_url = (string) \Jetpack_Redux_State_Helper::get_site_image();
+			} finally {
+				if ( false !== $priority ) {
+					add_filter( 'jetpack_og_default_site_image', $callback, $priority );
+				}
+			}
 		}
 
 		if ( preg_match( '/\.svg(?:[?#]|$)/i', $image_url ) || 'https://s0.wp.com/i/blank.jpg' === $image_url ) {
@@ -1277,26 +1288,30 @@ class Dashboard_Data {
 		}
 		$content_image = '';
 		$front_page_id = 'page' === get_option( 'show_on_front' ) ? (int) get_option( 'page_on_front' ) : 0;
-		if ( $front_page_id && ! post_password_required( $front_page_id ) && class_exists( '\Automattic\Jetpack\Post_Media\Images' ) ) {
+		$front_page    = $front_page_id ? get_post( $front_page_id ) : null;
+		// Social crawlers do not have the site owner's post password cookie.
+		$protected = $front_page && '' !== $front_page->post_password;
+		if ( $front_page && ! $protected && class_exists( '\Automattic\Jetpack\Post_Media\Images' ) ) {
 			$args = array(
 				'width'  => 200,
 				'height' => 200,
 			);
-			if ( Content_Gate::is_gated( get_post( $front_page_id ) ) ) {
+			if ( Content_Gate::is_gated( $front_page ) ) {
 				$args += array_fill_keys( array( 'from_slideshow', 'from_gallery', 'from_attachment', 'from_blocks', 'from_html' ), false );
 			}
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional host package, guarded above.
-			$image         = \Automattic\Jetpack\Post_Media\Images::get_image( $front_page_id, $args );
+			$image         = \Automattic\Jetpack\Post_Media\Images::get_image( $front_page->ID, $args );
 			$content_image = $image['src'] ?? '';
 		}
 
 		return array(
-			'content_image' => $content_image,
-			'title'         => (string) get_bloginfo( 'name' ),
-			'tagline'       => (string) get_bloginfo( 'description' ),
-			'url'           => (string) home_url(),
-			'icon'          => $icon_url,
-			'image'         => $image_url,
+			'content_image'        => $content_image,
+			'front_page_protected' => $protected,
+			'title'                => (string) get_bloginfo( 'name' ),
+			'tagline'              => (string) get_bloginfo( 'description' ),
+			'url'                  => (string) home_url(),
+			'icon'                 => $icon_url,
+			'image'                => $image_url,
 		);
 	}
 

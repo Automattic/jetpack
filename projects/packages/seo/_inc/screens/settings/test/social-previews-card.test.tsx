@@ -3,6 +3,7 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react';
+import type { SiteData } from '../../../data/get-site';
 import type { TitleFormatToken } from '../../../data/settings-types';
 
 const site = {
@@ -12,7 +13,7 @@ const site = {
 	icon: '',
 	image: 'https://example.com/representative.jpg',
 };
-const getSite = jest.fn( () => site );
+const getSite = jest.fn( (): SiteData => site );
 
 jest.unstable_mockModule( '../../../data/get-site', () => ( {
 	default: getSite,
@@ -153,7 +154,7 @@ describe( 'SocialPreviewsCard', () => {
 		getSite.mockReturnValue( {
 			...site,
 			content_image: 'https://example.com/home.jpg',
-		} as typeof site );
+		} );
 		render(
 			<SocialPreviewsCard
 				description=""
@@ -166,5 +167,22 @@ describe( 'SocialPreviewsCard', () => {
 		screen
 			.getAllByAltText( '' )
 			.forEach( image => expect( image ).toHaveAttribute( 'src', 'https://example.com/home.jpg' ) );
+	} );
+
+	it( 'keeps the picker usable without preview images for a password-protected home page', () => {
+		getSite.mockReturnValue( { ...site, front_page_protected: true } );
+		render(
+			<SocialPreviewsCard
+				description=""
+				frontPageTitleFormat={ [] }
+				titleSeparator="-"
+				defaultImage={ { id: 42, src: 'https://example.com/default.jpg', alt_text: 'Default' } }
+				onImageChange={ jest.fn() }
+			/>
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: /Search & social previews/ } ) );
+
+		expect( screen.queryAllByAltText( '' ) ).toHaveLength( 0 );
+		expect( screen.getByRole( 'button', { name: 'Replace image' } ) ).toBeEnabled();
 	} );
 } );

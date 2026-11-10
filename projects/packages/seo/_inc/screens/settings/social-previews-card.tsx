@@ -176,7 +176,10 @@ const SocialPreviewsCard: FC< Props > = props => {
 		return null;
 	}
 	const previewDescription = description || site.tagline;
-	const socialSite = { ...site, image: site.content_image || defaultImage?.src || site.image };
+	const socialSite = {
+		...site,
+		image: site.front_page_protected ? '' : site.content_image || defaultImage?.src || site.image,
+	};
 	const titles = frontPageTitles( site, frontPageTitleFormat, titleSeparator );
 
 	return (
