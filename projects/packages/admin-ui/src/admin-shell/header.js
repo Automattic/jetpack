@@ -43,7 +43,10 @@ const standIns = new Map();
  * @param {string} slug - Page slug.
  */
 export function removeHeader( slug ) {
-	standIns.get( slug )?.();
+	const remove = standIns.get( slug );
+	if ( typeof remove === 'function' ) {
+		remove();
+	}
 }
 
 // The app's page wrappers, empty, around a copy of its header.
@@ -202,7 +205,7 @@ export function showHeader( slug, el ) {
 		}
 	};
 	const timer = setTimeout( remove, STAND_IN_TIMEOUT );
-	standIns.get( slug )?.();
+	removeHeader( slug );
 	standIns.set( slug, remove );
 	return remove;
 }

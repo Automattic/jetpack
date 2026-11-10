@@ -43,13 +43,17 @@ export function log( area, message, ...details ) {
 	if ( ! debugEnabled ) {
 		return;
 	}
+	// A constant format string: messages carry URLs and slugs, whose `%` would be read as directives.
 	// eslint-disable-next-line no-console -- Opt-in trace.
 	console.log(
-		`%cadmin-shell%c ${ area } %c+${ Math.round( performance.now() ) }ms%c ${ message }`,
+		'%cadmin-shell%c %s %c+%dms%c %s',
 		'background:#1e1e1e;color:#fff;padding:1px 4px;border-radius:2px',
 		`color:${ COLORS[ area ] ?? 'inherit' };font-weight:600`,
+		area,
 		'color:#757575',
+		Math.round( performance.now() ),
 		'',
+		message,
 		...details
 	);
 }
