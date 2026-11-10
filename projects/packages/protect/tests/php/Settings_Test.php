@@ -207,8 +207,13 @@ class Settings_Test extends BaseTestCase {
 		$this->assertSame( array(), Jetpack_Options::get_option( 'active_modules', array() ) );
 	}
 
-	public function test_module_the_site_does_not_offer_is_refused() {
-		$result = self::save( array( 'sso' => true ) );
+	public function test_module_the_site_does_not_offer_is_refused_before_anything_is_saved() {
+		$result = self::save(
+			array(
+				'protect' => true,
+				'sso'     => true,
+			)
+		);
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'module_unavailable', $result->get_error_code() );
@@ -233,6 +238,73 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	public function test_failed_monitor_lookup_is_not_retried_on_every_load() {
+		$this->connect_user_with_monitor_on();
+
+		$first  = Settings::get_settings();
+		$second = Settings::get_settings();
+
+		$this->assertFalse( $first[ Settings::MONITOR_NOTIFICATIONS ] );
+		$this->assertFalse( $second[ Settings::MONITOR_NOTIFICATIONS ] );
+		$this->assertCount( 1, $this->requests );
+	}
+
+	public function test_failed_monitor_email_save_reports_why() {
+		$this->connect_user_with_monitor_on();
+
+		$result = self::save( array( Settings::MONITOR_NOTIFICATIONS => true ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'monitor_notifications_failed', $result->get_error_code() );
+		$this->assertStringContainsString( 'unreachable', $result->get_error_message() );
+	}
+
+	/**
+	 * @dataProvider provide_route_methods
+	 *
+	 * @param string $method The HTTP method.
+	 */
+	#[DataProvider( 'provide_route_methods' )]
+	public function test_route_refuses_users_who_cannot_manage_the_site( $method ) {
+		global $wp_rest_server;
+		$wp_rest_server = null;
+		add_action( 'rest_api_init', array( Settings::class, 'register_routes' ) );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'settings_subscriber',
+					'user_pass'  => 'password',
+					'role'       => 'subscriber',
+				)
+			)
+		);
+		$request = new WP_REST_Request( $method, '/jetpack/v4/protect-dashboard/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( '{"protect":true}' );
+
+		$response = rest_do_request( $request );
+
+		remove_all_actions( 'rest_api_init' );
+		$wp_rest_server = null;
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( array(), Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * Data provider for test_route_refuses_users_who_cannot_manage_the_site.
+	 *
+	 * @return array
+	 */
+	public static function provide_route_methods() {
+		return array(
+			'read' => array( 'GET' ),
+			'save' => array( 'POST' ),
+		);
+	}
+
+	/**
+	 * Sign in a connected administrator on a site with Monitor on, while WordPress.com can't be reached.
+	 */
+	private function connect_user_with_monitor_on() {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'settings_admin',
@@ -248,12 +320,5 @@ class Settings_Test extends BaseTestCase {
 		Jetpack_Options::update_option( 'active_modules', array( 'monitor' ) );
 		$this->available = array( 'monitor' );
 		add_filter( 'pre_http_request', array( $this, 'fail_request' ), 10, 3 );
-
-		$first  = Settings::get_settings();
-		$second = Settings::get_settings();
-
-		$this->assertFalse( $first[ Settings::MONITOR_NOTIFICATIONS ] );
-		$this->assertFalse( $second[ Settings::MONITOR_NOTIFICATIONS ] );
-		$this->assertCount( 1, $this->requests );
 	}
 }
