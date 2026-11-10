@@ -166,7 +166,7 @@ describe( 'dependencyAnalysis', () => {
 			} );
 		} );
 
-		describe( 'dependents with prodDeps', () => {
+		describe( 'dependents with a Map', () => {
 			// A require-devs X, B requires A, C require-devs B, D requires C.
 			const toMap = obj =>
 				new Map( Object.entries( obj ).map( ( [ k, v ] ) => [ k, new Set( v ) ] ) );
@@ -177,9 +177,7 @@ describe( 'dependencyAnalysis', () => {
 				[ 'X', { X: [], A: [ 'X' ] } ],
 				[ 'A', { A: [], B: [ 'A' ], C: [ 'B' ] } ],
 			] )( 'changing %s', ( changed, expected ) => {
-				expect( filterDeps( deps, [ changed ], { dependents: true, prodDeps } ) ).toMatchDeps(
-					expected
-				);
+				expect( filterDeps( deps, [ changed ], { dependents: prodDeps } ) ).toMatchDeps( expected );
 			} );
 		} );
 	} );

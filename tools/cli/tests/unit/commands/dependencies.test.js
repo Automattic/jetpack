@@ -12,16 +12,16 @@ afterAll( () => process.chdir( oldCwd ) );
 // packages/a require-devs packages/x, packages/b requires packages/a.
 describe( 'dependencies list --add-dependents', () => {
 	test.each( [
-		[ 'test', [ 'packages/a', 'packages/x' ] ],
-		[ 'build', [ 'packages/a', 'packages/b', 'packages/x' ] ],
-		[ undefined, [ 'packages/a', 'packages/b', 'packages/x' ] ],
-	] )( '--extra=%s', async ( extra, expected ) => {
+		[ true, [ 'packages/a', 'packages/x' ] ],
+		[ false, [ 'packages/a', 'packages/b', 'packages/x' ] ],
+	] )( '--only-direct-dev-dependents=%s', async ( onlyDirectDevDependents, expected ) => {
 		const log = jest.spyOn( console, 'log' ).mockImplementation( () => {} );
 		await handler( {
 			subcommand: 'list',
 			projects: [ 'packages/x' ],
 			addDependents: true,
-			extra,
+			onlyDirectDevDependents,
+			extra: 'test',
 		} );
 		expect( log.mock.calls[ 0 ][ 0 ].split( '\n' ).sort() ).toEqual( expected );
 	} );

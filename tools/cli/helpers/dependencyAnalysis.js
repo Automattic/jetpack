@@ -104,17 +104,17 @@ export async function getDependencies( root, extra = null, noDev = false ) {
 /**
  * Filter dependencies to a set of projects.
  *
- * @param {Map}      deps                 - Dependencies.
- * @param {string[]} projects             - Projects to include.
- * @param {object}   options              - Options.
- * @param {boolean}  options.dependencies - Keep the dependencies of the specified projects too.
- * @param {boolean}  options.dependents   - Keep the dependents of the specified projects too.
- * @param {Map}      options.prodDeps     - Runtime-only edges. If set, dependents are followed transitively over these, then one hop over `deps`.
+ * @param {Map}         deps                 - Dependencies.
+ * @param {string[]}    projects             - Projects to include.
+ * @param {object}      options              - Options.
+ * @param {boolean}     options.dependencies - Keep the dependencies of the specified projects too.
+ * @param {boolean|Map} options.dependents   - Keep the dependents of the specified projects too. If a Map, find dependents
+ *                                           through its edges instead of those in `deps`, then add one more level from `deps`.
  * @return {Map} Filtered dependencies.
  */
 export function filterDeps( deps, projects, options = {} ) {
 	const keep = new Set( projects );
-	const dependentDeps = options.prodDeps ?? deps;
+	const dependentDeps = options.dependents instanceof Map ? options.dependents : deps;
 
 	// Apply options.dependencies and options.dependents until there is no further change.
 	let l = 0;
@@ -131,7 +131,7 @@ export function filterDeps( deps, projects, options = {} ) {
 		}
 
 		if ( options.dependents ) {
-			// Keep dependents: For everything in deps (and not already kept), add it if any of its dependencies (from prodDeps, when given) are in keep.
+			// Keep dependents: Add each project in deps that has an edge in dependentDeps to a kept project.
 			for ( const [ p, pd ] of dependentDeps.entries() ) {
 				if ( deps.has( p ) && ! keep.has( p ) ) {
 					for ( const d of pd ) {
@@ -145,8 +145,8 @@ export function filterDeps( deps, projects, options = {} ) {
 		}
 	}
 
-	// A dev edge doesn't ship, so projects reached through one can't pass the change on.
-	if ( options.dependents && options.prodDeps ) {
+	// Add projects with any edge in deps to a kept project, without following their dependents.
+	if ( options.dependents instanceof Map ) {
 		const reached = new Set( keep );
 		for ( const [ p, pd ] of deps.entries() ) {
 			if ( [ ...pd ].some( d => reached.has( d ) ) ) {

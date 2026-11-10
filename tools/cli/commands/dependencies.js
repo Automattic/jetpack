@@ -95,6 +95,11 @@ export function builder( yargs ) {
 			describe: 'Include the dependents of the named projects.',
 			type: 'boolean',
 		} )
+		.option( 'only-direct-dev-dependents', {
+			describe:
+				'With --add-dependents, follow only `require` and `dependencies` edges, plus projects that dev-depend on one of the results.',
+			type: 'boolean',
+		} )
 		.option( 'extra', {
 			describe: 'Extra dependencies to consider.',
 			type: 'string',
@@ -128,11 +133,11 @@ export async function handler( argv ) {
 	const debug = argv.v ? m => console.error( chalkStderr.blue( m ) ) : () => {};
 	let deps = await getDependencies( process.cwd(), argv.extra, argv.dev === false );
 
-	// Tests of a dependent can't observe a change that only reaches it through a dev edge.
-	const prodDeps =
-		argv.addDependents && argv.extra === 'test'
-			? await getDependencies( process.cwd(), 'build', true )
-			: undefined;
+	// Composer and npm don't install a dependency's dev dependencies, so a change can't reach past one dev edge.
+	const dependents =
+		argv.addDependents && argv.onlyDirectDevDependents
+			? await getDependencies( process.cwd(), null, true )
+			: argv.addDependents;
 
 	if ( argv.ignoreRoot ) {
 		deps.delete( 'monorepo' );
@@ -209,8 +214,7 @@ export async function handler( argv ) {
 		) {
 			const tmpdeps = filterDeps( deps, [ ...projset ], {
 				dependencies: false,
-				dependents: true,
-				prodDeps,
+				dependents,
 			} );
 			const { projects: storybookProjects } = await import(
 				path.join( process.cwd(), 'projects/js-packages/storybook/storybook/projects.js' )
@@ -239,8 +243,7 @@ export async function handler( argv ) {
 	if ( argv.projects.length ) {
 		deps = filterDeps( deps, argv.projects, {
 			dependencies: argv.addDependencies,
-			dependents: argv.addDependents,
-			prodDeps,
+			dependents,
 		} );
 	}
 
