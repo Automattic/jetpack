@@ -48,6 +48,7 @@ $config = make_phan_config(
 			// DO NOT add references to files in packages like this! Packages should be listed in composer.json 'require',
 			// or 'require-dev' if they're only needed in tests or build scripts.
 			__DIR__ . '/../../../plugins/vaultpress/vaultpress.php',                  // class VaultPress
+			__DIR__ . '/../../../plugins/wpcomsh/class-atomic-persistent-data.php',   // class Atomic_Persistent_Data
 
 			// Make an exception to the above for packages/jetpack-mu-wpcom. Pulling in that whole package here seems more risky than beneficial.
 			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/class-jetpack-mu-wpcom.php', // class Jetpack_Mu_Wpcom

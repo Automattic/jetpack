@@ -688,14 +688,21 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
-	 * Get site option for the production blog id (if is a WP.com Staging Site). Not used in Jetpack.
+	 * Get the production blog ID of a WP.com Staging Site, which WordPress.com persists on Atomic when it clones it.
 	 *
 	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
 	 *
-	 * @return null
+	 * @return int|null
 	 */
 	public function get_wpcom_production_blog_id() {
-		return null;
+		if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
+			return null;
+		}
+
+		$persistent_data    = new Atomic_Persistent_Data();
+		$production_blog_id = (int) json_decode( (string) $persistent_data->WPCOM_PRODUCTION_BLOG_ID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName
+
+		return $production_blog_id ? $production_blog_id : null;
 	}
 
 	/**
