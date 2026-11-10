@@ -2,7 +2,10 @@
  * Every workaround for @wordpress/boot and TanStack Router internals lives here, so when
  * Gutenberg ships APIs for several apps in one document only this file changes (JETPACK-3414).
  */
-import { log } from '@automattic/jetpack-admin-shell/debug'; // eslint-disable-line import/no-unresolved -- Resolved by the import map.
+/* eslint-disable import/no-unresolved -- Resolved by the import map. */
+import { pageOf } from '@automattic/jetpack-admin-shell/chrome';
+import { log } from '@automattic/jetpack-admin-shell/debug';
+/* eslint-enable import/no-unresolved */
 
 /**
  * Keep each app's router deaf to URLs that belong to another app.
@@ -52,7 +55,7 @@ export function isolateRouters( getVisible, onWrite ) {
 		const base = ( ...args ) => {
 			// A hidden app's router can still write, e.g. when its modal closes; that would put a
 			// route of the hidden page into the visible page's URL.
-			const page = args[ 2 ] && new URL( args[ 2 ], location.href ).searchParams.get( 'page' );
+			const page = args[ 2 ] && pageOf( args[ 2 ] );
 			if ( page && page !== getVisible() ) {
 				log(
 					'router',
@@ -90,14 +93,13 @@ export function isolateRouters( getVisible, onWrite ) {
 			mounting = slug;
 			log( 'router', `tagging routers that subscribe now as ${ slug }'s` );
 		},
-		// Routers subscribe in effects shortly after the first render, so keep the window open a little.
-		mounted: slug =>
-			setTimeout( () => {
-				if ( mounting === slug ) {
-					mounting = null;
-					log( 'router', `stopped tagging for ${ slug }` );
-				}
-			}, 1000 ),
+		// Routers subscribe before their first route renders; tagging longer would catch other code's listeners.
+		mounted: slug => {
+			if ( mounting === slug ) {
+				mounting = null;
+				log( 'router', `stopped tagging for ${ slug }` );
+			}
+		},
 		listen,
 		// Bypasses the routers' wrappers: notifyRouters() tells the visible one, and two navigations
 		// in a row cancel the first one's view transition. TanStack keeps its position in the state.
@@ -127,6 +129,29 @@ const importMapUrl = id =>
 let bootSource;
 
 /**
+ * Start downloading `@wordpress/boot`'s source, so a guest's copy is ready when it is needed.
+ *
+ * @return {Promise<string>} The source.
+ */
+export function prefetchBoot() {
+	const url = importMapUrl( '@wordpress/boot' );
+	if ( ! url ) {
+		return Promise.reject( new Error( '@wordpress/boot is not in the import map' ) );
+	}
+	bootSource ??= fetch( new URL( url, location.href ) ).then( response => {
+		if ( ! response.ok ) {
+			throw new Error( `@wordpress/boot: HTTP ${ response.status }` );
+		}
+		return response.text();
+	} );
+	// A failed download is retried next time; the caller that awaits it sees the error.
+	bootSource.catch( () => {
+		bootSource = null;
+	} );
+	return bootSource;
+}
+
+/**
  * A copy of `@wordpress/boot` for one guest app.
  *
  * Boot keeps routes in a single `wordpress/boot` store that every app renders, so a second app
@@ -136,17 +161,7 @@ let bootSource;
  * @return {Promise<object>} The boot module.
  */
 export async function bootFor( slug ) {
-	const url = importMapUrl( '@wordpress/boot' );
-	if ( ! url ) {
-		throw new Error( '@wordpress/boot is not in the import map' );
-	}
-	bootSource ??= fetch( new URL( url, location.href ) ).then( response => {
-		if ( ! response.ok ) {
-			throw new Error( `@wordpress/boot: HTTP ${ response.status }` );
-		}
-		return response.text();
-	} );
-	const source = await bootSource;
+	const source = await prefetchBoot();
 	log( 'prewarm', `${ slug }: own copy of @wordpress/boot, store "wordpress/boot--${ slug }"` );
 	if ( ! source.includes( '"wordpress/boot"' ) ) {
 		throw new Error( '@wordpress/boot no longer names its store "wordpress/boot"' );
@@ -155,5 +170,10 @@ export async function bootFor( slug ) {
 		'"wordpress/boot"',
 		JSON.stringify( `wordpress/boot--${ slug }` )
 	);
-	return import( URL.createObjectURL( new Blob( [ renamed ], { type: 'text/javascript' } ) ) );
+	const blobUrl = URL.createObjectURL( new Blob( [ renamed ], { type: 'text/javascript' } ) );
+	try {
+		return await import( blobUrl );
+	} finally {
+		URL.revokeObjectURL( blobUrl );
+	}
 }

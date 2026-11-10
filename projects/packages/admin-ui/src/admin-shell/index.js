@@ -1,12 +1,14 @@
 /*
  * Admin shell client: switch between Jetpack wp-build dashboards without a page load.
- *
- * Each member dashboard keeps its own boot app alive. The first visit to a member fetches its
- * page data and boots its app next to the others; later visits hide and show the apps.
  * Anything that goes wrong falls back to a normal page load.
  */
 /* eslint-disable import/no-unresolved -- Resolved by the import map; Admin_Shell registers each file as a module. */
-import { bootFor, isolateRouters, notifyRouters } from '@automattic/jetpack-admin-shell/adapter';
+import {
+	bootFor,
+	isolateRouters,
+	notifyRouters,
+	prefetchBoot,
+} from '@automattic/jetpack-admin-shell/adapter';
 import { createApp, whenRendered } from '@automattic/jetpack-admin-shell/app';
 import { pageOf, updateChrome } from '@automattic/jetpack-admin-shell/chrome';
 import { debugEnabled, log, stopwatch } from '@automattic/jetpack-admin-shell/debug';
@@ -64,7 +66,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 		return (
 			url.origin === location.origin &&
 			url.pathname === location.pathname &&
-			Object.hasOwn( members, url.searchParams.get( 'page' ) ?? '' )
+			Object.hasOwn( members, pageOf( url ) ?? '' )
 		);
 	};
 
@@ -78,6 +80,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 		}
 		const total = stopwatch();
 		log( 'prewarm', `${ slug }: start (${ reason })` );
+		prefetchBoot().catch( () => {} ); // Download in parallel; bootFor() reports a failure.
 		warm[ slug ] = ( async () => {
 			let step = stopwatch();
 			const added = await applyGuestAssets( guestAssetsUrl, slug );
@@ -112,6 +115,13 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 		return warm[ slug ];
 	};
 
+	// Once an app's first route is on screen.
+	const markReady = app => {
+		app.to( 'ready' );
+		app.place( visible === app.slug );
+		rememberHeader( app.slug, app.el );
+	};
+
 	const bootGuest = async ( slug, previous ) => {
 		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
 		const el = document.createElement( 'section' );
@@ -120,7 +130,10 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 		[ ...apps.values() ].at( -1 ).el.after( el );
 		const app = createApp( slug, el );
 		apps.set( slug, app );
-		app.place( true );
+		const discard = () => {
+			apps.delete( slug );
+			el.remove();
+		};
 		const removeHeader = showHeader( slug, el, {
 			from: apps.get( previous )?.el,
 			title: members[ slug ].title,
@@ -134,8 +147,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 				// Left before it could boot; it boots on the next visit, at that visit's URL.
 				log( 'switch', `${ slug }: left before it booted` );
 				removeHeader();
-				apps.delete( slug );
-				el.remove();
+				discard();
 				return;
 			}
 			gate.mount( slug );
@@ -145,18 +157,13 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 			await whenRendered( el, RENDER_TIMEOUT );
 			log( 'switch', `${ slug }: first route rendered ${ render() } after boot` );
 		} catch ( error ) {
-			apps.delete( slug );
-			el.remove();
+			discard();
 			throw error;
 		} finally {
 			removeHeader();
 			gate.mounted( slug );
 		}
-
-		app.to( 'ready' );
-		app.place( visible === slug );
-		rememberHeader( slug, el );
-		return true;
+		markReady( app );
 	};
 
 	const show = async ( url, { push, via } ) => {
@@ -189,7 +196,6 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 
 		try {
 			const app = apps.get( slug );
-			let firstShow = false;
 			if ( app ) {
 				log( 'switch', `${ slug } is already booted, showing it` );
 				app.place( true );
@@ -199,7 +205,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 				}
 			} else {
 				log( 'switch', `${ slug } has not booted yet` );
-				firstShow = await bootGuest( slug, previous );
+				await bootGuest( slug, previous );
 			}
 			if ( visible === slug && apps.get( slug )?.state === 'visible' ) {
 				log(
@@ -210,7 +216,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 				emit( 'page-shown', {
 					page: slug,
 					previous,
-					firstShow: !! firstShow,
+					firstShow: ! app,
 					url: location.href,
 				} );
 			}
@@ -227,7 +233,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 
 	const navigate = ( href, via ) => {
 		const url = new URL( href, location.href );
-		const slug = url.searchParams.get( 'page' );
+		const slug = pageOf( url );
 		const bare = [ ...url.searchParams.keys() ].length === 1 && ! url.hash;
 		if ( bare && slug !== visible && lastUrl[ slug ] ) {
 			log( 'switch', `bare menu link: reopening ${ slug } where it was left` );
@@ -265,12 +271,14 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 				return;
 			}
 			// In-app links within the visible member belong to its router.
-			if ( pageOf( a.href ) === visible && ! a.closest( '#adminmenu' ) ) {
+			const inMenu = !! a.closest( '#adminmenu' );
+			if ( pageOf( a.href ) === visible && ! inMenu ) {
 				return;
 			}
 			event.preventDefault();
-			const via = a.closest( '#adminmenu' ) ? 'menu click' : 'link click';
-			closeOverlayAround( a ).then( () => navigate( a.href, via ) );
+			closeOverlayAround( a ).then( () =>
+				navigate( a.href, inMenu ? 'menu click' : 'link click' )
+			);
 		},
 		true
 	);
@@ -293,9 +301,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 		.then( () => {
 			log( 'host', `${ host } rendered its first route` );
 			removeHostHeader();
-			hostApp.to( 'ready' );
-			hostApp.place( visible === host );
-			rememberHeader( host, hostEl );
+			markReady( hostApp );
 			if ( visible === host ) {
 				emit( 'page-shown', { page: host, previous: null, firstShow: true, url: location.href } );
 			}

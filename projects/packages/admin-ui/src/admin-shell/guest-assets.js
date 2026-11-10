@@ -66,21 +66,22 @@ export async function applyGuestAssets( endpoint, slug ) {
 		'link[rel="stylesheet"], style, script:not([type="importmap"]):not([type="module"])'
 	);
 	const stylesheets = [];
+	// Inserted with async=false, external scripts download in parallel and still run in order.
+	let loading = [];
 	const added = { scripts: 0, styles: 0, skipped: 0 };
 	for ( const node of nodes ) {
 		const existing = node.id && document.getElementById( node.id );
-		if ( node.tagName === 'LINK' ) {
-			if ( ! existing ) {
-				stylesheets.push( addStylesheet( node ) );
+		if ( node.tagName !== 'SCRIPT' ) {
+			if ( existing ) {
+				added.skipped++;
+				continue;
 			}
-			added[ existing ? 'skipped' : 'styles' ]++;
-			continue;
-		}
-		if ( node.tagName === 'STYLE' ) {
-			if ( ! existing ) {
+			added.styles++;
+			if ( node.tagName === 'LINK' ) {
+				stylesheets.push( addStylesheet( node ) );
+			} else {
 				document.head.append( node.cloneNode( true ) );
 			}
-			added[ existing ? 'skipped' : 'styles' ]++;
 			continue;
 		}
 		if ( node.src ? existing : existing?.textContent === node.textContent ) {
@@ -88,16 +89,22 @@ export async function applyGuestAssets( endpoint, slug ) {
 			continue;
 		}
 		added.scripts++;
-		if ( node.id === 'jetpack-script-data-js-before' && window.JetpackScriptData ) {
-			const host = window.JetpackScriptData;
-			await runScript( node );
+		if ( node.src ) {
+			loading.push( runScript( node ) );
+			continue;
+		}
+		// An inline script runs as soon as it is added, so the scripts before it must have run.
+		await Promise.all( loading );
+		loading = [];
+		const host = node.id === 'jetpack-script-data-js-before' && window.JetpackScriptData;
+		await runScript( node );
+		if ( host ) {
 			const guest = window.JetpackScriptData;
 			window.JetpackScriptData = host;
 			mergeInto( host, guest );
-			continue;
 		}
-		await runScript( node );
 	}
+	await Promise.all( loading );
 	await Promise.all( stylesheets );
 	return added;
 }

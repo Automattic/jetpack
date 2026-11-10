@@ -52,18 +52,11 @@ class Admin_Shell {
 	private static $initialized = false;
 
 	/**
-	 * Routes collected per member page slug.
+	 * Routes of the guest being loaded, or null outside load_guest().
 	 *
-	 * @var array<string, array[]>
+	 * @var array[]|null
 	 */
-	private static $routes = array();
-
-	/**
-	 * Member whose routes are being collected.
-	 *
-	 * @var string|null
-	 */
-	private static $collecting = null;
+	private static $collected = null;
 
 	/**
 	 * Register the feature flag.
@@ -167,17 +160,26 @@ class Admin_Shell {
 	 * @return string|null
 	 */
 	public static function get_host() {
+		return self::resolve_host()[0];
+	}
+
+	/**
+	 * The host page and the members, so callers that need both run the members filter once.
+	 *
+	 * @return array{0: string|null, 1: array} Host slug, or null when the shell doesn't run here; members.
+	 */
+	private static function resolve_host() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which page this is.
 		$page = isset( $_GET['page'] ) && is_string( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 		if ( '' === $page || ! self::is_enabled() ) {
-			return null;
+			return array( null, array() );
 		}
 
 		$members = self::get_members();
 		if ( count( $members ) < 2 || ! isset( $members[ $page ] ) ) {
-			return null;
+			return array( null, $members );
 		}
-		return $page;
+		return array( $page, $members );
 	}
 
 	/**
@@ -186,18 +188,17 @@ class Admin_Shell {
 	 * @return void
 	 */
 	public static function setup() {
-		$host = self::get_host();
+		list( $host, $members ) = self::resolve_host();
 		if ( null === $host ) {
 			return;
 		}
 
-		$members = self::get_members();
-		$guests  = array();
+		$guests = array();
 		foreach ( $members as $slug => $member ) {
 			if ( $slug === $host || ! current_user_can( $member['capability'] ) ) {
 				continue;
 			}
-			$routes = self::load_guest( $slug, $member );
+			$routes = self::load_guest( $member );
 			if ( null !== $routes ) {
 				$guests[ $slug ] = $routes;
 			}
@@ -252,11 +253,10 @@ class Admin_Shell {
 	/**
 	 * Run a guest's loader on the host page and collect its routes.
 	 *
-	 * @param string $slug   Admin page slug.
-	 * @param array  $member Normalized member.
+	 * @param array $member Normalized member.
 	 * @return array[]|null Routes, or null when the guest's build isn't there.
 	 */
-	private static function load_guest( $slug, $member ) {
+	private static function load_guest( $member ) {
 		$snapshot = self::hook_snapshot();
 		call_user_func( $member['load'] );
 		self::remove_added_callbacks( $snapshot );
@@ -267,13 +267,13 @@ class Admin_Shell {
 			return null;
 		}
 
-		self::$routes[ $slug ] = array();
-		self::$collecting      = $slug;
+		self::$collected = array();
 		// The generated helper only calls a registrar that function_exists() accepts.
 		call_user_func( $register_page_routes, $GLOBALS[ $routes_global ], __NAMESPACE__ . '\admin_shell_collect_route' );
-		self::$collecting = null;
+		$routes          = self::$collected;
+		self::$collected = null;
 
-		return self::$routes[ $slug ];
+		return $routes;
 	}
 
 	/**
@@ -285,7 +285,7 @@ class Admin_Shell {
 	 * @return void
 	 */
 	public static function collect_route( $path, $content_module = null, $route_module = null ) {
-		if ( null === self::$collecting ) {
+		if ( null === self::$collected ) {
 			return;
 		}
 		$route = array( 'path' => $path );
@@ -295,7 +295,7 @@ class Admin_Shell {
 		if ( $route_module ) {
 			$route['route_module'] = $route_module;
 		}
-		self::$routes[ self::$collecting ][] = $route;
+		self::$collected[] = $route;
 	}
 
 	/**

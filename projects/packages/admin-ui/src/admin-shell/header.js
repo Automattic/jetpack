@@ -71,6 +71,9 @@ const rulesFor = classNames => {
 	return css;
 };
 
+// The header HTML last saved for each page in this document, so a check doesn't parse storage.
+const savedHtml = new Map();
+
 const readSaved = slug => {
 	try {
 		return JSON.parse( localStorage.getItem( storageKey( slug ) ) );
@@ -91,19 +94,26 @@ export function rememberHeader( slug, el ) {
 		return;
 	}
 	const html = frame.outerHTML;
-	if ( readSaved( slug )?.html === html ) {
+	if ( ! savedHtml.has( slug ) ) {
+		savedHtml.set( slug, readSaved( slug )?.html );
+	}
+	if ( savedHtml.get( slug ) === html ) {
 		return;
 	}
-	const classNames = new Set(
-		[ frame, ...frame.querySelectorAll( '[class]' ) ].flatMap( node => [ ...node.classList ] )
-	);
-	const css = rulesFor( classNames );
-	log( 'header', `saved ${ slug }'s header with ${ Math.round( css.length / 1024 ) }KB of CSS` );
-	try {
-		localStorage.setItem( storageKey( slug ), JSON.stringify( { html, css } ) );
-	} catch {
-		// Storage full or blocked: the next opening shows a borrowed header instead.
-	}
+	savedHtml.set( slug, html );
+	// Walking every stylesheet takes a few milliseconds; keep it off the click that switches pages.
+	( window.requestIdleCallback ?? setTimeout )( () => {
+		const classNames = new Set(
+			[ frame, ...frame.querySelectorAll( '[class]' ) ].flatMap( node => [ ...node.classList ] )
+		);
+		const css = rulesFor( classNames );
+		log( 'header', `saved ${ slug }'s header with ${ Math.round( css.length / 1024 ) }KB of CSS` );
+		try {
+			localStorage.setItem( storageKey( slug ), JSON.stringify( { html, css } ) );
+		} catch {
+			// Storage full or blocked: the next opening shows a borrowed header instead.
+		}
+	} );
 }
 
 /**
