@@ -40,6 +40,15 @@ describe( 'withResponsive', () => {
 		} );
 	} );
 
+	// Restored on its own, not through jest.restoreAllMocks(), which would also detach the
+	// console spies the shared setup installs and leave later tests here without that guard.
+	let clientRectsSpy: jest.SpyInstance | null = null;
+	const mockClientRects = ( rects: DOMRect[] ) => {
+		clientRectsSpy = jest
+			.spyOn( Element.prototype, 'getClientRects' )
+			.mockReturnValue( rects as unknown as DOMRectList );
+	};
+
 	// Fully clear the mock (queued returns and implementation) after each test, then
 	// re-establish the default implementation, so a per-test override can't bleed
 	// into the next test.
@@ -47,7 +56,8 @@ describe( 'withResponsive', () => {
 		mockClientHeight = 0;
 		useParentSize.mockReset();
 		useParentSize.mockImplementation( () => DEFAULT_SIZE );
-		jest.restoreAllMocks();
+		clientRectsSpy?.mockRestore();
+		clientRectsSpy = null;
 	} );
 
 	describe( 'component dimensions', () => {
@@ -197,9 +207,7 @@ describe( 'withResponsive', () => {
 			// A shrink-to-fit parent takes its width from the wrapper, so waiting would pin the
 			// width at 0 and wait on itself. The wrapper has a box, unlike a hidden one.
 			useParentSize.mockImplementation( () => UNMEASURED );
-			jest
-				.spyOn( Element.prototype, 'getClientRects' )
-				.mockReturnValue( [ new DOMRect() ] as unknown as DOMRectList );
+			mockClientRects( [ new DOMRect() ] );
 
 			render( <WaitingComponent data={ [] } /> );
 
@@ -208,9 +216,7 @@ describe( 'withResponsive', () => {
 
 		test( 'keeps waiting when the wrapper has no box at all, as under display: none', () => {
 			useParentSize.mockImplementation( () => UNMEASURED );
-			jest
-				.spyOn( Element.prototype, 'getClientRects' )
-				.mockReturnValue( [] as unknown as DOMRectList );
+			mockClientRects( [] );
 
 			render( <WaitingComponent data={ [] } /> );
 
