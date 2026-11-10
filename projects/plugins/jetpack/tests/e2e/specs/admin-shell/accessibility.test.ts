@@ -29,6 +29,9 @@ import {
 const MJ = 'my-jetpack';
 const FORMS = 'jetpack-forms-responses-wp-admin';
 
+// Widgets such as My Jetpack's stats cards render well after the heading.
+const AXE_SETTLE_MS = 8000;
+
 const NO_FOCUS = 'Not implemented: a switch leaves focus where it was instead of on the heading.';
 
 const back = ( page: Page, slug: string ) =>
@@ -161,6 +164,20 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		} );
 	} );
 
+	test( 'setup: the announcement probe hears a polite live region', async ( { page } ) => {
+		await openMember( page, MJ );
+		await resetA11yProbe( page );
+		await page.evaluate( () => {
+			const region = document.createElement( 'div' );
+			region.setAttribute( 'aria-live', 'polite' );
+			document.body.append( region );
+			setTimeout( () => ( region.textContent = 'Probe check' ), 50 );
+		} );
+		await expect
+			.poll( () => announcements( page ) )
+			.toContainEqual( { politeness: 'polite', text: 'Probe check' } );
+	} );
+
 	test( 'every switch announces the new page title politely', async ( { page } ) => {
 		test.fail( true, 'Not implemented: no live region announces a switch.' );
 		await walk( page, ROUND_TRIP.slice( 0, 2 ), {
@@ -208,8 +225,7 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		const baseline: Record< string, Record< string, string[] > > = {};
 		for ( const slug of [ FORMS, MJ ] ) {
 			await openMember( page, slug );
-			// Widgets such as My Jetpack's stats cards render well after the heading.
-			await settle( page, 8000 );
+			await settle( page, AXE_SETTLE_MS );
 			baseline[ slug ] = await axeViolations( page );
 			test.info().annotations.push( {
 				type: 'axe on full load',
@@ -217,13 +233,13 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 			} );
 		}
 		await switchTo( page, FORMS );
-		await settle( page, 8000 );
+		await settle( page, AXE_SETTLE_MS );
 		expect(
 			await newViolations( page, baseline[ FORMS ] ),
 			'new after switching to Forms'
 		).toEqual( {} );
 		await switchTo( page, MJ );
-		await settle( page, 8000 );
+		await settle( page, AXE_SETTLE_MS );
 		expect( await newViolations( page, baseline[ MJ ] ), 'new after switching back' ).toEqual( {} );
 	} );
 

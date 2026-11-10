@@ -20,6 +20,7 @@ interface A11yProbe {
 }
 type ProbeWindow = {
 	__jpShellA11y: A11yProbe;
+	__jpShell: { read: () => { apps: Record< string, string > } };
 	axe: { run: ( context: ElementContext, options: RunOptions ) => Promise< AxeResults > };
 };
 
@@ -158,11 +159,7 @@ export function hiddenApps(
 	page: Page
 ): Promise< { slug: string; state: string; inert: boolean }[] > {
 	return page.evaluate( () => {
-		const shell = (
-			window as unknown as {
-				__jpShell: { read: () => { apps: Record< string, string > } };
-			}
-		 ).__jpShell.read();
+		const shell = ( window as unknown as ProbeWindow ).__jpShell.read();
 		return Object.entries( shell.apps )
 			.filter( ( [ , state ] ) => state !== 'visible' )
 			.map( ( [ slug, state ] ) => {
