@@ -184,6 +184,6 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 	 * @return string|null
 	 */
 	private static function expected_url( $home ) {
-		return 'monetize' === $home ? admin_url( 'admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dsettings' ) : null;
+		return 'monetize' === $home ? Dashboard::get_tab_url( 'settings' ) : null;
 	}
 }

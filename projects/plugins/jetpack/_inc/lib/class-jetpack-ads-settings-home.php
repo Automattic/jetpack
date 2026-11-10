@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jetpack_Ads_Settings_Home {
 
 	/**
-	 * Monetize › Settings. wp-build reads a route's search params from `p`.
+	 * Monetize › Settings, for a Monetize package older than `Dashboard::get_tab_url()`.
 	 *
 	 * @var string
 	 */
@@ -74,7 +74,13 @@ class Jetpack_Ads_Settings_Home {
 	 * @return string|null
 	 */
 	public static function get_url() {
-		return self::is_on_monetize_page() ? admin_url( self::MONETIZE_SETTINGS_PATH ) : null;
+		if ( ! self::is_on_monetize_page() ) {
+			return null;
+		}
+
+		return method_exists( Dashboard::class, 'get_tab_url' )
+			? Dashboard::get_tab_url( 'settings' )
+			: admin_url( self::MONETIZE_SETTINGS_PATH );
 	}
 
 	/**
