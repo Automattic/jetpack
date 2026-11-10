@@ -251,6 +251,12 @@ describe( 'reportError', () => {
 		expect( trace ).not.toContain( '[redacted]' );
 	} );
 
+	it( 'redacts the credentials of a URL whose host no email pattern covers', () => {
+		reportError( dashboardError( 'no route to https://user:s3cret@127.0.0.1/wp-json' ), 'error' );
+
+		expect( sentPayload().message ).toBe( 'no route to https://127.0.0.1/wp-json' );
+	} );
+
 	it( 'redacts an email address from the message and the trace', () => {
 		const error = dashboardError( 'save failed for jane.doe+stats@example.co.uk' );
 		error.stack += '\n    at notify (owner@example.com)';
