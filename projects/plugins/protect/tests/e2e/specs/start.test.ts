@@ -2,47 +2,57 @@ import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-tes
 import { connect } from '../flows/connection';
 import type { Locator, Page } from '@playwright/test';
 
+const SETTINGS_PATH = 'jetpack/v4/protect-dashboard/settings';
+const WAF_PATH = 'jetpack/v4/waf';
+
 /**
- * Checks for and then closes the "Changes saved" notice.
+ * Wait for a settings save to the given REST route to succeed.
+ *
+ * @param {Page}   page - Playwright page object
+ * @param {string} path - REST route the save posts to
+ * @return {Promise<void>} Resolves once the save responded successfully.
+ */
+async function expectSaved( page: Page, path: string ) {
+	// apiFetch may send `?rest_route=` with the route encoded, so match on the decoded URL.
+	const response = await page.waitForResponse(
+		res => res.request().method() === 'POST' && decodeURIComponent( res.url() ).includes( path )
+	);
+	expect( response.ok(), `Saving to ${ path } should succeed` ).toBe( true );
+}
+
+/**
+ * Turn a settings toggle on or off and wait for the save, skipping it when it's already there.
+ *
+ * @param {Page}    page   - Playwright page object
+ * @param {Locator} toggle - The switch or checkbox
+ * @param {boolean} on     - Whether it should end up on
+ * @param {string}  path   - REST route the toggle saves to
+ */
+async function setToggle( page: Page, toggle: Locator, on: boolean, path = SETTINGS_PATH ) {
+	await expect( toggle ).toBeEnabled();
+	if ( ( await toggle.isChecked() ) === on ) {
+		return;
+	}
+	const saved = expectSaved( page, path );
+	await toggle.click();
+	await saved;
+	// The toggle is disabled while its save is in flight.
+	await expect( toggle ).toBeEnabled();
+	await expect( toggle ).toBeChecked( { checked: on } );
+}
+
+/**
+ * Reload the Settings tab and wait for the saved settings to load.
+ *
  * @param {Page} page - Playwright page object
  */
-async function closeChangesSavedNotice( page: Page ) {
-	// Scoped to the app root: the toast announces, and `speak()` leaves its text in
-	// `#a11y-speak-polite` after the notice goes, which would match on later calls.
-	await expect(
-		page.locator( '#jetpack-protect-root' ).getByText( 'Changes saved' )
-	).toBeVisible();
-	await page.getByRole( 'button', { name: 'Dismiss notice.' } ).click();
+async function reloadSettings( page: Page ) {
+	await page.reload();
+	await expect( page.getByRole( 'tab', { name: 'Settings', selected: true } ) ).toBeVisible();
+	await expect( page.getByRole( 'switch', { name: 'Enable firewall' } ) ).toBeEnabled();
 }
 
-/**
- * Locate a firewall toggle by the heading text of the section that contains it.
- *
- * The firewall ToggleControls have no visible label and the WP `<label htmlFor>`
- * association is empty, so accessibility-tree based locators (getByRole/getByLabel)
- * don't match reliably. Instead, scope to the Firewall tab panel, then find the
- * smallest containing div that has both the section heading and a checkbox, and
- * return the checkbox inside it.
- *
- * The `has:` filters must use page-rooted locators: Playwright re-roots a `has:`
- * locator at each candidate element, so a panel-rooted locator would search for a
- * nested tab panel inside the candidate div and match nothing.
- * @param {Page}    page        - Playwright page object, for the page-rooted `has:` filters
- * @param {Locator} panel       - Locator for the Firewall tab panel
- * @param {string}  headingName - Visible heading text of the section
- * @return {Locator} Locator for the checkbox in that section
- */
-function getToggleBySection( page: Page, panel: Locator, headingName: string ) {
-	return panel
-		.locator( 'div' )
-		.filter( { has: page.getByRole( 'heading', { name: headingName } ) } )
-		.filter( { has: page.locator( 'input[type="checkbox"]' ) } )
-		.last()
-		.locator( 'input[type="checkbox"]' );
-}
-
-// Skipped: past the connect step these drive the old Protect app, which the shared dashboard replaces once connected.
-test.describe.skip( 'Jetpack Protect Plugin', () => {
+test.describe( 'Jetpack Protect Plugin', () => {
 	test.beforeEach( async ( { page, admin, testUtils } ) => {
 		await testUtils.disconnect();
 		await testUtils.executeWpCommand( 'plugin activate jetpack-protect' );
@@ -61,139 +71,103 @@ test.describe.skip( 'Jetpack Protect Plugin', () => {
 		await testUtils.executeContainerCommand(
 			'exec-silent -- chown -R www-data:www-data /var/www/html/wp-content/jetpack-waf'
 		);
-
-		// to do: should not need to manually reload the page here
-		//        currently needed to ensure the waf module is available in initial state
-		await page.reload();
 	} );
 
-	test( 'Jetpack Protect firewall page', async ( { page, admin } ) => {
-		// Scope every assertion on this page to the Firewall tab panel. During route
-		// transitions the previously active (Scan) tab panel can stay briefly mounted
-		// while the Firewall panel mounts, and because every tab panel renders the same
-		// react-router <Outlet />, the matched FirewallRoute can appear in two panels at
-		// once. Scoping to the Firewall panel keeps each locator matching a single
-		// element instead of tripping Playwright strict mode. `exact` avoids matching the
-		// "Automatic firewall is on" heading variant. The "Changes saved" notice renders
-		// at the app level, so its helper scopes to the app root rather than a panel.
-		const firewallPanel = page.getByRole( 'tabpanel', { name: 'Firewall', exact: true } );
+	test( 'Jetpack Protect dashboard settings', async ( { page, admin }, testInfo ) => {
+		// Cards are `<section aria-label>`, and both cards have an "Always allowed IP addresses" field.
+		const firewallCard = page.getByRole( 'region', { name: 'Firewall', exact: true } );
+		const loginCard = page.getByRole( 'region', { name: 'Login protection', exact: true } );
+		// A different address per retry, so a retry still has an unsaved change to save.
+		const ip = `192.0.2.${ 10 + testInfo.retry }`;
 
-		await test.step( 'Navigate to firewall page', async () => {
-			await admin.visitAdminPage( 'admin.php', 'page=jetpack-protect#/firewall' );
-			await expect(
-				firewallPanel.getByRole( 'heading', { name: 'Firewall is on', exact: true } )
-			).toBeVisible();
-
-			// The active route renders into exactly one tab panel. Each panel shares the
-			// same <Outlet />, so a regression that rendered inactive panels' content
-			// (e.g. flipping Tabs.Panel to keepMounted) would duplicate this heading
-			// page-wide. Assert page scope, not the panel, to catch that.
-			await expect(
-				page.getByRole( 'heading', { name: 'Firewall is on', exact: true } )
-			).toHaveCount( 1 );
+		await test.step( 'The connected site gets the shared dashboard', async () => {
+			// Connecting happens in the setup app; the shared dashboard takes over on the next load.
+			await page.reload();
+			await expect( page.getByRole( 'tab', { name: 'Overview' } ) ).toBeVisible();
+			await expect( page.getByRole( 'tab', { name: 'Settings' } ) ).toBeVisible();
+			await expect( page.locator( '#jetpack-protect-root' ) ).toHaveCount( 0 );
 		} );
 
-		await test.step( 'Test the login protection setting', async () => {
-			// Test the setting is present and enabled by default
-			const bruteForceToggle = getToggleBySection( page, firewallPanel, 'Login protection' );
+		await test.step( 'Open the Settings tab', async () => {
+			await admin.visitAdminPage(
+				'admin.php',
+				`page=jetpack-protect&p=${ encodeURIComponent( '/?tab=settings' ) }`
+			);
+			await expect( page.getByRole( 'tab', { name: 'Settings', selected: true } ) ).toBeVisible();
 			await expect(
-				firewallPanel.getByRole( 'heading', { name: 'Login protection' } )
-			).toBeVisible();
-			await expect( bruteForceToggle, 'Login protection should be enabled' ).toBeEnabled();
-			await expect( bruteForceToggle, 'Login protection should be on' ).toBeChecked();
-
-			// Test turning brute force off
-			await bruteForceToggle.click();
-			await closeChangesSavedNotice( page );
-			await expect( bruteForceToggle, 'Login protection should be enabled' ).toBeEnabled();
-			await expect( bruteForceToggle, 'Login protection should be off' ).not.toBeChecked();
-
-			// Test turning brute force on
-			await bruteForceToggle.click();
-			await closeChangesSavedNotice( page );
-			await expect( bruteForceToggle, 'Login protection should be enabled' ).toBeEnabled();
-			await expect( bruteForceToggle, 'Login protection should be on' ).toBeChecked();
+				firewallCard.getByRole( 'switch', { name: 'Enable firewall' } ),
+				'Firewall should be on'
+			).toBeChecked();
 		} );
 
-		await test.step( 'Test the IP block list settings', async () => {
-			const blockListTextarea = firewallPanel.locator( '#jetpack_waf_ip_block_list' );
-			const blockListToggle = getToggleBySection( page, firewallPanel, 'Block IP addresses' );
-
-			// Test the default block list state
-			await expect(
-				firewallPanel.getByRole( 'heading', { name: 'Block IP addresses' } )
-			).toBeVisible();
-			await expect( blockListToggle, 'Block list toggle should be enabled' ).toBeEnabled();
-			await expect( blockListToggle, 'Block list should be off' ).not.toBeChecked();
-
-			// Test turning the block list on
-			await blockListToggle.click();
-			await expect( blockListToggle, 'Block list toggle should be enabled' ).toBeEnabled();
-			await expect( blockListToggle, 'Block list should be on' ).toBeChecked();
-			await expect( blockListTextarea ).toBeVisible();
-
-			// Test adding an IP address to the block list
-			await blockListTextarea.fill( '192.168.1.1' );
-			await firewallPanel.getByRole( 'button', { name: 'Save block list' } ).click();
-			await expect( blockListToggle, 'Block list toggle should be enabled' ).toBeEnabled();
-			await closeChangesSavedNotice( page );
-		} );
-
-		await test.step( 'Test the IP allow list settings', async () => {
-			const trustedIPsToggle = getToggleBySection( page, firewallPanel, 'Trusted IP addresses' );
-			const saveAllowListButton = firewallPanel.getByRole( 'button', { name: 'Save allow list' } );
-
-			// Validate the default allow list state
-			await expect(
-				firewallPanel.getByRole( 'heading', { name: 'Trusted IP addresses' } )
-			).toBeVisible();
-			await expect( trustedIPsToggle, 'Trusted IPs toggle should be enabled' ).toBeEnabled();
-			await expect( trustedIPsToggle, 'Trusted IPs should be off' ).not.toBeChecked();
-
-			// Test turning the allow list on
-			await trustedIPsToggle.click();
-			await expect( trustedIPsToggle, 'Trusted IPs toggle should be enabled' ).toBeEnabled();
-			await expect( trustedIPsToggle, 'Trusted IPs should be on' ).toBeChecked();
-
-			// Test adding an IP address to the allow list
-			await firewallPanel.locator( '#jetpack_waf_ip_allow_list' ).fill( '192.168.1.1' );
-			await saveAllowListButton.click();
-			await expect( trustedIPsToggle, 'Trusted IPs toggle should be enabled' ).toBeEnabled();
-			await closeChangesSavedNotice( page );
-		} );
-
-		await test.step( 'Test the data sharing settings', async () => {
-			const basicDataSharingToggle = firewallPanel.getByRole( 'checkbox', {
-				name: 'Share basic data',
-			} );
-			const advancedDataSharingToggle = firewallPanel.getByRole( 'checkbox', {
-				name: 'Share detailed data',
+		await test.step( 'Login protection persists', async () => {
+			const toggle = loginCard.getByRole( 'switch', {
+				name: 'Block repeated failed login attempts',
 			} );
 
-			// Test the default state
-			await expect(
-				basicDataSharingToggle,
-				'Basic data sharing toggle should be enabled'
-			).toBeEnabled();
-			await expect( basicDataSharingToggle, 'Basic data sharing should be on' ).toBeChecked();
-			await expect(
-				advancedDataSharingToggle,
-				'Advanced data sharing toggle should be enabled'
-			).toBeEnabled();
-			await expect(
-				advancedDataSharingToggle,
-				'Advanced data sharing should be off'
-			).not.toBeChecked();
+			await setToggle( page, toggle, false );
+			await reloadSettings( page );
+			await expect( toggle, 'Login protection should stay off' ).not.toBeChecked();
 
-			// Test turning basic data sharing off
-			await basicDataSharingToggle.click();
-			await closeChangesSavedNotice( page );
+			await setToggle( page, toggle, true );
+			await reloadSettings( page );
+			await expect( toggle, 'Login protection should stay on' ).toBeChecked();
+		} );
 
-			// Test turning advanced data sharing on
-			await advancedDataSharingToggle.click();
-			await closeChangesSavedNotice( page );
-			await expect( basicDataSharingToggle, 'Basic data sharing should be on' ).toBeChecked();
-			await expect( advancedDataSharingToggle, 'Advanced data sharing should be on' ).toBeChecked();
+		await test.step( 'IP block list persists', async () => {
+			// Each IP list has its own Save button, so scope to the list's row.
+			const row = firewallCard
+				.locator( '.jp-protect-card__row' )
+				.filter( { hasText: 'Block these IP addresses' } );
+			const toggle = row.getByRole( 'switch', { name: 'Block these IP addresses' } );
+			const list = row.getByRole( 'textbox', { name: 'Blocked IP addresses' } );
+
+			await setToggle( page, toggle, true );
+			await list.fill( ip );
+			const saved = expectSaved( page, SETTINGS_PATH );
+			await row.getByRole( 'button', { name: 'Save', exact: true } ).click();
+			await saved;
+
+			await reloadSettings( page );
+			await expect( toggle, 'Block list should stay on' ).toBeChecked();
+			await expect( list ).toHaveValue( ip );
+		} );
+
+		await test.step( 'IP allow list persists', async () => {
+			const row = firewallCard
+				.locator( '.jp-protect-card__row' )
+				.filter( { hasText: 'Always allowed IP addresses' } );
+			const toggle = row.getByRole( 'switch', { name: 'Always allowed IP addresses' } );
+			const list = row.getByRole( 'textbox', { name: 'Always allowed IP addresses' } );
+
+			await setToggle( page, toggle, true );
+			await list.fill( ip );
+			const saved = expectSaved( page, SETTINGS_PATH );
+			await row.getByRole( 'button', { name: 'Save', exact: true } ).click();
+			await saved;
+
+			await reloadSettings( page );
+			await expect( toggle, 'Allow list should stay on' ).toBeChecked();
+			await expect( list ).toHaveValue( ip );
+		} );
+
+		await test.step( 'Data sharing persists', async () => {
+			const basic = firewallCard.getByRole( 'checkbox', { name: 'Share basic data with Jetpack' } );
+			const detailed = firewallCard.getByRole( 'checkbox', {
+				name: 'Share detailed data with Jetpack',
+			} );
+
+			// Turning basic sharing off also turns detailed sharing off.
+			await setToggle( page, basic, false, WAF_PATH );
+			await reloadSettings( page );
+			await expect( basic, 'Basic data sharing should stay off' ).not.toBeChecked();
+			await expect( detailed, 'Detailed data sharing should stay off' ).not.toBeChecked();
+
+			// Turning detailed sharing on also turns basic sharing on.
+			await setToggle( page, detailed, true, WAF_PATH );
+			await reloadSettings( page );
+			await expect( basic, 'Basic data sharing should stay on' ).toBeChecked();
+			await expect( detailed, 'Detailed data sharing should stay on' ).toBeChecked();
 		} );
 	} );
 } );
