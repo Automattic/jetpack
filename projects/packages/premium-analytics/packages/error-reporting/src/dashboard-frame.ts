@@ -10,16 +10,37 @@ const POSITION = /:(\d+):(\d+)$/;
 const FRAME_LINE = /^\s*at\s|^[^:]*@/;
 const WIDGET_PATH = /^widgets\/([^/]+)\//;
 const QUERY_OR_HASH = /[?#]/;
+const URL_START = /[\s(@]/;
+
+/**
+ * Where an allowlisted origin starts a frame URL in one stack line.
+ *
+ * An origin can also appear inside another script's URL, as the value of a query parameter. The
+ * frame is that other script's, so the origin counts only where a URL itself begins.
+ *
+ * @param line   - The stack line.
+ * @param origin - The allowlisted origin to look for.
+ * @return The index of the frame URL, or -1.
+ */
+function originStart( line: string, origin: string ): number {
+	for ( let at = line.indexOf( origin ); at !== -1; at = line.indexOf( origin, at + 1 ) ) {
+		if ( at === 0 || URL_START.test( line[ at - 1 ] ) ) {
+			return at;
+		}
+	}
+
+	return -1;
+}
 
 /**
  * Reads the script URL, path, widget and position out of one stack line.
  *
  * @param line   - The stack line containing the origin.
  * @param origin - The allowlisted origin found in the line.
+ * @param start  - Where that origin starts the frame URL.
  * @return The parsed frame.
  */
-function parseFrame( line: string, origin: string ): DashboardFrame {
-	const start = line.indexOf( origin );
+function parseFrame( line: string, origin: string, start: number ): DashboardFrame {
 	const url = line.slice( start ).split( /[\s)]/ )[ 0 ];
 	const position = POSITION.exec( url );
 	const withoutPosition = position ? url.slice( 0, position.index ) : url;
@@ -57,9 +78,11 @@ export function findDashboardFrame(
 		if ( ! FRAME_LINE.test( line ) ) {
 			continue;
 		}
-		const origin = candidates.find( candidate => line.includes( candidate ) );
-		if ( origin ) {
-			return parseFrame( line, origin );
+		for ( const origin of candidates ) {
+			const start = originStart( line, origin );
+			if ( start !== -1 ) {
+				return parseFrame( line, origin, start );
+			}
 		}
 	}
 

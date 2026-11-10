@@ -54,6 +54,12 @@ describe( 'findDashboardFrame', () => {
 		expect( findDashboardFrame( dashboardStack, [] ) ).toBeNull();
 	} );
 
+	it( 'ignores a frame whose own URL carries a dashboard origin as a query value', () => {
+		const stack = `Error: boom\n    at fn (https://other.example/a.js?next=${ base }routes/dashboard/content.min.js:1:2)`;
+
+		expect( findDashboardFrame( stack, origins ) ).toBeNull();
+	} );
+
 	it( 'ignores an error message that contains a dashboard URL', () => {
 		const stack = [
 			`Error: Failed to fetch dynamically imported module: ${ origins[ 0 ] }routes/dashboard/content.min.js`,
