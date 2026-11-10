@@ -36,10 +36,10 @@ return [
     // PhanTypeMismatchReturnNullable : 10+ occurrences
     // PhanRedefinedClassReference : 8 occurrences
     // PhanTypeExpectedObjectPropAccess : 8 occurrences
-    // PhanTypeComparisonToArray : 7 occurrences
     // PhanTypeMissingReturn : 7 occurrences
     // PhanUndeclaredFunction : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
+    // PhanTypeComparisonToArray : 6 occurrences
     // PhanDeprecatedClass : 5 occurrences
     // PhanPossiblyUndeclaredVariable : 5 occurrences
     // PhanTypeMismatchArgumentInternal : 5 occurrences
@@ -134,7 +134,7 @@ return [
         'class.jetpack-network-sites-list-table.php' => ['PhanCommentAbstractOnInheritedMethod'],
         'class.jetpack-network.php' => ['PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'class.jetpack.php' => ['PhanDeprecatedFunction', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'class.json-api-endpoints.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
+        'class.json-api-endpoints.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'class.json-api.php' => ['PhanPluginDuplicateSwitchCaseLooseEquality', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnProbablyReal'],
         'enhanced-open-graph.php' => ['PhanTypeArraySuspiciousNullable'],
         'extensions/blocks/ai-chat/ai-chat.php' => ['PhanTypeMismatchArgument'],
