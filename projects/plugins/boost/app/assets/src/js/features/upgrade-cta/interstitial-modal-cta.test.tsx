@@ -1,7 +1,7 @@
 /* eslint-disable jest-dom/prefer-in-document */
 import apiFetch from '@wordpress/api-fetch';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { LEGACY_ROOT_ID, MODERN_ROOT_ID } from '$lib/modern/mode';
+import { MODERN_ROOT_ID } from '$lib/modern/mode';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import InterstitialModalCTA from './interstitial-modal-cta';
 
@@ -80,24 +80,21 @@ describe( 'InterstitialModalCTA', () => {
 		expect( apiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it.each( [ LEGACY_ROOT_ID, MODERN_ROOT_ID ] )(
-		'hides prompts when My Jetpack is unavailable (%s)',
-		rootId => {
-			boostGlobal.site.myJetpack = false;
-			render( <div id={ rootId } data-testid="dashboard-root" /> );
-			render( <InterstitialModalCTA identifier="critical-css" />, {
-				container: screen.getByTestId( 'dashboard-root' ),
-			} );
-			expect( screen.queryByRole( 'button' ) ).toBeNull();
-			expect( screen.queryByRole( 'link' ) ).toBeNull();
-			expect( screen.queryByRole( 'dialog' ) ).toBeNull();
-			expect( apiFetch ).not.toHaveBeenCalled();
-		}
-	);
+	it.each( [ MODERN_ROOT_ID ] )( 'hides prompts when My Jetpack is unavailable (%s)', rootId => {
+		boostGlobal.site.myJetpack = false;
+		render( <div id={ rootId } data-testid="dashboard-root" /> );
+		render( <InterstitialModalCTA identifier="critical-css" />, {
+			container: screen.getByTestId( 'dashboard-root' ),
+		} );
+		expect( screen.queryByRole( 'button' ) ).toBeNull();
+		expect( screen.queryByRole( 'link' ) ).toBeNull();
+		expect( screen.queryByRole( 'dialog' ) ).toBeNull();
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
 
 	it( 'keeps the legacy upsell when the add-license screen is disabled', () => {
 		boostGlobal.site.addLicense = false;
-		render( <div id={ LEGACY_ROOT_ID } data-testid="dashboard-root" /> );
+		render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
 		render( <InterstitialModalCTA identifier="critical-css" />, {
 			container: screen.getByTestId( 'dashboard-root' ),
 		} );

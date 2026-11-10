@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import ModernSettings from './modern-settings';
 
 jest.mock( '$lib/stores/premium-features', () => ( {
-	usePremiumFeatures: () => mockPremiumFeatures,
+	usePremiumFeatures: () => [],
 } ) );
 jest.mock( '../../pages/settings/settings', () => {
 	const { ModuleSurfaceProvider } = jest.requireActual( '$features/module/surface' );
@@ -23,14 +23,6 @@ jest.mock( '../../pages/settings/settings', () => {
 	};
 } );
 jest.mock( '$features/upgrade-cta/interstitial-modal-cta', () => () => null );
-jest.mock( '$layout/settings-page/tips/tips', () => ( {
-	__esModule: true,
-	default: () => <div>tips</div>,
-} ) );
-jest.mock( '$layout/settings-page/support/support', () => ( {
-	__esModule: true,
-	default: () => <div>priority support</div>,
-} ) );
 jest.mock( '$features/notice/manager', () => ( {
 	__esModule: true,
 	default: ( { modern }: { modern?: boolean } ) => (
@@ -38,32 +30,13 @@ jest.mock( '$features/notice/manager', () => ( {
 	),
 } ) );
 
-let mockPremiumFeatures: string[] = [];
-
 describe( 'ModernSettings', () => {
-	beforeEach( () => {
-		mockPremiumFeatures = [];
-	} );
-
 	it( 'renders the settings body without the chassis-owned header or speed scores', () => {
 		const { container } = render( <ModernSettings /> );
 
 		expect( screen.getByText( 'settings body' ) ).toBeTruthy();
 		expect( screen.getByText( 'modern notices' ) ).toBeTruthy();
 		expect( container.querySelector( '.jb-dashboard' ) ).toBeNull();
-	} );
-
-	it( 'omits tips and priority support on both free and paid plans', () => {
-		const view = render( <ModernSettings /> );
-		expect( screen.queryByText( 'priority support' ) ).toBeNull();
-		expect( screen.queryByText( 'tips' ) ).toBeNull();
-		view.unmount();
-
-		mockPremiumFeatures = [ 'support' ];
-		render( <ModernSettings /> );
-
-		expect( screen.queryByText( 'priority support' ) ).toBeNull();
-		expect( screen.queryByText( 'tips' ) ).toBeNull();
 	} );
 
 	it( 'hides itself without unmounting while a redirect is pending', () => {

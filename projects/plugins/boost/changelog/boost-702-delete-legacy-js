@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Delete the legacy dashboard code that the previous change made unreachable.
+
+
