@@ -492,7 +492,7 @@ class LlmsTxtTest extends SeoTestCase {
 		$page = $this->insert_page( 'Hidden Later' );
 		update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
 
-		$this->with_always_include_hooks(
+		$this->with_write_hooks(
 			static function () use ( $page ) {
 				update_post_meta( $page->ID, Content_Coverage::META_NOINDEX, '1' );
 			}
@@ -533,7 +533,7 @@ class LlmsTxtTest extends SeoTestCase {
 
 		$responses = array();
 		try {
-			$this->with_always_include_hooks(
+			$this->with_write_hooks(
 				static function () use ( $page, $saves, &$responses ) {
 					foreach ( $saves as $meta ) {
 						$request = new WP_REST_Request( 'POST', '/wp/v2/pages/' . $page->ID );
@@ -635,12 +635,12 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Run a callback with the "Always include" hooks attached, then restore the global hooks.
+	 * Run a callback with the write hooks attached, keeping them out of the rest of the suite.
 	 *
 	 * @param callable $callback Code to run.
 	 * @return void
 	 */
-	private function with_always_include_hooks( callable $callback ) {
+	private function with_write_hooks( callable $callback ) {
 		$hooks = array_map(
 			static function ( $hook ) {
 				return clone $hook;
@@ -649,6 +649,7 @@ class LlmsTxtTest extends SeoTestCase {
 		);
 		try {
 			Llms_Txt::register_always_include();
+			Llms_Txt::register_invalidation();
 			$callback();
 		} finally {
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -719,34 +720,13 @@ class LlmsTxtTest extends SeoTestCase {
 		);
 		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
 
-		$this->with_invalidation(
+		$this->with_write_hooks(
 			static function () use ( $change, $page ) {
 				$change( $page->ID );
 			}
 		);
 
 		$this->assertSame( $clears ? false : 'stored', get_transient( Llms_Txt::CACHE_KEY ) );
-	}
-
-	/**
-	 * Run a change with the clearing hooks registered, keeping them out of the rest of the suite.
-	 *
-	 * @param callable $change Makes the change.
-	 * @return void
-	 */
-	private function with_invalidation( callable $change ) {
-		$hooks = array_map(
-			static function ( $hook ) {
-				return clone $hook;
-			},
-			$GLOBALS['wp_filter']
-		);
-		try {
-			Llms_Txt::register_invalidation();
-			$change();
-		} finally {
-			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		}
 	}
 
 	/**
@@ -861,7 +841,7 @@ class LlmsTxtTest extends SeoTestCase {
 		};
 		add_filter( 'stylesheet', $api_host_theme );
 		try {
-			$this->with_invalidation(
+			$this->with_write_hooks(
 				static function () use ( $api_host_theme ) {
 					remove_filter( 'stylesheet', $api_host_theme );
 					set_theme_mod( 'llms_txt_test', 'changed' );
@@ -881,7 +861,7 @@ class LlmsTxtTest extends SeoTestCase {
 	 */
 	public function test_turning_llms_txt_on_purges_the_edge_copy_with_nothing_stored() {
 		\Wpcom_Test_Async_Jobs::$queued = array();
-		$this->with_invalidation(
+		$this->with_write_hooks(
 			static function () {
 				update_option( Llms_Txt::OPTION, true );
 			}

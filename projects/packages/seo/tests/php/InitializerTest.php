@@ -176,7 +176,7 @@ class InitializerTest extends TestCase {
 
 	/**
 	 * WordPress.com's API requests call register_write_hooks() without init(), so it alone must
-	 * hook the coverage and llms.txt clearing.
+	 * register the "Always include" page field and hook the coverage and llms.txt clearing.
 	 */
 	public function test_write_hooks_register_without_init() {
 		$hooks = array_map(
@@ -186,8 +186,10 @@ class InitializerTest extends TestCase {
 			$GLOBALS['wp_filter']
 		);
 		unset( $GLOBALS['wp_filter']['transition_post_status'], $GLOBALS['wp_filter']['clean_post_cache'] );
+		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' );
 		try {
 			Initializer::register_write_hooks();
+			$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' ) );
 			$this->assertNotFalse(
 				has_action( 'transition_post_status', array( Content_Coverage::class, 'invalidate_on_status_change' ) )
 			);
@@ -195,16 +197,6 @@ class InitializerTest extends TestCase {
 		} finally {
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
-	}
-
-	/**
-	 * WordPress.com's API requests call register_write_hooks() without init(), so it alone must
-	 * register the "Always include" page field.
-	 */
-	public function test_write_hooks_register_always_include_without_init() {
-		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' );
-		Initializer::register_write_hooks();
-		$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' ) );
 	}
 
 	/**
