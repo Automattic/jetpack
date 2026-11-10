@@ -285,7 +285,6 @@ class Jetpack_Sitemap_Manager {
 				$cache_urls[] = remove_query_arg( array_diff( array_keys( $query ), array( 'p' ) ), $cached_url );
 			}
 			foreach ( array_unique( $cache_urls ) as $cached_url ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction -- Optional Batcache APIs, checked above.
 				$clear_url( $cached_url );
 			}
 		}
@@ -306,12 +305,12 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @since $$next-version$$
 	 * @param int           $post_id Stored post ID.
-	 * @param \WP_Post      $post Stored sitemap post.
+	 * @param \WP_Post|null $post Stored sitemap post.
 	 * @param bool          $update Whether this updates an existing post.
 	 * @param \WP_Post|null $post_before Previously stored post, if any.
 	 */
 	public static function callback_sitemap_saved( $post_id, $post, $update, $post_before ) {
-		if ( JP_MASTER_SITEMAP_TYPE !== $post->post_type || jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, '0' ) !== $post->post_title ) {
+		if ( ! $post instanceof \WP_Post || JP_MASTER_SITEMAP_TYPE !== $post->post_type || jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, '0' ) !== $post->post_title ) {
 			return;
 		}
 
@@ -349,11 +348,11 @@ class Jetpack_Sitemap_Manager {
 	 * Invalidate discovery responses when the generated index is removed.
 	 *
 	 * @since $$next-version$$
-	 * @param int      $post_id Deleted post ID.
-	 * @param \WP_Post $post Deleted post.
+	 * @param int           $post_id Deleted post ID.
+	 * @param \WP_Post|null $post Deleted post.
 	 */
 	public static function callback_sitemap_deleted( $post_id, $post ) {
-		if ( JP_MASTER_SITEMAP_TYPE === $post->post_type ) {
+		if ( $post instanceof \WP_Post && JP_MASTER_SITEMAP_TYPE === $post->post_type ) {
 			self::callback_invalidate_index_cache();
 		}
 	}

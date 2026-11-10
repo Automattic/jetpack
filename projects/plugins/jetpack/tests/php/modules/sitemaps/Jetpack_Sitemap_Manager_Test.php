@@ -37,9 +37,9 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	public function test_readiness_uses_the_stored_master_index( $contents, $ready ) {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$this->assertFalse( $this->manager->is_sitemap_ready() );
-		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, $contents, '' );
+		$librarian->store_sitemap_data( '0', JP_MASTER_SITEMAP_TYPE, $contents, '' );
 		$this->assertSame( $ready, $this->manager->is_sitemap_ready() );
-		$librarian->delete_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ), JP_MASTER_SITEMAP_TYPE );
+		$librarian->delete_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, '0' ), JP_MASTER_SITEMAP_TYPE );
 		$this->assertFalse( $this->manager->is_sitemap_ready() );
 	}
 
@@ -97,23 +97,20 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	public function test_cli_generation_defers_cache_recovery_to_a_web_request() {
 		define( 'WP_CLI', true );
 		$GLOBALS['seo_test_purged_urls'] = array();
-		// phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed -- Isolated optional-plugin stub.
-		function pcm_flush_batcache_url( $url ) {
-			$GLOBALS['seo_test_purged_urls'][] = $url;
-		}
+		$this->register_pressable_cache_stub();
 		$purges = array();
 		$record = static function ( $urls ) use ( &$purges ) {
 			$purges[] = $urls;
 		};
 		add_action( 'edge_cache_purge_uris', $record );
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, '<sitemapindex/>', '' );
+		$librarian->store_sitemap_data( '0', JP_MASTER_SITEMAP_TYPE, '<sitemapindex/>', '' );
 		$this->assertSame( array(), $purges );
 		$this->assertSame( 'first-build', get_option( 'jetpack_sitemap_pending_cache_purge' ) );
 		Jetpack_Sitemap_Manager::callback_purge_pending_index_cache();
 		$this->assertSame( 'first-build', get_option( 'jetpack_sitemap_pending_cache_purge' ) );
 		delete_option( 'jetpack_sitemap_pending_cache_purge' );
-		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, '<sitemapindex><sitemap/></sitemapindex>', '' );
+		$librarian->store_sitemap_data( '0', JP_MASTER_SITEMAP_TYPE, '<sitemapindex><sitemap/></sitemapindex>', '' );
 		$this->assertSame( 'urls', get_option( 'jetpack_sitemap_pending_cache_purge' ) );
 		$this->assertSame( array(), $GLOBALS['seo_test_purged_urls'] );
 		remove_action( 'edge_cache_purge_uris', $record );
@@ -131,9 +128,9 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		};
 		add_action( 'edge_cache_purge_uris', $record );
 		Jetpack_Sitemap_Manager::callback_purge_pending_index_cache();
+		$this->assertFalse( get_option( 'jetpack_sitemap_pending_cache_purge' ) );
 		Jetpack_Sitemap_Manager::callback_purge_pending_index_cache();
 		$this->assertCount( $edge_purges, $purges );
-		$this->assertFalse( get_option( 'jetpack_sitemap_pending_cache_purge' ) );
 		remove_action( 'edge_cache_purge_uris', $record );
 	}
 
@@ -150,7 +147,7 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	#[DataProvider( 'sitemap_contents' )]
 	public function test_robots_discovery_follows_index_readiness( $contents, $ready ) {
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, $contents, '' );
+		$librarian->store_sitemap_data( '0', JP_MASTER_SITEMAP_TYPE, $contents, '' );
 		$core_line  = 'Sitemap: ' . esc_url( get_sitemap_url( 'index' ) ) . "\n";
 		$other_line = 'Sitemap: ' . esc_url( get_sitemap_url( 'index' ) ) . "-custom.xml\n";
 		$output     = $this->manager->callback_filter_core_robots( "User-agent: *\n" . $core_line . $other_line );
@@ -168,13 +165,14 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		};
 		add_action( 'jetpack_sitemap_index_updated', $record, 10, 2 );
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$librarian->store_sitemap_data( 1, JP_PAGE_SITEMAP_TYPE, '<urlset/>', '' );
+		$librarian->store_sitemap_data( '1', JP_PAGE_SITEMAP_TYPE, '<urlset/>', '' );
 		$this->assertSame( array(), $changes );
-		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, '<sitemapindex/>', '' );
-		$this->assertCount( 1, $changes );
-		$this->assertSame( jetpack_sitemap_uri(), $changes[0][0] );
-		$this->assertSame( array( jetpack_sitemap_uri(), get_sitemap_url( 'index' ), home_url( '/robots.txt' ) ), $changes[0][1] );
-		$librarian->delete_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ), JP_MASTER_SITEMAP_TYPE );
+		$librarian->store_sitemap_data( '0', JP_MASTER_SITEMAP_TYPE, '<sitemapindex/>', '' );
+		$this->assertSame(
+			array( array( jetpack_sitemap_uri(), array( jetpack_sitemap_uri(), get_sitemap_url( 'index' ), home_url( '/robots.txt' ) ) ) ),
+			$changes
+		);
+		$librarian->delete_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, '0' ), JP_MASTER_SITEMAP_TYPE );
 		$this->assertCount( 2, $changes );
 		remove_action( 'jetpack_sitemap_index_updated', $record );
 	}
@@ -191,10 +189,7 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		global $wp_rewrite;
 		$wp_rewrite->set_permalink_structure( $permalink_structure );
 		if ( 'pressable' === $provider ) {
-			// phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed -- Isolated optional-plugin stub.
-			function pcm_flush_batcache_url( $url ) {
-				$GLOBALS['seo_test_purged_urls'][] = $url;
-			}
+			$this->register_pressable_cache_stub();
 		} else {
 			// phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed -- Isolated optional-plugin stub.
 			function batcache_clear_url( $url ) {
@@ -209,6 +204,13 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 			: array( home_url( '/' ), home_url( '/robots.txt' ) ),
 			$GLOBALS['seo_test_purged_urls']
 		);
+	}
+
+	private function register_pressable_cache_stub() {
+		// phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed -- Isolated optional-plugin stub.
+		function pcm_flush_batcache_url( $url ) {
+			$GLOBALS['seo_test_purged_urls'][] = $url;
+		}
 	}
 
 	public static function cache_permalink_structures() {
@@ -232,12 +234,12 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		add_action( 'edge_cache_purge_uris', $record );
 		$librarian = new Jetpack_Sitemap_Librarian();
 		if ( null !== $initial_contents ) {
-			$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, $initial_contents, '' );
+			$librarian->store_sitemap_data( '0', JP_MASTER_SITEMAP_TYPE, $initial_contents, '' );
 		}
 		$this->assertSame( array(), $purges );
-		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, '<sitemapindex/>', '' );
+		$librarian->store_sitemap_data( '0', JP_MASTER_SITEMAP_TYPE, '<sitemapindex/>', '' );
 		$this->assertSame( array( array( jetpack_sitemap_uri(), get_sitemap_url( 'index' ), home_url( '/robots.txt' ) ) ), $purges );
-		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, '<sitemapindex><sitemap/></sitemapindex>', '' );
+		$librarian->store_sitemap_data( '0', JP_MASTER_SITEMAP_TYPE, '<sitemapindex><sitemap/></sitemapindex>', '' );
 		$this->assertCount( 1, $purges );
 		remove_action( 'edge_cache_purge_uris', $record );
 	}
