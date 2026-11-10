@@ -169,7 +169,7 @@ class Report_Executor {
 	 * @return true|WP_Error A 422 `unsupported_parameter` or `unsupported_fields`.
 	 */
 	private static function check_capability( Report_Handler $handler, Report_Request $request ) {
-		$capability = $handler->get_capability();
+		$capability = self::get_capability( $handler );
 
 		$unsupported = self::uncovered( array_keys( $request->params ), $capability['params'] );
 		if ( $unsupported ) {
@@ -223,7 +223,7 @@ class Report_Executor {
 	 * @return array
 	 */
 	private static function describe( array $payload, $provider, Report_Handler $handler, Report_Definition $definition ) {
-		$unsupported = self::uncovered( $definition->get_field_names(), $handler->get_capability()['fields'] );
+		$unsupported = self::uncovered( $definition->get_field_names(), self::get_capability( $handler )['fields'] );
 		if ( $unsupported && is_object( $payload['data'] ) ) {
 			$payload['data']                     = clone $payload['data'];
 			$payload['data']->unsupported_fields = $unsupported;
@@ -240,6 +240,23 @@ class Report_Executor {
 		);
 
 		return $payload;
+	}
+
+	/**
+	 * What a handler serves: everything unless it declares less.
+	 *
+	 * @param Report_Handler $handler The handler.
+	 * @return array{fields: string[]|string, params: string[]|string}
+	 */
+	private static function get_capability( Report_Handler $handler ) {
+		if ( $handler instanceof Report_Capability ) {
+			return $handler->get_capability();
+		}
+
+		return array(
+			'fields' => '*',
+			'params' => '*',
+		);
 	}
 
 	/**

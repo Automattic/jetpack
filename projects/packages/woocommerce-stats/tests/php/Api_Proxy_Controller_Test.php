@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\WooCommerceStats;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Capability;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Handler;
@@ -299,18 +300,6 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	public function test_serves_a_report_handler_registered_through_the_hook( $route, $id ) {
 		// @phan-suppress-next-line PhanAccessClassInternal -- The test stands in for another package's handler.
 		$handler = new class() implements Report_Handler {
-			/**
-			 * Serves everything.
-			 *
-			 * @return array
-			 */
-			public function get_capability() {
-				return array(
-					'fields' => '*',
-					'params' => '*',
-				);
-			}
-
 			/**
 			 * Answer with the report's id.
 			 *
@@ -685,7 +674,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 					'orders.by_date',
 					'local',
 					// @phan-suppress-next-line PhanAccessClassInternal -- The test stands in for step 3's local handler.
-					new class( $as_object ) implements Report_Handler {
+					new class( $as_object ) implements Report_Handler, Report_Capability {
 						/**
 						 * Whether to answer with an object.
 						 *
