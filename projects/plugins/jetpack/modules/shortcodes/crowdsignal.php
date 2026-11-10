@@ -744,7 +744,7 @@ if (
 			}
 
 			// Replace poll links.
-			if ( stripos( $content, 'polldaddy.com/poll' ) !== false || stripos( $content, 'poll.fm/' ) !== false ) {
+			if ( stripos( $content, '://polldaddy.com/poll/' ) !== false || stripos( $content, '://poll.fm/' ) !== false ) {
 				$content = jetpack_preg_replace_outside_tags(
 					'!(?:\n|\A)https?://(polldaddy\.com/poll|poll\.fm)/([0-9]+?)(/.*)?(?:\n|\Z)!i',
 					'[crowdsignal poll=$2]',
