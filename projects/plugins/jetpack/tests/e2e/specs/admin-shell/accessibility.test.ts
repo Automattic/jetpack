@@ -12,6 +12,7 @@ import {
 	resetA11yProbe,
 } from '../../helpers/admin-shell-a11y-helper';
 import {
+	MOUNT_IDS,
 	installShellProbe,
 	isShellActive,
 	member,
@@ -249,6 +250,28 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 				expect( await focusOwner( page ), 'Tab after a switch stays in the page' ).toBe( FORMS );
 			},
 			afterBack: () => expect( mainHeading( page, MJ ) ).toBeFocused(),
+		} );
+	} );
+
+	test( 'going Back with a modal open leaves the shown page in the accessibility tree', async ( {
+		page,
+	} ) => {
+		test.fail( true, 'Shell bug: Back from an open modal leaves the admin wrapper aria-hidden.' );
+		await keyboardPass( page, {
+			afterBack: async () => {
+				const ariaHidden = await page.evaluate( mountId => {
+					const app = document.getElementById( mountId );
+					const hidden: string[] = [];
+					for ( let el = app?.parentElement; el; el = el.parentElement ) {
+						if ( el.getAttribute( 'aria-hidden' ) === 'true' ) {
+							hidden.push( el.id ? `#${ el.id }` : el.tagName.toLowerCase() );
+						}
+					}
+					return hidden;
+				}, MOUNT_IDS[ MJ ] );
+				expect( ariaHidden, 'aria-hidden ancestors of the shown app' ).toEqual( [] );
+				await expect( mainHeading( page, MJ ) ).toBeVisible();
+			},
 		} );
 	} );
 } );
