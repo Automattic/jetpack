@@ -258,10 +258,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			return false;
 		}
 
-		$cutoff  = (int) \Automattic\Jetpack\Constants::get_constant( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID' );
-		$blog_id = function_exists( 'get_wpcom_blog_id' ) ? (int) get_wpcom_blog_id() : 0;
+		$blog_id = function_exists( 'get_wpcom_blog_id' ) ? get_wpcom_blog_id() : false;
 
-		return $cutoff > 0 && $blog_id >= $cutoff;
+		return $blog_id && wpcom_launchpad_is_past_no_guidance_cutoff( $blog_id );
 	}
 
 	/**
