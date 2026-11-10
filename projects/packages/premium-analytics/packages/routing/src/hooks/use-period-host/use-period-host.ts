@@ -12,6 +12,7 @@ import { useCallback } from 'react';
  * Internal dependencies
  */
 import { useCommitExactRange } from './use-commit-exact-range';
+import type { DateRange } from '@jetpack-premium-analytics/datetime';
 
 type OpenPeriod = NonNullable< ReportScope[ 'openPeriod' ] >;
 
@@ -27,17 +28,19 @@ type PeriodHost = {
  * attention when they do. Both come from one call, so a host wires them together.
  *
  * @param surface         - The surface's key: a dashboard section slug, or a `postSurface`.
+ * @param appliedRange    - The range its date control shows.
  * @param isShown         - Whether the date control is on screen.
  * @param lockedIntervals - The buckets the surface's plan locks.
  * @return The period the widgets open, and the attention the control draws.
  */
 export function usePeriodHost(
 	surface: string,
+	appliedRange: DateRange | undefined,
 	isShown: boolean,
 	lockedIntervals?: readonly LockableInterval[]
 ): PeriodHost {
 	const commitExactRange = useCommitExactRange();
-	const attention = useSettlePeriodChange( surface, isShown );
+	const attention = useSettlePeriodChange( surface, appliedRange, isShown );
 
 	const openPeriod = useCallback< OpenPeriod >(
 		range => commitExactRange( surface, range, { lockedIntervals } ),

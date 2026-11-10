@@ -20,6 +20,10 @@ const JULY = {
 	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),
 	to: new TZDate( 2026, 6, 31, 23, 59, 59, 999, 'UTC' ),
 };
+const AUGUST = {
+	from: new TZDate( 2026, 7, 1, 0, 0, 0, 0, 'UTC' ),
+	to: new TZDate( 2026, 7, 31, 23, 59, 59, 999, 'UTC' ),
+};
 
 const TRAFFIC = 'analytics/traffic';
 const INSIGHTS = 'analytics/insights';
@@ -37,11 +41,12 @@ function Raiser( { surface, range }: { surface: string; range: typeof JULY } ) {
 
 type SurfaceProps = {
 	surface: string;
+	applied?: typeof JULY;
 	shown?: boolean;
 };
 
-function Surface( { surface, shown = true }: SurfaceProps ) {
-	const attention = useSettlePeriodChange( surface, shown );
+function Surface( { surface, applied = JULY, shown = true }: SurfaceProps ) {
+	const attention = useSettlePeriodChange( surface, applied, shown );
 
 	return (
 		<>
@@ -53,11 +58,16 @@ function Surface( { surface, shown = true }: SurfaceProps ) {
 
 const attention = () => screen.getByRole( 'status' ).textContent;
 
-function Scene( { surface, shown }: SurfaceProps ) {
+function Scene( {
+	surface,
+	applied,
+	shown,
+	mounted = true,
+}: SurfaceProps & { mounted?: boolean } ) {
 	return (
 		<PeriodChangeSignalProvider>
 			<Raiser surface={ TRAFFIC } range={ JULY } />
-			<Surface surface={ surface } shown={ shown } />
+			{ mounted && <Surface surface={ surface } applied={ applied } shown={ shown } /> }
 		</PeriodChangeSignalProvider>
 	);
 }
@@ -86,6 +96,18 @@ describe( 'period change signal', () => {
 
 		expect( attention() ).not.toBe( 'none' );
 		expect( screen.getByTestId( 'range' ) ).toHaveTextContent( JULY.from.toISOString() );
+	} );
+
+	it( 'keeps the cue when the navigation lands on the range it was raised with', async () => {
+		const user = userEvent.setup();
+		const view = render( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
+
+		await raise( user );
+		const fired = attention();
+		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+
+		expect( fired ).not.toBe( 'none' );
+		expect( attention() ).toBe( fired );
 	} );
 
 	it( 'waits while another section shows, then fires once the named one does', async () => {
@@ -244,6 +266,28 @@ describe( 'period change signal', () => {
 		expect( attention() ).toBe( 'none' );
 
 		view.rerender( <Scene surface={ TRAFFIC } /> );
+		expect( attention() ).toBe( 'none' );
+	} );
+
+	it( 'lets the id go when the range changes by hand inside the attention window', async () => {
+		const user = userEvent.setup();
+		const view = render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+
+		await raise( user );
+		expect( attention() ).not.toBe( 'none' );
+
+		view.rerender( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
+		expect( attention() ).toBe( 'none' );
+	} );
+
+	it( 'does not replay when the control remounts after it fired', async () => {
+		const user = userEvent.setup();
+		const view = render( <Scene surface={ TRAFFIC } /> );
+
+		await raise( user );
+		view.rerender( <Scene surface={ TRAFFIC } mounted={ false } /> );
+		view.rerender( <Scene surface={ TRAFFIC } /> );
+
 		expect( attention() ).toBe( 'none' );
 	} );
 

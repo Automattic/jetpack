@@ -308,6 +308,7 @@ function Dashboard(): JSX.Element {
 		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
 	const { openPeriod, attention } = usePeriodHost(
 		activeSection,
+		dateFilters.appliedRange,
 		showsPeriodControl,
 		lockedIntervals
 	);

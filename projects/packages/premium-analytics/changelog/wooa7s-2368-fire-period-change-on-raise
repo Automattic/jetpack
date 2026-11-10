@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Date controls: Draw attention to a period a widget sets as soon as it is set, instead of once the navigation lands.
+Date controls: Simplify how a period a widget sets is signalled to the date control.

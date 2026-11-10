@@ -81,7 +81,7 @@ describe( 'useOpenSectionRange', () => {
 		const { result } = renderHook(
 			() => ( {
 				open: useOpenSectionRange(),
-				traffic: useSettlePeriodChange( 'traffic', true ),
+				traffic: useSettlePeriodChange( 'traffic', NOVEMBER, true ),
 			} ),
 			{ wrapper }
 		);

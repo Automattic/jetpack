@@ -272,6 +272,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 	// out and the page returns to the top, where the re-scoped cards are.
 	const { openPeriod, attention } = usePeriodHost(
 		`${ page.path }:${ entityId }`,
+		dateFilters.appliedRange,
 		! isPinned,
 		lockedIntervals
 	);

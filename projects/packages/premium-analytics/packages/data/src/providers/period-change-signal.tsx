@@ -55,6 +55,10 @@ const INERT: PeriodChangeSignalContextValue = {
 
 const PeriodChangeSignalContext = createContext< PeriodChangeSignalContextValue >( INERT );
 
+function rangeKey( range?: DateRange ): string | undefined {
+	return range?.from && range.to ? `${ range.from.getTime() }:${ range.to.getTime() }` : undefined;
+}
+
 /**
  * The surface key of a post detail page, so a signal raised on one post never fires on another.
  *
@@ -106,20 +110,24 @@ export function useRaisePeriodChange() {
 
 /**
  * Fire the pending signal once it names this surface and the control shows, and own the
- * attention it draws: let go after `PERIOD_CHANGE_ATTENTION_MS`, when the control hides, or
- * when the surface moves on, so it never replays.
+ * attention it draws: let go after `PERIOD_CHANGE_ATTENTION_MS`, when the control hides, when
+ * the surface moves on, or when the reader moves the range elsewhere, so it never replays.
  *
- * @param surface - The surface's key, as passed to raise.
- * @param isShown - Whether the date control is on screen.
+ * @param surface      - The surface's key, as passed to raise.
+ * @param appliedRange - The range its date control shows.
+ * @param isShown      - Whether the date control is on screen.
  * @return The period change the control draws attention to, while it does.
  */
 export function useSettlePeriodChange(
 	surface: string,
+	appliedRange: DateRange | undefined,
 	isShown: boolean
 ): PeriodChange | undefined {
 	const { signal, settle } = useContext( PeriodChangeSignalContext );
 	const [ attention, setAttention ] = useState< Attention >();
 	const settledSurface = useRef( surface );
+	const appliedKey = rangeKey( appliedRange );
+	const lastAppliedKey = useRef( appliedKey );
 
 	useEffect( () => {
 		const surfaceMoved = settledSurface.current !== surface;
@@ -165,6 +173,16 @@ export function useSettlePeriodChange(
 
 		return () => clearTimeout( timer );
 	}, [ attention, isShown, surface ] );
+
+	// The cue fires before the navigation lands, so only a move to a range other than its own lets it go.
+	useEffect( () => {
+		const rangeMoved = lastAppliedKey.current !== appliedKey;
+		lastAppliedKey.current = appliedKey;
+
+		if ( rangeMoved && attention && appliedKey !== rangeKey( attention.range ) ) {
+			setAttention( undefined );
+		}
+	}, [ appliedKey, attention ] );
 
 	return useMemo( () => attention && { id: attention.id, range: attention.range }, [ attention ] );
 }

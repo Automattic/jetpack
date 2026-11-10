@@ -48,7 +48,7 @@ function renderStage( lockedIntervals?: readonly LockableInterval[] ) {
 	return renderHook(
 		() => {
 			const dateFilters = useReportDateFilters( '/' );
-			const host = usePeriodHost( 'traffic', true, lockedIntervals );
+			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, lockedIntervals );
 
 			return { dateFilters, host };
 		},
