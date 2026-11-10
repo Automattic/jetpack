@@ -396,7 +396,8 @@ class Admin_Shell_Test extends TestCase {
 		add_filter(
 			'wp_die_ajax_handler',
 			static function () {
-				return static function () {
+				// Stands in for wp_die(), which never returns.
+				return /** @return never */ static function () {
 					throw new \RuntimeException( 'wp_die' );
 				};
 			}

@@ -174,7 +174,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "f997d354525ea5e38f5cacea2ae0f9843b2ec4c7"
+                "reference": "838ca9a21e304710a2e58934cfa1da5d6c6681d7"
             },
             "require": {
                 "automattic/jetpack-feature-flags": "@dev",
@@ -225,6 +225,12 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
