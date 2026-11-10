@@ -40,8 +40,11 @@ $tools = array(
 );
 
 // WordPress 7.2 handles random content redirects (/random/, ?random) in core; every 7.2 beta includes it.
+// @todo Once WordPress 7.2 is the minimum, deprecate the jetpack_random_redirect_enabled filter for core's; not before, so it isn't deprecated only on some versions.
 if ( version_compare( $GLOBALS['wp_version'], '7.2-beta', '<' ) ) {
 	$tools[] = 'theme-tools/random-redirect.php';
+} else {
+	$tools[] = 'theme-tools/random-redirect-core-compat.php';
 }
 
 // Some features are only available when connected to WordPress.com.
