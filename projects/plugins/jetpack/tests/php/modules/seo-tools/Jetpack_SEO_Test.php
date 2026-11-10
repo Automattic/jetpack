@@ -153,6 +153,36 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The posts page's own SEO title is its document title and og:title, unless the page is private.
+	 *
+	 * @dataProvider provide_posts_page_titles
+	 *
+	 * @param array  $page_args      Post fields for the posts page.
+	 * @param string $expected_title Expected document title.
+	 * @param string $expected_og    Expected og:title, or empty for none.
+	 */
+	#[DataProvider( 'provide_posts_page_titles' )]
+	public function test_posts_page_uses_its_seo_title( $page_args, $expected_title, $expected_og ) {
+		$this->go_to_posts_page( $page_args, '' );
+		update_post_meta( get_queried_object_id(), Jetpack_SEO_Posts::HTML_TITLE_META_KEY, 'Blog SEO Title' );
+
+		$this->assertSame( $expected_title, Jetpack_SEO_Titles::get_custom_title( 'Default Title' ) );
+		$this->assertSame( $expected_og, $this->seo->set_custom_og_tags( array() )['og:title'] ?? '' );
+	}
+
+	/**
+	 * Data provider for test_posts_page_uses_its_seo_title.
+	 *
+	 * @return array
+	 */
+	public static function provide_posts_page_titles() {
+		return array(
+			'published page' => array( array(), 'Blog SEO Title', 'Blog SEO Title' ),
+			'private page'   => array( array( 'post_status' => 'private' ), 'Default Title', '' ),
+		);
+	}
+
+	/**
 	 * A site that hands SEO to another plugin keeps its Open Graph tags on the posts page.
 	 */
 	public function test_posts_page_og_tags_unchanged_when_seo_tools_disabled() {
