@@ -26,12 +26,12 @@ class Utils {
 		}
 
 		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
-		return self::pick_ip( $remote_addr, 1, false, $remote_addr );
+		return self::pick_ip( $remote_addr, 1, false );
 	}
 
 	/**
-	 * Whether the request carries the configured trusted header but it holds no valid address,
-	 * so `get_ip()` fell back to `REMOTE_ADDR`.
+	 * Whether the request carries the configured trusted header but `get_ip()` couldn't take an
+	 * address from it, so it fell back to `REMOTE_ADDR`.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -44,7 +44,7 @@ class Utils {
 	/**
 	 * Read the address from the configured trusted header.
 	 *
-	 * @return string|false|null IP address, false if the header holds no valid address, or null if no header is configured or the request lacks it.
+	 * @return string|false|null IP address, false if the header yields no valid address, or null if no header is configured or the request lacks it.
 	 */
 	private static function get_ip_from_trusted_header() {
 		$trusted_header_data = get_site_option( 'trusted_ip_header' );
@@ -52,13 +52,11 @@ class Utils {
 			return null;
 		}
 
-		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
-		// The stored header setting can go stale, leaving the header empty or without a valid address.
+		// The stored header setting can go stale, leaving the header empty, too short, or without a valid address.
 		return self::pick_ip(
 			wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
 			$trusted_header_data->segments ?? 1,
-			! empty( $trusted_header_data->reverse ),
-			$remote_addr
+			! empty( $trusted_header_data->reverse )
 		);
 	}
 
@@ -68,10 +66,9 @@ class Utils {
 	 * @param string|null $value         Raw list of addresses.
 	 * @param int         $segments      Which entry to use, counted from the end of the list.
 	 * @param bool        $reverse_order Whether to reverse the list first.
-	 * @param string|null $remote_addr   Address to use when the list has fewer entries than `$segments`.
-	 * @return string|false IP address.
+	 * @return string|false IP address, or false if the list has fewer entries than `$segments`.
 	 */
-	private static function pick_ip( $value, $segments, $reverse_order, $remote_addr ) {
+	private static function pick_ip( $value, $segments, $reverse_order ) {
 		if ( ! $value ) {
 			return false;
 		}
@@ -89,7 +86,7 @@ class Utils {
 		} elseif ( $ip_count >= $segments ) {
 			return self::clean_ip( $ips[ $ip_count - $segments ] );
 		}
-		return $remote_addr ? self::clean_ip( $remote_addr ) : false;
+		return false;
 	}
 
 	/**

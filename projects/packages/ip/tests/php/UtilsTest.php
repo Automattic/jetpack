@@ -333,6 +333,18 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 				),
 				$header,
 			),
+			'Trusted header too short'     => array(
+				true,
+				array(
+					'REMOTE_ADDR'          => '192.0.2.1',
+					'HTTP_X_FORWARDED_FOR' => '203.0.113.7, 203.0.113.8',
+				),
+				(object) array(
+					'trusted_header' => 'HTTP_X_FORWARDED_FOR',
+					'segments'       => 3,
+					'reverse'        => false,
+				),
+			),
 		);
 	}
 
