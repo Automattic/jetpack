@@ -2,6 +2,7 @@ import { test, expect, type Page, type Locator, type Request } from '@playwright
 
 export const STATE_ON = 'output/admin-shell/state-on.json';
 export const STATE_OFF = 'output/admin-shell/state-off.json';
+export const STATE_STANDALONE = 'output/admin-shell/state-standalone.json';
 
 export type ShellAppState = 'loading' | 'ready' | 'visible' | 'hidden';
 

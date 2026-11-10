@@ -154,6 +154,7 @@ pnpm test:admin-shell
 
 - `ADMIN_SHELL_URL` (default `http://localhost:8889`) must have `jetpack_admin_shell_enabled` on.
 - `ADMIN_SHELL_OFF_URL` is optional: a site with the shell off, for the `shell off` smoke projects. Without it they are skipped.
+- `ADMIN_SHELL_STANDALONE_URL` (with `ADMIN_SHELL_STANDALONE_USER` / `ADMIN_SHELL_STANDALONE_PASSWORD`) is optional: a site with the shell on and only standalone plugins, such as Backup, Social and VideoPress, without the Jetpack plugin (JETPACK-3419). It adds the `standalone` projects; without it there are none. Run it again after installing standalone plugins built against different Admin UI versions.
 - Add `--project='shell on: chromium'` to run one browser.
 
 Tests read shell state only through `readShell()` in `helpers/admin-shell-helper.ts`, which uses the `data-shell-page` / `data-shell-state` hooks. A document without the shell (shell off, or `?jetpack_admin_shell=0`) never has those hooks, so `readShell()` reads it from the `jetpack_page_<slug>` body class and that page's mount element; keep that path after the rewrite. Until the client ships the hooks, a shell-on document falls back to the spike's DOM; only those branches are marked `SPIKE_DOM_FALLBACK`. `switchTo()` fails if a switch reloads the document, so tests that expect a full load click `menuLink()` instead.

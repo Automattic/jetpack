@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
@@ -1476,6 +1477,11 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+
+		// Without the Jetpack plugin, nothing else registers the shell flag on requests that build no admin menu (CLI, REST, AJAX).
+		if ( method_exists( Admin_Shell::class, 'register_feature_flag' ) ) {
+			Admin_Shell::register_feature_flag();
+		}
 	}
 
 	/**
