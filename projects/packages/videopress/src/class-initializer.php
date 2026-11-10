@@ -872,7 +872,7 @@ class Initializer {
 			'<form class="videopress-video-browser" method="get" action="%1$s" role="search">%2$s' .
 				'<input type="hidden" name="%3$s" value="%4$s" />' .
 				'<input type="search" class="videopress-video-browser__search" name="%5$s" value="%6$s" placeholder="%7$s" aria-label="%7$s" />' .
-				'<button type="submit" class="videopress-video-browser__submit">%8$s</button>' .
+				'<button type="submit" class="videopress-video-browser__submit wp-element-button">%8$s</button>' .
 				'<div class="videopress-video-browser__sorts" role="group" aria-label="%9$s">%10$s</div>' .
 				'<select class="videopress-video-browser__length" name="%11$s" aria-label="%12$s">%13$s</select>' .
 			'</form>' .
