@@ -282,6 +282,21 @@ describe( 'useBulkFeatureSwitch', () => {
 		expect( result.current.requested ).toEqual( {} );
 	} );
 
+	it.each( [
+		[ 'succeeds', () => settled() ],
+		[ 'fails', () => Promise.reject( new Error( 'Server error.' ) ) ],
+	] )( 'marks product ownership stale when the run %s', async ( _, post ) => {
+		mockApiFetch.mockImplementation( post );
+		const invalidate = jest.spyOn( QueryClient.prototype, 'invalidateQueries' );
+
+		const { result } = renderBulk();
+
+		await act( () => result.current.bulk.run( [ pluginState( 'akismet', 'inactive' ) ], true ) );
+
+		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'product ownership' ] } );
+		invalidate.mockRestore();
+	} );
+
 	it( 'does nothing when every feature is already in the asked-for state', async () => {
 		const { result } = renderBulk();
 

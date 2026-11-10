@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
@@ -298,7 +297,7 @@ class Creator extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( Feature_Flags::is_enabled( Initializer::SETTINGS_CONSOLIDATION_FLAG ) ) {
+		if ( Initializer::is_settings_consolidation_on_for_site() ) {
 			return admin_url( 'admin.php?page=jetpack-newsletter' );
 		}
 

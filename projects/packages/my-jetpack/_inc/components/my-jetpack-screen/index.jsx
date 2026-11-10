@@ -110,7 +110,9 @@ export default function MyJetpackScreen() {
 	const updateHistoricallyActiveModules = useUpdateHistoricallyActiveModules();
 
 	useEffect( () => {
-		updateHistoricallyActiveModules();
+		if ( getMyJetpackWindowInitialState( 'lifecycleStats' )?.historicallyActiveModulesRefreshDue ) {
+			updateHistoricallyActiveModules();
+		}
 	}, [ updateHistoricallyActiveModules ] );
 
 	const isNewUser = useIsJetpackUserNew();

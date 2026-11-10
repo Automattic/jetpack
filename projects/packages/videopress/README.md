@@ -99,6 +99,10 @@ Impressions include `video_count_known`. When true, `video_count` is the current
 
 All events reuse the existing analytics transport and identity context without adding identifiers or changing host tracking controls. Consumers must verify the deployed version, controls, delivery, and property availability before comparing surfaces or building a funnel; older events lack the new properties. Pre-connection identity and purchase attribution require separate validation. Impression and click totals are repeatable interactions, so their ratio alone is not a user conversion rate.
 
+`jetpack_videopress_upload_refused` records client-side refusals in `library_dropzone`, `library_intake`, or `onboarding_intake`. `reason` is `file_validation` or `plan_limit`. `files_known` distinguishes file selections from a blocked attempt to open the picker. When files are present, `attempted_files` counts the files received by that handler and `skipped_files` counts only those refused for that reason. A mixed selection can produce one event per reason; do not sum attempted-file counts across those events as unique attempts. Partially accepted selections still upload their accepted files.
+
+The dropzone reports its own validation/limit refusals and passes only accepted files to intake. Files already rejected there do not reach the intake event. A blocked picker click has unknown file counts, never a fabricated zero. Deliberate repeat attempts emit again; rendering a disabled control does not. This measures local decisions, not server failures, completed uploads, unique customers, or every upload surface. Disabled controls that do not dispatch an action, media-library promotion, editor uploads, and the Top videos widget are not covered. The shared dropzone's refusal callback is enabled only for the dashboard Library. No filenames, MIME strings, file contents, or new identifiers are recorded. Runtime delivery and host controls must be verified before reporting these counts.
+
 ## Using this package in your WordPress plugin
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
@@ -108,6 +112,30 @@ If you plan on using this package in your WordPress plugin, we would recommend t
 The package owns two widgets of the Premium Analytics dashboard, built here with wp-build against the dashboard's SDK (`@automattic/jetpack-premium-analytics-sdk`) and registered when the dashboard's widget registry hydrates: Top videos (`widgets/top-videos/`, `videopress/top-videos`), which the registrant also seeds into the Traffic section's default layout, and the video player (`widgets/video-player/`, `videopress/video-player`), which the dashboard's video report composes.
 
 The package decides nothing about who gets the widgets. `Initializer` calls `Analytics_Dashboard::init()` where VideoPress is active outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes VideoPress. Both are inert on a site without the dashboard.
+
+## Dashboard privacy-change metrics
+
+`jetpack_videopress_privacy_changed` records one event per VideoPress video when the modern dashboard's Library action or Details save receives `code: success` from the metadata endpoint. It reports `from` and `to` as `public`, `private`, or `site-default`, plus `is_bulk` for a request containing multiple unique videos. Count event rows as acknowledged video changes, not unique users or bulk gestures. A partial failure records only acknowledged changes; duplicate IDs within a batch, unchanged settings, local videos, and missing/failed acknowledgments do not produce events.
+
+`from` is the setting displayed when the action started, not an atomic server-side before-state. Concurrent edits or stale caches can affect it. `site-default` is a configured setting, not proof that viewers have public or private access. This event does not establish a complete history across browsers or other editing paths. Metadata saves queued during a new upload and legacy/block-editor changes are outside this coverage.
+
+Tracking runs in the mutation after acknowledgment, including when its originating component unmounts. Rerenders do not emit it. The event adds no video IDs, names, URLs, text, or new identity; it uses the existing analytics transport and controls. Runtime host/opt-out behavior, delivery, and warehouse coverage dates still require validation before using it for reporting.
+
+## Dashboard deletion analytics
+
+`jetpack_videopress_video_deleted` records acknowledged deletions from the dashboard Library and video details page. `count` includes only selected items identified as VideoPress videos whose attachment DELETE response explicitly says `deleted: true`. Failed, unconfirmed, and local-video deletions do not contribute. Partial bulk failures still report the acknowledged VideoPress deletions; an empty result emits no event. Sum `count` to count these deletions, rather than counting event rows.
+
+`is_bulk` means the operation requested more than one distinct attachment, including local items or items that subsequently fail. Repeated identities in a selection are requested once. Tracking runs inside the mutation after responses arrive, so rerenders do not repeat it and unmounting does not discard an in-flight result. The event confirms attachment deletion, not remote media erasure or recovered storage. Other WordPress/editor deletion paths are not covered.
+
+No identifiers, titles, filenames, content, or error messages are added. The event reuses the existing analytics transport and host tracking controls. Verify deployed-host delivery and warehouse coverage before reporting adoption or deletion rates; this implementation alone does not establish a reliable reporting start date.
+
+## Media Library upload source
+
+Promoting a local attachment through `/videopress/v1/upload/{id}` sends `source=dashboard_promote` from the VideoPress dashboard and `source=block_editor` from the video block's Media Library picker. Both upload loops retain the optional, bounded value through subsequent chunks, and the PHP uploader forwards it into TUS creation metadata. Other PHP and REST callers remain unlabeled unless they explicitly supply a supported source.
+
+WordPress.com Simple sends the same source labels through its separate `/wpcom/v2/videopress/promote/{id}` route. After verifying a new registration, the endpoint fires `jetpack_videopress_attachment_promoted` with the canonical video, site ID and optional source for server-side consumers. Failed promotions and requests for already-promoted videos do not fire this action.
+
+This identifies the initiating surface, not a new attachment, successful processing or first playability. Simple promotion does not transfer the file again. Already-promoted attachments do not start another transfer, and resumed TUS resources keep their original creation metadata. Server-side persistence and query availability must be verified before using this source in reporting.
 
 ## Browser upload lifecycle analytics
 

@@ -98,7 +98,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	SectionHeader: jest.requireActual( '../../../packages/ui/src/section-header' ).SectionHeader,
 	StatsBreadcrumbs: jest.requireActual( '../../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
-	StatsPageIcon: () => <svg data-testid="stats-icon" />,
 	safeHttpUrl: jest.requireActual( '../../../packages/ui/src/utils/safe-http-url' ).safeHttpUrl,
 } ) );
 
@@ -359,7 +358,7 @@ describe( 'single-report stage', () => {
 		expect( getNoticeAnnouncement( "We couldn't find this video.", 'polite' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Back to Videos' } ) ).toHaveAttribute(
 			'href',
-			'/reports/videos?from=2026-05-01&to=2026-05-31'
+			'/reports/videos?from=2026-05-01&to=2026-05-31&interval=day'
 		);
 		expect( getSummaryHeading( 'Video not found' ) ).toBeInTheDocument();
 	} );

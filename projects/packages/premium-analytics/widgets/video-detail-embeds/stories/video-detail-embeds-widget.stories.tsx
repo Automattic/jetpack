@@ -154,6 +154,7 @@ function VideoDetailEmbedsDashboardStory( dashboardArgs: WidgetDashboardWithWidg
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <VideoDetailEmbedsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

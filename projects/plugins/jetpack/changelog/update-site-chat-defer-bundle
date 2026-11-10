@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Site Chat: Load the chat only once a visitor interacts with the page, so it no longer slows down page loads.

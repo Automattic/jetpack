@@ -199,7 +199,7 @@ class Admin_Bar_Notice {
 			'title'  => '',
 			'parent' => 'top-secondary',
 			'meta'   => array(
-				'title' => esc_attr__( 'View security scan details', 'jetpack' ),
+				'title' => esc_attr__( 'View Scan details', 'jetpack' ),
 				'class' => 'error is-hidden',
 			),
 		);
@@ -239,8 +239,14 @@ class Admin_Bar_Notice {
 	 * @return bool
 	 */
 	private function is_protect_dashboard_page() {
+		if ( ! is_admin() || ! $this->has_protect_dashboard() ) {
+			return false;
+		}
+		if ( method_exists( Protect_Status::class, 'is_protect_page' ) ) {
+			return Protect_Status::is_protect_page();
+		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only compared, to pick which script loads.
-		return is_admin() && $this->has_protect_dashboard() && isset( $_GET['page'] ) && 'jetpack-protect' === $_GET['page'];
+		return isset( $_GET['page'] ) && 'jetpack-protect' === $_GET['page'];
 	}
 
 	/**
