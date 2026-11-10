@@ -156,51 +156,11 @@ jobs:
     timeout-minutes: 25  # 2026-08-18: Successful runs seem to take ~13 minutes.
     steps: *build_steps
 
-  # Runs even when the build fails, so the reminder is still created or cleared.
-  reminder_comment:
-    name: Check WordPress.com test reminder
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: build_all
-    if: >
-      ! cancelled() &&
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name &&
-      needs.build_all.outputs.changed_projects != ''
-    permissions:
-      # actions/checkout
-      contents: read
-      # Comment posting
-      pull-requests: write
-    outputs:
-      comment_id: ${{ steps.check-test-reminder-comment.outputs.result }}
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          sparse-checkout: .github/files/build-reminder-comment
-
-      - name: Check if a WordPress.com test reminder comment is needed.
-        id: check-test-reminder-comment
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        env:
-          CHANGED: ${{ needs.build_all.outputs.changed_projects }}
-        with:
-          script: |
-            const { checkTestPendingComment } = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
-            const data = await checkTestPendingComment( github, context, core );
-            return data;
-
   merge_artifacts:
     name: Merge build artifacts
     runs-on: ubuntu-latest
     timeout-minutes: 10  # 2026-04-07: Should take a minute or two.
-    needs: [ build_all, build_wpcom, build_nonwpcom, reminder_comment ]
-    permissions:
-      # actions/checkout, actions/upload-artifact, actions/download-artifact
-      contents: read
-      # Comment posting
-      pull-requests: write
+    needs: [ build_all, build_wpcom, build_nonwpcom ]
     env:
       BUILD_BASE: ${{ github.workspace }}/build
 
@@ -367,16 +327,50 @@ jobs:
           # Already compressed.
           compression-level: 0
 
+  # Runs even when the build fails, so the reminder is still created or cleared.
+  reminder_comment:
+    name: Check WordPress.com test reminder
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [ build_all, merge_artifacts ]
+    if: >
+      ! cancelled() &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name &&
+      needs.build_all.outputs.changed_projects != ''
+    permissions:
+      # actions/checkout
+      contents: read
+      # Comment posting
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          sparse-checkout: .github/files/build-reminder-comment
+
+      - name: Check if a WordPress.com test reminder comment is needed.
+        id: check-test-reminder-comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          CHANGED: ${{ needs.build_all.outputs.changed_projects }}
+        with:
+          script: |
+            const { checkTestPendingComment } = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
+            const data = await checkTestPendingComment( github, context, core );
+            return data;
+
+      # The testing instructions point at the merged build, so only post them once it exists.
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && needs.reminder_comment.result == 'success' && fromJSON(needs.reminder_comment.outputs.comment_id)['commentId'] != 0 }}
+        if: ${{ needs.merge_artifacts.result == 'success' && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
-          DATA: ${{ needs.reminder_comment.outputs.comment_id }}
+          DATA: ${{ steps.check-test-reminder-comment.outputs.result }}
         with:
           script: |
-            const { checkTestReminderComment } = require('./monorepo/.github/files/build-reminder-comment/check-test-reminder-comment.js')
+            const { checkTestReminderComment } = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
             await checkTestReminderComment( github, context, core );
 
   # GitHub provides no way to make sure the `update_wpcom_mirrors` jobs run in merge order.
