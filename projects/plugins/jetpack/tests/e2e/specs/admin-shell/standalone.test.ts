@@ -64,8 +64,13 @@ test.describe( 'Admin shell: standalone plugins only', () => {
 	} );
 
 	test( 'every Jetpack page loads, and its sidebar link leads to it', async ( { page } ) => {
-		const errors: string[] = [];
-		page.on( 'pageerror', error => errors.push( error.message ) );
+		const errors: { page: string | null; message: string }[] = [];
+		page.on( 'pageerror', error =>
+			errors.push( {
+				page: new URL( page.url() ).searchParams.get( 'page' ),
+				message: error.message,
+			} )
+		);
 
 		await page.goto( '/wp-admin/' );
 		const pages = await jetpackPages( page );
@@ -77,7 +82,6 @@ test.describe( 'Admin shell: standalone plugins only', () => {
 		for ( const { slug, href } of pages ) {
 			// From the Dashboard, the Jetpack submenu is a flyout that opens on hover.
 			await page.goto( '/wp-admin/' );
-			// Leaving a page can abort its view transition; only errors from the page under test count.
 			errors.length = 0;
 			await page.locator( '#toplevel_page_jetpack' ).hover();
 			await page
@@ -102,7 +106,11 @@ test.describe( 'Admin shell: standalone plugins only', () => {
 					.first(),
 				`${ slug } renders`
 			).toBeVisible();
-			expect( errors, `no uncaught page errors on ${ slug }` ).toEqual( [] );
+			// The Dashboard's aborted requests reject as it unloads (Firefox, WebKit); only the page under test counts.
+			expect(
+				errors.filter( e => e.page === slug ).map( e => e.message ),
+				`no uncaught page errors on ${ slug }`
+			).toEqual( [] );
 		}
 	} );
 
