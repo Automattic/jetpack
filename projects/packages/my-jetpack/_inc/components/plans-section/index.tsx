@@ -1,4 +1,5 @@
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM } from '@automattic/jetpack-connection';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
@@ -10,6 +11,7 @@ import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics, { type TracksProperties } from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { getConnectUrl } from '../../utils/connect-url';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
@@ -28,6 +30,8 @@ interface PlanSectionHeaderAndFooterProps {
 
 interface PlanSectionFooterProps extends PlanSectionHeaderAndFooterProps {
 	hasComplete: boolean;
+	/** The name "Activate a license" connects under; undefined from an older shared connection script, which then sends `my-jetpack`. */
+	from: string | undefined;
 	/** Added to each link's Tracks event, e.g. where the links are shown. */
 	tracksProperties?: TracksProperties;
 }
@@ -193,10 +197,12 @@ function hasIncludedFeatures(): boolean {
 export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 	numberOfPurchases,
 	hasComplete,
+	from,
 	tracksProperties,
 } ) => {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
+	const connectFrom = from ?? 'my-jetpack';
 
 	const planManageDescription = _n(
 		'Manage your plan',
@@ -220,8 +226,12 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 	}, [ recordEvent, tracksProperties ] );
 
 	const activateLicenseClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_activate_license_click', tracksProperties );
-	}, [ recordEvent, tracksProperties ] );
+		// `from` only when the click connects the user first, so it never reports a connection that didn't start.
+		recordEvent(
+			'jetpack_myjetpack_activate_license_click',
+			isUserConnected ? tracksProperties : { ...tracksProperties, from: connectFrom }
+		);
+	}, [ connectFrom, isUserConnected, recordEvent, tracksProperties ] );
 
 	/*
 	 * Avoid ternary as code minification will break translation function. :(
@@ -243,6 +253,11 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 	}
 
 	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
+
+	// Not getMyJetpackRouteUrl() for the return: on My Jetpack itself it's a bare hash, which Calypso ignores.
+	const activateLicenseUrl = isUserConnected
+		? getMyJetpackRouteUrl( MyJetpackRoutes.AddLicense )
+		: getConnectUrl( connectFrom, getMyJetpackUrl( `#${ MyJetpackRoutes.AddLicense }` ) );
 
 	// A purchase is not the same thing as a covered feature: a domain or a free plan counts
 	// as one, and the list the link promises would then be empty.
@@ -276,12 +291,7 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 			) }
 			{ ! hasComplete && loadAddLicenseScreen && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Link
-						onClick={ activateLicenseClickHandler }
-						href={
-							isUserConnected ? getMyJetpackRouteUrl( '/add-license' ) : getUserConnectionUrl()
-						}
-					>
+					<Link onClick={ activateLicenseClickHandler } href={ activateLicenseUrl }>
 						{ activateLicenceDescription }
 					</Link>
 				</li>
@@ -339,6 +349,7 @@ const PlansSection: FC = () => {
 				<PlanSectionFooter
 					numberOfPurchases={ numberOfPurchases }
 					hasComplete={ complete.hasPaidPlanForProduct }
+					from={ CONNECTION_FROM?.myJetpackPlans }
 				/>
 			) }
 		</section>
