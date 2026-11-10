@@ -241,6 +241,10 @@ class Firewall implements Dashboard_Section {
 			return '';
 		}
 
+		if ( method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ) {
+			return '';
+		}
+
 		$ip = (string) ( new Waf_Request() )->get_real_user_ip_address();
 		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
 			return '';
