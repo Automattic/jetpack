@@ -66,10 +66,11 @@ class WP_Build_Polyfills {
 	/**
 	 * Minimum Gutenberg plugin version whose widget-primitives script module ships
 	 * every export our bundles import at module scope: `HostLink` for
-	 * widget-dashboard >= 0.8.0 (Gutenberg PR #82952, 24.1.0) and `useWidgetActions`
-	 * for Premium Analytics (widget-primitives 0.9.0, first released in 24.2.0).
+	 * widget-dashboard >= 0.8.0 (Gutenberg PR #82952, 24.1.0), `useWidgetActions`
+	 * for Premium Analytics (widget-primitives 0.9.0, first released in 24.2.0), and
+	 * `useWidgetIdentity` for Premium Analytics (Gutenberg PR #85729, 24.4.0).
 	 */
-	const GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION = '24.2.0';
+	const GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION = '24.4.0';
 
 	/**
 	 * Global holding the bundled package version each polyfilled module was registered from.
@@ -366,7 +367,7 @@ class WP_Build_Polyfills {
 			'a11y'              => array(),
 			'widget-primitives' => array(
 				// Gutenberg re-registers Core's script modules with its own copies, and
-				// older ones lack exports widget-dashboard imports at module scope. The
+				// older ones lack exports the dashboard imports at module scope. The
 				// replacement only adds exports, so Gutenberg's own consumers keep working.
 				'gutenberg_min_version' => self::GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION,
 				// Core never ships it, so outside Gutenberg the newest bundled copy wins.

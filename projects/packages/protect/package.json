@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-protect",
-	"version": "0.5.0",
+	"version": "0.6.0",
 	"private": true,
 	"description": "Shared Protect code for the Jetpack and Jetpack Protect plugins.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/protect/#readme",
@@ -56,6 +56,7 @@
 		"@wordpress/api-fetch": "8.1.0",
 		"@wordpress/base-styles": "15.0.0",
 		"@wordpress/components": "44.0.0",
+		"@wordpress/compose": "9.1.0",
 		"@wordpress/data": "11.1.0",
 		"@wordpress/dataviews": "22.0.0",
 		"@wordpress/date": "6.1.0",

@@ -38,8 +38,8 @@ const escapeRegExp = value => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
  * @return {Object<string, string>} Mapper entries, keyed by an anchored pattern for the bare import.
  */
 function singleCopyModuleMapper( rootDir ) {
-	// Anything the package does not depend on directly, such as `@base-ui/react`, is reached through
-	// the library that does.
+	// Anything the package does not depend on directly, such as `@wordpress/rich-text`, is reached
+	// through the library that does.
 	const searchDirs = [ rootDir ];
 	for ( const name of [ '@wordpress/ui', '@wordpress/dataviews', '@wordpress/components' ] ) {
 		try {

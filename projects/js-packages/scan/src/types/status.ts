@@ -39,6 +39,9 @@ export type ScanStatus = {
 	/** The time the last scan was checked, in YYYY-MM-DD HH:MM:SS format. */
 	lastChecked: string | null;
 
+	/** Whether the most recent scan didn't complete, so any results are from an earlier scan. */
+	lastScanFailed?: boolean;
+
 	/** Whether there was an error in the scan results. */
 	error: boolean | null;
 

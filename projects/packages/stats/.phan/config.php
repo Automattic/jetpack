@@ -10,4 +10,14 @@
 // Require base config.
 require __DIR__ . '/../../../../.phan/config.base.php';
 
-return make_phan_config( dirname( __DIR__ ), array( '+stubs' => array( 'amp', 'wpcom' ) ) );
+return make_phan_config(
+	dirname( __DIR__ ),
+	array(
+		'+stubs'            => array( 'amp', 'wpcom' ),
+		'exclude_file_list' => array(
+			// Testing mocks that override AMP stubs.
+			'tests/php/mocks/amp-is-request-mock.php',
+			'tests/php/mocks/class-amp-base-sanitizer.php',
+		),
+	)
+);

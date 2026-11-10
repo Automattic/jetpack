@@ -755,6 +755,40 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * Asking for the Dashboard's own position would get a hashed fraction from core, long enough
+	 * for the menu's natural sort to put the entry after Upgrades, whichever label it carries.
+	 *
+	 * @dataProvider provide_classic_stats_states
+	 *
+	 * @param bool   $retired Whether the classic Stats page is retired.
+	 * @param string $label   The label the entry carries, which core hashes into that fraction.
+	 */
+	#[DataProvider( 'provide_classic_stats_states' )]
+	public function test_register_admin_menu_sits_between_my_home_and_hosting( $retired, $label ) {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+		// The neighbours WordPress.com gives it, at the positions jetpack-mu-wpcom registers them.
+		add_action(
+			'admin_menu',
+			function () {
+				$GLOBALS['menu'][2] = array( 'Dashboard', 'read', 'index.php' );
+				add_menu_page( 'My Home', 'My Home', 'read', 'my-home', '__return_null', '', 2.01 );
+				add_menu_page( 'Hosting', 'Hosting', 'read', 'hosting', '__return_null', '', 2.98 );
+				add_menu_page( 'Upgrades', 'Upgrades', 'read', 'upgrades', '__return_null', '', 2.99 );
+			}
+		);
+
+		$this->register_admin_menu_without_build();
+		$sorted = $GLOBALS['menu'];
+		// As wp-admin/menu.php orders the menu before drawing it.
+		uksort( $sorted, 'strnatcasecmp' );
+
+		$this->assertSame(
+			array( 'Dashboard', 'My Home', $label, 'Hosting', 'Upgrades' ),
+			array_column( $sorted, 0 )
+		);
+	}
+
+	/**
 	 * Menu labels by classic Stats state.
 	 *
 	 * @return array
