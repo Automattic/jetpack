@@ -131,7 +131,7 @@ export function filterDeps( deps, projects, options = {} ) {
 		}
 
 		if ( options.dependents ) {
-			// Keep dependents: For everything in deps (and not already kept), add it if any of its dependencies are in keep.
+			// Keep dependents: For everything in deps (and not already kept), add it if any of its dependencies (from prodDeps, when given) are in keep.
 			for ( const [ p, pd ] of dependentDeps.entries() ) {
 				if ( deps.has( p ) && ! keep.has( p ) ) {
 					for ( const d of pd ) {
@@ -147,13 +147,12 @@ export function filterDeps( deps, projects, options = {} ) {
 
 	// A dev edge doesn't ship, so projects reached through one can't pass the change on.
 	if ( options.dependents && options.prodDeps ) {
-		const devHop = [];
+		const reached = new Set( keep );
 		for ( const [ p, pd ] of deps.entries() ) {
-			if ( ! keep.has( p ) && [ ...pd ].some( d => keep.has( d ) ) ) {
-				devHop.push( p );
+			if ( [ ...pd ].some( d => reached.has( d ) ) ) {
+				keep.add( p );
 			}
 		}
-		devHop.forEach( p => keep.add( p ) );
 	}
 
 	const ret = new Map();
