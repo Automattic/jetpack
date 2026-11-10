@@ -4,11 +4,13 @@ import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
+import { leavePageFor } from '../../../utils/reload-page';
 import ConnectionStatusCard from '../index';
 import type { StateProducts, MyJetpackInitialState } from '../../../data/types';
 import type { ConnectionErrorObject } from '@automattic/jetpack-connection';
 
 let mockDetailsMissing = false;
+let mockConnectionFromMissing = false;
 const mockUseConnectionErrorNotice = jest.fn();
 jest.mock( '@automattic/jetpack-connection', () => {
 	const actual = jest.requireActual( '@automattic/jetpack-connection' );
@@ -17,6 +19,9 @@ jest.mock( '@automattic/jetpack-connection', () => {
 		...actual,
 		get ConnectionErrorDetails() {
 			return mockDetailsMissing ? undefined : actual.ConnectionErrorDetails;
+		},
+		get CONNECTION_FROM() {
+			return mockConnectionFromMissing ? undefined : actual.CONNECTION_FROM;
 		},
 		// Records the options the card passes; the real hook still runs so the diagnosis renders.
 		useConnectionErrorNotice: ( ...args: unknown[] ) => {
@@ -42,6 +47,8 @@ jest.mock( '../../../data/products/use-all-products', () => {
 		} ),
 	};
 } );
+
+jest.mock( '../../../utils/reload-page', () => ( { leavePageFor: jest.fn() } ) );
 
 const mockRecordEvent = jest.fn();
 jest.mock( '../../../hooks/use-analytics', () => ( {
@@ -166,6 +173,7 @@ beforeAll( () => {
 beforeEach( () => {
 	mockRecordEvent.mockClear();
 	mockUseConnectionErrorNotice.mockClear();
+	jest.mocked( leavePageFor ).mockClear();
 	resetInitialState();
 	setConnectionStore();
 	global.JetpackScriptData.user.current_user.capabilities = {};
@@ -295,24 +303,46 @@ describe( 'ConnectionStatusCard', () => {
 				}
 			);
 
-			it( 'reports the card’s own name when the account prompt is clicked', async () => {
-				const onConnectUser = jest.fn();
+			const clickConnect = async () => {
 				asAdmin();
 				setConnectionStore( { isRegistered: true, hasConnectedOwner: true } );
 				needAnAccount();
 				render(
 					<Providers>
-						<ConnectionStatusCard { ...testProps } onConnectUser={ onConnectUser } />
+						<ConnectionStatusCard { ...testProps } />
 					</Providers>
 				);
-
 				await userEvent.click( screen.getByRole( 'button', { name: 'Connect my account' } ) );
 
-				expect( onConnectUser ).toHaveBeenCalledTimes( 1 );
+				expect( leavePageFor ).toHaveBeenCalledTimes( 1 );
+				return new URL( jest.mocked( leavePageFor ).mock.calls[ 0 ][ 0 ] ).searchParams;
+			};
+
+			it( 'connects the account under the card’s own name, returning to this page', async () => {
+				const query = await clickConnect();
+
+				expect( query.get( 'from' ) ).toBe( 'my_jetpack_connection_card' );
+				expect( query.get( 'redirect_after_auth' ) ).toBe( window.location.href );
 				expect( mockRecordEvent ).toHaveBeenCalledWith(
 					'jetpack_myjetpack_connection_connect_user_click',
 					expect.objectContaining( { from: 'my_jetpack_connection_card' } )
 				);
+			} );
+
+			it( 'falls back to the legacy names when the shared script predates CONNECTION_FROM', async () => {
+				mockConnectionFromMissing = true;
+				try {
+					const query = await clickConnect();
+
+					expect( query.get( 'from' ) ).toBe( 'my-jetpack' );
+					expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
+						expect.objectContaining( { reconnectFrom: undefined } )
+					);
+					// The link builder warns about a legacy name in development.
+					expect( console ).toHaveWarned();
+				} finally {
+					mockConnectionFromMissing = false;
+				}
 			} );
 
 			it( 'renders the correct user connection line item', () => {

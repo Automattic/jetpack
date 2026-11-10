@@ -22,6 +22,8 @@ import useConnectionErrorTracking from '../../hooks/use-connection-error-trackin
 import { canManageConnection, useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
+import { getConnectUrl } from '../../utils/connect-url';
+import { leavePageFor } from '../../utils/reload-page';
 import { ConnectionOwnerInfo } from './connection-owner-info';
 import { ConnectionStatus } from './connection-status';
 import styles from './styles.module.scss';
@@ -37,19 +39,16 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	onUnlinked,
 	connectedPlugins,
 	connectedSiteId,
-	onConnectUser = null,
 } ) => {
 	// An older shared jetpack-connection script may lack CONNECTION_FROM: its links then send `my-jetpack`.
 	const connectFrom = CONNECTION_FROM?.myJetpackConnectionCard ?? 'my-jetpack';
 	const { isRegistered, isUserConnected, userConnectionData } = useMyJetpackConnection( {
 		redirectUri,
-		from: connectFrom,
 	} );
 	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { recordEvent } = useAnalytics();
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
-	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
-	const connectUserFn = onConnectUser || setUserIsConnecting;
+	const { setConnectionStatus } = useDispatch( CONNECTION_STORE_ID );
 
 	const { brokenModules } = lifecycleStats || {};
 	const { data: products, isLoading, isError } = useAllProducts();
@@ -130,9 +129,9 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 				...tracksEventData,
 				from: connectFrom,
 			} );
-			connectUserFn();
+			leavePageFor( getConnectUrl( connectFrom ) );
 		},
-		[ connectFrom, connectUserFn, recordEvent, tracksEventData ]
+		[ connectFrom, recordEvent, tracksEventData ]
 	);
 
 	// The same package data the My Jetpack connection error notice runs on, so the
