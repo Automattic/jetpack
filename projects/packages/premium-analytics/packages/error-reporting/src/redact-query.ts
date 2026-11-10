@@ -1,7 +1,7 @@
 const REDACTED = '[redacted]';
 const UNREPORTABLE = '[unreportable]';
 const SAFE_NAME = /^[A-Za-z0-9_-]{1,64}$/;
-const ROUTE_PARAM = 'p';
+const NESTED_QUERY_PARAMS = new Set( [ 'p', 'post_url' ] );
 
 const ALLOWED_PARAMS = new Set( [
 	'page',
@@ -55,15 +55,15 @@ export function routePathname( path: string ): string {
 }
 
 /**
- * Redacts the query a route path carries, by the same rules as the page's own query.
+ * Redacts the query an allowlisted path or URL carries, by the rules of the page's own query.
  *
- * A route query is a second search string nested inside one parameter value, so without this it
+ * That query is a second search string nested inside one parameter value, so without this it
  * would reach the report whole, with none of its own names checked against the allowlist.
  *
- * @param raw - The route path as it appears in the search string.
- * @return The path with its query redacted and its fragment dropped, encoded as a value.
+ * @param raw - The path or URL as it appears in the search string.
+ * @return The value with its query redacted and its fragment dropped, encoded as a value.
  */
-function redactRoutePath( raw: string ): string {
+function redactNestedQuery( raw: string ): string {
 	const path = decodeValue( raw );
 	const cut = path.search( /[?#]/ );
 
@@ -115,8 +115,8 @@ export function redactQuery( search: string ): string {
 
 		const raw = cut === -1 ? '' : pair.slice( cut + 1 );
 
-		if ( name === ROUTE_PARAM ) {
-			parts.push( `${ name }=${ redactRoutePath( raw ) }` );
+		if ( NESTED_QUERY_PARAMS.has( name ) ) {
+			parts.push( `${ name }=${ redactNestedQuery( raw ) }` );
 			continue;
 		}
 

@@ -29,15 +29,28 @@ describe( 'redactQuery', () => {
 	it.each( [
 		[
 			'masks a value in the query a route path carries',
+			'p',
 			'/reports?token=s3cret',
 			'/reports?token=[redacted]',
 		],
-		[ 'keeps an allowlisted value in that query', '/reports?post_id=7', '/reports?post_id=7' ],
-		[ 'drops the fragment of a route path', '/reports#top', '/reports' ],
-	] )( '%s', ( _label, path, expected ) => {
-		expect( decodeURIComponent( redactQuery( `?p=${ encodeURIComponent( path ) }` ) ) ).toBe(
-			`p=${ expected }`
-		);
+		[ 'keeps an allowlisted value in that query', 'p', '/reports?post_id=7', '/reports?post_id=7' ],
+		[ 'drops the fragment of a route path', 'p', '/reports#top', '/reports' ],
+		[
+			'masks a value in the query a post URL carries',
+			'post_url',
+			'https://example.com/hello?token=s3cret',
+			'https://example.com/hello?token=[redacted]',
+		],
+		[
+			'keeps the plain permalink of a post URL',
+			'post_url',
+			'https://example.com/?p=123',
+			'https://example.com/?p=123',
+		],
+	] )( '%s', ( _label, name, value, expected ) => {
+		expect(
+			decodeURIComponent( redactQuery( `?${ name }=${ encodeURIComponent( value ) }` ) )
+		).toBe( `${ name }=${ expected }` );
 	} );
 
 	it( 'keeps only the first value of a repeated parameter', () => {
