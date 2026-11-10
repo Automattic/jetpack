@@ -516,7 +516,13 @@ class Tracks {
 			}
 
 			$stats = new A8c_Mc_Stats();
-			$stats->do_server_side_stat( $stats->build_stats_url( array( "x_{$group}" => $bin ) ), false );
+			$url   = $stats->build_stats_url( array( "x_{$group}" => $bin ) );
+			// An older copy of the package may be loaded by another plugin.
+			if ( method_exists( $stats, 'do_server_side_stat_without_waiting' ) ) {
+				$stats->do_server_side_stat_without_waiting( $url );
+			} else {
+				$stats->do_server_side_stat( $url );
+			}
 		} catch ( Throwable $e ) {
 			unset( $e );
 		}

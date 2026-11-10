@@ -91,8 +91,18 @@ class StatsTest extends TestCase {
 				return array( 'https://example.com/a', 'https://example.com/b' );
 			}
 
-			public function do_server_side_stat( $url, $blocking = true ) {
-				$this->calls[] = array( $url, $blocking );
+			/**
+			 * The pre-existing signature, as overridden by WooCommerce's McStats.
+			 *
+			 * @param string $url The URL.
+			 */
+			public function do_server_side_stat( $url ) {
+				$this->calls[] = array( $url, true );
+				return true;
+			}
+
+			public function do_server_side_stat_without_waiting( $url ) {
+				$this->calls[] = array( $url, false );
 				return true;
 			}
 		};
@@ -108,7 +118,7 @@ class StatsTest extends TestCase {
 	}
 
 	/**
-	 * Test that do_server_side_stat sends the right request args and interprets the response.
+	 * Test that do_server_side_stat and do_server_side_stat_without_waiting send the right request args and interpret the response.
 	 *
 	 * @dataProvider provide_do_server_side_stat
 	 *
@@ -125,7 +135,9 @@ class StatsTest extends TestCase {
 		add_filter( 'pre_http_request', $filter, 10, 3 );
 
 		try {
-			$result = ( new A8c_Mc_Stats() )->do_server_side_stat( 'https://example.com/g.gif?x_jetpack-group=test', $blocking );
+			$stats  = new A8c_Mc_Stats();
+			$url    = 'https://example.com/g.gif?x_jetpack-group=test';
+			$result = $blocking ? $stats->do_server_side_stat( $url ) : $stats->do_server_side_stat_without_waiting( $url );
 		} finally {
 			remove_filter( 'pre_http_request', $filter, 10 );
 		}

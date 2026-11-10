@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Send batched server-side stats without waiting for a response, and add an optional parameter to send a single stat the same way.
+Send batched server-side stats without waiting for a response, and add `do_server_side_stat_without_waiting()` to send a single stat the same way.

@@ -123,7 +123,7 @@ class A8c_Mc_Stats {
 	public function do_server_side_stats() {
 		$urls = $this->get_stats_urls();
 		foreach ( $urls as $url ) {
-			$this->do_server_side_stat( $url, false );
+			$this->do_server_side_stat_without_waiting( $url );
 		}
 		$this->stats = array();
 	}
@@ -131,14 +131,38 @@ class A8c_Mc_Stats {
 	/**
 	 * Runs stats code for a one-off, server-side.
 	 *
-	 * @since $$next-version$$ Added the `$blocking` parameter.
-	 *
-	 * @param string $url      string The URL to be pinged. Should include `x_jetpack-{$group}={$stats}` or whatever we want to store.
-	 * @param bool   $blocking Whether to wait for the response. When false, the return value only says whether the request was sent.
+	 * @param string $url string The URL to be pinged. Should include `x_jetpack-{$group}={$stats}` or whatever we want to store.
 	 *
 	 * @return bool If it worked.
 	 */
-	public function do_server_side_stat( $url, $blocking = true ) {
+	public function do_server_side_stat( $url ) {
+		return $this->request_stat( $url, true );
+	}
+
+	/**
+	 * Pings a stats URL server-side without waiting for the response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $url The URL to be pinged.
+	 *
+	 * @return bool Whether the request was sent. Whether the server recorded it is unknown.
+	 */
+	public function do_server_side_stat_without_waiting( $url ) {
+		return $this->request_stat( $url, false );
+	}
+
+	/**
+	 * Sends the stats request.
+	 *
+	 * Kept out of do_server_side_stat() so its signature stays compatible with subclasses that override it, such as WooCommerce's McStats.
+	 *
+	 * @param string $url      The URL to be pinged.
+	 * @param bool   $blocking Whether to wait for the response.
+	 *
+	 * @return bool For a blocking request, whether the server answered with a 200; otherwise, whether the request was sent.
+	 */
+	private function request_stat( $url, $blocking ) {
 		$args = $blocking ? array() : array(
 			'blocking' => false,
 			'timeout'  => 1,
