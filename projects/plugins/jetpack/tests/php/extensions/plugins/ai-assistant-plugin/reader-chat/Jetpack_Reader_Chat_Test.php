@@ -265,14 +265,14 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Removing the filter clears the stored option, so old exclusions do not linger.
+	 * Removing the filter stores an empty array, so old exclusions do not linger.
 	 */
 	public function test_sync_query_filter_option_clears_stored_value_when_filter_is_removed() {
 		update_option( 'reader_chat_query_filter', array( 'term' => array( 'post_type' => 'page' ) ) );
 
 		Jetpack_Reader_Chat::sync_query_filter_option();
 
-		$this->assertFalse( get_option( 'reader_chat_query_filter', false ) );
+		$this->assertSame( array(), get_option( 'reader_chat_query_filter', false ) );
 	}
 
 	/**

@@ -80,7 +80,7 @@ class Jetpack_Reader_Chat {
 			return;
 		}
 
-		add_action( 'wp_loaded', array( __CLASS__, 'sync_query_filter_option' ) );
+		add_action( 'admin_init', array( __CLASS__, 'sync_query_filter_option' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'render_mount_div' ) );
 	}
@@ -131,11 +131,9 @@ class Jetpack_Reader_Chat {
 		 */
 		$query_filter = apply_filters( 'jetpack_site_chat_query_filter', array() );
 
+		// An empty array, not a deleted option, so the autoloaded value never misses the cache.
 		if ( empty( $query_filter ) ) {
-			if ( false !== get_option( READER_CHAT_QUERY_FILTER_OPTION, false ) ) {
-				delete_option( READER_CHAT_QUERY_FILTER_OPTION );
-			}
-			return;
+			$query_filter = array();
 		}
 
 		$encoded = is_array( $query_filter ) ? wp_json_encode( $query_filter, JSON_UNESCAPED_SLASHES ) : false;
@@ -146,7 +144,7 @@ class Jetpack_Reader_Chat {
 			return;
 		}
 
-		update_option( READER_CHAT_QUERY_FILTER_OPTION, $query_filter );
+		update_option( READER_CHAT_QUERY_FILTER_OPTION, $query_filter, true );
 	}
 
 	/**
