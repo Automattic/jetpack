@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Pie and semi-circle charts: Name each segment, so a screen reader reads the breakdown instead of an empty chart.

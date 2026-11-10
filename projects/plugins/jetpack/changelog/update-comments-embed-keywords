@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Comments: Find the comment editor's Embed block by provider name, such as YouTube, in the block inserter.

@@ -448,7 +448,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		$pixel_url = $method->invoke( new Tracking_Pixel(), $this->amp_pixel_data() );
+		$pixel_url = $method->invoke( null, $this->amp_pixel_data() );
 
 		$expected_url = 'https://pixel.wp.com/g.gif?v=ext&blog=1234&post=0&tz&srv=example.org&host=127.0.0.1&rand=RANDOM&ref=DOCUMENT_REFERRER';
 		$this->assertSame( $expected_url, $pixel_url );
@@ -540,7 +540,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
+		$pixel_details = $method->invoke( null, $data );
 
 		$expected_pixel_details = '_stq = window._stq || [];
 _stq.push([ "view", {"v":"ext","blog":"1234","post":"0","tz":"","srv":"replaced.com"} ]);
@@ -561,7 +561,7 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		return $method->invoke( new Tracking_Pixel(), $data );
+		return $method->invoke( null, $data );
 	}
 
 	/**
@@ -588,7 +588,7 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 			$method->setAccessible( true );
 		}
 		$pushes = '_stq.push([ "view", {"v":"ext","blog":"1234","post":"0"} ]);' . "\n" . '_stq.push([ "clickTrackerInit", "1234", "0" ]);';
-		return $method->invoke( new Tracking_Pixel(), $pushes );
+		return $method->invoke( null, $pushes );
 	}
 
 	/**
