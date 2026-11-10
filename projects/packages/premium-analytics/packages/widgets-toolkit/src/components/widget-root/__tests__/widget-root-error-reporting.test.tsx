@@ -14,6 +14,17 @@ jest.mock( '@wordpress/route', () => {
 } );
 jest.mock( '../../../../../error-reporting/src/report-error' );
 
+let mockChartsProviderError: Error | null = null;
+
+jest.mock( '../../charts-provider', () => ( {
+	ChartsProvider: ( { children }: { children: ReactNode } ) => {
+		if ( mockChartsProviderError ) {
+			throw mockChartsProviderError;
+		}
+		return children;
+	},
+} ) );
+
 class TestBoundary extends Component<
 	{ children: ReactNode; onCatch: ( error: unknown ) => void },
 	{ failed: boolean }
@@ -38,6 +49,11 @@ const Thrower = ( { error }: { error: Error } ): never => {
 };
 
 describe( 'WidgetRoot error reporting', () => {
+	beforeEach( () => {
+		( reportError as jest.Mock ).mockClear();
+		mockChartsProviderError = null;
+	} );
+
 	it( 'reports a crashing child once and lets it reach the surrounding boundary', () => {
 		const error = new Error( 'boom' );
 		const onCatch = jest.fn();
@@ -47,6 +63,26 @@ describe( 'WidgetRoot error reporting', () => {
 			<TestBoundary onCatch={ onCatch }>
 				<WidgetRoot>
 					<Thrower error={ error } />
+				</WidgetRoot>
+			</TestBoundary>
+		);
+
+		expect( reportError ).toHaveBeenCalledTimes( 1 );
+		expect( reportError ).toHaveBeenCalledWith( error, 'boundary', expect.anything() );
+		expect( onCatch.mock.calls[ 0 ][ 0 ] ).toBe( error );
+		expect( console ).toHaveErrored();
+	} );
+
+	it( 'reports a crash in a provider it wraps', () => {
+		const error = new Error( 'provider boom' );
+		const onCatch = jest.fn();
+		setMockRouteSearch();
+		mockChartsProviderError = error;
+
+		render(
+			<TestBoundary onCatch={ onCatch }>
+				<WidgetRoot>
+					<p>child</p>
 				</WidgetRoot>
 			</TestBoundary>
 		);
