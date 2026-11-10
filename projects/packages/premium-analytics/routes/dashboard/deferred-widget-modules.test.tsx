@@ -13,10 +13,12 @@ const RENDER_MODULE = 'test/chart/render';
 const WIDGET_TEXT = `widget ${ RENDER_MODULE }`;
 
 let observerCallback: IntersectionObserverCallback | null = null;
+let observerOptions: IntersectionObserverInit | undefined;
 
 class MockIntersectionObserver {
-	constructor( callback: IntersectionObserverCallback ) {
+	constructor( callback: IntersectionObserverCallback, options?: IntersectionObserverInit ) {
 		observerCallback = callback;
+		observerOptions = options;
 	}
 	observe() {}
 	disconnect() {}
@@ -36,15 +38,20 @@ function makeResolver() {
 /**
  * Mount the deferred stand-in for the test render module.
  *
- * @param resolve - The underlying resolver.
+ * @param resolve   - The underlying resolver.
+ * @param container - The element to render into, if not a fresh one.
  */
-async function mountDeferred( resolve: ReturnType< typeof makeResolver > ) {
+async function mountDeferred(
+	resolve: ReturnType< typeof makeResolver >,
+	container?: HTMLElement
+) {
 	const resolveModule = deferOffscreenWidgets( resolve, new Set( [ RENDER_MODULE ] ) );
 	const { default: Widget } = await resolveModule( RENDER_MODULE );
 	render(
 		<Suspense fallback={ null }>
 			<Widget { ...( {} as WidgetRenderProps< unknown > ) } />
-		</Suspense>
+		</Suspense>,
+		container ? { container } : undefined
 	);
 }
 
@@ -117,6 +124,34 @@ describe( 'deferOffscreenWidgets', () => {
 		} );
 
 		await expect( screen.findByText( WIDGET_TEXT ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'observes from the scrolling ancestor, with a margin of half its height', async () => {
+		const scroller = document.body.appendChild( document.createElement( 'div' ) );
+		scroller.style.overflowY = 'auto';
+		Object.defineProperties( scroller, {
+			scrollHeight: { value: 2000 },
+			clientHeight: { value: 400 },
+		} );
+		// A widget body is `overflow: auto` too, but does not scroll.
+		const body = scroller.appendChild( document.createElement( 'div' ) );
+		body.style.overflowY = 'auto';
+		jest.spyOn( HTMLElement.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+			this: HTMLElement
+		) {
+			return (
+				this === scroller
+					? { top: 100, bottom: 500, height: 400 }
+					: { top: 900, bottom: 1100, height: 200 }
+			) as DOMRect;
+		} );
+		const resolve = makeResolver();
+
+		await mountDeferred( resolve, body );
+
+		expect( resolve ).not.toHaveBeenCalled();
+		expect( observerOptions ).toEqual( { root: scroller, rootMargin: '0px 0px 200px 0px' } );
+		scroller.remove();
 	} );
 
 	it( 'loads at once where IntersectionObserver is missing', async () => {

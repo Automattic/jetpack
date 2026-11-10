@@ -3,30 +3,43 @@
  */
 import { GenericSkeleton } from '@jetpack-premium-analytics/widgets-toolkit';
 import { lazy, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import styles from './deferred-widget-modules.module.scss';
 import type { ResolveWidgetModule, WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType, ReactNode } from 'react';
+/**
+ * Internal dependencies
+ */
 
 type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;
 
 /**
- * How far below the viewport a widget starts loading: half a screen, so the next row is
- * usually ready before it scrolls in.
+ * How far below the visible area a widget starts loading, as a share of its height: half a
+ * screen, so the next row is usually ready before it scrolls in.
  */
 const LOAD_MARGIN = 0.5;
 
 /**
- * Whether an element sits within the load margin of the viewport.
+ * The element the widget scrolls in: the dashboard has its own scroll container, which clips
+ * its children, so an observer rooted at the viewport would ignore the load margin. Only an
+ * ancestor that overflows counts: the widget body is `overflow: auto` too.
  *
- * @param element - The element.
- * @return Whether it is near.
+ * @param element - The widget's element.
+ * @return The nearest scrolling ancestor, or null for the viewport.
  */
-function isNearViewport( element: HTMLElement ): boolean {
-	const { top, bottom } = element.getBoundingClientRect();
-	return bottom >= 0 && top <= window.innerHeight * ( 1 + LOAD_MARGIN );
+function getScrollRoot( element: HTMLElement ): HTMLElement | null {
+	for ( let parent = element.parentElement; parent; parent = parent.parentElement ) {
+		if (
+			parent.scrollHeight > parent.clientHeight &&
+			/(auto|scroll)/.test( window.getComputedStyle( parent ).overflowY )
+		) {
+			return parent;
+		}
+	}
+	return null;
 }
 
 /**
- * Render a skeleton until the widget is near the viewport, then its content.
+ * Render a skeleton until the widget is near the visible area, then its content.
  *
  * Checked on layout, not on the observer's first callback, so a widget on screen mounts in the
  * same frame. Without `IntersectionObserver` (tests, old browsers) everything renders at once.
@@ -44,7 +57,14 @@ function NearViewport( { children }: { children: ReactNode } ) {
 		if ( isNear || ! element ) {
 			return;
 		}
-		if ( isNearViewport( element ) ) {
+
+		const root = getScrollRoot( element );
+		const visible = root
+			? root.getBoundingClientRect()
+			: { top: 0, bottom: window.innerHeight, height: window.innerHeight };
+		const margin = Math.round( visible.height * LOAD_MARGIN );
+		const { top, bottom } = element.getBoundingClientRect();
+		if ( bottom >= visible.top && top <= visible.bottom + margin ) {
 			setIsNear( true );
 			return;
 		}
@@ -55,7 +75,7 @@ function NearViewport( { children }: { children: ReactNode } ) {
 					setIsNear( true );
 				}
 			},
-			{ rootMargin: `0px 0px ${ LOAD_MARGIN * 100 }% 0px` }
+			{ root, rootMargin: `0px 0px ${ margin }px 0px` }
 		);
 		observer.observe( element );
 		return () => observer.disconnect();
@@ -64,7 +84,7 @@ function NearViewport( { children }: { children: ReactNode } ) {
 	return isNear ? (
 		children
 	) : (
-		<div ref={ ref }>
+		<div ref={ ref } className={ styles.placeholder }>
 			<GenericSkeleton />
 		</div>
 	);
