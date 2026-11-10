@@ -36,7 +36,7 @@ export function recoverFromChunkLoad(): void {
 
 	const now = Date.now();
 	const last = Number( attempted );
-	if ( last > 0 && now - last < ATTEMPT_WINDOW_MS ) {
+	if ( now - last < ATTEMPT_WINDOW_MS ) {
 		return;
 	}
 
