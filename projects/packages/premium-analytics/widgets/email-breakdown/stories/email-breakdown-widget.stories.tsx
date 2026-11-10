@@ -237,6 +237,7 @@ function EmailBreakdownDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< EmailBreakdownDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <EmailBreakdownDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

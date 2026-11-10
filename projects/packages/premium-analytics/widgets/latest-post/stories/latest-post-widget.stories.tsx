@@ -226,6 +226,7 @@ function LatestPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetContr
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <LatestPostDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

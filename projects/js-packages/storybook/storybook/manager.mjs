@@ -23,8 +23,8 @@ const WIDGET_SIZES_OPTIONS = [
 
 /**
  * Whether a story is a close-up of a Premium Analytics widget, the kind the canvas
- * reading the `widgetSizes` global frames. A widget's dashboard story is not: it
- * mounts the real dashboard.
+ * reading the `widgetSizes` global frames. A story tagged `widget-dashboard` is
+ * not: it mounts the real dashboard.
  *
  * @param {object} story - Entry of the story on screen.
  * @return {boolean} Whether the story follows the control.
@@ -33,7 +33,7 @@ function isWidgetCloseUp( story ) {
 	return (
 		story?.type === 'story' &&
 		story.importPath?.includes( '/premium-analytics/widgets/' ) &&
-		story.exportName !== 'WidgetDashboardWithWidget'
+		! story.tags?.includes( 'widget-dashboard' )
 	);
 }
 
