@@ -1,18 +1,14 @@
 diff --git a/lib/build-shared.mjs b/lib/build-shared.mjs
 new file mode 100755
-index 0000000..246d53b
+index 0000000..621267e
 --- /dev/null
 +++ b/lib/build-shared.mjs
-@@ -0,0 +1,270 @@
+@@ -0,0 +1,318 @@
 +#!/usr/bin/env node
 +/**
-+ * Bundles libraries that several wp-build plugins use into shared script modules.
-+ *
-+ * Reads `wpSharedModules` from the project's package.json:
-+ * { namespace, outdir, modules: { specifier: name }, styles: { name: [ stylesheet ] }, exports: file, consumers: [ glob ] }
-+ * and writes the modules and `<outdir>/modules.php`. Consumers point `wpPlugin.sharedModules` at that package.json.
-+ * Each module exports only the names `exports` lists for it; `--update-exports` regenerates that list from the built consumers.
++ * Builds the libraries in package.json's `wpSharedModules` into shared script modules, pruned to its `exports` list.
 + */
++import { readdirSync } from 'fs';
 +import { mkdir, readFile, rm, writeFile } from 'fs/promises';
 +import path from 'path';
 +import { createHash } from 'crypto';
@@ -96,10 +92,7 @@ index 0000000..246d53b
 +	return output[ 0 ].exports.includes( 'default' );
 +}
 +
-+/*
-+ * Names are only added: a plugin bundling an older admin-ui may still import one a newer list would drop.
-+ * Remove a name by editing the list.
-+ */
++// Only adds names: a plugin bundling an older provider may still import one.
 +if ( process.argv.includes( '--update-exports' ) ) {
 +	const ids = new Set( Object.keys( manifest.names ) );
 +	const used = {};
@@ -174,6 +167,24 @@ index 0000000..246d53b
 +// The externals plugin hashes the file its asset is named after, so it has to exist.
 +await writeFile( path.join( outdir, 'shared.min.js' ), '' );
 +
++// pnpm installs a package once per peer set; bundling every copy would split React contexts across modules.
++const PNPM_PATH = /^([^\0]*\/node_modules\/\.pnpm\/)([^/]+)(\/node_modules\/.*)$/;
++// Strips the peer suffix from a `.pnpm` directory name, keeping any patch hash.
++const copyKey = ( dir ) => dir.match( /^[^_]*(_patch_hash=[^_]*)?/ )[ 0 ];
++const pnpmDirs = new Map();
++const pnpmCopies = ( storeDir ) => {
++	if ( ! pnpmDirs.has( storeDir ) ) {
++		const first = new Map();
++		for ( const dir of readdirSync( storeDir ).sort() ) {
++			if ( ! first.has( copyKey( dir ) ) ) {
++				first.set( copyKey( dir ), dir );
++			}
++		}
++		pnpmDirs.set( storeDir, first );
++	}
++	return pnpmDirs.get( storeDir );
++};
++
 +const result = await build( {
 +	input: Object.fromEntries(
 +		Object.keys( entries ).map( ( name ) => [
@@ -227,6 +238,24 @@ index 0000000..246d53b
 +				handler: () => styleRuntimeEntry,
 +			},
 +		},
++		{
++			name: 'single-copy',
++			resolveId: {
++				filter: { id: /^[@\w]/ },
++				async handler( source, importer, options ) {
++					const resolved = await this.resolve( source, importer, {
++						...options,
++						skipSelf: true,
++					} );
++					const match = ! resolved?.external && resolved?.id.match( PNPM_PATH );
++					if ( ! match ) {
++						return resolved;
++					}
++					const copy = pnpmCopies( match[ 1 ] ).get( copyKey( match[ 2 ] ) );
++					return { ...resolved, id: match[ 1 ] + copy + match[ 3 ] };
++				},
++			},
++		},
 +		stylePlugin( /\.module\.(css|scss)$/, true ),
 +		stylePlugin( /(?<!\.module)\.(css|scss)$/, false ),
 +		createWordpressExternalsPlugin( 'wordpress', 'wp' )( 'shared.min', 'esm' ),
@@ -241,6 +270,22 @@ index 0000000..246d53b
 +	},
 +} );
 +await disposeSassCompiler();
++
++const copies = new Map();
++for ( const { moduleIds = [] } of result.output ) {
++	for ( const id of moduleIds ) {
++		const dir = id.match( PNPM_PATH )?.[ 2 ];
++		if ( dir ) {
++			( copies.get( copyKey( dir ) ) ?? copies.set( copyKey( dir ), new Set() ).get( copyKey( dir ) ) ).add( dir );
++		}
++	}
++}
++const duplicated = [ ...copies ].filter( ( [ , dirs ] ) => dirs.size > 1 );
++if ( duplicated.length ) {
++	throw new Error(
++		`Bundled more than one copy of ${ duplicated.map( ( [ key ] ) => key ).join( ', ' ) }.`
++	);
++}
 +await rm( path.join( outdir, 'shared.min.js' ) );
 +// Keep the dependencies the externals plugin found; its version hashed the empty placeholder.
 +const assetPath = path.join( outdir, 'shared.min.asset.php' );
@@ -248,6 +293,9 @@ index 0000000..246d53b
 +const dependencies = [ 'dependencies', 'module_dependencies' ]
 +	.map( ( key ) => asset.match( new RegExp( `'${ key }' => array\\(.*?\\)(?=, '|\\);)` ) )?.[ 0 ] )
 +	.filter( Boolean );
++if ( ! dependencies.length ) {
++	throw new Error( `No dependencies found in ${ assetPath }.` );
++}
 +await rm( assetPath );
 +
 +const files = result.output.map( ( { fileName } ) => fileName ).sort();
