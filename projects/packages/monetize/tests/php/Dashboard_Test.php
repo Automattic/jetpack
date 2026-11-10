@@ -43,18 +43,31 @@ class Dashboard_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		Constants::clear_constants();
 		Cache::clear();
+		self::reset_sections();
 		parent::tear_down();
 	}
 
 	/**
-	 * The constants that identify each host, and whether init() should queue the sidebar item.
+	 * Empty the private section registry.
+	 */
+	private static function reset_sections() {
+		$sections = new \ReflectionProperty( Dashboard::class, 'sections' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$sections->setAccessible( true );
+		}
+		$sections->setValue( null, array() );
+	}
+
+	/**
+	 * The constants that identify each host, and whether init() should queue the sidebar item and the REST routes.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_hosts() {
 		return array(
-			'self-hosted' => array( array(), true ),
-			'Simple'      => array( array( 'IS_WPCOM' => true ), false ),
+			'self-hosted' => array( array(), true, true ),
+			'Simple'      => array( array( 'IS_WPCOM' => true ), false, false ),
 			'Atomic'      => array(
 				array(
 					'ATOMIC_SITE_ID'       => 1,
@@ -62,6 +75,7 @@ class Dashboard_Test extends BaseTestCase {
 					'WPCOMSH__PLUGIN_FILE' => 'wpcomsh.php',
 				),
 				false,
+				true,
 			),
 		);
 	}
@@ -71,15 +85,18 @@ class Dashboard_Test extends BaseTestCase {
 	 *
 	 * @param array $constants Host constants to set.
 	 * @param bool  $queued    Whether the sidebar item should be queued.
+	 * @param bool  $routes    Whether the REST routes should be registered.
 	 */
 	#[DataProvider( 'provide_hosts' )]
-	public function test_init_queues_the_item_only_off_the_wpcom_platform( $constants, $queued ) {
+	public function test_init_queues_the_item_off_the_wpcom_platform_and_routes_off_simple( $constants, $queued, $routes ) {
 		foreach ( $constants as $name => $value ) {
 			Constants::set_constant( $name, $value );
 		}
 
 		Dashboard::init( array( 'module' => 'monetize' ) );
 		$priority = has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) );
+
+		$this->assertSame( $routes, false !== has_action( 'rest_api_init', array( Dashboard::class, 'register_rest_routes' ) ) );
 
 		if ( ! $queued ) {
 			$this->assertFalse( $priority );
@@ -196,5 +213,116 @@ class Dashboard_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
+	}
+
+	public function test_init_registers_each_section_once() {
+		$doing_it_wrong = new \ArrayObject();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) use ( $doing_it_wrong ) {
+				$doing_it_wrong[] = $function_name;
+			}
+		);
+
+		Dashboard::init();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Running twice is the behavior under test.
+		Dashboard::init();
+
+		$this->assertSame( array( 'payments' ), array_keys( Dashboard::get_initial_state() ) );
+		$this->assertCount( 0, $doing_it_wrong );
+	}
+
+	public function test_register_section_refuses_a_taken_key() {
+		$doing_it_wrong = new \ArrayObject();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) use ( $doing_it_wrong ) {
+				$doing_it_wrong[] = $function_name;
+			}
+		);
+
+		Dashboard::register_section( $this->section( 'example', array( 'first' => true ) ) );
+		Dashboard::register_section( $this->section( 'example', array( 'second' => true ) ) );
+
+		$this->assertEquals( array( 'example' => (object) array( 'first' => true ) ), Dashboard::get_initial_state() );
+		$this->assertSame( array( Dashboard::class . '::register_section' ), $doing_it_wrong->getArrayCopy() );
+	}
+
+	/**
+	 * The `page` query arg, and the `monetize` script data each should end up with.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_script_data_pages() {
+		return array(
+			'the Monetize page' => array( 'jetpack-monetize', '{"other":1,"sections":{"example":{"title":"Ads"},"empty":{}}}' ),
+			'another page'      => array( 'jetpack', '{"other":1}' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_script_data_pages
+	 *
+	 * @param string $page     The `page` query arg.
+	 * @param string $expected The `monetize` script data, as JSON.
+	 */
+	#[DataProvider( 'provide_script_data_pages' )]
+	public function test_add_script_data_adds_section_state_only_on_the_monetize_page( $page, $expected ) {
+		$_GET['page'] = $page;
+		Dashboard::register_section( $this->section( 'example', array( 'title' => 'Ads' ) ) );
+		Dashboard::register_section( $this->section( 'empty', array() ) );
+
+		$data = Dashboard::add_script_data( array( 'monetize' => array( 'other' => 1 ) ) );
+
+		$this->assertSame( $expected, wp_json_encode( $data['monetize'], JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * A section with a fixed key and state, and no routes.
+	 *
+	 * @param string $key   Section key.
+	 * @param array  $state Section state.
+	 * @return Dashboard_Section
+	 */
+	private function section( $key, array $state ) {
+		return new class( $key, $state ) implements Dashboard_Section {
+			/**
+			 * Section key.
+			 *
+			 * @var string
+			 */
+			private $key;
+
+			/**
+			 * Section state.
+			 *
+			 * @var array
+			 */
+			private $state;
+
+			/**
+			 * @param string $key   Section key.
+			 * @param array  $state Section state.
+			 */
+			public function __construct( $key, array $state ) {
+				$this->key   = $key;
+				$this->state = $state;
+			}
+
+			/** @return string */
+			public function get_key() {
+				return $this->key;
+			}
+
+			/** @return array */
+			public function get_state() {
+				return $this->state;
+			}
+
+			/** @return void */
+			public function register_routes() {}
+		};
 	}
 }

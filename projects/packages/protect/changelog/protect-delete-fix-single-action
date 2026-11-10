@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show one action, Auto-fix, for a threat whose fix deletes the plugin or theme, instead of a separate Delete button beside it.

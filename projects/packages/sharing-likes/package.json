@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-sharing-likes",
-	"version": "0.6.0",
+	"version": "0.6.1",
 	"private": true,
 	"description": "Sharing buttons and Like buttons for your posts.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/sharing-likes/#readme",
@@ -59,8 +59,8 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@babel/core": "7.29.7",
-		"@babel/runtime": "7.29.10",
+		"@babel/core": "7.29.13",
+		"@babel/runtime": "7.29.13",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "16.3.3",
 		"@testing-library/user-event": "14.6.8",

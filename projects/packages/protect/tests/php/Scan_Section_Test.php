@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Protect\Sections\Scan;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Models\Threat_Model;
+use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -46,6 +47,7 @@ class Scan_Section_Test extends BaseTestCase {
 		delete_transient( Scan::REQUEST_LOCK );
 		delete_transient( Scan::HISTORY_CACHE );
 		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		delete_option( Protect_Status::CHECKS_OPTION_NAME );
 		remove_all_filters( 'map_meta_cap' );
 		remove_all_filters( 'pre_http_request' );
 		wp_set_current_user( 0 );
@@ -698,6 +700,41 @@ class Scan_Section_Test extends BaseTestCase {
 
 		$this->assertSame( $scanning, $report['scanning'] );
 		$this->assertNull( $report['lastChecked'] );
+	}
+
+	/**
+	 * Test that turning off the free check only blanks the report of a site without Scan.
+	 *
+	 * @dataProvider provide_plans
+	 *
+	 * @param bool $has_plan Whether the site has a Scan plan.
+	 */
+	#[DataProvider( 'provide_plans' )]
+	public function test_turned_off_checks_only_blank_the_free_report( $has_plan ) {
+		update_option( Protect_Status::CHECKS_OPTION_NAME, 0 );
+		Scan_Status::$status = new Status_Model(
+			array(
+				'status'       => 'idle',
+				'last_checked' => '2026-11-05 10:00:00',
+			)
+		);
+
+		$report = self::call( 'get_scan_report', $has_plan );
+
+		$this->assertSame( $has_plan, $report['checksEnabled'] );
+		$this->assertSame( $has_plan ? '2026-11-05 10:00:00' : null, $report['lastChecked'] );
+	}
+
+	/**
+	 * With and without a Scan plan.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_plans() {
+		return array(
+			'Scan plan' => array( true ),
+			'free'      => array( false ),
+		);
 	}
 
 	/**

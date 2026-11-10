@@ -18,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.14.13';
+	const PACKAGE_VERSION = '0.14.14';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -212,6 +212,8 @@ class Admin_Menu {
 	public static function init() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
+			// Every plugin's admin menu comes through here, so the flag is listed wherever the shell could run.
+			Admin_Shell::register_feature_flag();
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.

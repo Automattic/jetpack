@@ -13,13 +13,9 @@ import { Badge, Link, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui
 import CopyClipboardButton from '../../../components/copy-clipboard-button/index.tsx';
 import { getPath } from '../../../inbox/utils.js';
 import TextWithFlag from '../../text-with-flag/index.tsx';
+import { getDisplayName } from '../utils.ts';
 import type { FormResponse } from '../../../../types/index.ts';
 import './style.scss';
-
-const getDisplayName = ( response: FormResponse ) => {
-	const { author_name, author_email, author_url, ip } = response;
-	return decodeEntities( author_name || author_email || author_url || ip );
-};
 
 /**
  * Render the contents of the Source cell for a feedback response.
@@ -140,33 +136,35 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import( 'react' ).JSX.
 							<SourceCell response={ response } />
 						</td>
 					</tr>
-					<tr>
-						<th>{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;</th>
-						<td>
-							<TextWithFlag countryCode={ response.country_code }>
-								<Tooltip.Root>
-									<Tooltip.Trigger
-										render={
-											<Link
-												aria-describedby={ ipLookupId }
-												openInNewTab
-												href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=${ encodeURIComponent(
-													response.ip
-												) }` }
-											>
-												{ response.ip }
-											</Link>
-										}
-									/>
-									{ /* The popup is visual-only, so this carries the sentence to screen readers. */ }
-									<VisuallyHidden id={ ipLookupId } render={ <span /> }>
-										{ __( 'Lookup IP address', 'jetpack-forms' ) }
-									</VisuallyHidden>
-									<Tooltip.Popup>{ __( 'Lookup IP address', 'jetpack-forms' ) }</Tooltip.Popup>
-								</Tooltip.Root>
-							</TextWithFlag>
-						</td>
-					</tr>
+					{ response.ip && (
+						<tr>
+							<th>{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;</th>
+							<td>
+								<TextWithFlag countryCode={ response.country_code }>
+									<Tooltip.Root>
+										<Tooltip.Trigger
+											render={
+												<Link
+													aria-describedby={ ipLookupId }
+													openInNewTab
+													href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=${ encodeURIComponent(
+														response.ip
+													) }` }
+												>
+													{ response.ip }
+												</Link>
+											}
+										/>
+										{ /* The popup is visual-only, so this carries the sentence to screen readers. */ }
+										<VisuallyHidden id={ ipLookupId } render={ <span /> }>
+											{ __( 'Lookup IP address', 'jetpack-forms' ) }
+										</VisuallyHidden>
+										<Tooltip.Popup>{ __( 'Lookup IP address', 'jetpack-forms' ) }</Tooltip.Popup>
+									</Tooltip.Root>
+								</TextWithFlag>
+							</td>
+						</tr>
+					) }
 					{ response.browser && (
 						<tr>
 							<th>{ __( 'Browser:', 'jetpack-forms' ) }&nbsp;</th>
