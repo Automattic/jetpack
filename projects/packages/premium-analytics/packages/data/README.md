@@ -312,6 +312,7 @@ This package exports the following public API:
 - `useReport` - Run a report query with comparison support
 - `useStats*` - One hook per Stats endpoint (`useStatsTopPosts`, `useStatsReferrers`, `useStatsVisits`, …)
 - `useScopeLockedIntervals` - The buckets the nearest report scope's plan locks; none where it sets no date limits
+- `useSiteDay` - The start of the site's current day, which changes at the site's midnight; a memo dependency for anything that reads a preset's window
 
 ### Functions
 
