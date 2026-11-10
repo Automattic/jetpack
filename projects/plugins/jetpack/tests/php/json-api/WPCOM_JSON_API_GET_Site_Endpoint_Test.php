@@ -299,6 +299,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 			Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
 			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh.php' );
 		}
+		// Host caches is_woa_site(), so an earlier check would hide the constants just set.
+		StatusCache::clear();
 
 		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
 			$this->get_endpoint(),
