@@ -694,8 +694,8 @@ class WooCommerce_Analytics extends Module {
 			'order_id'           => $order->get_id(),
 			'parent_id'          => $order->get_parent_id(),
 			'date_created'       => self::datetime_to_object( $order->get_date_created() ),
-			'date_paid'          => self::datetime_to_object( $order->get_date_paid() ),
-			'date_completed'     => self::datetime_to_object( $order->get_date_completed() ),
+			'date_paid'          => $order instanceof WC_Order ? self::datetime_to_object( $order->get_date_paid() ) : null, // This method was added in Woo 7.5.
+			'date_completed'     => $order instanceof WC_Order ? self::datetime_to_object( $order->get_date_completed() ) : null, // This method was added in Woo 7.5.
 			'num_items_sold'     => self::get_num_items_sold( $order ),
 			'total_sales'        => $order->get_total(),
 			'tax_total'          => $order->get_total_tax(),
