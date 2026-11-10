@@ -86,6 +86,11 @@ class Jetpack_SEO_Titles {
 			return $default_title;
 		}
 
+		$posts_page_title = self::get_posts_page_custom_title();
+		if ( $posts_page_title ) {
+			return esc_html( $posts_page_title );
+		}
+
 		$page_type = self::get_page_type();
 
 		// Keep default title if invalid page type is supplied.
@@ -134,6 +139,28 @@ class Jetpack_SEO_Titles {
 		}
 
 		return esc_html( $custom_title );
+	}
+
+	/**
+	 * Gets the SEO title saved on the posts page being viewed.
+	 *
+	 * Reads the queried page, because get_post() there is the first listed post.
+	 *
+	 * @return string SEO title, or empty string when not on a published posts page or none is set.
+	 */
+	private static function get_posts_page_custom_title() {
+		global $wp_query;
+
+		if ( empty( $wp_query->is_posts_page ) ) {
+			return '';
+		}
+
+		$page = get_queried_object();
+		if ( ! $page instanceof WP_Post || 'publish' !== $page->post_status ) {
+			return '';
+		}
+
+		return trim( Jetpack_SEO_Posts::get_post_custom_html_title( $page ) );
 	}
 
 	/**

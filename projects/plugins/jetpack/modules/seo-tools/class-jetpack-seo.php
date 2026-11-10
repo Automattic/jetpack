@@ -176,7 +176,7 @@ class Jetpack_SEO {
 		if ( $posts_page ) {
 			$posts_page_title = wp_kses( $posts_page->post_title, array() );
 
-			if ( $posts_page_title ) {
+			if ( $posts_page_title && empty( $custom_title ) ) {
 				$tags['og:title'] = $posts_page_title;
 			}
 
