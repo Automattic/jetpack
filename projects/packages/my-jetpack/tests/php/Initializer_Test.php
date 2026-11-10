@@ -1633,6 +1633,8 @@ class Initializer_Test extends BaseTestCase {
 	 * Standalone plugins run no Jetpack bootstrap, so My Jetpack must list the admin shell flag on every request.
 	 */
 	public function test_register_feature_flags_registers_the_admin_shell_flag() {
+		// An earlier admin menu test may have registered it through Admin_Menu.
+		Feature_Flags::reset();
 		Initializer::register_feature_flags();
 		try {
 			$this->assertNotNull( Feature_Flags::get( Admin_Shell::FLAG ) );

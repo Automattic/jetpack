@@ -87,7 +87,7 @@ test.describe( 'Admin shell: standalone plugins only', () => {
 		const members = await shellMembers( page );
 		test.skip(
 			members.length < 2,
-			'The shell is not running on My Jetpack: it starts only with two or more member dashboards.'
+			'The shell is not running on My Jetpack: it needs two member dashboards, and Forms ships only with the Jetpack plugin.'
 		);
 
 		await waitForShown( page, 'my-jetpack' );
