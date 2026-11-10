@@ -1945,6 +1945,85 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * With both tokens healthy and the owner's connection recorded as broken, restore() relinks
+	 * only the current user, unless ownership is locked and they are not the owner.
+	 *
+	 * @dataProvider provider_restore_owner_error_with_healthy_tokens
+	 *
+	 * @param bool   $user_is_owner    Whether the current user is the connection owner.
+	 * @param bool   $transferable     Whether ownership can be transferred.
+	 * @param string $expected_method  The repair path restore() should take.
+	 * @param mixed  $expected_return  The value restore() should return.
+	 */
+	#[DataProvider( 'provider_restore_owner_error_with_healthy_tokens' )]
+	public function test_restore_owner_error_with_healthy_tokens_relinks_only_the_user( $user_is_owner, $transferable, $expected_method, $expected_return ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_restore_user',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		$owner_id = $user_is_owner ? $user_id : $user_id + 1;
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+		update_option(
+			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
+			array(
+				'no_valid_user_token' => array(
+					(string) $owner_id => array(
+						'error_code'    => 'no_valid_user_token',
+						'user_id'       => (string) $owner_id,
+						'error_message' => 'Test message',
+						'error_data'    => array(),
+						'timestamp'     => time(),
+						'nonce'         => 'test_nonce',
+						'error_type'    => 'xmlrpc',
+					),
+				),
+			)
+		);
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'validate', 'validate_blog_token' ) )
+			->getMock();
+		$tokens->method( 'validate' )->willReturn(
+			array(
+				'blog_token' => array( 'is_healthy' => true ),
+				'user_token' => array( 'is_healthy' => true ),
+			)
+		);
+
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_site_connection', 'get_tokens', 'get_connection_owner_id', 'is_ownership_transferable', 'reconnect', 'refresh_blog_token', 'refresh_user_token' ) )
+			->getMock();
+		$manager->method( 'is_site_connection' )->willReturn( false );
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
+		$manager->method( 'is_ownership_transferable' )->willReturn( $transferable );
+
+		try {
+			$this->assert_restore_routes( $manager, $expected_method, $expected_return );
+		} finally {
+			delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
+			\Jetpack_Options::delete_option( 'master_user' );
+		}
+	}
+
+	/**
+	 * Data provider for test_restore_owner_error_with_healthy_tokens_relinks_only_the_user.
+	 *
+	 * @return array<string, array{0: bool, 1: bool, 2: string, 3: mixed}>
+	 */
+	public static function provider_restore_owner_error_with_healthy_tokens() {
+		return array(
+			'owner relinks'                     => array( true, false, 'refresh_user_token', 'authorize' ),
+			'non-owner relinks to become owner' => array( false, true, 'refresh_user_token', 'authorize' ),
+			'non-owner with locked ownership'   => array( false, false, 'reconnect', 'authorize' ),
+		);
+	}
+
+	/**
 	 * A site (blog-only) connection reconnects directly, ahead of any token validation.
 	 */
 	public function test_restore_site_connection_reconnects() {
