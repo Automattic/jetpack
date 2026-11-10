@@ -8,11 +8,13 @@ const CANVAS_PADDING = 16;
 const CANVAS_BORDER = 1;
 const CANVAS_INSET = CANVAS_PADDING + CANVAS_BORDER;
 
-// Boxes a widget is handed in the size matrix, as [ inline, block ] pixels.
+// Boxes a widget is handed in the size matrix, as [ inline, block ] pixels. The
+// short row is the body of the dashboard's smallest cell, one row at the small
+// row height.
 const MATRIX_SIZES = [
-	[ 320, 160 ],
-	[ 520, 160 ],
-	[ 760, 160 ],
+	[ 320, 110 ],
+	[ 520, 110 ],
+	[ 760, 110 ],
 	[ 320, 400 ],
 	[ 520, 400 ],
 	[ 760, 400 ],
