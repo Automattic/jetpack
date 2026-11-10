@@ -291,7 +291,7 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 /**
  * Monetize › Settings: the Ads settings that left Jetpack › Settings.
  *
- * @return The tab's content, or nothing where the Ads settings don't live on this page.
+ * @return The Ads card, or nothing where the Jetpack plugin sent no data for it.
  */
 export function AdsSettings() {
 	const data = getAdsSettingsData();

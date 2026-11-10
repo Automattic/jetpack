@@ -1,7 +1,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 
 /**
- * What the Settings tab needs from the server, printed by the Jetpack plugin's `Jetpack_Ads_Settings_Home`.
+ * What the Settings tab's Ads card needs from the server, printed by the Jetpack plugin's `Jetpack_Ads_Settings_Home`.
  */
 export interface AdsSettingsData {
 	hasWordAds: boolean;
@@ -18,7 +18,7 @@ export interface AdsSettingsData {
 type MonetizeScriptData = { monetize?: { adsSettings?: AdsSettingsData } };
 
 /**
- * The Settings tab's data, absent wherever the Ads settings don't live on this page.
+ * The Ads card's data, absent wherever the Jetpack plugin doesn't print it.
  *
  * @return The data, or undefined.
  */

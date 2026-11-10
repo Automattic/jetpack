@@ -25,32 +25,20 @@ export const TABS: Tab[] = [
 		value: 'ads',
 		label: () => __( 'Ads', 'jetpack-monetize' ),
 	},
+	{
+		value: 'settings',
+		label: () => __( 'Settings', 'jetpack-monetize' ),
+	},
 ];
-
-const SETTINGS_TAB: Tab = {
-	value: 'settings',
-	label: () => __( 'Settings', 'jetpack-monetize' ),
-};
-
-/**
- * The page's tabs: Settings joins them only where the Ads settings live on this page.
- *
- * @param hasAdsSettings - Whether the server sent the Settings tab's data.
- * @return The tabs, in order.
- */
-export function getTabs( hasAdsSettings: boolean ): Tab[] {
-	return hasAdsSettings ? [ ...TABS, SETTINGS_TAB ] : TABS;
-}
 
 /**
  * The tab a `?tab=` value names, falling back to Overview.
  *
  * @param value - The `tab` search param.
- * @param tabs  - The tabs the page shows.
  * @return The tab.
  */
-export function getTab( value: unknown, tabs: Tab[] = TABS ): Tab {
-	return tabs.find( tab => tab.value === value ) ?? tabs[ 0 ];
+export function getTab( value: unknown ): Tab {
+	return TABS.find( tab => tab.value === value ) ?? TABS[ 0 ];
 }
 
 /**

@@ -1,21 +1,12 @@
-import { getTab, getTabs, getTabSearch } from '../tabs';
+import { getTab, getTabSearch } from '../tabs';
 
 describe( 'getTab', () => {
-	it.each( [ undefined, 'settings', 42 ] )( 'falls back to Overview for %p', value => {
+	it.each( [ undefined, 'nope', 42 ] )( 'falls back to Overview for %p', value => {
 		expect( getTab( value ).value ).toBe( 'overview' );
 	} );
 
-	it( 'opens Settings when it is listed', () => {
-		expect( getTab( 'settings', getTabs( true ) ).value ).toBe( 'settings' );
-	} );
-} );
-
-describe( 'getTabs', () => {
-	it.each( [
-		[ true, [ 'overview', 'payments', 'subscribers', 'ads', 'settings' ] ],
-		[ false, [ 'overview', 'payments', 'subscribers', 'ads' ] ],
-	] )( 'with the Ads settings %p lists %p', ( hasAdsSettings, values ) => {
-		expect( getTabs( hasAdsSettings ).map( tab => tab.value ) ).toEqual( values );
+	it( 'opens Settings wherever the page shows', () => {
+		expect( getTab( 'settings' ).value ).toBe( 'settings' );
 	} );
 } );
 

@@ -7,9 +7,8 @@ import { Tabs } from '@wordpress/ui';
 import { AdsSettings } from './components/ads-settings';
 import ConnectionGate from './components/connection-gate';
 import Placeholder from './components/placeholder';
-import { getAdsSettingsData } from './data/ads-settings-data';
 import { queryClient } from './data/query-client';
-import { getTab, getTabSearch, getTabs } from './data/tabs';
+import { TABS, getTab, getTabSearch } from './data/tabs';
 import './route.scss';
 
 /**
@@ -18,10 +17,9 @@ import './route.scss';
  * @return The Monetize page.
  */
 const Stage = () => {
-	const tabs = getTabs( Boolean( getAdsSettingsData() ) );
 	// `@wordpress/route` types no route tree, so `from` and the navigate argument below need a cast.
 	const search: Record< string, unknown > = useSearch( { from: '/' as never, strict: false } );
-	const activeTab = getTab( search.tab, tabs ).value;
+	const activeTab = getTab( search.tab ).value;
 	const navigate = useNavigate();
 	const openTab = useCallback(
 		( next: string ) => {
@@ -42,7 +40,7 @@ const Stage = () => {
 				<Tabs.Root value={ activeTab } onValueChange={ openTab }>
 					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
-							{ tabs.map( tab => (
+							{ TABS.map( tab => (
 								<Tabs.Tab key={ tab.value } value={ tab.value }>
 									{ tab.label() }
 								</Tabs.Tab>
@@ -52,7 +50,7 @@ const Stage = () => {
 					<div className="jp-monetize-dashboard__body">
 						{ /* The JITM script moves its card here, since the page template hides the default spot. */ }
 						<div id="jp-admin-notices" />
-						{ tabs.map( tab => (
+						{ TABS.map( tab => (
 							<Tabs.Panel key={ tab.value } value={ tab.value }>
 								{ /* Settings saves through Jetpack's own endpoints; every other tab so far needs WordPress.com. */ }
 								{ tab.value === 'settings' ? (
