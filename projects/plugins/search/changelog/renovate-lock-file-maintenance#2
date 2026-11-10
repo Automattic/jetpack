@@ -1,4 +1,5 @@
 Significance: patch
 Type: changed
+Comment: Update composer.lock.
 
-Update package dependencies.
+

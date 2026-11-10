@@ -92,7 +92,9 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 **Defaults:** The reader's last applied preset, else their Jetpack Stats v1 range, else Last 7 days; daily interval when not specified
 
-**Validation:** Ensures required fields are present for API calls
+**Validation:** Ensures required fields are present for API calls; a `step` the arrows set is kept with a hand-picked window only, so a link from a widget steps the way the dashboard did
+
+**Presets:** A computable preset is the window it names today, whatever `from`/`to` the URL kept (all time keeps its `from`), and its `compare_preset` is measured again from that window, falling back to the previous period where the window no longer offers it. A hand-picked window is its dates, and so is its comparison.
 
 ### `getDefaultIntervalForPeriod( preset, from, to )`
 
@@ -104,7 +106,7 @@ Returns the default interval for a preset / date range: the first one it allows.
 - `from`: `string` - Start date
 - `to`: `string` - End date
 
-**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'year'`
+**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'`
 
 **Example:**
 
@@ -340,7 +342,7 @@ This package exports the following public API:
 ### Types
 
 - `ReportParams` - The report params every hook takes
-- `LockableInterval` - A bucket a plan can lock (`week`, `month`, `year`)
+- `LockableInterval` - A bucket a plan can lock (`week`, `month`, `quarter`, `year`)
 - `IntervalRange` - A range as the interval helpers read it (`preset`, `from`, `to`)
 - `IntervalExtension` - The buckets a widget adds to its range (`extra`) or lists unpickable with a hint (`unavailable`)
 - `StatsDatePolicy` - The date limits a plan sets: open, the last 7 days, or no long presets

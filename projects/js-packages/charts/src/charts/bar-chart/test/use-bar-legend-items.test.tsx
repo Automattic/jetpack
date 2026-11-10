@@ -66,6 +66,24 @@ describe( 'useBarLegendItems', () => {
 		);
 	} );
 
+	test( 'colors and lists only the series a stacked chart draws', () => {
+		const drawn = twoMetricData.filter( series => series.options?.type !== 'comparison' );
+		const { result } = renderHook(
+			() => ( {
+				items: useBarLegendItems( twoMetricData, { layout: 'stacked', comparisonItem: true } ),
+				getBarColors: useBarColors(),
+			} ),
+			{ wrapper }
+		);
+		const chartColors = result.current.getBarColors( drawn, { layout: 'stacked' } );
+		const colors = result.current.getBarColors( twoMetricData, { layout: 'stacked' } );
+
+		expect( [ colors[ 0 ], colors[ 2 ] ] ).toEqual( chartColors );
+		expect( result.current.items.map( item => [ item.label, item.color ] ) ).toEqual(
+			drawn.map( ( series, index ) => [ series.label, chartColors[ index ] ] )
+		);
+	} );
+
 	test( "returns the chart legend's own items without a layout", () => {
 		const options = { collapseGroups: true };
 		const { result } = renderHook(

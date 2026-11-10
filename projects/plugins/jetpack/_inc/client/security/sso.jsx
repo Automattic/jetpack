@@ -137,6 +137,8 @@ export const SSO = withModuleSettingsFormHelpers(
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'sso' );
 			const isTwoStepEnforced =
 				!! this.props.getModule( 'sso' )?.options?.jetpack_sso_require_two_step?.default;
+			const isMatchByEmailLocked =
+				!! this.props.getModule( 'sso' )?.options?.jetpack_sso_match_by_email?.locked;
 
 			return (
 				<>
@@ -197,6 +199,7 @@ export const SSO = withModuleSettingsFormHelpers(
 									disabled={
 										! isSSOActive ||
 										unavailableInOfflineMode ||
+										isMatchByEmailLocked ||
 										this.props.isSavingAnyOption( [ 'sso' ] )
 									}
 									onChange={ this.handleMatchByEmailToggleChange }
@@ -204,6 +207,17 @@ export const SSO = withModuleSettingsFormHelpers(
 										<span className="jp-form-toggle-explanation">
 											{ __( 'Match accounts using email addresses', 'jetpack' ) }
 										</span>
+									}
+									help={
+										isMatchByEmailLocked
+											? createInterpolateElement(
+													__(
+														'This setting is controlled by the <code>WPCC_MATCH_BY_EMAIL</code> constant or the <code>jetpack_sso_match_by_email</code> filter on this site.',
+														'jetpack'
+													),
+													{ code: <code /> }
+												)
+											: null
 									}
 								/>
 								<ToggleControl

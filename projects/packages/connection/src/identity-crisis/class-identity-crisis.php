@@ -232,7 +232,15 @@ class Identity_Crisis {
 			$query_args['multisite'] = true;
 		}
 
-		return add_query_arg( $query_args, $url );
+		// Appended rather than merged with add_query_arg(), which decodes the existing query once and so changes what the caller's encoded keys mean.
+		$fragment = '';
+		$position = strpos( $url, '#' );
+		if ( false !== $position ) {
+			$fragment = substr( $url, $position );
+			$url      = substr( $url, 0, $position );
+		}
+
+		return $url . ( false === strpos( $url, '?' ) ? '?' : '&' ) . http_build_query( $query_args, '', '&' ) . $fragment;
 	}
 
 	/**
@@ -741,9 +749,10 @@ class Identity_Crisis {
 	}
 
 	/**
-	 * Normalizes a url by doing three things:
+	 * Normalizes a url by doing four things:
 	 *  - Strips protocol
 	 *  - Strips www
+	 *  - Lowercases the host, which is case-insensitive (the path is left as is)
 	 *  - Adds a trailing slash
 	 *
 	 * @param string $url URL to parse.
@@ -751,6 +760,7 @@ class Identity_Crisis {
 	 * @return WP_Error|string
 	 * @since 0.2.0
 	 * @since-jetpack 4.4.0
+	 * @since $$next-version$$ Lowercases the host.
 	 */
 	public static function normalize_url_protocol_agnostic( $url ) {
 		$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $url ) ) );
@@ -766,7 +776,7 @@ class Identity_Crisis {
 		}
 
 		// Strip www and protocols.
-		$url = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
+		$url = preg_replace( '/^www\./i', '', strtolower( $parsed_url['host'] ) . $parsed_url['path'] );
 
 		return $url;
 	}

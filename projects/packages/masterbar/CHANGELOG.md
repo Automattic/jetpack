@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.3] - 2026-11-09
+### Changed
+- Update dependencies. [#54497]
+- Update package dependencies. [#54512]
+
+## [0.30.2] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869] [#54382]
+
+### Fixed
+- Admin menu: Keep the open mobile menu above page headers such as WooCommerce's. [#54341]
+
 ## [0.30.1] - 2026-10-28
 ### Changed
 - Update package dependencies. [#54118]
@@ -691,6 +703,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.30.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.30.2...v0.30.3
+[0.30.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.30.1...v0.30.2
 [0.30.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.5...v0.30.0
 [0.29.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.4...v0.29.5

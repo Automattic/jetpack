@@ -26,11 +26,15 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 const mockRestoreConnectionError = { current: '' };
 const mockManageConnectionDialog = jest.fn();
 const mockUseConnectionErrorNotice = jest.fn();
+const mockGetUserConnectionUrl = jest.fn< string, [ unknown? ] >(
+	() => 'https://example.com/connect-user'
+);
 jest.mock( '@automattic/jetpack-connection', () => ( {
+	CONNECTION_FROM: { myJetpackHeaderPlans: 'my_jetpack_header_plans' },
 	ConnectionErrorDetails: () => null,
 	getReconnectErrorMessage: ( error: string ) =>
 		`There was an error reconnecting Jetpack. Error: ${ error }`,
-	getUserConnectionUrl: () => 'https://example.com/connect-user',
+	getUserConnectionUrl: ( options?: unknown ) => mockGetUserConnectionUrl( options ),
 	ManageConnectionDialog: ( props: { isOpen: boolean; onClose: () => void } ) => {
 		mockManageConnectionDialog( props );
 		return props.isOpen ? (
@@ -281,6 +285,28 @@ describe( 'HeaderControls', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_manage_click', {
 			location: 'header',
 		} );
+	} );
+
+	it( 'connects from "Activate a license" under its own name, then returns to the license screen', async () => {
+		window.myJetpackInitialState = {
+			userIsAdmin: true,
+			loadAddLicenseScreen: '1',
+			myJetpackFlags: {},
+			lifecycleStats: { isSiteConnected: true, isUserConnected: false },
+		} as unknown as typeof window.myJetpackInitialState;
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		await openControl();
+		await expect(
+			screen.findByRole( 'link', { name: 'Activate a license (requires a user connection)' } )
+		).resolves.toBeInTheDocument();
+
+		expect( mockGetUserConnectionUrl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				from: 'my_jetpack_header_plans',
+				redirect_url: 'admin.php?page=my-jetpack#/add-license',
+			} )
+		);
 	} );
 
 	it.each( [

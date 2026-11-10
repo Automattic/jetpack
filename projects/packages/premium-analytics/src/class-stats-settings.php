@@ -185,7 +185,7 @@ final class Stats_Settings {
 		/**
 		 * Filters the Stats settings the dashboard's Settings tab and the settings route offer, and whether the tab shows the visitor consent card.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.16.0
 		 *
 		 * @param string[] $fields `admin_bar`, `roles`, `count_roles`, `wpcom_reader_views_enabled` and `consent`.
 		 */
@@ -248,6 +248,10 @@ final class Stats_Settings {
 	 */
 	public static function update_stats_options( $updated, $name, $value ) {
 		if ( self::READER_VIEWS_OPTION === $name ) {
+			// Core deletes the option for null, which restores the default.
+			if ( null === $value ) {
+				return $updated;
+			}
 			$result = Stats_Package_Settings::update_reader_views( rest_sanitize_boolean( $value ) );
 		} elseif ( Stats_Options::OPTION_NAME === $name ) {
 			$result = Stats_Package_Settings::update( is_array( $value ) ? $value : array(), self::get_stats_option_fields() );

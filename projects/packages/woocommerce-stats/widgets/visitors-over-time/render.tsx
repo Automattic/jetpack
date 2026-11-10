@@ -43,7 +43,6 @@ function VisitorsOverTime( { chartType }: { chartType?: ChartDisplayChartType } 
 		<ReportMetricChart
 			report={ useReportVisitors( reportParams ) }
 			chartType={ chartType }
-			chartTitle={ __( 'Store visitors over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="visitors"
 			label={ __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }

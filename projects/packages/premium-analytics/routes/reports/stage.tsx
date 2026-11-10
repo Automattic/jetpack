@@ -7,10 +7,7 @@ import {
 	isStatsFeatureLocked,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Stack } from '@jetpack-premium-analytics/externals';
 import { ChartsProvider } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Spinner } from '@wordpress/components';
-import { lazy, Suspense, useMemo } from '@wordpress/element';
 import { useParams } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -20,23 +17,10 @@ import { useStatsDateLimits } from '../use-stats-date-limits';
 import { LockedReportPage } from './locked-report-page';
 import { route } from './package.json';
 import { getReportDefinition } from './registry';
-import styles from './stage.module.scss';
+import { getReportPage } from './report-pages';
 import type { JSX, ReactNode } from 'react';
 
 const ROUTE_FROM = route.path;
-
-/**
- * Centered loading fallback shown while a report's page module loads.
- *
- * @return {JSX.Element} The loading state.
- */
-function ReportLoading(): JSX.Element {
-	return (
-		<Stack justify="center" align="center" className={ styles.loading }>
-			<Spinner />
-		</Stack>
-	);
-}
 
 /**
  * Dispatcher for the `/reports/$report` route.
@@ -46,35 +30,26 @@ function ReportLoading(): JSX.Element {
  *
  * @return {JSX.Element} The report page.
  */
-function ReportDispatcher(): JSX.Element {
+function ReportDispatcher(): JSX.Element | null {
 	const { report } = useParams( { from: ROUTE_FROM } ) as { report?: string };
 
 	const definition = getReportDefinition( report );
 	const lockedFeature =
 		definition?.feature && isStatsFeatureLocked( definition.feature ) ? definition.feature : null;
 
-	// `React.lazy` memoizes by component identity, so a fresh `lazy()` per definition is what
-	// lets switching reports mount a different page; `key` below makes the remount explicit.
-	const LazyReport = useMemo(
-		() => ( definition && ! lockedFeature ? lazy( definition.load ) : null ),
-		[ definition, lockedFeature ]
-	);
-
-	// The report's page is never loaded, so neither are its requests.
+	// The report's page is never rendered, so neither are its requests.
 	if ( definition && lockedFeature ) {
 		return <LockedReportPage label={ definition.getLabel() } feature={ lockedFeature } />;
 	}
 
-	if ( ! LazyReport ) {
+	const ReportPage = definition ? getReportPage( definition.id ) : undefined;
+
+	if ( ! ReportPage ) {
 		// Unreachable: beforeLoad guarantees a valid report before this renders.
-		return <ReportLoading />;
+		return null;
 	}
 
-	return (
-		<Suspense fallback={ <ReportLoading /> }>
-			<LazyReport key={ report } />
-		</Suspense>
-	);
+	return <ReportPage key={ report } />;
 }
 
 /**

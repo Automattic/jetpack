@@ -53,7 +53,7 @@ describe( 'MostPopularDayWidget', () => {
 		expect( screen.queryByText( '103K' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'requests the site summary without the date params the host injects', async () => {
+	it( 'requests the shared summary fields, without the date params the host injects', async () => {
 		// The best day is all-time, so host report params must reach WidgetRoot (the
 		// contract) and still leave both the request and the figures untouched.
 		render(
@@ -65,10 +65,10 @@ describe( 'MostPopularDayWidget', () => {
 		const [ [ request ] ] = mockApiFetch.mock.calls;
 		const path = String( request.path );
 
-		expect( path ).toContain( 'proxy/v1.1/stats' );
-		// Params are serialized into the query string, so no query string at all
-		// pins this more tightly than naming the params one at a time.
-		expect( path ).not.toContain( '?' );
+		// The whole query string, so a leaked date param cannot pass.
+		expect( path ).toMatch(
+			/proxy\/v1\.1\/stats\?stat_fields=views%2Cvisitors%2Cposts%2Ccomments%2Cviews_best_day%2Cviews_best_day_total$/
+		);
 	} );
 
 	it( 'drops the share caption rather than captioning the best day with 0%', async () => {

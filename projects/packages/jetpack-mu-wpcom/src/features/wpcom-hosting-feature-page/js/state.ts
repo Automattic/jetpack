@@ -17,6 +17,7 @@ const FALLBACK: InitialState = {
 	supportUrl: 'https://wordpress.com/help/contact',
 	hasRevertedTransfer: false,
 	transferFailed: false,
+	checkoutPending: false,
 };
 
 /**

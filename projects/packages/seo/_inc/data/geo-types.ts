@@ -10,8 +10,8 @@ export interface AiCrawler {
 	slug: string;
 	/** Human-readable name shown in the UI. */
 	label: string;
-	/** User-agent token written to the robots.txt `User-agent:` line. */
-	userAgent: string;
+	/** Every robots.txt `User-agent:` token the operator uses for this crawler. */
+	userAgents: string[];
 	/** Which group the crawler is listed under. */
 	type: 'answer' | 'training';
 }
@@ -38,12 +38,8 @@ export interface GeoState {
 		enabled: boolean;
 		/** The site's llms.txt URL, for the "view" link. */
 		url: string;
-		/** Whether Jetpack can serve llms.txt, considering files, hosting and plugin conflicts. */
+		/** Whether Jetpack can serve llms.txt, considering files, hosting and paused SEO output. */
 		canServe: boolean;
-		/** Whether Jetpack SEO output is disabled by a plugin conflict or another filter. */
-		disabled: boolean;
-		/** The detected conflicting plugin's display name, or an empty string. */
-		conflictingPlugin: string;
 	};
 	crawlers: {
 		/** The full AI crawler catalog. */
