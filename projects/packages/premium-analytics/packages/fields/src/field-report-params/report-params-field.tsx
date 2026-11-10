@@ -5,6 +5,7 @@ import {
 	ReportScopeProvider,
 	useReportScope,
 	chartInterval,
+	deriveComparisonRange,
 	getDefaultPreset,
 	getDefaultReportParams,
 	hasComparisonEnabled,
@@ -27,7 +28,6 @@ import {
 } from '@jetpack-premium-analytics/datetime';
 import {
 	decodeDateSearchParam,
-	deriveComparisonRange,
 	encodeDateToSearchParam,
 	encodeRangeToSearchParams,
 	hasPrimaryDateDraft,

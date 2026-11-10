@@ -1,5 +1,8 @@
-import { needsReportDateParamsSeed, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { deriveComparisonRange } from '../comparison';
+import {
+	deriveComparisonRange,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import {
 	buildDashboardLink,
 	buildReportLink,

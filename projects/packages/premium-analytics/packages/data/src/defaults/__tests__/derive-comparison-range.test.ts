@@ -1,20 +1,4 @@
 /**
- * Mocks: stub the data barrel so this unit test doesn't pull in its React Query
- * and api-fetch surface. The date helpers delegate to the real datetime package,
- * so the anchoring under test is the production one.
- */
-jest.mock( '@jetpack-premium-analytics/data', () => {
-	const { toLocalTZ, dateToISOStringWithTZ, reportingTimeZone } = jest.requireActual(
-		'@jetpack-premium-analytics/datetime'
-	);
-	return {
-		localTZDate: ( value?: number | string | Date, timezone?: string ) =>
-			toLocalTZ( value, timezone ?? reportingTimeZone() ),
-		dateToISOStringWithLocalTZ: ( date: Date, timezone?: string ) =>
-			dateToISOStringWithTZ( date, timezone ?? reportingTimeZone() ),
-	};
-} );
-/**
  * External dependencies
  */
 import { getSettings, setSettings } from '@wordpress/date';

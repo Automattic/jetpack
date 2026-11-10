@@ -173,9 +173,9 @@ describe( 'normalizeReportParams', () => {
 
 	it.each( [
 		[
-			'a hand-picked window’s comparison',
-			{ preset: 'custom', compare_preset: 'previous-period' },
-			'previous-period',
+			'a hand-picked window’s comparison, even one its length no longer offers',
+			{ preset: 'custom', compare_preset: 'previous-week' },
+			'previous-week',
 		],
 		[ 'comparison dates that no preset names', { preset: 'last-30-days' }, undefined ],
 	] as const )( 'keeps %s as given', ( _name, extra, comparePreset ) => {

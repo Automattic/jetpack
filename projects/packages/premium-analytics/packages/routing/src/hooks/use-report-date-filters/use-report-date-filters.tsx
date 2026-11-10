@@ -139,11 +139,7 @@ function resolveWindow(
 	comparisonPresetId?: ComparisonPresetId;
 	comparisonRange?: DateRange;
 } {
-	const normalized = normalizeReportParams(
-		params as Parameters< typeof normalizeReportParams >[ 0 ],
-		undefined,
-		{ lockedIntervals }
-	);
+	const normalized = normalizeReportParams( params, undefined, { lockedIntervals } );
 	// Defaults stand in for a URL that names no window; the picker shows none, and the arrows
 	// have nothing to step from. The route seeds one before the hook sees it.
 	const namesWindow = !! params.from || !! params.to || normalized.preset === params.preset;
