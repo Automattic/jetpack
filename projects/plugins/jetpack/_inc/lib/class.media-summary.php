@@ -400,7 +400,8 @@ class Jetpack_Media_Summary {
 			return null;
 		}
 
-		$filetype = wp_check_filetype( (string) wp_parse_url( $src, PHP_URL_PATH ) );
+		// Check against all known types, not the upload allow-list, which hosts can restrict.
+		$filetype = wp_check_filetype( (string) wp_parse_url( $src, PHP_URL_PATH ), wp_get_mime_types() );
 
 		return array(
 			'video'      => $src,
