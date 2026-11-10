@@ -339,7 +339,7 @@ class Jetpack_Media_Summary {
 	 *
 	 * @param string $guid VideoPress video GUID.
 	 *
-	 * @return array|null Video data, or null if the video has no public MP4 file.
+	 * @return array|null Video data, or null if the video is private or has no MP4 file or poster.
 	 */
 	private static function get_videopress_video( $guid ) {
 		if ( ! function_exists( 'videopress_get_video_details' ) ) {
@@ -347,14 +347,18 @@ class Jetpack_Media_Summary {
 		}
 
 		$video_info = videopress_get_video_details( $guid );
-		if ( ! $video_info instanceof stdClass || empty( $video_info->files->std->mp4 ) ) {
+		if ( ! $video_info instanceof stdClass
+			|| ! empty( $video_info->is_private )
+			|| empty( $video_info->files->std->mp4 )
+			|| empty( $video_info->poster )
+		) {
 			return null;
 		}
 
 		return array(
 			'video'      => sprintf( 'https://videos.files.wordpress.com/%1$s/%2$s', $guid, $video_info->files->std->mp4 ),
 			'video_type' => 'video/mp4',
-			'image'      => empty( $video_info->poster ) ? '' : $video_info->poster,
+			'image'      => $video_info->poster,
 		);
 	}
 

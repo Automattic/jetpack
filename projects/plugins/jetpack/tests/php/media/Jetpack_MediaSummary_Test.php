@@ -42,7 +42,17 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 				'files'  => (object) array( 'std' => (object) array( 'mp4' => 'video.mp4' ) ),
 			)
 		);
-		set_transient( 'jetpack_videopress_NoMp4Gd1', (object) array( 'poster' => '' ) );
+		$mp4 = (object) array( 'std' => (object) array( 'mp4' => 'video.mp4' ) );
+		set_transient( 'jetpack_videopress_NoMp4Gd1', (object) array( 'poster' => 'https://example.com/poster.jpg' ) );
+		set_transient(
+			'jetpack_videopress_PrivVid1',
+			(object) array(
+				'is_private' => true,
+				'poster'     => 'https://example.com/poster.jpg',
+				'files'      => $mp4,
+			)
+		);
+		set_transient( 'jetpack_videopress_NoPster1', (object) array( 'files' => $mp4 ) );
 		$post_id = self::factory()->post->create( array( 'post_content' => $content ) );
 
 		$summary = Jetpack_Media_Summary::get( $post_id );
@@ -80,6 +90,8 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 				'<!-- wp:videopress/video {"guid":"NoMp4Gd1"} /--><!-- wp:videopress/video {"guid":"OcobLTqC"} /--><!-- wp:video {"id":6} -->' . $self_hosted_video . '<!-- /wp:video -->',
 				$self_hosted,
 			),
+			'private VideoPress video'                     => array( '<!-- wp:videopress/video {"guid":"PrivVid1"} /-->', array( 'type' => 'standard' ) ),
+			'VideoPress video without a poster'            => array( '<!-- wp:videopress/video {"guid":"NoPster1"} /-->', array( 'type' => 'standard' ) ),
 			'self-hosted Video without a known video type' => array(
 				'<!-- wp:video {"id":6} --><figure class="wp-block-video"><video controls poster="https://example.com/poster.jpg" src="https://example.com/stream"></video></figure><!-- /wp:video -->',
 				array( 'type' => 'standard' ),
