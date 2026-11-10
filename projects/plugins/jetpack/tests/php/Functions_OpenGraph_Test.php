@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\Group;
  * Class with PHPUnit tests for Open Graph functions.
  *
  * @since 3.9.2
+ * @covers ::jetpack_og_tags
  * @covers ::jetpack_og_get_image
  * @covers ::jetpack_og_get_description
  * @covers ::jetpack_og_remove_query_blocks
@@ -18,6 +19,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @covers ::jetpack_og_get_fallback_social_image
  * @group jetpack-opengraph
  */
+#[CoversFunction( 'jetpack_og_tags' )]
 #[CoversFunction( 'jetpack_og_get_image' )]
 #[CoversFunction( 'jetpack_og_get_description' )]
 #[CoversFunction( 'jetpack_og_remove_query_blocks' )]
