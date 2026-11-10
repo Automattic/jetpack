@@ -221,6 +221,8 @@ Enables setting a site to "private." Doing so prevents viewing or interacting wi
 
 As this module is currently being developed & evaluated, it is only enabled when the `AT_PRIVACY_MODEL` constant is set is set to `wp_uploads` (such that `\Private_Site\is_module_active()` returns `true`).
 
+Jetpack's `Status::is_private_site()` follows that same `AT_PRIVACY_MODEL` setting, through the `jetpack_is_private_site` filter, rather than the `blog_public` option, which can disagree with it.
+
 ### Experimental Jetpack Blocks
 
 Enables the "experimental" block bundle [offered in Jetpack](https://github.com/Automattic/jetpack/pull/14104), instead of the default Production bundle.
