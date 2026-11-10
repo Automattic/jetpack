@@ -177,6 +177,7 @@ describe( 'single-report route.beforeLoad', () => {
 		await expect( beforeLoad( video, { ...settledSearch, post_id: '7' } ) ).rejects.toMatchObject( {
 			to: '/report/$kind/$id',
 			replace: true,
+			viewTransition: true,
 			params: { kind: 'video', id: '42' },
 			search: expect.objectContaining( { post_id: '42' } ),
 		} );
@@ -232,6 +233,7 @@ describe( 'single-report route.beforeLoad', () => {
 		} );
 
 		await expect( redirect ).rejects.toMatchObject( {
+			viewTransition: false,
 			search: {
 				from: '2026-06-01T00:00:00',
 				preset: 'last-30-days',

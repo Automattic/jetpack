@@ -108,7 +108,7 @@ export const route = {
 				// The router is built dynamically, so the route has no statically typed params or search.
 				params: { kind: page.path, id } as unknown as never,
 				replace: true,
-				viewTransition: false,
+				viewTransition: needsScopeSeed,
 				search: limited.search as unknown as never,
 				state: limited.state,
 			} );
