@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a method that reports whether the configured trusted header was present but held no valid address.
+Add a method that reports whether the configured trusted header was present but could not provide an address.
