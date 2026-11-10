@@ -53,6 +53,10 @@ describe( 'redactQuery', () => {
 		).toBe( `${ name }=${ expected }` );
 	} );
 
+	it( 'drops a parameter that carries no value unless its name is allowlisted', () => {
+		expect( redactQuery( '?0f3b9a2c1d&comp' ) ).toBe( '[unreportable]&comp=' );
+	} );
+
 	it( 'keeps only the first value of a repeated parameter', () => {
 		expect( redactQuery( '?from=a&from=b' ) ).toBe( 'from=a' );
 	} );
