@@ -47,6 +47,12 @@ describe( 'redactQuery', () => {
 			'https://example.com/?p=123',
 			'https://example.com/?p=123',
 		],
+		[
+			'strips the credentials of a post URL that carries no query',
+			'post_url',
+			'https://user:pw@example.com/hello',
+			'https://example.com/hello',
+		],
 	] )( '%s', ( _label, name, value, expected ) => {
 		expect(
 			decodeURIComponent( redactQuery( `?${ name }=${ encodeURIComponent( value ) }` ) )

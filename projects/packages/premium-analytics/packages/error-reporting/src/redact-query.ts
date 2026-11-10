@@ -44,6 +44,19 @@ function decodeValue( raw: string ): string {
 	return new URLSearchParams( `v=${ raw }` ).get( 'v' ) ?? '';
 }
 
+// Of any scheme or none, so a protocol-relative URL is covered too.
+const URL_CREDENTIALS = /^([A-Za-z][A-Za-z0-9+.-]*:\/\/|\/\/)[^/?#]*@/;
+
+/**
+ * Removes the credentials a URL can carry in front of its host.
+ *
+ * @param url - A URL, absolute or protocol-relative.
+ * @return The URL without them.
+ */
+export function stripUrlCredentials( url: string ): string {
+	return url.replace( URL_CREDENTIALS, '$1' );
+}
+
 /**
  * The pathname of a route path, without the query or the fragment it may carry.
  *
@@ -64,11 +77,12 @@ export function routePathname( path: string ): string {
  * @return The value with its query redacted and its fragment dropped, encoded as a value.
  */
 function redactNestedQuery( raw: string ): string {
-	const path = decodeValue( raw );
+	const decoded = decodeValue( raw );
+	const path = stripUrlCredentials( decoded );
 	const cut = path.search( /[?#]/ );
 
 	if ( cut === -1 ) {
-		return raw;
+		return path === decoded ? raw : encodeURIComponent( path );
 	}
 
 	const nested = path[ cut ] === '?' ? path.slice( cut + 1 ).split( /[?#]/, 1 )[ 0 ] : '';
