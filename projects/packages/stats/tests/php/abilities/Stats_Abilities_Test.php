@@ -244,11 +244,11 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		}
 	}
 
-	public function test_update_settings_is_not_readonly_but_idempotent(): void {
+	public function test_update_settings_is_a_destructive_idempotent_write(): void {
 		$abilities = Stats_Abilities::get_abilities();
 		$ann       = $abilities['jetpack-stats/update-settings']['meta']['annotations'];
 		$this->assertFalse( $ann['readonly'] );
-		$this->assertFalse( $ann['destructive'] );
+		$this->assertTrue( $ann['destructive'], 'update-settings overwrites saved settings, so clients must confirm it' );
 		$this->assertTrue( $ann['idempotent'] );
 	}
 
