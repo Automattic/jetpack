@@ -15,6 +15,11 @@
 	}
 }
 
+// Keeps the footer at the bottom of a short page.
+.footer {
+	margin-block-start: auto;
+}
+
 // The body under the pinned header, its grid lined up with the header's
 // padding.
 .content {

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { DataForm } from '@jetpack-premium-analytics/externals';
+import { DataForm, JetpackFooter } from '@jetpack-premium-analytics/externals';
 import { SectionHeader } from '@jetpack-premium-analytics/ui';
 import { useReducedMotion } from '@wordpress/compose';
 import { useEffect, useMemo, useRef } from '@wordpress/element';
@@ -57,7 +57,7 @@ export type SinglePageLayoutProps = {
 
 /**
  * The body of a single-report page under `Page`: the tabs, a pinned header with the entity's
- * visual, title, subtitle and controls, and the content scrolling under it.
+ * visual, title, subtitle and controls, and the content and footer scrolling under it.
  *
  * @param {SinglePageLayoutProps} props - The props.
  * @return The layout.
@@ -118,6 +118,8 @@ export function SinglePageLayout( {
 			) }
 
 			<div className={ styles.content }>{ children }</div>
+
+			<JetpackFooter className={ styles.footer } />
 		</div>
 	);
 }

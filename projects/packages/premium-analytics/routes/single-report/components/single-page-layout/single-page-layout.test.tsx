@@ -1,6 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { SinglePageLayout, type SinglePageLayoutProps } from './single-page-layout';
 
+jest.mock( '@jetpack-premium-analytics/externals', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
+	JetpackFooter: () => <footer>Jetpack footer</footer>,
+} ) );
+
 const CONTROLS = [
 	{ id: 'reportParams', label: 'Date range', Edit: () => <div>Date filters</div> },
 ] as unknown as NonNullable< SinglePageLayoutProps[ 'controls' ] >;
@@ -60,5 +65,14 @@ describe( 'SinglePageLayout', () => {
 
 		expect( screen.queryByRole( 'heading', { level: 2 } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Body' ) ).toBeInTheDocument();
+	} );
+
+	it( 'ends its scroll area with the Jetpack footer', () => {
+		const { container } = renderLayout();
+
+		// eslint-disable-next-line testing-library/no-node-access -- Which element ends the scroll root is the assertion.
+		expect( container.firstElementChild?.lastElementChild ).toBe(
+			screen.getByText( 'Jetpack footer' )
+		);
 	} );
 } );
