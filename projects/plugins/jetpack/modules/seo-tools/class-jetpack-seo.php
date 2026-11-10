@@ -115,24 +115,6 @@ class Jetpack_SEO {
 	}
 
 	/**
-	 * Gets the page set as the posts page in Settings > Reading, when that page is being viewed.
-	 *
-	 * @return WP_Post|null The published posts page, or null on any other view.
-	 */
-	private function get_viewed_posts_page() {
-		global $wp_query;
-
-		if ( empty( $wp_query->is_posts_page ) ) {
-			return null;
-		}
-
-		$page = get_queried_object();
-
-		// WordPress still lists posts at an unpublished page's URL, and that page's text must stay private.
-		return $page instanceof WP_Post && 'publish' === $page->post_status ? $page : null;
-	}
-
-	/**
 	 * Gets the posts page's SEO description, falling back to its excerpt.
 	 *
 	 * Jetpack_SEO_Posts::get_post_description() can't be used: it returns nothing off singular views.
@@ -171,7 +153,7 @@ class Jetpack_SEO {
 			: '';
 		$front_page_meta         = Jetpack_SEO_Utils::get_front_page_meta_description();
 
-		$posts_page = Jetpack_SEO_Utils::is_enabled_jetpack_seo() ? $this->get_viewed_posts_page() : null;
+		$posts_page = Jetpack_SEO_Utils::is_enabled_jetpack_seo() ? Jetpack_SEO_Utils::get_viewed_posts_page() : null;
 
 		if ( $posts_page ) {
 			$posts_page_title = wp_kses( $posts_page->post_title, array() );
@@ -231,7 +213,7 @@ class Jetpack_SEO {
 		$front_page_meta     = Jetpack_SEO_Utils::get_front_page_meta_description();
 		$description         = $front_page_meta ? $front_page_meta : get_bloginfo( 'description' );
 		$meta['description'] = trim( $description );
-		$posts_page          = $this->get_viewed_posts_page();
+		$posts_page          = Jetpack_SEO_Utils::get_viewed_posts_page();
 
 		// Try to target things if we're on a "specific" page of any kind.
 		if ( is_singular() ) {

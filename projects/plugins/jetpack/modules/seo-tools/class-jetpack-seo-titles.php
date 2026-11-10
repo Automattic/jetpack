@@ -86,11 +86,6 @@ class Jetpack_SEO_Titles {
 			return $default_title;
 		}
 
-		$posts_page_title = self::get_posts_page_custom_title();
-		if ( $posts_page_title ) {
-			return esc_html( $posts_page_title );
-		}
-
 		$page_type = self::get_page_type();
 
 		// Keep default title if invalid page type is supplied.
@@ -111,7 +106,8 @@ class Jetpack_SEO_Titles {
 			|| ( 'front_page' === $page_type && 'page' === get_option( 'show_on_front' ) );
 
 		if ( $check_post_meta ) {
-			$post = get_post();
+			$posts_page = Jetpack_SEO_Utils::get_viewed_posts_page();
+			$post       = $posts_page ? $posts_page : get_post();
 			if ( $post instanceof WP_Post ) {
 				$custom_title = get_post_meta( $post->ID, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, true );
 				if ( ! empty( trim( $custom_title ) ) ) {
@@ -142,28 +138,6 @@ class Jetpack_SEO_Titles {
 	}
 
 	/**
-	 * Gets the SEO title saved on the posts page being viewed.
-	 *
-	 * Reads the queried page, because get_post() there is the first listed post.
-	 *
-	 * @return string SEO title, or empty string when not on a published posts page or none is set.
-	 */
-	private static function get_posts_page_custom_title() {
-		global $wp_query;
-
-		if ( empty( $wp_query->is_posts_page ) ) {
-			return '';
-		}
-
-		$page = get_queried_object();
-		if ( ! $page instanceof WP_Post || 'publish' !== $page->post_status ) {
-			return '';
-		}
-
-		return trim( Jetpack_SEO_Posts::get_post_custom_html_title( $page ) );
-	}
-
-	/**
 	 * Returns string value for given token.
 	 *
 	 * @param string $token_name The token name value that should be replaced.
@@ -181,7 +155,14 @@ class Jetpack_SEO_Titles {
 
 			case 'post_title':
 			case 'page_title':
-				return the_title_attribute( array( 'echo' => false ) );
+				$posts_page = Jetpack_SEO_Utils::get_viewed_posts_page();
+
+				return the_title_attribute(
+					array(
+						'echo' => false,
+						'post' => $posts_page ? $posts_page : get_post(),
+					)
+				);
 
 			case 'group_title':
 				return single_tag_title( '', false );
@@ -215,7 +196,7 @@ class Jetpack_SEO_Titles {
 			return 'archives';
 		}
 
-		if ( is_page() ) {
+		if ( is_page() || Jetpack_SEO_Utils::get_viewed_posts_page() ) {
 			return 'pages';
 		}
 
