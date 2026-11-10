@@ -295,8 +295,7 @@ class Llms_Txt {
 	 */
 	private static function plain_text( $text ) {
 		// Do not reorder: decoding can reveal whitespace (`&#10;`), and text like `&lt;b&gt;` isn't a tag.
-		// ENT_XHTML because ENT_HTML401 leaves `&apos;` and ENT_HTML5 leaves `&#13;`.
-		$text = html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES | ENT_XHTML, 'UTF-8' );
+		$text = \WP_HTML_Decoder::decode_text_node( wp_strip_all_tags( $text ) );
 		return trim( preg_replace( '/\s+/', ' ', $text ) );
 	}
 }
