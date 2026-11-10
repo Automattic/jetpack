@@ -60,15 +60,18 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 				document.getElementById( 'wpadminbar' )!.getBoundingClientRect().bottom
 		);
 		const room = await page.evaluate( () => document.documentElement.scrollHeight - innerHeight );
-		const by = Math.min( 200, room, belowAdminBar - 8 );
-		test.skip( by < 100, 'My Jetpack cannot scroll far enough here with the Forms link in view' );
-		await page.mouse.wheel( 0, by );
-		await expect.poll( () => page.evaluate( () => scrollY ) ).toBeGreaterThan( 50 );
-		const scrolled = await page.evaluate( () => scrollY );
+		const scrolled = Math.floor( Math.min( 200, room, belowAdminBar - 8 ) );
+		test.skip(
+			scrolled < 100,
+			'My Jetpack cannot scroll far enough here with the Forms link in view'
+		);
+		await page.mouse.wheel( 0, scrolled );
+		// The wheel can scroll smoothly: wait for it to land.
+		await expect.poll( () => page.evaluate( () => Math.round( scrollY ) ) ).toBe( scrolled );
 		await page.evaluate( () =>
 			document.addEventListener(
 				'click',
-				() => ( document.documentElement.dataset.scrollAtClick = String( scrollY ) ),
+				() => ( document.documentElement.dataset.scrollAtClick = String( Math.round( scrollY ) ) ),
 				{ capture: true, once: true }
 			)
 		);
@@ -78,7 +81,8 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 			Number( await page.locator( 'html' ).getAttribute( 'data-scroll-at-click' ) ),
 			'the click scrolled the page first: is the Forms link under the admin bar?'
 		).toBe( scrolled );
+		await expect.poll( () => page.evaluate( () => scrollY ), 'Forms opens at the top' ).toBe( 0 );
 		await switchTo( page, 'my-jetpack' );
-		await expect.poll( () => page.evaluate( () => scrollY ) ).toBe( scrolled );
+		await expect.poll( () => page.evaluate( () => Math.round( scrollY ) ) ).toBe( scrolled );
 	} );
 } );
