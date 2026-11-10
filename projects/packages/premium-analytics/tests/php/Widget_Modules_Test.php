@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_REST_Server;
@@ -27,6 +28,7 @@ class Widget_Modules_Test extends TestCase {
 	 * Reset REST globals after route registration tests.
 	 */
 	protected function tearDown(): void {
+		Constants::clear_constants();
 		global $wp_rest_server;
 		$wp_rest_server = null;
 		unset( $_GET['p'] );
@@ -46,6 +48,15 @@ class Widget_Modules_Test extends TestCase {
 	public function test_rest_preload_joins_the_generated_page_preloads() {
 		$this->assertNotFalse( has_filter( 'jpa_jetpack_premium_analytics_wp_admin_preload_paths', __NAMESPACE__ . '\\preload_dashboard_rest_responses' ) );
 		$this->assertSame( array( 'existing', '/wp/v2/settings' ), array_slice( preload_dashboard_rest_responses( array( 'existing' ) ), 0, 2 ) );
+	}
+
+	/**
+	 * On Simple the client calls public-api and wp-admin cannot answer these routes, so nothing is added.
+	 */
+	public function test_rest_preload_is_skipped_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertSame( array( 'existing' ), preload_dashboard_rest_responses( array( 'existing' ) ) );
 	}
 
 	/**

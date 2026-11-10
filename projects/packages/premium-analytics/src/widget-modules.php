@@ -10,7 +10,10 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Status\Host;
+
 require_once __DIR__ . '/rest-namespace.php';
+require_once __DIR__ . '/dashboard-layout.php';
 
 /**
  * Register the `/wpcom/v2/widget-modules` REST route.
@@ -200,12 +203,13 @@ function get_requested_dashboard_route( $routes_file ) {
  * the settings, then the sections and widget types, two round trips before the first widget mounts.
  *
  * Each path is the exact form the client requests, `_locale` included, or the preload goes unused.
+ * Not on Simple: there the client calls public-api, and wp-admin cannot answer these routes.
  *
  * @param array $preload_paths Paths the generated page preloads.
  * @return array Updated paths.
  */
 function preload_dashboard_rest_responses( $preload_paths ) {
-	if ( ! is_array( $preload_paths ) ) {
+	if ( ! is_array( $preload_paths ) || ( new Host() )->is_wpcom_simple() ) {
 		return $preload_paths;
 	}
 
