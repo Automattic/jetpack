@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	computePrimaryRange,
-	PRESET_TODAY,
-	reportingTimeZone,
-} from '@jetpack-premium-analytics/datetime';
+import { reportingTimeZone, startOfDayTZ } from '@jetpack-premium-analytics/datetime';
 import { useSyncExternalStore } from 'react';
 
 const CHECK_EVERY_MS = 60 * 1000;
@@ -20,7 +16,7 @@ let day = 0;
  * @return The day's start.
  */
 function siteDayStart(): number {
-	return computePrimaryRange( PRESET_TODAY, reportingTimeZone() )?.from.getTime() ?? 0;
+	return startOfDayTZ( Date.now(), reportingTimeZone() ).getTime();
 }
 
 /**
