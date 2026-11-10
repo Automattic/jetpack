@@ -153,7 +153,10 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		// height report together, so a measured width settles the height with or without a
 		// definite one.
 		const isMeasured = parentWidth > 0;
-		const hasDimensions = boxWidth > 0 && ( boxHeight > 0 || isMeasured );
+		// A chart given its own size takes its geometry from the content box ChartLayout measures,
+		// not from this one, so it has nothing here to wait for.
+		const hasDimensions =
+			( size !== undefined && size > 0 ) || ( boxWidth > 0 && ( boxHeight > 0 || isMeasured ) );
 
 		// Only the first paint waits: a hidden ancestor measures the chart at 0×0, and
 		// unmounting it there would drop its zoom and series state.

@@ -170,6 +170,14 @@ describe( 'withResponsive', () => {
 			} );
 		} );
 
+		test( 'renders before any measurement when the chart carries its own size', () => {
+			// Revealing a hidden chart into a shrink-to-fit parent changes no observed size, so
+			// one that waits here gets no later render in which to give up waiting.
+			useParentSize.mockImplementation( () => UNMEASURED );
+			render( <WaitingComponent data={ [] } size={ 200 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveAttribute( 'data-size', '200' );
+		} );
+
 		test( 'renders in a parent with no definite height, which reports a width alone', () => {
 			// Waiting for that parent's height would hold the chart back for good, and one
 			// that grows from its own content would never get a height to report.
