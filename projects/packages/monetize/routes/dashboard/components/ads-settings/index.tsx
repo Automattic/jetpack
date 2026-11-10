@@ -6,6 +6,7 @@ import { Card, Fieldset, Link, Notice, Spinner, Stack, SwitchControl, Text } fro
 import { getAdsSettingsData } from '../../data/ads-settings-data';
 import { trackClick } from '../../data/tracking';
 import { useAdsSettings } from '../../data/use-ads-settings';
+import { useHasWordAds } from '../../data/use-has-wordads';
 import { LearnMore, OptionSwitch } from './option-switch';
 import { AdsPrompt } from './prompt';
 import { TextOption } from './text-option';
@@ -289,6 +290,23 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 }
 
 /**
+ * The Ads options with a plan that includes WordAds, or the prompt to get one.
+ *
+ * @param props      - Component props.
+ * @param props.data - The Settings tab's server data.
+ * @return The options or the prompt.
+ */
+function AdsCard( { data }: { data: AdsSettingsData } ) {
+	const hasWordAds = useHasWordAds( data.hasWordAds );
+
+	if ( hasWordAds === undefined ) {
+		return <Spinner />;
+	}
+
+	return hasWordAds ? <AdsOptions data={ data } /> : <AdsPrompt data={ data } />;
+}
+
+/**
  * Monetize › Settings: the Ads settings that left Jetpack › Settings.
  *
  * @return The Ads card, or nothing where the Jetpack plugin sent no data for it.
@@ -296,9 +314,5 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 export function AdsSettings() {
 	const data = getAdsSettingsData();
 
-	if ( ! data ) {
-		return null;
-	}
-
-	return data.hasWordAds ? <AdsOptions data={ data } /> : <AdsPrompt data={ data } />;
+	return data ? <AdsCard data={ data } /> : null;
 }

@@ -1,10 +1,13 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
 import { getAdsSettingsData } from '../../../data/ads-settings-data';
 import { useAdsSettings } from '../../../data/use-ads-settings';
 import { AdsSettings } from '../index';
 import type { AdsSettingsData } from '../../../data/ads-settings-data';
 import type { AdsValues } from '../../../data/use-ads-settings';
 
+jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '../../../data/ads-settings-data' );
 jest.mock( '../../../data/tracking' );
 jest.mock( '../../../data/use-ads-settings', () => ( {
@@ -41,13 +44,25 @@ const VALUES = {
 	wordads_custom_adstxt: '',
 } as AdsValues;
 
+const mockedApiFetch = apiFetch as unknown as jest.Mock;
+
 /**
- * Render the tab with the given server data and stored values.
+ * Render the tab with the given server data, stored values, and the features WordPress.com reports now.
  *
- * @param data   - Overrides for the server data.
- * @param values - Overrides for the stored values.
+ * @param data     - Overrides for the server data.
+ * @param values   - Overrides for the stored values.
+ * @param features - The active features, or the error the features request fails with.
  */
-function renderTab( data: Partial< AdsSettingsData > = {}, values: Partial< AdsValues > = {} ) {
+function renderTab(
+	data: Partial< AdsSettingsData > = {},
+	values: Partial< AdsValues > = {},
+	features: string[] | Error = []
+) {
+	if ( features instanceof Error ) {
+		mockedApiFetch.mockRejectedValue( features );
+	} else {
+		mockedApiFetch.mockResolvedValue( { data: JSON.stringify( { active: features } ) } );
+	}
 	( getAdsSettingsData as jest.Mock ).mockReturnValue( { ...DATA, ...data } );
 	( useAdsSettings as jest.Mock ).mockReturnValue( {
 		values: { ...VALUES, ...values },
@@ -57,30 +72,60 @@ function renderTab( data: Partial< AdsSettingsData > = {}, values: Partial< AdsV
 		setOption: jest.fn(),
 		setModuleActive: jest.fn(),
 	} );
-	render( <AdsSettings /> );
+	render(
+		<QueryClientProvider client={ new QueryClient() }>
+			<AdsSettings />
+		</QueryClientProvider>
+	);
 }
 
+const SWITCH = 'Enable ads and display an ad below each post';
+
 describe( 'AdsSettings', () => {
+	beforeEach( () => mockedApiFetch.mockReset() );
+
 	it.each( [
-		[ 'the upgrade prompt without a plan', { hasWordAds: false }, 'link', 'Upgrade' ],
+		[ 'the upgrade prompt without a plan', { hasWordAds: false }, [], 'link', 'Upgrade' ],
 		[
 			'the connect prompt without a plan or owner',
 			{ hasWordAds: false, hasConnectedOwner: false },
+			[],
 			'link',
 			'Connect',
 		],
-		[ 'the Ads switch with a plan', {}, 'switch', 'Enable ads and display an ad below each post' ],
-	] )( 'shows %s', ( _label, data, role, name ) => {
-		renderTab( data );
+		[ 'the Ads switch with a plan', {}, [], 'switch', SWITCH ],
+		[
+			'the Ads switch when the cached plan missed a purchase',
+			{ hasWordAds: false },
+			[ 'wordads' ],
+			'switch',
+			SWITCH,
+		],
+		[
+			'the upgrade prompt when WordPress.com cannot say',
+			{ hasWordAds: false },
+			new Error(),
+			'link',
+			'Upgrade',
+		],
+	] )( 'shows %s', async ( _label, data, features, role, name ) => {
+		renderTab( data, {}, features );
 
-		expect( screen.getByRole( role, { name } ) ).toBeInTheDocument();
+		await expect( screen.findByRole( role, { name } ) ).resolves.toBeInTheDocument();
 		expect( screen.queryAllByRole( 'switch' ).length > 0 ).toBe( role === 'switch' );
 	} );
 
-	it( 'links the upgrade prompt to the upgrade URL', () => {
+	it( 'asks WordPress.com only when the cached plan lacks WordAds', async () => {
+		renderTab();
+
+		await expect( screen.findByRole( 'switch', { name: SWITCH } ) ).resolves.toBeInTheDocument();
+		expect( mockedApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'links the upgrade prompt to the upgrade URL', async () => {
 		renderTab( { hasWordAds: false } );
 
-		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute(
+		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
 			'href',
 			DATA.upgradeUrl
 		);
@@ -89,9 +134,10 @@ describe( 'AdsSettings', () => {
 	it( 'locks the Ads switch the host forces, and says why', () => {
 		renderTab( { moduleOverride: 'active' } );
 
-		expect(
-			screen.getByRole( 'switch', { name: 'Enable ads and display an ad below each post' } )
-		).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByRole( 'switch', { name: SWITCH } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
 	} );
 
