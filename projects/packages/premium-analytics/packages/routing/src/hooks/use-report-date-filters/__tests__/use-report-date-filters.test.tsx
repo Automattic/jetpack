@@ -1047,6 +1047,31 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.stepping.canStepForward ).toBe( true );
 	} );
 
+	it( "moves a preset's window, applied and edited, to the new day after the site's midnight", () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T23:59:30.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-08-14T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-7-days',
+		} );
+		expect( result.current.appliedRange.to?.getTime() ).toBe(
+			Date.parse( '2026-08-20T23:59:59.999Z' )
+		);
+
+		act( () => {
+			jest.advanceTimersByTime( 60 * 1000 );
+		} );
+
+		const newWeek = {
+			from: Date.parse( '2026-08-15T00:00:00.000Z' ),
+			to: Date.parse( '2026-08-21T23:59:59.999Z' ),
+		};
+		expect( result.current.appliedRange.from?.getTime() ).toBe( newWeek.from );
+		expect( result.current.appliedRange.to?.getTime() ).toBe( newWeek.to );
+		expect( result.current.range.from?.getTime() ).toBe( newWeek.from );
+		expect( result.current.range.to?.getTime() ).toBe( newWeek.to );
+	} );
+
 	it( 'binds to the route it is given', () => {
 		renderDateFilters();
 

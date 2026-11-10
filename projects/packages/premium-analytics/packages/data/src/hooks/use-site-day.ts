@@ -62,7 +62,8 @@ function getSnapshot(): number {
  * The start of the site's current day, which changes when the site's midnight passes.
  *
  * Add it to the dependencies of anything that reads a preset's window, so a tab left open past
- * midnight moves to the new day; `void siteDay` in the callback keeps the linter from dropping it.
+ * midnight moves to the new day. Reference it in the callback (`void siteDay`), or
+ * `react-hooks/exhaustive-deps` flags it as unnecessary.
  *
  * @return The day's start, as a timestamp.
  */

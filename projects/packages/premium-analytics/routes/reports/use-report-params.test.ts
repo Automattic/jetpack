@@ -7,7 +7,6 @@ import { act, renderHook } from '@testing-library/react';
  */
 import { useReportParams } from './use-report-params';
 
-// One object, as the router hands back, so only a real dependency recomputes the memo.
 const mockSearch = {
 	from: '2026-08-14T00:00:00.000+00:00',
 	to: '2026-08-20T23:59:59.999+00:00',

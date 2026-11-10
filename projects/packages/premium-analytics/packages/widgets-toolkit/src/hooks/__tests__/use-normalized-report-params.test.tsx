@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -15,7 +14,6 @@ import type { ReactNode } from 'react';
 let mockSearch: Record< string, unknown > = {};
 
 jest.mock( '@wordpress/route', () => ( {
-	useNavigate: () => jest.fn(),
 	useSearch: () => mockSearch,
 } ) );
 
@@ -44,7 +42,7 @@ describe( 'useNormalizedReportParams', () => {
 		expect( result.current.interval ).toBe( 'day' );
 	} );
 
-	it( 'moves a preset to the new day in the widgets and the date controls alike', () => {
+	it( "moves a preset to the new day after the site's midnight", () => {
 		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T23:59:30.000Z' ) );
 		mockSearch = {
 			from: '2026-08-14T00:00:00.000+00:00',
@@ -52,28 +50,16 @@ describe( 'useNormalizedReportParams', () => {
 			preset: 'last-7-days',
 			interval: 'day',
 		};
-		const { result } = renderHook( () => ( {
-			widgets: useNormalizedReportParams(),
-			controls: useReportDateFilters( '/' ),
-		} ) );
-		expect( result.current.widgets.from ).toBe( '2026-08-14T00:00:00.000+00:00' );
+		const { result } = renderHook( () => useNormalizedReportParams() );
+		expect( result.current.from ).toBe( '2026-08-14T00:00:00.000+00:00' );
 
 		act( () => {
 			jest.advanceTimersByTime( 60 * 1000 );
 		} );
 
-		expect( result.current.widgets ).toMatchObject( {
+		expect( result.current ).toMatchObject( {
 			from: '2026-08-15T00:00:00.000+00:00',
 			to: '2026-08-21T23:59:59.999+00:00',
 		} );
-		const newWeek = {
-			from: Date.parse( '2026-08-15T00:00:00.000Z' ),
-			to: Date.parse( '2026-08-21T23:59:59.999Z' ),
-		};
-		const { appliedRange, range } = result.current.controls;
-		expect( appliedRange.from?.getTime() ).toBe( newWeek.from );
-		expect( appliedRange.to?.getTime() ).toBe( newWeek.to );
-		expect( range.from?.getTime() ).toBe( newWeek.from );
-		expect( range.to?.getTime() ).toBe( newWeek.to );
 	} );
 } );
