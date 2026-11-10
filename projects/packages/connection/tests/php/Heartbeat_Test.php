@@ -138,4 +138,32 @@ class Heartbeat_Test extends BaseTestCase {
 		$this->assertSame( 'bad_response', $error['code'] );
 		$this->assertSame( 'unexpected body', $error['detail'] );
 	}
+
+	/**
+	 * The daily heartbeat waits for each stats response.
+	 */
+	public function test_cron_exec_sends_stats_blocking() {
+		$blocking = array();
+		$filter   = function ( $pre, $args ) use ( &$blocking ) {
+			$blocking[] = $args['blocking'];
+			return array( 'response' => array( 'code' => 200 ) );
+		};
+		$stats    = function () {
+			return array(
+				'a' => 'one',
+				'b' => 'two',
+			);
+		};
+		add_filter( 'pre_http_request', $filter, 10, 2 );
+		add_filter( 'jetpack_heartbeat_stats_array', $stats );
+		try {
+			Heartbeat::init()->cron_exec();
+		} finally {
+			remove_filter( 'pre_http_request', $filter, 10 );
+			remove_filter( 'jetpack_heartbeat_stats_array', $stats );
+			\Jetpack_Options::delete_option( 'last_heartbeat' );
+		}
+
+		$this->assertSame( array( true, true ), $blocking );
+	}
 }
