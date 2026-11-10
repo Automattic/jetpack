@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: Avoid adding a duplicate Subscribe block to navigation menus.
