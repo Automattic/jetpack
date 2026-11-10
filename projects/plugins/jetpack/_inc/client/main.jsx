@@ -8,7 +8,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router';
+import { Navigate, useLocation, useNavigate } from 'react-router';
 import AdminNotices from 'components/admin-notices';
 import Footer from 'components/footer';
 import JetpackNotices from 'components/jetpack-notices';
@@ -264,7 +264,7 @@ export class Main extends Component {
 				);
 				break;
 			default:
-				this.props.navigate( '/settings', { replace: true } );
+				pageComponent = <Navigate to="/settings" replace />;
 				break;
 		}
 

@@ -27,6 +27,9 @@ export type FeatureActionOrigin = 'card' | 'modal' | 'more_features';
 /** How a feature's details came to be open: from the grid, a link, or stepping from another's. */
 export type ModalTrigger = 'card' | 'link' | 'step';
 
+/** A link to the feature's own screen other than Open, such as Blaze's in its campaigns warning. */
+export type ManageClickSource = 'campaigns_warning';
+
 // This tab replaces the Products tab, whose events answer the same questions under
 // different prop names. Stamping the schema lets a query tell the two apart, and bumping
 // it is how a later change to these props stays readable in the same report.
@@ -53,7 +56,7 @@ type FeaturesTrackingContextType = {
 	trackViewChange: ( next: FeaturesView ) => void;
 	trackModalView: ( state: FeatureState, trigger: ModalTrigger ) => void;
 	trackModalClose: ( state: FeatureState ) => void;
-	trackManageClick: ( state: FeatureState ) => void;
+	trackManageClick: ( state: FeatureState, source?: ManageClickSource ) => void;
 	trackConnectionStart: (
 		state: FeatureState,
 		origin: FeatureActionOrigin,
@@ -198,8 +201,9 @@ export function FeaturesTrackingProvider( {
 	);
 
 	const trackManageClick = useCallback(
-		( state: FeatureState ) => {
+		( state: FeatureState, source?: ManageClickSource ) => {
 			recordEvent( 'jetpack_myjetpack_feature_manage_click', {
+				...when( 'source', source ?? '' ),
 				...featureProps( state ),
 				...context,
 			} );
@@ -234,8 +238,8 @@ export function FeaturesTrackingProvider( {
 		[ context, recordEvent ]
 	);
 
-	// Recorded from the click, so an abandoned or failed switch still says what was asked
-	// for. The status it carries is the one the click was made against.
+	// Recorded as the switch's request starts, after any confirmation, so a failed switch still
+	// says what was asked for and a declined one records nothing.
 	const trackFeatureAction = useCallback(
 		( { state, action, origin }: FeatureActionParams ) => {
 			recordEvent( 'jetpack_myjetpack_feature_action', {

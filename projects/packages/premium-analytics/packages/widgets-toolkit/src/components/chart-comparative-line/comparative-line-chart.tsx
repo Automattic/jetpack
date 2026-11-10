@@ -6,7 +6,6 @@ import {
 	Stack,
 	getBucketInfo,
 	useGlobalChartsContext,
-	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import clsx from 'clsx';
@@ -18,14 +17,15 @@ import { type ComponentProps } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	isEmptyChartData,
-	formatChartName,
 	getFixedYAxis,
 	getPaddedYAxis,
 	getPinnedYTicks,
 	getYTickDecimals,
 	getYTickFormat,
 	formatBucketTooltipDate,
+	toTickResolution,
 } from '../../helpers';
+import { useChartName } from '../../hooks/use-chart-name';
 import { useComparativeLegend } from '../../hooks/use-comparative-legend';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
@@ -36,7 +36,7 @@ import type {
 	TooltipExtraSeries,
 	ComparativeDatePointDate,
 } from './types';
-import type { ChartBaseline } from '../../helpers';
+import type { BucketResolution, ChartBaseline } from '../../helpers';
 import type { DataFormat } from '../../types';
 
 /** Series styles, with the explicit `styles` prop taking priority over `series[].options`. */
@@ -97,7 +97,7 @@ export type ComparativeLineChartProps = {
 
 	className?: string;
 
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 
 	dataFormat: DataFormat;
@@ -110,7 +110,7 @@ export type ComparativeLineChartProps = {
 	 * regime from a known granularity rather than the gaps between points, which a
 	 * single-bucket or DST-shortened series makes unreadable.
 	 */
-	tickResolution?: TickResolution;
+	tickResolution?: BucketResolution;
 
 	/**
 	 * Drop the axes, grid and legend while the chart is shorter than
@@ -179,7 +179,9 @@ export function ComparativeLineChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeLineChartProps ) {
-	const { displayResolution } = getBucketInfo( series, tickResolution );
+	const chartName = useChartName( chartTitle );
+	const libraryTickResolution = toTickResolution( tickResolution );
+	const { displayResolution } = getBucketInfo( series, libraryTickResolution );
 	const fallbackChartId = useId();
 	const resolvedChartId = chartId ?? fallbackChartId;
 	const { getHiddenSeries } = useGlobalChartsContext();
@@ -190,8 +192,9 @@ export function ComparativeLineChart( {
 	);
 
 	const formatTooltipBucket = useCallback(
-		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),
-		[ displayResolution ]
+		( point: ComparativeDatePointDate ) =>
+			formatBucketTooltipDate( point, displayResolution, tickResolution ),
+		[ displayResolution, tickResolution ]
 	);
 
 	const renderTooltip = useCallback(
@@ -270,7 +273,7 @@ export function ComparativeLineChart( {
 					// Must stay conditional: `formatDate` defaults to `medium`, so passing
 					// `xTickFormat` unconditionally puts full dates on every tick.
 					tickFormat: xTickFormatType ? xTickFormat : undefined,
-					tickResolution,
+					tickResolution: libraryTickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
@@ -289,7 +292,7 @@ export function ComparativeLineChart( {
 	}, [
 		xTickFormat,
 		xTickFormatType,
-		tickResolution,
+		libraryTickResolution,
 		yTickFormat,
 		yTickDecimals,
 		yTicks,
@@ -300,7 +303,7 @@ export function ComparativeLineChart( {
 		<Stack direction="column" className={ clsx( styles.chart, className ) }>
 			<LineChart
 				chartId={ resolvedChartId }
-				ariaLabel={ formatChartName( chartTitle ) }
+				ariaLabel={ chartName }
 				className={ styles.chartContent }
 				data={ styledSeries }
 				options={ chartOptions }

@@ -1955,12 +1955,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'protect',
 			),
 			'jetpack_protect_global_whitelist'          => array(
-				'description'       => esc_html__( 'Protect global IP allow list', 'jetpack' ),
+				'description'       => esc_html__( 'Deprecated. Use jetpack_waf_ip_allow_list instead. Writing this key replaces the site IP allow list.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_string',
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'protect',
+			),
+			// Not a module option: the free check runs without the Brute Force Protection module.
+			'jetpack_protect_vulnerability_checks'      => array(
+				'description'       => esc_html__( 'Check the site every day for known vulnerabilities in WordPress, plugins and themes.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
 			),
 
 			// Sharing.
@@ -3481,6 +3489,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
 				}
 		}
+
+		// When code forces matching by email, report the forced value and lock the setting.
+		if ( 'sso' === $module && isset( $options['jetpack_sso_match_by_email'] ) && SSO\Helpers::is_match_by_email_checkbox_disabled() ) {
+			$options['jetpack_sso_match_by_email']['current_value'] = SSO\Helpers::match_by_email();
+			$options['jetpack_sso_match_by_email']['locked']        = true;
+		}
+
 		// At this point some options have current_value not set because they're options
 		// that only get written on update, so we set current_value to the default one.
 		foreach ( $options as $key => $value ) {

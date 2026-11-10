@@ -1,4 +1,4 @@
-import { PA_COLUMN_COUNT } from '../../grid';
+import { DETAIL_COLUMN_COUNT } from '../../grid';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
@@ -11,7 +11,7 @@ export const AUTHOR_DETAIL_LAYOUT: DashboardWidget[] = [
 		uuid: 'author-performance',
 		type: 'jpa/author-performance',
 		attributes: { chartType: 'bar' },
-		placement: { width: PA_COLUMN_COUNT, height: 2, order: 1 },
+		placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 1 },
 	},
 	{
 		uuid: 'author-popular-post',
@@ -28,13 +28,13 @@ export const AUTHOR_DETAIL_LAYOUT: DashboardWidget[] = [
 	{
 		uuid: 'author-top-posts',
 		type: 'jpa/author-top-posts',
-		placement: { width: PA_COLUMN_COUNT, height: 2, order: 4 },
+		placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 4 },
 	},
 	{
 		uuid: 'author-all-time-traffic',
 		// Full width: the table lays twelve months out across its columns.
 		type: 'jpa/views-over-years--author',
 		attributes: { authorScoped: true },
-		placement: { width: PA_COLUMN_COUNT, height: 2, order: 5 },
+		placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 5 },
 	},
 ];

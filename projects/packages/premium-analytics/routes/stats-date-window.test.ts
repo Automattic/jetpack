@@ -43,6 +43,22 @@ describe( 'limitStatsDateSearch', () => {
 
 		expect( limited ).toMatchObject( { preset: 'yesterday' } );
 	} );
+
+	// The step belongs to the window the arrows reached, not to the one the plan put in its place.
+	it( 'forgets the step of a window it moves', () => {
+		const stepped = {
+			preset: 'custom',
+			from: '2005-01-01',
+			to: '2005-01-30',
+			step: 'P30D',
+			interval: 'day',
+		};
+
+		const limited = limitStatsDateSearch( stepped, getStatsDatePolicy() );
+
+		expect( limited ).toBeDefined();
+		expect( limited ).not.toHaveProperty( 'step' );
+	} );
 } );
 
 describe( 'dashboardSectionOf', () => {

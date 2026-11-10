@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2026-11-09
+### Changed
+- Route report requests through a report registry and executor, without changing what they return. [#54365]
+- Stats dashboard: open the top products, locations, UTM and coupon lists tall enough for their ten entries. [#54603]
+- Update package dependencies. [#54512]
+- Widgets: Take each chart's accessible name from the widget title instead of repeating it. [#54513]
+
+### Fixed
+- Charts and Store performance: Use the shared error copy, so they say when the store's analytics data is still being prepared. [#54524]
+
 ## [0.3.2] - 2026-11-02
 ### Changed
 - Update package dependencies. [#53869]
@@ -85,6 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial version.
 
+[0.3.3]: https://github.com/Automattic/jetpack-woocommerce-stats/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/Automattic/jetpack-woocommerce-stats/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/Automattic/jetpack-woocommerce-stats/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Automattic/jetpack-woocommerce-stats/compare/v0.2.0...v0.3.0

@@ -149,6 +149,15 @@ async function expectNavigation() {
 	);
 }
 
+/**
+ * The protected-owner shield keeps the components Tooltip until core serves `@wordpress/ui` as a script module.
+ */
+function expectTooltipDeprecation() {
+	expect( console ).toHaveWarnedWith(
+		'wp.components.Tooltip is deprecated since version 7.3 and will be removed in version 7.5. Please use Tooltip from @wordpress/ui instead.'
+	);
+}
+
 beforeEach( () => {
 	// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no fetch to spy on.
 	window.fetch = jest.fn();
@@ -297,6 +306,9 @@ describe( 'Connectors card', () => {
 			}
 			for ( const text of hidden ) {
 				expect( screen.queryByText( text ) ).not.toBeInTheDocument();
+			}
+			if ( data.protectedOwner ) {
+				expectTooltipDeprecation();
 			}
 		} );
 
@@ -481,6 +493,7 @@ describe( 'Connectors card', () => {
 				await user.click( screen.getByRole( 'button', { name: button } ) );
 				act( () => props()[ onSuccess ]() );
 				await expectNavigation();
+				expectTooltipDeprecation();
 			}
 		);
 	} );

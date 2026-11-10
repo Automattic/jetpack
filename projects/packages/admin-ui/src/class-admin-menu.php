@@ -18,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.14.11';
+	const PACKAGE_VERSION = '0.14.14';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -212,6 +212,8 @@ class Admin_Menu {
 	public static function init() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
+			// Every plugin's admin menu comes through here, so the flag is listed wherever the shell could run.
+			Admin_Shell::register_feature_flag();
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
@@ -423,15 +425,16 @@ class Admin_Menu {
 	 *
 	 * @since 0.13.0
 	 *
-	 * @param string        $page_title The text to be displayed in the title tags of the page when the menu
-	 *                                  is selected.
-	 * @param string        $menu_title The text to be used for the menu.
-	 * @param string        $capability The capability required for this menu to be displayed to the user.
-	 * @param string        $menu_slug  The slug name to refer to this menu by. Should be unique for this menu.
-	 * @param callable|null $function   The function to be called to output the content for this page.
-	 * @param string        $icon_url   The URL to the icon to be used for this menu, or a dashicons class.
-	 * @param int|null      $position   The position in the menu order this item should appear.
-	 * @param array         $args       Optional. Visibility declaration for this item; see add_menu().
+	 * @param string         $page_title The text to be displayed in the title tags of the page when the menu
+	 *                                   is selected.
+	 * @param string         $menu_title The text to be used for the menu.
+	 * @param string         $capability The capability required for this menu to be displayed to the user.
+	 * @param string         $menu_slug  The slug name to refer to this menu by. Should be unique for this menu.
+	 * @param callable|null  $function   The function to be called to output the content for this page.
+	 * @param string         $icon_url   The URL to the icon to be used for this menu, or a dashicons class.
+	 * @param int|float|null $position   The position in the menu order this item should appear, as
+	 *                                   add_menu_page() takes it.
+	 * @param array          $args       Optional. Visibility declaration for this item; see add_menu().
 	 *
 	 * @return string The resulting page's hook_suffix
 	 */

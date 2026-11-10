@@ -17,6 +17,7 @@ use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_default_dashboard_sections;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_LIST;
 use const Automattic\Jetpack\PremiumAnalytics\REGISTRABLE_WIDGET_TYPES_FILTER;
 
 // Required by path, like the consumers do: the dashboard API is not autoloaded.
@@ -177,7 +178,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'width'  => 1,
-				'height' => 2,
+				'height' => DASHBOARD_TILE_LIST,
 				'order'  => 8,
 			),
 			$instances[ Analytics_Dashboard::TOP_VIDEOS_INSTANCE_UUID ]['placement']

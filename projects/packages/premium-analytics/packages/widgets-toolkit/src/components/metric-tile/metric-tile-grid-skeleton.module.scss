@@ -1,6 +1,6 @@
 @use "./metric-tile-layouts";
 
-/* Flat label and value stand-ins, arranged by the same layout picker as the
+/* Flat label and value stand-ins, arranged by the same layout rules as the
  * loaded grid. Only the lengths no WPDS token reaches stay literal. */
 $row-label-inline-size: 45%;
 
@@ -10,7 +10,7 @@ $row-value-inline-size: 72px;
 $tile-label-inline-size: 55%;
 $tile-value-inline-size: 70%;
 
-/* Size containment, as the loaded grid: the box the layout picker measures must
+/* Size containment, as the loaded grid: the box the layout rules query must
  * come from the widget body, not from the stand-ins inside it. */
 .container {
 	container-type: size;
@@ -25,6 +25,24 @@ $tile-value-inline-size: 70%;
 .tiles {
 
 	@include metric-tile-layouts.layouts;
+
+	@include metric-tile-layouts.compact {
+
+		.value {
+			block-size: var(--wpds-dimension-size-2xs);
+		}
+	}
+
+	@include metric-tile-layouts.wide {
+
+		.label {
+			inline-size: $tile-label-inline-size;
+		}
+
+		.value {
+			inline-size: $tile-value-inline-size;
+		}
+	}
 }
 
 .tile {
@@ -45,18 +63,4 @@ $tile-value-inline-size: 70%;
 	inline-size: $row-value-inline-size;
 	block-size: var(--wpds-dimension-size-sm);
 	border-radius: var(--wpds-border-radius-md);
-}
-
-.tiles[data-layout="compact"] .value {
-	block-size: var(--wpds-dimension-size-2xs);
-}
-
-.tiles[data-layout="row"] .label,
-.tiles[data-layout="grid"] .label {
-	inline-size: $tile-label-inline-size;
-}
-
-.tiles[data-layout="row"] .value,
-.tiles[data-layout="grid"] .value {
-	inline-size: $tile-value-inline-size;
 }

@@ -22,12 +22,9 @@ export async function hydrateStores() {
 			},
 		] );
 
-		await receiveEntityRecords(
-			'jetpack/v4',
-			socialToggleBase,
-			{ publicize: getSocialScriptData()?.is_publicize_enabled },
-			true
-		);
+		await receiveEntityRecords( 'jetpack/v4', socialToggleBase, {
+			publicize: getSocialScriptData()?.is_publicize_enabled,
+		} );
 
 		await finishResolution( 'getEntityRecord', [ 'jetpack/v4', socialToggleBase ] );
 	}
@@ -44,11 +41,12 @@ export async function hydrateStores() {
 			},
 		] );
 
+		// The empty query files the list under the key a bare getEntityRecords( kind, name ) reads.
 		await receiveEntityRecords(
 			'wpcom/v2',
 			'publicize/services',
 			getSocialScriptData()?.supported_services,
-			true
+			{}
 		);
 
 		await finishResolution( 'getEntityRecords', [ 'wpcom/v2', 'publicize/services' ] );

@@ -21,11 +21,33 @@ export const getJWT = function ( key ) {
 
 const jwtsForKeys = {};
 
-export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress, onSuccess } ) => {
+export const resumableUploader = ( {
+	onUploadUuidRetrieved,
+	onError,
+	onProgress,
+	onSuccess,
+	analytics,
+	signal,
+} ) => {
 	return ( file, data ) => {
+		let ready = false;
+		let paused = false;
+		let resumedExisting = false;
 		const upload = new tus.Upload( file, {
-			onError: onError,
-			onProgress: onProgress,
+			onError: error => {
+				if ( signal?.aborted ) {
+					return;
+				}
+				analytics?.fail( error, 'transfer' );
+				onError( error );
+			},
+			onProgress: ( sent, total ) => {
+				if ( signal?.aborted ) {
+					return;
+				}
+				analytics?.progress( sent );
+				onProgress( sent, total );
+			},
 			endpoint: data.url,
 			removeFingerprintOnSuccess: true,
 			withCredentials: false,
@@ -36,9 +58,20 @@ export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress,
 			metadata: {
 				filename: file.name,
 				filetype: file.type,
+				...analytics?.metadata(),
 			},
 			retryDelays: [ 0, 1000, 3000, 5000, 10000 ],
+			onShouldRetry: function ( error, attempt, options ) {
+				const retry = tus.defaultOptions.onShouldRetry( error, attempt, options );
+				if ( retry && ! signal?.aborted ) {
+					analytics?.retryScheduled();
+				}
+				return retry;
+			},
 			onAfterResponse: function ( req, res ) {
+				if ( signal?.aborted ) {
+					return;
+				}
 				// Why is this not showing the x-headers?
 				const responseStatus = res.getStatus();
 				if ( responseStatus >= 400 ) {
@@ -52,6 +85,7 @@ export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress,
 				const mediaId = res.getHeader( MEDIA_ID_HEADER );
 				const src = res.getHeader( SRC_URL_HEADER );
 				if ( guid && mediaId && src ) {
+					analytics?.succeed( guid );
 					onSuccess && onSuccess( { mediaId: Number( mediaId ), guid, src } );
 					return;
 				}
@@ -80,6 +114,9 @@ export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress,
 				}
 			},
 			onBeforeRequest: function ( req ) {
+				if ( ! signal?.aborted ) {
+					analytics?.requestStarted();
+				}
 				// make ALL requests be either POST or GET to honor the public-api.wordpress.com "contract".
 				const method = req._method;
 				if ( [ 'HEAD', 'OPTIONS' ].indexOf( method ) >= 0 ) {
@@ -127,14 +164,50 @@ export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress,
 			},
 		} );
 
-		upload.findPreviousUploads().then( function ( previousUploads ) {
-			if ( previousUploads.length ) {
-				upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
+		const controls = {
+			start() {
+				if ( signal?.aborted ) {
+					return;
+				}
+				paused = false;
+				analytics?.start();
+				if ( ready ) {
+					if ( resumedExisting ) {
+						analytics?.resumedExisting();
+						resumedExisting = false;
+					}
+					upload.start();
+				}
+			},
+			abort() {
+				paused = true;
+				analytics?.pause();
+				return upload.abort();
+			},
+		};
+		signal?.addEventListener( 'abort', () => controls.abort(), { once: true } );
+		upload.findPreviousUploads().then(
+			previousUploads => {
+				if ( signal?.aborted ) {
+					return;
+				}
+				if ( previousUploads.length ) {
+					upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
+					resumedExisting = true;
+				}
+				ready = true;
+				if ( ! paused ) {
+					controls.start();
+				}
+			},
+			error => {
+				if ( ! signal?.aborted ) {
+					analytics?.fail( error, 'resume_lookup' );
+					onError( error );
+				}
 			}
+		);
 
-			upload.start();
-		} );
-
-		return upload;
+		return controls;
 	};
 };

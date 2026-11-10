@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/social-previews",
-	"version": "3.4.2",
+	"version": "3.4.3",
 	"description": "A suite of components to generate previews for a post for both social and search engines.",
 	"keywords": [
 		"wordpress",
@@ -43,9 +43,9 @@
 		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@wordpress/components": "43.0.0",
-		"@wordpress/element": "10.0.0",
-		"@wordpress/i18n": "7.0.0",
+		"@wordpress/components": "44.0.0",
+		"@wordpress/element": "10.1.0",
+		"@wordpress/i18n": "7.1.0",
 		"clsx": "2.1.1"
 	},
 	"devDependencies": {
@@ -54,19 +54,20 @@
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.3",
-		"@tsdown/css": "0.23.1",
+		"@tsdown/css": "0.23.7",
 		"@types/jest": "30.0.0",
 		"@types/react": "19.3.0",
 		"@types/react-dom": "19.3.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"@wordpress/theme": "3.0.0",
+		"@wordpress/theme": "4.0.0",
+		"@wordpress/theme-build-tools": "1.0.0",
 		"babel-jest": "30.5.2",
 		"jest": "30.5.2",
 		"lightningcss": "^1.33.0",
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"sass-embedded": "^1.97.2",
-		"tsdown": "0.23.1",
+		"tsdown": "0.23.7",
 		"typescript": "6.0.3"
 	},
 	"peerDependencies": {

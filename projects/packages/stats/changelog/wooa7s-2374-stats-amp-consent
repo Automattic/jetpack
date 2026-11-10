@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tracking pixel: On sites running the WP Consent API, count AMP views only after an AMP consent banner is accepted, and stop counting AMP pages without one, AMP pages not rendered by the AMP plugin, and Web Stories.

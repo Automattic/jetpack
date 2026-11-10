@@ -54,14 +54,14 @@ function is_subscribers_dashboard_section_available() {
  */
 function get_traffic_section_default_layout() {
 	return array(
-		// Rows fill the three-column grid in the prototype's order.
+		// Rows follow the prototype's order; full-width rows span every column.
 		// Row 1: traffic chart.
 		get_dashboard_default_widget_instance(
 			'default-traffic-chart-widget-instance',
 			'jpa/traffic-chart',
 			0,
-			3,
-			2
+			'full',
+			DASHBOARD_TILE_CARD
 		),
 		// Row 2: most-viewed posts + referrers + devices.
 		get_dashboard_default_widget_instance(
@@ -69,21 +69,21 @@ function get_traffic_section_default_layout() {
 			'jpa/stats-top-posts',
 			1,
 			1,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		get_dashboard_default_widget_instance(
 			'default-referrers-widget-instance',
 			'jpa/referrers',
 			2,
 			1,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		get_dashboard_default_widget_instance(
 			'default-devices-widget-instance',
 			'jpa/devices',
 			3,
 			1,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		// Row 3: locations map + top platforms.
 		get_dashboard_default_widget_instance(
@@ -91,14 +91,14 @@ function get_traffic_section_default_layout() {
 			'jpa/locations',
 			4,
 			2,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		get_dashboard_default_widget_instance(
 			'default-top-platforms-widget-instance',
 			'jpa/top-platforms',
 			5,
 			1,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		// Row 4: UTM insights + clicks; the VideoPress package seeds Top videos at order 8.
 		get_dashboard_default_widget_instance(
@@ -106,7 +106,7 @@ function get_traffic_section_default_layout() {
 			'jpa/utm-insights',
 			6,
 			1,
-			2,
+			DASHBOARD_TILE_LIST,
 			array(
 				'utmDimension' => 'utm_source,utm_medium',
 			)
@@ -116,7 +116,7 @@ function get_traffic_section_default_layout() {
 			'jpa/clicks',
 			7,
 			1,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		// Row 5: authors + search terms + file downloads (Simple only).
 		get_dashboard_default_widget_instance(
@@ -124,21 +124,21 @@ function get_traffic_section_default_layout() {
 			'jpa/authors',
 			9,
 			1,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		get_dashboard_default_widget_instance(
 			'default-search-terms-widget-instance',
 			'jpa/search-terms',
 			10,
 			1,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		get_dashboard_default_widget_instance(
 			'default-file-downloads-widget-instance',
 			'jpa/file-downloads',
 			11,
 			1,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		// Row 6: tags & categories, ranked over the tab's period.
 		get_dashboard_default_widget_instance(
@@ -146,7 +146,7 @@ function get_traffic_section_default_layout() {
 			'jpa/tags',
 			12,
 			2,
-			2
+			DASHBOARD_TILE_LIST
 		),
 	);
 }
@@ -164,8 +164,8 @@ function get_insights_section_default_layout() {
 			'default-annual-highlights-widget-instance',
 			'jpa/annual-highlights',
 			0,
-			3,
-			1
+			'full',
+			DASHBOARD_TILE_STRIP
 		),
 		// Row 2: at-a-glance cards. Two rows tall: their display-sized figures overflow a 200px tile.
 		get_dashboard_default_widget_instance(
@@ -173,21 +173,21 @@ function get_insights_section_default_layout() {
 			'jpa/all-time-stats',
 			1,
 			1,
-			2
+			DASHBOARD_TILE_CARD
 		),
 		get_dashboard_default_widget_instance(
 			'default-most-popular-time-widget-instance',
 			'jpa/most-popular-time',
 			2,
 			1,
-			2
+			DASHBOARD_TILE_CARD
 		),
 		get_dashboard_default_widget_instance(
 			'default-most-popular-day-widget-instance',
 			'jpa/most-popular-day',
 			3,
 			1,
-			2
+			DASHBOARD_TILE_CARD
 		),
 		// Row 3: the two post spotlights.
 		get_dashboard_default_widget_instance(
@@ -195,22 +195,22 @@ function get_insights_section_default_layout() {
 			'jpa/popular-post',
 			4,
 			2,
-			2
+			DASHBOARD_TILE_CARD
 		),
 		get_dashboard_default_widget_instance(
 			'default-latest-post-widget-instance',
 			'jpa/latest-post',
 			5,
 			1,
-			2
+			DASHBOARD_TILE_CARD
 		),
 		// Row 4: posting-activity heatmap. Two rows tall so the months wrap into larger days.
 		get_dashboard_default_widget_instance(
 			'default-posting-activity-widget-instance',
 			'jpa/posting-activity',
 			6,
-			3,
-			2
+			'full',
+			DASHBOARD_TILE_CARD
 		),
 		// Row 5: the all-time views table, one row per year. Two rows tall so a
 		// few years fit before the grid scrolls.
@@ -218,8 +218,8 @@ function get_insights_section_default_layout() {
 			'default-views-over-years-widget-instance',
 			'jpa/views-over-years',
 			7,
-			3,
-			2
+			'full',
+			DASHBOARD_TILE_CARD
 		),
 		// Row 6: most commented posts + most commented authors fill the row, so shares
 		// (Simple only) opens row 7 instead of pushing authors down with a gap on both rows.
@@ -228,21 +228,21 @@ function get_insights_section_default_layout() {
 			'jpa/most-commented-posts',
 			8,
 			1,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		get_dashboard_default_widget_instance(
 			'default-most-commented-authors-widget-instance',
 			'jpa/most-commented-authors',
 			9,
 			2,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		get_dashboard_default_widget_instance(
 			'default-shares-widget-instance',
 			'jpa/shares',
 			10,
 			1,
-			2
+			DASHBOARD_TILE_CARD
 		),
 	);
 }
@@ -259,16 +259,16 @@ function get_subscribers_section_default_layout() {
 			'default-subscribers-chart-widget-instance',
 			'jpa/subscribers-chart',
 			0,
-			3,
-			2
+			'full',
+			DASHBOARD_TILE_CARD
 		),
 		// Row 2: subscriber highlights.
 		get_dashboard_default_widget_instance(
 			'default-subscriber-highlights-widget-instance',
 			'jpa/subscriber-highlights',
 			1,
-			3,
-			1
+			'full',
+			DASHBOARD_TILE_STRIP
 		),
 		// Row 3: latest subscribers + the wider latest emails sent table.
 		get_dashboard_default_widget_instance(
@@ -276,14 +276,14 @@ function get_subscribers_section_default_layout() {
 			'jpa/subscribers-list',
 			2,
 			1,
-			2
+			DASHBOARD_TILE_LIST
 		),
 		get_dashboard_default_widget_instance(
 			'default-subscribers-emails-widget-instance',
 			'jpa/stats-emails',
 			3,
 			2,
-			2,
+			DASHBOARD_TILE_LIST,
 			array(
 				'metric' => 'opens',
 			)
