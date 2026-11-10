@@ -11,6 +11,7 @@
 use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Activity_Log\REST_Controller as Activity_Log_REST_Controller;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -91,6 +92,53 @@ class Jetpack_AI_Page {
 		if ( self::is_ai_admin_request() ) {
 			Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID );
 		}
+	}
+
+	/**
+	 * Register Jetpack AI with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		// Simple registers the page through mu-wpcom, and add_actions() only adds it once the site can use it.
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| ( ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() )
+			|| ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' )
+		) {
+			return $members;
+		}
+
+		$members['jetpack-ai'] = array(
+			'build_prefix' => 'jetpack_plugin',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-plugin/init' ),
+			// "Jetpack AI" is a product name and should not be translated.
+			'title'        => 'Jetpack AI',
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-ai-admin', 'jetpack-script-data', 'jp-tracks-functions', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the AI Hub routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		static $page = null;
+		if ( ! Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID, false ) ) {
+			return;
+		}
+		$page = $page ?? new self();
+		add_action( 'admin_enqueue_scripts', array( $page, 'page_admin_scripts' ) );
 	}
 
 	/**
@@ -667,3 +715,7 @@ class Jetpack_AI_Page {
  * add_action() dedupes.
  */
 add_action( 'admin_menu', array( 'Jetpack_AI_Page', 'maybe_load_wp_build' ), 1 );
+
+if ( class_exists( Admin_Shell::class ) ) {
+	add_filter( 'jetpack_admin_shell_members', array( 'Jetpack_AI_Page', 'add_admin_shell_member' ) );
+}
