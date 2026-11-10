@@ -11,6 +11,7 @@ use Automattic\Jetpack\Boost_Core\Contracts\Boost_API_Client;
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Durations;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Request;
 use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
@@ -855,5 +856,78 @@ class Speed_Score_Request_Test extends Base_TestCase {
 
 		$this->assertSame( 0, $history->count() );
 		$this->assertArrayNotHasKey( $this->history_option_name(), $this->options );
+	}
+
+	/**
+	 * Seconds since the previous poll, and the durations stored once the run finishes.
+	 *
+	 * @return array
+	 */
+	public static function provide_previous_polls() {
+		return array(
+			'watched to the end'                     => array( 5, array( 30 ) ),
+			'left for a subpage and came back later' => array( 60, null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_previous_polls
+	 *
+	 * @param int        $seconds_since_poll Seconds since the previous poll.
+	 * @param array|null $stored             The durations stored afterwards.
+	 */
+	#[DataProvider( 'provide_previous_polls' )]
+	public function test_only_a_run_watched_to_the_end_counts_towards_the_estimate( $seconds_since_poll, $stored ) {
+		$this->api_response = array(
+			'status' => 'success',
+			'scores' => array(
+				'mobile'  => 50,
+				'desktop' => 70,
+			),
+		);
+		$request            = Speed_Score_Request::jsonUnserialize(
+			array(
+				'url'            => self::URL,
+				'active_modules' => array(),
+				'created'        => microtime( true ) - 30,
+				'status'         => 'pending',
+				'error'          => null,
+				'client'         => null,
+				'last_polled'    => microtime( true ) - $seconds_since_poll,
+			)
+		);
+		$this->assertTrue( $request->poll_update() );
+
+		Speed_Score_Durations::record_finished_run( array( $request ) );
+
+		$this->assertSame( $stored, $this->options[ Speed_Score_Durations::OPTION_NAME ] ?? null );
+	}
+
+	public function test_a_pending_poll_keeps_the_request_until_the_result_can_arrive() {
+		$this->api_response = array( 'status' => 'pending' );
+		$request            = new Speed_Score_Request( self::URL );
+		$this->assertTrue( $request->poll_update() );
+
+		$stored = $this->options[ Transient::key( 'jetpack_boost_speed_scores_' . $request->get_cache_id() ) ];
+		$this->assertGreaterThanOrEqual( time() + 3600 - 5, $stored['expire'] );
+	}
+
+	public function test_the_last_poll_survives_reloading_the_request_from_storage() {
+		$this->api_response = array( 'status' => 'pending' );
+		$request            = new Speed_Score_Request( self::URL, array(), microtime( true ) - 30 );
+		$this->assertTrue( $request->poll_update() );
+
+		$this->api_response = array(
+			'status' => 'success',
+			'scores' => array(
+				'mobile'  => 50,
+				'desktop' => 70,
+			),
+		);
+		$reloaded           = Speed_Score_Request::get( $request->get_cache_id() );
+		$this->assertTrue( $reloaded->poll_update() );
+		Speed_Score_Durations::record_finished_run( array( $reloaded ) );
+
+		$this->assertSame( array( 30 ), $this->options[ Speed_Score_Durations::OPTION_NAME ] ?? null );
 	}
 }

@@ -156,6 +156,7 @@ function PopularDaysDashboardStory( dashboardArgs: WidgetDashboardWithWidgetCont
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PopularDaysDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

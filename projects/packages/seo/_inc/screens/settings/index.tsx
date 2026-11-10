@@ -159,9 +159,10 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	}
 
 	// A sitemap only works when search engines are allowed, so its effective
-	// state (and the toggle below) is gated on `search_engines_visible`.
+	// state is gated on `search_engines_visible`. WordPress.com generates Simple's.
 	const simpleSite = isSimpleSite();
-	const sitemapEffectivelyOn = ! simpleSite && local.search_engines_visible && local.sitemap_active;
+	const sitemapEffectivelyOn =
+		local.search_engines_visible && ( simpleSite || local.sitemap_active );
 	let sitemapHelpText: string = local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp;
 	if ( simpleSite ) {
 		sitemapHelpText = simpleSitemapHelp;
@@ -171,14 +172,11 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	const hostingOptionsUrl = simpleSite
 		? ( getScriptData() as SeoHostingData )?.seo?.hosting_options_url
 		: undefined;
-	// Simple's module state cannot establish whether its platform sitemap is published.
 	const visibilityEnabledCount =
-		( local.search_engines_visible ? 1 : 0 ) +
-		( ( simpleSite && local.search_engines_visible ) || sitemapEffectivelyOn ? 1 : 0 );
+		( local.search_engines_visible ? 1 : 0 ) + ( sitemapEffectivelyOn ? 1 : 0 );
 
 	// Module completion states for the card headers. Each module defines
 	// "complete" for itself (see JETPACK-2051); the indicator is presentational.
-	// Simple counts only indexing; other hosts also count the effective sitemap state.
 	let visibilityStatus: SettingStatus = 'not-started';
 	if ( visibilityEnabledCount === 2 ) {
 		visibilityStatus = 'complete';
@@ -343,8 +341,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								<ToggleControl
 									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
 									help={ sitemapHelpText }
-									// Simple's disabled switch is not a sitemap publication-status indicator.
-									// Other hosts display off while indexing is blocked, preserving the preference.
+									// Off while indexing is blocked. Outside Simple, the saved preference is kept.
 									checked={ sitemapEffectivelyOn }
 									onChange={ next => commit( { sitemap_active: next } ) }
 									disabled={
@@ -365,7 +362,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 										{ __( 'Explore hosting options', 'jetpack-seo' ) }
 									</Link>
 								) }
-								{ sitemapEffectivelyOn && local.sitemap_url && (
+								{ ! simpleSite && sitemapEffectivelyOn && local.sitemap_url && (
 									<Link
 										className={ styles.toggleLink }
 										href={ local.sitemap_url }

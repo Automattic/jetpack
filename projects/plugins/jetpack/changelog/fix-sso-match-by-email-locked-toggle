@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-SSO: Lock the "Match accounts using email addresses" setting and explain why when site code controls it.

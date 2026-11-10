@@ -1720,6 +1720,11 @@ test.each( [
 		dismissed: false,
 	},
 	{ name: 'stale', scoreFixture: { ...decreasedScores, isStale: true }, dismissed: false },
+	{
+		name: 'still-comparing',
+		scoreFixture: { ...decreasedScores, noBoostPending: true as const },
+		dismissed: false,
+	},
 ] )( 'does not show a $name score decrease alert', async ( { scoreFixture, dismissed } ) => {
 	window.jetpack_boost_ds!.dismissed_alerts!.value = {
 		performance_history_fresh_start: true,

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Widget tests only: assert host report params reach the widget root through outcomes rather than a mock readback.
+
+

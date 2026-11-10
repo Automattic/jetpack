@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.8] - 2026-11-09
+### Changed
+- Describe the plugin install button and the IP lookup link to screen readers. [#54512]
+- Update package dependencies. [#54391] [#54512]
+- Use the design system tooltip in the form editor and the responses dashboard. [#54512]
+
+### Fixed
+- Form editor: Label the embed code and shortcode snippets in the sidebar for screen readers and add usage hints. [#54353]
+
 ## [8.3.7] - 2026-11-02
 ### Changed
 - Update package dependencies. [#53869] [#54382] [#54390]
@@ -2833,6 +2842,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[8.3.8]: https://github.com/automattic/jetpack-forms/compare/v8.3.7...v8.3.8
 [8.3.7]: https://github.com/automattic/jetpack-forms/compare/v8.3.6...v8.3.7
 [8.3.6]: https://github.com/automattic/jetpack-forms/compare/v8.3.5...v8.3.6
 [8.3.5]: https://github.com/automattic/jetpack-forms/compare/v8.3.4...v8.3.5

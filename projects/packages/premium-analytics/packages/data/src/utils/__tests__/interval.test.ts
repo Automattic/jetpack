@@ -142,6 +142,36 @@ describe( 'resolveIntervalForRange', () => {
 		).toEqual( [ 'month', 'quarter', 'year' ] );
 	} );
 
+	// The range offers this window years too, but opens on months, so the
+	// preset's own case is what makes years the bucket it is read in.
+	it( 'opens last 3 years in years, even early in January', () => {
+		expect(
+			getAllowedIntervalsForPreset(
+				'last-3-years',
+				'2024-01-01T00:00:00.000Z',
+				'2026-01-05T23:59:59.999Z'
+			)
+		).toEqual( [ 'year', 'month', 'quarter' ] );
+		expect(
+			resolveIntervalForRange(
+				'last-3-years',
+				'2024-01-01T00:00:00.000Z',
+				'2026-01-05T23:59:59.999Z'
+			)
+		).toBe( 'year' );
+	} );
+
+	it( 'coerces a bucket last 3 years does not offer', () => {
+		expect(
+			resolveIntervalForRange(
+				'last-3-years',
+				'2024-01-01T00:00:00.000Z',
+				'2026-11-09T23:59:59.999Z',
+				'week'
+			)
+		).toBe( 'year' );
+	} );
+
 	// The year surface carries a `year-YYYY` preset the switch does not know, so
 	// its list comes from the range instead and needs its own guard.
 	it( 'offers months, weeks and quarters on a year-length range with no matching preset', () => {
@@ -189,6 +219,20 @@ describe( 'resolveIntervalForRange', () => {
 
 		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'month', 'quarter' ] );
 		expect( resolveIntervalForRange( 'custom', from, to, 'week' ) ).toBe( 'month' );
+	} );
+
+	it( 'offers years once a range covers three calendar years', () => {
+		const to = '2026-11-10T23:59:59.999Z';
+
+		expect( getAllowedIntervalsForPreset( 'custom', '2024-01-01T00:00:00.000Z', to ) ).toEqual( [
+			'month',
+			'quarter',
+			'year',
+		] );
+		expect( getAllowedIntervalsForPreset( 'custom', '2025-01-01T00:00:00.000Z', to ) ).toEqual( [
+			'month',
+			'quarter',
+		] );
 	} );
 
 	it( 'keeps a stored quarter only where the range offers it', () => {
