@@ -285,7 +285,7 @@ describe( 'buildDashboardLink', () => {
 				ref_preset: 'last-7-days',
 			} ),
 			'/',
-			{ preset: 'last-7-days' }
+			normalizeReportParams( { preset: 'last-7-days' } )
 		);
 	} );
 
@@ -389,7 +389,7 @@ describe( 'buildReportLink', () => {
 				...toReportOriginWindowParams( {} ),
 			} ),
 			'/reports/posts',
-			{ preset: normalizeReportParams( {} ).preset }
+			normalizeReportParams( {} )
 		);
 	} );
 

@@ -499,7 +499,7 @@ describe( 'single-report stage', () => {
 
 	it( 'crumbs the reports page of the record and the resolved title when the URL carries no origin', () => {
 		// The seed stores the window the page was opened from; the crumb returns to it.
-		mockSearch = { ...mockSearch, ref_preset: 'last-30-days' };
+		mockSearch = { ...mockSearch, ref_from: '2026-05-01', ref_to: '2026-05-31' };
 		mockSummary( { title: 'Launch recap' } );
 
 		render( stage() );
@@ -512,7 +512,7 @@ describe( 'single-report stage', () => {
 		] );
 		expect( breadcrumbs.getByRole( 'link', { name: 'Videos' } ) ).toHaveAttribute(
 			'href',
-			'/reports/videos?preset=last-30-days'
+			'/reports/videos?from=2026-05-01&to=2026-05-31&interval=day'
 		);
 		expect(
 			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Launch recap' } )
