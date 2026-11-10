@@ -78,11 +78,11 @@ class Jetpack_Protect {
 	const OPT_IN_MODULES = array( 'sso', 'monitor' );
 
 	/**
-	 * The opt-in modules turned on without the Jetpack plugin.
+	 * Prefix of the option, one per module so concurrent saves can't drop each other, marking an opt-in module turned on without the Jetpack plugin.
 	 *
 	 * @var string
 	 */
-	const OPTED_IN_MODULES_OPTION = JETPACK_PROTECT_SLUG . '_opted_in_modules';
+	const OPTED_IN_OPTION_PREFIX = JETPACK_PROTECT_SLUG . '_opted_in_';
 
 	/**
 	 * Constructor.
@@ -183,7 +183,7 @@ class Jetpack_Protect {
 		if ( class_exists( 'Jetpack', false ) ) {
 			return $active;
 		}
-		$stale = array_diff( self::OPT_IN_MODULES, self::get_opted_in_modules() );
+		$stale = array_filter( self::OPT_IN_MODULES, array( __CLASS__, 'awaits_opt_in' ) );
 		return array_values( array_diff( (array) $active, $stale ) );
 	}
 
@@ -194,7 +194,7 @@ class Jetpack_Protect {
 	 * @return void
 	 */
 	public static function drop_leftover_opt_in_module( $module ) {
-		if ( class_exists( 'Jetpack', false ) || ! in_array( $module, self::OPT_IN_MODULES, true ) || in_array( $module, self::get_opted_in_modules(), true ) || ! ( new Modules() )->is_module( $module ) ) {
+		if ( ! self::awaits_opt_in( $module ) || ! ( new Modules() )->is_module( $module ) ) {
 			return;
 		}
 		$saved = Jetpack_Options::get_option( 'active_modules', array() );
@@ -210,10 +210,9 @@ class Jetpack_Protect {
 	 * @return void
 	 */
 	public static function record_opt_in( $module ) {
-		if ( class_exists( 'Jetpack', false ) || ! in_array( $module, self::OPT_IN_MODULES, true ) || in_array( $module, self::get_opted_in_modules(), true ) ) {
-			return;
+		if ( self::awaits_opt_in( $module ) ) {
+			update_option( self::OPTED_IN_OPTION_PREFIX . $module, 1 );
 		}
-		update_option( self::OPTED_IN_MODULES_OPTION, array_merge( self::get_opted_in_modules(), array( $module ) ) );
 	}
 
 	/**
@@ -223,20 +222,21 @@ class Jetpack_Protect {
 	 * @return void
 	 */
 	public static function forget_opt_in( $module ) {
-		$opted_in = self::get_opted_in_modules();
-		if ( in_array( $module, $opted_in, true ) ) {
-			update_option( self::OPTED_IN_MODULES_OPTION, array_values( array_diff( $opted_in, array( $module ) ) ) );
+		if ( in_array( $module, self::OPT_IN_MODULES, true ) ) {
+			delete_option( self::OPTED_IN_OPTION_PREFIX . $module );
 		}
 	}
 
 	/**
-	 * The opt-in modules turned on without the Jetpack plugin.
+	 * Whether the Jetpack plugin is absent and the module is an opt-in module not yet turned on without it.
 	 *
-	 * @return string[]
+	 * @param string $module Module slug.
+	 * @return bool
 	 */
-	private static function get_opted_in_modules() {
-		$opted_in = get_option( self::OPTED_IN_MODULES_OPTION, array() );
-		return is_array( $opted_in ) ? $opted_in : array();
+	private static function awaits_opt_in( $module ) {
+		return ! class_exists( 'Jetpack', false )
+			&& in_array( $module, self::OPT_IN_MODULES, true )
+			&& ! get_option( self::OPTED_IN_OPTION_PREFIX . $module );
 	}
 
 	/**
