@@ -77,6 +77,69 @@ class Jetpack_Subscription_Site_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @dataProvider data_navigation_post_types
+	 *
+	 * @param string $post_type Post type containing the navigation.
+	 */
+	#[DataProvider( 'data_navigation_post_types' )]
+	public function test_saved_navigation_keeps_subscribe_removal_after_non_rest_update( $post_type ) {
+		$subscribe = '<!-- wp:jetpack/subscriptions /-->';
+		$content   = '<!-- wp:navigation-link {"label":"Home","url":"/"} /-->' . $subscribe;
+		if ( 'wp_template_part' === $post_type ) {
+			$content = '<!-- wp:navigation -->' . $content . '<!-- /wp:navigation -->';
+		}
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_type'    => $post_type,
+				'post_name'    => 'header',
+				'post_status'  => 'publish',
+				'post_content' => $content,
+			)
+		);
+
+		if ( 'wp_navigation' === $post_type ) {
+			$changes = update_ignored_hooked_blocks_postmeta( (object) (array) $post );
+		} else {
+			wp_set_object_terms( $post->ID, get_stylesheet(), 'wp_theme' );
+			wp_set_object_terms( $post->ID, 'header', 'wp_template_part_area' );
+			$changes = inject_ignored_hooked_blocks_metadata_attributes( (object) (array) $post );
+		}
+		$this->assertNotWPError( $changes );
+		$this->assertSame( $post->ID, wp_update_post( wp_slash( (array) $changes ) ) );
+
+		$content = get_post( $post->ID )->post_content;
+		$this->assertStringContainsString( $subscribe, $content );
+		wp_update_post(
+			wp_slash(
+				array(
+					'ID'           => $post->ID,
+					'post_content' => str_replace( $subscribe, '', $content ),
+				)
+			)
+		);
+
+		$post = get_post( $post->ID );
+		if ( 'wp_navigation' === $post_type ) {
+			$content = apply_block_hooks_to_content_from_post_object( $post->post_content, $post );
+		} else {
+			$template       = new WP_Block_Template();
+			$template->area = 'header';
+			$content        = apply_block_hooks_to_content( $post->post_content, $template );
+		}
+		$this->assertFalse( has_block( 'jetpack/subscriptions', $content ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function data_navigation_post_types() {
+		return array(
+			'referenced menu' => array( 'wp_navigation' ),
+			'inline menu'     => array( 'wp_template_part' ),
+		);
+	}
+
+	/**
 	 * Navigation contents for both block hooks callbacks.
 	 *
 	 * @return array

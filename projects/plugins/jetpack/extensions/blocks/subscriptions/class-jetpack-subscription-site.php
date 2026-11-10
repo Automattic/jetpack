@@ -170,7 +170,14 @@ class Jetpack_Subscription_Site {
 				$is_navigation_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/navigation';
 
 				if ( $is_navigation_anchor_block && $relative_position === 'last_child' && has_block( 'jetpack/subscriptions', serialize_blocks( $anchor_block['innerBlocks'] ) ) ) {
-					return null;
+					// Empty output lets core still record this type in ignoredHookedBlocks when saving.
+					return array(
+						'blockName'    => null,
+						'attrs'        => array(),
+						'innerBlocks'  => array(),
+						'innerHTML'    => '',
+						'innerContent' => array(),
+					);
 				}
 
 				if ( $is_navigation_anchor_block ) {
