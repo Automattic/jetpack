@@ -281,6 +281,7 @@ class Jetpack_Sitemap_Manager {
 			// Batcache shares a URL version across query variants, except for the "p" parameter.
 			$cache_urls = array();
 			foreach ( $urls as $cached_url ) {
+				$query = array();
 				wp_parse_str( (string) wp_parse_url( $cached_url, PHP_URL_QUERY ), $query );
 				$cache_urls[] = remove_query_arg( array_diff( array_keys( $query ), array( 'p' ) ), $cached_url );
 			}
