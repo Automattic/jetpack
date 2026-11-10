@@ -41,6 +41,14 @@ class Widget_Modules_Test extends TestCase {
 	}
 
 	/**
+	 * The REST preload rides the generated page's own preload paths.
+	 */
+	public function test_rest_preload_joins_the_generated_page_preloads() {
+		$this->assertNotFalse( has_filter( 'jpa_jetpack_premium_analytics_wp_admin_preload_paths', __NAMESPACE__ . '\\preload_dashboard_rest_responses' ) );
+		$this->assertSame( array( 'existing', '/wp/v2/settings' ), array_slice( preload_dashboard_rest_responses( array( 'existing' ) ), 0, 2 ) );
+	}
+
+	/**
 	 * Only the requested route's content module turns static.
 	 *
 	 * @param string|null $location The `p` query arg, or null for none.
@@ -86,6 +94,8 @@ class Widget_Modules_Test extends TestCase {
 			'no location is the dashboard'     => array( null, array( 'dashboard' ) ),
 			'search params are ignored'        => array( '/?section=store', array( 'dashboard' ) ),
 			'a param segment matches any id'   => array( '/post/12?from=x', array( 'post-detail' ) ),
+			'literal segments ignore case'     => array( '/POST/12', array( 'post-detail' ) ),
+			'literal segments are decoded'     => array( '/%70ost/12', array( 'post-detail' ) ),
 			'a route without a content module' => array( '/video/3', array() ),
 			'an unknown path'                  => array( '/nope', array() ),
 		);

@@ -1,10 +1,9 @@
 <?php
 /**
- * Dashboard widget modules: REST exposure + import-map wiring.
+ * Dashboard widget modules: REST exposure, import-map wiring and the page's boot preloads.
  *
  * Reads get_available_widget_types() and exposes it two ways: the `/wpcom/v2/widget-modules`
- * REST list, and the page import map, for dynamic `import()`. Also preloads what the dashboard
- * reads before its first widget: the requested route's content module and the REST responses.
+ * REST list, and the page import map, for dynamic `import()`.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -183,8 +182,9 @@ function get_requested_dashboard_route( $routes_file ) {
 		}
 
 		foreach ( $pattern as $position => $segment ) {
-			// `$postId`-style segments are params and match any value.
-			if ( '$' !== $segment[0] && $segment !== $segments[ $position ] ) {
+			// `$postId`-style segments are params and match any value; the rest match as the
+			// client router does, decoded and case-insensitive.
+			if ( '$' !== $segment[0] && 0 !== strcasecmp( $segment, rawurldecode( $segments[ $position ] ) ) ) {
 				continue 2;
 			}
 		}
@@ -196,42 +196,23 @@ function get_requested_dashboard_route( $routes_file ) {
 }
 
 /**
- * Preload the REST responses the dashboard reads before it can place a widget.
+ * Add the REST responses the dashboard reads before it can place a widget to the page's preloads:
+ * the settings, then the sections and widget types, two round trips before the first widget mounts.
  *
- * The client reads the settings, then the sections and widget types: two round trips before the
- * first widget mounts. A path that does not answer 200 is left out, and the client fetches it.
+ * Each path is the exact form the client requests, `_locale` included, or the preload goes unused.
  *
- * @return void
+ * @param array $preload_paths Paths the generated page preloads.
+ * @return array Updated paths.
  */
-function preload_dashboard_rest_responses() {
-	if ( ! Analytics::is_dashboard_request() ) {
-		return;
+function preload_dashboard_rest_responses( $preload_paths ) {
+	if ( ! is_array( $preload_paths ) ) {
+		return $preload_paths;
 	}
 
-	$paths = array(
-		'/wp/v2/settings',
-		'/' . DASHBOARD_REST_NAMESPACE . '/dashboards/' . DASHBOARD_NAME . '/sections?per_page=100',
-		'/' . DASHBOARD_REST_NAMESPACE . '/widget-modules?per_page=100',
-	);
+	$preload_paths[] = '/wp/v2/settings';
+	$preload_paths[] = '/' . DASHBOARD_REST_NAMESPACE . '/dashboards/' . DASHBOARD_NAME . '/sections?per_page=100&_locale=user';
+	$preload_paths[] = '/' . DASHBOARD_REST_NAMESPACE . '/widget-modules?per_page=100&_locale=user';
 
-	$preloaded = array();
-	foreach ( array_reduce( $paths, 'rest_preload_api_request', array() ) as $key => $response ) {
-		$path = preg_replace( '#^https?://[^/]+/wp-json#', '', $key );
-		// Keyed both ways, as the Forms dashboard does: whether `_locale` is on the path depends on middleware order.
-		$preloaded[ $path ]                                     = $response;
-		$preloaded[ add_query_arg( '_locale', 'user', $path ) ] = $response;
-	}
-	if ( array() === $preloaded ) {
-		return;
-	}
-
-	wp_add_inline_script(
-		'wp-api-fetch',
-		sprintf(
-			'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
-			wp_json_encode( $preloaded, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
-		),
-		'after'
-	);
+	return $preload_paths;
 }
-add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\preload_dashboard_rest_responses' );
+add_filter( 'jpa_jetpack_premium_analytics_wp_admin_preload_paths', __NAMESPACE__ . '\\preload_dashboard_rest_responses' );
