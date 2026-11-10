@@ -12,6 +12,11 @@ import { pageOf, updateChrome } from '@automattic/jetpack-admin-shell/chrome';
 import { debugEnabled, log, stopwatch } from '@automattic/jetpack-admin-shell/debug';
 import { applyGuestAssets } from '@automattic/jetpack-admin-shell/guest-assets';
 import { rememberHeader, showHeader } from '@automattic/jetpack-admin-shell/header';
+import {
+	closeOverlayAround,
+	showOverlaysOf,
+	trackOverlays,
+} from '@automattic/jetpack-admin-shell/overlays';
 /* eslint-enable import/no-unresolved */
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
@@ -174,6 +179,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 		// Hide the outgoing app before the URL changes, so its router never sees the new URL.
 		visible = slug;
 		apps.get( previous )?.place( false );
+		showOverlaysOf( slug );
 		emit( 'page-hidden', { page: previous, previous: null, firstShow: false, url: location.href } );
 		if ( push ) {
 			gate.pushUrl( url );
@@ -263,7 +269,8 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 				return;
 			}
 			event.preventDefault();
-			navigate( a.href, a.closest( '#adminmenu' ) ? 'menu click' : 'link click' );
+			const via = a.closest( '#adminmenu' ) ? 'menu click' : 'link click';
+			closeOverlayAround( a ).then( () => navigate( a.href, via ) );
 		},
 		true
 	);
@@ -276,6 +283,7 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 	} );
 
 	// The host boots on DOMContentLoaded, after this module runs, so its routers are tagged too.
+	trackOverlays( () => visible );
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
 	const removeHostHeader = showHeader( host, hostEl );

@@ -1,6 +1,7 @@
 /*
  * A stand-in for a page's header, drawn the moment the page is opened and removed once its app
- * renders the real one. Each page's header is saved whenever it is on screen, for next time.
+ * renders the real one. Each page's header, and the CSS it uses, is saved whenever it is on
+ * screen: the dashboards add most of their CSS from JavaScript, which hasn't run yet.
  */
 import { log } from '@automattic/jetpack-admin-shell/debug'; // eslint-disable-line import/no-unresolved -- Resolved by the import map.
 
@@ -37,6 +38,47 @@ const inertCopy = html => {
 	return template.content;
 };
 
+// Every rule that styles one of these classes, or defines design tokens, in grouping rules too.
+const rulesFor = classNames => {
+	const selectors = [ ...classNames ].map( name => `.${ CSS.escape( name ) }` );
+	const pick = ( rules, fromStyleTag ) => {
+		let css = '';
+		for ( const rule of rules ) {
+			if ( rule instanceof CSSStyleRule ) {
+				const styled = selectors.some( selector => rule.selectorText.includes( selector ) );
+				const definesTokens =
+					fromStyleTag && [ ...rule.style ].some( name => name.startsWith( '--wpds-' ) );
+				if ( styled || definesTokens ) {
+					css += rule.cssText;
+				}
+			} else if ( rule.cssRules ) {
+				const inner = pick( rule.cssRules, fromStyleTag );
+				if ( inner ) {
+					css += `${ rule.cssText.slice( 0, rule.cssText.indexOf( '{' ) ) }{${ inner }}`;
+				}
+			}
+		}
+		return css;
+	};
+	let css = '';
+	for ( const sheet of document.styleSheets ) {
+		try {
+			css += pick( sheet.cssRules, sheet.ownerNode?.tagName === 'STYLE' );
+		} catch {
+			// A cross-origin stylesheet can't be read; it is a <link> that loads with the page anyway.
+		}
+	}
+	return css;
+};
+
+const readSaved = slug => {
+	try {
+		return JSON.parse( localStorage.getItem( storageKey( slug ) ) );
+	} catch {
+		return null;
+	}
+};
+
 /**
  * Save the header an app has on screen, so its next opening can show it straight away.
  *
@@ -48,8 +90,17 @@ export function rememberHeader( slug, el ) {
 	if ( ! frame ) {
 		return;
 	}
+	const html = frame.outerHTML;
+	if ( readSaved( slug )?.html === html ) {
+		return;
+	}
+	const classNames = new Set(
+		[ frame, ...frame.querySelectorAll( '[class]' ) ].flatMap( node => [ ...node.classList ] )
+	);
+	const css = rulesFor( classNames );
+	log( 'header', `saved ${ slug }'s header with ${ Math.round( css.length / 1024 ) }KB of CSS` );
 	try {
-		localStorage.setItem( storageKey( slug ), frame.outerHTML );
+		localStorage.setItem( storageKey( slug ), JSON.stringify( { html, css } ) );
 	} catch {
 		// Storage full or blocked: the next opening shows a borrowed header instead.
 	}
@@ -68,13 +119,10 @@ export function rememberHeader( slug, el ) {
  * @return {Function} Removes the stand-in.
  */
 export function showHeader( slug, el, { from, title } = {} ) {
-	let html = null;
+	const saved = readSaved( slug );
+	const css = saved?.css;
+	let html = saved?.html;
 	let source = 'saved';
-	try {
-		html = localStorage.getItem( storageKey( slug ) );
-	} catch {
-		// Blocked storage: fall through to the borrowed header.
-	}
 	if ( ! html && from ) {
 		const frame = frameOf( from );
 		if ( frame ) {
@@ -99,6 +147,11 @@ export function showHeader( slug, el, { from, title } = {} ) {
 	standIn.inert = true;
 	standIn.setAttribute( 'aria-hidden', 'true' );
 	standIn.append( inertCopy( html ) );
+	if ( css ) {
+		const style = document.createElement( 'style' );
+		style.textContent = css;
+		standIn.prepend( style );
+	}
 	el.before( standIn );
 	// The empty mount can be styled as a blank page that would cover the stand-in.
 	el.style.visibility = 'hidden';

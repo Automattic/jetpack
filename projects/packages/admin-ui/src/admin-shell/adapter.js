@@ -50,6 +50,17 @@ export function isolateRouters( getVisible, onWrite ) {
 	for ( const method of [ 'pushState', 'replaceState' ] ) {
 		native[ method ] = history[ method ].bind( history );
 		const base = ( ...args ) => {
+			// A hidden app's router can still write, e.g. when its modal closes; that would put a
+			// route of the hidden page into the visible page's URL.
+			const page = args[ 2 ] && new URL( args[ 2 ], location.href ).searchParams.get( 'page' );
+			if ( page && page !== getVisible() ) {
+				log(
+					'router',
+					`dropped history.${ method } to ${ page } while ${ getVisible() } shows`,
+					args[ 2 ]
+				);
+				return;
+			}
 			native[ method ]( ...args );
 			onWrite();
 		};
