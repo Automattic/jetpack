@@ -51,6 +51,10 @@ const SETTING_EVENTS: Record< string, EventFor > = {
 	sso: moduleToggle( 'sso' ),
 	jetpack_sso_match_by_email: moduleSetting( 'sso', 'jetpack_sso_match_by_email' ),
 	jetpack_sso_require_two_step: moduleSetting( 'sso', 'jetpack_sso_require_two_step' ),
+	jetpack_protect_vulnerability_checks: onOff(
+		'jetpack_protect_vulnerability_checks_enabled',
+		'jetpack_protect_vulnerability_checks_disabled'
+	),
 	monitor: moduleToggle( 'monitor' ),
 	monitor_receive_notifications: moduleSetting( 'monitor', 'monitor_receive_notifications' ),
 };

@@ -64,6 +64,7 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_protect_threat_notifications_enabled' );
 		remove_all_filters( 'pre_http_request' );
 		Notification_Counts::reset();
+		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		Status::$status = null;
 		Protect_Status::delete_option();
 		wp_set_current_user( 0 );
@@ -100,5 +101,39 @@ class Jetpack_Protect_Test extends BaseTestCase {
 
 		$this->assertSame( $notify ? 1 : null, Notification_Counts::all()['jetpack-protect']['count'] ?? null );
 		$this->assertSame( $notify, null !== $admin_bar->get_node( 'jetpack-protect' ) );
+	}
+
+	/**
+	 * Whether `?page=jetpack-protect` is requested in wp-admin or on the front end.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_protect_page_contexts() {
+		return array(
+			'wp-admin'  => array( true ),
+			'front end' => array( false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_protect_page_contexts
+	 *
+	 * @param bool $in_admin Whether the request is in wp-admin.
+	 */
+	#[DataProvider( 'provide_protect_page_contexts' )]
+	public function test_admin_bar_keeps_a_hidden_node_only_on_the_protect_admin_page_when_there_are_no_threats( $in_admin ) {
+		$status                        = get_option( Protect_Status::OPTION_NAME );
+		$status->core->vulnerabilities = array();
+		update_option( Protect_Status::OPTION_NAME, $status );
+		$_GET['page'] = 'jetpack-protect';
+		if ( $in_admin ) {
+			set_current_screen( 'toplevel_page_jetpack-protect' );
+		}
+		$admin_bar = new WP_Admin_Bar();
+
+		( new Jetpack_Protect() )->admin_bar( $admin_bar );
+
+		$node = $admin_bar->get_node( 'jetpack-protect' );
+		$this->assertSame( $in_admin ? 'hidden' : null, $node ? $node->meta['class'] : null );
 	}
 }

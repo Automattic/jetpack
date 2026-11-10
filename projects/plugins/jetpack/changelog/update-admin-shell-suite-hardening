@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Harden the admin shell e2e regression suite.
+
+
