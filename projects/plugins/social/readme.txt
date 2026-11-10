@@ -83,9 +83,9 @@ To make the connection available to all users, check the box labeled "Mark the c
 
 You can post to Facebook, Bluesky, Threads, Instagram Business, Tumblr, Mastodon, Linkedin, and Nextdoor. We are working hard to increase our social share integrations.
 
-= Is Jetpack Social free? Is there a limit on shares? =
+= Is Jetpack Social free? =
 
-Yes, Jetpack Social has a free plan, and there is no limit on how many posts you can share. The free plan automatically shares your posts with their featured image to all your connected accounts. It also includes post previews, re-sharing and scheduling of published posts, and Social Notes.
+Yes, and there is no limit on how many posts you can share. The free plan automatically shares your posts with their featured image to all your connected accounts. It also includes post previews, re-sharing and scheduling of published posts, and Social Notes.
 
 The paid Jetpack Social plan lets you upload a custom image or video for each share, write a custom message for each network, and create images with the Social Image Generator.
 
