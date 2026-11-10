@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats: Move an old Year to date or Month to date link to today's window when its saved interval no longer fits, so the address bar matches the charts.

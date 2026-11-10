@@ -199,11 +199,8 @@ export function needsReportDateParamsSeed(
 		return true;
 	}
 
-	// Only rolling presets have preset-specific interval rules. Other presets
-	// derive their allowed intervals from the range, like an absent preset.
-	const preset = isSelectablePreset( search.preset ) ? search.preset : undefined;
+	// Against the window the widgets read: a preset names today's dates, not the ones the URL kept.
 	return (
-		resolveIntervalForRange( preset, search.from, search.to, search.interval, lockedIntervals ) !==
-		search.interval
+		normalizeReportParams( search, undefined, { lockedIntervals } ).interval !== search.interval
 	);
 }

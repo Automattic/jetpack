@@ -249,6 +249,10 @@ describe( 'resolveIntervalForRange', () => {
 } );
 
 describe( 'needsReportDateParamsSeed', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'seeds when from, to, or interval is missing', () => {
 		expect( needsReportDateParamsSeed( {} ) ).toBe( true );
 		expect(
@@ -305,9 +309,20 @@ describe( 'needsReportDateParamsSeed', () => {
 		).toBe( false );
 	} );
 
+	it( 'reseeds a to-date bookmark whose window has grown past the interval it kept', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-11-10T12:00:00.000Z' ) );
+
+		expect(
+			needsReportDateParamsSeed( {
+				from: '2026-01-01T00:00:00.000+00:00',
+				to: '2026-01-05T23:59:59.999+00:00',
+				preset: 'year-to-date',
+				interval: 'day',
+			} )
+		).toBe( true );
+	} );
+
 	it( 'treats custom and year-surface presets as range-based', () => {
-		// `normalizeReportParams` keeps only selectable presets, so these must
-		// resolve from the range on both sides or the seed check would loop.
 		expect(
 			needsReportDateParamsSeed( {
 				from: '2020-01-01T00:00:00.000Z',
