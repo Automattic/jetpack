@@ -47,6 +47,7 @@ describe( 'withResponsive', () => {
 		mockClientHeight = 0;
 		useParentSize.mockReset();
 		useParentSize.mockImplementation( () => DEFAULT_SIZE );
+		jest.restoreAllMocks();
 	} );
 
 	describe( 'component dimensions', () => {
@@ -122,12 +123,13 @@ describe( 'withResponsive', () => {
 
 	describe( 'first paint', () => {
 		const UNMEASURED = { parentRef: () => {}, width: 0, height: 0 };
-		// A chart that draws its geometry from the box it is handed opts into waiting for one.
-		const WaitingComponent = withResponsive( MockComponent, { waitForSize: true } );
+		// Waiting is the default, which a chart that lays itself out from its own content turns off.
+		const WaitingComponent = ResponsiveComponent;
+		const SelfLayingOutComponent = withResponsive( MockComponent, { waitForSize: false } );
 
 		test( 'renders a chart that lays itself out before any measurement', () => {
 			useParentSize.mockImplementation( () => UNMEASURED );
-			render( <ResponsiveComponent data={ [] } /> );
+			render( <SelfLayingOutComponent data={ [] } /> );
 			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
 		} );
 
@@ -181,6 +183,30 @@ describe( 'withResponsive', () => {
 				width: '600px',
 				height: '0px',
 			} );
+		} );
+
+		test( 'draws anyway in a laid-out wrapper that measures 0, which can never report', () => {
+			// A shrink-to-fit parent takes its width from the wrapper, so waiting would pin the
+			// width at 0 and wait on itself. The wrapper has a box, unlike a hidden one.
+			useParentSize.mockImplementation( () => UNMEASURED );
+			jest
+				.spyOn( Element.prototype, 'getClientRects' )
+				.mockReturnValue( [ new DOMRect() ] as unknown as DOMRectList );
+
+			render( <WaitingComponent data={ [] } /> );
+
+			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
+		} );
+
+		test( 'keeps waiting when the wrapper has no box at all, as under display: none', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			jest
+				.spyOn( Element.prototype, 'getClientRects' )
+				.mockReturnValue( [] as unknown as DOMRectList );
+
+			render( <WaitingComponent data={ [] } /> );
+
+			expect( screen.queryByTestId( 'mock-component' ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'stays mounted when an ancestor hides the chart and it measures 0 again', () => {

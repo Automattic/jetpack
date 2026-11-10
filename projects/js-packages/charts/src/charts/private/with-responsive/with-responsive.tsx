@@ -36,9 +36,10 @@ export type ResponsiveConfig = {
 
 export type ResponsiveOptions = {
 	/**
-	 * Hold the chart back until the box has been measured. Set it for a chart that draws
-	 * its geometry from the box it is handed, and leave it off for one that lays itself
-	 * out from its own content, which has nothing to gain by waiting.
+	 * Hold the chart back until the box has been measured, which is what keeps a chart that
+	 * draws its geometry from that box from painting once at the wrong size. Defaults to true:
+	 * a chart that lays itself out from its own content has nothing to gain by waiting and may
+	 * turn it off, which costs it nothing, where forgetting to turn it on brings the jump back.
 	 */
 	waitForSize?: boolean;
 };
@@ -54,7 +55,7 @@ export type ResponsiveOptions = {
  */
 export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'options' > >( // 'options' is excluded so that each chart can define its own options type
 	WrappedComponent: ComponentType< T >,
-	{ waitForSize = false }: ResponsiveOptions = {}
+	{ waitForSize = true }: ResponsiveOptions = {}
 ) {
 	return function ResponsiveChart( {
 		resizeDebounceTime = 300,
@@ -159,14 +160,31 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		const hasBeenSized = useRef( ! waitForSize );
 		hasBeenSized.current = hasBeenSized.current || hasDimensions;
 
-		const wrappedComponent = hasBeenSized.current ? (
-			<WrappedComponent
-				width={ boxWidth }
-				height={ boxHeight }
-				size={ size }
-				{ ...( chartProps as T ) }
-			/>
-		) : null;
+		// A shrink-to-fit parent (inline-block, float, fit-content) takes its width from this
+		// wrapper, whose own width is a percentage of it, so holding the content back pins both
+		// at 0 and the measurement can never arrive. Give up waiting once, for a box that is laid
+		// out and still measures 0; a display:none ancestor leaves no box at all, and that chart
+		// has a real measurement coming when it is shown.
+		const [ hasNoSizeToWaitFor, setHasNoSizeToWaitFor ] = useState( false );
+		useIsomorphicLayoutEffect( () => {
+			if ( hasBeenSized.current || hasNoSizeToWaitFor ) {
+				return;
+			}
+			const node = wrapperRef.current;
+			if ( node && node.getClientRects().length > 0 && node.clientWidth === 0 ) {
+				setHasNoSizeToWaitFor( true );
+			}
+		} );
+
+		const wrappedComponent =
+			hasBeenSized.current || hasNoSizeToWaitFor ? (
+				<WrappedComponent
+					width={ boxWidth }
+					height={ boxHeight }
+					size={ size }
+					{ ...( chartProps as T ) }
+				/>
+			) : null;
 
 		// The outer element fills the parent (via CSS) so its live height reflects the
 		// real available space; JS sets width/height only when they are passed
