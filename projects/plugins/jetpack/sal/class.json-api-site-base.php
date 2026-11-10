@@ -1692,7 +1692,8 @@ abstract class SAL_Site {
 	/**
 	 * Whether this Simple or Atomic site was created on or after WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID.
 	 *
-	 * Self-hosted Jetpack sites take blog IDs from the same sequence, so they never count.
+	 * Self-hosted Jetpack sites take blog IDs from the same sequence, so they never count. A staging site gets a
+	 * blog ID of its own, so it goes by its production site's.
 	 *
 	 * @return bool
 	 */
@@ -1702,7 +1703,12 @@ abstract class SAL_Site {
 			return false;
 		}
 
-		return (int) $this->get_id() >= $cutoff;
+		$blog_id = (int) $this->get_wpcom_production_blog_id();
+		if ( ! $blog_id ) {
+			$blog_id = (int) $this->get_id();
+		}
+
+		return $blog_id >= $cutoff;
 	}
 
 	/**
