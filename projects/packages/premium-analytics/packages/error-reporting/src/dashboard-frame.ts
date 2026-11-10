@@ -58,6 +58,34 @@ function parseFrame( line: string, origin: string, start: number ): DashboardFra
 }
 
 /**
+ * The origins that can be matched, of those the page published.
+ *
+ * @param origins - Absolute URL prefixes that count as dashboard code, if any.
+ * @return The usable ones.
+ */
+function allowlisted( origins: string[] | undefined ): string[] {
+	if ( ! Array.isArray( origins ) ) {
+		return [];
+	}
+
+	return origins.filter( origin => typeof origin === 'string' && origin !== '' );
+}
+
+/**
+ * Whether free text names a script of an allowlisted origin.
+ *
+ * This is weaker evidence than a stack frame, since any text can quote a URL. It is for the
+ * failure whose own message names the module, where there is no frame to read.
+ *
+ * @param text    - A message or other free text.
+ * @param origins - Absolute URL prefixes that count as dashboard code, if any.
+ * @return Whether an allowlisted origin starts a URL in it.
+ */
+export function namesDashboardOrigin( text: string, origins: string[] | undefined ): boolean {
+	return allowlisted( origins ).some( origin => originStart( text, origin ) !== -1 );
+}
+
+/**
  * Finds the first stack frame served from an allowlisted script origin.
  *
  * @param stack   - The error stack, if any.
@@ -68,11 +96,11 @@ export function findDashboardFrame(
 	stack: string | undefined,
 	origins: string[] | undefined
 ): DashboardFrame | null {
-	if ( typeof stack !== 'string' || ! Array.isArray( origins ) ) {
+	if ( typeof stack !== 'string' ) {
 		return null;
 	}
 
-	const candidates = origins.filter( origin => typeof origin === 'string' && origin !== '' );
+	const candidates = allowlisted( origins );
 
 	for ( const line of stack.split( '\n' ) ) {
 		if ( ! FRAME_LINE.test( line ) ) {

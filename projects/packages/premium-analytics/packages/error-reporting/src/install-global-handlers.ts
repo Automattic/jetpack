@@ -1,4 +1,5 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { isChunkLoadError } from './chunk-recovery';
 import { reportError } from './report-error';
 
 let installed = false;
@@ -21,7 +22,13 @@ export function installGlobalErrorHandlers(): void {
 
 	window.addEventListener( 'unhandledrejection', event => {
 		const { reason } = event;
-		if ( reason instanceof Error && reason.stack ) {
+		if ( ! ( reason instanceof Error ) ) {
+			return;
+		}
+
+		// Firefox rejects a failed dynamic import with no stack at all. The reporter attributes
+		// that one by the module its message names, so it must not be dropped for want of one.
+		if ( reason.stack || isChunkLoadError( reason.message, reason.name ) ) {
 			reportError( reason, 'unhandledrejection' );
 		}
 	} );
