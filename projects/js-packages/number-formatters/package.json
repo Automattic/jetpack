@@ -36,7 +36,7 @@
 		"debug": "^4.4.0"
 	},
 	"devDependencies": {
-		"@babel/core": "7.29.7",
+		"@babel/core": "7.29.13",
 		"@jest/globals": "30.5.2",
 		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
