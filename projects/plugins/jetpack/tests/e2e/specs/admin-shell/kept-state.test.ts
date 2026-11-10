@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { installShellProbe, openMember, switchTo, where } from '../../helpers/admin-shell-helper';
+import {
+	installShellProbe,
+	menuLink,
+	openMember,
+	switchTo,
+	where,
+} from '../../helpers/admin-shell-helper';
 
 const FORMS = 'jetpack-forms-responses-wp-admin';
 
@@ -47,13 +53,31 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 	test( 'scroll position survives a round trip', async ( { page } ) => {
 		await page.setViewportSize( { width: 1280, height: 500 } );
 		await openMember( page, 'my-jetpack' );
+		// Playwright scrolls a link out from under the fixed admin bar before clicking it, moving the page.
+		const belowAdminBar = await menuLink( page, FORMS ).evaluate(
+			a =>
+				a.getBoundingClientRect().top -
+				document.getElementById( 'wpadminbar' )!.getBoundingClientRect().bottom
+		);
 		const room = await page.evaluate( () => document.documentElement.scrollHeight - innerHeight );
-		test.skip( room < 200, 'My Jetpack is not tall enough to scroll here' );
-		await page.mouse.wheel( 0, 200 );
-		await expect.poll( () => page.evaluate( () => scrollY ) ).toBeGreaterThan( 100 );
+		const by = Math.min( 200, room, belowAdminBar - 8 );
+		test.skip( by < 100, 'My Jetpack cannot scroll far enough here with the Forms link in view' );
+		await page.mouse.wheel( 0, by );
+		await expect.poll( () => page.evaluate( () => scrollY ) ).toBeGreaterThan( 50 );
 		const scrolled = await page.evaluate( () => scrollY );
+		await page.evaluate( () =>
+			document.addEventListener(
+				'click',
+				() => ( document.documentElement.dataset.scrollAtClick = String( scrollY ) ),
+				{ capture: true, once: true }
+			)
+		);
 
 		await switchTo( page, FORMS );
+		expect(
+			Number( await page.locator( 'html' ).getAttribute( 'data-scroll-at-click' ) ),
+			'the click scrolled the page first: is the Forms link under the admin bar?'
+		).toBe( scrolled );
 		await switchTo( page, 'my-jetpack' );
 		await expect.poll( () => page.evaluate( () => scrollY ) ).toBe( scrolled );
 	} );
