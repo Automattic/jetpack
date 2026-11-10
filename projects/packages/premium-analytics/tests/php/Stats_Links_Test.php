@@ -240,6 +240,22 @@ class Stats_Links_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_retired_stats_page_opens_the_dashboard_despite_simples_index_stats_page() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
+		$this->login_as( 'administrator' );
+		$_GET['page']                      = 'stats';
+		$GLOBALS['_parent_pages']['stats'] = 'index.php';
+
+		try {
+			$this->assertSame(
+				'http://example.org/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=%2F%3Fsection%3Dtraffic',
+				$this->redirect_from_retired_stats_page( '#!/stats/day/123' )
+			);
+		} finally {
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
+		}
+	}
+
 	/**
 	 * The fragment never reaches the server, so the page hands it back under the query arg the redirect reads.
 	 */

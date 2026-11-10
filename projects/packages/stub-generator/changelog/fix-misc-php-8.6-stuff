@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Tests: Update error message expectations for PHP 8.6 changes.
+
+

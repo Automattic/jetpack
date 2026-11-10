@@ -1,0 +1,246 @@
+<?php
+/**
+ * Tests for working out what a flagged file belongs to.
+ *
+ * @package automattic/jetpack-protect
+ */
+
+namespace Automattic\Jetpack\Protect;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use WorDBless\BaseTestCase;
+
+/**
+ * @covers \Automattic\Jetpack\Protect\Threat_File
+ */
+#[CoversClass( Threat_File::class )]
+class Threat_File_Test extends BaseTestCase {
+
+	/**
+	 * Files written by a test, removed afterwards.
+	 *
+	 * @var string[]
+	 */
+	private $files = array();
+
+	/**
+	 * Remove the test's files and cached checksums.
+	 */
+	public function tear_down() {
+		foreach ( $this->files as $file ) {
+			wp_delete_file( $file );
+		}
+		delete_transient( Threat_File::CHECKSUMS_CACHE );
+		remove_all_filters( 'map_meta_cap' );
+		remove_all_filters( 'pre_http_request' );
+		wp_set_current_user( 0 );
+		$GLOBALS['wp_theme_directories'] = array_values( array_diff( (array) $GLOBALS['wp_theme_directories'], array( WP_CONTENT_DIR . '/protect-test-themes' ) ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		parent::tear_down();
+	}
+
+	/**
+	 * Write a file, creating its folder.
+	 *
+	 * @param string $path     The path.
+	 * @param string $contents The contents.
+	 * @return string The real path.
+	 */
+	private function write( $path, $contents = '<?php' ) {
+		if ( ! is_dir( dirname( $path ) ) ) {
+			mkdir( dirname( $path ), 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		}
+		file_put_contents( $path, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$this->files[] = $path;
+		return realpath( $path );
+	}
+
+	/**
+	 * Files, by where they are, with the owner type each gets and whether it may be deleted.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_files() {
+		return array(
+			'stray code in uploads'          => array( 'uploads', 'none', true ),
+			'a plugin file'                  => array( 'plugin', 'plugin', false ),
+			'loose file in plugins folder'   => array( 'loose-plugin-file', 'none', true ),
+			'unchanged core file'            => array( 'core', 'core', false ),
+			'stray file among core files'    => array( 'stray-core', 'none', true ),
+			'core file, checksums unknown'   => array( 'core', 'unknown', false, false ),
+			'wp-content index, unchecked'    => array( 'content-index', 'unknown', false, false ),
+			'site configuration'             => array( 'wp-config', 'none', false ),
+			'loader of a separate WP folder' => array( 'site-index', 'none', false ),
+			'beside a separate WP folder'    => array( 'site-root', 'none', false ),
+			'theme in a registered folder'   => array( 'registered-theme', 'theme', false ),
+			'loaded by the site'             => array( 'loaded', 'none', false ),
+			'drop-in in wp-content'          => array( 'drop-in', 'none', false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_files
+	 *
+	 * @param string $where      Which file to write.
+	 * @param string $owner      The owner type it should get.
+	 * @param bool   $can_delete Whether the dashboard may delete it.
+	 * @param bool   $checksums  Whether WordPress.org's checksums could be fetched.
+	 */
+	#[DataProvider( 'provide_files' )]
+	public function test_only_stray_files_can_be_deleted( $where, $owner, $can_delete, $checksums = true ) {
+		set_transient(
+			Threat_File::CHECKSUMS_CACHE,
+			array(
+				'version'   => get_bloginfo( 'version' ),
+				'locale'    => 'en_US',
+				'checksums' => $checksums ? array( 'wp-includes/protect-test-core.php' => md5( '<?php' ) ) : array(),
+			)
+		);
+		$paths = array(
+			'uploads'           => wp_upload_dir( null, false )['basedir'] . '/protect-test.php',
+			'plugin'            => WP_PLUGIN_DIR . '/protect-test-plugin/includes/helper.php',
+			'loose-plugin-file' => WP_PLUGIN_DIR . '/protect-test-loose.php',
+			'core'              => ABSPATH . 'wp-includes/protect-test-core.php',
+			'content-index'     => WP_CONTENT_DIR . '/index.php',
+			'stray-core'        => ABSPATH . 'wp-includes/protect-test-stray.php',
+			'wp-config'         => ABSPATH . 'protect-test/wp-config.php',
+			'site-index'        => dirname( ABSPATH ) . '/protect-test-site/index.php',
+			'site-root'         => dirname( ABSPATH ) . '/protect-test-site/protect-test.php',
+			'registered-theme'  => WP_CONTENT_DIR . '/protect-test-themes/protect-test-theme/functions.php',
+			'loaded'            => ABSPATH . 'protect-test-db-config.php',
+			'drop-in'           => WP_CONTENT_DIR . '/db-error.php',
+		);
+		if ( 'plugin' === $where ) {
+			$this->write( WP_PLUGIN_DIR . '/protect-test-plugin/protect-test-plugin.php', "<?php\n/**\n * Plugin Name: Protect Test Plugin\n */\n" );
+			wp_clean_plugins_cache( false );
+		}
+		if ( 'registered-theme' === $where ) {
+			$this->write( WP_CONTENT_DIR . '/protect-test-themes/protect-test-theme/style.css', "/*\nTheme Name: Protect Test Theme\n*/\n" );
+			register_theme_directory( WP_CONTENT_DIR . '/protect-test-themes' );
+		}
+		$path = $this->write( $paths[ $where ] );
+		if ( 'loaded' === $where ) {
+			require_once $path;
+		}
+
+		$found = Threat_File::get_owner( $path );
+
+		$this->assertSame( $owner, $found['type'], 'Owner' );
+		$this->assertSame( $can_delete, Threat_File::can_delete( $path, $found ), 'Deletable' );
+		$this->assertSame( 'loaded' === $where, Threat_File::is_loaded_stray( $path, $found ), 'Loaded' );
+	}
+
+	/**
+	 * Restore a changed core file, with WordPress.org serving the given copy of it.
+	 *
+	 * @param string $download What WordPress.org serves.
+	 * @return array The restore's result, and the file's path.
+	 */
+	private function restore_core_file( $download ) {
+		set_transient(
+			Threat_File::CHECKSUMS_CACHE,
+			array(
+				'version'   => get_bloginfo( 'version' ),
+				'locale'    => 'en_US',
+				'checksums' => array( 'wp-includes/protect-test-core.php' => md5( '<?php // original' ) ),
+			)
+		);
+		$path = $this->write( ABSPATH . 'wp-includes/protect-test-core.php', '<?php // changed' );
+		chmod( $path, 0640 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
+		$serve = function () use ( $download ) {
+			return array(
+				'headers'  => array(),
+				'body'     => $download,
+				'response' => array( 'code' => 200 ),
+				'cookies'  => array(),
+			);
+		};
+		add_filter( 'pre_http_request', $serve );
+		$result = Threat_File::restore( $path );
+		remove_filter( 'pre_http_request', $serve );
+		clearstatcache();
+		return array( $result, $path );
+	}
+
+	/**
+	 * Files in a folder that a restore might have left behind.
+	 *
+	 * @param string $path A file in the folder.
+	 * @return string[]
+	 */
+	private static function temp_files( $path ) {
+		return glob( dirname( $path ) . '/*.tmp' );
+	}
+
+	public function test_restore_replaces_the_file_whole_and_keeps_its_mode() {
+		list( $result, $path ) = $this->restore_core_file( '<?php // original' );
+
+		$this->assertTrue( $result );
+		$this->assertSame( '<?php // original', file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$this->assertSame( 0640, fileperms( $path ) & 0777 );
+		$this->assertSame( array(), self::temp_files( $path ) );
+	}
+
+	public function test_restore_refuses_a_download_that_fails_its_checksum_before_writing() {
+		list( $result, $path ) = $this->restore_core_file( '<?php // localized' );
+
+		$this->assertSame( 'original_mismatch', $result->get_error_code() );
+		$this->assertSame( '<?php // changed', file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$this->assertSame( array(), self::temp_files( $path ) );
+	}
+
+	public function test_delete_refuses_a_file_the_site_loaded() {
+		$path = $this->write( WP_CONTENT_DIR . '/protect-test-wp-cache-config.php' );
+		require_once $path;
+
+		$this->assertSame( 'threat_file_loaded', Threat_File::delete( $path )->get_error_code() );
+		$this->assertFileExists( $path );
+	}
+
+	/**
+	 * Files by owner, with whether the user may update core, and whether Restore is offered.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_restorable_files() {
+		return array(
+			'changed core file'                 => array( 'core', true, true, true ),
+			'unchanged core file'               => array( 'core', false, true, false ),
+			'stray file'                        => array( 'none', false, true, false ),
+			'changed core file, no core update' => array( 'core', true, false, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_restorable_files
+	 *
+	 * @param string $type        The file's owner type.
+	 * @param bool   $modified    Whether it differs from WordPress.org's copy.
+	 * @param bool   $update_core Whether the user may update core.
+	 * @param bool   $expected    Whether Restore is offered.
+	 */
+	#[DataProvider( 'provide_restorable_files' )]
+	public function test_only_changed_core_files_can_be_restored( $type, $modified, $update_core, $expected ) {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'admin',
+					'user_pass'  => 'pass',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		$refuse = function ( $caps, $cap ) use ( $update_core ) {
+			return 'update_core' === $cap && ! $update_core ? array( 'do_not_allow' ) : $caps;
+		};
+		add_filter( 'map_meta_cap', $refuse, 10, 2 );
+		$path = $this->write( ABSPATH . 'wp-includes/protect-test-core.php' );
+
+		$owner = array(
+			'type'     => $type,
+			'modified' => $modified,
+		);
+
+		$this->assertSame( $expected, Threat_File::can_restore( $path, $owner ) );
+	}
+}

@@ -68,8 +68,8 @@ class Monitor_Abilities extends Registrar {
 	public static function get_abilities(): array {
 		return array(
 			'jetpack-monitor/get-monitor-status' => array(
-				'label'               => __( 'Get Jetpack Monitor status', 'jetpack' ),
-				'description'         => __( 'Return the current Downtime Monitor state as { module_active, user_connected, notifications_enabled, last_status_change }. notifications_enabled is a boolean (does the current user receive downtime alerts). last_status_change is the timestamp of the most recent up/down status transition recorded by the Monitor service, as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when no transition has been recorded — this reflects the legacy last_status_change projection, not necessarily the last time downtime began. Fails with jetpack_monitor_not_connected when the current user is not connected to Jetpack (connect first via the My Jetpack admin page), or jetpack_monitor_service_unreachable when the remote Monitor service cannot be reached. These abilities are only registered while the Monitor module is active; if they are absent from wp_get_abilities(), activate the Monitor module first.', 'jetpack' ),
+				'label'               => __( 'Get downtime monitoring status', 'jetpack' ),
+				'description'         => __( 'Return the current downtime monitoring state as { module_active, user_connected, notifications_enabled, last_status_change }. notifications_enabled is a boolean (does the current user receive downtime alerts). last_status_change is the timestamp of the most recent up/down status transition recorded by the downtime monitoring service, as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when no transition has been recorded — this reflects the legacy last_status_change projection, not necessarily the last time downtime began. Fails with jetpack_monitor_not_connected when the current user is not connected to Jetpack (connect first via the My Jetpack admin page), or jetpack_monitor_service_unreachable when the remote downtime monitoring service cannot be reached. These abilities are only registered while the Downtime monitoring module (slug `monitor`) is active; if they are absent from wp_get_abilities(), activate that module first.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
@@ -100,8 +100,8 @@ class Monitor_Abilities extends Registrar {
 			),
 
 			'jetpack-monitor/set-notifications'  => array(
-				'label'               => __( 'Set Jetpack Monitor notifications', 'jetpack' ),
-				'description'         => __( 'Enable or disable downtime email notifications for the current user. Idempotent — setting the state to the current value returns changed=false. Returns { enabled, changed }. Preconditions: the Monitor module must be active and the current user must be connected to Jetpack; call jetpack-monitor/get-monitor-status first to verify the connection. Fails with jetpack_monitor_module_inactive (activate the Monitor module first — these abilities are only registered while the module is active, so this error indicates a race) or jetpack_monitor_not_connected when preconditions are not met.', 'jetpack' ),
+				'label'               => __( 'Set downtime monitoring notifications', 'jetpack' ),
+				'description'         => __( 'Enable or disable downtime email notifications for the current user. Idempotent — setting the state to the current value returns changed=false. Returns { enabled, changed }. Preconditions: the Downtime monitoring module must be active and the current user must be connected to Jetpack; call jetpack-monitor/get-monitor-status first to verify the connection. Fails with jetpack_monitor_module_inactive (activate the Downtime monitoring module first — these abilities are only registered while the module is active, so this error indicates a race) or jetpack_monitor_not_connected when preconditions are not met.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'enabled' ),
@@ -187,7 +187,7 @@ class Monitor_Abilities extends Registrar {
 		if ( ! $module_active ) {
 			return new \WP_Error(
 				'jetpack_monitor_module_inactive',
-				__( 'The Monitor module is not active. Activate it before reading Monitor status.', 'jetpack' )
+				__( 'The Downtime monitoring module is not active. Activate it before reading the downtime monitoring status.', 'jetpack' )
 			);
 		}
 
@@ -202,7 +202,7 @@ class Monitor_Abilities extends Registrar {
 		if ( is_wp_error( $state ) ) {
 			return new \WP_Error(
 				'jetpack_monitor_service_unreachable',
-				__( 'The remote Jetpack Monitor service is unreachable. Retry shortly; this is typically transient.', 'jetpack' ),
+				__( 'The remote downtime monitoring service is unreachable. Retry shortly; this is typically transient.', 'jetpack' ),
 				array( 'underlying' => $state->get_error_code() )
 			);
 		}
@@ -211,7 +211,7 @@ class Monitor_Abilities extends Registrar {
 		if ( is_wp_error( $status_change ) ) {
 			return new \WP_Error(
 				'jetpack_monitor_service_unreachable',
-				__( 'The remote Jetpack Monitor service is unreachable. Retry shortly; this is typically transient.', 'jetpack' ),
+				__( 'The remote downtime monitoring service is unreachable. Retry shortly; this is typically transient.', 'jetpack' ),
 				array( 'underlying' => $status_change->get_error_code() )
 			);
 		}
@@ -253,14 +253,14 @@ class Monitor_Abilities extends Registrar {
 		if ( ! Jetpack::is_module_active( self::MODULE_SLUG ) ) {
 			return new \WP_Error(
 				'jetpack_monitor_module_inactive',
-				__( 'The Monitor module is not active. Activate it before configuring notifications.', 'jetpack' )
+				__( 'The Downtime monitoring module is not active. Activate it before configuring notifications.', 'jetpack' )
 			);
 		}
 
 		if ( ! static::is_user_connected_to_jetpack() ) {
 			return new \WP_Error(
 				'jetpack_monitor_not_connected',
-				__( 'The current user is not connected to Jetpack. Connect the user to Jetpack before configuring Monitor notifications.', 'jetpack' )
+				__( 'The current user is not connected to Jetpack. Connect the user to Jetpack before configuring downtime monitoring notifications.', 'jetpack' )
 			);
 		}
 

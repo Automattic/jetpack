@@ -1422,6 +1422,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'has_videopress'             => true,
 				'can_view_stats'             => true,
 				'classic_stats_url'          => null,
+				'classic_stats_retired'      => false,
 				'sections'                   => array( 'traffic', 'insights', 'subscribers' ),
 				'plan_date_limited_sections' => array( 'traffic' ),
 			),
@@ -1445,6 +1446,17 @@ class Dashboard_Section_Test extends BaseTestCase {
 			);
 		} finally {
 			unset( $GLOBALS['_parent_pages']['jetpack'], $GLOBALS['_parent_pages']['stats'] );
+		}
+	}
+
+	public function test_section_script_data_offers_no_classic_stats_page_once_retired_despite_simples_index_stats_page() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
+		$GLOBALS['_parent_pages']['stats'] = 'index.php';
+		try {
+			$this->assertNull( inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url'] );
+		} finally {
+			unset( $GLOBALS['_parent_pages']['stats'] );
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
 		}
 	}
 

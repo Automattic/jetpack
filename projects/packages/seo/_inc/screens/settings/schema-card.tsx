@@ -2,8 +2,9 @@
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { code } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard, Fieldset, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Fieldset, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import PausedNote from '../../components/paused-note';
 import StatusIndicator from '../../components/status-indicator';
 import { cleanProfileUrls } from '../../data/schema-settings-utils';
 import { useSchemaSettings } from '../../data/use-schema-settings';
@@ -25,8 +26,6 @@ interface Props {
 	initialSettings: SchemaSettings;
 	onSave?: ( settings: SchemaSettings ) => void;
 	disabled?: boolean;
-	planLocked?: boolean;
-	disabledReason?: string;
 }
 
 /**
@@ -35,19 +34,10 @@ interface Props {
  * @param root0                 - Component props.
  * @param root0.initialSettings - Settings bootstrap from the Settings screen.
  * @param root0.onSave          - Called with the saved schema payload after a successful save.
- * @param root0.disabled        - Whether editing is disabled.
- * @param root0.planLocked      - Whether the plan prevents editing.
- * @param root0.disabledReason  - Explanation shown while editing is disabled.
+ * @param root0.disabled        - Whether editing is locked while Jetpack's SEO output is paused.
  * @return The Schema settings card.
  */
-function SchemaCard( {
-	initialSettings,
-	onSave,
-	disabled: outputDisabled = false,
-	planLocked = false,
-	disabledReason,
-}: Props ) {
-	const disabled = outputDisabled || planLocked;
+function SchemaCard( { initialSettings, onSave, disabled = false }: Props ) {
 	const form = useSchemaSettings( initialSettings, onSave );
 	const {
 		siteRepresents,
@@ -98,10 +88,12 @@ function SchemaCard( {
 	];
 	const configuredCount = configuredFields.filter( Boolean ).length;
 	let schemaStatus: SettingStatus = 'not-started';
-	if ( configuredCount === configuredFields.length ) {
+	if ( disabled ) {
+		schemaStatus = 'paused';
+	} else if ( configuredCount === configuredFields.length ) {
 		schemaStatus = 'complete';
 	} else if ( configuredCount > 0 ) {
-		schemaStatus = 'in-progress';
+		schemaStatus = 'incomplete';
 	}
 
 	// One Save covers the Organization and its local-business refinement, so an
@@ -134,11 +126,7 @@ function SchemaCard( {
 					aria-label={ __( 'Schema settings', 'jetpack-seo' ) }
 					aria-describedby={ disabled ? 'jetpack-seo-schema-disabled' : undefined }
 				>
-					{ disabled && disabledReason && (
-						<Notice.Root intent="warning" id="jetpack-seo-schema-disabled">
-							<Notice.Description>{ disabledReason }</Notice.Description>
-						</Notice.Root>
-					) }
+					{ disabled && <PausedNote id="jetpack-seo-schema-disabled" /> }
 					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Structured data that tells search engines and AI assistants what your site is and who runs it. Answer a couple of questions and Jetpack adds the right markup automatically.',
@@ -176,7 +164,7 @@ function SchemaCard( {
 								<PersonSection
 									form={ form }
 									disabled={ disabled }
-									disabledReasonId={ disabledReason ? 'jetpack-seo-schema-disabled' : undefined }
+									disabledReasonId={ disabled ? 'jetpack-seo-schema-disabled' : undefined }
 								/>
 							) : (
 								/* Name the Organization fields separately from the entity selector. */

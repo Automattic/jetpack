@@ -23,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.16.0';
+	const PACKAGE_VERSION = '0.17.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -130,6 +130,8 @@ class Analytics {
 	 */
 	private static function load_dashboard_surface() {
 		if ( ! self::renders_admin_chrome() ) {
+			// Calypso's sidebar replays wp-admin/menu.php over REST, where nothing else lists the dashboard.
+			add_action( 'admin_menu', array( static::class, 'register_replayed_admin_menu' ) );
 			return;
 		}
 
@@ -359,8 +361,9 @@ class Analytics {
 		require_once __DIR__ . '/default-dashboard-sections.php';
 		configure_dashboard_sections_script_data();
 
-		// Single-report page API; other plugins and, later, the package register pages through it.
+		// Single-report page API, then the package's own pages registered through it.
 		require_once __DIR__ . '/single-report-pages.php';
+		require_once __DIR__ . '/default-single-report-pages.php';
 		configure_single_report_pages_script_data();
 
 		// Default-on CSV export settings and server-side disable filter.
@@ -503,6 +506,15 @@ class Analytics {
 	const MENU_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
 	/**
+	 * Where the dashboard sits in the admin menu: under the Dashboard, and on WordPress.com
+	 * between My Home (2.01) and Hosting (2.98).
+	 *
+	 * Not 2, which the Dashboard holds: core gives a second entry there a hashed fraction to
+	 * tell the two apart, and the menu's natural sort reads one such as .21518 as past .99.
+	 */
+	private const MENU_POSITION = 2.1;
+
+	/**
 	 * Whether the current request is rendering the Premium Analytics dashboard.
 	 *
 	 * Scopes the wp-build polyfill registration (which force-replaces core script handles) to
@@ -562,20 +574,45 @@ class Analytics {
 			? 'jpa_jetpack_premium_analytics_wp_admin_render_page'
 			: array( __CLASS__, 'render_missing_build_notice' );
 
-		$menu_title = self::menu_title();
+		self::add_dashboard_menu_entry( $render_callback );
+	}
 
-		$menu_title = esc_html( $menu_title );
+	/**
+	 * List the dashboard in a menu built outside wp-admin, such as the one the admin-menu REST endpoint returns.
+	 *
+	 * Loads the section registry but not the build: the menu capability depends on the sections.
+	 * Do not rename: wpcomsh retires classic Stats on Atomic only while this method exists.
+	 *
+	 * @since 0.17.0
+	 *
+	 * @return void
+	 */
+	public static function register_replayed_admin_menu() {
+		require_once __DIR__ . '/dashboard-layout.php';
+		require_once __DIR__ . '/default-dashboard-sections.php';
+
+		self::add_dashboard_menu_entry( '__return_null' );
+	}
+
+	/**
+	 * Add the dashboard's top-level menu entry.
+	 *
+	 * @param callable $render_callback Renders the page.
+	 * @return void
+	 */
+	private static function add_dashboard_menu_entry( $render_callback ) {
+		$menu_title = esc_html( self::menu_title() );
 		$capability = Capabilities::dashboard_page_capability();
 
 		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
 		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
-			add_menu_page( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2 );
+			add_menu_page( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', self::MENU_POSITION );
 			return;
 		}
 
 		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
 		// the dashboard has no My Jetpack product class and no module to name.
-		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
+		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', self::MENU_POSITION, array( 'key' => 'jetpack-premium-analytics' ) );
 	}
 
 	/**

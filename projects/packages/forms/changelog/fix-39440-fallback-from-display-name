@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Inbox: Show "Anonymous" for responses with no author details, and hide the IP address row when no IP was recorded.

@@ -20,7 +20,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass( WPCOM_Online_Subscription_Service::class )]
 class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
-	use Without_WPCOM_Include_Warning;
 
 	/**
 	 * Email used for both the current user and the Blog_Subscriber mock.
@@ -40,6 +39,18 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	 * @var integer
 	 */
 	private $blog_id;
+
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		$file = WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
+		if ( ! is_dir( dirname( $file ) ) ) {
+			mkdir( dirname( $file ), 0777, true );
+		}
+		if ( ! file_exists( $file ) ) {
+			file_put_contents( $file, "<?php\n" );
+		}
+	}
 
 	public function set_up() {
 		parent::set_up();
@@ -95,11 +106,7 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	 * @return boolean
 	 */
 	private function is_current_user_subscribed() {
-		return $this->run_without_wpcom_include_warning(
-			static function () {
-				return ( new WPCOM_Online_Subscription_Service() )->is_current_user_subscribed();
-			}
-		);
+		return ( new WPCOM_Online_Subscription_Service() )->is_current_user_subscribed();
 	}
 
 	public function test_returns_false_when_neither_email_subscribed_nor_following() {
@@ -162,22 +169,14 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 		$service         = new WPCOM_Online_Subscription_Service();
 
 		$this->assertTrue(
-			$this->run_without_wpcom_include_warning(
-				static function () use ( $service ) {
-					return $service->is_current_user_subscribed();
-				}
-			),
+			$service->is_current_user_subscribed(),
 			'Sanity check: the reader should be considered subscribed via the Reader follow.'
 		);
 
 		$this->assertFalse(
-			$this->run_without_wpcom_include_warning(
-				static function () use ( $service ) {
-					return $service->visitor_can_view_content(
-						array( 999999 ),
-						Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS
-					);
-				}
+			$service->visitor_can_view_content(
+				array( 999999 ),
+				Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS
 			),
 			'Following in the Reader must not unlock paid-tier content.'
 		);

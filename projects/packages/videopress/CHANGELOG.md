@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.62.0] - 2026-11-09
+### Added
+- Dashboard: Add a Playlists tab to create, edit, publish and delete video playlists, with every Video Playlist block setting. [#54504]
+
+### Changed
+- Stats dashboard: open the Top videos list tall enough for its ten entries. [#54603]
+- Top videos widget: Take the chart's accessible name from the widget title instead of repeating it. [#54513]
+- Update package dependencies. [#54512]
+- Use the design system progress bar for the upload, processing and storage meters. [#54512]
+- Use the design system tooltip for the upload buttons. [#54512]
+
+### Fixed
+- Recording: Explain camera and microphone errors with steps to fix them, and retry once access is allowed. [#54509]
+- Uploads: Report failures when an upload cannot be initialized. [#54475]
+
 ## [0.61.0] - 2026-11-02
 ### Added
 - Add camera recording with selectable filters, animated controls, mirrored preview, and trim-and-cut editing before uploading from the dashboard and VideoPress block. [#54233]
@@ -2403,6 +2418,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.62.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.60.1...v0.61.0
 [0.60.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.60.0...v0.60.1
 [0.60.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.59.0...v0.60.0

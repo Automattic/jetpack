@@ -11,6 +11,7 @@ import { AbbreviatedValue } from '../abbreviated-value';
 const COMPACT = { type: 'number' as const, options: { useMultipliers: true } };
 const PREFER_EXACT = { ...COMPACT, preferExact: true };
 const withOpens = ( exact: string ) => `${ exact } opens`;
+const settle = () => act( () => jest.runAllTimersAsync() );
 
 describe( 'AbbreviatedValue', () => {
 	beforeEach( () => {
@@ -33,10 +34,9 @@ describe( 'AbbreviatedValue', () => {
 		render( <AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } /> );
 
 		await user.hover( screen.getByText( '18.4K' ) );
+		await settle();
 
-		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( '18,432' );
+		expect( screen.getByTestId( 'abbreviated-value-tooltip' ) ).toHaveTextContent( '18,432' );
 	} );
 
 	it( 'renders a plain value when nothing was shortened', () => {
@@ -75,10 +75,9 @@ describe( 'AbbreviatedValue', () => {
 		expect( screen.queryByText( '18,432' ) ).not.toBeInTheDocument();
 
 		await user.hover( screen.getByText( '18.4K' ) );
+		await settle();
 
-		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( '18,432 opens' );
+		expect( screen.getByTestId( 'abbreviated-value-tooltip' ) ).toHaveTextContent( '18,432 opens' );
 	} );
 
 	it( 'reads a label to assistive tech without a tooltip when nothing was shortened', async () => {
@@ -91,9 +90,9 @@ describe( 'AbbreviatedValue', () => {
 		expect( screen.getByText( '432 opens' ) ).toBeInTheDocument();
 
 		await user.hover( screen.getByText( '432' ) );
-		act( () => jest.advanceTimersByTime( 3000 ) );
+		await settle();
 
-		expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'abbreviated-value-tooltip' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'reads the currency from the data format when no prop overrides it', () => {

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-11-06
+### Added
+- Add a `signal` option to `BrowserInterfaceIframe` that ends page loads when the caller cancels generation, and give the status checks that follow a page load their own 30-second limit so a check that never answers ends the page.
+
+### Changed
+- Update package dependencies.
+
+### Fixed
+- Avoid repeating shared critical styles from combined stylesheets across pages.
+
 ## [2.0.7] - 2026-09-28
 ### Changed
 - Update package dependencies. [#52297]
@@ -195,6 +205,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version. [#38429]
 
+[2.1.0]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v2.0.7...v2.1.0
 [2.0.7]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v2.0.6...v2.0.7
 [2.0.6]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v2.0.5...v2.0.6
 [2.0.5]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v2.0.4...v2.0.5

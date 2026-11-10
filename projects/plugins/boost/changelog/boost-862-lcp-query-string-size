@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-LCP: Stop cropping the LCP image when its URL has a query string.

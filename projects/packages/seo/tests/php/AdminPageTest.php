@@ -8,14 +8,19 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Admin_Page
+ * @covers \Automattic\Jetpack\SEO\Initializer
  */
 #[CoversClass( Admin_Page::class )]
+#[CoversClass( Initializer::class )]
 class AdminPageTest extends TestCase {
 
 	/**
@@ -67,6 +72,30 @@ class AdminPageTest extends TestCase {
 		$data = Admin_Page::inject_script_data( array() );
 
 		return $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['is_gated'];
+	}
+
+	/**
+	 * Every tab reads whether SEO output is paused from the same script data.
+	 */
+	public function test_script_data_reports_the_output_state() {
+		$plugin = static function () {
+			return 'Yoast SEO';
+		};
+		add_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+
+		try {
+			$data = Admin_Page::inject_script_data( array() );
+		} finally {
+			remove_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+		}
+
+		$this->assertSame(
+			array(
+				'paused'             => true,
+				'conflicting_plugin' => 'Yoast SEO',
+			),
+			$data[ Initializer::SCRIPT_DATA_KEY ]['output']
+		);
 	}
 
 	/**
@@ -132,12 +161,20 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * The upsell URL points at Premium (`value_bundle`) checkout for this site. It's
-	 * only built when the site is actually gated (the ungated case is asserted empty
-	 * below), so this drives a gated wpcom site.
+	 * @dataProvider upgrade_plans
 	 */
-	public function test_upsell_url_targets_premium_checkout() {
+	#[DataProvider( 'upgrade_plans' )]
+	public function test_upsell_url_targets_premium_checkout( $simple, $plan_slug, $product ) {
 		$this->simulate_wpcom_site( false );
+		if ( ! $simple ) {
+			Constants::clear_single_constant( 'IS_WPCOM' );
+			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
+		}
+		Status_Cache::clear();
+		\WPCOM_Store_API::$plan = array( 'product_slug' => $simple ? $plan_slug : 'jetpack_free' );
+		Current_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => $simple ? 'jetpack_free' : $plan_slug ) ) );
 
 		try {
 			$data       = Admin_Page::inject_script_data( array() );
@@ -145,8 +182,53 @@ class AdminPageTest extends TestCase {
 
 			$this->assertIsString( $upsell_url );
 			$this->assertStringStartsWith( 'https://wordpress.com/checkout/', $upsell_url );
-			$this->assertStringEndsWith( '/value_bundle', $upsell_url );
+			$this->assertStringEndsWith( '/' . $product, wp_parse_url( $upsell_url, PHP_URL_PATH ) );
+			parse_str( wp_parse_url( $upsell_url, PHP_URL_QUERY ), $query );
+			$this->assertSame( admin_url( 'admin.php?page=jetpack-seo' ), $query['redirect_to'] );
+			$this->assertSame( Admin_Page::get_url(), $query['checkoutBackUrl'] );
 		} finally {
+			\WPCOM_Store_API::$plan = array();
+			Current_Plan::update_from_site_record( array( 'plan' => array() ) );
+			delete_option( Current_Plan::PLAN_OPTION );
+			Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+			Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+			Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+			Status_Cache::clear();
+			$this->reset_wpcom_site();
+		}
+	}
+
+	public static function upgrade_plans() {
+		$cases = array();
+		foreach ( array(
+			'Simple' => true,
+			'Atomic' => false,
+		) as $host => $simple ) {
+			foreach ( array(
+				'jetpack_free'            => 'value_bundle',
+				'personal-bundle-monthly' => 'value_bundle',
+				'personal-bundle'         => 'value_bundle',
+				'personal-bundle-2y'      => 'value_bundle-2y',
+				'personal-bundle-3y'      => 'value_bundle-3y',
+			) as $plan => $product ) {
+				$cases[ "$host $plan" ] = array( $simple, $plan, $product );
+			}
+		}
+		return $cases;
+	}
+
+	public function test_p2_sites_have_no_upgrade_offer() {
+		$this->simulate_wpcom_site( false );
+		$stylesheet = static function () {
+			return 'pub/p2';
+		};
+		add_filter( 'stylesheet', $stylesheet );
+		try {
+			$data = Admin_Page::inject_script_data( array() );
+			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['is_gated'] );
+			$this->assertSame( '', $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['upsell_url'] );
+		} finally {
+			remove_filter( 'stylesheet', $stylesheet );
 			$this->reset_wpcom_site();
 		}
 	}
@@ -220,20 +302,17 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * The menu must be visible even when seo-tools is off, so the user can turn it back on.
-	 * Verified by checking that no module gate is declared on the registered item.
+	 * The menu item hides while seo-tools is off, like other Jetpack modules.
 	 */
-	public function test_menu_item_is_registered_without_a_module_gate() {
+	public function test_menu_item_is_gated_on_seo_tools() {
 		Admin_Page::add_menu_item();
 
 		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
 		if ( \PHP_VERSION_ID < 80100 ) {
 			$menu_items->setAccessible( true );
 		}
-		$items = $menu_items->getValue( null );
-
 		$seo_item = null;
-		foreach ( $items as $item ) {
+		foreach ( $menu_items->getValue( null ) as $item ) {
 			if ( Admin_Page::MENU_SLUG === $item['menu_slug'] ) {
 				$seo_item = $item;
 				break;
@@ -241,7 +320,7 @@ class AdminPageTest extends TestCase {
 		}
 
 		$this->assertNotNull( $seo_item, 'SEO menu item was not registered' );
-		$this->assertArrayNotHasKey( 'module', $seo_item['args'] ?? array() );
+		$this->assertSame( 'seo-tools', $seo_item['args']['module'] ?? null );
 		$this->assertSame( 'jetpack-seo', $seo_item['args']['key'] ?? null );
 	}
 
