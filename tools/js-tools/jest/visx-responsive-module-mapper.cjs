@@ -3,10 +3,8 @@ const path = require( 'path' );
 /**
  * `moduleNameMapper` entries that give `@automattic/charts` a measured parent in jsdom.
  *
- * The second entry is how the stand-in reaches the real module. It is resolved here rather
- * than in the stand-in because `@visx/responsive` is the charts package's dependency, not a
- * direct one of a plugin that renders a chart, so it resolves from neither that plugin nor
- * `jetpack-js-tools`.
+ * The real module is resolved here, from the project, because it is the charts package's
+ * dependency: neither the stand-in nor a plugin that renders a chart can resolve it.
  *
  * @param {string} projectRoot - The project's jest `rootDir`.
  * @return {object} Entries to spread into `moduleNameMapper`.

@@ -160,11 +160,9 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		const hasBeenSized = useRef( ! waitForSize );
 		hasBeenSized.current = hasBeenSized.current || hasDimensions;
 
-		// A shrink-to-fit parent (inline-block, float, fit-content) takes its width from this
-		// wrapper, whose own width is a percentage of it, so holding the content back pins both
-		// at 0 and the measurement can never arrive. Give up waiting once, for a box that is laid
-		// out and still measures 0; a display:none ancestor leaves no box at all, and that chart
-		// has a real measurement coming when it is shown.
+		// A shrink-to-fit parent takes its width from this wrapper, whose own width is a
+		// percentage of it, so waiting would pin both at 0 for good. Give up once for a box that
+		// is laid out and still measures 0; display:none leaves no box, and that one can wait.
 		const [ hasNoSizeToWaitFor, setHasNoSizeToWaitFor ] = useState( false );
 		useIsomorphicLayoutEffect( () => {
 			if ( hasBeenSized.current || hasNoSizeToWaitFor ) {
