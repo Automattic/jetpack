@@ -26,12 +26,14 @@ export type MoreFeaturesGroup = {
  * @param $module      - The module.
  * @param requested    - Switch key to the value asked of it, for a switch still in flight.
  * @param needsAccount - Whether the site has no connected owner and the current admin is not linked.
+ * @param groups       - The filter pills its heading puts it under, such as Security.
  * @return The module's state.
  */
 export function getModuleFeatureState(
 	$module: MyJetpackModule,
 	requested: Record< string, boolean >,
-	needsAccount = false
+	needsAccount = false,
+	groups: string[] = []
 ): FeatureState {
 	const asked = requested[ moduleSwitchKey( $module.module ) ];
 
@@ -41,6 +43,7 @@ export function getModuleFeatureState(
 			name: $module.name,
 			description: $module.description,
 			plans: [],
+			groups,
 			essential: false,
 		} as MainFeature,
 		status: ( asked ?? $module.activated ) ? 'active' : 'inactive',
@@ -115,7 +118,12 @@ export function groupMoreFeatures(
 
 		const index = groupOf.get( $module.module );
 		( index === undefined ? other : grouped[ index ].states ).push(
-			getModuleFeatureState( $module, requested, needsAccount )
+			getModuleFeatureState(
+				$module,
+				requested,
+				needsAccount,
+				index === undefined ? undefined : groups[ index ].groups
+			)
 		);
 	}
 	// Sorted on the translated label, so the order holds in every locale.
