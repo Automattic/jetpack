@@ -41,6 +41,7 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 		delete_option( 'page_on_front' );
 		delete_option( 'page_for_posts' );
 		delete_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION );
+		delete_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION );
 		parent::tear_down();
 	}
 
@@ -149,6 +150,61 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 			'neither set'                       => array( array( 'post_excerpt' => '' ), '', '', 'Our Blog' ),
 			'password-protected'                => array( $excerpt + array( 'post_password' => 'secret' ), 'Blog SEO description.', '', 'Our Blog' ),
 			'private page'                      => array( $excerpt + array( 'post_status' => 'private' ), 'Blog SEO description.', '', '' ),
+		);
+	}
+
+	/**
+	 * The posts page's title comes from its own SEO title, then the Pages title format, never from a listed post.
+	 *
+	 * @dataProvider provide_posts_page_titles
+	 *
+	 * @param array  $page_args      Post fields for the posts page.
+	 * @param string $seo_title      SEO title saved on the posts page.
+	 * @param bool   $pages_format   Whether a Pages title format is set.
+	 * @param string $expected_title Expected document title.
+	 * @param string $expected_og    Expected og:title, or empty for none.
+	 */
+	#[DataProvider( 'provide_posts_page_titles' )]
+	public function test_posts_page_title( $page_args, $seo_title, $pages_format, $expected_title, $expected_og ) {
+		$post_id = self::factory()->post->create( array( 'post_title' => 'Latest Post' ) );
+		update_post_meta( $post_id, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, 'Post SEO Title' );
+
+		if ( $pages_format ) {
+			update_option(
+				Jetpack_SEO_Titles::TITLE_FORMATS_OPTION,
+				array(
+					'pages' => array(
+						array(
+							'type'  => 'token',
+							'value' => 'page_title',
+						),
+						array(
+							'type'  => 'string',
+							'value' => ' | Pages format',
+						),
+					),
+				)
+			);
+		}
+
+		$this->go_to_posts_page( $page_args, '' );
+		update_post_meta( get_queried_object_id(), Jetpack_SEO_Posts::HTML_TITLE_META_KEY, $seo_title );
+
+		$this->assertSame( $expected_title, Jetpack_SEO_Titles::get_custom_title( 'Default Title' ) );
+		$this->assertSame( $expected_og, $this->seo->set_custom_og_tags( array() )['og:title'] ?? '' );
+	}
+
+	/**
+	 * Data provider for test_posts_page_title.
+	 *
+	 * @return array
+	 */
+	public static function provide_posts_page_titles() {
+		return array(
+			'SEO title'          => array( array(), 'Blog SEO Title', false, 'Blog SEO Title', 'Blog SEO Title' ),
+			'pages title format' => array( array(), '', true, 'Our Blog | Pages format', 'Our Blog | Pages format' ),
+			'neither set'        => array( array(), '', false, 'Default Title', 'Our Blog' ),
+			'private page'       => array( array( 'post_status' => 'private' ), 'Blog SEO Title', true, 'Default Title', '' ),
 		);
 	}
 
