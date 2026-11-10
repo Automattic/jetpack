@@ -1,6 +1,6 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { isChunkLoadError, recoverFromChunkLoad } from './chunk-recovery';
-import { findDashboardFrame } from './dashboard-frame';
+import { findDashboardFrame, namesDashboardOrigin } from './dashboard-frame';
 import { detectDomInterference } from './dom-interference';
 import { redactQuery, routePathname } from './redact-query';
 import type { DashboardFrame } from './dashboard-frame';
@@ -357,14 +357,23 @@ export function reportError(
 
 		const details = describeThrown( error );
 		const frame = findDashboardFrame( details.stack, config.script_origins );
-		if ( source !== 'boundary' && ! frame ) {
+		const chunkLoad = isChunkLoadError( details.message, details.name );
+
+		// A module that never loaded leaves no frame of ours to find: the browser raises the
+		// failure from its own loader, so the stack is the message line alone or nothing at all.
+		// The module it names is then the only thing that makes the failure ours.
+		const ours =
+			frame !== null ||
+			( chunkLoad && namesDashboardOrigin( details.message, config.script_origins ) );
+
+		if ( source !== 'boundary' && ! ours ) {
 			return;
 		}
 
 		send( details, source, frame, extra );
 
 		// Outside `send`, so a report the dedupe or the budget dropped still leaves a working page.
-		if ( isChunkLoadError( details.message, details.name ) ) {
+		if ( chunkLoad ) {
 			recoverFromChunkLoad();
 		}
 	} catch {

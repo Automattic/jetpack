@@ -69,6 +69,17 @@ describe( 'installGlobalErrorHandlers', () => {
 		expect( report ).toHaveBeenCalledWith( reason, 'unhandledrejection' );
 	} );
 
+	it( 'reports an unhandledrejection whose reason is a failed module load with no stack', async () => {
+		const { install, report } = await loadFresh();
+		install();
+		const reason = new TypeError( 'error loading dynamically imported module: https://x/a.js' );
+		reason.stack = '';
+
+		window.dispatchEvent( rejection( reason ) );
+
+		expect( report ).toHaveBeenCalledWith( reason, 'unhandledrejection' );
+	} );
+
 	it( 'ignores an unhandledrejection whose reason is an Error with no stack', async () => {
 		const { install, report } = await loadFresh();
 		install();

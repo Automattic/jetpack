@@ -407,6 +407,46 @@ describe( 'reportError', () => {
 		expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
 	} );
 
+	// The shapes a browser really raises: the loader owns the failure, so there is no frame of
+	// ours in the stack, and Firefox sends no stack at all.
+	it.each( [
+		[
+			'Chrome',
+			`Failed to fetch dynamically imported module: ${ ORIGIN }routes/posts/content.js`,
+			`TypeError: Failed to fetch dynamically imported module: ${ ORIGIN }routes/posts/content.js`,
+		],
+		[
+			'Firefox',
+			`error loading dynamically imported module: ${ ORIGIN }routes/posts/content.js`,
+			undefined,
+		],
+	] )(
+		'reports and reloads a %s module load failure that names our build',
+		( _b, message, stack ) => {
+			const error = new TypeError( message );
+			error.stack = stack;
+
+			reportError( error, 'unhandledrejection' );
+
+			expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+			expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
+			expect( reloadPage ).toHaveBeenCalledTimes( 1 );
+		}
+	);
+
+	it( 'ignores a module load failure that names another script', () => {
+		const error = new TypeError(
+			'Failed to fetch dynamically imported module: https://other.example/x.js'
+		);
+		error.stack =
+			'TypeError: Failed to fetch dynamically imported module: https://other.example/x.js';
+
+		reportError( error, 'unhandledrejection' );
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+		expect( reloadPage ).not.toHaveBeenCalled();
+	} );
+
 	it( 'reports a failed module load and then reloads to pick up the deployed build', () => {
 		reportError( dashboardError( 'Failed to fetch dynamically imported module' ), 'boundary' );
 
