@@ -306,6 +306,7 @@ function OverviewContent( {
 				scoreChange={
 					scoreState.status === 'loaded' &&
 					! scoreState.scores.isStale &&
+					! scoreState.scores.noBoostPending &&
 					getScoreMovementPercentage( scoreState.scores )
 				}
 				isVisible={ isVisible }

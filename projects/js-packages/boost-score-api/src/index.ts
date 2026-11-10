@@ -24,6 +24,8 @@ type SpeedScoresSet = {
 	current: SpeedScores;
 	noBoost: SpeedScores | null;
 	isStale: boolean;
+	// The comparison without Boost is still measuring; noBoost is the previous one until it lands.
+	noBoostPending?: true;
 };
 
 interface ScoreValue {
@@ -210,6 +212,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 						}
 					: null,
 				isStale: !! response.scores.isStale,
+				...( response.scores.noBoostPending === true && { noBoostPending: true as const } ),
 			},
 		};
 	}
