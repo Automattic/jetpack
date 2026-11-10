@@ -74,7 +74,7 @@ describe( 'useProductStatusAction connect links', () => {
 		result.current.action.onClick( undefined );
 
 		expect( mockUseMyJetpackNavigate ).toHaveBeenLastCalledWith(
-			'/connection?from=my_jetpack_products_ai'
+			'/connection?from=my_jetpack_products_ai&skip_pricing=true'
 		);
 		expect( mockUseMyJetpackNavigate.mock.results.at( -1 ).value ).toHaveBeenCalled();
 	} );

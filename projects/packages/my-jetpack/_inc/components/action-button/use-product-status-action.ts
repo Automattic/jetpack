@@ -54,7 +54,10 @@ const useProductStatusAction = (
 	const isManageDisabled = ! manageUrl;
 	const { recordEvent } = useAnalytics();
 	const connectFrom = from ?? productsFrom( slug );
-	const navigateToConnectionPage = useMyJetpackNavigate( connectionScreenRoute( connectFrom ) );
+	// `skip_pricing` keeps a legacy `my-jetpack` fallback off the plans page, as on trunk.
+	const navigateToConnectionPage = useMyJetpackNavigate(
+		`${ connectionScreenRoute( connectFrom ) }&skip_pricing=true`
+	);
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const { install: installStandalonePlugin, isPending: isInstalling } = useInstallPlugins( slug );
 
