@@ -137,7 +137,7 @@ class Jetpack_AI_Page {
 		if ( ! Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID, false ) ) {
 			return;
 		}
-		$page = $page ?? new self();
+		$page ??= new self();
 		add_action( 'admin_enqueue_scripts', array( $page, 'page_admin_scripts' ) );
 	}
 

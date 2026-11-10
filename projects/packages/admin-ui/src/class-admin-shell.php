@@ -433,7 +433,7 @@ class Admin_Shell {
 		$handles = $members[ $slug ]['handles'];
 		if ( $members[ $slug ]['media'] ) {
 			wp_enqueue_media();
-			$handles = array_merge( $handles, self::MEDIA_HANDLES );
+			$handles = array( ...$handles, ...self::MEDIA_HANDLES );
 		}
 		// Only the member's own handles, and what they depend on, go back to the page. Printing them
 		// even when nothing enqueued them: a page can rely on another script pulling one in.
