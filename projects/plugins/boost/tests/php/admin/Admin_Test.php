@@ -11,9 +11,7 @@ use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Lib\Debug;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
-use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -113,46 +111,19 @@ class Admin_Test extends Base_TestCase {
 		$this->assertSame( 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page', $this->last_menu_callback() );
 	}
 
-	public function test_modernization_filter_is_deprecated() {
-		Functions\expect( 'apply_filters_deprecated' )
-			->once()
-			->with( Admin::MODERNIZATION_FILTER, array( true ), \Mockery::type( 'string' ), '', \Mockery::type( 'string' ) )
-			->andReturn( true );
-
-		$this->assertTrue( Admin::is_modernization_enabled() );
-	}
-
-	public function test_modern_dashboard_can_be_filtered_off() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( false );
-		$_GET['page'] = JETPACK_BOOST_SLUG;
-		// set_up() stubs is_admin(), and Brain Monkey ignores expect()->never() on a stubbed function.
-		Functions\when( 'is_admin' )->alias(
-			function () {
-				$this->fail( 'is_admin() must not be evaluated when the modernization filter returns false.' );
-			}
-		);
-		$admin = new Admin();
-
-		$admin->handle_admin_menu();
-
-		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
-		$this->assert_screen_id_not_aliased( $admin );
-	}
-
 	public function test_modern_dashboard_does_not_load_off_page() {
-		$this->enable_modern_dashboard();
 		$_GET['page'] = 'another-plugin';
 		Functions\expect( 'Automattic\\Jetpack_Boost\\Admin\\file_exists' )->never();
 		$admin = new Admin();
 
 		$admin->handle_admin_menu();
 
-		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
+		$this->assertSame( array( $admin, 'render_missing_build_notice' ), $this->last_menu_callback() );
 		$this->assert_screen_id_not_aliased( $admin );
 	}
 
-	public function test_missing_modern_build_logs_and_keeps_legacy_page() {
-		$this->enable_modern_dashboard();
+	public function test_missing_build_logs_and_shows_notice() {
+		$this->open_boost_page();
 		Functions\expect( 'Automattic\\Jetpack_Boost\\Admin\\file_exists' )
 			->once()->with( JETPACK_BOOST_DIR_PATH . '/build/build.php' )->andReturn( false );
 		$messages = array();
@@ -166,13 +137,13 @@ class Admin_Test extends Base_TestCase {
 
 		$admin->handle_admin_menu();
 
-		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
-		$this->assertSame( array( 'Modern dashboard build is missing; loading the legacy dashboard.' ), $messages );
+		$this->assertSame( array( $admin, 'render_missing_build_notice' ), $this->last_menu_callback() );
+		$this->assertSame( array( 'Dashboard build is missing; showing the missing-build notice.' ), $messages );
 		$this->assert_screen_id_not_aliased( $admin );
 	}
 
 	public function test_modern_build_registers_polyfills_and_modules() {
-		$this->enable_modern_dashboard();
+		$this->open_boost_page();
 		$events = array();
 		\Patchwork\redefine(
 			Admin::class . '::dashboard_build_is_available',
@@ -269,7 +240,7 @@ class Admin_Test extends Base_TestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_existing_build_without_generated_functions_keeps_legacy_page() {
+	public function test_existing_build_without_generated_functions_shows_notice() {
 		$fixture = JETPACK_BOOST_DIR_PATH . '/.cache/admin-build-' . uniqid();
 		mkdir( $fixture . '/build', 0777, true );
 		$build_file = $fixture . '/build/build.php';
@@ -277,13 +248,13 @@ class Admin_Test extends Base_TestCase {
 		define( 'Automattic\\Jetpack_Boost\\Admin\\JETPACK_BOOST_DIR_PATH', $fixture );
 
 		try {
-			$this->enable_modern_dashboard();
+			$this->open_boost_page();
 			$admin = new Admin();
 
 			$admin->handle_admin_menu();
 
 			$this->assertContains( realpath( $build_file ), get_included_files() );
-			$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
+			$this->assertSame( array( $admin, 'render_missing_build_notice' ), $this->last_menu_callback() );
 			$this->assert_screen_id_not_aliased( $admin );
 		} finally {
 			unlink( $build_file );
@@ -306,36 +277,17 @@ class Admin_Test extends Base_TestCase {
 		$this->assertSame( $constants, $this->localized['jetpack-boost-admin']['Jetpack_Boost'] );
 	}
 
-	/**
-	 * @dataProvider dashboard_modes
-	 */
-	#[DataProvider( 'dashboard_modes' )]
-	public function test_legacy_and_modern_dashboard_localize_api_settings( $modern ) {
-		$admin = $this->prepare_enqueue_scripts( $modern );
+	public function test_dashboard_localizes_api_settings() {
+		$admin = $this->prepare_enqueue_scripts( true );
 
-		if ( $modern ) {
-			$admin->enqueue_scripts();
-		} else {
-			ob_start();
-			try {
-				$admin->render_settings();
-			} finally {
-				ob_end_clean();
-			}
-		}
+		$admin->enqueue_scripts();
+
 		$this->assertSame(
 			array(
 				'root'  => 'https://example.org/wp-json/',
 				'nonce' => 'wp_rest',
 			),
 			$this->localized['jetpack-boost-admin']['wpApiSettings']
-		);
-	}
-
-	public static function dashboard_modes() {
-		return array(
-			'legacy' => array( false ),
-			'modern' => array( true ),
 		);
 	}
 
@@ -392,14 +344,13 @@ class Admin_Test extends Base_TestCase {
 	}
 
 	public function test_modern_dashboard_does_not_load_without_a_page() {
-		$this->enable_modern_dashboard();
 		unset( $_GET['page'] );
 		Functions\expect( 'Automattic\\Jetpack_Boost\\Admin\\file_exists' )->never();
 		$admin = new Admin();
 
 		$admin->handle_admin_menu();
 
-		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
+		$this->assertSame( array( $admin, 'render_missing_build_notice' ), $this->last_menu_callback() );
 		$this->assert_screen_id_not_aliased( $admin );
 	}
 
@@ -411,11 +362,11 @@ class Admin_Test extends Base_TestCase {
 
 		$admin->handle_admin_menu();
 
-		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
+		$this->assertSame( array( $admin, 'render_missing_build_notice' ), $this->last_menu_callback() );
 		$this->assert_screen_id_not_aliased( $admin );
 	}
 
-	public function test_legacy_enqueue_keeps_existing_assets_and_localization() {
+	public function test_enqueue_without_dashboard_build_skips_modern_bootstrap() {
 		$constants = array( 'site' => array( 'online' => true ) );
 		Functions\expect( 'wp_scripts' )->never();
 		Functions\expect( 'wp_enqueue_script' )->never();
@@ -547,7 +498,7 @@ class Admin_Test extends Base_TestCase {
 		define( 'Automattic\\Jetpack_Boost\\Admin\\JETPACK_BOOST_DIR_PATH', $fixture );
 
 		try {
-			$this->enable_modern_dashboard();
+			$this->open_boost_page();
 			\Patchwork\redefine( WP_Build_Polyfills::class . '::register', \Patchwork\always( null ) );
 			Functions\when( 'get_current_screen' )->justReturn( (object) array( 'id' => self::SCREEN_ID ) );
 			$registered = array();
@@ -647,8 +598,7 @@ class Admin_Test extends Base_TestCase {
 		return $prerequisites;
 	}
 
-	private function enable_modern_dashboard() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( true );
+	private function open_boost_page() {
 		$_GET['page'] = JETPACK_BOOST_SLUG;
 	}
 

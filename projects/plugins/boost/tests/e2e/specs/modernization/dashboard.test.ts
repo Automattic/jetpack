@@ -12,7 +12,6 @@ test.describe( 'Dashboard modernization', () => {
 	} );
 
 	test.afterEach( async ( { boostUtils } ) => {
-		await boostUtils.resetDashboardModernization();
 		await boostUtils.resetDashboardJitm();
 	} );
 
@@ -21,37 +20,7 @@ test.describe( 'Dashboard modernization', () => {
 		await boostUtils.unMockSpeedScore();
 	} );
 
-	test( 'Mount the modern dashboard by default', async ( {
-		boostUtils,
-		jetpackBoostPage,
-		page,
-	} ) => {
-		await boostUtils.resetDashboardModernization();
-		await jetpackBoostPage.visit();
-		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 1 );
-		await expect( page.locator( '#jb-settings-tab-mount .jb-modern-settings' ) ).toHaveCount( 1 );
-		await expect( page.locator( '#jb-admin-settings' ) ).toHaveCount( 0 );
-	} );
-
-	test( 'Restore the legacy dashboard when the filter returns false', async ( {
-		boostUtils,
-		jetpackBoostPage,
-		page,
-	} ) => {
-		await boostUtils.setDashboardModernization( false );
-		await jetpackBoostPage.visit();
-		await expect( page.locator( '#jb-admin-settings' ) ).toBeVisible();
-		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 0 );
-		await expect(
-			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
-		).toHaveCount( 0 );
-	} );
-
-	test( 'Mount one modern dashboard when explicitly enabled', async ( {
-		boostUtils,
-		jetpackBoostPage,
-		page,
-	} ) => {
+	test( 'Mount one modern dashboard', async ( { jetpackBoostPage, page } ) => {
 		const missingConfigErrors: string[] = [];
 		page.on( 'console', message => {
 			if ( message.text().includes( 'jetpackConfig is missing' ) ) {
@@ -59,7 +28,6 @@ test.describe( 'Dashboard modernization', () => {
 			}
 		} );
 
-		await boostUtils.setDashboardModernization( true );
 		await jetpackBoostPage.visit();
 		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 1 );
 		await expect(
@@ -73,7 +41,6 @@ test.describe( 'Dashboard modernization', () => {
 
 		// The mount is only useful once the webpack app has rendered Settings into it.
 		await expect( page.locator( '#jb-settings-tab-mount .jb-modern-settings' ) ).toHaveCount( 1 );
-		await expect( page.locator( '#jb-admin-settings' ) ).toHaveCount( 0 );
 		expect( missingConfigErrors ).toEqual( [] );
 	} );
 
@@ -83,7 +50,6 @@ test.describe( 'Dashboard modernization', () => {
 		page,
 	} ) => {
 		await boostUtils.unMockPremiumFeatures();
-		await boostUtils.setDashboardModernization( true );
 		await jetpackBoostPage.visit();
 		const upsell = page.locator( '.jetpack-boost-overview__history-upsell' );
 		await expect( upsell.getByRole( 'link', { name: 'Upgrade now', exact: true } ) ).toBeVisible();
@@ -98,7 +64,6 @@ test.describe( 'Dashboard modernization', () => {
 		jetpackBoostPage,
 		page,
 	} ) => {
-		await boostUtils.setDashboardModernization( true );
 		await boostUtils.setDashboardJitm( true );
 		await jetpackBoostPage.visit();
 		const notices = page.locator( '#jp-admin-notices' );
@@ -128,7 +93,6 @@ test.describe( 'Dashboard modernization', () => {
 		jetpackBoostPage,
 		page,
 	} ) => {
-		await boostUtils.setDashboardModernization( true );
 		await boostUtils.setDashboardJitm( false );
 		await jetpackBoostPage.visit();
 		const notices = page.locator( '#jp-admin-notices' );
@@ -143,11 +107,9 @@ test.describe( 'Dashboard modernization', () => {
 
 	for ( const destination of [ '&p=%2F%3Ftab%3Dsettings', '#/', '#/?tab=settings' ] ) {
 		test( `Land at Optimize your speed from ${ destination }`, async ( {
-			boostUtils,
 			jetpackBoostPage,
 			page,
 		} ) => {
-			await boostUtils.setDashboardModernization( true );
 			// Compact Settings must exceed the viewport to exercise deep-link scrolling.
 			await page.setViewportSize( { width: 1280, height: 900 } );
 			await jetpackBoostPage.visit();
@@ -166,8 +128,7 @@ test.describe( 'Dashboard modernization', () => {
 		} );
 	}
 
-	test( 'Keep modern assets off other admin pages', async ( { boostUtils, admin, page } ) => {
-		await boostUtils.setDashboardModernization( true );
+	test( 'Keep modern assets off other admin pages', async ( { admin, page } ) => {
 		await admin.visitAdminPage( 'index.php' );
 		await expect(
 			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
