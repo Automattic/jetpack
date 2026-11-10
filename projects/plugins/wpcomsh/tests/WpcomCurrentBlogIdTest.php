@@ -12,6 +12,9 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 /**
  * The bootstrap defines IS_ATOMIC, so every test here runs as an Atomic site.
  *
+ * The "wpcloud" suite excludes this file: on a real WP Cloud site, the platform's wpcomsh defines
+ * _wpcom_get_current_blog_id() first, so the test would check that copy and not this one.
+ *
  * @covers ::_wpcom_get_current_blog_id
  */
 #[CoversFunction( '_wpcom_get_current_blog_id' )]
