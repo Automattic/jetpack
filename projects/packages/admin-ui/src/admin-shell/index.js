@@ -291,16 +291,6 @@ const start = ( { host, members, guestAssetsUrl } ) => {
 			if ( visible === host ) {
 				emit( 'page-shown', { page: host, previous: null, firstShow: true, url: location.href } );
 			}
-			// While idle, get the other members ready so their first visit is quick too.
-			const idle = cb => ( window.requestIdleCallback ?? ( f => setTimeout( f, 200 ) ) )( cb );
-			idle( async () => {
-				for ( const slug of Object.keys( members ) ) {
-					if ( ! apps.has( slug ) ) {
-						await prewarm( slug, 'idle' ).catch( () => {} );
-						await new Promise( idle );
-					}
-				}
-			} );
 		} )
 		.catch( error => {
 			removeHostHeader();
