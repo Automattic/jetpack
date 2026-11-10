@@ -48,7 +48,7 @@ function renderStage( lockedIntervals?: readonly LockableInterval[] ) {
 	return renderHook(
 		() => {
 			const dateFilters = useReportDateFilters( '/' );
-			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, lockedIntervals );
+			const host = usePeriodHost( 'traffic', true, lockedIntervals );
 
 			return { dateFilters, host };
 		},
@@ -76,11 +76,10 @@ describe( 'usePeriodHost', () => {
 		);
 	} );
 
-	it( 'draws the date control to a period a widget set, once it lands', () => {
-		const { result, rerender } = renderStage();
+	it( 'draws the date control to a period a widget set, with the range it set', () => {
+		const { result } = renderStage();
 
 		act( () => result.current.host.openPeriod( WEEK ) );
-		rerender();
 
 		expect( mockSearch ).toMatchObject( {
 			from: '2026-09-21T00:00:00.000+00:00',
@@ -88,7 +87,10 @@ describe( 'usePeriodHost', () => {
 			preset: 'custom',
 			interval: 'day',
 		} );
-		expect( result.current.host.attentionId ).toEqual( expect.any( Number ) );
+		expect( result.current.host.attention ).toEqual( {
+			id: expect.any( Number ),
+			range: WEEK,
+		} );
 	} );
 
 	it.each( [

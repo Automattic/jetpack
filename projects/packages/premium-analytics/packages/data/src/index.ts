@@ -13,6 +13,7 @@ export {
 	postSurface,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
+	type PeriodChange,
 } from './providers/period-change-signal';
 export * from './hooks';
 export { STATS_SITE_SUMMARY_FIELDS } from './queries/stats-site-query';

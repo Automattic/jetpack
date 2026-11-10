@@ -19,12 +19,7 @@ jest.mock( '@wordpress/route', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import {
-	PeriodChangeSignalProvider,
-	ReportScopeProvider,
-	useRaisePeriodChange,
-	useSettlePeriodChange,
-} from '@jetpack-premium-analytics/data';
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -918,39 +913,6 @@ describe( 'useReportDateFilters', () => {
 		act( () => result.current.onApply() );
 
 		expect( mockSearch.to ).toBe( '2026-09-14T15:30:00.000+00:00' );
-	} );
-
-	// A card raises the signal with the range it computed, so the range it then
-	// commits must round-trip to the same instants for the two to match.
-	it( 'lands a raised period change when a card commits its range exactly', () => {
-		const wrapper = ( { children }: { children: ReactNode } ) => (
-			<PeriodChangeSignalProvider>{ children }</PeriodChangeSignalProvider>
-		);
-		mockSearch = { preset: 'last-30-days' };
-		const { result, rerender } = renderHook(
-			() => {
-				const filters = useReportDateFilters( '/' );
-				return {
-					filters,
-					raise: useRaisePeriodChange(),
-					control: useSettlePeriodChange( 'post:1', filters.appliedRange, true ),
-				};
-			},
-			{ wrapper }
-		);
-		const currentMonth = {
-			from: new TZDate( '2026-09-01T00:00:00.000Z', 'UTC' ),
-			to: new TZDate( '2026-09-14T15:30:00.000Z', 'UTC' ),
-		};
-
-		act( () => {
-			result.current.raise( 'post:1', currentMonth );
-			result.current.filters.onChange( currentMonth, 'custom', { exactRange: true } );
-			result.current.filters.onApply();
-		} );
-		rerender();
-
-		expect( result.current.control ).toEqual( expect.any( Number ) );
 	} );
 
 	it( 'steps a to-date preset by whole months and compares it with the months before', () => {

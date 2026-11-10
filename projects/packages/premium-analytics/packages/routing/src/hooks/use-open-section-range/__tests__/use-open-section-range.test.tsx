@@ -81,14 +81,14 @@ describe( 'useOpenSectionRange', () => {
 		const { result } = renderHook(
 			() => ( {
 				open: useOpenSectionRange(),
-				traffic: useSettlePeriodChange( 'traffic', NOVEMBER, true ),
+				traffic: useSettlePeriodChange( 'traffic', true ),
 			} ),
 			{ wrapper }
 		);
 
 		act( () => result.current.open( 'traffic', NOVEMBER ) );
 
-		expect( result.current.traffic ).toEqual( expect.any( Number ) );
+		expect( result.current.traffic ).toEqual( { id: expect.any( Number ), range: NOVEMBER } );
 	} );
 
 	it.each( [

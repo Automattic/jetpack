@@ -14,9 +14,8 @@ import {
 } from 'react';
 
 /**
- * How long a raised signal may wait for its navigation to land before it is
- * dropped. Keeps a click that went nowhere from firing on a later,
- * hand-picked visit to the same range.
+ * How long a signal raised for another surface may wait for it to show. Keeps a
+ * click that went nowhere from firing on a later visit to that surface.
  */
 export const PERIOD_CHANGE_SIGNAL_TTL_MS = 5000;
 
@@ -26,17 +25,20 @@ export const PERIOD_CHANGE_SIGNAL_TTL_MS = 5000;
  */
 export const PERIOD_CHANGE_ATTENTION_MS = 1600;
 
-type PeriodChangeSignal = {
+/** A period a widget set: the id restarts the cue, the range is what it announces. */
+export type PeriodChange = {
 	id: number;
+	range: Required< DateRange >;
+};
+
+type PeriodChangeSignal = PeriodChange & {
 	surface: string;
-	rangeKey: string;
 	raisedAt: number;
 };
 
-type Attention = {
-	id: number;
-	/** The surface and range the id fired on; it is let go once either moves. */
-	observation: string;
+type Attention = PeriodChange & {
+	/** The surface it fired on; it is let go once the surface moves. */
+	surface: string;
 };
 
 type PeriodChangeSignalContextValue = {
@@ -53,10 +55,6 @@ const INERT: PeriodChangeSignalContextValue = {
 
 const PeriodChangeSignalContext = createContext< PeriodChangeSignalContextValue >( INERT );
 
-function rangeKey( range?: DateRange ): string | undefined {
-	return range?.from && range.to ? `${ range.from.getTime() }:${ range.to.getTime() }` : undefined;
-}
-
 /**
  * The surface key of a post detail page, so a signal raised on one post never fires on another.
  *
@@ -68,8 +66,7 @@ export function postSurface( postId: number ): string {
 }
 
 /**
- * Holds one pending "the period is about to change" signal for the date
- * controls below, raised by a navigation that sets the range from elsewhere.
+ * Holds one pending "a widget set the period" signal for the date controls below.
  *
  * @param props          - Provider props.
  * @param props.children - The surface's tree.
@@ -81,12 +78,7 @@ export function PeriodChangeSignalProvider( { children }: { children: ReactNode 
 
 	const raise = useCallback( ( surface: string, range: Required< DateRange > ) => {
 		nextId.current += 1;
-		setSignal( {
-			id: nextId.current,
-			surface,
-			rangeKey: `${ range.from.getTime() }:${ range.to.getTime() }`,
-			raisedAt: Date.now(),
-		} );
+		setSignal( { id: nextId.current, surface, range, raisedAt: Date.now() } );
 	}, [] );
 
 	const settle = useCallback( ( id: number ) => {
@@ -103,10 +95,8 @@ export function PeriodChangeSignalProvider( { children }: { children: ReactNode 
 }
 
 /**
- * Raise a signal before committing a navigation that applies `range` on
- * `surface`: a dashboard section slug, or a detail page's own key. The signal
- * is matched against the applied range by instant, so the navigation must
- * commit `range` exactly as given (`exactRange`), not the day-rounded form.
+ * Raise a signal that a widget set `range` on `surface`: a dashboard section slug, or a
+ * detail page's own key.
  *
  * @return The raise function.
  */
@@ -115,31 +105,25 @@ export function useRaisePeriodChange() {
 }
 
 /**
- * Settle the pending signal against this surface and own the attention it fires.
+ * Fire the pending signal once it names this surface and the control shows, and own the
+ * attention it draws: let go after `PERIOD_CHANGE_ATTENTION_MS`, when the control hides, or
+ * when the surface moves on, so it never replays.
  *
- * Fires once surface, visible control and applied range all match; dropped once the
- * surface lands anywhere else. The id is let go after `PERIOD_CHANGE_ATTENTION_MS`, when
- * the control hides, or when the surface or range moves on, so it never replays.
- *
- * @param surface      - The surface's key, as passed to raise.
- * @param appliedRange - The range its date control shows.
- * @param isShown      - Whether the date control is on screen.
- * @return The id the control draws attention with, while it does.
+ * @param surface - The surface's key, as passed to raise.
+ * @param isShown - Whether the date control is on screen.
+ * @return The period change the control draws attention to, while it does.
  */
 export function useSettlePeriodChange(
 	surface: string,
-	appliedRange: DateRange | undefined,
 	isShown: boolean
-): number | undefined {
+): PeriodChange | undefined {
 	const { signal, settle } = useContext( PeriodChangeSignalContext );
 	const [ attention, setAttention ] = useState< Attention >();
-	const observed = useRef< string >( undefined );
-	const appliedKey = rangeKey( appliedRange );
-	const observation = `${ surface }|${ appliedKey ?? '' }`;
+	const settledSurface = useRef( surface );
 
 	useEffect( () => {
-		const previous = observed.current;
-		observed.current = observation;
+		const surfaceMoved = settledSurface.current !== surface;
+		settledSurface.current = surface;
 
 		if ( ! signal ) {
 			return;
@@ -150,29 +134,28 @@ export function useSettlePeriodChange(
 			return;
 		}
 
-		if ( signal.surface === surface && signal.rangeKey === appliedKey ) {
+		if ( signal.surface === surface ) {
 			if ( isShown ) {
 				// Keep the object when the effect re-runs, so the timer below does not restart.
 				setAttention( current =>
-					current?.id === signal.id ? current : { id: signal.id, observation }
+					current?.id === signal.id ? current : { id: signal.id, range: signal.range, surface }
 				);
 				settle( signal.id );
 			}
 			return;
 		}
 
-		// The surface moved (or mounted) somewhere other than where the signal
-		// said it would; an unchanged observation means it is still in flight.
-		if ( previous !== observation ) {
+		// A signal for another surface waits while this one stays put, and is dropped once it moves.
+		if ( surfaceMoved ) {
 			settle( signal.id );
 		}
-	}, [ signal, observation, surface, appliedKey, isShown, settle ] );
+	}, [ signal, surface, isShown, settle ] );
 
 	useEffect( () => {
 		if ( ! attention ) {
 			return;
 		}
-		if ( ! isShown || attention.observation !== observation ) {
+		if ( ! isShown || attention.surface !== surface ) {
 			setAttention( undefined );
 			return;
 		}
@@ -181,7 +164,7 @@ export function useSettlePeriodChange(
 		}, PERIOD_CHANGE_ATTENTION_MS );
 
 		return () => clearTimeout( timer );
-	}, [ attention, isShown, observation ] );
+	}, [ attention, isShown, surface ] );
 
-	return attention?.id;
+	return useMemo( () => attention && { id: attention.id, range: attention.range }, [ attention ] );
 }

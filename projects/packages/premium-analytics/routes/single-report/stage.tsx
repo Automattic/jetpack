@@ -270,9 +270,8 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	// A card can set the period (the All-time traffic card opens a month): the change is read
 	// out and the page returns to the top, where the re-scoped cards are.
-	const { openPeriod, attentionId } = usePeriodHost(
+	const { openPeriod, attention } = usePeriodHost(
 		`${ page.path }:${ entityId }`,
-		dateFilters.appliedRange,
 		! isPinned,
 		lockedIntervals
 	);
@@ -373,14 +372,10 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	return (
 		<>
-			<PeriodChangeStatus
-				attentionId={ attentionId }
-				appliedPresetId={ dateFilters.appliedPresetId }
-				appliedRange={ dateFilters.appliedRange }
-			/>
+			<PeriodChangeStatus periodChange={ attention } />
 			<ReportScopeProvider
 				openPeriod={ openPeriod }
-				attentionId={ attentionId }
+				attentionId={ attention?.id }
 				dateLimits={ dateLimits }
 			>
 				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
@@ -431,7 +426,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 									controls={ controlFields as never }
 									data={ controlsData }
 									onChange={ applyReportParams }
-									returnToTopKey={ attentionId }
+									returnToTopKey={ attention?.id }
 								>
 									{ emptyState ? <PageEmptyState { ...emptyState } /> : null }
 									{ /* Keyed by section: each is its own layout, so the grid mounts fresh. */ }
