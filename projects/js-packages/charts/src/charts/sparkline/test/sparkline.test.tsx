@@ -4,8 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { Sparkline, SparklineUnresponsive } from '../';
 import { GlobalChartsProvider } from '../../../providers';
 
-// jsdom runs no layout, so the real useParentSize never reports and the responsive
-// wrapper holds the chart back for good. Report a size, as a browser does.
+// jsdom runs no layout, so the real useParentSize never reports and the chart waits for good.
 jest.mock( '@visx/responsive', () => ( {
 	useParentSize: () => ( { parentRef: () => {}, width: 300, height: 100 } ),
 } ) );

@@ -20,8 +20,8 @@ export interface ChartInstanceContextValue {
 	isSeriesVisible?: ( seriesLabel: string ) => boolean;
 	/**
 	 * The chart's legend items, for a legend inside it. The registry carries the same items
-	 * to a legend anywhere on the page, but fills from an effect, a frame after the chart
-	 * renders, which is too late for a legend the chart's own layout is sized around.
+	 * anywhere on the page, but fills from an effect a frame later, too late for a legend the
+	 * chart's own layout is sized around.
 	 */
 	legendItems?: BaseLegendItem[];
 	/** The chart's type, which gives a legend inside it its default shape. */

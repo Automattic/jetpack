@@ -5,8 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider, useGlobalChartsContext } from '../../../providers';
 import PieChart from '../pie-chart';
 
-// jsdom runs no layout, so the real useParentSize never reports and the responsive
-// wrapper holds the chart back for good. Report a size, as a browser does.
+// jsdom runs no layout, so the real useParentSize never reports and the chart waits for good.
 jest.mock( '@visx/responsive', () => ( {
 	useParentSize: () => ( { parentRef: () => {}, width: 600, height: 600 } ),
 } ) );

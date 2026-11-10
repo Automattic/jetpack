@@ -64,11 +64,10 @@ export const ChartLayout = ( {
 	const isRenderProp = typeof children === 'function';
 	const isMeasured = contentHeight > 0;
 
-	// A render-prop chart is sized from the content area, so it waits for the first
-	// measurement rather than mounting at its fallback height, which visx would paint one
-	// frame too tall, over the legend. The box reports as it attaches, so the wait ends
-	// before paint, and it gets one attempt: with no definite height above it, it reads 0
-	// for good, and the chart falls back to the height it was given.
+	// Wait one commit so a render-prop chart mounts at its measured height: visx keeps the
+	// scales it mounted with until an effect replaces them, so a fallback height paints a
+	// frame over the legend. The box reports as it attaches, before paint, and gets one
+	// attempt, so an unmeasurable parent falls back to the height the chart was given.
 	const [ contentAttached, setContentAttached ] = useState( false );
 	useIsomorphicLayoutEffect( () => {
 		if ( isRenderProp ) {

@@ -148,10 +148,9 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			}
 		}, [ hasAspectRatio, availableWidth, aspectRatio, containedHeight, parentHeight ] );
 
-		// A chart that waits draws nothing until the box has real dimensions: handed 0×0 it
-		// paints its plot and legend at a size it loses a frame later, and jumps. The wrapper
-		// fills the parent meanwhile, so the wait takes no space. Width and height are reported
-		// together, so a measured width settles the height too, with or without a definite one.
+		// Handed 0×0, a chart paints at a size it loses a frame later, and jumps. Width and
+		// height report together, so a measured width settles the height with or without a
+		// definite one.
 		const isMeasured = parentWidth > 0;
 		const hasDimensions = boxWidth > 0 && ( boxHeight > 0 || isMeasured );
 

@@ -54,7 +54,6 @@ module.exports = {
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
 		...singleCopyModuleMapper( rootDir ),
-		// Give @automattic/charts a measured parent, which jsdom's lack of layout denies it.
 		'^@visx/responsive$': require.resolve( 'jetpack-js-tools/jest/visx-responsive-stub.cjs' ),
 		// Reached only through `@wordpress/core-data`'s editor features, and costly to load.
 		'^@wordpress/block-editor$': path.join( __dirname, 'block-editor-mock.cjs' ),

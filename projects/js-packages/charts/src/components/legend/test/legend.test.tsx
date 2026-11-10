@@ -644,9 +644,8 @@ describe( 'BaseLegend', () => {
 		} );
 
 		it( 'renders the items the chart around it passes, with nothing registered', () => {
-			// The registry fills from an effect, a frame after the chart renders. A legend
-			// that waits for it takes no height until then, and the chart sizes its plot
-			// over the room the legend is about to take.
+			// The registry fills from an effect, so a legend that waits for it takes no height
+			// on the first render and the chart sizes its plot over the legend's room.
 			render(
 				<GlobalChartsProvider>
 					<ChartInstanceContext.Provider
