@@ -29,7 +29,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - id: create-matrix
         run: |
-          MATRIX="$(.github/files/generate-ci-matrix.php)"
+          # TEMP: only the 8.6 and WP trunk PHP jobs, 10 copies each, for benchmarking.
+          MATRIX="$(.github/files/generate-ci-matrix.php | jq -c '[ .[] | select( .name == "PHP tests: PHP 8.6 WP latest" or .name == "PHP tests: PHP 8.4 WP trunk" ) | . as $m | range( 0; 10 ) | $m + { name: "\($m.name) #\(.)" } ]')"
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
   run-tests:
@@ -392,7 +393,8 @@ jobs:
           fi
       - name: Upload artifacts
         id: upload-artifacts
-        if: always() && steps.check-artifacts.outputs.any == 'true'
+        # TEMP: skip artifacts while benchmarking, the copies would collide on name.
+        if: false
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{ matrix.artifact }}
