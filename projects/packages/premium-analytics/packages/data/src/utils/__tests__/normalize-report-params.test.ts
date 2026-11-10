@@ -328,9 +328,12 @@ describe( 'normalizeReportParams', () => {
 		expect( result.to ).toBe( FRESH_TO );
 	} );
 
-	it( 'keeps the comparison as given when the all-time start cannot be read', () => {
+	it.each( [
+		[ 'cannot be read', '2023-01-01T00:00:00.000+99:00' ],
+		[ 'is after its end', '2026-03-01T00:00:00.000-05:00' ],
+	] )( 'keeps the comparison as given when the all-time start %s', ( _name, from ) => {
 		const result = normalizeReportParams( {
-			from: '2023-01-01T00:00:00.000+99:00',
+			from,
 			to: STALE_TO,
 			preset: 'all-time',
 			interval: 'day',
