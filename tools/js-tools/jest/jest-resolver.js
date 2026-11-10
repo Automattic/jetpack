@@ -1,3 +1,5 @@
+const { dirname, join } = require( 'path' );
+
 // Some packages assume that a "browser" environment is esm or otherwise break in node.
 // List them here and the resolver will adjust the conditions to resolve them as "node" instead.
 // cf. https://github.com/microsoft/accessibility-insights-web/pull/5421#issuecomment-1109168149
@@ -51,4 +53,23 @@ module.exports = ( path, options ) => {
 	return resolver( path, opts );
 };
 
-module.exports.forceEsmPackages = forceEsmPackages;
+/**
+ * Resolve the file a `moduleNameMapper` entry should point at.
+ *
+ * A mapped path skips the resolver above, so `forceEsmPackages` take their
+ * `import` entry here. Remove with that list, back to `require.resolve`.
+ *
+ * @param {string} name - Package name.
+ * @param {string} from - Directory to resolve from.
+ * @return {string} Absolute path of the module.
+ */
+module.exports.resolveMapperTarget = ( name, from ) => {
+	if ( forceEsmPackages.has( name ) ) {
+		const packageJson = require.resolve( `${ name }/package.json`, { paths: [ from ] } );
+		const entry = require( packageJson ).exports?.[ '.' ]?.import;
+		if ( typeof entry === 'string' ) {
+			return join( dirname( packageJson ), entry );
+		}
+	}
+	return require.resolve( name, { paths: [ from ] } );
+};
