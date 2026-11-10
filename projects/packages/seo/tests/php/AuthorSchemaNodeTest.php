@@ -78,8 +78,8 @@ class AuthorSchemaNodeTest extends TestCase {
 		$user = $this->make_user(
 			array(
 				'display_name' => 'Jane Doe',
-				'first_name'   => 'Jane',
-				'last_name'    => 'Doe',
+				'first_name'   => 'PrivateFirst',
+				'last_name'    => 'PrivateLast',
 				'description'  => 'Writes about search.',
 				'user_url'     => 'https://example.com/jane/',
 			)
@@ -99,8 +99,8 @@ class AuthorSchemaNodeTest extends TestCase {
 		$this->assertSame( 'https://example.test/avatar.jpg', $node['image'] );
 		$this->assertSame( 'Writes about search.', $node['description'] );
 		$this->assertSame( 'https://example.com/jane/', $node['url'] );
-		$this->assertSame( 'Jane', $node['givenName'] );
-		$this->assertSame( 'Doe', $node['familyName'] );
+		$this->assertArrayNotHasKey( 'givenName', $node );
+		$this->assertArrayNotHasKey( 'familyName', $node );
 		$this->assertSame( 'Creator', $node['jobTitle'] );
 		$this->assertSame( array( 'https://twitter.com/jane' ), $node['sameAs'] );
 	}

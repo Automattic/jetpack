@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\Group;
  *
  * @since 3.9.2
  * @covers ::jetpack_og_get_image
+ * @covers ::jetpack_og_tags
  * @covers ::jetpack_og_get_description
  * @covers ::jetpack_og_remove_query_blocks
  * @covers ::jetpack_og_get_site_fallback_blank_image
@@ -19,6 +20,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @group jetpack-opengraph
  */
 #[CoversFunction( 'jetpack_og_get_image' )]
+#[CoversFunction( 'jetpack_og_tags' )]
 #[CoversFunction( 'jetpack_og_get_description' )]
 #[CoversFunction( 'jetpack_og_remove_query_blocks' )]
 #[CoversFunction( 'jetpack_og_get_site_fallback_blank_image' )]
@@ -229,6 +231,29 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		jetpack_og_tags();
 
 		return (string) ob_get_clean();
+	}
+
+	public function test_author_archive_omits_private_profile_names() {
+		$author_id = self::factory()->user->create(
+			array(
+				'display_name' => 'Public Pen Name',
+				'first_name'   => 'PrivateFirst',
+				'last_name'    => 'PrivateLast',
+				'description'  => 'Public author biography.',
+			)
+		);
+		self::factory()->post->create( array( 'post_author' => $author_id ) );
+		$this->go_to( get_author_posts_url( $author_id ) );
+
+		$output = $this->get_og_output();
+
+		$this->assertTrue( is_author() );
+		$this->assertStringContainsString( 'Public Pen Name', $output );
+		$this->assertStringContainsString( 'Public author biography.', $output );
+		$this->assertStringNotContainsString( 'profile:first_name', $output );
+		$this->assertStringNotContainsString( 'profile:last_name', $output );
+		$this->assertStringNotContainsString( 'PrivateFirst', $output );
+		$this->assertStringNotContainsString( 'PrivateLast', $output );
 	}
 
 	/**

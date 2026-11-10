@@ -108,16 +108,6 @@ class Author_Schema_Node {
 		$url         = self::url( $user->user_url );
 		$node['url'] = '' !== $url ? $url : get_author_posts_url( $user->ID, $user->user_nicename );
 
-		$given_name = self::text( get_the_author_meta( 'first_name', $user->ID ) );
-		if ( '' !== $given_name ) {
-			$node['givenName'] = $given_name;
-		}
-
-		$family_name = self::text( get_the_author_meta( 'last_name', $user->ID ) );
-		if ( '' !== $family_name ) {
-			$node['familyName'] = $family_name;
-		}
-
 		$job_title = self::text( get_user_meta( $user->ID, self::META_JOB_TITLE, true ) );
 		if ( '' !== $job_title ) {
 			$node['jobTitle'] = $job_title;
