@@ -55,3 +55,5 @@ require_once __DIR__ . '/stubs/class-wpcom-store-api.php';
 require_once __DIR__ . '/stubs/wpcom-feature-functions.php';
 require_once __DIR__ . '/stubs/class-wpcom-test-user.php';
 require_once __DIR__ . '/stubs/wpcom-user-functions.php';
+require_once __DIR__ . '/stubs/class-wpcom-test-async-jobs.php';
+require_once __DIR__ . '/stubs/wpcom-async-job-functions.php';
