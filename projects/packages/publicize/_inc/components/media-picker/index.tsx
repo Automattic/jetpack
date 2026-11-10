@@ -1,10 +1,9 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { Spinner } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import { Button, VisuallyHidden } from '@wordpress/ui';
+import { Button, Spinner, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { isVideo } from '../../hooks/use-media-restrictions';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
