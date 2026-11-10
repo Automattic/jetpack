@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { privacyStringToInt } from '../utils/library-item';
+import { recordVideoPressPrivacyChange } from '../utils/privacy-analytics';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
-import type { VideoDetailsPatch } from '../types/library';
+import type { LibraryItemPrivacy, VideoDetailsPatch } from '../types/library';
 
 type ApiPatch = {
 	title?: string;
@@ -51,13 +52,25 @@ export function patchToApi( patch: Partial< VideoDetailsPatch > ): ApiPatch {
  */
 export function useUpdateVideoMeta() {
 	const client = useQueryClient();
-	return useMutation< void, Error, { id: number | string; patch: Partial< VideoDetailsPatch > } >( {
-		mutationFn: async ( { id, patch } ) => {
-			await apiFetch( {
+	return useMutation<
+		void,
+		Error,
+		{
+			id: number | string;
+			patch: Partial< VideoDetailsPatch >;
+			previousPrivacy?: LibraryItemPrivacy;
+		}
+	>( {
+		mutationFn: async ( { id, patch, previousPrivacy } ) => {
+			const privacy = patch.privacy;
+			const response = await apiFetch< { code?: string } >( {
 				path: '/wpcom/v2/videopress/meta',
 				method: 'POST',
 				data: { id: Number( id ), ...patchToApi( patch ) },
 			} );
+			if ( response?.code === 'success' ) {
+				recordVideoPressPrivacyChange( previousPrivacy, privacy, false );
+			}
 		},
 		onSuccess: ( _data, { id } ) => {
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );

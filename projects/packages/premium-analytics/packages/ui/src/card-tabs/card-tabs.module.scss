@@ -1,0 +1,88 @@
+/* A card's narrowest inline size before the row wraps. No WPDS dimension
+ * token reaches this far; a consumer tunes it through
+ * `--jpa-card-tabs-min-inline-size`, as it tunes the padding. */
+$card-tabs-min-inline-size: 10rem;
+
+/* As many cards to a row as fit at their minimum size, every row sharing the
+ * width evenly. A consumer that balances its rows sets
+ * `--jpa-card-tabs-columns` instead. */
+.list {
+	display: grid;
+	grid-template-columns: repeat(var(--jpa-card-tabs-columns, auto-fit), minmax(min(100%, var(--jpa-card-tabs-min-inline-size, #{$card-tabs-min-inline-size})), 1fr));
+	gap: var(--wpds-dimension-gap-sm);
+	min-inline-size: 0;
+}
+
+/* A card draws its own box, so there is no indicator to hide. The selected
+ * card's fill marks the selection; the other states take the interactive
+ * tokens Button and Tabs share. */
+.tab {
+	display: flex;
+	align-items: flex-start;
+	inline-size: 100%;
+	min-inline-size: 0;
+	margin: 0;
+	padding: var(--jpa-card-tabs-padding, var(--wpds-dimension-padding-md));
+	overflow: hidden;
+	border: 0;
+	border-radius: var(--wpds-border-radius-lg);
+	background-color: var(--wpds-color-background-interactive-neutral-weak);
+	color: var(--wpds-color-foreground-interactive-neutral);
+	font: inherit;
+	text-align: start;
+	cursor: var(--wpds-cursor-control);
+	appearance: none;
+
+	/* Drawn inside the card, so the widget chrome's `overflow` cannot clip it.
+	 * Transparent until focused; forced colors paint it regardless. */
+	outline: var(--wpds-border-width-focus) solid transparent;
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+
+	@media not (prefers-reduced-motion) {
+		transition: background-color 0.1s linear;
+	}
+}
+
+.tab:focus-visible {
+	outline-color: var(--wpds-color-stroke-focus);
+}
+
+.tab:not([data-disabled]):not([aria-selected="true"]):is(:hover, :active) {
+	background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	color: var(--wpds-color-foreground-interactive-neutral-active);
+}
+
+.tab[aria-selected="true"] {
+	background-color: var(--wpds-color-background-interactive-brand-weak-active);
+	cursor: default;
+}
+
+.tab[data-disabled] {
+	color: var(--wpds-color-foreground-interactive-neutral-disabled);
+	cursor: default;
+}
+
+/* Fills do not survive forced colors, so the selected card doubles its edge. */
+@media (forced-colors: active) {
+
+	.tab[aria-selected="true"] {
+		outline-width: var(--wpds-border-width-md);
+		outline-style: double;
+	}
+
+	.tab[data-disabled] {
+		color: GrayText;
+	}
+}
+
+.panel {
+	min-inline-size: 0;
+	min-block-size: 0;
+}
+
+/* The panel is a tab stop of its own, so it takes the outset ring `Tabs`
+ * gives its panel. */
+.panel:focus-visible {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: var(--wpds-border-width-focus);
+}

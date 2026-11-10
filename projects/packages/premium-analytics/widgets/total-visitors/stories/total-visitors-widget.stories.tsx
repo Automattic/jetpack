@@ -155,6 +155,7 @@ function TotalVisitorsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetCo
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <TotalVisitorsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

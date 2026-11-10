@@ -146,6 +146,7 @@ export const LineChartWithComparison: Story = {
  * axis at all.
  */
 export const Hourly: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => (
 		<WidgetDashboardWithWidgetStory
 			{ ...args }
@@ -248,6 +249,7 @@ function TrafficChartDashboardStory( {
  * Renders the real registered widget through the shared dashboard harness.
  */
 export const WidgetDashboardWithWidget: StoryObj< TrafficChartDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <TrafficChartDashboardStory { ...args } />,
 	args: {
 		...DASHBOARD_STORY_ARGS,

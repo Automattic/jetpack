@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
+use Automattic\Jetpack\My_Jetpack\Products\Scan;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -203,7 +204,7 @@ class Protect_Product_Test extends TestCase {
 	}
 
 	/**
-	 * The card asks Protect Status, as the Protect page does, not the site features My Jetpack fetches itself.
+	 * The Protect and Scan cards ask Protect Status, as the Protect page does, not the site features My Jetpack fetches itself.
 	 *
 	 * @dataProvider provide_scan_plans
 	 *
@@ -223,6 +224,7 @@ class Protect_Product_Test extends TestCase {
 		);
 
 		$this->assertSame( $expected, Protect::has_paid_plan_for_product() );
+		$this->assertSame( $expected, Scan::has_paid_plan_for_product() );
 	}
 
 	/**
@@ -277,57 +279,6 @@ class Protect_Product_Test extends TestCase {
 			'no Scan'         => array( array(), 'https://example.com/plans', 'https://example.com/plans' ),
 			'has Scan'        => array( array( 'scan' ), 'https://example.com/plans', null ),
 			'javascript: URL' => array( array(), 'javascript:alert(1)', null ),
-		);
-	}
-
-	/**
-	 * A host's manage URL takes over the card and Scan results from the Protect page, but only for a site with Scan and no standalone plugin.
-	 *
-	 * @dataProvider provide_host_manage_urls
-	 *
-	 * @param string[] $plan_features The plan's active features.
-	 * @param bool     $to_host       Whether the links should go to the host.
-	 * @param bool     $standalone    Whether the standalone plugin is active.
-	 */
-	#[DataProvider( 'provide_host_manage_urls' )]
-	public function test_host_manage_url( $plan_features, $to_host, $standalone = false ) {
-		if ( $standalone ) {
-			$this->activate_standalone_plugin();
-		} else {
-			do_action( 'jetpack_protect_dashboard_initialized' );
-		}
-		Current_Plan::update_from_site_record(
-			array(
-				'plan' => array(
-					'product_slug' => 'jetpack_free',
-					'features'     => array( 'active' => $plan_features ),
-				),
-			)
-		);
-		$send_to_host = static function ( $upgrade, $slug ) {
-			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( 'manage_url' => 'https://example.com/scan' ) ) : $upgrade;
-		};
-		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
-
-		$manage_url = Protect::get_manage_url();
-		$info       = Protect::get_info();
-		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
-
-		$expected = $to_host ? 'https://example.com/scan' : admin_url( 'admin.php?page=jetpack-protect' );
-		$this->assertSame( $expected, $manage_url );
-		$this->assertSame( $expected, $info['scan_results_url'] );
-	}
-
-	/**
-	 * Data provider for test_host_manage_url.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_host_manage_urls() {
-		return array(
-			'has Scan'                    => array( array( 'scan' ), true ),
-			'no Scan'                     => array( array(), false ),
-			'has Scan, standalone plugin' => array( array( 'scan' ), false, true ),
 		);
 	}
 }

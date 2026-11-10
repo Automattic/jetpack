@@ -71,6 +71,11 @@ function saveGallery() {
 }
 
 describe( 'Tiled Gallery Photon domain changes', () => {
+	// blocks 17.1 only logs a matched deprecation under SCRIPT_DEBUG.
+	beforeAll( () => {
+		globalThis.SCRIPT_DEBUG = true;
+	} );
+
 	beforeEach( () => {
 		registerBlockType( metadata.name, { ...metadata, save, deprecated } );
 	} );
@@ -78,6 +83,10 @@ describe( 'Tiled Gallery Photon domain changes', () => {
 	afterEach( () => {
 		unregisterBlockType( metadata.name );
 		delete window.JetpackScriptData;
+	} );
+
+	afterAll( () => {
+		delete globalThis.SCRIPT_DEBUG;
 	} );
 
 	it( 'saves images on the external Photon domain by default', () => {

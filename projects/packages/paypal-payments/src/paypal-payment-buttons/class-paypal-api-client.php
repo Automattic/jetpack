@@ -6,10 +6,9 @@
  * endpoint. All requests are authenticated via PayPal_OAuth and include
  * a PayPal-Request-Id header for idempotency.
  *
- * Note: The PayPal-Partner-Attribution-Id header is NOT supported on
- * Payment Links API endpoints. BN code attribution is applied via the
- * `at_code` query parameter on payment link URLs instead (see
- * PayPal_Payment_Buttons::render_api_managed_button).
+ * Every request carries the PayPal-Partner-Attribution-Id header; the
+ * payment links themselves are attributed separately, through the `at_code`
+ * query parameter PayPal_Payment_Buttons::add_partner_attribution() appends.
  *
  * Updated for WOOPTP-151: Token auto-refresh on 403 with retry,
  * network timeout handling with exponential backoff, and PayPal
@@ -509,10 +508,6 @@ class PayPal_API_Client {
 	 * Handles token retrieval, header construction, response validation,
 	 * and error mapping. Includes PayPal-Request-Id for idempotency.
 	 *
-	 * Note: PayPal-Partner-Attribution-Id is NOT supported on Payment Links
-	 * API endpoints. BN code attribution is handled via the `at_code` query
-	 * parameter on payment link URLs in the render layer.
-	 *
 	 * @param string     $method          HTTP method (GET, POST, PUT, DELETE).
 	 * @param string     $endpoint        API endpoint path (appended to base URL).
 	 * @param array|null $body            Request body data (JSON-encoded for POST/PUT).
@@ -577,10 +572,11 @@ class PayPal_API_Client {
 			'method'  => $method,
 			'timeout' => self::REQUEST_TIMEOUT,
 			'headers' => array(
-				'Authorization'     => 'Bearer ' . $token,
-				'Content-Type'      => 'application/json',
-				'Accept'            => 'application/json',
-				'PayPal-Request-Id' => $request_id,
+				'Authorization'                 => 'Bearer ' . $token,
+				'Content-Type'                  => 'application/json',
+				'Accept'                        => 'application/json',
+				'PayPal-Request-Id'             => $request_id,
+				'PayPal-Partner-Attribution-Id' => PayPal_Payment_Buttons::get_partner_attribution_id(),
 			),
 		);
 

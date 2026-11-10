@@ -130,7 +130,7 @@ class Critical_CSS_State {
 	/**
 	 * Report an oversized result for each URL in its provider.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.2
 	 * @param string $provider_key The provider key.
 	 * @return bool|WP_Error True on success, WP_Error on failure.
 	 */

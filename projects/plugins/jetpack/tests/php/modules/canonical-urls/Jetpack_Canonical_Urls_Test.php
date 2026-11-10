@@ -501,6 +501,24 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A plugin reported through `jetpack_seo_conflicting_plugin` turns canonical output off too.
+	 */
+	public function test_conflict_check_reads_the_conflicting_plugin_filter() {
+		$plugin = static function () {
+			return 'Custom SEO';
+		};
+		add_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+
+		try {
+			$this->assertTrue( jetpack_canonical_urls_check_conflicts( false ) );
+		} finally {
+			remove_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+		}
+
+		$this->assertFalse( jetpack_canonical_urls_check_conflicts( false ) );
+	}
+
+	/**
 	 * Data provider for test_conflict_check.
 	 *
 	 * @return array[]

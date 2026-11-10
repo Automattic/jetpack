@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Gist: Preserve formatting when embedding a GitHub Gist URL on its own line in post content.

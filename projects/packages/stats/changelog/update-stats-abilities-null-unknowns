@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Abilities: Report counts WordPress.com could not supply as null instead of 0, and name the site that was read in every Stats reader's response.

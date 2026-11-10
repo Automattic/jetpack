@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a helper that builds share URLs from an address a reader enters, such as a Mastodon instance.
