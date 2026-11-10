@@ -563,7 +563,7 @@ const PieChart = attachSubComponents( PieChartWithProvider, {
 
 // Create responsive PieChart with composition API
 const PieChartResponsive = attachSubComponents(
-	withResponsive< PieChartProps >( PieChartWithProvider ),
+	withResponsive< PieChartProps >( PieChartWithProvider, { waitForSize: true } ),
 	{
 		Legend: Legend,
 		SVG: ChartSVG,

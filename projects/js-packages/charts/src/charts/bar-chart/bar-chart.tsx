@@ -956,7 +956,7 @@ const BarChart = attachSubComponents( BarChartWithProvider, {
 
 // Create responsive BarChart with composition API
 const BarChartResponsive = attachSubComponents(
-	withResponsive< BarChartProps >( BarChartWithProvider ),
+	withResponsive< BarChartProps >( BarChartWithProvider, { waitForSize: true } ),
 	{
 		Legend: Legend,
 	}

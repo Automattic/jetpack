@@ -203,6 +203,8 @@ SparklineUnresponsive.displayName = 'SparklineUnresponsive';
 /**
  * Responsive Sparkline chart component
  */
-const Sparkline = withResponsive< SparklineProps >( SparklineUnresponsive );
+const Sparkline = withResponsive< SparklineProps >( SparklineUnresponsive, {
+	waitForSize: true,
+} );
 
 export { Sparkline as default, SparklineUnresponsive };

@@ -122,20 +122,28 @@ describe( 'withResponsive', () => {
 
 	describe( 'first paint', () => {
 		const UNMEASURED = { parentRef: () => {}, width: 0, height: 0 };
+		// A chart that draws its geometry from the box it is handed opts into waiting for one.
+		const WaitingComponent = withResponsive( MockComponent, { waitForSize: true } );
 
-		test( 'renders no chart until the parent is measured, and keeps the wrapper in place', () => {
+		test( 'renders a chart that lays itself out before any measurement', () => {
 			useParentSize.mockImplementation( () => UNMEASURED );
 			render( <ResponsiveComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders no waiting chart until the parent is measured, and keeps the wrapper in place', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			render( <WaitingComponent data={ [] } /> );
 			expect( screen.queryByTestId( 'mock-component' ) ).not.toBeInTheDocument();
 			expect( screen.getByTestId( 'responsive-wrapper' ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders at the measured size once the measurement lands', () => {
 			useParentSize.mockImplementation( () => UNMEASURED );
-			const { rerender } = render( <ResponsiveComponent data={ [] } /> );
+			const { rerender } = render( <WaitingComponent data={ [] } /> );
 
 			useParentSize.mockImplementation( () => DEFAULT_SIZE );
-			rerender( <ResponsiveComponent data={ [] } /> );
+			rerender( <WaitingComponent data={ [] } /> );
 			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
 				width: '600px',
 				height: '300px',
@@ -144,7 +152,7 @@ describe( 'withResponsive', () => {
 
 		test( 'renders before any measurement when width and height are explicit', () => {
 			useParentSize.mockImplementation( () => UNMEASURED );
-			render( <ResponsiveComponent data={ [] } width={ 200 } height={ 120 } /> );
+			render( <WaitingComponent data={ [] } width={ 200 } height={ 120 } /> );
 			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
 				width: '200px',
 				height: '120px',
@@ -153,7 +161,7 @@ describe( 'withResponsive', () => {
 
 		test( 'renders before any measurement when an aspectRatio derives the height from an explicit width', () => {
 			useParentSize.mockImplementation( () => UNMEASURED );
-			render( <ResponsiveComponent data={ [] } width={ 500 } aspectRatio={ 0.5 } /> );
+			render( <WaitingComponent data={ [] } width={ 500 } aspectRatio={ 0.5 } /> );
 			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
 				width: '500px',
 				height: '250px',
@@ -168,7 +176,7 @@ describe( 'withResponsive', () => {
 				width: 600,
 				height: 0,
 			} ) );
-			render( <ResponsiveComponent data={ [] } /> );
+			render( <WaitingComponent data={ [] } /> );
 			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
 				width: '600px',
 				height: '0px',
@@ -176,13 +184,13 @@ describe( 'withResponsive', () => {
 		} );
 
 		test( 'stays mounted when an ancestor hides the chart and it measures 0 again', () => {
-			const { rerender } = render( <ResponsiveComponent data={ [] } /> );
+			const { rerender } = render( <WaitingComponent data={ [] } /> );
 			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
 
 			// display: none measures 0×0; unmounting there would drop the chart's zoom and
 			// series state and re-run its entry animation on the way back.
 			useParentSize.mockImplementation( () => UNMEASURED );
-			rerender( <ResponsiveComponent data={ [] } /> );
+			rerender( <WaitingComponent data={ [] } /> );
 			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
 		} );
 	} );

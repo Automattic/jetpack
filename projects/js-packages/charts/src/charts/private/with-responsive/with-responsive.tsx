@@ -34,15 +34,27 @@ export type ResponsiveConfig = {
 	resizeDebounceTime?: number;
 };
 
+export type ResponsiveOptions = {
+	/**
+	 * Hold the chart back until the box has been measured. Set it for a chart that draws
+	 * its geometry from the box it is handed, and leave it off for one that lays itself
+	 * out from its own content, which has nothing to gain by waiting.
+	 */
+	waitForSize?: boolean;
+};
+
 /**
  * A higher-order component that provides responsive dimensions
  * to the wrapped chart component using useParentSize from `@visx/responsive`.
  *
- * @param WrappedComponent - The chart component to be wrapped.
+ * @param WrappedComponent    - The chart component to be wrapped.
+ * @param options             - Options for the wrapper.
+ * @param options.waitForSize - Whether to hold the chart back until the box is measured.
  * @return A functional component that renders the wrapped component with responsive dimensions.
  */
 export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'options' > >( // 'options' is excluded so that each chart can define its own options type
-	WrappedComponent: ComponentType< T >
+	WrappedComponent: ComponentType< T >,
+	{ waitForSize = false }: ResponsiveOptions = {}
 ) {
 	return function ResponsiveChart( {
 		resizeDebounceTime = 300,
@@ -136,16 +148,16 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			}
 		}, [ hasAspectRatio, availableWidth, aspectRatio, containedHeight, parentHeight ] );
 
-		// Nothing is drawn until the box has real dimensions: handed 0×0 the chart paints its
-		// plot and legend at a size it loses a frame later, and jumps. The wrapper fills the
-		// parent meanwhile, so the wait takes no space. Width and height are reported together,
-		// so a measured width settles the height too, whether or not the parent has one.
+		// A chart that waits draws nothing until the box has real dimensions: handed 0×0 it
+		// paints its plot and legend at a size it loses a frame later, and jumps. The wrapper
+		// fills the parent meanwhile, so the wait takes no space. Width and height are reported
+		// together, so a measured width settles the height too, with or without a definite one.
 		const isMeasured = parentWidth > 0;
 		const hasDimensions = boxWidth > 0 && ( boxHeight > 0 || isMeasured );
 
 		// Only the first paint waits: a hidden ancestor measures the chart at 0×0, and
 		// unmounting it there would drop its zoom and series state.
-		const hasBeenSized = useRef( false );
+		const hasBeenSized = useRef( ! waitForSize );
 		hasBeenSized.current = hasBeenSized.current || hasDimensions;
 
 		const wrappedComponent = hasBeenSized.current ? (

@@ -505,7 +505,9 @@ const PieSemiCircleChart = attachSubComponents( PieSemiCircleChartWithProvider, 
 
 // Create responsive PieSemiCircleChart with composition API
 const PieSemiCircleChartResponsive = attachSubComponents(
-	withResponsive< PieSemiCircleChartProps >( PieSemiCircleChartWithProvider ),
+	withResponsive< PieSemiCircleChartProps >( PieSemiCircleChartWithProvider, {
+		waitForSize: true,
+	} ),
 	{
 		Legend: Legend,
 		SVG: ChartSVG,

@@ -383,6 +383,8 @@ const GeoChartWithProvider: FC< GeoChartProps > = props => {
 
 GeoChartWithProvider.displayName = 'GeoChart';
 
-const GeoChartResponsive = withResponsive< GeoChartProps >( GeoChartWithProvider );
+const GeoChartResponsive = withResponsive< GeoChartProps >( GeoChartWithProvider, {
+	waitForSize: true,
+} );
 
 export { GeoChartResponsive as default, GeoChartWithProvider as GeoChartUnresponsive };
