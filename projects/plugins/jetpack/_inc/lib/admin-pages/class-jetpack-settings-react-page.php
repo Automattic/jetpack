@@ -93,13 +93,12 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * @return array
 	 */
 	public function add_admin_shell_member( $members ) {
-		// The page falls back to the modules list without the REST API, and shows only the IDC banner during IDC.
+		// During IDC the page shows only the IDC banner.
 		if (
 			( new Host() )->is_wpcom_simple()
-			|| ! $this->can_access_settings()
-			|| ! $this->is_rest_api_enabled()
-			|| $this->block_page_rendering_for_idc()
 			|| ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' )
+			|| ! $this->can_access_settings()
+			|| $this->block_page_rendering_for_idc()
 		) {
 			return $members;
 		}

@@ -215,13 +215,6 @@ class Settings {
 		}
 
 		self::load_wp_build_with_screen_alias();
-
-		// wp-build registers standalone modules (e.g. the init module) on
-		// wp_default_scripts, which has already fired by admin_menu. Register them
-		// directly so the init module makes it into the import map.
-		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
-			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
 	}
 
 	/**
@@ -332,11 +325,12 @@ class Settings {
 	public function add_admin_shell_member( $members ) {
 		// The same gates add_wp_admin_menu() applies, since admin-ajax never builds the menu.
 		if (
-			! self::is_modernized()
+			( new Host() )->is_wpcom_simple()
+			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
+			|| ! self::is_modernized()
 			|| ! $this->should_show_menu_item()
 			|| ! $this->is_subscriptions_active()
 			|| ! ( new Connection_Manager() )->is_connected()
-			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
 		) {
 			return $members;
 		}
@@ -363,9 +357,6 @@ class Settings {
 	 */
 	public function load_as_admin_shell_guest() {
 		self::load_wp_build();
-		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
-			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
 		$this->admin_init();
 	}
 
@@ -618,6 +609,13 @@ class Settings {
 		}
 
 		require_once $build_index;
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
+			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 			'jetpack-newsletter',

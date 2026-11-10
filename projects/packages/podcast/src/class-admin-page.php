@@ -162,8 +162,7 @@ class Admin_Page {
 	public static function load_as_admin_shell_guest() {
 		self::load_wp_build();
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_podcast_script_data' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
+		self::admin_init();
 	}
 
 	/**

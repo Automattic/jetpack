@@ -60,9 +60,14 @@ class Dashboard {
 	const RENDER_FUNCTION = 'jetpack_protect_jetpack_protect_dashboard_wp_admin_render_page';
 
 	/**
-	 * Script that carries the page data when the admin shell shows the dashboard on another page.
+	 * Carries what render() prints in the page body when the dashboard loads as an admin shell guest.
 	 */
 	const GUEST_DATA_HANDLE = 'jetpack-protect-dashboard-data';
+
+	/**
+	 * Sets the flag the page's Tracks client records under.
+	 */
+	const TRACKS_STATE_SCRIPT = 'window.jetpackProtectTracks = true;';
 
 	/**
 	 * The settings section that owns each Jetpack security module, for links from other screens.
@@ -415,7 +420,7 @@ class Dashboard {
 		wp_enqueue_script( self::GUEST_DATA_HANDLE );
 		wp_add_inline_script( self::GUEST_DATA_HANDLE, self::get_initial_state_script(), 'before' );
 		if ( self::can_use_analytics() ) {
-			wp_add_inline_script( self::GUEST_DATA_HANDLE, 'window.jetpackProtectTracks = true;', 'before' );
+			wp_add_inline_script( self::GUEST_DATA_HANDLE, self::TRACKS_STATE_SCRIPT, 'before' );
 		}
 	}
 
@@ -628,7 +633,7 @@ class Dashboard {
 	 */
 	public static function print_tracks_state() {
 		if ( self::can_use_analytics() ) {
-			wp_print_inline_script_tag( 'window.jetpackProtectTracks = true;' );
+			wp_print_inline_script_tag( self::TRACKS_STATE_SCRIPT );
 		}
 	}
 

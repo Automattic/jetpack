@@ -83,6 +83,7 @@ class Jetpack_Admin {
 
 		if ( class_exists( Admin_Shell::class ) ) {
 			add_filter( 'jetpack_admin_shell_members', array( $jetpack_settings, 'add_admin_shell_member' ) );
+			add_filter( 'jetpack_admin_shell_members', array( $jetpack_ai, 'add_admin_shell_member' ) );
 		}
 
 		// Add redirect to current page for activation/deactivation of modules.

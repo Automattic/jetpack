@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status\Host;
@@ -68,7 +67,7 @@ class Admin_UI {
 	const CHAPTERS_EDITOR_ROUTE_PATHS = array( '/video/$id/editor' );
 
 	/**
-	 * Script that carries the page data when the admin shell shows the dashboard on another page.
+	 * Carries the initial state when the dashboard loads as an admin shell guest.
 	 */
 	const GUEST_DATA_HANDLE = 'jetpack-videopress-dashboard-data';
 
@@ -140,13 +139,6 @@ class Admin_UI {
 		}
 
 		self::load_wp_build_with_screen_alias();
-
-		// wp-build registers standalone modules (e.g. the init module) on
-		// wp_default_scripts, which has already fired by admin_menu. Register them
-		// directly so the init module makes it into the import map.
-		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
-			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
 	}
 
 	/**
@@ -398,10 +390,7 @@ class Admin_UI {
 		self::load_wp_build();
 		// The page init action that runs this never fires for a guest, and the shell reads the routes first.
 		self::maybe_strip_chapters_editor_routes();
-		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
-			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+		self::admin_init();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
 	}
 
@@ -415,8 +404,7 @@ class Admin_UI {
 	public static function enqueue_guest_initial_state() {
 		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), false, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- No source, so nothing to cache.
 		wp_enqueue_script( self::GUEST_DATA_HANDLE );
-		wp_add_inline_script( self::GUEST_DATA_HANDLE, ( new Initial_State() )->render(), 'before' );
-		Connection_Initial_State::render_script( self::GUEST_DATA_HANDLE );
+		Initial_State::attach_to( self::GUEST_DATA_HANDLE );
 	}
 
 	/**
@@ -727,6 +715,13 @@ class Admin_UI {
 		}
 
 		require_once $build_index;
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
+			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		// Defer the chapters-editor route stripping to the page init actions, at a
 		// priority ahead of the `build/routes.php` readers (default 10). Those

@@ -57,16 +57,15 @@ class Jetpack_WP_Build_Page {
 		require_once $build_index;
 
 		// A stale or partial build can't render the page, so don't swap core's scripts for it.
-		if ( ! function_exists( 'jetpack_plugin_' . str_replace( '-', '_', $page_id ) . '_wp_admin_render_page' ) ) {
-			if ( $alias ) {
-				remove_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
-				self::$page_id = null;
-			}
-			return false;
-		}
-
-		if ( $alias ) {
+		$renders = function_exists( 'jetpack_plugin_' . str_replace( '-', '_', $page_id ) . '_wp_admin_render_page' );
+		if ( $alias && $renders ) {
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
+		} elseif ( $alias ) {
+			remove_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
+			self::$page_id = null;
+		}
+		if ( ! $renders ) {
+			return false;
 		}
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
 
