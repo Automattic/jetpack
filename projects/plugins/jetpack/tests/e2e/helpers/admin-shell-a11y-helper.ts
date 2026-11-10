@@ -207,6 +207,38 @@ export function focusOwner( page: Page ): Promise< string > {
 	}, MOUNT_IDS );
 }
 
+/**
+ * The app container for `slug` and its ancestors that are `aria-hidden`, as `#id` or tag name.
+ *
+ * @param page - Page under test.
+ * @param slug - Member page slug.
+ * @return Hidden elements, innermost first.
+ */
+export async function ariaHiddenAncestors( page: Page, slug: string ): Promise< string[] > {
+	const hidden = await page.evaluate(
+		( [ s, mountId ] ) => {
+			const app =
+				document.querySelector( `[data-shell-page="${ s }"]` ) ??
+				document.getElementById( mountId );
+			if ( ! app ) {
+				return null;
+			}
+			const found: string[] = [];
+			for ( let el: Element | null = app; el; el = el.parentElement ) {
+				if ( el.getAttribute( 'aria-hidden' ) === 'true' ) {
+					found.push( el.id ? `#${ el.id }` : el.tagName.toLowerCase() );
+				}
+			}
+			return found;
+		},
+		[ slug, MOUNT_IDS[ slug ] ]
+	);
+	if ( ! hidden ) {
+		throw new Error( `No app container for ${ slug } in the document` );
+	}
+	return hidden;
+}
+
 const axePath = createRequire( import.meta.url ).resolve( 'axe-core/axe.min.js' );
 
 /**

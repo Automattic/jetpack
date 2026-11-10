@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import {
 	announcements,
+	ariaHiddenAncestors,
 	axeViolations,
 	focusOwner,
 	hiddenApps,
@@ -12,7 +13,6 @@ import {
 	resetA11yProbe,
 } from '../../helpers/admin-shell-a11y-helper';
 import {
-	MOUNT_IDS,
 	installShellProbe,
 	isShellActive,
 	member,
@@ -259,17 +259,9 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		test.fail( true, 'Shell bug: Back from an open modal leaves the admin wrapper aria-hidden.' );
 		await keyboardPass( page, {
 			afterBack: async () => {
-				const ariaHidden = await page.evaluate( mountId => {
-					const app = document.getElementById( mountId );
-					const hidden: string[] = [];
-					for ( let el = app?.parentElement; el; el = el.parentElement ) {
-						if ( el.getAttribute( 'aria-hidden' ) === 'true' ) {
-							hidden.push( el.id ? `#${ el.id }` : el.tagName.toLowerCase() );
-						}
-					}
-					return hidden;
-				}, MOUNT_IDS[ MJ ] );
-				expect( ariaHidden, 'aria-hidden ancestors of the shown app' ).toEqual( [] );
+				expect( await ariaHiddenAncestors( page, MJ ), 'aria-hidden around the shown app' ).toEqual(
+					[]
+				);
 				await expect( mainHeading( page, MJ ) ).toBeVisible();
 			},
 		} );
