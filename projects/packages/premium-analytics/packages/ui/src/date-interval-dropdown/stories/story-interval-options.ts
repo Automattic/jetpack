@@ -1,15 +1,22 @@
 import type { IntervalType, PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 
 /*
- * Story stand-in for `getAllowedIntervalsForPreset` (in the data package, not
- * a dependency here). Covers the presets the date surfaces offer; anything
- * else, custom ranges included, falls back to a few-weeks range's options.
+ * Story stand-in for `getAllowedIntervalsForPreset`, which needs a range the
+ * year-filter story does not keep. Covers the presets it answers by name alone;
+ * anything else, custom ranges included, falls back to a few-weeks range's options.
  */
 const STORY_INTERVAL_OPTIONS: Partial< Record< PrimaryPresetId, IntervalType[] > > = {
-	'last-24-hours': [ 'hour', 'day' ],
+	today: [ 'hour' ],
+	yesterday: [ 'hour' ],
+	'last-24-hours': [ 'hour' ],
 	'last-7-days': [ 'day' ],
 	'last-30-days': [ 'day', 'week' ],
+	'last-month': [ 'day', 'week' ],
+	'last-90-days': [ 'week', 'month' ],
+	'last-365-days': [ 'month', 'week', 'quarter' ],
 	'last-12-months': [ 'month', 'week', 'quarter' ],
+	'last-year': [ 'month', 'week', 'quarter' ],
+	'last-3-years': [ 'year', 'month', 'quarter' ],
 	'all-time': [ 'month', 'quarter', 'year' ],
 };
 
