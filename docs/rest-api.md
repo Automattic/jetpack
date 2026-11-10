@@ -297,7 +297,7 @@ The response is huge. Try it on your browser's console for discovery. Here's a c
 ```json
 {
 	"protect": {
-	        "name": "Protect",
+	        "name": "Login protection",
 		"description": "Block suspicious-looking sign in activity",
 		"sort": 1,
 		"recommendation_order": 4,

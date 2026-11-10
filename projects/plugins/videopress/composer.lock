@@ -612,7 +612,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d73078d246517912907d40ecbb53c3318888e935"
+                "reference": "c8a4acc3337e952c3bb0abbf83760ad6c483e486"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -648,7 +648,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.16.x-dev"
+                    "dev-trunk": "9.17.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1233,7 +1233,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "d82df78e6ce280bc095b35b65183828b6bf3c818"
+                "reference": "46c5b504fb0917063e4df2cd2461f9d5bafa8240"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1275,7 +1275,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.16.x-dev"
+                    "dev-trunk": "6.17.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1817,7 +1817,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "d57681a025d25e941b66c0d31377850b340c80d0"
+                "reference": "2d549a904273704cfb99a2855fc9543ebc0b0643"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1849,7 +1849,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.4.x-dev"
+                    "dev-trunk": "5.5.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2054,5 +2054,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }

@@ -95,9 +95,7 @@ describe( 'PostingActivityWidget', () => {
 	it( 'draws those months as one calendar grid, current month last, weeks from Monday', () => {
 		renderWidget();
 
-		expect(
-			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'grid' ) ).toBeInTheDocument();
 		const months = screen.getAllByTestId( 'heatmap-group-label' ).map( el => el.textContent );
 		expect( months ).toHaveLength( 12 );
 		expect( months[ 0 ] ).toBe( 'Oct' );
@@ -125,9 +123,7 @@ describe( 'PostingActivityWidget', () => {
 		mockUseStatsStreak.mockReturnValue( streakResult( { data: {} } ) );
 		renderWidget();
 
-		expect(
-			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'grid' ) ).toBeInTheDocument();
 		expect(
 			screen.getByRole( 'gridcell', { name: 'Fri, Oct 3, 2025: No data' } )
 		).toBeInTheDocument();
@@ -139,9 +135,7 @@ describe( 'PostingActivityWidget', () => {
 		);
 		renderWidget();
 
-		expect(
-			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'grid' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the month blocks while loading', () => {

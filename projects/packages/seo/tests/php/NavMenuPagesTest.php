@@ -28,6 +28,7 @@ class NavMenuPagesTest extends SeoTestCase {
 	protected function tearDown(): void {
 		remove_all_filters( 'pre_get_block_templates' );
 		remove_all_filters( 'pre_get_block_template' );
+		remove_all_filters( 'pre_get_block_file_template' );
 		remove_theme_support( 'block-template-parts' );
 		update_option( 'show_on_front', 'posts' );
 		update_option( 'page_on_front', 0 );
@@ -220,28 +221,64 @@ class NavMenuPagesTest extends SeoTestCase {
 	}
 
 	/**
-	 * A home template that includes its header through a pattern uses that header.
+	 * A home template that reaches its header through another block uses that header,
+	 * following only what core would render.
 	 *
+	 * @dataProvider provide_header_references
+	 *
+	 * @param string $home     Markup of the home template.
+	 * @param string $expected Header expected to rank: `default` or `alternate`.
 	 * @return void
 	 */
-	public function test_home_template_header_inside_pattern() {
-		list( $a, $b ) = $this->pages( 2 );
+	#[DataProvider( 'provide_header_references' )]
+	public function test_home_template_header_through_reference( $home, $expected ) {
+		$pages     = array_combine( array( 'default', 'alternate' ), $this->pages( 2 ) );
+		$default   = '<!-- wp:template-part {"slug":"header"} /-->';
+		$alternate = '<!-- wp:template-part {"slug":"header-large-title"} /-->';
 		register_block_pattern(
 			self::PATTERN,
 			array(
 				'title'   => 'Home',
-				'content' => '<!-- wp:template-part {"slug":"header-large-title"} /-->',
+				'content' => $alternate,
 			)
 		);
 		$this->use_template_parts(
 			array(
-				array( 'header', 'header', $this->navigation_markup( $a ) ),
-				array( 'header-large-title', 'header', $this->navigation_markup( $b ) ),
+				array( 'header', 'header', $this->navigation_markup( $pages['default'] ) ),
+				array( 'header-large-title', 'header', $this->navigation_markup( $pages['alternate'] ) ),
+				array( 'page-shell', 'uncategorized', $alternate ),
+				array( 'self-shell', 'uncategorized', '<!-- wp:template-part {"slug":"self-shell"} /-->' . $alternate ),
+				array( 'draft-shell', 'uncategorized', $default, 'draft' ),
 			),
-			array( 'index' => '<!-- wp:pattern {"slug":"' . self::PATTERN . '"} /-->' )
+			array( 'index' => $home )
+		);
+		add_filter(
+			'pre_get_block_file_template',
+			static function () use ( $alternate ) {
+				$file          = new WP_Block_Template();
+				$file->content = $alternate;
+				return $file;
+			}
 		);
 
-		$this->assertSame( array( $b ), Nav_Menu_Pages::get()['main'] );
+		$this->assertSame( array( $pages[ $expected ] ), Nav_Menu_Pages::get()['main'] );
+	}
+
+	/**
+	 * Blocks a home template can include its header through.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_header_references() {
+		$part = '<!-- wp:template-part {"slug":"%s"} /-->';
+		return array(
+			'pattern'                   => array( '<!-- wp:pattern {"slug":"' . self::PATTERN . '"} /-->', 'alternate' ),
+			'template part'             => array( sprintf( $part, 'page-shell' ), 'alternate' ),
+			'part that includes itself' => array( sprintf( $part, 'self-shell' ), 'alternate' ),
+			'unpublished saved part'    => array( sprintf( $part, 'draft-shell' ), 'alternate' ),
+			'part from another theme'   => array( '<!-- wp:template-part {"slug":"page-shell","theme":"other-theme"} /-->', 'default' ),
+			'header from another theme' => array( '<!-- wp:template-part {"slug":"header-large-title","theme":"other-theme"} /-->', 'default' ),
+		);
 	}
 
 	/**
@@ -314,6 +351,7 @@ class NavMenuPagesTest extends SeoTestCase {
 			'menu reference'             => array( '<!-- wp:navigation {"ref":{older}} /-->', 'older' ),
 			'no reference, newest'       => array( '<!-- wp:navigation /-->', 'newer' ),
 			'trashed reference, newest'  => array( '<!-- wp:navigation {"ref":{trashed}} /-->', 'newer' ),
+			'reference over own links'   => array( '<!-- wp:navigation {"ref":{trashed}} --><!-- wp:navigation-link {"id":{a},"kind":"post-type","type":"page"} /--><!-- /wp:navigation -->', 'newer' ),
 			'deleted reference, none'    => array( '<!-- wp:navigation {"ref":999999} /-->', 'none' ),
 			'own links, local URLs only' => array(
 				'<!-- wp:navigation --><!-- wp:navigation-submenu {"id":{a},"kind":"post-type","type":"page"} --><!-- wp:navigation-link {"url":"{b_url}","kind":"custom"} /--><!-- /wp:navigation-submenu --><!-- wp:navigation-link {"url":"https://example.com","kind":"custom"} /--><!-- /wp:navigation -->',
@@ -382,18 +420,21 @@ class NavMenuPagesTest extends SeoTestCase {
 	/**
 	 * Serve template parts in place of the theme's, with block template parts supported.
 	 *
-	 * @param array[] $parts Each `array( slug, area, content )`.
+	 * @param array[] $parts Each `array( slug, area, content, status )`; status defaults to publish.
 	 * @param array   $home  Page templates to serve, as template slug => part slugs it includes, or its markup.
 	 * @return void
 	 */
 	private function use_template_parts( array $parts, array $home = array() ) {
 		$templates = array();
-		foreach ( $parts as list( $slug, $area, $content ) ) {
+		foreach ( $parts as $part ) {
+			list( $slug, $area, $content ) = $part;
+
 			$template          = new WP_Block_Template();
 			$template->type    = 'wp_template_part';
 			$template->slug    = $slug;
 			$template->area    = $area;
 			$template->content = $content;
+			$template->status  = $part[3] ?? 'publish';
 			$templates[]       = $template;
 		}
 

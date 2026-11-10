@@ -178,11 +178,11 @@ class Nav_Menu_Pages {
 	}
 
 	/**
-	 * Slugs of the template part blocks in a block tree, including those inside patterns
-	 * and synced patterns.
+	 * Slugs of the template part blocks in a block tree, including those inside patterns,
+	 * synced patterns and other template parts.
 	 *
 	 * @param array $blocks Parsed blocks.
-	 * @param int   $depth  Pattern references followed so far.
+	 * @param int   $depth  Pattern or template part references followed so far.
 	 * @return string[]
 	 */
 	private static function template_part_slugs( array $blocks, $depth = 0 ) {
@@ -193,11 +193,11 @@ class Nav_Menu_Pages {
 			$inner    = $block['innerBlocks'] ?? array();
 			$followed = false;
 
-			if ( 'core/template-part' === $name ) {
-				if ( ! empty( $attrs['slug'] ) ) {
-					$slugs[] = $attrs['slug'];
-				}
-			} elseif ( $depth < self::MAX_DEPTH ) {
+			if ( self::is_active_theme_part( $name, $attrs ) ) {
+				$slugs[] = $attrs['slug'];
+			}
+
+			if ( $depth < self::MAX_DEPTH ) {
 				$content = self::referenced_content( $name, $attrs );
 				if ( null !== $content ) {
 					$inner    = parse_blocks( $content );
@@ -227,10 +227,11 @@ class Nav_Menu_Pages {
 			$inner    = $block['innerBlocks'] ?? array();
 			$followed = false;
 
-			if ( 'core/navigation' === $name && empty( $inner ) && $depth < self::MAX_DEPTH ) {
-				// Without its own links, the block shows the menu it references. Like core, fall back when
-				// there's no reference or that menu isn't published; a deleted menu shows nothing.
-				$menu = empty( $attrs['ref'] ) ? null : get_post( (int) $attrs['ref'] );
+			if ( 'core/navigation' === $name && ( ! empty( $attrs['ref'] ) || empty( $inner ) ) && $depth < self::MAX_DEPTH ) {
+				// Like core, a menu reference replaces the block's own links, and the block falls back when it
+				// has neither or that menu isn't published; a deleted menu shows nothing.
+				$menu  = empty( $attrs['ref'] ) ? null : get_post( (int) $attrs['ref'] );
+				$inner = array();
 				if ( empty( $attrs['ref'] ) || ( $menu instanceof \WP_Post && 'publish' !== $menu->post_status ) ) {
 					$menu = self::fallback_navigation();
 				}
@@ -279,11 +280,27 @@ class Nav_Menu_Pages {
 			$synced = get_post( (int) $attrs['ref'] );
 			return $synced instanceof \WP_Post && 'wp_block' === $synced->post_type && 'publish' === $synced->post_status ? $synced->post_content : null;
 		}
-		if ( 'core/template-part' === $name && ! empty( $attrs['slug'] ) ) {
-			$part = get_block_template( ( $attrs['theme'] ?? get_stylesheet() ) . '//' . $attrs['slug'], 'wp_template_part' );
+		if ( self::is_active_theme_part( $name, $attrs ) ) {
+			// Like core, an unpublished saved copy gives way to the theme's file.
+			$id   = get_stylesheet() . '//' . $attrs['slug'];
+			$part = get_block_template( $id, 'wp_template_part' );
+			if ( $part && 'publish' !== $part->status ) {
+				$part = get_block_file_template( $id, 'wp_template_part' );
+			}
 			return $part ? (string) $part->content : null;
 		}
 		return null;
+	}
+
+	/**
+	 * Whether a block is a template part of the active theme, the only ones core renders.
+	 *
+	 * @param string $name  Block name.
+	 * @param array  $attrs Block attributes.
+	 * @return bool
+	 */
+	private static function is_active_theme_part( $name, array $attrs ) {
+		return 'core/template-part' === $name && ! empty( $attrs['slug'] ) && get_stylesheet() === ( $attrs['theme'] ?? get_stylesheet() );
 	}
 
 	/**

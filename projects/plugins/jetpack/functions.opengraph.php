@@ -171,7 +171,7 @@ function jetpack_og_tags() {
 
 		$author = get_queried_object();
 
-		if ( is_a( $author, 'WP_User' ) ) {
+		if ( $author instanceof \WP_User ) {
 			$tags['og:title'] = $author->display_name;
 			if ( ! empty( $author->user_url ) ) {
 				$tags['og:url'] = $author->user_url;
@@ -194,7 +194,7 @@ function jetpack_og_tags() {
 				$tags['og:url']         = get_post_type_archive_link( $archive->name );
 				$tags['og:description'] = $archive->description;
 		}
-	} elseif ( is_singular() && is_a( $data, 'WP_Post' ) ) {
+	} elseif ( is_singular() && $data instanceof \WP_Post ) {
 		$tags['og:type'] = 'article';
 		if ( empty( $data->post_title ) ) {
 			$tags['og:title'] = ' ';
@@ -452,7 +452,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		}
 	} elseif ( is_author() ) {
 		$author = get_queried_object();
-		if ( is_a( $author, 'WP_User' ) ) {
+		if ( $author instanceof \WP_User ) {
 			$image['src']          = get_avatar_url(
 				$author->user_email,
 				array(

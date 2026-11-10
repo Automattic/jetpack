@@ -578,15 +578,6 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Return the conflicting plugin's name for dashboard payloads.
-	 *
-	 * @return string
-	 */
-	private static function get_conflicting_seo_plugin() {
-		return Seo_Tools::get_conflicting_plugin() ?? '';
-	}
-
-	/**
 	 * Drop the superseded legacy front page description once a modern one is saved.
 	 *
 	 * The front end falls back to the legacy option whenever the modern value is
@@ -982,8 +973,7 @@ class Dashboard_Data {
 	 * @return array
 	 */
 	public static function get_overview_data() {
-		$modules     = new Modules();
-		$seo_enabled = self::is_jetpack_seo_enabled();
+		$modules = new Modules();
 
 		$codes = get_option( 'verification_services_codes', array() );
 		if ( ! is_array( $codes ) ) {
@@ -1007,10 +997,6 @@ class Dashboard_Data {
 				'facebook'  => ! empty( $codes['facebook'] ),
 			),
 			'content_coverage'        => Content_Coverage::get(),
-			'plan'                    => array(
-				'seo_enabled_for_site' => $seo_enabled,
-			),
-			'conflicting_seo_plugin'  => self::get_conflicting_seo_plugin(),
 			// Whether the site-verification toggle can do anything here. False where
 			// that module isn't present — WordPress.com Simple ships no Jetpack modules
 			// and reports every one of them active — so the dashboard hides the control
@@ -1126,7 +1112,6 @@ class Dashboard_Data {
 			// Settings tab replays that composition to preview it.
 			'title_separator'            => self::get_default_title_separator(),
 			'title_formats_editable'     => $title_formats_editable,
-			'conflicting_seo_plugin'     => self::get_conflicting_seo_plugin(),
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
@@ -1219,11 +1204,9 @@ class Dashboard_Data {
 				'aiEnabled'    => $ai_on,
 			),
 			'llmsTxt'  => array(
-				'enabled'           => Llms_Txt::is_enabled(),
-				'url'               => home_url( '/llms.txt' ),
-				'canServe'          => Llms_Txt::can_serve(),
-				'disabled'          => Seo_Tools::is_disabled(),
-				'conflictingPlugin' => self::get_conflicting_seo_plugin(),
+				'enabled'  => Llms_Txt::is_enabled(),
+				'url'      => home_url( '/llms.txt' ),
+				'canServe' => Llms_Txt::can_serve(),
 			),
 			'crawlers' => Ai_Crawlers::get_bootstrap_data(),
 		);
@@ -1237,6 +1220,21 @@ class Dashboard_Data {
 	public static function get_content_data() {
 		return array(
 			'post_types' => Post_Types::get_supported_content_type_options(),
+		);
+	}
+
+	/**
+	 * Whether Jetpack's SEO output is paused, and the plugin that owns it when one does.
+	 * Every tab reads this one bootstrap for its banner and locked cards.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{paused: bool, conflicting_plugin: string}
+	 */
+	public static function get_output_data() {
+		return array(
+			'paused'             => Seo_Tools::is_disabled(),
+			'conflicting_plugin' => Seo_Tools::get_conflicting_plugin() ?? '',
 		);
 	}
 

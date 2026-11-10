@@ -5,7 +5,8 @@ import {
 	postSurface,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { ButtonLink } from '@jetpack-premium-analytics/externals';
+import { ButtonLink, Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
 	usePeriodHost,
@@ -17,7 +18,6 @@ import {
 	safeHttpUrl,
 	SectionTabs,
 	StatsBreadcrumbs,
-	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
@@ -46,9 +46,8 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
-import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES, withPostTypeTitles } from './config';
+import { EMAIL_TAB_IDS, withPostTypeTitles } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import type { JSX } from 'react';
@@ -84,7 +83,7 @@ function PostDetail(): JSX.Element {
 	const publicUrl = safeHttpUrl( summary.url );
 
 	// The resource, date range, and comparison all live in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals } );
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { dateLimits } );
 	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
 		summary.publishedDate,
 		dateFilters,
@@ -182,11 +181,7 @@ function PostDetail(): JSX.Element {
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	const pageWidgetTypes = useMemo(
-		() =>
-			withPostTypeTitles(
-				withWidgetTypeAliases( widgetTypes, POST_DETAIL_WIDGET_TYPE_ALIASES ),
-				summary.type
-			),
+		() => withPostTypeTitles( widgetTypes, summary.type ),
 		[ widgetTypes, summary.type ]
 	);
 
@@ -254,7 +249,7 @@ function PostDetail(): JSX.Element {
 							onEditChange={ onEditChange }
 						>
 							<DetailPageShell
-								visual={ <StatsPageIcon /> }
+								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={
 									<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
 										<StatsBreadcrumbs items={ breadcrumbs } />

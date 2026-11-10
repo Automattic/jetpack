@@ -105,7 +105,6 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 			renderLoading={ <HeatmapSkeleton /> }
 		>
 			<MonthlyHeatmap
-				chartTitle={ __( 'All-time traffic', 'jetpack-premium-analytics-pkg' ) }
 				rows={ heatmapRows }
 				{ ...monthlyHeatmapLabels( metric ) }
 				onSelect={ openMonth }

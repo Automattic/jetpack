@@ -3,7 +3,8 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import ScanCard from '../scan-card';
-import { setScan } from '../store';
+import { resetScan, setScan } from '../store';
+import { resetThreatActions } from '../threat-actions';
 import { LEVELS, getLevel } from '../threats-list';
 import type { ScanState } from '../types';
 
@@ -41,6 +42,11 @@ const renderCard = ( scan: Partial< ScanState > ) => {
 
 beforeEach( () => {
 	mockApiFetch.mockReset().mockResolvedValue( [] );
+} );
+
+afterEach( () => {
+	resetThreatActions();
+	resetScan();
 } );
 
 describe( 'ScanCard without Scan', () => {
@@ -123,11 +129,16 @@ describe( 'ScanCard with Scan', () => {
 		}
 	);
 
-	it( 'still lists threats from earlier scans after a failed scan', async () => {
+	it( 'lists threats from earlier scans and says the last scan failed', async () => {
 		const threat = { id: 5, title: 'Threat 5', severity: 3, status: 'current' as const };
 		renderCard( { hasPlan: true, lastScanFailed: true, threats: [ threat ] } );
 
 		expect( screen.getByText( 'All vulnerabilities found' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'Your last scan didn’t complete, so these results are from an earlier scan.'
+			)
+		).toBeInTheDocument();
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
 	} );
 
@@ -209,6 +220,7 @@ describe( 'ScanCard threat list', () => {
 			screen.getByRole( 'button', { name: /^Malicious code found in file: index\.php/ } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Critical' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^Your last scan didn’t complete/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'drops threats that leave the list from the selection', async () => {

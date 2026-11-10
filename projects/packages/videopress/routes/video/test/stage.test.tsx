@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import {
 	isInaccessible,
 	act,
@@ -20,6 +21,12 @@ import {
 import { stage as Stage } from '../stage';
 import type { QueryClient } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { initialize: jest.fn(), tracks: { recordEvent: jest.fn() } },
+} ) );
+const recordEvent = analytics.tracks.recordEvent as jest.Mock;
 
 // Declared here (and not only inside test-utils/mock-api-fetch) because this
 // file imports hook modules BEFORE the test-utils helper: jest.mock calls
@@ -303,7 +310,11 @@ async function renderUploadingStage() {
 function metaCall() {
 	expect( mockUpdateMeta ).toHaveBeenCalledTimes( 1 );
 	const [ vars, callbacks ] = mockUpdateMeta.mock.calls[ 0 ] as [
-		{ id: string; patch: { title?: string; description?: string } },
+		{
+			id: string;
+			patch: { title?: string; description?: string; privacy?: string };
+			previousPrivacy?: string;
+		},
 		{ onSuccess: () => void; onError: () => void },
 	];
 	return { vars, callbacks };
@@ -801,6 +812,40 @@ describe( 'video stage', () => {
 		confirmSpy.mockRestore();
 	} );
 
+	it( 'uses the last saved privacy for later saves before the video cache refreshes', async () => {
+		const user = userEvent.setup();
+		await renderReadyStage();
+		await user.click( screen.getByRole( 'button', { name: /Privacy & sharing/ } ) );
+		await user.selectOptions( screen.getByLabelText( 'Privacy' ), 'private' );
+		expect( mockUpdateMeta ).not.toHaveBeenCalled();
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		const first = metaCall();
+		expect( first.vars ).toMatchObject( {
+			id: '42',
+			previousPrivacy: 'public',
+			patch: { privacy: 'private' },
+		} );
+		await act( async () => first.callbacks.onSuccess() );
+		mockUpdateMeta.mockClear();
+
+		await user.type( screen.getByLabelText( 'Title' ), '!' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		const titleOnly = metaCall();
+		expect( titleOnly.vars ).toMatchObject( {
+			previousPrivacy: 'private',
+			patch: { title: 'My Clip!', privacy: 'private' },
+		} );
+		await act( async () => titleOnly.callbacks.onSuccess() );
+		mockUpdateMeta.mockClear();
+
+		await user.selectOptions( screen.getByLabelText( 'Privacy' ), 'public' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		expect( metaCall().vars ).toMatchObject( {
+			previousPrivacy: 'private',
+			patch: { privacy: 'public' },
+		} );
+	} );
+
 	it( 'regenerates the chapters VTT only after a successful save that changed the description', async () => {
 		const user = userEvent.setup();
 
@@ -904,7 +949,7 @@ describe( 'video stage', () => {
 		mockApiFetch( ( { path = '', method } ) => {
 			if ( path.startsWith( '/wp/v2/media/' ) && method === 'DELETE' ) {
 				deleteRequested = true;
-				return {};
+				return { deleted: true };
 			}
 			return makeRawMedia();
 		} );
@@ -919,6 +964,10 @@ describe( 'video stage', () => {
 		await user.click( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) );
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 		expect( deleteRequested ).toBe( false );
+		expect( recordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_videopress_video_deleted',
+			expect.anything()
+		);
 
 		await user.click( screen.getByRole( 'button', { name: 'More actions' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Delete video' } ) );
@@ -927,5 +976,14 @@ describe( 'video stage', () => {
 		);
 
 		await waitFor( () => expect( deleteRequested ).toBe( true ) );
+		await waitFor( () =>
+			expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_videopress_video_deleted', {
+				count: 1,
+				is_bulk: false,
+			} )
+		);
+		expect(
+			recordEvent.mock.calls.filter( ( [ event ] ) => event === 'jetpack_videopress_video_deleted' )
+		).toHaveLength( 1 );
 	} );
 } );
