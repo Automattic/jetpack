@@ -81,8 +81,10 @@
 		"consumers": [
 			"../*/build/routes/*/*.min.js",
 			"../*/build/modules/*/*.min.js",
+			"../*/build/widgets/*/*.min.js",
 			"../../plugins/*/build/routes/*/*.min.js",
-			"../../plugins/*/build/modules/*/*.min.js"
+			"../../plugins/*/build/modules/*/*.min.js",
+			"../../plugins/*/build/widgets/*/*.min.js"
 		]
 	}
 }
