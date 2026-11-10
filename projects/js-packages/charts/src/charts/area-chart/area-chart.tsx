@@ -617,7 +617,7 @@ const AreaChart = attachSubComponents( AreaChartWithProvider, {
 } ) as AreaChartComponent;
 
 const AreaChartResponsive = attachSubComponents(
-	withResponsive< AreaChartProps >( AreaChartWithProvider, { waitForSize: true } ),
+	withResponsive< AreaChartProps >( AreaChartWithProvider ),
 	{
 		Legend: Legend,
 	}

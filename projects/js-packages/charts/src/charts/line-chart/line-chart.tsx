@@ -915,7 +915,7 @@ const LineChart = attachSubComponents( LineChartWithProvider, {
 } ) as LineChartComponent;
 
 const LineChartResponsive = attachSubComponents(
-	withResponsive< LineChartProps >( LineChartWithProvider, { waitForSize: true } ),
+	withResponsive< LineChartProps >( LineChartWithProvider ),
 	{
 		Legend: Legend,
 		AnnotationsOverlay: LineChartAnnotationsOverlay,

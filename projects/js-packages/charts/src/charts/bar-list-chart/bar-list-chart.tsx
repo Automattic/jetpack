@@ -361,8 +361,6 @@ const BarListChart: FC< BarListChartProps > = props => {
 
 BarListChart.displayName = 'BarListChart';
 
-const BarListChartResponsive = withResponsive< BarListChartProps >( BarListChart, {
-	waitForSize: true,
-} );
+const BarListChartResponsive = withResponsive< BarListChartProps >( BarListChart );
 
 export { BarListChartResponsive as default, BarListChart as BarListChartUnresponsive };

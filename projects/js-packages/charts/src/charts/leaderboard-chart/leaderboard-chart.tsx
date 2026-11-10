@@ -654,7 +654,9 @@ const LeaderboardChart = attachSubComponents( LeaderboardChartWithProvider, {
 
 // Create responsive LeaderboardChart with composition API
 const LeaderboardChartResponsive = attachSubComponents(
-	withResponsive< LeaderboardChartProps >( LeaderboardChartWithProvider ),
+	withResponsive< LeaderboardChartProps >( LeaderboardChartWithProvider, {
+		waitForSize: false,
+	} ),
 	{
 		Legend: Legend,
 	}
