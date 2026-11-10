@@ -176,7 +176,7 @@ class Premium_Features_Test extends Base_TestCase {
 		$this->assertTrue( get_option( 'jetpack_boost_ds_cloud_css_upgrade_notice' ) );
 	}
 
-	public function test_legacy_upgrade_enables_cloud_css_without_queuing_a_modern_confirmation() {
+	public function test_upgrade_without_dashboard_build_enables_cloud_css_without_queuing_a_confirmation() {
 		Actions\expectDone( 'jetpack_boost_module_status_updated' )->once()->with( 'cloud_css', true );
 		$this->observe_plan( array(), false );
 		$this->observe_plan( array( Premium_Features::CLOUD_CSS ), false );

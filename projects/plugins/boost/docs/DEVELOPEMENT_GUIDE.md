@@ -35,20 +35,10 @@ From the monorepo root, build Boost and its dependencies:
 pnpm jetpack build plugins/boost --deps
 ```
 
-Add `--production` for a production build. The build produces both the legacy
-webpack assets and the modern dashboard assets.
-
-The modern dashboard is the default. To restore the legacy dashboard, add this filter. It is
-deprecated, because the legacy dashboard will be removed in a future release; with `WP_DEBUG`
-on, hooking it triggers a deprecation notice on Boost's admin page:
-
-```php
-add_filter( 'rsm_jetpack_ui_modernization_boost', '__return_false' );
-```
-
-The filter and the fallback for missing modern assets are defined in
-[the admin loader](../app/admin/class-admin.php). To switch dashboards in the E2E
-environment, see [Dashboard modernization](../tests/e2e/README.md#dashboard-modernization).
+Add `--production` for a production build. The build produces both the webpack
+assets and the dashboard's wp-build assets. If the wp-build assets are missing,
+Boost's admin page shows an error notice instead; see
+[the admin loader](../app/admin/class-admin.php).
 
 ## PHP unit tests
 

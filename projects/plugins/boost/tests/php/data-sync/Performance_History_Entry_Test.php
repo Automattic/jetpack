@@ -3,11 +3,9 @@
 namespace Automattic\Jetpack_Boost\Tests\Data_Sync;
 
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Graph_History_Request;
-use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Data_Sync\Performance_History_Entry;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Brain\Monkey;
-use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use Mockery;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -33,7 +31,6 @@ class Performance_History_Entry_Test extends TestCase {
 		parent::setUp();
 		Monkey\setUp();
 		Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
-		Functions\when( '__' )->returnArg();
 		Mockery::mock( 'alias:' . Connection::class )->shouldReceive( 'wpcom_blog_id' )->andReturnUsing(
 			function () {
 				return $this->blog_id;
@@ -69,29 +66,14 @@ class Performance_History_Entry_Test extends TestCase {
 		return $error;
 	}
 
-	public function test_filter_off_preserves_empty_error_fallback_with_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( false );
-		$this->assertSame(
-			array(
-				'startDate'   => 1000,
-				'endDate'     => 2000,
-				'periods'     => array(),
-				'annotations' => array(),
-			),
-			$this->history_entry( $this->upstream_error(), true, true )->get()
-		);
-	}
-
-	public function test_filter_on_surfaces_upstream_error_with_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( true );
+	public function test_surfaces_upstream_error_with_surface_errors() {
 		$entry = $this->history_entry( $this->upstream_error(), true, true );
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'History service unavailable' );
 		$entry->get();
 	}
 
-	public function test_filter_on_preserves_empty_error_fallback_without_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( true );
+	public function test_preserves_empty_error_fallback_without_surface_errors() {
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,
@@ -103,8 +85,7 @@ class Performance_History_Entry_Test extends TestCase {
 		);
 	}
 
-	public function test_filter_on_preserves_empty_error_fallback_after_surface_errors_reset() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( true );
+	public function test_preserves_empty_error_fallback_after_surface_errors_reset() {
 		$entry = $this->history_entry( $this->upstream_error(), true, true );
 		$entry->set(
 			array(
@@ -124,7 +105,6 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_empty_history_remains_successful_with_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( true );
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,

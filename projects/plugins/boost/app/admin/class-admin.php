@@ -26,12 +26,7 @@ class Admin {
 	const MENU_SLUG = 'jetpack-boost';
 
 	/**
-	 * Filter controlling the modern dashboard; return false to restore the legacy dashboard.
-	 */
-	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_boost';
-
-	/**
-	 * Whether this request loaded the modern dashboard.
+	 * Whether this request loaded the dashboard build.
 	 *
 	 * @var bool
 	 */
@@ -86,7 +81,7 @@ class Admin {
 			'Boost', // "Boost" is a product name, do not translate.
 			'manage_options',
 			JETPACK_BOOST_SLUG,
-			$this->modern_dashboard_loaded ? 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' : array( $this, 'render_settings' ),
+			$this->modern_dashboard_loaded ? 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' : array( $this, 'render_missing_build_notice' ),
 			null,
 			array(
 				'product' => 'boost',
@@ -97,44 +92,12 @@ class Admin {
 	}
 
 	/**
-	 * Whether this admin request uses the modern dashboard.
-	 *
-	 * @return bool Whether modernization is enabled for this admin request.
-	 */
-	private static function is_modern_dashboard() {
-		return self::is_modernization_enabled() && is_admin();
-	}
-
-	/**
-	 * Whether the modern dashboard is enabled.
-	 *
-	 * @return bool Whether modernization is enabled.
-	 */
-	public static function is_modernization_enabled() {
-		// Keep the call below on one line: replace-next-version-tag.sh only rewrites the version there.
-		$message = __( 'The legacy Jetpack Boost dashboard will be removed in a future release.', 'jetpack-boost' );
-
-		/**
-		 * Filters whether to load the modern Boost dashboard.
-		 *
-		 * Hook `__return_false` to restore the legacy dashboard.
-		 *
-		 * @since 4.7.1
-		 * @since 4.8.0 Defaults to true.
-		 * @deprecated 4.8.2 The legacy dashboard will be removed in a future release.
-		 * @param bool $enabled Whether to enable the modern dashboard. Default true.
-		 */
-		return (bool) apply_filters_deprecated( self::MODERNIZATION_FILTER, array( true ), '4.8.2', '', $message );
-	}
-
-	/**
-	 * Load the modern dashboard only on a Boost admin request that has not filtered it off.
+	 * Load the dashboard build on Boost's admin page.
 	 */
 	private function maybe_load_wp_build() {
-		// Check the page first, so a site hooking the deprecated filter is only warned on Boost's screen.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-		if ( JETPACK_BOOST_SLUG !== $page || ! self::is_modern_dashboard() || ! $this->dashboard_build_is_available() ) {
+		if ( JETPACK_BOOST_SLUG !== $page || ! is_admin() || ! $this->dashboard_build_is_available() ) {
 			return;
 		}
 
@@ -149,14 +112,14 @@ class Admin {
 	}
 
 	/**
-	 * Load the generated dashboard, retaining the legacy page when assets are absent.
+	 * Load the generated dashboard, if its build is present.
 	 *
 	 * @return bool Whether the generated dashboard is available.
 	 */
 	private function dashboard_build_is_available() {
 		$build_file = JETPACK_BOOST_DIR_PATH . '/build/build.php';
 		if ( ! file_exists( $build_file ) ) {
-			Debug::log( 'Modern dashboard build is missing; loading the legacy dashboard.' );
+			Debug::log( 'Dashboard build is missing; showing the missing-build notice.' );
 			return false;
 		}
 
@@ -314,12 +277,15 @@ class Admin {
 	}
 
 	/**
-	 * Generate the settings page.
+	 * Explain why the page is empty when the dashboard build is missing or incomplete.
 	 */
-	public function render_settings() {
-		$this->localize_api_settings( 'jetpack-boost-admin' );
+	public function render_missing_build_notice() {
 		?>
-		<div id="jb-admin-settings"></div>
+		<div class="wrap">
+			<div class="notice notice-error">
+				<p><?php esc_html_e( 'Jetpack Boost could not load its dashboard because some plugin files are missing. Reinstall Jetpack Boost to fix this.', 'jetpack-boost' ); ?></p>
+			</div>
+		</div>
 		<?php
 	}
 }

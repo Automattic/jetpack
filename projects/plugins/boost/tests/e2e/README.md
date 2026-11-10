@@ -147,29 +147,8 @@ test.afterAll(async ({ boostUtils }) => {
 });
 ```
 
-### Dashboard modernization
+### Dashboard
 
-The modern dashboard is the default. The `e2e-dashboard-modernization` plugin is
-mounted in the Docker E2E environment to switch dashboards. Use
-`boostUtils.setDashboardModernization( false )` to force the legacy dashboard, or
-pass `true` to force the modern one. Call
-`boostUtils.resetDashboardModernization()` to deactivate the fixture, remove its
-option, and return to the modern default; `resetEnvironment()` does this too.
-
-To see the legacy dashboard locally, run these commands from the monorepo root
-after starting your E2E environment:
-
-```sh
-pnpm jetpack docker --type e2e --name t1 wp -- plugin activate e2e-dashboard-modernization
-pnpm jetpack docker --type e2e --name t1 wp -- option update e2e_boost_dashboard_modernization 0
-```
-
-Open `/wp-admin/admin.php?page=jetpack-boost`. Restore the modern dashboard with:
-
-```sh
-pnpm jetpack docker --type e2e --name t1 wp -- plugin deactivate e2e-dashboard-modernization
-```
-
-Run the modern dashboard foundation and feature tests from this directory with
+Run the dashboard foundation tests from this directory with
 `pnpm test:run specs/modernization`. CI discovers this directory through
 `.github/files/e2e-tests/e2e-matrix.js`.
