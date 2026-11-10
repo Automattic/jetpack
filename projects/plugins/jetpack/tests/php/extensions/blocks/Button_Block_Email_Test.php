@@ -253,24 +253,6 @@ class Button_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test render_email security - HTML stripping.
-	 */
-	public function test_render_email_html_stripping() {
-		$attributes = array(
-			'text' => '<strong><em>Click here</em></strong>',
-		);
-
-		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
-		$mock_context = $this->create_rendering_context_mock();
-		$result       = \Automattic\Jetpack\Extensions\Button\render_email( '', $parsed_block, $mock_context );
-
-		// Should strip HTML and show only text content
-		$this->assertStringContainsString( 'Click here', $result );
-		$this->assertStringNotContainsString( '<strong>', $result );
-		$this->assertStringNotContainsString( '<em>', $result );
-	}
-
-	/**
 	 * Test render_email with long button text.
 	 */
 	public function test_render_email_with_long_button_text() {

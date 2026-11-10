@@ -71,14 +71,16 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	 * Test sitemap index generation with multiple sitemaps
 	 */
 	public function test_sitemap_index_generation() {
-		// Create enough posts to generate multiple sitemaps
-		self::factory()->post->create_many(
-			2000,
-			array(
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			)
-		);
+		global $wpdb;
+
+		// Enough posts for multiple sitemaps. The builder reads posts with raw SQL, so skip the save hooks of 2000 wp_insert_post() calls.
+		$now  = current_time( 'mysql', true );
+		$rows = array();
+		for ( $i = 1; $i <= 2 * JP_SITEMAP_MAX_ITEMS; $i++ ) {
+			$rows[] = $wpdb->prepare( "(%s, %s, %s, %s, %s, %s, %s, %s, '', '', '', '', '')", 'post', 'publish', "Post $i", "post-$i", $now, $now, $now, $now );
+		}
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Each row is prepared above.
+		$wpdb->query( "INSERT INTO $wpdb->posts (post_type, post_status, post_title, post_name, post_date, post_date_gmt, post_modified, post_modified_gmt, post_content, post_excerpt, to_ping, pinged, post_content_filtered) VALUES " . implode( ',', $rows ) );
 
 		// Run updates until we reach the index generation
 		for ( $i = 0; $i < 3; $i++ ) {

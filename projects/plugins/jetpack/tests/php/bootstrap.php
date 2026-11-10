@@ -267,6 +267,9 @@ require_once __DIR__ . '/WP_UnitTestCase_Fix.php';
 
 require $test_root . '/includes/bootstrap.php';
 
+// Tests run in a separate process inherit this env and reuse the database installed above, instead of reinstalling it.
+putenv( 'WP_TESTS_SKIP_INSTALL=1' );
+
 // Load the shortcodes module to test properly.
 if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {
 	require __DIR__ . '/../../modules/shortcodes.php';
