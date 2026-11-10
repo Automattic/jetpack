@@ -37,12 +37,18 @@ module.exports = [
 				 * mck89/peast (used by wp i18n make-pot) can't correctly parse a ParenthesizedExpression generated from react-router.
 				 * Somehow, setting this causes that code from react-router to be tree-shaken out.
 				 */
-				jetpackWebpackConfig.TerserPlugin( {
-					terserOptions: {
-						enclose: true,
-					},
+				jetpackWebpackConfig.MinimizerPlugin( {
+					minify: [
+						{
+							...jetpackWebpackConfig.MinimizerPlugin.terserDefaultOptions,
+							options: {
+								...jetpackWebpackConfig.MinimizerPlugin.terserDefaultOptions.options,
+								enclose: true,
+							},
+						},
+						jetpackWebpackConfig.MinimizerPlugin.cssnanoDefaultOptions,
+					],
 				} ),
-				jetpackWebpackConfig.CssMinimizerPlugin(),
 			],
 
 			splitChunks: {
