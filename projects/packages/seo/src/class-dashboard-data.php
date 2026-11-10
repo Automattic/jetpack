@@ -1263,8 +1263,8 @@ class Dashboard_Data {
 	public static function get_site_data() {
 		$icon_url = (string) get_site_icon_url();
 
-		$logo_id  = (int) get_theme_mod( 'custom_logo' );
-		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+		$logo_id   = (int) get_theme_mod( 'custom_logo' );
+		$logo_url  = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
 		$image_url = $logo_url ? $logo_url : $icon_url;
 		if ( class_exists( 'Jetpack_Redux_State_Helper' ) ) {
 			$callback = array( Share_Image::class, 'fallback_image' );
