@@ -152,7 +152,10 @@
 			"source": "/reader",
 			"rules": [
 				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
-				{ "destination": "admin.php?page=my-jetpack#/features?search=reader" }
+				{
+					"destination": "admin.php?page=my-jetpack#/features?search=reader",
+					"alreadyRedirects": true
+				}
 			],
 			"linkedFrom": []
 		},

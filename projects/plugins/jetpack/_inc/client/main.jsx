@@ -275,10 +275,18 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
+			case '/reader':
+				// Once settings move out, the Reader's only setting is its switch in Features.
+				if ( '/reader' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack#/features?search=reader' )
+					);
+					break;
+				}
+			// Falls through.
 			case '/settings':
 			case '/writing':
 			case '/discussion':
-			case '/reader':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (

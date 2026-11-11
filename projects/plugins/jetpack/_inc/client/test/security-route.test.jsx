@@ -77,6 +77,7 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 	it.each( [
 		[ '/performance', 'admin.php?page=my-jetpack#/features?search=cdn' ],
 		[ '/sharing', 'admin.php?page=my-jetpack#/features?search=sharing' ],
+		[ '/reader', 'admin.php?page=my-jetpack#/features?search=reader' ],
 	] )( 'sends %s to %s with the settings flag on', ( route, destination ) => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );
 		renderAt( route, false );
@@ -86,7 +87,7 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
 	} );
 
-	it.each( [ '/performance', '/sharing' ] )(
+	it.each( [ '/performance', '/sharing', '/reader' ] )(
 		'keeps %s on Settings with the settings flag off',
 		route => {
 			renderAt( route, false );
