@@ -3,6 +3,8 @@ import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 } from '../site-readiness';
+import { WIDGET_MODULES_QUERY } from '../use-widget-modules';
+import { DASHBOARD_SECTIONS_QUERY } from './hooks/use-dashboard-sections';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -168,14 +170,18 @@ describe( 'dashboard route.beforeLoad', () => {
 } );
 
 describe( 'dashboard route.loader', () => {
-	it( 'requests the sections and widget types with the queries their hooks read', () => {
+	it( 'requests the dashboard sections and widget modules', () => {
 		route.loader();
 
-		expect( mockGetEntityRecords ).toHaveBeenCalledWith( 'root', 'dashboardSection', {
-			per_page: -1,
-		} );
-		expect( mockGetEntityRecords ).toHaveBeenCalledWith( 'root', 'widgetModule', {
-			per_page: -1,
-		} );
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith(
+			'root',
+			'dashboardSection',
+			DASHBOARD_SECTIONS_QUERY
+		);
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith(
+			'root',
+			'widgetModule',
+			WIDGET_MODULES_QUERY
+		);
 	} );
 } );
