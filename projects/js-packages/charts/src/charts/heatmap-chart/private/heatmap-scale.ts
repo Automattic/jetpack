@@ -8,7 +8,7 @@ export const HEATMAP_LOW_CONTRAST = 2.5;
 export const HEATMAP_STEP_CONTRAST = 2;
 
 /** Contrast the highest step aims for against the background, so the steps stay apart. */
-export const HEATMAP_HIGH_CONTRAST = 6;
+export const HEATMAP_HIGH_CONTRAST = 9;
 
 const STEPS = 200;
 
@@ -23,7 +23,7 @@ const ramp = ( from: string, to: string ) =>
 
 /**
  * The two ends of the heatmap fill scale: toward 2.5:1 against the background and the empty cell at
- * the low end, never under 2:1 against the background or the high end, and toward 6:1 at the high end.
+ * the low end, never under 2:1 against the background or the high end, and toward 9:1 at the high end.
  *
  * @param primary    - The resolved primary color, as six-digit hex.
  * @param background - The resolved chart background, as six-digit hex.
