@@ -147,7 +147,8 @@ const SettingsNavTabs = props => {
 		) {
 			visibleTabs.push( '/traffic' );
 		}
-		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite ) {
+		// The Reader card is the tab's only one, and it leaves once settings move out.
+		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite && ! isSettingsConsolidationEnabled() ) {
 			visibleTabs.push( '/reader' );
 		}
 		// Ads is the tab's last card, so the tab goes once the Ads settings have a new home.
