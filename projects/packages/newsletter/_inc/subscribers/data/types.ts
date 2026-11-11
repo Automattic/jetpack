@@ -119,6 +119,45 @@ export type RemoveSubscriberResponse = {
 	errors: RemoveSubscriberError[];
 };
 
+export type BulkRemoveJobStatus =
+	'queued' | 'backing_up' | 'removing' | 'finishing' | 'done' | 'failed' | 'stopped';
+
+export type BulkRemoveCounts = {
+	total: number;
+	wpcom: number;
+	email: number;
+	pending: number;
+	paid: number;
+};
+
+/**
+ * A bulk removal job, as `/wpcom/v2/subscribers/bulk-remove` and its `status` route return it.
+ * `total` is the number of subscribers the job will remove, set once the backup is written.
+ */
+export type BulkRemoveJob = {
+	id: number;
+	status: BulkRemoveJobStatus;
+	stalled?: boolean;
+	filters: string[];
+	search: string;
+	cancel_paid: boolean;
+	created_at: number;
+	updated_at: number;
+	finished_at?: number | null;
+	total: number;
+	processed: number;
+	removed: number;
+	failed: number;
+	skipped_paid: number;
+	counts_before?: BulkRemoveCounts | null;
+	counts_after?: BulkRemoveCounts | null;
+	has_backup?: boolean;
+};
+
+export type BulkRemoveResponse = {
+	job: BulkRemoveJob | null;
+};
+
 export type AddSubscribersResponse = {
 	// Async import job id returned by `/sites/{id}/subscribers/import`.
 	upload_id?: number;

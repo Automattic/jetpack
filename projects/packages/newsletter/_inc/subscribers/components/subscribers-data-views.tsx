@@ -1,11 +1,12 @@
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import { useMembershipsProducts } from '../data/use-memberships-products';
 import { useSendBounceConfirmationMutation } from '../data/use-send-bounce-confirmation-mutation';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
+import { isNarrowed } from '../lib/bulk-remove-scope';
 import { canCompSubscriber } from '../lib/comp-eligibility';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
@@ -19,12 +20,14 @@ import EmptyState from './empty-state';
 import CompModal from './modals/comp-modal';
 import RemoveCompModal from './modals/remove-comp-modal';
 import UnsubscribeModal from './modals/unsubscribe-modal';
+import SelectionBanner from './selection-banner';
 import type {
 	Subscriber,
 	SubscribersExportQuery,
 	SubscribersFilter,
 	SubscribersSortField,
 } from '../data/types';
+import type { BulkRemoveScope } from '../data/use-bulk-remove';
 import type { Action, Field, View } from '@wordpress/dataviews';
 import type { JSX } from 'react';
 
@@ -51,6 +54,9 @@ type Props = {
 	onSubscribersRemoved: ( removed: Subscriber[] ) => void;
 	onSelfOnlyChange: ( isSelfOnly: boolean ) => void;
 	onQueryChange: ( query: SubscribersExportQuery ) => void;
+	onListChange: ( list: { total: number; examples: string[] } ) => void;
+	onRequestBulkRemove: ( scope: BulkRemoveScope ) => void;
+	isBulkRemoveRunning: boolean;
 };
 
 /**
@@ -63,6 +69,9 @@ type Props = {
  * @param props.onSubscribersRemoved - Callback fired with the rows that were actually removed.
  * @param props.onSelfOnlyChange     - Reports whether the viewer is the only subscriber, for the header's nudge.
  * @param props.onQueryChange        - Reports the active filters, search and sort, for the header's CSV download.
+ * @param props.onListChange         - Reports the matching total and the first emails on the page, for the bulk remove menu item and dialog.
+ * @param props.onRequestBulkRemove  - Open the bulk remove dialog, once every matching subscriber is selected.
+ * @param props.isBulkRemoveRunning  - True while a bulk removal runs; the banner's remove buttons are disabled.
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews( {
@@ -71,8 +80,14 @@ export default function SubscribersDataViews( {
 	onSubscribersRemoved,
 	onSelfOnlyChange,
 	onQueryChange,
+	onListChange,
+	onRequestBulkRemove,
+	isBulkRemoveRunning,
 }: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
+	const [ selection, setSelection ] = useState< string[] >( [] );
+	// "Select all N matching subscribers": the selection then means every match, not only this page.
+	const [ isAllSelected, setAllSelected ] = useState( false );
 	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
 	const [ compTarget, setCompTarget ] = useState< Subscriber | null >( null );
 	const [ removeCompTarget, setRemoveCompTarget ] = useState< {
@@ -108,6 +123,8 @@ export default function SubscribersDataViews( {
 		} ),
 		[ view.page, view.perPage, view.sort?.field, view.sort?.direction, view.search, apiFilters ]
 	);
+
+	const narrowed = isNarrowed( apiFilters, queryParams.search );
 
 	const { data, isLoading, isPlaceholderData, error } = useSubscribers( queryParams );
 	const removeMutation = useSubscriberRemoveMutation();
@@ -313,11 +330,22 @@ export default function SubscribersDataViews( {
 				label: __( 'Remove subscriber', 'jetpack-newsletter' ),
 				supportsBulk: true,
 				callback: ( items: Subscriber[] ) => {
+					if ( isAllSelected && items.length > 1 ) {
+						onRequestBulkRemove( narrowed ? 'matching' : 'all' );
+						return;
+					}
 					setPendingRemoval( items );
 				},
 			},
 		],
-		[ onViewSubscriber, canShowCompAction, sendBounceConfirmation ]
+		[
+			onViewSubscriber,
+			canShowCompAction,
+			sendBounceConfirmation,
+			isAllSelected,
+			narrowed,
+			onRequestBulkRemove,
+		]
 	);
 
 	const handleConfirmRemoval = useCallback( async () => {
@@ -353,7 +381,7 @@ export default function SubscribersDataViews( {
 	const handleCloseComp = useCallback( () => setCompTarget( null ), [] );
 	const handleCloseRemoveComp = useCallback( () => setRemoveCompTarget( null ), [] );
 
-	const subscribers = data?.subscribers ?? [];
+	const subscribers = useMemo( () => data?.subscribers ?? [], [ data?.subscribers ] );
 	const totalItems = data?.total ?? 0;
 	const totalPages = data?.pages ?? 0;
 
@@ -376,6 +404,71 @@ export default function SubscribersDataViews( {
 	useEffect( () => {
 		onSelfOnlyChange( isSelfOnly );
 	}, [ isSelfOnly, onSelfOnlyChange ] );
+
+	// A new search or filter changes what "all" means, so start the selection over.
+	useEffect( () => {
+		setSelection( [] );
+		setAllSelected( false );
+	}, [ filterKey ] );
+
+	// "All N selected" only holds while this page stays on screen.
+	useEffect( () => {
+		setAllSelected( false );
+	}, [ view.page, view.perPage ] );
+
+	// Once a bulk removal starts, the rows it covers are on their way out.
+	useEffect( () => {
+		if ( isBulkRemoveRunning ) {
+			setSelection( [] );
+			setAllSelected( false );
+		}
+	}, [ isBulkRemoveRunning ] );
+
+	const pageIds = useMemo( () => subscribers.map( getSubscriberRowId ), [ subscribers ] );
+	const selectedOnPage = useMemo(
+		() => subscribers.filter( item => selection.includes( getSubscriberRowId( item ) ) ),
+		[ subscribers, selection ]
+	);
+
+	const handleChangeSelection = useCallback(
+		( ids: string[] ) => {
+			setSelection( ids );
+			if ( pageIds.some( id => ! ids.includes( id ) ) ) {
+				setAllSelected( false );
+			}
+		},
+		[ pageIds ]
+	);
+
+	const clearSelection = useCallback( () => {
+		setSelection( [] );
+		setAllSelected( false );
+	}, [] );
+
+	const selectAll = useCallback( () => setAllSelected( true ), [] );
+	const removeSelectedOnPage = useCallback(
+		() => setPendingRemoval( selectedOnPage ),
+		[ selectedOnPage ]
+	);
+	const requestBulkRemoveOfSelection = useCallback(
+		() => onRequestBulkRemove( narrowed ? 'matching' : 'all' ),
+		[ onRequestBulkRemove, narrowed ]
+	);
+
+	const settledTotal = settledFilterKey.current === filterKey ? totalItems : null;
+	const examplesKey = subscribers
+		.slice( 0, 3 )
+		.map( item => item.email_address )
+		.join( ',' );
+	useEffect( () => {
+		if ( settledTotal === null ) {
+			return;
+		}
+		onListChange( {
+			total: settledTotal,
+			examples: examplesKey ? examplesKey.split( ',' ) : [],
+		} );
+	}, [ settledTotal, examplesKey, onListChange ] );
 
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
@@ -405,6 +498,8 @@ export default function SubscribersDataViews( {
 				search
 				searchLabel={ __( 'Search subscribers…', 'jetpack-newsletter' ) }
 				actions={ actions }
+				selection={ selection }
+				onChangeSelection={ handleChangeSelection }
 				onClickItem={ handleClickItem }
 				empty={
 					<EmptyState
@@ -412,7 +507,41 @@ export default function SubscribersDataViews( {
 						onAddSubscribers={ onAddSubscribers }
 					/>
 				}
-			/>
+			>
+				{ /* The default DataViews layout, with the selection banner between the filters and the table. */ }
+				<Stack
+					direction="row"
+					align="top"
+					justify="space-between"
+					gap="xs"
+					className="dataviews__view-actions"
+				>
+					<Stack direction="row" justify="start" gap="sm" className="dataviews__search">
+						<DataViews.Search label={ __( 'Search subscribers…', 'jetpack-newsletter' ) } />
+						<DataViews.FiltersToggle />
+					</Stack>
+					<Stack direction="row" gap="xs" style={ { flexShrink: 0 } }>
+						<DataViews.LayoutSwitcher />
+						<DataViews.ViewConfig />
+					</Stack>
+				</Stack>
+				<DataViews.FiltersToggled className="dataviews-filters__container" />
+				<SelectionBanner
+					pageCount={ subscribers.length }
+					selectedCount={ selectedOnPage.length }
+					matchingCount={ totalItems }
+					totalPages={ totalPages }
+					narrowed={ narrowed }
+					isAllSelected={ isAllSelected }
+					disabled={ isBulkRemoveRunning }
+					onSelectAll={ selectAll }
+					onRemovePage={ removeSelectedOnPage }
+					onRemoveAll={ requestBulkRemoveOfSelection }
+					onClear={ clearSelection }
+				/>
+				<DataViews.Layout />
+				<DataViews.Footer />
+			</DataViews>
 			<UnsubscribeModal
 				subscribers={ pendingRemoval }
 				onConfirm={ handleConfirmRemoval }
