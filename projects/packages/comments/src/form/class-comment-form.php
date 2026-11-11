@@ -369,13 +369,11 @@ class Comment_Form {
 					esc_attr__( 'Write a comment...', 'jetpack-comments' )
 				)
 				. '<div class="jetpack-comments__actions">'
+				// The theme's own button template, which a no-script post submits through.
 				. sprintf(
-					'<span class="%1$s"><input id="%2$s" name="%3$s" type="submit" class="%4$s" value="%5$s" /></span>',
+					'<span class="%1$s">%2$s</span>',
 					esc_attr( trim( 'jetpack-comments__submit ' . $settings['submit']['wrapClass'] ) ),
-					esc_attr( $settings['submit']['id'] ),
-					esc_attr( $settings['submit']['name'] ),
-					esc_attr( $class ),
-					esc_attr( $settings['submit']['label'] )
+					$button
 				)
 				. '<span class="jetpack-comments__identity"></span>'
 				. '</div></div>';

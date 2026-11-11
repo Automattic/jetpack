@@ -77,4 +77,22 @@ class Comment_Form_Test extends BaseTestCase {
 			'logged in, bad nonce, other site' => array( true, 'stale', 'https://evil.test', false ),
 		);
 	}
+
+	public function test_render_keeps_the_theme_submit_button() {
+		$form = Comment_Form::init();
+		$form->comment_form_defaults( array() );
+
+		$markup = $form->render(
+			'',
+			array(
+				'submit_button' => '<input name="custom-%1$s" type="submit" id="custom-%2$s" class="%3$s" value="custom-%4$s" />',
+				'name_submit'   => 'foo-name',
+				'id_submit'     => 'foo-id',
+				'class_submit'  => 'foo-class',
+				'label_submit'  => 'foo-label',
+			)
+		);
+
+		$this->assertStringContainsString( '<input name="custom-foo-name" type="submit" id="custom-foo-id" class="foo-class" value="custom-foo-label" />', $markup );
+	}
 }
