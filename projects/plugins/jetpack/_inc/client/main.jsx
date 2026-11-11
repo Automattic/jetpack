@@ -3,6 +3,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 // The extension is required: esbuild does not complete package `exports` subpaths.
 import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body.tsx';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
@@ -18,7 +19,7 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
-import { getAdsSettingsUrl } from 'lib/settings-consolidation';
+import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import { openProtectSettings } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -252,8 +253,14 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
-			case '/settings':
 			case '/performance':
+				// Once settings move out, its cards show only in search results, so the tab goes to Features.
+				if ( '/performance' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
+					break;
+				}
+			// Falls through.
+			case '/settings':
 			case '/writing':
 			case '/sharing':
 			case '/discussion':

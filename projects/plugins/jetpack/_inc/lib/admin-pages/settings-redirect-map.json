@@ -80,7 +80,9 @@
 		},
 		{
 			"source": "/performance",
-			"rules": [ { "destination": "admin.php?page=my-jetpack#/features" } ],
+			"rules": [
+				{ "destination": "admin.php?page=my-jetpack#/features", "alreadyRedirects": true }
+			],
 			"linkedFrom": [
 				"packages/search src/instant-search/README.md: setup docs; wants admin.php?page=jetpack-search#/settings"
 			],
