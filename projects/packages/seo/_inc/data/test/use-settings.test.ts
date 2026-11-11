@@ -63,26 +63,56 @@ describe( 'useSettingsForm', () => {
 		mockApiFetch.mockResolvedValue( {} );
 	} );
 
-	it( 'restores the previous share image after a failed save without losing unsaved text', async () => {
+	it.each( [
+		[ 'replacement', true ],
+		[ 'replacement', false ],
+		[ 'removal', true ],
+		[ 'removal', false ],
+	] )(
+		'restores the previous share image after failed %s when the refresh succeeds: %s',
+		async ( action, refreshSucceeds ) => {
+			const previous = { id: 1, src: 'https://example.com/old.jpg', alt_text: '' };
+			storeState = { ...SEED, default_share_image: previous, share_image_preview: previous.src };
+			mockApiFetch
+				.mockRejectedValueOnce( { message: 'Image was rejected' } )
+				.mockImplementationOnce( () =>
+					refreshSucceeds ? Promise.resolve( storeState ) : Promise.reject( { message: 'Offline' } )
+				);
+			const { result } = renderHook( () => useSettingsForm() );
+			act( () => result.current.setField( { front_page_description: 'Unsaved description' } ) );
+			act( () =>
+				result.current.commit( {
+					default_share_image:
+						action === 'removal'
+							? null
+							: { id: 2, src: 'https://example.com/new.jpg', alt_text: '' },
+				} )
+			);
+			await waitFor( () => expect( createErrorNotice ).toHaveBeenCalled() );
+			await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+			expect( result.current.local?.default_share_image ).toEqual( previous );
+			expect( result.current.local?.share_image_preview ).toEqual( previous.src );
+			expect( result.current.local?.front_page_description ).toBe( 'Unsaved description' );
+			expect( mockApiFetch.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
+				data: { jetpack_seo_default_share_image: action === 'removal' ? 0 : 2 },
+			} );
+		}
+	);
+
+	it( 'keeps a saved share image when its confirmation refresh fails', async () => {
 		const previous = { id: 1, src: 'https://example.com/old.jpg', alt_text: '' };
-		storeState = { ...SEED, default_share_image: previous };
+		const next = { id: 2, src: 'https://example.com/new.jpg', alt_text: '' };
+		storeState = { ...SEED, default_share_image: previous, share_image_preview: previous.src };
 		mockApiFetch
-			.mockRejectedValueOnce( { message: 'Image was rejected' } )
-			.mockResolvedValueOnce( storeState );
+			.mockResolvedValueOnce( { jetpack_seo_default_share_image: next.id } )
+			.mockRejectedValueOnce( { message: 'Offline' } );
 		const { result } = renderHook( () => useSettingsForm() );
-		act( () => result.current.setField( { front_page_description: 'Unsaved description' } ) );
-		act( () =>
-			result.current.commit( {
-				default_share_image: { id: 2, src: 'https://example.com/new.jpg', alt_text: '' },
-			} )
-		);
-		await waitFor( () => expect( createErrorNotice ).toHaveBeenCalled() );
+		act( () => result.current.commit( { default_share_image: next } ) );
+
 		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
-		expect( result.current.local?.default_share_image ).toEqual( previous );
-		expect( result.current.local?.front_page_description ).toBe( 'Unsaved description' );
-		expect( mockApiFetch.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
-			data: { jetpack_seo_default_share_image: 2 },
-		} );
+		expect( result.current.local?.default_share_image ).toEqual( next );
+		expect( storeState.default_share_image ).toEqual( next );
+		expect( storeState.share_image_preview ).toBeUndefined();
 	} );
 
 	it( 'reports a section dirty only once its field diverges from the baseline', () => {

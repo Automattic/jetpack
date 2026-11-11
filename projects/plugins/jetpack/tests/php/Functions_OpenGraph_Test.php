@@ -79,23 +79,43 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		}
 	}
 
-	public function test_dashboard_image_stays_independent_of_saved_share_image() {
+	/**
+	 * @dataProvider provide_custom_share_image_filters
+	 * @param int  $priority Filter priority.
+	 * @param bool $fallback_only Whether the custom filter preserves an existing image.
+	 */
+	#[DataProvider( 'provide_custom_share_image_filters' )]
+	public function test_dashboard_image_stays_independent_of_saved_share_image( $priority, $fallback_only ) {
 		$share_image = \Automattic\Jetpack\SEO\Share_Image::class;
 		$share_image::init();
 		update_option( $share_image::OPTION, $this->icon_id );
-		$fallback = static function ( $image ) {
-			return empty( $image ) ? array( 'src' => 'https://example.org/site-image.jpg' ) : $image;
+		$fallback = static function ( $image ) use ( $fallback_only ) {
+			return $fallback_only && ! empty( $image ) ? $image : array( 'src' => 'https://example.org/site-image.jpg' );
 		};
-		add_filter( 'jetpack_og_default_site_image', $fallback, 30 );
+		add_filter( 'jetpack_og_default_site_image', $fallback, $priority );
 		try {
 			$site = \Automattic\Jetpack\SEO\Dashboard_Data::get_site_data();
 			$this->assertSame( 'https://example.org/site-image.jpg', $site['image'] );
-			$this->assertSame( wp_get_attachment_url( $this->icon_id ), jetpack_og_get_fallback_social_image( 200, 200 )['src'] );
+			$expected = $fallback_only && $priority >= 20 ? wp_get_attachment_url( $this->icon_id ) : 'https://example.org/site-image.jpg';
+			$this->assertSame( $expected, \Automattic\Jetpack\SEO\Dashboard_Data::get_settings_data()['share_image_preview'] );
+			$this->assertSame( $expected, jetpack_og_get_fallback_social_image( 200, 200 )['src'] );
+			delete_option( $share_image::OPTION );
+			$this->assertSame( 'https://example.org/site-image.jpg', \Automattic\Jetpack\SEO\Dashboard_Data::get_settings_data()['share_image_preview'] );
 		} finally {
-			remove_filter( 'jetpack_og_default_site_image', $fallback, 30 );
+			remove_filter( 'jetpack_og_default_site_image', $fallback, $priority );
 			remove_filter( 'jetpack_og_default_site_image', array( $share_image, 'fallback_image' ), 20 );
 			delete_option( $share_image::OPTION );
 		}
+	}
+
+	/** @return array */
+	public static function provide_custom_share_image_filters() {
+		return array(
+			'early override'         => array( 10, false ),
+			'late override'          => array( 30, false ),
+			'late fallback'          => array( 30, true ),
+			'same-priority fallback' => array( 20, true ),
+		);
 	}
 
 	/** Social overrides must retain their image without the default's unrelated alt text. */

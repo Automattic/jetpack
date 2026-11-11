@@ -1126,6 +1126,7 @@ class Dashboard_Data {
 			'title_separator'            => self::get_default_title_separator(),
 			'title_formats_editable'     => $title_formats_editable,
 			'default_share_image'        => Share_Image::image( (int) get_option( Share_Image::OPTION, 0 ) ),
+			'share_image_preview'        => self::get_site_fallback_image(),
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
@@ -1253,6 +1254,58 @@ class Dashboard_Data {
 	}
 
 	/**
+	 * Resolve the fallback with the same filters used by public sharing metadata.
+	 *
+	 * @param bool $include_default Whether to include the configured default.
+	 * @return string|null Null when the host cannot resolve its automatic fallback here.
+	 */
+	private static function get_site_fallback_image( $include_default = true ) {
+		$icon_url        = (string) get_site_icon_url();
+		$logo_id         = (int) get_theme_mod( 'custom_logo' );
+		$logo            = $logo_id ? wp_get_attachment_image_src( $logo_id, 'full' ) : false;
+		$image_url       = $logo ? (string) $logo[0] : $icon_url;
+		$option_hook     = 'pre_option_' . Share_Image::OPTION;
+		$without_default = static function () {
+			return 0;
+		};
+		if ( ! $include_default ) {
+			add_filter( $option_hook, $without_default, PHP_INT_MAX );
+		}
+		try {
+			if ( class_exists( 'Jetpack_Redux_State_Helper' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional host helper, guarded by class_exists.
+				$image_url = (string) \Jetpack_Redux_State_Helper::get_site_image();
+			} else {
+				$media = $logo ? $logo : wp_get_attachment_image_src( (int) get_option( 'site_icon' ), 'full' );
+				$image = apply_filters(
+					'jetpack_og_default_site_image',
+					array(),
+					array(
+						'src'    => $image_url,
+						'width'  => $media[1] ?? 0,
+						'height' => $media[2] ?? 0,
+						'type'   => $logo ? 'site_logo' : 'site_icon',
+					)
+				);
+				if ( ! empty( $image['src'] ) ) {
+					$image_url = (string) $image['src'];
+				} elseif ( $include_default ) {
+					// Keep the bootstrapped host fallback when a REST request lacks its image helper.
+					return null;
+				}
+			}
+		} finally {
+			if ( ! $include_default ) {
+				remove_filter( $option_hook, $without_default, PHP_INT_MAX );
+			}
+		}
+		if ( preg_match( '/\.svg(?:[?#]|$)/i', $image_url ) || 'https://s0.wp.com/i/blank.jpg' === $image_url ) {
+			$image_url = '';
+		}
+		return $image_url;
+	}
+
+	/**
 	 * Site identity used to render the homepage search/social previews on the
 	 * Settings tab: title, tagline, URL, and representative images. The front-page
 	 * description that completes the preview is read from the Settings form
@@ -1261,31 +1314,8 @@ class Dashboard_Data {
 	 * @return array
 	 */
 	public static function get_site_data() {
-		$icon_url = (string) get_site_icon_url();
-
-		$logo_id   = (int) get_theme_mod( 'custom_logo' );
-		$logo_url  = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
-		$image_url = $logo_url ? $logo_url : $icon_url;
-		if ( class_exists( 'Jetpack_Redux_State_Helper' ) ) {
-			$callback = array( Share_Image::class, 'fallback_image' );
-			$priority = has_filter( 'jetpack_og_default_site_image', $callback );
-			// The picker supplies the selected default separately, so removing it can reveal this fallback.
-			if ( false !== $priority ) {
-				remove_filter( 'jetpack_og_default_site_image', $callback, $priority );
-			}
-			try {
-				// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_Redux_State_Helper lives in plugins/jetpack and is guarded by class_exists.
-				$image_url = (string) \Jetpack_Redux_State_Helper::get_site_image();
-			} finally {
-				if ( false !== $priority ) {
-					add_filter( 'jetpack_og_default_site_image', $callback, $priority );
-				}
-			}
-		}
-
-		if ( preg_match( '/\.svg(?:[?#]|$)/i', $image_url ) || 'https://s0.wp.com/i/blank.jpg' === $image_url ) {
-			$image_url = '';
-		}
+		$icon_url      = (string) get_site_icon_url();
+		$image_url     = self::get_site_fallback_image( false );
 		$content_image = '';
 		$front_page_id = 'page' === get_option( 'show_on_front' ) ? (int) get_option( 'page_on_front' ) : 0;
 		$front_page    = $front_page_id ? get_post( $front_page_id ) : null;

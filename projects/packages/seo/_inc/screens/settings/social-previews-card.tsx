@@ -143,6 +143,7 @@ interface Props {
 	/** Whether Jetpack's SEO output is paused, so these tags aren't the ones being output. */
 	paused?: boolean;
 	defaultImage?: ShareImage | null;
+	resolvedImage?: string | null;
 	onImageChange?: ( image: ShareImage | null ) => void;
 	disabled?: boolean;
 }
@@ -156,6 +157,7 @@ interface Props {
  * @param props.titleSeparator       - Document-title separator.
  * @param props.paused               - Whether another plugin manages SEO output.
  * @param props.defaultImage         - Selected default share image.
+ * @param props.resolvedImage        - Fallback image resolved by the server's filters.
  * @param props.onImageChange        - Save a new image choice.
  * @param props.disabled             - Whether the picker is disabled.
  * @return The previews card, or null when site data is unavailable.
@@ -167,6 +169,7 @@ const SocialPreviewsCard: FC< Props > = props => {
 		titleSeparator,
 		paused = false,
 		defaultImage,
+		resolvedImage,
 		onImageChange,
 		disabled,
 	} = props;
@@ -178,7 +181,9 @@ const SocialPreviewsCard: FC< Props > = props => {
 	const previewDescription = description || site.tagline;
 	const socialSite = {
 		...site,
-		image: site.front_page_protected ? '' : site.content_image || defaultImage?.src || site.image,
+		image: site.front_page_protected
+			? ''
+			: site.content_image || ( resolvedImage ?? ( defaultImage?.src || site.image ) ),
 	};
 	const titles = frontPageTitles( site, frontPageTitleFormat, titleSeparator );
 

@@ -19,6 +19,7 @@ export interface ShareImage {
 
 export interface SettingsResponse {
 	default_share_image?: ShareImage | null;
+	share_image_preview?: string | null;
 	front_page_description: string;
 	// True when the site kept a front-page description from the era it was free for
 	// all WordPress.com Simple sites. Such sites keep editing that one field even

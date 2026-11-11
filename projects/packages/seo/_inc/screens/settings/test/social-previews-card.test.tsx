@@ -185,4 +185,22 @@ describe( 'SocialPreviewsCard', () => {
 		expect( screen.queryAllByAltText( '' ) ).toHaveLength( 0 );
 		expect( screen.getByRole( 'button', { name: 'Replace image' } ) ).toBeEnabled();
 	} );
+
+	it( 'preserves a custom fallback ahead of the chosen default', () => {
+		render(
+			<SocialPreviewsCard
+				description=""
+				frontPageTitleFormat={ [] }
+				titleSeparator="-"
+				resolvedImage="https://example.com/custom.jpg"
+				defaultImage={ { id: 42, src: 'https://example.com/default.jpg', alt_text: '' } }
+			/>
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: /Search & social previews/ } ) );
+		screen
+			.getAllByAltText( '' )
+			.forEach( image =>
+				expect( image ).toHaveAttribute( 'src', 'https://example.com/custom.jpg' )
+			);
+	} );
 } );
