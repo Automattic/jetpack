@@ -128,10 +128,52 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		};
 		add_action( 'edge_cache_purge_uris', $record );
 		Jetpack_Sitemap_Manager::callback_purge_pending_index_cache();
-		$this->assertFalse( get_option( 'jetpack_sitemap_pending_cache_purge' ) );
+		$this->assertSame( '', get_option( 'jetpack_sitemap_pending_cache_purge' ) );
+		$this->clear_pending_purge_option_cache();
+		$queries = get_num_queries();
 		Jetpack_Sitemap_Manager::callback_purge_pending_index_cache();
+		$this->assertSame( $queries, get_num_queries() );
 		$this->assertCount( $edge_purges, $purges );
 		remove_action( 'edge_cache_purge_uris', $record );
+	}
+
+	public function test_idle_recovery_check_avoids_queries_after_initialization() {
+		delete_option( 'jetpack_sitemap_pending_cache_purge' );
+		Jetpack_Sitemap_Manager::callback_purge_pending_index_cache();
+		$this->clear_pending_purge_option_cache();
+		$queries = get_num_queries();
+		Jetpack_Sitemap_Manager::callback_purge_pending_index_cache();
+		$this->assertSame( $queries, get_num_queries() );
+		$this->assertSame( '', get_option( 'jetpack_sitemap_pending_cache_purge' ) );
+	}
+
+	public function test_stale_pending_value_does_not_repeat_recovery() {
+		update_option( 'jetpack_sitemap_pending_cache_purge', 'first-build', true );
+		$stale_value = static function () {
+			return 'first-build';
+		};
+		$purges      = array();
+		$record      = static function ( $urls ) use ( &$purges ) {
+			$purges[] = $urls;
+		};
+		add_filter( 'pre_option_jetpack_sitemap_pending_cache_purge', $stale_value );
+		add_action( 'edge_cache_purge_uris', $record );
+		try {
+			for ( $request = 0; $request < 2; ++$request ) {
+				Jetpack_Sitemap_Manager::callback_purge_pending_index_cache();
+			}
+			$this->assertCount( 1, $purges );
+		} finally {
+			remove_filter( 'pre_option_jetpack_sitemap_pending_cache_purge', $stale_value );
+			remove_action( 'edge_cache_purge_uris', $record );
+		}
+	}
+
+	private function clear_pending_purge_option_cache() {
+		wp_cache_delete( 'alloptions', 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
+		wp_cache_delete( 'jetpack_sitemap_pending_cache_purge', 'options' );
+		wp_load_alloptions();
 	}
 
 	public static function cache_purge_scopes() {

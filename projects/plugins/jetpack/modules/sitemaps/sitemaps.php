@@ -275,7 +275,7 @@ class Jetpack_Sitemap_Manager {
 			$clear_url = 'pcm_flush_batcache_url';
 		}
 		if ( $clear_url && defined( 'WP_CLI' ) && WP_CLI && ! get_option( 'jetpack_sitemap_pending_cache_purge' ) ) {
-			update_option( 'jetpack_sitemap_pending_cache_purge', 'urls', false );
+			update_option( 'jetpack_sitemap_pending_cache_purge', 'urls', true );
 		}
 		if ( $clear_url && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 			// Batcache shares a URL version across query variants, except for the "p" parameter.
@@ -316,7 +316,7 @@ class Jetpack_Sitemap_Manager {
 		}
 
 		if ( '' !== $post->post_content && ( ! $post_before || '' === $post_before->post_content ) ) {
-			update_option( 'jetpack_sitemap_pending_cache_purge', 'first-build', false );
+			update_option( 'jetpack_sitemap_pending_cache_purge', 'first-build', true );
 			if ( ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 				self::callback_purge_pending_index_cache();
 				return;
@@ -333,9 +333,12 @@ class Jetpack_Sitemap_Manager {
 	public static function callback_purge_pending_index_cache() {
 		$pending = get_option( 'jetpack_sitemap_pending_cache_purge' );
 		if ( ( defined( 'WP_CLI' ) && WP_CLI ) || ! $pending ) {
+			if ( false === $pending ) {
+				add_option( 'jetpack_sitemap_pending_cache_purge', '', '', true );
+			}
 			return;
 		}
-		if ( ! delete_option( 'jetpack_sitemap_pending_cache_purge' ) ) {
+		if ( ! update_option( 'jetpack_sitemap_pending_cache_purge', '', true ) ) {
 			return;
 		}
 		$urls = self::callback_invalidate_index_cache();
