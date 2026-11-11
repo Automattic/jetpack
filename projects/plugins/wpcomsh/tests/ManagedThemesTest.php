@@ -14,9 +14,19 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * @covers ::wpcomsh_is_symlinked_into
  * @covers ::wpcomsh_get_managed_themes
+ * @covers ::wpcomsh_update_managed_themes
+ * @covers ::wpcomsh_handle_update_managed_themes_list
+ * @covers ::wpcomsh_schedule_managed_themes_refresh
+ * @covers ::wpcomsh_delete_symlinked_theme
+ * @covers ::wpcomsh_allow_custom_wp_options
  */
 #[CoversFunction( 'wpcomsh_is_symlinked_into' )]
 #[CoversFunction( 'wpcomsh_get_managed_themes' )]
+#[CoversFunction( 'wpcomsh_update_managed_themes' )]
+#[CoversFunction( 'wpcomsh_handle_update_managed_themes_list' )]
+#[CoversFunction( 'wpcomsh_schedule_managed_themes_refresh' )]
+#[CoversFunction( 'wpcomsh_delete_symlinked_theme' )]
+#[CoversFunction( 'wpcomsh_allow_custom_wp_options' )]
 class ManagedThemesTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -150,6 +160,65 @@ class ManagedThemesTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Data provider for test_upgrader_refreshes_list_on_theme_installs_only.
+	 *
+	 * @return array
+	 */
+	public static function provide_upgrader_cases() {
+		return array(
+			'theme install'  => array( 'theme', 'install', true ),
+			'theme update'   => array( 'theme', 'update', false ),
+			'plugin install' => array( 'plugin', 'install', false ),
+			'no details'     => array( null, null, false ),
+		);
+	}
+
+	/**
+	 * Core's upgrader refreshes the list after theme installs only: updates don't change whether a folder is a symlink.
+	 *
+	 * @dataProvider provide_upgrader_cases
+	 *
+	 * @param string|null $type      Upgrader type.
+	 * @param string|null $action    Upgrader action.
+	 * @param bool        $refreshed Whether the list is refreshed.
+	 */
+	#[DataProvider( 'provide_upgrader_cases' )]
+	public function test_upgrader_refreshes_list_on_theme_installs_only( $type, $action, $refreshed ) {
+		delete_option( 'wpcomsh_at_managed_themes' );
+		$hook_extra = array_filter( compact( 'type', 'action' ) );
+
+		wpcomsh_handle_update_managed_themes_list( null, $hook_extra );
+
+		$this->assertSame( $refreshed, false !== get_option( 'wpcomsh_at_managed_themes', false ) );
+	}
+
+	/**
+	 * Refreshing saves the current list.
+	 */
+	public function test_update_saves_managed_themes() {
+		delete_option( 'wpcomsh_at_managed_themes' );
+
+		wpcomsh_update_managed_themes();
+
+		$this->assertSame( wpcomsh_get_managed_themes(), get_option( 'wpcomsh_at_managed_themes' ) );
+	}
+
+	/**
+	 * The daily refresh is scheduled once.
+	 */
+	public function test_daily_refresh_is_scheduled() {
+		wp_clear_scheduled_hook( 'wpcomsh_refresh_managed_themes' );
+
+		wpcomsh_schedule_managed_themes_refresh();
+		$scheduled = wp_next_scheduled( 'wpcomsh_refresh_managed_themes' );
+		wpcomsh_schedule_managed_themes_refresh();
+
+		$this->assertNotFalse( $scheduled );
+		$this->assertSame( $scheduled, wp_next_scheduled( 'wpcomsh_refresh_managed_themes' ) );
+		$this->assertSame( 'daily', wp_get_schedule( 'wpcomsh_refresh_managed_themes' ) );
+	}
+
+	/**
 	 * The list is refreshed when wpcomsh installs or deletes a theme by symlink, which skips core's hooks,
 	 * and by the daily refresh.
 	 */
@@ -191,6 +260,7 @@ class ManagedThemesTest extends WP_UnitTestCase {
 	public function test_managed_themes_option_is_synced() {
 		$whitelist = Defaults::get_options_whitelist();
 
+		$this->assertContains( 'wpcomsh_at_managed_themes', wpcomsh_allow_custom_wp_options( array() ) );
 		$this->assertContains( 'wpcomsh_at_managed_plugins', $whitelist );
 		$this->assertContains( 'wpcomsh_at_managed_themes', $whitelist );
 	}
