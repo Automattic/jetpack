@@ -222,13 +222,15 @@ class ManagedThemesTest extends WP_UnitTestCase {
 
 	/**
 	 * The list is refreshed when wpcomsh installs or deletes a theme by symlink, which skips core's hooks,
-	 * and by the daily refresh.
+	 * after core's upgrader installs a theme, and by the daily refresh, which is scheduled on init.
 	 */
 	public function test_managed_themes_list_is_refreshed() {
 		$this->assertNotFalse( has_action( 'wpcomsh_wpcom_theme_installed', 'wpcomsh_update_managed_themes' ) );
 		$this->assertNotFalse( has_action( 'wpcomsh_symlinked_theme_deleted', 'wpcomsh_update_managed_themes' ) );
 		$this->assertNotFalse( has_action( 'deleted_theme', 'wpcomsh_update_managed_themes' ) );
 		$this->assertNotFalse( has_action( 'wpcomsh_refresh_managed_themes', 'wpcomsh_update_managed_themes' ) );
+		$this->assertSame( 50, has_action( 'upgrader_process_complete', 'wpcomsh_handle_update_managed_themes_list' ) );
+		$this->assertSame( 10, has_action( 'init', 'wpcomsh_schedule_managed_themes_refresh' ) );
 	}
 
 	/**
