@@ -287,6 +287,7 @@ describe( 'report params field', () => {
 			'Last month',
 			'Year to date',
 			'Last 12 months',
+			'Last 3 years',
 			'Custom range',
 		] );
 	} );

@@ -174,9 +174,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "7b7aa995c2cb0256bd6b1bc5d516a6b0e2c6f9c8"
+                "reference": "838ca9a21e304710a2e58934cfa1da5d6c6681d7"
             },
             "require": {
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
@@ -224,6 +225,12 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -659,7 +666,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "6f1ef42429e85eb9afec39c7bdeb8294d89d1079"
+                "reference": "2bf24e85da2429f75f8d697393901ec7396bdf5d"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -680,7 +687,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
@@ -2264,7 +2271,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "c8427a61cc20be181d04b1c4f040e1f6646dcd3e"
+                "reference": "86837df115c9b3bd702241c3c37c4af3f8118023"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2290,7 +2297,7 @@
             "extra": {
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.39.x-dev"
+                    "dev-trunk": "0.40.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {

@@ -31,6 +31,7 @@ export function useDetailBreadcrumbs(
 
 	const crumb =
 		definition ?? ( fallbackReportId ? getReportDefinition( fallbackReportId ) : undefined );
+
 	if ( crumb ) {
 		items.push( {
 			label: crumb.getLabel(),

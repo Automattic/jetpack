@@ -1,6 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
 import {
-	FORMS_LEAK,
 	installShellProbe,
 	menuLink,
 	openMember,
@@ -9,25 +8,16 @@ import {
 	stopFrames,
 	switchTo,
 	waitForShown,
+	withinDocument,
 	type Frame,
 } from '../../helpers/admin-shell-helper';
 
-/* Pairs where the spike showed a flash on JN; the rest of the matrix runs in navigation-matrix. */
-const SWITCHES = [
-	[ 'jetpack-forms-responses-wp-admin', 'jetpack-newsletter' ],
-	[ 'jetpack-newsletter', 'my-jetpack' ],
-	[ 'my-jetpack', 'jetpack-settings' ],
-	[ 'my-jetpack', 'jetpack-forms-responses-wp-admin' ],
-	[ 'jetpack-podcast', 'jetpack-activity-log' ],
-] as const;
+const FORMS = 'jetpack-forms-responses-wp-admin';
 
-/* Keyed `from → to (visit)`. */
-const SPIKE_BUGS: Record< string, string > = {
-	'jetpack-forms-responses-wp-admin → jetpack-newsletter (first)': FORMS_LEAK,
-	'jetpack-forms-responses-wp-admin → jetpack-newsletter (later)': FORMS_LEAK,
-	'my-jetpack → jetpack-forms-responses-wp-admin (later)':
-		'Known spike bug: the outgoing app renders "Route not found" while the switch is under way.',
-};
+const SWITCHES = [
+	[ 'my-jetpack', FORMS ],
+	[ FORMS, 'my-jetpack' ],
+] as const;
 
 /**
  * Click `to` in the sidebar and record every frame until it has been shown for a second.
@@ -38,8 +28,10 @@ const SPIKE_BUGS: Record< string, string > = {
  */
 async function recordSwitch( page: Page, to: string ): Promise< Frame[] > {
 	await startFrames( page );
-	await menuLink( page, to ).click();
-	await waitForShown( page, to );
+	await withinDocument( page, `switching to ${ to }`, async () => {
+		await menuLink( page, to ).click();
+		await waitForShown( page, to );
+	} );
 	await settle( page, 1000 );
 	return stopFrames( page );
 }
@@ -75,8 +67,6 @@ test.describe( 'Admin shell: frame by frame', () => {
 			test( `${ from } → ${ to } (${ visit } visit): no not-found frame, stable content offset`, async ( {
 				page,
 			} ) => {
-				const bug = SPIKE_BUGS[ `${ from } → ${ to } (${ visit })` ];
-				test.fail( !! bug, bug );
 				await arrive( page, from, to, visit );
 				const frames = await recordSwitch( page, to );
 				expect( frames.length, 'frames were recorded' ).toBeGreaterThan( 10 );
@@ -84,7 +74,7 @@ test.describe( 'Admin shell: frame by frame', () => {
 				const notFound = frames.filter( f => f.notFound );
 				expect.soft( notFound, `"not found" frames:\n${ summary( notFound ) }` ).toHaveLength( 0 );
 
-				// Everything that stands in for the incoming page, placeholder included, sits where it ends up.
+				// Everything that stands in for the incoming page, the stand-in header included, sits where it ends up.
 				const incoming = frames.filter(
 					f => f.left !== null && ( f.owner === to || f.owner === 'placeholder' )
 				);

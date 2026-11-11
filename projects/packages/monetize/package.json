@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-monetize",
-	"version": "0.1.0-alpha",
+	"version": "0.1.0",
 	"private": true,
 	"description": "The Monetize dashboard: payments, paid subscribers and ads in wp-admin.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/monetize/#readme",
@@ -48,18 +48,23 @@
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-monetize/init": "link:packages/init",
+		"@tanstack/react-query": "5.102.8",
+		"@wordpress/api-fetch": "8.1.0",
 		"@wordpress/element": "10.1.0",
 		"@wordpress/i18n": "7.1.0",
 		"@wordpress/route": "0.25.0",
 		"@wordpress/ui": "0.26.0",
+		"@wordpress/url": "5.1.0",
 		"react": "19.3.0",
 		"react-dom": "19.3.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@babel/core": "7.29.7",
+		"@babel/core": "7.29.13",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "16.3.3",
 		"@types/jest": "30.0.0",

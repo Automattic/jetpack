@@ -17,7 +17,14 @@ class Post_Types {
 	 *
 	 * @var string[]
 	 */
-	const EXCLUDED_POST_TYPES = array( 'attachment' );
+	const EXCLUDED_POST_TYPES = array(
+		'attachment',
+		'elementor_library',   // Elementor saved templates.
+		'et_pb_layout',        // Divi Library layouts.
+		'fl-builder-template', // Beaver Builder saved templates.
+		'fl-theme-layout',     // Beaver Themer header, footer and archive layouts.
+		'kadence_element',     // Kadence Elements, hooked header and footer pieces.
+	);
 
 	/**
 	 * Return supported post type slugs.
@@ -50,9 +57,8 @@ class Post_Types {
 	 * Return supported post type objects keyed by slug.
 	 *
 	 * Supported means public, UI-visible, and REST-enabled so the SEO dashboard
-	 * can both display and save the post through core-data. Attachments are
-	 * excluded because their REST endpoint is media-specific, not an editable
-	 * content surface for the SEO Content tab.
+	 * can both display and save the post through core-data. Excluded types and
+	 * types hidden from search are left out.
 	 *
 	 * @return \WP_Post_Type[]
 	 */
@@ -66,7 +72,24 @@ class Post_Types {
 			'objects'
 		);
 
-		foreach ( self::EXCLUDED_POST_TYPES as $post_type ) {
+		$hidden_from_search = wp_filter_object_list( $post_types, array( 'exclude_from_search' => true ) );
+		$hidden_from_search = array_keys( $hidden_from_search );
+		// Sites hide posts or pages from search to tidy results, so keep listing them.
+		$hidden_from_search = array_diff( $hidden_from_search, array( 'post', 'page' ) );
+
+		$excluded = array_merge( self::EXCLUDED_POST_TYPES, $hidden_from_search );
+		$excluded = array_unique( $excluded );
+
+		/**
+		 * Filters the post types left out of llms.txt, the SEO Content tab, Content coverage and the SEO admin columns.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $excluded Post type slugs to leave out. Remove a slug to include that type.
+		 */
+		$excluded = (array) apply_filters( 'jetpack_seo_excluded_post_types', $excluded );
+
+		foreach ( $excluded as $post_type ) {
 			unset( $post_types[ $post_type ] );
 		}
 

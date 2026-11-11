@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Replace testing trait `Without_WPCOM_Include_Warning`, as it doesn't work well with PHP 8.6 changes
-
-

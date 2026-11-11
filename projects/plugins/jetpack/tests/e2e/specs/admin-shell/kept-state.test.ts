@@ -8,35 +8,20 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 		await installShellProbe( page );
 	} );
 
-	for ( const via of [ 'jetpack-newsletter', 'jetpack-settings' ] ) {
-		const intermittent =
-			via === 'jetpack-settings'
-				? 'Spike bug: My Jetpack is sometimes on the wrong tab after Settings.'
-				: null;
+	test( 'My Jetpack keeps its tab after visiting Forms', async ( { page } ) => {
+		// Start elsewhere so My Jetpack is a guest app, as most visits to it are.
+		await openMember( page, FORMS );
+		await switchTo( page, 'my-jetpack' );
+		const features = page.getByRole( 'tab', { name: 'Features' } ).filter( { visible: true } );
+		await features.click();
+		await expect( features ).toHaveAttribute( 'aria-selected', 'true' );
+		const url = await where( page );
 
-		test(
-			`My Jetpack keeps its tab after visiting ${ via }`,
-			{
-				annotation: intermittent
-					? [ { type: 'intermittent spike bug', description: intermittent } ]
-					: [],
-			},
-			async ( { page } ) => {
-				// Start elsewhere so My Jetpack is a guest app, as most visits to it are.
-				await openMember( page, 'jetpack-podcast' );
-				await switchTo( page, 'my-jetpack' );
-				const features = page.getByRole( 'tab', { name: 'Features' } ).filter( { visible: true } );
-				await features.click();
-				await expect( features ).toHaveAttribute( 'aria-selected', 'true' );
-				const url = await where( page );
-
-				await switchTo( page, via );
-				await switchTo( page, 'my-jetpack' );
-				await expect( features ).toHaveAttribute( 'aria-selected', 'true' );
-				expect( await where( page ) ).toBe( url );
-			}
-		);
-	}
+		await switchTo( page, FORMS );
+		await switchTo( page, 'my-jetpack' );
+		await expect( features ).toHaveAttribute( 'aria-selected', 'true' );
+		expect( await where( page ) ).toBe( url );
+	} );
 
 	test( 'Forms keeps its tab and search', async ( { page } ) => {
 		await openMember( page, FORMS );
@@ -52,7 +37,7 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 			.toContain( 'shell-regression' );
 		const url = await where( page );
 
-		await switchTo( page, 'jetpack-newsletter' );
+		await switchTo( page, 'my-jetpack' );
 		await switchTo( page, FORMS );
 		await expect( responses ).toHaveAttribute( 'aria-selected', 'true' );
 		await expect( search ).toHaveValue( 'shell-regression' );
@@ -60,7 +45,6 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 	} );
 
 	test( 'scroll position survives a round trip', async ( { page } ) => {
-		test.fail( true, 'Spike bug: navigate() scrolls to the top on every switch.' );
 		await page.setViewportSize( { width: 1280, height: 500 } );
 		await openMember( page, 'my-jetpack' );
 		const room = await page.evaluate( () => document.documentElement.scrollHeight - innerHeight );
@@ -69,7 +53,7 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 		await expect.poll( () => page.evaluate( () => scrollY ) ).toBeGreaterThan( 100 );
 		const scrolled = await page.evaluate( () => scrollY );
 
-		await switchTo( page, 'jetpack-podcast' );
+		await switchTo( page, FORMS );
 		await switchTo( page, 'my-jetpack' );
 		await expect.poll( () => page.evaluate( () => scrollY ) ).toBe( scrolled );
 	} );
