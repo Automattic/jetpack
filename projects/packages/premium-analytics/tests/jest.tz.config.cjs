@@ -14,9 +14,11 @@ const TZ_SUITES = [
 	'packages/datetime/src/__tests__/date-range-span.test.ts',
 	'packages/datetime/src/__tests__/drill-date-range.test.ts',
 	'packages/datetime/src/__tests__/get-comparison-range.test.ts',
+	'packages/datetime/src/__tests__/plan-date-step.test.ts',
 	'packages/datetime/src/__tests__/reporting-time-zone.test.ts',
 	'packages/datetime/src/__tests__/site-datetime.test.ts',
 	'packages/datetime/src/__tests__/site-timestamp.test.ts',
+	'packages/datetime/src/__tests__/step-date-range.test.ts',
 	'packages/datetime/src/__tests__/tz.test.ts',
 	'packages/datetime/src/__tests__/year-presets.test.ts',
 	'packages/formatters/src/date/__tests__/format-date-range.test.ts',
@@ -25,11 +27,9 @@ const TZ_SUITES = [
 	'packages/routing/src/hooks/use-report-date-filters/__tests__/use-report-date-filters.test.tsx',
 	'packages/widgets-toolkit/src/components/post-highlight-card/__tests__/post-highlight-card.test.tsx',
 	'routes/detail-header.test.ts',
-	'routes/post-detail/components/post-header-slots/post-header-slots.test.tsx',
-	'routes/video-detail/components/video-header-slots/video-header-slots.test.tsx',
-	'widgets/email-time-series/__tests__/email-time-series.test.tsx',
+	'routes/single-report/pages/post/post-header-slots.test.tsx',
+	'routes/single-report/pages/video/video-header-slots.test.tsx',
 	'widgets/popular-days/__tests__/bucket-views-by-weekday.test.ts',
-	'widgets/subscribers-chart/__tests__/subscribers-chart.test.tsx',
 	'widgets/video-detail-views-performance/__tests__/video-detail-views-performance.test.tsx',
 	'widgets/views-over-years/__tests__/build-views-over-years.test.ts',
 	'widgets/views-over-years/__tests__/use-views-over-years.test.tsx',
@@ -42,7 +42,23 @@ if ( missing.length ) {
 	throw new Error( `tests/jest.tz.config.cjs lists missing suites: ${ missing.join( ', ' ) }` );
 }
 
-module.exports = {
-	...config,
+// Jest accepts `coverageReporters` only at the root, and warns for every project that carries it.
+const { coverageReporters, ...projectConfig } = config;
+
+const zoneProject = ( timeZone, environment ) => ( {
+	...projectConfig,
+	displayName: timeZone,
+	globals: { ...projectConfig.globals, __EXPECTED_TIME_ZONE__: timeZone },
+	setupFiles: [ ...projectConfig.setupFiles, path.join( __dirname, 'assert-time-zone.cjs' ) ],
+	testEnvironment: path.join( __dirname, environment ),
 	testMatch: TZ_SUITES.map( suite => `<rootDir>/${ suite }` ),
+} );
+
+// One run for both zones, so their suites share the worker pool instead of queueing behind each other.
+module.exports = {
+	coverageReporters,
+	projects: [
+		zoneProject( 'America/Los_Angeles', 'environment-los-angeles.mjs' ),
+		zoneProject( 'Asia/Tokyo', 'environment-tokyo.mjs' ),
+	],
 };

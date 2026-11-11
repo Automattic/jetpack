@@ -1,9 +1,24 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import GeoScreen from '../index';
+import { forwardRef } from 'react';
 import type { GeoState } from '../../../data/geo-types';
 import type { GeoForm } from '../../../data/use-geo';
+import type { ReactNode } from 'react';
+
+jest.unstable_mockModule( '@wordpress/route', () => ( {
+	useNavigate: () => jest.fn(),
+	Link: forwardRef<
+		HTMLAnchorElement,
+		{ to: string; search: Record< string, string >; children?: ReactNode }
+	>( ( { to, search, children, ...props }, ref ) => (
+		<a ref={ ref } href={ `${ to }?${ new URLSearchParams( search ) }` } { ...props }>
+			{ children }
+		</a>
+	) ),
+} ) );
+
+const { default: GeoScreen } = await import( '../index' );
 
 /**
  * Build a GEO-tab form whose llms.txt slice has the given serving state. The tab
@@ -14,8 +29,12 @@ import type { GeoForm } from '../../../data/use-geo';
  * @return A form controller for GeoScreen with the enhancer hidden.
  */
 const formWith = ( canServe: boolean ): GeoForm => ( {
-	enhancer: { available: false, enabled: false, aiSeoEnabled: true },
-	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe },
+	enhancer: { available: false, enabled: false, aiSeoEnabled: true, aiEnabled: true },
+	llmsTxt: {
+		enabled: true,
+		url: 'https://example.com/llms.txt',
+		canServe,
+	},
 	crawlers: null,
 	isSaving: false,
 	setEnhancerEnabled: () => {},
@@ -38,7 +57,7 @@ const crawlerForm = (
 			| 'dataSharingOptOut'
 			| 'pathBasedMultisite'
 			| 'restrictedSubdomain'
-			| 'overrides'
+			| 'blocked'
 		>
 	> = {}
 ): GeoForm => ( {
@@ -48,28 +67,29 @@ const crawlerForm = (
 		catalog: [
 			{
 				slug: 'oai-searchbot',
-				label: 'ChatGPT Search (OAI-SearchBot)',
-				userAgent: 'OAI-SearchBot',
+				label: 'ChatGPT Search',
+				userAgents: [ 'OAI-SearchBot' ],
 				type: 'answer',
 			},
 			{
 				slug: 'gptbot',
-				label: 'ChatGPT (GPTBot)',
-				userAgent: 'GPTBot',
+				label: 'ChatGPT',
+				userAgents: [ 'GPTBot' ],
 				type: 'training',
 			},
 			{
 				slug: 'google-extended',
-				label: 'Google Gemini (Google-Extended)',
-				userAgent: 'Google-Extended',
+				label: 'Google Gemini',
+				userAgents: [ 'Google-Extended' ],
 				type: 'training',
 			},
 		],
-		overrides: {},
+		blocked: { answer: [], training: [] },
 		searchEnginesVisible: true,
 		restrictedSubdomain: false,
 		staticRobotsTxt: false,
 		dataSharingOptOut: false,
+		dataSharingBlocked: [ 'gptbot', 'google-extended' ],
 		pathBasedMultisite: false,
 		privacySettingsUrl: 'http://example.com/wp-admin/options-reading.php',
 		robotsTxtUrl: 'http://example.com/robots.txt',
@@ -77,22 +97,30 @@ const crawlerForm = (
 	},
 } );
 
-const noop = () => {};
+describe( 'GeoScreen (GEO tab) — intro', () => {
+	it( 'spells out the acronym at the top of the tab', () => {
+		const { container } = render( <GeoScreen form={ allModulesForm() } searchEnginesVisible /> );
+
+		const intro = screen.getByText(
+			'GEO stands for generative engine optimization. These settings control how AI sees and uses your site.'
+		);
+		expect( intro.tagName ).toBe( 'P' );
+		// The tab's own first child, so it sits above every module.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- asserting its position in the tab.
+		expect( container.querySelector( '.jetpack-seo-geo' )?.firstElementChild ).toBe( intro );
+	} );
+} );
 
 describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 	it( 'shows the view link and no warning when llms.txt can be served', () => {
-		render(
-			<GeoScreen form={ formWith( true ) } searchEnginesVisible onManageVisibility={ noop } />
-		);
+		render( <GeoScreen form={ formWith( true ) } searchEnginesVisible /> );
 
 		expect( screen.getByRole( 'link', { name: /view your llms\.txt/i } ) ).toBeInTheDocument();
 		expect( screen.queryByText( /can't publish llms\.txt/i ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows an honest notice and hides the view link when it cannot serve', () => {
-		render(
-			<GeoScreen form={ formWith( false ) } searchEnginesVisible onManageVisibility={ noop } />
-		);
+		render( <GeoScreen form={ formWith( false ) } searchEnginesVisible /> );
 
 		// The @wordpress/ui Notice renders its text in more than one node, so match
 		// with getAllByText (see schema-card.test.tsx) rather than getByText.
@@ -103,44 +131,39 @@ describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 	} );
 
 	it( 'disables llms.txt and links to visibility settings when indexing is blocked', () => {
-		const onManageVisibility = jest.fn();
-		render(
-			<GeoScreen
-				form={ formWith( true ) }
-				searchEnginesVisible={ false }
-				onManageVisibility={ onManageVisibility }
-			/>
-		);
+		render( <GeoScreen form={ formWith( true ) } searchEnginesVisible={ false } /> );
 
-		expect(
-			screen.getByRole( 'checkbox', { name: /generate an llms\.txt file/i } )
-		).toBeDisabled();
-		expect(
-			screen.getByRole( 'checkbox', { name: /generate an llms\.txt file/i } )
-		).not.toBeChecked();
+		const toggle = screen.getByRole( 'switch', { name: /generate an llms\.txt file/i } );
+		expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( toggle ).not.toBeChecked();
 		expect( screen.getAllByText( /to enable, allow search engines/i ).length ).toBeGreaterThan( 0 );
+		expect( screen.getByRole( 'link', { name: 'Open site visibility settings' } ) ).toHaveAttribute(
+			'href',
+			'/settings?focus=visibility'
+		);
 		expect(
 			screen.queryByRole( 'link', { name: /view your llms\.txt/i } )
 		).not.toBeInTheDocument();
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep for a single click.
-		fireEvent.click( screen.getByRole( 'button', { name: /settings/i } ) );
-		expect( onManageVisibility ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
 
 describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 	it( 'files Google-Extended under Training, not its own module', () => {
-		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
+		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible /> );
 
 		expect( screen.getByText( 'Training crawlers' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Google Gemini (Google-Extended)' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Block Google Gemini' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Google-Extended' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'AI answers and training' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'tags each group header with its allow/block status', () => {
-		// Defaults: answer engines allowed, training crawlers blocked.
-		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
+		render(
+			<GeoScreen
+				form={ crawlerForm( { blocked: { answer: [], training: 'all' } } ) }
+				searchEnginesVisible
+			/>
+		);
 		const answerHeader = screen.getByRole( 'button', { name: /answer engines/i } );
 		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
 		expect( within( answerHeader ).getByText( 'Allowed' ) ).toBeInTheDocument();
@@ -148,20 +171,50 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 	} );
 
 	it( 'tags a mixed group as partly blocked', () => {
-		// Allow one of the two training bots so the group is neither all-allowed nor all-blocked.
+		// Block one of the two training bots so the group is neither all-allowed nor all-blocked.
 		render(
 			<GeoScreen
-				form={ crawlerForm( { overrides: { gptbot: false } } ) }
+				form={ crawlerForm( { blocked: { answer: [], training: [ 'google-extended' ] } } ) }
 				searchEnginesVisible
-				onManageVisibility={ noop }
 			/>
 		);
 		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
 		expect( within( trainingHeader ).getByText( 'Partly blocked' ) ).toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'Block ChatGPT', 0, 'setCrawlerBlocked', 'gptbot' ],
+		[ 'Block all', 1, 'setCrawlerGroupBlocked', 'training' ],
+	] as const )( 'blocks when "%s" is switched on', ( name, index, setter, target ) => {
+		const form = { ...crawlerForm(), [ setter ]: jest.fn() };
+		render( <GeoScreen form={ form } searchEnginesVisible /> );
+
+		// Collapsed panels hide the toggles, so include hidden ones.
+		const toggle = screen.getAllByRole( 'switch', { name, hidden: true } )[ index ];
+		expect( toggle ).not.toBeChecked();
+		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep for a single click.
+		fireEvent.click( toggle );
+		expect( form[ setter ] ).toHaveBeenCalledWith( target, true );
+	} );
+
+	it.each( [
+		[ 'Answer engines', /cite you in their answers/, 'Block ChatGPT Search' ],
+		[ 'Training crawlers', /train AI models/, 'Block Google Gemini' ],
+	] )(
+		'exposes the %s toggles as a named group described by its intro',
+		( name, intro, toggle ) => {
+			render( <GeoScreen form={ crawlerForm() } searchEnginesVisible /> );
+
+			const group = screen.getByRole( 'group', { name, hidden: true } );
+			expect( group ).toHaveAccessibleDescription( intro );
+			expect(
+				within( group ).getByRole( 'switch', { name: toggle, hidden: true } )
+			).toBeInTheDocument();
+		}
+	);
+
 	it( 'links each group to the robots.txt file under its description', () => {
-		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
+		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible /> );
 
 		// The link sits under the description, inside the collapsed panel — include hidden.
 		const links = screen.getAllByRole( 'link', { name: /view your robots\.txt/i, hidden: true } );
@@ -171,12 +224,15 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		);
 	} );
 
-	it( 'disables the crawler controls and links to the setting under the data-sharing opt-out', () => {
+	it( 'shows the opt-out state, disabled with a link, under the data-sharing opt-out', () => {
 		render(
 			<GeoScreen
-				form={ crawlerForm( { dataSharingOptOut: true } ) }
+				// The owner's block is ignored while the opt-out decides robots.txt.
+				form={ crawlerForm( {
+					dataSharingOptOut: true,
+					blocked: { answer: [ 'oai-searchbot' ], training: [] },
+				} ) }
 				searchEnginesVisible
-				onManageVisibility={ noop }
 			/>
 		);
 
@@ -188,48 +244,50 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		const link = screen.getAllByRole( 'link', { name: /manage sharing settings/i } )[ 0 ];
 		expect( link ).toHaveAttribute( 'href', 'http://example.com/wp-admin/options-reading.php' );
 		// The (collapsed) toggles are disabled — include hidden so the closed panel counts.
-		const boxes = screen.getAllByRole( 'checkbox', { hidden: true } );
-		expect( boxes.length ).toBeGreaterThan( 0 );
-		expect( boxes.every( box => box.hasAttribute( 'disabled' ) ) ).toBe( true );
-		// The allow/block status tags are hidden while the setting governs the group.
+		const switches = screen.getAllByRole( 'switch', { hidden: true } );
+		expect( switches.length ).toBeGreaterThan( 0 );
+		expect( switches.every( el => el.getAttribute( 'aria-disabled' ) === 'true' ) ).toBe( true );
+		const toggle = ( name: string ) => screen.getByRole( 'switch', { name, hidden: true } );
+		expect( toggle( 'Block ChatGPT Search' ) ).not.toBeChecked();
+		expect( toggle( 'Block ChatGPT' ) ).toBeChecked();
+		expect( toggle( 'Block Google Gemini' ) ).toBeChecked();
+		const answerHeader = screen.getByRole( 'button', { name: /answer engines/i } );
 		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
-		expect( within( trainingHeader ).queryByText( 'Blocked' ) ).not.toBeInTheDocument();
+		expect( within( answerHeader ).getByText( 'Allowed' ) ).toBeInTheDocument();
+		expect( within( trainingHeader ).getByText( 'Blocked' ) ).toBeInTheDocument();
+	} );
+
+	it( 'links the not-indexed notice to the visibility settings', () => {
+		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible={ false } /> );
+
+		expect( screen.getAllByText( /isn't set to be indexed/i ).length ).toBeGreaterThan( 0 );
+		expect( screen.getByRole( 'link', { name: 'Open site visibility settings' } ) ).toHaveAttribute(
+			'href',
+			'/settings?focus=visibility'
+		);
+		expect( screen.queryByText( 'Block Google Gemini' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'hides per-site controls on path-based multisite', () => {
 		render(
-			<GeoScreen
-				form={ crawlerForm( { pathBasedMultisite: true } ) }
-				searchEnginesVisible
-				onManageVisibility={ noop }
-			/>
+			<GeoScreen form={ crawlerForm( { pathBasedMultisite: true } ) } searchEnginesVisible />
 		);
 
 		expect( screen.getAllByText( /shares one robots\.txt/i ).length ).toBeGreaterThan( 0 );
-		expect( screen.queryByText( 'Google Gemini (Google-Extended)' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Block Google Gemini' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'explains a staging subdomain instead of offering controls', () => {
 		render(
-			<GeoScreen
-				form={ crawlerForm( { restrictedSubdomain: true } ) }
-				searchEnginesVisible
-				onManageVisibility={ noop }
-			/>
+			<GeoScreen form={ crawlerForm( { restrictedSubdomain: true } ) } searchEnginesVisible />
 		);
 
 		expect( screen.getAllByText( /temporary staging address/i ).length ).toBeGreaterThan( 0 );
-		expect( screen.queryByText( 'Google Gemini (Google-Extended)' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Block Google Gemini' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'accurately describes a detected static robots.txt file', () => {
-		render(
-			<GeoScreen
-				form={ crawlerForm( { staticRobotsTxt: true } ) }
-				searchEnginesVisible
-				onManageVisibility={ noop }
-			/>
-		);
+		render( <GeoScreen form={ crawlerForm( { staticRobotsTxt: true } ) } searchEnginesVisible /> );
 
 		expect(
 			screen.getAllByText( /static robots\.txt file in the WordPress installation directory/i )
@@ -246,18 +304,21 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
  * @return A form controller with crawlers, llms.txt and the enhancer all present.
  */
 const allModulesForm = (): GeoForm => ( {
-	...crawlerForm(),
-	enhancer: { available: true, enabled: false, aiSeoEnabled: true },
-	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
+	// Training crawlers blocked, so the two crawler groups show different badges.
+	...crawlerForm( { blocked: { answer: [], training: 'all' } } ),
+	enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
+	llmsTxt: {
+		enabled: true,
+		url: 'https://example.com/llms.txt',
+		canServe: true,
+	},
 } );
 
 describe( 'GeoScreen (GEO tab) — module titles', () => {
-	// The chip must not swallow the title text, which is how these modules are found
+	// The icon must not swallow the title text, which is how these modules are found
 	// by assistive tech and by every other test in this file.
-	it( 'leads every module title with an icon chip, keeping the title readable', () => {
-		render(
-			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
-		);
+	it( 'leads every module title with an icon, keeping the title readable', () => {
+		render( <GeoScreen form={ allModulesForm() } searchEnginesVisible /> );
 
 		for ( const title of [
 			'Answer engines',
@@ -265,7 +326,7 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 			'llms.txt',
 			'AI SEO Enhancer',
 		] ) {
-			// `getByText` resolves to the chip wrapper, whose text is the title alone —
+			// `getByText` resolves to the title wrapper, whose text is the title alone —
 			// the glyph beside it is a decorative SVG with no role of its own.
 			const heading = screen.getByText( title );
 			expect( heading ).toBeInTheDocument();
@@ -277,9 +338,7 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 	// The two crawler groups are opposite decisions about the same content, so a
 	// shared glyph would hide the only distinction on the tab that needs acting on.
 	it( 'gives the two crawler groups different glyphs', () => {
-		render(
-			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
-		);
+		render( <GeoScreen form={ allModulesForm() } searchEnginesVisible /> );
 
 		const glyphOf = ( title: string ) =>
 			// eslint-disable-next-line testing-library/no-node-access -- comparing the two decorative glyphs.
@@ -298,9 +357,7 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 	// badges stay in `HeaderDescription`, which is `aria-hidden` and surfaced through
 	// `aria-describedby` instead.
 	it( 'renders each module header as a heading, named by its title alone', () => {
-		render(
-			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
-		);
+		render( <GeoScreen form={ allModulesForm() } searchEnginesVisible /> );
 
 		for ( const title of [
 			'Answer engines',
@@ -321,9 +378,7 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 	// Collapsing one hides its state until reopened: an accepted trade-off, not an
 	// oversight — see the comment on the llms.txt header.
 	it( 'gives no state tag to the modules that open by default', () => {
-		render(
-			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
-		);
+		render( <GeoScreen form={ allModulesForm() } searchEnginesVisible /> );
 
 		for ( const title of [ 'llms.txt', 'AI SEO Enhancer' ] ) {
 			expect( screen.getByRole( 'button', { name: title } ) ).not.toHaveAttribute(
@@ -336,12 +391,11 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 	// is simply switched off, which made it the one state you couldn't read from the
 	// header. Amber is what separates them, so the intent is worth pinning down.
 	it( 'marks a partly-blocked group amber, distinct from allowed and blocked', () => {
-		// `gptbot` allowed, `google-extended` left at the training default of blocked.
+		// `gptbot` allowed, `google-extended` blocked.
 		render(
 			<GeoScreen
-				form={ crawlerForm( { overrides: { gptbot: false } } ) }
+				form={ crawlerForm( { blocked: { answer: [], training: [ 'google-extended' ] } } ) }
 				searchEnginesVisible
-				onManageVisibility={ noop }
 			/>
 		);
 
@@ -354,13 +408,9 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 	// The badge must stay visible — this is an accessibility relocation, not a
 	// removal. Asserting it through the trigger's `aria-describedby` target proves
 	// both halves at once: the badge still renders, and it now reaches assistive
-	// tech as the trigger's description instead of part of its name. (A bare text
-	// query would be ambiguous — the toggles inside the expanded content say
-	// "Allowed" too.)
+	// tech as the trigger's description instead of part of its name.
 	it( 'keeps each state badge on screen, wired as the trigger description', () => {
-		render(
-			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
-		);
+		render( <GeoScreen form={ allModulesForm() } searchEnginesVisible /> );
 
 		for ( const [ title, state ] of [
 			[ 'Answer engines', 'Allowed' ],
@@ -380,13 +430,9 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 
 	// Only one blocked state renders at a time, and it stands for both crawler
 	// groups — so it carries the combined glyph rather than either group's.
-	it( 'still titles and chips the blocked state', () => {
+	it( 'still gives the blocked state its title and icon', () => {
 		render(
-			<GeoScreen
-				form={ crawlerForm( { pathBasedMultisite: true } ) }
-				searchEnginesVisible
-				onManageVisibility={ noop }
-			/>
+			<GeoScreen form={ crawlerForm( { pathBasedMultisite: true } ) } searchEnginesVisible />
 		);
 
 		const heading = screen.getByText( 'AI crawler access' );
@@ -400,22 +446,24 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 describe( 'GeoScreen (GEO tab) — the AI SEO Enhancer card', () => {
 	// Same treatment the Traffic page gives it: disabled with an explanation
 	// rather than hidden, so the saved choice stays visible.
-	it( 'disables the toggle and explains why while the AI SEO control is off', () => {
+	it.each( [
+		[ 'the AI SEO control', true, /AI SEO is turned off for this site/ ],
+		[ 'Jetpack AI', false, /Jetpack AI is turned off for this site/ ],
+	] )( 'disables the toggle and explains why while %s is off', ( _, aiEnabled, message ) => {
 		render(
 			<GeoScreen
 				form={ {
 					...allModulesForm(),
-					enhancer: { available: true, enabled: true, aiSeoEnabled: false },
+					enhancer: { available: true, enabled: true, aiSeoEnabled: false, aiEnabled },
 				} }
 				searchEnginesVisible
-				onManageVisibility={ noop }
 			/>
 		);
 
 		expect(
-			screen.getByRole( 'checkbox', { name: /Automatically generate SEO title/ } )
-		).toBeDisabled();
-		expect( screen.getByText( /AI SEO is turned off for this site/ ) ).toBeInTheDocument();
+			screen.getByRole( 'switch', { name: /Automatically generate SEO title/ } )
+		).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByText( message ) ).toBeInTheDocument();
 	} );
 
 	it( 'leaves the toggle usable while the AI SEO control is on', () => {
@@ -423,16 +471,70 @@ describe( 'GeoScreen (GEO tab) — the AI SEO Enhancer card', () => {
 			<GeoScreen
 				form={ {
 					...allModulesForm(),
-					enhancer: { available: true, enabled: true, aiSeoEnabled: true },
+					enhancer: { available: true, enabled: true, aiSeoEnabled: true, aiEnabled: true },
 				} }
 				searchEnginesVisible
-				onManageVisibility={ noop }
 			/>
 		);
 
 		expect(
-			screen.getByRole( 'checkbox', { name: /Automatically generate SEO title/ } )
-		).toBeEnabled();
+			screen.getByRole( 'switch', { name: /Automatically generate SEO title/ } )
+		).not.toHaveAttribute( 'aria-disabled' );
 		expect( screen.queryByText( /AI SEO is turned off for this site/ ) ).not.toBeInTheDocument();
 	} );
+} );
+
+describe( 'GeoScreen (GEO tab) — paused SEO output', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [
+		[
+			'Yoast SEO',
+			'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
+			'Paused while Yoast SEO is active.',
+		],
+		[
+			'',
+			'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
+			'Paused on this site.',
+		],
+	] )(
+		'with "%s" in charge, explains it once and shows llms.txt saved but locked',
+		( plugin, banner, line ) => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				site: { admin_url: 'https://example.com/wp-admin/' },
+				seo: { output: { paused: true, conflicting_plugin: plugin } },
+			};
+			// The server reports `canServe: false` while output is paused.
+			const form = {
+				...allModulesForm(),
+				llmsTxt: { ...allModulesForm().llmsTxt!, canServe: false },
+			};
+			jest.spyOn( form, 'setLlmsTxtEnabled' );
+			render( <GeoScreen form={ form } searchEnginesVisible /> );
+
+			expect( screen.getByText( banner ) ).toBeInTheDocument();
+			// The locked card says so in one short line; it doesn't re-explain the cause.
+			expect( screen.getAllByText( line ) ).toHaveLength( 1 );
+			expect( screen.queryByText( /hosting setup is already handling/ ) ).not.toBeInTheDocument();
+
+			// The saved "on" stays visible, locked.
+			const toggle = screen.getByRole( 'switch', { name: /generate an llms.txt file/i } );
+			expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( toggle ).toBeChecked();
+			expect(
+				screen.queryByRole( 'link', { name: /view your llms.txt/i } )
+			).not.toBeInTheDocument();
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( toggle );
+			expect( form.setLlmsTxtEnabled ).not.toHaveBeenCalled();
+
+			// The Enhancer stays editable: the editor's auto-generation doesn't check the pause.
+			expect(
+				screen.getByRole( 'switch', { name: /Automatically generate SEO title/ } )
+			).not.toHaveAttribute( 'aria-disabled' );
+		}
+	);
 } );

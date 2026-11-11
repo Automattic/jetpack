@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-CLI: Make `wp jetpack protect allow` read the current IP allow list, so adding an IP no longer replaces the existing entries.

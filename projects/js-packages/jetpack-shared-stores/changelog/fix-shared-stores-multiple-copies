@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep module and plan stores intact when another script on the page bundles its own copy of the package.

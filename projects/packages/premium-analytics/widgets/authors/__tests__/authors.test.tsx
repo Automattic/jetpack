@@ -31,7 +31,6 @@ const authorRow = ( posts: AuthorLeaderboardRow[ 'posts' ] ): AuthorLeaderboardR
 	label: 'Jane Cooper',
 	avatarUrl: null,
 	currentValue: 20,
-	currentShare: 1,
 	posts,
 } );
 
@@ -59,15 +58,6 @@ describe( 'AuthorsWidget', () => {
 					path: expect.stringMatching( new RegExp( `[?&]max=${ WIDGET_ROW_LIMIT }(?:&|$)` ) ),
 				} )
 			)
-		);
-	} );
-
-	it( 'links to the Authors report', () => {
-		render( <AuthorsWidget attributes={ {} } /> );
-
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/authors' )
 		);
 	} );
 
@@ -123,7 +113,7 @@ describe( 'AuthorsWidget', () => {
 		const link = screen.getByRole( 'link', { name: 'Quarterly update' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/123' );
+		expect( url.pathname ).toBe( '/report/post/123' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/quarterly-update/' );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'authors' );
 	} );
@@ -143,7 +133,6 @@ describe( 'AuthorsWidget', () => {
 			title: 'Quarterly update',
 			link: 'https://example.com/quarterly-update/',
 			currentValue: 20,
-			currentShare: 1,
 		};
 		const { rerender } = render( leaderboardInWidgetRoot( [ authorRow( [ post ] ) ] ) );
 

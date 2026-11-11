@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Features: Fill checked checkboxes in the Features list with the selected filter's color, show their focus ring only for keyboard focus, and show one focus ring per control instead of two.

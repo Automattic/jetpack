@@ -149,8 +149,12 @@ describe( 'PayPalButtonPreview', () => {
 			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: true } } />
 		);
 		// Same markup as the PHP test, except Jest stubs the image src to its file name.
-		expect( document.querySelector( '.jetpack-paypal-button__attribution' ).outerHTML ).toBe(
-			'<p class="jetpack-paypal-button__attribution">Powered by <img class="jetpack-paypal-button__logo" src="paypal-wordmark-color.svg" alt="PayPal" width="42" height="15"></p>'
+		// Note React 18 and React 19 produce different attribute orders, and `.toContainHTML()` doesn't normalize, sigh.
+		const container = document.createElement( 'div' );
+		container.innerHTML =
+			'<p class="jetpack-paypal-button__attribution">Powered by <img class="jetpack-paypal-button__logo" src="paypal-wordmark-color.svg" alt="PayPal" width="42" height="15"></p>';
+		expect( document.querySelector( '.jetpack-paypal-button__attribution' ) ).toEqual(
+			container.firstChild
 		);
 	} );
 

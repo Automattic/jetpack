@@ -242,9 +242,8 @@ class Schema_Builder {
 	private static function output_document( array $document ) {
 		printf(
 			'<script type="application/ld+json">%s</script>',
-			// Default flags escape forward slashes — important inside <script>
-			// so a "</script>" in the data can't break out of the block.
-			wp_json_encode( $document, JSON_UNESCAPED_UNICODE ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			// JSON_HEX_TAG escapes < and >, so text decoded to "</script>" or "<!--" can't end or corrupt this block.
+			wp_json_encode( $document, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		);
 	}
 

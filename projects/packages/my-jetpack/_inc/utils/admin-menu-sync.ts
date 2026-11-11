@@ -43,6 +43,23 @@ export function menuLinkOf( item: Element ): HTMLElement | null {
 	return item.querySelector< HTMLElement >( ':scope > a' );
 }
 
+/**
+ * A menu item's label, without the count bubble its link may carry.
+ *
+ * @param item - A top-level or submenu item.
+ * @return The label, or an empty string when the item has no link.
+ */
+export function menuLabelOf( item: Element ): string {
+	const link = menuLinkOf( item )?.cloneNode( true ) as HTMLElement | undefined;
+
+	// Zero-count badges ship hidden, but their digit still lands in textContent.
+	link
+		?.querySelectorAll( '.menu-counter, .awaiting-mod, .update-plugins' )
+		.forEach( badge => badge.remove() );
+
+	return link?.textContent?.trim() ?? '';
+}
+
 /* Args core bakes the current page into: Appearance > Customize carries the page it was
    rendered on, so matching on the raw href makes it new on every refresh. */
 const VOLATILE_ARGS = [ 'return', '_wpnonce' ];

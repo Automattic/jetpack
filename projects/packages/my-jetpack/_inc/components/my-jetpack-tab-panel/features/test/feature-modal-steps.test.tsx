@@ -1,7 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { version as reactVersion } from 'react';
 import { FeatureModal } from '../feature-modal';
 import type { FeatureState } from '../feature-state';
+
+const isReact18 = reactVersion.startsWith( '18.' );
 
 let mockIsDesktop = true;
 jest.mock( '@wordpress/compose', () => ( {
@@ -45,6 +48,7 @@ const openModal = ( props: { previous?: typeof stats; next?: typeof stats } ) =>
 describe( 'FeatureModal stepping', () => {
 	beforeEach( () => {
 		mockIsDesktop = true;
+		window.myJetpackInitialState = { ...window.myJetpackInitialState, isOfflineFeatures: false };
 	} );
 
 	it( 'steps to the neighboring features with the arrow keys', async () => {
@@ -165,7 +169,14 @@ describe( 'FeatureModal stepping', () => {
 		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveFocus();
 	} );
 
-	it( 'resets a failed band image when stepping to a feature with its own', () => {
+	it.each( [
+		[ 'online', false ],
+		[ 'offline', true ],
+	] as const )( '%s renders artwork after an image error', ( _mode, offline ) => {
+		window.myJetpackInitialState = {
+			...window.myJetpackInitialState,
+			isOfflineFeatures: offline,
+		};
 		const withScreenshot = ( slug: string, name: string ) =>
 			( {
 				...state,
@@ -187,14 +198,22 @@ describe( 'FeatureModal stepping', () => {
 		);
 		const { rerender } = render( modal( withScreenshot( 'forms', 'Forms' ) ) );
 
+		expect( screen.getByRole( 'img', { name: 'Forms in use' } ) ).toHaveAttribute(
+			'src',
+			'https://jetpack.com/forms.png'
+		);
 		fireEvent.error( screen.getByAltText( 'Forms in use' ) );
 		expect( screen.queryByAltText( 'Forms in use' ) ).not.toBeInTheDocument();
 
 		rerender( modal( withScreenshot( 'podcast', 'Podcast' ) ) );
 
 		expect( screen.getByAltText( 'Podcast in use' ) ).toBeInTheDocument();
+
 		// React 18 warns about `fetchPriority`.
-		expect( console ).toHaveErrored();
+		if ( isReact18 && ! offline ) {
+			// eslint-disable-next-line jest/no-conditional-expect
+			expect( console ).toHaveErrored();
+		}
 	} );
 
 	it( 'names the backdrop the way the view-transition rule expects', () => {

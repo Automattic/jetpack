@@ -94,6 +94,50 @@ class Jetpack_AI_Page {
 	}
 
 	/**
+	 * Register Jetpack AI with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		// Simple registers the page through mu-wpcom, and add_actions() only adds it once the site can use it.
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' )
+			|| ( ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() )
+		) {
+			return $members;
+		}
+
+		$members['jetpack-ai'] = array(
+			'build_prefix' => 'jetpack_plugin',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-plugin/init' ),
+			// "Jetpack AI" is a product name and should not be translated.
+			'title'        => 'Jetpack AI',
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-ai-admin', 'jetpack-script-data', 'jp-tracks-functions', 'wp-jp-i18n-loader' ),
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the AI Hub routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		if ( Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID, false ) ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_scripts' ) );
+		}
+	}
+
+	/**
 	 * Register the page and its page-specific hooks.
 	 *
 	 * The AI Hub owns its full React layout, so it does not need the legacy
@@ -277,23 +321,15 @@ class Jetpack_AI_Page {
 		$site_host         = wp_parse_url( home_url(), PHP_URL_HOST );
 		$activity_log_site = ( is_string( $site_host ) && '' !== $site_host ) ? $site_host : $site_suffix;
 
-		/*
-		 * Link SEO settings to the dedicated Jetpack SEO page where it exists,
-		 * falling back to the Traffic settings card. Checking the `rsm_jetpack_seo`
-		 * filter is required in addition to the cohort check: is_seo_surface_visible()
-		 * alone returns true on all of wpcom-platform even while the flag is off —
-		 * it answers only the cohort half, and page registration requires both
-		 * (see packages/seo Initializer::init()).
-		 */
+		// Link to the Jetpack SEO page when it registers, which takes both checks below
+		// (see the SEO package's Initializer::init()); otherwise to the Traffic card.
 		$seo_settings_url          = admin_url( 'admin.php?page=jetpack-settings#/traffic' );
 		$is_internal_test          = jetpack_is_internal_testing_environment();
 		$show_scheduled_tasks_view = self::is_scheduled_tasks_enabled();
 		if (
-			// The exact-symbol guard matters: the autoloader can select an older
-			// jetpack-seo copy from another plugin that has the class but not
-			// this method, and class_exists alone would then fatal here.
-			method_exists( '\Automattic\Jetpack\SEO\Initializer', 'is_seo_surface_visible' )
-			&& (bool) apply_filters( 'rsm_jetpack_seo', false )
+			// is_available() is the newer of the two; an older SEO package loaded first can lack it.
+			method_exists( '\Automattic\Jetpack\SEO\Initializer', 'is_available' )
+			&& \Automattic\Jetpack\SEO\Initializer::is_available()
 			&& \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()
 		) {
 			$seo_settings_url = admin_url( 'admin.php?page=jetpack-seo' );
@@ -527,17 +563,49 @@ class Jetpack_AI_Page {
 	private static function get_search_settings_url() {
 		global $submenu;
 
+		$url = admin_url( 'admin.php?page=jetpack-search#/ai-answers' );
+
+		// The admin shell's guest endpoint runs on admin-ajax, which never builds the menu.
+		if ( wp_doing_ajax() ) {
+			return self::search_page_will_register() ? $url : '';
+		}
+
 		// Search registers under the Jetpack menu, or menu-less (parent '') when
 		// `jetpack_search_should_add_search_submenu` says no; both are reachable.
 		foreach ( array( 'jetpack', '' ) as $parent ) {
 			foreach ( (array) ( $submenu[ $parent ] ?? array() ) as $item ) {
 				if ( isset( $item[2] ) && 'jetpack-search' === $item[2] ) {
-					return admin_url( 'admin.php?page=jetpack-search#/ai-answers' );
+					return $url;
 				}
 			}
 		}
 
 		return '';
+	}
+
+	/**
+	 * Whether the Search dashboard has hooked its page registration, for requests that never build the menu.
+	 *
+	 * A host that removes the page on `admin_menu` isn't seen here.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function search_page_will_register() {
+		global $wp_filter;
+		if ( ! class_exists( '\Automattic\Jetpack\Search\Dashboard' ) || ! isset( $wp_filter['admin_menu'] ) ) {
+			return false;
+		}
+		foreach ( $wp_filter['admin_menu']->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				$function = $callback['function'];
+				if ( is_array( $function ) && $function[0] instanceof \Automattic\Jetpack\Search\Dashboard && 'add_wp_admin_submenu' === $function[1] ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**

@@ -216,7 +216,7 @@ class Attachment_Handler {
 	/**
 	 * Explain a terminal conversion failure in the Media Library details.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.58.0
 	 *
 	 * @param array   $fields Attachment fields.
 	 * @param WP_Post $post Attachment.

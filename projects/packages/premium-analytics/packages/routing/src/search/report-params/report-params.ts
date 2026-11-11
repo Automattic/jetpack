@@ -29,6 +29,7 @@ export const REPORT_DATE_PARAM_KEYS = [
 	'to',
 	'interval',
 	'preset',
+	'step',
 	'compare_from',
 	'compare_to',
 	'compare_preset',
@@ -86,6 +87,7 @@ export function toReportOriginWindowParams(
 					from: linked.from,
 					to: linked.to,
 					...( linked.preset === PRESET_ALL_TIME ? { preset: PRESET_ALL_TIME } : {} ),
+					...( linked.step !== undefined ? { step: linked.step } : {} ),
 				};
 
 	const rebuilt = normalizeReportParams( origin as NormalizeInput );
@@ -112,26 +114,43 @@ export function toReportOriginWindowParams(
 }
 
 /**
- * Rebuild the comparison a stored origin window names by preset; the destination
- * route seeds the rest of the window, as it does for any link that omits dates.
+ * Rebuild a stored origin window so its destination can load without a
+ * canonicalizing redirect.
  *
  * @param origin - The unprefixed origin-window params.
  * @return The report-window params to carry.
  */
 function expandOriginWindow( origin: Record< string, unknown > ): Record< string, unknown > {
-	if ( origin.compare_from !== undefined ) {
-		return { ...origin, comp: '1' };
-	}
-	if ( origin.compare_preset === undefined ) {
+	const hasNamedPreset = isSelectablePreset( origin.preset ) || isYearPresetId( origin.preset );
+	const hasCustomRange = !! origin.from && !! origin.to;
+
+	if ( ! hasNamedPreset && ! hasCustomRange ) {
 		return origin;
 	}
 
+	const expanded = {
+		...pickReportDateParams( normalizeReportParams( origin as NormalizeInput ) ),
+		...( origin.interval !== undefined ? { interval: origin.interval } : {} ),
+	};
+
+	if ( origin.compare_from !== undefined ) {
+		return {
+			...expanded,
+			compare_from: origin.compare_from,
+			compare_to: origin.compare_to,
+			comp: '1',
+		};
+	}
+	if ( origin.compare_preset === undefined ) {
+		return expanded;
+	}
+
 	const comparison = deriveComparisonRange( {
-		...normalizeReportParams( origin as NormalizeInput ),
+		...expanded,
 		comp: '1',
 		compare_preset: origin.compare_preset,
 	} as NormalizeInput );
-	return comparison ? { ...origin, ...comparison, comp: '1' } : origin;
+	return comparison ? { ...expanded, ...comparison, comp: '1' } : expanded;
 }
 
 /**
@@ -247,6 +266,22 @@ export function omitComparisonReportParams(
 }
 
 /**
+ * Drop the shared report-window params from a search object, keeping everything else.
+ *
+ * @param search - The current route search params.
+ * @return A new object without the report-window params.
+ */
+export function omitReportDateParams< T extends Record< string, unknown > >(
+	search: T
+): Partial< T > {
+	const stripped: Partial< T > = { ...search };
+	for ( const key of REPORT_DATE_PARAM_KEYS ) {
+		delete stripped[ key ];
+	}
+	return stripped;
+}
+
+/**
  * Serialize one search value the way the router does.
  *
  * The router JSON-parses every search value on read, so a string that itself
@@ -258,7 +293,7 @@ export function omitComparisonReportParams(
  * @param value - The search value to serialize.
  * @return The querystring-ready value.
  */
-function stringifySearchValue( value: unknown ): string {
+export function stringifySearchValue( value: unknown ): string {
 	if ( typeof value === 'string' ) {
 		try {
 			JSON.parse( value );

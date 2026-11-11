@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
+import { getRegistrationErrorSummary } from '../../helpers/get-connect-screen-error-message';
 import useConnection from '../use-connection';
 
 export interface Props {
@@ -40,7 +41,8 @@ function ConnectButton( {
 		isUserConnected,
 		siteIsRegistering,
 		userIsConnecting,
-		registrationError,
+		connectError,
+		isOfflineMode,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
@@ -57,9 +59,10 @@ function ConnectButton( {
 					<Button onClick={ handleRegisterSite } loading={ siteIsRegistering || userIsConnecting }>
 						{ connectLabel }
 					</Button>
-					{ registrationError && (
-						<p className="jp-action-button__error">
-							{ __( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
+					{ connectError && (
+						<p className="jp-action-button__error" role="alert">
+							{ getRegistrationErrorSummary( connectError, isOfflineMode ) ||
+								__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
 						</p>
 					) }
 				</>

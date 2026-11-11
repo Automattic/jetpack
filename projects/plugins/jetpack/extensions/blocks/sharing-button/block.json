@@ -22,5 +22,10 @@
 		"reusable": false,
 		"html": false
 	},
+	"example": {
+		"attributes": {
+			"service": "facebook"
+		}
+	},
 	"viewScript": "file:./view.js"
 }

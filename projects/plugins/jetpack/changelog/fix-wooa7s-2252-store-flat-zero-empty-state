@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Show the empty state in the WooCommerce report charts when the period and its comparison have no activity, instead of a flat line at zero.

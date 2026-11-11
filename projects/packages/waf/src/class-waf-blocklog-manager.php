@@ -14,6 +14,7 @@ class Waf_Blocklog_Manager {
 
 	const BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        = 'jetpack_waf_blocklog_daily_summary';
 	const BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT = 'jetpack_waf_all_time_block_count';
+	const BLOCKLOG_OPTION_NAME_HAS_BLOCKED          = 'jetpack_waf_has_blocked';
 
 	/**
 	 * Database connection.
@@ -273,6 +274,27 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Record that the firewall has blocked a request other than its own test. Set once and never cleared.
+	 *
+	 * @return void
+	 */
+	private static function write_has_blocked_row() {
+		global $table_prefix;
+		$option_name = self::BLOCKLOG_OPTION_NAME_HAS_BLOCKED;
+
+		$db_connection = self::connect_to_wordpress_db();
+		if ( ! $db_connection ) {
+			return;
+		}
+
+		$statement = $db_connection->prepare( "INSERT IGNORE INTO {$table_prefix}options (option_name, option_value, autoload) VALUES (?, '1', 'off')" );
+		if ( false !== $statement ) {
+			$statement->bind_param( 's', $option_name );
+			$statement->execute();
+		}
+	}
+
+	/**
 	 * Increment the all-time stats.
 	 *
 	 * @return void
@@ -341,12 +363,26 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Blocked requests on each UTC day, keyed by `Y-m-d`. Days past 30 are only pruned when a block is written.
+	 *
+	 * @since 0.32.0
+	 *
+	 * @return array<string, int>
+	 */
+	public static function get_daily_block_counts() {
+		$stats = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+
+		return is_array( $stats ) ? array_map( 'intval', $stats ) : array();
+	}
+
+	/**
 	 * Get the total number of blocked requests for last thirty days.
 	 *
 	 * @return int
 	 */
 	public static function get_thirty_days_block_counts() {
-		$stats        = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+		// Old days are only pruned when a block is written, so a quiet site still has them.
+		$stats        = self::filter_last_30_days( (array) self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() ) );
 		$total_blocks = 0;
 
 		foreach ( $stats as $count ) {
@@ -372,9 +408,20 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Whether the firewall has blocked a request other than its own test since it started recording that.
+	 *
+	 * @since 0.32.0
+	 *
+	 * @return bool
+	 */
+	public static function has_blocked_requests() {
+		return (bool) self::get_stored_option( self::BLOCKLOG_OPTION_NAME_HAS_BLOCKED, false );
+	}
+
+	/**
 	 * Get the most recent blocked requests, newest first. The table keeps only the last 100.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.30.0
 	 *
 	 * @param int $limit How many to return.
 	 * @return array<int, array{id: int, timestamp: string, ruleId: int, reason: string}> Timestamps are ISO 8601 UTC.
@@ -509,6 +556,10 @@ class Waf_Blocklog_Manager {
 
 		self::write_daily_summary();
 		self::write_all_time_block_count();
+		// Silent mode only logs, so it hasn't blocked anything.
+		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE && (string) Waf_Self_Check::RULE_ID !== (string) $rule_id ) {
+			self::write_has_blocked_row();
+		}
 		self::write_blocklog_row( $log_data );
 		self::close_db_connection();
 	}

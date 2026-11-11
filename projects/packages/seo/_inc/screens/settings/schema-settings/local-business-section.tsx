@@ -10,6 +10,7 @@ import type { FC } from 'react';
 interface Props {
 	/** The schema-settings form controller, owned by the Schema card group. */
 	form: SchemaSettingsForm;
+	disabled?: boolean;
 }
 
 /**
@@ -17,11 +18,12 @@ interface Props {
  * the address / contact / hours fields. Presentational only — it shares the
  * Organization's single Save button in the parent Schema card.
  *
- * @param props      - Component props.
- * @param props.form - The shared schema-settings form controller.
+ * @param props          - Component props.
+ * @param props.form     - The shared schema-settings form controller.
+ * @param props.disabled - Whether editing is disabled.
  * @return The Local business settings fields.
  */
-const LocalBusinessSection: FC< Props > = ( { form } ) => {
+const LocalBusinessSection: FC< Props > = ( { form, disabled = false } ) => {
 	const { localBusiness, isSaving, setLocalBusinessField } = form;
 
 	return (
@@ -34,11 +36,11 @@ const LocalBusinessSection: FC< Props > = ( { form } ) => {
 				) }
 				checked={ localBusiness.enabled }
 				onChange={ next => setLocalBusinessField( { enabled: next } ) }
-				disabled={ isSaving }
+				disabled={ disabled || isSaving }
 				__nextHasNoMarginBottom
 			/>
 
-			{ localBusiness.enabled && <LocalBusinessFields form={ form } /> }
+			{ localBusiness.enabled && <LocalBusinessFields form={ form } disabled={ disabled } /> }
 		</Stack>
 	);
 };

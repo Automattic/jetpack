@@ -12,6 +12,7 @@ import {
 	applyStatsDatePolicy,
 	deriveStatsDatePolicy,
 	getPolicyDefaultPreset,
+	getSectionDatePolicy,
 	getStatsDatePolicy,
 	isPresetLockedByPolicy,
 	OPEN_DATE_POLICY,
@@ -93,7 +94,7 @@ describe( 'deriveStatsDatePolicy', () => {
 			lockOnly( 'long-date-presets', 'intervals' ),
 			'last-30-days',
 			true,
-			[ 'week', 'month', 'year' ],
+			[ 'week', 'month', 'quarter', 'year' ],
 			undefined,
 		],
 		[
@@ -101,7 +102,7 @@ describe( 'deriveStatsDatePolicy', () => {
 			lockOnly( 'intervals' ),
 			undefined,
 			true,
-			[ 'week', 'month', 'year' ],
+			[ 'week', 'month', 'quarter', 'year' ],
 			undefined,
 		],
 		[ 'nothing', lockOnly(), undefined, true, [], undefined ],
@@ -110,7 +111,7 @@ describe( 'deriveStatsDatePolicy', () => {
 			lockOnly( 'recent-7-days', 'intervals' ),
 			'last-7-days',
 			false,
-			[ 'week', 'month', 'year' ],
+			[ 'week', 'month', 'quarter', 'year' ],
 			new Date( '2026-10-09T00:00:00Z' ),
 		],
 	] )(
@@ -161,12 +162,37 @@ describe( 'getStatsDatePolicy', () => {
 	} );
 } );
 
+describe( 'getSectionDatePolicy', () => {
+	it.each( [
+		[ 'traffic', [ 'traffic' ], 'recent-7-days' ],
+		[ 'insights', [ 'traffic' ], undefined ],
+		[ undefined, [ 'traffic' ], undefined ],
+		[ 'store', [ 'traffic', 'store' ], 'recent-7-days' ],
+		[ 'traffic', undefined, undefined ],
+	] )( 'gives %p, when the server limits %p, the plan limit %p', ( section, limited, feature ) => {
+		( getScriptData as jest.Mock ).mockReturnValue( {
+			premium_analytics: {
+				plan_date_limited_sections: limited,
+				plan_gates: {
+					locked_features: {
+						'recent-7-days': { description: '', support_url: '', upgrade_url: '' },
+					},
+					locked_widget_types: {},
+				},
+			},
+		} );
+
+		expect( getSectionDatePolicy( section ).feature ).toBe( feature );
+	} );
+} );
+
 describe( 'getPolicyDefaultPreset', () => {
 	it.each( [
 		[ 'an open plan', 'last-12-months', 'last-12-months', () => OPEN_DATE_POLICY ],
 		[ 'a free plan', 'yesterday', 'yesterday', free ],
 		[ 'a free plan', 'last-30-days', 'last-7-days', free ],
 		[ 'legacy basic', 'last-12-months', 'last-30-days', basic ],
+		[ 'legacy basic', 'last-3-years', 'last-30-days', basic ],
 	] as const )( 'on %s opens %s as %s', ( _name, preset, expected, policy ) => {
 		expect( getPolicyDefaultPreset( policy(), preset ) ).toBe( expected );
 	} );
@@ -182,6 +208,7 @@ describe( 'applyStatsDatePolicy', () => {
 		],
 		[ 'a locked preset', free, { preset: 'last-30-days' }, 'last-7-days' ],
 		[ 'a long preset', basic, { preset: 'last-90-days' }, 'last-30-days' ],
+		[ 'the three-year preset', basic, { preset: 'last-3-years' }, 'last-30-days' ],
 		// Last 30 days allows weeks, so only the plan's locks bring this one back to days.
 		[
 			'a long preset in weeks',

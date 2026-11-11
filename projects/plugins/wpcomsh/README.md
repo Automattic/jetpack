@@ -59,49 +59,6 @@ Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwardin
 
 Please try to add unit tests whenever you are adding new features, or modifying existing ones.
 
-#### Private Site Module
-
-There is an integration suite built on docker that makes testing what clients to "private" (and non-private) sites should and shouldn't be able to see.
-
-If you have `docker` installed on your system, the tests can be run like so:
-
-- `make test-public-access`
-- `make test-private-access`
-
-Each of the above:
-
-- Cleans your build directory, etc.
-- Builds the plugin from source (as would happen for the regular deployment process )
-- Spins up containers for:
-  - mysql database
-  - WordPress (php-fpm)
-  - nginx web server
-  - WP-CLI
-  - node / jest (for the actual testing)
-- Coordinates communication and set up for the above
-- Sets a site to be public or private according to the script invocation
-- Kicks off test specs to validate that appropriate resources are accessible and, in the case of a site being set to private, inappropriate resources are not
-
-#### Development Mode
-
-You can enter "development mode" by declaring you are doing so via the `WPCOMSH_DEVMODE` environment variable.
-
-For example:
-
-`WPCOMSH_DEVMODE=1 make test-private-access`
-
-This will:
-
-- Instruct `make` to bypass the `check` directive (allowing for rules like `build` to run without a clean working directory)
-- Set jest to "watch" for changes to the spec files inside the running container.
-- Watch for changes to specific files on your local machine and copy them to the container on changes.
-- Leave the services running (until you exit with `cmd+c`, etc.), so you can access the running WordPress site to do manual testing (see below)
-
-In order for WordPress to load the test site correctly, you'll need to access the site with the appropriate site name:
-
-- Add the following to your hosts file: `127.0.0.1 nginx`
-- Browse to http://nginx:8989 in your favorite web client / browser
-
 ## Deployment
 - After a PR is merged:
   - The CI will automatically create a rolling release. You can find it under [Releases](https://github.com/Automattic/wpcom-site-helper/releases).
@@ -116,7 +73,8 @@ Translations are now downloaded automatically from translate.wordpress.com. No s
 
 ## Troubleshooting
 
-When something doesn't work as it should, the first thing to do is [enable error logging in WP](https://codex.wordpress.org/Debugging_in_WordPress) or look into the global PHP error log. It's advisable to install and connect Jetpack when working on wpcomsh. Use [MGS](https://mc.a8c.com/mgs/) to search through Slack channels as that's where most of the development work/chats take place. You can also use PCYsg-5mr-p2 (for example, with PhPStorm). If you still can't figure out the problem, drop a message in the Automated Transfer Slack channel and/or ping [wpcomsh devs](https://github.com/Automattic/wpcomsh/graphs/contributors) directly.
+- [Enable debug logging in WordPress](https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/), or check the PHP error log.
+- Still stuck? Ask in the Jetpack Developers Slack channel, or open an issue with the [[Plugin] Wpcomsh](https://github.com/Automattic/jetpack/labels/%5BPlugin%5D%20Wpcomsh) label.
 
 ## Features
 
@@ -158,11 +116,13 @@ We show a similar message to the update one under Akismet, Jetpack and VaultPres
 Plugins that bridge the gap between WP.com and Atomic, enabling WP.com-only features that are part of users' plans, receive a green banner with that information.
 This allows users to make an informed decision when enabling/disabling these plugins.
 
-### Symlinking WP.com pub (free) and premium themes
+### Installing WP.com themes
 
-We keep the WP.com pub and premium themes checked out on Atomic. When users try to install WP.com themes from within Calypso (not possible from wp-admin), wpcomsh hooks into Jetpack themes API and symlinks the WP.com themes from the directory where we keep them on Atomic to user’s `wp-content/themes` folder.
+We keep the WP.com pub and premium themes, and other managed themes, checked out on Atomic. When users install a WP.com theme, from Calypso through the Jetpack themes API or from wp-admin’s Add Themes screen, wpcomsh symlinks it from the directory where we keep it on Atomic to the user’s `wp-content/themes` folder.
 
-When a user tries to delete a WP.com theme (only available from Calypso), wpcomsh hooks into Jetpack themes API and unsymlinks the WP.com theme.
+A WP.com theme that isn’t kept on Atomic is downloaded instead, from the link WP.com gives the site for it, and installed by core like any other theme.
+
+When a user deletes a WP.com pub or premium theme, wpcomsh unsymlinks it.
 
 If a WP.com theme is a child theme of another WP.com theme, wpcomsh symlinks both the parent and the child themes. Analogously, if users try to delete a child WP.com theme, wpcomsh unsymlinks both the child and the parent themes. However, if only the parent theme is removed/unsymlinked, wpcomsh doesn’t unsymlink the child theme, making it potentially broken (as the parent theme is removed).
 
@@ -260,6 +220,8 @@ wpcomsh adds the [wc-api-dev](https://github.com/woocommerce/wc-api-dev) plugin 
 Enables setting a site to "private." Doing so prevents viewing or interacting with site content to unauthenticated clients (and anyone without `read` capabilities).
 
 As this module is currently being developed & evaluated, it is only enabled when the `AT_PRIVACY_MODEL` constant is set is set to `wp_uploads` (such that `\Private_Site\is_module_active()` returns `true`).
+
+Through the `jetpack_is_private_site` filter, Jetpack's `Status::is_private_site()` also reports the site as private when `AT_PRIVACY_MODEL` is `wp_uploads`, even if the `blog_public` option says it is public.
 
 ### Experimental Jetpack Blocks
 

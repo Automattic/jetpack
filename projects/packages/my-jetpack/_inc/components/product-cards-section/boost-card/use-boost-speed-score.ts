@@ -25,7 +25,7 @@ const useBoostSpeedScore = () => {
 	const [ previousSpeedScore, setPreviousSpeedScore ] = useState< number | null >( null );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 
-	const { siteUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
+	const { homeUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
 	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 	const slug = 'boost';
 	const { detail } = useProduct( slug );
@@ -54,12 +54,17 @@ const useBoostSpeedScore = () => {
 		}
 	};
 
+	// Returns whether the cache held a usable score.
 	const setScoresFromCache = ( cachedSpeedScores: SpeedScores ) => {
 		const { scores, previousScores } = cachedSpeedScores || {};
+		if ( ! scores?.mobile || ! scores?.desktop ) {
+			return false;
+		}
 
 		updateScores( setCurrentSpeedScore, scores );
 		updateScores( setPreviousSpeedScore, previousScores );
 		updateLetterGrade( scores );
+		return true;
 	};
 
 	const getSpeedScores = async () => {
@@ -69,8 +74,9 @@ const useBoostSpeedScore = () => {
 			return;
 		}
 
+		setIsSpeedScoreError( false );
 		setIsLoading( true );
-		requestSpeedScores( true, apiRoot, siteUrl, apiNonce )
+		requestSpeedScores( true, apiRoot, homeUrl, apiNonce )
 			.then( scores => {
 				const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 				setSpeedLetterGrade( scoreLetter );
@@ -86,9 +92,7 @@ const useBoostSpeedScore = () => {
 				} );
 
 				// If error, use the cached "latest" speed scores if they exist
-				if ( latestBoostSpeedScores && latestBoostSpeedScores.scores ) {
-					setScoresFromCache( latestBoostSpeedScores );
-				} else {
+				if ( ! setScoresFromCache( latestBoostSpeedScores ) ) {
 					// Hide Boost scores if error and no cached scores
 					setIsSpeedScoreError( true );
 				}
@@ -115,14 +119,18 @@ const useBoostSpeedScore = () => {
 				if ( calculateDaysSince( latestBoostSpeedScores.timestamp * 1000 ) < 1 ) {
 					// When Boost plugin installed & active, use cache scores if they are less than 1 day old.
 					// In other words, calculate a new score once every day.
-					setScoresFromCache( latestBoostSpeedScores );
+					if ( ! setScoresFromCache( latestBoostSpeedScores ) ) {
+						getSpeedScores();
+					}
 				} else {
 					// Boost is active and cache scores are 1 or more days old.
 					getSpeedScores();
 				}
 			} else if ( calculateDaysSince( latestBoostSpeedScores.timestamp * 1000 ) < 14 ) {
 				// When Boost plugin is not installed or activated, use cache scores if they are less than 2 weeks old (14 days).
-				setScoresFromCache( latestBoostSpeedScores );
+				if ( ! setScoresFromCache( latestBoostSpeedScores ) ) {
+					getSpeedScores();
+				}
 			} else {
 				// Boost is not active and cached scores are older than 2 weeks.
 				getSpeedScores();
@@ -135,10 +143,12 @@ const useBoostSpeedScore = () => {
 
 	return {
 		isLoading,
+		isSiteConnected,
 		speedLetterGrade,
 		currentSpeedScore,
 		boostScoreIncrease,
 		isSpeedScoreError,
+		retry: getSpeedScores,
 	};
 };
 

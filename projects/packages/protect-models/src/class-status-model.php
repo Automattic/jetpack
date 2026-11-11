@@ -63,6 +63,15 @@ class Status_Model {
 	public $current_progress;
 
 	/**
+	 * Whether the most recent scan started but failed, so it can't vouch for the site.
+	 *
+	 * @since 0.7.3
+	 *
+	 * @var bool
+	 */
+	public $last_scan_failed = false;
+
+	/**
 	 * Whether there was an error loading the status.
 	 *
 	 * @var bool

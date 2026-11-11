@@ -5,9 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.2] - 2026-11-09
+### Changed
+- Expose the Scan product slug prefix so other packages can share it. [#54590]
+- Sort a Scan threat with no severity just above Low instead of below it. [#54596]
+
+## [0.10.1] - 2026-11-06
+### Fixed
+- Leave out a Scan vulnerability in a plugin or theme once it is updated to the fixed version, without waiting for the next scan.
+
+## [0.10.0] - 2026-11-02
+### Added
+- Add a `jetpack_protect_threat_notifications_enabled` filter so hosts can stop threats from being announced outside the Protect page. [#53983]
+
+### Fixed
+- Flag a most recent scan that failed instead of treating it like a clean scan. [#54295]
+
+## [0.9.2] - 2026-10-28
+### Fixed
+- Plan: Count every Scan product, including bi-yearly and legacy real-time ones, and on WordPress.com count only plans that include Scan's UI as having Scan. [#54071]
+
+## [0.9.1] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [0.9.0] - 2026-10-19
+### Added
+- Add Status::get_cached_status() and Status::is_cached_status_expired(), to read the stored status without contacting WordPress.com. [#53566]
+
 ## [0.8.1] - 2026-10-05
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.8.0] - 2026-08-26
 ### Removed
@@ -15,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.14] - 2026-08-11
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.7.13] - 2026-06-08
 ### Changed
@@ -39,11 +67,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.8] - 2026-02-23
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.7.7] - 2026-02-02
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.7.6] - 2025-12-08
 ### Fixed
@@ -51,7 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.5] - 2025-12-01
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.7.4] - 2025-10-20
 ### Changed
@@ -196,6 +224,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#37894]
 
+[0.10.2]: https://github.com/Automattic/jetpack-protect-status/compare/v0.10.1...v0.10.2
+[0.10.1]: https://github.com/Automattic/jetpack-protect-status/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/Automattic/jetpack-protect-status/compare/v0.9.2...v0.10.0
+[0.9.2]: https://github.com/Automattic/jetpack-protect-status/compare/v0.9.1...v0.9.2
+[0.9.1]: https://github.com/Automattic/jetpack-protect-status/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-protect-status/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/Automattic/jetpack-protect-status/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.14...v0.8.0
 [0.7.14]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.13...v0.7.14

@@ -14,7 +14,6 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscribersListRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -111,10 +110,11 @@ export const Empty: Story = {
  * Renders the real registered widget through the shared dashboard harness.
  */
 export const WidgetDashboardWithWidget: DashboardStory = {
+	tags: [ 'widget-dashboard' ],
 	render: args => (
 		<WidgetDashboardWithWidgetStory
 			{ ...args }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ SUBSCRIBERS_LIST_RENDER_MODULE }
 			renderComponent={ SubscribersListRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {} }

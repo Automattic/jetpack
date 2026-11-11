@@ -19,6 +19,11 @@
 		}
 	},
 	"attributes": {
+		"emptyState": {
+			"type": "string",
+			"enum": [ "none", "author", "all" ],
+			"default": "none"
+		},
 		"count": {
 			"type": "integer",
 			"default": 5

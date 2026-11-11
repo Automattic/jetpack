@@ -51,6 +51,29 @@ export function resetAnalyticsForTesting(): void {
 }
 
 /**
+ * Identify the connected WordPress.com user to Tracks, once per page load.
+ *
+ * A plain function so the error boundary can call it too: a render crash
+ * discards the hook's effect, and the crash event would go out anonymous.
+ */
+export function identifyReader(): void {
+	if ( hasIdentified ) {
+		return;
+	}
+
+	const state = typeof window !== 'undefined' ? window.JP_CONNECTION_INITIAL_STATE : undefined;
+	const wpcomUser = state?.userConnectionData?.currentUser?.wpcomUser as
+		WpcomUserIdentity | undefined;
+
+	if ( ! wpcomUser?.ID || ! wpcomUser?.login ) {
+		return;
+	}
+
+	hasIdentified = true;
+	jetpackAnalytics.initialize( wpcomUser.ID, wpcomUser.login );
+}
+
+/**
  * The Tracks client for the modernized dashboard.
  *
  * Deliberately not a port of `src/js/hooks/useAnalytics.js`. That one
@@ -81,21 +104,7 @@ export function resetAnalyticsForTesting(): void {
  * @return The analytics client, whose `tracks.recordEvent()` sends events.
  */
 export function useAnalytics() {
-	const state = typeof window !== 'undefined' ? window.JP_CONNECTION_INITIAL_STATE : undefined;
-	const wpcomUser = state?.userConnectionData?.currentUser?.wpcomUser as
-		WpcomUserIdentity | undefined;
-
-	const userId = wpcomUser?.ID;
-	const login = wpcomUser?.login;
-
-	useEffect( () => {
-		if ( hasIdentified || ! userId || ! login ) {
-			return;
-		}
-
-		hasIdentified = true;
-		jetpackAnalytics.initialize( userId, login );
-	}, [ userId, login ] );
+	useEffect( identifyReader, [] );
 
 	return jetpackAnalytics;
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Check permissions before retrying site registration.

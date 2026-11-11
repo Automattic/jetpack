@@ -17,7 +17,7 @@ const LOCKED_ROLE = 'administrator';
  * @param roles - The site's roles, with how many users hold each.
  * @return The fields.
  */
-export function getFields( roles: SiteRole[] ): Field< StatsSettings >[] {
+export function getFields( roles: SiteRole[] ): Field< Partial< StatsSettings > >[] {
 	const elements = roles.map( role => ( {
 		value: role.slug,
 		// Sites with many users get no counts, since counting them is slow.
@@ -56,7 +56,7 @@ export function getFields( roles: SiteRole[] ): Field< StatsSettings >[] {
 			label: __( 'Allow Jetpack Stats to be viewed by', 'jetpack-premium-analytics-pkg' ),
 			description: __( 'Administrators can always view stats.', 'jetpack-premium-analytics-pkg' ),
 			elements: elements.filter( element => element.value !== LOCKED_ROLE ),
-			getValue: ( { item } ) => item.roles.filter( role => role !== LOCKED_ROLE ),
+			getValue: ( { item } ) => ( item.roles ?? [] ).filter( role => role !== LOCKED_ROLE ),
 			setValue: ( { value } ) => ( { roles: [ LOCKED_ROLE, ...value ] } ),
 			Edit: ChipSelectEdit,
 		},

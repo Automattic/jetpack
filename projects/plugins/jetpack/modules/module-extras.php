@@ -23,7 +23,6 @@ $tools = array(
 	// Theme Tools.
 	'theme-tools.php',
 	'theme-tools/social-links.php',
-	'theme-tools/random-redirect.php',
 	'theme-tools/featured-content.php',
 	'theme-tools/responsive-videos.php',
 	'theme-tools/site-logo.php',
@@ -34,7 +33,19 @@ $tools = array(
 	'videopress/class.videopress-gutenberg.php',
 	// Reprint export. Registers nothing off Pressable and WordPress.com (Atomic).
 	'reprint-export.php',
+	// Names the SEO plugin that owns SEO output, for the SEO dashboard and canonical URLs.
+	'seo-tools/seo-tools-conflicts.php',
+	// Lets the SEO dashboard lock the canonical URLs switch while another SEO plugin is active.
+	'canonical-urls/canonical-urls-conflicts.php',
 );
+
+// WordPress 7.2 handles random content redirects (/random/, ?random) in core; every 7.2 beta includes it.
+// @todo Once WordPress 7.2 is the minimum, deprecate the jetpack_random_redirect_enabled filter for core's; not before, so it isn't deprecated only on some versions.
+if ( version_compare( $GLOBALS['wp_version'], '7.2-beta', '<' ) ) {
+	$tools[] = 'theme-tools/random-redirect.php';
+} else {
+	$tools[] = 'theme-tools/random-redirect-core-compat.php';
+}
 
 // Some features are only available when connected to WordPress.com.
 $connected_tools = array(

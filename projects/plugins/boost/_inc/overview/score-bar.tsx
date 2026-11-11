@@ -1,8 +1,8 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
-import { ProgressBar } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, error, mobile } from '@wordpress/icons';
-import { Badge, Text } from '@wordpress/ui';
+import { Badge, Progress, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import IndeterminateProgress from '../../app/assets/src/js/features/ui/indeterminate-progress/indeterminate-progress';
 import {
@@ -12,6 +12,7 @@ import {
 	getScoreTier,
 	getScoreTierLabel,
 } from './lib/score-utils';
+import { useEstimatedPercent } from './lib/use-estimated-percent';
 import type { SpeedScoreState } from './lib/use-speed-scores';
 import './score-bar.scss';
 import './score-ready.scss';
@@ -27,6 +28,7 @@ export default function ScoreBar( {
 	const displayState = getScoreDisplayState( state );
 	const overallTier = getOverallScoreTier( scores );
 	const failed = displayState === 'error';
+	const percent = useEstimatedPercent( displayState === 'generating' ? state.progress : undefined );
 	return (
 		<div className="jetpack-boost-score-bar" data-testid="score-bar" aria-hidden="true">
 			{ failed && ! state.hasScores ? (
@@ -35,8 +37,20 @@ export default function ScoreBar( {
 				</Text>
 			) : displayState === 'generating' ? (
 				<div className="jetpack-boost-score-bar__message">
-					<IndeterminateProgress label={ __( 'Testing site speed', 'jetpack-boost' ) }>
-						{ __( 'Calculating score…', 'jetpack-boost' ) }
+					<IndeterminateProgress
+						label={ __( 'Testing site speed', 'jetpack-boost' ) }
+						value={ percent }
+					>
+						{ percent === undefined
+							? __( 'Checking site speed…', 'jetpack-boost' )
+							: createInterpolateElement(
+									sprintf(
+										/* translators: %d: how much of the speed test is done, as a percentage. */
+										__( 'Checking site speed… <pct>%d%%</pct>', 'jetpack-boost' ),
+										percent
+									),
+									{ pct: <span /> }
+								) }
 					</IndeterminateProgress>
 				</div>
 			) : (
@@ -80,10 +94,13 @@ export default function ScoreBar( {
 									className="jetpack-boost-overview__score-icon"
 								/>
 								<Text variant="heading-md">{ score }</Text>
-								<ProgressBar
-									className={ `jetpack-boost-score-bar__meter jetpack-boost-overview__progress--${ tier }` }
-									value={ score }
-								/>
+								<Progress.Root className="jetpack-boost-score-bar__meter" value={ score }>
+									<Progress.Track className="jetpack-boost-score-bar__meter-track">
+										<Progress.Indicator
+											className={ `jetpack-boost-overview__progress--${ tier }` }
+										/>
+									</Progress.Track>
+								</Progress.Root>
 								<span
 									className={ `jetpack-boost-score-bar__dot jetpack-boost-score-bar__dot--${ tier }` }
 								/>

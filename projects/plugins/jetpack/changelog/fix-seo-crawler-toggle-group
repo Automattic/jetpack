@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Group the AI crawler toggles so screen readers announce each group and its description.

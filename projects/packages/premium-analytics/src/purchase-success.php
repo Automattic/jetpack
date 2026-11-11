@@ -15,7 +15,7 @@ const STATS_PURCHASE_SUCCESS_TYPES = array( 'paid', 'free' );
 /**
  * The purchase type this request returned from checkout with.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @return string `paid`, `free`, or an empty string.
  */
@@ -29,7 +29,7 @@ function get_stats_purchase_success_type() {
 /**
  * Configures the purchase success script data.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @return void
  */
@@ -40,7 +40,7 @@ function configure_purchase_success() {
 /**
  * Injects the returned purchase into JetpackScriptData.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @param array $data The script data passed by the assets package.
  * @return array

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scan: Stop showing a stray "0" when the scan status can't load.

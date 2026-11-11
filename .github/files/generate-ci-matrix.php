@@ -51,6 +51,9 @@ $default_matrix_vars = array(
 	// {string} A valid artifact name for any generated artifacts. If not given, will be derived from the name.
 	'artifact'            => null,
 
+	// (int|null) React version to test with.
+	'with-react-version'  => null,
+
 	// {bool} Whether to install WooCommerce.
 	'with-woocommerce'    => false,
 
@@ -76,7 +79,7 @@ $matrix   = array();
 $to_split = array();
 
 // Add PHP tests.
-foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
+foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6' ) as $php ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP $php WP latest",
 		'script'  => 'test-php',
@@ -147,6 +150,16 @@ foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
 		'split_config' => $js_split_config,
 	);
 }
+
+// Add JS React 18 test during the React 19 migration.
+// @todo Remove this when we drop support for WordPress Core versions containing React 18.
+$to_split[] = array(
+	'name'               => 'JS tests (React 18, %s)',
+	'script'             => 'test-js',
+	'timeout'            => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
+	'with-react-version' => 18,
+	'split_config'       => $js_split_config,
+);
 
 /*
  * Split jobs: one job for each group in `split_config.groups`, then `split_config.generic` jobs to round-robin everything else.

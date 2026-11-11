@@ -31,7 +31,6 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostDetailHighlightsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -198,7 +197,7 @@ function PostDetailHighlightsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ POST_DETAIL_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={
 				PostDetailHighlightsRender as ComponentType< WidgetRenderProps< unknown > >
@@ -209,6 +208,7 @@ function PostDetailHighlightsDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< PostDetailHighlightsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PostDetailHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the threat count from the admin menu and admin bar when the host turns off threat notifications.

@@ -25,7 +25,7 @@ class Cookie_Consent {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.2.1';
 
 	/**
 	 * CCPA page ID option name.
@@ -70,6 +70,13 @@ class Cookie_Consent {
 	private static $config = null;
 
 	/**
+	 * Whether init() is resolving its configuration (reentrancy guard).
+	 *
+	 * @var bool
+	 */
+	private static $resolving = false;
+
+	/**
 	 * Whether the required footer legal links were injected into a footer
 	 * navigation block (Block Hooks) for the current rendered response.
 	 *
@@ -82,29 +89,44 @@ class Cookie_Consent {
 	private static $footer_links_injected = false;
 
 	/**
-	 * Initialize the package. Idempotent; safe to call multiple times.
+	 * Initialize the package. Safe to call multiple times.
 	 *
 	 * Public entry point a consumer calls to activate cookie consent. Resolves
 	 * and stashes the configuration, bails entirely when `enabled` is false, and
 	 * otherwise registers each hook slice only when its `features.*` toggle is on.
 	 *
-	 * The first call latches, including when `enabled` is false: a disabled init is a
-	 * sticky no-op, so a later caller cannot re-enable the feature within the same
-	 * request. Only deactivate() clears the latch.
+	 * The first enabled call latches until deactivate(); a disabled call does not latch,
+	 * and a nested call from the config filter returns early.
 	 *
 	 * @param array $config Partial consumer config, resolved via Config_Schema.
 	 */
 	public static function init( array $config = array() ) {
-		if ( self::$initialized ) {
+		if ( self::$initialized || self::$resolving ) {
 			return;
 		}
-		self::$initialized = true;
-		$resolved          = self::resolve_config( $config );
-		self::$config      = $resolved;
+		$resolved        = array();
+		self::$resolving = true;
+		try {
+			$resolved = self::resolve_config( $config );
+		} finally {
+			self::$resolving = false;
+		}
+		self::$config = $resolved;
+
 		if ( empty( $resolved['enabled'] ) ) {
 			return;
 		}
 
+		self::$initialized = true;
+		self::register_runtime_hooks( $resolved );
+	}
+
+	/**
+	 * Register the runtime hooks of each enabled `features.*` toggle.
+	 *
+	 * @param array $resolved Resolved configuration with `enabled` true.
+	 */
+	private static function register_runtime_hooks( array $resolved ) {
 		$features = $resolved['features'];
 
 		// Gate each shared frontend resource on every feature that needs it, not on the
@@ -182,15 +204,15 @@ class Cookie_Consent {
 	 * @since 0.1.0
 	 */
 	public static function deactivate() {
-		// These mirror the full set of hooks init() can register across every
+		// These mirror the full set of hooks register_runtime_hooks() can add across every
 		// features.* toggle, and matter only when a consumer deactivates within
-		// the same request (e.g. a runtime toggle). Removing a hook that a gated
-		// init() never added is a harmless no-op, so this list stays unconditional
+		// the same request (e.g. a runtime toggle). Removing a hook that an off
+		// toggle never added is a harmless no-op, so this list stays unconditional
 		// rather than re-deriving which toggles were on. The standard
 		// register_deactivation_hook path runs in a separate admin request where
 		// these hooks never fire, so the durable cleanup is the cron unschedule and
-		// setting unregister below. Keep this list in sync with init() whenever a
-		// hook is added there.
+		// setting unregister below. Keep this list in sync with
+		// register_runtime_hooks() whenever a hook is added there.
 		remove_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		remove_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
 		remove_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );

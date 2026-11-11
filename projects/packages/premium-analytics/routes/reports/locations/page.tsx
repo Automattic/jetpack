@@ -2,15 +2,16 @@
  * External dependencies
  */
 import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { Icon, type View } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	LOCATIONS_GEO_MODES,
 	ReportLocationsMap,
 	ReportPageLayout,
 	ReportErrorState,
-	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
 	LockedPage,
@@ -18,12 +19,14 @@ import {
 	supportsLocationsCountryFilter,
 	type LocationsGeoRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
@@ -35,7 +38,6 @@ import {
 	type LocationRow,
 	type ReportLocationsTabId,
 } from './config';
-import type { View } from '@jetpack-premium-analytics/externals';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
@@ -162,8 +164,9 @@ export default function LocationsReportPage(): JSX.Element {
 	const showMap = !! countryFilter || records.table.rows.length > 0 || records.table.isLoading;
 
 	return (
-		<ReportPageShell
-			visual={ <StatsPageIcon /> }
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				tabLocked ? undefined : (
@@ -214,6 +217,6 @@ export default function LocationsReportPage(): JSX.Element {
 					</ReportErrorState>
 				) }
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }

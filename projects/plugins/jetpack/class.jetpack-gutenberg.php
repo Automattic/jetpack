@@ -15,6 +15,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Plugin\Unavailable_Blocks;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -443,7 +444,7 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg array( 'publicize', 'markdown' )
 	 */
 	public static function get_available_extensions( $allowed_extensions = null ) {
-		$exclusions         = get_option( 'jetpack_excluded_extensions', array() );
+		$exclusions         = self::get_excluded_extensions();
 		$allowed_extensions = $allowed_extensions === null ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
 
 		// Avoid errors if option data is not as expected.
@@ -452,6 +453,20 @@ class Jetpack_Gutenberg {
 		}
 
 		return array_diff( $allowed_extensions, $exclusions );
+	}
+
+	/**
+	 * Returns the extensions a site has excluded via the `jetpack_excluded_extensions` option.
+	 *
+	 * @return mixed The stored option value, or an empty array when none is set.
+	 */
+	private static function get_excluded_extensions() {
+		// Without a persistent object cache, a missing option costs a query on every request, so store the empty default.
+		if ( ! wp_using_ext_object_cache() ) {
+			return Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_excluded_extensions', array() );
+		}
+
+		return get_option( 'jetpack_excluded_extensions', array() );
 	}
 
 	/**
@@ -899,9 +914,15 @@ class Jetpack_Gutenberg {
 			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 		}
 		// AI Assistant
-		$ai_assistant_state = array(
-			'is-enabled'     => Jetpack_AI_Settings::is_ai_enabled(),
-			'is-seo-enabled' => Jetpack_AI_Settings::is_ai_seo_enabled(),
+		// The SEO package registers the setting for saving once it starts; see the seo-enhancer store.
+		// Not `Initializer::is_available()`: WordPress.com may not start it on every site the plan allows.
+		$is_seo_auto_enhance_switchable = apply_filters( 'ai_seo_enhancer_enabled', true )
+			&& did_action( 'jetpack_seo_init' ) > 0;
+		$ai_assistant_state             = array(
+			'is-enabled'                     => Jetpack_AI_Settings::is_ai_enabled(),
+			'is-seo-enabled'                 => Jetpack_AI_Settings::is_ai_seo_enabled(),
+			'is-seo-auto-enhance-switchable' => $is_seo_auto_enhance_switchable,
+			'is-seo-auto-enhance-enabled'    => $is_seo_auto_enhance_switchable && (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 		);
 
 		$screen_base = null;
@@ -916,9 +937,14 @@ class Jetpack_Gutenberg {
 			$modules              = $module_list_endpoint->get_modules();
 		}
 
+		// WordPress.com Simple can load this class without the plugin's autoloaded classes.
+		$available_blocks = class_exists( Unavailable_Blocks::class )
+			? Unavailable_Blocks::describe_inactive_modules( self::get_availability() )
+			: self::get_availability();
+
 		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
-			'available_blocks' => self::get_availability(),
+			'available_blocks' => $available_blocks,
 			'blocks_variation' => $blocks_variation,
 			'modules'          => $modules,
 			'jetpack'          => array(

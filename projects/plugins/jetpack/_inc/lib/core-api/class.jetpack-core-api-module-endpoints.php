@@ -177,7 +177,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
-					'message' => esc_html__( 'The requested Jetpack module was deactivated.', 'jetpack' ),
+					'message' => esc_html( trim( __( 'The requested Jetpack module was deactivated.', 'jetpack' ) . ' ' . Jetpack::get_module_deactivation_note( $module_slug ) ) ),
 				)
 			);
 		}
@@ -790,10 +790,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'jetpack_protect_global_whitelist':
+					_deprecated_argument( 'jetpack/v4/settings', 'jetpack-16.5', esc_html__( 'The jetpack_protect_global_whitelist setting is deprecated. Use jetpack_waf_ip_allow_list instead.', 'jetpack' ) );
 					$updated = Brute_Force_Protection_Shared_Functions::save_allow_list( explode( PHP_EOL, str_replace( array( ' ', ',' ), array( '', "\n" ), $value ) ) );
 
 					if ( is_wp_error( $updated ) ) {
-						$error = $updated->get_error_message();
+						$error   = $updated->get_error_message();
+						$updated = false;
 					}
 					break;
 

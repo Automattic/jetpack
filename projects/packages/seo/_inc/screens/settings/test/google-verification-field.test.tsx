@@ -16,11 +16,18 @@ const googleVerifyDefaults = {
 	isOwner: false,
 	searchConsoleUrl: '',
 	isVerifying: false,
+	isConfirming: false,
 	autoVerify: jest.fn(),
 };
 
 const renderField = ( value = '' ) =>
-	render( <GoogleVerificationField value={ value } onChange={ jest.fn() } /> );
+	render(
+		<GoogleVerificationField
+			value={ value }
+			onChange={ jest.fn() }
+			saveCode={ jest.fn< ( code: string ) => Promise< void > >() }
+		/>
+	);
 
 describe( 'GoogleVerificationField', () => {
 	beforeEach( () => {
@@ -50,6 +57,26 @@ describe( 'GoogleVerificationField', () => {
 		expect( screen.getByRole( 'button', { name: /Verify with Google/ } ) ).toBeInTheDocument();
 	} );
 
+	const manualCode = () => screen.getByRole( 'textbox', { name: /Google verification code/ } );
+
+	it( 'keeps the manual code editable while the popup is open, so a blocked popup leaves a way in', () => {
+		mockUseGoogleVerify.mockReturnValue( { ...googleVerifyDefaults, isVerifying: true } );
+		renderField( 'google-code' );
+
+		expect( manualCode() ).toBeEnabled();
+	} );
+
+	it( 'locks the manual code once the popup returns, so a typed code cannot replace the token', () => {
+		mockUseGoogleVerify.mockReturnValue( {
+			...googleVerifyDefaults,
+			isVerifying: true,
+			isConfirming: true,
+		} );
+		renderField( 'google-code' );
+
+		expect( manualCode() ).toBeDisabled();
+	} );
+
 	it( 'reveals the manual field and removes the manual button', () => {
 		renderField();
 
@@ -69,7 +96,13 @@ describe( 'GoogleVerificationField', () => {
 		const { rerender } = renderField( 'google-code' );
 
 		// Simulate the controlled parent clearing the value mid-edit.
-		rerender( <GoogleVerificationField value="" onChange={ jest.fn() } /> );
+		rerender(
+			<GoogleVerificationField
+				value=""
+				onChange={ jest.fn() }
+				saveCode={ jest.fn< ( code: string ) => Promise< void > >() }
+			/>
+		);
 
 		expect(
 			screen.getByRole( 'textbox', { name: /Google verification code/ } )

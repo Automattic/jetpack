@@ -1,5 +1,3 @@
-[![Reports status](https://img.shields.io/website?down_color=grey&down_message=Dashboard%20offline&style=for-the-badge&label=E2E%20TEST%20REPORTS&up_color=green&up_message=see%20dashboard&url=https%3A%2F%2Fautomattic.github.io%2Fjetpack-e2e-reports%2F%23%2F)](https://automattic.github.io/jetpack-e2e-reports)
-
 # Jetpack End-to-End tests
 
 Automated end-to-end acceptance tests for the Jetpack plugin.
@@ -16,7 +14,6 @@ These tests are using the [e2e commons package](../../../../../tools/e2e-commons
 - [Running tests](#running-tests)
 - [Tests Architecture](#tests-architecture)
 - [CI configuration](#ci-configuration)
-- [Test reports](#test-reports)
 
 ## Pre-requisites
 
@@ -107,6 +104,7 @@ For more options and detailed documentation, see [Playwright's official docs](ht
 Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test.
 
 Some specs require an active Jetpack connection. The connection is established automatically through global Playwright projects configured as prerequisites:
+
 - `global authentication` - Authenticates both local WordPress user and WordPress.com user
 - `connection setup` - Establishes Jetpack connection between local site and WordPress.com
 
@@ -117,6 +115,7 @@ These global projects run once before all tests and create a shared state that s
 The tests should extend the base test fixture from e2e-commons (`tools/e2e-commons/fixtures/base-test.ts`) which provides pre-configured utilities for Jetpack testing. This base fixture extends Playwright's test with WordPress-specific utilities from `@wordpress/e2e-test-utils-playwright` and adds Jetpack-specific enhancements.
 
 Available fixtures include:
+
 - `admin` - WordPress admin page utilities (inherited from WordPress test utils)
 - `editor` - EditorPage instance for block editor interactions
 - `sidebar` - Sidebar instance for WordPress admin navigation
@@ -124,6 +123,7 @@ Available fixtures include:
 - `pageUtils`, `requestUtils` - Additional utilities inherited from WordPress test utils
 
 Import the test fixture in your specs:
+
 ```javascript
 import { test } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
 ```
@@ -135,15 +135,33 @@ The tests use the `PageObject` pattern to separate test logic from implementatio
 **Important:** Avoid over-abstraction. Only create page objects for pages that are used across multiple tests. For single-use interactions, write the logic directly in your test spec to keep things simple and maintainable. Use your best judgment to balance reusability with simplicity.
 
 Common pages are already available through fixtures:
+
 - `admin` - WordPress admin page utilities
 - `editor` - Block editor interactions
 - `sidebar` - WordPress admin sidebar navigation
+
+## Admin shell regression suite
+
+`specs/admin-shell` is the acceptance suite for in-shell navigation (JETPACK-3406). It has its own config, `playwright.admin-shell.config.ts`, so it can run against any site with the shell on, without the Docker environment or the encrypted config. It runs in Chromium, Firefox and WebKit.
+
+```bash
+ADMIN_SHELL_URL=https://example.jurassic.ninja \
+ADMIN_SHELL_USER=demo ADMIN_SHELL_PASSWORD=... \
+ADMIN_SHELL_OFF_URL=https://other.jurassic.ninja \
+ADMIN_SHELL_OFF_USER=demo ADMIN_SHELL_OFF_PASSWORD=... \
+pnpm test:admin-shell
+```
+
+- `ADMIN_SHELL_URL` (default `http://localhost:8889`) must have `jetpack_admin_shell_enabled` on.
+- `ADMIN_SHELL_OFF_URL` is optional: a site with the shell off, for the `shell off` smoke projects. Without it they are skipped.
+- `ADMIN_SHELL_STANDALONE_URL` (with `ADMIN_SHELL_STANDALONE_USER` / `ADMIN_SHELL_STANDALONE_PASSWORD`) is optional: a site with the shell on and only standalone plugins, such as Backup, Social and VideoPress, without the Jetpack plugin (JETPACK-3419). It adds the `standalone` projects; without it there are none. Run it again after installing standalone plugins built against different Admin UI versions.
+- Add `--project='shell on: chromium'` to run one browser.
+
+Tests read shell state only through `readShell()` in `helpers/admin-shell-helper.ts`, which uses the `data-shell-page` / `data-shell-state` hooks. A document without the shell (shell off, or `?jetpack_admin_shell=0`) never has those hooks, so `readShell()` reads it from the `jetpack_page_<slug>` body class and that page's mount element; keep that path after the rewrite. `switchTo()` fails if a switch reloads the document, so tests that expect a full load click `menuLink()` instead.
+
+Known bugs are `test.fail()` with a reason, so a fix shows up as an unexpected pass: remove the marker in the same PR. Intermittent bugs can't use `test.fail()`. Wrap those tests in `intermittentSpikeBug()`, which adds the `intermittent spike bug` annotation and the only retries in the config, so they report as flaky and anything else that fails intermittently still fails.
 
 ## CI Configuration
 
 Both local runs and CI are sharing the same Docker based configuration.
 See [workflows prefixed with e2e](../../../../../.github/workflows) for CI configuration.
-
-## Test reports
-
-Test reports are generated for every CI run and stored in [jetpack-e2e-reports](https://github.com/Automattic/jetpack-e2e-reports) repo. A dashboard displaying information about stored reports can be accessed at this link: [https://automattic.github.io/jetpack-e2e-reports](https://automattic.github.io/jetpack-e2e-reports)

@@ -6,13 +6,14 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
+import { getRegistrationErrorSummary, useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useNotices from '../../hooks/use-notices';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
+import Notice from '../notice';
+import styles from './styles.module.scss';
 
 /**
  * Product Detail component.
@@ -20,10 +21,9 @@ import useProtectData from '../../hooks/use-protect-data';
  * @return {object}                ConnectedPricingTable react component.
  */
 const ConnectedPricingTable = () => {
-	const { showErrorNotice } = useNotices();
 	const { recordEvent } = useAnalyticsTracks();
 	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
-	const { handleRegisterSite, registrationError } = useConnection( {
+	const { handleRegisterSite, registrationError, isOfflineMode } = useConnection( {
 		from: 'protect',
 		skipUserConnection: true,
 		redirectUri: 'admin.php?page=jetpack-protect',
@@ -33,6 +33,14 @@ const ConnectedPricingTable = () => {
 	// This flag is used to show the related actions as "busy" all the way until the post-connection/checkout redirect is complete.
 	const [ hasConnectionStarted, setHasConnectionStarted ] = useState( false );
 	const [ hasCheckoutStarted, setHasCheckoutStarted ] = useState( false );
+
+	// Below the large breakpoint the table stacks, so the notice can be off screen.
+	const noticeRef = useRef( null );
+	useEffect( () => {
+		if ( registrationError ) {
+			noticeRef.current?.scrollIntoView?.( { block: 'nearest' } );
+		}
+	}, [ registrationError ] );
 
 	// Access paid protect product data
 	const { jetpackScan } = useProtectData();
@@ -57,10 +65,10 @@ const ConnectedPricingTable = () => {
 		try {
 			await handleRegisterSite();
 		} catch {
-			showErrorNotice( __( 'Could not connect site.', 'jetpack-protect' ) );
+			// `registrationError` drives the notice above the table.
 			setHasConnectionStarted( false );
 		}
-	}, [ handleRegisterSite, recordEvent, showErrorNotice ] );
+	}, [ handleRegisterSite, recordEvent ] );
 
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
@@ -72,10 +80,10 @@ const ConnectedPricingTable = () => {
 				name: __( 'Daily automated scans', 'jetpack-protect' ),
 			},
 			{
-				name: __( 'Web Application Firewall', 'jetpack-protect' ),
+				name: __( 'Firewall', 'jetpack-protect' ),
 			},
 			{
-				name: __( 'Brute force protection', 'jetpack-protect' ),
+				name: __( 'Login protection', 'jetpack-protect' ),
 			},
 			{
 				name: __( 'Account protection', 'jetpack-protect' ),
@@ -97,6 +105,17 @@ const ConnectedPricingTable = () => {
 
 	return (
 		<>
+			{ registrationError && (
+				<div ref={ noticeRef } className={ styles.notice } role="alert">
+					<Notice
+						type="error"
+						message={
+							getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
+							__( 'An error occurred. Please try again.', 'jetpack-protect' )
+						}
+					/>
+				</div>
+			) }
 			<PricingTable { ...args }>
 				<PricingTableColumn primary>
 					<PricingTableHeader>
@@ -151,11 +170,6 @@ const ConnectedPricingTable = () => {
 							onClick={ getProtectFree }
 							isLoading={ hasConnectionStarted }
 							disabled={ isPlanLoading || hasConnectionStarted }
-							error={
-								registrationError
-									? __( 'An error occurred. Please try again.', 'jetpack-protect' )
-									: null
-							}
 						>
 							{ __( 'Start for free', 'jetpack-protect' ) }
 						</Button>

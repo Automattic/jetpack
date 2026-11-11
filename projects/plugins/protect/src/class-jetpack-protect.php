@@ -15,13 +15,16 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Monitor\Monitor;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Credentials;
+use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Onboarding;
 use Automattic\Jetpack\Protect\REST_Controller;
 use Automattic\Jetpack\Protect\Scan_History;
@@ -51,6 +54,8 @@ class Jetpack_Protect {
 		2013, // JETPACK_SECURITY_REALTIME_MONTHLY.
 		2014, // JETPACK_COMPLETE.
 		2015, // JETPACK_COMPLETE_MONTHLY.
+		2025, // JETPACK_PRO_YEARLY.
+		2026, // JETPACK_PRO_BI_YEARLY.
 		2016, // JETPACK_SECURITY_TIER_1_YEARLY.
 		2017, // JETPACK_SECURITY_TIER_1_MONTHLY.
 		2019, // JETPACK_SECURITY_TIER_2_YEARLY.
@@ -66,11 +71,36 @@ class Jetpack_Protect {
 	const JETPACK_PROTECT_ACTIVATION_OPTION          = JETPACK_PROTECT_SLUG . '_activated';
 
 	/**
+	 * Modules a site owner turns on from the Protect page, rather than keeping them from the Jetpack plugin.
+	 *
+	 * @var string[]
+	 */
+	const OPT_IN_MODULES = array( 'sso', 'monitor' );
+
+	/**
+	 * The opt-in modules turned on without the Jetpack plugin.
+	 *
+	 * @var string
+	 */
+	const OPTED_IN_MODULES_OPTION = JETPACK_PROTECT_SLUG . '_opted_in_modules';
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
-		add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
+
+		Monitor::init();
+
+		/*
+		 * The shared dashboard has no site connection flow, so unconnected sites keep the plugin's setup app.
+		 * It also covers an older jetpack-protect package, loaded by another plugin, that lacks the dashboard.
+		 */
+		if ( class_exists( Dashboard::class ) && ( new Connection_Manager() )->is_connected() ) {
+			Dashboard::init( array( 'product' => 'protect' ) );
+		} else {
+			add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
+		}
 
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
@@ -103,6 +133,8 @@ class Jetpack_Protect {
 							'get_plugins'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
 							'get_themes'        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 							'wp_version'        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+							// Tells WordPress.com which modules, such as Monitor, are on.
+							'active_modules'    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_active_modules' ),
 						),
 						'jetpack_sync_options_contentless' => array(),
 						'jetpack_sync_options_whitelist'   => array(
@@ -120,6 +152,11 @@ class Jetpack_Protect {
 
 				// Account protection package.
 				$config->ensure( 'account_protection' );
+
+				// Fallback: an older connection package loaded by another plugin may predate init_standalone().
+				if ( method_exists( SSO::class, 'init_standalone' ) ) {
+					SSO::init_standalone();
+				}
 			},
 			1
 		);
@@ -127,6 +164,79 @@ class Jetpack_Protect {
 		add_filter( 'jetpack_connection_user_has_license', array( $this, 'jetpack_check_user_licenses' ), 10, 3 );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'protect_filter_available_modules' ), 10, 1 );
+
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_opt_in_modules' ) );
+		add_action( 'jetpack_pre_activate_module', array( __CLASS__, 'drop_leftover_opt_in_module' ) );
+		add_action( 'jetpack_activate_module', array( __CLASS__, 'record_opt_in' ) );
+		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'forget_opt_in' ) );
+	}
+
+	/**
+	 * Without the Jetpack plugin, count an opt-in module as on only if it was turned on without the Jetpack plugin.
+	 *
+	 * The saved list is left alone, so the Jetpack plugin gets its own state back if it returns.
+	 *
+	 * @param string[] $active Active module slugs.
+	 * @return string[]
+	 */
+	public static function filter_opt_in_modules( $active ) {
+		if ( class_exists( 'Jetpack', false ) ) {
+			return $active;
+		}
+		$stale = array_diff( self::OPT_IN_MODULES, self::get_opted_in_modules() );
+		return array_values( array_diff( (array) $active, $stale ) );
+	}
+
+	/**
+	 * Without the Jetpack plugin, drop a leftover saved entry before an opt-in module is turned on, so activation runs its hooks.
+	 *
+	 * @param string $module Module slug.
+	 * @return void
+	 */
+	public static function drop_leftover_opt_in_module( $module ) {
+		if ( class_exists( 'Jetpack', false ) || ! in_array( $module, self::OPT_IN_MODULES, true ) || in_array( $module, self::get_opted_in_modules(), true ) || ! ( new Modules() )->is_module( $module ) ) {
+			return;
+		}
+		$saved = Jetpack_Options::get_option( 'active_modules', array() );
+		if ( is_array( $saved ) && in_array( $module, $saved, true ) ) {
+			Jetpack_Options::update_option( 'active_modules', array_values( array_diff( $saved, array( $module ) ) ) );
+		}
+	}
+
+	/**
+	 * Remember that an opt-in module was turned on without the Jetpack plugin.
+	 *
+	 * @param string $module Module slug.
+	 * @return void
+	 */
+	public static function record_opt_in( $module ) {
+		if ( class_exists( 'Jetpack', false ) || ! in_array( $module, self::OPT_IN_MODULES, true ) || in_array( $module, self::get_opted_in_modules(), true ) ) {
+			return;
+		}
+		update_option( self::OPTED_IN_MODULES_OPTION, array_merge( self::get_opted_in_modules(), array( $module ) ) );
+	}
+
+	/**
+	 * Forget an opt-in module once it is turned off; before that, the filter would hide it from the deactivation.
+	 *
+	 * @param string $module Module slug.
+	 * @return void
+	 */
+	public static function forget_opt_in( $module ) {
+		$opted_in = self::get_opted_in_modules();
+		if ( in_array( $module, $opted_in, true ) ) {
+			update_option( self::OPTED_IN_MODULES_OPTION, array_values( array_diff( $opted_in, array( $module ) ) ) );
+		}
+	}
+
+	/**
+	 * The opt-in modules turned on without the Jetpack plugin.
+	 *
+	 * @return string[]
+	 */
+	private static function get_opted_in_modules() {
+		$opted_in = get_option( self::OPTED_IN_MODULES_OPTION, array() );
+		return is_array( $opted_in ) ? $opted_in : array();
 	}
 
 	/**
@@ -155,7 +265,7 @@ class Jetpack_Protect {
 		// Only report the threat count to users who can actually reach the Protect
 		// menu (added below with the 'manage_options' cap). Otherwise the central
 		// menu-badges total would include threats the current user can't see.
-		if ( current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'manage_options' ) && self::should_notify_threats() ) {
 			\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
 			\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
 				'jetpack-protect',
@@ -254,7 +364,8 @@ class Jetpack_Protect {
 			'accountProtection'  => ( new Account_Protection_Settings() )->get(),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
-				'currentIp'           => IP_Utils::get_ip(),
+				// Don't suggest the fallback address when the configured trusted header can't be resolved.
+				'currentIp'           => method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ? '' : IP_Utils::get_ip(),
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
 				'isEnabled'           => Waf_Runner::is_enabled(),
@@ -329,24 +440,35 @@ class Jetpack_Protect {
 	}
 
 	/**
+	 * Whether the host lets threats be announced in the menu and the admin bar.
+	 *
+	 * @return bool
+	 */
+	private static function should_notify_threats() {
+		return ! method_exists( Status::class, 'should_notify_threats' ) || Status::should_notify_threats();
+	}
+
+	/**
 	 * Create a shortcut on Admin Bar to show the total of threats found.
 	 *
 	 * @param object $wp_admin_bar The Admin Bar object.
 	 * @return void
 	 */
 	public function admin_bar( $wp_admin_bar ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! self::should_notify_threats() ) {
 			return;
 		}
 
 		$total = Status::get_total_threats();
 
-		if ( $total > 0 ) {
+		// On the Protect page the app updates the count, so a hidden node is kept for a later scan to reveal.
+		if ( $total > 0 || self::is_protect_page() ) {
 			$args = array(
 				'id'    => 'jetpack-protect',
 				'title' => '<span class="ab-icon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
 				'href'  => admin_url( 'admin.php?page=jetpack-protect' ),
 				'meta'  => array(
+					'class' => $total > 0 ? '' : 'hidden',
 					// translators: %d is the number of threats found.
 					'title' => sprintf( _n( '%d threat found by Jetpack Protect', '%d threats found by Jetpack Protect', $total, 'jetpack-protect' ), $total ),
 				),
@@ -354,6 +476,22 @@ class Jetpack_Protect {
 
 			$wp_admin_bar->add_node( $args );
 		}
+	}
+
+	/**
+	 * Whether the request is for the Protect page in wp-admin.
+	 *
+	 * @return bool
+	 */
+	private static function is_protect_page() {
+		if ( ! is_admin() ) {
+			return false;
+		}
+		if ( method_exists( Status::class, 'is_protect_page' ) ) {
+			return Status::is_protect_page();
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only compared against the page slug.
+		return isset( $_GET['page'] ) && 'jetpack-protect' === $_GET['page'];
 	}
 
 	/**

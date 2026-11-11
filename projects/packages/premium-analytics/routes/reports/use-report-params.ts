@@ -5,6 +5,7 @@ import {
 	normalizeReportParams,
 	useReportScope,
 	withoutComparison,
+	useScopeLockedIntervals,
 } from '@jetpack-premium-analytics/data';
 import { useSearch } from '@wordpress/route';
 import { useMemo } from 'react';
@@ -25,12 +26,15 @@ const ROUTE_FROM = route.path;
 export function useReportParams() {
 	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
 	const { offersComparison } = useReportScope();
+	const lockedIntervals = useScopeLockedIntervals();
 
 	return useMemo( () => {
 		const params = normalizeReportParams(
-			search as Parameters< typeof normalizeReportParams >[ 0 ]
+			search as Parameters< typeof normalizeReportParams >[ 0 ],
+			undefined,
+			{ lockedIntervals }
 		);
 
 		return offersComparison ? params : withoutComparison( params );
-	}, [ search, offersComparison ] );
+	}, [ search, offersComparison, lockedIntervals ] );
 }

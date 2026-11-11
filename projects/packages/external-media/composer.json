@@ -26,6 +26,10 @@
 	"scripts": {
 		"build-development": "pnpm run build-js",
 		"build-production": "pnpm run build-production-js",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		],
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
@@ -48,7 +52,6 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-external-media/compare/v${old}...v${new}"
 		},
-		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "0.9.x-dev"
 		},
