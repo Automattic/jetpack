@@ -5,6 +5,7 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subsc
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/paywall/paywall.php';
+require_once JETPACK__PLUGIN_DIR . 'tests/php/extensions/blocks/premium-content/class-test-jetpack-token-subscription-service.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
