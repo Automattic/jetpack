@@ -14,6 +14,7 @@ export {
 } from './date-filters-panel';
 export { DateIntervalDropdown, getIntervalLabel } from './date-interval-dropdown';
 export { DatePeriodDropdown } from './date-period-dropdown';
+export { DateZoomOut, type ZoomOutTarget } from './date-zoom-out';
 export type { DateControlTriggerProps } from './utils/date-control-trigger';
 export { PeriodChangeStatus } from './period-change-status';
 export { DateYearFilter, type DateYearFilterProps } from './date-year-filter';

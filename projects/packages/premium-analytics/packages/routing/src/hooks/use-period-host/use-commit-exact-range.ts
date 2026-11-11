@@ -18,7 +18,12 @@ type ExactRangeSearch = ReportQuerySearchParams & { section?: string };
 export type CommitExactRange = (
 	surface: string,
 	range: Required< DateRange >,
-	options?: { opensSection?: boolean; lockedIntervals?: readonly LockableInterval[] }
+	options?: {
+		opensSection?: boolean;
+		lockedIntervals?: readonly LockableInterval[];
+		/** Keep the window being left in the URL, for the date control to zoom back out to. */
+		withZoomOut?: boolean;
+	}
 ) => void;
 
 /**
@@ -32,11 +37,12 @@ export function useCommitExactRange(): CommitExactRange {
 	const raisePeriodChange = useRaisePeriodChange();
 
 	return useCallback(
-		( surface, range, { opensSection = false, lockedIntervals } = {} ) => {
+		( surface, range, { opensSection = false, lockedIntervals, withZoomOut = false } = {} ) => {
 			const patch = buildRangePatch( {
 				nextRange: range,
 				nextPresetId: PRESET_CUSTOM,
 				exactRange: true,
+				zoomedInFrom: withZoomOut ? effective : undefined,
 				effective,
 				lockedIntervals,
 			} );

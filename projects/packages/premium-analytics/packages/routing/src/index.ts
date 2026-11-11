@@ -14,6 +14,7 @@ export {
 	pickReportNavigationParams,
 	pickReportOriginWindowParams,
 	toReportOriginWindowParams,
+	clearZoomOutParams,
 	hasPrimaryDateDraft,
 	buildDashboardLink,
 	buildReportLink,

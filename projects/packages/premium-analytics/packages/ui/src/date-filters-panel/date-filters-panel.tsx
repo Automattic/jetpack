@@ -22,6 +22,7 @@ import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DateLimitUpsell } from '../date-limit-upsell';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import { DatePeriodNavigation } from '../date-period-navigation';
+import { DateZoomOut, type ZoomOutTarget } from '../date-zoom-out';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import type { DateControlTriggerProps } from '../utils/date-control-trigger';
 
@@ -121,6 +122,12 @@ export type DateFiltersPanelProps = {
 	stepping?: DateStepping;
 
 	/**
+	 * The window a widget zoomed in from, offered as a zoom back out beside the
+	 * arrows. Left out, or while there is none, nothing is rendered.
+	 */
+	zoomOut?: ZoomOutTarget;
+
+	/**
 	 * Props for the date range popover.
 	 */
 	rangeControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
@@ -177,6 +184,7 @@ export function DateFiltersPanel( {
 	onComparisonChange,
 	onIntervalChange,
 	stepping,
+	zoomOut,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -279,6 +287,11 @@ export function DateFiltersPanel( {
 		[ disabled, stepping ]
 	);
 
+	const zoomOutControl = useMemo(
+		() => ( zoomOut ? <DateZoomOut { ...zoomOut } disabled={ disabled } /> : null ),
+		[ disabled, zoomOut ]
+	);
+
 	const intervalControl = useMemo(
 		() =>
 			withIntervalControl && intervalOptions && onIntervalChange ? (
@@ -308,6 +321,7 @@ export function DateFiltersPanel( {
 		<div className="date-filters-panel">
 			<Stack className="date-filters-panel__row" direction="row" gap="sm">
 				{ navigationControl }
+				{ zoomOutControl }
 
 				<BaseControl
 					className="date-filters-panel__primary"

@@ -94,6 +94,13 @@ describe( 'dateWindowForSectionSwitch', () => {
 				compare_preset: 'previous-period',
 			} ),
 		],
+		[
+			'free carries year to date it zoomed in from into Traffic',
+			FREE,
+			'traffic',
+			{ ...YEAR_TO_DATE, up_preset: 'year-to-date' },
+			expect.objectContaining( { preset: 'last-7-days', up_preset: undefined } ),
+		],
 		[ 'free carries yesterday into Traffic', FREE, 'traffic', YESTERDAY, undefined ],
 		[
 			'legacy basic carries a custom comparison into Traffic',
