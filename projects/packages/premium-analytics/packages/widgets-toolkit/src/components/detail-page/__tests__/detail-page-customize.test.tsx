@@ -1,7 +1,8 @@
 import analytics from '@automattic/jetpack-analytics';
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
-import { act, render, renderHook, screen } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
@@ -313,6 +314,34 @@ describe( 'detail-page-customize', () => {
 				/>
 			);
 			expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
+		} );
+
+		it( 'moves focus onto Customize after Reset to default, even once another popup has closed', async () => {
+			const user = userEvent.setup();
+			function Page() {
+				const [ isCustomizing, setIsCustomizing ] = useState( false );
+				return (
+					<DetailPageActions
+						isCustomizing={ isCustomizing }
+						onCustomize={ () => setIsCustomizing( true ) }
+						onReset={ () => setIsCustomizing( false ) }
+						editingActions={ <button>Cancel</button> }
+					/>
+				);
+			}
+			render( <Page /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			await expect( screen.findAllByRole( 'menuitem' ) ).resolves.not.toHaveLength( 0 );
+			await user.keyboard( '{Escape}' );
+			await user.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+			await user.click(
+				within( await screen.findByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Reset' } )
+			);
+
+			await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
+			expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toHaveFocus();
 		} );
 	} );
 } );

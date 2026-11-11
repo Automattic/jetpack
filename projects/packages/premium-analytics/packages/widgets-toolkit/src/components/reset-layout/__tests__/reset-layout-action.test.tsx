@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { ResetLayoutAction } from '../reset-layout-action';
 
 describe( 'ResetLayoutAction', () => {
-	it( 'asks before resetting, and Cancel changes nothing', async () => {
+	it( 'asks before resetting, and Cancel returns focus without resetting', async () => {
 		const user = userEvent.setup();
 		const onReset = jest.fn();
 		render( <ResetLayoutAction onReset={ onReset } /> );
@@ -16,6 +16,7 @@ describe( 'ResetLayoutAction', () => {
 
 		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 		expect( onReset ).not.toHaveBeenCalled();
+		expect( screen.getByRole( 'button', { name: 'Reset to default' } ) ).toHaveFocus();
 	} );
 
 	it( 'resets on confirmation and closes', async () => {

@@ -4,7 +4,7 @@
 import { IconButton } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { rotateLeft } from '@wordpress/icons';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -27,10 +27,14 @@ export function ResetLayoutAction( { onReset }: ResetLayoutActionProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const open = useCallback( () => setIsOpen( true ), [] );
 	const close = useCallback( () => setIsOpen( false ), [] );
+	const buttonRef = useRef< HTMLButtonElement >( null );
+	// A reset that unmounts this button leaves focus to the page, not to whichever popup Base UI saw last.
+	const returnFocus = useCallback( () => Boolean( buttonRef.current?.isConnected ), [] );
 
 	return (
 		<>
 			<IconButton
+				ref={ buttonRef }
 				icon={ rotateLeft }
 				label={ __( 'Reset to default', 'jetpack-premium-analytics-pkg' ) }
 				variant="minimal"
@@ -38,7 +42,9 @@ export function ResetLayoutAction( { onReset }: ResetLayoutActionProps ) {
 				size="compact"
 				onClick={ open }
 			/>
-			{ isOpen && <ResetLayoutDialog onConfirm={ onReset } onClose={ close } /> }
+			{ isOpen && (
+				<ResetLayoutDialog onConfirm={ onReset } onClose={ close } finalFocus={ returnFocus } />
+			) }
 		</>
 	);
 }
