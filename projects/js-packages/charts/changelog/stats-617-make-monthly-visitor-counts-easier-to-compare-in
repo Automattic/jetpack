@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Heatmap Chart: Color cells by their rank in equal-share buckets, and leave incomplete periods off the color scale with a hatched pattern.
