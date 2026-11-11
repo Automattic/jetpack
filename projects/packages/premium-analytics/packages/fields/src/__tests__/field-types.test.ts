@@ -45,6 +45,7 @@ describe( 'registerFieldTypes', () => {
 		expect( FIELD_TYPES.map( ( { name, baseType } ) => [ name, baseType ] ) ).toEqual( [
 			[ 'jpa/select', 'text' ],
 			[ 'jpa/toggle-group', 'text' ],
+			[ 'jpa/view-switcher', 'text' ],
 			[ 'jpa/array-checkbox', 'array' ],
 			[ 'jpa/report-params', 'text' ],
 		] );

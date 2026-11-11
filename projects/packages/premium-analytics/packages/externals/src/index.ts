@@ -89,6 +89,7 @@ export {
 	Notice,
 	Popover,
 	Progress,
+	RadioGroupControl,
 	RangeCalendar,
 	SearchableChipSelectControl,
 	SelectControl,

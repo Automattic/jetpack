@@ -17,7 +17,7 @@
 	"attributes": [
 		{
 			"id": "geoGranularity",
-			"type": "jpa/select",
+			"type": "jpa/view-switcher",
 			"label": "View by",
 			"relevance": "high",
 			"elements": [

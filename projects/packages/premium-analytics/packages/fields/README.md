@@ -52,12 +52,16 @@ Storybook and tests hand widget types to the dashboard without going through
 | -------------------- | -------------------- | --------- |
 | `jpa/select`         | `SelectField`        | `text`    |
 | `jpa/toggle-group`   | `ToggleGroupField`   | `text`    |
+| `jpa/view-switcher`  | `ViewSwitcherField`  | `text`    |
 | `jpa/array-checkbox` | `ArrayCheckboxField` | `array`   |
 
 `jpa/toggle-group` renders its `elements` as icon segments when every one
 carries an `icon`: an element, or a `jpa/<name>` reference the control resolves
 through `@jetpack-premium-analytics/icons`, the form a `widget.json` can carry.
 A reference the collection lacks drops that icon and the row falls back to text.
+
+`jpa/view-switcher` renders text segments inline in the widget header and a radio list once
+the header folds its controls into the "Widget controls" popover.
 
 ## Adding a field
 
