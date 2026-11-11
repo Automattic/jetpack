@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show the manual-install notice and disable the install buttons on product pricing pages when the site cannot install plugins.
