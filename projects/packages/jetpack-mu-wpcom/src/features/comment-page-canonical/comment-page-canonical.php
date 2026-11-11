@@ -30,4 +30,4 @@ function wpcom_comment_page_canonical_url( $canonical_url, $post ) {
 
 	return $canonical_url;
 }
-add_filter( 'get_canonical_url', 'wpcom_comment_page_canonical_url', 10, 2 );
+add_filter( 'get_canonical_url', 'wpcom_comment_page_canonical_url', 1, 2 );
