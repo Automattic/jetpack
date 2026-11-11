@@ -120,6 +120,17 @@ class Admin_Page {
 		}
 
 		self::load_wp_build_with_screen_alias();
+		self::register_page_data();
+	}
+
+	/**
+	 * Hook the app's initial state and, when the site allows tracking, its Tracks transport and context.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_page_data() {
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
 
 		// Without the context the client records nothing, so another script's Tracks transport can't send our events.
@@ -164,12 +175,8 @@ class Admin_Page {
 	 */
 	public static function load_as_admin_shell_guest() {
 		self::load_wp_build();
-		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
-
-		if ( self::can_use_analytics() ) {
-			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
-			add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_tracks_context' ) );
-		}
+		// The shell runs this hook only when it prints SEO's assets, so other pages skip the tracking check.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'register_page_data' ), 0 );
 	}
 
 	/**
