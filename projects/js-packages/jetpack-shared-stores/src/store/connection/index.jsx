@@ -16,9 +16,9 @@ import selectors from './selectors';
 import STORE_ID from './store-id';
 
 /**
- * The connection store id (`jetpack-connection`). Exposed for consumers that
- * already hold a registered store and only need the id; new code should prefer
- * the store descriptor returned by `initConnectionStore()`.
+ * The connection store id (`jetpack-connection`), kept for code that reads the store by id.
+ *
+ * @deprecated $$next-version$$ Call `initConnectionStore()` and select through the store descriptor it returns.
  */
 export const CONNECTION_STORE_ID = STORE_ID;
 
