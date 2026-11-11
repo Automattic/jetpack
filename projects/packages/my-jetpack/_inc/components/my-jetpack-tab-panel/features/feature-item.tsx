@@ -227,7 +227,13 @@ export function FeatureItem( {
 					) }
 
 					{ ! isSettling && statusLabel && (
-						<Badge id={ statusId } intent={ isActive && ! unavailable ? 'stable' : 'none' }>
+						<Badge
+							id={ statusId }
+							intent={
+								( state.needsSetup && 'medium' ) ||
+								( isActive && ! unavailable ? 'stable' : 'none' )
+							}
+						>
 							{ statusLabel }
 						</Badge>
 					) }

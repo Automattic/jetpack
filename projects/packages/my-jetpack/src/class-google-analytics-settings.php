@@ -53,14 +53,22 @@ class Google_Analytics_Settings {
 	/**
 	 * The Features row for Google Analytics.
 	 *
-	 * @return array{slug: string, name: string, description: string, active: bool}
+	 * @return array{slug: string, name: string, description: string, status: string}
 	 */
 	public static function get_entry() {
+		$settings = self::get();
+		if ( ! $settings['is_active'] ) {
+			$status = 'inactive';
+		} else {
+			// On without a Measurement ID, GA prints no tag.
+			$status = '' === $settings['code'] ? 'needs-setup' : 'active';
+		}
+
 		return array(
 			'slug'        => self::SLUG,
 			'name'        => __( 'Google Analytics', 'jetpack-my-jetpack' ),
 			'description' => __( 'Track your site with Google Analytics.', 'jetpack-my-jetpack' ),
-			'active'      => self::get()['is_active'],
+			'status'      => $status,
 		);
 	}
 

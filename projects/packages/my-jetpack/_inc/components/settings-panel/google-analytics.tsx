@@ -70,7 +70,7 @@ export function GoogleAnalyticsSettings() {
 		return <Spinner />;
 	}
 
-	const optionsDisabled = ! settings.is_active || isSaving;
+	const needsId = settings.is_active && ! settings.code;
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -94,6 +94,13 @@ export function GoogleAnalyticsSettings() {
 				disabled={ isSaving }
 				onCheckedChange={ onSwitch( 'is_active' ) }
 			/>
+			{ needsId && (
+				<Notice.Root intent="warning">
+					<Notice.Description>
+						{ __( 'Add a Measurement ID to start tracking.', 'jetpack-my-jetpack' ) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
 			<ValidatedInputControl
 				label={ __( 'Google Analytics Measurement ID', 'jetpack-my-jetpack' ) }
 				description={ __( 'Starts with G-, or UA- for older properties.', 'jetpack-my-jetpack' ) }
@@ -101,7 +108,8 @@ export function GoogleAnalyticsSettings() {
 				value={ code }
 				onChange={ onChange }
 				onBlur={ onBlur }
-				disabled={ optionsDisabled }
+				// Editable while off, so the ID can go in before tracking starts.
+				disabled={ isSaving }
 				customValidity={
 					isValid
 						? undefined
@@ -118,7 +126,7 @@ export function GoogleAnalyticsSettings() {
 					'jetpack-my-jetpack'
 				) }
 				checked={ settings.anonymize_ip }
-				disabled={ optionsDisabled }
+				disabled={ ! settings.is_active || isSaving }
 				onCheckedChange={ onSwitch( 'anonymize_ip' ) }
 			/>
 		</Stack>

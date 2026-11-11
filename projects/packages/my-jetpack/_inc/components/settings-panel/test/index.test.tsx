@@ -69,7 +69,9 @@ describe( 'SettingsPanel', () => {
 	it( 'opens a settings entry without waiting for the modules to load', () => {
 		mockSearch = { configure: 'entry-test' };
 		mockModules = { modules: {}, hasLoaded: false };
-		mockEntries = [ { slug: 'entry-test', name: 'Entry Test', description: '', active: false } ];
+		mockEntries = [
+			{ slug: 'entry-test', name: 'Entry Test', description: '', status: 'inactive' },
+		];
 		entrySettings[ 'entry-test' ] = () => <p>Entry settings</p>;
 		render( <SettingsPanel /> );
 

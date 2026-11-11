@@ -501,7 +501,8 @@ type MainFeatureSettingsEntry = {
 	slug: string;
 	name: string;
 	description: string;
-	active: boolean;
+	// On but missing what it needs to work, such as GA's Measurement ID, is `needs-setup`.
+	status: 'active' | 'inactive' | 'needs-setup';
 };
 
 type OfflineFeaturesSeed = {

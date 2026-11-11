@@ -82,9 +82,10 @@ export function getSettingsEntryFeatureState(
 			groups,
 			essential: false,
 		} as MainFeature,
-		status: entry.active ? 'active' : 'inactive',
+		status: entry.status === 'inactive' ? 'inactive' : 'active',
 		control: { kind: 'none' },
 		settingsEntry: true,
+		...( entry.status === 'needs-setup' && { needsSetup: true as const } ),
 	};
 }
 

@@ -41,10 +41,8 @@ export function useGoogleAnalyticsSettings() {
 					data: changes,
 				} );
 				queryClient.setQueryData( QUERY_KEY, saved );
-				// The Features row's status badge reads `is_active` from the features state.
-				if ( 'is_active' in changes ) {
-					queryClient.invalidateQueries( { queryKey: FEATURES_QUERY_KEY } );
-				}
+				// The Features row's badge depends on both the switch and the ID.
+				queryClient.invalidateQueries( { queryKey: FEATURES_QUERY_KEY } );
 				createSuccessNotice( __( 'Updated settings.', 'jetpack-my-jetpack' ), {
 					type: 'snackbar',
 				} );

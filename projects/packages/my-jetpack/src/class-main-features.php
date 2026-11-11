@@ -1030,7 +1030,7 @@ class Main_Features {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array[] Entries with `slug`, `name`, `description` and `active` keys.
+	 * @return array[] Entries with `slug`, `name`, `description` and `status` (`active`, `inactive` or `needs-setup`) keys.
 	 */
 	public static function get_settings_entries() {
 		return Google_Analytics_Settings::is_available() ? array( Google_Analytics_Settings::get_entry() ) : array();

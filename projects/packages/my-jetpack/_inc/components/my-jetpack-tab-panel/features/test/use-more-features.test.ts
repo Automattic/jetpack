@@ -1,3 +1,4 @@
+import { getFeatureStatusLabel } from '../module-availability';
 import { filterMoreFeatures, getModuleFeatureState, groupMoreFeatures } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 
@@ -79,7 +80,7 @@ describe( 'groupMoreFeatures', () => {
 			slug,
 			name,
 			description: '',
-			active: true,
+			status: 'needs-setup' as const,
 		} );
 		const withEntries = groupMoreFeatures(
 			features,
@@ -97,11 +98,14 @@ describe( 'groupMoreFeatures', () => {
 			[ 'Security', [ 'monitor', 'sso', 'waf' ] ],
 			[ 'Other', [ 'alpha', 'loose' ] ],
 		] );
+		// On but unfinished: filtered as active, badged as needing setup.
 		expect( withEntries[ 0 ].states[ 0 ] ).toMatchObject( {
 			status: 'active',
 			control: { kind: 'none' },
 			settingsEntry: true,
+			needsSetup: true,
 		} );
+		expect( getFeatureStatusLabel( withEntries[ 0 ].states[ 0 ] ) ).toBe( 'Needs setup' );
 	} );
 
 	it( 'leaves out a product\u2019s module even while a pre-release gate hides its card', () => {

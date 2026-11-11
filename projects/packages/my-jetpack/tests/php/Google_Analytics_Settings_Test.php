@@ -97,6 +97,45 @@ class Google_Analytics_Settings_Test extends BaseTestCase {
 		$this->assertSame( array(), Main_Features::get_settings_entries() );
 	}
 
+	/**
+	 * Switch and ID combinations, and the row status each gives.
+	 *
+	 * @return array
+	 */
+	public static function provide_entry_statuses() {
+		return array(
+			'off'           => array(
+				array(
+					'is_active' => false,
+					'code'      => 'G-X1',
+				),
+				'inactive',
+			),
+			'on with an ID' => array(
+				array(
+					'is_active' => true,
+					'code'      => 'G-X1',
+				),
+				'active',
+			),
+			'on without ID' => array( array( 'is_active' => true ), 'needs-setup' ),
+		);
+	}
+
+	/**
+	 * On without a Measurement ID prints no tag, so the row must not say Active.
+	 *
+	 * @param array  $stored   The stored settings.
+	 * @param string $expected The row status.
+	 * @dataProvider provide_entry_statuses
+	 */
+	#[DataProvider( 'provide_entry_statuses' )]
+	public function test_entry_status_needs_both_the_switch_and_an_id( $stored, $expected ) {
+		update_option( 'jetpack_wga', $stored );
+
+		$this->assertSame( $expected, Google_Analytics_Settings::get_entry()['status'] );
+	}
+
 	public function test_save_keeps_the_keys_the_panel_does_not_show_and_rejects_a_bad_id() {
 		update_option(
 			'jetpack_wga',
