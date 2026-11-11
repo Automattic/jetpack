@@ -149,6 +149,7 @@ class Local_Report_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'data_ranges' )]
 	public function test_serves_at_most_500_intervals( array $params, $core_pages, $status, $requests ) {
+		update_option( 'timezone_string', 'America/New_York' );
 		$this->core_pages = array();
 		for ( $page = 1; $page <= $core_pages; $page++ ) {
 			$this->core_pages[] = $this->core_page( $core_pages );
@@ -171,6 +172,16 @@ class Local_Report_Test extends BaseTestCase {
 			'500 days, every page'               => array( self::range( '2025-01-01', '2026-05-15' ), 5, 200, 5 ),
 			'501 days, refused before core'      => array( self::range( '2025-01-01', '2026-05-16' ), 6, 422, 0 ),
 			'core counts more than the estimate' => array( self::range( '2026-01-01', '2026-01-31' ), 6, 422, 1 ),
+			'500 hours across a DST change'      => array(
+				array(
+					'from'     => '2026-03-01T00:00:00',
+					'to'       => '2026-03-21T20:59:59',
+					'interval' => 'hour',
+				),
+				5,
+				200,
+				5,
+			),
 		);
 	}
 
@@ -205,10 +216,11 @@ class Local_Report_Test extends BaseTestCase {
 	 */
 	public static function data_dates() {
 		return array(
-			'no offset is store wall time' => array( '2026-10-01T00:00:00', '2026-10-31T23:59:59', '2026-10-01T00:00:00', '2026-10-31T23:59:59', '2026-10-01T00:00:00-04:00' ),
-			'a UTC offset is converted'    => array( '2026-10-01T00:00:00.000Z', '2026-10-31T23:59:59.999Z', '2026-09-30T20:00:00', '2026-10-31T19:59:59', '2026-09-30T20:00:00-04:00' ),
-			'another offset is converted'  => array( '2026-12-01T00:00:00+09:00', '2026-12-31T23:59:59+09:00', '2026-11-30T10:00:00', '2026-12-31T09:59:59', '2026-11-30T10:00:00-05:00' ),
-			'a bare date spans its day'    => array( '2026-10-01', '2026-10-31', '2026-10-01T00:00:00', '2026-10-31T23:59:59', '2026-10-01T00:00:00-04:00' ),
+			'no offset is store wall time'         => array( '2026-10-01T00:00:00', '2026-10-31T23:59:59', '2026-10-01T00:00:00-04:00', '2026-10-31T23:59:59-04:00', '2026-10-01T00:00:00-04:00' ),
+			'a UTC offset is converted'            => array( '2026-10-01T00:00:00.000Z', '2026-10-31T23:59:59.999Z', '2026-09-30T20:00:00-04:00', '2026-10-31T19:59:59-04:00', '2026-09-30T20:00:00-04:00' ),
+			'another offset is converted'          => array( '2026-12-01T00:00:00+09:00', '2026-12-31T23:59:59+09:00', '2026-11-30T10:00:00-05:00', '2026-12-31T09:59:59-05:00', '2026-11-30T10:00:00-05:00' ),
+			'a bare date spans its day'            => array( '2026-10-01', '2026-10-31', '2026-10-01T00:00:00-04:00', '2026-10-31T23:59:59-04:00', '2026-10-01T00:00:00-04:00' ),
+			'an offset in the repeated hour stays' => array( '2026-11-01T01:15:00-05:00', '2026-11-01T01:45:00-05:00', '2026-11-01T01:15:00-05:00', '2026-11-01T01:45:00-05:00', '2026-11-01T01:15:00-05:00' ),
 		);
 	}
 
@@ -272,7 +284,7 @@ class Local_Report_Test extends BaseTestCase {
 			'a date with a weekday'  => array( array( 'from' => 'Thu, 01 Oct 2026' ), 400, 'invalid_parameter' ),
 			'an unknown date type'   => array( array( 'date_type' => 'refunded' ), 400, 'invalid_parameter' ),
 			'a date type array'      => array( array( 'date_type' => array( 'paid' ) ), 400, 'invalid_parameter' ),
-			'an impossible offset'   => array( array( 'from' => '2026-10-01T00:00:00+99:99' ), 400, 'invalid_parameter' ),
+			'an impossible offset'   => array( array( 'from' => '2026-10-01T00:00:00+00:99' ), 400, 'invalid_parameter' ),
 		);
 	}
 
@@ -291,6 +303,25 @@ class Local_Report_Test extends BaseTestCase {
 			remove_action( 'rest_api_init', array( $this, 'register_core_route' ) );
 			$GLOBALS['wp_rest_server'] = new WP_REST_Server();
 			do_action( 'rest_api_init' );
+		} elseif ( 'an older WooCommerce' === $site ) {
+			add_action(
+				Report_Registry::REGISTER_ACTION,
+				static function ( Report_Registry $registry ) {
+					$registry->register_handler(
+						'orders.by_date',
+						'local',
+						// @phan-suppress-next-line PhanAccessClassInternal -- The test stands in for a WooCommerce without the controller.
+						new class() extends Core_Revenue_Stats_Handler {
+							/**
+							 * A controller this WooCommerce lacks.
+							 *
+							 * @var string
+							 */
+							protected $core_controller = 'Missing_Revenue_Stats_Controller';
+						}
+					);
+				}
+			);
 		} elseif ( 'a reader without the WooCommerce cap' === $site ) {
 			wp_set_current_user( $this->create_user( 'subscriber', 'manage_options' ) );
 		}
@@ -299,6 +330,7 @@ class Local_Report_Test extends BaseTestCase {
 
 		$this->assertSame( $status, $response->get_status() );
 		$this->assertSame( $code, $response->get_data()['code'] );
+		$this->assertSame( array(), $this->core_queries );
 	}
 
 	/**
@@ -308,6 +340,7 @@ class Local_Report_Test extends BaseTestCase {
 		return array(
 			'analytics off'                        => array( 'analytics off', 503, 'local_unavailable' ),
 			'no core route'                        => array( 'no core route', 503, 'local_unavailable' ),
+			'an older WooCommerce'                 => array( 'an older WooCommerce', 503, 'local_unavailable' ),
 			'a reader without the WooCommerce cap' => array( 'a reader without the WooCommerce cap', 403, 'woocommerce_rest_cannot_view' ),
 		);
 	}

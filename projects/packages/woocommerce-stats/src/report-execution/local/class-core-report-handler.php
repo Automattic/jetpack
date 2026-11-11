@@ -46,7 +46,7 @@ abstract class Core_Report_Handler implements Report_Handler, Report_Capability,
 	/**
 	 * Most intervals one request may ask for: every core page reruns the totals queries.
 	 */
-	const MAX_INTERVALS = 500;
+	private const MAX_INTERVALS = 500;
 
 	/**
 	 * Core REST route, such as `/wc-analytics/reports/revenue/stats`.
@@ -121,7 +121,11 @@ abstract class Core_Report_Handler implements Report_Handler, Report_Capability,
 			return $query;
 		}
 
-		$query += array(
+		$bounds = $query;
+		$query  = array(
+			'after'  => $bounds['after']->format( 'c' ),
+			'before' => $bounds['before']->format( 'c' ),
+		) + $query + array(
 			'orderby'  => 'date',
 			'order'    => 'asc',
 			'per_page' => self::PER_PAGE,
@@ -161,8 +165,8 @@ abstract class Core_Report_Handler implements Report_Handler, Report_Capability,
 		return array(
 			'data'    => array(
 				'summary' => $this->map_fields( $totals ) + array(
-					'date_start' => self::to_site_iso( $query['after'] ),
-					'date_end'   => self::to_site_iso( $query['before'] ),
+					'date_start' => $query['after'],
+					'date_end'   => $query['before'],
 				),
 				'data'    => $data,
 			),
@@ -172,7 +176,7 @@ abstract class Core_Report_Handler implements Report_Handler, Report_Capability,
 	}
 
 	/**
-	 * The request's range, interval and date type as core's params.
+	 * The request's range, interval and date type as core's params, the bounds as instants in the store's zone.
 	 *
 	 * @param Report_Request $request The request.
 	 * @return array|WP_Error `after`, `before`, `interval` and `date_type`, or a 400.
@@ -191,31 +195,28 @@ abstract class Core_Report_Handler implements Report_Handler, Report_Capability,
 		}
 
 		$date_type = $params['date_type'] ?? null;
-		$query     = array(
-			'after'     => self::to_wall_time( $params['from'], '00:00:00' ),
-			'before'    => self::to_wall_time( $params['to'], '23:59:59' ),
+		$values    = array(
+			'from'      => self::to_bound( $params['from'], '00:00:00' ),
+			'to'        => self::to_bound( $params['to'], '23:59:59' ),
 			'interval'  => in_array( $params['interval'], self::INTERVALS, true ) ? $params['interval'] : null,
 			'date_type' => null === $date_type ? self::get_store_date_type() : ( is_string( $date_type ) ? self::DATE_TYPES[ $date_type ] ?? null : null ),
 		);
-
-		$names = array(
-			'after'     => 'from',
-			'before'    => 'to',
-			'interval'  => 'interval',
-			'date_type' => 'date_type',
-		);
-		foreach ( $query as $key => $value ) {
-			if ( null === $value ) {
-				return new WP_Error(
-					'invalid_parameter',
-					/* translators: %s: query param name. */
-					sprintf( __( 'The report cannot apply this value of %s.', 'jetpack-woocommerce-stats-pkg' ), $names[ $key ] ),
-					array( 'status' => 400 )
-				);
-			}
+		$invalid   = array_search( null, $values, true );
+		if ( false !== $invalid ) {
+			return new WP_Error(
+				'invalid_parameter',
+				/* translators: %s: query param name. */
+				sprintf( __( 'The report cannot apply this value of %s.', 'jetpack-woocommerce-stats-pkg' ), $invalid ),
+				array( 'status' => 400 )
+			);
 		}
 
-		return $query;
+		return array(
+			'after'     => $values['from'],
+			'before'    => $values['to'],
+			'interval'  => $values['interval'],
+			'date_type' => $values['date_type'],
+		);
 	}
 
 	/**
@@ -230,38 +231,34 @@ abstract class Core_Report_Handler implements Report_Handler, Report_Capability,
 	}
 
 	/**
-	 * A report date as a bound in the store's zone, as WordPress.com reads it: a date without an
+	 * A report date as an instant in the store's zone, as WordPress.com reads it: a date without an
 	 * offset is store wall time, one with an offset is converted, and a bare date spans its day.
 	 *
 	 * @param mixed  $date `Y-m-d`, `Y-m-d H:i:s`, or ISO 8601 such as `2026-10-01T00:00:00.000Z`.
 	 * @param string $time Time to give a bare date.
-	 * @return string|null `Y-m-d\TH:i:s`, or null when the date does not parse.
+	 * @return DateTimeImmutable|null Null when the date does not parse.
 	 */
-	private static function to_wall_time( $date, $time ) {
-		if ( ! is_string( $date ) || ! preg_match( '/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}:\d{2})(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?$/D', $date, $parts ) ) {
+	private static function to_bound( $date, $time ) {
+		if ( ! is_string( $date ) || ! preg_match( '/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}:\d{2})(?:\.\d+)?)?(Z|[+-](?:0\d|1[0-4]):?[0-5]\d)?$/D', $date, $parts ) ) {
 			return null;
 		}
 
-		try {
-			$zone = empty( $parts[3] ) ? wp_timezone() : new DateTimeZone( $parts[3] );
-		} catch ( \Exception $e ) {
+		// Checked in UTC so that only a calendar rollover, such as February 30th, fails the round trip.
+		$wall = $parts[1] . 'T' . ( empty( $parts[2] ) ? $time : $parts[2] );
+		$utc  = DateTimeImmutable::createFromFormat( '!Y-m-d\TH:i:s', $wall, new DateTimeZone( 'UTC' ) );
+		if ( ! $utc || $utc->format( 'Y-m-d\TH:i:s' ) !== $wall ) {
 			return null;
 		}
 
-		$bound = $parts[1] . 'T' . ( empty( $parts[2] ) ? $time : $parts[2] );
-		// The round trip also rejects dates PHP would roll over, such as February 30th.
-		$parsed = DateTimeImmutable::createFromFormat( '!Y-m-d\TH:i:s', $bound, $zone );
-		if ( ! $parsed || $parsed->format( 'Y-m-d\TH:i:s' ) !== $bound ) {
-			return null;
-		}
+		$zone = empty( $parts[3] ) ? wp_timezone() : new DateTimeZone( $parts[3] );
 
-		return $parsed->setTimezone( wp_timezone() )->format( 'Y-m-d\TH:i:s' );
+		return ( new DateTimeImmutable( $wall, $zone ) )->setTimezone( wp_timezone() );
 	}
 
 	/**
-	 * A wall time in the store's zone as ISO 8601 with its offset, as WordPress.com writes dates.
+	 * A core interval date, store wall time, as ISO 8601 with its offset, as WordPress.com writes dates.
 	 *
-	 * @param string $wall_time `Y-m-d H:i:s` or `Y-m-d\TH:i:s`.
+	 * @param string $wall_time `Y-m-d H:i:s`.
 	 * @return string
 	 */
 	private static function to_site_iso( $wall_time ) {
@@ -294,14 +291,12 @@ abstract class Core_Report_Handler implements Report_Handler, Report_Capability,
 	 * How many buckets core returns for the range: partial first and last buckets count, and weeks
 	 * start on the site's `start_of_week`, as in core's TimeInterval.
 	 *
-	 * @param string $after    Start bound, `Y-m-d\TH:i:s`.
-	 * @param string $before   End bound, `Y-m-d\TH:i:s`.
-	 * @param string $interval One of `INTERVALS`.
+	 * @param DateTimeImmutable $start    Start bound, in the store's zone.
+	 * @param DateTimeImmutable $end      End bound, in the store's zone.
+	 * @param string            $interval One of `INTERVALS`.
 	 * @return int
 	 */
-	private static function count_intervals( $after, $before, $interval ) {
-		$start = new DateTimeImmutable( $after );
-		$end   = new DateTimeImmutable( $before );
+	private static function count_intervals( DateTimeImmutable $start, DateTimeImmutable $end, $interval ) {
 		if ( $end < $start ) {
 			return 0;
 		}
