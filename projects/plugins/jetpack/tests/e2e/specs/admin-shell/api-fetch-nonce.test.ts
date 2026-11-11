@@ -15,17 +15,23 @@ const TOURS = [
 	[ 'my-jetpack', FORMS, 'my-jetpack', FORMS ],
 ];
 
+type ApiFetchWindow = {
+	wp: {
+		apiFetch: ( ( options: { path: string } ) => Promise< unknown > ) & {
+			nonceMiddleware: { nonce: string };
+		};
+	};
+};
+
 /**
  * Make the page's nonce stale: the server refuses it, and accepts only what the refresh hands out.
  *
  * @param page - Page under test.
- * @return How many nonce refreshes the page made.
+ * @return Getter for how many nonce refreshes the page has made.
  */
-async function staleNonce( page: Page ): Promise< () => number > {
+async function routeStaleNonce( page: Page ): Promise< () => number > {
 	const realNonce = await page.evaluate(
-		() =>
-			( window as unknown as { wp: { apiFetch: { nonceMiddleware: { nonce: string } } } } ).wp
-				.apiFetch.nonceMiddleware.nonce
+		() => ( window as unknown as ApiFetchWindow ).wp.apiFetch.nonceMiddleware.nonce
 	);
 	let refreshes = 0;
 	await page.route( /admin-ajax\.php\?action=rest-nonce/, route => {
@@ -64,12 +70,12 @@ test.describe( 'Admin shell: a stale REST nonce', () => {
 			for ( const slug of switches ) {
 				await switchTo( page, slug );
 			}
-			const refreshes = await staleNonce( page );
+			const refreshes = await routeStaleNonce( page );
 
 			const outcome = await page.evaluate(
 				( { probe } ) =>
 					Promise.race( [
-						( window as unknown as { wp: { apiFetch: ( o: object ) => Promise< unknown > } } ).wp
+						( window as unknown as ApiFetchWindow ).wp
 							.apiFetch( { path: `/wp/v2/users/me?${ probe }=1` } )
 							.then(
 								() => 'ok',
