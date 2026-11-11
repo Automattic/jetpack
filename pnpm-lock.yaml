@@ -6610,6 +6610,9 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
+      axe-core:
+        specifier: 4.14.0
+        version: 4.14.0
       config:
         specifier: 4.4.1
         version: 4.4.1
