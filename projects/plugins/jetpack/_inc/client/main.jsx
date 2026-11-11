@@ -262,9 +262,15 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
+			case '/sharing':
+				// Nothing is left on this tab for admins once settings move out; the cases above fall through here.
+				if ( '/sharing' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
+					break;
+				}
+			// Falls through.
 			case '/settings':
 			case '/writing':
-			case '/sharing':
 			case '/discussion':
 			case '/reader':
 			case '/traffic':

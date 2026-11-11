@@ -73,23 +73,26 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		jest.clearAllMocks();
 	} );
 
-	it.each( [ [ '/performance', 'admin.php?page=my-jetpack#/features?search=cdn' ] ] )(
-		'sends %s to %s with the settings flag on',
-		( route, destination ) => {
-			isSettingsConsolidationEnabled.mockReturnValue( true );
-			renderAt( route, false );
-
-			expect( getAdminUrl ).toHaveBeenCalledWith( destination );
-			expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
-			expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
-		}
-	);
-
-	it.each( [ '/performance' ] )( 'keeps %s on Settings with the settings flag off', route => {
+	it.each( [
+		[ '/performance', 'admin.php?page=my-jetpack#/features?search=cdn' ],
+		[ '/sharing', 'admin.php?page=my-jetpack#/features' ],
+	] )( 'sends %s to %s with the settings flag on', ( route, destination ) => {
+		isSettingsConsolidationEnabled.mockReturnValue( true );
 		renderAt( route, false );
 
-		expect( screen.getByTestId( 'searchable-settings' ) ).toBeInTheDocument();
+		expect( getAdminUrl ).toHaveBeenCalledWith( destination );
+		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
+		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [ '/performance', '/sharing' ] )(
+		'keeps %s on Settings with the settings flag off',
+		route => {
+			renderAt( route, false );
+
+			expect( screen.getByTestId( 'searchable-settings' ) ).toBeInTheDocument();
+		}
+	);
 
 	it( 'keeps #/security on Settings with the settings flag on and no Protect page', () => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );

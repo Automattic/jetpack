@@ -116,7 +116,7 @@
 					"destination": "admin.php?page=jetpack-social"
 				},
 				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
-				{ "destination": "admin.php?page=my-jetpack#/features" }
+				{ "destination": "admin.php?page=my-jetpack#/features", "alreadyRedirects": true }
 			],
 			"linkedFrom": [
 				"packages/publicize Publicize_Base::publicize_connections_url() without the Social plugin: the classic and block editor Social links; wants admin.php?page=jetpack-social"
