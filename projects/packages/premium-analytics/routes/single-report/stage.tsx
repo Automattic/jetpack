@@ -138,10 +138,11 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 
+	useDateWindowNotice();
+
 	const { dateLimits } = useStatsDateLimits(
 		isPlanDateLimitedSection( page.dashboard_section ?? undefined )
 	);
-	useDateWindowNotice();
 	const lockedIntervals = dateLimits?.lockedIntervals;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM, { dateLimits } );
@@ -154,6 +155,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		activeSlug: urlSection,
 		timeZone: dateFilters.timeZone,
 	} );
+
 	const visibleStates = useMemo(
 		() => sectionStates.filter( state => ! state.hidden ),
 		[ sectionStates ]
@@ -232,6 +234,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		() => ( isPinned ? [] : buildControlFields( controls ) ),
 		[ isPinned, controls ]
 	);
+
 	const controlsData = useMemo< ControlsItem >(
 		() => ( {
 			reportParams: pickReportDateParams( search ),
@@ -241,6 +244,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 	);
 
 	const { onChange: changeDateRange, onApply: applyDateRange, timeZone } = dateFilters;
+
 	// Through the date controller, so a new named preset starts from its own default bucket: there
 	// is no bucket control here to fix one carried over.
 	const applyReportParams = useCallback(
