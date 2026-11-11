@@ -92,7 +92,23 @@ class Widget_Modules_Test extends TestCase {
 			$expected[]     = in_array( $route, $static, true ) ? array( 'import' => 'static' ) + $content : $content;
 		}
 
-		$this->assertSame( $expected, preload_requested_route_content( $dependencies, __DIR__ . '/fixtures/boot-preload/registry.php' ) );
+		// The page's registered routes, as the generated `jpa_register_…_route()` stores them.
+		$routes = array(
+			array(
+				'path'           => '/',
+				'content_module' => 'jetpack-premium-analytics/routes/dashboard/content',
+			),
+			array(
+				'path'           => '/post/$postId',
+				'content_module' => 'jetpack-premium-analytics/routes/post-detail/content',
+			),
+			array(
+				'path'         => '/video/$videoId',
+				'route_module' => 'jetpack-premium-analytics/routes/video-detail/route',
+			),
+		);
+
+		$this->assertSame( $expected, preload_requested_route_content( $dependencies, $routes ) );
 	}
 
 	/**
