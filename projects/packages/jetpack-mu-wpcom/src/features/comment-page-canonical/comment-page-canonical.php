@@ -7,7 +7,7 @@
 
 /**
  * Block themes run `comments_template()` before `wp_head`, which fills in `cpage`.
- * See https://core.trac.wordpress.org/ticket/58257.
+ * See https://core.trac.wordpress.org/ticket/11856.
  *
  * @param string  $canonical_url The canonical URL.
  * @param WP_Post $post          The post.
