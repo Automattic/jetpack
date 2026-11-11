@@ -41,7 +41,8 @@ class BlazeTest extends WP_UnitTestCase {
 		}
 		Jetpack_Stand_In::$can_activate = $can_activate;
 		Jetpack_Stand_In::$saved        = $saved;
-		update_option( 'wpcom_admin_interface', $admin_interface );
+		// Pinned, not saved: on WP Cloud, wpcomsh_get_wpcom_admin_interface_option() answers from persistent data.
+		add_filter( 'pre_option_wpcom_admin_interface', static fn() => $admin_interface, PHP_INT_MAX );
 
 		wpcomsh_force_activate_blaze_module();
 
