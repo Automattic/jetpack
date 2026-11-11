@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
 
 /** @typedef {import('react').JSX.Element} JSXElement */
 
-const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
+const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png', 'image/webp' ];
 const ADD_MEDIA_LABEL = __( 'Choose Image', 'jetpack-publicize-pkg' );
 
 /**

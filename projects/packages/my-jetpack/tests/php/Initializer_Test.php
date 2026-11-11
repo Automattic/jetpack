@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils;
@@ -1706,6 +1707,20 @@ class Initializer_Test extends BaseTestCase {
 		Initializer::register_feature_flags();
 		try {
 			$this->assertTrue( Feature_Flags::is_enabled( Initializer::MODULES_TO_FEATURES_FLAG ) );
+		} finally {
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
+	 * Standalone plugins run no Jetpack bootstrap, so My Jetpack must list the admin shell flag on every request.
+	 */
+	public function test_register_feature_flags_registers_the_admin_shell_flag() {
+		// An earlier admin menu test may have registered it through Admin_Menu.
+		Feature_Flags::reset();
+		Initializer::register_feature_flags();
+		try {
+			$this->assertNotNull( Feature_Flags::get( Admin_Shell::FLAG ) );
 		} finally {
 			Feature_Flags::reset();
 		}
