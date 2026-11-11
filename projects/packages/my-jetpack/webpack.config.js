@@ -16,6 +16,8 @@ export default [
 		output: {
 			...jetpackWebpackConfig.output,
 			path: path.resolve( './build' ),
+			// Webpack's default is 120s, two minutes of a blank window before the wizard's fallback.
+			chunkLoadTimeout: 15000,
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,

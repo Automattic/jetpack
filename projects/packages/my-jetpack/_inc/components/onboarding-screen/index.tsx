@@ -11,7 +11,6 @@ import { assignLocation } from '../../hooks/use-notification-watcher/assignLocat
 import Testimonials from '../testimonials';
 import ConnectionForm from './connection-form/connection-form';
 import { isPlainClick } from './is-plain-click';
-import { withLoadLimit } from './load-limit';
 import styles from './styles.module.scss';
 import type { ComponentType, FC, MouseEvent, ReactNode } from 'react';
 
@@ -120,17 +119,11 @@ const WizardFallback: FC< WizardLinks > = ( { exitUrl, dashboardUrl } ) => {
 };
 
 /*
- * How long the wizard's chunk gets before the single screen stands in. Webpack
- * waits 120s on a hung request, which is two minutes of a blank dark window.
+ * A chunk of its own, so the single screen every flag-off site loads leaves out the wizard's art.
+ * A chunk that fails, or outlasts output.chunkLoadTimeout in webpack.config.js, gets the fallback.
  */
-const WIZARD_LOAD_LIMIT_MS = 15000;
-
-// A chunk of its own, so the single screen every flag-off site loads leaves out the wizard's art.
 const Wizard = lazy< ComponentType< WizardLinks > >( () =>
-	withLoadLimit(
-		import( /* webpackChunkName: "onboarding-wizard" */ './wizard' ),
-		WIZARD_LOAD_LIMIT_MS
-	).then(
+	import( /* webpackChunkName: "onboarding-wizard" */ './wizard' ).then(
 		module => ( { default: module.Wizard } ),
 		error => {
 			// eslint-disable-next-line no-console
