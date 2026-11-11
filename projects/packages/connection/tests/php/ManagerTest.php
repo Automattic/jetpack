@@ -603,16 +603,17 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test who takes an owner slot with no connected owner in `authorize`.
 	 *
-	 * @param string $role            The authorizing user's role.
-	 * @param bool   $expected_master Whether the token should be stored as the connection owner's.
-	 * @param string $expected_result The expected `authorize` result.
-	 * @param array  $disconnect_cap  Value for the `jetpack_disconnect_cap` filter, which `jetpack_connect` resolves through.
-	 * @param string $recorded_owner  Who `master_user` names: `none`, `other`, `self`, or `deleted`. Their token is missing either way.
-	 * @param bool   $locked          Whether connection ownership is locked.
+	 * @param string    $role            The authorizing user's role.
+	 * @param bool      $expected_master Whether the token should be stored as the connection owner's.
+	 * @param string    $expected_result The expected `authorize` result.
+	 * @param array     $disconnect_cap  Value for the `jetpack_disconnect_cap` filter, which `jetpack_connect` resolves through.
+	 * @param string    $recorded_owner  Who `master_user` names: `none`, `other`, `self`, or `deleted`. Their token is missing either way.
+	 * @param bool      $locked          Whether connection ownership is locked.
+	 * @param bool|null $wpcom_owner  The response's `connection_owner`; null leaves the field out.
 	 * @dataProvider provide_authorize_vacant_owner_slot
 	 */
 	#[DataProvider( 'provide_authorize_vacant_owner_slot' )]
-	public function test_authorize_vacant_owner_slot( $role, $expected_master, $expected_result, $disconnect_cap = array( 'manage_options' ), $recorded_owner = 'none', $locked = false ) {
+	public function test_authorize_vacant_owner_slot( $role, $expected_master, $expected_result, $disconnect_cap = array( 'manage_options' ), $recorded_owner = 'none', $locked = false, $wpcom_owner = true ) {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => "test_authorize_vacant_owner_slot_$role",
@@ -639,7 +640,15 @@ class ManagerTest extends TestCase {
 		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
 			->onlyMethods( array( 'get', 'update_user_token' ) )
 			->getMock();
-		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
+		$tokens->method( 'get' )->willReturnCallback(
+			// The by-reference `$token_details` is the fourth parameter, so the first three must be declared.
+			static function ( $data, $url, $extra, &$token_details = null ) use ( $wpcom_owner ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				if ( null !== $wpcom_owner ) {
+					$token_details = array( 'connection_owner' => $wpcom_owner );
+				}
+				return 'usertoken.secret';
+			}
+		);
 		$tokens->expects( $this->once() )
 			->method( 'update_user_token' )
 			->with( $user_id, "usertoken.secret.$user_id", $expected_master )
@@ -690,6 +699,8 @@ class ManagerTest extends TestCase {
 			'transferable tokenless owner is replaced' => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'other' ),
 			'locked tokenless owner reconnects'        => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'self', true ),
 			'locked deleted owner is replaced'         => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'deleted', true ),
+			'wpcom without the field leaves the slot empty' => array( 'administrator', false, 'linked', array( 'manage_options' ), 'none', false, null ),
+			'wpcom saying no leaves the slot empty'    => array( 'administrator', false, 'linked', array( 'manage_options' ), 'none', false, false ),
 		);
 	}
 

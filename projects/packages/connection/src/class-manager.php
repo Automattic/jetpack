@@ -3440,6 +3440,7 @@ class Manager {
 	 *
 	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
 	 * @since $$next-version$$ An admin becomes the owner when WordPress.com reports the owner's connection broken.
+	 * @since $$next-version$$ A user takes a vacant owner slot only when WordPress.com reports them as the owner.
 	 * @since $$next-version$$ A locked owner with an unusable token is no longer replaced.
 	 *
 	 * @param array $data The request data.
@@ -3520,13 +3521,15 @@ class Manager {
 			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
 		}
 
-		// A WordPress.com without the `connection_owner` field leaves only the local vacancy rule.
-		// The site's own gate still applies, so a WordPress.com answer can't promote an editor or pass a lock.
-		$switched_by_wpcom   = ! $is_vacant_locally
-			&& $can_claim_owner
+		// WordPress.com decides who owns the site, so a response without `connection_owner` leaves the slot as it is.
+		// The site's own gate still caps it, so a WordPress.com answer can't promote an editor or pass a lock.
+		// A recorded owner whose token is missing keeps their own slot, whatever WordPress.com says.
+		$reclaims_own_slot   = $can_claim_owner && ! $this->has_connected_owner() && (int) \Jetpack_Options::get_option( 'master_user' ) === $current_user_id;
+		$wpcom_owner         = $can_claim_owner
 			&& ! empty( $token_details['connection_owner'] )
 			&& $this->get_connection_owner_id() !== $current_user_id;
-		$is_connection_owner = $is_vacant_locally || $switched_by_wpcom;
+		$is_connection_owner = $wpcom_owner || $reclaims_own_slot;
+		$switched_by_wpcom   = $wpcom_owner && ! $is_vacant_locally;
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
