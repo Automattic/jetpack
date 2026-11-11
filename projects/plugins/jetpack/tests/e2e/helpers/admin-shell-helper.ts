@@ -264,9 +264,14 @@ export async function installShellProbe( page: Page ): Promise< void > {
 		shellProbe,
 		Object.fromEntries( MEMBERS.map( m => [ m.slug, m.mountId ] ) )
 	);
-	// The mouse starts at 0,0 on the admin bar's WordPress logo, whose hover menu then covers the Jetpack submenu.
-	const { width, height } = page.viewportSize() ?? { width: 1280, height: 720 };
-	await page.mouse.move( width - 20, height - 20 );
+	// Admin bar hover menus can open over the Jetpack submenu and swallow sidebar clicks; they aren't under test.
+	await page.addInitScript( () => {
+		document.addEventListener( 'DOMContentLoaded', () => {
+			const style = document.createElement( 'style' );
+			style.textContent = '#wpadminbar .ab-sub-wrapper { display: none !important; }';
+			document.head.append( style );
+		} );
+	} );
 }
 
 /**

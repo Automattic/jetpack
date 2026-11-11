@@ -65,9 +65,8 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 			scrolled < 100,
 			'My Jetpack cannot scroll far enough here with the Forms link in view'
 		);
-		await page.mouse.move( 640, 400 );
-		await page.mouse.wheel( 0, scrolled );
-		// The wheel can scroll smoothly: wait for it to land.
+		// A wheel can land on an inner scroller and leave the document where it was.
+		await page.evaluate( y => window.scrollTo( { top: y, behavior: 'instant' } ), scrolled );
 		await expect.poll( () => page.evaluate( () => Math.round( scrollY ) ) ).toBe( scrolled );
 		await page.evaluate( () =>
 			document.addEventListener(

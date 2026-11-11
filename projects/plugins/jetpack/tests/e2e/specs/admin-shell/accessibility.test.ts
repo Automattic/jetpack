@@ -14,6 +14,7 @@ import {
 	resetA11yProbe,
 } from '../../helpers/admin-shell-a11y-helper';
 import {
+	intermittentSpikeBug,
 	installShellProbe,
 	isShellActive,
 	member,
@@ -278,29 +279,29 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		} );
 	} );
 
-	test( 'going Back with a modal open leaves the shown page in the accessibility tree', async ( {
-		page,
-		browserName,
-	} ) => {
-		test.fail(
-			browserName !== 'chromium',
-			'Firefox and WebKit: no announcement of My Jetpack is heard after Back closes the Forms modal'
-		);
-		await keyboardPass( page, {
-			afterBack: async () => {
-				// The modal gives the document back once its closing animation ends.
-				await expect
-					.poll( () => ariaHiddenAncestors( page, MJ ), 'aria-hidden around the shown app' )
-					.toEqual( [] );
-				// The probe skips live regions that are aria-hidden when they change.
-				await expect
-					.poll( () => announcements( page ), 'announcement for the page Back showed' )
-					.toContainEqual(
-						expect.objectContaining( { text: expect.stringContaining( member( MJ ).title ) } )
-					);
-				await expect( mainHeading( page, MJ ) ).toBeFocused();
-				await expect( mainHeading( page, MJ ) ).toBeVisible();
-			},
-		} );
-	} );
+	intermittentSpikeBug(
+		'Firefox and WebKit sometimes hear no announcement of My Jetpack after Back closes the Forms modal',
+		() => {
+			test( 'going Back with a modal open leaves the shown page in the accessibility tree', async ( {
+				page,
+			} ) => {
+				await keyboardPass( page, {
+					afterBack: async () => {
+						// The modal gives the document back once its closing animation ends.
+						await expect
+							.poll( () => ariaHiddenAncestors( page, MJ ), 'aria-hidden around the shown app' )
+							.toEqual( [] );
+						// The probe skips live regions that are aria-hidden when they change.
+						await expect
+							.poll( () => announcements( page ), 'announcement for the page Back showed' )
+							.toContainEqual(
+								expect.objectContaining( { text: expect.stringContaining( member( MJ ).title ) } )
+							);
+						await expect( mainHeading( page, MJ ) ).toBeFocused();
+						await expect( mainHeading( page, MJ ) ).toBeVisible();
+					},
+				} );
+			} );
+		}
+	);
 } );
