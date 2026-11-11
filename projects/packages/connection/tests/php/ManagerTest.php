@@ -691,16 +691,17 @@ class ManagerTest extends TestCase {
 	 */
 	public static function provide_authorize_vacant_owner_slot() {
 		return array(
-			'administrator takes the slot'             => array( 'administrator', true, 'authorized' ),
-			'editor links as secondary'                => array( 'editor', false, 'linked' ),
+			'administrator takes the slot'                => array( 'administrator', true, 'authorized' ),
+			'editor links as secondary'                   => array( 'editor', false, 'linked' ),
 			'editor granted connection rights takes the slot' => array( 'editor', true, 'authorized', array( 'edit_others_posts' ) ),
-			'locked empty slot is taken'               => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', true ),
-			'locked tokenless owner stays'             => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', true ),
-			'transferable tokenless owner is replaced' => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'other' ),
-			'locked tokenless owner reconnects'        => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'self', true ),
-			'locked deleted owner is replaced'         => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'deleted', true ),
-			'wpcom without the field leaves the slot empty' => array( 'administrator', false, 'linked', array( 'manage_options' ), 'none', false, null ),
-			'wpcom saying no leaves the slot empty'    => array( 'administrator', false, 'linked', array( 'manage_options' ), 'none', false, false ),
+			'locked empty slot is taken'                  => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', true ),
+			'locked tokenless owner stays'                => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', true ),
+			'transferable tokenless owner is replaced'    => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'other' ),
+			'locked tokenless owner reconnects'           => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'self', true ),
+			'locked deleted owner is replaced'            => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'deleted', true ),
+			'fresh site without the field takes the slot' => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', false, null ),
+			'wpcom without the field leaves a recorded owner' => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', false, null ),
+			'wpcom saying no leaves a recorded owner'     => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', false, false ),
 		);
 	}
 

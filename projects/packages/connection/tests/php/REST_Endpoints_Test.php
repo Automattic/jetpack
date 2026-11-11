@@ -2341,10 +2341,9 @@ class REST_Endpoints_Test extends TestCase {
 			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
-					'access_token'     => 'mock.token',
-					'token_type'       => 'X_JETPACK',
-					'scope'            => ( new Manager() )->sign_role( 'administrator' ),
-					'connection_owner' => true,
+					'access_token' => 'mock.token',
+					'token_type'   => 'X_JETPACK',
+					'scope'        => ( new Manager() )->sign_role( 'administrator' ),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			),
