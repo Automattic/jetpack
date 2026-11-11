@@ -1,5 +1,5 @@
 /**
- * Provide the `jetpackConfig` global that `@automattic/jetpack-config` reads, since wp-build has no such external.
+ * Provide the `jetpackConfig` global that `@automattic/jetpack-config` reads.
  *
  * Set here, not in PHP: the admin shell keeps a host page's inline `jetpackConfig` over a guest's.
  */
