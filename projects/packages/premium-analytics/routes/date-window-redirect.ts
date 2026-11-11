@@ -38,7 +38,7 @@ export function dateWindowRedirect(
 	// The seed check must read the same locks as the limit, or each undoes the other's interval.
 	if ( needsSeed || needsReportDateParamsSeed( search, policy.lockedIntervals ) ) {
 		// Warms the core `site` record for `useSiteHomeUrl()`. Not awaited: the seed doesn't read it,
-		// and waiting put a settings round trip in front of every Stats request.
+		// and awaiting would hold every Stats request behind a settings round trip.
 		ensureCoreSettingsReady().catch( () => {} );
 
 		const seeded = seed( search );
