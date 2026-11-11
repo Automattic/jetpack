@@ -1,8 +1,9 @@
 import { Container, Col, JetpackLogo, Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Spinner } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Spinner } from '@wordpress/ui';
 import clsx from 'clsx';
 import { lazy, Suspense, useCallback, useState } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -44,7 +45,8 @@ const ConnectScreen: FC< { children?: ReactNode } > = ( { children } ) => (
 // The window the wizard opens into, saying it is busy rather than sitting blank.
 const WizardLoading: FC = () => (
 	<div className={ styles[ 'wizard-loading' ] } role="status">
-		<Spinner />
+		{ /* Outside the wizard's ThemeProvider, the default foreground is too faint on the dark shell. */ }
+		<Spinner color="var(--wp-admin-theme-color, #3858e9)" />
 		<span className="screen-reader-text">{ __( 'Loading setup…', 'jetpack-my-jetpack' ) }</span>
 	</div>
 );
