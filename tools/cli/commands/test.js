@@ -33,14 +33,10 @@ export async function builder( yargs ) {
 			false,
 			completionHook( yargs, {
 				test: () => [
-					'coverage-html',
 					'js',
 					'js-coverage',
-					'js-watch',
 					'php',
 					'php-coverage',
-					'php-integration',
-					'php-unit',
 					'typecheck',
 				],
 				project: current => [ ...completeProject( current ), 'monorepo' ],
