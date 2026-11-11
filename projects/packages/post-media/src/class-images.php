@@ -179,6 +179,7 @@ class Images {
 			unset( $GLOBALS['post'] );
 		}
 		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
+		remove_filter( 'get_post_galleries', array( __CLASS__, 'filter_gallery_urls' ), 999999 );
 
 		// WooCommerce stores product gallery image IDs in the `_product_image_gallery`
 		// postmeta rather than in post_content, so get_post_galleries() does not see them.
