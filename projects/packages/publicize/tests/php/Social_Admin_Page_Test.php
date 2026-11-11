@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Tokens;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -206,5 +208,56 @@ class Social_Admin_Page_Test extends BaseTestCase {
 
 		Social_Admin_Page::restore_screen_id_after_wp_build();
 		$this->assertSame( 'jetpack_page_jetpack-social', get_current_screen()->id );
+	}
+
+	/**
+	 * Who the admin shell offers Social to: the same users the Social menu shows it to.
+	 *
+	 * @return array
+	 */
+	public static function provide_admin_shell_member_cases() {
+		return array(
+			'admin, Publicize off'  => array( 'administrator', false, true ),
+			'author, Publicize off' => array( 'author', false, false ),
+			'author, Publicize on'  => array( 'author', true, true ),
+		);
+	}
+
+	/**
+	 * The shell member applies the Social menu's gate.
+	 *
+	 * @dataProvider provide_admin_shell_member_cases
+	 *
+	 * @param string $role         The current user's role.
+	 * @param bool   $publicize_on Whether the Publicize module is active.
+	 * @param bool   $expected     Whether Social joins the shell.
+	 */
+	#[DataProvider( 'provide_admin_shell_member_cases' )]
+	public function test_admin_shell_member_follows_the_menu_gate( $role, $publicize_on, $expected ) {
+		if ( ! file_exists( dirname( __DIR__, 2 ) . '/build/build.php' ) ) {
+			$this->markTestSkipped( 'Social joins the shell only once its wp-build dashboard is built.' );
+		}
+
+		( new Tokens() )->update_blog_token( 'blog.token' );
+		$active_modules = static function () use ( $publicize_on ) {
+			return $publicize_on ? array( 'publicize' ) : array();
+		};
+		add_filter( 'jetpack_active_modules', $active_modules );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'shell_' . $role,
+					'user_pass'  => 'password',
+					'role'       => $role,
+				)
+			)
+		);
+
+		$members = Social_Admin_Page::init()->add_admin_shell_member( array() );
+
+		remove_filter( 'jetpack_active_modules', $active_modules );
+		Jetpack_Options::delete_option( 'blog_token' );
+
+		$this->assertSame( $expected, isset( $members['jetpack-social'] ) );
 	}
 }

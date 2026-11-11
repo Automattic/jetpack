@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Admin shell: Load the dashboard's page data from a new REST endpoint and join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on.
+Admin shell: Join the admin shell, loading the dashboard's page data from a new REST endpoint when it opens from another Jetpack dashboard, so switching between dashboards skips the page load when the admin shell flag is on.

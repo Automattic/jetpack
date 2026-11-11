@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Publicize\REST_API\Script_Data_Controller;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Users as WorDBless_Users;
@@ -20,6 +19,14 @@ use WP_REST_Server;
 class Script_Data_Controller_Test extends TestCase {
 
 	/**
+	 * Register the route the way a request does, so it must not depend on Publicize being on.
+	 */
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
+		Publicize_Setup::pre_initialization();
+	}
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
@@ -27,7 +34,6 @@ class Script_Data_Controller_Test extends TestCase {
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
-		add_action( 'rest_api_init', array( new Script_Data_Controller(), 'register_routes' ) );
 		do_action( 'rest_api_init' );
 	}
 

@@ -4,12 +4,17 @@ import apiFetch from '@wordpress/api-fetch';
 import type { SocialScriptData } from '../../../_inc/types';
 
 /**
- * Fetch the data the dashboard reads as `JetpackScriptData.social`, which no admin page prints inline.
+ * Fetch `JetpackScriptData.social` when the page didn't print it, as when the admin shell opens Social on another dashboard's page.
  */
 async function loadSocialScriptData(): Promise< void > {
-	const social = await apiFetch< SocialScriptData >( { path: '/wpcom/v2/publicize/script-data' } );
-	// Replaces whatever the host page printed: other Jetpack pages print `social` as `[]`.
-	( getScriptData() as { social?: SocialScriptData } ).social = social;
+	const scriptData = getScriptData() as { social?: SocialScriptData | [] };
+	// Other Jetpack pages print `social` as `[]`, so check for a key Social always has.
+	if ( scriptData.social && 'api_paths' in scriptData.social ) {
+		return;
+	}
+	scriptData.social = await apiFetch< SocialScriptData >( {
+		path: '/wpcom/v2/publicize/script-data',
+	} );
 }
 
 /**

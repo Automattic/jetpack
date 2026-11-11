@@ -106,7 +106,7 @@ class Publicize_Script_Data {
 	}
 
 	/**
-	 * Get the social script data for the Social dashboard, which fetches it from `wpcom/v2/publicize/script-data`.
+	 * Get the social script data for the Social dashboard when it opens on another admin page, via `wpcom/v2/publicize/script-data`.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -118,12 +118,12 @@ class Publicize_Script_Data {
 	}
 
 	/**
-	 * Get the script data for admin UI, on the pages that print it inline: Jetpack Settings and the block editor.
+	 * Get the script data for admin UI, on the pages that print it inline: Social, Jetpack Settings and the block editor.
 	 *
 	 * @return array
 	 */
 	public static function get_admin_script_data() {
-		if ( ! Utils::is_jetpack_settings_page() && ! Utils::should_block_editor_have_social() ) {
+		if ( ! Utils::is_social_settings_page() && ! Utils::is_jetpack_settings_page() && ! Utils::should_block_editor_have_social() ) {
 			return array();
 		}
 
