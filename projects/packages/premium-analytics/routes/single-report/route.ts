@@ -16,7 +16,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { dateWindowRedirect } from '../date-window-redirect';
-import { seedDetailDateParams } from '../detail-date-seed';
+import { hasLinkedDateWindow, seedDetailDateParams } from '../detail-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { getSingleReportPage, isValidEntityId, resolveSingleReportSection } from './registry';
 
@@ -98,8 +98,9 @@ export const route = {
 					};
 				},
 				needsSeed: needsScopeSeed || needsSectionSeed,
-				// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
-				requested: needsScopeSeed ? undefined : currentSearch,
+				// An arrival with no window seeds all time, which nobody asked for, so it gets no notice.
+				requested:
+					! needsScopeSeed || hasLinkedDateWindow( currentSearch ) ? currentSearch : undefined,
 			}
 		);
 		if ( limited ) {

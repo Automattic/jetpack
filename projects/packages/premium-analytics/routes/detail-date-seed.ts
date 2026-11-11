@@ -5,6 +5,7 @@ import { computeDateRangeFromPreset, normalizeReportParams } from '@jetpack-prem
 import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import {
 	REPORT_DATE_PARAM_KEYS,
+	omitComparisonReportParams,
 	pickReportOriginWindowParams,
 	toReportOriginWindowParams,
 } from '@jetpack-premium-analytics/routing';
@@ -12,10 +13,21 @@ import {
 type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
 
 /**
+ * Whether a link carries a date window: a preset, or both ends of a range.
+ *
+ * @param search - The search params the page was linked with.
+ * @return Whether the link names a window.
+ */
+export function hasLinkedDateWindow( search: Record< string, unknown > ): boolean {
+	return !! search.preset || ( !! search.from && !! search.to );
+}
+
+/**
  * The date params a post or video detail route seeds its URL with.
  *
- * A link in opens the page on all time and keeps the linking window for the breadcrumbs;
- * a reload keeps the page's own range. `useDetailDateControls` anchors the all-time start.
+ * A link in opens the page on the linking window, or on all time when it carries none, and
+ * keeps the linking window for the breadcrumbs; a reload keeps the page's own range.
+ * `useDetailDateControls` anchors the all-time start.
  *
  * @param search     - The current route search params.
  * @param resourceId - The page's entity ID. Links never carry it under the scope param, so
@@ -32,6 +44,14 @@ export function seedDetailDateParams(
 		return {
 			...normalizeReportParams( search as NormalizeInput ),
 			...pickReportOriginWindowParams( search ),
+		};
+	}
+
+	if ( hasLinkedDateWindow( search ) ) {
+		return {
+			// Detail pages have no comparison; the origin window keeps it for the way back.
+			...normalizeReportParams( omitComparisonReportParams( search ) as NormalizeInput ),
+			...toReportOriginWindowParams( search ),
 		};
 	}
 
