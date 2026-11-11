@@ -1,6 +1,6 @@
 <?php
 /**
- * AI Launchpad: the "Bring your AI tool" goal card experiment.
+ * AI Launchpad: the "Bring your AI tool" experiment.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -9,7 +9,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Assigns free sites to the experiment that adds a seventh goal card to the wizard's goals step.
+ * Assigns free sites to the experiment that opens the wizard on a "Guide me" or "Build with AI" choice.
  */
 class AI_Launchpad_Bring_Your_AI_Tool {
 
@@ -19,7 +19,7 @@ class AI_Launchpad_Bring_Your_AI_Tool {
 	const EXPERIMENT = 'wpcom_ai_launchpad_bring_your_ai_tool_202611';
 
 	/**
-	 * The variation that shows the seventh card. The other variation, `control`, shows the usual six.
+	 * The variation that opens the wizard on the setup choice. The other variation, `control`, opens on the goals.
 	 */
 	const TREATMENT = 'bring_your_ai_tool';
 

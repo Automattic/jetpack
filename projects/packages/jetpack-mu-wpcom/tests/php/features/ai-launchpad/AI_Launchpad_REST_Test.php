@@ -2215,7 +2215,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 					),
 					array(
 						'integration'  => 'chatgpt',
-						'connected_at' => '1762430200',
+						'connected_at' => 1762430200,
 					),
 				)
 			);
@@ -2229,16 +2229,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame(
 			array(
-				'connections'  => array(
-					array(
-						'integration'  => 'claude',
-						'connected_at' => 1762430000,
-					),
-					array(
-						'integration'  => 'chatgpt',
-						'connected_at' => 1762430200,
-					),
-				),
+				'connections'  => array( 'claude', 'chatgpt' ),
 				'access_level' => 'read_only',
 			),
 			$result->get_data()

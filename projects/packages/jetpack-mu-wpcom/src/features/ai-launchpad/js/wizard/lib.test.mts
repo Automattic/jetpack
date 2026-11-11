@@ -6,16 +6,14 @@ import {
 	BRING_YOUR_AI_TOOL,
 	buildWizardPayload,
 	canContinue,
-	CONNECT_YOURSELF_PROMPT,
 	findNewConnections,
 	isReadOnlyAccess,
 	goalsVariation,
 	isLastStep,
-	MCP_SERVER_URL,
-	MCP_SETTINGS_URL,
 	pickPlaceholder,
 	showsSetupChoice,
 	viewedStep,
+	type AiTool,
 	type WizardState,
 } from './lib.ts';
 
@@ -47,7 +45,7 @@ describe( 'wizard step gating', () => {
 } );
 
 describe( 'goals step experiment', () => {
-	it( 'shows the banner in the treatment only', () => {
+	it( 'shows the setup choice in the treatment only', () => {
 		assert.equal( showsSetupChoice( BRING_YOUR_AI_TOOL ), true );
 		assert.equal( showsSetupChoice( 'control' ), false );
 	} );
@@ -61,77 +59,46 @@ describe( 'goals step experiment', () => {
 } );
 
 describe( 'AI tool connection', () => {
-	const CLICKED_AT = 1_762_430_000;
-
-	it( 'counts a connection to a clicked tool whenever it was made, including before the click', () => {
-		const clicks = { chatgpt: CLICKED_AT };
-		for ( const connectedAt of [ CLICKED_AT - 86_400, CLICKED_AT, CLICKED_AT + 300 ] ) {
-			assert.deepEqual(
-				findNewConnections(
-					[ { integration: 'chatgpt', connected_at: connectedAt } ],
-					clicks,
-					'chatgpt'
-				),
-				[ 'chatgpt' ]
-			);
-		}
+	it( 'counts an existing connection to a clicked tool', () => {
+		assert.deepEqual( findNewConnections( [ 'chatgpt' ], [ 'chatgpt' ], 'chatgpt', [] ), [
+			'chatgpt',
+		] );
 	} );
 
 	it( 'ignores tools the user never clicked Set up on, and unknown integrations', () => {
 		assert.deepEqual(
-			findNewConnections(
-				[
-					{ integration: 'claude', connected_at: CLICKED_AT + 10 },
-					{ integration: 'cursor', connected_at: CLICKED_AT + 10 },
-				],
-				{ chatgpt: CLICKED_AT },
-				'chatgpt'
-			),
+			findNewConnections( [ 'claude', 'cursor' ], [ 'chatgpt' ], 'chatgpt', [] ),
 			[]
 		);
-		assert.deepEqual( findNewConnections( [], { chatgpt: CLICKED_AT }, 'chatgpt' ), [] );
+		assert.deepEqual( findNewConnections( [], [ 'chatgpt' ], 'chatgpt', [] ), [] );
 	} );
 
 	it( 'returns every clicked tool that connected, the most recently clicked last', () => {
-		const connections = [
-			{ integration: 'chatgpt', connected_at: CLICKED_AT + 10 },
-			{ integration: 'claude', connected_at: CLICKED_AT + 20 },
-		];
-		const clicks = { chatgpt: CLICKED_AT, claude: CLICKED_AT + 5 };
-		assert.deepEqual( findNewConnections( connections, clicks, 'claude' ), [
+		const connections = [ 'chatgpt', 'claude' ];
+		const clicked: AiTool[] = [ 'chatgpt', 'claude' ];
+		assert.deepEqual( findNewConnections( connections, clicked, 'claude', [] ), [
 			'chatgpt',
 			'claude',
 		] );
-		assert.deepEqual( findNewConnections( connections, clicks, 'chatgpt' ), [
+		assert.deepEqual( findNewConnections( connections, clicked, 'chatgpt', [] ), [
 			'claude',
 			'chatgpt',
 		] );
 	} );
 
 	it( 'falls back to another clicked tool that connected', () => {
-		assert.deepEqual(
-			findNewConnections(
-				[ { integration: 'chatgpt', connected_at: CLICKED_AT + 10 } ],
-				{ chatgpt: CLICKED_AT, claude: CLICKED_AT + 5 },
-				'claude'
-			),
-			[ 'chatgpt' ]
-		);
+		assert.deepEqual( findNewConnections( [ 'chatgpt' ], [ 'chatgpt', 'claude' ], 'claude', [] ), [
+			'chatgpt',
+		] );
 	} );
 
 	it( 'skips tools already shown as connected', () => {
-		const connections = [
-			{ integration: 'chatgpt', connected_at: CLICKED_AT + 10 },
-			{ integration: 'claude', connected_at: CLICKED_AT + 20 },
-		];
-		const clicks = { chatgpt: CLICKED_AT, claude: CLICKED_AT + 5 };
-		assert.deepEqual( findNewConnections( connections, clicks, 'chatgpt', [ 'chatgpt' ] ), [
-			'claude',
-		] );
+		const clicked: AiTool[] = [ 'chatgpt', 'claude' ];
 		assert.deepEqual(
-			findNewConnections( connections.slice( 0, 1 ), clicks, 'claude', [ 'chatgpt' ] ),
-			[]
+			findNewConnections( [ 'chatgpt', 'claude' ], clicked, 'chatgpt', [ 'chatgpt' ] ),
+			[ 'claude' ]
 		);
+		assert.deepEqual( findNewConnections( [ 'chatgpt' ], clicked, 'claude', [ 'chatgpt' ] ), [] );
 	} );
 
 	it( 'treats only full access as able to build', () => {
@@ -232,15 +199,5 @@ describe( 'viewed step', () => {
 	it( 'reports the goal and details steps', () => {
 		assert.equal( viewedStep( 0, false, false ), 'goal' );
 		assert.equal( viewedStep( 1, false, false ), 'site_details' );
-	} );
-} );
-
-describe( 'another AI tool', () => {
-	it( 'gives the copied prompt the MCP server address', () => {
-		assert.ok( CONNECT_YOURSELF_PROMPT.includes( MCP_SERVER_URL ) );
-	} );
-
-	it( 'sends Allow full access to the write settings', () => {
-		assert.equal( MCP_SETTINGS_URL, 'https://my.wordpress.com/me/preferences/mcp/write' );
 	} );
 } );

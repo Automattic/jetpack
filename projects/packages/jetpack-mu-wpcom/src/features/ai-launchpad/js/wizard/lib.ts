@@ -10,7 +10,7 @@ export const GOAL_SLUGS: GoalSlug[] = [
 	'portfolio',
 ];
 
-/** The goals step's treatment variation. Never a saved goal. */
+/** The goals step's treatment variation. */
 export const BRING_YOUR_AI_TOOL = 'bring_your_ai_tool';
 
 /** The goals step's ExPlat variations (`wpcom_ai_launchpad_bring_your_ai_tool_202611`). */
@@ -24,12 +24,6 @@ export const AI_TOOL_URLS = {
 
 export type AiTool = keyof typeof AI_TOOL_URLS;
 
-/** A connection from `GET /wpcom/v2/ai-launchpad/mcp-connections`, `connected_at` in Unix seconds. */
-export interface McpConnection {
-	integration: string;
-	connected_at: number;
-}
-
 /** How often the AI tool view checks for a connection while waiting. */
 export const MCP_POLL_INTERVAL_MS = 4000;
 
@@ -39,26 +33,25 @@ export const MCP_POLL_TIMEOUT_MS = 10 * 60 * 1000;
 /**
  * The newly connected AI tools: tools the user clicked Set up on, not yet shown as connected, that have an active
  * connection. An existing connection counts, because a user who already connected is not sent through a new
- * approval, and a token refresh makes `connected_at` unreliable as a first-connection time. The most recently
- * clicked tool comes last, so it is the latest connection.
+ * approval. The most recently clicked tool comes last, so it is the latest connection.
  *
- * @param connections - The connections the endpoint returned.
- * @param clicks      - When each tool's Set up was clicked, in Unix seconds.
- * @param clicked     - The tool clicked most recently.
+ * @param connections - The connected integrations the endpoint returned.
+ * @param clicked     - The tools the user clicked Set up on.
+ * @param latest      - The tool clicked most recently.
  * @param connected   - The tools already shown as connected.
  * @return The newly connected tools.
  */
 export function findNewConnections(
-	connections: McpConnection[],
-	clicks: Partial< Record< AiTool, number > >,
-	clicked: AiTool,
-	connected: AiTool[] = []
+	connections: string[],
+	clicked: AiTool[],
+	latest: AiTool,
+	connected: AiTool[]
 ): AiTool[] {
-	const matches = connections
-		.map( connection => connection.integration as AiTool )
-		.filter( tool => clicks[ tool ] !== undefined && ! connected.includes( tool ) );
-	return matches.includes( clicked )
-		? [ ...matches.filter( tool => tool !== clicked ), clicked ]
+	const matches = ( connections as AiTool[] ).filter(
+		tool => clicked.includes( tool ) && ! connected.includes( tool )
+	);
+	return matches.includes( latest )
+		? [ ...matches.filter( tool => tool !== latest ), latest ]
 		: matches;
 }
 
@@ -92,7 +85,7 @@ export function aiToolView(
 	if ( readOnly ) {
 		return 'read_only';
 	}
-	if ( connected.length === Object.keys( AI_TOOL_URLS ).length ) {
+	if ( connected.length === 2 ) {
 		return 'both_connected';
 	}
 	if ( waitingFor ) {
@@ -148,7 +141,7 @@ export function viewedStep(
 export const MCP_SETTINGS_URL = 'https://my.wordpress.com/me/preferences/mcp/write';
 
 /** The WordPress.com MCP server, for AI tools without a Set up link. */
-export const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
+const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
 
 /** Has any AI tool connect itself. Matches HELPER_PROMPT on Calypso's /me/mcp page; keep them in sync. */
 export const CONNECT_YOURSELF_PROMPT = `Connect yourself to my WordPress.com account over MCP. The server is ${ MCP_SERVER_URL }. Tell me what to click or run for this app, wait while I sign in and approve the connection, then list my sites to confirm it works.`;

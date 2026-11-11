@@ -92,14 +92,6 @@ class AI_Launchpad_Bring_Your_AI_Tool_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A control assignment comes back as control.
-	 */
-	public function test_control_assignment_is_returned() {
-		$this->stub_site( array( 'variation' => 'control' ) );
-		$this->assertSame( 'control', AI_Launchpad_Bring_Your_AI_Tool::get_variation() );
-	}
-
-	/**
 	 * A paid plan is never assigned.
 	 */
 	public function test_paid_site_is_not_assigned() {

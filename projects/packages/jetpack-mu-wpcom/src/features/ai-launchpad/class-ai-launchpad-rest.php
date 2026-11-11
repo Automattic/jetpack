@@ -1172,13 +1172,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * The current user's ChatGPT and Claude MCP connections, which the wizard polls to tell when the user has added
 	 * WordPress.com to their AI tool.
 	 *
-	 * Read from wpcom's `wpcom_mcp_get_user_connections()`, newest per tool, `connected_at` in Unix seconds. Where it
-	 * is not defined the list is empty, so the wizard keeps waiting.
+	 * Read from wpcom's `wpcom_mcp_get_user_connections()`, newest first. Where it is not defined the list is empty, so
+	 * the wizard keeps waiting.
 	 *
 	 * `access_level` is the account-wide MCP access level shared by every tool (`full`, `read_only`, or null when
 	 * unknown), read only once something is connected because it is costly.
 	 *
-	 * @return array{connections: array<int, array{integration: string, connected_at: int}>, access_level: string|null}
+	 * @return array{connections: string[], access_level: string|null}
 	 */
 	public function get_mcp_connections() {
 		if ( ! function_exists( 'wpcom_mcp_get_user_connections' ) ) {
@@ -1194,10 +1194,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			if ( ! is_array( $connection ) || ! in_array( $connection['integration'] ?? null, self::MCP_INTEGRATIONS, true ) ) {
 				continue;
 			}
-			$connections[] = array(
-				'integration'  => $connection['integration'],
-				'connected_at' => (int) ( $connection['connected_at'] ?? 0 ),
-			);
+			$connections[] = $connection['integration'];
 		}
 
 		$access_level = null;

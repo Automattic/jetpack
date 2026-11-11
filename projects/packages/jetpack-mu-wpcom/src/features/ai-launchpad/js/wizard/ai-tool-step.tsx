@@ -8,8 +8,8 @@ import {
 	trackWizardMcpPromptCopied,
 	trackWizardMcpWaitingViewed,
 } from '../lib/tracks.ts';
+import { bringYourAiToolCopy } from './ai-tool-copy.ts';
 import { chatGptIcon, claudeIcon } from './connector-icons.tsx';
-import { bringYourAiToolCopy } from './goals-step.tsx';
 import {
 	AI_TOOL_URLS,
 	aiToolRowStatus,
@@ -22,7 +22,6 @@ import {
 	MCP_POLL_TIMEOUT_MS,
 	type AiTool,
 	type GoalsVariation,
-	type McpConnection,
 } from './lib.ts';
 import type { Ref } from 'react';
 
@@ -73,8 +72,8 @@ export default function AiToolStep( {
 }: Props ) {
 	const id = useId();
 	const copy = bringYourAiToolCopy();
-	// When each tool's Set up was clicked, in Unix seconds.
-	const [ clicks, setClicks ] = useState< Partial< Record< AiTool, number > > >( {} );
+	// The tools whose Set up was clicked.
+	const [ clicked, setClicked ] = useState< AiTool[] >( [] );
 	// The tool clicked most recently, while still waiting for a connection.
 	const [ waitingFor, setWaitingFor ] = useState< AiTool | null >( null );
 	// When Copy prompt last copied, in milliseconds, or 0 while it shows Copy prompt.
@@ -107,7 +106,7 @@ export default function AiToolStep( {
 		}
 		let stopped = false;
 		const check = () => {
-			apiFetch< { connections?: McpConnection[]; access_level?: string | null } >( {
+			apiFetch< { connections?: string[]; access_level?: string | null } >( {
 				path: '/wpcom/v2/ai-launchpad/mcp-connections',
 			} )
 				.then( data => {
@@ -118,7 +117,7 @@ export default function AiToolStep( {
 					onReadOnlyChange( readOnlyAccess );
 					const newTools = findNewConnections(
 						data?.connections ?? [],
-						clicks,
+						clicked,
 						waitingFor,
 						connected
 					);
@@ -148,7 +147,7 @@ export default function AiToolStep( {
 			clearTimeout( timeout );
 			document.removeEventListener( 'visibilitychange', onVisibilityChange );
 		};
-	}, [ waitingFor, clicks, connected, onConnected, onReadOnlyChange ] );
+	}, [ waitingFor, clicked, connected, onConnected, onReadOnlyChange ] );
 
 	// Like Copy prompt on /me/mcp, the label goes back after a moment.
 	useEffect( () => {
@@ -195,11 +194,12 @@ export default function AiToolStep( {
 					const titleId = `${ id }-${ item.tool }-title`;
 					const descriptionId = `${ id }-${ item.tool }-description`;
 					const rowStatus = aiToolRowStatus( item.tool, connected, waitingFor, readOnly );
-					const isConnected = rowStatus === 'connected' || rowStatus === 'read_only';
 					let description: string = copy.opensInNewTab;
-					if ( isConnected ) {
-						description = readOnly ? copy.readOnlyDescription : copy.connectedToAccount;
-					} else if ( clicks[ item.tool ] !== undefined ) {
+					if ( rowStatus === 'read_only' ) {
+						description = copy.readOnlyDescription;
+					} else if ( rowStatus === 'connected' ) {
+						description = copy.connectedToAccount;
+					} else if ( clicked.includes( item.tool ) ) {
 						description = copy.openedInNewTab;
 					}
 					const status = rowStatus
@@ -236,7 +236,7 @@ export default function AiToolStep( {
 									role="status"
 									className={
 										'ai-launchpad-wizard__ai-tool-status' +
-										( isConnected && ! readOnly ? ' is-connected' : '' )
+										( rowStatus === 'connected' ? ' is-connected' : '' )
 									}
 								>
 									{ status }
@@ -250,10 +250,9 @@ export default function AiToolStep( {
 										aria-describedby={ `${ titleId } ${ descriptionId }` }
 										onClick={ () => {
 											trackWizardMcpLinkClicked( item.tool, { goals_variation: variation } );
-											setClicks( current => ( {
-												...current,
-												[ item.tool ]: Math.floor( Date.now() / 1000 ),
-											} ) );
+											setClicked( current =>
+												current.includes( item.tool ) ? current : [ ...current, item.tool ]
+											);
 											if ( detectsConnections ) {
 												trackWizardMcpWaitingViewed( {
 													goals_variation: variation,

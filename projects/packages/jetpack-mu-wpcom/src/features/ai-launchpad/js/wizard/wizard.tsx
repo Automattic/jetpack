@@ -19,9 +19,10 @@ import {
 	trackWizardStepCompleted,
 	trackWizardStepSkipped,
 } from '../lib/tracks.ts';
+import { bringYourAiToolCopy } from './ai-tool-copy.ts';
 import AiToolStep from './ai-tool-step.tsx';
 import DetailsStep from './details-step.tsx';
-import GoalsStep, { bringYourAiToolCopy } from './goals-step.tsx';
+import GoalsStep from './goals-step.tsx';
 import {
 	AI_TOOL_CHAT_URLS,
 	buildWizardPayload,

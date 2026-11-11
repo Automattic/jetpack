@@ -226,7 +226,7 @@ export function trackWizardSetupChoiceSelected( props: {
 }
 
 /**
- * Records a click on the "Bring your AI tool" card's link to an agent's WordPress.com app.
+ * Records a click on an AI tool's Set up link in the "Which AI do you use?" view.
  *
  * @param tool                  - The agent whose link was clicked.
  * @param props                 - The event properties.

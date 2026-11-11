@@ -1,8 +1,8 @@
 import { useId } from '@wordpress/element';
 import { listView } from '@wordpress/icons';
 import { Badge, Dialog, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
+import { bringYourAiToolCopy } from './ai-tool-copy.ts';
 import { chatGptIcon } from './connector-icons.tsx';
-import { bringYourAiToolCopy } from './goals-step.tsx';
 import type { Ref } from 'react';
 
 export type SetupChoice = 'guide' | 'ai';
@@ -45,16 +45,14 @@ export default function SetupChoiceStep( { value, onChange, titleRef }: Props ) 
 
 	return (
 		<Stack direction="column" gap="lg">
-			<Stack direction="column" gap="xs">
-				<Dialog.Title
-					ref={ titleRef }
-					id={ titleId }
-					tabIndex={ -1 }
-					className="ai-launchpad-wizard__title"
-				>
-					{ copy.choiceTitle }
-				</Dialog.Title>
-			</Stack>
+			<Dialog.Title
+				ref={ titleRef }
+				id={ titleId }
+				tabIndex={ -1 }
+				className="ai-launchpad-wizard__title"
+			>
+				{ copy.choiceTitle }
+			</Dialog.Title>
 			<div className="ai-launchpad-wizard__cards" role="radiogroup" aria-labelledby={ titleId }>
 				{ options.map( option => {
 					const inputId = `${ id }-${ option.key }`;
