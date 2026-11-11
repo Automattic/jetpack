@@ -1624,12 +1624,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		/*
-		 * The steps are already rendered by the time the form builds its context, so
-		 * the only record of how many there are is in their markup. Accept the quotes
-		 * inside the attribute either raw or HTML-encoded: a step whose attribute is
-		 * written by `WP_HTML_Tag_Processor::set_attribute()` gets `&quot;`, while one
-		 * written by `wp_interactivity_data_wp_context()` gets `"`, and a form whose
-		 * steps do not match here silently loses `currentStep` and stops paginating.
+		 * The rendered steps are the only record of the count. Accept raw or `&quot;`-encoded
+		 * quotes: a miss silently drops `currentStep` and the form stops paginating.
 		 */
 		$max_steps = 0;
 		if ( preg_match_all( '/data-wp-context=[\'"]?{(?:"|&quot;)step(?:"|&quot;):(\d+)}[\'"]?/', $content, $matches ) ) {

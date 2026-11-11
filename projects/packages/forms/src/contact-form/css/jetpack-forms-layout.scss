@@ -32,10 +32,8 @@
 	// levels down — `.jetpack-form-steps-wrapper` >
 	// `.wp-block-jetpack-form-step-container` > `.wp-block-jetpack-form-step` —
 	// so the second selector matches the step as a descendant, not a child.
-	// The step half overlaps the rule at the top of this file, which already
-	// stretches every step child. It stays because it is four classes rather
-	// than one, so a container block keeps its full width even against a theme
-	// that sizes `.wp-block-group` directly.
+	// The step half stays, despite the step's `stretch` layout, so a container
+	// keeps its full width against a theme that sizes `.wp-block-group` directly.
 	> :is(.wp-block-group, .wp-block-columns, .wp-block-details, .wp-block-accordion),
 	.wp-block-jetpack-form-step > :is(.wp-block-group, .wp-block-columns, .wp-block-details, .wp-block-accordion) {
 		box-sizing: border-box;
@@ -107,24 +105,9 @@
 			width: 100%;
 			box-sizing: border-box;
 
-			// Except the gap, which core only writes when the *theme* opts into
-			// block gap: `wp_render_layout_support_flag()` takes
-			// `$has_block_gap_support` from
-			// `isset( $global_settings['spacing']['blockGap'] )`, and core's own
-			// theme.json leaves `settings.spacing.blockGap` null. A classic theme
-			// (no theme.json) never opts in, so core emits no gap at all and the
-			// step falls through to core's shared
-			// `:where(.is-layout-flex) { gap: 0.5em }` — 8px, where the rule this
-			// replaced gave 24px. Declaring `spacing.blockGap` on the block does
-			// not close the gap: the gate is the theme's setting, not the block's
-			// support.
-			// So keep the declaration the deleted rule used. On a block theme the
-			// variable is defined and resolves to the same value core would emit;
-			// on a classic theme the 1.5rem fallback preserves the old spacing.
-			// Note this sits at three classes against core's one, so it wins
-			// wherever core does emit a gap. That is only safe while the step has
-			// no `spacing.blockGap` support: add one and a user's own value would
-			// be overridden here, so this rule has to give way at the same time.
+			// Core emits a gap only when the theme opts into blockGap.
+			// This outranks core's rule, so drop it if the step ever
+			// gains `spacing.blockGap` support.
 			gap: var(--wp--style--block-gap, 1.5rem);
 		}
 

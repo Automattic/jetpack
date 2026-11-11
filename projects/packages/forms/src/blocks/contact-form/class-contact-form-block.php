@@ -710,13 +710,7 @@ class Contact_Form_Block {
 						),
 					),
 
-					/*
-					 * Mirrors the block's index.js. Declared here as well as there because
-					 * layout classes and the scoped `wp-container-*` rule are generated per
-					 * surface: the editor reads the JS registration, the front end reads
-					 * this one, and a support declared on only one side renders on only one
-					 * side.
-					 */
+					// Keep in sync with form-step/index.js: each surface reads only its own registration.
 					'layout'     => array(
 						'default'                => array(
 							'type'           => 'flex',

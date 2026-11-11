@@ -165,13 +165,7 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 		renderAppender = InnerBlocks.ButtonBlockAppender;
 	}
 
-	/*
-	 * One element, not two: `blockProps` and the inner-blocks props go on the same
-	 * div so the step has a single wrapper, the way `form-step-container` and the
-	 * front end do. Anything block supports put on the block's own element — the
-	 * layout classes and the scoped `wp-container-*` rule among them — then lands
-	 * on the element that actually lays the step's blocks out.
-	 */
+	// One element, so the layout classes land on the div that lays the step's blocks out.
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: getStepTemplate( hasPrevNavigation ),
 		allowedBlocks: ALLOWED_BLOCKS,

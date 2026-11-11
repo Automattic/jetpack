@@ -936,15 +936,7 @@ class Contact_Form_Plugin {
 			$tags->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
 		}
 
-		/*
-		 * Put the step's interactivity on the block's own element rather than in a
-		 * wrapper around it. The saved markup already opens with the block wrapper —
-		 * `save.jsx` renders a single `<div {...useInnerBlocksProps.save( useBlockProps.save() )} />`
-		 * — and that element is the one the step's layout applies to, both here and in
-		 * the editor. A second element around it put the visibility toggling on one
-		 * element and the flex container on another, which is how the editor and the
-		 * front end came to disagree about which element a step's layout belongs to.
-		 */
+		// Put the interactivity on the block's own wrapper, the element its layout applies to, not a second div.
 		$tags->seek( 'start' );
 		$tags->add_class( 'jetpack-form-step' );
 		if ( self::$step_count === 1 ) {
@@ -955,11 +947,7 @@ class Contact_Form_Plugin {
 		$tags->set_attribute( 'data-wp-class--is-after-current', 'state.isAfterCurrent' );
 		$tags->set_attribute( 'data-wp-class--is-current-step', 'state.isCurrentStep' );
 
-		/*
-		 * The same encoding `wp_interactivity_data_wp_context()` uses; that helper
-		 * returns a whole attribute string, and this needs a bare value to hand to
-		 * the tag processor, which does its own escaping.
-		 */
+		// Same encoding as wp_interactivity_data_wp_context(), which returns a whole attribute string.
 		$tags->set_attribute(
 			'data-wp-context',
 			(string) wp_json_encode(
