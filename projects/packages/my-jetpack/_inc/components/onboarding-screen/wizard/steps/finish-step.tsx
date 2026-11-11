@@ -97,14 +97,16 @@ function featureCount( count: number ): string {
  * all. Each line names setup, because the rows show end state and a bare count
  * reads as their total.
  *
- * @param counts     - What the run did, counted.
- * @param counts.on  - How many it switched on.
- * @param counts.off - How many it switched off.
- * @return The line above the list.
+ * @param counts        - What the run did, counted.
+ * @param counts.on     - How many it switched on.
+ * @param counts.off    - How many it switched off.
+ * @param counts.failed - How many it failed to switch.
+ * @return The line above the list, or null when every change failed.
  */
-function sessionTally( { on, off }: Tally ): string {
+function sessionTally( { on, off, failed }: Tally ): string | null {
 	if ( ! on && ! off ) {
-		return __( 'Nothing needed changing on this site.', 'jetpack-my-jetpack' );
+		// The heading already says nothing went through; "nothing needed changing" would contradict it.
+		return failed ? null : __( 'Nothing needed changing on this site.', 'jetpack-my-jetpack' );
 	}
 
 	if ( on && off ) {
@@ -226,13 +228,15 @@ export function FinishStep( {
 
 				{ results.length > 0 && (
 					<Stack direction="column" gap="md" className={ styles[ 'finish-summary' ] }>
-						<Text
-							variant="body-md"
-							render={ <p /> }
-							className={ clsx( styles[ 'finish-note' ], styles.wave, styles[ 'wave-3' ] ) }
-						>
-							{ tally }
-						</Text>
+						{ tally && (
+							<Text
+								variant="body-md"
+								render={ <p /> }
+								className={ clsx( styles[ 'finish-note' ], styles.wave, styles[ 'wave-3' ] ) }
+							>
+								{ tally }
+							</Text>
+						) }
 
 						{ /* Safari drops the list role off a `list-style: none` list, so the count goes unsaid. */ }
 						<Card.Root

@@ -1610,6 +1610,30 @@ describe( 'The feature step', () => {
 		).toHaveAccessibleDescription( 'Alerts if it goes down. Set by a site administrator' );
 	} );
 
+	// apply() runs on the set it was started with, so a move mid-apply would never be sent.
+	it( 'holds every switch while the modules are being switched', async () => {
+		const { user, refresh } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		mockRecordEvent.mockClear();
+		mockSetup.isApplying = true;
+		refresh();
+
+		for ( const module of mockModules ) {
+			expect( screen.getByRole( 'switch', { name: module.name } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+		}
+
+		await user.click( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) );
+
+		expect( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) ).not.toBeChecked();
+		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_my_jetpack_onboarding_wizard_module_toggle',
+			expect.anything()
+		);
+	} );
+
 	// Continue before the list arrives would apply nothing and report nothing changed.
 	it( 'waits for the modules before Continue', async () => {
 		mockSetup.isLoading = true;
@@ -1690,6 +1714,7 @@ describe( 'The feature step', () => {
 			)
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /The rest are ready/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Nothing needed changing on this site.' ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [

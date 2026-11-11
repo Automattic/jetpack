@@ -19,6 +19,8 @@ type FeaturesStepProps = {
 	// Missing entries mean the module keeps whatever the site already does.
 	wanted: Record< string, boolean >;
 	onChange: ( slug: string, want: boolean ) => void;
+	// True while the wizard applies or leaves: a switch moved then would not be sent.
+	disabled?: boolean;
 };
 
 /**
@@ -28,16 +30,19 @@ type FeaturesStepProps = {
  * @param props.module   - The module this row is for.
  * @param props.checked  - Whether it is switched on.
  * @param props.onChange - Called with the new value.
+ * @param props.disabled - Whether the wizard is busy.
  * @return The rendered row.
  */
 function FeatureRow( {
 	module,
 	checked,
 	onChange,
+	disabled,
 }: {
 	module: SetupModule;
 	checked: boolean;
 	onChange: ( slug: string, want: boolean ) => void;
+	disabled: boolean;
 } ) {
 	const toggleId = useId();
 	const nameId = useId();
@@ -111,7 +116,7 @@ function FeatureRow( {
 				className={ styles[ 'feature-row__switch' ] }
 				checked={ checked }
 				// Forced by an override: a request to move it would fail, as it does in Jetpack settings.
-				disabled={ module.locked }
+				disabled={ module.locked || disabled }
 				onCheckedChange={ handleChange }
 				aria-labelledby={ nameId }
 				// The note is its own element, so it is named here or it is unsaid.
@@ -135,6 +140,7 @@ function FeatureRow( {
  * @param props.isLoading   - Whether the site's answer is still on its way.
  * @param props.wanted      - What the user has asked for, by slug.
  * @param props.onChange    - Called with a slug and its new value.
+ * @param props.disabled    - Whether every switch is held while the wizard is busy.
  * @return The rendered step.
  */
 export function FeaturesStep( {
@@ -145,6 +151,7 @@ export function FeaturesStep( {
 	isLoading = false,
 	wanted,
 	onChange,
+	disabled = false,
 }: FeaturesStepProps ) {
 	return (
 		<Stack direction="column" gap="2xl" className={ styles[ 'step-body' ] }>
@@ -183,6 +190,7 @@ export function FeaturesStep( {
 								module={ module }
 								checked={ isWanted( wanted, module ) }
 								onChange={ onChange }
+								disabled={ disabled }
 							/>
 						</div>
 					) ) }

@@ -215,10 +215,14 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 	const handleModuleChange = useCallback(
 		( moduleSlug: string, want: boolean ) => {
+			// apply() holds the wanted set it started with, so a move now would never be sent.
+			if ( busy ) {
+				return;
+			}
 			setWantedModules( current => ( { ...current, [ moduleSlug ]: want } ) );
 			track( WIZARD_EVENTS.moduleToggle, { module: moduleSlug, enabled: want } );
 		},
-		[ track ]
+		[ busy, track ]
 	);
 
 	const justConnected = useJustConnected();
@@ -450,6 +454,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				isLoading={ modulesLoading }
 				wanted={ wantedModules }
 				onChange={ handleModuleChange }
+				disabled={ busy }
 			/>
 		),
 		finish: (
