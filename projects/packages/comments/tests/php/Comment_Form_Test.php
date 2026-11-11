@@ -78,12 +78,15 @@ class Comment_Form_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_render_keeps_the_theme_submit_button() {
-		$form = Comment_Form::init();
-		$form->comment_form_defaults( array() );
+	public function test_markup_keeps_the_theme_submit_button() {
+		// Not render(): it enqueues the JS build, which CI's PHP tests run without.
+		$method = new \ReflectionMethod( Comment_Form::class, 'markup' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true ); // Deprecated in PHP 8.5, needed before 8.1.
+		}
 
-		$markup = $form->render(
-			'',
+		$markup = $method->invoke(
+			Comment_Form::init(),
 			array(
 				'submit_button' => '<input name="custom-%1$s" type="submit" id="custom-%2$s" class="%3$s" value="custom-%4$s" />',
 				'name_submit'   => 'foo-name',
