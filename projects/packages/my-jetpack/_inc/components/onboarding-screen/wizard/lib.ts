@@ -392,7 +392,7 @@ function featuresDescriptions(): Record< string, string > {
 			'jetpack-my-jetpack'
 		),
 		business: __(
-			'Customers need a way to reach you, and a site that’s up when they try.',
+			'Customers need a way to reach you, and you need to know if your site goes down.',
 			'jetpack-my-jetpack'
 		),
 	};

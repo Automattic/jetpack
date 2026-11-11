@@ -206,4 +206,27 @@ describe( 'The modules the wizard offers', () => {
 			{ slug: 'monitor', locked: false },
 		] );
 	} );
+
+	it( 'replaces a line that promises a paid plan, and keeps the rest', () => {
+		mockStore.modules = {
+			stats: { name: 'Stats', description: 'Traffic insights.', activated: true },
+			'activity-log': {
+				name: 'Activity Log',
+				description: 'See what happened and roll back when something goes wrong.',
+				activated: true,
+			},
+		};
+
+		const { result } = renderHook( () => useSetupModules() );
+
+		expect(
+			result.current.modules.map( ( { slug, description } ) => ( { slug, description } ) )
+		).toEqual( [
+			{ slug: 'stats', description: 'Traffic insights.' },
+			{
+				slug: 'activity-log',
+				description: 'See what changed on your site, who changed it, and when.',
+			},
+		] );
+	} );
 } );
