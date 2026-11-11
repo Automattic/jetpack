@@ -5,7 +5,7 @@ import * as HeatmapStories from './index.stories';
 
 # Heatmap Chart
 
-Visualize values across a two-dimensional matrix of cells on a sequential color scale. Cells run from a tint of the primary color to a deeper shade of it based on relative value. `null` cells, and zeros in data with no negative values, take the neutral empty-cell color.
+Visualize values across a two-dimensional matrix of cells on a sequential color scale. Cells run from a tint of the primary color to a deeper shade of it by how a value ranks among the others. `null` cells, and zeros in data with no negative values, take the neutral empty-cell color.
 
 <Canvas of={ HeatmapStories.Default } />
 
@@ -78,6 +78,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`columnGroups`**: consecutive runs of columns sharing a label beneath the grid, one group gap apart. See [Column Groups](#column-groups).
 - **`ariaLabel`**: accessible name of the grid. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - **`primaryColor`**: color the scale is built from; see [Theming](#theming). Defaults to the first series palette color, `--a8c-charts-color-series-1`
+- **`scaleSteps`** (default: `5`): how many color steps the cells and the legend share, a whole number from 2 to 10. See [Color Scale](#color-scale).
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
@@ -86,6 +87,45 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`chartId`**: custom identifier for accessibility labelling
 - **`className`**: additional CSS class for the outer element
 - **`children`**: composition children (e.g. `<HeatmapChart.Legend />`)
+
+## Color Scale
+
+A shade reports a value's rank, not its distance from the largest value. The values are split into at most `scaleSteps` buckets that each hold about the same share of the series, so one viral month does not turn every other month the same pale shade. Every year of a long history keeps its own busy and quiet months. The largest value is always the darkest step and the smallest the lightest.
+
+A cell's shade is always one of `scaleSteps` fixed steps, so every cell matches a legend swatch. A series with little variety, such as one holding only three distinct values, yields fewer buckets than `scaleSteps`: it uses fewer colors and leaves some legend swatches unused.
+
+`scaleSteps` must be a whole number from 2 to 10. Any other value warns once and falls back to `5`. Change it, rather than the legend's `steps`, when a host wants a different number of steps: a legend `steps` that differs from `scaleSteps` draws shades the cells never paint.
+
+<Canvas of={ HeatmapStories.LongSiteHistory } />
+
+<Source
+	language="tsx"
+	code={ `<HeatmapChart data={ columns } rowLabels={ rowLabels } scaleSteps={ 7 }>
+		<HeatmapChart.Legend variant="bar" />
+	</HeatmapChart>` }
+/>
+
+<Canvas of={ HeatmapStories.FewDistinctValues } />
+
+### Incomplete periods
+
+Flag a cell `partial: true` when it covers a period the data does not fill, such as a launch month or a month still running. The cell stays out of the extent and the bucket thresholds and is painted as a diagonal hatch rather than a shade, so it reads as neither a quiet period nor the lowest step. It keeps its value, tooltip and place in keyboard navigation, and its accessible name ends with `(incomplete)`. A `partial` flag on a cell in a `summary` column is ignored: the summary column stays unfilled.
+
+<Canvas of={ HeatmapStories.SinglePostHistory } />
+
+<Source
+	language="tsx"
+	code={ `const columns = [
+		{
+			label: 'Oct',
+			data: [ { label: 'Oct 2024', value: 85, partial: true } ],
+		},
+		{
+			label: 'Nov',
+			data: [ { label: 'Nov 2024', value: 140 } ],
+		},
+	];` }
+/>
 
 ## Compact Mode
 
@@ -310,6 +350,8 @@ Add a legend by placing `<HeatmapChart.Legend />` as a child. Between its Less a
 
 <Canvas of={ HeatmapStories.WithBarLegend } />
 
+The legend draws as many swatches as the chart's `scaleSteps`. Setting the legend's `steps` to anything else decouples the swatches from the cells: cell shades are always `k / ( scaleSteps - 1 )` for a whole number `k`, so a legend with a different step count shows shades the cells never paint. To change the number of steps, set `scaleSteps` on the chart.
+
 ## Error / Empty State
 
 When `data` is empty the chart renders a "No data available" placeholder:
@@ -339,7 +381,7 @@ Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard na
 
 ## Theming
 
-The heatmap resolves the color its scale is built from in this order: the `primaryColor` prop wins, then the first series palette color (`--a8c-charts-color-series-1`). From it and the chart background the chart derives the two ends of the scale: the shade closest to the background that reaches 2.5:1 against it and against the empty-cell color, and a deeper one toward 6:1, darker or lighter than the primary as the background requires. When the empty-cell color leaves no room for that, the lowest step settles for 2:1, then for the shade farthest from the empty cells, so the two ends always stay 2:1 apart. CSS `color-mix` fills in the steps between.
+The heatmap resolves the color its scale is built from in this order: the `primaryColor` prop wins, then the first series palette color (`--a8c-charts-color-series-1`). From it and the chart background the chart derives the two ends of the scale: the shade closest to the background that reaches 2.5:1 against it and against the empty-cell color, and a deeper one toward 9:1, darker or lighter than the primary as the background requires. When the empty-cell color leaves no room for that, the lowest step settles for 2:1, then for the shade farthest from the empty cells, so the two ends always stay 2:1 apart. CSS `color-mix` fills in the steps between; see [Color Scale](#color-scale) for how values choose a step.
 
 Use the prop for one chart, or move the palette slot in CSS to change every chart at once.
 
