@@ -19,7 +19,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/media/ai-marker-image-edi
 require_once __DIR__ . '/trait-fake-ai-marker-tools.php';
 
 /**
- * Runs the editor against fake exiftool and c2patool scripts, so the tests need neither tool.
+ * Uses fake exiftool and c2patool scripts, so the tests need neither tool.
  *
  * @requires function imagejpeg
  */
@@ -109,14 +109,14 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Source types.
+	 * AI source types.
 	 *
 	 * @return array
 	 */
 	public static function data_types() {
 		return array(
 			'ai'           => array( self::AI_MARKER ),
-			'camera photo' => array( self::CAMERA ),
+			'ai composite' => array( self::COMPOSITE ),
 		);
 	}
 
@@ -135,8 +135,8 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			array(
-				array( '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $source ),
-				array( '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', self::$write_arg . $type, $target ),
+				array( '-config', '', '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $source ),
+				array( '-config', '', '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', self::$write_arg . $type, $target ),
 			),
 			$this->calls( 'exiftool' )
 		);
@@ -179,11 +179,8 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( self::AI_MARKER, self::AI_MARKER ), $this->written_types() );
 	}
 
-	/**
-	 * The type comes from the file and must reach exiftool as one unchanged argument.
-	 */
 	public function test_a_type_with_shell_metacharacters_stays_one_argument() {
-		$type = 'x\'; touch CANARY; echo $(id) `id` "q" \\ &end';
+		$type = 'x\';touch${IFS}CANARY;echo$(id)`id`"q"\\&end/trainedAlgorithmicMedia';
 		$this->fake_exiftool( $type );
 
 		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
@@ -192,32 +189,28 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The tool that hangs.
+	 * The tool that hangs, and the script that makes it hang.
 	 *
 	 * @return array
 	 */
-	public static function data_tools() {
+	public static function data_hangs() {
 		return array(
-			'exiftool' => array( 'exiftool' ),
-			'c2patool' => array( 'c2patool' ),
+			'exiftool'                               => array( 'exiftool', "exec sleep 5\n" ),
+			'exiftool closes its output, then hangs' => array( 'exiftool', "exec >&-\nexec sleep 5\n" ),
 		);
 	}
 
 	/**
-	 * @dataProvider data_tools
+	 * @dataProvider data_hangs
 	 *
 	 * @param string $tool The tool that hangs.
+	 * @param string $body The fake tool's script.
 	 */
-	#[DataProvider( 'data_tools' )]
-	public function test_stops_a_tool_at_the_time_limit( $tool ) {
+	#[DataProvider( 'data_hangs' )]
+	public function test_stops_a_tool_at_the_time_limit( $tool, $body ) {
 		$this->fake_exiftool( '', 0, true );
-		$this->fake_tool( $tool, "exec sleep 5\n" );
-		add_filter(
-			'jetpack_wpcom_ai_marker_tool_time_limit',
-			function () {
-				return 1;
-			}
-		);
+		$this->fake_tool( $tool, $body );
+		$this->limit_tools_to_one_second();
 		$start = microtime( true );
 
 		$saved = wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
@@ -225,6 +218,46 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertLessThan( 3, microtime( true ) - $start );
 		$this->assertIsArray( $saved );
 		$this->assertSame( array( 'timed-out' ), $this->stats );
+	}
+
+	/**
+	 * Only SIGINT makes exiftool delete its temp file.
+	 */
+	public function test_interrupts_a_tool_at_the_time_limit() {
+		$interrupted = $this->temp_path( 'log' );
+		$this->fake_tool( 'exiftool', 'trap "touch ' . escapeshellarg( $interrupted ) . "; exit 1\" INT\nsleep 5 &\nwait\n" );
+		$this->limit_tools_to_one_second();
+
+		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+
+		$this->assertFileExists( $interrupted );
+	}
+
+	/**
+	 * Scripts that print more than the tool output limit.
+	 *
+	 * @return array
+	 */
+	public static function data_too_much_output() {
+		return array(
+			'never stops'               => array( "exec yes\n" ),
+			'exits just over the limit' => array( "exec head -c 262244 /dev/zero\n" ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_too_much_output
+	 *
+	 * @param string $body The fake exiftool's script.
+	 */
+	#[DataProvider( 'data_too_much_output' )]
+	public function test_stops_a_tool_that_prints_too_much( $body ) {
+		$this->fake_tool( 'exiftool', $body );
+
+		$saved = wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+
+		$this->assertIsArray( $saved );
+		$this->assertSame( array( 'output-too-large' ), $this->stats );
 	}
 
 	/**
@@ -241,7 +274,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		};
 
 		return array(
-			'active manifest listed last' => array(
+			'active manifest listed last'      => array(
 				$store(
 					'composite',
 					array(
@@ -252,20 +285,38 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 				0,
 				self::COMPOSITE,
 			),
-			'type only on an ingredient'  => array(
+			'AI ingredient after a camera one' => array(
 				$store(
 					'edit',
 					array(
-						'edit'       => self::manifest( null ),
-						'ingredient' => self::manifest( self::AI_MARKER ),
+						'edit'   => self::manifest( null ),
+						'camera' => self::manifest( self::CAMERA ),
+						'ai'     => self::manifest( self::AI_MARKER ),
 					)
 				),
 				0,
 				self::AI_MARKER,
 			),
-			'no type'                     => array( $store( 'a', array( 'a' => self::manifest( null ) ) ), 0, '' ),
-			'type is not a string'        => array( $store( 'a', array( 'a' => self::manifest( array( 'x' => 1 ) ) ) ), 0, '' ),
-			'string type after a bad one' => array(
+			'AI composite ingredient'          => array(
+				$store(
+					'edit',
+					array(
+						'edit'   => self::manifest( null ),
+						'camera' => self::manifest( self::CAMERA ),
+						'ai'     => self::manifest( self::COMPOSITE ),
+					)
+				),
+				0,
+				self::COMPOSITE,
+			),
+			'AI action after a blank canvas'   => array(
+				$store( 'a', array( 'a' => self::manifest( 'http://c2pa.org/digitalsourcetype/empty', self::AI_MARKER ) ) ),
+				0,
+				self::AI_MARKER,
+			),
+			'camera photo'                     => array( $store( 'a', array( 'a' => self::manifest( self::CAMERA ) ) ), 0, '' ),
+			'no type'                          => array( $store( 'a', array( 'a' => self::manifest( null ) ) ), 0, '' ),
+			'string type after a bad one'      => array(
 				$store(
 					'edit',
 					array(
@@ -276,7 +327,8 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 				0,
 				self::AI_MARKER,
 			),
-			'c2patool fails'              => array( $store( 'a', array( 'a' => self::manifest( self::AI_MARKER ) ) ), 1, '' ),
+			'c2patool fails'                   => array( $store( 'a', array( 'a' => self::manifest( self::AI_MARKER ) ) ), 1, '' ),
+			'type with a null byte'            => array( $store( 'a', array( 'a' => self::manifest( "http://x\0y" ) ) ), 0, '' ),
 		);
 	}
 
@@ -309,8 +361,9 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function data_no_c2patool() {
 		return array(
-			'XMP wins over the manifest' => array( self::CAMERA, true, array( self::CAMERA ) ),
-			// Most uploads have no manifest, so c2patool would otherwise run on nearly every save.
+			'XMP wins over the manifest' => array( self::COMPOSITE, true, array( self::COMPOSITE ) ),
+			'camera photo'               => array( self::CAMERA, false, array() ),
+			// Most uploads have no manifest.
 			'no manifest'                => array( '', false, array() ),
 		);
 	}
@@ -388,6 +441,17 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'remote-source', 'download-failed' ), $this->stats );
 	}
 
+	public function test_deletes_the_download_when_the_read_fails() {
+		$this->use_tool( 'exiftool', "/no/such\0tool" );
+		$this->mock_download( $this->jpeg() );
+
+		$saved = $this->editor_loaded_by_url()->save( $this->temp_path( 'jpeg' ) );
+
+		$this->assertIsArray( $saved );
+		$this->assertFileDoesNotExist( $this->downloaded );
+		$this->assertSame( array( 'remote-source', 'read-error' ), $this->stats );
+	}
+
 	public function test_saves_the_edit_when_exiftool_cannot_write() {
 		$this->fake_exiftool( self::AI_MARKER, 1 );
 
@@ -399,24 +463,40 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A manifest with one c2pa.created action.
+	 * A manifest with one c2pa.created action for each type.
 	 *
-	 * @param mixed $type The action's type, or null for none.
+	 * @param mixed ...$types Each action's type, or null for none.
 	 * @return array
 	 */
-	private static function manifest( $type ) {
-		$action = array( 'action' => 'c2pa.created' );
-		if ( null !== $type ) {
-			$action['digitalSourceType'] = $type;
+	private static function manifest( ...$types ) {
+		$actions = array();
+		foreach ( $types as $type ) {
+			$action = array( 'action' => 'c2pa.created' );
+			if ( null !== $type ) {
+				$action['digitalSourceType'] = $type;
+			}
+			$actions[] = $action;
 		}
 
 		return array(
 			'assertions' => array(
 				array(
 					'label' => 'c2pa.actions.v2',
-					'data'  => array( 'actions' => array( $action ) ),
+					'data'  => array( 'actions' => $actions ),
 				),
 			),
+		);
+	}
+
+	/**
+	 * Sets the tool time limit to 1 second.
+	 */
+	private function limit_tools_to_one_second() {
+		add_filter(
+			'jetpack_wpcom_ai_marker_tool_time_limit',
+			function () {
+				return 1;
+			}
 		);
 	}
 
@@ -443,7 +523,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * GD reads URLs with file_get_contents(), which tests can't mock, so load from disk, then set a URL.
+	 * Loads from disk, then sets a URL, since tests can't mock GD's file_get_contents().
 	 *
 	 * @return WP_Image_Editor
 	 */
