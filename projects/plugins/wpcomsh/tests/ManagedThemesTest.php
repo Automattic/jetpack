@@ -187,7 +187,9 @@ class ManagedThemesTest extends WP_UnitTestCase {
 		delete_option( 'wpcomsh_at_managed_themes' );
 		$hook_extra = array_filter( compact( 'type', 'action' ) );
 
-		wpcomsh_handle_update_managed_themes_list( null, $hook_extra );
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+		wpcomsh_handle_update_managed_themes_list( new WP_Upgrader(), $hook_extra );
 
 		$this->assertSame( $refreshed, false !== get_option( 'wpcomsh_at_managed_themes', false ) );
 	}
