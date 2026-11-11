@@ -315,6 +315,28 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test POST `sites/%s/settings` turns on the AI Launchpad.
+	 */
+	public function test_post_turns_on_the_ai_launchpad() {
+		$response = $this->make_post_request( wp_json_encode( array( 'wpcom_ai_launchpad_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertTrue( $response['updated']['wpcom_ai_launchpad_enabled'] );
+		$this->assertSame( '1', (string) get_option( 'wpcom_ai_launchpad_enabled' ) );
+	}
+
+	/**
+	 * Test POST `sites/%s/settings` can't turn off the AI Launchpad.
+	 */
+	public function test_post_does_not_turn_off_the_ai_launchpad() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+
+		$response = $this->make_post_request( wp_json_encode( array( 'wpcom_ai_launchpad_enabled' => false ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertArrayNotHasKey( 'wpcom_ai_launchpad_enabled', $response['updated'] );
+		$this->assertSame( '1', (string) get_option( 'wpcom_ai_launchpad_enabled' ) );
+	}
+
+	/**
 	 * The free tier description is capped to 500 characters to match the
 	 * paid-tier description field.
 	 */
