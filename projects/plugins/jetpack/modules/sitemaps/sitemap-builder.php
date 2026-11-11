@@ -1367,7 +1367,8 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			} else {
 				foreach ( $posts as $post ) {
 					// Expire the cache when the oldest entry turns 48 hours old.
-					$expiry       = min( $expiry, max( 1, strtotime( $post->post_date_gmt . ' UTC' ) + 2 * DAY_IN_SECONDS - time() ) );
+					$post_gmt = '0000-00-00 00:00:00' !== $post->post_date_gmt ? $post->post_date_gmt : get_gmt_from_date( $post->post_date );
+					$expiry   = min( $expiry, max( 1, strtotime( $post_gmt . ' UTC' ) + 2 * DAY_IN_SECONDS - time() ) );
 					$current_item = $this->post_to_news_sitemap_item( $post );
 
 					if ( $current_item['xml'] !== null && false === $buffer->append( $current_item['xml'] ) ) {
