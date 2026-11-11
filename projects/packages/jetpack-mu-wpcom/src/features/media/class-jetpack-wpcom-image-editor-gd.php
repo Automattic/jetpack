@@ -11,19 +11,19 @@ require_once ABSPATH . WPINC . '/class-wp-image-editor-gd.php';
 require_once __DIR__ . '/class-jetpack-wpcom-ai-marker.php';
 
 /**
- * GD drops all metadata on save. This keeps the XMP DigitalSourceType, whatever its value.
+ * Keeps the source's AI DigitalSourceType, which GD drops on save.
  */
 class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 
 	/**
-	 * The source's DigitalSourceType: '' when it has none, null until the first save.
+	 * The source's AI DigitalSourceType: '' when it has none, null until the first save.
 	 *
 	 * @var string|null
 	 */
 	private $digital_source_type = null;
 
 	/**
-	 * Saves the image, then writes the source's DigitalSourceType into it.
+	 * Saves the image, then writes the source's AI DigitalSourceType into it.
 	 *
 	 * @param string   $filename  Path to save the image to.
 	 * @param callable $callback  GD function that writes the image.
