@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Attachment pages: Fix invalid nested label markup on the Media settings checkbox.
