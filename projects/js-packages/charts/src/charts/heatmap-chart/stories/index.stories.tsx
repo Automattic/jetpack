@@ -16,7 +16,7 @@ import {
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { HeatmapChart, useCalendarHeatmapData, useMonthCalendarHeatmapData } from '../index';
 import type { DataPointDate } from '../../../types';
-import type { CalendarHeatmapOptions } from '../index';
+import type { CalendarHeatmapOptions, HeatmapCell, HeatmapColumn } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
@@ -102,6 +102,196 @@ export const MinimumCellSize: Story = {
 		containerHeight: '280px',
 		minCellWidth: 44,
 		minCellHeight: 32,
+	},
+};
+
+const MONTH_LABELS = [
+	'Jan',
+	'Feb',
+	'Mar',
+	'Apr',
+	'May',
+	'Jun',
+	'Jul',
+	'Aug',
+	'Sep',
+	'Oct',
+	'Nov',
+	'Dec',
+];
+
+/**
+ * Lay months out as twelve columns with one row per year.
+ *
+ * @param years   - The years, one per row.
+ * @param cellFor - The cell for a month, or `null` for a month outside the covered span.
+ * @return One column per month; uncovered months are placeholder cells.
+ */
+const monthColumns = (
+	years: number[],
+	cellFor: ( year: number, month: number ) => HeatmapCell | null
+): HeatmapColumn[] =>
+	MONTH_LABELS.map( ( label, month ) => ( {
+		label,
+		data: years.map( year => ( {
+			label: `${ label } ${ year }`,
+			...( cellFor( year, month ) ?? { value: null, placeholder: true } ),
+		} ) ),
+	} ) );
+
+const LONG_HISTORY_YEARS = [ 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 ];
+const LONG_HISTORY_YEARLY_BASE = [ 7000, 11000, 16000, 24000, 30000, 26000, 28000, 31000 ];
+const LONG_HISTORY_SEASONALITY = [ 1, 0.95, 1.05, 1, 0.9, 0.8, 0.75, 0.8, 1.1, 1.15, 1.05, 0.85 ];
+
+const jitter = ( seed: number ) =>
+	0.85 + 0.3 * ( Math.abs( Math.sin( seed * 12.9898 ) * 43758.5453 ) % 1 );
+
+// Launched late March 2018, one viral September 2021, and November 2025 still running.
+const longHistoryCell = ( year: number, month: number ): HeatmapCell | null => {
+	if ( year === 2018 && month < 2 ) {
+		return null;
+	}
+	if ( year === 2018 && month === 2 ) {
+		return { value: 200, partial: true };
+	}
+	if ( year === 2025 && month === 10 ) {
+		return { value: 14200, partial: true };
+	}
+	if ( year === 2025 && month === 11 ) {
+		return null;
+	}
+	if ( year === 2021 && month === 8 ) {
+		return { value: 800000 };
+	}
+	const yearIndex = LONG_HISTORY_YEARS.indexOf( year );
+	return {
+		value: Math.round(
+			LONG_HISTORY_YEARLY_BASE[ yearIndex ] *
+				LONG_HISTORY_SEASONALITY[ month ] *
+				jitter( yearIndex * 12 + month )
+		),
+	};
+};
+
+const longHistoryMonths = monthColumns( LONG_HISTORY_YEARS, longHistoryCell );
+
+const longHistoryData: HeatmapColumn[] = [
+	...longHistoryMonths,
+	{
+		label: 'Totals',
+		summary: true,
+		data: LONG_HISTORY_YEARS.map( ( year, row ) => ( {
+			label: `Total ${ year }`,
+			value: longHistoryMonths.reduce(
+				( sum, column ) => sum + ( column.data[ row ].value ?? 0 ),
+				0
+			),
+		} ) ),
+	},
+];
+
+/**
+ * The "Views over years" shape: eight years of months, skewed the way a real site's are.
+ * Look for two things. Every year shows its own busy and quiet months, even beside a viral
+ * September 2021 near 800,000 views. And each filled cell matches one swatch of the legend.
+ * The launch month (Mar 2018) and the current month (Nov 2025) cover part of a month, so
+ * they are hatched instead of shaded: they are not read as quiet months, and they sit
+ * outside the scale. Months before launch and after the current month are faded slots.
+ */
+export const LongSiteHistory: Story = {
+	render: args => (
+		<HeatmapChart { ...args } chartId="long-site-history-heatmap">
+			<HeatmapChart.Legend variant="bar" lessLabel="Fewer views" moreLabel="More views" />
+		</HeatmapChart>
+	),
+	args: {
+		...sharedThemeArgs,
+		data: longHistoryData,
+		rowLabels: LONG_HISTORY_YEARS.map( String ),
+		withTooltips: true,
+		ariaLabel: 'Views over years',
+		containerWidth: '960px',
+		containerHeight: '460px',
+	},
+};
+
+const SINGLE_POST_HISTORY_YEARS = [ 2024, 2025 ];
+
+// Published in October 2024, one spike in January 2025, November 2025 still running.
+const SINGLE_POST_VIEWS: Record< string, number > = {
+	'2024-9': 85,
+	'2024-10': 140,
+	'2024-11': 96,
+	'2025-0': 9400,
+	'2025-1': 310,
+	'2025-2': 180,
+	'2025-3': 150,
+	'2025-4': 120,
+	'2025-5': 95,
+	'2025-6': 88,
+	'2025-7': 110,
+	'2025-8': 70,
+	'2025-9': 82,
+	'2025-10': 41,
+};
+
+const singlePostCell = ( year: number, month: number ): HeatmapCell | null => {
+	const key = `${ year }-${ month }`;
+	if ( ! ( key in SINGLE_POST_VIEWS ) ) {
+		return null;
+	}
+	return { value: SINGLE_POST_VIEWS[ key ], partial: key === '2024-9' || key === '2025-10' };
+};
+
+/**
+ * A post's all-time traffic: fourteen months from the month it was published. One spike sits
+ * two orders of magnitude above the rest, yet the quieter months still tell apart. The
+ * publish month (Oct 2024) and the current month (Nov 2025) are hatched; the months before
+ * publication and after the current month are faded slots.
+ */
+export const SinglePostHistory: Story = {
+	render: args => (
+		<HeatmapChart { ...args } chartId="single-post-history-heatmap">
+			<HeatmapChart.Legend variant="bar" lessLabel="Fewer views" moreLabel="More views" />
+		</HeatmapChart>
+	),
+	args: {
+		...sharedThemeArgs,
+		data: monthColumns( SINGLE_POST_HISTORY_YEARS, singlePostCell ),
+		rowLabels: SINGLE_POST_HISTORY_YEARS.map( String ),
+		withTooltips: true,
+		ariaLabel: 'Post views by month',
+		containerWidth: '960px',
+		containerHeight: '280px',
+	},
+};
+
+const FEW_DISTINCT_VALUES = [
+	120, 120, 480, 120, 2400, 120, 480, 480, 120, 120, 480, 120, 480, 120, 120, 2400, 480, 120, 480,
+	120, 120, 480, 2400, 120,
+];
+
+/**
+ * Twenty-four months holding three distinct values. Each value takes its own step, so the
+ * scale uses three of its five colors and leaves two legend swatches unused. The largest
+ * value is still the darkest cell, and the smallest the lightest.
+ */
+export const FewDistinctValues: Story = {
+	render: args => (
+		<HeatmapChart { ...args } chartId="few-distinct-values-heatmap">
+			<HeatmapChart.Legend variant="bar" lessLabel="Fewer views" moreLabel="More views" />
+		</HeatmapChart>
+	),
+	args: {
+		...sharedThemeArgs,
+		data: monthColumns( [ 2024, 2025 ], ( year, month ) => ( {
+			value: FEW_DISTINCT_VALUES[ ( year - 2024 ) * 12 + month ],
+		} ) ),
+		rowLabels: [ '2024', '2025' ],
+		withTooltips: true,
+		ariaLabel: 'Views by month',
+		containerWidth: '960px',
+		containerHeight: '280px',
 	},
 };
 

@@ -27,7 +27,8 @@ less than 2:1 against the background or the highest step.
 | `maxCellHeight` | `number` | - | Maximum cell height in pixels in non-compact mode. Applying it content-sizes the chart vertically so unused container height does not stretch the rows. |
 | `minCellWidth` | `number` | `0` | Minimum cell width in pixels in non-compact mode. The grid overflows horizontally instead of shrinking cells below this width. |
 | `minCellHeight` | `number` | `0` | Minimum cell height in pixels in non-compact mode. The grid overflows vertically instead of shrinking cells below this height. |
-| `primaryColor` | `string` | palette | Color the scale is built from, deepened at the highest value toward 6:1 against the background. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
+| `primaryColor` | `string` | palette | Color the scale is built from, deepened at the highest value toward 9:1 against the background. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
+| `scaleSteps` | `number` | `5` | How many color steps the cells and the legend share. Values fall into at most this many buckets, each holding about the same share of the series, and a cell's shade is always one of the `scaleSteps` steps, so it matches a legend swatch. A series with little variety uses fewer colors and leaves some swatches unused. Must be a whole number from 2 to 10; anything else warns once and falls back to `5`. Change this, not the legend's `steps`, to get a different number of steps. |
 | `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
 | `tooltipVariant` | `'light' \| 'dark'` | - | **Deprecated.** Every tooltip draws on the package tooltip surface; this prop has no effect. |
 | `tooltipStyle` | `CSSProperties` | - | Inline styles merged onto the tooltip box, over the surface's own; tighten the padding of a one-line tooltip, for example. |
@@ -42,7 +43,7 @@ less than 2:1 against the background or the highest step.
 
 ## HeatmapChart.Legend
 
-Sub-component that renders a sequential gradient scale from the lightest to the fullest color, annotated with the min and max values present in `data`.
+Sub-component that renders the scale as one swatch per step, from the lightest to the fullest color, between a less and a more label.
 
 ```jsx
 <HeatmapChart data={ columns } rowLabels={ rowLabels }>
@@ -54,7 +55,7 @@ Sub-component that renders a sequential gradient scale from the lightest to the 
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `steps` | `number` | `5` | Number of color swatches in the scale, not counting the empty-cell swatch. |
+| `steps` | `number` | the chart's `scaleSteps` | Number of color swatches in the scale, not counting the empty-cell swatch. Setting it to anything but the chart's `scaleSteps` decouples the swatches from the cells: cell shades are always `k / ( scaleSteps - 1 )` for a whole number `k`, so a different count draws shades the cells never paint. Set `scaleSteps` on the chart to change the number of steps. |
 | `variant` | `'swatches' \| 'bar'` | `'swatches'` | `swatches` spaces the steps out as cell-sized squares; `bar` joins them into one continuous band with rounded ends. |
 | `lessLabel` | `string` | `'Less'` | Label shown to the left of the swatches. |
 | `moreLabel` | `string` | `'More'` | Label shown to the right of the swatches. |
@@ -113,6 +114,15 @@ type HeatmapCell = {
 	 * range still fills its container, which were never measured.
 	 */
 	placeholder?: boolean;
+	/**
+	 * The cell covers a period the data does not fill, such as a launch month
+	 * or a month still running. It is left out of the extent and the bucket
+	 * thresholds and painted as a diagonal hatch, so it is not read as a quiet
+	 * period, while keeping its value, tooltip, accessible name (which ends
+	 * with "(incomplete)") and place in keyboard navigation. Ignored in a
+	 * `summary` column.
+	 */
+	partial?: boolean;
 };
 ```
 
