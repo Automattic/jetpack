@@ -309,7 +309,7 @@ function wpcomsh_get_managed_themes( ?array $bases = null ): array {
  * @return void
  */
 function wpcomsh_update_managed_themes(): void {
-	update_option( 'wpcomsh_at_managed_themes', wpcomsh_get_managed_themes() );
+	update_option( 'wpcomsh_at_managed_themes', wpcomsh_get_managed_themes(), false );
 }
 // WordPress.com themes are installed and deleted by symlink, which skips core's hooks.
 add_action( 'wpcomsh_wpcom_theme_installed', 'wpcomsh_update_managed_themes' );
@@ -320,16 +320,16 @@ add_action( 'deleted_theme', 'wpcomsh_update_managed_themes', 100 );
 add_action( 'wpcomsh_refresh_managed_themes', 'wpcomsh_update_managed_themes' );
 
 /**
- * Update the list of managed themes after a theme is installed through core's upgrader.
+ * Update the list of managed themes after core's upgrader installs or updates a theme.
  *
- * Updates are skipped: updating a theme doesn't change whether its folder is a symlink.
+ * An update can turn a symlinked folder into a regular one: core moves the link to a backup and unpacks the new version in its place.
  *
  * @param WP_Upgrader $upgrader   The upgrader object.
  * @param array       $hook_extra Extra arguments passed to hooked filters.
  * @return void
  */
 function wpcomsh_handle_update_managed_themes_list( $upgrader, $hook_extra ): void {
-	if ( 'theme' === ( $hook_extra['type'] ?? '' ) && 'install' === ( $hook_extra['action'] ?? '' ) ) {
+	if ( 'theme' === ( $hook_extra['type'] ?? '' ) ) {
 		wpcomsh_update_managed_themes();
 	}
 }
