@@ -28,11 +28,13 @@ interface StoreSelect {
 describe( 'useConnection', () => {
 	const setupStubs = () => {
 		const { result: dispatch } = renderHook(
-			() => useDispatch( initConnectionStore() ) as StoreDispatch
+			() => useDispatch( initConnectionStore() ) as unknown as StoreDispatch
 		);
 		let storeSelect: StoreSelect;
 		renderHook( () =>
-			useSelect( select => ( storeSelect = select( initConnectionStore() ) as StoreSelect ) )
+			useSelect(
+				select => ( storeSelect = select( initConnectionStore() ) as unknown as StoreSelect )
+			)
 		);
 
 		// stubs
@@ -78,7 +80,9 @@ describe( 'useConnection', () => {
 	] )( '%s', ( _name, selector, expected ) => {
 		let storeSelect: StoreSelect;
 		renderHook( () =>
-			useSelect( select => ( storeSelect = select( initConnectionStore() ) as StoreSelect ) )
+			useSelect(
+				select => ( storeSelect = select( initConnectionStore() ) as unknown as StoreSelect )
+			)
 		);
 		const original = storeSelect.getUserConnectionError;
 		storeSelect.getUserConnectionError = selector;

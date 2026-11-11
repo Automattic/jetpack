@@ -55,7 +55,10 @@ const setSite = ( {
 
 	let storeSelect: StoreSelect;
 	renderHook(
-		() => useSelect( select => ( storeSelect = select( initConnectionStore() ) as StoreSelect ) ),
+		() =>
+			useSelect(
+				select => ( storeSelect = select( initConnectionStore() ) as unknown as StoreSelect )
+			),
 		{ wrapper: Providers }
 	);
 	jest.spyOn( storeSelect, 'getConnectionStatus' ).mockReset().mockReturnValue( status );
