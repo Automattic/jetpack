@@ -162,7 +162,6 @@ function DevicesBarChart( { interval }: { interval?: DevicesChartGranularity } )
 			<ComparativeBarChart
 				series={ series }
 				layout="stacked"
-				chartTitle={ __( 'Views by device', 'jetpack-premium-analytics-pkg' ) }
 				dataFormat={ HEADLINE_COUNT_FORMAT }
 				tickResolution={ period }
 				comparisonLabel={ getComparisonPeriodLabel( reportParams ) }
