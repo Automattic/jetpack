@@ -99,7 +99,7 @@ class Publicize_Setup {
 			 */
 			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
 
-			// The Social dashboard boots from it, including while Publicize is off. Simple sites have no dashboard.
+			// Registered here, not with the other controllers, because the Social dashboard also loads while Publicize is off.
 			new REST_API\Script_Data_Controller();
 		}
 

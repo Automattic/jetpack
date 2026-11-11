@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 use Automattic\Jetpack\Publicize\Publicize_Script_Data;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use WP_Error;
-use WP_REST_Controller;
 use WP_REST_Server;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -22,12 +21,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @phan-constructor-used-for-side-effects
  */
-class Script_Data_Controller extends WP_REST_Controller {
+class Script_Data_Controller extends Base_Controller {
 
 	/**
 	 * Register the route on `rest_api_init`.
 	 */
 	public function __construct() {
+		parent::__construct();
+
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/script-data';
 
@@ -50,13 +51,13 @@ class Script_Data_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * The same gate the Social admin page applies, which also renders while Publicize is off.
+	 * The Social admin page's gate, which unlike publicize_permissions_check() passes while Publicize is off.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error
 	 */
 	public function get_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( current_user_can( 'publish_posts' ) && ( current_user_can( 'manage_options' ) || Utils::is_publicize_active() ) ) {
+		if ( current_user_can( 'publish_posts' ) && Utils::can_open_social_dashboard() ) {
 			return true;
 		}
 

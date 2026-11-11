@@ -104,7 +104,7 @@ class Social_Admin_Page {
 
 		// If this isn't an admin (or someone with the capability to change the module status )
 		// and Publicize is inactive, then don't render the admin page.
-		if ( ! current_user_can( 'manage_options' ) && ! Utils::is_publicize_active() ) {
+		if ( ! Utils::can_open_social_dashboard() ) {
 			return;
 		}
 
@@ -149,7 +149,7 @@ class Social_Admin_Page {
 		// The same gates add_menu() applies, since admin-ajax never builds the menu.
 		if (
 			$host->is_wpcom_simple()
-			|| ( ! current_user_can( 'manage_options' ) && ! Utils::is_publicize_active() )
+			|| ! Utils::can_open_social_dashboard()
 			|| ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && ! $host->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected() )
 			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
 		) {

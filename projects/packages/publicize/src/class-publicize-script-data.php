@@ -60,7 +60,13 @@ class Publicize_Script_Data {
 	 */
 	public static function set_admin_script_data( $data ) {
 
-		$data['social'] = self::get_social_script_data( $data, self::should_set_script_data() );
+		/**
+		 * Filters the data the Social UI reads as `JetpackScriptData.social`.
+		 *
+		 * @param array $social_data The social script data.
+		 * @param array $script_data The rest of the Jetpack script data, empty when the Social dashboard fetches it.
+		 */
+		$data['social'] = apply_filters( 'jetpack_social_admin_script_data', self::get_admin_script_data(), $data );
 
 		if ( empty( $data['site']['plan']['product_slug'] ) ) {
 			$data['site']['plan'] = Current_Plan::get();
@@ -100,42 +106,28 @@ class Publicize_Script_Data {
 	}
 
 	/**
-	 * Whether the current page prints the social script data inline.
-	 *
-	 * The Social dashboard fetches it from `wpcom/v2/publicize/script-data` instead, so it can boot on any admin page.
-	 *
-	 * @return bool
-	 */
-	private static function should_set_script_data() {
-		return Utils::is_jetpack_settings_page() || Utils::should_block_editor_have_social();
-	}
-
-	/**
-	 * Get the social script data, after the `jetpack_social_admin_script_data` filter.
+	 * Get the social script data for the Social dashboard, which fetches it from `wpcom/v2/publicize/script-data`.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $script_data The rest of the Jetpack script data, passed to the filter.
-	 * @param bool  $build       Whether to build the data, or pass an empty array to the filter.
 	 * @return array
 	 */
-	public static function get_social_script_data( $script_data = array(), $build = true ) {
-		/**
-		 * Filters the data the Social UI reads as `JetpackScriptData.social`.
-		 *
-		 * @param array $social_data The social script data.
-		 * @param array $script_data The rest of the Jetpack script data.
-		 */
-		return apply_filters( 'jetpack_social_admin_script_data', $build ? self::build_admin_script_data() : array(), $script_data );
+	public static function get_social_script_data() {
+		/** This filter is documented in set_admin_script_data(). */
+		return apply_filters( 'jetpack_social_admin_script_data', self::build_admin_script_data(), array() );
 	}
 
 	/**
-	 * Get the script data for admin UI, on the pages that print it inline.
+	 * Get the script data for admin UI, on the pages that print it inline: Jetpack Settings and the block editor.
 	 *
 	 * @return array
 	 */
 	public static function get_admin_script_data() {
-		return self::should_set_script_data() ? self::build_admin_script_data() : array();
+		if ( ! Utils::is_jetpack_settings_page() && ! Utils::should_block_editor_have_social() ) {
+			return array();
+		}
+
+		return self::build_admin_script_data();
 	}
 
 	/**
