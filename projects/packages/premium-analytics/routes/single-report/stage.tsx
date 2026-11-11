@@ -7,7 +7,6 @@ import {
 	ReportScopeProvider,
 	isPlanDateLimitedSection,
 } from '@jetpack-premium-analytics/data';
-import { PRESET_ALL_TIME, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { Badge, Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
@@ -62,6 +61,7 @@ import {
 	type SingleReportPageSection,
 } from './registry';
 import styles from './stage.module.scss';
+import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import type { WidgetType } from '@wordpress/widget-primitives';
 import type { JSX } from 'react';
 
@@ -281,18 +281,13 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		sectionLayout
 	);
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
-	// A URL-scoped section waits for All time to anchor, a start carried over from another
-	// entity included; a pinned one waits for its window.
-	const holdForAnchor =
-		isAnchoringAllTime ||
-		( dateFilters.appliedPresetId === PRESET_ALL_TIME &&
-			! summary.allTimeStart &&
-			( summary.isLoading || summary.isError ) );
+
+	// A URL-scoped section waits for All time to anchor; a pinned one for its window.
 	const showWidgets =
 		canRenderWidgets &&
 		! emptyState &&
 		pinnedScope !== 'pending' &&
-		( isPinned || ! holdForAnchor );
+		( isPinned || ! isAnchoringAllTime );
 
 	// Each section is its own layout, so leaving it leaves customize mode too.
 	const {
