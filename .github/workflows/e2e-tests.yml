@@ -263,9 +263,10 @@ jobs:
         working-directory: ${{ matrix.path }}
         env:
           JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
+          TEST_SCRIPT: ${{ matrix.testScript || 'test:run' }}
         run: |
           mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-          pnpm run test:run "${TEST_ARGS[@]}"
+          pnpm run "$TEST_SCRIPT" "${TEST_ARGS[@]}"
 
       - name: Test environment tear-down
         if: ${{ always() }}

@@ -38,6 +38,14 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
+		project: 'Jetpack admin shell',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testScript: 'test:admin-shell:ci',
+		testArgs: [],
+		targets: [ 'packages/admin-ui', 'packages/my-jetpack', 'packages/forms' ],
+		buildGroup: 'jetpack-core',
+	},
+	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync' ],

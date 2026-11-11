@@ -9,6 +9,10 @@ const onUrl = process.env.ADMIN_SHELL_URL ?? 'http://localhost:8889';
 const offUrl = process.env.ADMIN_SHELL_OFF_URL;
 const standaloneUrl = process.env.ADMIN_SHELL_STANDALONE_URL;
 const stateDir = 'output/admin-shell';
+// Separate runs against one site (shell on, then off) each need their own results.
+const runDir = process.env.ADMIN_SHELL_RUN
+	? `${ stateDir }/${ process.env.ADMIN_SHELL_RUN }`
+	: stateDir;
 
 const browsers = [
 	{ name: 'chromium', use: devices[ 'Desktop Chrome' ] },
@@ -18,13 +22,13 @@ const browsers = [
 
 export default defineConfig( {
 	testDir: './specs/admin-shell',
-	outputDir: `${ stateDir }/results`,
+	outputDir: `${ runDir }/results`,
 	timeout: 180000,
 	expect: { timeout: 20000 },
 	// Only login and tests wrapped in intermittentSpikeBug() retry; any other flake fails the run.
 	retries: 0,
 	workers: Number( process.env.PLAYWRIGHT_WORKERS ) || 2,
-	reporter: [ [ 'list' ], [ 'json', { outputFile: `${ stateDir }/summary.json` } ] ],
+	reporter: [ [ 'list' ], [ 'json', { outputFile: `${ runDir }/summary.json` } ] ],
 	use: {
 		viewport: { width: 1280, height: 1600 },
 		ignoreHTTPSErrors: true,

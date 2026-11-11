@@ -60,6 +60,8 @@ const extraFileSets = {};
 extraFileSets.base = {};
 extraFileSets.e2e = {
 	'^projects/plugins/jetpack/tests/e2e/specs/sync/': [ 'packages/sync' ],
+	'^projects/plugins/jetpack/tests/e2e/(specs/admin-shell/|helpers/admin-shell-helper|bin/admin-shell-ci|plugins/e2e-admin-shell|playwright\\.admin-shell\\.)':
+		[ 'packages/admin-ui' ],
 };
 
 export const command = 'dependencies <subcommand> [projects...]';
