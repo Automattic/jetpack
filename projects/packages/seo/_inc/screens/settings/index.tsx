@@ -470,7 +470,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				titleSeparator={ local.title_separator }
 				paused={ outputLocked }
 				defaultImage={ local.default_share_image }
-			resolvedImage={ local.share_image_preview }
+				resolvedImage={ local.share_image_preview }
 				onImageChange={ image => commit( { default_share_image: image } ) }
 				disabled={ isSaving || outputLocked }
 			/>
