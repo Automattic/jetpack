@@ -502,7 +502,7 @@ class Contact_Form_Plugin {
 		 */
 		$legend_selector = '.contact-form :where(legend.grunion-field-label)';
 		$mirror          = wp_style_engine_get_styles( $label, array( 'selector' => $legend_selector ) );
-		$declarations    = isset( $mirror['declarations'] ) ? $mirror['declarations'] : array();
+		$declarations    = $mirror['declarations'] ?? array();
 		if ( empty( $declarations ) ) {
 			return '';
 		}
