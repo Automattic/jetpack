@@ -266,12 +266,7 @@ function wpcomsh_is_symlinked_into( string $path, array $bases ): bool {
 		return false;
 	}
 
-	$target = readlink( $path );
-	if ( false === $target ) {
-		return false;
-	}
-
-	$target = wp_normalize_path( $target );
+	$target = wp_normalize_path( (string) readlink( $path ) );
 	foreach ( $bases as $base ) {
 		if ( str_starts_with( $target, trailingslashit( wp_normalize_path( $base ) ) ) ) {
 			return true;
@@ -291,7 +286,7 @@ function wpcomsh_is_symlinked_into( string $path, array $bases ): bool {
  * @return string[] Sorted stylesheets.
  */
 function wpcomsh_get_managed_themes( ?array $bases = null ): array {
-	$bases = $bases ?? array_unique( array( THEMES_SYMLINK_BASE, THEMES_PATH_BASE ) );
+	$bases ??= array_unique( array( THEMES_SYMLINK_BASE, THEMES_PATH_BASE ) );
 
 	// Rescan, because the theme folders may have changed earlier in this request.
 	search_theme_directories( true );
