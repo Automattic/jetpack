@@ -237,6 +237,20 @@ class Jetpack_RelatedPosts {
 		}
 
 		if ( ! $this->found_shortcode && ! doing_filter( 'get_the_excerpt' ) ) {
+			/**
+			 * Filter whether to append Related Posts to the content being filtered, e.g. to skip secondary loops.
+			 *
+			 * @module related-posts
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool         $show Whether to append Related Posts to this content. Default true.
+			 * @param WP_Post|null $post The post whose content is being filtered.
+			 */
+			if ( ! apply_filters( 'jetpack_relatedposts_filter_add_target_to_content', true, get_post() ) ) {
+				return $content;
+			}
+
 			if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 				$content .= "\n" . $this->get_server_rendered_html();
 			} else {
