@@ -3675,9 +3675,9 @@ class Error_Handler_Test extends BaseTestCase {
 		return array(
 			'core Connectors screen'     => array( true, '/wp-admin/options-connectors.php', 'options-connectors.php', 'jetpack-connector' ),
 			'Gutenberg Connectors page'  => array( true, '/wp-admin/options-general.php?page=options-connectors-wp-admin', 'options-general.php?page=options-connectors-wp-admin', 'jetpack-connector' ),
-			'Jetpack dashboard'          => array( true, '/wp-admin/admin.php?page=jetpack', 'admin.php?page=jetpack', 'jetpack-dashboard' ),
-			'other plugin page'          => array( true, '/wp-admin/admin.php?page=jetpack-backup&a=b/c', 'admin.php?page=jetpack-backup&a=b/c', 'my-jetpack' ),
-			'request with no admin page' => array( false, '/wp-json/jetpack/v4/connection', 'admin.php?page=my-jetpack', 'my-jetpack' ),
+			'Jetpack dashboard'          => array( true, '/wp-admin/admin.php?page=jetpack', 'admin.php?page=jetpack', 'connection_notice_owner_error' ),
+			'other plugin page'          => array( true, '/wp-admin/admin.php?page=jetpack-backup&a=b/c', 'admin.php?page=jetpack-backup&a=b/c', 'connection_notice_owner_error' ),
+			'request with no admin page' => array( false, '/wp-json/jetpack/v4/connection', 'admin.php?page=my-jetpack', 'connection_notice_owner_error' ),
 		);
 	}
 

@@ -860,7 +860,8 @@ class Error_Handler {
 	/**
 	 * The URL that starts the viewer's own account connection and returns them to the current admin page.
 	 *
-	 * Mirrors getUserConnectionUrl() in js-packages/connection, but uses the webhook handler so it works without the Jetpack plugin's page.
+	 * Uses the webhook handler, so it works without the Jetpack plugin's page.
+	 * Sends `connection_notice_owner_error` (see CONNECTION_FROM in js-packages/connection) everywhere except Connectors.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -868,7 +869,7 @@ class Error_Handler {
 	 */
 	private function get_connect_user_url() {
 		$return_url = admin_url( 'admin.php?page=my-jetpack' );
-		$from       = 'my-jetpack';
+		$from       = 'connection_notice_owner_error';
 
 		// Errors reach a page in its own render; any other request has no page to return to.
 		if ( is_admin() && ! wp_doing_ajax() && isset( $_SERVER['REQUEST_URI'] ) ) {
@@ -883,11 +884,9 @@ class Error_Handler {
 				$return_url = self_admin_url( '' === $query ? $file : "$file?$query" );
 				$page       = $query_args['page'] ?? $file;
 
-				// WordPress.com brands its screens on an exact `from`, so these must match a surface's own value.
+				// WordPress.com brands the Connectors screen on its exact legacy `from`.
 				if ( in_array( $page, array( 'options-connectors.php', 'options-connectors-wp-admin' ), true ) ) {
 					$from = 'jetpack-connector';
-				} elseif ( 'jetpack' === $page ) {
-					$from = 'jetpack-dashboard';
 				}
 			}
 		}
