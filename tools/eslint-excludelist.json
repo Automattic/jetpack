@@ -147,7 +147,6 @@
 	"projects/packages/publicize/_inc/components/form/user-connection-notice.tsx",
 	"projects/packages/publicize/_inc/components/manage-connections-modal/confirmation-form/index.tsx",
 	"projects/packages/publicize/_inc/components/manual-sharing/index.tsx",
-	"projects/packages/publicize/_inc/components/media-picker/index.tsx",
 	"projects/packages/publicize/_inc/components/media-section-v2/custom-media-toggle.tsx",
 	"projects/packages/publicize/_inc/components/media-section-v2/index.tsx",
 	"projects/packages/publicize/_inc/components/message-box-control/index.tsx",
