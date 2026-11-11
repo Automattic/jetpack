@@ -1,28 +1,31 @@
-import { getValueExtent, isEmptyValue, scaleValues } from './use-heatmap-colors';
-import type { HeatmapColumn } from '../types';
+import { isEmptyValue } from './use-heatmap-colors';
 
 export const HEATMAP_SCALE_STEPS = 5;
 
 /**
- * The cut points between color steps, and the number to divide a step index by.
- * A `divisor` of 0 means the series holds one distinct value.
+ * The cut points between color steps, and the step count the legend draws. No
+ * thresholds means fewer than two distinct eligible values.
  */
-export type HeatmapBuckets = { thresholds: number[]; divisor: number };
+export type HeatmapBuckets = { thresholds: number[]; steps: number };
 
 /**
  * Split a series into `steps` color buckets of roughly equal population, so a
  * cell's shade reports its rank among the other cells rather than its distance
  * from the largest one. Ties can leave fewer buckets than asked for.
  *
- * @param data  - The heatmap columns
- * @param steps - How many color steps to aim for
- * @return The thresholds and the divisor `getBucketedValue` reads
+ * @param values - The series values, ascending, from `scaleValues`
+ * @param extent - The extent from `getExtentOf`
+ * @param steps  - How many color steps to aim for
+ * @return The thresholds and the step count `getBucketedValue` reads
  */
-export const getValueBuckets = ( data: HeatmapColumn[], steps: number ): HeatmapBuckets => {
-	const extent = getValueExtent( data );
-	const eligible = scaleValues( data ).filter( value => ! isEmptyValue( value, extent ) );
+export const getValueBuckets = (
+	values: number[],
+	extent: [ number, number ],
+	steps: number
+): HeatmapBuckets => {
+	const eligible = values.filter( value => ! isEmptyValue( value, extent ) );
 	if ( ! eligible.length ) {
-		return { thresholds: [], divisor: 0 };
+		return { thresholds: [], steps };
 	}
 
 	const min = eligible[ 0 ];
@@ -46,20 +49,23 @@ export const getValueBuckets = ( data: HeatmapColumn[], steps: number ): Heatmap
 		}
 	}
 
-	return { thresholds, divisor: thresholds.length };
+	return { thresholds, steps };
 };
 
 /**
- * Place a value on its bucket, as 0–1 for the fill to blend with. A series of
- * one distinct value paints at 1, since every cell is equally the highest.
+ * Place a value on its bucket, as the 0–1 position of a legend swatch, so a
+ * cell always matches one. Fewer than two distinct eligible values paints at 1,
+ * since every cell is then equally the highest.
  *
  * @param value   - The cell value
  * @param buckets - The buckets from `getValueBuckets`
- * @return The bucket's position between 0 and 1
+ * @return The swatch position between 0 and 1
  */
 export const getBucketedValue = ( value: number, buckets: HeatmapBuckets ): number => {
-	if ( buckets.divisor === 0 ) {
+	const { thresholds, steps } = buckets;
+	if ( ! thresholds.length ) {
 		return 1;
 	}
-	return buckets.thresholds.filter( threshold => value >= threshold ).length / buckets.divisor;
+	const index = thresholds.filter( threshold => value >= threshold ).length;
+	return Math.round( ( index * ( steps - 1 ) ) / thresholds.length ) / ( steps - 1 );
 };
