@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { useCallback, useRef, useState } from 'react';
 import { useIsomorphicLayoutEffect } from '../../../hooks';
 import { ChartScopeContext } from '../../../providers/chart-scope';
+import { warnOnce } from '../../../utils/warn-once';
 import styles from './with-responsive.module.scss';
 import type { BaseChartProps } from '../../../types';
 import type { ComponentType } from 'react';
@@ -173,6 +174,10 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			}
 			const node = wrapperRef.current;
 			if ( node && node.getClientRects().length > 0 && node.clientWidth === 0 ) {
+				warnOnce(
+					'with-responsive:no-definite-width',
+					'A chart fills its parent, so the parent needs a definite width and height. This one resolves its width from its content, which leaves the chart nothing to fill. Give the parent a width, or pass the chart a width or an aspectRatio.'
+				);
 				setHasNoSizeToWaitFor( true );
 			}
 		} );

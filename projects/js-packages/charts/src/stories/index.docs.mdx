@@ -167,7 +167,9 @@ When you omit dimension props, the chart expands to fill its parent container:
 	</div>`}
 />
 
-**Important**: The parent container must have an explicit height. Without a defined height, the chart cannot determine how tall to render.
+**Important**: The parent container must resolve to a definite width and a definite height on its own, without consulting its contents. The chart fills the parent, so a parent that sizes itself from what is inside it has nothing to give: `display: inline-block`, `float`, `width: fit-content`, a `flex` or `grid` item sized to its content, and a table cell all fall in this group, and a container with no `height` does too.
+
+In those containers the chart reports the problem in the browser console and draws at whatever the parent gives it, which is usually nothing. Pass `aspectRatio` to answer the height, or `width` and `height` to answer both, or reach for an `Unresponsive` variant and size the chart yourself.
 
 #### Aspect Ratio Mode
 

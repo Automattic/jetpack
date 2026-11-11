@@ -212,6 +212,7 @@ describe( 'withResponsive', () => {
 			render( <WaitingComponent data={ [] } /> );
 
 			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
+			expect( console ).toHaveWarned();
 		} );
 
 		test( 'keeps waiting when the wrapper has no box at all, as under display: none', () => {
