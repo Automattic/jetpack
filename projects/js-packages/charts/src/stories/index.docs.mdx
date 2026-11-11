@@ -178,7 +178,7 @@ A chart fills its parent, so the parent answers both by default. It can only ans
 
 Note the asymmetry. `aspectRatio` derives height from width, never the reverse, so a parent with no height has two other answers available while a parent with no definite width has only one, an explicit `width` on the chart.
 
-An axis with no source at all leaves the chart with nothing to draw in, and it says so once in the browser console, naming the axis and the ways out.
+An axis with no source at all leaves the chart with nothing to draw in, except the pie charts, which fall back to a size of their own when the parent has no height. A development build says so once in the browser console, naming the axis and the ways out. A production build stays silent, and so does a chart revealed from `display: none` into a parent with no definite width, which gets no render in which to notice.
 
 #### Aspect Ratio Mode
 

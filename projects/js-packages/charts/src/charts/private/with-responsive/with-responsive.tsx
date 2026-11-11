@@ -43,20 +43,27 @@ export type ResponsiveOptions = {
 	 * turn it off, which costs it nothing, where forgetting to turn it on brings the jump back.
 	 */
 	waitForSize?: boolean;
+	/**
+	 * Whether the chart supplies a height of its own when the box has none, as both pie charts
+	 * do: one falls back to a default size, the other halves its width. Defaults to false,
+	 * where a box with no height leaves the chart nothing to draw in.
+	 */
+	derivesOwnHeight?: boolean;
 };
 
 /**
  * A higher-order component that provides responsive dimensions
  * to the wrapped chart component using useParentSize from `@visx/responsive`.
  *
- * @param WrappedComponent    - The chart component to be wrapped.
- * @param options             - Options for the wrapper.
- * @param options.waitForSize - Whether to hold the chart back until the box is measured.
+ * @param WrappedComponent         - The chart component to be wrapped.
+ * @param options                  - Options for the wrapper.
+ * @param options.waitForSize      - Whether to hold the chart back until the box is measured.
+ * @param options.derivesOwnHeight - Whether the chart has a height without the box providing one.
  * @return A functional component that renders the wrapped component with responsive dimensions.
  */
 export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'options' > >( // 'options' is excluded so that each chart can define its own options type
 	WrappedComponent: ComponentType< T >,
-	{ waitForSize = true }: ResponsiveOptions = {}
+	{ waitForSize = true, derivesOwnHeight = false }: ResponsiveOptions = {}
 ) {
 	return function ResponsiveChart( {
 		resizeDebounceTime = 300,
@@ -165,7 +172,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		hasBeenSized.current = hasBeenSized.current || hasDimensions;
 
 		// A chart drawn from its box is invisible at no height, and visx only says it bailed.
-		if ( waitForSize && isMeasured && boxHeight === 0 ) {
+		if ( waitForSize && ! derivesOwnHeight && isMeasured && boxHeight === 0 ) {
 			warnOnce(
 				'with-responsive:no-height',
 				'A chart takes its height from its parent, and this parent has no height of its own, so the chart has none to draw in. Give the parent a height, or pass the chart an aspectRatio or an explicit height.'

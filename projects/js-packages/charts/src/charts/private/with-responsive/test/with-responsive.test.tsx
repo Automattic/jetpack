@@ -188,6 +188,19 @@ describe( 'withResponsive', () => {
 			expect( screen.getByTestId( 'mock-component' ) ).toHaveAttribute( 'data-size', '200' );
 		} );
 
+		// Ahead of the test below, which spends the one no-height warning warnOnce allows per process.
+		test( 'says nothing about a height the chart supplies itself', () => {
+			const SelfHeightComponent = withResponsive( MockComponent, { derivesOwnHeight: true } );
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 0,
+			} ) );
+			render( <SelfHeightComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
+			expect( console ).not.toHaveWarned();
+		} );
+
 		test( 'renders in a parent with no definite height, which reports a width alone', () => {
 			// Waiting for that parent's height would hold the chart back for good, and one
 			// that grows from its own content would never get a height to report.
