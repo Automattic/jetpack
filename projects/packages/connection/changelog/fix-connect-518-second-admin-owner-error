@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Make an administrator who connects their own account while the connection owner's connection is broken the new connection owner, and offer them "Connect your account" instead of "Restore Connection". With an owner already on record, a user becomes the owner only when WordPress.com reports them as the owner, so a secondary administrator connecting to a disconnected site no longer takes the slot on their own.
+Make an administrator who connects their own account while the connection owner's connection is broken the new connection owner, and offer them "Connect your account" instead of "Restore Connection". A user now becomes the connection owner only when WordPress.com reports them as the owner, so a secondary administrator connecting to a disconnected site no longer takes the empty owner slot on their own.
