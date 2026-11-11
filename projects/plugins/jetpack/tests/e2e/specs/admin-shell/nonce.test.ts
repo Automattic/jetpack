@@ -36,14 +36,14 @@ test.describe( 'Admin shell: stale REST nonce', () => {
 		await switchTo( page, 'jetpack-ai' );
 		await expectShown( page, 'jetpack-ai' );
 
-		await logInAgain( page );
-
+		// Count from the new login on: a background request can hit the stale nonce before the probe does.
 		let refreshes = 0;
 		page.on( 'request', request => {
 			if ( /admin-ajax\.php\?(.*&)?action=rest-nonce/.test( request.url() ) ) {
 				refreshes++;
 			}
 		} );
+		await logInAgain( page );
 		const result = await page.evaluate( async () => {
 			const { apiFetch } = (
 				window as unknown as {
