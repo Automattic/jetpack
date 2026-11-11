@@ -54,15 +54,9 @@ function FeatureRow( {
 
 	/*
 	 * A locked switch says why it cannot move, in Jetpack settings' own words: the
-	 * override is a filter, which a plugin can set as well as a host. "Already on"
-	 * only while the switch still agrees, or it reads "Already on" beside "off".
+	 * override is a filter, which a plugin can set as well as a host.
 	 */
-	let note: string | null = null;
-	if ( module.locked ) {
-		note = __( 'Set by a site administrator', 'jetpack-my-jetpack' );
-	} else if ( module.activated && checked ) {
-		note = __( 'Already on', 'jetpack-my-jetpack' );
-	}
+	const note = module.locked ? __( 'Set by a site administrator', 'jetpack-my-jetpack' ) : null;
 
 	return (
 		<div className={ styles[ 'feature-row' ] }>
@@ -94,11 +88,6 @@ function FeatureRow( {
 					className={ styles[ 'feature-row__description' ] }
 				>
 					{ module.description }
-					{ /*
-					 * Five of the six ship on, so most of this list is not a list of
-					 * things about to happen. Saying which are already running is the
-					 * difference between asking permission and reporting the state.
-					 */ }
 					{ note && (
 						<>
 							{ /* A real space: the dot before it is drawn in CSS, which a screen

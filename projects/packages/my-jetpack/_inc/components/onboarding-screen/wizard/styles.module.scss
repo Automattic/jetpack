@@ -1192,7 +1192,7 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * "Already on", or why a locked switch cannot move. Part of the description,
+ * Why a locked switch cannot move. Part of the description,
  * not a badge beside the name: a pill next to six names in a row is six pills,
  * and the fact is a footnote about the row rather than a label on it.
  */
@@ -1206,8 +1206,7 @@ $rail-row-min-height: 40px;
 
 .feature-row__description {
 	// Two lines at least, so six rows of uneven copy still make one even list, but
-	// no ceiling: clamped at two, a narrow window cut "Already on" to "Alread…",
-	// which is a worse row than a slightly taller one.
+	// no ceiling: clamped at two, a narrow window cut the locked note short.
 	min-block-size: 2lh;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }

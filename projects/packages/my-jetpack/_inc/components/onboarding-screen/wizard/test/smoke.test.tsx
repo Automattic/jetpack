@@ -1659,9 +1659,7 @@ describe( 'The feature step', () => {
 		expect( screen.getAllByText( 'Jetpack Stats' ) ).toHaveLength( 1 );
 		expect( toggle ).not.toHaveAttribute( 'aria-label' );
 		// The line under the name stays a description rather than joining the name.
-		// The module already runs, so the row says so, and it reaches the switch's
-		// description rather than its name.
-		expect( toggle ).toHaveAccessibleDescription( 'Traffic insights. Already on' );
+		expect( toggle ).toHaveAccessibleDescription( 'Traffic insights.' );
 
 		// The whole row is the target, not the 32x16 input.
 		await user.click( screen.getByText( 'Jetpack Stats' ) );
