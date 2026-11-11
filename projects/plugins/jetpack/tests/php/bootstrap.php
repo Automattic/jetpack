@@ -5,11 +5,6 @@
  * @package automattic/jetpack
  */
 
-// Patchwork throws if its cache-path (see patchwork.json) is missing. Without the cache, every separate-process test re-rewrites all of WordPress and Jetpack.
-if ( ! is_dir( __DIR__ . '/../../.cache/patchwork' ) ) {
-	mkdir( __DIR__ . '/../../.cache/patchwork', 0777, true );
-}
-
 // Catch `exit()` and `die()` so they won't make PHPUnit exit.
 // If we're running under `jetpack docker phpunit --php`, Patchwork is located in DOCKER_PHPUNIT_BASE_DIR.
 if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
@@ -18,6 +13,15 @@ if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
 	require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
 }
 \Automattic\RedefineExit::setup();
+
+// Without a cache, every separate-process test re-rewrites all of WordPress and Jetpack.
+// One directory per tests config, because CI runs suites in parallel and Patchwork's cache writes aren't atomic.
+$jetpack_patchwork_cache = __DIR__ . '/../../.cache/patchwork/' . md5( (string) getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
+if ( ! is_dir( $jetpack_patchwork_cache ) ) {
+	mkdir( $jetpack_patchwork_cache, 0777, true );
+}
+\Patchwork\Config\setCachePath( realpath( $jetpack_patchwork_cache ), __DIR__ );
+unset( $jetpack_patchwork_cache );
 
 /*
  * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
