@@ -154,7 +154,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site stats overview', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, views over the last 7 and 30 days, the current posting streak, today\'s top post, and today\'s top referrer. Shape: { site: { id, url }, date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are null, `streak` included, as is a total covering a day WordPress.com did not report, so a 0 is a value WordPress.com reported. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
+				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, views over the last 7 and 30 days, the current posting streak, today\'s top post, and today\'s top referrer. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are null, `streak` included, as is a total covering a day WordPress.com did not report, so a 0 is a value WordPress.com reported. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -172,11 +172,32 @@ class Stats_Abilities extends Registrar {
 					'visitors_today' => array( 'type' => array( 'integer', 'null' ) ),
 					'views_week'     => array( 'type' => array( 'integer', 'null' ) ),
 					'views_month'    => array( 'type' => array( 'integer', 'null' ) ),
-					'streak'         => array( 'type' => array( 'object', 'null' ) ),
-					'top_post'       => array( 'type' => array( 'object', 'null' ) ),
-					'top_referrer'   => array( 'type' => array( 'object', 'null' ) ),
+					'streak'         => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'current_length' => array( 'type' => 'integer' ),
+							'longest_length' => array( 'type' => 'integer' ),
+							'longest_start'  => array( 'type' => 'string' ),
+							'longest_end'    => array( 'type' => 'string' ),
+						),
+					),
+					'top_post'       => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'id'    => array( 'type' => 'integer' ),
+							'title' => array( 'type' => 'string' ),
+							'views' => array( 'type' => 'integer' ),
+						),
+					),
+					'top_referrer'   => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'name'  => array( 'type' => 'string' ),
+							'views' => array( 'type' => 'integer' ),
+						),
+					),
 					'partial'        => array( 'type' => 'boolean' ),
-					'errors'         => array( 'type' => 'array' ),
+					'errors'         => self::errors_schema(),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_site_overview' ),
@@ -203,7 +224,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { site: { id, url }, type, period, date, num, max, items: [ { rank, label, value, href?, id? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
+				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Every type returns the same item shape. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -252,7 +273,20 @@ class Stats_Abilities extends Registrar {
 					'date'   => array( 'type' => 'string' ),
 					'num'    => array( 'type' => 'integer' ),
 					'max'    => array( 'type' => 'integer' ),
-					'items'  => array( 'type' => 'array' ),
+					'items'  => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'rank'  => array( 'type' => 'integer' ),
+								'label' => array( 'type' => 'string' ),
+								'value' => array( 'type' => 'integer' ),
+								'href'  => array( 'type' => 'string' ),
+								'id'    => array( 'type' => 'integer' ),
+							),
+							'required'   => array( 'rank', 'label', 'value' ),
+						),
+					),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_top_content' ),
@@ -279,7 +313,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get views for a post', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return views history for a single post: total views, timeseries of per-period views, and the period metadata. Shape: { site: { id, url }, post_id, total_views, period, num, date, series: [ { date, views } ] }. `total_views` is the post\'s all-time view count; when WordPress.com does not report it, it and every `series` value are null. `series` always has `num` rows, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday) and periods with no views are 0. Returns `jetpack_stats_post_not_found` when no post has that ID. Accepts post_id as integer or numeric string (the literal "0" is rejected only because WordPress has no post 0 — any positive numeric value is legal). `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=posts first and pass an item\'s `id` as `post_id`.',
+				'Return views history for a single post: total views, timeseries of per-period views, and the period metadata. `total_views` is the post\'s all-time view count; when WordPress.com does not report it, it and every `series` value are null. `series` always has `num` rows, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday) and periods with no views are 0. Returns `jetpack_stats_post_not_found` when no post has that ID. Accepts post_id as integer or numeric string (the literal "0" is rejected only because WordPress has no post 0 — any positive numeric value is legal). `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=posts first and pass an item\'s `id` as `post_id`.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -320,7 +354,16 @@ class Stats_Abilities extends Registrar {
 					'period'      => array( 'type' => 'string' ),
 					'num'         => array( 'type' => 'integer' ),
 					'date'        => array( 'type' => 'string' ),
-					'series'      => array( 'type' => 'array' ),
+					'series'      => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'date'  => array( 'type' => 'string' ),
+								'views' => array( 'type' => array( 'integer', 'null' ) ),
+							),
+						),
+					),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_post_views' ),
@@ -347,7 +390,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site visits timeseries', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Shape: { site: { id, url }, period, num, date, fields, series: [ { date, views, visitors, likes, comments } ] }. Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as negative, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
+				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as negative, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -391,8 +434,24 @@ class Stats_Abilities extends Registrar {
 					'period' => array( 'type' => 'string' ),
 					'num'    => array( 'type' => 'integer' ),
 					'date'   => array( 'type' => 'string' ),
-					'fields' => array( 'type' => 'array' ),
-					'series' => array( 'type' => 'array' ),
+					'fields' => array(
+						'type'  => 'array',
+						'items' => array(
+							'type' => 'string',
+							'enum' => self::VISIT_FIELDS,
+						),
+					),
+					'series' => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'date' => array( 'type' => 'string' ),
+							),
+							// Each row carries every name in `fields`.
+							'additionalProperties' => array( 'type' => array( 'integer', 'null' ) ),
+						),
+					),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_visits' ),
@@ -419,7 +478,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get follower counts', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a breakdown of follower counts across email, WordPress.com, comment, and publicize (per-service) — answers "how is my audience growing?" in one call. Shape: { site: { id, url }, total, email, wpcom, comment, publicize: { <service>: count }, partial: bool, errors?: [string] }. `email` and `wpcom` are the site\'s email subscribers and WordPress.com followers; `comment` counts people following the comments on every post (following one post\'s comments is not counted), and is reported as unknown through `errors` when WordPress.com does not list that count on its first page; `publicize` is an object, empty when no social connection reports followers. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `followers` (`email` and `wpcom`), `comment_followers`, and `publicize_followers`. Counts fed by a failed sub-call are null, `publicize` included, and `total` is null whenever any count is, so a 0 is a value WordPress.com reported. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
+				'Return the site\'s follower counts by source — answers "how is my audience growing?" in one call. `email` and `wpcom` are the site\'s email subscribers and WordPress.com followers; `comment` counts people following the comments on every post (following one post\'s comments is not counted), and is reported as unknown through `errors` when WordPress.com does not list that count on its first page; `publicize` is an object, empty when no social connection reports followers. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `followers` (`email` and `wpcom`), `comment_followers`, and `publicize_followers`. Counts fed by a failed sub-call are null, `publicize` included, and `total` is null whenever any count is, so a 0 is a value WordPress.com reported. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -436,9 +495,13 @@ class Stats_Abilities extends Registrar {
 					'email'     => array( 'type' => array( 'integer', 'null' ) ),
 					'wpcom'     => array( 'type' => array( 'integer', 'null' ) ),
 					'comment'   => array( 'type' => array( 'integer', 'null' ) ),
-					'publicize' => array( 'type' => array( 'object', 'null' ) ),
+					'publicize' => array(
+						'type'                 => array( 'object', 'null' ),
+						// Follower count keyed by service slug.
+						'additionalProperties' => array( 'type' => 'integer' ),
+					),
 					'partial'   => array( 'type' => 'boolean' ),
-					'errors'    => array( 'type' => 'array' ),
+					'errors'    => self::errors_schema(),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_followers' ),
@@ -465,7 +528,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get Stats settings', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Read the current Jetpack Stats settings: who sees the Stats admin bar + menu, whose visits are counted, and DNT behavior. Shape: { admin_bar, roles, count_roles, do_not_track }. `roles` is an array of role slugs that can view Stats; `count_roles` is an array of role slugs whose visits are counted. Call jetpack-stats/update-settings to change any of these.',
+				'Read the current Jetpack Stats settings: who sees the Stats admin bar + menu, whose visits are counted, and DNT behavior. `roles` is an array of role slugs that can view Stats; `count_roles` is an array of role slugs whose visits are counted. Call jetpack-stats/update-settings to change any of these.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -502,7 +565,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Update Stats settings', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Update one or more Jetpack Stats settings. All fields are optional; only fields present in the call are written, and unrelated keys are preserved. Idempotent — setting a value to its current state returns changed=false. Shape: { changed, settings: { admin_bar, roles, count_roles, do_not_track } }. Role slugs added to `roles` or `count_roles` must be registered roles on the site; unknown slugs return jetpack_stats_invalid_role. A slug that is already saved is kept even when its role no longer exists. Narrowing `roles` can revoke Stats access for whole groups of users — confirm with the user before removing roles.',
+				'Update one or more Jetpack Stats settings. All fields are optional; only fields present in the call are written, and unrelated keys are preserved. Idempotent — setting a value to its current state returns changed=false. Role slugs added to `roles` or `count_roles` must be registered roles on the site; unknown slugs return jetpack_stats_invalid_role. A slug that is already saved is kept even when its role no longer exists. Narrowing `roles` can revoke Stats access for whole groups of users — confirm with the user before removing roles.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -1549,6 +1612,18 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'id'  => (int) Jetpack_Options::get_option( 'id' ),
 			'url' => home_url(),
+		);
+	}
+
+	/**
+	 * Output schema for `errors`: the names of the WordPress.com sub-calls that failed.
+	 *
+	 * @return array
+	 */
+	private static function errors_schema(): array {
+		return array(
+			'type'  => 'array',
+			'items' => array( 'type' => 'string' ),
 		);
 	}
 
