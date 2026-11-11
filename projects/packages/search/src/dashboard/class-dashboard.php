@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
@@ -118,7 +119,9 @@ class Dashboard {
 			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->search_menu_priority );
 			// Check if the site plan changed and deactivate module accordingly.
 			add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
-			add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
+			if ( class_exists( Admin_Shell::class ) ) {
+				add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
+			}
 		}
 	}
 
