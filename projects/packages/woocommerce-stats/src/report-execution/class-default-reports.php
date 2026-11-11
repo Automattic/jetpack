@@ -95,11 +95,13 @@ class Default_Reports {
 		$registry->register_provider( 'wpcom', new Wpcom_Report_Provider() );
 		$registry->register_handler( Report_Registry::ANY_REPORT, 'wpcom', new Wpcom_Forward_Handler( new Api_Proxy_Controller() ) );
 
-		$registry->register_report( new Report_Definition( 'orders.by_date', 1, array( self::ROUTES['orders.by_date'] ), self::ORDERS_BY_DATE_FIELDS, array( 'orders' ), self::ORDER_SEMANTICS ) );
-		$registry->register_report( new Report_Definition( 'sessions.by_device', 1, array( self::ROUTES['sessions.by_device'] ), self::SESSIONS_BY_DEVICE_FIELDS, array( 'sessions' ), array( 'timezone' => 'site' ) ) );
+		$contracts = array(
+			'orders.by_date'     => new Report_Definition( 'orders.by_date', 1, array( self::ROUTES['orders.by_date'] ), self::ORDERS_BY_DATE_FIELDS, array( 'orders' ), self::ORDER_SEMANTICS ),
+			'sessions.by_device' => new Report_Definition( 'sessions.by_device', 1, array( self::ROUTES['sessions.by_device'] ), self::SESSIONS_BY_DEVICE_FIELDS, array( 'sessions' ), array( 'timezone' => 'site' ) ),
+		);
 
 		foreach ( self::ROUTES as $id => $route ) {
-			$registry->register_report( new Report_Definition( $id, 0, array( $route ) ) );
+			$registry->register_report( $contracts[ $id ] ?? new Report_Definition( $id, 0, array( $route ) ) );
 		}
 	}
 }

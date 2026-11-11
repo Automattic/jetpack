@@ -75,9 +75,11 @@ class Report_Executor {
 			);
 		}
 
-		$invalid = null === $fields ? true : self::check_fields( $definition, $fields );
-		if ( is_wp_error( $invalid ) ) {
-			return $invalid;
+		if ( null !== $fields ) {
+			$error = self::check_fields( $definition, $fields );
+			if ( is_wp_error( $error ) ) {
+				return $error;
+			}
 		}
 
 		$name    = $provider ?? self::DEFAULT_PROVIDER;
