@@ -868,7 +868,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'wpcom_ai_launchpad_enabled':
-					// Only turning it on: leaving Site Setup has its own path through the no-guidance options.
+					// Only turns it on. A site leaves Site Setup through `wpcom_ai_launchpad_dismissed`, never by unsetting this option.
 					if ( $value ) {
 						update_option( $key, 1 );
 						$updated[ $key ] = true;
