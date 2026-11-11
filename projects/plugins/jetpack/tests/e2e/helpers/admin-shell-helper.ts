@@ -218,12 +218,22 @@ function shellProbe( mountIds: Record< string, string > ) {
 	};
 }
 
+const pageErrors = new WeakMap< Page, string[] >();
+
 /**
  * Install the shell probe. Call before the first navigation.
  *
  * @param page - Page under test.
  */
 export async function installShellProbe( page: Page ): Promise< void > {
+	const errors: string[] = [];
+	pageErrors.set( page, errors );
+	page.on( 'pageerror', error => errors.push( error.message ) );
+	page.on( 'console', message => {
+		if ( message.type() === 'error' ) {
+			errors.push( message.text() );
+		}
+	} );
 	await page.addInitScript(
 		shellProbe,
 		Object.fromEntries( MEMBERS.map( m => [ m.slug, m.mountId ] ) )
@@ -276,7 +286,28 @@ export async function waitForShown( page: Page, slug: string ): Promise< void > 
 export async function openMember( page: Page, slug: string, suffix = '' ): Promise< void > {
 	await page.goto( `/wp-admin/admin.php?page=${ slug }${ suffix }` );
 	await waitForShown( page, slug );
-	await expect.poll( () => isShellActive( page ), 'the shell runs on this document' ).toBe( true );
+	const active = await expect
+		.poll( () => isShellActive( page ) )
+		.toBe( true )
+		.then(
+			() => true,
+			() => false
+		);
+	if ( ! active ) {
+		// Say why, since every shell-on test fails here alike.
+		const assets = await page.evaluate( () => ( {
+			config: !! document.getElementById( 'wp-script-module-data-@automattic/jetpack-admin-shell' ),
+			client:
+				document.querySelector< HTMLScriptElement >( 'script[type="module"][src*="admin-shell"]' )
+					?.src ?? null,
+		} ) );
+		throw new Error(
+			`The shell doesn't run on ${ slug }: ${ JSON.stringify( {
+				...assets,
+				errors: pageErrors.get( page ) ?? [],
+			} ) }`
+		);
+	}
 }
 
 /**
