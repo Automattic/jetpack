@@ -42,6 +42,13 @@ export const MEMBERS: Member[] = [
 		heading: 'Forms',
 		landing: /^\?page=jetpack-forms-responses-wp-admin&p=%2Fforms$/,
 	},
+	{
+		slug: 'jetpack-seo',
+		mountId: 'jetpack-seo-dashboard-wp-admin-app',
+		title: 'SEO',
+		heading: 'SEO',
+		landing: /^\?page=jetpack-seo$/,
+	},
 ];
 
 export const member = ( slug: string ): Member => {

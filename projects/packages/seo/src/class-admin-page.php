@@ -130,6 +130,49 @@ class Admin_Page {
 	}
 
 	/**
+	 * Register SEO with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * Only hooked once Initializer::init() has passed the checks that register the page itself.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			return $members;
+		}
+
+		$members[ self::MENU_SLUG ] = array(
+			'build_prefix' => 'jetpack_seo',
+			'build_page'   => self::WP_BUILD_SLUG,
+			'title'        => 'SEO',
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the SEO routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
+
+		if ( self::can_use_analytics() ) {
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+			add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_tracks_context' ) );
+		}
+	}
+
+	/**
 	 * Load the Tracks transport, without which `recordSeoEvent()` only queues into `window._tkq`.
 	 *
 	 * Skipped on Simple, where stats.php already prints w.js; a second copy re-sends the queue.
