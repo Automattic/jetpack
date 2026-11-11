@@ -52,6 +52,18 @@ jest.mock( '../stats-date-window', () => ( {
 	withoutCarriedYearWindow: ( search: object ) => ( { ...search } ),
 } ) );
 
+const mockGetEntityRecords = jest.fn( () => Promise.resolve( [] ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	resolveSelect: () => ( { getEntityRecords: mockGetEntityRecords } ),
+	useSelect: jest.fn(),
+} ) );
+
+jest.mock( '@wordpress/core-data', () => ( {
+	store: 'core',
+	useEntityRecords: jest.fn(),
+} ) );
+
 jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( ( options: object ) => ( { isRedirect: true, ...options } ) ),
 } ) );
@@ -152,5 +164,18 @@ describe( 'dashboard route.beforeLoad', () => {
 		} );
 
 		expect( search ).toMatchObject( { comp: '1', compare_preset: 'previous-period' } );
+	} );
+} );
+
+describe( 'dashboard route.loader', () => {
+	it( 'requests the sections and widget types with the queries their hooks read', () => {
+		route.loader();
+
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith( 'root', 'dashboardSection', {
+			per_page: -1,
+		} );
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith( 'root', 'widgetModule', {
+			per_page: -1,
+		} );
 	} );
 } );
