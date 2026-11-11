@@ -1336,3 +1336,68 @@ describe( 'HeatmapChart bucket scale', () => {
 		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [ '0', '0.5', '1' ] );
 	} );
 } );
+
+describe( 'HeatmapChart partial cells', () => {
+	const withPartial: HeatmapColumn[] = [
+		{ label: 'Oct', data: [ { value: 10, label: 'October' } ] },
+		{ label: 'Nov', data: [ { value: 400, label: 'November', partial: true } ] },
+		{ label: 'Dec', data: [ { value: 30, label: 'December' } ] },
+	];
+
+	test( 'paints a partial cell as a hatch instead of a scale step', () => {
+		renderChart( { data: withPartial } );
+
+		const partial = screen.getByTestId( 'heatmap-cell-partial' );
+		expect( partial ).toHaveClass( 'heatmap-chart__cell--partial' );
+		expect( partial ).not.toHaveClass( 'heatmap-chart__cell--filled' );
+		expect( partial.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) ).toBe( '' );
+		expect( screen.getAllByTestId( 'heatmap-cell' ) ).toHaveLength( 2 );
+	} );
+
+	test( 'keeps a partial cell reporting its value', () => {
+		renderChart( { data: withPartial } );
+
+		const partial = screen.getByTestId( 'heatmap-cell-partial' );
+		expect( partial ).toHaveTextContent( '400' );
+		expect( partial ).toHaveAccessibleName( /November: 400/ );
+	} );
+
+	test( 'says in the accessible name that a partial period is incomplete', () => {
+		renderChart( { data: withPartial } );
+
+		expect( screen.getByTestId( 'heatmap-cell-partial' ) ).toHaveAccessibleName(
+			'November: 400 (incomplete)'
+		);
+	} );
+
+	test( 'keeps a partial cell in keyboard navigation', async () => {
+		renderChart( { data: withPartial } );
+		const grid = screen.getByRole( 'grid' );
+
+		grid.focus();
+		await userEvent.setup().keyboard( '{ArrowDown}{ArrowRight}' );
+
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			screen.getByTestId( 'heatmap-cell-partial' ).id
+		);
+	} );
+
+	test( 'renders a series of nothing but partial cells', () => {
+		const onlyPartial: HeatmapColumn[] = [
+			{ data: [ { value: 5, partial: true } ] },
+			{ data: [ { value: 50, partial: true } ] },
+		];
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ onlyPartial }>
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getAllByTestId( 'heatmap-cell-partial' ) ).toHaveLength( 2 );
+		expect( screen.queryByTestId( 'heatmap-cell' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByTestId( 'heatmap-legend-swatch' ).length ).toBeGreaterThan( 0 );
+	} );
+} );
