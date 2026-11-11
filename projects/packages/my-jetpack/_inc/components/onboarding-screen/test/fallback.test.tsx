@@ -128,12 +128,15 @@ describe( 'OnboardingScreen when the wizard fails to load', () => {
 		document.addEventListener( 'click', stopNavigation );
 		render( <OnboardingScreen /> );
 
-		const user = userEvent.setup();
-		const link = await screen.findByRole( 'link', { name: 'Skip setup' } );
-		await user.keyboard( '{Control>}' );
-		await user.click( link );
-		await user.keyboard( '{/Control}' );
-		document.removeEventListener( 'click', stopNavigation );
+		try {
+			const user = userEvent.setup();
+			const link = await screen.findByRole( 'link', { name: 'Skip setup' } );
+			await user.keyboard( '{Control>}' );
+			await user.click( link );
+			await user.keyboard( '{/Control}' );
+		} finally {
+			document.removeEventListener( 'click', stopNavigation );
+		}
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 		expect( mockAssignLocation ).not.toHaveBeenCalled();
