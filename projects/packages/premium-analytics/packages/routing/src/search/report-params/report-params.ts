@@ -69,10 +69,16 @@ export function pickReportDateParams(
 const ORIGIN_WINDOW_PREFIX = 'ref_';
 
 /**
+ * The origin preset of a page opened without a window: its links out carry none,
+ * so the destination seeds its own default.
+ */
+const NO_ORIGIN_WINDOW = 'none';
+
+/**
  * Store the linking page's window under the origin-window params, keeping only
  * what `expandOriginWindow()` cannot rebuild: a named range is its preset alone.
  * All time keeps its bounds too, since its start is the linking surface's own. A
- * linking page without a window stores its default preset, so the way back can
+ * linking page without a window stores `NO_ORIGIN_WINDOW`, so the way back can
  * tell an origin from none.
  *
  * @param search - The search params the detail page was linked with.
@@ -94,7 +100,7 @@ export function toReportOriginWindowParams(
 
 	const rebuilt = normalizeReportParams( origin as NormalizeInput );
 	if ( linked.preset === undefined && linked.from === undefined && linked.to === undefined ) {
-		origin.preset = rebuilt.preset;
+		origin.preset = NO_ORIGIN_WINDOW;
 	}
 	if ( linked.interval !== undefined && linked.interval !== rebuilt.interval ) {
 		origin.interval = linked.interval;
@@ -179,9 +185,9 @@ export function pickReportOriginWindowParams(
 }
 
 /**
- * Pick the window a link out of the current page returns to: on a page opened from
- * another, the origin window its seed stored under the `ref_*` params, whichever
- * param scopes the page; elsewhere, the page's own.
+ * Pick the window a link out of the current page returns to: on a page whose seed
+ * stored an origin window under the `ref_*` params, that window, whichever param
+ * scopes the page; elsewhere, the page's own.
  *
  * @param search - The current route search params.
  * @return The unprefixed report-window params to carry.
@@ -196,9 +202,16 @@ function pickReturnDateParams(
 			origin[ key ] = value;
 		}
 	}
-	return Object.keys( origin ).length
-		? expandOriginWindow( origin )
-		: pickReportDateParams( search );
+
+	if ( ! Object.keys( origin ).length ) {
+		return pickReportDateParams( search );
+	}
+
+	if ( origin.preset === NO_ORIGIN_WINDOW ) {
+		delete origin.preset;
+	}
+
+	return expandOriginWindow( origin );
 }
 
 /**

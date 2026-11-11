@@ -124,10 +124,8 @@ describe( 'origin window params', () => {
 		).toEqual( stored );
 	} );
 
-	it( 'stores the default preset when the linking page carried no window', () => {
-		expect( toReportOriginWindowParams( { post_id: '7' } ) ).toEqual( {
-			ref_preset: normalizeReportParams( {} ).preset,
-		} );
+	it( 'marks a linking page that carried no window', () => {
+		expect( toReportOriginWindowParams( { post_id: '7' } ) ).toEqual( { ref_preset: 'none' } );
 	} );
 
 	it( 'keeps an interval the preset would not default to', () => {
@@ -380,17 +378,14 @@ describe( 'buildReportLink', () => {
 		);
 	} );
 
-	it( 'returns a detail page opened without a window to the default one its seed stored', () => {
-		expect.assertions( 2 );
-		expectLink(
+	it( 'carries no window from a detail page opened without one', () => {
+		expect(
 			buildReportLink( 'posts', {
 				from: '2020-03-04',
 				post_id: '42',
 				...toReportOriginWindowParams( {} ),
-			} ),
-			'/reports/posts',
-			normalizeReportParams( {} )
-		);
+			} )
+		).toBe( '/reports/posts' );
 	} );
 
 	it( 'carries the dashboard tab to return to', () => {
