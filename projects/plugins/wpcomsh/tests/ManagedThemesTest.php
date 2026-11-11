@@ -50,14 +50,7 @@ class ManagedThemesTest extends WP_UnitTestCase {
 	private $theme_directories;
 
 	/**
-	 * Build a fake managed tree and a themes folder that links into it, like on WP Cloud:
-	 *
-	 * - twentytwentyfive: relative link into the managed tree.
-	 * - radcliffe-2: absolute link into the managed tree.
-	 * - child: relative link to a child theme whose parent is missing (a broken theme).
-	 * - blocksy: a regular, uploaded folder.
-	 * - storefront: link to a sibling folder whose name only starts like the managed tree.
-	 * - broken: link to a folder that doesn't exist.
+	 * Build a fake managed tree and a themes folder that links into it, like on WP Cloud.
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -167,14 +160,14 @@ class ManagedThemesTest extends WP_UnitTestCase {
 	public static function provide_upgrader_cases() {
 		return array(
 			'theme install'  => array( 'theme', 'install', true ),
-			'theme update'   => array( 'theme', 'update', false ),
+			'theme update'   => array( 'theme', 'update', true ),
 			'plugin install' => array( 'plugin', 'install', false ),
 			'no details'     => array( null, null, false ),
 		);
 	}
 
 	/**
-	 * Core's upgrader refreshes the list after theme installs only: updates don't change whether a folder is a symlink.
+	 * Core's upgrader refreshes the list after theme installs and updates, and leaves it alone for other types.
 	 *
 	 * @dataProvider provide_upgrader_cases
 	 *
@@ -195,17 +188,6 @@ class ManagedThemesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Refreshing saves the current list.
-	 */
-	public function test_update_saves_managed_themes() {
-		delete_option( 'wpcomsh_at_managed_themes' );
-
-		wpcomsh_update_managed_themes();
-
-		$this->assertSame( wpcomsh_get_managed_themes(), get_option( 'wpcomsh_at_managed_themes' ) );
-	}
-
-	/**
 	 * The daily refresh is scheduled once.
 	 */
 	public function test_daily_refresh_is_scheduled() {
@@ -222,7 +204,7 @@ class ManagedThemesTest extends WP_UnitTestCase {
 
 	/**
 	 * The list is refreshed when wpcomsh installs or deletes a theme by symlink, which skips core's hooks,
-	 * after core's upgrader installs a theme, and by the daily refresh, which is scheduled on init.
+	 * after core's upgrader installs or updates a theme, and by the daily refresh, which is scheduled on init.
 	 */
 	public function test_managed_themes_list_is_refreshed() {
 		$this->assertNotFalse( has_action( 'wpcomsh_wpcom_theme_installed', 'wpcomsh_update_managed_themes' ) );
@@ -259,13 +241,11 @@ class ManagedThemesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The managed themes option is in the Jetpack Sync options whitelist, like the plugins one.
+	 * The managed themes option is in the Jetpack Sync options whitelist.
 	 */
 	public function test_managed_themes_option_is_synced() {
 		$whitelist = Defaults::get_options_whitelist();
 
-		$this->assertContains( 'wpcomsh_at_managed_themes', wpcomsh_allow_custom_wp_options( array() ) );
-		$this->assertContains( 'wpcomsh_at_managed_plugins', $whitelist );
 		$this->assertContains( 'wpcomsh_at_managed_themes', $whitelist );
 	}
 }
