@@ -24,19 +24,22 @@ class Ads_Wpcom_Settings_Test extends BaseTestCase {
 
 	const BLOG_ID = 999;
 
-	const WPCOM_SETTINGS = array(
-		'paypal'            => 'owner@example.com',
-		'tos'               => 'signed',
-		'show_to_logged_in' => 'no',
-		'optimized_ads'     => true,
-		'display_options'   => array(
-			'display_post' => false,
-			'sidebar'      => true,
+	const SITE_VALUES = array(
+		'display_options'         => array(
+			'display_front_page' => true,
+			'display_post'       => true,
+			'display_page'       => false,
+			'display_archive'    => true,
+			'enable_header_ad'   => true,
+			'second_belowpost'   => true,
+			'inline_enabled'     => true,
 		),
+		'ccpa_enabled'            => false,
+		'ccpa_privacy_policy_url' => '',
 	);
 
 	/**
-	 * Requests sent to WordPress.com: method and decoded body.
+	 * Requests sent to WordPress.com: method, path and decoded body.
 	 *
 	 * @var array[]
 	 */
@@ -58,6 +61,7 @@ class Ads_Wpcom_Settings_Test extends BaseTestCase {
 				)
 			)
 		);
+		update_option( 'wordads_display_page', '' );
 	}
 
 	/**
@@ -71,49 +75,20 @@ class Ads_Wpcom_Settings_Test extends BaseTestCase {
 		parent::tear_down();
 	}
 
-	public function test_sync_sends_the_site_values_and_keeps_what_only_wpcom_has() {
-		update_option( 'wordads_display_page', '' );
-		$this->arrange_wpcom( self::WPCOM_SETTINGS );
+	public function test_sync_sends_the_site_values_with_defaults_and_no_payout_fields() {
+		$this->arrange_wpcom( array( 'paypal' => '' ) );
 
 		$this->assertTrue( Ads_Wpcom_Settings::sync() );
 
-		$this->assertSame( array( 'GET', 'POST' ), array_column( $this->sent, 'method' ) );
-		$this->assertSame(
-			array(
-				'paypal'                  => 'owner@example.com',
-				'tos'                     => 'signed',
-				'show_to_logged_in'       => 'no',
-				'optimized_ads'           => true,
-				'display_options'         => array(
-					// Unset site options send their defaults, and the site wins over WordPress.com's display_post.
-					'display_front_page' => true,
-					'display_post'       => true,
-					'display_page'       => false,
-					'display_archive'    => true,
-					'enable_header_ad'   => true,
-					'second_belowpost'   => true,
-					'inline_enabled'     => true,
-					'sidebar'            => true,
-				),
-				'ccpa_enabled'            => false,
-				'ccpa_privacy_policy_url' => '',
-			),
-			$this->sent[1]['body']
-		);
+		$this->assertCount( 1, $this->sent );
+		$this->assertSame( 'POST', $this->sent[0]['method'] );
+		$this->assertStringEndsWith( '/wpcom/v2/sites/999/wordads/settings', $this->sent[0]['path'] );
+		$this->assertSame( self::SITE_VALUES, $this->sent[0]['body'] );
 		$this->assertFalse( Ads_Wpcom_Settings::is_out_of_date() );
 	}
 
-	public function test_sync_waits_for_a_paypal_address() {
-		$this->arrange_wpcom( array( 'paypal' => '' ) + self::WPCOM_SETTINGS );
-
-		$this->assertFalse( Ads_Wpcom_Settings::sync() );
-
-		$this->assertSame( array( 'GET' ), array_column( $this->sent, 'method' ) );
-		$this->assertTrue( Ads_Wpcom_Settings::is_out_of_date() );
-	}
-
 	public function test_sync_sends_nothing_until_a_site_value_changes() {
-		$this->arrange_wpcom( self::WPCOM_SETTINGS );
+		$this->arrange_wpcom( array() );
 		Ads_Wpcom_Settings::sync();
 		$this->sent = array();
 
@@ -124,11 +99,11 @@ class Ads_Wpcom_Settings_Test extends BaseTestCase {
 		$this->assertTrue( Ads_Wpcom_Settings::is_out_of_date() );
 	}
 
-	public function test_save_payout_signs_the_terms_and_sends_the_site_values() {
+	public function test_save_payout_sends_the_payout_with_the_site_values() {
 		$this->arrange_wpcom(
 			array(
-				'paypal' => '',
-				'tos'    => '',
+				'paypal' => 'new@example.com',
+				'tos'    => 'signed',
 			)
 		);
 
@@ -141,19 +116,22 @@ class Ads_Wpcom_Settings_Test extends BaseTestCase {
 			),
 			$payout
 		);
-		$sent = (array) $this->sent[1]['body'];
-		$this->assertSame( 'new@example.com', $sent['paypal'] );
-		$this->assertSame( 'signed', $sent['tos'] );
-		$this->assertArrayHasKey( 'display_options', $sent );
+		$this->assertSame(
+			self::SITE_VALUES + array(
+				'paypal' => 'new@example.com',
+				'tos'    => 'signed',
+			),
+			$this->sent[0]['body']
+		);
 		$this->assertFalse( Ads_Wpcom_Settings::is_out_of_date() );
 	}
 
-	public function test_save_payout_returns_the_wpcom_error_code() {
+	public function test_a_refused_update_returns_the_wpcom_error_and_stays_out_of_date() {
 		$this->arrange_wpcom(
-			self::WPCOM_SETTINGS,
 			array(
-				'error'   => 'invalid_tos',
-				'message' => 'Please accept the terms.',
+				'code'    => 'invalid_tos',
+				'message' => 'You must agree to the Terms of Service.',
+				'data'    => array( 'status' => 400 ),
 			),
 			400
 		);
@@ -208,29 +186,28 @@ class Ads_Wpcom_Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Answer WordPress.com's GET with settings and its POST with a body, recording what was sent.
+	 * Answer every WordPress.com request with settings, or an error body, recording what was sent.
 	 *
-	 * @param array $settings    Stored WordPress.com settings.
-	 * @param array $post_body   POST response body.
-	 * @param int   $post_status POST response status.
+	 * @param array $body   Settings, or the error body when `$status` is an error.
+	 * @param int   $status Response status.
 	 */
-	private function arrange_wpcom( array $settings, array $post_body = array( 'updated' => true ), $post_status = 200 ) {
+	private function arrange_wpcom( array $body, $status = 200 ) {
 		add_filter(
 			'pre_http_request',
-			function ( $preempt, $args ) use ( $settings, $post_body, $post_status ) {
+			function ( $preempt, $args, $url ) use ( $body, $status ) {
 				$this->sent[] = array(
 					'method' => $args['method'],
+					'path'   => (string) wp_parse_url( (string) $url, PHP_URL_PATH ),
 					'body'   => isset( $args['body'] ) ? json_decode( $args['body'], true ) : null,
 				);
-				$is_post      = 'POST' === $args['method'];
 				return array(
 					'headers'  => array(),
-					'response' => array( 'code' => $is_post ? $post_status : 200 ),
-					'body'     => wp_json_encode( $is_post ? $post_body : array( 'settings' => $settings ), JSON_UNESCAPED_SLASHES ),
+					'response' => array( 'code' => $status ),
+					'body'     => wp_json_encode( $status >= 400 ? $body : array( 'settings' => $body ), JSON_UNESCAPED_SLASHES ),
 				);
 			},
 			10,
-			2
+			3
 		);
 	}
 

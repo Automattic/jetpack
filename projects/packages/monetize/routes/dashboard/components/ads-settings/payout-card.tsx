@@ -1,15 +1,6 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { __ } from '@wordpress/i18n';
-import {
-	Button,
-	Card,
-	CheckboxControl,
-	InputControl,
-	Link,
-	Notice,
-	Spinner,
-	Stack,
-} from '@wordpress/ui';
+import { Button, Card, CheckboxControl, InputControl, Link, Notice, Stack } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import { trackPayoutSave } from '../../data/tracking';
 import { usePayout, useSavePayout } from '../../data/use-wpcom-ads-settings';
@@ -46,22 +37,14 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 		);
 	}, [ save, address, agreed ] );
 
-	if ( payout.isError ) {
-		return (
-			<Notice.Root intent="error">
-				<Notice.Description>
-					{ __( 'Your payout details could not be loaded.', 'jetpack-monetize' ) }
-				</Notice.Description>
-			</Notice.Root>
-		);
-	}
-
-	if ( ! stored ) {
-		return <Spinner />;
-	}
-
+	// The card shows from the start, its fields disabled until WordPress.com answers.
+	const isReady = Boolean( stored );
+	const isDisabled = ! isReady || save.isPending;
 	const canSave =
-		address !== '' && ( address !== stored.paypal || agreed ) && ( tosSigned || agreed );
+		isReady &&
+		address !== '' &&
+		( address !== stored?.paypal || agreed ) &&
+		( tosSigned || agreed );
 
 	return (
 		<Card.Root>
@@ -69,8 +52,15 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 				<Card.Title render={ <h2 /> }>{ __( 'Payouts', 'jetpack-monetize' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<Stack direction="column" gap="lg" align="start">
-					{ adsActive && ! stored.paypal && (
+				<Stack direction="column" gap="lg" align="start" aria-busy={ payout.isPending }>
+					{ payout.isError && (
+						<Notice.Root intent="error">
+							<Notice.Description>
+								{ __( 'Your payout details could not be loaded.', 'jetpack-monetize' ) }
+							</Notice.Description>
+						</Notice.Root>
+					) }
+					{ adsActive && isReady && ! stored?.paypal && (
 						<Notice.Root intent="warning">
 							<Notice.Description>
 								{ __(
@@ -93,10 +83,10 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 						label={ __( 'PayPal email address', 'jetpack-monetize' ) }
 						description={ __( 'Ad earnings are paid to this PayPal account.', 'jetpack-monetize' ) }
 						value={ address }
-						disabled={ save.isPending }
+						disabled={ isDisabled }
 						onValueChange={ onPaypalChange }
 					/>
-					{ ! tosSigned && (
+					{ isReady && ! tosSigned && (
 						<CheckboxControl
 							label={ __( 'I agree to the Automattic Ads Terms of Service.', 'jetpack-monetize' ) }
 							details={
@@ -105,7 +95,7 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 								</Link>
 							}
 							checked={ agreed }
-							disabled={ save.isPending }
+							disabled={ isDisabled }
 							onCheckedChange={ setAgreed }
 						/>
 					) }

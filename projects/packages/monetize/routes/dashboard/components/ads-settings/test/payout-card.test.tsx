@@ -18,15 +18,24 @@ const mockedApiFetch = apiFetch as unknown as jest.Mock;
  */
 async function renderLoaded( stored: Payout, adsActive = true ) {
 	mockedApiFetch.mockResolvedValueOnce( stored );
+	renderCard( adsActive );
+	await waitFor( () =>
+		expect( screen.getByRole( 'textbox', { name: 'PayPal email address' } ) ).toBeEnabled()
+	);
+}
+
+/**
+ * Render the card in a fresh query client.
+ *
+ * @param adsActive - Whether ads are on.
+ */
+function renderCard( adsActive = true ) {
 	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
 	render(
 		<QueryClientProvider client={ client }>
 			<PayoutCard adsActive={ adsActive } />
 		</QueryClientProvider>
 	);
-	await expect(
-		screen.findByRole( 'textbox', { name: 'PayPal email address' } )
-	).resolves.toBeVisible();
 }
 
 describe( 'PayoutCard', () => {
@@ -40,6 +49,22 @@ describe( 'PayoutCard', () => {
 		await renderLoaded( { paypal, tosSigned: Boolean( paypal ) }, adsActive );
 
 		expect( Boolean( screen.queryByText( /Add a PayPal address to get paid/ ) ) ).toBe( warns );
+	} );
+
+	it.each( [
+		[ 'while loading', () => new Promise( () => {} ), false ],
+		[ 'when loading fails', () => Promise.reject( { code: 'rest_cannot_manage' } ), true ],
+	] )( 'shows the card with its field disabled %s', async ( _name, respond, failed ) => {
+		mockedApiFetch.mockImplementationOnce( respond );
+		renderCard();
+
+		expect( screen.getByRole( 'heading', { name: 'Payouts' } ) ).toBeVisible();
+		expect( screen.getByRole( 'textbox', { name: 'PayPal email address' } ) ).toBeDisabled();
+		await waitFor( () =>
+			expect( Boolean( screen.queryByText( 'Your payout details could not be loaded.' ) ) ).toBe(
+				failed
+			)
+		);
 	} );
 
 	it( 'saves a first address only with the terms agreed', async () => {

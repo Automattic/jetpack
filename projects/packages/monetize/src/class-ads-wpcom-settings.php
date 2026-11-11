@@ -18,8 +18,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Keeps WordPress.com's Ads settings caught up with the site's, which always win, and saves the payout details.
  *
- * WordPress.com refuses any save without a PayPal address, so the site's settings wait until one is on file.
- *
  * @since $$next-version$$
  */
 class Ads_Wpcom_Settings {
@@ -47,13 +45,6 @@ class Ads_Wpcom_Settings {
 	);
 
 	/**
-	 * WordPress.com-only fields a save sends back as they are, since its POST replaces the whole record.
-	 *
-	 * @var string[]
-	 */
-	const KEPT_FIELDS = array( 'paypal', 'tos', 'show_to_logged_in', 'optimized_ads' );
-
-	/**
 	 * The site's Ads settings in WordPress.com's shape, defaults included.
 	 *
 	 * @return array
@@ -70,7 +61,8 @@ class Ads_Wpcom_Settings {
 		return array(
 			'display_options'         => $display,
 			'ccpa_enabled'            => (bool) get_option( 'wordads_ccpa_enabled', false ),
-			'ccpa_privacy_policy_url' => (string) get_option( 'wordads_ccpa_privacy_policy_url', $privacy_page ? get_permalink( $privacy_page ) : '' ),
+			// WordPress.com only accepts an empty value or an http(s) URL.
+			'ccpa_privacy_policy_url' => esc_url_raw( (string) get_option( 'wordads_ccpa_privacy_policy_url', $privacy_page ? get_permalink( $privacy_page ) : '' ), array( 'http', 'https' ) ),
 		);
 	}
 
@@ -89,100 +81,89 @@ class Ads_Wpcom_Settings {
 	 * @return array|WP_Error
 	 */
 	public static function get_payout() {
-		$current = self::fetch();
-		if ( is_wp_error( $current ) ) {
-			return $current;
-		}
-
-		return self::to_payout( $current );
+		$settings = self::request( 'GET' );
+		return is_wp_error( $settings ) ? $settings : self::to_payout( $settings );
 	}
 
 	/**
 	 * Save the payout details, along with the site's Ads settings.
 	 *
-	 * @param string $paypal    PayPal email address.
-	 * @param bool   $sign_tos  Whether the user agreed to the terms.
+	 * @param string $paypal   PayPal email address.
+	 * @param bool   $sign_tos Whether the user agreed to the terms.
 	 * @return array|WP_Error The saved payout details.
 	 */
 	public static function save_payout( $paypal, $sign_tos ) {
-		$current = self::fetch();
-		if ( is_wp_error( $current ) ) {
-			return $current;
-		}
-
 		$changes = array( 'paypal' => $paypal );
 		if ( $sign_tos ) {
 			$changes['tos'] = 'signed';
 		}
 
-		$saved = self::write( $current, $changes );
-		return is_wp_error( $saved ) ? $saved : self::to_payout( $saved );
+		$settings = self::send_site_values( $changes );
+		return is_wp_error( $settings ) ? $settings : self::to_payout( $settings );
 	}
 
 	/**
-	 * Send the site's Ads settings to WordPress.com if they changed and it has a PayPal address to save them with.
+	 * Send the site's Ads settings to WordPress.com if they changed since it last accepted them.
 	 *
-	 * @return bool|WP_Error Whether WordPress.com is caught up.
+	 * @return true|WP_Error
 	 */
 	public static function sync() {
 		if ( ! self::is_out_of_date() ) {
 			return true;
 		}
 
-		$current = self::fetch();
-		if ( is_wp_error( $current ) ) {
-			return $current;
-		}
-
-		if ( empty( $current['paypal'] ) ) {
-			return false;
-		}
-
-		$saved = self::write( $current );
-		return is_wp_error( $saved ) ? $saved : true;
+		$settings = self::send_site_values();
+		return is_wp_error( $settings ) ? $settings : true;
 	}
 
 	/**
-	 * WordPress.com's current settings.
+	 * Update WordPress.com with the site's values and any payout changes, and remember what it accepted.
 	 *
-	 * @return array|WP_Error
-	 */
-	private static function fetch() {
-		$response = Client::wpcom_json_api_request_as_user( self::get_path(), '1.1', array( 'method' => 'GET' ), null, 'rest' );
-		$body     = self::parse( $response );
-		if ( is_wp_error( $body ) ) {
-			return $body;
-		}
-
-		return is_array( $body['settings'] ?? null ) ? $body['settings'] : array();
-	}
-
-	/**
-	 * Replace WordPress.com's settings with the site's values and any changes, keeping the fields only WordPress.com has.
-	 *
-	 * @param array $current WordPress.com's current settings.
 	 * @param array $changes Payout fields to change.
-	 * @return array|WP_Error The settings sent.
+	 * @return array|WP_Error WordPress.com's settings after the update.
 	 */
-	private static function write( array $current, array $changes = array() ) {
-		$site = self::get_site_values();
-		$body = array_merge( array_intersect_key( $current, array_flip( self::KEPT_FIELDS ) ), $site, $changes );
-
-		// The sidebar placement only exists on WordPress.com.
-		$current_display = (array) ( $current['display_options'] ?? array() );
-		if ( isset( $current_display['sidebar'] ) ) {
-			$body['display_options']['sidebar'] = $current_display['sidebar'];
+	private static function send_site_values( array $changes = array() ) {
+		$site     = self::get_site_values();
+		$settings = self::request( 'POST', array_merge( $site, $changes ) );
+		if ( ! is_wp_error( $settings ) ) {
+			update_option( self::SYNCED_OPTION, self::hash( $site ), false );
 		}
 
-		$response = Client::wpcom_json_api_request_as_user( self::get_path(), '1.1', array( 'method' => 'POST' ), $body, 'rest' );
-		$result   = self::parse( $response );
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		return $settings;
+	}
+
+	/**
+	 * Read or update WordPress.com's settings as the current user.
+	 *
+	 * @param string     $method HTTP method.
+	 * @param array|null $body   Fields to change.
+	 * @return array|WP_Error The settings.
+	 */
+	private static function request( $method, $body = null ) {
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/wordads/settings', (int) Jetpack_Options::get_option( 'id' ) ),
+			'2',
+			array( 'method' => $method ),
+			$body
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
 		}
 
-		update_option( self::SYNCED_OPTION, self::hash( $site ), false );
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$data   = json_decode( wp_remote_retrieve_body( $response ), true );
+		$data   = is_array( $data ) ? $data : array();
 
-		return $body;
+		if ( $status >= 400 ) {
+			return new WP_Error(
+				(string) ( $data['code'] ?? 'wpcom_error' ),
+				(string) ( $data['message'] ?? '' ),
+				array( 'status' => $status )
+			);
+		}
+
+		return is_array( $data['settings'] ?? null ) ? $data['settings'] : array();
 	}
 
 	/**
@@ -196,41 +177,6 @@ class Ads_Wpcom_Settings {
 			'paypal'    => (string) ( $settings['paypal'] ?? '' ),
 			'tosSigned' => 'signed' === ( $settings['tos'] ?? '' ),
 		);
-	}
-
-	/**
-	 * Decode a response, turning v1.1's `{ error, message }` failures into a WP_Error.
-	 *
-	 * @param array|WP_Error $response Remote response.
-	 * @return array|WP_Error
-	 */
-	private static function parse( $response ) {
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$status = (int) wp_remote_retrieve_response_code( $response );
-		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
-		$body   = is_array( $body ) ? $body : array();
-
-		if ( $status >= 400 || isset( $body['error'] ) ) {
-			return new WP_Error(
-				(string) ( $body['error'] ?? $body['code'] ?? 'wpcom_error' ),
-				(string) ( $body['message'] ?? '' ),
-				array( 'status' => $status >= 400 ? $status : 500 )
-			);
-		}
-
-		return $body;
-	}
-
-	/**
-	 * The v1.1 settings path for this site.
-	 *
-	 * @return string
-	 */
-	private static function get_path() {
-		return sprintf( '/sites/%d/wordads/settings', (int) Jetpack_Options::get_option( 'id' ) );
 	}
 
 	/**
