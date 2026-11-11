@@ -114,16 +114,17 @@ export class Writing extends Component {
 			'widget-visibility',
 			'blocks',
 		].some( this.props.isModuleFound );
-		// The card's search must match one of the REST lookup's keywords exactly.
+		// A search must match one of the REST lookup's keywords exactly.
 		const foundCustomContentTypes =
 			this.state.customContentTypeIsActive &&
 			!! this.props.searchTerm &&
 			this.state.customContentKeywords.includes( this.props.searchTerm.toLowerCase() );
-		// The pointer's search matches the module's own fields, its title and slug included.
+		// The pointer also matches the module's fields, which add its title and slug to the keywords.
 		const foundCustomContentTypesPointer =
-			this.state.customContentTypeIsActive &&
-			!! this.props.searchTerm &&
-			this.props.isModuleFound( 'custom-content-types' );
+			foundCustomContentTypes ||
+			( this.state.customContentTypeIsActive &&
+				!! this.props.searchTerm &&
+				this.props.isModuleFound( 'custom-content-types' ) );
 		// Once settings move out, custom content types keep the tab only for their search pointer.
 		const customContentTypesKeepTab = isSettingsConsolidationEnabled()
 			? foundCustomContentTypesPointer

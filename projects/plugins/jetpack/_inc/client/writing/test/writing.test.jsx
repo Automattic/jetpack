@@ -137,6 +137,12 @@ describe( 'Writing settings', () => {
 					'custom content types',
 					[ 'Custom content types pointer' ],
 				],
+				[
+					'on, in a search for a keyword the module misses',
+					true,
+					'cpt',
+					[ 'Custom content types pointer' ],
+				],
 				[ 'on, in a search that misses it', true, 'comments', [] ],
 			],
 		],
