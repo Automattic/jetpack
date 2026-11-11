@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { queueActivationRequest } from '../../../../data/queue-activation-request';
-import { useApplySetupModules, useSetupModules } from '../use-setup-modules';
+import { readModuleActive, useApplySetupModules, useSetupModules } from '../use-setup-modules';
 import type { SetupModule } from '../use-setup-modules';
 
 const mockRequestModuleSwitch = jest.fn();
@@ -112,16 +112,37 @@ describe( 'Applying the wizard’s switches', () => {
 		const { result } = renderHook( () => useApplySetupModules() );
 
 		let running: Promise< unknown > = Promise.resolve();
-		await act( async () => {
-			running = result.current.apply( [ module( 'monitor', false ) ], { monitor: true } );
-		} );
-		expect( mockApiFetch ).not.toHaveBeenCalled();
-
-		await act( async () => {
-			finish();
-			await running;
-		} );
+		try {
+			await act( async () => {
+				running = result.current.apply( [ module( 'monitor', false ) ], { monitor: true } );
+			} );
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+		} finally {
+			// Left held, the module-level queue would stall every later test.
+			await act( async () => {
+				finish();
+				await running;
+			} );
+		}
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'stops waiting on a switch that never answers', async () => {
+		jest.useFakeTimers();
+		let finish: () => void = () => {};
+		queueActivationRequest( () => new Promise< void >( resolve => ( finish = resolve ) ) );
+		try {
+			const reading = readModuleActive( 'monitor' );
+			await jest.advanceTimersByTimeAsync( 10_000 );
+
+			await expect( reading ).resolves.toBeNull();
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+		} finally {
+			jest.useRealTimers();
+			finish();
+			// Let the read it queued run now, not in a later test.
+			await queueActivationRequest( () => Promise.resolve() );
+		}
 	} );
 
 	it( 'never asks to move a module the host forces', async () => {

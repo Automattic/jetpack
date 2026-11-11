@@ -168,6 +168,9 @@ export function useSetupModules(
 	);
 }
 
+// How long a read-back waits behind a switch still running before giving up on it.
+const READ_BACK_WAIT_MS = 10_000;
+
 /**
  * Whether the site runs a module right now, read from the site rather than the store.
  *
@@ -178,15 +181,24 @@ export function useSetupModules(
  * @return Its state, or null when the site could not be asked.
  */
 export async function readModuleActive( slug: string ): Promise< boolean | null > {
+	let timer: ReturnType< typeof setTimeout > | undefined;
 	try {
-		const modules = await queueActivationRequest( () =>
-			apiFetch< Record< string, { activated?: boolean } > >( { path: '/jetpack/v4/module/all' } )
-		);
+		const modules = await Promise.race( [
+			queueActivationRequest( () =>
+				apiFetch< Record< string, { activated?: boolean } > >( { path: '/jetpack/v4/module/all' } )
+			),
+			// A switch that hung once usually hangs on, so don't hold the wizard another full timeout.
+			new Promise< null >(
+				resolve => ( timer = setTimeout( () => resolve( null ), READ_BACK_WAIT_MS ) )
+			),
+		] );
 		const activated = modules?.[ slug ]?.activated;
 
 		return typeof activated === 'boolean' ? activated : null;
 	} catch {
 		return null;
+	} finally {
+		clearTimeout( timer );
 	}
 }
 
@@ -213,7 +225,7 @@ export function useApplySetupModules() {
 			const results: SetupModuleResult[] = [];
 
 			try {
-				// One at a time: the queue serialises them anyway, and a module that fails
+				// One at a time: the queue serializes them anyway, and a module that fails
 				// should not be reported against whatever a parallel request did next.
 				for ( const module of modules ) {
 					const want = isWanted( wanted, module );
