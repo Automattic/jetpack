@@ -124,7 +124,8 @@ const SettingsNavTabs = props => {
 					module => ! isSwitchedInFeatures( module )
 				)
 			) ||
-			window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active
+			// Once settings move out, custom content types leave only a search pointer here.
+			( ! isSettingsConsolidationEnabled() && window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active )
 		) {
 			visibleTabs.push( '/writing' );
 		}

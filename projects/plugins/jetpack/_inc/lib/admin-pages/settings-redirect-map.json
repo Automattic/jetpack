@@ -7,7 +7,6 @@
 		"D4": "Where Sharing buttons and Likes live (under Jetpack Social, or the Sharing screen they use now).",
 		"D6": "Where Reader Visibility goes (a Features switch, or Newsletter settings).",
 		"D7": "Where Google Analytics settings go on Atomic (the SEO page, or Stats settings).",
-		"D8": "Where Custom content types are managed (a settings panel, or core Settings > Writing).",
 		"D9": "Where users who cannot manage modules find Post by Email, Publicize and their own account connection, since Features needs manage_options.",
 		"D10": "What happens to the legacy SEO block on self-hosted sites that have not opted in to the SEO page.",
 		"D11": "Where the per-user usage tracking (Privacy) setting lives."
@@ -95,7 +94,7 @@
 			"source": "/writing",
 			"rules": [
 				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
-				{ "pending": [ "D2", "D8" ] }
+				{ "pending": [ "D2" ] }
 			],
 			"linkedFrom": [
 				"plugins/jetpack Unavailable_Blocks::get_editor_data(): fixUrl for blocks the Blocks module turned off; wants admin.php?page=my-jetpack#/features?search=blocks",
@@ -285,7 +284,10 @@
 		{ "source": "comments", "rules": [ { "pending": [ "D2" ] } ] },
 		{ "source": "markdown", "rules": [ { "pending": [ "D2" ] } ] },
 		{ "source": "gravatar-hovercards", "rules": [ { "pending": [ "D2" ] } ] },
-		{ "source": "custom-content-types", "rules": [ { "pending": [ "D8" ] } ] },
+		{
+			"source": "custom-content-types",
+			"rules": [ { "destination": "options-writing.php#cpt-options" } ]
+		},
 		{ "source": "sharedaddy", "rules": [ { "pending": [ "D4" ] } ] },
 		{ "source": "likes", "rules": [ { "pending": [ "D4" ] } ] },
 		{ "source": "tiled-gallery", "rules": [ { "pending": [ "D3" ] } ] },
