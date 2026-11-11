@@ -14,7 +14,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const mockCreateSuccessNotice = jest.fn();
 const mockCreateErrorNotice = jest.fn();
-// Swaps only `useDispatch`, for the reason stats-settings.test.tsx gives.
+// Swaps only `useDispatch`, for the reason settings-form.test.tsx gives.
 jest.mock( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' );
 	return new Proxy( actual, {
@@ -186,7 +186,7 @@ describe( 'ConsentCard', () => {
 		}
 	);
 
-	it( 'still shows WP Consent API as active after switching tabs remounts the card', async () => {
+	it( 'still shows WP Consent API as active after coming back to Settings remounts the card', async () => {
 		setConsent( { banner_plugin: 'Complianz', api_installed: true } );
 		mockApiFetch.mockResolvedValue( {} );
 		const { unmount } = render( <ConsentCard /> );

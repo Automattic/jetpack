@@ -11,6 +11,9 @@ import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { dashboardSectionOf, withoutCarriedYearWindow } from '../stats-date-window';
 import { seedDashboardDateSearch, type DashboardSearch } from './section-date-window';
 
+// Settings was a dashboard tab before it had a route; the server keeps the slug reserved.
+const SETTINGS_SECTION = 'settings';
+
 /**
  * Route lifecycle for the dashboard. The initial analytics sync is not a guard
  * — only the store section waits on it and shows progress meanwhile (see
@@ -23,6 +26,17 @@ export const route = {
 		}
 
 		const current: DashboardSearch = search ?? {};
+		if ( current.section === SETTINGS_SECTION ) {
+			const settingsSearch = { ...current };
+			delete settingsSearch.section;
+			throw redirect( {
+				to: '/settings',
+				replace: true,
+				// Cast for the same reason as the redirect below.
+				search: settingsSearch as unknown as never,
+			} );
+		}
+
 		const policy = getSectionDatePolicy( dashboardSectionOf( current.section ) );
 		const params = withoutCarriedYearWindow( current, policy );
 

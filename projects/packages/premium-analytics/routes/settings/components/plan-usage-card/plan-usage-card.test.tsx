@@ -87,7 +87,7 @@ describe( 'PlanUsageCard', () => {
 		);
 	} );
 
-	it( 'names the tab it sits in on the upgrade link, so the upgrade page returns to Settings', async () => {
+	it( 'names Settings on the upgrade link, so the upgrade page returns to it', async () => {
 		render(
 			<AnalyticsQueryClientProvider>
 				<DashboardSectionProvider section="settings">

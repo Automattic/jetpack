@@ -1,7 +1,7 @@
 import { Link, type Field } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __, sprintf } from '@wordpress/i18n';
-import { ChipSelectEdit } from './chip-select-edit';
+import { ChipSelectEdit } from './fields';
 import type { StatsSettings } from '@jetpack-premium-analytics/data';
 
 type SiteRole = { slug: string; name: string; count: number | null };
@@ -12,7 +12,7 @@ const CONFIGURE_STATS_URL = 'https://jetpack.com/support/jetpack-stats/configure
 const LOCKED_ROLE = 'administrator';
 
 /**
- * The Settings tab's fields, over the roles this site has.
+ * The settings form's fields, over the roles this site has.
  *
  * @param roles - The site's roles, with how many users hold each.
  * @return The fields.

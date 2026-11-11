@@ -26,13 +26,13 @@ import {
 	useState,
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import styles from './stats-settings.module.scss';
+import styles from './consent-card.module.scss';
 import type { JSX, ReactNode, Ref } from 'react';
 
 const WP_CONSENT_API_URL = 'https://wordpress.org/plugins/wp-consent-api/';
 const WP_CONSENT_API_ROUTE = '/wp/v2/plugins/wp-consent-api/wp-consent-api';
 
-// Once per page load, not per mount: switching tabs remounts the card.
+// Once per page load, not per mount: coming back to Settings remounts the card.
 let viewedThisLoad = false;
 
 /**
@@ -62,14 +62,20 @@ function connectConsentApi( installed: boolean ): Promise< unknown > {
 			} );
 }
 
+type BannerPluginLinksProps = {
+	/*
+	 * The plugins, with their WordPress.org pages.
+	 */
+	plugins: ConsentStatus[ 'recommended_banners' ];
+};
+
 /**
  * Each recommended banner plugin as a link, joined the way the site's language lists alternatives.
  *
- * @param props         - Component props.
- * @param props.plugins - The plugins, with their WordPress.org pages.
+ * @param {BannerPluginLinksProps} props - The component props.
  * @return The linked list.
  */
-function BannerPluginLinks( { plugins }: { plugins: ConsentStatus[ 'recommended_banners' ] } ) {
+function BannerPluginLinks( { plugins }: BannerPluginLinksProps ) {
 	const urls = new Map( plugins.map( ( { name, url } ) => [ name, url ] ) );
 	const parts = new Intl.ListFormat( intlLocale(), { type: 'disjunction' } ).formatToParts(
 		plugins.map( ( { name } ) => name )
@@ -90,17 +96,47 @@ function BannerPluginLinks( { plugins }: { plugins: ConsentStatus[ 'recommended_
 	);
 }
 
+type ConsentStepProps = {
+	/*
+	 * The step's number.
+	 */
+	step: number;
+
+	/*
+	 * Whether the step is complete.
+	 */
+	done: boolean;
+
+	/*
+	 * The badge while the step is not complete.
+	 */
+	pendingLabel: string;
+
+	/*
+	 * What the step is.
+	 */
+	title: string;
+
+	/*
+	 * Its current state, or what to do.
+	 */
+	description: ReactNode;
+
+	/*
+	 * The control that completes it, when not done.
+	 */
+	action?: ReactNode;
+
+	/*
+	 * Makes the row focusable, to catch the focus its action drops on completing.
+	 */
+	rowRef?: Ref< HTMLLIElement >;
+};
+
 /**
  * One step of the setup: its state as a badge, and the action that completes it.
  *
- * @param props              - Component props.
- * @param props.step         - The step's number.
- * @param props.done         - Whether the step is complete.
- * @param props.pendingLabel - The badge while the step is not complete.
- * @param props.title        - What the step is.
- * @param props.description  - Its current state, or what to do.
- * @param props.action       - The control that completes it, when not done.
- * @param props.rowRef       - Makes the row focusable, to catch the focus its action drops on completing.
+ * @param {ConsentStepProps} props - The component props.
  * @return The step row.
  */
 function ConsentStep( {
@@ -111,19 +147,18 @@ function ConsentStep( {
 	description,
 	action,
 	rowRef,
-}: {
-	step: number;
-	done: boolean;
-	pendingLabel: string;
-	title: string;
-	description: ReactNode;
-	action?: ReactNode;
-	rowRef?: Ref< HTMLLIElement >;
-} ): JSX.Element {
+}: ConsentStepProps ): JSX.Element {
 	return (
-		<li ref={ rowRef } tabIndex={ rowRef ? -1 : undefined } className={ styles.consentStep }>
+		<Stack
+			render={ <li ref={ rowRef } /> }
+			direction="row"
+			align="center"
+			gap="lg"
+			tabIndex={ rowRef ? -1 : undefined }
+			className={ styles.consentStep }
+		>
 			<Stack direction="column" gap="xs" className={ styles.consentStepBody }>
-				<Text className={ styles.usageNote }>
+				<Text className={ styles.note }>
 					{ sprintf(
 						/* translators: %d: the step's number, 1 or 2. */
 						__( 'Step %d', 'jetpack-premium-analytics-pkg' ),
@@ -138,10 +173,10 @@ function ConsentStep( {
 						<Badge intent="none">{ pendingLabel }</Badge>
 					) }
 				</Stack>
-				<Text className={ styles.usageNote }>{ description }</Text>
+				<Text className={ styles.note }>{ description }</Text>
 			</Stack>
 			{ ! done && action }
-		</li>
+		</Stack>
 	);
 }
 
@@ -191,7 +226,7 @@ function getBlockedReason( blockedBy: BlockedBy ): string {
 }
 
 /**
- * The Settings tab's "Visitor consent" card: both pieces Stats needs to honor a cookie banner, side by side.
+ * The Settings page's "Visitor consent" card: both pieces Stats needs to honor a cookie banner, side by side.
  *
  * @return The card, or null when the site sent no consent status.
  */
@@ -200,14 +235,20 @@ export function ConsentCard(): JSX.Element | null {
 	return status ? <ConsentCardContent status={ status } /> : null;
 }
 
+type ConsentCardContentProps = {
+	/*
+	 * The setup.
+	 */
+	status: ConsentStatus;
+};
+
 /**
  * The card's content, for the setup as it stands now.
  *
- * @param props        - Component props.
- * @param props.status - The setup.
+ * @param {ConsentCardContentProps} props - The component props.
  * @return The card.
  */
-function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Element {
+function ConsentCardContent( { status }: ConsentCardContentProps ): JSX.Element {
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	// A ref, not state: React 18 renders a store update apart from state updates, so state would move focus a commit late.
 	const focusApiStepOnActive = useRef( false );
@@ -402,7 +443,7 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 							<Notice.Description>{ blockedReason }</Notice.Description>
 						</Notice.Root>
 					) }
-					<ol className={ styles.consentSteps }>
+					<Stack render={ <ol /> } direction="column" gap="md" className={ styles.consentSteps }>
 						<ConsentStep
 							step={ 1 }
 							done={ hasBanner }
@@ -423,7 +464,7 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 							action={ apiAction }
 							rowRef={ apiStepRef }
 						/>
-					</ol>
+					</Stack>
 				</Stack>
 			</Card.Content>
 		</Card.Root>

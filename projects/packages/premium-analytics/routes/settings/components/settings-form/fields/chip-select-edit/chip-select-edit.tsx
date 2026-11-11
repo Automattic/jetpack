@@ -7,15 +7,18 @@ import type { JSX } from 'react';
 
 type ChipItem = { value: string; label: string };
 
+type ChipSelectEditProps< Item > = DataFormControlProps< Item > & {
+	/*
+	 * Whether to hide the label visually.
+	 */
+	hideLabelFromVision?: boolean;
+};
+
 /**
  * A DataForm `Edit` for an `array` field with `elements`: the field's elements as a searchable chip
  * select. DataForm's own `array` control still renders the legacy token field.
  *
- * @param props                     - DataForm control props.
- * @param props.data                - The item being edited.
- * @param props.field               - The field the control edits.
- * @param props.onChange            - Called with the edited part of the item.
- * @param props.hideLabelFromVision - Whether to hide the label visually.
+ * @param {ChipSelectEditProps< Item >} props - The component props.
  * @return The labelled chip select.
  */
 export function ChipSelectEdit< Item >( {
@@ -23,12 +26,13 @@ export function ChipSelectEdit< Item >( {
 	field,
 	onChange,
 	hideLabelFromVision,
-}: DataFormControlProps< Item > ): JSX.Element {
+}: ChipSelectEditProps< Item > ): JSX.Element {
 	const value: string[] = field.getValue( { item: data } ) ?? [];
 	const known: ChipItem[] = ( field.elements ?? [] ).map( element => ( {
 		value: String( element.value ),
 		label: element.label,
 	} ) );
+
 	// A stored value with no element, such as a role from a deactivated plugin, stays as a chip so editing another one keeps it.
 	const items = [
 		...known,
@@ -36,6 +40,7 @@ export function ChipSelectEdit< Item >( {
 			.filter( stored => ! known.some( item => item.value === stored ) )
 			.map( stored => ( { value: stored, label: stored } ) ),
 	];
+
 	const selected = items.filter( item => value.includes( item.value ) );
 
 	const onValueChange = useCallback(
