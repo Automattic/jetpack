@@ -109,7 +109,7 @@ const SettingsNavTabs = props => {
 		if ( hasSecurityFeature && ! hasProtectPage ) {
 			visibleTabs.push( '/security' );
 		}
-		// Once settings move out, this tab's cards show only in search results.
+		// Empty once settings move out; see Performance.
 		if ( ! isSettingsConsolidationEnabled() && hasPerformanceFeature ) {
 			visibleTabs.push( '/performance' );
 		}

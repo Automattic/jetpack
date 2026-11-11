@@ -254,7 +254,7 @@ export class Main extends Component {
 				}
 			// Falls through.
 			case '/performance':
-				// Once settings move out, its cards show only in search results, so the tab goes to Features.
+				// The Performance tab is gone once settings move out.
 				if ( '/performance' === route && isSettingsConsolidationEnabled() ) {
 					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
 					break;
