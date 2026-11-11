@@ -21,20 +21,21 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Threat_Count::class )]
 class Threat_Count_Test extends BaseTestCase {
+	use Plugin_Cache;
 
 	/**
-	 * Start each test with no plugins, so get_plugins() never reads the plugin folder other projects' tests share.
+	 * Start each test with no plugins installed.
 	 */
 	public function set_up() {
 		parent::set_up();
-		wp_cache_set( 'plugins', array( '' => array() ), 'plugins' );
+		self::seed_plugin_cache();
 	}
 
 	/**
 	 * Leave no count, status, back-off, user, plugin or script behind.
 	 */
 	public function tear_down() {
-		wp_cache_delete( 'plugins', 'plugins' );
+		self::clear_plugin_cache();
 		remove_all_filters( 'jetpack_protect_threat_notifications_enabled' );
 		Notification_Counts::reset();
 		Status::$status = null;

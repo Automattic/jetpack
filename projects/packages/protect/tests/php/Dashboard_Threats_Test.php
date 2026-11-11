@@ -17,13 +17,14 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Dashboard_Threats::class )]
 class Dashboard_Threats_Test extends BaseTestCase {
+	use Plugin_Cache;
 
 	/**
-	 * Start each test with no plugins, so get_plugins() never reads the plugin folder other projects' tests share.
+	 * Start each test with no plugins installed.
 	 */
 	public function set_up() {
 		parent::set_up();
-		wp_cache_set( 'plugins', array( '' => array() ), 'plugins' );
+		self::seed_plugin_cache();
 	}
 
 	/**
@@ -31,15 +32,8 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_option( Dashboard_Threats::RESOLVED_OPTION );
-		wp_cache_delete( 'plugins', 'plugins' );
+		self::clear_plugin_cache();
 		parent::tear_down();
-	}
-
-	/**
-	 * Install a single-file plugin, as get_plugins() would report it.
-	 */
-	private static function install_test_plugin() {
-		wp_cache_set( 'plugins', array( '' => array( 'protect-state-test.php' => array( 'Name' => 'Protect State Test' ) ) ), 'plugins' );
 	}
 
 	/**
@@ -227,7 +221,7 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provider_plugin_state' )]
 	public function test_plugin_state( $is_active, $expected ) {
-		self::install_test_plugin();
+		self::seed_plugin_cache( array( 'protect-state-test.php' ) );
 		update_option( 'active_plugins', $is_active ? array( 'protect-state-test.php' ) : array() );
 
 		$threat = Dashboard_Threats::format(
@@ -264,7 +258,7 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provider_delete_action' )]
 	public function test_delete_action( $status, $expected ) {
-		self::install_test_plugin();
+		self::seed_plugin_cache( array( 'protect-state-test.php' ) );
 		update_option( 'active_plugins', array() );
 		wp_set_current_user(
 			wp_insert_user(

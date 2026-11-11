@@ -22,6 +22,7 @@ use WP_REST_Request;
  */
 #[CoversClass( Scan::class )]
 class Scan_Section_Test extends BaseTestCase {
+	use Plugin_Cache;
 
 	/**
 	 * The query filter flag_option_row() adds, removed after each test.
@@ -38,11 +39,11 @@ class Scan_Section_Test extends BaseTestCase {
 	private $files = array();
 
 	/**
-	 * Start each test with no plugins, so get_plugins() never reads the plugin folder other projects' tests share.
+	 * Start each test with no plugins installed.
 	 */
 	public function set_up() {
 		parent::set_up();
-		self::cache_plugins( array() );
+		self::seed_plugin_cache();
 	}
 
 	/**
@@ -52,7 +53,7 @@ class Scan_Section_Test extends BaseTestCase {
 		foreach ( $this->files as $file ) {
 			wp_delete_file( $file );
 		}
-		wp_cache_delete( 'plugins', 'plugins' );
+		self::clear_plugin_cache();
 		delete_transient( Scan::REQUEST_LOCK );
 		delete_transient( Scan::HISTORY_CACHE );
 		delete_option( Dashboard_Threats::RESOLVED_OPTION );
@@ -499,7 +500,7 @@ class Scan_Section_Test extends BaseTestCase {
 			}
 			file_put_contents( WP_PLUGIN_DIR . "/$file", "<?php\n/**\n * Plugin Name: $file\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		}
-		self::cache_plugins( $files );
+		self::seed_plugin_cache( $files );
 		update_option( 'active_plugins', $active );
 
 		$result = self::delete_as_admin( 'plugins', $slug );
@@ -524,7 +525,7 @@ class Scan_Section_Test extends BaseTestCase {
 		$file = WP_PLUGIN_DIR . '/protect-delete-test.php';
 		wp_mkdir_p( WP_PLUGIN_DIR );
 		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect Delete Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		self::cache_plugins( array( 'protect-delete-test.php' ) );
+		self::seed_plugin_cache( array( 'protect-delete-test.php' ) );
 		update_option( 'active_plugins', array() );
 		$use_ftp = function () {
 			return 'ftpext';
@@ -590,21 +591,6 @@ class Scan_Section_Test extends BaseTestCase {
 
 		$this->assertSame( $is_deleted, ! is_wp_error( $result ), 'Result' );
 		$this->assertSame( $is_deleted, ! $exists, 'Directory' );
-	}
-
-	/**
-	 * Report these plugins, and only these, from get_plugins(), so it never reads the plugin folder other projects' tests share.
-	 *
-	 * @param string[] $files Plugin files, relative to the plugins folder.
-	 */
-	private static function cache_plugins( $files ) {
-		$cache = array( '' => array() );
-		foreach ( $files as $file ) {
-			$folder                                = '.' === dirname( $file ) ? '' : '/' . dirname( $file );
-			$cache[''][ $file ]                    = array( 'Name' => $file );
-			$cache[ $folder ][ basename( $file ) ] = array( 'Name' => $file );
-		}
-		wp_cache_set( 'plugins', $cache, 'plugins' );
 	}
 
 	/**
