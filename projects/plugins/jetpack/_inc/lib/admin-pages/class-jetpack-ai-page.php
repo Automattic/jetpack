@@ -563,17 +563,49 @@ class Jetpack_AI_Page {
 	private static function get_search_settings_url() {
 		global $submenu;
 
+		$url = admin_url( 'admin.php?page=jetpack-search#/ai-answers' );
+
+		// The admin shell's guest endpoint runs on admin-ajax, which never builds the menu.
+		if ( wp_doing_ajax() ) {
+			return self::search_page_will_register() ? $url : '';
+		}
+
 		// Search registers under the Jetpack menu, or menu-less (parent '') when
 		// `jetpack_search_should_add_search_submenu` says no; both are reachable.
 		foreach ( array( 'jetpack', '' ) as $parent ) {
 			foreach ( (array) ( $submenu[ $parent ] ?? array() ) as $item ) {
 				if ( isset( $item[2] ) && 'jetpack-search' === $item[2] ) {
-					return admin_url( 'admin.php?page=jetpack-search#/ai-answers' );
+					return $url;
 				}
 			}
 		}
 
 		return '';
+	}
+
+	/**
+	 * Whether the Search dashboard has hooked its page registration, for requests that never build the menu.
+	 *
+	 * A host that removes the page on `admin_menu` isn't seen here.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function search_page_will_register() {
+		global $wp_filter;
+		if ( ! class_exists( '\Automattic\Jetpack\Search\Dashboard' ) || ! isset( $wp_filter['admin_menu'] ) ) {
+			return false;
+		}
+		foreach ( $wp_filter['admin_menu']->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				$function = $callback['function'];
+				if ( is_array( $function ) && $function[0] instanceof \Automattic\Jetpack\Search\Dashboard && 'add_wp_admin_submenu' === $function[1] ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**

@@ -449,6 +449,23 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
+	 * A guest that prints wp-api-fetch must not set up a second nonce middleware on a host that has one.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_guards_api_fetch_setup() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$this->start_host_page( '__return_null', 'manage_options', array( 'wp-api-fetch' ) );
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+
+		$this->assertIsString( $html );
+		$guard = strpos( $html, 'if ( ! wp.apiFetch.nonceMiddleware ) {' );
+		$this->assertNotFalse( $guard );
+		$this->assertGreaterThan( $guard, strpos( $html, 'createNonceMiddleware' ) );
+	}
+
+	/**
 	 * Data provider for test_guest_assets_prints_media_library_only_when_asked.
 	 *
 	 * @return array[] Media flag, whether the page enqueues the media library itself.

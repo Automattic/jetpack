@@ -439,6 +439,7 @@ class Admin_Shell {
 		foreach ( array( wp_scripts(), wp_styles() ) as $dependencies ) {
 			$dependencies->queue = array_values( array_filter( $handles, array( $dependencies, 'query' ) ) );
 		}
+		self::guard_api_fetch_setup();
 		wp_print_styles();
 		// The print hooks attach data to handles (Script_Data does), so they run in full.
 		do_action( 'admin_print_scripts' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
@@ -450,6 +451,26 @@ class Admin_Shell {
 			wp_print_media_templates();
 		}
 		return ob_get_clean();
+	}
+
+	/**
+	 * Skip core's api-fetch setup when the host page already ran it.
+	 *
+	 * A second nonce middleware would keep sending the stale nonce after a refresh, so requests loop.
+	 *
+	 * @return void
+	 */
+	private static function guard_api_fetch_setup() {
+		$after = wp_scripts()->get_data( 'wp-api-fetch', 'after' );
+		if ( ! is_array( $after ) ) {
+			return;
+		}
+		foreach ( $after as $i => $code ) {
+			if ( is_string( $code ) && ( false !== strpos( $code, 'createRootURLMiddleware' ) || false !== strpos( $code, 'createNonceMiddleware' ) ) ) {
+				$after[ $i ] = "if ( ! wp.apiFetch.nonceMiddleware ) {\n" . $code . "\n}";
+			}
+		}
+		wp_scripts()->add_data( 'wp-api-fetch', 'after', $after );
 	}
 
 	/**
