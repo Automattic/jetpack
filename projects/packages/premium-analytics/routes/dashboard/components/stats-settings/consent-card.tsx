@@ -1,4 +1,10 @@
 import {
+	takeConsentCardFocusRequest,
+	updateConsentStatus,
+	useConsentStatus,
+	type ConsentStatus,
+} from '@jetpack-premium-analytics/data';
+import {
 	Badge,
 	Button,
 	Card,
@@ -20,13 +26,7 @@ import {
 	useState,
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import {
-	takeConsentCardFocusRequest,
-	updateConsentStatus,
-	useConsentStatus,
-} from './consent-status';
 import styles from './stats-settings.module.scss';
-import type { ConsentStatus } from './consent-status';
 import type { JSX, ReactNode, Ref } from 'react';
 
 const WP_CONSENT_API_URL = 'https://wordpress.org/plugins/wp-consent-api/';

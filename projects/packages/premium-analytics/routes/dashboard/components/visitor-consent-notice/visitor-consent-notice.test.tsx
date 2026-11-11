@@ -10,12 +10,12 @@ import { RegistryProvider } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { resetConsentStatusForTesting } from '../../../../packages/data/src/hooks/use-consent-status';
 import { createNoticesRegistry } from '../../../../tests/js/notice-test-utils';
 import { DashboardNotices } from '../dashboard-notices';
 import { resetFreeSiteUpgradeNoticeForTesting } from '../free-site-upgrade-notice/free-site-upgrade-notice';
 import { resetPlanLimitNoticeForTesting } from '../plan-limit-notice/plan-limit-notice';
 import { ConsentCard, resetConsentCardForTesting } from '../stats-settings/consent-card';
-import { resetConsentStatusForTesting } from '../stats-settings/consent-status';
 import { resetVisitorConsentNoticeForTesting } from './visitor-consent-notice';
 import type { ReactNode } from 'react';
 

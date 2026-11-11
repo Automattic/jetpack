@@ -1,9 +1,10 @@
 import analytics from '@automattic/jetpack-analytics';
+import { requestConsentCardFocus } from '@jetpack-premium-analytics/data';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { resetConsentStatusForTesting } from '../../../../packages/data/src/hooks/use-consent-status';
 import { ConsentCard, resetConsentCardForTesting } from './consent-card';
-import { requestConsentCardFocus, resetConsentStatusForTesting } from './consent-status';
 
 jest.mock(
 	'@automattic/jetpack-analytics',

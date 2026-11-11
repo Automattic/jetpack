@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { useStatsAppNoticeMutation, useStatsAppNotices } from '@jetpack-premium-analytics/data';
+import {
+	requestConsentCardFocus,
+	useConsentStatus,
+	useStatsAppNoticeMutation,
+	useStatsAppNotices,
+} from '@jetpack-premium-analytics/data';
 import { Notice } from '@jetpack-premium-analytics/externals';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
@@ -10,7 +15,6 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { requestConsentCardFocus, useConsentStatus } from '../stats-settings/consent-status';
 import styles from './visitor-consent-notice.module.scss';
 import type { JSX } from 'react';
 
