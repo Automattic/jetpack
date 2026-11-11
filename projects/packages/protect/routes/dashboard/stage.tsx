@@ -1,5 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
@@ -7,6 +7,7 @@ import Overview from './components/overview';
 import PageBreadcrumbs from './components/page-breadcrumbs';
 import SettingsTab from './components/settings-tab';
 import WelcomeModal from './components/welcome-modal';
+import ShowWelcomeGuideButton from './components/welcome-modal/show-welcome-guide';
 import { recordPageView } from './data/page-views';
 import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
@@ -50,6 +51,8 @@ const Stage = () => {
 	);
 	const goTo = useCallback( ( next: string ) => openTab( next ), [ openTab ] );
 	const settings = useProtectSettings();
+	const [ welcomeRequest, setWelcomeRequest ] = useState( 0 );
+	const openWelcomeGuide = useCallback( () => setWelcomeRequest( count => count + 1 ), [] );
 	// Above the report's early return, so every view follows a running scan.
 	useScanPolling();
 	const context = useMemo( () => ( { settings, openTab } ), [ settings, openTab ] );
@@ -111,7 +114,12 @@ const Stage = () => {
 			// "Protect" is a product name and is not translated.
 			title="Protect"
 			ariaLabel="Protect"
-			actions={ state.scan ? <HeaderScanButton /> : undefined }
+			actions={
+				<>
+					<ShowWelcomeGuideButton onClick={ openWelcomeGuide } />
+					{ state.scan ? <HeaderScanButton /> : null }
+				</>
+			}
 		>
 			<Tabs.Root value={ activeTab } onValueChange={ goTo }>
 				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
@@ -142,7 +150,7 @@ const Stage = () => {
 					</Tabs.Panel>
 				</div>
 			</Tabs.Root>
-			<WelcomeModal deferred={ isDeepLink } />
+			<WelcomeModal deferred={ isDeepLink } openRequest={ welcomeRequest } />
 		</AdminPage>
 	);
 };

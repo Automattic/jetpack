@@ -29,10 +29,19 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => {
 				actions,
 				children
 			),
+		PageActionButton: ( { label, onClick } ) =>
+			createElement( 'button', { type: 'button', onClick }, label ),
 	};
 } );
 // The first-visit guide is modal, so it would hide the tabs from every query.
-jest.mock( '../components/welcome-modal', () => ( { __esModule: true, default: () => null } ) );
+const mockWelcomeModal = jest.fn( ( props: { deferred?: boolean; openRequest?: number } ) => {
+	void props;
+	return null;
+} );
+jest.mock( '../components/welcome-modal', () => ( {
+	__esModule: true,
+	default: props => mockWelcomeModal( props ),
+} ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const mockUseSearch = useSearch as unknown as jest.Mock;
@@ -298,6 +307,25 @@ describe( 'Protect dashboard stage', () => {
 			historyThreat: undefined,
 			tab: 'settings',
 		} );
+	} );
+
+	it.each( [
+		[ 'a regular visit', {}, false ],
+		[ 'a deep link', { section: 'firewall' }, true ],
+	] )( 'opens the welcome guide from the header on %s', async ( _name, search, deferred ) => {
+		mockUseSearch.mockReturnValue( search );
+		mockWelcomeModal.mockClear();
+		render( <Stage /> );
+
+		expect( mockWelcomeModal ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { deferred, openRequest: 0 } )
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Show welcome guide' } ) );
+
+		expect( mockWelcomeModal ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { deferred, openRequest: 1 } )
+		);
 	} );
 
 	it( 'shows why a scan started from the header failed, on a tab without the Scan card', async () => {

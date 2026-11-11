@@ -26,11 +26,53 @@ describe( 'WelcomeModal', () => {
 		);
 	} );
 
-	it( 'remembers the dismissal', async () => {
+	it.each( [
+		[ 'Get started', true ],
+		[ 'Close', false ],
+	] )( 'remembers a dismissal from %s', async ( button, goToLastPage ) => {
 		render( <WelcomeModal /> );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Page 3 of 3' } ) );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Get started' } ) );
+		if ( goToLastPage ) {
+			await userEvent.click( screen.getByRole( 'button', { name: 'Page 3 of 3' } ) );
+		}
+		await userEvent.click( screen.getByRole( 'button', { name: button } ) );
 		expect( window.localStorage.getItem( SEEN_KEY ) ).toBe( '1' );
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'stays dismissed until the header asks again', async () => {
+		const view = render( <WelcomeModal /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		view.rerender( <WelcomeModal openRequest={ 0 } /> );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+
+		view.rerender( <WelcomeModal openRequest={ 1 } /> );
+		expect( screen.getByRole( 'dialog', { name: 'Welcome to Protect' } ) ).toBeInTheDocument();
+		expect( window.localStorage.getItem( SEEN_KEY ) ).toBe( '1' );
+	} );
+
+	it( 'opens on mount when the header already asked', () => {
+		window.localStorage.setItem( SEEN_KEY, '1' );
+		render( <WelcomeModal openRequest={ 1 } /> );
+		expect( screen.getByRole( 'dialog', { name: 'Welcome to Protect' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'explains daily vulnerability checks, then the built-in tools', async () => {
+		render( <WelcomeModal /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		expect(
+			screen.getByRole( 'heading', { name: 'Daily vulnerability checks' } )
+		).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'Every day, Protect checks WordPress, your plugins, and your themes against a database of known vulnerabilities, and shows you how to fix what it finds.'
+			)
+		).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		expect(
+			screen.getByText(
+				'Downtime monitoring, the firewall, and login protection now come with Protect. Enable them and manage them from this dashboard.'
+			)
+		).toBeInTheDocument();
 	} );
 } );

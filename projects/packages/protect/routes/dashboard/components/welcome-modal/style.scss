@@ -6,10 +6,15 @@ $band-ground: #f0f7f0;
 
 	// The tallest page's height on every page, so the footer never moves.
 	// A minimum, not a fixed height, so longer translations aren't clipped.
+	// Below 600px the tall page is four lines, or a wrapped title.
+	.components-guide__container {
+		min-block-size: 524px;
+	}
+
 	@media (min-width: 600px) {
 
 		.components-guide__container {
-			min-block-size: 480px;
+			min-block-size: 488px;
 		}
 	}
 
@@ -75,7 +80,7 @@ $band-ground: #f0f7f0;
 		margin-block: 0 24px;
 		margin-inline: 0;
 		padding-inline: 24px;
-		font-size: 13px;
+		font-size: 14px;
 		line-height: 1.5;
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}

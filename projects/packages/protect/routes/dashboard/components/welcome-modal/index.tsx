@@ -1,5 +1,5 @@
 import { Guide } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { SafeShield } from '../../sections/scan/safe-state';
 import FeaturesArt from './features-art';
@@ -59,9 +59,9 @@ const getPages = (): WelcomePage[] => [
 	},
 	{
 		art: <ScanArt />,
-		title: __( 'Scan for threats', 'jetpack-protect-pkg' ),
+		title: __( 'Daily vulnerability checks', 'jetpack-protect-pkg' ),
 		body: __(
-			'Every day we check WordPress, your plugins and themes against a database of known vulnerabilities, and show you how to fix what we find.',
+			'Every day, Protect checks WordPress, your plugins, and your themes against a database of known vulnerabilities, and shows you how to fix what it finds.',
 			'jetpack-protect-pkg'
 		),
 	},
@@ -69,27 +69,41 @@ const getPages = (): WelcomePage[] => [
 		art: <FeaturesArt />,
 		title: __( 'More protection, now built in', 'jetpack-protect-pkg' ),
 		body: __(
-			'Downtime monitoring, the firewall and login protection now come with Protect. Turn them on and manage them right here.',
+			'Downtime monitoring, the firewall, and login protection now come with Protect. Enable them and manage them from this dashboard.',
 			'jetpack-protect-pkg'
 		),
 	},
 ];
 
 /**
- * First-visit welcome guide explaining what the Protect dashboard does. `&welcome=1` re-opens it.
+ * First-visit welcome guide explaining what the Protect dashboard does.
+ * `&welcome=1` re-opens it, and so does a new `openRequest`.
  *
- * @param props          - Component props.
- * @param props.deferred - Skip it on this load (read once on mount) without recording a dismissal.
+ * @param props             - Component props.
+ * @param props.deferred    - Skip it on this load (read once on mount) without recording a dismissal.
+ * @param props.openRequest - Increment to open the guide again. Closing still records a dismissal.
  * @return The guide, or null once dismissed.
  */
 export default function WelcomeModal( {
 	deferred = false,
-}: { deferred?: boolean } = {} ): ReactElement | null {
+	openRequest = 0,
+}: { deferred?: boolean; openRequest?: number } = {} ): ReactElement | null {
 	const [ isOpen, setIsOpen ] = useState(
 		() =>
+			openRequest > 0 ||
 			new URLSearchParams( window.location.search ).get( 'welcome' ) === '1' ||
 			( ! deferred && ! hasSeenWelcome() )
 	);
+	// The mount value is already applied above; only a later change should open it.
+	const seenRequest = useRef( openRequest );
+
+	useEffect( () => {
+		if ( openRequest === seenRequest.current ) {
+			return;
+		}
+		seenRequest.current = openRequest;
+		setIsOpen( true );
+	}, [ openRequest ] );
 
 	const dismiss = useCallback( () => {
 		saveDismissal();

@@ -10,11 +10,14 @@ $switch: 20px;
 	color: var(--wpds-color-foreground-content-neutral);
 
 	&__name {
-		flex: 1;
+		flex: 1 1 auto;
+		// Wrap a long translation; the min size would cover the switch.
+		min-inline-size: 0;
 		font-size: 13px;
 		font-weight: 500;
+		line-height: 1.3;
 		text-align: start;
-		white-space: nowrap;
+		overflow-wrap: break-word;
 	}
 
 	&__card {
@@ -32,6 +35,10 @@ $switch: 20px;
 		align-items: center;
 		gap: 10px;
 		padding: 10px 16px;
+
+		svg {
+			flex-shrink: 0;
+		}
 
 		& + & {
 			border-block-start:
