@@ -906,6 +906,19 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Core registers widget-primitives from WP 7.2, from a Gutenberg branch older than the bundled
+	 * copy, so with no Gutenberg active the bundled copy has to displace it (STATS-620).
+	 */
+	public function test_register_modules_replaces_core_widget_primitives_without_gutenberg() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/core-widget-primitives.js', array(), '1.0.0-core' );
+
+		$this->invoke_register_modules( $this->make_widget_primitives_build( '0.11.0', 'bundled' ) );
+
+		$this->assert_widget_primitives_from( 'bundled' );
+	}
+
+	/**
 	 * A newer bundled widget-primitives replaces the copy another plugin registered first.
 	 */
 	public function test_register_modules_newer_copy_replaces_older_copy() {

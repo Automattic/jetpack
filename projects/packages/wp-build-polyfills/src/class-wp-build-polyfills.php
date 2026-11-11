@@ -2,8 +2,9 @@
 /**
  * Polyfill registration for Core packages not available or incomplete in older WordPress versions.
  *
- * On WordPress 7.0 at the default threshold, only wp-private-apis and wp-rich-text replace Core's
- * copies; every other polyfill fills in what Core lacks, or replaces a Gutenberg copy too old to use.
+ * On WordPress 7.0 at the default threshold, wp-private-apis and wp-rich-text replace Core's copies,
+ * and @wordpress/widget-primitives replaces Core's on every version; every other polyfill fills in
+ * what Core lacks, or replaces a Gutenberg copy too old to use.
  *
  * @package automattic/jetpack-wp-build-polyfills
  */
@@ -342,8 +343,9 @@ class WP_Build_Polyfills {
 	 *
 	 * Calls to wp_register_script_module() silently ignore duplicate registrations (first wins), so an
 	 * already registered module is left alone unless it is known to be too old for this package's
-	 * current build: Gutenberg's copy below the minimum version, or another plugin's copy of this
-	 * package bundling an older package version. Those are replaced.
+	 * current build: Gutenberg's copy below the minimum version, another plugin's copy of this
+	 * package bundling an older package version, or Core's own copy of a module the bundled build
+	 * must serve. Those are replaced.
 	 *
 	 * @param string        $build_dir  Absolute path to the build directory.
 	 * @param string        $base_file  File path for plugins_url() computation.
@@ -370,7 +372,8 @@ class WP_Build_Polyfills {
 				// older ones lack exports the dashboard imports at module scope. The
 				// replacement only adds exports, so Gutenberg's own consumers keep working.
 				'gutenberg_min_version' => self::GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION,
-				// Core never ships it, so outside Gutenberg the newest bundled copy wins.
+				// Outside a supported Gutenberg the newest bundled copy wins, over Core's
+				// registration as well as over another plugin's older copy.
 				'newest_copy_wins'      => true,
 			),
 		);
@@ -412,8 +415,11 @@ class WP_Build_Polyfills {
 					$replace = true;
 					$record  = true;
 				} else {
-					// With a supported Gutenberg its copy stays; otherwise nobody else ships it.
-					$record = null === $gutenberg_version || $gutenberg_too_old;
+					// A supported Gutenberg's copy stays. Any other registration is Core's, built
+					// from Gutenberg's wp/X branch and so behind the bundled copy — WP 7.2 ships
+					// widget-primitives 0.10.0, which has no `useWidgetIdentity`.
+					$record  = null === $gutenberg_version || $gutenberg_too_old;
+					$replace = $record;
 				}
 			}
 

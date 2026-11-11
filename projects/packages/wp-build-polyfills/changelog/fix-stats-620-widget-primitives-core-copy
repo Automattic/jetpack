@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Serve the bundled widget-primitives script module over the copy WordPress registers from 7.2, which trails the exports the dashboards import.
