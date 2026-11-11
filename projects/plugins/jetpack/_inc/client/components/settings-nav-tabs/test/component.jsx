@@ -90,6 +90,9 @@ describe( 'SettingsNavTabs', () => {
 	it.each( [
 		[ 'shows', 'Sharing', 'Social', 'publicize', false, 1 ],
 		[ 'hides', 'Sharing', 'Social', 'publicize', true, 0 ],
+		[ 'shows', 'Sharing', 'Sharing buttons', 'sharedaddy', false, 1 ],
+		[ 'hides', 'Sharing', 'Sharing buttons', 'sharedaddy', true, 0 ],
+		[ 'shows', 'Sharing', 'Like buttons', 'likes', false, 1 ],
 		[ 'shows', 'Writing', 'Copy Post', 'copy-post', false, 1 ],
 		[ 'hides', 'Writing', 'Copy Post', 'copy-post', true, 0 ],
 		[ 'shows', 'Writing', 'custom content types', null, false, 1 ],

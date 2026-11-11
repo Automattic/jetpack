@@ -5,11 +5,17 @@ jest.mock( 'components/data/query-site', () => () => null );
 jest.mock( 'components/pointer-card', () => ( {
 	FeaturesPointer: ( { search } ) => <div>{ `Features pointer: ${ search }` }</div>,
 } ) );
-jest.mock( '../likes', () => ( { Likes: () => null } ) );
-jest.mock( '../publicize', () => ( { Publicize: () => 'Social card' } ) );
-jest.mock( '../share-buttons', () => ( { ShareButtons: () => null } ) );
+jest.mock( '../likes', () => ( { Likes: () => <div>Like buttons card</div> } ) );
+jest.mock( '../publicize', () => ( { Publicize: () => <div>Social card</div> } ) );
+jest.mock( '../share-buttons', () => ( { ShareButtons: () => <div>Sharing buttons card</div> } ) );
 
-const findsOnlyPublicize = module => module === 'publicize';
+const CARDS = [ 'Social card', 'Sharing buttons card', 'Like buttons card' ];
+const POINTERS = [ 'social', 'sharing', 'likes' ].map( term => `Features pointer: ${ term }` );
+const getModule = () => ( { name: 'Module name' } );
+const findsOnly = Object.fromEntries(
+	[ 'publicize', 'sharedaddy', 'likes' ].map( slug => [ slug, module => module === slug ] )
+);
+const findsAll = () => true;
 
 describe( 'Sharing settings', () => {
 	afterEach( () => {
@@ -17,21 +23,45 @@ describe( 'Sharing settings', () => {
 	} );
 
 	it.each( [
-		[ 'the Social card while the settings flag is off', false, true, 'Social card' ],
+		[ 'publicize', 'the Social card while the settings flag is off', false, true, 'Social card' ],
 		[
+			'publicize',
 			'a pointer to Features for admins once the flag is on',
 			true,
 			true,
 			'Features pointer: social',
 		],
-		[ 'the Social card for users who cannot manage modules', true, false, 'Social card' ],
-	] )( 'a Social search shows %s', ( _label, flag, canManageModules, expected ) => {
+		[
+			'publicize',
+			'the Social card for users who cannot manage modules',
+			true,
+			false,
+			'Social card',
+		],
+		[
+			'sharedaddy',
+			'its card while the settings flag is off',
+			false,
+			true,
+			'Sharing buttons card',
+		],
+		[
+			'sharedaddy',
+			'a pointer to Features once the flag is on',
+			true,
+			true,
+			'Features pointer: sharing',
+		],
+		[ 'likes', 'its card while the settings flag is off', false, true, 'Like buttons card' ],
+		[ 'likes', 'a pointer to Features once the flag is on', true, true, 'Features pointer: likes' ],
+	] )( 'a %s search shows %s', ( module, _label, flag, canManageModules, expected ) => {
 		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
 
 		render(
 			<Sharing
-				searchTerm="social"
-				isModuleFound={ findsOnlyPublicize }
+				searchTerm={ module }
+				module={ getModule }
+				isModuleFound={ findsOnly[ module ] }
 				userCanManageModules={ canManageModules }
 			/>
 		);
@@ -39,13 +69,25 @@ describe( 'Sharing settings', () => {
 		expect( screen.getByText( expected ) ).toBeInTheDocument();
 	} );
 
-	it( 'leaves Social off the tab for admins once the settings flag is on', () => {
-		window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
+	it.each( [
+		[ 'shows nothing to admins', true, [] ],
+		[ 'keeps the cards for users who cannot manage modules', false, CARDS ],
+	] )(
+		'outside a search, once the settings flag is on, the tab %s',
+		( _label, canManageModules, expected ) => {
+			window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
 
-		const { container } = render(
-			<Sharing active isModuleFound={ findsOnlyPublicize } userCanManageModules />
-		);
+			render(
+				<Sharing
+					active
+					module={ getModule }
+					isModuleFound={ findsAll }
+					userCanManageModules={ canManageModules }
+				/>
+			);
 
-		expect( container ).toBeEmptyDOMElement();
-	} );
+			const shown = [ ...CARDS, ...POINTERS ].filter( text => screen.queryByText( text ) );
+			expect( shown ).toEqual( expected );
+		}
+	);
 } );
