@@ -29,9 +29,12 @@ export function seedDetailDateParams(
 	scopeParam = 'post_id'
 ): Record< string, unknown > {
 	if ( search[ scopeParam ] === resourceId ) {
+		const origin = pickReportOriginWindowParams( search );
+
 		return {
 			...normalizeReportParams( search as NormalizeInput ),
-			...pickReportOriginWindowParams( search ),
+			// A URL saved without an origin returns as a page opened without a window does.
+			...( Object.keys( origin ).length ? origin : toReportOriginWindowParams( {} ) ),
 		};
 	}
 
