@@ -940,6 +940,8 @@ class WPCOM_Features {
 		),
 		self::GITHUB_DEPLOYMENTS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
@@ -1397,6 +1399,7 @@ class WPCOM_Features {
 		// Hosting Configuration.
 		self::SFTP                              => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
@@ -1406,6 +1409,8 @@ class WPCOM_Features {
 
 		self::SSH                               => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),

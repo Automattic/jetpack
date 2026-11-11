@@ -605,6 +605,32 @@ class Scan_Status_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that a threat with no severity sorts between Low and High.
+	 */
+	public function test_sort_threats_puts_unrated_between_low_and_high() {
+		$threats = array_map(
+			function ( $severity ) {
+				return new Threat_Model(
+					array(
+						'id'             => (string) $severity,
+						'status'         => 'current',
+						'severity'       => $severity,
+						'first_detected' => '2024-01-01T00:00:00.000Z',
+					)
+				);
+			},
+			array( 2, null, 3 )
+		);
+		$sort    = new \ReflectionMethod( Scan_Status::class, 'sort_threats' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$sort->setAccessible( true );
+		}
+
+		$sorted = $sort->invoke( null, $threats );
+		$this->assertSame( array( 3, null, 2 ), array_column( $sorted, 'severity' ) );
+	}
+
+	/**
 	 * Test get total threats
 	 */
 	public function test_get_total_threats() {

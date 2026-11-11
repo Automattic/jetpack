@@ -39,7 +39,7 @@ add_filter(
 				// Ensure package is a plugin.
 				if (
 					! property_exists( $wp_upgrader, 'skin' ) ||
-					! is_a( $wp_upgrader->skin, 'Plugin_Installer_Skin' )
+					! $wp_upgrader->skin instanceof \Plugin_Installer_Skin
 				) {
 					return false;
 				}

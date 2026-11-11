@@ -95,6 +95,26 @@ export function parseLastChecked( lastChecked?: string | null ): Date | null {
 	return Number.isNaN( date.getTime() ) ? null : date;
 }
 
+/**
+ * Whether the last scan failed and no earlier scan left threats to show, so the card offers a new scan.
+ *
+ * @param scan - The latest report.
+ * @return True when the failed scan left nothing to show.
+ */
+export function isScanFailedWithoutResults( scan: ScanState ): boolean {
+	return !! scan.lastScanFailed && ! scan.threats?.length;
+}
+
+/**
+ * Whether WordPress.com has no scan on record, so the card offers a first scan once none is running.
+ *
+ * @param scan - The latest report.
+ * @return True before the first scan.
+ */
+export function isNotScannedYet( scan: ScanState ): boolean {
+	return ! scan.lastChecked && ! scan.lastScanFailed && ! scan.threats?.length;
+}
+
 /** Forget fetched and edited reports, so tests start from the page state. */
 export const resetScan = (): void => {
 	scanStore.reset();

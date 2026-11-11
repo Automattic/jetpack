@@ -99,8 +99,9 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	);
 
 	const JetpackFooter = () => <footer>Jetpack footer</footer>;
+	const Icon = () => null;
 
-	return { JetpackFooter, Stack, VisuallyHidden };
+	return { Icon, JetpackFooter, Stack, VisuallyHidden };
 } );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -156,7 +157,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 			<div>{ children }</div>
 		) : null,
 	StatsBreadcrumbs: () => null,
-	StatsPageIcon: () => null,
 } ) );
 
 const mockTrackCustomize = {

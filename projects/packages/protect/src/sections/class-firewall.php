@@ -63,7 +63,8 @@ class Firewall implements Dashboard_Section {
 			array(
 				'hasScan'        => Dashboard::has_scan_plan(),
 				'upgradeUrl'     => Dashboard::get_scan_upgrade_url(),
-				'currentIp'      => self::get_current_ip(),
+				// Don't suggest the fallback address when the configured trusted header can't be resolved.
+				'currentIp'      => method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ? '' : self::get_current_ip(),
 				'ipRules'        => self::get_ip_rules(),
 				'rulesUpdatedAt' => self::get_rules_updated_at(),
 				'providedByHost' => method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host(),
@@ -348,14 +349,14 @@ class Firewall implements Dashboard_Section {
 	/**
 	 * Returns the blocks unchanged, since the card no longer reads the request log.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.6.0
 	 *
 	 * @param array $blocks  Blocks from the blocklog table, newest first.
 	 * @param array $entries Decoded request log entries, oldest first.
 	 * @return array The blocks, unchanged.
 	 */
 	public static function add_request_details( array $blocks, array $entries ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Kept for callers.
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.6.0' );
 		return $blocks;
 	}
 

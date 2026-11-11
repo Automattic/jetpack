@@ -1,10 +1,9 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { ResponsiveWrapper, Spinner, VisuallyHidden } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import { Button } from '@wordpress/ui';
+import { Button, Spinner, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { isVideo } from '../../hooks/use-media-restrictions';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
@@ -92,17 +91,14 @@ export default function MediaPicker( {
 								duration={ length }
 							></VideoPreview>
 						) : (
-							<ResponsiveWrapper
-								naturalWidth={ previewWidth || width }
-								naturalHeight={ previewHeight || height }
-								isInline
-							>
-								<img
-									src={ previewUrl || sourceUrl }
-									alt=""
-									className={ styles[ 'preview-image' ] }
-								/>
-							</ResponsiveWrapper>
+							<img
+								src={ previewUrl || sourceUrl }
+								alt=""
+								className={ styles[ 'preview-image' ] }
+								style={ {
+									aspectRatio: `${ previewWidth || width } / ${ previewHeight || height }`,
+								} }
+							/>
 						) }
 					</button>
 				</div>

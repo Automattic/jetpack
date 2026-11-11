@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Leave out a Scan vulnerability in a plugin or theme once it is updated to the fixed version, without waiting for the next scan.

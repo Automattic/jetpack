@@ -187,6 +187,8 @@ class Jetpack_Boost {
 		// Remove this option to prevent the notice from showing up.
 		delete_site_option( 'jetpack_boost_static_minification' );
 
+		jetpack_boost_minify_empty_caches_for_rules();
+
 		// Add upgrade check for Cornerstone Pages.
 		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
 		if ( is_array( $pages ) && in_array( home_url( '' ), $pages, true ) ) {
@@ -483,6 +485,7 @@ class Jetpack_Boost {
 		// Delete the last run options for the network-wide cron jobs.
 		delete_site_option( 'jetpack_boost_404_tester_last_run' );
 		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
+		delete_site_option( 'jetpack_boost_minify_cache_rules_applied' );
 
 		// Delete stored Critical CSS and LCP data.
 		( new Critical_CSS_Storage() )->clear();

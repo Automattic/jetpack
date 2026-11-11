@@ -13,9 +13,8 @@ const mockGetEntityRecord = jest.fn();
 const mockHasFinishedResolution = jest.fn();
 const mockGetResolutionError = jest.fn();
 const mockInvalidateResolution = jest.fn();
-const mockWidgetRoot = jest.fn();
 
-let mockReportParams: Record< string, unknown > = {};
+let mockPageParams: Record< string, unknown > = {};
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: () => false,
@@ -50,10 +49,11 @@ type WidgetStateProps = {
 };
 
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
-	WidgetRoot: ( { children, ...props }: { children: ReactNode } ) => {
-		mockWidgetRoot( props );
-		return children;
-	},
+	...jest
+		.requireActual< typeof import( '../../../src/dashboard/test-utils/fake-widget-root' ) >(
+			'../../../src/dashboard/test-utils/fake-widget-root'
+		)
+		.fakeWidgetRoot( () => mockPageParams ),
 	WidgetState: ( { isLoading, isError, isEmpty, error, empty, children }: WidgetStateProps ) => {
 		if ( isError ) {
 			return (
@@ -82,7 +82,6 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		description: options.retryDescription,
 		actions: [ { label: 'Retry', onClick: options.onRetry } ],
 	} ),
-	useWidgetRootContext: () => ( { reportParams: mockReportParams } ),
 } ) );
 
 const VIEW_QUERY = { context: 'view' };
@@ -100,24 +99,20 @@ const videopressMedia = ( overrides: Record< string, unknown > = {} ) => ( {
 describe( 'Video player widget', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockReportParams = { post_id: 42 };
+		mockPageParams = { post_id: 42 };
 		mockGetEntityRecord.mockReturnValue( videopressMedia() );
 		mockHasFinishedResolution.mockReturnValue( true );
 		mockGetResolutionError.mockReturnValue( null );
 	} );
 
-	it( 'hands the host attributes and error handler to the widget root', () => {
-		mockReportParams = {};
-		const attributes = { reportParams: { post_id: 42 } };
-		const setError = jest.fn();
+	it( 'requests the video the host names over the page one', () => {
+		render( <VideoPlayer attributes={ { reportParams: { post_id: 7 } } } /> );
 
-		render( <VideoPlayer attributes={ attributes } setError={ setError } /> );
-
-		expect( mockWidgetRoot ).toHaveBeenCalledWith( { attributes, setError } );
+		expect( mockGetEntityRecord ).toHaveBeenCalledWith( 'postType', 'attachment', 7, VIEW_QUERY );
 	} );
 
 	it( 'asks for a video when the page names none, without a request', () => {
-		mockReportParams = {};
+		mockPageParams = {};
 
 		render( <VideoPlayer attributes={ {} } /> );
 

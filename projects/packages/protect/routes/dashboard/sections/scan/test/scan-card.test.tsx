@@ -3,7 +3,8 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import ScanCard from '../scan-card';
-import { setScan } from '../store';
+import { resetScan, setScan } from '../store';
+import { resetThreatActions } from '../threat-actions';
 import { LEVELS, getLevel } from '../threats-list';
 import type { ScanState } from '../types';
 
@@ -43,6 +44,11 @@ beforeEach( () => {
 	mockApiFetch.mockReset().mockResolvedValue( [] );
 } );
 
+afterEach( () => {
+	resetThreatActions();
+	resetScan();
+} );
+
 describe( 'ScanCard without Scan', () => {
 	const twoHoursAgo = checkedAgo( 2 * HOUR_IN_MS );
 
@@ -72,6 +78,15 @@ describe( 'ScanCard without Scan', () => {
 		expect( screen.queryByText( 'View scan history' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Get the rest of your site’s protection' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute( 'href', '#' );
+	} );
+
+	it( 'says the check is off and links to Settings instead of a result or an upsell', () => {
+		renderCard( { checksEnabled: false, lastChecked: null } );
+
+		expect( screen.getByText( 'Daily vulnerability checks are off' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Turn on in Settings' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Scan site' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the failure instead of an all clear when the report fails', () => {

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "2.1.7",
+	"version": "2.1.9",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/shared-extension-utils/#readme",
 	"bugs": {
@@ -19,7 +19,8 @@
 		"./icons": "./src/icons.jsx",
 		"./site-type-utils": "./src/site-type-utils.js",
 		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",
-		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts"
+		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts",
+		"./videopress-upload-analytics": "./src/videopress-upload-analytics.ts"
 	},
 	"scripts": {
 		"test": "jest",
@@ -54,8 +55,8 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.7",
-		"@babel/runtime": "7.29.10",
+		"@babel/core": "7.29.13",
+		"@babel/runtime": "7.29.13",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "16.3.3",
 		"@testing-library/user-event": "14.6.8",

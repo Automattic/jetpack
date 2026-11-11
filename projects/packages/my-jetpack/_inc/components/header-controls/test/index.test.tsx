@@ -26,11 +26,15 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 const mockRestoreConnectionError = { current: '' };
 const mockManageConnectionDialog = jest.fn();
 const mockUseConnectionErrorNotice = jest.fn();
+const mockGetUserConnectionUrl = jest.fn< string, [ unknown? ] >(
+	() => 'https://example.com/connect-user'
+);
 jest.mock( '@automattic/jetpack-connection', () => ( {
+	CONNECTION_FROM: { myJetpackHeaderPlans: 'my_jetpack_header_plans' },
 	ConnectionErrorDetails: () => null,
 	getReconnectErrorMessage: ( error: string ) =>
 		`There was an error reconnecting Jetpack. Error: ${ error }`,
-	getUserConnectionUrl: () => 'https://example.com/connect-user',
+	getUserConnectionUrl: ( options?: unknown ) => mockGetUserConnectionUrl( options ),
 	ManageConnectionDialog: ( props: { isOpen: boolean; onClose: () => void } ) => {
 		mockManageConnectionDialog( props );
 		return props.isOpen ? (
@@ -281,6 +285,80 @@ describe( 'HeaderControls', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_manage_click', {
 			location: 'header',
 		} );
+	} );
+
+	it( 'lists plans that need attention first and folds the rest behind a toggle', async () => {
+		const plan = ( ID: number, expiry_status: string ) => ( {
+			ID,
+			product_name: `Plan ${ ID }`,
+			product_slug: 'jetpack_search',
+			expiry_date: '2027-01-28T00:00:00+00:00',
+			expiry_status,
+			subscribed_date: '2026-01-28T00:00:00+00:00',
+			domain: 'example.com',
+		} );
+		mockApiFetch.mockResolvedValue( [
+			plan( 1, 'active' ),
+			plan( 2, 'active' ),
+			plan( 3, 'active' ),
+			plan( 4, 'active' ),
+			plan( 5, 'expiring' ),
+		] );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		await openControl();
+		const toggle = await screen.findByRole( 'button', { name: 'Show 2 more plans' } );
+		const names = () => screen.getAllByText( /^Plan \d$/ ).map( node => node.textContent );
+
+		expect( names() ).toEqual( [ 'Plan 5', 'Plan 1', 'Plan 2' ] );
+		expect( screen.getByRole( 'link', { name: /Renew/ } ) ).toBeInTheDocument();
+
+		await userEvent.click( toggle );
+
+		expect( names() ).toEqual( [ 'Plan 5', 'Plan 1', 'Plan 2', 'Plan 3', 'Plan 4' ] );
+	} );
+
+	it( 'shows a golden token as never expiring, whatever its status says', async () => {
+		mockApiFetch.mockResolvedValue( [
+			{
+				ID: 1,
+				product_name: 'Jetpack Golden Token',
+				product_slug: 'jetpack_golden_token_lifetime',
+				partner_slug: 'goldenticket',
+				expiry_date: '2026-10-02T00:00:00+00:00',
+				expiry_status: 'expired',
+				subscribed_date: '2025-10-02T00:00:00+00:00',
+				domain: 'example.com',
+			},
+		] );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		await openControl();
+
+		await expect( screen.findByText( 'Never expires' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Resume/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'connects from "Activate a license" under its own name, then returns to the license screen', async () => {
+		window.myJetpackInitialState = {
+			userIsAdmin: true,
+			loadAddLicenseScreen: '1',
+			myJetpackFlags: {},
+			lifecycleStats: { isSiteConnected: true, isUserConnected: false },
+		} as unknown as typeof window.myJetpackInitialState;
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		await openControl();
+		await expect(
+			screen.findByRole( 'link', { name: 'Activate a license (requires a user connection)' } )
+		).resolves.toBeInTheDocument();
+
+		expect( mockGetUserConnectionUrl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				from: 'my_jetpack_header_plans',
+				redirect_url: 'admin.php?page=my-jetpack#/add-license',
+			} )
+		);
 	} );
 
 	it.each( [
