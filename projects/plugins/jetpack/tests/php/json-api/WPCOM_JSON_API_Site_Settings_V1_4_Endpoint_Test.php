@@ -734,6 +734,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'posts_per_page'                       => '(int) Number of posts to show on blog pages',
 					'posts_per_rss'                        => '(int) Number of posts to show in the RSS feed',
 					'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
+					'wpcom_ai_launchpad_enabled'           => '(bool) Turn on the AI Launchpad (Site Setup)',
 					'show_on_front'                        => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
 					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
