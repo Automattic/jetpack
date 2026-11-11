@@ -42,7 +42,13 @@ const projects = [
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testScript: 'test:admin-shell:ci',
 		testArgs: [],
-		targets: [ 'packages/admin-ui', 'packages/my-jetpack', 'packages/forms' ],
+		targets: [
+			'packages/admin-ui',
+			'packages/my-jetpack',
+			'packages/forms',
+			'packages/podcast',
+			'plugins/jetpack',
+		],
 		// Also run when a PR changes the suite itself, without fanning out to everything that depends on admin-ui.
 		paths: [ /^projects\/plugins\/jetpack\/tests\/e2e\/.*admin-shell/ ],
 		buildGroup: 'jetpack-core',

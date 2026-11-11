@@ -20,8 +20,8 @@ export interface Member {
 	mountId: string;
 	/** `document.title` up to ` ‹`, as a full page load sets it. */
 	title: string;
-	/** Visible header text that proves the app rendered. */
-	heading: string;
+	/** Visible header text that proves the app rendered: exact as a string, a match as a RegExp. */
+	heading: string | RegExp;
 	/** `search + hash` a fresh load lands on with the shell off. */
 	landing: RegExp;
 }
@@ -42,6 +42,29 @@ export const MEMBERS: Member[] = [
 		heading: 'Forms',
 		landing: /^\?page=jetpack-forms-responses-wp-admin&p=%2Fforms$/,
 	},
+	{
+		slug: 'jetpack-ai',
+		mountId: 'jetpack-ai-hub-wp-admin-app',
+		title: 'Jetpack AI',
+		heading: /Jetpack AI/,
+		landing: /^\?page=jetpack-ai(&p=%2F[^#&]*)?$/,
+	},
+	{
+		slug: 'jetpack-settings',
+		mountId: 'jetpack-settings-dashboard-wp-admin-app',
+		title: 'Settings',
+		heading: /Settings/,
+		landing: /^\?page=jetpack-settings(&p=%2F[^#&]*)?$/,
+	},
+	{
+		slug: 'jetpack-podcast',
+		mountId: 'jetpack-podcast-dashboard-wp-admin-app',
+		title: 'Podcast',
+		heading: /Podcast/,
+		landing: /^\?page=jetpack-podcast(&p=%2F[^#&]*)?$/,
+	},
+	/* Activity Log, Newsletter, Protect and VideoPress are members too, but each needs a WordPress.com
+	 * connection (their modules don't load in offline mode), and the test site has none. */
 ];
 
 export const member = ( slug: string ): Member => {
@@ -195,12 +218,22 @@ function shellProbe( mountIds: Record< string, string > ) {
 	};
 }
 
+const pageErrors = new WeakMap< Page, string[] >();
+
 /**
  * Install the shell probe. Call before the first navigation.
  *
  * @param page - Page under test.
  */
 export async function installShellProbe( page: Page ): Promise< void > {
+	const errors: string[] = [];
+	pageErrors.set( page, errors );
+	page.on( 'pageerror', error => errors.push( error.message ) );
+	page.on( 'console', message => {
+		if ( message.type() === 'error' ) {
+			errors.push( message.text() );
+		}
+	} );
 	await page.addInitScript(
 		shellProbe,
 		Object.fromEntries( MEMBERS.map( m => [ m.slug, m.mountId ] ) )
@@ -253,7 +286,28 @@ export async function waitForShown( page: Page, slug: string ): Promise< void > 
 export async function openMember( page: Page, slug: string, suffix = '' ): Promise< void > {
 	await page.goto( `/wp-admin/admin.php?page=${ slug }${ suffix }` );
 	await waitForShown( page, slug );
-	await expect.poll( () => isShellActive( page ), 'the shell runs on this document' ).toBe( true );
+	const active = await expect
+		.poll( () => isShellActive( page ) )
+		.toBe( true )
+		.then(
+			() => true,
+			() => false
+		);
+	if ( ! active ) {
+		// Say why, since every shell-on test fails here alike.
+		const assets = await page.evaluate( () => ( {
+			config: !! document.getElementById( 'wp-script-module-data-@automattic/jetpack-admin-shell' ),
+			client:
+				document.querySelector< HTMLScriptElement >( 'script[type="module"][src*="admin-shell"]' )
+					?.src ?? null,
+		} ) );
+		throw new Error(
+			`The shell doesn't run on ${ slug }: ${ JSON.stringify( {
+				...assets,
+				errors: pageErrors.get( page ) ?? [],
+			} ) }`
+		);
+	}
 }
 
 /**
@@ -405,7 +459,7 @@ export async function expectShown(
 	expect( new URL( page.url() ).searchParams.get( 'page' ) ).toBe( slug );
 	await expect(
 		page
-			.getByRole( 'heading', { name: m.heading, exact: true } )
+			.getByRole( 'heading', { name: m.heading, exact: typeof m.heading === 'string' } )
 			.filter( { visible: true } )
 			.first()
 	).toBeVisible();
