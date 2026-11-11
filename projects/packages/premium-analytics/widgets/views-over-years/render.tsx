@@ -43,10 +43,8 @@ type ViewsOverYearsInnerProps = {
 function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : undefined;
-	const { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch } = useViewsOverYears(
-		metric,
-		authorId
-	);
+	const { rows, partialMonths, lifeStartsAt, isLoading, isFetching, isError, error, refetch } =
+		useViewsOverYears( metric, authorId );
 	const openSectionRange = useOpenSectionRange();
 	const { openPeriod } = useReportScope();
 	const timeZone = reportingTimeZone();
@@ -112,7 +110,12 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 			}
 			renderLoading={ <HeatmapSkeleton /> }
 		>
-			<MonthlyHeatmap rows={ rows } { ...monthlyHeatmapLabels( metric ) } onSelect={ openMonth } />
+			<MonthlyHeatmap
+				rows={ rows }
+				partialMonths={ partialMonths }
+				{ ...monthlyHeatmapLabels( metric ) }
+				onSelect={ openMonth }
+			/>
 		</WidgetState>
 	);
 }

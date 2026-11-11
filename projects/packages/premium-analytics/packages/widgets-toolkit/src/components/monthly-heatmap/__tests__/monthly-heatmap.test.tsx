@@ -81,6 +81,33 @@ describe( 'MonthlyHeatmap', () => {
 		expect( screen.queryByRole( 'gridcell', { name: /Dec 2026/ } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'marks a listed month as incomplete and keeps its figure', () => {
+		render(
+			<MonthlyHeatmap rows={ ROWS } { ...LABELS } partialMonths={ [ { year: 2026, month: 2 } ] } />
+		);
+
+		const partial = screen.getByTestId( 'heatmap-cell-partial' );
+		expect( partial ).toHaveAccessibleName( 'Mar 2026: 40 (incomplete)' );
+		expect( screen.getAllByTestId( 'heatmap-cell-partial' ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'gridcell', { name: 'Feb 2026: 0' } ) ).not.toHaveAttribute(
+			'data-testid',
+			'heatmap-cell-partial'
+		);
+	} );
+
+	it( 'ignores a target without a month, and a month outside the covered span', () => {
+		render(
+			<MonthlyHeatmap
+				rows={ ROWS }
+				{ ...LABELS }
+				partialMonths={ [ { year: 2026 }, { year: 2025, month: 0 } ] }
+			/>
+		);
+
+		expect( screen.queryByTestId( 'heatmap-cell-partial' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Totals 2026: 45' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'names a hovered month by month and year, and a hovered roll-up by the year alone', async () => {
 		const user = userEvent.setup();
 		render( <MonthlyHeatmap rows={ ROWS } { ...LABELS } /> );
