@@ -350,6 +350,7 @@ export {
 	useHostLinkSearch,
 	useChartName,
 	useMapName,
+	useReportNavigationSearch,
 	useWidgetNavigationSearch,
 	useReportActions,
 	type ReportActionsOptions,
