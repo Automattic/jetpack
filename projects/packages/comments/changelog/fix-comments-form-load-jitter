@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop the page jumping as the comment form loads and as the comment editor opens.
