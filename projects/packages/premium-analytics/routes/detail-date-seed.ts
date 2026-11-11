@@ -62,9 +62,14 @@ export function seedDetailDateParams(
 	}
 
 	if ( opensOnLinkedWindow( search ) ) {
+		// Detail pages have no comparison, bucket or step control, so the range picks its own
+		// bucket; the origin window keeps all three for the way back.
+		const linked = omitComparisonReportParams( search );
+		delete linked.interval;
+		delete linked.step;
+
 		return {
-			// Detail pages have no comparison; the origin window keeps it for the way back.
-			...normalizeReportParams( omitComparisonReportParams( search ) as NormalizeInput ),
+			...normalizeReportParams( linked as NormalizeInput ),
 			...toReportOriginWindowParams( search ),
 		};
 	}
