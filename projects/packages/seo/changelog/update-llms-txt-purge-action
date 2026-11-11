@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Hand the llms.txt edge purge to WordPress.com through an action.
+Comment: Fire an action when the stored llms.txt is cleared, so hosts can purge their cached copies.
 
 
