@@ -280,7 +280,12 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 
 	test( 'going Back with a modal open leaves the shown page in the accessibility tree', async ( {
 		page,
+		browserName,
 	} ) => {
+		test.fail(
+			browserName !== 'chromium',
+			'Firefox and WebKit: no announcement of My Jetpack is heard after Back closes the Forms modal'
+		);
 		await keyboardPass( page, {
 			afterBack: async () => {
 				// The modal gives the document back once its closing animation ends.

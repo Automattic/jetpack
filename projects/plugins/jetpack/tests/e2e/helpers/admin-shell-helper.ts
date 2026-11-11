@@ -54,7 +54,8 @@ export const MEMBERS: Member[] = [
 		mountId: 'jetpack-settings-dashboard-wp-admin-app',
 		title: 'Settings',
 		heading: /Settings/,
-		landing: /^\?page=jetpack-settings(&p=%2F[^#&]*)?$/,
+		// Settings routes with a HashRouter.
+		landing: /^\?page=jetpack-settings(#\/[\w-]*)?$/,
 	},
 	{
 		slug: 'jetpack-podcast',
@@ -218,6 +219,31 @@ function shellProbe( mountIds: Record< string, string > ) {
 	};
 }
 
+/**
+ * Log in through the wp-login.php of `page`'s base URL.
+ *
+ * @param page     - Page to log in with.
+ * @param user     - Username.
+ * @param password - Password.
+ */
+export async function submitLogin( page: Page, user: string, password: string ): Promise< void > {
+	await page.goto( '/wp-login.php' );
+	// Jetpack SSO can put the WordPress.com button first.
+	const toggle = page.getByText( 'Log in with username and password' );
+	if ( await toggle.isVisible().catch( () => false ) ) {
+		await toggle.click();
+	}
+	// wp-login.php focuses and selects the username field on a timer, which can clobber the fill.
+	await expect( async () => {
+		await page.locator( '#user_login' ).fill( user );
+		await page.locator( '#user_pass' ).fill( password );
+		await expect( page.locator( '#user_login' ) ).toHaveValue( user, { timeout: 1000 } );
+		await expect( page.locator( '#user_pass' ) ).toHaveValue( password, { timeout: 1000 } );
+	} ).toPass( { timeout: 15000 } );
+	await page.locator( '#wp-submit' ).click();
+	await expect( page.locator( '#wpadminbar' ) ).toBeVisible( { timeout: 60000 } );
+}
+
 const pageErrors = new WeakMap< Page, string[] >();
 
 /**
@@ -238,6 +264,9 @@ export async function installShellProbe( page: Page ): Promise< void > {
 		shellProbe,
 		Object.fromEntries( MEMBERS.map( m => [ m.slug, m.mountId ] ) )
 	);
+	// The mouse starts at 0,0 on the admin bar's WordPress logo, whose hover menu then covers the Jetpack submenu.
+	const { width, height } = page.viewportSize() ?? { width: 1280, height: 720 };
+	await page.mouse.move( width - 20, height - 20 );
 }
 
 /**

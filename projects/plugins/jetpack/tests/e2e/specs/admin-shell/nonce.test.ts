@@ -3,6 +3,7 @@ import {
 	expectShown,
 	installShellProbe,
 	openMember,
+	submitLogin,
 	switchTo,
 } from '../../helpers/admin-shell-helper';
 
@@ -13,19 +14,11 @@ import {
  */
 async function logInAgain( page: Page ): Promise< void > {
 	const tab = await page.context().newPage();
-	await tab.goto( '/wp-login.php' );
-	const toggle = tab.getByText( 'Log in with username and password' );
-	if ( await toggle.isVisible().catch( () => false ) ) {
-		await toggle.click();
-	}
-	// wp-login.php focuses and selects the username field on a timer, which can clobber the fill.
-	await expect( async () => {
-		await tab.locator( '#user_login' ).fill( process.env.ADMIN_SHELL_USER ?? 'admin' );
-		await tab.locator( '#user_pass' ).fill( process.env.ADMIN_SHELL_PASSWORD ?? 'password' );
-		await expect( tab.locator( '#user_login' ) ).not.toHaveValue( '', { timeout: 1000 } );
-	} ).toPass( { timeout: 15000 } );
-	await tab.locator( '#wp-submit' ).click();
-	await expect( tab.locator( '#wpadminbar' ) ).toBeVisible( { timeout: 60000 } );
+	await submitLogin(
+		tab,
+		process.env.ADMIN_SHELL_USER ?? 'admin',
+		process.env.ADMIN_SHELL_PASSWORD ?? 'password'
+	);
 	await tab.close();
 }
 

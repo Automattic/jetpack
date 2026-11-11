@@ -26,6 +26,8 @@ STATUS=0
 
 echo "::group::Shell on"
 "${WP[@]}" plugin activate e2e-admin-shell || exit 1
+# Jetpack AI's sidebar item shows only with the ai module on, and it needs the stubbed connection to activate.
+"${WP[@]}" jetpack module activate ai || exit 1
 "${WP[@]}" option delete e2e_admin_shell_off >/dev/null 2>&1
 ADMIN_SHELL_RUN=shell-on playwright test -c playwright.admin-shell.config.ts --project='shell on: *' "$@" || STATUS=1
 echo "::endgroup::"

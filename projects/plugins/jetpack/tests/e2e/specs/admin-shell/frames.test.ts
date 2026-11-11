@@ -69,7 +69,9 @@ test.describe( 'Admin shell: frame by frame', () => {
 			} ) => {
 				await arrive( page, from, to, visit );
 				const frames = await recordSwitch( page, to );
-				expect( frames.length, 'frames were recorded' ).toBeGreaterThan( 10 );
+				expect( frames.length, `frames were recorded:\n${ summary( frames ) }` ).toBeGreaterThan(
+					10
+				);
 
 				const notFound = frames.filter( f => f.notFound );
 				expect.soft( notFound, `"not found" frames:\n${ summary( notFound ) }` ).toHaveLength( 0 );
