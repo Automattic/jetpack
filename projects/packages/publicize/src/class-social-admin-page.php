@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
@@ -23,6 +24,11 @@ class Social_Admin_Page {
 	 * Nonce action used when refreshing plan data.
 	 */
 	public const REFRESH_PLAN_NONCE_ACTION = 'jetpack_social_refresh_plan_data';
+
+	/**
+	 * Script that carries the connection state when the admin shell shows the dashboard on another page.
+	 */
+	public const GUEST_DATA_HANDLE = 'jetpack-social-dashboard-data';
 
 	/**
 	 * The instance of the class.
@@ -59,6 +65,10 @@ class Social_Admin_Page {
 		// function is defined before `add_menu` (priority 10) registers the page.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
+		}
 	}
 
 	/**
@@ -124,6 +134,69 @@ class Social_Admin_Page {
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+	}
+
+	/**
+	 * Register Jetpack Social with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		$host = new Host();
+		// The same gates add_menu() applies, since admin-ajax never builds the menu.
+		if (
+			$host->is_wpcom_simple()
+			|| ( ! current_user_can( 'manage_options' ) && ! Utils::is_publicize_active() )
+			|| ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && ! $host->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected() )
+			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
+		) {
+			return $members;
+		}
+
+		$members['jetpack-social'] = array(
+			'build_prefix' => 'jetpack_social',
+			'build_page'   => 'jetpack-social-dashboard',
+			'init_modules' => array( '@jetpack-social/init' ),
+			/** "Jetpack Social" is a product name, do not translate. */
+			'title'        => 'Jetpack Social',
+			'capability'   => 'publish_posts',
+			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			'media'        => true,
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Jetpack Social routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		if ( function_exists( 'jetpack_social_register_script_modules' ) ) {
+			jetpack_social_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_guest_scripts' ) );
+	}
+
+	/**
+	 * Hydrate the connection store on a script of its own: the prerequisites script only exists on the Social page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function enqueue_guest_scripts() {
+		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), false, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- No source, so nothing to cache.
+		wp_enqueue_script( self::GUEST_DATA_HANDLE );
+		Connection_Initial_State::render_script( self::GUEST_DATA_HANDLE );
+		$this->enqueue_admin_scripts();
 	}
 
 	/**

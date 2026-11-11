@@ -98,6 +98,9 @@ class Publicize_Setup {
 			 * We need this only on Jetpack sites for Google Site auto-verification.
 			 */
 			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
+
+			// The Social dashboard boots from it, including while Publicize is off. Simple sites have no dashboard.
+			new REST_API\Script_Data_Controller();
 		}
 
 		if ( $is_wpcom_simple ) {
