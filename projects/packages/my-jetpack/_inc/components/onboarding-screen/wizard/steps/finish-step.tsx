@@ -93,9 +93,8 @@ function featureCount( count: number ): string {
 /**
  * What this run actually did, as a sentence.
  *
- * Only what changed: five of the six ship on, so most runs send no request at
- * all. Each line names setup, because the rows show end state and a bare count
- * reads as their total.
+ * Only what this run changed. A row left where the site already had it is not
+ * a change, and a bare count of the rows would read as one.
  *
  * @param counts        - What the run did, counted.
  * @param counts.on     - How many it switched on.

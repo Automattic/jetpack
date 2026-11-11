@@ -239,7 +239,11 @@ export function wizardSteps(): WizardStepMeta[] {
 			title: __( 'What we recommend', 'jetpack-my-jetpack' ),
 			// Replaced by featuresDescription() once the site type is known; this is
 			// what someone who skipped the question or typed their own answer reads.
-			description: __( 'Turn off any you don’t need.', 'jetpack-my-jetpack' ),
+			// Registration no longer switches these on, so the line cannot say to turn them off.
+			description: __(
+				'Switch on what you want. Anything already running stays on.',
+				'jetpack-my-jetpack'
+			),
 			// The rows are the modules Jetpack reports, not a fixed list written here.
 			options: [],
 		},

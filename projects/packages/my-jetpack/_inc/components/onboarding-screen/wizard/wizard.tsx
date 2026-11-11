@@ -200,8 +200,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		return () => window.removeEventListener( 'pageshow', onPageShow );
 	}, [ resumeRun ] );
 
-	// Missing entries mean "leave it as the site has it", which for five of the six
-	// is already on. Written only when the user moves a switch.
+	// Missing entries mean "leave it as the site has it". Written only when the user moves a switch.
 	const [ wantedModules, setWantedModules ] = useState< Record< string, boolean > >(
 		saved?.wanted ?? {}
 	);

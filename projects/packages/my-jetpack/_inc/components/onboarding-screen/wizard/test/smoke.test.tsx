@@ -1579,7 +1579,9 @@ describe( 'The feature step', () => {
 		await user.type( screen.getByRole( 'textbox' ), 'A wiki' );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		expect( screen.getByText( 'Turn off any you don’t need.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Switch on what you want. Anything already running stays on.' )
+		).toBeInTheDocument();
 	} );
 
 	// Downtime Monitor sends email, so it is not switched on for anyone who did not ask.

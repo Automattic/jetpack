@@ -120,9 +120,7 @@ export type SetupModuleResult = {
 	wanted: boolean;
 	// Whether the site now agrees. False is the case the finish screen must not hide.
 	ok: boolean;
-	// Whether this run asked the site to change it at all. Five of the six ship on,
-	// so most runs change nothing, and saying otherwise is a claim about work that
-	// was never done.
+	// Whether this run asked the site to change it. Leaving it as it was is not a change.
 	changed: boolean;
 };
 

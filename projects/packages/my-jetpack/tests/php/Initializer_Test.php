@@ -724,6 +724,8 @@ class Initializer_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-onboarding-wizard' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features' );
 		remove_all_filters( 'jetpack_my_jetpack_offline_features' );
+		Initializer::clear_onboarding_module_deferral();
+		unset( $_GET['handler'], $_GET['action'], $_GET['redirect'] );
 
 		// Connection_Manager memoizes is_connected() in a process-wide static that
 		// WorDBless teardown does not reset. The admin_init tests that depend on that
@@ -860,6 +862,65 @@ class Initializer_Test extends BaseTestCase {
 
 		$this->assertSame( $with_jetpack, Initializer::is_onboarding_wizard_enabled() );
 		$this->assertSame( $with_jetpack, null !== Initializer::get_onboarding_wizard_state() );
+	}
+
+	/**
+	 * Get started must not switch on the modules the features step is there to offer.
+	 */
+	public function test_wizard_registration_keeps_only_background_modules() {
+		$offered = array( 'stats', 'protect', 'blaze', 'blocks', 'json-api', 'subscriptions' );
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$request->set_param( 'from', Initializer::ONBOARDING_WIZARD_FROM );
+
+		Initializer::note_onboarding_registration( null, rest_get_server(), $request );
+
+		$this->assertSame(
+			array( 'blocks', 'json-api' ),
+			Initializer::limit_onboarding_default_modules( $offered )
+		);
+		$this->assertSame( '1', get_option( Initializer::ONBOARDING_DEFER_MODULES_OPTION ) );
+
+		// The user-connection half runs on the way back, which carries no `from`.
+		Initializer::forget_onboarding_registration_request();
+		$_GET['handler']  = 'jetpack-connection-webhooks';
+		$_GET['action']   = 'authorize';
+		$_GET['redirect'] = 'admin.php?page=my-jetpack&step=onboarding';
+
+		$this->assertSame(
+			array( 'blocks', 'json-api' ),
+			Initializer::limit_onboarding_default_modules( $offered )
+		);
+		// Notes, AI and Newsletter require a user, so they are this second list and nothing else.
+		$this->assertSame(
+			array(),
+			Initializer::limit_onboarding_default_modules( array( 'notes', 'ai', 'subscriptions' ) )
+		);
+
+		Initializer::clear_onboarding_module_deferral();
+
+		$this->assertFalse( get_option( Initializer::ONBOARDING_DEFER_MODULES_OPTION ) );
+		$this->assertSame( $offered, Initializer::limit_onboarding_default_modules( $offered ) );
+	}
+
+	/**
+	 * Another screen's registration, and a return that is not the wizard's, keep the full list.
+	 */
+	public function test_other_registrations_keep_default_modules() {
+		$offered = array( 'stats', 'blocks', 'json-api' );
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$request->set_param( 'from', 'jetpack-onboarding' );
+
+		Initializer::note_onboarding_registration( null, rest_get_server(), $request );
+
+		$this->assertSame( $offered, Initializer::limit_onboarding_default_modules( $offered ) );
+		$this->assertFalse( get_option( Initializer::ONBOARDING_DEFER_MODULES_OPTION ) );
+
+		update_option( Initializer::ONBOARDING_DEFER_MODULES_OPTION, '1', false );
+		$_GET['handler']  = 'jetpack-connection-webhooks';
+		$_GET['action']   = 'authorize';
+		$_GET['redirect'] = 'admin.php?page=jetpack';
+
+		$this->assertSame( $offered, Initializer::limit_onboarding_default_modules( $offered ) );
 	}
 
 	/**
