@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { computeDateRangeFromPreset, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+import {
+	PRESET_ALL_TIME,
+	isSelectablePreset,
+	isYearPresetId,
+} from '@jetpack-premium-analytics/datetime';
 import {
 	REPORT_DATE_PARAM_KEYS,
 	omitComparisonReportParams,
@@ -13,13 +17,23 @@ import {
 type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
 
 /**
- * Whether a link carries a date window: a preset, or both ends of a range.
+ * Whether a link names a window the page can open on: a known preset, or both ends of a range.
+ *
+ * All time is left out: the page anchors it on its own entity, not the linking page's start.
  *
  * @param search - The search params the page was linked with.
- * @return Whether the link names a window.
+ * @return Whether to open on the linking window.
  */
-export function hasLinkedDateWindow( search: Record< string, unknown > ): boolean {
-	return !! search.preset || ( !! search.from && !! search.to );
+function opensOnLinkedWindow( search: Record< string, unknown > ): boolean {
+	if ( search.preset === PRESET_ALL_TIME ) {
+		return false;
+	}
+
+	return (
+		isSelectablePreset( search.preset ) ||
+		isYearPresetId( search.preset ) ||
+		( !! search.from && !! search.to )
+	);
 }
 
 /**
@@ -47,7 +61,7 @@ export function seedDetailDateParams(
 		};
 	}
 
-	if ( hasLinkedDateWindow( search ) ) {
+	if ( opensOnLinkedWindow( search ) ) {
 		return {
 			// Detail pages have no comparison; the origin window keeps it for the way back.
 			...normalizeReportParams( omitComparisonReportParams( search ) as NormalizeInput ),

@@ -41,9 +41,17 @@ describe( 'seedDetailDateParams', () => {
 		expect( seeded.preset ).toBeUndefined();
 	} );
 
-	it( 'opens a link that carries no window on all time', () => {
-		expect( seedDetailDateParams( { ds: 'traffic' }, '42' ) ).toMatchObject( {
-			preset: 'all-time',
-		} );
+	it.each( [
+		[ 'no window', { ds: 'traffic' } ],
+		[ 'an unknown preset', { preset: 'bogus' } ],
+		[
+			'all time from another entity',
+			{ preset: 'all-time', from: '2019-05-02T00:00:00', to: '2026-06-16T23:59:59' },
+		],
+	] )( 'opens a link with %s on all time from the provisional start', ( _, search ) => {
+		const seeded = seedDetailDateParams( search, '42' );
+
+		expect( seeded.preset ).toBe( 'all-time' );
+		expect( seeded.from ).not.toBe( '2019-05-02T00:00:00' );
 	} );
 } );
