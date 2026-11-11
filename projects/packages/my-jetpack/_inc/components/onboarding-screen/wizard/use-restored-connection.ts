@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { initConnectionStore } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { useEffect } from 'react';
@@ -13,7 +13,7 @@ import { useEffect } from 'react';
  */
 export function useRestoredConnection( onRestore: () => void ): void {
 	const { setConnectionStatus, setSiteIsRegistering, setUserIsConnecting } =
-		useDispatch( CONNECTION_STORE_ID );
+		useDispatch( initConnectionStore() );
 
 	useEffect( () => {
 		const restore = () => {
