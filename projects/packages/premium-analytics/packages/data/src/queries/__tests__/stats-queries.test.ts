@@ -790,7 +790,7 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{ unit: 'week', date: '2026-06-07', start_date: '2026-01-01' },
 			undefined,
-			'timeSeries',
+			'devicesPeriods',
 			'UTC',
 		] );
 	} );

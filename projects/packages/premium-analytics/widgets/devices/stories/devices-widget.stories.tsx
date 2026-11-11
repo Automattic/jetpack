@@ -11,6 +11,7 @@ import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stori
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import DevicesRender from '../render';
+import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -23,7 +24,7 @@ const DEVICES_RENDER_MODULE = 'storybook/devices';
 
 // Carry the widget's metadata. `presentation` comes from widget.json ( 'framed' ),
 // so the host frames the widget and renders its identity (title + icon).
-const storyWidgetType = createStoryWidgetType( widgetManifest );
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface DevicesStoryControls {
 	withComparison: boolean;
@@ -177,5 +178,44 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params.',
 		},
+	},
+};
+
+const renderBarOnPreset = ( preset: PresetType ) => (
+	<DevicesRender
+		attributes={ { chartType: 'bar', reportParams: getDefaultQueryParams( false, preset ) } }
+	/>
+);
+
+/** The bar view's first load. */
+export const BarChartLoading: StoryObj< DevicesStoryControls > = {
+	render: () => renderBarOnPreset( 'last-90-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices/screensize', 'loading' );
+		return () => forceStatsMockState( 'stats/devices/screensize', null );
+	},
+};
+
+/** The bar view's request failed: its error state offers a Retry. */
+export const BarChartError: StoryObj< DevicesStoryControls > = {
+	render: () => renderBarOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices/screensize', 'error-retryable' );
+		return () => forceStatsMockState( 'stats/devices/screensize', null );
+	},
+};
+
+/** No device views in the range: the bar view's empty state. */
+export const BarChartEmpty: StoryObj< DevicesStoryControls > = {
+	render: () => renderBarOnPreset( 'last-30-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices/screensize', 'empty' );
+		return () => forceStatsMockState( 'stats/devices/screensize', null );
 	},
 };

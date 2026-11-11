@@ -310,7 +310,7 @@ function register_default_dashboard_sections( $registry = null ) {
 			'label'                    => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
 			'title'                    => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
 			'order'                    => 10,
-			// Only the Traffic summary groups by interval, and it saves its own.
+			// The charts that group by interval (Traffic summary, Devices bars) save their own.
 			'date_filter_options'      => array(
 				'with_header_interval_control' => false,
 			),

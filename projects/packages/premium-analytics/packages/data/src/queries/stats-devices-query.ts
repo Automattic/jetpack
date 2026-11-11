@@ -33,7 +33,7 @@ export const statsDevicesQuery = ( params: StatsDevicesParams ) => {
  */
 export const statsDevicesPeriodsQuery = (
 	params: StatsDevicesParams
-): StatsReportQueryOptions< 'timeSeries' > => {
+): StatsReportQueryOptions< 'devicesPeriods' > => {
 	const deviceProperty = params.deviceProperty ?? 'screensize';
 	const apiParams = statsQueryParamsToApiParams( reportParamsToStatsQueryParams( params ) );
 	// `start_date` + `date` bound the window, as for `stats/visits`; `summarize` would collapse the buckets.
@@ -48,7 +48,7 @@ export const statsDevicesPeriodsQuery = (
 		version: '1.1',
 		endpoint: `stats/devices/${ deviceProperty }`,
 		params: periodsParams,
-		sanitizer: 'timeSeries',
+		sanitizer: 'devicesPeriods',
 		enabled: !! ( periodsParams.date || periodsParams.start_date ),
 	} );
 };

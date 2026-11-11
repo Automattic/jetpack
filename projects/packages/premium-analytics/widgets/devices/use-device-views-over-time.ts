@@ -27,22 +27,26 @@ interface DeviceViewsOverTimeState {
 }
 
 /**
- * The devices a report counted, in stacking order.
+ * The devices either period counted, in stacking order: a device with no views in one period is left out of its buckets.
  *
- * @param report - The current period's report.
+ * @param reports - The current and previous periods' reports.
  * @return The device keys.
  */
-function getDeviceKeys( report: StatsTimeSeriesReport | undefined ): string[] {
-	const totals = Object.entries( report?.summary ?? {} ).filter(
-		( entry ): entry is [ string, number ] =>
-			! RANGE_FIELDS.has( entry[ 0 ] ) && typeof entry[ 1 ] === 'number'
-	);
+function getDeviceKeys( reports: ( StatsTimeSeriesReport | undefined )[] ): string[] {
+	const totals = new Map< string, number >();
+	for ( const report of reports ) {
+		for ( const [ key, total ] of Object.entries( report?.summary ?? {} ) ) {
+			if ( ! RANGE_FIELDS.has( key ) && typeof total === 'number' ) {
+				totals.set( key, ( totals.get( key ) ?? 0 ) + total );
+			}
+		}
+	}
 	const rank = ( key: string ) => {
 		const index = DEVICE_ORDER.indexOf( key );
 		return index === -1 ? DEVICE_ORDER.length : index;
 	};
 
-	return totals
+	return [ ...totals ]
 		.sort( ( [ a, aTotal ], [ b, bTotal ] ) => rank( a ) - rank( b ) || bTotal - aTotal )
 		.map( ( [ key ] ) => key );
 }
@@ -69,7 +73,7 @@ export default function useDeviceViewsOverTime(
 
 	const devices = useMemo(
 		() =>
-			getDeviceKeys( primary ).map( key =>
+			getDeviceKeys( [ primary, hasComparison ? comparison : undefined ] ).map( key =>
 				buildMetricTab( {
 					primary,
 					comparison,
@@ -87,7 +91,7 @@ export default function useDeviceViewsOverTime(
 		devices,
 		isLoading: report.isLoading,
 		isFetching: report.isFetching,
-		// Placeholder data keeps the last range's bars through a failed refetch.
+		// A failed background refetch of the same range keeps its bars.
 		isError: report.isError && ! primary?.data?.length,
 		refetch: report.refetch,
 	};

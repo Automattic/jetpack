@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { safeParseFloat } from '../../utils/parsing';
+import { sanitizeStatsTimeSeriesResponse } from './time-series';
 import {
 	coerceStatsRecord,
 	createStatsListDataPoint,
@@ -97,4 +98,21 @@ export function mergeStatsDevicesComparisonRows(
 			} ),
 		}
 	);
+}
+
+/**
+ * Normalize a `stats/devices/{property}?unit=` response: views per device in each bucket.
+ *
+ * A response without `days` comes from an endpoint that ignored `unit`, so it is an error, not an empty range.
+ *
+ * @param response - The endpoint's response.
+ * @param query    - The request's query params.
+ * @return The time series, a field per device.
+ */
+export function sanitizeStatsDevicesPeriodsResponse( response: unknown, query?: StatsQueryParams ) {
+	if ( ! ( 'days' in coerceStatsRecord( response ) ) ) {
+		throw new Error( 'stats/devices returned no per-period views.' );
+	}
+
+	return sanitizeStatsTimeSeriesResponse( response, query );
 }

@@ -136,7 +136,7 @@ function DevicesBarChart( { interval }: { interval?: DevicesChartGranularity } )
 			] ),
 		[ devices ]
 	);
-	const isEmpty = devices.every( device => ! device.value );
+	const isEmpty = devices.every( device => ! device.value && ! device.previousValue );
 	const emptyState = useNoViewsEmptyState( { isLoading, isError, isEmpty }, NO_VIEWS() );
 
 	return (
