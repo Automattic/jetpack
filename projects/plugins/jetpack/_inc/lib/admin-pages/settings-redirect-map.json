@@ -81,7 +81,10 @@
 		{
 			"source": "/performance",
 			"rules": [
-				{ "destination": "admin.php?page=my-jetpack#/features", "alreadyRedirects": true }
+				{
+					"destination": "admin.php?page=my-jetpack#/features?search=cdn",
+					"alreadyRedirects": true
+				}
 			],
 			"linkedFrom": [
 				"packages/search src/instant-search/README.md: setup docs; wants admin.php?page=jetpack-search#/settings"

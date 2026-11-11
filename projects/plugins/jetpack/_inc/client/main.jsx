@@ -256,7 +256,9 @@ export class Main extends Component {
 			case '/performance':
 				// The Performance tab is gone once settings move out.
 				if ( '/performance' === route && isSettingsConsolidationEnabled() ) {
-					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack#/features?search=cdn' )
+					);
 					break;
 				}
 			// Falls through.

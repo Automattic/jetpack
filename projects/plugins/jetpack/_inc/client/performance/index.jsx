@@ -49,7 +49,7 @@ export class Performance extends Component {
 				{ consolidated ? (
 					foundSiteAccelerator && (
 						<FeaturesPointer
-							header={ __( 'Performance & speed', 'jetpack' ) }
+							header={ __( 'Site Accelerator', 'jetpack' ) }
 							name={ __( 'Image CDN and Asset CDN', 'jetpack' ) }
 							search="cdn"
 							linksToSettings={ false }

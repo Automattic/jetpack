@@ -1,5 +1,5 @@
 Significance: patch
 Type: enhancement
-Comment: Settings: Replace the Site Accelerator card with a Features pointer in search results, hide the Performance tab and send #/performance to Features, behind the settings consolidation flag.
+Comment: Settings: Replace the Site Accelerator card with a Features pointer in search results, hide the Performance tab and send #/performance to the CDN switches in Features, behind the settings consolidation flag.
 
 

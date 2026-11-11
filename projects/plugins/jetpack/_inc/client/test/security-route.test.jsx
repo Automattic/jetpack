@@ -73,7 +73,7 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		jest.clearAllMocks();
 	} );
 
-	it.each( [ [ '/performance', 'admin.php?page=my-jetpack#/features' ] ] )(
+	it.each( [ [ '/performance', 'admin.php?page=my-jetpack#/features?search=cdn' ] ] )(
 		'sends %s to %s with the settings flag on',
 		( route, destination ) => {
 			isSettingsConsolidationEnabled.mockReturnValue( true );
