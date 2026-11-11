@@ -187,7 +187,7 @@ export type DetailPageActionsProps = {
  *
  * @param props                - Component props.
  * @param props.isCustomizing  - Whether the page is in customize mode.
- * @param props.onCustomize    - Called when the reader picks Customize.
+ * @param props.onCustomize    - Called when the reader selects Customize.
  * @param props.onReset        - Called when the reader confirms Reset to default.
  * @param props.editingActions - The dashboard's own actions, shown while customizing.
  * @param props.children       - The page's own actions.

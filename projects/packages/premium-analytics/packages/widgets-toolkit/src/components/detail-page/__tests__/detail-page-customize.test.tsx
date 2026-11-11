@@ -35,7 +35,6 @@ describe( 'detail-page-customize', () => {
 	} );
 
 	describe( 'useDetailPageCustomize', () => {
-		// Customize enters through the page options menu, and Reset to default is ours too.
 		it.each( [
 			[ 'move', true ],
 			[ 'resize', true ],

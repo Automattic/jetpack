@@ -536,7 +536,7 @@ function Dashboard(): JSX.Element {
 								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 								actions={
 									<Stack ref={ customizeFocus.frameRef } direction="row" gap="sm">
-										{ /* At rest these would add upstream's Customize beside ours. */ }
+										{ /* At rest `WidgetDashboard.Actions` would add its own Customize beside ours. */ }
 										{ editMode && (
 											<>
 												<WidgetDashboard.Actions />

@@ -17,7 +17,6 @@ import { SwitchOffDialog } from './switch-off-dialog';
 
 /**
  * The page options menu of a Premium Analytics page: feedback and the way back to classic Stats.
- * Customize is a header button of its own (STATS-613).
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2098).
  *

@@ -4,7 +4,7 @@
 import { Button } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
-import { forwardRef, useEffect, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useRef } from 'react';
 
 export type CustomizeActionProps = {
 	/** Enters customize mode. */
@@ -27,10 +27,11 @@ export const CustomizeAction = forwardRef< HTMLButtonElement, CustomizeActionPro
 
 /**
  * Keeps focus in the header actions across customize mode, which swaps out the button that had it.
+ * `frameRef` must hold Customize, the editing actions and the page options menu: focus moves within it.
  *
  * @param isCustomizing - Whether the page is in customize mode.
- * @param onCustomize   - Enters customize mode.
- * @return Refs for the actions' frame and the Customize button, and `onCustomize` for that button.
+ * @param onCustomize   - Enters customize mode; omitted where Customize is not offered.
+ * @return Refs for the frame and the Customize button, and the `onCustomize` that button must use.
  */
 export function useCustomizeFocus( isCustomizing: boolean, onCustomize?: () => void ) {
 	const frameRef = useRef< HTMLDivElement >( null );
@@ -38,15 +39,12 @@ export function useCustomizeFocus( isCustomizing: boolean, onCustomize?: () => v
 	const wasCustomizing = useRef( isCustomizing );
 	const isEnteringFromButton = useRef( false );
 
-	const customize = useMemo(
-		() =>
-			onCustomize &&
-			( () => {
-				isEnteringFromButton.current = true;
-				onCustomize();
-			} ),
-		[ onCustomize ]
-	);
+	const customize =
+		onCustomize &&
+		( () => {
+			isEnteringFromButton.current = true;
+			onCustomize();
+		} );
 
 	useEffect( () => {
 		if ( wasCustomizing.current === isCustomizing ) {

@@ -317,8 +317,8 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 	/**
 	 * The real dashboard hands `editMode` and `onEditChange` to `Actions` through its
-	 * context; the stand-in does the same so Done and Cancel round-trip. Customize is
-	 * the page options menu's, and the stage mounts this while customizing only.
+	 * context; the stand-in does the same so Done and Cancel round-trip. The stage
+	 * mounts this while customizing only.
 	 *
 	 * @return The stand-in edit toolbar.
 	 */
