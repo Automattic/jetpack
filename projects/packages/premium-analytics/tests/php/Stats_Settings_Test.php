@@ -286,6 +286,16 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertSame( 0, get_option( self::READER_VIEWS_OPTION ) );
 	}
 
+	public function test_reader_views_null_resets_to_the_default() {
+		$this->log_in_as( 'administrator' );
+		update_option( self::READER_VIEWS_OPTION, 0 );
+
+		$data = $this->post_settings( array( self::READER_VIEWS_OPTION => null ) )->get_data();
+
+		$this->assertTrue( $data[ self::READER_VIEWS_OPTION ] );
+		$this->assertSame( 'unset', get_option( self::READER_VIEWS_OPTION, 'unset' ) );
+	}
+
 	public function test_reader_views_write_the_site_does_not_store_answers_with_an_error() {
 		$this->log_in_as( 'administrator' );
 		update_option( self::READER_VIEWS_OPTION, 1 );

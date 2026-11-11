@@ -13,21 +13,6 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Free_Domain_Upsell_Experiment;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 
-// The $icon-color variable for admin color schemes.
-// See: https://github.com/WordPress/wordpress-develop/blob/679cc0c4a261a77bd8fdb140cd9b0b2ff80ebf37/src/wp-admin/css/colors/_variables.scss#L9
-// Only Core schemes are listed here. Calypso schemes all use #ffffff.
-const WPCOM_ADMIN_ICON_COLORS = array(
-	'blue'      => '#e5f8ff',
-	'coffee'    => '#f3f2f1',
-	'ectoplasm' => '#ece6f6',
-	'midnight'  => '#f3f2f1',
-	'fresh'     => '#a7aaad',
-	'ocean'     => '#f2fcff',
-	'light'     => '#999',
-	'modern'    => '#f3f1f1',
-	'sunrise'   => '#f3f1f1',
-);
-
 /**
  * Enqueue assets needed by the WordPress.com admin bar.
  */
@@ -78,30 +63,6 @@ function wpcom_enqueue_admin_bar_assets() {
 CSS
 		);
 	}
-
-	$admin_color      = is_admin() ? get_user_option( 'admin_color' ) : 'fresh';
-	$admin_icon_color = WPCOM_ADMIN_ICON_COLORS[ $admin_color ] ?? '#ffffff';
-
-	// Force the icon colors to have desktop color even on mobile viewport.
-	wp_add_inline_style(
-		'wpcom-admin-bar',
-		<<<CSS
-			#wpadminbar.mobile .quicklinks li:not(#wpwrap.wp-responsive-open #wp-admin-bar-menu-toggle) .ab-icon::before,
-			#wpadminbar.mobile .quicklinks li:not(#wpwrap.wp-responsive-open #wp-admin-bar-menu-toggle) .ab-item::before {
-				color: $admin_icon_color !important;
-			}
-CSS
-	);
-
-	// Force wpcom icons to have consistent color.
-	wp_add_inline_style(
-		'wpcom-admin-bar',
-		<<<CSS
-			:where(#wpadminbar .ab-icon) {
-				color: $admin_icon_color;
-			}
-CSS
-	);
 }
 add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
@@ -147,6 +108,8 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_node(
 		array(
 			'id'    => 'wp-logo',
+			// WordPress 7.2+ renders the icon slot from `icon`; older versions ignore it and use the empty `.ab-icon` in the title.
+			'icon'  => 'core-admin/wordpress',
 			'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
 						/* translators: Hidden accessibility text. */
 						'WordPress.com' .

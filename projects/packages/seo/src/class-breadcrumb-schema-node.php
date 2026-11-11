@@ -52,7 +52,8 @@ class Breadcrumb_Schema_Node {
 		$list_items = array();
 		$last       = count( $items ) - 1;
 		foreach ( $items as $index => $item ) {
-			$name = self::text( $item['name'] ?? '' );
+			// Decode only here: names pass through text() twice, and a second strip would remove decoded text such as "<div>".
+			$name = trim( \WP_HTML_Decoder::decode_text_node( self::text( $item['name'] ?? '' ) ) );
 			if ( '' === $name ) {
 				return null;
 			}

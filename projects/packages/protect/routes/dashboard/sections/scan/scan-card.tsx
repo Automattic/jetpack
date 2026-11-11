@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { shield } from '@wordpress/icons';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { caution, shield } from '@wordpress/icons';
+import { Button, EmptyState, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import { HISTORY_STATUS_PARAM } from '../history/store';
@@ -10,20 +10,99 @@ import SafeState from './safe-state';
 import ScanButton from './scan-button';
 import ScanUpsell from './scan-upsell';
 import ScanningState from './scanning-state';
-import { checkScanAgain, startScan, useIsScanning, useScan, useScanRequest } from './store';
+import {
+	checkScanAgain,
+	isNotScannedYet,
+	isScanFailedWithoutResults,
+	startScan,
+	useIsScanning,
+	useScan,
+	useScanRequest,
+} from './store';
 import { loadIgnored } from './threat-actions';
 import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
 import type { DashboardContext } from '../types';
 import type { ScanState } from './types';
+import type { ReactNode } from 'react';
 import './style.scss';
 
 // Open Scan history on a given list, not whichever was open last.
 const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
+const SETTINGS_PARAMS = { section: 'scan' };
 
 /**
- * The Scan results card: what the latest scan found, or that it found nothing; scans start from the page header.
+ * What the card says when there is no scan result to show: the check is off, the last scan failed, or none has run.
+ *
+ * @param scan - The latest report.
+ * @return The icon, title and description.
+ */
+function getNoResultCopy( scan: ScanState ) {
+	if ( scan.checksEnabled === false ) {
+		return {
+			icon: shield,
+			title: __( 'Daily vulnerability checks are off', 'jetpack-protect-pkg' ),
+			description: __(
+				'Jetpack isn’t checking WordPress, your plugins or themes for known vulnerabilities.',
+				'jetpack-protect-pkg'
+			),
+		};
+	}
+	if ( scan.lastScanFailed ) {
+		return {
+			icon: caution,
+			title: __( 'Your last scan didn’t complete', 'jetpack-protect-pkg' ),
+			description: __(
+				'We can’t confirm your site is free of threats until a scan finishes.',
+				'jetpack-protect-pkg'
+			),
+		};
+	}
+	if ( ! scan.hasPlan ) {
+		return {
+			icon: shield,
+			title: __( 'Your site hasn’t been checked yet', 'jetpack-protect-pkg' ),
+			description: __(
+				'Check your plugins and themes for known vulnerabilities.',
+				'jetpack-protect-pkg'
+			),
+		};
+	}
+	return {
+		icon: shield,
+		title: __( 'Your site hasn’t been scanned yet', 'jetpack-protect-pkg' ),
+		description: __(
+			'Run a scan to check your site for malware and vulnerabilities.',
+			'jetpack-protect-pkg'
+		),
+	};
+}
+
+/**
+ * The empty state for a card with no result, and what to do about it.
+ *
+ * @param props          - Component props.
+ * @param props.scan     - The latest report.
+ * @param props.children - The action.
+ * @return The row.
+ */
+function NoResult( { scan, children }: { scan: ScanState; children: ReactNode } ) {
+	const copy = getNoResultCopy( scan );
+	return (
+		<CardRow className="jp-protect-scan__state">
+			<EmptyState.Root className="jp-protect-scan__empty">
+				<EmptyState.Icon icon={ copy.icon } />
+				<EmptyState.Title render={ <h3 /> }>{ copy.title }</EmptyState.Title>
+				<EmptyState.Description>{ copy.description }</EmptyState.Description>
+				<EmptyState.Actions>{ children }</EmptyState.Actions>
+			</EmptyState.Root>
+		</CardRow>
+	);
+}
+
+/**
+ * The Scan results card: what the latest scan found, that it found nothing, or a way to start one when there is no result.
  *
  * @param props         - Component props.
  * @param props.openTab - Switches dashboard tabs, for the link to Scan history.
@@ -74,7 +153,15 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	);
 
 	let body;
-	if ( isScanning ) {
+	if ( scan.checksEnabled === false ) {
+		body = (
+			<NoResult scan={ scan }>
+				<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
+					{ __( 'Turn on in Settings', 'jetpack-protect-pkg' ) }
+				</TabLink>
+			</NoResult>
+		);
+	} else if ( isScanning ) {
 		body = (
 			<CardRow className="jp-protect-scan__state">
 				<ScanningState
@@ -100,31 +187,35 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 				</Stack>
 			</CardRow>
 		);
-	} else if ( ! hasThreats && scan.lastScanFailed ) {
+	} else if ( isScanFailedWithoutResults( scan ) || isNotScannedYet( scan ) ) {
 		body = (
-			<CardRow className="jp-protect-scan__state">
-				<Stack direction="column" gap="sm" align="start">
-					<Text variant="body-md">
-						{ __(
-							'Your last scan didn’t complete, so we can’t confirm your site is free of threats.',
-							'jetpack-protect-pkg'
-						) }
-					</Text>
-					<ScanButton
-						scan={ scan }
-						isStarting={ isStarting }
-						onScan={ startScan }
-						label={ __( 'Scan site', 'jetpack-protect-pkg' ) }
-						variant="outline"
-					/>
-				</Stack>
-			</CardRow>
+			<NoResult scan={ scan }>
+				<ScanButton
+					scan={ scan }
+					isStarting={ isStarting }
+					onScan={ startScan }
+					label={ __( 'Scan site', 'jetpack-protect-pkg' ) }
+					size="compact"
+				/>
+			</NoResult>
 		);
 	} else if ( ! hasThreats ) {
 		body = <CardRow className="jp-protect-scan__state">{ safeState }</CardRow>;
 	} else {
 		body = (
 			<>
+				{ scan.lastScanFailed && (
+					<CardRow>
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ __(
+									'Your last scan didn’t complete, so these results are from an earlier scan.',
+									'jetpack-protect-pkg'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					</CardRow>
+				) }
 				<CardRow className="jp-protect-card__cells jp-protect-card__stats">
 					<Stat
 						label={ __( 'All vulnerabilities found', 'jetpack-protect-pkg' ) }
@@ -169,7 +260,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			}
 		>
 			{ body }
-			{ ! scan.hasPlan && ! scan.error && (
+			{ ! scan.hasPlan && ! scan.error && scan.checksEnabled !== false && (
 				<ScanUpsell
 					variant={ scan.upsellVariant }
 					forced={ scan.upsellVariantForced }

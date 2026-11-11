@@ -34,12 +34,14 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   # Packages we often want to immediately update after releasing them.
   - '@automattic/*'
+  - '@gravatar-com/*'
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'
   - 'wpcom-proxy-request'
-  # Renovate security update: zod@4.6.6
-  - zod@4.6.6
+  # Bump for deprecation
+  - tldts-core@7.4.22
+  - tldts@7.4.22
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
@@ -48,7 +50,6 @@ trustPolicyExclude:
 
   # Packages where newer majors have provenance but we're still on an older one.
   - rxjs@7.8.2
-  - semver@6.3.1
 
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
@@ -74,8 +75,11 @@ ignoredOptionalDependencies:
 
 audit:
   ignore:
-    # "OMG it can throw an exception" is not a real vulnerability. See also https://github.com/github/advisory-database/pull/10132
-    - GHSA-vfj7-8cjw-p6xm
+    # Maintainer of various eslint plugins seems unwilling to upgrade from minimatch v3, and this one isn't going to be backported. Sigh.
+    # https://github.com/import-js/eslint-plugin-import/issues/3249
+    # https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1054
+    # https://github.com/jsx-eslint/eslint-plugin-react/issues/4066
+    - GHSA-g3hv-75wg-m249
 
 # Dependencies needing patching.
 patchedDependencies:

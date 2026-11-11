@@ -9,23 +9,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	MediaUploadCheck: ( { children } ) => children,
 } ) );
 
-jest.mock( '@wordpress/components', () => {
-	const actualModule = jest.requireActual( '@wordpress/components' );
-
-	return new Proxy( actualModule, {
-		get: ( target, property ) => {
-			switch ( property ) {
-				case 'ResponsiveWrapper': {
-					return ( { children } ) => <div>{ children }</div>;
-				}
-				default: {
-					return target[ property ];
-				}
-			}
-		},
-	} );
-} );
-
 jest.mock( '../../../utils/use-share-message-max-length.ts', () => ( {
 	useShareMessageMaxLength: jest.fn().mockReturnValue( 255 ),
 } ) );

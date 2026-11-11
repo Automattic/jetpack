@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "4.3.1",
+	"version": "4.3.4",
 	"private": true,
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
@@ -31,15 +31,15 @@
 		"@automattic/i18n-loader-webpack-plugin": "workspace:*",
 		"@automattic/webpack-rtl-plugin": "6.0.0",
 		"@babel/compat-data": "7.29.7",
-		"@babel/helper-compilation-targets": "7.29.7",
+		"@babel/helper-compilation-targets": "7.29.13",
 		"@babel/plugin-transform-runtime": "7.29.7",
 		"@babel/preset-env": "7.29.7",
 		"@babel/preset-react": "7.29.7",
 		"@babel/preset-typescript": "7.29.7",
 		"@cerner/duplicate-package-checker-webpack-plugin": "2.3.0",
 		"@pmmmwh/react-refresh-webpack-plugin": "0.6.3",
-		"@wordpress/browserslist-config": "7.0.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "7.0.0",
+		"@wordpress/browserslist-config": "7.1.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "7.1.0",
 		"babel-loader": "10.0.0",
 		"babel-plugin-polyfill-corejs3": "0.14.0",
 		"browserslist": "4.28.9",
@@ -52,8 +52,8 @@
 		"thread-loader": "4.0.4"
 	},
 	"devDependencies": {
-		"@babel/core": "7.29.7",
-		"@babel/runtime": "7.29.7",
+		"@babel/core": "7.29.13",
+		"@babel/runtime": "7.29.13",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1",
@@ -61,7 +61,7 @@
 	},
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
-		"@babel/runtime": "7.29.7",
+		"@babel/runtime": "7.29.13",
 		"webpack": "^5.104.1",
 		"webpack-dev-server": "^6.0.0"
 	},

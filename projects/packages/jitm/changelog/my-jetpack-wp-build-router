@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Keep per-screen messages on My Jetpack working once it keeps its route in the p query argument.

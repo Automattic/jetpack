@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Declare support for the WP Consent API, so its Site Health check no longer lists Jetpack Stats as not conforming.

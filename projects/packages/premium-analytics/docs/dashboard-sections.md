@@ -44,8 +44,6 @@ On a connected site's REST request, `Dashboard_Support_Routes::boot_routes()` re
 
 On WordPress.com Simple, the public-api process calls `Dashboard_Support_Routes::register()` directly, and the same `boot_routes()` runs.
 
-Each include is guarded by a symbol the file declares, because two copies of the package can be loaded in one request on Simple.
-
 That is why the registration moment is not `init`: a registrant hooked on `init` reaches the navigation in wp-admin and misses the REST response the navigation is built from. The registry hydrates on its first read, whichever path reads it, and fires one action then.
 
 A read before `init` is a `_doing_it_wrong()`: it answers only what was registered directly, and does not latch, so the registrants hooked later still run on the first read after `init`.
@@ -81,7 +79,7 @@ add_action(
 				'is_available'   => array( Capabilities::class, 'current_user_can_view_stats' ),
 				'default_layout' => static function () {
 					return array(
-						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, 2 ),
+						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, DASHBOARD_TILE_LIST ),
 					);
 				},
 			)
@@ -129,7 +127,7 @@ The slug list exists because the report registry lives in the client today. Once
 
 ![A section declares its default layout; get_default_layout() runs it through the default-layout filter, where a plugin adds instances at priority 10 and the package removes unsupported widget types at priority 100, before it reaches the client as the fallback for the stored layout.](diagrams/sections-default-layout.svg)
 
-A section owns its default layout. The registration passes the instances, built with `get_dashboard_default_widget_instance( $uuid, $type, $order, $width, $height, $attributes )`, as an array or as a callable returning one.
+A section owns its default layout. The registration passes the instances, built with `get_dashboard_default_widget_instance( $uuid, $type, $order, $width, $height, $attributes )`, as an array or as a callable returning one. `$height` counts dashboard rows: pass `DASHBOARD_TILE_LIST` for a leaderboard, `DASHBOARD_TILE_CARD` for a chart or a figure, `DASHBOARD_TILE_STRIP` for a one-line strip. These heights reach the default layout only: a stored layout keeps the heights it was saved with, so a reader who rearranged a tab before a default changed does not see the change.
 
 `Dashboard_Section::get_default_layout()` runs the declared array through `jetpack_premium_analytics_dashboard_default_layout` with the section id and the section, and returns whatever comes back as a list.
 
@@ -149,7 +147,7 @@ add_filter(
 			}
 		}
 
-		$layout[] = get_dashboard_default_widget_instance( 'default-videopress-widget-instance', 'videopress/top-videos', 8, 1, 2 );
+		$layout[] = get_dashboard_default_widget_instance( 'default-videopress-widget-instance', 'videopress/top-videos', 8, 1, DASHBOARD_TILE_LIST );
 
 		return $layout;
 	},

@@ -1,8 +1,9 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, offline } from '@wordpress/icons';
+import { Icon } from '@wordpress/icons';
 import { Card, Link, Text } from '@wordpress/ui';
+import offline from './offline-icon';
 
 /**
  * Fallback shown while Jetpack is in offline mode.

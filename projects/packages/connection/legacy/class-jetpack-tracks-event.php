@@ -137,7 +137,7 @@ class Jetpack_Tracks_Event {
 			return '';
 		}
 
-		return Jetpack_Tracks_Client::PIXEL . '?' . http_build_query( $validated );
+		return Jetpack_Tracks_Client::PIXEL . '?' . http_build_query( (array) $validated );
 	}
 
 	/**

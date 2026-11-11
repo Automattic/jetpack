@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { category, tag } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -235,16 +236,14 @@ describe( 'buildLeaderboardRow', () => {
 
 		expect( screen.getByRole( 'button', { name: 'Flag' } ) ).toBeInTheDocument();
 		expect( row ).toMatchObject( { onClick, hasInteractiveLabel: true } );
-		// eslint-disable-next-line testing-library/no-node-access -- The wrapper has no accessible query target.
-		expect( screen.getByTitle( 'example.com' ).parentElement ).toHaveClass( 'chevronReserve' );
 	} );
 
-	it( 'rejects a trailing action on a row that opens a detail page', () => {
-		// @ts-expect-error -- A title that opens a detail page has no room for another action.
+	it( 'rejects a trailing action on a row that links out as a whole', () => {
+		// @ts-expect-error -- A row that is one outbound link has no room for another action.
 		const row = buildLeaderboardRow( {
-			label: 'Hello world',
+			label: 'example.com',
 			media: { kind: 'none' },
-			action: { kind: 'postLink', id: 41, href: 'https://example.com/hello/', search: {} },
+			action: { kind: 'link', href: 'https://example.com/' },
 			trailingAction: <button>Flag</button>,
 		} );
 
@@ -303,8 +302,8 @@ describe( 'buildLeaderboardRow', () => {
 	} );
 
 	it.each( [
-		[ 'a video detail link', { kind: 'videoLink', id: 12, search: {} }, '/video/12' ],
-		[ 'a post detail link', { kind: 'postLink', id: 5, search: {} }, '/post/5' ],
+		[ 'a video detail link', { kind: 'videoLink', id: 12, search: {} }, '/report/video/12' ],
+		[ 'a post detail link', { kind: 'postLink', id: 5, search: {} }, '/report/post/5' ],
 		[
 			'a public page link',
 			{ kind: 'postLink', href: 'https://example.com/hello/', search: {} },
@@ -347,7 +346,7 @@ describe( 'buildLeaderboardRow', () => {
 		render( row.label );
 
 		const title = screen.getByRole( 'link', { name: 'Hello' } );
-		expect( title ).toHaveAttribute( 'href', expect.stringMatching( /^\/post\/5/ ) );
+		expect( title ).toHaveAttribute( 'href', expect.stringMatching( /^\/report\/post\/5/ ) );
 		// The tooltip stays on the title, so hovering the arrow shows only "View".
 		expect( title ).toHaveAttribute( 'title', 'Hello' );
 		const view = screen.getByRole( 'link', { name: 'View "Hello" in a new tab' } );
@@ -362,6 +361,45 @@ describe( 'buildLeaderboardRow', () => {
 		// The title stretches over the row, so the click target stays the row.
 		expect( title ).toHaveClass( 'titleLink' );
 	} );
+
+	it.each( [
+		[
+			'with a live URL',
+			{ id: 5, href: 'https://example.com/hello/' },
+			[ 'Hello', 'View "Hello" in a new tab' ],
+		],
+		[ 'without a live URL', { id: 5, href: null }, [ 'Hello' ] ],
+		[ 'without a detail route', { href: 'https://example.com/hello/' }, [ 'Hello' ] ],
+	] )(
+		'renders a trailing action after the post title %s',
+		async ( _name, target, expectedLinks ) => {
+			const onExtraClick = jest.fn();
+			render(
+				buildLeaderboardRow( {
+					label: 'Hello',
+					media: { kind: 'none' },
+					action: { kind: 'postLink', ...target, search: {} },
+					trailingAction: (
+						<button type="button" onClick={ onExtraClick }>
+							Extra
+						</button>
+					),
+				} ).label
+			);
+
+			expect( screen.getByRole( 'link', { name: /^Hello/ } ) ).toHaveClass( 'titleLink' );
+			const links = screen.getAllByRole( 'link' );
+			expect( links.map( link => link.getAttribute( 'aria-label' ) ?? link.textContent ) ).toEqual(
+				expectedLinks
+			);
+			expect(
+				links.at( -1 )?.compareDocumentPosition( screen.getByRole( 'button', { name: 'Extra' } ) )
+			).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'Extra' } ) );
+			expect( onExtraClick ).toHaveBeenCalledTimes( 1 );
+		}
+	);
 
 	it( 'links the title out, with no "View" action, when the reader cannot open post details', () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
@@ -418,7 +456,7 @@ describe( 'buildLeaderboardRow', () => {
 
 		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
 		const title = screen.getByRole( 'link', { name: 'Hello' } );
-		expect( title ).toHaveAttribute( 'href', '/post/5' );
+		expect( title ).toHaveAttribute( 'href', '/report/post/5' );
 		// The lone link carries the row chrome itself; a two-link wrapper would take it instead.
 		expect( title ).toHaveClass( 'rowLink' );
 	} );

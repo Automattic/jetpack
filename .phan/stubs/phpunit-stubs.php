@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.42
+ * Stubs automatically generated from PHPUnit 12.5.43
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -12485,6 +12485,14 @@ final class InvocationHandler
     {
     }
     /**
+     * @param \PHPUnit\Framework\Constraint\Constraint|non-empty-string|Runtime\PropertyHook $constraint
+     * @throws \PHPUnit\Framework\InvalidArgumentException
+     * @throws MethodCannotBeConfiguredException
+     */
+    public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    /**
      * @throws \PHPUnit\Framework\MockObject\Exception
      * @throws \Exception
      */
@@ -18570,7 +18578,7 @@ final readonly class Renderer
  * @internal
  * @see https://qa.php.net/phpt_details.php
  */
-final readonly class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
+final class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
 {
     /**
      * @param non-empty-string $filename
@@ -18601,6 +18609,20 @@ final readonly class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUni
     {
     }
     public function sortId(): string
+    {
+    }
+    /**
+     * @return list<string>
+     * @internal
+     */
+    public function groups(): array
+    {
+    }
+    /**
+     * @param list<string> $groups
+     * @internal
+     */
+    public function setGroups(array $groups): void
     {
     }
     /**

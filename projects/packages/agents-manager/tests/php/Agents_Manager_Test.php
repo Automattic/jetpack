@@ -744,7 +744,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		return $method->invoke( $this->agents_manager );
+		return $method->invoke( null );
 	}
 
 	/**

@@ -811,13 +811,15 @@ class Status_Test extends TestCase {
 	 *
 	 * @dataProvider get_coming_soon_status
 	 *
-	 * @param bool $site_is_coming_soon      Site is coming soon value.
-	 * @param int  $wpcom_public_coming_soon wpcom_public_coming_soon option value.
-	 * @param bool $expected                 Expected result.
+	 * @param bool $simple_private_coming_soon wpcom_is_coming_soon() return value, on Simple.
+	 * @param bool $woa_private_coming_soon    Private_Site\site_is_coming_soon() return value, on WoA.
+	 * @param int  $wpcom_public_coming_soon   wpcom_public_coming_soon option value.
+	 * @param bool $expected                   Expected result.
 	 */
 	#[DataProvider( 'get_coming_soon_status' )]
-	public function test_is_coming_soon( $site_is_coming_soon, $wpcom_public_coming_soon, $expected ) {
-		Functions\when( 'site_is_coming_soon' )->justReturn( $site_is_coming_soon );
+	public function test_is_coming_soon( $simple_private_coming_soon, $woa_private_coming_soon, $wpcom_public_coming_soon, $expected ) {
+		Functions\when( 'wpcom_is_coming_soon' )->justReturn( $simple_private_coming_soon );
+		Functions\when( 'Private_Site\site_is_coming_soon' )->justReturn( $woa_private_coming_soon );
 		Functions\when( 'get_option' )->justReturn( $wpcom_public_coming_soon );
 		$this->assertSame( $expected, $this->status_obj->is_coming_soon() );
 	}
@@ -829,10 +831,10 @@ class Status_Test extends TestCase {
 	 */
 	public static function get_coming_soon_status() {
 		return array(
-			'Jetpack public site'       => array( null, false, false ),
-			'WoA public site'           => array( false, false, false ),
-			'WoA private site'          => array( true, false, true ),
-			'wpcom simple private site' => array( null, true, true ),
+			'Public site'                => array( false, false, 0, false ),
+			'Simple private Coming Soon' => array( true, false, 0, true ),
+			'WoA private Coming Soon'    => array( false, true, 0, true ),
+			'Public Coming Soon'         => array( false, false, 1, true ),
 		);
 	}
 }
