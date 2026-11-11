@@ -92,7 +92,7 @@ test.each( [
 	[ 90, 'Good', 'good' ],
 	[ 60, 'Could improve', 'medium' ],
 	[ 40, 'Poor', 'poor' ],
-] )( 'renders device score %s with its tier, progress color, and delta', ( score, label, tier ) => {
+] )( 'renders device score %s with its tier and delta', ( score, label, tier ) => {
 	render(
 		<ScoreCards
 			scores={ {

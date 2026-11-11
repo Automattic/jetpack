@@ -600,16 +600,19 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 		'color',
 		'rgb(147, 99, 0)'
 	);
-	for ( const [ card, score, color ] of [
-		[ desktop.first(), 90, 'rgb(0, 128, 48)' ],
-		[ mobile, 60, 'rgb(250, 167, 84)' ],
-		[ desktop.nth( 1 ), 40, 'rgb(204, 24, 24)' ],
+	for ( const [ card, score, tier, color ] of [
+		[ desktop.first(), 90, 'good', 'rgb(0, 128, 48)' ],
+		[ mobile, 60, 'medium', 'rgb(250, 167, 84)' ],
+		[ desktop.nth( 1 ), 40, 'poor', 'rgb(204, 24, 24)' ],
 	] as const ) {
 		const meter = card.getByRole( 'meter' );
 		// eslint-disable-next-line jest-dom/prefer-to-have-value -- Playwright's toHaveValue only reads form fields.
 		await expect( meter ).toHaveAttribute( 'aria-valuenow', String( score ) );
 		await expect( meter ).toHaveAttribute( 'aria-valuemax', '100' );
-		await expect( meter.locator( ':scope > div > div' ) ).toHaveCSS( 'background-color', color );
+		await expect( meter.locator( `.jetpack-boost-overview__progress--${ tier }` ) ).toHaveCSS(
+			'background-color',
+			color
+		);
 	}
 	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
 	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
