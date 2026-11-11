@@ -287,6 +287,37 @@ describe( 'HeaderControls', () => {
 		} );
 	} );
 
+	it( 'lists plans that need attention first and folds the rest behind a toggle', async () => {
+		const plan = ( ID: number, expiry_status: string ) => ( {
+			ID,
+			product_name: `Plan ${ ID }`,
+			product_slug: 'jetpack_search',
+			expiry_date: '2027-01-28T00:00:00+00:00',
+			expiry_status,
+			subscribed_date: '2026-01-28T00:00:00+00:00',
+			domain: 'example.com',
+		} );
+		mockApiFetch.mockResolvedValue( [
+			plan( 1, 'active' ),
+			plan( 2, 'active' ),
+			plan( 3, 'active' ),
+			plan( 4, 'active' ),
+			plan( 5, 'expiring' ),
+		] );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		await openControl();
+		const toggle = await screen.findByRole( 'button', { name: 'Show 2 more plans' } );
+		const names = () => screen.getAllByText( /^Plan \d$/ ).map( node => node.textContent );
+
+		expect( names() ).toEqual( [ 'Plan 5', 'Plan 1', 'Plan 2' ] );
+		expect( screen.getByRole( 'link', { name: /Renew/ } ) ).toBeInTheDocument();
+
+		await userEvent.click( toggle );
+
+		expect( names() ).toEqual( [ 'Plan 5', 'Plan 1', 'Plan 2', 'Plan 3', 'Plan 4' ] );
+	} );
+
 	it( 'connects from "Activate a license" under its own name, then returns to the license screen', async () => {
 		window.myJetpackInitialState = {
 			userIsAdmin: true,
