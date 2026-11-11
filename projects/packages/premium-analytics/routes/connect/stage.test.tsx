@@ -19,11 +19,11 @@ jest.mock(
 	() => jest.requireActual( '../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
 );
 // The store registers on first use, inside a test; without page state it logs an error there.
-window.JP_CONNECTION_INITIAL_STATE = {};
+window.JP_CONNECTION_INITIAL_STATE = {} as typeof window.JP_CONNECTION_INITIAL_STATE;
 
 const setIsOfflineMode = ( isOfflineMode: boolean ) =>
 	(
-		dispatch( initConnectionStore() ) as { setIsOfflineMode: ( value: boolean ) => void }
+		dispatch( initConnectionStore() ) as unknown as { setIsOfflineMode: ( value: boolean ) => void }
 	 ).setIsOfflineMode( isOfflineMode );
 
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );

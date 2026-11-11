@@ -81,7 +81,9 @@ export function usePlanChoice() {
 		from: CONNECTION_FROM,
 		redirectUri: DASHBOARD_PATH,
 	} );
-	const { registerSite, refreshConnectionStatus } = useDispatch( initConnectionStore() ) as {
+	const { registerSite, refreshConnectionStatus } = useDispatch(
+		initConnectionStore()
+	) as unknown as {
 		registerSite: ( args: { redirectUri: string; from: string } ) => Promise< Registration >;
 		refreshConnectionStatus: () => Promise< ConnectionStatus >;
 	};

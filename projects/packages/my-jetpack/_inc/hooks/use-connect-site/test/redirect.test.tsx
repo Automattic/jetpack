@@ -40,7 +40,9 @@ describe( 'useConnectSite', () => {
 		( restApi.registerSite as jest.Mock ).mockResolvedValue( { authorizeUrl: 'x' } );
 		// The connection store is shared, and each registration marks the site registered.
 		(
-			dispatch( initConnectionStore() ) as { setConnectionStatus: ( status: object ) => void }
+			dispatch( initConnectionStore() ) as unknown as {
+				setConnectionStatus: ( status: object ) => void;
+			}
 		 ).setConnectionStatus( { isRegistered: false } );
 	} );
 
