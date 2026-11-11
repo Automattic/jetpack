@@ -10,6 +10,7 @@ import { useFullScreen } from '../../hooks/use-fullscreen';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import Testimonials from '../testimonials';
 import ConnectionForm from './connection-form/connection-form';
+import formStyles from './connection-form/styles.module.scss';
 import { isPlainClick } from './is-plain-click';
 import styles from './styles.module.scss';
 import type { ComponentType, FC, MouseEvent, ReactNode } from 'react';
@@ -45,7 +46,7 @@ const ConnectScreen: FC< { children?: ReactNode } > = ( { children } ) => (
 const WizardLoading: FC = () => (
 	<div className={ styles[ 'wizard-loading' ] } role="status">
 		{ /* Outside the wizard's ThemeProvider, the default foreground is too faint on the dark shell. */ }
-		<Spinner color="var(--wp-admin-theme-color, #3858e9)" />
+		<Spinner color="#fff" />
 		<span className="screen-reader-text">{ __( 'Loading setup…', 'jetpack-my-jetpack' ) }</span>
 	</div>
 );
@@ -100,16 +101,19 @@ const WizardFallback: FC< WizardLinks > = ( { exitUrl, dashboardUrl } ) => {
 	if ( isUserConnected ) {
 		return (
 			<OnboardingLayout>
-				<JetpackLogo height={ 24 } />
-				<Text variant="headline-small">
-					{ __( 'Your site is connected to Jetpack', 'jetpack-my-jetpack' ) }
-				</Text>
-				<Text>
-					{ __(
-						'Setup could not load. You can skip it and go to My Jetpack.',
-						'jetpack-my-jetpack'
-					) }
-				</Text>
+				{ /* Laid out like the connect form it replaces. */ }
+				<div className={ formStyles[ 'connection-form' ] }>
+					<JetpackLogo height={ 24 } className={ formStyles[ 'jetpack-logo' ] } />
+					<Text variant="headline-medium" className={ formStyles.title }>
+						{ __( 'Your site is connected to Jetpack', 'jetpack-my-jetpack' ) }
+					</Text>
+					<Text variant="body" className={ formStyles.description }>
+						{ __(
+							'Setup could not load. You can skip it and go to My Jetpack.',
+							'jetpack-my-jetpack'
+						) }
+					</Text>
+				</div>
 				{ skip }
 			</OnboardingLayout>
 		);
