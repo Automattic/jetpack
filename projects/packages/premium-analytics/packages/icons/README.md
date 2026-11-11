@@ -5,9 +5,9 @@ lookup that turns the `jpa/<name>` reference a `widget.json` carries into one of
 
 ## The dashboard's own icons
 
-Branded multi-fill illustrations, fills driven by `var(--wpds-color-*)` tokens, plus two glyphs
-upstream lacks: `chartLine`, drawn as the pair of `chartBar`, and `jetpack`, the logo in its
-brand colors. They are intentionally distinct from the 24×24 monochrome glyphs of
+Branded multi-fill illustrations, fills driven by `var(--wpds-color-*)` tokens, plus the glyphs
+upstream lacks: `chartLine` and `chartHalfRing`, drawn as pairs of `chartBar`, and `jetpack`, the
+logo in its brand colors. They are intentionally distinct from the 24×24 monochrome glyphs of
 `@wordpress/icons`. Where one of those is enough, import it from `@wordpress/icons` rather than
 re-exporting it here.
 
@@ -45,7 +45,7 @@ lookupWidgetIcon( 'core/calendar' ); // null
 
 ## Exports
 
-Icons: `calendar`, `channel`, `chartLine`, `coupon`, `customer`, `device`, `goal`, `jetpack`,
+Icons: `calendar`, `channel`, `chartHalfRing`, `chartLine`, `coupon`, `customer`, `device`, `goal`, `jetpack`,
 `location`, `megaphone`, `payment`, `paymentReturn`, `productBlouse`, `reports`, `search`, `tag`.
 
 Lookup: `lookupWidgetIcon`, `resolveWidgetIcon`.

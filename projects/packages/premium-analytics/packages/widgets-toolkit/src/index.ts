@@ -303,6 +303,8 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	formatComparisonSeriesLabel,
+	getComparisonPeriodLabel,
 	pairComparisonBuckets,
 	type ComparisonPeriodStarts,
 	siteChartFormatting,

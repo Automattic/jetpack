@@ -94,6 +94,20 @@ export const WithComparison: StoryObj< DevicesStoryControls > = {
 };
 
 /**
+ * The bar view: views by screen size in each bucket of the range, stacked. Its legend can show the
+ * previous period's total beside each stack.
+ */
+export const BarChart: StoryObj< DevicesStoryControls > = {
+	render: ( { withComparison } ) => (
+		<DevicesRender
+			attributes={ { chartType: 'bar', reportParams: getDefaultQueryParams( withComparison ) } }
+		/>
+	),
+	args: { withComparison: true },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
  * First load: the fetch is in flight, so the widget shows its loading state. The
  * mock is forced to never resolve for the duration of this story.
  */

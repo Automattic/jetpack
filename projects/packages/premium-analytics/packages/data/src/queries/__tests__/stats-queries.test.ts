@@ -18,7 +18,7 @@ import { statsArchivesQuery } from '../stats-archives-query';
 import { statsAuthorAllTimeOrApproximateQuery, statsAuthorQuery } from '../stats-author-query';
 import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCountryViewsQuery } from '../stats-country-views-query';
-import { statsDevicesQuery } from '../stats-devices-query';
+import { statsDevicesPeriodsQuery, statsDevicesQuery } from '../stats-devices-query';
 import {
 	statsEmailClicksBreakdownQuery,
 	statsEmailOpensBreakdownQuery,
@@ -772,6 +772,27 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey ).toEqual(
 			expect.arrayContaining( [ 'devices-screensize', 'stats/devices/screensize', 'devices' ] )
 		);
+	} );
+
+	// A shared key would hand the semi-circle's totals to the bars, and `summarize` would collapse the buckets.
+	it( 'asks devices for buckets of the interval under a key of their own', () => {
+		const query = statsDevicesPeriodsQuery( {
+			from: '2026-01-01',
+			to: '2026-06-07',
+			interval: 'week',
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'devices-screensize-periods',
+			'1.1',
+			'stats/devices/screensize',
+			'GET',
+			{ unit: 'week', date: '2026-06-07', start_date: '2026-01-01' },
+			undefined,
+			'timeSeries',
+			'UTC',
+		] );
 	} );
 
 	it( 'keeps list reports day-bucketed when the dashboard interval is coarser', () => {

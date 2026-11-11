@@ -226,6 +226,33 @@ describe( 'Stats time-series normalizer', () => {
 		] );
 	} );
 
+	// The `stats/devices` `unit` mode: one record of counts per period, keyed by its first day.
+	it( 'reads a field per key of a days map, clipping the first week to the range', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				date: '2026-06-16',
+				unit: 'week',
+				days: {
+					'2026-06-08': { desktop: 40, mobile: 12 },
+					'2026-06-15': { desktop: 20, mobile: 6, tablet: 1 },
+				},
+				utc_offset: 0,
+			},
+			{ start_date: '2026-06-10', date: '2026-06-16' }
+		);
+
+		expect( result.summary ).toEqual(
+			expect.objectContaining( { desktop: 60, mobile: 18, tablet: 1 } )
+		);
+		expect( result.summary ).not.toHaveProperty( 'utc_offset' );
+		expect(
+			result.data.map( ( { date_start, desktop, mobile } ) => [ date_start, desktop, mobile ] )
+		).toEqual( [
+			[ '2026-06-10T00:00:00', 40, 12 ],
+			[ '2026-06-15T00:00:00', 20, 6 ],
+		] );
+	} );
+
 	it( 'normalizes email opens timelines nested under the timeline key', () => {
 		const result = sanitizeStatsEmailTimeSeriesResponse( emailOpensTimeSeriesFixture, {
 			period: 'day',
