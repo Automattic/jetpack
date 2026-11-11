@@ -262,10 +262,15 @@ class Jetpack_Backup {
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
-		// The page title's relabel rides the modernized dashboard rather than the filter alone,
-		// so a fallback to the legacy page also falls back to the legacy title.
-		$page_title = $wp_build_active ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
-		$menu_title = 'Backup'; // Product name, do not translate.
+		/*
+		 * The page title's relabel rides the modernized dashboard rather than the filter alone,
+		 * so a fallback to the legacy page also falls back to the legacy title. Off the Backup
+		 * page the build isn't loaded, so the admin shell's title comes from the build index.
+		 */
+		$renders_modernized = $wp_build_active
+			|| ( ! self::is_backup_admin_request() && self::is_modernized() && file_exists( dirname( __DIR__ ) . '/build/build.php' ) );
+		$page_title         = $renders_modernized ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$menu_title         = 'Backup'; // Product name, do not translate.
 
 		$page_suffix = Admin_Menu::add_menu(
 			$page_title,
