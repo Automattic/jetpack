@@ -9,8 +9,6 @@ jest.mock( '../wizard', () => {
 
 const mockConnection = { isRegistered: true, isUserConnected: false };
 
-jest.mock( '../wizard/use-connection-known', () => ( { useConnectionKnown: () => true } ) );
-
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	__esModule: true,
 	useConnection: () => ( {

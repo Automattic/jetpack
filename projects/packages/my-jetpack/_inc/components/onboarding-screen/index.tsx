@@ -12,7 +12,6 @@ import Testimonials from '../testimonials';
 import ConnectionForm from './connection-form/connection-form';
 import { withLoadLimit } from './load-limit';
 import styles from './styles.module.scss';
-import { useConnectionKnown } from './wizard/use-connection-known';
 import type { ComponentType, FC, ReactNode } from 'react';
 
 const OnboardingLayout: FC< { children: ReactNode } > = ( { children } ) => (
@@ -57,7 +56,6 @@ type WizardLinks = Pick< OnboardingWizardState, 'exitUrl' | 'dashboardUrl' >;
 // My Jetpack keeps sending a site-only connection back here.
 const WizardFallback: FC< WizardLinks > = ( { exitUrl, dashboardUrl } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
-	const connectionKnown = useConnectionKnown();
 	const [ isSkipping, setIsSkipping ] = useState( false );
 
 	// The wizard's own skip request; see settleOnboarding() in wizard/lib.ts.
@@ -83,7 +81,7 @@ const WizardFallback: FC< WizardLinks > = ( { exitUrl, dashboardUrl } ) => {
 	);
 
 	// Past the wizard's connect step: connecting again would only repeat the authorization.
-	if ( connectionKnown && isUserConnected ) {
+	if ( isUserConnected ) {
 		return (
 			<OnboardingLayout>
 				<JetpackLogo height={ 24 } />
