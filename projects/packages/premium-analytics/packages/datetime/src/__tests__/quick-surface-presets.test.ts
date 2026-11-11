@@ -67,6 +67,17 @@ describe( 'quick surface presets', () => {
 	} );
 } );
 
+describe( 'the three-year window', () => {
+	it( 'starts on 1 January two years back, on the site clock', () => {
+		const range = computePrimaryRange( 'last-3-years', TIME_ZONE )!;
+
+		expect( dateToISOStringWithTZ( range.from, TIME_ZONE ) ).toBe(
+			'2024-01-01T00:00:00.000+08:00'
+		);
+		expect( dateToISOStringWithTZ( range.to, TIME_ZONE ) ).toBe( '2026-08-25T23:59:59.999+08:00' );
+	} );
+} );
+
 // Havana moves its clocks forward at midnight, so the day the rolling window
 // ends starts at 01:00; the days before it start at 00:00 all the same.
 describe( 'rolling windows where the clocks moved at midnight', () => {
