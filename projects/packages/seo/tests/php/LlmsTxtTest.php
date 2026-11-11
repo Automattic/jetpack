@@ -120,6 +120,26 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
+	 * A theme or plugin can add a section, and the served copy keeps it.
+	 *
+	 * @return void
+	 */
+	public function test_filter_adds_to_the_served_text() {
+		$filter = static function ( $text ) {
+			return $text . "\n## AI agents\n\n- [MCP server](https://example.com/mcp)\n";
+		};
+		add_filter( 'jetpack_seo_llms_txt', $filter );
+		try {
+			$this->assertStringEndsWith(
+				"\n\n## AI agents\n\n- [MCP server](https://example.com/mcp)\n",
+				Llms_Txt::get_stored()
+			);
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt', $filter );
+		}
+	}
+
+	/**
 	 * With no published content, the Pages/Posts sections are omitted (only the
 	 * site-identity heading remains). The populated-list path is exercised by the
 	 * live front-end test — the package test environment can't query inserted
