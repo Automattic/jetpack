@@ -98,7 +98,7 @@ describe( 'SettingsNavTabs', () => {
 		[ 'shows', 'Writing', 'custom content types', null, false, 1 ],
 		[ 'hides', 'Writing', 'custom content types', null, true, 0 ],
 	] )(
-		'%s a %s tab only %s would fill with the settings flag %s',
+		'%s a %s tab only %s (%s) would fill with the settings flag %s',
 		( _verb, tab, _name, module, flag, tabs ) => {
 			window.JetpackScriptData = { site: {}, myJetpack: { settingsConsolidation: flag } };
 			// A null module stands for custom content types, which the tab reads from CUSTOM_CONTENT_TYPE__INITIAL_STATE.

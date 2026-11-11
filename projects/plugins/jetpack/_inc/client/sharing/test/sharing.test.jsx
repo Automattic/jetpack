@@ -66,7 +66,8 @@ describe( 'Sharing settings', () => {
 			/>
 		);
 
-		expect( screen.getByText( expected ) ).toBeInTheDocument();
+		const shown = [ ...CARDS, ...POINTERS ].filter( text => screen.queryByText( text ) );
+		expect( shown ).toEqual( [ expected ] );
 	} );
 
 	it.each( [
