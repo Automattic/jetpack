@@ -140,7 +140,7 @@ const monthColumns = (
 	} ) );
 
 const LONG_HISTORY_YEARS = [ 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 ];
-const LONG_HISTORY_YEARLY_BASE = [ 7000, 11000, 16000, 24000, 30000, 26000, 28000, 31000 ];
+const LONG_HISTORY_YEARLY_BASE = [ 18000, 28000, 34000, 30000, 25000, 21000, 18000, 16000 ];
 const LONG_HISTORY_SEASONALITY = [ 1, 0.95, 1.05, 1, 0.9, 0.8, 0.75, 0.8, 1.1, 1.15, 1.05, 0.85 ];
 
 const jitter = ( seed: number ) =>

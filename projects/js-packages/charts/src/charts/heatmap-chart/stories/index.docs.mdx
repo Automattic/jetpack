@@ -90,13 +90,15 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 
 ## Color Scale
 
-A shade reports a value's rank, not its distance from the largest value. The values are split into at most `scaleSteps` buckets that each hold about the same share of the series, so one viral month does not turn every other month the same pale shade. Every year of a long history keeps its own busy and quiet months. The largest value is always the darkest step and the smallest the lightest.
+A shade reports a value's rank, not its distance from the largest value. The values are split into at most `scaleSteps` buckets that each hold about the same share of the series, so one viral month does not turn every other month the same pale shade. In a history whose years overlap, as in the story below, every year keeps its own busy and quiet months. The scale ranks a value against the whole series, not against its own year, so a steeply growing series puts its early years in the lowest step. The largest value is always the darkest step. With two or more distinct values the smallest is the lightest; a series with fewer than two paints every cell in the darkest step.
+
+<Canvas of={ HeatmapStories.LongSiteHistory } />
 
 A cell's shade is always one of `scaleSteps` fixed steps, so every cell matches a legend swatch. A series with little variety, such as one holding only three distinct values, yields fewer buckets than `scaleSteps`: it uses fewer colors and leaves some legend swatches unused.
 
-`scaleSteps` must be a whole number from 2 to 10. Any other value warns once and falls back to `5`. Change it, rather than the legend's `steps`, when a host wants a different number of steps: a legend `steps` that differs from `scaleSteps` draws shades the cells never paint.
+<Canvas of={ HeatmapStories.FewDistinctValues } />
 
-<Canvas of={ HeatmapStories.LongSiteHistory } />
+`scaleSteps` must be a whole number from 2 to 10. Any other value warns once and falls back to `5`. Change it, rather than the legend's `steps`, when a host wants a different number of steps: a legend `steps` that differs from `scaleSteps` draws shades the cells never paint. The stories above use the default of `5`; this chart asks for seven:
 
 <Source
 	language="tsx"
@@ -104,8 +106,6 @@ A cell's shade is always one of `scaleSteps` fixed steps, so every cell matches 
 		<HeatmapChart.Legend variant="bar" />
 	</HeatmapChart>` }
 />
-
-<Canvas of={ HeatmapStories.FewDistinctValues } />
 
 ### Incomplete periods
 
