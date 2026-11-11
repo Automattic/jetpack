@@ -69,14 +69,16 @@ export type PlaylistAttributes = PlaylistDisplayAttributes & {
 	videos: PlaylistEntry[];
 	/*
 	 * Where the videos come from: the block's own list, the playlist a channel
-	 * page is showing, or an indexed playlist ( sourcePlaylistId, empty = latest ).
+	 * page is showing, an indexed playlist ( sourcePlaylistId, empty = latest ),
+	 * or a series ( sourceSeriesId, a `videopress_series` term ID ).
 	 */
 	source?: PlaylistSource;
 	sourcePlaylistId?: string;
+	sourceSeriesId?: number;
 	// "12K views · 3 days ago" under each entry, for sourced playlists.
 	showMeta?: boolean;
 	// What an indexed playlist shows while the channel has no playlists.
 	emptyState?: EmptyStateMode;
 };
 
-export type PlaylistSource = 'own' | 'queried' | 'index';
+export type PlaylistSource = 'own' | 'queried' | 'index' | 'series';

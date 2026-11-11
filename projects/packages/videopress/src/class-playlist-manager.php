@@ -594,6 +594,14 @@ class Playlist_Manager {
 		}
 		list( $post, $blocks, $path ) = $target;
 
+		if ( isset( $changes['videos'] ) && Series_Playlist_Adapter::is_series_block( self::block_at( $blocks, $path )['attrs'] ?? array() ) ) {
+			return new WP_Error(
+				'videopress_playlist_series_videos',
+				__( 'This playlist shows a series. Add videos to the series instead.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		$postarr = array(
 			'ID'           => $post->ID,
 			'post_content' => serialize_blocks( self::change_block_at( $blocks, $path, $changes ) ),
@@ -1050,7 +1058,7 @@ class Playlist_Manager {
 	}
 
 	/**
-	 * Paths to every standalone Video Playlist block, in document order.
+	 * Paths to every Video Playlist block that is a playlist of its own ( see Playlist_Index::is_playlist() ), in document order.
 	 *
 	 * @param array $blocks Parsed blocks.
 	 * @param int[] $prefix Path of the parent block.
@@ -1066,11 +1074,8 @@ class Playlist_Manager {
 			}
 
 			$path = array_merge( $prefix, array( $index ) );
-			if ( Playlist_Index::BLOCK_NAME === $name ) {
-				$source = $block['attrs']['source'] ?? 'own';
-				if ( 'own' === $source ) {
-					$paths[] = $path;
-				}
+			if ( Playlist_Index::BLOCK_NAME === $name && Playlist_Index::is_playlist( is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array() ) ) {
+				$paths[] = $path;
 			}
 
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
@@ -1278,6 +1283,8 @@ class Playlist_Manager {
 
 		return array(
 			'key'         => $record['key'],
+			'type'        => Series_Playlist_Adapter::is_series_record( $record ) ? Series_Playlist_Adapter::TYPE : 'own',
+			'series'      => absint( $record['series'] ?? 0 ),
 			'title'       => $record['title'],
 			'description' => $record['description'],
 			'videos'      => $videos,
