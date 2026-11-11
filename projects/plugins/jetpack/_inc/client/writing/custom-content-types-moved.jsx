@@ -12,13 +12,13 @@ export const CustomContentTypesMoved = () => (
 		header={ __( 'Custom content types', 'jetpack' ) }
 		// The anchor is the id classic-theme-helper prints in its Writing section title.
 		href={ getAdminUrl( 'options-writing.php#cpt-options' ) }
-		linkText={ __( 'Open Settings › Writing', 'jetpack' ) }
+		linkText={ __( 'Open the custom content types settings', 'jetpack' ) }
 	>
 		<p>
 			{
 				/* translators: "Settings › Writing" is a WordPress admin menu path: use core's terms for both. */
 				__(
-					'Custom content type settings are now in Settings › Writing, in the WordPress admin menu.',
+					'The custom content types settings are now in Settings › Writing, in the WordPress admin menu.',
 					'jetpack'
 				)
 			}
