@@ -75,7 +75,7 @@ export function opensInSettingsPanel( url: string ): boolean {
  * Configure for a module, opening the settings panel over the page instead of leaving it.
  *
  * @param props      - Component props.
- * @param props.slug - The module slug.
+ * @param props.slug - The module or settings entry slug.
  * @param props.name - The feature name.
  * @return The link.
  */
@@ -257,6 +257,10 @@ export function FeatureItem( {
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>
+				{ state.settingsEntry && ! onOpen && (
+					// The switch lives in the panel, so Configure shows even while the setting is off.
+					<PanelConfigureLink slug={ feature.slug } name={ feature.name } />
+				) }
 				{ settingsUrl &&
 					( isSettingsConsolidationEnabled() && opensInSettingsPanel( settingsUrl ) ? (
 						<PanelConfigureLink slug={ feature.slug } name={ feature.name } />

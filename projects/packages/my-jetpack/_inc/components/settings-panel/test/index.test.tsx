@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SettingsPanel } from '../index';
-import { moduleSettings } from '../registry';
+import { entrySettings, moduleSettings } from '../registry';
 import type { MyJetpackModule } from '../../../types';
 
 const mockNavigate = jest.fn();
@@ -12,6 +12,11 @@ jest.mock( '@wordpress/route', () => ( { useNavigate: () => mockNavigate } ) );
 jest.mock( '../../../router-bridge', () => ( { useRouteSearch: () => mockSearch } ) );
 jest.mock( '../../my-jetpack-tab-panel/features/use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => mockModules,
+} ) );
+let mockEntries: MainFeatureSettingsEntry[] = [];
+jest.mock( '../../my-jetpack-tab-panel/features/use-main-features', () => ( {
+	QUERY_KEY: [ 'my-jetpack-main-features' ],
+	useMainFeatures: () => ( { settings_entries: mockEntries } ),
 } ) );
 jest.mock( '../../../hooks/use-analytics', () => ( {
 	__esModule: true,
@@ -56,9 +61,22 @@ beforeEach( () => {
 
 afterEach( () => {
 	delete moduleSettings[ 'tiled-gallery' ];
+	delete entrySettings[ 'entry-test' ];
+	mockEntries = [];
 } );
 
 describe( 'SettingsPanel', () => {
+	it( 'opens a settings entry without waiting for the modules to load', () => {
+		mockSearch = { configure: 'entry-test' };
+		mockModules = { modules: {}, hasLoaded: false };
+		mockEntries = [ { slug: 'entry-test', name: 'Entry Test', description: '', active: false } ];
+		entrySettings[ 'entry-test' ] = () => <p>Entry settings</p>;
+		render( <SettingsPanel /> );
+
+		expect( screen.getByRole( 'heading', { name: 'Entry Test' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Entry settings' ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows the fallback for a module with no settings of its own', () => {
 		render( <SettingsPanel /> );
 

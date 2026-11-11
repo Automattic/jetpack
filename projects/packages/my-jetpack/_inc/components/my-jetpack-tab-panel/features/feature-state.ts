@@ -83,6 +83,8 @@ export type FeatureState = {
 	product?: ProductCamelCase;
 	unavailableReason?: string;
 	moduleUnavailableReason?: string;
+	// A setting with no module, such as Google Analytics: Configure opens its panel whatever its status.
+	settingsEntry?: true;
 };
 
 /**

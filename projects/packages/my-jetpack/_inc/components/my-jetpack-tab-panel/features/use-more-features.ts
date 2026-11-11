@@ -63,6 +63,32 @@ export function getModuleFeatureState(
 }
 
 /**
+ * A settings entry as a feature row: no switch, its status from the setting, and Configure to open its panel.
+ *
+ * @param entry  - The settings entry.
+ * @param groups - The filter pills its heading puts it under.
+ * @return The entry's state.
+ */
+export function getSettingsEntryFeatureState(
+	entry: MainFeatureSettingsEntry,
+	groups: string[] = []
+): FeatureState {
+	return {
+		feature: {
+			slug: entry.slug,
+			name: entry.name,
+			description: entry.description,
+			plans: [],
+			groups,
+			essential: false,
+		} as MainFeature,
+		status: entry.active ? 'active' : 'inactive',
+		control: { kind: 'none' },
+		settingsEntry: true,
+	};
+}
+
+/**
  * The module a row was built from, for the rows that have one.
  *
  * @param state - A row from one of these groups.
@@ -84,6 +110,7 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  * @param requested      - Switch key to the value asked of it.
  * @param hidden         - Modules that do not apply to the site, left out entirely.
  * @param needsAccount   - Whether the site has no connected owner and the current admin is not linked.
+ * @param entries        - Settings entries the site has, each listed under the heading that names it.
  * @return Non-empty groups by label, each sorted by name, with eligible ungrouped modules under Other, last.
  */
 export function groupMoreFeatures(
@@ -93,7 +120,8 @@ export function groupMoreFeatures(
 	productModules: Record< string, string >,
 	requested: Record< string, boolean >,
 	hidden: ReadonlySet< string > = new Set(),
-	needsAccount = false
+	needsAccount = false,
+	entries: MainFeatureSettingsEntry[] = []
 ): MoreFeaturesGroup[] {
 	const groupOf = new Map(
 		groups.flatMap( ( group, index ) => group.modules.map( slug => [ slug, index ] as const ) )
@@ -126,6 +154,13 @@ export function groupMoreFeatures(
 			)
 		);
 	}
+	for ( const entry of entries ) {
+		const index = groups.findIndex( group => group.settings?.includes( entry.slug ) );
+		const target = index === -1 ? other : grouped[ index ].states;
+		target.push( getSettingsEntryFeatureState( entry, groups[ index ]?.groups ) );
+		target.sort( ( a, b ) => a.feature.name.localeCompare( b.feature.name ) );
+	}
+
 	// Sorted on the translated label, so the order holds in every locale.
 	grouped.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 
@@ -234,7 +269,8 @@ export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[]
 							...getHiddenModules( modules ),
 							...( state.hidden_modules ?? getHiddenFeatures() ),
 						] ),
-						needsAccount
+						needsAccount,
+						state.settings_entries
 					)
 				: [],
 		[ state, modules, requested, needsAccount ]

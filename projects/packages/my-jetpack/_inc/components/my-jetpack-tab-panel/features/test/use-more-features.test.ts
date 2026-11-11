@@ -74,6 +74,36 @@ describe( 'groupMoreFeatures', () => {
 		] );
 	} );
 
+	it( 'lists settings entries under the heading that names them, else under Other, as rows with no switch', () => {
+		const entry = ( slug: string, name: string ) => ( {
+			slug,
+			name,
+			description: '',
+			active: true,
+		} );
+		const withEntries = groupMoreFeatures(
+			features,
+			[ ...groups.slice( 0, 2 ), { ...groups[ 2 ], settings: [ 'ga' ] } ],
+			modules,
+			{ social: 'publicize' },
+			{},
+			new Set( [ 'google-fonts' ] ),
+			false,
+			[ entry( 'ga', 'A GA' ), entry( 'loose', 'B LOOSE' ) ]
+		);
+
+		expect( slugsOf( withEntries ) ).toEqual( [
+			[ 'Analytics', [ 'ga', 'zeta' ] ],
+			[ 'Security', [ 'monitor', 'sso', 'waf' ] ],
+			[ 'Other', [ 'alpha', 'loose' ] ],
+		] );
+		expect( withEntries[ 0 ].states[ 0 ] ).toMatchObject( {
+			status: 'active',
+			control: { kind: 'none' },
+			settingsEntry: true,
+		} );
+	} );
+
 	it( 'leaves out a product\u2019s module even while a pre-release gate hides its card', () => {
 		// The AI card resolves no module while the gate is on; the module must not turn up
 		// under Other instead, offering the switch the gate withheld.

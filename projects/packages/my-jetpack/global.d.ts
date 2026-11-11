@@ -493,6 +493,15 @@ type MainFeaturesState = {
 	hidden_modules?: string[];
 	available_admin_pages?: string[];
 	plugin_installs?: MainFeatureInstallAccess;
+	settings_entries?: MainFeatureSettingsEntry[];
+};
+
+// A setting with no module that opens in the settings panel, such as Google Analytics.
+type MainFeatureSettingsEntry = {
+	slug: string;
+	name: string;
+	description: string;
+	active: boolean;
 };
 
 type OfflineFeaturesSeed = {
@@ -510,6 +519,8 @@ type MainFeatureModuleGroup = {
 	label: string;
 	groups?: string[];
 	modules: string[];
+	// Settings entries listed under this heading when the site has them.
+	settings?: string[];
 };
 
 // Whether the current user may install plugins here: not while file changes are off site-wide, or not with their role.
