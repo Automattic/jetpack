@@ -263,9 +263,15 @@ export class Main extends Component {
 				}
 			// Falls through.
 			case '/sharing':
-				// Nothing is left on this tab for admins once settings move out; the cases above fall through here.
+				// The Social page needs a connection, and offline mode reports 'offline', so only `true` gets it.
 				if ( '/sharing' === route && isSettingsConsolidationEnabled() ) {
-					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
+					window.location.replace(
+						getAdminUrl(
+							true === this.props.siteConnectionStatus
+								? 'admin.php?page=jetpack-social'
+								: 'admin.php?page=my-jetpack#/features?search=sharing'
+						)
+					);
 					break;
 				}
 			// Falls through.
