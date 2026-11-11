@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -90,7 +91,7 @@ class InitializerTest extends TestCase {
 		// The delegators track Surface_Visibility's answer, not a stale copy of it.
 		delete_option( Initializer::VISIBILITY_OPTION );
 		try {
-			$this->assertFalse( Initializer::is_seo_surface_visible() );
+			$this->assertTrue( Initializer::is_seo_surface_visible() );
 
 			update_option( Initializer::VISIBILITY_OPTION, '1' );
 			$this->assertTrue( Initializer::is_seo_surface_visible() );
@@ -101,48 +102,45 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * With the feature flag on, the surface discoverable, and the `seo-tools` module
-	 * active, `init()` registers the front-end schema, GEO, and admin/REST hooks.
-	 * We drive module state through the `jetpack_active_modules` filter (the package test
-	 * context has no on-disk modules), mark the cohort surface visible so init() passes
-	 * its discoverability gate, and reset the one-shot `$initialized` guard so the body runs.
+	 * @dataProvider module_states
+	 * @param bool $seo_active Whether SEO tools are active.
 	 */
-	public function test_init_registers_schema_and_hooks_when_enabled() {
+	#[DataProvider( 'module_states' )]
+	public function test_init_keeps_independent_settings_reachable( $seo_active ) {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
 		}
 		$initialized->setValue( null, false );
 
-		$enable_module = static function () {
-			return array( 'seo-tools' );
+		$rest_hooks = isset( $GLOBALS['wp_filter']['rest_api_init'] ) ? clone $GLOBALS['wp_filter']['rest_api_init'] : null;
+		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
+		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
+		$enable_module = static function () use ( $seo_active ) {
+			return $seo_active ? array( 'seo-tools' ) : array();
 		};
 		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		add_filter( 'jetpack_active_modules', $enable_module );
-		// Past the discoverability cohort gate (self-hosted opted-in / fresh install).
-		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		update_option( Initializer::VISIBILITY_OPTION, '' );
 
 		try {
 			Initializer::init();
 
-			// Lines proving the body ran past the module gate: the front-end features
-			// self-hook, and init() registers its admin/REST callbacks.
-			$this->assertNotFalse(
-				has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) )
-			);
-			$this->assertNotFalse(
-				has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) )
-			);
-			$this->assertNotFalse(
-				has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) )
-			);
+			if ( $seo_active ) {
+				$this->assertNotFalse(
+					has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) )
+				);
+				$this->assertNotFalse(
+					has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) )
+				);
+				$this->assertNotFalse(
+					has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) )
+				);
+			}
+			$this->assertSame( '', get_option( Initializer::VISIBILITY_OPTION ) );
 			$this->assertNotFalse(
 				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )
 			);
-			// Settings register on `rest_api_init`, after every chance a conflicting SEO
-			// plugin has to filter `jetpack_disable_seo_tools` and change which option the
-			// front page description belongs in, and before core builds the settings route
-			// from the registry at priority 99.
 			$this->assertSame(
 				5,
 				has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) )
@@ -171,7 +169,22 @@ class InitializerTest extends TestCase {
 			remove_filter( 'jetpack_active_modules', $enable_module );
 			delete_option( Initializer::VISIBILITY_OPTION );
 			$initialized->setValue( null, false );
+			if ( null === $rest_hooks ) {
+				unset( $GLOBALS['wp_filter']['rest_api_init'] );
+			} else {
+				$GLOBALS['wp_filter']['rest_api_init'] = $rest_hooks;
+			}
 		}
+	}
+
+	/**
+	 * @return array Module states.
+	 */
+	public static function module_states() {
+		return array(
+			'SEO off' => array( false ),
+			'SEO on'  => array( true ),
+		);
 	}
 
 	/**
@@ -228,7 +241,7 @@ class InitializerTest extends TestCase {
 	 * Run `init()` with the surface visible, the `seo-tools` module active and Simple's
 	 * canonical switch on, and report whether each paid front-end service hooked itself.
 	 *
-	 * Mirrors test_init_registers_schema_and_hooks_when_enabled()'s setup: module
+	 * Mirrors test_init_keeps_independent_settings_reachable()'s setup: module
 	 * state is driven through `jetpack_active_modules` (the package test context has
 	 * no on-disk modules), the cohort surface is marked visible, and the one-shot
 	 * `$initialized` guard is reset so the body runs.
@@ -525,16 +538,13 @@ class InitializerTest extends TestCase {
 		);
 	}
 
-	/**
-	 * While the surface is hidden (an existing self-hosted install that hasn't opted in),
-	 * the legacy Traffic settings are still where these modules are configured.
-	 */
-	public function test_configuration_urls_unchanged_when_surface_hidden() {
+	/** Existing visibility preferences must not keep Configure links on legacy settings. */
+	public function test_configuration_urls_use_the_dashboard_for_existing_installs() {
 		$this->assertSame(
 			array(
-				'seo-tools'          => 'default',
-				'verification-tools' => 'default',
-				'sitemaps'           => 'default',
+				'seo-tools'          => Admin_Page::get_url(),
+				'verification-tools' => Admin_Page::get_url(),
+				'sitemaps'           => Admin_Page::get_url(),
 			),
 			$this->init_and_get_configuration_urls( false )
 		);

@@ -1,11 +1,6 @@
 <?php
 /**
- * Jetpack SEO — the visibility command center for WordPress sites.
- *
- * Gates the surface behind its feature flag and cohort, then wires the admin
- * page ({@see Admin_Page}), the dashboard's REST reads ({@see Dashboard_Data}),
- * the content-coverage cache invalidation ({@see Content_Coverage}), and the
- * opt-in surface ({@see Surface_Visibility}).
+ * Initialize the SEO dashboard and its front-end integrations.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -60,33 +55,14 @@ class Initializer {
 	const SCRIPT_DATA_KEY = 'seo';
 
 	/**
-	 * Option recording that the user has deliberately turned the site's sitemap OFF,
-	 * so WordPress core's own sitemap should be suppressed too ("off" means no sitemap
-	 * at all, not a fallback to `/wp-sitemap.xml`).
-	 *
-	 * Set when the sitemaps module is switched off and cleared when it's switched on
-	 * (see {@see self::flag_sitemap_user_disabled()} / {@see self::clear_sitemap_user_disabled()}),
-	 * so it captures a deliberate off — a *transition* — rather than the ambient
-	 * off-state. A site that simply never enabled the sitemap never fires the toggle,
-	 * so the flag stays absent and its existing (e.g. WordPress-native) sitemap is left
-	 * untouched.
+	 * Whether the owner deliberately disabled all sitemaps, including WordPress core's fallback.
 	 *
 	 * @var string
 	 */
 	const SUPPRESS_WP_SITEMAP_OPTION = 'jetpack_seo_suppress_wp_sitemap';
 
 	/**
-	 * Option recording whether the Jetpack SEO surface is discoverable on this site.
-	 *
-	 * Gates whether the SEO admin menu registers on self-hosted sites. Seeded once by the
-	 * Jetpack plugin on install/upgrade: fresh installs default to visible, existing
-	 * installs default to hidden and opt in via the legacy Traffic page or My Jetpack.
-	 * WordPress.com (Simple + Atomic) bypasses this option entirely and is always visible.
-	 * Absent until seeded, in which case self-hosted defaults to hidden (the non-disruptive
-	 * default). See {@see Surface_Visibility::is_visible()}.
-	 *
-	 * Replaces `jetpack_seo_surface_visible`, which was seeded before the self-hosted rollout and
-	 * marked every install since as fresh; a new key makes every site re-seed once on upgrade.
+	 * Legacy opt-in preference, retained for compatibility with older clients.
 	 *
 	 * @var string
 	 */
@@ -120,14 +96,10 @@ class Initializer {
 		// Before anything can read the AI crawler choices.
 		Ai_Crawlers::register_legacy_migration();
 
-		// The opt-in endpoint must be reachable even before the surface is visible, so
-		// existing self-hosted installs can switch to the new experience from the legacy
-		// Traffic page or My Jetpack (JETPACK-1700). Registered ahead of the cohort gate.
+		// Retain the opt-in endpoint for older clients.
 		add_action( 'rest_api_init', array( Surface_Visibility::class, 'register_optin_route' ) );
 
-		// Expose opt-in availability to other admin surfaces (the legacy Traffic-page
-		// banner reads it via `@automattic/jetpack-script-data`). Hooked here — after the
-		// feature flag, before the cohort gate — so a still-hidden install gets the signal.
+		// Tell legacy admin surfaces that the dashboard has replaced their SEO controls.
 		add_filter( 'jetpack_admin_js_script_data', array( Surface_Visibility::class, 'inject_optin_availability' ) );
 
 		// Sitemap output is a front-end concern tied to the SEO feature itself, not to
@@ -157,14 +129,6 @@ class Initializer {
 			add_filter( 'wp_sitemaps_enabled', '__return_false' );
 		}
 
-		// Discoverability cohort gate: the SEO surface is auto-discoverable for fresh
-		// installs and all WordPress.com sites; existing self-hosted installs opt in via
-		// the legacy Traffic page or My Jetpack (JETPACK-1700). Until it's visible we
-		// register nothing else here and let those opt-in surfaces drive discovery.
-		if ( ! self::is_seo_surface_visible() ) {
-			return;
-		}
-
 		// Each SEO module's configure URL defaults to Jetpack › Settings filtered to the
 		// module. Once the surface is visible that view only points here, so link here.
 		foreach ( array( 'seo-tools', 'verification-tools', 'sitemaps' ) as $module ) {
@@ -189,12 +153,10 @@ class Initializer {
 
 		self::register_write_hooks();
 
-		// The settings surface only comes online once SEO tools are active — there's
-		// nothing to configure while the module is off, so we don't register its REST
-		// endpoints until then. Everything the dashboard saves is exposed to WordPress
-		// core's `/wp/v2/settings` endpoint, which exists on every platform the package
-		// runs on and capability-gates writes itself; module activation, the one thing
-		// `register_setting()` can't express, has its own package-owned route.
+		// Register independent settings after conflict filters settle and before core builds its settings route.
+		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
+		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
+
 		if ( self::is_seo_tools_module_active() ) {
 			// Front-end JSON-LD schema output and author profile schema fields.
 			// Intentionally NOT gated: every site keeps emitting its structured data —
@@ -219,13 +181,6 @@ class Initializer {
 				Ai_Crawlers::init();
 			}
 
-			// On `rest_api_init` rather than here: which option the front page description
-			// is stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
-			// plugin can add from anywhere up to the end of `init`. Priority 5 is after all
-			// of those and before core builds the settings route at 99.
-			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
-			// Package-owned route for the three settings whose write switches a Jetpack module.
-			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
 		}

@@ -16,91 +16,25 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass( Surface_Visibility::class )]
 class SurfaceVisibilityTest extends TestCase {
 
-	/**
-	 * On self-hosted sites, discoverability is driven by the durable cohort option:
-	 * hidden when absent (the non-disruptive default) or empty, visible when set.
-	 */
-	public function test_is_visible_reads_cohort_option_on_self_hosted() {
-		delete_option( Initializer::VISIBILITY_OPTION );
-		$this->assertFalse( Surface_Visibility::is_visible() );
-
-		update_option( Initializer::VISIBILITY_OPTION, '1' );
-		$this->assertTrue( Surface_Visibility::is_visible() );
-
+	public function test_migration_keeps_module_choices_and_saved_values() {
 		update_option( Initializer::VISIBILITY_OPTION, '' );
-		$this->assertFalse( Surface_Visibility::is_visible() );
-
-		delete_option( Initializer::VISIBILITY_OPTION );
-	}
-
-	/**
-	 * WordPress.com sites (here: Simple, via the IS_WPCOM constant) are always
-	 * discoverable, bypassing the cohort option entirely.
-	 */
-	public function test_is_visible_always_true_on_wpcom() {
-		delete_option( Initializer::VISIBILITY_OPTION ); // Hidden for self-hosted...
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
-
-		try {
-			$this->assertTrue( Surface_Visibility::is_visible() );
-		} finally {
-			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
-		}
-	}
-
-	/**
-	 * The opt-in is offered only when the feature flag is on AND the surface is still
-	 * hidden (a self-hosted install that hasn't opted in).
-	 */
-	public function test_is_optin_available_requires_flag_and_hidden_surface() {
-		delete_option( Initializer::VISIBILITY_OPTION );
-
-		// Flag off → never available.
+		update_option( 'jetpack_active_modules', array( 'sitemaps', 'verification-tools' ) );
+		update_option( 'advanced_seo_front_page_description', 'Saved description' );
+		$this->assertTrue( Surface_Visibility::is_visible() );
 		$this->assertFalse( Surface_Visibility::is_optin_available() );
-
-		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
-		try {
-			// Flag on + surface hidden → available.
-			$this->assertTrue( Surface_Visibility::is_optin_available() );
-
-			// Flag on + surface visible (already opted in) → not available.
-			update_option( Initializer::VISIBILITY_OPTION, '1' );
-			$this->assertFalse( Surface_Visibility::is_optin_available() );
-		} finally {
-			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
-			delete_option( Initializer::VISIBILITY_OPTION );
-		}
+		$this->assertSame( array( 'sitemaps', 'verification-tools' ), get_option( 'jetpack_active_modules' ) );
+		$this->assertSame( 'Saved description', get_option( 'advanced_seo_front_page_description' ) );
+		$this->assertSame( '', get_option( Initializer::VISIBILITY_OPTION ) );
+		delete_option( Initializer::VISIBILITY_OPTION );
+		delete_option( 'jetpack_active_modules' );
+		delete_option( 'advanced_seo_front_page_description' );
 	}
 
-	/**
-	 * The script-data injector surfaces opt-in availability under the `seo.optin_available`
-	 * key (read by the legacy Traffic-page banner), and tolerates non-array input.
-	 */
-	public function test_inject_optin_availability_surfaces_flag_state() {
+	public function test_migration_script_data_retires_the_optin_without_losing_other_data() {
 		delete_option( Initializer::VISIBILITY_OPTION );
-
-		// Flag off → false, and non-array input is normalized to an array. Surface is also
-		// hidden (no cohort option set on this self-hosted test site).
-		$data = Surface_Visibility::inject_optin_availability( null );
+		$data = Surface_Visibility::inject_optin_availability( array( 'keep' => 1 ) );
+		$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
 		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
-		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
-
-		// Flag on + surface hidden → opt-in offered, surface not yet visible; existing keys preserved.
-		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
-		try {
-			$data = Surface_Visibility::inject_optin_availability( array( 'keep' => 1 ) );
-			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
-			$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
-			$this->assertSame( 1, $data['keep'] );
-
-			// Opted in → surface visible, opt-in no longer offered.
-			update_option( Initializer::VISIBILITY_OPTION, '1' );
-			$data = Surface_Visibility::inject_optin_availability( array() );
-			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
-			$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
-		} finally {
-			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
-			delete_option( Initializer::VISIBILITY_OPTION );
-		}
+		$this->assertSame( 1, $data['keep'] );
 	}
 }

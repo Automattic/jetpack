@@ -6,12 +6,7 @@ import type { SeoTracksScreen } from '../data/record-seo-event';
 import type { FC } from 'react';
 
 /**
- * Shown when the `seo-tools` module is inactive. Explains what SEO tools do and
- * offers a one-click enable. Activating reloads the page so the rest of the SEO
- * surface comes online (see `useEnableSeoTools`).
- *
- * An `@wordpress/ui` `EmptyState` rather than a card: with the module off it is
- * the only thing on the page, centered under the header (see `SeoDisabledStage`).
+ * Offer SEO activation, which reloads the page to register module-dependent controls.
  *
  * @param props        - Component props.
  * @param props.screen - The screen this renders on; it appears on every tab's module-off stage.
@@ -25,7 +20,7 @@ const EnableSeoEmptyState: FC< { screen: SeoTracksScreen } > = ( { screen } ) =>
 			<EmptyState.Title>{ __( 'Enable SEO tools', 'jetpack-seo' ) }</EmptyState.Title>
 			<EmptyState.Description>
 				{ __(
-					'SEO tools help your content get found: customize titles and meta descriptions, generate a sitemap, verify your site with search engines, and control how pages look when shared. Turn it on to manage all of it from here.',
+					'SEO tools help your content get found: customize titles and meta descriptions, add structured data, and manage content discovery. Sitemap, site verification and visibility settings remain available separately.',
 					'jetpack-seo'
 				) }
 			</EmptyState.Description>
