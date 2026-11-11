@@ -318,6 +318,27 @@ describe( 'HeaderControls', () => {
 		expect( names() ).toEqual( [ 'Plan 5', 'Plan 1', 'Plan 2', 'Plan 3', 'Plan 4' ] );
 	} );
 
+	it( 'shows a golden token as never expiring, whatever its status says', async () => {
+		mockApiFetch.mockResolvedValue( [
+			{
+				ID: 1,
+				product_name: 'Jetpack Golden Token',
+				product_slug: 'jetpack_golden_token_lifetime',
+				partner_slug: 'goldenticket',
+				expiry_date: '2026-10-02T00:00:00+00:00',
+				expiry_status: 'expired',
+				subscribed_date: '2025-10-02T00:00:00+00:00',
+				domain: 'example.com',
+			},
+		] );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		await openControl();
+
+		await expect( screen.findByText( 'Never expires' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Resume/ } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'connects from "Activate a license" under its own name, then returns to the license screen', async () => {
 		window.myJetpackInitialState = {
 			userIsAdmin: true,

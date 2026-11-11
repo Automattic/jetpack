@@ -21,16 +21,6 @@
 	.plans {
 		gap: var(--wpds-dimension-gap-md);
 	}
-
-	// A `button` `Link` keeps native button chrome.
-	// Nested to outrank `Link`'s own classes.
-	.plans-toggle {
-		padding: 0;
-		border: 0;
-		background: none;
-		font-family: inherit;
-		cursor: pointer;
-	}
 }
 
 // Logo, name and status, then the renew link when there is one.
@@ -65,21 +55,14 @@
 	min-inline-size: 0;
 }
 
-.plan-name {
-	font-weight: var(--wpds-typography-font-weight-emphasis);
-}
-
-.plan-meta,
-.plan-status {
-	color: var(--plan-status-color, var(--wpds-color-foreground-content-neutral-weak));
-}
-
 .plan-meta {
 	display: flex;
 	align-items: center;
 	column-gap: var(--wpds-dimension-gap-xs);
+	color: var(--plan-status-color, var(--wpds-color-foreground-content-neutral-weak));
 
-	svg {
+	// The status icon only: the golden token's logo keeps its own colours.
+	> svg {
 		flex: none;
 		fill: currentColor;
 	}
@@ -87,6 +70,7 @@
 
 .plan-status {
 	min-inline-size: 0;
+	color: inherit;
 }
 
 .plan-action {
