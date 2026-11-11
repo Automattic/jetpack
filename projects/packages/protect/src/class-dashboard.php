@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -115,6 +116,7 @@ class Dashboard {
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		Threat_Count::init();
+		Settings::init();
 		add_action( 'add_option_' . Scan_Status::OPTION_NAME, array( Dashboard_Threats::class, 'prune_on_stored_scan' ), 10, 2 );
 		add_action( 'update_option_' . Scan_Status::OPTION_NAME, array( Dashboard_Threats::class, 'prune_on_stored_scan' ), 10, 2 );
 
@@ -388,8 +390,7 @@ class Dashboard {
 	 * @return bool
 	 */
 	public static function is_dashboard_request() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
-		return isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+		return Protect_Status::is_protect_page();
 	}
 
 	/**

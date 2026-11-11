@@ -56,7 +56,7 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
-		"@babel/core": "7.29.7",
+		"@babel/core": "7.29.13",
 		"@wordpress/views": "~3.1.0"
 	}
 }

@@ -54,7 +54,7 @@
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.3",
-		"@tsdown/css": "0.23.1",
+		"@tsdown/css": "0.23.7",
 		"@types/jest": "30.0.0",
 		"@types/react": "19.3.0",
 		"@types/react-dom": "19.3.0",
@@ -67,7 +67,7 @@
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"sass-embedded": "^1.97.2",
-		"tsdown": "0.23.1",
+		"tsdown": "0.23.7",
 		"typescript": "6.0.3"
 	},
 	"peerDependencies": {
