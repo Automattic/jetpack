@@ -1,4 +1,6 @@
-export { getValueExtent, getNormalizedValue, isEmptyValue, isPresent } from './use-heatmap-colors';
+export { getValueExtent, isEmptyValue, isPresent, scaleValues } from './use-heatmap-colors';
+export { getBucketedValue, getValueBuckets, HEATMAP_SCALE_STEPS } from './heatmap-buckets';
+export type { HeatmapBuckets } from './heatmap-buckets';
 export { getHeatmapScale } from './heatmap-scale';
 export { HeatmapLegend } from './heatmap-legend';
 export { HeatmapContext } from './heatmap-context';

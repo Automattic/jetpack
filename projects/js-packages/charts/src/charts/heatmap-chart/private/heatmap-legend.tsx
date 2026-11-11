@@ -9,7 +9,12 @@ import { isEmptyValue } from './use-heatmap-colors';
 import type { CSSProperties, FC } from 'react';
 
 export interface HeatmapLegendProps {
-	/** Number of color swatches in the scale, not counting the empty-cell swatch. Default 5. */
+	/**
+	 * Number of color swatches in the scale, not counting the empty-cell swatch.
+	 * Defaults to the chart's `scaleSteps`, which is what keeps the swatches and
+	 * the cells in step; a different count here reads as a scale the cells
+	 * do not paint on.
+	 */
 	steps?: number;
 	/**
 	 * `swatches` spaces the steps out as cell-sized squares; `bar` joins them
@@ -21,7 +26,7 @@ export interface HeatmapLegendProps {
 }
 
 export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
-	steps = 5,
+	steps: requestedSteps,
 	variant = 'swatches',
 	lessLabel,
 	moreLabel,
@@ -32,6 +37,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 		return null;
 	}
 	const { extent, fillVars } = context;
+	const steps = requestedSteps ?? context.steps;
 	const labelStyle = legend.labelStyles;
 	const showsEmptyCell = isEmptyValue( 0, extent );
 

@@ -4,43 +4,46 @@ export const isPresent = ( value: number | null | undefined ): value is number =
 	value !== null && value !== undefined && ! isNaN( value );
 
 /**
- * Get the min and max values from heatmap data, ignoring null/NaN and the zeros
- * `isEmptyValue` paints as empty. Summary columns stay out: a roll-up on the
- * scale would flatten every real cell.
+ * Every value the color scale is built from, ascending. Summary columns stay
+ * out — a roll-up on the scale would flatten every real cell — as do cells that
+ * paint no fill of their own and so report nothing about the series.
+ *
  * @param data - The heatmap columns
- * @return Tuple of [min, max] values
+ * @return The eligible values, ascending
  */
-export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
-	let min = Infinity;
-	let max = -Infinity;
-	let hasZero = false;
+export const scaleValues = ( data: HeatmapColumn[] ): number[] => {
+	const values: number[] = [];
 	for ( const column of data ) {
 		if ( column.summary ) {
 			continue;
 		}
 		for ( const cell of column.data ) {
-			if ( ! isPresent( cell.value ) ) {
+			if ( cell.hidden || cell.placeholder || cell.partial || ! isPresent( cell.value ) ) {
 				continue;
 			}
-			if ( cell.value === 0 ) {
-				hasZero = true;
-				continue;
-			}
-			if ( cell.value < min ) {
-				min = cell.value;
-			}
-			if ( cell.value > max ) {
-				max = cell.value;
-			}
+			values.push( cell.value );
 		}
 	}
-	if ( hasZero && min < 0 ) {
-		max = Math.max( max, 0 );
-	}
-	if ( min === Infinity ) {
+	return values.sort( ( a, b ) => a - b );
+};
+
+/**
+ * Get the min and max values from heatmap data, ignoring the zeros
+ * `isEmptyValue` paints as empty.
+ *
+ * @param data - The heatmap columns
+ * @return Tuple of [min, max] values
+ */
+export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
+	const values = scaleValues( data );
+	const nonZero = values.filter( value => value !== 0 );
+	if ( ! nonZero.length ) {
 		return [ 0, 0 ];
 	}
-	return [ min, max ];
+	const min = nonZero[ 0 ];
+	const max = nonZero[ nonZero.length - 1 ];
+	// A zero counts as data once the series has negatives, so the scale has to reach it.
+	return [ min, min < 0 && nonZero.length < values.length ? Math.max( max, 0 ) : max ];
 };
 
 /**
@@ -53,19 +56,3 @@ export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
  */
 export const isEmptyValue = ( value: number, extent: [ number, number ] ): boolean =>
 	value === 0 && extent[ 0 ] >= 0;
-
-/**
- * Normalize a value to 0–1 within the extent. A flat extent (min === max)
- * maps to 1, since every cell is equally the "highest".
- *
- * @param value  - The value to normalize
- * @param extent - Tuple of [min, max] values for the normalization range
- * @return Normalized value between 0 and 1
- */
-export const getNormalizedValue = ( value: number, extent: [ number, number ] ): number => {
-	const [ min, max ] = extent;
-	if ( min === max ) {
-		return 1;
-	}
-	return Math.min( 1, Math.max( 0, ( value - min ) / ( max - min ) ) );
-};
