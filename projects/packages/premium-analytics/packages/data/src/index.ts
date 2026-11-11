@@ -135,8 +135,11 @@ export {
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
+	getSectionOrder,
+	orderSections,
 	rememberComparison,
 	rememberPreset,
+	setSectionOrder,
 	withDefaultComparison,
 } from './defaults';
 export { downloadReport, fetchStatsProxy } from './api';
