@@ -388,14 +388,16 @@ class Llms_Txt {
 		/**
 		 * Filters the llms.txt Markdown, e.g. to add a section.
 		 *
-		 * The result is stored for up to 12 hours and built as a logged-out visitor, so a code change
-		 * shows after the next content edit or after turning llms.txt off and on.
+		 * The result is stored for up to 12 hours; call Llms_Txt::clear_cache() when your section's data
+		 * changes. Anything but a non-empty string keeps the unfiltered text.
 		 *
 		 * @since $$next-version$$
 		 *
 		 * @param string $text The llms.txt Markdown.
 		 */
-		return (string) apply_filters( 'jetpack_seo_llms_txt', $text );
+		$filtered = apply_filters( 'jetpack_seo_llms_txt', $text );
+
+		return is_string( $filtered ) && '' !== $filtered ? $filtered : $text;
 	}
 
 	/**

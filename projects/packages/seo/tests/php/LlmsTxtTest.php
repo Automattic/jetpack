@@ -120,23 +120,51 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * A theme or plugin can add a section, and the served copy keeps it.
+	 * A theme or plugin can add to the served text; a callback that returns nothing leaves it as is.
 	 *
+	 * @dataProvider provide_text_filters
+	 *
+	 * @param callable $filter Callback for `jetpack_seo_llms_txt`.
+	 * @param string   $added  What the served text gains.
 	 * @return void
 	 */
-	public function test_filter_adds_to_the_served_text() {
-		$filter = static function ( $text ) {
-			return $text . "\n## AI agents\n\n- [MCP server](https://example.com/mcp)\n";
-		};
+	#[DataProvider( 'provide_text_filters' )]
+	public function test_text_filter( $filter, $added ) {
+		$unfiltered = Llms_Txt::generate();
 		add_filter( 'jetpack_seo_llms_txt', $filter );
 		try {
-			$this->assertStringEndsWith(
-				"\n\n## AI agents\n\n- [MCP server](https://example.com/mcp)\n",
-				Llms_Txt::get_stored()
-			);
+			$this->assertSame( $unfiltered . $added, Llms_Txt::get_stored() );
 		} finally {
 			remove_filter( 'jetpack_seo_llms_txt', $filter );
 		}
+	}
+
+	/**
+	 * Filter callbacks and what each adds to the served text.
+	 *
+	 * @return array
+	 */
+	public static function provide_text_filters() {
+		$section = "\n## AI agents\n\n- [MCP server](https://example.com/mcp)\n";
+
+		return array(
+			'adds a section'          => array(
+				static function ( $text ) use ( $section ) {
+					return $text . $section;
+				},
+				$section,
+			),
+			'returns nothing'         => array(
+				static function () {},
+				'',
+			),
+			'returns an empty string' => array(
+				static function () {
+					return '';
+				},
+				'',
+			),
+		);
 	}
 
 	/**
