@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
 import { STATE_OFF, STATE_ON, STATE_STANDALONE } from './helpers/admin-shell-helper';
 
 /*
@@ -14,6 +14,28 @@ const runDir = process.env.ADMIN_SHELL_RUN
 	? `${ stateDir }/${ process.env.ADMIN_SHELL_RUN }`
 	: stateDir;
 
+const reporter: ReporterDescription[] = [
+	[ 'list' ],
+	[ 'json', { outputFile: `${ runDir }/summary.json` } ],
+];
+// Same CI reporters as tools/e2e-commons/playwright.config.default.ts: the shared CTRF report and PR annotations.
+if ( process.env.CI ) {
+	reporter.push(
+		[
+			'playwright-ctrf-json-reporter',
+			{
+				outputDir: runDir,
+				outputFile: `ctrf-report-${ Date.now() }.json`,
+				branchName: process.env.GITHUB_REF_NAME || '',
+				commit: process.env.GITHUB_SHA || '',
+				appName: 'jetpack',
+				repositoryName: process.env.GITHUB_REPOSITORY || '',
+			},
+		],
+		[ 'github' ]
+	);
+}
+
 const browsers = [
 	{ name: 'chromium', use: devices[ 'Desktop Chrome' ] },
 	{ name: 'firefox', use: devices[ 'Desktop Firefox' ] },
@@ -28,7 +50,7 @@ export default defineConfig( {
 	// Only login and tests wrapped in intermittentSpikeBug() retry; any other flake fails the run.
 	retries: 0,
 	workers: Number( process.env.PLAYWRIGHT_WORKERS ) || 2,
-	reporter: [ [ 'list' ], [ 'json', { outputFile: `${ runDir }/summary.json` } ] ],
+	reporter,
 	use: {
 		viewport: { width: 1280, height: 1600 },
 		ignoreHTTPSErrors: true,

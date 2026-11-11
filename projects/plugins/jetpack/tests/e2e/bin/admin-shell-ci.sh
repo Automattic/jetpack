@@ -10,7 +10,9 @@ WP=( pnpm jetpack docker --type e2e --name t1 wp -- )
 
 ADMIN_SHELL_USER=$( node -p 'require( "./config/local.cjs" ).testSites.default.username' ) || exit 1
 ADMIN_SHELL_PASSWORD=$( node -p 'require( "./config/local.cjs" ).testSites.default.password' ) || exit 1
-export ADMIN_SHELL_URL=http://localhost:8889 ADMIN_SHELL_USER ADMIN_SHELL_PASSWORD
+export ADMIN_SHELL_USER ADMIN_SHELL_PASSWORD
+# The shell-off run points ADMIN_SHELL_OFF_URL at the same site; this matches the config's default.
+SITE_URL=${ADMIN_SHELL_URL:-http://localhost:8889}
 
 playwright install --with-deps chromium firefox webkit || exit 1
 
@@ -26,7 +28,7 @@ echo "::endgroup::"
 
 echo "::group::Shell off"
 "${WP[@]}" plugin deactivate e2e-admin-shell || exit 1
-ADMIN_SHELL_RUN=shell-off ADMIN_SHELL_OFF_URL="$ADMIN_SHELL_URL" \
+ADMIN_SHELL_RUN=shell-off ADMIN_SHELL_OFF_URL="$SITE_URL" \
 	ADMIN_SHELL_OFF_USER="$ADMIN_SHELL_USER" ADMIN_SHELL_OFF_PASSWORD="$ADMIN_SHELL_PASSWORD" \
 	playwright test -c playwright.admin-shell.config.ts --project='shell off: *' "$@" || STATUS=1
 echo "::endgroup::"
