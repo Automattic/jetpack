@@ -354,7 +354,9 @@ jobs:
         env:
           ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
-        run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
+        run: |
+          mkdir build
+          tar --xz -k -xvvf "$ARTIFACT_FILENAME" build
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -448,7 +450,9 @@ jobs:
         env:
           ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
-        run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
+        run: |
+          mkdir build
+          tar --xz -k -xvvf "$ARTIFACT_FILENAME" build
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
