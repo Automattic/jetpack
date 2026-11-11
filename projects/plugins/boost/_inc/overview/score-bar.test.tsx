@@ -19,9 +19,8 @@ test( 'shows the shared grade, device scores and baseline-relative compact badge
 	const bar = within( screen.getByTestId( 'score-bar' ) );
 	expect( bar.getByText( 'C' ) ).toBeVisible();
 	expect( bar.getByText( 'Good' ) ).toBeVisible();
-	const [ desktop, mobile ] = bar.getAllByRole( 'meter', { hidden: true } );
-	expect( desktop ).toHaveValue( 80 );
-	expect( mobile ).toHaveValue( 68 );
+	expect( bar.getByRole( 'meter', { name: 'Desktop', hidden: true } ) ).toHaveValue( 80 );
+	expect( bar.getByRole( 'meter', { name: 'Mobile', hidden: true } ) ).toHaveValue( 68 );
 	expect( bar.getByText( '+10' ) ).toBeVisible();
 	expect( bar.getByText( '0' ) ).toBeVisible();
 } );

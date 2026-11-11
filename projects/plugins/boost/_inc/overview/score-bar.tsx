@@ -94,7 +94,15 @@ export default function ScoreBar( {
 									className="jetpack-boost-overview__score-icon"
 								/>
 								<Text variant="heading-md">{ score }</Text>
-								<Meter.Root className="jetpack-boost-score-bar__meter" value={ score }>
+								<Meter.Root
+									className="jetpack-boost-score-bar__meter"
+									value={ score }
+									aria-label={
+										device === 'desktop'
+											? __( 'Desktop', 'jetpack-boost' )
+											: __( 'Mobile', 'jetpack-boost' )
+									}
+								>
 									<Meter.Track>
 										<Meter.Indicator className={ `jetpack-boost-overview__progress--${ tier }` } />
 									</Meter.Track>
