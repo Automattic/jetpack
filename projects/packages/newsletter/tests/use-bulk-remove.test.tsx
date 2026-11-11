@@ -142,6 +142,24 @@ describe( 'useStartBulkRemoveMutation', () => {
 
 		expect( queryClient.getQueryData( BULK_REMOVE_QUERY_KEY ) ).toMatchObject( { id: 9 } );
 	} );
+
+	it( 'fetches the running removal when the refusal does not include it', async () => {
+		mockStartBulkRemove.mockRejectedValue( {
+			code: 'bulk_remove_in_progress',
+			data: { status: 409 },
+		} );
+		const { queryClient, wrapper } = setup();
+		const invalidateSpy = jest.spyOn( queryClient, 'invalidateQueries' );
+		const { result } = renderHook( () => useStartBulkRemoveMutation(), { wrapper } );
+
+		await act( async () => {
+			await result.current
+				.mutateAsync( { scope: 'all', filters: [], search: '', expectedCount: 1 } )
+				.catch( () => undefined );
+		} );
+
+		expect( invalidateSpy ).toHaveBeenCalledWith( { queryKey: BULK_REMOVE_QUERY_KEY } );
+	} );
 } );
 
 describe( 'useBulkRemoveStatus', () => {
@@ -149,7 +167,8 @@ describe( 'useBulkRemoveStatus', () => {
 		mockFetchBulkRemoveStatus.mockResolvedValue( { job: buildJob() } );
 		const { queryClient, wrapper } = setup();
 		const invalidateSpy = jest.spyOn( queryClient, 'invalidateQueries' );
-		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+		const onFinished = jest.fn();
+		const { result } = renderHook( () => useBulkRemoveStatus( true, onFinished ), { wrapper } );
 
 		await waitFor( () => expect( result.current.isActive ).toBe( true ) );
 		expect( invalidateSpy ).not.toHaveBeenCalled();
@@ -163,6 +182,11 @@ describe( 'useBulkRemoveStatus', () => {
 
 		await waitFor( () =>
 			expect( invalidateSpy ).toHaveBeenCalledWith( { queryKey: [ 'subscribers' ] } )
+		);
+		expect( invalidateSpy ).toHaveBeenCalledWith( { queryKey: [ 'subscriber-details' ] } );
+		expect( onFinished ).toHaveBeenCalledTimes( 1 );
+		expect( onFinished ).toHaveBeenCalledWith(
+			expect.objectContaining( { id: 7, status: 'done' } )
 		);
 		expect( mockRecordTracksEvent ).toHaveBeenCalledWith(
 			'jetpack_subscribers_bulk_remove_finished',

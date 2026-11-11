@@ -3,6 +3,7 @@ import {
 	describeNarrowing,
 	describeScope,
 	isNarrowed,
+	isPageSelected,
 	normalizeTypedCount,
 } from '../_inc/subscribers/lib/bulk-remove-scope';
 
@@ -42,6 +43,12 @@ describe( 'bulk remove scope helpers', () => {
 		expect( isNarrowed( [], '   ' ) ).toBe( false );
 		expect( isNarrowed( [ 'paid' ], '' ) ).toBe( true );
 		expect( isNarrowed( [ 'all' ], 'x' ) ).toBe( true );
+	} );
+
+	it( 'counts the page as selected only when every row on it is', () => {
+		expect( isPageSelected( [ 'a', 'b' ], [ 'b', 'a', 'x' ] ) ).toBe( true );
+		expect( isPageSelected( [ 'a', 'b', 'c' ], [ 'a', 'b' ] ) ).toBe( false );
+		expect( isPageSelected( [], [ 'a' ] ) ).toBe( false );
 	} );
 
 	it( 'drops thousands separators from the typed count', () => {

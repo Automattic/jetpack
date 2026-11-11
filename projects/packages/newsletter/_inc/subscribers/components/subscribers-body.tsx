@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
+import { Notice } from '@wordpress/ui';
 import { useBulkRemoveStatus } from '../data/use-bulk-remove';
 import { useImportCompletionRefresh } from '../data/use-import-completion-refresh';
 import { useNewsletterCategories } from '../data/use-newsletter-categories';
@@ -12,7 +13,7 @@ import HeaderActions from './header-actions';
 import AddSubscribersModal from './modals/add-subscribers-modal';
 import BulkRemoveModal from './modals/bulk-remove-modal';
 import SubscribersDataViews from './subscribers-data-views';
-import type { Subscriber, SubscribersExportQuery } from '../data/types';
+import type { BulkRemoveJob, Subscriber, SubscribersExportQuery } from '../data/types';
 import type { BulkRemoveScope } from '../data/use-bulk-remove';
 import type { JSX, ReactNode } from 'react';
 
@@ -80,11 +81,6 @@ export default function SubscribersBody( {
 		sort: 'date_subscribed',
 		sortOrder: 'desc',
 	} );
-
-	// The site's running or latest bulk removal. Polled while it runs, so the progress notice and
-	// the disabled remove buttons survive leaving the page and coming back.
-	const { job: bulkRemoveJob, isActive: isBulkRemoveRunning } =
-		useBulkRemoveStatus( importRefreshEnabled );
 
 	const [ bulkRemoveScope, setBulkRemoveScope ] = useState< BulkRemoveScope | null >( null );
 	const closeBulkRemove = useCallback( () => setBulkRemoveScope( null ), [] );
@@ -155,12 +151,40 @@ export default function SubscribersBody( {
 		[ navigate, search ]
 	);
 
+	// A bulk job does not report who it removed, so close the inspector after any job that removed
+	// someone rather than leave it showing a subscriber who may be gone.
+	const handleBulkRemoveFinished = useCallback(
+		( job: BulkRemoveJob ) => {
+			if ( ! job.removed || ( ! search.subscriber && ! search.u ) ) {
+				return;
+			}
+			navigate( {
+				search: {
+					...search,
+					subscriber: undefined,
+					u: undefined,
+				},
+			} as unknown as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate, search ]
+	);
+
+	// The site's running or latest bulk removal. Polled while it runs, so the progress notice and
+	// the disabled remove buttons survive leaving the page and coming back.
+	const { job: bulkRemoveJob, isActive: isBulkRemoveRunning } = useBulkRemoveStatus(
+		importRefreshEnabled,
+		handleBulkRemoveFinished
+	);
+
 	const openRemoveAll = useCallback( () => setBulkRemoveScope( 'all' ), [] );
 	const openRemoveMatching = useCallback( () => setBulkRemoveScope( 'matching' ), [] );
 
 	const body = (
 		<>
-			<BulkRemoveNotice job={ bulkRemoveJob ?? null } />
+			{ /* Always mounted, so screen readers hear the notice appear and change. */ }
+			<Notice.List>
+				<BulkRemoveNotice job={ bulkRemoveJob ?? null } />
+			</Notice.List>
 			<SubscribersDataViews
 				onAddSubscribers={ openAdd }
 				onViewSubscriber={ handleViewSubscriber }

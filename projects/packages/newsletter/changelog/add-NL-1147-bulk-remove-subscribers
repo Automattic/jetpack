@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Subscribers: add Remove all subscribers, and Select all matching subscribers, which remove the list in the background with a backup first.
+Subscribers: Add Remove all and Remove matching, which remove subscribers in the background after saving a backup.

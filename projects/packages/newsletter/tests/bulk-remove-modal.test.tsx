@@ -72,7 +72,9 @@ describe( 'BulkRemoveModal', () => {
 
 		expect( screen.getByText( 'Remove all 15,000 subscribers?' ) ).toBeInTheDocument();
 		expect(
-			screen.getByText( /12 paid subscriptions will be cancelled/, { exact: false } )
+			screen.getByText( /12 paid subscribers will have their subscriptions cancelled/, {
+				exact: false,
+			} )
 		).toBeInTheDocument();
 		expect(
 			screen.getByText( /This can’t be undone, and we can’t bring them back for you\./ )
@@ -138,6 +140,18 @@ describe( 'BulkRemoveModal', () => {
 			screen.getByRole( 'button', { name: 'Remove only the 1,200 matching subscribers instead' } )
 		);
 		expect( onChangeScope ).toHaveBeenCalledWith( 'matching' );
+	} );
+
+	it( 'keeps the CSV button in place after a download, so focus is not lost', () => {
+		const open = jest.spyOn( window, 'open' ).mockImplementation( () => null );
+		renderModal();
+
+		const button = screen.getByRole( 'button', { name: 'download all your subscribers as a CSV' } );
+		fireEvent.click( button );
+
+		expect( open ).toHaveBeenCalled();
+		expect( screen.getByRole( 'button', { name: 'Download it again' } ) ).toBe( button );
+		open.mockRestore();
 	} );
 
 	it( 'asks again when the list changed since the dialog opened', async () => {

@@ -24,12 +24,14 @@ export function isBulkRemoveActive( job: BulkRemoveJob | null | undefined ): boo
 /**
  * The current bulk removal, polled every 5 seconds while it runs. On load this picks up a
  * removal started earlier (or in another tab), so the progress notice comes back after a reload.
- * When a running job finishes, the subscriber list is refetched and `_finished` is recorded.
+ * When a running job finishes, the subscriber list and details are refetched and `_finished` is
+ * recorded.
  *
- * @param enabled - Whether to fetch at all (false off the Subscribers tab).
+ * @param enabled    - Whether to fetch at all (false off the Subscribers tab).
+ * @param onFinished - Called once when a job this screen saw running finishes.
  * @return The job (null when the site has none) and whether it is still running.
  */
-export function useBulkRemoveStatus( enabled = true ) {
+export function useBulkRemoveStatus( enabled = true, onFinished?: ( job: BulkRemoveJob ) => void ) {
 	const queryClient = useQueryClient();
 	const query = useQuery( {
 		queryKey: BULK_REMOVE_QUERY_KEY,
@@ -44,6 +46,10 @@ export function useBulkRemoveStatus( enabled = true ) {
 	// Remember which job we saw running, so the finish is handled once, and not for a job that
 	// was already done when the page loaded.
 	const watched = useRef< number | null >( null );
+	const onFinishedRef = useRef( onFinished );
+	useEffect( () => {
+		onFinishedRef.current = onFinished;
+	}, [ onFinished ] );
 	useEffect( () => {
 		if ( ! job ) {
 			return;
@@ -55,6 +61,8 @@ export function useBulkRemoveStatus( enabled = true ) {
 		if ( watched.current === job.id ) {
 			watched.current = null;
 			queryClient.invalidateQueries( { queryKey: [ 'subscribers' ] } );
+			queryClient.invalidateQueries( { queryKey: [ 'subscriber-details' ] } );
+			onFinishedRef.current?.( job );
 			recordTracksEvent( 'jetpack_subscribers_bulk_remove_finished', {
 				job_id: job.id,
 				status: job.status,
@@ -96,13 +104,21 @@ export function useStartBulkRemoveMutation() {
 			} );
 			return response.job ?? null;
 		},
-		onSuccess: job => {
+		onSuccess: async job => {
+			// A status response already in flight is older than this job, so it must not land after it.
+			await queryClient.cancelQueries( { queryKey: BULK_REMOVE_QUERY_KEY } );
 			queryClient.setQueryData( BULK_REMOVE_QUERY_KEY, job );
 		},
-		onError: error => {
-			// Another removal is running: show it.
-			if ( error?.code === 'bulk_remove_in_progress' && error.data?.job ) {
+		onError: async error => {
+			if ( error?.code !== 'bulk_remove_in_progress' ) {
+				return;
+			}
+			// Another removal is running: show it, or fetch it when the error does not carry it.
+			if ( error.data?.job ) {
+				await queryClient.cancelQueries( { queryKey: BULK_REMOVE_QUERY_KEY } );
 				queryClient.setQueryData( BULK_REMOVE_QUERY_KEY, error.data.job );
+			} else {
+				queryClient.invalidateQueries( { queryKey: BULK_REMOVE_QUERY_KEY } );
 			}
 		},
 	} );

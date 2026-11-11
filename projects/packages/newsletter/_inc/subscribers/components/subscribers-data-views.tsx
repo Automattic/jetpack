@@ -6,7 +6,7 @@ import { useMembershipsProducts } from '../data/use-memberships-products';
 import { useSendBounceConfirmationMutation } from '../data/use-send-bounce-confirmation-mutation';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
-import { isNarrowed } from '../lib/bulk-remove-scope';
+import { isNarrowed, isPageSelected } from '../lib/bulk-remove-scope';
 import { canCompSubscriber } from '../lib/comp-eligibility';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
@@ -127,6 +127,8 @@ export default function SubscribersDataViews( {
 	const narrowed = isNarrowed( apiFilters, queryParams.search );
 
 	const { data, isLoading, isPlaceholderData, error } = useSubscribers( queryParams );
+	const subscribers = useMemo( () => data?.subscribers ?? [], [ data?.subscribers ] );
+	const pageIds = useMemo( () => subscribers.map( getSubscriberRowId ), [ subscribers ] );
 	const removeMutation = useSubscriberRemoveMutation();
 	const { mutate: sendBounceConfirmation } = useSendBounceConfirmationMutation();
 
@@ -330,7 +332,9 @@ export default function SubscribersDataViews( {
 				label: __( 'Remove subscriber', 'jetpack-newsletter' ),
 				supportsBulk: true,
 				callback: ( items: Subscriber[] ) => {
-					if ( isAllSelected && items.length > 1 ) {
+					// DataViews does not say whether this came from the bulk bar or a row menu, so a
+					// whole-page call while everyone is selected means everyone.
+					if ( isAllSelected && items.length === pageIds.length ) {
 						onRequestBulkRemove( narrowed ? 'matching' : 'all' );
 						return;
 					}
@@ -343,6 +347,7 @@ export default function SubscribersDataViews( {
 			canShowCompAction,
 			sendBounceConfirmation,
 			isAllSelected,
+			pageIds,
 			narrowed,
 			onRequestBulkRemove,
 		]
@@ -381,7 +386,6 @@ export default function SubscribersDataViews( {
 	const handleCloseComp = useCallback( () => setCompTarget( null ), [] );
 	const handleCloseRemoveComp = useCallback( () => setRemoveCompTarget( null ), [] );
 
-	const subscribers = useMemo( () => data?.subscribers ?? [], [ data?.subscribers ] );
 	const totalItems = data?.total ?? 0;
 	const totalPages = data?.pages ?? 0;
 
@@ -414,7 +418,7 @@ export default function SubscribersDataViews( {
 	// "All N selected" only holds while this page stays on screen.
 	useEffect( () => {
 		setAllSelected( false );
-	}, [ view.page, view.perPage ] );
+	}, [ view.page, view.perPage, view.sort?.field, view.sort?.direction ] );
 
 	// Once a bulk removal starts, the rows it covers are on their way out.
 	useEffect( () => {
@@ -424,21 +428,18 @@ export default function SubscribersDataViews( {
 		}
 	}, [ isBulkRemoveRunning ] );
 
-	const pageIds = useMemo( () => subscribers.map( getSubscriberRowId ), [ subscribers ] );
 	const selectedOnPage = useMemo(
 		() => subscribers.filter( item => selection.includes( getSubscriberRowId( item ) ) ),
 		[ subscribers, selection ]
 	);
 
-	const handleChangeSelection = useCallback(
-		( ids: string[] ) => {
-			setSelection( ids );
-			if ( pageIds.some( id => ! ids.includes( id ) ) ) {
-				setAllSelected( false );
-			}
-		},
-		[ pageIds ]
-	);
+	// Rows can change under the selection (a refetch, a single removal), so drop "everyone" as soon
+	// as the page is no longer fully selected.
+	useEffect( () => {
+		if ( ! isPageSelected( pageIds, selection ) ) {
+			setAllSelected( false );
+		}
+	}, [ pageIds, selection ] );
 
 	const clearSelection = useCallback( () => {
 		setSelection( [] );
@@ -499,7 +500,7 @@ export default function SubscribersDataViews( {
 				searchLabel={ __( 'Search subscribers…', 'jetpack-newsletter' ) }
 				actions={ actions }
 				selection={ selection }
-				onChangeSelection={ handleChangeSelection }
+				onChangeSelection={ setSelection }
 				onClickItem={ handleClickItem }
 				empty={
 					<EmptyState

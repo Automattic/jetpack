@@ -1,4 +1,4 @@
 Significance: minor
-Type: other
+Type: enhancement
 
-Subscribers: add proxy routes for starting a bulk subscriber removal and reading its status.
+Newsletter: Add Remove all and Remove matching to the Subscribers screen, which remove subscribers in the background after saving a backup.

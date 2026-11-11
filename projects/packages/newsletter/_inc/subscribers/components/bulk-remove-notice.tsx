@@ -68,33 +68,53 @@ export default function BulkRemoveNotice( { job }: Props ): JSX.Element | null {
 	const total = job.total;
 
 	if ( isBulkRemoveActive( job ) ) {
-		const label = matching
-			? sprintf(
-					// translators: %s: number of subscribers.
-					_n(
-						'Removing %s matching subscriber. This can take a few minutes, and you can leave this page.',
-						'Removing %s matching subscribers. This can take a few minutes, and you can leave this page.',
-						total,
+		// `total` stays 0 until the backup is written. Removing everyone removes the whole list, so
+		// its size from before can stand in; a filtered removal has no count until then.
+		const expected = total || ( matching ? 0 : ( job.counts_before?.total ?? 0 ) );
+		let label: string;
+		if ( ! expected ) {
+			label = matching
+				? __(
+						'Removing matching subscribers. This can take a few minutes, and you can leave this page.',
 						'jetpack-newsletter'
-					),
-					formatNumber( total )
-				)
-			: sprintf(
-					// translators: %s: number of subscribers.
-					_n(
-						'Removing %s subscriber. This can take a few minutes, and you can leave this page.',
-						'Removing %s subscribers. This can take a few minutes, and you can leave this page.',
-						total,
+					)
+				: __(
+						'Removing subscribers. This can take a few minutes, and you can leave this page.',
 						'jetpack-newsletter'
-					),
-					formatNumber( total )
-				);
+					);
+		} else {
+			label = matching
+				? sprintf(
+						// translators: %s: number of subscribers.
+						_n(
+							'Removing %s matching subscriber. This can take a few minutes, and you can leave this page.',
+							'Removing %s matching subscribers. This can take a few minutes, and you can leave this page.',
+							expected,
+							'jetpack-newsletter'
+						),
+						formatNumber( expected )
+					)
+				: sprintf(
+						// translators: %s: number of subscribers.
+						_n(
+							'Removing %s subscriber. This can take a few minutes, and you can leave this page.',
+							'Removing %s subscribers. This can take a few minutes, and you can leave this page.',
+							expected,
+							'jetpack-newsletter'
+						),
+						formatNumber( expected )
+					);
+		}
 		const processed = Math.min( job.processed, total );
 		return (
 			<Notice.Root intent="info" className="jetpack-newsletter__bulk-remove-notice">
 				<Stack direction="column" gap="sm">
 					<Notice.Description>{ label }</Notice.Description>
-					<Progress.Root value={ total ? processed : null } max={ total || 1 }>
+					<Progress.Root
+						value={ total ? processed : null }
+						max={ total || 1 }
+						aria-label={ __( 'Subscriber removal progress', 'jetpack-newsletter' ) }
+					>
 						<Progress.Track>
 							<Progress.Indicator />
 						</Progress.Track>
@@ -170,7 +190,12 @@ export default function BulkRemoveNotice( { job }: Props ): JSX.Element | null {
 	// Failed, stopped, or stalled with no progress for an hour.
 	const stoppedLine = sprintf(
 		// translators: %1$s: subscribers removed. %2$s: total the removal meant to remove.
-		__( 'The removal stopped after removing %1$s of %2$s subscribers.', 'jetpack-newsletter' ),
+		_n(
+			'The removal stopped after removing %1$s of %2$s subscriber.',
+			'The removal stopped after removing %1$s of %2$s subscribers.',
+			total,
+			'jetpack-newsletter'
+		),
 		formatNumber( job.removed ),
 		formatNumber( total )
 	);

@@ -1,7 +1,8 @@
 import { formatNumber } from '@automattic/number-formatters';
+import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import type { JSX } from 'react';
+import type { JSX, MouseEvent } from 'react';
 
 type Props = {
 	pageCount: number;
@@ -48,6 +49,20 @@ export default function SelectionBanner( {
 	onRemoveAll,
 	onClear,
 }: Props ): JSX.Element | null {
+	// Clearing removes this banner, so focus moves to the table's select-all checkbox.
+	const handleClear = useCallback(
+		( event: MouseEvent< HTMLElement > ) => {
+			const checkbox = event.currentTarget
+				.closest( '.dataviews-wrapper' )
+				?.querySelector< HTMLElement >(
+					'thead .dataviews-view-table__checkbox-column [role="checkbox"]'
+				);
+			onClear();
+			checkbox?.focus();
+		},
+		[ onClear ]
+	);
+
 	if ( pageCount === 0 || selectedCount < pageCount ) {
 		return null;
 	}
@@ -62,8 +77,10 @@ export default function SelectionBanner( {
 					{ narrowed
 						? sprintf(
 								// translators: %1$s: number of subscribers. %2$s: number of pages.
-								__(
+								_n(
+									'All %1$s matching subscriber is selected, across all %2$s pages.',
 									'All %1$s matching subscribers are selected, across all %2$s pages.',
+									matchingCount,
 									'jetpack-newsletter'
 								),
 								n,
@@ -71,8 +88,10 @@ export default function SelectionBanner( {
 							)
 						: sprintf(
 								// translators: %1$s: number of subscribers. %2$s: number of pages.
-								__(
+								_n(
+									'All %1$s subscriber is selected, across all %2$s pages.',
 									'All %1$s subscribers are selected, across all %2$s pages.',
+									matchingCount,
 									'jetpack-newsletter'
 								),
 								n,
@@ -92,7 +111,7 @@ export default function SelectionBanner( {
 							n
 						) }
 					</Notice.ActionButton>
-					<Notice.ActionButton variant="minimal" onClick={ onClear }>
+					<Notice.ActionButton variant="minimal" onClick={ handleClear }>
 						{ __( 'Clear selection', 'jetpack-newsletter' ) }
 					</Notice.ActionButton>
 				</Notice.Actions>
@@ -129,7 +148,7 @@ export default function SelectionBanner( {
 							k
 						) }
 					</Notice.ActionButton>
-					<Notice.ActionButton variant="minimal" onClick={ onClear }>
+					<Notice.ActionButton variant="minimal" onClick={ handleClear }>
 						{ __( 'Clear selection', 'jetpack-newsletter' ) }
 					</Notice.ActionButton>
 				</Notice.Actions>
@@ -142,7 +161,12 @@ export default function SelectionBanner( {
 			<Notice.Description>
 				{ sprintf(
 					// translators: %s: number of subscribers on this page.
-					__( 'All %s subscribers on this page are selected.', 'jetpack-newsletter' ),
+					_n(
+						'%s subscriber on this page is selected.',
+						'All %s subscribers on this page are selected.',
+						pageCount,
+						'jetpack-newsletter'
+					),
 					k
 				) }
 			</Notice.Description>
@@ -151,19 +175,29 @@ export default function SelectionBanner( {
 					{ narrowed
 						? sprintf(
 								// translators: %s: number of subscribers.
-								__( 'Select all %s matching subscribers', 'jetpack-newsletter' ),
+								_n(
+									'Select %s matching subscriber',
+									'Select all %s matching subscribers',
+									matchingCount,
+									'jetpack-newsletter'
+								),
 								n
 							)
 						: sprintf(
 								// translators: %s: number of subscribers.
-								__( 'Select all %s subscribers', 'jetpack-newsletter' ),
+								_n(
+									'Select %s subscriber',
+									'Select all %s subscribers',
+									matchingCount,
+									'jetpack-newsletter'
+								),
 								n
 							) }
 				</Notice.ActionButton>
 				<Notice.ActionButton onClick={ onRemovePage } disabled={ disabled }>
 					{ sprintf(
 						// translators: %s: number of subscribers on this page.
-						__( 'Remove these %s', 'jetpack-newsletter' ),
+						_n( 'Remove this %s', 'Remove these %s', pageCount, 'jetpack-newsletter' ),
 						k
 					) }
 				</Notice.ActionButton>

@@ -61,6 +61,28 @@ describe( 'SelectionBanner', () => {
 		expect( baseProps.onClear ).toHaveBeenCalled();
 	} );
 
+	it( 'moves focus to the select-all checkbox when the selection is cleared', () => {
+		render(
+			<div className="dataviews-wrapper">
+				<table>
+					<thead>
+						<tr>
+							<th className="dataviews-view-table__checkbox-column">
+								<span role="checkbox" aria-checked="true" tabIndex={ 0 } />
+							</th>
+						</tr>
+					</thead>
+				</table>
+				<SelectionBanner { ...baseProps } isAllSelected />
+			</div>
+		);
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Clear selection' } ) );
+
+		expect( baseProps.onClear ).toHaveBeenCalled();
+		expect( screen.getByRole( 'checkbox' ) ).toHaveFocus();
+	} );
+
 	it( 'skips "select all" when everyone already fits on the page', () => {
 		render(
 			<SelectionBanner { ...baseProps } pageCount={ 8 } selectedCount={ 8 } matchingCount={ 8 } />

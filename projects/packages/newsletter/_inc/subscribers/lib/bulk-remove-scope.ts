@@ -97,6 +97,17 @@ export function isNarrowed(
 }
 
 /**
+ * Whether every row on the page is selected, which "Select all N" depends on.
+ *
+ * @param pageIds   - Row ids on this page.
+ * @param selection - Selected row ids.
+ * @return True when the page has rows and all of them are selected.
+ */
+export function isPageSelected( pageIds: string[], selection: string[] ): boolean {
+	return pageIds.length > 0 && pageIds.every( id => selection.includes( id ) );
+}
+
+/**
  * Normalize what the user typed in "Type N to confirm": commas, spaces and periods (thousands
  * separators) are dropped.
  *

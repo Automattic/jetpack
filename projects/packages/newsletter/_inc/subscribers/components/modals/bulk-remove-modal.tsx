@@ -1,5 +1,5 @@
 import { formatNumber } from '@automattic/number-formatters';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { AlertDialog, Button, InputControl, Notice, Stack, Text } from '@wordpress/ui';
 import { useBulkRemoveCounts, useStartBulkRemoveMutation } from '../../data/use-bulk-remove';
@@ -28,8 +28,8 @@ type Props = {
 /**
  * Confirm dialog for removing every subscriber, or every one matching the table's search and
  * filters, through the WP.com background job. It counts the subscribers fresh, says which
- * subscribers go and how many paid subscriptions get cancelled, offers the CSV first, and asks for
- * the count to be typed.
+ * subscribers go and how many of them are paid subscribers whose subscriptions get cancelled,
+ * offers the CSV first, and asks for the count to be typed.
  *
  * @param props               - Component props.
  * @param props.scope         - `all`, `matching`, or null when closed.
@@ -97,7 +97,19 @@ export default function BulkRemoveModal( {
 		setCsvDownloaded( true );
 	}, [ csvUrl, csvQuery.filters, csvQuery.search ] );
 
-	const switchToMatching = useCallback( () => onChangeScope( 'matching' ), [ onChangeScope ] );
+	// The switch button goes away with the warning, so focus moves to the confirm field instead.
+	const inputRef = useRef< HTMLInputElement >( null );
+	const focusInput = useRef( false );
+	const switchToMatching = useCallback( () => {
+		focusInput.current = true;
+		onChangeScope( 'matching' );
+	}, [ onChangeScope ] );
+	useEffect( () => {
+		if ( focusInput.current && ! isAll && counts.data ) {
+			focusInput.current = false;
+			inputRef.current?.focus();
+		}
+	}, [ isAll, counts.data ] );
 
 	const handleOpenChange = useCallback(
 		( nextOpen: boolean ) => {
@@ -160,8 +172,10 @@ export default function BulkRemoveModal( {
 					close: false,
 					error: sprintf(
 						// translators: %s: the new number of subscribers.
-						__(
+						_n(
+							'Your list changed while this was open. It now has %s subscriber to remove. Check the number and type it again.',
 							'Your list changed while this was open. It now has %s subscribers to remove. Check the number and type it again.',
+							error.data?.count ?? 0,
 							'jetpack-newsletter'
 						),
 						formatNumber( error.data?.count ?? 0 )
@@ -208,10 +222,10 @@ export default function BulkRemoveModal( {
 
 	const consequence = paid
 		? sprintf(
-				// translators: %s: number of paid subscriptions.
+				// translators: %s: number of paid subscribers.
 				_n(
-					'They’ll be unsubscribed from your site, and %s paid subscription will be cancelled.',
-					'They’ll be unsubscribed from your site, and %s paid subscriptions will be cancelled.',
+					'They’ll be unsubscribed from your site, and %s paid subscriber will have their subscription cancelled.',
+					'They’ll be unsubscribed from your site, and %s paid subscribers will have their subscriptions cancelled.',
 					paid,
 					'jetpack-newsletter'
 				),
@@ -220,6 +234,22 @@ export default function BulkRemoveModal( {
 		: __( 'They’ll be unsubscribed from your site.', 'jetpack-newsletter' );
 
 	const remaining = Math.max( 0, listTotal - total );
+
+	let csvButtonText: string = __( 'download all your subscribers as a CSV', 'jetpack-newsletter' );
+	if ( csvDownloaded ) {
+		csvButtonText = __( 'Download it again', 'jetpack-newsletter' );
+	} else if ( ! isAll ) {
+		csvButtonText = sprintf(
+			// translators: %s: number of subscribers.
+			_n(
+				'download this %s subscriber as a CSV',
+				'download these %s subscribers as a CSV',
+				total,
+				'jetpack-newsletter'
+			),
+			formatNumber( total )
+		);
+	}
 
 	return (
 		<AlertDialog.Root open onOpenChange={ handleOpenChange } onConfirm={ handleConfirm }>
@@ -255,8 +285,10 @@ export default function BulkRemoveModal( {
 								<Notice.Description>
 									{ sprintf(
 										// translators: %1$s: number of matching subscribers. %2$s: "search", "filter" or "search and filter".
-										__(
+										_n(
+											'This removes everyone on your list, not only the %1$s that matches your %2$s.',
 											'This removes everyone on your list, not only the %1$s that match your %2$s.',
+											matchingTotal,
 											'jetpack-newsletter'
 										),
 										formatNumber( matchingTotal ),
@@ -265,7 +297,12 @@ export default function BulkRemoveModal( {
 									<Button variant="minimal" size="compact" onClick={ switchToMatching }>
 										{ sprintf(
 											// translators: %s: number of matching subscribers.
-											__( 'Remove only the %s matching subscribers instead', 'jetpack-newsletter' ),
+											_n(
+												'Remove only the %s matching subscriber instead',
+												'Remove only the %s matching subscribers instead',
+												matchingTotal,
+												'jetpack-newsletter'
+											),
 											formatNumber( matchingTotal )
 										) }
 									</Button>
@@ -319,32 +356,23 @@ export default function BulkRemoveModal( {
 								'jetpack-newsletter'
 							) }
 						</Text>
+						{ /* The button keeps its place after a download, so focus stays on it. */ }
 						<Text variant="body-md">
-							{ csvDownloaded ? (
-								__(
-									'CSV downloaded. Keep it if you might want this list later.',
-									'jetpack-newsletter'
-								)
-							) : (
-								<>
-									{ __( 'Before you continue,', 'jetpack-newsletter' ) }{ ' ' }
-									<Button
-										variant="minimal"
-										size="compact"
-										onClick={ handleDownload }
-										disabled={ ! csvUrl }
-									>
-										{ isAll
-											? __( 'download all your subscribers as a CSV', 'jetpack-newsletter' )
-											: sprintf(
-													// translators: %s: number of subscribers.
-													__( 'download these %s subscribers as a CSV', 'jetpack-newsletter' ),
-													formatNumber( total )
-												) }
-									</Button>{ ' ' }
-									{ __( 'so you have a copy.', 'jetpack-newsletter' ) }
-								</>
-							) }
+							{ csvDownloaded
+								? __(
+										'CSV downloaded. Keep it if you might want this list later.',
+										'jetpack-newsletter'
+									)
+								: __( 'Before you continue,', 'jetpack-newsletter' ) }{ ' ' }
+							<Button
+								variant="minimal"
+								size="compact"
+								onClick={ handleDownload }
+								disabled={ ! csvUrl }
+							>
+								{ csvButtonText }
+							</Button>
+							{ csvDownloaded ? null : ' ' + __( 'so you have a copy.', 'jetpack-newsletter' ) }
 						</Text>
 						<InputControl
 							label={ sprintf(
@@ -352,6 +380,7 @@ export default function BulkRemoveModal( {
 								__( 'Type %s to confirm', 'jetpack-newsletter' ),
 								String( total )
 							) }
+							ref={ inputRef }
 							value={ typed }
 							onValueChange={ setTyped }
 							autoComplete="off"
