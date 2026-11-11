@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Premium Analytics: Serve the author page from /report/author/<id>, opening on All time like the post and video pages; the old /author/<id> address redirects.
