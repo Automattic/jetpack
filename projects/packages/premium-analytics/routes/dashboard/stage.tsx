@@ -1,5 +1,6 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import {
+	DASHBOARD_PREFERENCES_SCOPE,
 	isPlanDateLimitedSection,
 	PeriodChangeSignalProvider,
 	queryClient,
@@ -114,6 +115,13 @@ function Dashboard(): JSX.Element {
 		widgetTypeRenames
 	);
 	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+	const arrangeableTabs = useMemo(
+		() => ( {
+			scope: DASHBOARD_PREFERENCES_SCOPE,
+			items: sections.map( ( { slug, label } ) => ( { slug, label } ) ),
+		} ),
+		[ sections ]
+	);
 
 	// The inserter offers the active section's default layout types plus those it declares insertable.
 	const insertableWidgetTypes = useMemo(
@@ -505,6 +513,7 @@ function Dashboard(): JSX.Element {
 													onCustomize={
 														editMode || ! canCustomizeSection ? undefined : startCustomizing
 													}
+													tabs={ arrangeableTabs }
 												/>
 											</DashboardSectionProvider>
 										</Stack>

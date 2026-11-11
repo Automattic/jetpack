@@ -4,7 +4,14 @@
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { Icon, IconButton, Menu } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { cancelCircleFilled, cog, comment, moreVertical, pencil } from '@wordpress/icons';
+import {
+	cancelCircleFilled,
+	chevronUpDown,
+	cog,
+	comment,
+	moreVertical,
+	pencil,
+} from '@wordpress/icons';
 import { Link as RouteLink, useLinkProps } from '@wordpress/route';
 import { useCallback, useState } from 'react';
 /**
@@ -12,6 +19,7 @@ import { useCallback, useState } from 'react';
  */
 import { useReportNavigationSearch } from '../../hooks/use-report-navigation-search';
 import { useTrackEvent } from '../../hooks/use-track-event';
+import { ArrangeTabsDialog, type ArrangeableTabs } from './arrange-tabs-dialog';
 import { canSendFeedback } from './can-send-feedback';
 import { getClassicStatsUrl } from './classic-stats-url';
 import { FeedbackModal } from './feedback-modal';
@@ -61,25 +69,34 @@ function SettingsMenuItem() {
 }
 
 type PageOptionsMenuProps = {
-	/** Enters customize mode; Customize is on offer only when given. */
+	/*
+	 * Enters customize mode; Customize is on offer only when given.
+	 */
 	onCustomize?: () => void;
+
+	/*
+	 * The page's tabs, for the reader to arrange; on offer only with two or more.
+	 */
+	tabs?: ArrangeableTabs;
 };
 
 /**
- * The page options menu of a Premium Analytics page: arranging the layout, where
- * the page has one, the Settings page and, apart from them, feedback and the way
- * back to classic Stats. After the configurations design (WOOA7S-2055) less its
- * Usage entry.
+ * The page options menu of a Premium Analytics page: arranging the layout and the
+ * tabs, where the page has them, the Settings page and, apart from them, feedback
+ * and the way back to classic Stats. After the configurations design (WOOA7S-2055)
+ * less its Usage entry.
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2098).
  *
  * @param {PageOptionsMenuProps} props - The component props.
  * @return The menu, and whichever of its dialogs is open.
  */
-export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
+export function PageOptionsMenu( { onCustomize, tabs }: PageOptionsMenuProps ) {
 	const trackEvent = useTrackEvent();
 	const [ isFeedbackOpen, setIsFeedbackOpen ] = useState( false );
 	const [ isSwitchOffOpen, setIsSwitchOffOpen ] = useState( false );
+	const [ isArrangingTabs, setIsArrangingTabs ] = useState( false );
+	const canArrangeTabs = !! tabs && tabs.items.length > 1;
 
 	// The opt-in is a site setting, so switching it off takes the same capability; and it
 	// sends the reader to classic Stats, so there has to be one.
@@ -96,8 +113,10 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 	const closeFeedback = useCallback( () => setIsFeedbackOpen( false ), [] );
 	const openSwitchOff = useCallback( () => setIsSwitchOffOpen( true ), [] );
 	const closeSwitchOff = useCallback( () => setIsSwitchOffOpen( false ), [] );
+	const openArrangeTabs = useCallback( () => setIsArrangingTabs( true ), [] );
+	const closeArrangeTabs = useCallback( () => setIsArrangingTabs( false ), [] );
 
-	if ( ! onCustomize && ! hasSettings && ! canGiveFeedback && ! canSwitchOff ) {
+	if ( ! onCustomize && ! canArrangeTabs && ! hasSettings && ! canGiveFeedback && ! canSwitchOff ) {
 		return null;
 	}
 
@@ -123,11 +142,17 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 							</Menu.ItemLabel>
 						</Menu.Item>
 					) }
-					{ onCustomize && hasSettings && <Menu.Separator /> }
-					{ hasSettings && <SettingsMenuItem /> }
-					{ ( onCustomize || hasSettings ) && ( canGiveFeedback || canSwitchOff ) && (
-						<Menu.Separator />
+					{ canArrangeTabs && (
+						<Menu.Item prefix={ <Icon icon={ chevronUpDown } /> } onClick={ openArrangeTabs }>
+							<Menu.ItemLabel>
+								{ __( 'Arrange tabs', 'jetpack-premium-analytics-pkg' ) }
+							</Menu.ItemLabel>
+						</Menu.Item>
 					) }
+					{ ( onCustomize || canArrangeTabs ) && hasSettings && <Menu.Separator /> }
+					{ hasSettings && <SettingsMenuItem /> }
+					{ ( onCustomize || canArrangeTabs || hasSettings ) &&
+						( canGiveFeedback || canSwitchOff ) && <Menu.Separator /> }
 					{ canGiveFeedback && (
 						<Menu.Item prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
 							<Menu.ItemLabel>
@@ -146,6 +171,7 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 			</Menu.Root>
 			{ isFeedbackOpen && <FeedbackModal source="menu" onClose={ closeFeedback } /> }
 			{ isSwitchOffOpen && <SwitchOffDialog onClose={ closeSwitchOff } /> }
+			{ isArrangingTabs && tabs && <ArrangeTabsDialog { ...tabs } onClose={ closeArrangeTabs } /> }
 		</>
 	);
 }
