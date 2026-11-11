@@ -247,7 +247,18 @@ class Admin_Shell {
 			return;
 		}
 		// A hash of the file: CDNs cache script URLs by their version for a long time.
-		wp_enqueue_script_module( self::CLIENT_MODULE, plugins_url( 'build/admin-shell.js', __DIR__ ), array(), substr( (string) md5_file( $file ), 0, 12 ) );
+		wp_enqueue_script_module(
+			self::CLIENT_MODULE,
+			plugins_url( 'build/admin-shell.js', __DIR__ ),
+			// Announces switches. Core prints the live regions it speaks into for its dependents.
+			array(
+				array(
+					'id'     => '@wordpress/a11y',
+					'import' => 'dynamic',
+				),
+			),
+			substr( (string) md5_file( $file ), 0, 12 )
+		);
 	}
 
 	/**

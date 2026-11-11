@@ -32,11 +32,6 @@ const FORMS = 'jetpack-forms-responses-wp-admin';
 // Widgets such as My Jetpack's stats cards render well after the heading.
 const AXE_SETTLE_MS = 8000;
 
-const NO_FOCUS = 'Not implemented: a switch leaves focus where it was instead of on the heading.';
-
-// Called right before the failing assertion, so a setup error before it still fails the test.
-const knownGap = ( reason: string ) => test.fail( true, reason );
-
 const back = ( page: Page, slug: string ) =>
 	withinDocument( page, `Back to ${ slug }`, async () => {
 		await page.goBack();
@@ -55,7 +50,7 @@ const openCreateForm = async ( page: Page ) => {
 };
 
 /**
- * Setup the expected-fail tests rely on: still in the shell, `slug` on screen, `other` hidden.
+ * Check a step landed in the shell: `slug` on screen, `other` hidden.
  *
  * @param page  - Page under test.
  * @param slug  - Member that should be shown.
@@ -164,26 +159,10 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		await installA11yProbe( page );
 	} );
 
-	// An expected-fail test stops at its first gap, so these run every step of its setup.
-	// eslint-disable-next-line playwright/expect-expect -- walk() asserts.
-	test( 'setup: the switches and Back stay in the shell', async ( { page } ) => {
-		await walk( page, ROUND_TRIP );
-	} );
-
-	// eslint-disable-next-line playwright/expect-expect -- keyboardPass() asserts.
-	test( 'setup: the keyboard pass reaches the modal and goes Back in the shell', async ( {
-		page,
-	} ) => {
-		await keyboardPass( page );
-	} );
-
-	// One test per step, so a fix that covers only some steps shows up as an unexpected pass.
+	// One test per step, so a failure names the step that lost focus.
 	STEP_NAMES.forEach( ( name, i ) => {
 		test( `focus moves to the shown page’s heading after ${ name }`, async ( { page } ) => {
-			await walkTo( page, i, ( p, slug ) => {
-				knownGap( NO_FOCUS );
-				return expect( mainHeading( p, slug ) ).toBeFocused();
-			} );
+			await walkTo( page, i, ( p, slug ) => expect( mainHeading( p, slug ) ).toBeFocused() );
 		} );
 	} );
 
@@ -206,17 +185,15 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 			await walkTo(
 				page,
 				i,
-				( p, slug ) => {
-					knownGap( 'Not implemented: no live region announces a switch.' );
-					return expect
+				( p, slug ) =>
+					expect
 						.poll( () => announcements( p ), `announcement for ${ slug }` )
 						.toContainEqual(
 							expect.objectContaining( {
 								politeness: 'polite',
 								text: expect.stringContaining( member( slug ).title ),
 							} )
-						);
-				},
+						),
 				resetA11yProbe
 			);
 		} );
@@ -294,7 +271,6 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 	test( 'keyboard: a switch from the sidebar focuses the page', async ( { page } ) => {
 		await keyboardPass( page, {
 			afterSwitch: async () => {
-				knownGap( NO_FOCUS );
 				await expect( mainHeading( page, FORMS ) ).toBeFocused();
 				await page.keyboard.press( 'Tab' );
 				expect( await focusOwner( page ), 'Tab after a switch stays in the page' ).toBe( FORMS );
@@ -307,10 +283,17 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 	} ) => {
 		await keyboardPass( page, {
 			afterBack: async () => {
-				knownGap( 'Shell bug: Back from an open modal leaves the admin wrapper aria-hidden.' );
-				expect( await ariaHiddenAncestors( page, MJ ), 'aria-hidden around the shown app' ).toEqual(
-					[]
-				);
+				// The modal gives the document back once its closing animation ends.
+				await expect
+					.poll( () => ariaHiddenAncestors( page, MJ ), 'aria-hidden around the shown app' )
+					.toEqual( [] );
+				// The probe skips live regions that are aria-hidden when they change.
+				await expect
+					.poll( () => announcements( page ), 'announcement for the page Back showed' )
+					.toContainEqual(
+						expect.objectContaining( { text: expect.stringContaining( member( MJ ).title ) } )
+					);
+				await expect( mainHeading( page, MJ ) ).toBeFocused();
 				await expect( mainHeading( page, MJ ) ).toBeVisible();
 			},
 		} );
