@@ -14,7 +14,7 @@ import { useCallback, useMemo, type KeyboardEvent, type MouseEvent } from 'react
 /**
  * Internal dependencies
  */
-import { MONTHS_IN_YEAR } from '../../helpers/month-key';
+import { MONTHS_IN_YEAR, monthOrder } from '../../helpers/month-key';
 import { useChartName } from '../../hooks/use-chart-name';
 import { CalendarHeatmapTooltip } from '../calendar-heatmap';
 import styles from './monthly-heatmap.module.scss';
@@ -50,6 +50,8 @@ export type MonthlyHeatmapProps = {
 	onSelect?: ( target: MonthlyHeatmapTarget ) => void;
 	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
+	/** Months whose period the data does not fill, hatched and left out of the scale; a target without a `month` is ignored. */
+	partialMonths?: MonthlyHeatmapTarget[];
 };
 
 // Below the floors the grid scrolls rather than crushing its cells; the cap
@@ -73,20 +75,33 @@ export function MonthlyHeatmap( {
 	moreLabel,
 	onSelect,
 	chartTitle,
+	partialMonths,
 }: MonthlyHeatmapProps ) {
 	const chartName = useChartName( chartTitle );
 	const rows = useMemo( () => [ ...givenRows ].sort( ( a, b ) => b.year - a.year ), [ givenRows ] );
 
 	// No per-cell label: the chart names a cell from its column and row.
-	const columns = useMemo< HeatmapColumn[] >(
-		() => [
+	const columns = useMemo< HeatmapColumn[] >( () => {
+		const partialOrders = new Set(
+			( partialMonths ?? [] ).flatMap( ( { year, month } ) =>
+				month === undefined ? [] : [ monthOrder( { year, month } ) ]
+			)
+		);
+
+		return [
 			...Array.from( { length: MONTHS_IN_YEAR }, ( _column, month ) => ( {
 				label: formatMonth( month, { short: true } ),
 				data: rows.map( row => {
 					const value = row.months[ month ];
 
 					// Anything but a number is filler, a missing entry included.
-					return typeof value === 'number' ? { value } : { value: null, placeholder: true };
+					if ( typeof value !== 'number' ) {
+						return { value: null, placeholder: true };
+					}
+
+					return partialOrders.has( monthOrder( { year: row.year, month } ) )
+						? { value, partial: true }
+						: { value };
 				} ),
 			} ) ),
 			{
@@ -94,9 +109,8 @@ export function MonthlyHeatmap( {
 				summary: true,
 				data: rows.map( row => ( { value: row.total } ) ),
 			},
-		],
-		[ rows ]
-	);
+		];
+	}, [ rows, partialMonths ] );
 
 	const select = useCallback(
 		( cell: Element ) => {
