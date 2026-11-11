@@ -137,6 +137,21 @@ describe( 'measureStepId', () => {
 	it( 'measures nothing for a window that runs backwards', () => {
 		expect( measureStepId( { from: at( 2026, 7, 27 ), to: at( 2026, 7, 21 ) } ) ).toBeUndefined();
 	} );
+
+	// A chart bucket opened today is cut at the click: measured by its hours, it would step
+	// onto a partial yesterday.
+	it.each( [
+		[ 'today, cut at now', { from: at( 2026, 7, 10 ), to: at( 2026, 7, 10, 15 ) }, 'P1D' ],
+		[ 'this week, cut at now', { from: at( 2026, 7, 6 ), to: at( 2026, 7, 10, 15 ) }, 'P5D' ],
+		[
+			'hours ending now, from mid-day',
+			{ from: at( 2026, 7, 9, 15 ), to: at( 2026, 7, 10, 15 ) },
+			'PT24H',
+		],
+		[ 'hours ending yesterday', { from: at( 2026, 7, 9 ), to: at( 2026, 7, 9, 15 ) }, 'PT15H' ],
+	] )( 'measures %s as given today', ( _name, range, stepId ) => {
+		expect( measureStepId( range, at( 2026, 7, 10, 16 ) ) ).toBe( stepId );
+	} );
 } );
 
 describe( 'shiftStep', () => {

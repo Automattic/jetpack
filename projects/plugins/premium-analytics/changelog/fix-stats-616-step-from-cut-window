@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date control: Fix the arrows stepping from a chart bar clicked today onto a partial yesterday.

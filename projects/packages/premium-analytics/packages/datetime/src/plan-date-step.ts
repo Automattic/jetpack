@@ -100,16 +100,16 @@ export function planDateStep(
 		from: new TZDate( applied.from.getTime(), timeZone ),
 		to: new TZDate( applied.to.getTime(), timeZone ),
 	};
+	const now = new TZDate( context.now.getTime(), timeZone );
 	const step = isSelectablePreset( presetId )
 		? presetId
-		: ( parseDateStepId( context.step ) ?? measureStepId( zoned ) );
+		: ( parseDateStepId( context.step ) ?? measureStepId( zoned, now ) );
 
 	if ( ! step ) {
 		return undefined;
 	}
 
 	const span = getStepSpan( step );
-	const now = new TZDate( context.now.getTime(), timeZone );
 	const stepped = shiftStep( zoned, span, direction );
 	const reachable =
 		direction === 'previous'

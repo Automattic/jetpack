@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date control: Step back from a chart bucket opened today onto the whole of yesterday, not the hours elapsed.

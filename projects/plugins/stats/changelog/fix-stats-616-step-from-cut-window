@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Fix the date arrows stepping from a chart bar clicked today onto a partial yesterday.

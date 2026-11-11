@@ -294,6 +294,17 @@ describe( 'planDateStep', () => {
 		} );
 	} );
 
+	it( 'steps back from today’s chart bucket onto the whole of yesterday', () => {
+		const now = new Date( '2026-08-20T15:00:00.000Z' );
+		const openedToday = { from: at( [ 2026, 8, 20 ], 0 ), to: at( [ 2026, 8, 20 ], 15 ) };
+
+		expect( planDateStep( openedToday, 'previous', { ...context, now } ) ).toEqual( {
+			range: wholeDays( [ 2026, 8, 19 ], [ 2026, 8, 19 ] ),
+			presetId: 'custom',
+			step: 'P1D',
+		} );
+	} );
+
 	it( 'closes the day on the site’s clock, not the machine’s', () => {
 		// 02:00 UTC on the 20th: still the 19th in New York, the 20th in UTC.
 		const now = new Date( Date.UTC( 2026, 7, 20, 2, 0 ) );
