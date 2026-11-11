@@ -45,9 +45,18 @@ class Script_Data_Controller_Test extends TestCase {
 		global $wp_rest_server;
 
 		$wp_rest_server = null;
-		remove_all_filters( 'jetpack_active_modules' );
+		remove_filter( 'jetpack_active_modules', array( $this, 'activate_publicize' ) );
 		wp_set_current_user( 0 );
 		WorDBless_Users::init()->clear_all_users();
+	}
+
+	/**
+	 * Report Publicize as the active module.
+	 *
+	 * @return array
+	 */
+	public function activate_publicize() {
+		return array( 'publicize' );
 	}
 
 	/**
@@ -77,12 +86,7 @@ class Script_Data_Controller_Test extends TestCase {
 	#[DataProvider( 'provide_access_cases' )]
 	public function test_access( $role, $publicize_on, $expected_status ) {
 		if ( $publicize_on ) {
-			add_filter(
-				'jetpack_active_modules',
-				function () {
-					return array( 'publicize' );
-				}
-			);
+			add_filter( 'jetpack_active_modules', array( $this, 'activate_publicize' ) );
 		}
 		if ( $role ) {
 			wp_set_current_user(
