@@ -153,7 +153,7 @@ class ManagedThemesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Data provider for test_upgrader_refreshes_list_on_theme_installs_only.
+	 * Data provider for test_upgrader_refreshes_list_for_themes_only.
 	 *
 	 * @return array
 	 */
@@ -176,7 +176,7 @@ class ManagedThemesTest extends WP_UnitTestCase {
 	 * @param bool        $refreshed Whether the list is refreshed.
 	 */
 	#[DataProvider( 'provide_upgrader_cases' )]
-	public function test_upgrader_refreshes_list_on_theme_installs_only( $type, $action, $refreshed ) {
+	public function test_upgrader_refreshes_list_for_themes_only( $type, $action, $refreshed ) {
 		delete_option( 'wpcomsh_at_managed_themes' );
 		$hook_extra = array_filter( compact( 'type', 'action' ) );
 
