@@ -10,6 +10,7 @@ describe( 'JetpackFooter', () => {
 		window.JetpackScriptData = {
 			site: {},
 			myJetpack: { isAvailable: true },
+			user: { current_user: { capabilities: { manage_options: true } } },
 		} as unknown as typeof window.JetpackScriptData;
 	} );
 
@@ -128,6 +129,15 @@ describe( 'JetpackFooter', () => {
 				'href',
 				'/wp-admin/admin.php?page=my-jetpack#/help'
 			);
+		} );
+
+		it( 'links users who cannot see Features to Help only', () => {
+			window.JetpackScriptData.user.current_user.capabilities.manage_options = false;
+
+			render( <JetpackFooter /> );
+
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Help' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'hides default links on WordPress.com platform sites', () => {

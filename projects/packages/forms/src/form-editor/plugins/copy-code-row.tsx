@@ -3,6 +3,7 @@
  */
 import './copy-code-row.scss';
 import { Button, Popover } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 import { useRef, useCallback } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { copySmall, check } from '@wordpress/icons';
@@ -15,6 +16,7 @@ import type { JSX } from 'react';
 type CopyCodeRowProps = {
 	text: string;
 	label: string;
+	help?: string;
 };
 
 /**
@@ -23,8 +25,11 @@ type CopyCodeRowProps = {
  * @param {CopyCodeRowProps} props - The component props.
  * @return {JSX.Element} The copy code row component.
  */
-export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
+export const CopyCodeRow = ( { text, label, help }: CopyCodeRowProps ) => {
 	const textRef = useRef< HTMLSpanElement >( null );
+	const instanceId = useInstanceId( CopyCodeRow );
+	const labelId = `jetpack-form-embed-code__label-${ instanceId }`;
+	const helpId = `jetpack-form-embed-code__help-${ instanceId }`;
 	const { ref, copied: showCopyConfirmation } = useCopyConfirmation( text, 2000 );
 
 	const handleTextClick = useCallback( () => {
@@ -53,7 +58,9 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 
 	return (
 		<div className="jetpack-form-embed-code__row">
-			<span className="jetpack-form-embed-code__label">{ label }</span>
+			<span id={ labelId } className="jetpack-form-embed-code__label">
+				{ label }
+			</span>
 			<div className="jetpack-form-embed-code__container">
 				<span
 					ref={ textRef }
@@ -61,6 +68,8 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 					onClick={ handleTextClick }
 					role="textbox"
 					aria-readonly="true"
+					aria-labelledby={ labelId }
+					aria-describedby={ help ? helpId : undefined }
 					tabIndex={ 0 }
 					onKeyDown={ handleKeyDown }
 				>
@@ -95,6 +104,11 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 					/>
 				) }
 			</div>
+			{ help && (
+				<p id={ helpId } className="jetpack-form-embed-code__help">
+					{ help }
+				</p>
+			) }
 		</div>
 	);
 };

@@ -65,6 +65,8 @@ export { default as Popover } from './components/popover/index.tsx';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar/index.tsx';
 export { default as ActionPopover } from './components/action-popover/index.tsx';
 export { default as UpsellBanner } from './components/upsell-banner/index.tsx';
+export { default as HighlightBanner } from './components/highlight-banner/index.tsx';
+export type { HighlightBannerProps } from './components/highlight-banner/types.ts';
 export { getUserLocale, cleanLocale } from './lib/locale/index.ts';
 export { default as StatCard } from './components/stat-card/index.tsx';
 export { default as PeriodSelector } from './components/period-selector/index.tsx';
@@ -72,5 +74,7 @@ export type { PeriodPreset, PeriodSelectorProps } from './components/period-sele
 export { default as DiffViewer } from './components/diff-viewer/index.tsx';
 export { default as MarkedLines } from './components/marked-lines/index.tsx';
 export { default as DetailsViewer } from './components/details-viewer/index.tsx';
+export { default as SidebarFooter } from './components/sidebar-footer/index.tsx';
+export type { SidebarFooterProps } from './components/sidebar-footer/types.ts';
 export * from './components/global-notices/index.ts';
 export * from './components/navigator-modal/index.tsx';

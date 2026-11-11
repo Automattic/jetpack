@@ -1,4 +1,7 @@
+import { isSettingsConsolidationEnabled } from '../../_inc/utils/settings-consolidation';
 import { route } from './route';
+
+jest.mock( '../../_inc/utils/settings-consolidation' );
 
 jest.mock( '@wordpress/route', () => ( {
 	redirect: ( options: object ) => ( { redirect: options } ),
@@ -34,4 +37,15 @@ describe( 'dashboard route', () => {
 			expect( route.beforeLoad() ).toBeUndefined();
 		}
 	);
+
+	it.each( [
+		[ 'is on and a feature is named', true, { configure: 'carousel' }, true ],
+		[ 'is off, whatever the URL says', false, { configure: 'carousel' }, false ],
+		[ 'is on and no feature is named', true, { view: 'list' }, false ],
+		[ 'is on and the name is empty', true, { configure: '' }, false ],
+	] )( 'opens the inspector when settings consolidation %s', ( _name, enabled, search, shown ) => {
+		jest.mocked( isSettingsConsolidationEnabled ).mockReturnValue( enabled );
+
+		expect( route.inspector( { search } ) ).toBe( shown );
+	} );
 } );

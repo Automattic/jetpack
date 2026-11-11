@@ -124,6 +124,9 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_stats_settings_fields' ) );
+
+			// Not on admin_menu: wpcom checks this function exists before then.
+			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/odyssey-stats-replaced.php';
 		}
 
 		// The Backup and Protect pages serve both platforms: they offer the transfer on Simple
@@ -131,6 +134,11 @@ class Jetpack_Mu_Wpcom {
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_backup' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_scan' ) );
+		}
+
+		// A lightweight My Jetpack page for Simple, which steps aside wherever the real My Jetpack registers.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_my_jetpack' ) );
 		}
 
 		// At mu-plugin scope, because the Jetpack plugin can resolve these filters before plugins_loaded loads the pages.
@@ -398,12 +406,12 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/ai-launchpad/ai-launchpad.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
-		require_once __DIR__ . '/features/browser-polyfills/browser-polyfills.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/code-editor/class-code-editor.php';
 		require_once __DIR__ . '/features/wpcom-blocks/code/class-code-block.php';
 		require_once __DIR__ . '/features/comment-page-canonical/comment-page-canonical.php';
 		require_once __DIR__ . '/features/css-monkey-patches/index.php';
+		require_once __DIR__ . '/features/editor-polyfills/editor-polyfills.php';
 		require_once __DIR__ . '/features/editor-welcome-guides/editor-welcome-guides.php';
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/editor-welcome-guides/editor-welcome-guides-atomic.php';
@@ -933,6 +941,13 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Load the lightweight My Jetpack page on WordPress.com Simple sites.
+	 */
+	public static function load_wpcom_my_jetpack() {
+		require_once __DIR__ . '/features/wpcom-my-jetpack/wpcom-my-jetpack.php';
+	}
+
+	/**
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
@@ -983,6 +998,10 @@ class Jetpack_Mu_Wpcom {
 	 * Load the Random Redirect feature.
 	 */
 	public static function load_wpcom_random_redirect() {
+		// WordPress 7.2 handles random content redirects (/random/, ?random) in core; every 7.2 beta includes it.
+		if ( version_compare( $GLOBALS['wp_version'], '7.2-beta', '>=' ) ) {
+			return;
+		}
 		require_once __DIR__ . '/features/random-redirect/random-redirect.php';
 	}
 

@@ -107,9 +107,9 @@ export interface ConnectionErrorProps {
 	trackingPlacement?: ConnectionPlacement;
 	/** Navigation handler for URL-based actions. Defaults to setting `window.location.href`. */
 	navigate?: ( url: string ) => void;
-	/** Where the reconnect CTA returns after reauthorizing the user. Defaults to My Jetpack. */
+	/** Where the reconnect CTA returns after reauthorizing the user. Defaults to My Jetpack (deprecated). */
 	reconnectRedirectUrl?: string;
-	/** The `from` the reconnect CTA reports to WordPress.com. Defaults to 'my-jetpack'. */
+	/** The `from` the reconnect CTA reports to WordPress.com, from `CONNECTION_FROM`. Defaults to 'my-jetpack' (deprecated). */
 	reconnectFrom?: string;
 	/** Optional feature-supplied context line rendered above the shared cause/action. */
 	context?: string | ReactElement;

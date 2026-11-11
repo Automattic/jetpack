@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
+import SidebarFooter from '@automattic/jetpack-components/sidebar-footer';
 import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
 import { SelectControl, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
@@ -30,6 +31,15 @@ const SCHEMA_OPTIONS: Array< { value: SchemaType; label: string } > = [
 	{ value: 'faq', label: __( 'FAQ', 'jetpack-seo' ) },
 ];
 
+// Pre-resolved for the same reason as SCHEMA_OPTIONS.
+const LLMS_TXT_ALWAYS_INCLUDE_HELP = {
+	shown: __(
+		'While llms.txt is on, lists this page first, even if it isn’t in a menu.',
+		'jetpack-seo'
+	),
+	hidden: __( 'Pages hidden from search engines are left out of llms.txt.', 'jetpack-seo' ),
+};
+
 interface Props {
 	// The selected post id (from the Content route's `?postId`).
 	postId: number;
@@ -46,6 +56,7 @@ type EditableMeta = Pick<
 	| 'jetpack_seo_html_title'
 	| 'jetpack_seo_noindex'
 	| 'jetpack_seo_schema_type'
+	| 'jetpack_seo_llms_txt_always_include'
 >;
 
 const EMPTY_META: EditableMeta = {
@@ -56,15 +67,19 @@ const EMPTY_META: EditableMeta = {
 };
 
 /**
- * Narrow a record's raw `meta` to the four SEO keys this inspector owns,
+ * Narrow a record's raw `meta` to the SEO keys this inspector owns,
  * defaulting anything missing or unrecognised. Used both to seed the form from
  * the live record and to snapshot the pre-save values we roll back to.
  *
- * @param meta - The record's `meta`, if it has resolved.
+ * @param meta   - The record's `meta`, if it has resolved.
+ * @param isPage - Whether the record is a page, the only type with the llms.txt key.
  * @return The editable SEO meta.
  */
-function toEditableMeta( meta: Partial< SeoPostMeta > | undefined ): EditableMeta {
+function toEditableMeta( meta: Partial< SeoPostMeta > | undefined, isPage: boolean ): EditableMeta {
 	return {
+		...( isPage && {
+			jetpack_seo_llms_txt_always_include: !! meta?.jetpack_seo_llms_txt_always_include,
+		} ),
 		advanced_seo_description: meta?.advanced_seo_description ?? '',
 		jetpack_seo_html_title: meta?.jetpack_seo_html_title ?? '',
 		jetpack_seo_noindex: !! meta?.jetpack_seo_noindex,
@@ -111,6 +126,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { applyCoverageDelta } = useDispatch( coverageStore );
 	const [ isSaving, setIsSaving ] = useState( false );
+	const isPage = postType === 'page';
 
 	// Empty until the live record resolves; reconciled from its `meta` below.
 	// Saving is blocked while resolving so we never persist these empty defaults
@@ -126,8 +142,8 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 			return;
 		}
 		hasSeeded.current = true;
-		setLocal( toEditableMeta( editedMeta ) );
-	}, [ editedMeta ] );
+		setLocal( toEditableMeta( editedMeta, isPage ) );
+	}, [ editedMeta, isPage ] );
 
 	const setField = useCallback(
 		( patch: Partial< EditableMeta > ) => setLocal( state => ( { ...state, ...patch } ) ),
@@ -146,7 +162,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 		// below, which is what `editedMeta` would otherwise reflect. Reading the
 		// *edited* meta keeps both correct when the same post is saved twice without
 		// an intervening reload.
-		const previous = toEditableMeta( editedMeta );
+		const previous = toEditableMeta( editedMeta, isPage );
 		try {
 			// Update the record in the store, then persist it with `apiFetch`.
 			//
@@ -158,7 +174,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 			// these edits onto the fetched records, which is what updates the row.
 			//
 			// core-data merges `meta` edits (the postType entity declares it in
-			// `mergedEdits`), so we only send the four SEO keys and leave any other
+			// `mergedEdits`), so we only send the SEO keys and leave any other
 			// post meta untouched.
 			editEntityRecord( 'postType', postType, postId, { meta: local } );
 			// `apiFetch` rejects on a failed request, so a save that fails can't fall
@@ -212,6 +228,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 		createSuccessNotice,
 		editEntityRecord,
 		editedMeta,
+		isPage,
 		local,
 		onClose,
 		postId,
@@ -281,10 +298,31 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 						'jetpack-seo'
 					) }
 					checked={ local.jetpack_seo_noindex }
-					onChange={ next => setField( { jetpack_seo_noindex: next } ) }
+					// Hiding a page also switches off "Always include", so the saved value matches
+					// the switch, which shows off while the page is hidden.
+					onChange={ next =>
+						setField( {
+							jetpack_seo_noindex: next,
+							...( next && isPage && { jetpack_seo_llms_txt_always_include: false } ),
+						} )
+					}
 					disabled={ isResolving }
 					__nextHasNoMarginBottom
 				/>
+				{ isPage && (
+					<ToggleControl
+						label={ __( 'Always include in llms.txt', 'jetpack-seo' ) }
+						help={
+							local.jetpack_seo_noindex
+								? LLMS_TXT_ALWAYS_INCLUDE_HELP.hidden
+								: LLMS_TXT_ALWAYS_INCLUDE_HELP.shown
+						}
+						checked={ !! local.jetpack_seo_llms_txt_always_include && ! local.jetpack_seo_noindex }
+						onChange={ next => setField( { jetpack_seo_llms_txt_always_include: next } ) }
+						disabled={ isResolving || local.jetpack_seo_noindex }
+						__nextHasNoMarginBottom
+					/>
+				) }
 				<SerpPreview
 					link={ permalink }
 					postTitle={ postTitle }
@@ -292,7 +330,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					description={ local.advanced_seo_description }
 				/>
 			</Stack>
-			<div className={ styles.inspectorFooter }>
+			<SidebarFooter>
 				<Button variant="minimal" tone="neutral" onClick={ onClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-seo' ) }
 				</Button>
@@ -307,7 +345,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				>
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>
-			</div>
+			</SidebarFooter>
 		</Page>
 	);
 };

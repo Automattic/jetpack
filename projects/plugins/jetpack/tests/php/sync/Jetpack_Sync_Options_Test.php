@@ -185,6 +185,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_mailchimp'                            => '{}',
 			'jetpack_protect_key'                          => 'pineapple',
 			'jetpack_protect_global_whitelist'             => 'pineapple',
+			'jetpack_protect_vulnerability_checks'         => '0',
 			'jetpack_sso_require_two_step'                 => '1',
 			'jetpack_sso_match_by_email'                   => '1',
 			'jetpack_relatedposts'                         => 'pineapple',

@@ -50,6 +50,9 @@ class Jetpack_Stats_Plugin {
 		add_filter( 'plugin_action_links_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, array( self::class, 'plugin_page_add_links' ) );
 		add_filter( 'jetpack_get_available_standalone_modules', array( self::class, 'filter_available_modules_add_stats' ) );
 
+		// Claims the whole plugin honors visitor consent: any new front-end tracker must check wp_has_consent() first.
+		add_filter( 'wp_consent_api_registered_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, '__return_true' );
+
 		/**
 		 * The Jetpack plugin owns the Stats admin menu while it is active, and it chooses
 		 * between the legacy Stats screen and the Odyssey dashboard. Once it is deactivated

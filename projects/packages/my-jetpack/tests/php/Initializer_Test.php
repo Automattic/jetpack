@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils;
@@ -1629,6 +1630,20 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Standalone plugins run no Jetpack bootstrap, so My Jetpack must list the admin shell flag on every request.
+	 */
+	public function test_register_feature_flags_registers_the_admin_shell_flag() {
+		// An earlier admin menu test may have registered it through Admin_Menu.
+		Feature_Flags::reset();
+		Initializer::register_feature_flags();
+		try {
+			$this->assertNotNull( Feature_Flags::get( Admin_Shell::FLAG ) );
+		} finally {
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
 	 * Overview v1 shows only with its flag on.
 	 */
 	public function test_my_jetpack_flags_show_overview_v1_only_when_the_flag_is_on() {
@@ -1728,9 +1743,8 @@ class Initializer_Test extends BaseTestCase {
 	 */
 	public static function page_feature_flags() {
 		return array(
-			'overview v1'            => array( 'overviewV1', Initializer::OVERVIEW_V1_FLAG, false ),
-			'account connect'        => array( 'accountConnect', Initializer::ACCOUNT_CONNECT_FLAG, true ),
-			'settings consolidation' => array( 'settingsConsolidation', Initializer::SETTINGS_CONSOLIDATION_FLAG, false ),
+			'overview v1'     => array( 'overviewV1', Initializer::OVERVIEW_V1_FLAG, false ),
+			'account connect' => array( 'accountConnect', Initializer::ACCOUNT_CONNECT_FLAG, true ),
 		);
 	}
 

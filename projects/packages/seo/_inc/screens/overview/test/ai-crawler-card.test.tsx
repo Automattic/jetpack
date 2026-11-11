@@ -16,9 +16,14 @@ type LlmsTxt = GeoState[ 'llmsTxt' ];
  */
 const buildCrawlers = ( overrides: Partial< Crawlers > = {} ): Crawlers => ( {
 	catalog: [
-		{ slug: 'oai-searchbot', label: 'OAI-SearchBot', userAgent: 'OAI-SearchBot', type: 'answer' },
-		{ slug: 'perplexity', label: 'PerplexityBot', userAgent: 'PerplexityBot', type: 'answer' },
-		{ slug: 'gptbot', label: 'GPTBot', userAgent: 'GPTBot', type: 'training' },
+		{
+			slug: 'oai-searchbot',
+			label: 'OAI-SearchBot',
+			userAgents: [ 'OAI-SearchBot' ],
+			type: 'answer',
+		},
+		{ slug: 'perplexity', label: 'PerplexityBot', userAgents: [ 'PerplexityBot' ], type: 'answer' },
+		{ slug: 'gptbot', label: 'GPTBot', userAgents: [ 'GPTBot' ], type: 'training' },
 	],
 	blocked: { answer: [], training: [] },
 	searchEnginesVisible: true,
@@ -42,8 +47,6 @@ const buildLlms = ( overrides: Partial< LlmsTxt > = {} ): LlmsTxt => ( {
 	enabled: true,
 	url: 'https://example.test/llms.txt',
 	canServe: true,
-	disabled: false,
-	conflictingPlugin: '',
 	...overrides,
 } );
 
@@ -108,23 +111,32 @@ describe( 'AiCrawlerCard', () => {
 		}
 	);
 
-	it.each( [ true, false ] )(
-		'reports paused Jetpack generation during a plugin conflict (saved: %s)',
-		enabled => {
-			renderCard( {
-				llmsTxt: buildLlms( {
-					disabled: true,
-					conflictingPlugin: 'Yoast SEO',
-					canServe: false,
-					enabled,
-				} ),
-			} );
-			expect(
-				screen.getByText( 'Jetpack llms.txt paused while Yoast SEO is active' )
-			).toHaveAttribute( 'data-status', 'warn' );
+	describe( 'while Jetpack SEO output is paused', () => {
+		beforeEach( () => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				seo: { output: { paused: true, conflicting_plugin: 'Yoast SEO' } },
+			};
+		} );
+
+		afterEach( () => {
+			delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+		} );
+
+		// The Overview banner names the cause; the row only says what happened to llms.txt.
+		it( 'says paused when llms.txt is switched on', () => {
+			renderCard( { llmsTxt: buildLlms( { canServe: false, enabled: true } ) } );
+
+			expect( screen.getByText( 'llms.txt paused' ) ).toHaveAttribute( 'data-status', 'warn' );
 			expect( screen.queryByText( 'llms.txt published' ) ).not.toBeInTheDocument();
-		}
-	);
+		} );
+
+		it( 'says not published, not paused, when llms.txt was never switched on', () => {
+			renderCard( { llmsTxt: buildLlms( { canServe: false, enabled: false } ) } );
+
+			expect( screen.getByText( 'llms.txt not published' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /paused/ ) ).not.toBeInTheDocument();
+		} );
+	} );
 
 	it( 'still reports llms.txt when the crawler settings are the thing that cannot apply', () => {
 		// Static robots.txt only affects crawler controls, independently of llms.txt availability.

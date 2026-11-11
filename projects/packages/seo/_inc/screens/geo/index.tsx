@@ -1,12 +1,24 @@
-import { ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { commentContent, details, key, page } from '@wordpress/icons';
 import { Link as RouteLink } from '@wordpress/route';
-import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
+import {
+	Badge,
+	Card,
+	CollapsibleCard,
+	Link,
+	Notice,
+	Stack,
+	SwitchControl,
+	Text,
+	Tooltip,
+} from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import PausedNote from '../../components/paused-note';
+import SeoPausedBanner from '../../components/seo-paused-banner';
 import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { isCrawlerBlocked } from '../../data/blocked-crawlers';
+import getOutput from '../../data/get-output';
 import './style.scss';
 import type { AiCrawler } from '../../data/geo-types';
 import type { GeoForm } from '../../data/use-geo';
@@ -130,16 +142,16 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( {
 
 	return (
 		<LockedTooltip reason={ lockedReason }>
-			<ToggleControl
+			<SwitchControl
 				label={ sprintf(
-					/* translators: %s: AI crawler name, e.g. "ChatGPT (GPTBot)". */
+					/* translators: %s: AI crawler name, e.g. "ChatGPT". */
 					__( 'Block %s', 'jetpack-seo' ),
 					crawler.label
 				) }
+				description={ crawler.userAgents.join( ', ' ) }
 				checked={ blocked }
-				onChange={ handleChange }
+				onCheckedChange={ handleChange }
 				disabled={ disabled }
-				__nextHasNoMarginBottom
 			/>
 		</LockedTooltip>
 	);
@@ -233,6 +245,8 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 		[ type, onToggleAll ]
 	);
 
+	const introId = `jetpack-seo-geo-crawlers-intro-${ type }`;
+
 	return (
 		// Collapsed by default — most people won't open these. A notice (e.g. why the
 		// controls are disabled) sits between the header and the collapsible content,
@@ -256,12 +270,13 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 			</CollapsibleCard.Header>
 			{ notice }
 			<CollapsibleCard.Content>
-				{ /* `lg` gap between the description group and the controls group gives the
-				   "View your robots.txt" link room above the "Block all" toggle; the controls
-				   keep their own tighter `md` rhythm in the nested Stack. */ }
+				{ /* `lg` gaps give the "View your robots.txt" link room above "Block all", and
+				   keep each crawler's user-agent line closer to its own toggle than the next. */ }
 				<Stack direction="column" gap="lg">
 					<Stack direction="column" gap="xs">
-						<p className="jetpack-seo-geo__crawlers-intro">{ intro }</p>
+						<p id={ introId } className="jetpack-seo-geo__crawlers-intro">
+							{ intro }
+						</p>
 						<Link
 							className="jetpack-seo-geo__robots-link"
 							href={ robotsTxtUrl }
@@ -271,15 +286,20 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 							{ __( 'View your robots.txt', 'jetpack-seo' ) }
 						</Link>
 					</Stack>
-					<Stack direction="column" gap="md">
+					<Stack
+						direction="column"
+						gap="lg"
+						role="group"
+						aria-label={ title }
+						aria-describedby={ introId }
+					>
 						<div className="jetpack-seo-geo__crawler-bulk">
 							<LockedTooltip reason={ lockedReason }>
-								<ToggleControl
+								<SwitchControl
 									label={ __( 'Block all', 'jetpack-seo' ) }
 									checked={ allBlocked }
-									onChange={ handleToggleAll }
+									onCheckedChange={ handleToggleAll }
 									disabled={ disabled }
-									__nextHasNoMarginBottom
 								/>
 							</LockedTooltip>
 						</div>
@@ -489,22 +509,12 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 		);
 	};
 
-	const llmsTxtEffectivelyOn = Boolean(
-		searchEnginesVisible && llmsTxt?.enabled && ! llmsTxt.disabled
-	);
-	const llmsTxtConflictNotice = llmsTxt?.conflictingPlugin
-		? sprintf(
-				/* translators: %1$s: name of the active SEO plugin. */
-				__(
-					'Jetpack is not generating llms.txt while %1$s is active. Your saved setting is retained. Deactivate %1$s to let Jetpack generate the file.',
-					'jetpack-seo'
-				),
-				llmsTxt.conflictingPlugin
-			)
-		: __(
-				'Jetpack is not generating llms.txt because SEO tools are disabled on this site. Your saved setting is retained.',
-				'jetpack-seo'
-			);
+	// While Jetpack's SEO output is paused, llms.txt is locked but keeps showing its saved
+	// value; the banner above explains why. The Enhancer stays editable: the editor's
+	// auto-generation doesn't check the pause, so locking it here would leave no way to
+	// turn it off.
+	const { paused } = getOutput();
+	const llmsTxtEffectivelyOn = Boolean( searchEnginesVisible && llmsTxt?.enabled );
 
 	let enhancerHelp: string | undefined;
 	if ( ! enhancer.aiSeoEnabled ) {
@@ -521,6 +531,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 
 	return (
 		<div className="jetpack-seo-geo">
+			<SeoPausedBanner />
 			{ /* Spells out the acronym the tab is named after. */ }
 			<Text variant="body-md" render={ <p /> } className="jetpack-seo-geo__intro">
 				{ __(
@@ -544,12 +555,8 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">
-							{ llmsTxt.disabled && (
-								<Notice.Root intent="warning">
-									<Notice.Description>{ llmsTxtConflictNotice }</Notice.Description>
-								</Notice.Root>
-							) }
-							{ searchEnginesVisible && ! llmsTxt.canServe && ! llmsTxt.disabled && (
+							{ paused && <PausedNote /> }
+							{ searchEnginesVisible && ! llmsTxt.canServe && ! paused && (
 								<Notice.Root intent="warning">
 									<Notice.Description>
 										{ __(
@@ -560,18 +567,17 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 								</Notice.Root>
 							) }
 							<Stack direction="column" gap="xs">
-								<ToggleControl
+								<SwitchControl
 									label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
-									help={ llmsTxtHelp }
+									description={ llmsTxtHelp }
 									checked={ llmsTxtEffectivelyOn }
 									// eslint-disable-next-line react/jsx-no-bind
-									onChange={ next => {
-										if ( ! llmsTxt.disabled ) {
+									onCheckedChange={ next => {
+										if ( ! paused ) {
 											setLlmsTxtEnabled( next );
 										}
 									} }
-									disabled={ isSaving || ! searchEnginesVisible || llmsTxt.disabled }
-									__nextHasNoMarginBottom
+									disabled={ isSaving || ! searchEnginesVisible || paused }
 								/>
 								{ ! searchEnginesVisible && (
 									<Notice.Root intent="info" className="jetpack-seo-geo__llms-notice">
@@ -609,16 +615,15 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 						</Card.Title>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
-						<ToggleControl
+						<SwitchControl
 							label={ __(
 								'Automatically generate SEO title, SEO description, and image alt text for new posts',
 								'jetpack-seo'
 							) }
 							checked={ enhancer.enabled }
-							onChange={ setEnhancerEnabled }
+							onCheckedChange={ setEnhancerEnabled }
 							disabled={ isSaving || ! enhancer.aiSeoEnabled }
-							help={ enhancerHelp }
-							__nextHasNoMarginBottom
+							description={ enhancerHelp }
 						/>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>

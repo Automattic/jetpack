@@ -8,7 +8,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router';
+import { Navigate, useLocation, useNavigate } from 'react-router';
 import AdminNotices from 'components/admin-notices';
 import Footer from 'components/footer';
 import JetpackNotices from 'components/jetpack-notices';
@@ -18,6 +18,7 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
+import { getAdsSettingsUrl } from 'lib/settings-consolidation';
 import { openProtectSettings } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -244,12 +245,18 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
+			case '/earn':
+				// `/security` falls through here, so check the route.
+				if ( '/earn' === route && getAdsSettingsUrl() ) {
+					window.location.replace( getAdsSettingsUrl() );
+					break;
+				}
+			// Falls through.
 			case '/settings':
 			case '/performance':
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
-			case '/earn':
 			case '/reader':
 			case '/traffic':
 			case '/privacy':
@@ -264,7 +271,7 @@ export class Main extends Component {
 				);
 				break;
 			default:
-				this.props.navigate( '/settings', { replace: true } );
+				pageComponent = <Navigate to="/settings" replace />;
 				break;
 		}
 

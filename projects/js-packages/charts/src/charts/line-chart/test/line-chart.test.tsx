@@ -158,7 +158,7 @@ describe( 'LineChart', () => {
 		screen.getByRole( 'application', { name: /line chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
-		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'black' } );
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'rgb(0, 0, 0)' } );
 		expect( screen.getByTestId( 'line-chart-tooltip-content' ) ).not.toHaveAttribute( 'style' );
 	} );
 
@@ -311,6 +311,92 @@ describe( 'LineChart', () => {
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent );
 			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test.each( [
+			[ 'small amounts', 0, [ 0.4, 1.2, 2.1, 2.6 ], [ '0', '1', '2' ] ],
+			[ 'amounts under one step', 0, [ 0.31, 0.55, 0.73 ], [ '0', '1' ] ],
+			[ 'cents', 2, [ 0.4, 1.2, 1.6 ], [ '0.00', '0.50', '1.00', '1.50' ] ],
+		] )( 'holds ticks to tickDecimals for %s', ( _, tickDecimals, values, expected ) => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: values.map( ( value, i ) => ( { date: new Date( 2024, i + 2, 1 ), value } ) ),
+					},
+				],
+				options: {
+					yScale: { zero: true },
+					axis: {
+						y: { tickDecimals, tickFormat: ( value: number ) => value.toFixed( tickDecimals ) },
+					},
+				},
+			} );
+
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( expected );
+		} );
+
+		test( "leaves a caller's tickValues axis unwidened by tickDecimals", () => {
+			const linePath = ( y: { tickValues: number[]; tickDecimals?: number } ) => {
+				const { unmount } = renderWithTheme( {
+					data: [
+						{
+							label: 'Series A',
+							data: [ 0.31, 0.55, 0.73 ].map( ( value, i ) => ( {
+								date: new Date( 2024, i + 2, 1 ),
+								value,
+							} ) ),
+						},
+					],
+					options: { axis: { y } },
+				} );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
+				// eslint-disable-next-line testing-library/no-node-access -- visx's stroke is a <path class="visx-line">.
+				const d = chart.querySelector( 'path.visx-line' )?.getAttribute( 'd' );
+				unmount();
+				return d;
+			};
+
+			expect( linePath( { tickValues: [ 0.4, 0.6 ], tickDecimals: 0 } ) ).toBe(
+				linePath( { tickValues: [ 0.4, 0.6 ] } )
+			);
+		} );
+
+		test( 'widens with the decimals it ticks at when a hidden series keeps its place in the domain', () => {
+			renderWithTheme( {
+				rescaleYOnVisibilityChange: false,
+				defaultHiddenSeries: [ 'Series B' ],
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 0, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+					{
+						label: 'Series B',
+						data: [ 0.001, 0.003, 0.004 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+				options: {
+					yScale: { zero: true },
+					axis: { y: { tickDecimals: 2, tickFormat: ( value: number ) => value.toFixed( 2 ) } },
+				},
+			} );
+
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0.00', '1.00' ] );
 		} );
 
 		test( 'ignores a hidden fractional series when checking for whole numbers', () => {

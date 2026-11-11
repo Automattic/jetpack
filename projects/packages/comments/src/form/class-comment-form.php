@@ -110,9 +110,12 @@ class Comment_Form {
 			),
 		);
 
+		// The respond id alone, as core's link carries it, tells the app which form moved; core's own
+		// click handler needs all four of its data attributes, so it still leaves this link to the onclick.
 		$link = sprintf(
-			'<a class="comment-reply-link" href="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
+			'<a class="comment-reply-link" href="%s" data-respondelement="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
 			esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) ),
+			$respond_id,
 			$args['show_reply_to_text'] ? '' : ' aria-label="' . esc_attr( $reply_to ) . '"',
 			esc_attr( $args['add_below'] ),
 			$comment->comment_ID,
@@ -316,7 +319,7 @@ class Comment_Form {
 
 		$noscript = '';
 
-		// Core's own fields and submit, for a page whose settings another release rendered or whose script never ran.
+		// A form that posts without the app, for a page whose settings another release rendered or whose script never ran.
 		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
 			$plain = '<p class="must-log-in">' . sprintf(
 				/* translators: %s is a link to the log-in page. */
@@ -325,8 +328,8 @@ class Comment_Form {
 			) . '</p>';
 		} else {
 			$required = (bool) get_option( 'require_name_email' );
-			$plain    = '<p class="comment-form-comment"><label for="comment">' . esc_html_x( 'Comment', 'noun', 'jetpack-comments' ) . '</label>'
-				. '<textarea id="comment" name="comment" rows="4" required></textarea></p>';
+			$lengths  = wp_get_comment_fields_max_lengths();
+			$plain    = '';
 
 			if ( ! is_user_logged_in() ) {
 				// Without script a guest has no nonce to post, so they get a note in place of fields that cannot send.
@@ -352,9 +355,28 @@ class Comment_Form {
 						'url' === $name ? ' maxlength="200"' : ''
 					);
 				}
+
+				// Shown only when the app never mounts: the app asks for these in its dialog.
+				$plain = '<div class="jetpack-comments__plain">' . $plain . '</div>';
 			}
 
-			$plain .= sprintf( $args['submit_field'] ?? '<p class="form-submit">%1$s %2$s</p>', $button, '' );
+			// The box the app mounts, drawn the same way here so the swap moves nothing on the page.
+			$plain .= '<div class="jetpack-comments__box">'
+				. sprintf(
+					'<textarea id="comment" name="comment" class="jetpack-comments__textarea" rows="2" required maxlength="%1$d" aria-label="%2$s" placeholder="%3$s"></textarea>',
+					isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+					esc_attr_x( 'Comment', 'noun', 'jetpack-comments' ),
+					esc_attr__( 'Write a comment...', 'jetpack-comments' )
+				)
+				. '<div class="jetpack-comments__actions">'
+				// The theme's own button template, which a no-script post submits through.
+				. sprintf(
+					'<span class="%1$s">%2$s</span>',
+					esc_attr( trim( 'jetpack-comments__submit ' . $settings['submit']['wrapClass'] ) ),
+					$button
+				)
+				. '<span class="jetpack-comments__identity"></span>'
+				. '</div></div>';
 		}
 
 		return '<div class="jetpack-comments"'
