@@ -200,13 +200,16 @@ export function DetailPageActions( {
 	editingActions,
 	children,
 }: DetailPageActionsProps ) {
-	const { frameRef, customizeRef } = useCustomizeFocus( isCustomizing );
+	const customizeFocus = useCustomizeFocus( isCustomizing, onCustomize );
 
 	return (
-		<Stack ref={ frameRef } direction="row" align="center" gap="sm">
+		<Stack ref={ customizeFocus.frameRef } direction="row" align="center" gap="sm">
 			{ isCustomizing ? editingActions : children }
-			{ ! isCustomizing && onCustomize && (
-				<CustomizeAction ref={ customizeRef } onCustomize={ onCustomize } />
+			{ ! isCustomizing && customizeFocus.onCustomize && (
+				<CustomizeAction
+					ref={ customizeFocus.customizeRef }
+					onCustomize={ customizeFocus.onCustomize }
+				/>
 			) }
 			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
 			<PageOptionsMenu />

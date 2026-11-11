@@ -246,6 +246,48 @@ describe( 'detail-page-customize', () => {
 			}
 		);
 
+		it( 'leaves focus alone when customize mode starts on its own, as an empty layout does', () => {
+			const dashboardActions = <button>Cancel</button>;
+			const { rerender } = render(
+				<DetailPageActions
+					isCustomizing={ false }
+					onCustomize={ () => {} }
+					editingActions={ dashboardActions }
+				/>
+			);
+
+			rerender(
+				<DetailPageActions
+					isCustomizing
+					onCustomize={ () => {} }
+					editingActions={ dashboardActions }
+				/>
+			);
+
+			expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).not.toHaveFocus();
+		} );
+
+		it( 'leaves focus alone when customize mode ends while focus is elsewhere, as on a tab switch', () => {
+			const dashboardActions = <button>Cancel</button>;
+			const page = ( isCustomizing: boolean ) => (
+				<>
+					<button>Tab</button>
+					<DetailPageActions
+						isCustomizing={ isCustomizing }
+						onCustomize={ () => {} }
+						editingActions={ dashboardActions }
+					/>
+				</>
+			);
+			const { rerender } = render( page( true ) );
+			const tab = screen.getByRole( 'button', { name: 'Tab' } );
+			act( () => tab.focus() );
+
+			rerender( page( false ) );
+
+			expect( tab ).toHaveFocus();
+		} );
+
 		it( 'moves focus onto the first editing action when entering unmounts Customize', async () => {
 			const user = userEvent.setup();
 			const dashboardActions = (

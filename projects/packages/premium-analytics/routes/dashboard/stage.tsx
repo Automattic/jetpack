@@ -203,7 +203,7 @@ function Dashboard(): JSX.Element {
 		[ trackCustomize ]
 	);
 	const startCustomizing = useCallback( () => onEditChange( true ), [ onEditChange ] );
-	const customizeFocus = useCustomizeFocus( editMode );
+	const customizeFocus = useCustomizeFocus( editMode, startCustomizing );
 	const onLayoutChange = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
 			trackCustomize.layoutChange( layout, nextLayout );
@@ -543,14 +543,17 @@ function Dashboard(): JSX.Element {
 												<ResetLayoutAction onReset={ resetToDefault } />
 											</>
 										) }
-										{ ! editMode && ! isSettingsActive && canCustomizeSection && (
-											<Stack ref={ setCustomizeFrame } direction="row">
-												<CustomizeAction
-													ref={ customizeFocus.customizeRef }
-													onCustomize={ startCustomizing }
-												/>
-											</Stack>
-										) }
+										{ ! editMode &&
+											! isSettingsActive &&
+											canCustomizeSection &&
+											customizeFocus.onCustomize && (
+												<Stack ref={ setCustomizeFrame } direction="row">
+													<CustomizeAction
+														ref={ customizeFocus.customizeRef }
+														onCustomize={ customizeFocus.onCustomize }
+													/>
+												</Stack>
+											) }
 										<Stack ref={ setOptionsMenuFrame } direction="row">
 											<PageOptionsMenu />
 										</Stack>

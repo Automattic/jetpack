@@ -28,6 +28,9 @@ describe( 'onboardingTourSteps', () => {
 			'Rearrange it your way',
 			'One last thing',
 		] );
+		expect( steps[ 2 ].description ).toBe(
+			'Select Customize to move and resize widgets. Your layout is saved to your profile.'
+		);
 	} );
 
 	it( 'leaves out the feedback step for a reader who cannot send feedback', () => {

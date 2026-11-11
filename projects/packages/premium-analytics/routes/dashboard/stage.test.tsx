@@ -1027,6 +1027,17 @@ describe( 'Dashboard onboarding', () => {
 		}
 	);
 
+	it( 'anchors the tour on the Customize button', () => {
+		render( <Dashboard /> );
+
+		expect( jest.mocked( onboardingTourSteps ) ).toHaveBeenLastCalledWith(
+			expect.objectContaining( {
+				customize: screen.getByRole( 'button', { name: 'Customize' } ),
+			} ),
+			expect.anything()
+		);
+	} );
+
 	it( 'runs the tour once the modal hands over', () => {
 		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'tour' } );
 
@@ -1504,6 +1515,7 @@ describe( 'Dashboard Settings tab', () => {
 			'data-can-customize',
 			'false'
 		);
+		expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
 	} );
 } );
 

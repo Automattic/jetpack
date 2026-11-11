@@ -4,7 +4,7 @@
 import { Button } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
-import { forwardRef, useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useMemo, useRef } from 'react';
 
 export type CustomizeActionProps = {
 	/** Enters customize mode. */
@@ -29,33 +29,52 @@ export const CustomizeAction = forwardRef< HTMLButtonElement, CustomizeActionPro
  * Keeps focus in the header actions across customize mode, which swaps out the button that had it.
  *
  * @param isCustomizing - Whether the page is in customize mode.
- * @return Refs for the actions' frame and the Customize button.
+ * @param onCustomize   - Enters customize mode.
+ * @return Refs for the actions' frame and the Customize button, and `onCustomize` for that button.
  */
-export function useCustomizeFocus( isCustomizing: boolean ) {
+export function useCustomizeFocus( isCustomizing: boolean, onCustomize?: () => void ) {
 	const frameRef = useRef< HTMLDivElement >( null );
 	const customizeRef = useRef< HTMLButtonElement >( null );
 	const wasCustomizing = useRef( isCustomizing );
+	const isEnteringFromButton = useRef( false );
+
+	const customize = useMemo(
+		() =>
+			onCustomize &&
+			( () => {
+				isEnteringFromButton.current = true;
+				onCustomize();
+			} ),
+		[ onCustomize ]
+	);
 
 	useEffect( () => {
 		if ( wasCustomizing.current === isCustomizing ) {
 			return;
 		}
 		wasCustomizing.current = isCustomizing;
+		const fromButton = isEnteringFromButton.current;
+		isEnteringFromButton.current = false;
 		const frame = frameRef.current;
 
-		if ( ! isCustomizing ) {
-			// Falls back to the menu trigger where Customize is no longer offered.
-			(
-				customizeRef.current ?? frame?.querySelector< HTMLElement >( '[aria-haspopup="menu"]' )
-			)?.focus();
+		// Only where the swap dropped focus: a tab switch or the command palette keeps its own.
+		if ( ! frame || frame.ownerDocument.activeElement !== frame.ownerDocument.body ) {
 			return;
 		}
 
-		// Only when the click that entered dropped focus; the command palette restores its own.
-		if ( frame && frame.ownerDocument.activeElement === frame.ownerDocument.body ) {
-			frame.querySelector< HTMLElement >( 'button:not(:disabled)' )?.focus();
+		if ( isCustomizing ) {
+			// An empty layout enters on its own at load, where nothing had focus to lose.
+			if ( fromButton ) {
+				frame.querySelector< HTMLElement >( 'button:not(:disabled)' )?.focus();
+			}
+			return;
 		}
+
+		// Falls back to the menu trigger where Customize is no longer offered.
+		(
+			customizeRef.current ?? frame.querySelector< HTMLElement >( '[aria-haspopup="menu"]' )
+		)?.focus();
 	}, [ isCustomizing ] );
 
-	return { frameRef, customizeRef };
+	return { frameRef, customizeRef, onCustomize: customize };
 }
