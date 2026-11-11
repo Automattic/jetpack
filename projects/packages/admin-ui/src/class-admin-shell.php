@@ -430,11 +430,10 @@ class Admin_Shell {
 
 		ob_start();
 		do_action( 'admin_enqueue_scripts', $hook_suffix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
-		$handles = $members[ $slug ]['handles'];
 		if ( $members[ $slug ]['media'] ) {
 			wp_enqueue_media();
-			$handles = array( ...$handles, ...self::MEDIA_HANDLES );
 		}
+		$handles = self::printed_handles( $members[ $slug ] );
 		// Only the member's own handles, and what they depend on, go back to the page. Printing them
 		// even when nothing enqueued them: a page can rely on another script pulling one in.
 		foreach ( array( wp_scripts(), wp_styles() ) as $dependencies ) {
@@ -451,6 +450,16 @@ class Admin_Shell {
 			wp_print_media_templates();
 		}
 		return ob_get_clean();
+	}
+
+	/**
+	 * The script and style handles the guest endpoint prints for a member.
+	 *
+	 * @param array $member Normalized member.
+	 * @return string[]
+	 */
+	private static function printed_handles( array $member ): array {
+		return $member['media'] ? array( ...$member['handles'], ...self::MEDIA_HANDLES ) : $member['handles'];
 	}
 
 	/**
