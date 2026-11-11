@@ -61,6 +61,34 @@ describe( 'GoogleAnalyticsSettings', () => {
 		expect( JSON.stringify( mockRecordEvent.mock.calls ) ).not.toContain( 'G-NEW123' );
 	} );
 
+	it( 'keeps a switch click made while the ID saves, and saves one at a time', async () => {
+		let finishIdSave: () => void = () => undefined;
+		mockFetch.mockImplementation( ( { method, data } ) => {
+			const stored = { is_active: true, code: 'G-OLD', anonymize_ip: false, ...data };
+			if ( method === 'POST' && 'code' in data ) {
+				return new Promise( resolve => {
+					finishIdSave = () => resolve( stored );
+				} );
+			}
+			return Promise.resolve( stored );
+		} );
+		renderPanel();
+		const input = await screen.findByRole( 'textbox', { name: 'Google Analytics Measurement ID' } );
+
+		await userEvent.clear( input );
+		await userEvent.type( input, 'G-NEW123' );
+		// The click blurs the field first, which starts the ID save.
+		const anonymize = screen.getByRole( 'switch', { name: 'Anonymize IP addresses' } );
+		await userEvent.click( anonymize );
+
+		expect( anonymize ).toBeChecked();
+		expect( posts().map( ( [ options ] ) => options.data ) ).toEqual( [ { code: 'G-NEW123' } ] );
+
+		finishIdSave();
+		await waitFor( () => expect( posts() ).toHaveLength( 2 ) );
+		expect( posts()[ 1 ][ 0 ].data ).toEqual( { anonymize_ip: true } );
+	} );
+
 	it( 'saves a switch on its own and records it as a settings toggle', async () => {
 		renderPanel();
 

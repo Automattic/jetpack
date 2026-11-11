@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { QUERY_KEY as FEATURES_QUERY_KEY } from '../my-jetpack-tab-panel/features/use-main-features';
 
 export type GoogleAnalyticsSettings = {
@@ -18,22 +18,22 @@ const QUERY_KEY = [ 'my-jetpack-google-analytics' ];
 /**
  * The built-in Google Analytics setup, read and saved through My Jetpack's own route.
  *
- * The asked-for values show until the save settles.
+ * Saves run one at a time: the route reads, merges and writes one option, so two at once could drop a change.
  *
- * @return The settings once loaded, whether the read failed, whether a save is running, and the saver.
+ * @return The settings (each showing its asked-for value until its save settles), whether the read failed, which settings are saving, and the saver.
  */
 export function useGoogleAnalyticsSettings() {
 	const queryClient = useQueryClient();
 	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
-	const [ requested, setRequested ] = useState< Partial< GoogleAnalyticsSettings > | null >( null );
+	const [ pending, setPending ] = useState< Partial< GoogleAnalyticsSettings > >( {} );
+	const queue = useRef< Promise< unknown > >( Promise.resolve() );
 	const { data, isError } = useQuery( {
 		queryKey: QUERY_KEY,
 		queryFn: () => apiFetch< GoogleAnalyticsSettings >( { path: PATH } ),
 	} );
 
-	const save = useCallback(
+	const send = useCallback(
 		async ( changes: Partial< GoogleAnalyticsSettings > ) => {
-			setRequested( changes );
 			try {
 				const saved = await apiFetch< GoogleAnalyticsSettings >( {
 					path: PATH,
@@ -55,16 +55,40 @@ export function useGoogleAnalyticsSettings() {
 				);
 				return false;
 			} finally {
-				setRequested( null );
+				// A later save of the same setting keeps its own pending value.
+				setPending( current => {
+					const next = { ...current };
+					for ( const key of Object.keys( changes ) as ( keyof GoogleAnalyticsSettings )[] ) {
+						if ( next[ key ] === changes[ key ] ) {
+							delete next[ key ];
+						}
+					}
+					return next;
+				} );
 			}
 		},
 		[ queryClient, createErrorNotice, createSuccessNotice ]
 	);
 
+	const save = useCallback(
+		( changes: Partial< GoogleAnalyticsSettings > ) => {
+			setPending( current => ( { ...current, ...changes } ) );
+			const result = queue.current.then( () => send( changes ) );
+			queue.current = result;
+			return result;
+		},
+		[ send ]
+	);
+
+	const isSaving = useCallback(
+		( setting: keyof GoogleAnalyticsSettings ) => Object.hasOwn( pending, setting ),
+		[ pending ]
+	);
+
 	return {
-		settings: data ? { ...data, ...requested } : undefined,
+		settings: data ? { ...data, ...pending } : undefined,
 		isError,
-		isSaving: requested !== null,
+		isSaving,
 		save,
 	};
 }

@@ -15,7 +15,7 @@ import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { GoogleAnalyticsSettings as Settings } from './use-google-analytics-settings';
 import type { ChangeEvent } from 'react';
 
-// Empty, or a Universal Analytics or GA4 Measurement ID; the route checks the same.
+// Empty, or a GA4 Measurement ID; a stored Universal Analytics ID stays valid. The route checks the same.
 const CODE_PATTERN = /^(|UA-\d+-\d+|G-[A-Z0-9]+)$/i;
 
 /**
@@ -45,7 +45,7 @@ export function GoogleAnalyticsSettings() {
 	const code = draft ?? settings?.code ?? '';
 	const isValid = CODE_PATTERN.test( code.trim() );
 
-	// Saved on blur, like the other text settings in the panel.
+	// Saved on blur.
 	const onBlur = useCallback( async () => {
 		const value = code.trim();
 		if ( draft === null || ! isValid || value === settings?.code ) {
@@ -91,7 +91,6 @@ export function GoogleAnalyticsSettings() {
 			<SwitchControl
 				label={ __( 'Enable Google Analytics', 'jetpack-my-jetpack' ) }
 				checked={ settings.is_active }
-				disabled={ isSaving }
 				onCheckedChange={ onSwitch( 'is_active' ) }
 			/>
 			{ needsId && (
@@ -103,13 +102,13 @@ export function GoogleAnalyticsSettings() {
 			) }
 			<ValidatedInputControl
 				label={ __( 'Google Analytics Measurement ID', 'jetpack-my-jetpack' ) }
-				description={ __( 'Starts with G-, or UA- for older properties.', 'jetpack-my-jetpack' ) }
+				description={ __( 'Starts with G-.', 'jetpack-my-jetpack' ) }
 				placeholder="G-XXXXXXX"
 				value={ code }
 				onChange={ onChange }
 				onBlur={ onBlur }
 				// Editable while off, so the ID can go in before tracking starts.
-				disabled={ isSaving }
+				disabled={ isSaving( 'code' ) }
 				customValidity={
 					isValid
 						? undefined
@@ -126,7 +125,7 @@ export function GoogleAnalyticsSettings() {
 					'jetpack-my-jetpack'
 				) }
 				checked={ settings.anonymize_ip }
-				disabled={ ! settings.is_active || isSaving }
+				disabled={ ! settings.is_active }
 				onCheckedChange={ onSwitch( 'anonymize_ip' ) }
 			/>
 		</Stack>
