@@ -36,7 +36,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch } =
+	const { rows, partialMonths, lifeStartsAt, isLoading, isFetching, isError, error, refetch } =
 		usePostAllTimeTraffic( postId, metric );
 
 	// A month picked here becomes the page's period, read over by the other
@@ -106,6 +106,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 		>
 			<MonthlyHeatmap
 				rows={ heatmapRows }
+				partialMonths={ partialMonths }
 				{ ...monthlyHeatmapLabels( metric ) }
 				onSelect={ openMonth }
 			/>
