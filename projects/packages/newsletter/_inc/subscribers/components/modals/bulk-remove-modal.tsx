@@ -1,5 +1,11 @@
 import { formatNumber } from '@automattic/number-formatters';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { AlertDialog, Button, InputControl, Notice, Stack, Text } from '@wordpress/ui';
 import { useBulkRemoveCounts, useStartBulkRemoveMutation } from '../../data/use-bulk-remove';
@@ -235,15 +241,23 @@ export default function BulkRemoveModal( {
 
 	const remaining = Math.max( 0, listTotal - total );
 
-	let csvButtonText: string = __( 'download all your subscribers as a CSV', 'jetpack-newsletter' );
+	// One string per state, so translators see the whole sentence. The button is the second
+	// piece in each, so React keeps the same element and focus stays on it after a download.
+	let csvSentence: string = __(
+		'Before you continue, <button>download all your subscribers as a CSV</button> so you have a copy.',
+		'jetpack-newsletter'
+	);
 	if ( csvDownloaded ) {
-		csvButtonText = __( 'Download it again', 'jetpack-newsletter' );
+		csvSentence = __(
+			'CSV downloaded. Keep it if you might want this list later. <button>Download it again</button>',
+			'jetpack-newsletter'
+		);
 	} else if ( ! isAll ) {
-		csvButtonText = sprintf(
-			// translators: %s: number of subscribers.
+		csvSentence = sprintf(
+			// translators: %s: number of subscribers. Keep the <button> tags around the link text.
 			_n(
-				'download this %s subscriber as a CSV',
-				'download these %s subscribers as a CSV',
+				'Before you continue, <button>download this %s subscriber as a CSV</button> so you have a copy.',
+				'Before you continue, <button>download these %s subscribers as a CSV</button> so you have a copy.',
 				total,
 				'jetpack-newsletter'
 			),
@@ -294,7 +308,12 @@ export default function BulkRemoveModal( {
 										formatNumber( matchingTotal ),
 										describeNarrowing( query.filters, query.search )
 									) }{ ' ' }
-									<Button variant="minimal" size="compact" onClick={ switchToMatching }>
+									<Button
+										variant="minimal"
+										size="compact"
+										onClick={ switchToMatching }
+										disabled={ start.isPending }
+									>
 										{ sprintf(
 											// translators: %s: number of matching subscribers.
 											_n(
@@ -356,23 +375,17 @@ export default function BulkRemoveModal( {
 								'jetpack-newsletter'
 							) }
 						</Text>
-						{ /* The button keeps its place after a download, so focus stays on it. */ }
 						<Text variant="body-md">
-							{ csvDownloaded
-								? __(
-										'CSV downloaded. Keep it if you might want this list later.',
-										'jetpack-newsletter'
-									)
-								: __( 'Before you continue,', 'jetpack-newsletter' ) }{ ' ' }
-							<Button
-								variant="minimal"
-								size="compact"
-								onClick={ handleDownload }
-								disabled={ ! csvUrl }
-							>
-								{ csvButtonText }
-							</Button>
-							{ csvDownloaded ? null : ' ' + __( 'so you have a copy.', 'jetpack-newsletter' ) }
+							{ createInterpolateElement( csvSentence, {
+								button: (
+									<Button
+										variant="minimal"
+										size="compact"
+										onClick={ handleDownload }
+										disabled={ ! csvUrl }
+									/>
+								),
+							} ) }
 						</Text>
 						<InputControl
 							label={ sprintf(

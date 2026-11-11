@@ -527,19 +527,22 @@ export default function SubscribersDataViews( {
 					</Stack>
 				</Stack>
 				<DataViews.FiltersToggled className="dataviews-filters__container" />
-				<SelectionBanner
-					pageCount={ subscribers.length }
-					selectedCount={ selectedOnPage.length }
-					matchingCount={ totalItems }
-					totalPages={ totalPages }
-					narrowed={ narrowed }
-					isAllSelected={ isAllSelected }
-					disabled={ isBulkRemoveRunning }
-					onSelectAll={ selectAll }
-					onRemovePage={ removeSelectedOnPage }
-					onRemoveAll={ requestBulkRemoveOfSelection }
-					onClear={ clearSelection }
-				/>
+				{ /* The list stays mounted, so screen readers hear the banner appear and change. */ }
+				<Notice.List>
+					<SelectionBanner
+						pageCount={ subscribers.length }
+						selectedCount={ selectedOnPage.length }
+						matchingCount={ totalItems }
+						totalPages={ totalPages }
+						narrowed={ narrowed }
+						isAllSelected={ isAllSelected }
+						disabled={ isBulkRemoveRunning }
+						onSelectAll={ selectAll }
+						onRemovePage={ removeSelectedOnPage }
+						onRemoveAll={ requestBulkRemoveOfSelection }
+						onClear={ clearSelection }
+					/>
+				</Notice.List>
 				<DataViews.Layout />
 				<DataViews.Footer />
 			</DataViews>
