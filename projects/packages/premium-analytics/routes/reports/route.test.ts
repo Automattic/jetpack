@@ -113,13 +113,17 @@ describe( 'report route.beforeLoad', () => {
 		} );
 	} );
 
-	it( 'still seeds the URL when the site settings fail to load', async () => {
+	it.each( [
+		[ 'fail to load', () => Promise.reject( new Error( 'offline' ) ) ],
+		[ 'are still loading', () => new Promise< void >( () => {} ) ],
+	] )( 'seeds the URL while the site settings %s', async ( _, settings ) => {
 		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
-		( ensureCoreSettingsReady as jest.Mock ).mockRejectedValueOnce( new Error( 'offline' ) );
+		( ensureCoreSettingsReady as jest.Mock ).mockImplementationOnce( settings );
+		const stalled = new Promise( resolve => setTimeout( resolve, 0, 'stalled' ) );
 
-		await expect( beforeLoad( { report: 'authors' } ) ).rejects.toMatchObject( {
-			to: '/reports/$report',
-		} );
+		await expect(
+			Promise.race( [ beforeLoad( { report: 'authors' } ), stalled ] )
+		).rejects.toMatchObject( { to: '/reports/$report' } );
 	} );
 
 	it( 'drops the detail-page scopes that arrived on the URL while seeding', async () => {

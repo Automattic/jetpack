@@ -65,11 +65,7 @@ export const route = {
 		// The seed mirrors post-detail/route.ts, which explains each step; this
 		// page carries no report origin, since its breadcrumb is fixed.
 		if ( needsDateSeed || needsAuthorSeed ) {
-			try {
-				await ensureCoreSettingsReady();
-			} catch {
-				// Proceed with the default seed below.
-			}
+			ensureCoreSettingsReady().catch( () => {} );
 
 			const reportParams = normalizeReportParams(
 				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
