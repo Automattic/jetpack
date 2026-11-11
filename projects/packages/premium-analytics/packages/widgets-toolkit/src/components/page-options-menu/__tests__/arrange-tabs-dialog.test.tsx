@@ -76,6 +76,40 @@ describe( 'ArrangeTabsDialog', () => {
 		expect( onClose ).toHaveBeenCalled();
 	} );
 
+	it( 'slides each row from where it sat', async () => {
+		// jsdom has no Web Animations and lays nothing out: rows sit 40px apart, in document order.
+		const animate = jest.fn();
+		Object.assign( Element.prototype, { animate, getAnimations: () => [] } );
+		const rects = jest
+			.spyOn( Element.prototype, 'getBoundingClientRect' )
+			.mockImplementation( function ( this: Element ) {
+				const top = 40 * screen.queryAllByRole( 'listitem' ).indexOf( this as HTMLElement );
+
+				return { top, bottom: top + 40, left: 0, right: 300, width: 300, height: 40 } as DOMRect;
+			} );
+
+		try {
+			const { user } = renderDialog();
+
+			await user.click( screen.getByRole( 'button', { name: 'Move Insights up' } ) );
+
+			const slides = animate.mock.calls
+				.map( ( [ keyframes ], call ) => [
+					( animate.mock.contexts[ call ] as Element ).firstElementChild?.textContent,
+					keyframes[ 0 ].transform,
+				] )
+				.filter( ( [ , transform ] ) => transform );
+			expect( slides ).toEqual( [
+				[ 'Insights', 'translateY(40px)' ],
+				[ 'Traffic', 'translateY(-40px)' ],
+			] );
+		} finally {
+			rects.mockRestore();
+			delete ( Element.prototype as Partial< Element > ).animate;
+			delete ( Element.prototype as Partial< Element > ).getAnimations;
+		}
+	} );
+
 	it( 'does not move the first tab up or the last one down', async () => {
 		const { user } = renderDialog();
 

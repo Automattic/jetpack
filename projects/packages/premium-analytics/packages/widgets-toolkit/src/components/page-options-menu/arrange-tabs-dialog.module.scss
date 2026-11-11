@@ -19,6 +19,21 @@
 	overflow-wrap: anywhere;
 }
 
+// The badge follows the first row, and fades in where it lands.
+.badge {
+
+	@media not (prefers-reduced-motion) {
+		animation: appear var(--wpds-motion-duration-lg) var(--wpds-motion-easing-subtle);
+	}
+}
+
+@keyframes appear {
+
+	from {
+		opacity: 0;
+	}
+}
+
 // The footer lays its actions out from the end; this one sits at the start.
 .reset {
 	margin-inline-end: auto;

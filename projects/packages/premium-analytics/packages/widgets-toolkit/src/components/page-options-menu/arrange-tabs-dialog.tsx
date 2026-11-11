@@ -4,6 +4,7 @@
 import { getSectionOrder, setSectionOrder } from '@jetpack-premium-analytics/data';
 import { Badge, Dialog, IconButton, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { speak } from '@wordpress/a11y';
+import { useReducedMotion } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
@@ -38,6 +39,81 @@ export type ArrangeableTabs = {
 };
 
 type Step = -1 | 1;
+
+type Move = {
+	/*
+	 * The position the tab moved to, from zero.
+	 */
+	index: number;
+
+	/*
+	 * The direction it moved in.
+	 */
+	step: Step;
+
+	/*
+	 * Where each row sat before the move, by tab slug.
+	 */
+	tops: Map< string, number >;
+};
+
+/**
+ * Slides each row from where it sat to where it is, the moved one over the others and
+ * tinted until it lands, so the eye follows which of them the reader moved.
+ *
+ * @param rows          - The rows, in their new order.
+ * @param tabs          - The tabs, in their new order.
+ * @param moved         - The move that put them there.
+ * @param reducedMotion - Whether the reader asked for less motion: the tint stays, the slide goes.
+ */
+function animateMove(
+	rows: HTMLElement[],
+	tabs: ArrangeableTab[],
+	moved: Move,
+	reducedMotion: boolean
+) {
+	const [ firstRow ] = rows;
+
+	// jsdom has no Web Animations.
+	if ( typeof firstRow?.animate !== 'function' ) {
+		return;
+	}
+
+	const tokens = getComputedStyle( firstRow );
+	const token = ( name: string ) => tokens.getPropertyValue( name ).trim();
+	const duration = parseFloat( token( '--wpds-motion-duration-md' ) ) || 0;
+	const easing = token( '--wpds-motion-easing-balanced' ) || 'ease';
+
+	rows.forEach( ( row, index ) => {
+		// Drop a slide that is still running, so the row is measured where it really sits.
+		row.getAnimations().forEach( animation => animation.cancel() );
+
+		const top = moved.tops.get( tabs[ index ].slug );
+		const offset = top === undefined ? 0 : top - row.getBoundingClientRect().top;
+
+		if ( offset !== 0 && ! reducedMotion ) {
+			row.animate( [ { transform: `translateY(${ offset }px)` }, { transform: 'none' } ], {
+				duration,
+				easing,
+			} );
+		}
+	} );
+
+	// The tint reaches past the row's ends, and fades into the dialog's own surface.
+	const bleed = token( '--wpds-dimension-padding-sm' );
+	const fill = ( color: string ) => ( {
+		backgroundColor: color,
+		boxShadow: `${ bleed } 0 ${ color }, calc(-1 * ${ bleed }) 0 ${ color }`,
+		zIndex: 1,
+	} );
+	const tint = fill( token( '--wpds-color-background-surface-neutral-weak' ) );
+	const surface = fill( token( '--wpds-color-background-surface-neutral-strong' ) );
+
+	// Tinted for the length of the slide, then fading for as long again and a half.
+	rows[ moved.index ]?.animate( [ tint, { ...tint, offset: 0.4 }, surface ], {
+		duration: duration * 2.5,
+	} );
+}
 
 type TabRowProps = {
 	/*
@@ -74,7 +150,11 @@ function TabRow( { tab, index, count, onMove }: TabRowProps ) {
 	return (
 		<Stack render={ <li /> } direction="row" align="center" gap="sm" className={ styles.row }>
 			<Text className={ styles.label }>{ tab.label }</Text>
-			{ index === 0 && <Badge>{ __( 'Opens first', 'jetpack-premium-analytics-pkg' ) }</Badge> }
+			{ index === 0 && (
+				<Badge className={ styles.badge }>
+					{ __( 'Opens first', 'jetpack-premium-analytics-pkg' ) }
+				</Badge>
+			) }
 			<IconButton
 				icon={ chevronUp }
 				label={ sprintf(
@@ -122,28 +202,39 @@ type ArrangeTabsDialogProps = ArrangeableTabs & {
 export function ArrangeTabsDialog( { scope, items, onClose }: ArrangeTabsDialogProps ) {
 	const [ tabs, setTabs ] = useState( items );
 	const hasOwnOrder = useSelect( select => getSectionOrder( scope, select ).length > 0, [ scope ] );
+	const reducedMotion = useReducedMotion();
 	const listRef = useRef< HTMLOListElement >( null );
-	// React re-inserts a row it moves, which drops the focus: the button to hand it back to.
-	const movedRef = useRef< { index: number; step: Step } | undefined >( undefined );
+	// The move the rows have yet to show: read once they are back in the document.
+	const movedRef = useRef< Move | undefined >( undefined );
 
 	useLayoutEffect( () => {
 		const moved = movedRef.current;
+		const rows = Array.from( listRef.current?.children ?? [] ) as HTMLElement[];
 
-		if ( moved ) {
-			movedRef.current = undefined;
-			listRef.current?.children[ moved.index ]
-				?.querySelectorAll( 'button' )
-				[ moved.step === -1 ? 0 : 1 ]?.focus();
+		if ( ! moved ) {
+			return;
 		}
-	}, [ tabs ] );
+
+		movedRef.current = undefined;
+		// React re-inserts a row it moves, which drops the focus: back to the button that moved it.
+		rows[ moved.index ]?.querySelectorAll( 'button' )[ moved.step === -1 ? 0 : 1 ]?.focus();
+		animateMove( rows, tabs, moved, reducedMotion );
+	}, [ tabs, reducedMotion ] );
 
 	const move = useCallback(
 		( index: number, step: Step ) => {
 			const next = [ ...tabs ];
 			const [ tab ] = next.splice( index, 1 );
+			const tops = new Map(
+				Array.from(
+					listRef.current?.children ?? [],
+					( row, position ) =>
+						[ tabs[ position ].slug, row.getBoundingClientRect().top ] as [ string, number ]
+				)
+			);
 
 			next.splice( index + step, 0, tab );
-			movedRef.current = { index: index + step, step };
+			movedRef.current = { index: index + step, step, tops };
 			setTabs( next );
 			speak(
 				sprintf(
