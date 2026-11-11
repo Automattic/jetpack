@@ -4,6 +4,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { bell, chartBar, envelope, listView, postCommentsForm, shield } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import { requestModuleSwitch } from '../../../data/module-switch';
+import { queueActivationRequest } from '../../../data/queue-activation-request';
 import { isWanted } from './lib';
 import type { MyJetpackModule } from '../../../types';
 
@@ -170,16 +171,20 @@ export function useSetupModules(
 /**
  * Whether the site runs a module right now, read from the site rather than the store.
  *
+ * Queued so it waits for a switch the queue stopped waiting on. Only the list route
+ * carries `activated`; the per-module route leaves it out.
+ *
  * @param slug - The module's slug.
  * @return Its state, or null when the site could not be asked.
  */
 export async function readModuleActive( slug: string ): Promise< boolean | null > {
 	try {
-		const module = await apiFetch< { activated?: boolean } >( {
-			path: `/jetpack/v4/module/${ slug }`,
-		} );
+		const modules = await queueActivationRequest( () =>
+			apiFetch< Record< string, { activated?: boolean } > >( { path: '/jetpack/v4/module/all' } )
+		);
+		const activated = modules?.[ slug ]?.activated;
 
-		return typeof module?.activated === 'boolean' ? module.activated : null;
+		return typeof activated === 'boolean' ? activated : null;
 	} catch {
 		return null;
 	}

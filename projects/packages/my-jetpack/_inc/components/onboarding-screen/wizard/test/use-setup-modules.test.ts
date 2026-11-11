@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+import { queueActivationRequest } from '../../../../data/queue-activation-request';
 import { useApplySetupModules, useSetupModules } from '../use-setup-modules';
 import type { SetupModule } from '../use-setup-modules';
 
@@ -79,9 +80,10 @@ describe( 'Applying the wizard’s switches', () => {
 	} );
 
 	it.each( [
-		[ 'took after all', { activated: true }, true ],
-		[ 'did not take', { activated: false }, false ],
-		[ 'cannot be confirmed', new Error( 'offline' ), false ],
+		[ 'took after all', { monitor: { activated: true } }, true ],
+		[ 'did not take', { monitor: { activated: false } }, false ],
+		[ 'cannot be confirmed', { monitor: { name: 'Monitor' } }, false ],
+		[ 'cannot be asked', new Error( 'offline' ), false ],
 	] )( 'asks the site about a switch that reported false, and it %s', async ( _name, read, ok ) => {
 		mockRequestModuleSwitch.mockResolvedValue( false );
 		if ( read instanceof Error ) {
@@ -96,10 +98,30 @@ describe( 'Applying the wizard’s switches', () => {
 			results = await result.current.apply( [ module( 'monitor', false ) ], { monitor: true } );
 		} );
 
-		expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/module/monitor' } );
+		expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/module/all' } );
 		expect( results ).toEqual( [
 			{ slug: 'monitor', name: 'monitor', wanted: true, ok, changed: true },
 		] );
+	} );
+
+	it( 'waits for a switch still running before asking the site', async () => {
+		mockRequestModuleSwitch.mockResolvedValue( false );
+		mockApiFetch.mockResolvedValue( { monitor: { activated: true } } );
+		let finish: () => void = () => {};
+		queueActivationRequest( () => new Promise< void >( resolve => ( finish = resolve ) ) );
+		const { result } = renderHook( () => useApplySetupModules() );
+
+		let running: Promise< unknown > = Promise.resolve();
+		await act( async () => {
+			running = result.current.apply( [ module( 'monitor', false ) ], { monitor: true } );
+		} );
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+
+		await act( async () => {
+			finish();
+			await running;
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'never asks to move a module the host forces', async () => {
