@@ -129,10 +129,13 @@ describe( 'PostAllTimeTraffic widget', () => {
 
 		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 30' } ) );
 
-		expect( mockOpenPeriod ).toHaveBeenCalledWith( {
-			from: new Date( '2025-11-10T00:00:00.000Z' ),
-			to: new Date( '2025-12-31T23:59:59.999Z' ),
-		} );
+		expect( mockOpenPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2025-11-10T00:00:00.000Z' ),
+				to: new Date( '2025-12-31T23:59:59.999Z' ),
+			},
+			{ step: 'P1Y' }
+		);
 	} );
 
 	it( 'sets the page period to a clicked month, cut to the post life', async () => {
@@ -141,7 +144,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 
 		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
 
-		expect( mockOpenPeriod ).toHaveBeenCalledWith( NOVEMBER_2025 );
+		expect( mockOpenPeriod ).toHaveBeenCalledWith( NOVEMBER_2025, { step: 'P1M' } );
 	} );
 
 	it( 'shows the scopeless empty state without a post', () => {

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type DateRange } from '@jetpack-premium-analytics/datetime';
+import { type DateRange, type DateStepId } from '@jetpack-premium-analytics/datetime';
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
@@ -32,6 +32,12 @@ export type DateLimits = Pick<
 /**
  * What the surface a widget or table is rendering on offers.
  */
+/** What a widget says about the period it opens. */
+export type OpenPeriodOptions = {
+	/** How the date arrows step it: the bucket's own unit, so a bar opened today steps whole. */
+	step?: DateStepId;
+};
+
 export type ReportScope = {
 	offersComparison: boolean;
 
@@ -39,7 +45,7 @@ export type ReportScope = {
 	 * Applies a range a widget computed as the surface's period, drawing the date
 	 * control's attention to it. Absent where the host offers none.
 	 */
-	openPeriod?: ( range: Required< DateRange > ) => void;
+	openPeriod?: ( range: Required< DateRange >, options?: OpenPeriodOptions ) => void;
 	/**
 	 * The id the host's date control draws attention with while a period a widget set
 	 * lands; undefined while nothing is pending. Travels with `openPeriod`.

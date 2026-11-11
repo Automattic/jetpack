@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Premium Analytics: Fix the date arrows stepping from a chart bar clicked today onto a partial yesterday.
+Premium Analytics: Fix the date arrows landing on a partial day, week or month after clicking today's chart bar.

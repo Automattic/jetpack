@@ -15,7 +15,6 @@ import {
 	endOfYear,
 	isFirstDayOfMonth,
 	isLastDayOfMonth,
-	isSameDay,
 	startOfDay,
 	startOfMonth,
 	startOfYear,
@@ -43,6 +42,7 @@ import {
 } from './presets/types';
 import type { DateRangeSpan, DateRangeSpanUnit } from './date-range-span';
 import type { DateRange } from './get-comparison-range';
+import type { IntervalType } from './interval';
 import type { TZDate } from '@date-fns/tz';
 
 /**
@@ -152,29 +152,46 @@ export function getStepSpan( stepId: DateStepId ): DateRangeSpan {
 }
 
 /**
+ * The step a chart bucket opened as the period moves by: its own unit, so Previous from
+ * today's bar is the whole of yesterday however little of today has passed.
+ *
+ * @param interval - The interval the bucket was drawn in.
+ * @return The step id, or `undefined` for an interval whose buckets do not open.
+ */
+export function bucketStepId( interval: IntervalType ): DateStepDuration | undefined {
+	switch ( interval ) {
+		case 'day':
+			return 'P1D';
+		case 'week':
+			return 'P7D';
+		case 'month':
+			return 'P1M';
+		case 'quarter':
+			return 'P3M';
+		case 'year':
+			return 'P1Y';
+		default:
+			return undefined;
+	}
+}
+
+/**
  * The step a hand-picked window moves by, measured once from its shape: whole
  * calendar months (whole calendar years, from a January) step by months, any
  * other run of whole days by its days, anything else by its hours.
  *
- * A window of whole days cut at `now` (a chart bucket opened today) counts as
- * running to the end of its day, so it steps by days rather than by the hours
- * elapsed, and lands on whole days.
- *
  * @param range - The window, both ends on its own clock.
- * @param now   - The current instant, on the same clock.
  * @return The step id, or `undefined` when the window runs backwards.
  */
-export function measureStepId( range: Required< DateRange >, now?: Date ): DateStepId | undefined {
-	const { from } = range;
-	const startsOnDay = from.getTime() === startOfDay( from ).getTime();
-	const isCutAtNow = !! now && isSameDay( range.to, now ) && range.to.getTime() <= now.getTime();
-	const to = startsOnDay && isCutAtNow ? endOfDay( range.to ) : range.to;
+export function measureStepId( range: Required< DateRange > ): DateStepId | undefined {
+	const { from, to } = range;
 
 	if ( to.getTime() < from.getTime() ) {
 		return undefined;
 	}
 
-	const isWholeDays = startsOnDay && to.getTime() === endOfDay( to ).getTime();
+	const isWholeDays =
+		from.getTime() === startOfDay( from ).getTime() && to.getTime() === endOfDay( to ).getTime();
 
 	if ( ! isWholeDays ) {
 		// `round`, not the default truncation: an hour-snapped window runs to the

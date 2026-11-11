@@ -67,7 +67,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 				month === undefined ? yearRange( year, bounds ) : monthRange( { year, month }, bounds );
 
 			if ( range ) {
-				openPeriod( range );
+				openPeriod( range, { step: month === undefined ? 'P1Y' : 'P1M' } );
 			}
 		};
 	}, [ lifeStartsAt, timeZone, openPeriod ] );

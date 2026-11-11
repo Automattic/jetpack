@@ -294,11 +294,13 @@ describe( 'planDateStep', () => {
 		} );
 	} );
 
+	// A bucket opened today is cut at the click; the step it was opened with, not its
+	// hours, says where Previous lands.
 	it( 'steps back from today’s chart bucket onto the whole of yesterday', () => {
 		const now = new Date( '2026-08-20T15:00:00.000Z' );
 		const openedToday = { from: at( [ 2026, 8, 20 ], 0 ), to: at( [ 2026, 8, 20 ], 15 ) };
 
-		expect( planDateStep( openedToday, 'previous', { ...context, now } ) ).toEqual( {
+		expect( planDateStep( openedToday, 'previous', { ...context, now, step: 'P1D' } ) ).toEqual( {
 			range: wholeDays( [ 2026, 8, 19 ], [ 2026, 8, 19 ] ),
 			presetId: 'custom',
 			step: 'P1D',

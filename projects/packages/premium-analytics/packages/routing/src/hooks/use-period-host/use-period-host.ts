@@ -42,7 +42,8 @@ export function usePeriodHost(
 	const attentionId = useSettlePeriodChange( surface, appliedRange, isShown );
 
 	const openPeriod = useCallback< OpenPeriod >(
-		range => commitExactRange( surface, range, { lockedIntervals } ),
+		( range, options ) =>
+			commitExactRange( surface, range, { lockedIntervals, step: options?.step } ),
 		[ commitExactRange, surface, lockedIntervals ]
 	);
 

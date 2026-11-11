@@ -7,7 +7,11 @@ import {
 	useReportScope,
 	useScopeLockedIntervals,
 } from '@jetpack-premium-analytics/data';
-import { parseSiteDateTime, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
+import {
+	bucketStepId,
+	parseSiteDateTime,
+	reportingTimeZone,
+} from '@jetpack-premium-analytics/datetime';
 import {
 	HEADLINE_COUNT_FORMAT,
 	bucketRange,
@@ -87,7 +91,8 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 			const range = bucketRange( date, period, window, { timeZone: reportingTimeZone() } );
 
 			if ( range ) {
-				openPeriod( range );
+				// The bar's own unit, so Previous from today's bar is the whole of yesterday.
+				openPeriod( range, { step: bucketStepId( period ) } );
 			}
 		};
 	}, [ openPeriod, period, reportParams.from, reportParams.to ] );

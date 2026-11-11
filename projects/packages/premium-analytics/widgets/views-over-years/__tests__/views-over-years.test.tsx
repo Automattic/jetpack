@@ -172,14 +172,24 @@ describe( 'ViewsOverYears widget', () => {
 		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) );
 		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 920' } ) );
 
-		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith( 1, 'traffic', {
-			from: new Date( '2025-11-24T00:00:00.000Z' ),
-			to: new Date( '2025-11-30T23:59:59.999Z' ),
-		} );
-		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith( 2, 'traffic', {
-			from: new Date( '2025-11-24T00:00:00.000Z' ),
-			to: new Date( '2025-12-31T23:59:59.999Z' ),
-		} );
+		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith(
+			1,
+			'traffic',
+			{
+				from: new Date( '2025-11-24T00:00:00.000Z' ),
+				to: new Date( '2025-11-30T23:59:59.999Z' ),
+			},
+			{ step: 'P1M' }
+		);
+		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith(
+			2,
+			'traffic',
+			{
+				from: new Date( '2025-11-24T00:00:00.000Z' ),
+				to: new Date( '2025-12-31T23:59:59.999Z' ),
+			},
+			{ step: 'P1Y' }
+		);
 	} );
 
 	it( 'reads one author’s history, opens its first month on the first content day, and opens a month as the page’s period', async () => {
@@ -217,10 +227,13 @@ describe( 'ViewsOverYears widget', () => {
 		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) );
-		expect( openPeriod ).toHaveBeenCalledWith( {
-			from: new Date( '2025-11-24T00:00:00.000Z' ),
-			to: new Date( '2025-11-30T23:59:59.999Z' ),
-		} );
+		expect( openPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2025-11-24T00:00:00.000Z' ),
+				to: new Date( '2025-11-30T23:59:59.999Z' ),
+			},
+			{ step: 'P1M' }
+		);
 		expect( mockOpenSectionRange ).not.toHaveBeenCalled();
 	} );
 
@@ -250,10 +263,11 @@ describe( 'ViewsOverYears widget', () => {
 
 		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2026: 605' } ) );
 
-		expect( mockOpenSectionRange ).toHaveBeenCalledWith( 'traffic', {
-			from: new Date( '2026-01-01T00:00:00.000Z' ),
-			to: NOW,
-		} );
+		expect( mockOpenSectionRange ).toHaveBeenCalledWith(
+			'traffic',
+			{ from: new Date( '2026-01-01T00:00:00.000Z' ), to: NOW },
+			{ step: 'P1Y' }
+		);
 	} );
 
 	it( 'draws a site with no views as its current month at zero', () => {
