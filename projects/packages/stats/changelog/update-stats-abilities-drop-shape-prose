@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Abilities: Remove result-shape sentences from Stats ability descriptions; the output schema declares the result.
+Abilities: Declare the nested Stats result fields in each output schema, and remove the result-shape sentences from the ability descriptions.

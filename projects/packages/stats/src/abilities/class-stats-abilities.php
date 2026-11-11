@@ -172,11 +172,32 @@ class Stats_Abilities extends Registrar {
 					'visitors_today' => array( 'type' => array( 'integer', 'null' ) ),
 					'views_week'     => array( 'type' => array( 'integer', 'null' ) ),
 					'views_month'    => array( 'type' => array( 'integer', 'null' ) ),
-					'streak'         => array( 'type' => array( 'object', 'null' ) ),
-					'top_post'       => array( 'type' => array( 'object', 'null' ) ),
-					'top_referrer'   => array( 'type' => array( 'object', 'null' ) ),
+					'streak'         => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'current_length' => array( 'type' => 'integer' ),
+							'longest_length' => array( 'type' => 'integer' ),
+							'longest_start'  => array( 'type' => 'string' ),
+							'longest_end'    => array( 'type' => 'string' ),
+						),
+					),
+					'top_post'       => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'id'    => array( 'type' => 'integer' ),
+							'title' => array( 'type' => 'string' ),
+							'views' => array( 'type' => 'integer' ),
+						),
+					),
+					'top_referrer'   => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'name'  => array( 'type' => 'string' ),
+							'views' => array( 'type' => 'integer' ),
+						),
+					),
 					'partial'        => array( 'type' => 'boolean' ),
-					'errors'         => array( 'type' => 'array' ),
+					'errors'         => self::errors_schema(),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_site_overview' ),
@@ -252,7 +273,20 @@ class Stats_Abilities extends Registrar {
 					'date'   => array( 'type' => 'string' ),
 					'num'    => array( 'type' => 'integer' ),
 					'max'    => array( 'type' => 'integer' ),
-					'items'  => array( 'type' => 'array' ),
+					'items'  => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'rank'  => array( 'type' => 'integer' ),
+								'label' => array( 'type' => 'string' ),
+								'value' => array( 'type' => 'integer' ),
+								'href'  => array( 'type' => 'string' ),
+								'id'    => array( 'type' => 'integer' ),
+							),
+							'required'   => array( 'rank', 'label', 'value' ),
+						),
+					),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_top_content' ),
@@ -320,7 +354,16 @@ class Stats_Abilities extends Registrar {
 					'period'      => array( 'type' => 'string' ),
 					'num'         => array( 'type' => 'integer' ),
 					'date'        => array( 'type' => 'string' ),
-					'series'      => array( 'type' => 'array' ),
+					'series'      => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'date'  => array( 'type' => 'string' ),
+								'views' => array( 'type' => array( 'integer', 'null' ) ),
+							),
+						),
+					),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_post_views' ),
@@ -391,8 +434,24 @@ class Stats_Abilities extends Registrar {
 					'period' => array( 'type' => 'string' ),
 					'num'    => array( 'type' => 'integer' ),
 					'date'   => array( 'type' => 'string' ),
-					'fields' => array( 'type' => 'array' ),
-					'series' => array( 'type' => 'array' ),
+					'fields' => array(
+						'type'  => 'array',
+						'items' => array(
+							'type' => 'string',
+							'enum' => self::VISIT_FIELDS,
+						),
+					),
+					'series' => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'date' => array( 'type' => 'string' ),
+							),
+							// Each row carries every name in `fields`.
+							'additionalProperties' => array( 'type' => array( 'integer', 'null' ) ),
+						),
+					),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_visits' ),
@@ -436,9 +495,13 @@ class Stats_Abilities extends Registrar {
 					'email'     => array( 'type' => array( 'integer', 'null' ) ),
 					'wpcom'     => array( 'type' => array( 'integer', 'null' ) ),
 					'comment'   => array( 'type' => array( 'integer', 'null' ) ),
-					'publicize' => array( 'type' => array( 'object', 'null' ) ),
+					'publicize' => array(
+						'type'                 => array( 'object', 'null' ),
+						// Follower count keyed by service slug.
+						'additionalProperties' => array( 'type' => 'integer' ),
+					),
 					'partial'   => array( 'type' => 'boolean' ),
-					'errors'    => array( 'type' => 'array' ),
+					'errors'    => self::errors_schema(),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_followers' ),
@@ -1549,6 +1612,18 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'id'  => (int) Jetpack_Options::get_option( 'id' ),
 			'url' => home_url(),
+		);
+	}
+
+	/**
+	 * Output schema for `errors`: the names of the WordPress.com sub-calls that failed.
+	 *
+	 * @return array
+	 */
+	private static function errors_schema(): array {
+		return array(
+			'type'  => 'array',
+			'items' => array( 'type' => 'string' ),
 		);
 	}
 
