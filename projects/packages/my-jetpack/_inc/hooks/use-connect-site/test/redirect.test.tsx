@@ -36,6 +36,8 @@ jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 
 describe( 'useConnectSite', () => {
 	beforeEach( () => {
+		// jsdom doesn't implement scrollTo; connectSite calls it on a 100ms timer that a slow run reaches.
+		jest.spyOn( window, 'scrollTo' ).mockImplementation();
 		jest.clearAllMocks();
 		( restApi.registerSite as jest.Mock ).mockResolvedValue( { authorizeUrl: 'x' } );
 		// The connection store is shared, and each registration marks the site registered.
