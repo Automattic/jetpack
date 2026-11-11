@@ -2,7 +2,7 @@
 
 The WooCommerce section of the Premium Analytics dashboard. This package registers the section and its default layout, and declares the widgets the tab offers in the inserter without placing them by default: the sales, orders and visitors over time charts.
 
-It also serves the reports the section's widgets will read. `GET /jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>` forwards to the same path under the connected site on WordPress.com, for users who can view store reports, and caches a successful answer for five minutes.
+It also serves the reports the section's widgets will read. `GET /jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>` forwards to the same path under the connected site on WordPress.com, for users who can view store reports, and caches a successful answer for five minutes. A route needs a report registered on the `jetpack_woocommerce_stats_register_reports` action; any other route answers 404. Every successful answer names its source and report contract in the `X-Jetpack-Report-Provider` and `X-Jetpack-Report-Contract` (`id@version`) headers. On a report with a field contract, `orders/by-date` and `sessions/by-device` for now, `report_fields=orders_no,total_sales` names the summary fields the caller reads: an unknown name is a 422, and an answer without one of them is a 502 rather than a zero. WordPress.com's own `fields` param is forwarded as before. The registry is not a stable contract yet: its interfaces change while local reports are added.
 
 It hands the dashboard the store currency too: `premium_analytics.store_currency` in `JetpackScriptData` carries the code, symbol and price decimals (`precision`), so store money prints in it rather than US dollars, with the store's number of decimals.
 

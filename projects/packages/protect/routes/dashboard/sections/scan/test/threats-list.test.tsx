@@ -1,7 +1,7 @@
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { DataViews } from '@wordpress/dataviews';
+import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { resetScan } from '../store';
 import { deleteSoftware, fixThreat, ignoreThreat } from '../threat-actions';
 import ThreatsList, { createThreatView, getThreatFields } from '../threats-list';
@@ -94,6 +94,29 @@ describe( 'ThreatsList', () => {
 
 		expect( screen.getByText( '—' ) ).toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'desc', [ 3, 0, 2 ] ],
+		[ 'asc', [ 2, 0, 3 ] ],
+	] as const )(
+		'sorts a threat with no severity between Low and High, %s',
+		( direction, expected ) => {
+			const threats: ScanThreat[] = [ 2, null, 3 ].map( severity => ( {
+				id: severity ?? 0,
+				title: 'Threat',
+				severity,
+			} ) );
+			const fields = getThreatFields( jest.fn(), {
+				threatLabel: 'Threat',
+				dateLabel: 'Detected on',
+				getDate: () => '',
+			} );
+			const view = { ...createThreatView( 'severity' ), sort: { field: 'severity', direction } };
+
+			const { data } = filterSortAndPaginate( threats, view, fields );
+			expect( data.map( threat => threat.id ) ).toEqual( expected );
+		}
+	);
 
 	it( 'shows no severity for a threat without one, as from the free vulnerability check', () => {
 		const threat: ScanThreat = { id: 3, title: 'Vulnerable plugin', severity: null };

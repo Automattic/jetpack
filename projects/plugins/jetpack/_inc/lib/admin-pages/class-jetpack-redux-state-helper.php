@@ -224,7 +224,8 @@ class Jetpack_Redux_State_Helper {
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
 			'tracksUserData'                       => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp'                            => IP_Utils::get_ip(),
+			// Don't suggest the fallback address when the configured trusted header can't be resolved.
+			'currentIp'                            => method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ? false : IP_Utils::get_ip(),
 			'lastPostUrl'                          => esc_url( $last_post ),
 			'externalServicesConnectUrls'          => self::get_external_services_connect_urls(),
 			'calypsoEnv'                           => ( new Host() )->get_calypso_env(),

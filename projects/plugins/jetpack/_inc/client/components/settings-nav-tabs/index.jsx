@@ -8,6 +8,7 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import analytics from 'lib/analytics';
 import {
+	getAdsSettingsUrl,
 	isSettingsConsolidationEnabled,
 	isSwitchedInFeatures as _isSwitchedInFeatures,
 } from 'lib/settings-consolidation';
@@ -155,7 +156,8 @@ const SettingsNavTabs = props => {
 		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite ) {
 			visibleTabs.push( '/reader' );
 		}
-		if ( hasModules( [ 'wordads' ] ) ) {
+		// Ads is the tab's last card, so the tab goes once the Ads settings have a new home.
+		if ( hasModules( [ 'wordads' ] ) && ! getAdsSettingsUrl() ) {
 			visibleTabs.push( '/earn' );
 		}
 	} else if ( ! isSubscriber ) {

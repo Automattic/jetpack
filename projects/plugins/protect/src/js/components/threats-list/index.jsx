@@ -100,8 +100,8 @@ const ThreatsList = () => {
 		}
 	}, [ selected, list, item ] );
 
-	// Without a scan, the navigation's checkmarks would read as an all clear.
-	if ( isFirstScanNeeded( status ) ) {
+	// Without a completed scan, the navigation's checkmarks would read as an all clear.
+	if ( isFirstScanNeeded( status ) || ( status?.lastScanFailed && ! status?.threats?.length ) ) {
 		return <EmptyList />;
 	}
 

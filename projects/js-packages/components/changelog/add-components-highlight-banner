@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a HighlightBanner component: Jetpack's dark green banner with gradient orbs, previously copied into the Jetpack plugin and My Jetpack.

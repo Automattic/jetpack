@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
@@ -335,7 +336,7 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
-				'name'  => __( 'Web Application Firewall', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Firewall', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array(
 						'included'    => false,
@@ -348,7 +349,7 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
-				'name'  => __( 'Brute force protection', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Login protection', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array( 'included' => true ),
 					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
@@ -470,6 +471,22 @@ class Protect extends Hybrid_Product {
 	 */
 	public static function has_paid_plan_for_product() {
 		return Plan::has_required_plan();
+	}
+
+	/**
+	 * Get the card's status, Expired for a lapsed purchase that Protect Status no longer counts.
+	 *
+	 * @return string
+	 */
+	public static function get_status() {
+		$status = parent::get_status();
+
+		// Plan only sees active purchases; the purchases lookup still lists a lapsed one, as for other products.
+		if ( Products::STATUS_CAN_UPGRADE === $status && static::is_paid_plan_expired() ) {
+			return Products::STATUS_EXPIRED;
+		}
+
+		return $status;
 	}
 
 	/**

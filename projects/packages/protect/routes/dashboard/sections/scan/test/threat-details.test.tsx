@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { ignoreThreat } from '../threat-actions';
+import { ignoreThreat, resetThreatActions } from '../threat-actions';
 import ThreatDetails from '../threat-details';
 import type { ScanThreat } from '../types';
 
@@ -30,6 +30,8 @@ describe( 'ThreatDetails', () => {
 	beforeEach( () => {
 		mockApiFetch.mockReset().mockReturnValue( new Promise( () => {} ) );
 	} );
+
+	afterEach( resetThreatActions );
 
 	it.each( [
 		[ 'starts a replace fix at once', 1, 'replace', 1, [] ],
@@ -65,7 +67,6 @@ describe( 'ThreatDetails', () => {
 		);
 		expect( screen.getByRole( 'button', { name: 'Fixing…' } ) ).toBeInTheDocument();
 
-		// End the fix so threat 6 isn't left busy for later tests.
 		act( () => endFix( { status: 'not_fixed' } ) );
 		await expect(
 			screen.findByRole( 'button', { name: 'Auto-fix it' } )
