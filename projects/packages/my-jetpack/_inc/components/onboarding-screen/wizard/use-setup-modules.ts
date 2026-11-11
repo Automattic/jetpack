@@ -212,26 +212,29 @@ export function useApplySetupModules() {
 
 			const results: SetupModuleResult[] = [];
 
-			// One at a time: the queue serialises them anyway, and a module that fails
-			// should not be reported against whatever a parallel request did next.
-			for ( const module of modules ) {
-				const want = isWanted( wanted, module );
-				// A module already in the wanted state is not asked to change, and must
-				// not be counted as though it had: the finish screen reports what this
-				// run did, and a run that sent no request did nothing.
-				const changed = want !== module.activated;
-				let ok = changed ? await requestModuleSwitch( toggleModule, module.slug, want ) : true;
+			try {
+				// One at a time: the queue serialises them anyway, and a module that fails
+				// should not be reported against whatever a parallel request did next.
+				for ( const module of modules ) {
+					const want = isWanted( wanted, module );
+					// A module already in the wanted state is not asked to change, and must
+					// not be counted as though it had: the finish screen reports what this
+					// run did, and a run that sent no request did nothing.
+					const changed = want !== module.activated;
+					let ok = changed ? await requestModuleSwitch( toggleModule, module.slug, want ) : true;
 
-				// False can mean the store's follow-up read failed or the queue gave up on a
-				// request still running, so ask the site before reporting "Not changed".
-				if ( ! ok ) {
-					ok = ( await readModuleActive( module.slug ) ) === want;
+					// False can mean the store's follow-up read failed or the queue gave up on a
+					// request still running, so ask the site before reporting "Not changed".
+					if ( ! ok ) {
+						ok = ( await readModuleActive( module.slug ) ) === want;
+					}
+
+					results.push( { slug: module.slug, name: module.name, wanted: want, ok, changed } );
 				}
-
-				results.push( { slug: module.slug, name: module.name, wanted: want, ok, changed } );
+			} finally {
+				// Left true, the busy wizard would hold both exits on the finish screen.
+				setIsApplying( false );
 			}
-
-			setIsApplying( false );
 
 			return results;
 		},
