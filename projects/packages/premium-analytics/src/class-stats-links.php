@@ -32,7 +32,6 @@ class Stats_Links {
 		'subscribers' => 'subscribers',
 		'store'       => 'woocommerce',
 		'ads'         => 'ads',
-		'settings'    => 'settings',
 	);
 
 	/**
@@ -133,6 +132,10 @@ class Stats_Links {
 		// The email routes put the post ID after the metric and the period.
 		if ( 'email' === $view && in_array( $segments[1] ?? '', array( 'opens', 'clicks' ), true ) ) {
 			return self::post_path( $segments[3] ?? 0, 'email-' . $segments[1] );
+		}
+
+		if ( 'settings' === $view ) {
+			return '/settings';
 		}
 
 		return array_key_exists( $view, self::LEGACY_SECTIONS ) ? '/?section=' . self::LEGACY_SECTIONS[ $view ] : '/';
