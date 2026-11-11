@@ -497,7 +497,7 @@ describe( 'single-report stage', () => {
 		expect( getSummaryHeading( longTitle ) ).toHaveAttribute( 'title', longTitle );
 	} );
 
-	it( 'crumbs the reports page of the record and the resolved title when the URL carries no origin', () => {
+	it( 'crumbs the reports page of the record and the resolved title when the URL names no origin report', () => {
 		// As the seed leaves a page opened without a window: the crumb carries none back.
 		mockSearch = { ...mockSearch, ref_preset: 'none' };
 		mockSummary( { title: 'Launch recap' } );
