@@ -33,8 +33,9 @@ class Jetpack_Email_Design_Editor {
 	const PAGE_SLUG = 'jetpack-email-design';
 
 	/**
-	 * The feature flag gating the screen. Registered off, and on Atomic answered by the filter
-	 * below rather than by `wp companion feature-flag enable jetpack-email-design`.
+	 * The feature flag gating the screen. Registered on for a self-hosted site and off on both
+	 * WordPress.com platforms, and on Atomic answered by the filter below rather than by
+	 * `wp companion feature-flag enable jetpack-email-design`.
 	 */
 	const FEATURE_FLAG = 'jetpack-email-design';
 
@@ -122,11 +123,36 @@ class Jetpack_Email_Design_Editor {
 		Feature_Flags::register(
 			self::FEATURE_FLAG,
 			array(
-				'default'     => false,
+				'default'     => self::default_for_this_platform(),
 				'description' => 'Edit the newsletter email design in wp-admin, under Appearance.',
 				'owner'       => 'jetpack-newsletter',
 			)
 		);
+	}
+
+	/**
+	 * Whether this platform gets the screen without anyone turning it on.
+	 *
+	 * Self-hosted only (NL-1120). There is no per-site switch that reaches a self-hosted site
+	 * soon enough to be one -- the plan record it could ride on refreshes daily -- so the release
+	 * carrying this is the rollout, and sites arrive as they update.
+	 *
+	 * Both WordPress.com platforms keep the switch they have, because a default cannot be rolled
+	 * back: Simple's mu-plugin turns the flag on alongside the sticker, and on Atomic the sticker
+	 * is the rollback, which a flag that is on by default would outlive.
+	 *
+	 * `IS_ATOMIC` is checked as well as the platform constants because a host can define it alone,
+	 * and {@see self::filter_flag_for_atomic()} passes the flag through where it cannot read a
+	 * sticker -- so a default would be the only answer left.
+	 *
+	 * @return bool
+	 */
+	private static function default_for_this_platform() {
+		$host = new Host();
+
+		return ! $host->is_wpcom_simple()
+			&& ! $host->is_atomic_platform()
+			&& ! Constants::is_true( 'IS_ATOMIC' );
 	}
 
 	/**
@@ -165,8 +191,8 @@ class Jetpack_Email_Design_Editor {
 	 *
 	 * On Atomic the `email-design-editor` sticker and the a8c proxy decide, through the filter
 	 * above; on Simple wpcom's mu-plugin turns the flag on alongside the sticker. A self-hosted
-	 * site cannot read its own blog's stickers, so the flag is the gate there -- the sticker
-	 * still gates the bootstrap.
+	 * site cannot read its own blog's stickers, so the registered default is the gate there --
+	 * wpcom's rollout rule still gates the bootstrap, and so the emails.
 	 *
 	 * @return bool
 	 */
