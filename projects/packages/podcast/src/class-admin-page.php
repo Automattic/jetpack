@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Podcast;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
@@ -211,9 +212,16 @@ class Admin_Page {
 				);
 			}
 		}
+		$status         = new Status();
+		$is_site_public = 1 === (int) get_option( 'blog_public', 1 )
+			&& 'unlaunched' !== get_option( 'launch-status' )
+			&& ! $status->is_private_site()
+			&& ! $status->is_coming_soon();
+
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
+			'is_site_public'      => $is_site_public,
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
 			'feed_limit_max'      => Settings::feed_limit_max(),

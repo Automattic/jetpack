@@ -61,6 +61,11 @@ class Api_Proxy_Controller {
 	private const API_TIMEOUT = 20;
 
 	/**
+	 * Param naming the summary fields a caller reads. Not `fields`, which WordPress.com reads on its own routes and is forwarded.
+	 */
+	private const FIELDS_PARAM = 'report_fields';
+
+	/**
 	 * Response headers passed back to the caller.
 	 */
 	private const FORWARDED_HEADERS = array( 'x-wp-total', 'x-wp-totalpages' );
@@ -113,16 +118,23 @@ class Api_Proxy_Controller {
 				'callback'            => array( $this, 'handle_request' ),
 				'permission_callback' => array( $this, 'check_permission' ),
 				'args'                => array(
-					'endpoint' => array(
+					'endpoint'         => array(
 						'type'              => 'string',
 						'required'          => true,
 						'validate_callback' => array( $this, 'validate_endpoint' ),
 					),
-					'provider' => array(
+					'provider'         => array(
 						'description'       => __( 'Provider to serve the report from. Defaults to WordPress.com.', 'jetpack-woocommerce-stats-pkg' ),
 						'type'              => 'string',
 						'enum'              => Report_Executor::PROVIDERS,
 						'validate_callback' => 'rest_validate_request_arg',
+					),
+					self::FIELDS_PARAM => array(
+						'description'       => __( 'Summary fields the caller reads, comma-separated. Defaults to every field of the report.', 'jetpack-woocommerce-stats-pkg' ),
+						'type'              => 'array',
+						'items'             => array( 'type' => 'string' ),
+						'validate_callback' => 'rest_validate_request_arg',
+						'sanitize_callback' => 'rest_sanitize_request_arg',
 					),
 				),
 			)
@@ -164,7 +176,8 @@ class Api_Proxy_Controller {
 			$route,
 			$this->get_forwarded_params( $request ),
 			$request->get_param( 'provider' ),
-			null !== $request->get_param( 'force_refresh' )
+			null !== $request->get_param( 'force_refresh' ),
+			$this->get_requested_fields( $request )
 		);
 
 		return is_wp_error( $payload ) ? $payload : $this->build_response( $payload );
@@ -260,9 +273,24 @@ class Api_Proxy_Controller {
 	 */
 	private function get_forwarded_params( WP_REST_Request $request ) {
 		$params = $request->get_query_params();
-		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'], $params['provider'] );
+		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'], $params['provider'], $params[ self::FIELDS_PARAM ] );
 
 		return $params;
+	}
+
+	/**
+	 * The summary fields the request names, or null when it names none.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return string[]|null
+	 */
+	private function get_requested_fields( WP_REST_Request $request ) {
+		$fields = $request->get_param( self::FIELDS_PARAM );
+		if ( null === $fields ) {
+			return null;
+		}
+
+		return array_values( array_unique( array_filter( array_map( 'trim', (array) $fields ), 'strlen' ) ) );
 	}
 
 	/**
