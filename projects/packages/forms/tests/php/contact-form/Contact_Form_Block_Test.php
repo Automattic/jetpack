@@ -727,10 +727,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Integration: a step renders as one element, and the background image lands on
-	 * it once. The step's interactivity, its style supports and its layout all share
-	 * the block's own div, so there is nothing else here for them to land on — which
-	 * is the point: layout supports attach to exactly one element per block.
+	 * Integration: a step renders as one element, and the background image lands on it once.
 	 */
 	public function test_step_background_lands_on_the_blocks_own_div() {
 		Contact_Form_Block::register_block();
@@ -760,17 +757,12 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Integration: a rendered multistep form knows how many steps it has.
-	 *
-	 * Nothing passes the step count from the steps to the form. The steps are already
-	 * rendered by the time Contact_Form::parse() builds the form's interactivity
-	 * context, so it recovers the count by matching each step's `data-wp-context` in
-	 * the rendered markup. That makes the exact spelling of an attribute load-bearing
-	 * for whether the form paginates at all, and the failure is silent: `maxSteps` and
-	 * `currentStep` simply never reach the context, every step evaluates as current,
-	 * and the whole form renders at once with dead navigation.
+	 * Integration: a rendered multistep form counts its steps from their markup.
 	 */
 	public function test_multistep_form_context_counts_its_steps() {
+		// Render as a frontend request; see tests/php/bootstrap.php.
+		add_filter( 'wp_doing_ajax', '__return_false' );
+
 		Contact_Form_Block::register_block();
 		Contact_Form_Block::register_child_blocks();
 
@@ -800,6 +792,17 @@ class Contact_Form_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( '"maxSteps":2', $html, 'The form context should report two steps' );
 		$this->assertStringContainsString( '"isMultiStep":true', $html, 'The form should identify as multistep' );
 		$this->assertStringContainsString( '"currentStep":1', $html, 'The form should start on the first step' );
+
+		$tags  = new \WP_HTML_Tag_Processor( $html );
+		$steps = array();
+		while ( $tags->next_tag( array( 'class_name' => 'jetpack-form-step' ) ) ) {
+			$steps[] = array( (bool) $tags->has_class( 'is-current-step' ), $tags->get_attribute( 'data-wp-context' ) );
+		}
+		$this->assertSame(
+			array( array( true, '{"step":1}' ), array( false, '{"step":2}' ) ),
+			$steps,
+			'Only the first step should start current, and each step should carry its own number'
+		);
 	}
 
 	/**
