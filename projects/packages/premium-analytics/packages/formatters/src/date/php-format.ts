@@ -18,6 +18,9 @@ const DAY_TOKENS = new Set( [ 'j', 'd', 'S' ] );
 /** Tokens that name the day of the month itself; `S` is only its ordinal suffix. */
 const DAY_OF_MONTH_TOKENS = new Set( [ 'j', 'd' ] );
 
+/** Year tokens that name the calendar year; `o` is the ISO week year, so 1 January 2021 reads 2020. */
+const CALENDAR_YEAR_TOKENS = new Set( [ 'Y', 'y' ] );
+
 /** Tokens that render a month: spelled out, abbreviated, padded and unpadded. */
 const MONTH_TOKENS = new Set( [ 'F', 'M', 'm', 'n' ] );
 
@@ -96,7 +99,7 @@ export function hasToken( phpFormat: string, tokens: Set< string > ): boolean {
  * @return Whether all three are present.
  */
 export function isCompleteDate( phpFormat: string ): boolean {
-	return [ DAY_OF_MONTH_TOKENS, MONTH_TOKENS, YEAR_TOKENS ].every( tokens =>
+	return [ DAY_OF_MONTH_TOKENS, MONTH_TOKENS, CALENDAR_YEAR_TOKENS ].every( tokens =>
 		hasToken( phpFormat, tokens )
 	);
 }
@@ -236,6 +239,8 @@ export function withoutDay( phpFormat: string ): string {
 	const segments = toSegments( phpFormat );
 	const isDay = ( segment: Segment ): boolean =>
 		segment.isToken && ( DAY_TOKENS.has( segment.char ) || WEEKDAY_TOKENS.has( segment.char ) );
+	const isSpace = ( segment: Segment ): boolean =>
+		! segment.isToken && /^\s$/.test( segment.source );
 	const dropped = new Set< number >();
 
 	for ( let index = 0; index < segments.length; index++ ) {
@@ -250,10 +255,19 @@ export function withoutDay( phpFormat: string ): string {
 		}
 
 		const following = nextTokenAt( segments, last + 1 );
-		const [ start, end ] =
+		let [ start, end ] =
 			following < segments.length
 				? [ index, following ]
 				: [ literalRunStart( segments, index ), last + 1 ];
+
+		// Text after a final day is its suffix (`Y年n月j日` → `Y年n月`), so it goes and the text before stays.
+		if ( following === segments.length && last + 1 < segments.length ) {
+			start = index;
+			while ( start > 0 && isSpace( segments[ start - 1 ] ) ) {
+				start--;
+			}
+			end = segments.length;
+		}
 
 		for ( let at = start; at < end; at++ ) {
 			dropped.add( at );

@@ -160,6 +160,14 @@ describe( 'withoutDay', () => {
 		expect( withoutDay( 'D, d M Y' ) ).toBe( 'M Y' );
 	} );
 
+	it.each( [
+		[ 'ja and zh_CN', 'Y年n月j日', 'Y年n月' ],
+		[ 'ko_KR', 'Y년 n월 j일', 'Y년 n월' ],
+		[ 'hu_HU', 'Y. F j.', 'Y. F' ],
+	] )( 'drops the suffix that trails a final day in %s', ( _, format, expected ) => {
+		expect( withoutDay( format ) ).toBe( expected );
+	} );
+
 	it( 'leaves an escaped day character alone', () => {
 		expect( withoutDay( '\\j F Y' ) ).toBe( '\\j F Y' );
 	} );
@@ -181,9 +189,10 @@ describe( 'isCompleteDate', () => {
 		[ 'l, F jS, Y', true ],
 		[ 'd/m', false ],
 		[ 'D/M', false ],
-		// `\d` is a literal "d" and `S` only a suffix, so neither names the day.
+		// `\d` is a literal "d", `S` only a suffix and `o` the ISO week year.
 		[ '\\d F Y', false ],
 		[ 'S F Y', false ],
+		[ 'd/m/o', false ],
 	] )( '%s → %s', ( format, expected ) => {
 		expect( isCompleteDate( format ) ).toBe( expected );
 	} );
