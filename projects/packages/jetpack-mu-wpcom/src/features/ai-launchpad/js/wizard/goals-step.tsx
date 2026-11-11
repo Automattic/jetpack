@@ -28,7 +28,7 @@ export function bringYourAiToolCopy() {
 			"Pick a goal and we'll tailor a setup checklist for you.",
 			'jetpack-mu-wpcom'
 		),
-		useAiTitle: __( 'Build with my AI', 'jetpack-mu-wpcom' ),
+		useAiTitle: __( 'Build with AI', 'jetpack-mu-wpcom' ),
 		useAiDescription: __(
 			'Connect ChatGPT or Claude and build your site by chatting.',
 			'jetpack-mu-wpcom'
@@ -85,6 +85,11 @@ export function bringYourAiToolCopy() {
 		readOnlyDescription: __( 'Can view your site, but not change it', 'jetpack-mu-wpcom' ),
 		readOnly: __( 'Read only', 'jetpack-mu-wpcom' ),
 		allowFullAccess: __( 'Allow full access', 'jetpack-mu-wpcom' ),
+		allowFullAccessFailed: __(
+			'Full access couldn’t be allowed here. Allow it in your WordPress.com settings.',
+			'jetpack-mu-wpcom'
+		),
+		allowingFullAccess: __( 'Allowing full access', 'jetpack-mu-wpcom' ),
 		opensInNewTab: __( 'Opens in a new tab', 'jetpack-mu-wpcom' ),
 		openedInNewTab: __( 'Opened in a new tab', 'jetpack-mu-wpcom' ),
 		connectedToAccount: __( 'Connected to your WordPress.com account', 'jetpack-mu-wpcom' ),

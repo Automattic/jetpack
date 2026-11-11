@@ -72,6 +72,8 @@ export interface LaunchpadData {
 	// The goals step's ExPlat variation, or null when the user is not in the experiment.
 	goals_variation?: string | null;
 	mcp_detection?: boolean;
+	// Whether POST /mcp-access can allow full MCP access in place.
+	mcp_allow_full?: boolean;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */

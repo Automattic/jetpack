@@ -44,7 +44,7 @@ interface Props {
 }
 
 /**
- * The "Which AI do you use?" view, shown when Continue is clicked on "Build with my AI".
+ * The "Which AI do you use?" view, shown when Continue is clicked on "Build with AI".
  *
  * After a Set up click it waits for the new connection, checking when the tab is shown again and every few
  * seconds, then shows the tool as connected. With read-only access it keeps checking, so allowing full access shows
@@ -158,6 +158,13 @@ export default function AiToolStep( {
 		const timeout = setTimeout( () => setCopiedAt( 0 ), COPIED_RESET_MS );
 		return () => clearTimeout( timeout );
 	}, [ copiedAt ] );
+
+	// Allowing full access from the wizard ends a read-only wait without waiting for the next check.
+	useEffect( () => {
+		if ( ! readOnly && waitingFor && connected.includes( waitingFor ) ) {
+			setWaitingFor( null );
+		}
+	}, [ readOnly, waitingFor, connected ] );
 
 	// Once a read-only wait times out, coming back to the tab waits again, so allowing full access still shows.
 	useEffect( () => {

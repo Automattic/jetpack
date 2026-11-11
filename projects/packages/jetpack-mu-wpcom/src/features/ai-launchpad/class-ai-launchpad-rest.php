@@ -426,6 +426,18 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			$this->rest_base . '/mcp-access',
+			array(
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'allow_full_mcp_access' ),
+					'permission_callback' => array( $this, 'can_write' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			$this->rest_base . '/complete-task',
 			array(
 				array(
@@ -678,6 +690,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'goals_variation'    => $shows_wizard && null === $inferred_input ? AI_Launchpad_Bring_Your_AI_Tool::get_variation() : null,
 			// Whether GET /mcp-connections can see connections, which needs wpcom's helper.
 			'mcp_detection'      => function_exists( 'wpcom_mcp_get_user_connections' ),
+			// Whether POST /mcp-access can allow full access in place, which needs wpcom's helper and a site admin.
+			'mcp_allow_full'     => function_exists( 'wpcom_mcp_set_user_access_level' ) && current_user_can( 'manage_options' ),
 		);
 	}
 
@@ -1197,6 +1211,37 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'connections'  => $connections,
 			'access_level' => $access_level,
 		);
+	}
+
+	/**
+	 * Sets the current user's account-wide MCP access level to full, as choosing Full access on the MCP connect
+	 * screen does: every write tool is turned on and per-tool opt-outs are cleared.
+	 *
+	 * Acts on the current user only, through wpcom's `wpcom_mcp_set_user_access_level()`. Where it is not defined, the
+	 * wizard links to the WordPress.com MCP settings instead.
+	 *
+	 * @return array{access_level: string}|WP_Error
+	 */
+	public function allow_full_mcp_access() {
+		if ( ! function_exists( 'wpcom_mcp_set_user_access_level' ) ) {
+			return new WP_Error(
+				'mcp_access_unavailable',
+				__( 'MCP access can’t be changed here.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 501 )
+			);
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
+		$result = wpcom_mcp_set_user_access_level( get_current_user_id(), 'full' );
+		if ( is_wp_error( $result ) ) {
+			$data = $result->get_error_data();
+			if ( ! is_array( $data ) || ! isset( $data['status'] ) ) {
+				$result->add_data( array( 'status' => 500 ) );
+			}
+			return $result;
+		}
+
+		return array( 'access_level' => 'full' );
 	}
 
 	/**

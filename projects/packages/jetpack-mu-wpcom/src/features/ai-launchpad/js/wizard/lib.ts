@@ -185,7 +185,7 @@ export function goalsVariation( variation: string | null | undefined ): GoalsVar
 }
 
 /**
- * Whether the wizard opens on the "Guide me" or "Build with my AI" choice before the goals.
+ * Whether the wizard opens on the "Guide me" or "Build with AI" choice before the goals.
  *
  * @param variation - The goals step's variation.
  * @return True in the treatment.

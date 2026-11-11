@@ -1,3 +1,4 @@
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -8,6 +9,7 @@ import {
 	trackViewed,
 	trackWizardBackClicked,
 	trackWizardGoalClicked,
+	trackWizardMcpAllowFullAccessClicked,
 	trackWizardMcpConnectedViewed,
 	trackWizardMcpGoToDashboardClicked,
 	trackWizardMcpReadOnlyViewed,
@@ -56,6 +58,8 @@ interface Props {
 	goalsVariation?: string | null;
 	// Whether the AI tool view can detect a new connection; without it, Set up only opens the tool.
 	mcpDetection?: boolean;
+	// Whether "Allow full access" can allow it in place; without it, the button opens the MCP settings.
+	mcpAllowFull?: boolean;
 	// Fired once Finish completes, with the persisted input and the in-flight
 	// tailor promise, so the host can swap to the tailored list.
 	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
@@ -74,6 +78,7 @@ interface Props {
  * @param props.aiBuilt         - Whether the site was built with AI, which changes the fallback list.
  * @param props.goalsVariation  - The goals step's ExPlat variation from the server.
  * @param props.mcpDetection    - Whether the AI tool view can detect a new connection.
+ * @param props.mcpAllowFull    - Whether "Allow full access" can allow it in place.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
@@ -86,6 +91,7 @@ export function Wizard( {
 	aiBuilt = false,
 	goalsVariation: assignedVariation = null,
 	mcpDetection = false,
+	mcpAllowFull = false,
 	onComplete,
 }: Props ) {
 	const [ step, setStep ] = useState< WizardStep >( 0 );
@@ -102,9 +108,14 @@ export function Wizard( {
 	const [ connectedTools, setConnectedTools ] = useState< AiTool[] >( [] );
 	// Whether the account's MCP access was read only at the AI tool view's last check. It applies to every tool.
 	const [ readOnlyAccess, setReadOnlyAccess ] = useState( false );
+	// Once full access is allowed here, a check already in flight can still report read only, so it is ignored.
+	const fullAccessAllowed = useRef( false );
+	const [ allowingFullAccess, setAllowingFullAccess ] = useState( false );
+	// After a failed attempt, "Allow full access" opens the MCP settings instead.
+	const [ allowFullAccessFailed, setAllowFullAccessFailed ] = useState( false );
 	const [ promptCopied, setPromptCopied ] = useState( false );
 	const readOnly = readOnlyAccess && connectedTools.length > 0;
-	// The treatment opens on "Guide me" or "Build with my AI" before the goals.
+	// The treatment opens on "Guide me" or "Build with AI" before the goals.
 	const [ choosing, setChoosing ] = useState( showsSetupChoice( variation ) );
 	const [ setupChoice, setSetupChoice ] = useState< SetupChoice | null >( null );
 	const choiceTitleRef = useRef< HTMLHeadingElement >( null );
@@ -166,6 +177,40 @@ export function Wizard( {
 			} );
 		}
 	}, [ readOnly, connectedTools, variation ] );
+
+	const handleReadOnlyChange = useCallback( ( value: boolean ) => {
+		setReadOnlyAccess( value && ! fullAccessAllowed.current );
+	}, [] );
+
+	const allowsFullAccessInPlace = mcpAllowFull && ! allowFullAccessFailed;
+
+	const handleAllowFullAccess = async () => {
+		const integration = connectedTools[ connectedTools.length - 1 ];
+		setAllowingFullAccess( true );
+		try {
+			await apiFetch( {
+				path: '/wpcom/v2/ai-launchpad/mcp-access',
+				method: 'POST',
+			} );
+			fullAccessAllowed.current = true;
+			trackWizardMcpAllowFullAccessClicked( {
+				goals_variation: variation,
+				integration,
+				result: 'success',
+			} );
+			setReadOnlyAccess( false );
+		} catch {
+			trackWizardMcpAllowFullAccessClicked( {
+				goals_variation: variation,
+				integration,
+				result: 'error',
+			} );
+			setAllowFullAccessFailed( true );
+			speak( aiCopy.allowFullAccessFailed );
+		} finally {
+			setAllowingFullAccess( false );
+		}
+	};
 
 	const handleGoToDashboard = () => {
 		trackWizardMcpGoToDashboardClicked( {
@@ -297,7 +342,7 @@ export function Wizard( {
 							connected={ connectedTools }
 							onConnected={ handleConnected }
 							readOnly={ readOnly }
-							onReadOnlyChange={ setReadOnlyAccess }
+							onReadOnlyChange={ handleReadOnlyChange }
 							onPromptCopied={ () => setPromptCopied( true ) }
 						/>
 					) }
@@ -338,14 +383,36 @@ export function Wizard( {
 								<Button variant="minimal" onClick={ handleGoToDashboard }>
 									{ aiCopy.goToDashboard }
 								</Button>
-								<ButtonLink
-									variant="solid"
-									href={ readOnly ? MCP_SETTINGS_URL : AI_TOOL_CHAT_URLS[ connectedTools[ 0 ] ] }
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									{ readOnly ? aiCopy.allowFullAccess : aiCopy.openTool( connectedTools[ 0 ] ) }
-								</ButtonLink>
+								{ readOnly && allowsFullAccessInPlace ? (
+									<Button
+										variant="solid"
+										onClick={ handleAllowFullAccess }
+										loading={ allowingFullAccess }
+										loadingAnnouncement={ aiCopy.allowingFullAccess }
+										disabled={ allowingFullAccess }
+									>
+										{ aiCopy.allowFullAccess }
+									</Button>
+								) : (
+									<ButtonLink
+										variant="solid"
+										href={ readOnly ? MCP_SETTINGS_URL : AI_TOOL_CHAT_URLS[ connectedTools[ 0 ] ] }
+										target="_blank"
+										rel="noopener noreferrer"
+										onClick={
+											readOnly
+												? () =>
+														trackWizardMcpAllowFullAccessClicked( {
+															goals_variation: variation,
+															integration: connectedTools[ connectedTools.length - 1 ],
+															result: 'settings_link',
+														} )
+												: undefined
+										}
+									>
+										{ readOnly ? aiCopy.allowFullAccess : aiCopy.openTool( connectedTools[ 0 ] ) }
+									</ButtonLink>
+								) }
 							</>
 						) : (
 							<Button variant="solid" onClick={ handleGoToDashboard }>

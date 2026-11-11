@@ -215,7 +215,7 @@ export function trackWizardGoalClicked( props: {
  * Records Continue on the "How would you like to get set up?" choice.
  *
  * @param props                 - The event properties.
- * @param props.choice          - `guide` for Guide me, `ai` for Build with my AI.
+ * @param props.choice          - `guide` for Guide me, `ai` for Build with AI.
  * @param props.goals_variation - The goals step's experiment variation.
  */
 export function trackWizardSetupChoiceSelected( props: {
@@ -296,6 +296,20 @@ export function trackWizardMcpConnectedViewed( props: McpConnectedProps ): void 
  */
 export function trackWizardMcpReadOnlyViewed( props: McpConnectedProps ): void {
 	record( 'jetpack_ai_launchpad_wizard_mcp_read_only_viewed', props );
+}
+
+/**
+ * Records a click on "Allow full access" while a connected AI tool is read only, with how it ended: full access
+ * allowed in place, the attempt failed and the MCP settings opened instead, or the MCP settings opened because the
+ * wizard can't allow it in place. Not `outcome`: that is a standard prop with its own meaning.
+ *
+ * @param props        - The event properties.
+ * @param props.result - How the click ended.
+ */
+export function trackWizardMcpAllowFullAccessClicked(
+	props: McpConnectedProps & { result: 'success' | 'error' | 'settings_link' }
+): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_allow_full_access_clicked', props );
 }
 
 /**

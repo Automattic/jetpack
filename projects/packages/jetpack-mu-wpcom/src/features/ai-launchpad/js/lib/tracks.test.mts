@@ -14,6 +14,7 @@ import {
 	trackWizardBypassed,
 	trackWizardCompleted,
 	trackWizardGoalClicked,
+	trackWizardMcpAllowFullAccessClicked,
 	trackWizardMcpConnectedViewed,
 	trackWizardMcpGoToDashboardClicked,
 	trackWizardMcpLinkClicked,
@@ -133,6 +134,22 @@ describe( 'ai-launchpad tracks', () => {
 			fire( trackWizardMcpConnectedViewed, {
 				goals_variation: 'bring_your_ai_tool',
 				integration: 'claude',
+			} ),
+		],
+		[
+			'wizard_mcp_allow_full_access_clicked',
+			fire( trackWizardMcpAllowFullAccessClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+				result: 'success',
+			} ),
+		],
+		[
+			'wizard_mcp_allow_full_access_clicked',
+			fire( trackWizardMcpAllowFullAccessClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+				result: 'settings_link',
 			} ),
 		],
 		[
