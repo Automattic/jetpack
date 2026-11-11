@@ -20,8 +20,8 @@ export interface Member {
 	mountId: string;
 	/** `document.title` up to ` ‹`, as a full page load sets it. */
 	title: string;
-	/** Visible header text that proves the app rendered. */
-	heading: string;
+	/** Visible header text that proves the app rendered: exact as a string, a match as a RegExp. */
+	heading: string | RegExp;
 	/** `search + hash` a fresh load lands on with the shell off. */
 	landing: RegExp;
 }
@@ -42,6 +42,29 @@ export const MEMBERS: Member[] = [
 		heading: 'Forms',
 		landing: /^\?page=jetpack-forms-responses-wp-admin&p=%2Fforms$/,
 	},
+	{
+		slug: 'jetpack-ai',
+		mountId: 'jetpack-ai-hub-wp-admin-app',
+		title: 'Jetpack AI',
+		heading: /Jetpack AI/,
+		landing: /^\?page=jetpack-ai(&p=%2F[^#&]*)?$/,
+	},
+	{
+		slug: 'jetpack-settings',
+		mountId: 'jetpack-settings-dashboard-wp-admin-app',
+		title: 'Settings',
+		heading: /Settings/,
+		landing: /^\?page=jetpack-settings(&p=%2F[^#&]*)?$/,
+	},
+	{
+		slug: 'jetpack-podcast',
+		mountId: 'jetpack-podcast-dashboard-wp-admin-app',
+		title: 'Podcast',
+		heading: /Podcast/,
+		landing: /^\?page=jetpack-podcast(&p=%2F[^#&]*)?$/,
+	},
+	/* Activity Log, Newsletter, Protect and VideoPress are members too, but each needs a WordPress.com
+	 * connection (their modules don't load in offline mode), and the test site has none. */
 ];
 
 export const member = ( slug: string ): Member => {
@@ -405,7 +428,7 @@ export async function expectShown(
 	expect( new URL( page.url() ).searchParams.get( 'page' ) ).toBe( slug );
 	await expect(
 		page
-			.getByRole( 'heading', { name: m.heading, exact: true } )
+			.getByRole( 'heading', { name: m.heading, exact: typeof m.heading === 'string' } )
 			.filter( { visible: true } )
 			.first()
 	).toBeVisible();

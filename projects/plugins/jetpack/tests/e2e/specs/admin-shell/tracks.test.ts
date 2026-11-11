@@ -11,6 +11,9 @@ import {
 
 const FORMS = 'jetpack-forms-responses-wp-admin';
 
+/* The other members may record no views on the unconnected test site, which would pass vacuously. */
+const TRACKED = MEMBERS.filter( m => [ 'my-jetpack', FORMS ].includes( m.slug ) );
+
 /* Tracks calls go out after render, so give each arrival a moment before reading. */
 const SETTLE = 5000;
 
@@ -60,8 +63,8 @@ test.describe( 'Admin shell: Tracks page views', () => {
 		await installShellProbe( page );
 	} );
 
-	for ( const m of MEMBERS ) {
-		const other = MEMBERS.find( x => x !== m )!.slug;
+	for ( const m of TRACKED ) {
+		const other = TRACKED.find( x => x !== m )!.slug;
 
 		test( `the first switch to ${ m.slug } records the page view a full load does`, async ( {
 			page,

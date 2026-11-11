@@ -16,8 +16,10 @@ SITE_URL=${ADMIN_SHELL_URL:-http://localhost:8889}
 
 playwright install --with-deps chromium firefox webkit || exit 1
 
-# The site is never connected, so default modules (including the Forms member) aren't auto-activated.
-"${WP[@]}" jetpack module activate contact-form || exit 1
+# The site is never connected, so default modules (including the Forms and Podcast members) aren't auto-activated.
+for module in contact-form podcast; do
+	"${WP[@]}" jetpack module activate "$module" || exit 1
+done
 
 STATUS=0
 
