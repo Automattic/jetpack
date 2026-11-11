@@ -1,6 +1,6 @@
 <?php
 /**
- * The date format the dashboard derives its dates from.
+ * The locale's default date format, for sites whose own format the dashboard cannot use.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
- * Configures the date format script data.
+ * Configures the default date format script data.
  *
  * @since $$next-version$$
  *
@@ -19,29 +19,10 @@ function configure_date_format() {
 }
 
 /**
- * The site's `date_format` when it is one of the choices on Settings › General, else the
- * locale's default.
+ * Injects the locale's default date format into JetpackScriptData.
  *
- * The dashboard drops the day or year from this format for its shorter forms, which a
- * custom format such as `d/m` survives only as an ambiguous `02`.
- *
- * @since $$next-version$$
- *
- * @return string A PHP date format.
- */
-function dashboard_date_format(): string {
-	// phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Core's own string, the same one Settings › General lists.
-	$locale_default = __( 'F j, Y' );
-
-	/** This filter is documented in wp-admin/options-general.php */
-	$presets     = apply_filters( 'date_formats', array( $locale_default, 'Y-m-d', 'm/d/Y', 'd/m/Y', 'd.m.Y' ) );
-	$site_format = get_option( 'date_format' );
-
-	return is_array( $presets ) && in_array( $site_format, $presets, true ) ? $site_format : $locale_default;
-}
-
-/**
- * Injects the dashboard's date format into JetpackScriptData.
+ * The dashboard falls back to it when the site's format lacks a day, month or year. Sent from
+ * PHP because core's JavaScript translations do not include this string.
  *
  * @since $$next-version$$
  *
@@ -53,7 +34,8 @@ function inject_date_format_script_data( array $data ): array {
 		$data['premium_analytics'] = array();
 	}
 
-	$data['premium_analytics']['date_format'] = dashboard_date_format();
+	// phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Core's own string, the default Settings › General offers.
+	$data['premium_analytics']['default_date_format'] = __( 'F j, Y' );
 
 	return $data;
 }

@@ -15,6 +15,12 @@ const WEEKDAY_FORMAT = 'l';
 /** Tokens that render a day of the month: unpadded, padded, and its ordinal suffix. */
 const DAY_TOKENS = new Set( [ 'j', 'd', 'S' ] );
 
+/** Tokens that name the day of the month itself; `S` is only its ordinal suffix. */
+const DAY_OF_MONTH_TOKENS = new Set( [ 'j', 'd' ] );
+
+/** Tokens that render a month: spelled out, abbreviated, padded and unpadded. */
+const MONTH_TOKENS = new Set( [ 'F', 'M', 'm', 'n' ] );
+
 /** Textual month, spelled out and abbreviated. */
 const MONTH_FULL_TOKEN = 'F';
 const MONTH_SHORT_TOKEN = 'M';
@@ -79,6 +85,20 @@ function toSegments( phpFormat: string ): Segment[] {
  */
 export function hasToken( phpFormat: string, tokens: Set< string > ): boolean {
 	return toSegments( phpFormat ).some( segment => segment.isToken && tokens.has( segment.char ) );
+}
+
+/**
+ * Whether a format names the day of the month, the month and the year.
+ *
+ * The shorter forms drop one of these, so a format missing one leaves a bare `10` for October.
+ *
+ * @param phpFormat - PHP `date()` format string.
+ * @return Whether all three are present.
+ */
+export function isCompleteDate( phpFormat: string ): boolean {
+	return [ DAY_OF_MONTH_TOKENS, MONTH_TOKENS, YEAR_TOKENS ].every( tokens =>
+		hasToken( phpFormat, tokens )
+	);
 }
 
 /**

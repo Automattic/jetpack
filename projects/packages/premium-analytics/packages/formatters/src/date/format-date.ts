@@ -8,7 +8,14 @@ import { dateI18n, getSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { intlLocale } from './elide-range';
-import { hasToken, withShortMonth, withWeekday, withoutDay, withoutYear } from './php-format';
+import {
+	hasToken,
+	isCompleteDate,
+	withShortMonth,
+	withWeekday,
+	withoutDay,
+	withoutYear,
+} from './php-format';
 
 /** Fixed because this format backs form values and query parameters. */
 const ISO_FORMAT = 'Y-m-d';
@@ -39,16 +46,21 @@ type DateInput = Date | number;
 /**
  * The date format the named formats derive from.
  *
- * The server sends the site's `date_format` only when it is a Settings › General preset, since
- * a custom one like `d/m` loses its meaning once the year or day is dropped.
+ * The site's own when it names a day of the month, a month and a year, else the
+ * locale's default, which the server sends since only PHP has core's translation of it.
  *
  * @return PHP `date()` format string.
  */
 export function siteDateFormat(): string {
-	const format =
-		typeof window === 'undefined' ? undefined : getScriptData()?.premium_analytics?.date_format;
+	const siteFormat = getSettings().formats.date;
 
-	return typeof format === 'string' && format !== '' ? format : getSettings().formats.date;
+	if ( isCompleteDate( siteFormat ) || typeof window === 'undefined' ) {
+		return siteFormat;
+	}
+
+	const fallback = getScriptData()?.premium_analytics?.default_date_format;
+
+	return typeof fallback === 'string' && fallback !== '' ? fallback : siteFormat;
 }
 
 /**

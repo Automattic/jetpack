@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Dates: Use the locale's default date format when the site's Date Format setting is a custom one, so chart labels and the date selector stay unambiguous.
+Dates: Use the locale's default date format when the site's Date Format setting lacks a day, month or year, so chart labels and the date selector stay unambiguous.

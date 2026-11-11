@@ -1,7 +1,13 @@
 /**
  * Internal dependencies
  */
-import { withShortMonth, withWeekday, withoutDay, withoutYear } from '../php-format';
+import {
+	isCompleteDate,
+	withShortMonth,
+	withWeekday,
+	withoutDay,
+	withoutYear,
+} from '../php-format';
 
 describe( 'withoutYear', () => {
 	// Real `date_format` defaults taken from the WordPress core language packs,
@@ -164,5 +170,21 @@ describe( 'withoutDay', () => {
 
 	it( 'returns an empty string when the format is only a day', () => {
 		expect( withoutDay( 'j' ) ).toBe( '' );
+	} );
+} );
+
+describe( 'isCompleteDate', () => {
+	it.each( [
+		[ 'F j, Y', true ],
+		[ 'd.m.Y', true ],
+		[ 'j \\d\\e F \\d\\e Y', true ],
+		[ 'l, F jS, Y', true ],
+		[ 'd/m', false ],
+		[ 'D/M', false ],
+		// `\d` is a literal "d" and `S` only a suffix, so neither names the day.
+		[ '\\d F Y', false ],
+		[ 'S F Y', false ],
+	] )( '%s → %s', ( format, expected ) => {
+		expect( isCompleteDate( format ) ).toBe( expected );
 	} );
 } );

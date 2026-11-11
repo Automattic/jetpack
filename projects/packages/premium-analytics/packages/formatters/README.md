@@ -65,11 +65,10 @@ from WordPress's own translation tables and the ordering from the site's
 `date_format` option, so dates match the rest of wp-admin rather than the
 browser's locale. Defaults to `'medium'`.
 
-Only the choices Settings › General lists (including any added through core's
-`date_formats` filter) are honoured. A custom format falls back to the locale's
-default, because the forms below drop its day or year: `d/m` would leave a
-month as a bare `02`. The server decides this and sends the result as
-`premium_analytics.date_format` in the script data.
+The site's format is used only when it names a day of the month, a month and a
+year, because the forms below drop one of them: `d/m` would leave October as a
+bare `10`. Otherwise the locale's default is used, which the server sends as
+`premium_analytics.default_date_format` in the script data.
 
 ```typescript
 // On a site left on the US English default:

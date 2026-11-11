@@ -390,7 +390,7 @@ class Analytics {
 		require_once __DIR__ . '/assets-url.php';
 		configure_assets_url();
 
-		// The site's date format, or the locale default when the site uses a custom one.
+		// The locale's default date format, for site formats the dashboard cannot shorten.
 		require_once __DIR__ . '/date-format.php';
 		configure_date_format();
 

@@ -108,14 +108,17 @@ describe( 'formatDate', () => {
 		expect( formatDate( JUNE_21, 'full' ) ).toBe( 'Saturday, June 21, 2025' );
 	} );
 
-	it( 'derives from the server-chosen format instead of a custom site format', () => {
-		setSettings( settingsFor( 'custom-format-test', 'd/m' ) );
+	it.each( [
+		[ 'falls back to the locale default for a format without a year', 'd/m', 'June 2025' ],
+		[ 'keeps a custom format that names a day, month and year', 'D, d M Y', 'Jun 2025' ],
+	] )( '%s', ( _, siteFormat, expected ) => {
+		setSettings( settingsFor( `complete-date-test-${ siteFormat }`, siteFormat ) );
 		window.JetpackScriptData = {
-			premium_analytics: { date_format: 'F j, Y' },
+			premium_analytics: { default_date_format: 'F j, Y' },
 		} as unknown as typeof window.JetpackScriptData;
 
 		try {
-			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( 'June 2025' );
+			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( expected );
 		} finally {
 			delete window.JetpackScriptData;
 		}
