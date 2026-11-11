@@ -121,4 +121,21 @@ describe( 'OnboardingScreen when the wizard fails to load', () => {
 		} );
 		await waitFor( () => expect( mockAssignLocation ).toHaveBeenCalledWith( landing ) );
 	} );
+
+	it( 'lets a modified click open My Jetpack without skipping', async () => {
+		// Stand in for the browser opening a new tab; jsdom cannot navigate.
+		const stopNavigation = ( event: Event ) => event.preventDefault();
+		document.addEventListener( 'click', stopNavigation );
+		render( <OnboardingScreen /> );
+
+		const user = userEvent.setup();
+		const link = await screen.findByRole( 'link', { name: 'Skip setup' } );
+		await user.keyboard( '{Control>}' );
+		await user.click( link );
+		await user.keyboard( '{/Control}' );
+		document.removeEventListener( 'click', stopNavigation );
+
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( mockAssignLocation ).not.toHaveBeenCalled();
+	} );
 } );
