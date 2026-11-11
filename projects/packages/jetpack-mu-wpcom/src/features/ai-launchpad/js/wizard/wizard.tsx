@@ -392,57 +392,55 @@ export function Wizard( {
 					) }
 				</Dialog.Content>
 				{ showAiTool && connectedTools.length > 0 ? (
-					// Back returns to the setup choice. With read-only access, allowing full access leads; with one AI
-					// connected, opening it does; with both, the dashboard does.
-					<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
-						<Button variant="minimal" onClick={ handleBack }>
-							{ __( 'Back', 'jetpack-mu-wpcom' ) }
-						</Button>
-						<Stack align="center" gap="md">
-							{ readOnly || connectedTools.length === 1 ? (
-								<>
-									<Button variant="minimal" onClick={ handleGoToDashboard }>
-										{ aiCopy.goToDashboard }
-									</Button>
-									{ readOnly && allowsFullAccessInPlace ? (
-										<Button
-											variant="solid"
-											onClick={ handleAllowFullAccess }
-											loading={ allowingFullAccess }
-											loadingAnnouncement={ aiCopy.allowingFullAccess }
-											disabled={ allowingFullAccess }
-										>
-											{ aiCopy.allowFullAccess }
-										</Button>
-									) : (
-										<ButtonLink
-											variant="solid"
-											href={
-												readOnly ? MCP_SETTINGS_URL : AI_TOOL_CHAT_URLS[ connectedTools[ 0 ] ]
-											}
-											target="_blank"
-											rel="noopener noreferrer"
-											onClick={
-												readOnly
-													? () =>
-															trackWizardMcpAllowFullAccessClicked( {
-																goals_variation: variation,
-																integration: connectedTools[ connectedTools.length - 1 ],
-																result: 'settings_link',
-															} )
-													: undefined
-											}
-										>
-											{ readOnly ? aiCopy.allowFullAccess : aiCopy.openTool( connectedTools[ 0 ] ) }
-										</ButtonLink>
-									) }
-								</>
-							) : (
-								<Button variant="solid" onClick={ handleGoToDashboard }>
+					// With read-only access, allowing full access leads; with one AI connected, opening it does; with
+					// both, the dashboard does.
+					<Stack
+						render={ <Dialog.Footer /> }
+						align="center"
+						justify={ readOnly || connectedTools.length === 1 ? 'space-between' : 'flex-end' }
+						gap="md"
+					>
+						{ readOnly || connectedTools.length === 1 ? (
+							<>
+								<Button variant="minimal" onClick={ handleGoToDashboard }>
 									{ aiCopy.goToDashboard }
 								</Button>
-							) }
-						</Stack>
+								{ readOnly && allowsFullAccessInPlace ? (
+									<Button
+										variant="solid"
+										onClick={ handleAllowFullAccess }
+										loading={ allowingFullAccess }
+										loadingAnnouncement={ aiCopy.allowingFullAccess }
+										disabled={ allowingFullAccess }
+									>
+										{ aiCopy.allowFullAccess }
+									</Button>
+								) : (
+									<ButtonLink
+										variant="solid"
+										href={ readOnly ? MCP_SETTINGS_URL : AI_TOOL_CHAT_URLS[ connectedTools[ 0 ] ] }
+										target="_blank"
+										rel="noopener noreferrer"
+										onClick={
+											readOnly
+												? () =>
+														trackWizardMcpAllowFullAccessClicked( {
+															goals_variation: variation,
+															integration: connectedTools[ connectedTools.length - 1 ],
+															result: 'settings_link',
+														} )
+												: undefined
+										}
+									>
+										{ readOnly ? aiCopy.allowFullAccess : aiCopy.openTool( connectedTools[ 0 ] ) }
+									</ButtonLink>
+								) }
+							</>
+						) : (
+							<Button variant="solid" onClick={ handleGoToDashboard }>
+								{ aiCopy.goToDashboard }
+							</Button>
+						) }
 					</Stack>
 				) : (
 					<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
