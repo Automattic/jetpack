@@ -362,6 +362,7 @@ function wpcomsh_allow_custom_wp_options( $options ) {
 	$options[] = 'site_logo';
 	$options[] = 'footercredit';
 	$options[] = 'wpcomsh_at_managed_plugins';
+	$options[] = 'wpcomsh_at_managed_themes';
 
 	return $options;
 }
