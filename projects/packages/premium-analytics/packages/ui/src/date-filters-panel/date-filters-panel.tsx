@@ -122,7 +122,7 @@ export type DateFiltersPanelProps = {
 	stepping?: DateStepping;
 
 	/**
-	 * The window a widget zoomed in from, offered as a zoom back out beside the
+	 * The window a widget zoomed in from, offered as a zoom back out before the
 	 * arrows. Left out, or while there is none, nothing is rendered.
 	 */
 	zoomOut?: ZoomOutTarget;
@@ -320,8 +320,9 @@ export function DateFiltersPanel( {
 	return (
 		<div className="date-filters-panel">
 			<Stack className="date-filters-panel__row" direction="row" gap="sm">
-				{ navigationControl }
+				{ /* First, so the arrows keep their place when it comes and goes: the row is end-aligned. */ }
 				{ zoomOutControl }
+				{ navigationControl }
 
 				<BaseControl
 					className="date-filters-panel__primary"

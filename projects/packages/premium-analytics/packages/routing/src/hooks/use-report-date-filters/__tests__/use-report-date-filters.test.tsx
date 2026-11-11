@@ -817,11 +817,26 @@ describe( 'useReportDateFilters', () => {
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 
-	it( 'offers no zoom out until the URL carries a window zoomed in from', () => {
+	// Only a hand-picked window inside the stored one is a zoom-in: a section switch that lands
+	// back on the preset leaves the params behind, and a hand-edited URL may not resolve.
+	it.each( [
+		[ 'the URL carries no window zoomed in from', {} ],
+		[
+			'the applied window is a preset again',
+			{ up_preset: 'last-30-days', preset: 'last-7-days' },
+		],
+		[
+			'the applied window is not inside the stored one',
+			{ up_from: '2026-07-10T00:00:00.000+00:00', up_to: '2026-07-20T23:59:59.999+00:00' },
+		],
+		[ 'the stored window does not resolve', { up_from: 'not-a-date', up_to: 'not-a-date' } ],
+	] )( 'offers no zoom out while %s', ( _name, search ) => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-07-30T12:00:00.000Z' ) );
 		const { result } = renderDateFilters( {
 			from: '2026-07-09T00:00:00.000+00:00',
 			to: '2026-07-09T23:59:59.999+00:00',
 			preset: 'custom',
+			...search,
 		} );
 
 		expect( result.current.zoomOut ).toBeUndefined();

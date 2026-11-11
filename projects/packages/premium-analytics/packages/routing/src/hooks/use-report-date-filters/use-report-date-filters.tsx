@@ -137,6 +137,35 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 }
 
 /**
+ * Whether `applied` is a hand-picked window strictly inside `target`, as a window a widget
+ * opened from it is. Unparseable ends fail the comparison.
+ *
+ * @param applied         - The window the widgets are querying with.
+ * @param target          - The window to zoom back out to.
+ * @param appliedPresetId - The applied window's preset.
+ * @return Whether zooming out to `target` is a change back.
+ */
+function isZoomedInto(
+	applied: DateRange,
+	target: DateRange,
+	appliedPresetId: PrimaryPresetId | undefined
+): boolean {
+	if ( appliedPresetId !== undefined && appliedPresetId !== PRESET_CUSTOM ) {
+		return false;
+	}
+	if ( ! applied.from || ! applied.to || ! target.from || ! target.to ) {
+		return false;
+	}
+	const inside =
+		applied.from.getTime() >= target.from.getTime() && applied.to.getTime() <= target.to.getTime();
+	const same =
+		applied.from.getTime() === target.from.getTime() &&
+		applied.to.getTime() === target.to.getTime();
+
+	return inside && ! same;
+}
+
+/**
  * The window, bucket and comparison the picker shows, read through `normalizeReportParams` so they
  * are the ones the widgets query by.
  *
@@ -367,9 +396,12 @@ export function useReportDateFilters< TFrom extends string >(
 
 	/*
 	 * The window to zoom back out to, read like the applied one: a preset names
-	 * today's window, and the bucket is the one it was read with. The comparison
-	 * stays as the reader has it now, measured on the window zoomed out to, by
-	 * the preset it had there where it still has one.
+	 * today's window, and the bucket is the one it was read with. Offered only
+	 * while the applied window is a hand-picked one strictly inside it, so a
+	 * path that moves the window without clearing the params (a section switch
+	 * that lands back on the preset) and a stored window that does not resolve
+	 * offer nothing. The comparison stays as the reader has it now, measured on
+	 * the window zoomed out to, by the preset it had there where it still has one.
 	 */
 	const zoomOut = useMemo( () => {
 		const origin = readZoomOutWindow( committed as Record< string, unknown > );
@@ -383,6 +415,9 @@ export function useReportDateFilters< TFrom extends string >(
 		);
 		const targetPresetId = target.preset ?? PRESET_CUSTOM;
 		const targetRange = toPickerRange( target.from, target.to, timeZone );
+		if ( ! isZoomedInto( appliedRange, targetRange, appliedPresetId ) ) {
+			return undefined;
+		}
 
 		return {
 			presetId: targetPresetId,
@@ -408,7 +443,16 @@ export function useReportDateFilters< TFrom extends string >(
 				return { range: targetRange, presetId: targetPresetId, interval: target.interval };
 			},
 		};
-	}, [ committed, lockedIntervals, timeZone, stage, commit, effective ] );
+	}, [
+		committed,
+		appliedRange,
+		appliedPresetId,
+		lockedIntervals,
+		timeZone,
+		stage,
+		commit,
+		effective,
+	] );
 
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );

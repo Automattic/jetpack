@@ -247,7 +247,7 @@ so a period the reader picked, a tab switch or Customize never replay it.
 A host that asks for it (`usePeriodHost(..., { withZoomOut: true })`, the dashboard) also keeps
 the window the widget zoomed in from in the URL (`up_*` params, the shape of a detail page's
 `ref_*`), and `useReportDateFilters().zoomOut` offers it back: `DateFiltersPanel` renders a
-zoom-out control beside the arrows while it is there. Any other range change clears it.
+zoom-out control before the arrows while the applied window is a hand-picked one inside it. Any other range change clears it.
 
 The host passes `attentionId` to the date control (`DatePeriodDropdown` draws a fading fill),
 to `PeriodChangeStatus` (the live region reads the new range out) and, on a detail page, to the
