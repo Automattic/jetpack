@@ -691,22 +691,24 @@ class ManagerTest extends TestCase {
 	 */
 	public static function provide_authorize_vacant_owner_slot() {
 		return array(
-			'administrator takes the slot'             => array( 'administrator', true, 'authorized' ),
-			'editor links as secondary'                => array( 'editor', false, 'linked' ),
+			'administrator takes the slot'                => array( 'administrator', true, 'authorized' ),
+			'editor links as secondary'                   => array( 'editor', false, 'linked' ),
 			'editor granted connection rights takes the slot' => array( 'editor', true, 'authorized', array( 'edit_others_posts' ) ),
-			'locked empty slot is taken'               => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', true ),
-			'locked tokenless owner stays'             => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', true ),
-			'transferable tokenless owner is replaced' => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'other' ),
-			'locked tokenless owner reconnects'        => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'self', true ),
-			'locked deleted owner is replaced'         => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'deleted', true ),
-			'fresh site without the field leaves the slot empty' => array( 'administrator', false, 'linked', array( 'manage_options' ), 'none', false, null ),
-			'wpcom without the field leaves a recorded owner' => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', false, null ),
-			'wpcom saying no leaves a recorded owner'  => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', false, false ),
+			'locked empty slot is taken'                  => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', true ),
+			'locked tokenless owner stays'                => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', true ),
+			'transferable tokenless owner is replaced'    => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'other' ),
+			'locked tokenless owner reconnects'           => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'self', true ),
+			'locked deleted owner is replaced'            => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'deleted', true ),
+			'fresh site without the field takes the slot' => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', false, null ),
+			'wpcom no on an empty slot links'             => array( 'administrator', false, 'linked', array( 'manage_options' ), 'none', false, false ),
+			'locked site ignores a wpcom no'              => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', true, false ),
+			'blocked claim falls back to the vacant slot' => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'other', false, null ),
+			'wpcom saying no leaves a recorded owner'     => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', false, false ),
 		);
 	}
 
 	/**
-	 * Test that `authorize` sends the site's view of the owner and follows WordPress.com's `connection_owner` answer.
+	 * Test that `authorize` claims a broken owner's slot and follows WordPress.com's `connection_owner` answer.
 	 *
 	 * @param string    $role            The authorizing user's role.
 	 * @param bool      $locked          Whether connection ownership is locked.
@@ -811,7 +813,10 @@ class ManagerTest extends TestCase {
 			\Jetpack_Options::delete_option( array( 'master_user', 'id' ) );
 		}
 
-		$this->assertSame( $expected_claim, array_intersect_key( $sent_body, $expected_claim ) );
+		$this->assertSame(
+			$expected_claim,
+			array_intersect_key( $sent_body, array_flip( array( 'owner_claim', 'local_owner_unusable', 'owner_transferable' ) ) )
+		);
 		$this->assertSame( $expected_master ? 'authorized' : 'linked', $result );
 	}
 
@@ -821,22 +826,23 @@ class ManagerTest extends TestCase {
 	 * @return array
 	 */
 	public static function provide_authorize_occupied_owner_slot() {
-		$claim = static function ( $owner_claim, $unusable, $transferable ) {
-			return array(
-				'owner_claim'          => $owner_claim,
-				'local_owner_unusable' => $unusable,
-				'owner_transferable'   => $transferable,
-			);
-		};
+		$broken  = array(
+			'owner_claim'          => 1,
+			'local_owner_unusable' => 1,
+		);
+		$healthy = array(
+			'owner_claim'          => 1,
+			'local_owner_unusable' => 0,
+		);
 
 		return array(
-			'wpcom makes the admin the owner'     => array( 'administrator', false, true, true, $claim( 1, 1, 1 ), true ),
-			'wpcom keeps the owner'               => array( 'administrator', false, true, false, $claim( 1, 1, 1 ), false ),
-			'wpcom without the field links'       => array( 'administrator', false, true, null, $claim( 1, 1, 1 ), false ),
-			'no error on record still asks wpcom' => array( 'administrator', false, false, true, $claim( 1, 0, 1 ), true ),
-			'locked ownership ignores wpcom'      => array( 'administrator', true, true, true, $claim( 0, 1, 0 ), false ),
-			'editor ignores wpcom'                => array( 'editor', false, true, true, $claim( 0, 1, 1 ), false ),
-			'owner reconnecting is not a switch'  => array( 'administrator', false, true, true, $claim( 1, 1, 1 ), false, true ),
+			'wpcom makes the admin the owner'    => array( 'administrator', false, true, true, $broken, true ),
+			'wpcom keeps the owner'              => array( 'administrator', false, true, false, $broken, false ),
+			'unanswered claim links like trunk'  => array( 'administrator', false, true, null, $broken, false ),
+			'healthy owner still claims'         => array( 'administrator', false, false, false, $healthy, false ),
+			'locked ownership sends no claim'    => array( 'administrator', true, true, true, array(), false ),
+			'editor sends no claim'              => array( 'editor', false, true, true, array(), false ),
+			'owner reconnecting stays the owner' => array( 'administrator', false, true, true, $broken, true, true ),
 		);
 	}
 

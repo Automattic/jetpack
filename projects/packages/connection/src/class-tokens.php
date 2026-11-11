@@ -148,7 +148,7 @@ class Tokens {
 	 * @param string     $token_api_url The URL of the Jetpack "token" API.
 	 * @param array      $extra_body    Fields to send with the token request, next to `client_id` and `code`.
 	 * @param array|null $token_details Set to what WordPress.com reported beyond the token: `connection_owner`
-	 *                                  (bool). Left untouched on failure.
+	 *                                  (bool), only when the response includes it. Left untouched on failure.
 	 * @return object|WP_Error Returns the auth token on success.
 	 *                          Returns a WP_Error on failure.
 	 */
@@ -290,7 +290,11 @@ class Tokens {
 			return new WP_Error( 'scope', 'current_user_cannot', $code );
 		}
 
-		$token_details = array( 'connection_owner' => ! empty( $json->connection_owner ) );
+		// A missing field means WordPress.com didn't decide, which is not the same as `false`.
+		$token_details = array();
+		if ( isset( $json->connection_owner ) ) {
+			$token_details['connection_owner'] = (bool) $json->connection_owner;
+		}
 
 		return (string) $json->access_token;
 	}

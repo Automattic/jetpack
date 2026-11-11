@@ -924,7 +924,7 @@ class Error_Handler {
 	/**
 	 * Whether a displayable error is on record for the current connection owner's own connection.
 	 *
-	 * Manager::authorize() reports this to WordPress.com as `local_owner_unusable` with the token request.
+	 * Manager::authorize() reports this to WordPress.com as `local_owner_unusable` with its owner claim.
 	 *
 	 * @since $$next-version$$
 	 *
