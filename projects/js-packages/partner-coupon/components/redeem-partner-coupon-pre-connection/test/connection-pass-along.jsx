@@ -1,8 +1,4 @@
-import {
-	CONNECTION_STORE_ID,
-	initConnectionStore,
-	useConnection,
-} from '@automattic/jetpack-connection';
+import { initConnectionStore, useConnection } from '@automattic/jetpack-connection';
 import { jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -13,11 +9,9 @@ let stubGetConnectionStatus;
 
 describe( 'RedeemPartnerCouponPreConnection', () => {
 	const setupSpies = () => {
-		// The store registers lazily now; register it before stubbing it.
-		initConnectionStore();
-		const { result: dispatch } = renderHook( () => useDispatch( CONNECTION_STORE_ID ) );
+		const { result: dispatch } = renderHook( () => useDispatch( initConnectionStore() ) );
 		let storeSelect;
-		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
+		renderHook( () => useSelect( select => ( storeSelect = select( initConnectionStore() ) ) ) );
 
 		stubConnectUser = jest.spyOn( dispatch.current, 'connectUser' ).mockReset().mockReturnValue();
 		stubGetConnectionStatus = jest

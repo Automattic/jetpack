@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID, initConnectionStore } from '@automattic/jetpack-connection';
+import { initConnectionStore } from '@automattic/jetpack-connection';
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
@@ -53,12 +53,9 @@ const setSite = ( {
 		site: { host: 'standard' },
 	} as typeof global.JetpackScriptData;
 
-	// The store registers lazily now; register it before stubbing it.
-	initConnectionStore();
-
 	let storeSelect: StoreSelect;
 	renderHook(
-		() => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) as StoreSelect ) ),
+		() => useSelect( select => ( storeSelect = select( initConnectionStore() ) as StoreSelect ) ),
 		{ wrapper: Providers }
 	);
 	jest.spyOn( storeSelect, 'getConnectionStatus' ).mockReset().mockReturnValue( status );
