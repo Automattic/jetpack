@@ -14,17 +14,14 @@
 		border-bottom: 0;
 		background-color: transparent;
 
-		// The close icon is drawn in the button's text color. The defaults (dark,
-		// then the accent blue on hover and focus) disappear against the hero.
 		button {
 			inset-inline-start: unset;
-			color: #fff;
 
-			&:hover:not(:disabled) {
+			// The close icon is drawn in the button's text color. The defaults (dark,
+			// and the accent blue on hover and focus) disappear against the hero.
+			&,
+			&:is(:hover, :focus, :active) {
 				color: #fff;
-			}
-
-			&:focus-visible:not(:disabled) {
 				outline-color: #fff;
 			}
 		}
