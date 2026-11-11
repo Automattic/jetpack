@@ -164,6 +164,14 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		const hasBeenSized = useRef( ! waitForSize );
 		hasBeenSized.current = hasBeenSized.current || hasDimensions;
 
+		// A chart drawn from its box is invisible at no height, and visx only says it bailed.
+		if ( waitForSize && isMeasured && boxHeight === 0 ) {
+			warnOnce(
+				'with-responsive:no-height',
+				'A chart takes its height from its parent, and this parent has no height of its own, so the chart has none to draw in. Give the parent a height, or pass the chart an aspectRatio or an explicit height.'
+			);
+		}
+
 		// A shrink-to-fit parent takes its width from this wrapper, whose own width is a
 		// percentage of it, so waiting would pin both at 0 for good. Give up once for a box that
 		// is laid out and still measures 0; display:none leaves no box, and that one can wait.
@@ -175,8 +183,8 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			const node = wrapperRef.current;
 			if ( node && node.getClientRects().length > 0 && node.clientWidth === 0 ) {
 				warnOnce(
-					'with-responsive:no-definite-width',
-					'A chart fills its parent, so the parent needs a definite width and height. This one resolves its width from its content, which leaves the chart nothing to fill. Give the parent a width, or pass the chart a width or an aspectRatio.'
+					'with-responsive:no-width',
+					'A chart takes its width from its parent, and this parent takes its width from its contents, so neither can resolve. Give the parent a width, or pass the chart an explicit width.'
 				);
 				setHasNoSizeToWaitFor( true );
 			}

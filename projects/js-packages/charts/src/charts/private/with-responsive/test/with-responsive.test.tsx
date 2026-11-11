@@ -201,6 +201,7 @@ describe( 'withResponsive', () => {
 				width: '600px',
 				height: '0px',
 			} );
+			expect( console ).toHaveWarned();
 		} );
 
 		test( 'draws anyway in a laid-out wrapper that measures 0, which can never report', () => {
