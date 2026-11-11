@@ -234,7 +234,7 @@ class Checkpoint {
 	 * @return void
 	 */
 	public function admit( $comment_post_id = 0 ) {
-		if ( ! Comment_Form::enabled_for_post_type( $comment_post_id ) || is_user_logged_in() ) {
+		if ( ! Comment_Form::enabled_for_post_type( $comment_post_id ) ) {
 			return;
 		}
 
@@ -242,6 +242,20 @@ class Checkpoint {
 		$code        = isset( $_POST[ self::CODE_FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::CODE_FIELD ] ) ) : '';
 		$on_passport = ! empty( $_POST[ self::PASSPORT_FIELD ] );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		// Simple's remote login can land between the popup and submit. Its cookie dies with the
+		// WordPress.com session, so the code still earns a passport; core attributes the comment.
+		if ( is_user_logged_in() ) {
+			if ( '' !== $code && self::is_same_site_request() ) {
+				$identity = self::exchange( $code );
+
+				if ( ! is_wp_error( $identity ) ) {
+					Passport::issue( $identity );
+				}
+			}
+
+			return;
+		}
 
 		if ( '' === $code && ! $on_passport ) {
 			return;
