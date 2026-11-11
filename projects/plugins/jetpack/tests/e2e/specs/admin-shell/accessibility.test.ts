@@ -86,6 +86,23 @@ const ROUND_TRIP: [ string, string, Go ][] = [
 	[ MJ, FORMS, switchTo ],
 	[ FORMS, MJ, back ],
 ];
+const STEP_NAMES = [ 'switching to Forms', 'switching back to My Jetpack', 'going Back to Forms' ];
+
+/**
+ * Walk the round trip up to step `i` and run `check` only after that step.
+ *
+ * @param page  - Page under test.
+ * @param i     - Index into `ROUND_TRIP`.
+ * @param check - Assertion for the last step.
+ * @param reset - Runs before the last step.
+ */
+async function walkTo( page: Page, i: number, check: Go, reset?: Go ): Promise< void > {
+	let step = 0;
+	await walk( page, ROUND_TRIP.slice( 0, i + 1 ), {
+		before: ( p, slug ) => ( step === i && reset ? reset( p, slug ) : Promise.resolve() ),
+		after: ( p, slug ) => ( step++ === i ? check( p, slug ) : Promise.resolve() ),
+	} );
+}
 
 /**
  * Open My Jetpack, then take `steps`, checking each landed in the shell before `after` runs.
@@ -142,9 +159,10 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		await installA11yProbe( page );
 	} );
 
-	test( 'focus moves to the shown page’s heading on every switch', async ( { page } ) => {
-		await walk( page, ROUND_TRIP, {
-			after: ( p, slug ) => expect( mainHeading( p, slug ) ).toBeFocused(),
+	// One test per step, so a fix that covers only some steps shows up as an unexpected pass.
+	STEP_NAMES.forEach( ( name, i ) => {
+		test( `focus moves to the shown page’s heading after ${ name }`, async ( { page } ) => {
+			await walkTo( page, i, ( p, slug ) => expect( mainHeading( p, slug ) ).toBeFocused() );
 		} );
 	} );
 
@@ -162,18 +180,22 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 			.toContainEqual( { politeness: 'polite', text: 'Probe check' } );
 	} );
 
-	test( 'every switch announces the new page title politely', async ( { page } ) => {
-		await walk( page, ROUND_TRIP.slice( 0, 2 ), {
-			before: resetA11yProbe,
-			after: ( p, slug ) =>
-				expect
-					.poll( () => announcements( p ), `announcement for ${ slug }` )
-					.toContainEqual(
-						expect.objectContaining( {
-							politeness: 'polite',
-							text: expect.stringContaining( member( slug ).title ),
-						} )
-					),
+	STEP_NAMES.slice( 0, 2 ).forEach( ( name, i ) => {
+		test( `the new page title is announced politely after ${ name }`, async ( { page } ) => {
+			await walkTo(
+				page,
+				i,
+				( p, slug ) =>
+					expect
+						.poll( () => announcements( p ), `announcement for ${ slug }` )
+						.toContainEqual(
+							expect.objectContaining( {
+								politeness: 'polite',
+								text: expect.stringContaining( member( slug ).title ),
+							} )
+						),
+				resetA11yProbe
+			);
 		} );
 	} );
 
