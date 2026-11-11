@@ -1,4 +1,5 @@
 import restApi from '@automattic/jetpack-api';
+import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect } from 'react';
@@ -29,6 +30,11 @@ type StoreSelector = (
  * object really is one.
  */
 const EMPTY_USER_CONNECTION_DATA: UserConnectionData = {};
+
+// The store's REST client lives in the shared bundle, whose jetpackConfig can't name this plugin.
+const PLUGIN_SLUG = jetpackConfigHas( 'consumer_slug' )
+	? ( jetpackConfigGet( 'consumer_slug' ) as string )
+	: undefined;
 
 const initialState =
 	window?.JP_CONNECTION_INITIAL_STATE ||
@@ -150,9 +156,11 @@ export default function useConnection( {
 				return handleConnectUser();
 			}
 
-			return registerSite( { registrationNonce, redirectUri, from } ).then( () => {
-				return handleConnectUser();
-			} );
+			return registerSite( { registrationNonce, redirectUri, from, pluginSlug: PLUGIN_SLUG } ).then(
+				() => {
+					return handleConnectUser();
+				}
+			);
 		},
 		[ isRegistered, registerSite, registrationNonce, redirectUri, from, handleConnectUser ]
 	);

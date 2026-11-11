@@ -121,6 +121,7 @@ describe( 'useConnection', () => {
 		expect( stubRegisterSite ).toHaveBeenCalledWith( {
 			registrationNonce: 'REGISTRATION',
 			redirectUri: 'REDIRECT',
+			pluginSlug: 'jetpack-test',
 		} );
 		stubRegisterSite.mockClear();
 		rerender( { autoTrigger: false } );

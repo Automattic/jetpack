@@ -30,12 +30,13 @@ describe( 'controls', () => {
 		it( 'resolves with result', async () => {
 			const redirectUri = 'REDIRECT_URI';
 			const from = 'FROM';
+			const pluginSlug = 'PLUGIN_SLUG';
 			const fakeResult = {};
 			stubRegisterSite.mockResolvedValue( fakeResult );
 
-			const result = await registerSite( { redirectUri, from } );
+			const result = await registerSite( { redirectUri, from, pluginSlug } );
 			expect( result ).toEqual( fakeResult );
-			expect( stubRegisterSite ).toHaveBeenCalledWith( null, redirectUri, from );
+			expect( stubRegisterSite ).toHaveBeenCalledWith( null, redirectUri, from, pluginSlug );
 		} );
 
 		it( 'resolves with error', async () => {

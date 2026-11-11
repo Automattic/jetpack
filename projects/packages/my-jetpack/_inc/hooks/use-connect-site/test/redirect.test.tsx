@@ -78,6 +78,6 @@ describe( 'useConnectSite', () => {
 			await result.current.connectSite( undefined );
 		} );
 
-		expect( restApi.registerSite ).toHaveBeenCalledWith( null, '', expected );
+		expect( restApi.registerSite ).toHaveBeenCalledWith( null, '', expected, 'jetpack-test' );
 	} );
 } );

@@ -42,6 +42,7 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 				registrationNonce: 'REGISTRATION',
 				redirectUri: 'admin.php?page=my-jetpack&partnerCoupon=TEST_TST_1234',
 				from: 'jetpack-partner-coupon',
+				pluginSlug: 'jetpack-test',
 			} );
 
 			expect( stubConnectUser ).toHaveBeenCalledTimes( 1 );

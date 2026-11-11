@@ -54,13 +54,9 @@ function duplicateRegistrationMessage( storeId ) {
  * consumers should `select()`/`dispatch()` against the returned value rather
  * than assume the store id is already registered.
  *
- * @param {object} [options]            - Options.
- * @param {string} [options.pluginSlug] - Slug reported as `plugin_slug` when registering the site.
- *                                      The externalized bundle can't read a build-time consumer_slug,
- *                                      so a consumer that wants attribution passes its own slug here.
  * @return {import('@wordpress/data').StoreDescriptor} The registered connection store descriptor.
  */
-export function initConnectionStore( { pluginSlug } = {} ) {
+export function initConnectionStore() {
 	const initialState = window.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection;
 
 	/*
@@ -80,9 +76,6 @@ export function initConnectionStore( { pluginSlug } = {} ) {
 	}
 	if ( initialState?.apiNonce ) {
 		restApi.setApiNonce( initialState.apiNonce );
-	}
-	if ( pluginSlug ) {
-		restApi.setPluginSlug( pluginSlug );
 	}
 
 	if ( store ) {
