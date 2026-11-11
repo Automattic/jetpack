@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import CONNECTION_STORE_ID from '@automattic/jetpack-connection/state/store-id';
+import { initConnectionStore } from '@automattic/jetpack-connection/state/store';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -81,7 +81,7 @@ export function usePlanChoice() {
 		from: CONNECTION_FROM,
 		redirectUri: DASHBOARD_PATH,
 	} );
-	const { registerSite, refreshConnectionStatus } = useDispatch( CONNECTION_STORE_ID ) as {
+	const { registerSite, refreshConnectionStatus } = useDispatch( initConnectionStore() ) as {
 		registerSite: ( args: { redirectUri: string; from: string } ) => Promise< Registration >;
 		refreshConnectionStatus: () => Promise< ConnectionStatus >;
 	};

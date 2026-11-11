@@ -2,7 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import CONNECTION_STORE_ID from '@automattic/jetpack-connection/state/store-id';
+import { initConnectionStore } from '@automattic/jetpack-connection/state/store';
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -18,9 +18,12 @@ jest.mock(
 	'@automattic/jetpack-analytics',
 	() => jest.requireActual( '../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
 );
+// The store registers on first use, inside a test; without page state it logs an error there.
+window.JP_CONNECTION_INITIAL_STATE = {};
+
 const setIsOfflineMode = ( isOfflineMode: boolean ) =>
 	(
-		dispatch( CONNECTION_STORE_ID ) as { setIsOfflineMode: ( value: boolean ) => void }
+		dispatch( initConnectionStore() ) as { setIsOfflineMode: ( value: boolean ) => void }
 	 ).setIsOfflineMode( isOfflineMode );
 
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );

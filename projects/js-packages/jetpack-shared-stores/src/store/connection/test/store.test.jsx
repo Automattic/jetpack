@@ -53,6 +53,20 @@ describe( 'initConnectionStore', () => {
 		} );
 	} );
 
+	it( 'decodes the HTML-encoded display names in the initial state', () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			connectionOwner: { id: 1, displayName: 'O&#039;Neil &amp; Sons' },
+		};
+
+		jest.isolateModules( () => {
+			const { select } = require( '@wordpress/data' );
+			require( '../index' ).initConnectionStore();
+			expect( select( 'jetpack-connection' ).getConnectionOwner().displayName ).toBe(
+				"O'Neil & Sons"
+			);
+		} );
+	} );
+
 	it( 'points its api instance at the initial-state apiRoot and apiNonce', () => {
 		window.JP_CONNECTION_INITIAL_STATE = {
 			apiRoot: 'https://example.com/wp-json/',

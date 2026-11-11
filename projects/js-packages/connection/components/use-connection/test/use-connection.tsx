@@ -75,6 +75,7 @@ describe( 'useConnection', () => {
 		[ 'reports the store error', () => 'failed', 'failed' ],
 		[ 'reports false when an older store lacks the selector', undefined, false ],
 	] )( '%s', ( _name, selector, expected ) => {
+		initConnectionStore();
 		let storeSelect: StoreSelect;
 		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) as StoreSelect ) ) );
 		const original = storeSelect.getUserConnectionError;

@@ -1,4 +1,4 @@
-import CONNECTION_STORE from '@automattic/jetpack-connection/state/store-id';
+import { initConnectionStore } from '@automattic/jetpack-connection/state/store';
 import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
@@ -494,13 +494,14 @@ export function useFeaturesNeedsAccount(): boolean {
 	const off = isOfflineFeatures() || ! isAccountConnectEnabled();
 	// A broken connection gets Repair in the header and Overview; a new account could not fix it.
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const connectionStore = initConnectionStore();
 	const waiting = useSelect(
 		select => {
 			if ( off ) {
 				return false;
 			}
 			// Read the connection store directly: useMyJetpackConnection needs page data that the offline Features page does not load.
-			const store = select( CONNECTION_STORE ) as unknown as ConnectionStore;
+			const store = select( connectionStore ) as unknown as ConnectionStore;
 			const connection = store?.getConnectionStatus?.();
 			// A linked admin on a site whose owner left already has an account, so Connect would only loop.
 			return Boolean(
@@ -510,7 +511,7 @@ export function useFeaturesNeedsAccount(): boolean {
 				! store.getIsOfflineMode?.()
 			);
 		},
-		[ off ]
+		[ off, connectionStore ]
 	);
 
 	return waiting && ! hasConnectionError;
@@ -522,12 +523,16 @@ export function useFeaturesNeedsAccount(): boolean {
  * @return Whether features waiting for an account can now be turned on.
  */
 export function useAccountConnected(): boolean {
-	return useSelect( select => {
-		const connection = (
-			select( CONNECTION_STORE ) as unknown as ConnectionStore
-		 )?.getConnectionStatus?.();
-		return Boolean( connection?.isUserConnected && connection.hasConnectedOwner );
-	}, [] );
+	const connectionStore = initConnectionStore();
+	return useSelect(
+		select => {
+			const connection = (
+				select( connectionStore ) as unknown as ConnectionStore
+			 )?.getConnectionStatus?.();
+			return Boolean( connection?.isUserConnected && connection.hasConnectedOwner );
+		},
+		[ connectionStore ]
+	);
 }
 
 /**

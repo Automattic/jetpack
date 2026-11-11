@@ -1046,6 +1046,9 @@ importers:
       '@wordpress/data':
         specifier: 11.1.0
         version: 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/html-entities':
+        specifier: 5.1.0
+        version: 5.1.0
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*

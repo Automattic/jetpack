@@ -1,5 +1,5 @@
 import restApi from '@automattic/jetpack-api';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { initConnectionStore } from '@automattic/jetpack-connection';
 import { act, renderHook } from '@testing-library/react';
 import { dispatch } from '@wordpress/data';
 import { leavePageFor } from '../../../utils/reload-page';
@@ -40,7 +40,7 @@ describe( 'useConnectSite', () => {
 		( restApi.registerSite as jest.Mock ).mockResolvedValue( { authorizeUrl: 'x' } );
 		// The connection store is shared, and each registration marks the site registered.
 		(
-			dispatch( CONNECTION_STORE_ID ) as { setConnectionStatus: ( status: object ) => void }
+			dispatch( initConnectionStore() ) as { setConnectionStatus: ( status: object ) => void }
 		 ).setConnectionStatus( { isRegistered: false } );
 	} );
 

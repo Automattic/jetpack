@@ -9,6 +9,7 @@ import { createReduxStore, register, select } from '@wordpress/data';
  */
 import actions from './actions';
 import controls from './controls';
+import decodeInitialState from './decode-initial-state';
 import reducer from './reducers';
 import resolvers from './resolvers';
 import selectors from './selectors';
@@ -102,7 +103,7 @@ export function initConnectionStore( { pluginSlug } = {} ) {
 		selectors,
 		resolvers,
 		controls,
-		initialState: initialState || {},
+		initialState: decodeInitialState( initialState || {} ),
 	} );
 
 	/*

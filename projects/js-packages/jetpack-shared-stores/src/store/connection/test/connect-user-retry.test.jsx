@@ -1,7 +1,8 @@
 import restApi from '@automattic/jetpack-api';
-import { jest } from '@jest/globals';
 import { dispatch, select } from '@wordpress/data';
-import { STORE_ID } from '../store';
+import { initConnectionStore } from '../index';
+
+const connectionStore = initConnectionStore();
 
 describe( 'connectUser retry', () => {
 	afterEach( () => {
@@ -18,15 +19,15 @@ describe( 'connectUser retry', () => {
 		const redirectFunc = jest.fn();
 		const options = { redirectFunc, redirectUri: 'REDIRECT_URI' };
 
-		expect( select( STORE_ID ).getUserConnectionError() ).toBe( false );
+		expect( select( connectionStore ).getUserConnectionError() ).toBe( false );
 
-		await expect( dispatch( STORE_ID ).connectUser( options ) ).rejects.toBe( error );
-		expect( select( STORE_ID ).getUserIsConnecting() ).toBe( false );
-		expect( select( STORE_ID ).getUserConnectionError() ).toBe( error );
+		await expect( dispatch( connectionStore ).connectUser( options ) ).rejects.toBe( error );
+		expect( select( connectionStore ).getUserIsConnecting() ).toBe( false );
+		expect( select( connectionStore ).getUserConnectionError() ).toBe( error );
 
-		await dispatch( STORE_ID ).connectUser( options );
+		await dispatch( connectionStore ).connectUser( options );
 		expect( fetchAuthorizationUrl ).toHaveBeenCalledTimes( 2 );
 		expect( redirectFunc ).toHaveBeenCalledWith( authorizeUrl );
-		expect( select( STORE_ID ).getUserConnectionError() ).toBe( false );
+		expect( select( connectionStore ).getUserConnectionError() ).toBe( false );
 	} );
 } );
