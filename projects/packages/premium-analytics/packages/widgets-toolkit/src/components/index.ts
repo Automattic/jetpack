@@ -190,8 +190,8 @@ export {
 	FeedbackModal,
 	PageOptionsMenu,
 	type FeedbackSource,
-	type PageOptionsMenuProps,
 } from './page-options-menu';
+export { CustomizeAction, type CustomizeActionProps, useCustomizeFocus } from './customize-action';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
 	ReportCsvDownloadButton,

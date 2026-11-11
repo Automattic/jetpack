@@ -639,7 +639,7 @@ describe( 'single-report stage', () => {
 		expect( screen.getByText( 'Page widgets' ) ).toBeInTheDocument();
 	} );
 
-	it( 'offers Customize in a page options menu once the summary resolves', async () => {
+	it( 'offers Customize once the summary resolves', async () => {
 		const user = userEvent.setup();
 		mockSummary( { title: 'Launch recap' } );
 
@@ -647,8 +647,7 @@ describe( 'single-report stage', () => {
 
 		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
 
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
 		// The dashboard's own Cancel and Done take the actions slot while editing.
 		expect( mockDashboardProps.editMode ).toBe( true );
@@ -657,7 +656,7 @@ describe( 'single-report stage', () => {
 
 		act( () => mockDashboardProps.onEditChange?.( false ) );
 		expect( mockDashboardProps.editMode ).toBe( false );
-		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
 	} );
 
 	it.each( [
@@ -665,19 +664,14 @@ describe( 'single-report stage', () => {
 		{ summary: { isError: true }, state: 'errored' },
 		{ summary: { isNotFound: true }, state: 'not found' },
 	] )(
-		'offers the page options menu without Customize while the summary is $state',
-		async ( { summary } ) => {
-			const user = userEvent.setup();
+		'offers the page options menu but no Customize while the summary is $state',
+		( { summary } ) => {
 			mockSummary( summary );
 
 			render( stage() );
 
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-
-			await expect(
-				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
-			).resolves.toBeInTheDocument();
-			expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
 		}
 	);
 
@@ -687,8 +681,7 @@ describe( 'single-report stage', () => {
 
 		const { rerender } = render( stage() );
 
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 		expect( mockDashboardProps.editMode ).toBe( true );
 
 		// A failed background refetch hides the grid, and the dashboard's Cancel and
@@ -700,7 +693,7 @@ describe( 'single-report stage', () => {
 		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'resets the layout from the page options menu and leaves customize mode', async () => {
+	it( 'resets the layout and leaves customize mode', async () => {
 		const user = userEvent.setup();
 		const resetLayout = jest.fn();
 		mockUseStoredLayout.mockReturnValue( {
@@ -713,8 +706,7 @@ describe( 'single-report stage', () => {
 
 		render( stage() );
 
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 		expect( mockDashboardProps.editMode ).toBe( true );
 
 		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );

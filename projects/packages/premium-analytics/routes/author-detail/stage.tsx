@@ -62,7 +62,7 @@ const NO_WIDGETS: DashboardWidget[] = [];
 
 /**
  * Premium Analytics author detail page shell: a fixed composition the reader can
- * rearrange from the page options menu, stored in preferences.
+ * rearrange with the header's Customize button, stored in preferences.
  *
  * @return The author detail page.
  */

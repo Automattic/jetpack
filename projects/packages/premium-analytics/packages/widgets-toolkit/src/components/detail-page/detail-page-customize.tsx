@@ -1,7 +1,8 @@
 import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
+import { CustomizeAction, useCustomizeFocus } from '../customize-action';
 import { PageOptionsMenu } from '../page-options-menu';
 import { ResetLayoutAction } from '../reset-layout';
 import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
@@ -14,9 +15,9 @@ export type DetailPageCustomize = {
 	canCustomize: boolean;
 	/** The policy for `WidgetDashboard.Policy`. */
 	canPerform: CanPerformDashboardOperation;
-	/** Enters customize mode; the page options menu's Customize entry. */
+	/** Enters customize mode; the header's Customize button. */
 	startCustomizing: () => void;
-	/** Resets the layout on show and leaves customize mode; the menu's Reset to default entry. */
+	/** Resets the layout on show and leaves customize mode; the header's Reset to default button. */
 	resetToDefault: () => void;
 	/** For `WidgetDashboard`'s `onEditChange`: its Cancel and Done report back here. */
 	onEditChange: ( nextEditMode: boolean ) => void;
@@ -45,7 +46,7 @@ export type DetailPageCustomizeOptions = {
 /**
  * Customize mode for a detail page: the reader may rearrange the fixed
  * composition's cards, never add or remove them (WOOA7S-1622). Customize and
- * Reset to default are the page options menu's, not the dashboard's own actions;
+ * Reset to default are the page header's, not the dashboard's own actions;
  * Reset is offered while customizing only, and leaves the mode (WOOA7S-2033).
  *
  * @param {DashboardWidget[]}          layout  - The layout on show; while empty, edit mode cannot be entered.
@@ -67,7 +68,7 @@ export function useDetailPageCustomize(
 
 	// An empty layout makes the dashboard request edit mode on its own (its
 	// empty state invites customization); a detail page is only empty while a
-	// gate resolves, so neither that request nor the menu may open the chrome.
+	// gate resolves, so neither that request nor the Customize button may open the chrome.
 	const canCustomize = enabled && layout.length > 0;
 
 	useEffect( () => {
@@ -175,16 +176,14 @@ export type DetailPageActionsProps = {
 	 * from here would read a context the route's `WidgetDashboard` never provides.
 	 */
 	editingActions: ReactNode;
-	/** The page's own actions, shown ahead of the menu while not customizing. */
+	/** The page's own actions, shown ahead of Customize while not customizing. */
 	children?: ReactNode;
 };
 
 /**
- * The actions slot of a detail page. Idle, it holds the page's own actions
- * and the page options menu, Customize included; customizing, the dashboard's
- * own Cancel and Done take the actions' place, Reset to default beside them,
- * and the menu stays, less Customize. Leaving unmounts the focused control, so
- * focus is moved back onto the menu trigger.
+ * The actions slot of a detail page. Idle, it holds the page's own actions,
+ * Customize and the page options menu; customizing, the dashboard's own Cancel
+ * and Done take their place, Reset to default beside them, and the menu stays.
  *
  * @param props                - Component props.
  * @param props.isCustomizing  - Whether the page is in customize mode.
@@ -201,25 +200,16 @@ export function DetailPageActions( {
 	editingActions,
 	children,
 }: DetailPageActionsProps ) {
-	const frame = useRef< HTMLDivElement >( null );
-	const wasCustomizing = useRef( isCustomizing );
-
-	useEffect( () => {
-		if ( wasCustomizing.current === isCustomizing ) {
-			return;
-		}
-		wasCustomizing.current = isCustomizing;
-		// Entering, the menu closes onto its own trigger; leaving needs a hand.
-		if ( ! isCustomizing ) {
-			frame.current?.querySelector< HTMLElement >( '[aria-haspopup="menu"]' )?.focus();
-		}
-	}, [ isCustomizing ] );
+	const { frameRef, customizeRef } = useCustomizeFocus( isCustomizing );
 
 	return (
-		<Stack ref={ frame } direction="row" align="center" gap="sm">
+		<Stack ref={ frameRef } direction="row" align="center" gap="sm">
 			{ isCustomizing ? editingActions : children }
+			{ ! isCustomizing && onCustomize && (
+				<CustomizeAction ref={ customizeRef } onCustomize={ onCustomize } />
+			) }
 			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
-			<PageOptionsMenu onCustomize={ isCustomizing ? undefined : onCustomize } />
+			<PageOptionsMenu />
 		</Stack>
 	);
 }

@@ -129,28 +129,6 @@ describe( 'page-options-menu', () => {
 			).not.toBeInTheDocument();
 		} );
 
-		it( 'puts Customize first where the page has a layout to arrange', async () => {
-			const user = setupUser();
-			const onCustomize = jest.fn();
-			render( <PageOptionsMenu onCustomize={ onCustomize } /> );
-
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-			const items = await screen.findAllByRole( 'menuitem' );
-
-			expect( items.map( item => item.textContent ) ).toEqual( [
-				'Customize',
-				'Any feedback?',
-				'Switch off the preview',
-			] );
-			// The layout action sits apart from the rest.
-			expect( screen.getByRole( 'separator' ) ).toBeInTheDocument();
-
-			await user.click( items[ 0 ] );
-
-			expect( onCustomize ).toHaveBeenCalledTimes( 1 );
-			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
-		} );
-
 		it.each( [
 			[ 'from those who may not read Stats, where it is sent', { can_view_stats: false } ],
 			[ 'once classic Stats is retired', { can_view_stats: true, classic_stats_retired: true } ],
@@ -159,15 +137,12 @@ describe( 'page-options-menu', () => {
 				premium_analytics: premiumAnalytics,
 			} as ReturnType< typeof getScriptData > );
 			const user = setupUser();
-			render( <PageOptionsMenu onCustomize={ jest.fn() } /> );
+			render( <PageOptionsMenu /> );
 
 			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 			const items = await screen.findAllByRole( 'menuitem' );
 
-			expect( items.map( item => item.textContent ) ).toEqual( [
-				'Customize',
-				'Switch off the preview',
-			] );
+			expect( items.map( item => item.textContent ) ).toEqual( [ 'Switch off the preview' ] );
 		} );
 
 		it( 'renders no trigger when it has nothing to offer', () => {
@@ -178,19 +153,6 @@ describe( 'page-options-menu', () => {
 			render( <PageOptionsMenu /> );
 
 			expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'leaves Customize out where there is nothing to arrange', async () => {
-			const user = setupUser();
-			render( <PageOptionsMenu /> );
-
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-
-			await expect(
-				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
-			).resolves.toBeInTheDocument();
-			expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'opens the feedback modal, reporting the opening and the answer as from the menu', async () => {

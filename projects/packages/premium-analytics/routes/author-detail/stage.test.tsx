@@ -409,17 +409,13 @@ describe( 'author detail stage', () => {
 		mockSummary( { isNotFound: true, name: undefined } );
 
 		const { unmount } = render( stage() );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await expect(
-			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
 		unmount();
 
 		mockSummary();
 		render( stage() );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
 		expect( mockDashboardProps.editMode ).toBe( true );
 		expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();

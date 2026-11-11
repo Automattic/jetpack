@@ -165,7 +165,7 @@ describe( 'detail-page-customize', () => {
 	} );
 
 	describe( 'DetailPageActions', () => {
-		it( 'keeps Customize first in the page options menu beside the page actions', async () => {
+		it( 'offers Customize as a button after the page actions, outside the menu', async () => {
 			const user = userEvent.setup();
 			const onCustomize = jest.fn();
 			render(
@@ -180,22 +180,21 @@ describe( 'detail-page-customize', () => {
 			);
 
 			expect( screen.getByRole( 'link', { name: 'View post' } ) ).toBeInTheDocument();
-			expect( screen.queryByRole( 'menuitem' ) ).not.toBeInTheDocument();
-
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-			const items = await screen.findAllByRole( 'menuitem' );
-			expect( items.map( item => item.textContent ) ).toEqual( [ 'Customize', 'Any feedback?' ] );
 			expect(
 				screen.queryByRole( 'button', { name: 'Reset to default' } )
 			).not.toBeInTheDocument();
 
-			await user.click( items[ 0 ] );
+			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			const items = await screen.findAllByRole( 'menuitem' );
+			expect( items.map( item => item.textContent ) ).toEqual( [ 'Any feedback?' ] );
+			await user.keyboard( '{Escape}' );
+
+			await user.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
 			expect( onCustomize ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		it( "keeps the menu, less Customize, and puts Reset to default beside the dashboard's own actions", async () => {
-			const user = userEvent.setup();
+		it( "swaps Customize for Reset to default beside the dashboard's own actions, keeping the menu", () => {
 			render(
 				<DetailPageActions
 					isCustomizing
@@ -209,15 +208,45 @@ describe( 'detail-page-customize', () => {
 
 			expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();
 			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: 'Reset to default' } ) ).toBeInTheDocument();
-
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-			const items = await screen.findAllByRole( 'menuitem' );
-
-			expect( items.map( item => item.textContent ) ).toEqual( [ 'Any feedback?' ] );
+			expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'moves focus back onto the menu trigger when leaving unmounts the focused control', async () => {
+		it.each( [
+			[ 'Customize', () => {} ],
+			[ 'Page options', undefined ],
+		] )(
+			'moves focus onto %s when leaving unmounts the focused control',
+			async ( target, onCustomize ) => {
+				const user = userEvent.setup();
+				const dashboardActions = (
+					<>
+						<button>Cancel</button>
+						<button disabled>Done</button>
+					</>
+				);
+				const { rerender } = render(
+					<DetailPageActions
+						isCustomizing
+						onCustomize={ onCustomize }
+						editingActions={ dashboardActions }
+					/>
+				);
+
+				await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+				rerender(
+					<DetailPageActions
+						isCustomizing={ false }
+						onCustomize={ onCustomize }
+						editingActions={ dashboardActions }
+					/>
+				);
+				expect( screen.getByRole( 'button', { name: target } ) ).toHaveFocus();
+			}
+		);
+
+		it( 'moves focus onto the first editing action when entering unmounts Customize', async () => {
 			const user = userEvent.setup();
 			const dashboardActions = (
 				<>
@@ -227,21 +256,21 @@ describe( 'detail-page-customize', () => {
 			);
 			const { rerender } = render(
 				<DetailPageActions
-					isCustomizing
-					onCustomize={ () => {} }
-					editingActions={ dashboardActions }
-				/>
-			);
-
-			await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
-			rerender(
-				<DetailPageActions
 					isCustomizing={ false }
 					onCustomize={ () => {} }
 					editingActions={ dashboardActions }
 				/>
 			);
-			expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toHaveFocus();
+
+			await user.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+			rerender(
+				<DetailPageActions
+					isCustomizing
+					onCustomize={ () => {} }
+					editingActions={ dashboardActions }
+				/>
+			);
+			expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
 		} );
 	} );
 } );

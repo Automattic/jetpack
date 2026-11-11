@@ -1,14 +1,16 @@
 import { onboardingTourSteps } from './steps';
 
 describe( 'onboardingTourSteps', () => {
-	it( 'walks the first widget, the date controls, then the options menu twice', () => {
+	it( 'walks the first widget, the date controls, Customize, then the options menu', () => {
 		const firstWidget = document.createElement( 'section' );
 		const dateControls = document.createElement( 'div' );
+		const customize = document.createElement( 'button' );
 		const optionsMenu = document.createElement( 'button' );
 
 		const steps = onboardingTourSteps( {
 			firstWidget,
 			dateControls,
+			customize,
 			optionsMenu,
 			sectionTabs: null,
 		} );
@@ -16,7 +18,7 @@ describe( 'onboardingTourSteps', () => {
 		expect( steps.map( step => step.anchor ) ).toEqual( [
 			firstWidget,
 			dateControls,
-			optionsMenu,
+			customize,
 			optionsMenu,
 		] );
 		expect( steps.map( step => step.side ) ).toEqual( [ 'top', 'bottom', 'bottom', 'bottom' ] );
@@ -32,7 +34,7 @@ describe( 'onboardingTourSteps', () => {
 		const optionsMenu = document.createElement( 'button' );
 
 		const steps = onboardingTourSteps(
-			{ firstWidget: null, dateControls: null, optionsMenu, sectionTabs: null },
+			{ firstWidget: null, dateControls: null, customize: null, optionsMenu, sectionTabs: null },
 			{ withFeedback: false }
 		);
 
@@ -42,7 +44,13 @@ describe( 'onboardingTourSteps', () => {
 
 	it( 'leaves out the arranging steps where the section cannot be customized', () => {
 		const steps = onboardingTourSteps(
-			{ firstWidget: null, dateControls: null, optionsMenu: null, sectionTabs: null },
+			{
+				firstWidget: null,
+				dateControls: null,
+				customize: null,
+				optionsMenu: null,
+				sectionTabs: null,
+			},
 			{ withFeedback: true, withCustomize: false }
 		);
 
@@ -59,7 +67,13 @@ describe( 'onboardingTourSteps', () => {
 		'describes the date step with withComparison $withComparison',
 		( { withComparison, description } ) => {
 			const steps = onboardingTourSteps(
-				{ firstWidget: null, dateControls: null, optionsMenu: null, sectionTabs: null },
+				{
+					firstWidget: null,
+					dateControls: null,
+					customize: null,
+					optionsMenu: null,
+					sectionTabs: null,
+				},
 				{ withFeedback: false, withComparison }
 			);
 
@@ -73,6 +87,7 @@ describe( 'onboardingTourSteps', () => {
 		const steps = onboardingTourSteps( {
 			firstWidget: null,
 			dateControls: null,
+			customize: null,
 			optionsMenu: null,
 			sectionTabs: null,
 		} );
@@ -96,7 +111,13 @@ describe( 'onboardingTourSteps', () => {
 		const sectionTabs = document.createElement( 'div' );
 
 		const steps = onboardingTourSteps(
-			{ firstWidget: null, dateControls: null, optionsMenu: null, sectionTabs },
+			{
+				firstWidget: null,
+				dateControls: null,
+				customize: null,
+				optionsMenu: null,
+				sectionTabs,
+			},
 			{ withFeedback: true, flow }
 		);
 

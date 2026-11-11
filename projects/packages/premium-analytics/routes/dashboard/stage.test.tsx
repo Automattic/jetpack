@@ -10,7 +10,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
 import { useDashboardOriginSearch } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { dispatch, select } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
@@ -176,15 +176,17 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
 	useTrackCustomize: () => mockTrackCustomize,
 	canSendFeedback: () => mockCanSendFeedback,
-	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
-		<div data-testid="page-options-menu">
-			{ onCustomize && (
-				<button type="button" onClick={ onCustomize }>
-					Customize
-				</button>
-			) }
-		</div>
-	),
+	useCustomizeFocus: jest.requireActual(
+		'../../packages/widgets-toolkit/src/components/customize-action'
+	).useCustomizeFocus,
+	CustomizeAction: jest
+		.requireActual( 'react' )
+		.forwardRef( ( { onCustomize }: { onCustomize: () => void }, ref: never ) => (
+			<button ref={ ref } type="button" onClick={ onCustomize }>
+				Customize
+			</button>
+		) ),
+	PageOptionsMenu: () => <div data-testid="page-options-menu" />,
 	ResetLayoutAction: ( { onReset }: { onReset: () => void } ) => (
 		<button type="button" onClick={ onReset }>
 			Reset to default
@@ -928,7 +930,7 @@ describe( 'Dashboard options menu', () => {
 
 		expect( screen.queryByTestId( 'widget-dashboard-actions' ) ).not.toBeInTheDocument();
 
-		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
 		const actions = screen.getByTestId( 'widget-dashboard-actions' );
 		const reset = screen.getByRole( 'button', { name: 'Reset to default' } );
@@ -944,15 +946,14 @@ describe( 'Dashboard options menu', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
 
-		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 
 		expect( mockTrackCustomize.start ).toHaveBeenCalledTimes( 1 );
 		expect( mockTrackCustomize.exit ).toHaveBeenCalledTimes( 1 );
 
-		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
 
 		expect( mockTrackCustomize.reset ).toHaveBeenCalledTimes( 1 );
@@ -963,9 +964,8 @@ describe( 'Dashboard options menu', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
 
-		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
 
 		expect( mockTrackCustomize.layoutChange ).toHaveBeenCalledWith( [], mockCommittedLayout );
@@ -1426,31 +1426,29 @@ describe( 'Dashboard customizing', () => {
 		expect( screen.queryByText( 'interval control' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers Customize from the page options menu, and withdraws it while customizing', async () => {
+	it( 'offers Customize as a header button, withdrawn while customizing and focused on leaving', async () => {
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
 
-		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
-		expect( within( menu ).queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Done' } ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
 
-		expect( within( menu ).getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toHaveFocus();
 	} );
 
 	it( "offers Reset to default beside the dashboard's own actions while customizing", async () => {
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
 		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) ).not.toBeInTheDocument();
 
-		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
 
 		expect( mockResetLayout ).toHaveBeenCalledTimes( 1 );
 		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
-		expect( within( menu ).getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
 	} );
 
 	it.each( [ 'Done', 'Cancel' ] )( 'brings the date controls back on %s', async action => {
@@ -1615,11 +1613,7 @@ describe( 'Dashboard locked section', () => {
 		mockLockedLayout( [] );
 		render( <Dashboard /> );
 
-		expect(
-			within( screen.getByTestId( 'page-options-menu' ) ).queryByRole( 'button', {
-				name: 'Customize',
-			} )
-		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'dashboard-policy' ) ).toHaveAttribute(
 			'data-can-customize',
 			'false'

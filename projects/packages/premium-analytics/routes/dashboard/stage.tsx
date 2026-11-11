@@ -25,9 +25,11 @@ import {
 } from '@jetpack-premium-analytics/ui';
 import {
 	canSendFeedback,
+	CustomizeAction,
 	DashboardSectionProvider,
 	PageOptionsMenu,
 	ResetLayoutAction,
+	useCustomizeFocus,
 	useHostLinkSearch,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
@@ -187,7 +189,7 @@ function Dashboard(): JSX.Element {
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const trackCustomize = useTrackCustomize( 'dashboard', widgetSection );
-	// Every way into and out of edit mode arrives here: the menu below, the command
+	// Every way into and out of edit mode arrives here: the Customize button below, the command
 	// palette, an empty layout, and the dashboard's own Cancel and Done.
 	const onEditChange = useCallback(
 		( nextEditMode: boolean ) => {
@@ -201,6 +203,7 @@ function Dashboard(): JSX.Element {
 		[ trackCustomize ]
 	);
 	const startCustomizing = useCallback( () => onEditChange( true ), [ onEditChange ] );
+	const customizeFocus = useCustomizeFocus( editMode );
 	const onLayoutChange = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
 			trackCustomize.layoutChange( layout, nextLayout );
@@ -275,6 +278,7 @@ function Dashboard(): JSX.Element {
 		planOffersComparison;
 
 	// The tour's anchors, handed in by the elements below once they mount.
+	const [ customizeFrame, setCustomizeFrame ] = useState< HTMLDivElement | null >( null );
 	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
 	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
@@ -283,6 +287,7 @@ function Dashboard(): JSX.Element {
 		// Every tile is a section; the grid draws them in layout order.
 		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
 		dateControls: controlsAnchor,
+		customize: customizeFrame?.querySelector( 'button' ) ?? null,
 		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
 		sectionTabs: tabListFrame?.querySelector( '[role="tablist"]' ) ?? null,
 	};
@@ -530,22 +535,24 @@ function Dashboard(): JSX.Element {
 								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 								actions={
-									<Stack direction="row" gap="sm">
-										{ /* At rest these would add a second Customize beside the menu's. */ }
+									<Stack ref={ customizeFocus.frameRef } direction="row" gap="sm">
+										{ /* At rest these would add upstream's Customize beside ours. */ }
 										{ editMode && (
 											<>
 												<WidgetDashboard.Actions />
 												<ResetLayoutAction onReset={ resetToDefault } />
 											</>
 										) }
+										{ ! editMode && ! isSettingsActive && canCustomizeSection && (
+											<Stack ref={ setCustomizeFrame } direction="row">
+												<CustomizeAction
+													ref={ customizeFocus.customizeRef }
+													onCustomize={ startCustomizing }
+												/>
+											</Stack>
+										) }
 										<Stack ref={ setOptionsMenuFrame } direction="row">
-											<PageOptionsMenu
-												onCustomize={
-													editMode || isSettingsActive || ! canCustomizeSection
-														? undefined
-														: startCustomizing
-												}
-											/>
+											<PageOptionsMenu />
 										</Stack>
 									</Stack>
 								}

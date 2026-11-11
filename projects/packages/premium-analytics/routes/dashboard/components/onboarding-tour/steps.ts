@@ -12,7 +12,10 @@ export type OnboardingTourAnchors = {
 	/** The section header's date controls. */
 	dateControls: Element | null;
 
-	/** The page options menu trigger: Customize, feedback and the way back to classic Stats. */
+	/** The header's Customize button. */
+	customize: Element | null;
+
+	/** The page options menu trigger: feedback and the way back to classic Stats. */
 	optionsMenu: Element | null;
 
 	/** The section tab bar. */
@@ -81,10 +84,10 @@ export function onboardingTourSteps(
 		side: 'top',
 	};
 	const arrangeStep: OnboardingTourStep = {
-		anchor: anchors.optionsMenu,
+		anchor: anchors.customize,
 		title: __( 'Rearrange it your way', 'jetpack-premium-analytics-pkg' ),
 		description: __(
-			'Select Customize in this menu to move and resize widgets. Your layout is saved to your profile.',
+			'Select Customize to move and resize widgets. Your layout is saved to your profile.',
 			'jetpack-premium-analytics-pkg'
 		),
 		side: 'bottom',
