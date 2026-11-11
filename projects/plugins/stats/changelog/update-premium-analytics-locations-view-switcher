@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Premium Analytics: Show the Top locations views as one-click toggles when the widget has room, and as a radio list in the widget controls when it is narrow.
+Premium Analytics: Show the Top locations views as one-click toggles instead of a dropdown.
