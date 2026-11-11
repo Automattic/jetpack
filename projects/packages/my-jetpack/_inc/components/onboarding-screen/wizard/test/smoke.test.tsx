@@ -1156,7 +1156,7 @@ describe( 'Coming back to a run in progress', () => {
 		setupWizard( { isUserConnected: true } );
 
 		expect( heading() ).toHaveTextContent( 'What we recommend' );
-		expect( screen.getByText( /For a store, these matter most/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /A store loses sales/ ) ).toBeInTheDocument();
 	} );
 
 	// Subdirectory sites share one origin, and so one session storage.
@@ -1204,7 +1204,7 @@ describe( 'Coming back to a run in progress', () => {
 
 		setupWizard( { isUserConnected: true } );
 
-		expect( screen.getByText( /For a blog, these matter most/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Stats show which posts find readers/ ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) ).toBeChecked();
 		// Neither of these was a switch the user moved, so both keep what the site has.
 		expect( screen.getByRole( 'switch', { name: 'Jetpack Stats' } ) ).toBeChecked();
@@ -1560,7 +1560,7 @@ describe( 'The feature step', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await featureStep( user );
 
-		expect( screen.getByText( /For a blog, these matter most/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Stats show which posts find readers/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'says something different for a store', async () => {
@@ -1568,7 +1568,7 @@ describe( 'The feature step', () => {
 		await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		expect( screen.getByText( /For a store, these matter most/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /A store loses sales/ ) ).toBeInTheDocument();
 	} );
 
 	// Free text is not a site type, so there is nothing to order by and nothing to
@@ -1579,7 +1579,6 @@ describe( 'The feature step', () => {
 		await user.type( screen.getByRole( 'textbox' ), 'A wiki' );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		expect( screen.queryByText( /matter most/ ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Turn off any you don’t need.' ) ).toBeInTheDocument();
 	} );
 

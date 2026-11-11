@@ -371,26 +371,28 @@ export function siteTypeAnswer( state: WizardState ): string | undefined {
 }
 
 /**
- * The line under the feature heading, per site type. One whole sentence each
- * rather than a name interpolated into a frame: a translator given "For %s" and
- * a list of nouns cannot agree the article or the case. Each is short enough to
- * set on one line at the column's 470px, so a translation will wrap.
+ * The line under the feature heading, per site type: why the top of the list
+ * sits there, so it must follow SETUP_MODULE_ORDER. One whole sentence each
+ * rather than a name interpolated into a frame, which a translator cannot agree.
  *
  * @return The line for each site type that has one, translated at call time.
  */
 function featuresDescriptions(): Record< string, string > {
 	return {
-		blog: __( 'For a blog, these matter most. Turn off any you don’t need.', 'jetpack-my-jetpack' ),
+		blog: __(
+			'Stats show which posts find readers, and the newsletter brings them back.',
+			'jetpack-my-jetpack'
+		),
 		store: __(
-			'For a store, these matter most. Turn off any you don’t need.',
+			'A store loses sales while it’s down, so downtime alerts and login protection come first.',
 			'jetpack-my-jetpack'
 		),
 		portfolio: __(
-			'For a portfolio, these matter most. Turn off any you don’t need.',
+			'A contact form turns a visitor into a client, and stats show which work gets seen.',
 			'jetpack-my-jetpack'
 		),
 		business: __(
-			'For a business site, these matter most. Turn off any you don’t need.',
+			'Customers need a way to reach you, and a site that’s up when they try.',
 			'jetpack-my-jetpack'
 		),
 	};

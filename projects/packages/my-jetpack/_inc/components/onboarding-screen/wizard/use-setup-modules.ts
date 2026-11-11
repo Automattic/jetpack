@@ -33,7 +33,7 @@ const NO_MODULES: Record< string, MyJetpackModule > = {};
 /*
  * The order the six are read in, by what the site is for. Every site is still
  * offered all six: the answer changes what is at the top of the list, not what
- * is in it.
+ * is in it. featuresDescriptions() in lib.ts names each top pick, so move both.
  */
 const SETUP_MODULE_ORDER: Record< string, readonly SetupModuleSlug[] > = {
 	blog: [ 'stats', 'subscriptions', 'contact-form', 'protect', 'activity-log', 'monitor' ],
