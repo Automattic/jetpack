@@ -7,7 +7,6 @@ import {
 	setTracksContext,
 	trackViewed,
 	trackWizardBackClicked,
-	trackWizardConnectAiClicked,
 	trackWizardGoalClicked,
 	trackWizardMcpConnectedViewed,
 	trackWizardMcpGoToDashboardClicked,
@@ -141,13 +140,23 @@ export function Wizard( {
 		}
 	}, [ showAiTool, variation ] );
 
-	const handleConnected = useCallback(
-		( tool: AiTool ) => {
-			trackWizardMcpConnectedViewed( { goals_variation: variation, integration: tool } );
-			setConnectedTools( current => [ ...current, tool ] );
-		},
-		[ variation ]
-	);
+	const handleConnected = useCallback( ( tool: AiTool ) => {
+		setConnectedTools( current => ( current.includes( tool ) ? current : [ ...current, tool ] ) );
+	}, [] );
+
+	// Connected is recorded once per tool, when it can build: on connecting, or once full access is allowed.
+	const connectedTracked = useRef< AiTool[] >( [] );
+	useEffect( () => {
+		if ( readOnly ) {
+			return;
+		}
+		connectedTools
+			.filter( tool => ! connectedTracked.current.includes( tool ) )
+			.forEach( tool => {
+				connectedTracked.current.push( tool );
+				trackWizardMcpConnectedViewed( { goals_variation: variation, integration: tool } );
+			} );
+	}, [ readOnly, connectedTools, variation ] );
 
 	useEffect( () => {
 		if ( readOnly ) {
@@ -172,7 +181,6 @@ export function Wizard( {
 				trackWizardSetupChoiceSelected( { choice: setupChoice, goals_variation: variation } );
 			}
 			if ( setupChoice === 'ai' ) {
-				trackWizardConnectAiClicked( { goals_variation: variation } );
 				setShowAiTool( true );
 			}
 			setChoosing( false );

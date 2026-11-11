@@ -10,7 +10,7 @@ export const GOAL_SLUGS: GoalSlug[] = [
 	'portfolio',
 ];
 
-/** The goals step's treatment variation, also sent as `goal_clicked` when its banner is clicked. Never a saved goal. */
+/** The goals step's treatment variation. Never a saved goal. */
 export const BRING_YOUR_AI_TOOL = 'bring_your_ai_tool';
 
 /** The goals step's ExPlat variations (`wpcom_ai_launchpad_bring_your_ai_tool_202611`). */
@@ -37,27 +37,40 @@ export const MCP_POLL_INTERVAL_MS = 4000;
 export const MCP_POLL_TIMEOUT_MS = 10 * 60 * 1000;
 
 /**
- * The newly connected AI tool, if any: a tool the user clicked Set up on, not yet shown as connected, that has an
- * active connection. An existing connection counts, because a user who already connected is not sent through a
- * new approval, and a token refresh makes `connected_at` unreliable as a first-connection time. When several
- * match, the most recently clicked tool wins.
+ * The newly connected AI tools: tools the user clicked Set up on, not yet shown as connected, that have an active
+ * connection. An existing connection counts, because a user who already connected is not sent through a new
+ * approval, and a token refresh makes `connected_at` unreliable as a first-connection time. The most recently
+ * clicked tool comes last, so it is the latest connection.
  *
  * @param connections - The connections the endpoint returned.
  * @param clicks      - When each tool's Set up was clicked, in Unix seconds.
  * @param clicked     - The tool clicked most recently.
  * @param connected   - The tools already shown as connected.
- * @return The newly connected tool, or null.
+ * @return The newly connected tools.
  */
-export function findNewConnection(
+export function findNewConnections(
 	connections: McpConnection[],
 	clicks: Partial< Record< AiTool, number > >,
 	clicked: AiTool,
 	connected: AiTool[] = []
-): AiTool | null {
+): AiTool[] {
 	const matches = connections
 		.map( connection => connection.integration as AiTool )
 		.filter( tool => clicks[ tool ] !== undefined && ! connected.includes( tool ) );
-	return matches.includes( clicked ) ? clicked : ( matches[ 0 ] ?? null );
+	return matches.includes( clicked )
+		? [ ...matches.filter( tool => tool !== clicked ), clicked ]
+		: matches;
+}
+
+/**
+ * Whether the account's MCP access level leaves AI tools unable to build. Only `full` allows every write tool;
+ * `read_only`, and null for an account whose settings match neither level, may not.
+ *
+ * @param level - The `access_level` the endpoint returned.
+ * @return True unless the level is full.
+ */
+export function isReadOnlyAccess( level: string | null | undefined ): boolean {
+	return level !== 'full';
 }
 
 /** Which version of the "Which AI do you use?" view to show, which picks its title and subtitle. */

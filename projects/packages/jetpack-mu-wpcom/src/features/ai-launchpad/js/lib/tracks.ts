@@ -205,20 +205,10 @@ export function trackViewed( props: { step: ViewedStep } ): void {
  * @param props.goals_variation - The goals step's experiment variation, or null when not assigned.
  */
 export function trackWizardGoalClicked( props: {
-	goal_clicked: GoalSlug | 'bring_your_ai_tool';
+	goal_clicked: GoalSlug;
 	goals_variation?: string | null;
 } ): void {
 	record( 'jetpack_ai_launchpad_wizard_goal_clicked', props );
-}
-
-/**
- * Records a click on the goals step's "Connect your AI" banner, as a goal click with its own value.
- *
- * @param props                 - The event properties.
- * @param props.goals_variation - The goals step's experiment variation.
- */
-export function trackWizardConnectAiClicked( props: { goals_variation: string } ): void {
-	trackWizardGoalClicked( { goal_clicked: 'bring_your_ai_tool', ...props } );
 }
 
 /**

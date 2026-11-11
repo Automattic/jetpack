@@ -13,7 +13,6 @@ import {
 	trackWizardBackClicked,
 	trackWizardBypassed,
 	trackWizardCompleted,
-	trackWizardConnectAiClicked,
 	trackWizardGoalClicked,
 	trackWizardMcpConnectedViewed,
 	trackWizardMcpGoToDashboardClicked,
@@ -164,19 +163,6 @@ describe( 'ai-launchpad tracks', () => {
 			] );
 		} );
 	}
-
-	it( 'records the Connect your AI click as a goal click with the new value', () => {
-		trackWizardConnectAiClicked( { goals_variation: 'bring_your_ai_tool' } );
-		assert.deepEqual( lastEvent(), [
-			'recordEvent',
-			'jetpack_ai_launchpad_wizard_goal_clicked',
-			{
-				...BOOTSTRAP.props,
-				goal_clicked: 'bring_your_ai_tool',
-				goals_variation: 'bring_your_ai_tool',
-			},
-		] );
-	} );
 
 	it( 'lets a fresh tailor override the tailoring-scoped props', () => {
 		setTracksContext(

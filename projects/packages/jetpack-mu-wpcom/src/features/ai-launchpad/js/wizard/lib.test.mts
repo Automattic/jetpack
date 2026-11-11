@@ -7,7 +7,8 @@ import {
 	buildWizardPayload,
 	canContinue,
 	CONNECT_YOURSELF_PROMPT,
-	findNewConnection,
+	findNewConnections,
+	isReadOnlyAccess,
 	goalsVariation,
 	isLastStep,
 	MCP_SERVER_URL,
@@ -65,20 +66,20 @@ describe( 'AI tool connection', () => {
 	it( 'counts a connection to a clicked tool whenever it was made, including before the click', () => {
 		const clicks = { chatgpt: CLICKED_AT };
 		for ( const connectedAt of [ CLICKED_AT - 86_400, CLICKED_AT, CLICKED_AT + 300 ] ) {
-			assert.equal(
-				findNewConnection(
+			assert.deepEqual(
+				findNewConnections(
 					[ { integration: 'chatgpt', connected_at: connectedAt } ],
 					clicks,
 					'chatgpt'
 				),
-				'chatgpt'
+				[ 'chatgpt' ]
 			);
 		}
 	} );
 
 	it( 'ignores tools the user never clicked Set up on, and unknown integrations', () => {
-		assert.equal(
-			findNewConnection(
+		assert.deepEqual(
+			findNewConnections(
 				[
 					{ integration: 'claude', connected_at: CLICKED_AT + 10 },
 					{ integration: 'cursor', connected_at: CLICKED_AT + 10 },
@@ -86,29 +87,35 @@ describe( 'AI tool connection', () => {
 				{ chatgpt: CLICKED_AT },
 				'chatgpt'
 			),
-			null
+			[]
 		);
-		assert.equal( findNewConnection( [], { chatgpt: CLICKED_AT }, 'chatgpt' ), null );
+		assert.deepEqual( findNewConnections( [], { chatgpt: CLICKED_AT }, 'chatgpt' ), [] );
 	} );
 
-	it( 'prefers the most recently clicked tool when several match', () => {
+	it( 'returns every clicked tool that connected, the most recently clicked last', () => {
 		const connections = [
 			{ integration: 'chatgpt', connected_at: CLICKED_AT + 10 },
 			{ integration: 'claude', connected_at: CLICKED_AT + 20 },
 		];
 		const clicks = { chatgpt: CLICKED_AT, claude: CLICKED_AT + 5 };
-		assert.equal( findNewConnection( connections, clicks, 'claude' ), 'claude' );
-		assert.equal( findNewConnection( connections, clicks, 'chatgpt' ), 'chatgpt' );
+		assert.deepEqual( findNewConnections( connections, clicks, 'claude' ), [
+			'chatgpt',
+			'claude',
+		] );
+		assert.deepEqual( findNewConnections( connections, clicks, 'chatgpt' ), [
+			'claude',
+			'chatgpt',
+		] );
 	} );
 
 	it( 'falls back to another clicked tool that connected', () => {
-		assert.equal(
-			findNewConnection(
+		assert.deepEqual(
+			findNewConnections(
 				[ { integration: 'chatgpt', connected_at: CLICKED_AT + 10 } ],
 				{ chatgpt: CLICKED_AT, claude: CLICKED_AT + 5 },
 				'claude'
 			),
-			'chatgpt'
+			[ 'chatgpt' ]
 		);
 	} );
 
@@ -118,11 +125,20 @@ describe( 'AI tool connection', () => {
 			{ integration: 'claude', connected_at: CLICKED_AT + 20 },
 		];
 		const clicks = { chatgpt: CLICKED_AT, claude: CLICKED_AT + 5 };
-		assert.equal( findNewConnection( connections, clicks, 'chatgpt', [ 'chatgpt' ] ), 'claude' );
-		assert.equal(
-			findNewConnection( connections.slice( 0, 1 ), clicks, 'claude', [ 'chatgpt' ] ),
-			null
+		assert.deepEqual( findNewConnections( connections, clicks, 'chatgpt', [ 'chatgpt' ] ), [
+			'claude',
+		] );
+		assert.deepEqual(
+			findNewConnections( connections.slice( 0, 1 ), clicks, 'claude', [ 'chatgpt' ] ),
+			[]
 		);
+	} );
+
+	it( 'treats only full access as able to build', () => {
+		assert.equal( isReadOnlyAccess( 'full' ), false );
+		for ( const level of [ 'read_only', null, undefined, 'custom' ] ) {
+			assert.equal( isReadOnlyAccess( level ), true );
+		}
 	} );
 } );
 

@@ -16,7 +16,8 @@ import {
 	aiToolView,
 	CONNECT_YOURSELF_PROMPT,
 	COPIED_RESET_MS,
-	findNewConnection,
+	findNewConnections,
+	isReadOnlyAccess,
 	MCP_POLL_INTERVAL_MS,
 	MCP_POLL_TIMEOUT_MS,
 	type AiTool,
@@ -31,7 +32,7 @@ interface Props {
 	detectsConnections: boolean;
 	// The AI tools shown as connected, in the order they connected.
 	connected: AiTool[];
-	// Called with the AI tool once its new connection shows up.
+	// Called with each AI tool once its new connection shows up.
 	onConnected: ( tool: AiTool ) => void;
 	// Whether a connected tool has only read-only access.
 	readOnly: boolean;
@@ -113,14 +114,20 @@ export default function AiToolStep( {
 					if ( stopped ) {
 						return;
 					}
-					const readOnlyAccess = data?.access_level === 'read_only';
+					const readOnlyAccess = isReadOnlyAccess( data?.access_level );
 					onReadOnlyChange( readOnlyAccess );
-					const tool = findNewConnection( data?.connections ?? [], clicks, waitingFor, connected );
-					if ( tool ) {
-						onConnected( tool );
-					}
+					const newTools = findNewConnections(
+						data?.connections ?? [],
+						clicks,
+						waitingFor,
+						connected
+					);
+					newTools.forEach( onConnected );
 					// Read-only access keeps the wait going until full access is allowed.
-					if ( ! readOnlyAccess && ( tool === waitingFor || connected.includes( waitingFor ) ) ) {
+					if (
+						! readOnlyAccess &&
+						( newTools.includes( waitingFor ) || connected.includes( waitingFor ) )
+					) {
 						setWaitingFor( null );
 					}
 				} )
