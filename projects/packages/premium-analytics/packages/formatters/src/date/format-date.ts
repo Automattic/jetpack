@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { dateI18n, getSettings } from '@wordpress/date';
 /**
@@ -36,6 +37,21 @@ export type DateFormatName =
 type DateInput = Date | number;
 
 /**
+ * The date format the named formats derive from.
+ *
+ * The server sends the site's `date_format` only when it is a Settings › General preset, since
+ * a custom one like `d/m` loses its meaning once the year or day is dropped.
+ *
+ * @return PHP `date()` format string.
+ */
+export function siteDateFormat(): string {
+	const format =
+		typeof window === 'undefined' ? undefined : getScriptData()?.premium_analytics?.date_format;
+
+	return typeof format === 'string' && format !== '' ? format : getSettings().formats.date;
+}
+
+/**
  * Resolve a named format to the PHP format string for the current site.
  *
  * @param name - The named format.
@@ -50,7 +66,7 @@ function formatFor( name: DateFormatName ): string {
 		return YEAR_FORMAT;
 	}
 
-	const siteFormat = getSettings().formats.date;
+	const siteFormat = siteDateFormat();
 	const withoutYearFormat = withoutYear( siteFormat ) || siteFormat;
 
 	if ( name === 'dateTime' ) {

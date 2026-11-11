@@ -108,6 +108,19 @@ describe( 'formatDate', () => {
 		expect( formatDate( JUNE_21, 'full' ) ).toBe( 'Saturday, June 21, 2025' );
 	} );
 
+	it( 'derives from the server-chosen format instead of a custom site format', () => {
+		setSettings( settingsFor( 'custom-format-test', 'd/m' ) );
+		window.JetpackScriptData = {
+			premium_analytics: { date_format: 'F j, Y' },
+		} as unknown as typeof window.JetpackScriptData;
+
+		try {
+			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( 'June 2025' );
+		} finally {
+			delete window.JetpackScriptData;
+		}
+	} );
+
 	it( 'appends the site time format for "dateTime"', () => {
 		setSettings( EN_US_SETTINGS );
 
