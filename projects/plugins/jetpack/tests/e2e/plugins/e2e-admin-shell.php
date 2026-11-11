@@ -12,3 +12,6 @@
  */
 
 add_filter( 'jetpack_feature_flag_enabled_jetpack-admin-shell', '__return_true' );
+
+// The CI site is on localhost, and in offline mode My Jetpack never registers as a shell member.
+add_filter( 'jetpack_offline_mode', '__return_false' );
