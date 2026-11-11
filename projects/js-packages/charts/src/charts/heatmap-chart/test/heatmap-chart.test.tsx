@@ -487,7 +487,7 @@ describe( 'HeatmapChart', () => {
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#7f93f1' );
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#3554df' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#283ea5' );
 
 		document.body.removeChild( scope );
 	} );
@@ -616,10 +616,10 @@ describe( 'HeatmapChart value text contrast', () => {
 		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 
-	test( 'falls back to black on a mid-tone cell where neither role reaches AA', () => {
+	test( 'falls back to white on a mid-tone cell where neither role reaches AA', () => {
 		renderScale();
 
-		expect( screen.getByText( '60' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+		expect( screen.getByText( '60' ) ).toHaveClass( 'heatmap-chart__cell-value--white' );
 	} );
 
 	test( 'reads the label roles once data arrives after an empty first render', () => {
