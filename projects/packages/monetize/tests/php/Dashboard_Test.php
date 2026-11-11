@@ -215,6 +215,29 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
 	}
 
+	/**
+	 * Tabs and the admin path that opens each; wp-build's router reads the search from `p`, never `&tab=`.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tab_urls() {
+		return array(
+			'Overview, the bare page' => array( 'overview', 'admin.php?page=jetpack-monetize' ),
+			'another tab'             => array( 'settings', 'admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dsettings' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_tab_urls
+	 *
+	 * @param string $tab  The tab's `?tab=` value.
+	 * @param string $path The admin path that opens it.
+	 */
+	#[DataProvider( 'provide_tab_urls' )]
+	public function test_get_tab_url_opens_the_tab( $tab, $path ) {
+		$this->assertSame( admin_url( $path ), Dashboard::get_tab_url( $tab ) );
+	}
+
 	public function test_init_registers_each_section_once() {
 		$doing_it_wrong = new \ArrayObject();
 		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );

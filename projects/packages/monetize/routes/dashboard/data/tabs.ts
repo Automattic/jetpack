@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 
-export type TabValue = 'overview' | 'payments' | 'subscribers' | 'ads';
+export type TabValue = 'overview' | 'payments' | 'subscribers' | 'ads' | 'settings';
 
 interface Tab {
 	value: TabValue;
@@ -24,6 +24,10 @@ export const TABS: Tab[] = [
 	{
 		value: 'ads',
 		label: () => __( 'Ads', 'jetpack-monetize' ),
+	},
+	{
+		value: 'settings',
+		label: () => __( 'Settings', 'jetpack-monetize' ),
 	},
 ];
 
