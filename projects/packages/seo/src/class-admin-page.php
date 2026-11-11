@@ -15,6 +15,7 @@ namespace Automattic\Jetpack\SEO;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -151,7 +152,8 @@ class Admin_Page {
 	 * @return array
 	 */
 	public static function add_admin_shell_member( $members ) {
-		if ( ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+		// The menu item hides while seo-tools is off, so there is no link to switch to.
+		if ( ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) || ! ( new Modules() )->is_active( 'seo-tools' ) ) {
 			return $members;
 		}
 

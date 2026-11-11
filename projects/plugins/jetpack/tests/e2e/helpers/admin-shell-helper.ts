@@ -50,7 +50,7 @@ export const MEMBERS: Member[] = [
 		title: 'SEO',
 		heading: 'SEO',
 		landing: /^\?page=jetpack-seo$/,
-		// A self-hosted site needs the `rsm_jetpack_seo` filter.
+		// Needs the `seo-admin-ui` plan feature or the `rsm_jetpack_seo` filter, and the seo-tools module on.
 		optional: true,
 	},
 ];
@@ -97,7 +97,14 @@ export async function onSite( page: Page, slug: string ): Promise< boolean > {
 	}
 	const base = String( test.info().project.use.baseURL ?? '' );
 	if ( ! menuSlugs.has( base ) ) {
-		menuSlugs.set( base, readMenuSlugs( page ) );
+		menuSlugs.set(
+			base,
+			readMenuSlugs( page ).catch( error => {
+				// Forget a failed probe, so the next test reads the menu again.
+				menuSlugs.delete( base );
+				throw error;
+			} )
+		);
 	}
 	return ( await menuSlugs.get( base )! ).has( slug );
 }
