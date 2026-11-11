@@ -1,6 +1,7 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { bell, chartBar, envelope, listView, postCommentsForm, shield } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import { requestModuleSwitch } from '../../../data/module-switch';
@@ -81,11 +82,25 @@ const SETUP_MODULE_ICONS: Record< SetupModuleSlug, typeof shield > = {
 	monitor: bell,
 };
 
+/**
+ * Lines that replace a module's own, where its own promises more than the free tier gives.
+ *
+ * @return The replacement line for each module that needs one, translated at call time.
+ */
+function setupModuleDescriptions(): Partial< Record< SetupModuleSlug, string > > {
+	return {
+		// Its header offers rolling back, which needs a paid Backup plan.
+		'activity-log': __(
+			'See what changed on your site, who changed it, and when.',
+			'jetpack-my-jetpack'
+		),
+	};
+}
+
 export type SetupModule = {
 	slug: SetupModuleSlug;
-	// Jetpack's own name and line for the module, already translated. Written here
-	// would be a second copy of both, free to drift and untranslated until someone
-	// noticed.
+	// Jetpack's own name and line for the module, already translated. The line is
+	// replaced only where setupModuleDescriptions() says why.
 	name: string;
 	description: string;
 	icon: typeof shield;
@@ -147,8 +162,10 @@ export function useSetupModules(
 		[ enabled ]
 	);
 
-	return useMemo(
-		() => ( {
+	return useMemo( () => {
+		const descriptions = setupModuleDescriptions();
+
+		return {
 			isLoading,
 			// A module Jetpack does not have on this site is left out rather than
 			// rendered as a row that cannot be switched.
@@ -158,14 +175,13 @@ export function useSetupModules(
 			).map( slug => ( {
 				slug,
 				name: modules[ slug ].name,
-				description: modules[ slug ].description,
+				description: descriptions[ slug ] ?? modules[ slug ].description,
 				icon: SETUP_MODULE_ICONS[ slug ],
 				activated: Boolean( modules[ slug ].activated ),
 				locked: Boolean( modules[ slug ].override ),
 			} ) ),
-		} ),
-		[ modules, isLoading, siteType ]
-	);
+		};
+	}, [ modules, isLoading, siteType ] );
 }
 
 // How long a read-back waits behind a switch still running before giving up on it.

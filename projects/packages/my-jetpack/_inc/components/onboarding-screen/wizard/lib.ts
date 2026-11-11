@@ -270,7 +270,7 @@ export function startBenefits(): WizardBenefit[] {
 		{
 			id: 'secure',
 			icon: shield,
-			text: __( 'Spam, brute force and downtime, handled for you', 'jetpack-my-jetpack' ),
+			text: __( 'Brute force protection and downtime alerts', 'jetpack-my-jetpack' ),
 		},
 		{
 			id: 'fast',
