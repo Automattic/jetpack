@@ -1,4 +1,4 @@
-const { execSync } = require( 'child_process' );
+const { execFileSync, execSync } = require( 'child_process' );
 const fs = require( 'fs' );
 
 const projects = [
@@ -43,6 +43,8 @@ const projects = [
 		testScript: 'test:admin-shell:ci',
 		testArgs: [],
 		targets: [ 'packages/admin-ui', 'packages/my-jetpack', 'packages/forms' ],
+		// Also run when a PR changes the suite itself, without fanning out to everything that depends on admin-ui.
+		paths: [ /^projects\/plugins\/jetpack\/tests\/e2e\/.*admin-shell/ ],
 		buildGroup: 'jetpack-core',
 	},
 	{
@@ -180,6 +182,24 @@ function minWpVersion() {
 	return match[ 1 ];
 }
 
+/**
+ * Files the pull request changes.
+ *
+ * @return {string[]} Paths, or an empty list outside a pull request.
+ */
+function prChangedFiles() {
+	if ( process.env.GITHUB_EVENT_NAME !== 'pull_request' ) {
+		return [];
+	}
+	const { base, head } = JSON.parse(
+		fs.readFileSync( process.env.GITHUB_EVENT_PATH, 'utf8' )
+	).pull_request;
+	return execFileSync( 'git', [ 'diff', '--name-only', `${ base.sha }...${ head.sha }` ] )
+		.toString()
+		.split( '\n' )
+		.filter( Boolean );
+}
+
 const matrix = [];
 
 /**
@@ -204,8 +224,14 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		);
 
 		const dependencyCache = new Map();
+		const changedFiles = prChangedFiles();
 
 		for ( const project of projects ) {
+			if ( project.paths?.some( re => changedFiles.some( f => re.test( f ) ) ) ) {
+				pushBothVersions( project );
+				continue;
+			}
+
 			if ( ! project.targets ) {
 				// If no targets are defined, run the tests
 				pushBothVersions( project );

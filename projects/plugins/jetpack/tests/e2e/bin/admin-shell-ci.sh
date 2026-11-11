@@ -14,6 +14,9 @@ export ADMIN_SHELL_URL=http://localhost:8889 ADMIN_SHELL_USER ADMIN_SHELL_PASSWO
 
 playwright install --with-deps chromium firefox webkit || exit 1
 
+# The site is never connected, so default modules (including the Forms member) aren't auto-activated.
+"${WP[@]}" jetpack module activate contact-form || exit 1
+
 STATUS=0
 
 echo "::group::Shell on"
