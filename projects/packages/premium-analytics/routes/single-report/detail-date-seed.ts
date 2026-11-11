@@ -12,7 +12,7 @@ import {
 type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
 
 /**
- * The date params a post or video detail route seeds its URL with.
+ * The date params the single-report route seeds its URL with.
  *
  * A link in opens the page on all time and keeps the linking window for the breadcrumbs;
  * a reload keeps the page's own range. `useDetailDateControls` anchors the all-time start.
