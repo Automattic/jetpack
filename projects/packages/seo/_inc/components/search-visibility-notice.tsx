@@ -1,8 +1,11 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { useLinkProps } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
+import { ROUTE_BY_TAB } from '../dashboard/dashboard-nav';
 import { getPreloaded, OVERVIEW_PATH, SETTINGS_PATH } from '../data/get-preloaded';
+import isSeoToolsActive from '../data/is-seo-tools-active';
 import { settingsStore } from '../data/settings-store';
 import type { OverviewResponse } from '../data/overview-types';
 import type { SettingsResponse } from '../data/settings-types';
@@ -13,6 +16,23 @@ import type { SettingsResponse } from '../data/settings-types';
  * @return The warning when indexing is restricted, otherwise null.
  */
 export default function SearchVisibilityNotice() {
+	const dashboardLink = useLinkProps( {
+		to: ROUTE_BY_TAB.settings,
+		search: { focus: 'visibility' } as unknown as never,
+		resetScroll: false,
+		onClick: event => {
+			if (
+				event.button === 0 &&
+				! event.defaultPrevented &&
+				! event.ctrlKey &&
+				! event.metaKey &&
+				! event.shiftKey &&
+				! event.altKey
+			) {
+				document.getElementById( 'visibility' )?.scrollIntoView( { block: 'start' } );
+			}
+		},
+	} );
 	const saved = useSelect( select => select( settingsStore ).getSettings(), [] );
 	const settings =
 		saved ??
@@ -43,7 +63,11 @@ export default function SearchVisibilityNotice() {
 		<Notice.Root intent="warning" className="jetpack-seo-visibility-notice">
 			<Notice.Description>{ message }</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionLink href={ settingsUrl || getAdminUrl( 'options-reading.php' ) }>
+				<Notice.ActionLink
+					{ ...( ! settings.site_is_private && isSeoToolsActive()
+						? dashboardLink
+						: { href: settingsUrl || getAdminUrl( 'options-reading.php' ) } ) }
+				>
 					{ __( 'Review site visibility settings', 'jetpack-seo' ) }
 				</Notice.ActionLink>
 			</Notice.Actions>
