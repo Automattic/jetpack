@@ -38,13 +38,16 @@ const tabOrder = () =>
 /**
  * Renders the dialog over the three tabs.
  *
- * @return The `userEvent` session and the close callback.
+ * @param onPreview - Receives the orders the reader tries.
+ * @return The `userEvent` session, the close callback and the way to take the dialog down.
  */
-function renderDialog() {
+function renderDialog( onPreview?: ( order?: string[] ) => void ) {
 	const onClose = jest.fn();
-	render( <ArrangeTabsDialog scope={ SCOPE } items={ TABS } onClose={ onClose } /> );
+	const { unmount } = render(
+		<ArrangeTabsDialog scope={ SCOPE } items={ TABS } onPreview={ onPreview } onClose={ onClose } />
+	);
 
-	return { user: setupUser(), onClose };
+	return { user: setupUser(), onClose, unmount };
 }
 
 beforeEach( () => {
@@ -74,6 +77,20 @@ describe( 'ArrangeTabsDialog', () => {
 
 		expect( getSectionOrder( SCOPE ) ).toEqual( [ 'insights', 'traffic', 'subscribers' ] );
 		expect( onClose ).toHaveBeenCalled();
+	} );
+
+	it( 'shows the page each order the reader tries, and takes it back on the way out', async () => {
+		const onPreview = jest.fn();
+		const { user, unmount } = renderDialog( onPreview );
+
+		await user.click( screen.getByRole( 'button', { name: 'Move Insights up' } ) );
+
+		expect( onPreview ).toHaveBeenLastCalledWith( [ 'insights', 'traffic', 'subscribers' ] );
+		expect( getSectionOrder( SCOPE ) ).toEqual( [] );
+
+		unmount();
+
+		expect( onPreview ).toHaveBeenLastCalledWith();
 	} );
 
 	it( 'slides each row from where it sat', async () => {

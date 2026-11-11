@@ -52,6 +52,7 @@ let mockIsSyncFinished: boolean;
 let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
 let mockIsAdmin: boolean;
 let mockCanSendFeedback: boolean;
+let mockMenuTabs: { onPreview?: ( order?: string[] ) => void } | undefined;
 const mockResetLayout = jest.fn();
 const mockChangeComparison = jest.fn();
 const mockStepDateRange = jest.fn();
@@ -176,15 +177,25 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
 	useTrackCustomize: () => mockTrackCustomize,
 	canSendFeedback: () => mockCanSendFeedback,
-	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
-		<div data-testid="page-options-menu">
-			{ onCustomize && (
-				<button type="button" onClick={ onCustomize }>
-					Customize
-				</button>
-			) }
-		</div>
-	),
+	PageOptionsMenu: ( {
+		onCustomize,
+		tabs,
+	}: {
+		onCustomize?: () => void;
+		tabs?: typeof mockMenuTabs;
+	} ) => {
+		mockMenuTabs = tabs;
+
+		return (
+			<div data-testid="page-options-menu">
+				{ onCustomize && (
+					<button type="button" onClick={ onCustomize }>
+						Customize
+					</button>
+				) }
+			</div>
+		);
+	},
 	ResetLayoutAction: ( { onReset }: { onReset: () => void } ) => (
 		<button type="button" onClick={ onReset }>
 			Reset to default
@@ -372,8 +383,19 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 } );
 
 jest.mock( './components', () => ( {
-	DashboardSections: ( { children }: { children: ReactNode } ) => (
-		<div data-testid="dashboard-sections">{ children }</div>
+	DashboardSections: ( {
+		children,
+		sections,
+	}: {
+		children: ReactNode;
+		sections: { slug: string }[];
+	} ) => (
+		<div
+			data-testid="dashboard-sections"
+			data-order={ sections.map( section => section.slug ).join( ' ' ) }
+		>
+			{ children }
+		</div>
 	),
 	// A marker, not the real banner, which owns its own preference. Covered
 	// here: which section the stage offers it on, and when.
@@ -955,6 +977,33 @@ describe( 'Dashboard options menu', () => {
 		expect( mockTrackCustomize.layoutChange ).toHaveBeenCalledWith( [], mockCommittedLayout );
 		expect( mockTrackCustomize.layoutChange.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
 			mockTrackCustomize.exit.mock.invocationCallOrder[ 0 ]
+		);
+	} );
+
+	it( 'shows the tab bar, and nothing else, an order the reader is trying', () => {
+		const sections = [
+			{ slug: 'traffic', label: 'Traffic', date_filter: DATE_FILTER_RANGE },
+			{ slug: 'insights', label: 'Insights', date_filter: DATE_FILTER_YEAR },
+		];
+		useDashboardSectionsMock.mockReturnValue( {
+			sections,
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+
+		render( <Dashboard /> );
+		act( () => mockMenuTabs?.onPreview?.( [ 'insights', 'traffic' ] ) );
+
+		expect( screen.getByTestId( 'dashboard-sections' ) ).toHaveAttribute(
+			'data-order',
+			'insights traffic'
+		);
+		expect( useActiveSectionMock ).toHaveBeenLastCalledWith( sections, expect.any( Function ) );
+
+		act( () => mockMenuTabs?.onPreview?.() );
+
+		expect( screen.getByTestId( 'dashboard-sections' ) ).toHaveAttribute(
+			'data-order',
+			'traffic insights'
 		);
 	} );
 } );

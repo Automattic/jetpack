@@ -8,7 +8,7 @@ import { useReducedMotion } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -36,6 +36,12 @@ export type ArrangeableTabs = {
 	 * The screen's tabs, in the order it shows them.
 	 */
 	items: ArrangeableTab[];
+
+	/*
+	 * Shows the screen an order the reader is trying, as tab slugs, before they save it.
+	 * Called with none once the dialog is gone, for the screen to go back to its own.
+	 */
+	onPreview?: ( order?: string[] ) => void;
 };
 
 type Step = -1 | 1;
@@ -199,7 +205,7 @@ type ArrangeTabsDialogProps = ArrangeableTabs & {
  * @param {ArrangeTabsDialogProps} props - The component props.
  * @return The dialog.
  */
-export function ArrangeTabsDialog( { scope, items, onClose }: ArrangeTabsDialogProps ) {
+export function ArrangeTabsDialog( { scope, items, onPreview, onClose }: ArrangeTabsDialogProps ) {
 	const [ tabs, setTabs ] = useState( items );
 	const hasOwnOrder = useSelect( select => getSectionOrder( scope, select ).length > 0, [ scope ] );
 	const reducedMotion = useReducedMotion();
@@ -221,6 +227,9 @@ export function ArrangeTabsDialog( { scope, items, onClose }: ArrangeTabsDialogP
 		animateMove( rows, tabs, moved, reducedMotion );
 	}, [ tabs, reducedMotion ] );
 
+	// However the dialog goes away, the order it was trying goes with it.
+	useEffect( () => () => onPreview?.(), [ onPreview ] );
+
 	const move = useCallback(
 		( index: number, step: Step ) => {
 			const next = [ ...tabs ];
@@ -236,6 +245,7 @@ export function ArrangeTabsDialog( { scope, items, onClose }: ArrangeTabsDialogP
 			next.splice( index + step, 0, tab );
 			movedRef.current = { index: index + step, step, tops };
 			setTabs( next );
+			onPreview?.( next.map( nextTab => nextTab.slug ) );
 			speak(
 				sprintf(
 					/* translators: 1: the label of a tab. 2: its new position. 3: the number of tabs. */
@@ -246,7 +256,7 @@ export function ArrangeTabsDialog( { scope, items, onClose }: ArrangeTabsDialogP
 				)
 			);
 		},
-		[ tabs ]
+		[ onPreview, tabs ]
 	);
 
 	const save = useCallback( () => {

@@ -133,7 +133,9 @@ The first tab is the one a URL without `?section=` opens, so both channels above
 
 When the order changes under a URL that names no section, `useActiveSection()` keeps the section on screen and writes it to the URL, so rearranging the tabs never moves the reader.
 
-Another screen with tabs offers the dialog by handing `PageOptionsMenu` its `tabs`: the screen's preferences scope and its `{ slug, label }` items.
+While the dialog is open, the tab bar previews the order the reader is trying: the dialog reports each move through `onPreview`, and the stage applies it to the sections it hands the tab bar and to nothing else. Nothing is stored until the reader saves, and the preview is gone with the dialog, however it closes.
+
+Another screen with tabs offers the dialog by handing `PageOptionsMenu` its `tabs`: the screen's preferences scope, its `{ slug, label }` items and, for the preview, an `onPreview` callback.
 
 ## Default layouts
 

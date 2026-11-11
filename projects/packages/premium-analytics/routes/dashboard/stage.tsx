@@ -2,6 +2,7 @@ import { currentUserCan } from '@automattic/jetpack-script-data';
 import {
 	DASHBOARD_PREFERENCES_SCOPE,
 	isPlanDateLimitedSection,
+	orderSections,
 	PeriodChangeSignalProvider,
 	queryClient,
 	ReportScopeProvider,
@@ -115,10 +116,17 @@ function Dashboard(): JSX.Element {
 		widgetTypeRenames
 	);
 	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+	// The order the reader is trying in the Arrange tabs dialog: the tab bar alone follows it.
+	const [ previewOrder, setPreviewOrder ] = useState< string[] >();
+	const tabBarSections = useMemo(
+		() => orderSections( sections, previewOrder ?? [] ),
+		[ sections, previewOrder ]
+	);
 	const arrangeableTabs = useMemo(
 		() => ( {
 			scope: DASHBOARD_PREFERENCES_SCOPE,
 			items: sections.map( ( { slug, label } ) => ( { slug, label } ) ),
+			onPreview: setPreviewOrder,
 		} ),
 		[ sections ]
 	);
@@ -522,7 +530,7 @@ function Dashboard(): JSX.Element {
 								className={ styles.dashboard }
 							>
 								<DashboardSections
-									sections={ sections }
+									sections={ tabBarSections }
 									value={ activeSection }
 									onChange={ setActiveSection }
 									tabListRef={ setTabListFrame }
