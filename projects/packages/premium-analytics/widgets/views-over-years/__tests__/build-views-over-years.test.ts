@@ -184,6 +184,16 @@ describe( 'buildViewsOverYearsRows', () => {
 			expect( partialMonths ).toEqual( [] );
 		} );
 
+		it( 'ignores a first day outside the first month with views', () => {
+			const { partialMonths } = buildViewsOverYearsRows( BUCKETS, 'total', TODAY, {
+				year: 2025,
+				month: 11,
+				day: 24,
+			} );
+
+			expect( partialMonths ).toEqual( [ CURRENT ] );
+		} );
+
 		it( 'marks nothing under the average metric, which is already per day', () => {
 			const { partialMonths } = buildViewsOverYearsRows( BUCKETS, 'average', TODAY, NOV_24 );
 

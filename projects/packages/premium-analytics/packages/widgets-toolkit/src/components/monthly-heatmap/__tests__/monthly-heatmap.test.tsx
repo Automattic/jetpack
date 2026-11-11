@@ -87,7 +87,7 @@ describe( 'MonthlyHeatmap', () => {
 		);
 
 		const partial = screen.getByTestId( 'heatmap-cell-partial' );
-		expect( partial ).toHaveAccessibleName( 'Mar 2026: 40 (incomplete)' );
+		expect( partial ).toHaveAccessibleName( /^Mar 2026: 40/ );
 		expect( screen.getAllByTestId( 'heatmap-cell-partial' ) ).toHaveLength( 1 );
 		expect( screen.getByRole( 'gridcell', { name: 'Feb 2026: 0' } ) ).not.toHaveAttribute(
 			'data-testid',

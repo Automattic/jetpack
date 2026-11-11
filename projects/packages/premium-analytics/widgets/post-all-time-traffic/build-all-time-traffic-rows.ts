@@ -47,7 +47,7 @@ function reportedMonths( years: Record< string, StatsPostYear > ): number[] {
  * @param today     - The site's current month, which closes the last row.
  * @param published - The month the post was published; defaults to the first
  *                  reported month.
- * @return One row per year of the post's life, newest first, and the months a total cannot compare with a full month: the current month alone, within the post's life and never under the average. The publish month carries no day, so it is never marked. Both empty without stats.
+ * @return One row per year of the post's life, newest first, and the months a total cannot compare with a full month. That is the current month alone, within the post's life and never under the average, since a publish month carries no day to measure. Both empty without stats.
  */
 export function buildAllTimeTrafficRows(
 	response: StatsPostResponse | undefined,
