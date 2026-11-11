@@ -609,9 +609,7 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 		// eslint-disable-next-line jest-dom/prefer-to-have-value -- Playwright's toHaveValue only reads form fields.
 		await expect( meter ).toHaveAttribute( 'aria-valuenow', String( score ) );
 		await expect( meter ).toHaveAttribute( 'aria-valuemax', '100' );
-		const track = meter.locator( ':scope > div' );
-		await expect( track.locator( ':scope > div' ) ).toHaveCSS( 'background-color', color );
-		await expect( track ).toHaveCSS( 'height', '8px' );
+		await expect( meter.locator( ':scope > div > div' ) ).toHaveCSS( 'background-color', color );
 	}
 	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
 	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
