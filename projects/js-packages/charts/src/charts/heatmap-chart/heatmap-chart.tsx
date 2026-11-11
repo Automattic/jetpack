@@ -676,20 +676,30 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										const value = cell?.value ?? null;
 										const present = isPresent( value );
 										// A summary cell is on another scale, so it takes no fill.
-										const filled = present && ! column.summary && ! isEmptyValue( value, extent );
+										const partial = cell?.partial === true && ! column.summary;
+										let testId = 'heatmap-cell';
+										if ( column.summary ) {
+											testId = 'heatmap-cell-summary';
+										} else if ( partial ) {
+											testId = 'heatmap-cell-partial';
+										}
+										const filled =
+											present && ! partial && ! column.summary && ! isEmptyValue( value, extent );
 										const normalized = filled ? getBucketedValue( value, buckets ) : 0;
 										const info = buildTooltipData( columnIndex, rowIndex );
-										const accessibleLabel = `${ cellName( info ) }: ${
+										const valueLabel =
 											info.value === null
 												? __( 'No data', 'jetpack-charts' )
-												: formatNumber( info.value )
+												: formatNumber( info.value );
+										const accessibleLabel = `${ cellName( info ) }: ${ valueLabel }${
+											partial ? ` ${ __( '(incomplete)', 'jetpack-charts' ) }` : ''
 										}`;
 
 										return (
 											<div
 												key={ `cell-${ columnIndex }-${ rowIndex }` }
 												id={ `${ chartId }-cell-${ columnIndex }-${ rowIndex }` }
-												data-testid={ column.summary ? 'heatmap-cell-summary' : 'heatmap-cell' }
+												data-testid={ testId }
 												role="gridcell"
 												// Focus stays on the grid (aria-activedescendant); cells are
 												// focusable but out of the tab order.
@@ -701,6 +711,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												className={ clsx( styles[ 'heatmap-chart__cell' ], {
 													[ styles[ 'heatmap-chart__cell--filled' ] ]: filled,
 													[ styles[ 'heatmap-chart__cell--summary' ] ]: column.summary,
+													[ styles[ 'heatmap-chart__cell--partial' ] ]: partial,
 													...summaryGaps( columnIndex ),
 													[ styles[ 'heatmap-chart__cell--selected' ] ]:
 														selected?.column === columnIndex && selected?.row === rowIndex,
