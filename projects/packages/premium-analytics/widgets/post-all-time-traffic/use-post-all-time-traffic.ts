@@ -10,6 +10,7 @@ import {
 import {
 	monthlyHeatmapLifeStart,
 	type MonthlyHeatmapMetric,
+	type MonthlyHeatmapTarget,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from 'react';
 /**
@@ -19,6 +20,8 @@ import { buildAllTimeTrafficRows, type AllTimeTrafficRow } from './build-all-tim
 
 export interface PostAllTimeTrafficState {
 	rows: AllTimeTrafficRow[];
+	/** The months the data does not fill, which the table marks incomplete. */
+	partialMonths: MonthlyHeatmapTarget[];
 	/** Where the post's life starts, which a picked period never precedes. */
 	lifeStartsAt: Date | undefined;
 	isLoading: boolean;
@@ -56,7 +59,7 @@ export default function usePostAllTimeTraffic(
 		);
 	}, [ data ] );
 
-	const { rows, lifeStartsAt } = useMemo( () => {
+	const { rows, partialMonths, lifeStartsAt } = useMemo( () => {
 		// Read in the site timezone so the months fall on the site's own calendar.
 		const today = localTZDate();
 		const published = publishedAt ? localTZDate( publishedAt ) : undefined;
@@ -74,13 +77,15 @@ export default function usePostAllTimeTraffic(
 		// A rescheduled post keeps the views from before its new date; `monthlyHeatmapLifeStart`
 		// opens that oldest month whole.
 		return {
-			rows: built,
-			lifeStartsAt: monthlyHeatmapLifeStart( built, publishedAt, reportingTimeZone() ),
+			rows: built.rows,
+			partialMonths: built.partialMonths,
+			lifeStartsAt: monthlyHeatmapLifeStart( built.rows, publishedAt, reportingTimeZone() ),
 		};
 	}, [ data, metric, publishedAt ] );
 
 	return {
 		rows,
+		partialMonths,
 		lifeStartsAt,
 		isLoading,
 		isFetching,

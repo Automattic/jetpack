@@ -7,6 +7,7 @@ import {
 	monthOrder,
 	type MonthKey,
 	type MonthlyHeatmapMetric,
+	type MonthlyHeatmapTarget,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -46,21 +47,21 @@ function reportedMonths( years: Record< string, StatsPostYear > ): number[] {
  * @param today     - The site's current month, which closes the last row.
  * @param published - The month the post was published; defaults to the first
  *                  reported month.
- * @return One row per year of the post's life, newest first. Empty without stats.
+ * @return One row per year of the post's life, newest first, and the months a total cannot compare with a full month: the current month alone, within the post's life and never under the average. The publish month carries no day, so it is never marked. Both empty without stats.
  */
 export function buildAllTimeTrafficRows(
 	response: StatsPostResponse | undefined,
 	metric: MonthlyHeatmapMetric,
 	today: MonthKey,
 	published?: MonthKey
-): AllTimeTrafficRow[] {
+): { rows: AllTimeTrafficRow[]; partialMonths: MonthlyHeatmapTarget[] } {
 	const years = response?.years ?? {};
 	const reported = reportedMonths( years );
 
 	// Without its table the average view has nothing to draw: a grid of zeros
 	// built from `years` alone would read as a real measurement.
 	if ( reported.length === 0 || ( metric === 'average' && ! response?.averages ) ) {
-		return [];
+		return { rows: [], partialMonths: [] };
 	}
 
 	const source = metric === 'average' ? response.averages : years;
@@ -96,5 +97,8 @@ export function buildAllTimeTrafficRows(
 		rows.push( { year, months, total } );
 	}
 
-	return rows;
+	const isCurrentMonthInLife = monthOrder( today ) >= firstOrder;
+	const partialMonths = metric !== 'average' && isCurrentMonthInLife ? [ today ] : [];
+
+	return { rows, partialMonths };
 }
