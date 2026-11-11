@@ -4,12 +4,12 @@ export const isPresent = ( value: number | null | undefined ): value is number =
 	value !== null && value !== undefined && ! isNaN( value );
 
 /**
- * Every value the color scale is built from, ascending. Summary columns stay
- * out — a roll-up on the scale would flatten every real cell — as do cells that
- * paint no fill of their own and so report nothing about the series.
+ * Every value a cell reports, ascending. Roll-up columns stay out, since a
+ * summary on the scale would flatten every real cell, and so do cells that
+ * report nothing about the series.
  *
  * @param data - The heatmap columns
- * @return The eligible values, ascending
+ * @return The reported values, ascending
  */
 export const scaleValues = ( data: HeatmapColumn[] ): number[] => {
 	const values: number[] = [];
@@ -28,14 +28,13 @@ export const scaleValues = ( data: HeatmapColumn[] ): number[] => {
 };
 
 /**
- * Get the min and max values from heatmap data, ignoring the zeros
+ * Get the min and max of an ascending value list, ignoring the zeros
  * `isEmptyValue` paints as empty.
  *
- * @param data - The heatmap columns
+ * @param values - The values from `scaleValues`
  * @return Tuple of [min, max] values
  */
-export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
-	const values = scaleValues( data );
+export const getExtentOf = ( values: number[] ): [ number, number ] => {
 	const nonZero = values.filter( value => value !== 0 );
 	if ( ! nonZero.length ) {
 		return [ 0, 0 ];
@@ -45,6 +44,16 @@ export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
 	// A zero counts as data once the series has negatives, so the scale has to reach it.
 	return [ min, min < 0 && nonZero.length < values.length ? Math.max( max, 0 ) : max ];
 };
+
+/**
+ * Get the min and max values from heatmap data, ignoring the zeros
+ * `isEmptyValue` paints as empty.
+ *
+ * @param data - The heatmap columns
+ * @return Tuple of [min, max] values
+ */
+export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] =>
+	getExtentOf( scaleValues( data ) );
 
 /**
  * Whether a value paints as an empty cell: a zero in data with no negatives

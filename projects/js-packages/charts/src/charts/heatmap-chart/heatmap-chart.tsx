@@ -35,15 +35,16 @@ import styles from './heatmap-chart.module.scss';
 import {
 	fitCompactCells,
 	getBucketedValue,
+	getExtentOf,
 	getHeatmapScale,
 	getValueBuckets,
-	getValueExtent,
 	HEATMAP_SCALE_STEPS,
 	HeatmapContext,
 	HeatmapLegend,
 	isEmptyValue,
 	isPresent,
 	resolveColumnGroups,
+	scaleValues,
 	wrapColumnGroups,
 } from './private';
 import {
@@ -197,7 +198,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		setLabelRoles( previous => ( isEqual( previous, next ) ? previous : next ) );
 	}, [ data, className, primaryColorHex, chartBackgroundHex ] );
 
-	const extent = useMemo( () => getValueExtent( data ), [ data ] );
+	const values = useMemo( () => scaleValues( data ), [ data ] );
+	const extent = useMemo( () => getExtentOf( values ), [ values ] );
 	const usableSteps = Number.isInteger( scaleSteps ) && scaleSteps >= 2 && scaleSteps <= 10;
 	if ( ! usableSteps ) {
 		warnOnce(
@@ -206,7 +208,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		);
 	}
 	const steps = usableSteps ? scaleSteps : HEATMAP_SCALE_STEPS;
-	const buckets = useMemo( () => getValueBuckets( data, steps ), [ data, steps ] );
+	const buckets = useMemo(
+		() => getValueBuckets( values, extent, steps ),
+		[ values, extent, steps ]
+	);
 	const heatmapContext = useMemo< HeatmapContextValue >(
 		() => ( { extent, buckets, steps, fillVars } ),
 		[ extent, buckets, steps, fillVars ]

@@ -1291,7 +1291,7 @@ describe( 'HeatmapChart bucket scale', () => {
 			.getAllByTestId( testId )
 			.map( element => element.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) );
 
-	it( 'paints cells on the five legend steps rather than a continuous blend', () => {
+	test( 'paints cells on the five legend steps rather than a continuous blend', () => {
 		renderAscending();
 
 		expect( [ ...new Set( intensitiesOf( 'heatmap-cell' ) ) ].sort() ).toEqual( [
@@ -1310,7 +1310,7 @@ describe( 'HeatmapChart bucket scale', () => {
 		] );
 	} );
 
-	it( 'warns once and falls back to five steps for an unusable scaleSteps', () => {
+	test( 'warns once and falls back to five steps for an unusable scaleSteps', () => {
 		for ( const scaleSteps of [ 1, 2.5, 400 ] ) {
 			const { unmount } = renderAscending( { scaleSteps } );
 			expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toHaveLength( 5 );
@@ -1320,9 +1320,12 @@ describe( 'HeatmapChart bucket scale', () => {
 		expect( console ).toHaveWarnedWith(
 			'[Charts] scaleSteps must be a whole number from 2 to 10, so the scale keeps its 5 steps.'
 		);
+		// One stable key for every bad value, so a render loop cannot flood the console.
+		// eslint-disable-next-line no-console -- `toHaveWarned` passes on any count; only the spy carries one.
+		expect( console.warn ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'follows scaleSteps in both the cells and the legend', () => {
+	test( 'follows scaleSteps in both the cells and the legend', () => {
 		renderAscending( { scaleSteps: 3 } );
 
 		expect( [ ...new Set( intensitiesOf( 'heatmap-cell' ) ) ].sort() ).toEqual( [
