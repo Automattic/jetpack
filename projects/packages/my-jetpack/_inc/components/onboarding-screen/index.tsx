@@ -1,4 +1,4 @@
-import { Container, Col } from '@automattic/jetpack-components';
+import { Container, Col, JetpackLogo, Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Spinner } from '@wordpress/components';
@@ -12,16 +12,16 @@ import Testimonials from '../testimonials';
 import ConnectionForm from './connection-form/connection-form';
 import { withLoadLimit } from './load-limit';
 import styles from './styles.module.scss';
+import { useConnectionKnown } from './wizard/use-connection-known';
 import type { ComponentType, FC, ReactNode } from 'react';
 
-const ConnectScreen: FC< { children?: ReactNode } > = ( { children } ) => (
+const OnboardingLayout: FC< { children: ReactNode } > = ( { children } ) => (
 	<Container
 		horizontalSpacing={ 3 }
 		horizontalGap={ 0 }
 		className={ styles[ 'onboarding-screen' ] }
 	>
 		<Col sm={ 4 } md={ 4 } lg={ 6 } className={ clsx( styles.column, styles[ 'primary-column' ] ) }>
-			<ConnectionForm />
 			{ children }
 		</Col>
 		<Col
@@ -35,6 +35,21 @@ const ConnectScreen: FC< { children?: ReactNode } > = ( { children } ) => (
 	</Container>
 );
 
+const ConnectScreen: FC< { children?: ReactNode } > = ( { children } ) => (
+	<OnboardingLayout>
+		<ConnectionForm />
+		{ children }
+	</OnboardingLayout>
+);
+
+// The window the wizard opens into, saying it is busy rather than sitting blank.
+const WizardLoading: FC = () => (
+	<div className={ styles[ 'wizard-loading' ] } role="status">
+		<Spinner />
+		<span className="screen-reader-text">{ __( 'Loading setup…', 'jetpack-my-jetpack' ) }</span>
+	</div>
+);
+
 // The two ways out; the wizard reads its storage scope off the page itself.
 type WizardLinks = Pick< OnboardingWizardState, 'exitUrl' | 'dashboardUrl' >;
 
@@ -42,6 +57,7 @@ type WizardLinks = Pick< OnboardingWizardState, 'exitUrl' | 'dashboardUrl' >;
 // My Jetpack keeps sending a site-only connection back here.
 const WizardFallback: FC< WizardLinks > = ( { exitUrl, dashboardUrl } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
+	const connectionKnown = useConnectionKnown();
 	const [ isSkipping, setIsSkipping ] = useState( false );
 
 	// The wizard's own skip request; see settleOnboarding() in wizard/lib.ts.
@@ -58,17 +74,39 @@ const WizardFallback: FC< WizardLinks > = ( { exitUrl, dashboardUrl } ) => {
 		);
 	}, [ exitUrl, dashboardUrl, isUserConnected ] );
 
-	return (
-		<ConnectScreen>
-			{ isRegistered && (
-				<div className={ styles.skip }>
-					<Button variant="link" onClick={ handleSkip } disabled={ isSkipping }>
-						{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
-					</Button>
-				</div>
-			) }
-		</ConnectScreen>
+	const skip = (
+		<div className={ styles.skip }>
+			<Button variant="link" onClick={ handleSkip } disabled={ isSkipping }>
+				{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
+			</Button>
+		</div>
 	);
+
+	// Until the store has it, a connected user reads as unconnected and would be offered to connect.
+	if ( ! connectionKnown ) {
+		return <WizardLoading />;
+	}
+
+	// Past the wizard's connect step: connecting again would only repeat the authorization.
+	if ( isUserConnected ) {
+		return (
+			<OnboardingLayout>
+				<JetpackLogo height={ 24 } />
+				<Text variant="headline-small">
+					{ __( 'Your site is connected to Jetpack', 'jetpack-my-jetpack' ) }
+				</Text>
+				<Text>
+					{ __(
+						'Setup could not load. You can skip it and go to My Jetpack.',
+						'jetpack-my-jetpack'
+					) }
+				</Text>
+				{ skip }
+			</OnboardingLayout>
+		);
+	}
+
+	return <ConnectScreen>{ isRegistered && skip }</ConnectScreen>;
 };
 
 /*
@@ -90,16 +128,6 @@ const Wizard = lazy< ComponentType< WizardLinks > >( () =>
 			return { default: WizardFallback };
 		}
 	)
-);
-
-// The window the wizard opens into, saying it is busy rather than sitting blank.
-const WizardLoading: FC = () => (
-	<div className={ styles[ 'wizard-loading' ] } role="status">
-		<Spinner />
-		{ /* wp-admin's own class. This entry ships no @wordpress/ui, and importing it
-		     here would load it for every site, flag on or off. */ }
-		<span className="screen-reader-text">{ __( 'Loading setup…', 'jetpack-my-jetpack' ) }</span>
-	</div>
 );
 
 const OnboardingScreen: FC = () => {

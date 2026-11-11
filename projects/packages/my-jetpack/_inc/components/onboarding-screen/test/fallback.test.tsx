@@ -9,6 +9,8 @@ jest.mock( '../wizard', () => {
 
 const mockConnection = { isRegistered: true, isUserConnected: false };
 
+jest.mock( '../wizard/use-connection-known', () => ( { useConnectionKnown: () => true } ) );
+
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	__esModule: true,
 	useConnection: () => ( {
@@ -76,14 +78,39 @@ describe( 'OnboardingScreen when the wizard fails to load', () => {
 		expect( screen.queryByRole( 'button', { name: 'Skip setup' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'offers a connected user no way to connect again', async () => {
+		mockConnection.isUserConnected = true;
+		render( <OnboardingScreen /> );
+
+		await expect(
+			screen.findByRole( 'button', { name: 'Skip setup' } )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Supercharge my site' } )
+		).not.toBeInTheDocument();
+	} );
+
 	it.each( [
-		[ 'settled, to My Jetpack', () => mockApiFetch.mockResolvedValue( {} ), exitUrl ],
 		[
-			'not settled, to wp-admin',
+			'site-only, settled, to My Jetpack',
+			false,
+			() => mockApiFetch.mockResolvedValue( {} ),
+			exitUrl,
+		],
+		[
+			'site-only, not settled, to wp-admin',
+			false,
 			() => mockApiFetch.mockRejectedValue( new Error() ),
 			dashboardUrl,
 		],
-	] )( 'records a skip and leaves for a site-only connection: %s', async ( _, settle, landing ) => {
+		[
+			'connected user, not settled, to My Jetpack',
+			true,
+			() => mockApiFetch.mockRejectedValue( new Error() ),
+			exitUrl,
+		],
+	] )( 'records a skip and leaves: %s', async ( _, isUserConnected, settle, landing ) => {
+		mockConnection.isUserConnected = isUserConnected;
 		settle();
 		render( <OnboardingScreen /> );
 
