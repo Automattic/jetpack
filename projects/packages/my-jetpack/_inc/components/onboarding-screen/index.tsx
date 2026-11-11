@@ -1,19 +1,19 @@
 import { Container, Col, JetpackLogo, Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Spinner } from '@wordpress/ui';
+import { Link, Spinner } from '@wordpress/ui';
 import clsx from 'clsx';
-import { lazy, Suspense, useCallback, useState } from 'react';
+import { lazy, Suspense, useCallback, useRef, useState } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useFullScreen } from '../../hooks/use-fullscreen';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import Testimonials from '../testimonials';
 import ConnectionForm from './connection-form/connection-form';
+import { isPlainClick } from './is-plain-click';
 import { withLoadLimit } from './load-limit';
 import styles from './styles.module.scss';
-import type { ComponentType, FC, ReactNode } from 'react';
+import type { ComponentType, FC, MouseEvent, ReactNode } from 'react';
 
 const OnboardingLayout: FC< { children: ReactNode } > = ( { children } ) => (
 	<Container
@@ -58,27 +58,42 @@ type WizardLinks = Pick< OnboardingWizardState, 'exitUrl' | 'dashboardUrl' >;
 // My Jetpack keeps sending a site-only connection back here.
 const WizardFallback: FC< WizardLinks > = ( { exitUrl, dashboardUrl } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
+	const skipping = useRef( false );
 	const [ isSkipping, setIsSkipping ] = useState( false );
 
 	// The wizard's own skip request; see settleOnboarding() in wizard/lib.ts.
-	const handleSkip = useCallback( () => {
-		setIsSkipping( true );
-		apiFetch( {
-			path: '/my-jetpack/v1/site/onboarding/settled',
-			method: 'POST',
-			data: { outcome: 'skipped' },
-		} ).then(
-			() => assignLocation( exitUrl ),
-			// Unsettled, a site-only connection would be sent straight back here.
-			() => assignLocation( isUserConnected ? exitUrl : dashboardUrl )
-		);
-	}, [ exitUrl, dashboardUrl, isUserConnected ] );
+	const handleSkip = useCallback(
+		( event: MouseEvent< HTMLElement > ) => {
+			// A modified click opens My Jetpack elsewhere and records nothing, as in the wizard.
+			if ( ! isPlainClick( event ) ) {
+				return;
+			}
+			event.preventDefault();
+
+			if ( skipping.current ) {
+				return;
+			}
+			skipping.current = true;
+			setIsSkipping( true );
+
+			apiFetch( {
+				path: '/my-jetpack/v1/site/onboarding/settled',
+				method: 'POST',
+				data: { outcome: 'skipped' },
+			} ).then(
+				() => assignLocation( exitUrl ),
+				// Unsettled, a site-only connection would be sent straight back here.
+				() => assignLocation( isUserConnected ? exitUrl : dashboardUrl )
+			);
+		},
+		[ exitUrl, dashboardUrl, isUserConnected ]
+	);
 
 	const skip = (
 		<div className={ styles.skip }>
-			<Button variant="link" onClick={ handleSkip } disabled={ isSkipping }>
+			<Link href={ exitUrl } onClick={ handleSkip } aria-disabled={ isSkipping || undefined }>
 				{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
-			</Button>
+			</Link>
 		</div>
 	);
 

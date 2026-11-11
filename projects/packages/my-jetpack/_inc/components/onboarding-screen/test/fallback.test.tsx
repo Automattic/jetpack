@@ -73,7 +73,7 @@ describe( 'OnboardingScreen when the wizard fails to load', () => {
 		render( <OnboardingScreen /> );
 
 		await expect( screen.findByText( 'Start with Jetpack for free' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Skip setup' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Skip setup' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'offers a connected user no way to connect again', async () => {
@@ -81,7 +81,7 @@ describe( 'OnboardingScreen when the wizard fails to load', () => {
 		render( <OnboardingScreen /> );
 
 		await expect(
-			screen.findByRole( 'button', { name: 'Skip setup' } )
+			screen.findByRole( 'link', { name: 'Skip setup' } )
 		).resolves.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'button', { name: 'Supercharge my site' } )
@@ -112,7 +112,7 @@ describe( 'OnboardingScreen when the wizard fails to load', () => {
 		settle();
 		render( <OnboardingScreen /> );
 
-		await userEvent.click( await screen.findByRole( 'button', { name: 'Skip setup' } ) );
+		await userEvent.click( await screen.findByRole( 'link', { name: 'Skip setup' } ) );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/my-jetpack/v1/site/onboarding/settled',

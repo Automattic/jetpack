@@ -13,6 +13,7 @@ import clsx from 'clsx';
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { assignLocation } from '../../../hooks/use-notification-watcher/assignLocation';
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
+import { isPlainClick } from '../is-plain-click';
 import { ConnectedNotice } from './connected-notice';
 import { DataInArt } from './data-in';
 import { EverywhereArt } from './everywhere';
@@ -289,13 +290,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 			 * the wizard, so nothing is recorded and the run is kept. A middle click
 			 * and the context menu fire no `click` at all, so they arrive here never.
 			 */
-			if (
-				event.button !== 0 ||
-				event.metaKey ||
-				event.ctrlKey ||
-				event.shiftKey ||
-				event.altKey
-			) {
+			if ( ! isPlainClick( event ) ) {
 				return;
 			}
 
