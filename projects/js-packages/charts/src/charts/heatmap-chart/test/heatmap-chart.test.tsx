@@ -1270,3 +1270,66 @@ describe( 'HeatmapChart naming and focus', () => {
 		expect( console ).not.toHaveWarned();
 	} );
 } );
+
+describe( 'HeatmapChart bucket scale', () => {
+	// Twenty-four ascending values, so every bucket is populated whatever the step count.
+	const ascending: HeatmapColumn[] = Array.from( { length: 24 }, ( _column, index ) => ( {
+		data: [ { value: ( index + 1 ) * 10 } ],
+	} ) );
+
+	const renderAscending = ( props = {} ) =>
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } { ...props }>
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+
+	const intensitiesOf = ( testId: string ) =>
+		screen
+			.getAllByTestId( testId )
+			.map( element => element.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) );
+
+	it( 'paints cells on the five legend steps rather than a continuous blend', () => {
+		renderAscending();
+
+		expect( [ ...new Set( intensitiesOf( 'heatmap-cell' ) ) ].sort() ).toEqual( [
+			'0',
+			'0.25',
+			'0.5',
+			'0.75',
+			'1',
+		] );
+		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [
+			'0',
+			'0.25',
+			'0.5',
+			'0.75',
+			'1',
+		] );
+	} );
+
+	it( 'warns once and falls back to five steps for an unusable scaleSteps', () => {
+		for ( const scaleSteps of [ 1, 2.5, 400 ] ) {
+			const { unmount } = renderAscending( { scaleSteps } );
+			expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toHaveLength( 5 );
+			unmount();
+		}
+
+		expect( console ).toHaveWarnedWith(
+			'[Charts] scaleSteps must be a whole number from 2 to 10, so the scale keeps its 5 steps.'
+		);
+	} );
+
+	it( 'follows scaleSteps in both the cells and the legend', () => {
+		renderAscending( { scaleSteps: 3 } );
+
+		expect( [ ...new Set( intensitiesOf( 'heatmap-cell' ) ) ].sort() ).toEqual( [
+			'0',
+			'0.5',
+			'1',
+		] );
+		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [ '0', '0.5', '1' ] );
+	} );
+} );

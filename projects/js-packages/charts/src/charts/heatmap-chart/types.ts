@@ -21,6 +21,13 @@ export type HeatmapCell = {
 	 * which were never measured.
 	 */
 	placeholder?: boolean;
+	/**
+	 * The cell covers a period the data does not fill — a launch month, or a
+	 * month still running. It is left out of the color scale and painted as a
+	 * hatch, so it is not read as a quiet period, while keeping its value,
+	 * tooltip, accessible name and place in keyboard navigation.
+	 */
+	partial?: boolean;
 };
 
 /** A heatmap column (rendered left→right); its cells render top→bottom. */
@@ -107,6 +114,11 @@ export interface HeatmapChartProps extends Omit<
 	 * `--a8c-charts-color-series-1`.
 	 */
 	primaryColor?: string;
+	/**
+	 * How many color steps the cells and the legend share. Values fall into that
+	 * many buckets, each holding about the same share of the series. Default 5.
+	 */
+	scaleSteps?: number;
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
 	/** @deprecated Every tooltip draws on the package tooltip surface; this prop has no effect. */
 	tooltipVariant?: 'light' | 'dark';

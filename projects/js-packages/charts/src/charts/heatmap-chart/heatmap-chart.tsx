@@ -34,9 +34,11 @@ import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
 	fitCompactCells,
+	getBucketedValue,
 	getHeatmapScale,
+	getValueBuckets,
 	getValueExtent,
-	getNormalizedValue,
+	HEATMAP_SCALE_STEPS,
 	HeatmapContext,
 	HeatmapLegend,
 	isEmptyValue,
@@ -116,6 +118,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	keyboardNavigation = 'grid',
 	ariaLabel,
 	primaryColor,
+	scaleSteps = HEATMAP_SCALE_STEPS,
 	gap = 'md',
 	withTooltips = false,
 	renderTooltip,
@@ -195,9 +198,18 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	}, [ data, className, primaryColorHex, chartBackgroundHex ] );
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );
+	const usableSteps = Number.isInteger( scaleSteps ) && scaleSteps >= 2 && scaleSteps <= 10;
+	if ( ! usableSteps ) {
+		warnOnce(
+			'heatmap:scaleSteps',
+			`scaleSteps must be a whole number from 2 to 10, so the scale keeps its ${ HEATMAP_SCALE_STEPS } steps.`
+		);
+	}
+	const steps = usableSteps ? scaleSteps : HEATMAP_SCALE_STEPS;
+	const buckets = useMemo( () => getValueBuckets( data, steps ), [ data, steps ] );
 	const heatmapContext = useMemo< HeatmapContextValue >(
-		() => ( { extent, fillVars } ),
-		[ extent, fillVars ]
+		() => ( { extent, buckets, steps, fillVars } ),
+		[ extent, buckets, steps, fillVars ]
 	);
 
 	const columns = data.length;
@@ -660,7 +672,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										const present = isPresent( value );
 										// A summary cell is on another scale, so it takes no fill.
 										const filled = present && ! column.summary && ! isEmptyValue( value, extent );
-										const normalized = filled ? getNormalizedValue( value, extent ) : 0;
+										const normalized = filled ? getBucketedValue( value, buckets ) : 0;
 										const info = buildTooltipData( columnIndex, rowIndex );
 										const accessibleLabel = `${ cellName( info ) }: ${
 											info.value === null
