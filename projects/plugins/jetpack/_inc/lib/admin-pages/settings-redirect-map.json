@@ -3,7 +3,6 @@
 	"matching": "`everySource` runs before any route or term rule. A term matches its decoded value, case-insensitively, before its route; an unmatched term falls back to its route. On page=jetpack-settings, an empty hash (the bare menu link) or an unknown route gets the /settings rules, as main.jsx does. On page=jetpack, an unknown route never reaches these rules: the forwarder (Jetpack_React_Page::get_legacy_route_redirects()) sends it to My Jetpack for admins and to Settings for everyone else, as it does today, so #/my-plan, #/dashboard and #/stats keep landing on My Jetpack. In each list, the first rule whose `when` all hold wins, and a rule without `when` is the default. A rule with `pending` keeps the source on Settings until each marker clears: `D<n>` is an open decision, `JETPACK-<n>` an issue that must land, `flag:<name>` a feature flag that must retire, `error-notice-home` a new home for the Jetpack::state( 'error' ) notice, which only Settings shows today, and `monetize-page` a Monetize page that shows the Ads settings (its flag on and the `monetize` module active), without which the Ads settings stay on Settings. A `destination` next to `pending` is where the source goes once it clears. A settings panel destination (`configure=`) waits on the issue that gives the panel that module's settings, since until then the panel's fallback links back here through configure_url. Destinations are relative to wp-admin. My Jetpack `#/` links work on every My Jetpack version, since its router rewrites them to `?p=`.",
 	"decisions": {
 		"D2": "Whether Comments' settings (with Gravatar Hovercards and Markdown for comments) get one settings panel or become Features switches, and where the Markdown option goes.",
-		"D3": "Where Site Accelerator's settings go (a settings panel, or Boost's Image CDN), with Tiled Galleries, which follows it.",
 		"D4": "Where Sharing buttons and Likes live (under Jetpack Social, or the Sharing screen they use now).",
 		"D6": "Where Reader Visibility goes (a Features switch, or Newsletter settings).",
 		"D7": "Where Google Analytics settings go on Atomic (the SEO page, or Stats settings).",
@@ -81,7 +80,7 @@
 		},
 		{
 			"source": "/performance",
-			"rules": [ { "pending": [ "D3" ] } ],
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/features" } ],
 			"linkedFrom": [
 				"packages/search src/instant-search/README.md: setup docs; wants admin.php?page=jetpack-search#/settings"
 			],
@@ -221,8 +220,8 @@
 		},
 		{
 			"source": "site accelerator",
-			"rules": [ { "pending": [ "D3" ] } ],
-			"linkedFrom": [ "packages/my-jetpack Site_Accelerator::get_manage_url()" ]
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/features?search=cdn" } ],
+			"linkedFrom": [ "packages/my-jetpack Site_Accelerator::get_manage_url(), with the flag off" ]
 		},
 		{
 			"source": "related posts",
@@ -288,7 +287,10 @@
 		{ "source": "custom-content-types", "rules": [ { "pending": [ "D8" ] } ] },
 		{ "source": "sharedaddy", "rules": [ { "pending": [ "D4" ] } ] },
 		{ "source": "likes", "rules": [ { "pending": [ "D4" ] } ] },
-		{ "source": "tiled-gallery", "rules": [ { "pending": [ "D3" ] } ] },
+		{
+			"source": "tiled-gallery",
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/features?search=tiled" } ]
+		},
 		{
 			"source": "wordads",
 			"rules": [

@@ -25,16 +25,14 @@ export class Performance extends Component {
 			return null;
 		}
 
-		// Once settings move out, Search and VideoPress show here only in search results, as links to their new homes.
+		// Once settings move out, every card here shows only in search results, as a link to its new home.
 		const consolidated = isSettingsConsolidationEnabled(),
 			isFound = module =>
 				this.props.isModuleFound( module ) && ( ! consolidated || !! this.props.searchTerm ),
 			foundSearch = isFound( 'search' ),
 			foundVideoPress = isFound( 'videopress' ),
-			found =
-				foundSearch ||
-				foundVideoPress ||
-				[ 'photon', 'photon-cdn' ].some( this.props.isModuleFound );
+			foundSiteAccelerator = isFound( 'photon' ) || isFound( 'photon-cdn' ),
+			found = foundSearch || foundVideoPress || foundSiteAccelerator;
 
 		if ( ! found ) {
 			return null;
@@ -48,7 +46,18 @@ export class Performance extends Component {
 					<h2 className="jp-settings__section-title">{ __( 'Performance', 'jetpack' ) }</h2>
 				) }
 				{ ( ! consolidated || foundSearch ) && <Search { ...commonProps } /> }
-				<SpeedUpSite { ...commonProps } />
+				{ consolidated ? (
+					foundSiteAccelerator && (
+						<FeaturesPointer
+							header={ __( 'Performance & speed', 'jetpack' ) }
+							name={ __( 'Image CDN and Asset CDN', 'jetpack' ) }
+							search="cdn"
+							linksToSettings={ false }
+						/>
+					)
+				) : (
+					<SpeedUpSite { ...commonProps } />
+				) }
 				{ consolidated ? (
 					foundVideoPress && (
 						<FeaturesPointer

@@ -63,26 +63,24 @@ describe( 'SettingsNavTabs', () => {
 		);
 	} );
 
-	const searchAndVideoPress = { search: { activated: true }, videopress: { activated: true } };
+	const performanceModules = {
+		photon: { activated: true },
+		'photon-cdn': { activated: true },
+		search: { activated: true },
+		videopress: { activated: true },
+	};
 
 	it.each( [
-		[ 'shows', 'while the settings flag is off', false, searchAndVideoPress, 1 ],
-		[ 'hides', 'once the flag is on', true, searchAndVideoPress, 0 ],
-		[
-			'shows',
-			'with the image CDN once the flag is on',
-			true,
-			{ ...searchAndVideoPress, photon: { activated: true } },
-			1,
-		],
-	] )( '%s the Performance tab %s', ( _verb, _when, flag, modules, tabs ) => {
+		[ 'shows', 'while the settings flag is off', false, 1 ],
+		[ 'hides', 'once the flag is on, image CDN included', true, 0 ],
+	] )( '%s the Performance tab %s', ( _verb, _when, flag, tabs ) => {
 		window.JetpackScriptData = { site: {}, myJetpack: { settingsConsolidation: flag } };
 
 		render(
 			<MemoryRouter initialEntries={ [ '/traffic' ] }>
 				<SettingsNavTabs />
 			</MemoryRouter>,
-			{ initialState: buildInitialState( true, modules ) }
+			{ initialState: buildInitialState( true, performanceModules ) }
 		);
 
 		expect( screen.queryAllByRole( 'tab', { name: 'Performance' } ) ).toHaveLength( tabs );
