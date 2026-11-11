@@ -159,7 +159,7 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		await installA11yProbe( page );
 	} );
 
-	// One test per step, so a fix that covers only some steps shows up as an unexpected pass.
+	// One test per step, so a failure names the step that lost focus.
 	STEP_NAMES.forEach( ( name, i ) => {
 		test( `focus moves to the shown page’s heading after ${ name }`, async ( { page } ) => {
 			await walkTo( page, i, ( p, slug ) => expect( mainHeading( p, slug ) ).toBeFocused() );
