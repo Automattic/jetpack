@@ -96,7 +96,7 @@ class Schema_Builder {
 				if ( 'Article' === ( $post_node['@type'] ?? '' ) ) {
 					if ( $has_site_entity ) {
 						$post_node['publisher'] = array( '@id' => $publisher_id );
-						if ( null === $organization ) {
+						if ( null === $organization && ! is_front_page() ) {
 							// Define the Person here so the publisher resolves within this page.
 							$graph->add( $site_entity );
 						}

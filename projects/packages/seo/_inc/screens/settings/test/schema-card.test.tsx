@@ -156,7 +156,11 @@ describe( 'SchemaCard', () => {
 			// eslint-disable-next-line testing-library/prefer-user-event
 			fireEvent.click( screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } ) );
 			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.click( screen.getByRole( 'radio', { name: /A person/ } ) );
+			fireEvent.click(
+				screen.getByRole( 'radio', {
+					name: siteRepresents === 'person' ? /An organization/ : /A person/,
+				} )
+			);
 			expect( commitSiteRepresents ).not.toHaveBeenCalled();
 			expect( savePerson ).not.toHaveBeenCalled();
 			expect( screen.getByRole( 'button', { name: saveLabel } ) ).toHaveAccessibleDescription(
@@ -353,7 +357,7 @@ describe( 'SchemaCard', () => {
 		expandCard();
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- single controlled change; see note above.
-		fireEvent.change( screen.getByRole( 'textbox', { name: 'Name' } ), {
+		fireEvent.change( screen.getByRole( 'textbox', { name: 'Person name' } ), {
 			target: { value: 'Jane Rivera' },
 		} );
 		expect( setPersonField ).toHaveBeenCalledWith( { name: 'Jane Rivera' } );
@@ -378,6 +382,9 @@ describe( 'SchemaCard', () => {
 		expect( screen.getByRole( 'button', { name: 'Save person' } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Save person' } ) ).toHaveAccessibleDescription(
+			'Fix the highlighted fields to save.'
 		);
 	} );
 

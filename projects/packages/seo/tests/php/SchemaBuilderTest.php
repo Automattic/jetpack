@@ -52,6 +52,7 @@ class SchemaBuilderTest extends TestCase {
 	protected function tearDown(): void {
 		remove_all_filters( 'pre_option_blogname' );
 		remove_all_filters( 'pre_option_show_on_front' );
+		remove_all_filters( 'pre_option_page_on_front' );
 		remove_all_filters( 'home_url' );
 		\WooCommerce::$is_template = false;
 		$this->remove_schema_builder_hooks();
@@ -764,6 +765,61 @@ class SchemaBuilderTest extends TestCase {
 		$website = $this->node_of_type( $doc, 'WebSite' );
 		$this->assertIsArray( $website, 'Expected a WebSite node in the graph.' );
 		$this->assertSame( Schema_Node_Ids::site_person(), $website['publisher']['@id'] );
+	}
+
+	/**
+	 * A static Article front page defines its site publisher only once.
+	 */
+	public function test_static_article_front_page_defines_person_publisher_once() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
+		$author                          = $this->make_user();
+		$post                            = $this->make_post(
+			array(
+				'ID'          => 71,
+				'post_type'   => 'page',
+				'post_author' => $author->ID,
+			)
+		);
+		\Jetpack_SEO_Posts::$schema_type = 'article';
+		add_filter(
+			'pre_option_show_on_front',
+			static function () {
+				return 'page';
+			}
+		);
+		add_filter(
+			'pre_option_page_on_front',
+			static function () use ( $post ) {
+				return $post->ID;
+			}
+		);
+
+		global $wp_query;
+		$wp_query                    = new \WP_Query();
+		$wp_query->is_page           = true;
+		$wp_query->is_singular       = true;
+		$wp_query->queried_object    = $post;
+		$wp_query->queried_object_id = $post->ID;
+		$this->assertTrue( is_front_page() );
+		$doc       = $this->capture_emitted_document();
+		$publisher = array_values(
+			array_filter(
+				$doc['@graph'],
+				static function ( $node ) {
+					return Schema_Node_Ids::site_person() === ( $node['@id'] ?? '' );
+				}
+			)
+		);
+
+		$this->assertCount( 1, $publisher );
+		$this->assertSame( 'Person', $publisher[0]['@type'] );
+		$this->assertSame( 'Jane Rivera', $publisher[0]['name'] );
+		$article = $this->node_of_type( $doc, 'Article' );
+		$website = $this->node_of_type( $doc, 'WebSite' );
+		$this->assertSame( array( '@id' => $publisher[0]['@id'] ), $article['publisher'] );
+		$this->assertSame( $article['publisher'], $website['publisher'] );
+		$this->assertNotSame( $article['publisher']['@id'], $article['author']['@id'] );
 	}
 
 	/**

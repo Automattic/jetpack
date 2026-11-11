@@ -10,6 +10,7 @@ import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
 
 const saveLabel = __( 'Save', 'jetpack-seo' );
+const SAVE_ERROR_ID = 'jetpack-seo-settings-person-save-error';
 
 interface Props {
 	/** The schema-settings form controller, owned by the Schema card group. */
@@ -30,6 +31,8 @@ interface Props {
 const PersonSection: FC< Props > = ( { form, disabled = false, disabledReasonId } ) => {
 	const { person, personDefaults, isSaving, isPersonDirty, setPersonField, savePerson } = form;
 	const { name, description, sameAs } = person;
+	const hasBlockingErrors = hasProfileUrlErrors( sameAs );
+	const saveDescriptionId = disabled ? disabledReasonId : SAVE_ERROR_ID;
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -42,6 +45,7 @@ const PersonSection: FC< Props > = ( { form, disabled = false, disabledReasonId 
 
 			<TextControl
 				label={ __( 'Name', 'jetpack-seo' ) }
+				aria-label={ __( 'Person name', 'jetpack-seo' ) }
 				help={ __(
 					'Your full name, as you want it to appear in search results. Leave blank to use your Site Title.',
 					'jetpack-seo'
@@ -79,12 +83,17 @@ const PersonSection: FC< Props > = ( { form, disabled = false, disabledReasonId 
 				disabled={ disabled || isSaving }
 			/>
 
-			<Stack direction="row" justify="flex-end">
+			<Stack direction="row" justify="flex-end" align="center" gap="sm">
+				{ hasBlockingErrors && (
+					<Text variant="body-sm" id={ SAVE_ERROR_ID } className={ styles.saveError }>
+						{ __( 'Fix the highlighted fields to save.', 'jetpack-seo' ) }
+					</Text>
+				) }
 				<Button
 					onClick={ savePerson }
-					disabled={ disabled || isSaving || ! isPersonDirty || hasProfileUrlErrors( sameAs ) }
+					disabled={ disabled || isSaving || ! isPersonDirty || hasBlockingErrors }
 					aria-label={ __( 'Save person', 'jetpack-seo' ) }
-					aria-describedby={ disabled ? disabledReasonId : undefined }
+					aria-describedby={ disabled || hasBlockingErrors ? saveDescriptionId : undefined }
 				>
 					{ saveLabel }
 				</Button>
