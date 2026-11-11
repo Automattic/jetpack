@@ -25,8 +25,10 @@ const STATE_ORDER = { expired: 0, 'expiring-soon': 1, default: 2 };
 interface PlanStatus {
 	state: keyof typeof STATE_ORDER;
 	text: string;
-	/** Where to resume or renew a plan that needs attention. */
-	href?: string;
+	/** Resume or renew a plan that needs attention. */
+	action?: { label: string; href: string };
+	/** Names the status icon for screen readers. */
+	iconLabel?: string;
 }
 
 /**
@@ -48,7 +50,11 @@ function getPlanStatus( purchase: Purchase ): PlanStatus {
 			state: 'expired',
 			// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
 			text: sprintf( __( 'Expired on %1$s', 'jetpack-my-jetpack' ), date ),
-			href: getManagePurchaseUrl( purchase ),
+			action: {
+				label: __( 'Resume', 'jetpack-my-jetpack' ),
+				href: getManagePurchaseUrl( purchase ),
+			},
+			iconLabel: __( 'Expired', 'jetpack-my-jetpack' ),
 		};
 	}
 	if ( date && PRODUCT_STATUSES.EXPIRING_SOON === expiry_status ) {
@@ -56,7 +62,8 @@ function getPlanStatus( purchase: Purchase ): PlanStatus {
 			state: 'expiring-soon',
 			// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
 			text: sprintf( __( 'Expires on %1$s', 'jetpack-my-jetpack' ), date ),
-			href: getRenewUrl( purchase ),
+			action: { label: __( 'Renew', 'jetpack-my-jetpack' ), href: getRenewUrl( purchase ) },
+			iconLabel: __( 'Expiring soon', 'jetpack-my-jetpack' ),
 		};
 	}
 	if ( ! date && partner_name ) {
@@ -76,9 +83,11 @@ function getPlanStatus( purchase: Purchase ): PlanStatus {
 	};
 }
 
+// Each translated label comes from getPlanStatus(): a ternary between two __() calls here gets
+// merged by the minifier into one call, which breaks string extraction in production builds.
 const PlanRow: FC< { name: string; status: PlanStatus; children?: ReactNode } > = ( {
 	name,
-	status: { state, text, href },
+	status: { state, text, action, iconLabel },
 	children,
 } ) => (
 	<li className={ clsx( styles.plan, styles[ state ] ) }>
@@ -86,20 +95,12 @@ const PlanRow: FC< { name: string; status: PlanStatus; children?: ReactNode } > 
 		<div className={ styles[ 'plan-body' ] }>
 			<Text variant="heading-md">{ name }</Text>
 			<div className={ styles[ 'plan-meta' ] }>
-				{ state === 'expired' && (
+				{ iconLabel && (
 					<Icon
-						icon={ error }
+						icon={ state === 'expired' ? error : caution }
 						size={ 16 }
 						role="img"
-						aria-label={ __( 'Expired', 'jetpack-my-jetpack' ) }
-					/>
-				) }
-				{ state === 'expiring-soon' && (
-					<Icon
-						icon={ caution }
-						size={ 16 }
-						role="img"
-						aria-label={ __( 'Expiring soon', 'jetpack-my-jetpack' ) }
+						aria-label={ iconLabel }
 					/>
 				) }
 				<Text variant="body-sm" className={ styles[ 'plan-status' ] }>
@@ -108,11 +109,9 @@ const PlanRow: FC< { name: string; status: PlanStatus; children?: ReactNode } > 
 				{ children }
 			</div>
 		</div>
-		{ href && (
-			<Link href={ href } openInNewTab className={ styles[ 'plan-action' ] }>
-				{ state === 'expired'
-					? __( 'Resume', 'jetpack-my-jetpack' )
-					: __( 'Renew', 'jetpack-my-jetpack' ) }
+		{ action && (
+			<Link href={ action.href } openInNewTab className={ styles[ 'plan-action' ] }>
+				{ action.label }
 			</Link>
 		) }
 	</li>
