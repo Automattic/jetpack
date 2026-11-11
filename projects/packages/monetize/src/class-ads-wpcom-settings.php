@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Keeps WordPress.com's Ads settings caught up with the site's, which always win, and saves the payout details.
+ * Keeps WordPress.com's Ads settings caught up with the site's, which always win.
  *
  * @since $$next-version$$
  */
@@ -57,12 +57,13 @@ class Ads_Wpcom_Settings {
 		}
 
 		$privacy_page = (int) get_option( 'wp_page_for_privacy_policy' );
+		$privacy_url  = esc_url_raw( (string) get_option( 'wordads_ccpa_privacy_policy_url', $privacy_page ? get_permalink( $privacy_page ) : '' ), array( 'http', 'https' ) );
 
 		return array(
 			'display_options'         => $display,
 			'ccpa_enabled'            => (bool) get_option( 'wordads_ccpa_enabled', false ),
-			// WordPress.com only accepts an empty value or an http(s) URL.
-			'ccpa_privacy_policy_url' => esc_url_raw( (string) get_option( 'wordads_ccpa_privacy_policy_url', $privacy_page ? get_permalink( $privacy_page ) : '' ), array( 'http', 'https' ) ),
+			// WordPress.com only accepts an empty value or an absolute http(s) URL, and the site may hold a relative one.
+			'ccpa_privacy_policy_url' => wp_parse_url( $privacy_url, PHP_URL_HOST ) ? $privacy_url : '',
 		);
 	}
 
@@ -76,34 +77,7 @@ class Ads_Wpcom_Settings {
 	}
 
 	/**
-	 * Where earnings are paid, and whether the terms are signed.
-	 *
-	 * @return array|WP_Error
-	 */
-	public static function get_payout() {
-		$settings = self::request( 'GET' );
-		return is_wp_error( $settings ) ? $settings : self::to_payout( $settings );
-	}
-
-	/**
-	 * Save the payout details, along with the site's Ads settings.
-	 *
-	 * @param string $paypal   PayPal email address.
-	 * @param bool   $sign_tos Whether the user agreed to the terms.
-	 * @return array|WP_Error The saved payout details.
-	 */
-	public static function save_payout( $paypal, $sign_tos ) {
-		$changes = array( 'paypal' => $paypal );
-		if ( $sign_tos ) {
-			$changes['tos'] = 'signed';
-		}
-
-		$settings = self::send_site_values( $changes );
-		return is_wp_error( $settings ) ? $settings : self::to_payout( $settings );
-	}
-
-	/**
-	 * Send the site's Ads settings to WordPress.com if they changed since it last accepted them.
+	 * Send the site's Ads settings to WordPress.com as the current user, if they changed since it last accepted them.
 	 *
 	 * @return true|WP_Error
 	 */
@@ -112,39 +86,12 @@ class Ads_Wpcom_Settings {
 			return true;
 		}
 
-		$settings = self::send_site_values();
-		return is_wp_error( $settings ) ? $settings : true;
-	}
-
-	/**
-	 * Update WordPress.com with the site's values and any payout changes, and remember what it accepted.
-	 *
-	 * @param array $changes Payout fields to change.
-	 * @return array|WP_Error WordPress.com's settings after the update.
-	 */
-	private static function send_site_values( array $changes = array() ) {
 		$site     = self::get_site_values();
-		$settings = self::request( 'POST', array_merge( $site, $changes ) );
-		if ( ! is_wp_error( $settings ) ) {
-			update_option( self::SYNCED_OPTION, self::hash( $site ), false );
-		}
-
-		return $settings;
-	}
-
-	/**
-	 * Read or update WordPress.com's settings as the current user.
-	 *
-	 * @param string     $method HTTP method.
-	 * @param array|null $body   Fields to change.
-	 * @return array|WP_Error The settings.
-	 */
-	private static function request( $method, $body = null ) {
 		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/wordads/settings', (int) Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/wordads/settings', self::get_blog_id() ),
 			'2',
-			array( 'method' => $method ),
-			$body
+			array( 'method' => 'POST' ),
+			$site
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -163,29 +110,30 @@ class Ads_Wpcom_Settings {
 			);
 		}
 
-		return is_array( $data['settings'] ?? null ) ? $data['settings'] : array();
+		if ( ! is_array( $data['settings'] ?? null ) ) {
+			return new WP_Error( 'wpcom_invalid_response', __( 'WordPress.com sent an unexpected response.', 'jetpack-monetize' ), array( 'status' => 502 ) );
+		}
+
+		update_option( self::SYNCED_OPTION, self::hash( $site ), false );
+		return true;
 	}
 
 	/**
-	 * The payout fields the dashboard shows.
+	 * The site's WordPress.com blog ID.
 	 *
-	 * @param array $settings WordPress.com settings.
-	 * @return array
+	 * @return int
 	 */
-	private static function to_payout( array $settings ) {
-		return array(
-			'paypal'    => (string) ( $settings['paypal'] ?? '' ),
-			'tosSigned' => 'signed' === ( $settings['tos'] ?? '' ),
-		);
+	private static function get_blog_id() {
+		return (int) Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
-	 * A stable fingerprint of site values.
+	 * A stable fingerprint of site values, tied to the WordPress.com site so a clone or reconnect catches up.
 	 *
 	 * @param array $values Site values.
 	 * @return string
 	 */
 	private static function hash( array $values ) {
-		return md5( (string) wp_json_encode( $values, JSON_UNESCAPED_SLASHES ) );
+		return md5( (string) wp_json_encode( array( self::get_blog_id(), $values ), JSON_UNESCAPED_SLASHES ) );
 	}
 }

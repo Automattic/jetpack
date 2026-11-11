@@ -4,6 +4,21 @@ import { Button, Card, CheckboxControl, InputControl, Link, Notice, Stack } from
 import { useCallback, useState } from 'react';
 import { trackPayoutSave } from '../../data/tracking';
 import { usePayout, useSavePayout } from '../../data/use-wpcom-ads-settings';
+import type { WpcomApiError } from '../../data/wpcom-request';
+
+/**
+ * What to tell the user when a save fails.
+ *
+ * @param error - The failure.
+ * @return The message.
+ */
+function saveErrorMessage( error: WpcomApiError ) {
+	// Core's message for a bad arg only names the field: "Invalid parameter(s): paypal".
+	if ( error.code === 'rest_invalid_param' ) {
+		return __( 'Enter a valid PayPal email address.', 'jetpack-monetize' );
+	}
+	return error.message || __( 'Your payout details could not be saved.', 'jetpack-monetize' );
+}
 
 /**
  * Where ad earnings are paid, kept on WordPress.com.
@@ -72,10 +87,7 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 					) }
 					{ save.isError && (
 						<Notice.Root intent="error">
-							<Notice.Description>
-								{ save.error.message ||
-									__( 'Your payout details could not be saved.', 'jetpack-monetize' ) }
-							</Notice.Description>
+							<Notice.Description>{ saveErrorMessage( save.error ) }</Notice.Description>
 						</Notice.Root>
 					) }
 					<InputControl

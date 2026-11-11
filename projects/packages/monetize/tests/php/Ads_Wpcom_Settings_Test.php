@@ -13,6 +13,7 @@ use Automattic\Jetpack\Monetize\Sections\Ads;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
+use WP_REST_Server;
 
 /**
  * @covers \Automattic\Jetpack\Monetize\Ads_Wpcom_Settings
@@ -99,49 +100,97 @@ class Ads_Wpcom_Settings_Test extends BaseTestCase {
 		$this->assertTrue( Ads_Wpcom_Settings::is_out_of_date() );
 	}
 
-	public function test_save_payout_sends_the_payout_with_the_site_values() {
-		$this->arrange_wpcom(
-			array(
-				'paypal' => 'new@example.com',
-				'tos'    => 'signed',
-			)
-		);
+	public function test_sync_is_due_again_once_the_site_reconnects_as_another_blog() {
+		$this->arrange_wpcom( array() );
+		Ads_Wpcom_Settings::sync();
 
-		$payout = Ads_Wpcom_Settings::save_payout( 'new@example.com', true );
+		add_filter( 'jetpack_options', array( $this, 'move_to_another_blog' ), 20, 2 );
+		$out_of_date = Ads_Wpcom_Settings::is_out_of_date();
+		remove_filter( 'jetpack_options', array( $this, 'move_to_another_blog' ), 20 );
 
-		$this->assertSame(
-			array(
-				'paypal'    => 'new@example.com',
-				'tosSigned' => true,
-			),
-			$payout
-		);
-		$this->assertSame(
-			self::SITE_VALUES + array(
-				'paypal' => 'new@example.com',
-				'tos'    => 'signed',
-			),
-			$this->sent[0]['body']
-		);
-		$this->assertFalse( Ads_Wpcom_Settings::is_out_of_date() );
+		$this->assertTrue( $out_of_date );
 	}
 
-	public function test_a_refused_update_returns_the_wpcom_error_and_stays_out_of_date() {
-		$this->arrange_wpcom(
-			array(
-				'code'    => 'invalid_tos',
-				'message' => 'You must agree to the Terms of Service.',
-				'data'    => array( 'status' => 400 ),
-			),
-			400
+	/**
+	 * Stored privacy policy URLs, and what WordPress.com is sent.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_privacy_urls() {
+		return array(
+			'absolute'      => array( 'https://example.com/privacy/', 'https://example.com/privacy/' ),
+			'no scheme'     => array( 'example.com/privacy', 'http://example.com/privacy' ),
+			'relative'      => array( '/privacy-policy/', '' ),
+			'bare protocol' => array( 'http://', '' ),
 		);
+	}
 
-		$result = Ads_Wpcom_Settings::save_payout( 'new@example.com', false );
+	/**
+	 * @dataProvider provide_privacy_urls
+	 *
+	 * @param string $stored The site's option value.
+	 * @param string $sent   The value WordPress.com gets.
+	 */
+	#[DataProvider( 'provide_privacy_urls' )]
+	public function test_privacy_url_is_sent_only_when_absolute( $stored, $sent ) {
+		update_option( 'wordads_ccpa_privacy_policy_url', $stored );
+
+		$this->assertSame( $sent, Ads_Wpcom_Settings::get_site_values()['ccpa_privacy_policy_url'] );
+	}
+
+	/**
+	 * WordPress.com responses that must not count as accepted, and the error each gives.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_failed_syncs() {
+		return array(
+			'refused'     => array(
+				array(
+					'code'    => 'invalid_display_options',
+					'message' => 'Unknown display options.',
+				),
+				400,
+				'invalid_display_options',
+			),
+			'no settings' => array( array( 'unexpected' => true ), 200, 'wpcom_invalid_response' ),
+			'not json'    => array( null, 200, 'wpcom_invalid_response' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_failed_syncs
+	 *
+	 * @param array|null $body   The response body, or null for one that isn't JSON.
+	 * @param int        $status The response status.
+	 * @param string     $code   The expected error code.
+	 */
+	#[DataProvider( 'provide_failed_syncs' )]
+	public function test_a_failed_sync_returns_an_error_and_stays_out_of_date( $body, $status, $code ) {
+		$this->arrange_wpcom_raw( null === $body ? '<html></html>' : (string) wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $status );
+
+		$result = Ads_Wpcom_Settings::sync();
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'invalid_tos', $result->get_error_code() );
-		$this->assertSame( 400, $result->get_error_data()['status'] );
+		$this->assertSame( $code, $result->get_error_code() );
 		$this->assertTrue( Ads_Wpcom_Settings::is_out_of_date() );
+	}
+
+	public function test_payout_route_forwards_only_the_payout_fields() {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		$register       = array( new Ads(), 'register_routes' );
+		add_action( 'rest_api_init', $register );
+		do_action( 'rest_api_init', $wp_rest_server );
+		remove_action( 'rest_api_init', $register );
+
+		$routes         = $wp_rest_server->get_routes();
+		$wp_rest_server = null;
+		$route          = $routes['/jetpack/v4/monetize/wpcom/v2/wordads/settings'][0];
+
+		$this->assertSame( array( 'GET', 'POST' ), array_keys( $route['methods'] ) );
+		$this->assertSame( array( 'paypal', 'tos', '_locale' ), array_keys( $route['args'] ) );
+		$this->assertArrayHasKey( '/jetpack/v4/monetize/ads/sync', $routes );
 	}
 
 	/**
@@ -186,12 +235,21 @@ class Ads_Wpcom_Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Answer every WordPress.com request with settings, or an error body, recording what was sent.
+	 * Answer every WordPress.com request with settings.
 	 *
-	 * @param array $body   Settings, or the error body when `$status` is an error.
-	 * @param int   $status Response status.
+	 * @param array $settings Settings.
 	 */
-	private function arrange_wpcom( array $body, $status = 200 ) {
+	private function arrange_wpcom( array $settings ) {
+		$this->arrange_wpcom_raw( (string) wp_json_encode( array( 'settings' => $settings ), JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Answer every WordPress.com request with a raw body, recording what was sent.
+	 *
+	 * @param string $body   Response body.
+	 * @param int    $status Response status.
+	 */
+	private function arrange_wpcom_raw( $body, $status = 200 ) {
 		add_filter(
 			'pre_http_request',
 			function ( $preempt, $args, $url ) use ( $body, $status ) {
@@ -203,7 +261,7 @@ class Ads_Wpcom_Settings_Test extends BaseTestCase {
 				return array(
 					'headers'  => array(),
 					'response' => array( 'code' => $status ),
-					'body'     => wp_json_encode( $status >= 400 ? $body : array( 'settings' => $body ), JSON_UNESCAPED_SLASHES ),
+					'body'     => $body,
 				);
 			},
 			10,
@@ -240,5 +298,16 @@ class Ads_Wpcom_Settings_Test extends BaseTestCase {
 	 */
 	public function drop_user_tokens( $value, $name ) {
 		return 'user_tokens' === $name ? array() : $value;
+	}
+
+	/**
+	 * Report a different WordPress.com blog ID, as after a clone or reconnect.
+	 *
+	 * @param mixed  $value Option value.
+	 * @param string $name  Option name.
+	 * @return mixed
+	 */
+	public function move_to_another_blog( $value, $name ) {
+		return 'id' === $name ? (string) ( self::BLOG_ID + 1 ) : $value;
 	}
 }

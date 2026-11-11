@@ -13,7 +13,6 @@ use Automattic\Jetpack\Monetize\Dashboard;
 use Automattic\Jetpack\Monetize\Dashboard_Section;
 use Automattic\Jetpack\Monetize\WPCOM_Proxy;
 use WP_Error;
-use WP_REST_Request;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -50,42 +49,26 @@ class Ads implements Dashboard_Section {
 	 * @return void
 	 */
 	public function register_routes() {
-		$base = '/' . WPCOM_Proxy::REST_BASE . '/ads';
-
-		register_rest_route(
-			WPCOM_Proxy::REST_NAMESPACE,
-			$base . '/payout',
+		// Payout details only: the site's own Ads settings reach WordPress.com through the sync route.
+		WPCOM_Proxy::register_route(
+			'wpcom/v2',
+			'wordads/settings',
+			array( 'GET', 'POST' ),
 			array(
-				array(
-					'methods'             => 'GET',
-					'callback'            => array( __CLASS__, 'get_payout' ),
-					'permission_callback' => array( __CLASS__, 'can_write_to_wpcom' ),
+				'paypal' => array(
+					'type'   => 'string',
+					'format' => 'email',
 				),
-				array(
-					'methods'             => 'POST',
-					'callback'            => array( __CLASS__, 'save_payout' ),
-					'permission_callback' => array( __CLASS__, 'can_write_to_wpcom' ),
-					'args'                => array(
-						'paypal' => array(
-							'type'              => 'string',
-							'required'          => true,
-							'sanitize_callback' => 'sanitize_email',
-							'validate_callback' => static function ( $value ) {
-								return is_email( $value ) ? true : new WP_Error( 'invalid_paypal', __( 'Enter a valid PayPal email address.', 'jetpack-monetize' ), array( 'status' => 400 ) );
-							},
-						),
-						'tos'    => array(
-							'type'    => 'boolean',
-							'default' => false,
-						),
-					),
+				'tos'    => array(
+					'type' => 'string',
+					'enum' => array( 'signed' ),
 				),
 			)
 		);
 
 		register_rest_route(
 			WPCOM_Proxy::REST_NAMESPACE,
-			$base . '/sync',
+			'/' . WPCOM_Proxy::REST_BASE . '/ads/sync',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( __CLASS__, 'sync' ),
@@ -109,25 +92,6 @@ class Ads implements Dashboard_Section {
 		}
 
 		return true;
-	}
-
-	/**
-	 * GET the payout details.
-	 *
-	 * @return \WP_REST_Response|WP_Error
-	 */
-	public static function get_payout() {
-		return rest_ensure_response( Ads_Wpcom_Settings::get_payout() );
-	}
-
-	/**
-	 * POST the payout details.
-	 *
-	 * @param WP_REST_Request $request Request.
-	 * @return \WP_REST_Response|WP_Error
-	 */
-	public static function save_payout( WP_REST_Request $request ) {
-		return rest_ensure_response( Ads_Wpcom_Settings::save_payout( $request['paypal'], (bool) $request['tos'] ) );
 	}
 
 	/**

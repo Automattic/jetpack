@@ -11,13 +11,23 @@ jest.mock( '../../../data/tracking' );
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
 
 /**
+ * The WordPress.com response for some payout details.
+ *
+ * @param payout - The payout details.
+ * @return The response body.
+ */
+function toWpcom( payout: Payout ) {
+	return { settings: { paypal: payout.paypal, tos: payout.tosSigned ? 'signed' : '' } };
+}
+
+/**
  * Render the card once WordPress.com's payout details have loaded.
  *
  * @param stored    - The stored payout details.
  * @param adsActive - Whether ads are on.
  */
 async function renderLoaded( stored: Payout, adsActive = true ) {
-	mockedApiFetch.mockResolvedValueOnce( stored );
+	mockedApiFetch.mockResolvedValueOnce( toWpcom( stored ) );
 	renderCard( adsActive );
 	await waitFor( () =>
 		expect( screen.getByRole( 'textbox', { name: 'PayPal email address' } ) ).toBeEnabled()
@@ -75,16 +85,34 @@ describe( 'PayoutCard', () => {
 
 		expect( save ).toHaveAttribute( 'aria-disabled', 'true' );
 
-		mockedApiFetch.mockResolvedValueOnce( { paypal: 'a@example.com', tosSigned: true } );
+		mockedApiFetch.mockResolvedValueOnce( toWpcom( { paypal: 'a@example.com', tosSigned: true } ) );
 		await user.click( screen.getByRole( 'checkbox' ) );
 		await user.click( save );
 
 		await waitFor( () =>
 			expect( mockedApiFetch ).toHaveBeenLastCalledWith( {
-				path: '/jetpack/v4/monetize/ads/payout',
+				path: '/jetpack/v4/monetize/wpcom/v2/wordads/settings',
 				method: 'POST',
-				data: { paypal: 'a@example.com', tos: true },
+				data: { paypal: 'a@example.com', tos: 'signed' },
 			} )
 		);
+	} );
+
+	it( 'explains a rejected address', async () => {
+		const user = userEvent.setup();
+		await renderLoaded( { paypal: 'a@example.com', tosSigned: true } );
+		await user.clear( screen.getByRole( 'textbox' ) );
+		await user.type( screen.getByRole( 'textbox' ), 'not-an-address' );
+
+		mockedApiFetch.mockRejectedValueOnce( {
+			code: 'rest_invalid_param',
+			message: 'Invalid parameter(s): paypal',
+			data: { status: 400 },
+		} );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await expect(
+			screen.findByText( 'Enter a valid PayPal email address.' )
+		).resolves.toBeVisible();
 	} );
 } );
