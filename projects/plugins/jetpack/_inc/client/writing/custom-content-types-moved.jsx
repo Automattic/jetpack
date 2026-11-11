@@ -14,6 +14,14 @@ export const CustomContentTypesMoved = () => (
 		href={ getAdminUrl( 'options-writing.php#cpt-options' ) }
 		linkText={ __( 'Open Settings › Writing', 'jetpack' ) }
 	>
-		<p>{ __( 'Testimonials and portfolio settings are now in Settings › Writing.', 'jetpack' ) }</p>
+		<p>
+			{
+				/* translators: "Settings › Writing" is a WordPress admin menu path: use core's terms for both. */
+				__(
+					'Custom content type settings are now in Settings › Writing, in the WordPress admin menu.',
+					'jetpack'
+				)
+			}
+		</p>
 	</PointerCard>
 );

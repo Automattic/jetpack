@@ -43,15 +43,19 @@ const buildState = ( searchTerm, modules, isBlockTheme ) => ( {
 } );
 
 // Module scope keeps the prop references stable (react/jsx-no-bind).
+const findsCustomContentTypes = module => module === 'custom-content-types';
+// What each search term finds.
 const findsOnly = {
 	carousel: module => module === 'carousel',
 	'infinite-scroll': module => module === 'infinite-scroll',
 	'post-by-email': module => module === 'post-by-email',
-	// Any custom content types search finds their module, which the tab's found list leaves out.
-	portfolio: module => module === 'custom-content-types',
+	// The custom content types module, which the tab's found list leaves out.
+	portfolio: findsCustomContentTypes,
+	'custom content types': findsCustomContentTypes,
 };
 // Outside a search, the tab finds every module it lists.
 const findsEvery = () => true;
+const findsNothing = () => false;
 // Never settles, so the custom content types lookup changes no state after the test.
 const noFeatureDetails = () => new Promise( () => undefined );
 const customContentTypeDetails = () =>
@@ -126,7 +130,6 @@ describe( 'Writing settings', () => {
 			'Custom content types',
 			'portfolio',
 			customContentTypeDetails,
-			// The REST keywords lack the card's own title.
 			[
 				[
 					'on, in a search for its title',
@@ -134,6 +137,7 @@ describe( 'Writing settings', () => {
 					'custom content types',
 					[ 'Custom content types pointer' ],
 				],
+				[ 'on, in a search that misses it', true, 'comments', [] ],
 			],
 		],
 	] )( '%s', ( name, slug, featureDetails = noFeatureDetails, extraRows = [] ) => {
@@ -150,7 +154,7 @@ describe( 'Writing settings', () => {
 					active
 					userCanManageModules
 					searchTerm={ searchTerm }
-					isModuleFound={ searchTerm ? findsOnly[ slug ] : findsEvery }
+					isModuleFound={ searchTerm ? ( findsOnly[ searchTerm ] ?? findsNothing ) : findsEvery }
 					getActiveFeatureDetails={ featureDetails }
 				/>
 			);
