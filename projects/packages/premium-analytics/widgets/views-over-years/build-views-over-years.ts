@@ -24,12 +24,12 @@ const toMonthKey = ( date: Date ): MonthKey => ( {
 	month: date.getMonth(),
 } );
 
+const daysInMonth = ( key: MonthKey ) => new Date( key.year, key.month + 1, 0 ).getDate();
+
 /** Days in the month, from the first day and up to today when either falls inside. */
 function daysCovered( key: MonthKey, today: Date, firstDay?: DayKey ): number {
 	const first = firstDay && isSameMonth( key, firstDay ) ? firstDay.day : 1;
-	const last = isSameMonth( key, toMonthKey( today ) )
-		? today.getDate()
-		: new Date( key.year, key.month + 1, 0 ).getDate();
+	const last = isSameMonth( key, toMonthKey( today ) ) ? today.getDate() : daysInMonth( key );
 
 	// A browser clock behind the server can put the first day after today.
 	return Math.max( last - first + 1, 1 );
@@ -97,7 +97,7 @@ export function buildViewsOverYearsRows(
 			yearViews += views;
 			yearDays += days;
 
-			if ( metric !== 'average' && days < new Date( year, month + 1, 0 ).getDate() ) {
+			if ( metric !== 'average' && days < daysInMonth( key ) ) {
 				partialMonths.push( key );
 			}
 

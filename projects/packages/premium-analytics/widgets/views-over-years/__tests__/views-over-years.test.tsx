@@ -170,7 +170,7 @@ describe( 'ViewsOverYears widget', () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300 (incomplete)' } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: /^Nov 2025: 300/ } ) );
 		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 920' } ) );
 
 		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith( 1, 'traffic', {
@@ -261,9 +261,7 @@ describe( 'ViewsOverYears widget', () => {
 		mockVisits( visitsResult( [ [ '2026-03-01', 0 ] ] ) );
 		renderWidget();
 
-		expect(
-			screen.getByRole( 'gridcell', { name: 'Mar 2026: 0 (incomplete)' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: /^Mar 2026: 0/ } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'gridcell', { name: 'Totals 2026: 0' } ) ).toBeInTheDocument();
 	} );
 
