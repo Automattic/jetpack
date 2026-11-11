@@ -2,7 +2,7 @@ import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useId, useState } from '@wordpress/element';
 import { comment, copySmall } from '@wordpress/icons';
-import { Button, ButtonLink, Dialog, Icon, Stack, Text } from '@wordpress/ui';
+import { Button, ButtonLink, Dialog, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
 import {
 	trackWizardMcpLinkClicked,
 	trackWizardMcpPromptCopied,
@@ -31,8 +31,8 @@ interface Props {
 	detectsConnections: boolean;
 	// The AI tools shown as connected, in the order they connected.
 	connected: AiTool[];
-	// Called with each AI tool once its new connection shows up.
-	onConnected: ( tool: AiTool ) => void;
+	// Called with each AI tool once its connection shows up, and whether it was connected before the view opened.
+	onConnected: ( tool: AiTool, alreadyConnected?: boolean ) => void;
 	// Whether a connected tool has only read-only access.
 	readOnly: boolean;
 	// Called on each check with whether the account's MCP access is read only.
@@ -78,6 +78,8 @@ export default function AiToolStep( {
 	const [ waitingFor, setWaitingFor ] = useState< AiTool | null >( null );
 	// When Copy prompt last copied, in milliseconds, or 0 while it shows Copy prompt.
 	const [ copiedAt, setCopiedAt ] = useState( 0 );
+	// The tools that were connected before the view opened.
+	const [ existingTools, setExistingTools ] = useState< AiTool[] >( [] );
 	const tools = [
 		{ tool: 'chatgpt' as const, icon: chatGptIcon },
 		{ tool: 'claude' as const, icon: claudeIcon },
@@ -85,7 +87,10 @@ export default function AiToolStep( {
 	const view = aiToolView( connected, waitingFor, readOnly );
 	let title: string = copy.viewTitle;
 	let subtitle: string = copy.viewSubtitle;
-	if ( view === 'read_only' ) {
+	if ( view === 'read_only' && connected.length === 2 ) {
+		title = copy.bothReadOnlyTitle;
+		subtitle = copy.bothReadOnlySubtitle;
+	} else if ( view === 'read_only' ) {
 		title = copy.readOnlyTitle( connected[ connected.length - 1 ] );
 		subtitle = copy.readOnlySubtitle;
 	} else if ( view === 'both_connected' ) {
@@ -99,6 +104,31 @@ export default function AiToolStep( {
 		title = copy.connectedTitle( connected[ 0 ] );
 		subtitle = copy.connectedSubtitle( connected[ 0 ], other );
 	}
+
+	// Tools connected before the view opened show as connected from the start.
+	useEffect( () => {
+		if ( ! detectsConnections ) {
+			return;
+		}
+		let stopped = false;
+		apiFetch< { connections?: string[]; access_level?: string | null } >( {
+			path: '/wpcom/v2/ai-launchpad/mcp-connections',
+		} )
+			.then( data => {
+				// Newest first from the endpoint, so reverse it to keep the most recent connection last.
+				const existing = ( ( data?.connections ?? [] ) as AiTool[] ).reverse();
+				if ( stopped || ! existing.length ) {
+					return;
+				}
+				onReadOnlyChange( isReadOnlyAccess( data?.access_level ) );
+				setExistingTools( existing );
+				existing.forEach( tool => onConnected( tool, true ) );
+			} )
+			.catch( () => {} );
+		return () => {
+			stopped = true;
+		};
+	}, [ detectsConnections, onConnected, onReadOnlyChange ] );
 
 	useEffect( () => {
 		if ( ! waitingFor ) {
@@ -121,7 +151,7 @@ export default function AiToolStep( {
 						waitingFor,
 						connected
 					);
-					newTools.forEach( onConnected );
+					newTools.forEach( tool => onConnected( tool ) );
 					// Read-only access keeps the wait going until full access is allowed.
 					if (
 						! readOnlyAccess &&
@@ -231,16 +261,30 @@ export default function AiToolStep( {
 								</Text>
 							</Stack>
 							<span className="ai-launchpad-wizard__ai-tool-action">
-								<Text
-									variant="body-sm"
-									role="status"
-									className={
-										'ai-launchpad-wizard__ai-tool-status' +
-										( rowStatus === 'connected' ? ' is-connected' : '' )
-									}
-								>
-									{ status }
-								</Text>
+								{ /* Hover-only, like the setup choice's badge tooltip. */ }
+								<Tooltip.Root disabled={ ! status || ! existingTools.includes( item.tool ) }>
+									<Tooltip.Trigger
+										render={
+											<Text
+												variant="body-sm"
+												role="status"
+												className={
+													'ai-launchpad-wizard__ai-tool-status' +
+													( rowStatus === 'connected' ? ' is-connected' : '' )
+												}
+											>
+												{ status }
+											</Text>
+										}
+									/>
+									<Tooltip.Popup
+										portal={ <Tooltip.Portal className="ai-launchpad-wizard__portal" /> }
+										positioner={ <Tooltip.Positioner side="top" align="end" /> }
+										className="ai-launchpad-wizard__tooltip"
+									>
+										{ copy.alreadyConnectedTooltip }
+									</Tooltip.Popup>
+								</Tooltip.Root>
 								{ ! status && (
 									<ButtonLink
 										variant="outline"

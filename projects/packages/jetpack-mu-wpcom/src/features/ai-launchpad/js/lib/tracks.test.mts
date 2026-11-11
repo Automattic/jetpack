@@ -134,6 +134,7 @@ describe( 'ai-launchpad tracks', () => {
 			fire( trackWizardMcpConnectedViewed, {
 				goals_variation: 'bring_your_ai_tool',
 				integration: 'claude',
+				already_connected: true,
 			} ),
 		],
 		[

@@ -152,8 +152,18 @@ export function Wizard( {
 		}
 	}, [ showAiTool, variation ] );
 
-	const handleConnected = useCallback( ( tool: AiTool ) => {
-		setConnectedTools( current => ( current.includes( tool ) ? current : [ ...current, tool ] ) );
+	// The tools that were connected before the AI tool view opened.
+	const alreadyConnected = useRef< AiTool[] >( [] );
+	const handleConnected = useCallback( ( tool: AiTool, already = false ) => {
+		setConnectedTools( current => {
+			if ( current.includes( tool ) ) {
+				return current;
+			}
+			if ( already ) {
+				alreadyConnected.current.push( tool );
+			}
+			return [ ...current, tool ];
+		} );
 	}, [] );
 
 	// Connected is recorded once per tool, when it can build: on connecting, or once full access is allowed.
@@ -166,7 +176,11 @@ export function Wizard( {
 			.filter( tool => ! connectedTracked.current.includes( tool ) )
 			.forEach( tool => {
 				connectedTracked.current.push( tool );
-				trackWizardMcpConnectedViewed( { goals_variation: variation, integration: tool } );
+				trackWizardMcpConnectedViewed( {
+					goals_variation: variation,
+					integration: tool,
+					already_connected: alreadyConnected.current.includes( tool ),
+				} );
 			} );
 	}, [ readOnly, connectedTools, variation ] );
 

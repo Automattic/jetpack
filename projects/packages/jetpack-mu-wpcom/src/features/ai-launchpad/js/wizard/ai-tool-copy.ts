@@ -29,7 +29,7 @@ export function bringYourAiToolCopy() {
 		toolName,
 		viewTitle: __( 'Which AI do you use?', 'jetpack-mu-wpcom' ),
 		viewSubtitle: __(
-			'Add WordPress.com there and allow access. Then build your site by chatting.',
+			'Connect it to WordPress.com and allow full access. Then build and manage your site by chatting.',
 			'jetpack-mu-wpcom'
 		),
 		waitingTitle: ( aiTool: AiTool ) =>
@@ -39,7 +39,7 @@ export function bringYourAiToolCopy() {
 				toolName( aiTool )
 			),
 		waitingSubtitle: __(
-			'Install the WordPress plugin and allow access. This page updates once you’re connected.',
+			'Add WordPress.com and allow full access. This page updates once you’re connected.',
 			'jetpack-mu-wpcom'
 		),
 		connectedTitle: ( aiTool: AiTool ) =>
@@ -70,6 +70,11 @@ export function bringYourAiToolCopy() {
 			'It has read-only access, so it can view your site but not change it.',
 			'jetpack-mu-wpcom'
 		),
+		bothReadOnlyTitle: __( 'ChatGPT and Claude can’t build your site yet', 'jetpack-mu-wpcom' ),
+		bothReadOnlySubtitle: __(
+			'They have read-only access, so they can view your site but not change it.',
+			'jetpack-mu-wpcom'
+		),
 		readOnlyDescription: __( 'Can view your site, but not change it', 'jetpack-mu-wpcom' ),
 		readOnly: __( 'Read only', 'jetpack-mu-wpcom' ),
 		allowFullAccess: __( 'Allow full access', 'jetpack-mu-wpcom' ),
@@ -80,6 +85,10 @@ export function bringYourAiToolCopy() {
 		allowingFullAccess: __( 'Allowing full access', 'jetpack-mu-wpcom' ),
 		opensInNewTab: __( 'Opens in a new tab', 'jetpack-mu-wpcom' ),
 		openedInNewTab: __( 'Opened in a new tab', 'jetpack-mu-wpcom' ),
+		alreadyConnectedTooltip: __(
+			'Already connected to your WordPress.com account, so it works on this site too.',
+			'jetpack-mu-wpcom'
+		),
 		connectedToAccount: __( 'Connected to your WordPress.com account', 'jetpack-mu-wpcom' ),
 		setUp: __( 'Set up', 'jetpack-mu-wpcom' ),
 		otherToolTitle: __( 'Another AI tool', 'jetpack-mu-wpcom' ),

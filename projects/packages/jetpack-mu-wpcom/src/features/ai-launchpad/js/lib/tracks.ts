@@ -282,10 +282,13 @@ interface McpConnectedProps extends TrackEventProps {
 
 /**
  * Records an AI tool showing as connected, once the wizard sees the new connection.
+ * `already_connected` is true for a tool that was connected before the AI tool view opened.
  *
  * @param props - The event properties.
  */
-export function trackWizardMcpConnectedViewed( props: McpConnectedProps ): void {
+export function trackWizardMcpConnectedViewed(
+	props: McpConnectedProps & { already_connected: boolean }
+): void {
 	record( 'jetpack_ai_launchpad_wizard_mcp_connected_viewed', props );
 }
 
