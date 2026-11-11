@@ -38,13 +38,32 @@ export interface UseConnectionProps {
 	skipPricingPage?: boolean;
 }
 
+/**
+ * The viewer's capabilities, as `REST_Connector::get_user_connection_data()` sends them.
+ *
+ * Named rather than a `Record`, so a mistyped capability is a compile error instead of a
+ * silent `false` — which would read as a legitimate denial.
+ */
+export interface ConnectionUserPermissions {
+	connect?: boolean;
+	connect_user?: boolean;
+	unlink_user?: boolean;
+	disconnect?: boolean;
+	manage_options?: boolean;
+}
+
 export interface UserConnectionData {
 	currentUser?: {
 		wpcomUser?: WpcomUser;
 		username?: string;
 		/** The viewer's local WordPress user ID. */
 		id?: number;
+		/** The viewer's local display name. */
+		displayName?: string;
+		/** The viewer's local email address. */
+		email?: string;
 		isMaster?: boolean;
+		permissions?: ConnectionUserPermissions;
 		possibleAccountErrors?: Record< string, unknown >;
 		[ key: string ]: unknown;
 	};
@@ -54,9 +73,12 @@ export interface UserConnectionData {
 
 export interface RegistrationError {
 	message?: string;
-	response?: { code?: string };
+	response?: { code?: string; message?: string };
 	[ key: string ]: unknown;
 }
+
+/** A failure to register the site or to hand the user off to WordPress.com. */
+export type ConnectError = RegistrationError;
 
 export interface UseConnectionReturn {
 	handleRegisterSite: ( e?: Event | SyntheticEvent ) => Promise< unknown >;
@@ -67,6 +89,8 @@ export interface UseConnectionReturn {
 	siteIsRegistering: boolean;
 	userIsConnecting: boolean;
 	registrationError: RegistrationError | false;
+	/** Whichever failed: registering the site or the hand-off to WordPress.com. */
+	connectError: ConnectError | false;
 	userConnectionData: UserConnectionData;
 	/** The owner of record; null when unresolvable or withheld from this viewer. */
 	connectionOwner: ConnectionOwner | null;

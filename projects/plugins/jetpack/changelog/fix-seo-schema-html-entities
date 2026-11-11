@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Show apostrophes, quotes, and ampersands as characters instead of HTML entities in schema markup.

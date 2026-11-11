@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: The modernized dashboard, behind a feature flag, keeps showing download and restore progress through a failed status poll.
-

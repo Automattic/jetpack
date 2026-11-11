@@ -423,7 +423,7 @@ class REST_Connector {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->remote_authorize( $request );
 
-		if ( is_a( $result, 'IXR_Error' ) ) {
+		if ( $result instanceof \IXR_Error ) {
 			$result = new WP_Error( $result->code, $result->message );
 		}
 
@@ -449,7 +449,7 @@ class REST_Connector {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->remote_provision( $request_data );
 
-		if ( is_a( $result, 'IXR_Error' ) ) {
+		if ( $result instanceof \IXR_Error ) {
 			$result = new WP_Error( $result->code, $result->message );
 		}
 
@@ -469,7 +469,7 @@ class REST_Connector {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->remote_connect( $request );
 
-		if ( is_a( $result, 'IXR_Error' ) ) {
+		if ( $result instanceof \IXR_Error ) {
 			$result = new WP_Error( $result->code, $result->message );
 		}
 
@@ -489,7 +489,7 @@ class REST_Connector {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->remote_register( $request );
 
-		if ( is_a( $result, 'IXR_Error' ) ) {
+		if ( $result instanceof \IXR_Error ) {
 			$result = new WP_Error( $result->code, $result->message );
 		}
 
@@ -560,7 +560,8 @@ class REST_Connector {
 
 		$connection_status = array(
 			'isActive'            => $connection->has_connected_owner(), // TODO deprecate this.
-			'isStaging'           => $status->in_safe_mode(), // TODO deprecate this.
+			'isStaging'           => $status->in_safe_mode(), // Deprecated: use isInSafeMode.
+			'isInSafeMode'        => $status->in_safe_mode(),
 			'isRegistered'        => $connection->is_connected(),
 			'isUserConnected'     => $connection->is_user_connected(),
 			'hasConnectedOwner'   => $connection->has_connected_owner(),
@@ -766,6 +767,8 @@ class REST_Connector {
 			'isMaster'              => $is_master_user,
 			'username'              => $current_user->user_login,
 			'id'                    => $current_user->ID,
+			'displayName'           => $current_user->display_name,
+			'email'                 => $current_user->user_email,
 			'blogId'                => $blog_id,
 			'wpcomUser'             => $wpcom_user_data,
 			'gravatar'              => get_avatar_url( $current_user->ID ),

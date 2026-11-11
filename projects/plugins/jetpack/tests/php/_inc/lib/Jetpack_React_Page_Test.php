@@ -24,12 +24,18 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-
 class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
-	public function test_modules_management_link_stays_classic_with_launch_flag_off() {
+	public function test_modules_management_link_defaults_to_features_and_allows_a_false_override() {
 		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		Initializer::register_feature_flags();
 
-		$this->assertSame( admin_url( 'admin.php?page=jetpack_modules' ), Initializer::get_modules_management_url() );
+		$this->assertSame( admin_url( 'admin.php?page=my-jetpack&modules_fallback=1#/features' ), Initializer::get_modules_management_url() );
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_false' );
+		try {
+			$this->assertSame( admin_url( 'admin.php?page=jetpack_modules' ), Initializer::get_modules_management_url() );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_false' );
+		}
 	}
 
 	public function test_classic_search_preserves_only_a_present_fallback_marker() {
@@ -64,7 +70,6 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 		$_SERVER['REQUEST_METHOD'] = $mode === 'post' ? 'POST' : 'GET';
 		remove_all_actions( 'admin_head' );
 		add_filter( 'jetpack_offline_mode', $mode === 'offline' ? '__return_true' : '__return_false' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_true' );
 		$auth = static function ( $result ) use ( $mode ) {
 			return $mode === 'rest-error' ? new WP_Error( 'denied' ) : $result;
@@ -275,11 +280,22 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that offline sites fall back to the Settings page, since My Jetpack requires a connection.
+	 * Tests that offline administrators reach My Jetpack unless the offline entry is disabled.
 	 */
-	public function test_offline_mode_falls_back_to_settings() {
+	public function test_offline_mode_defaults_to_my_jetpack_and_allows_rollback() {
 		add_filter( 'jetpack_offline_mode', '__return_true' );
+		if ( is_multisite() ) {
+			grant_super_admin( get_current_user_id() );
+		}
 
+		$table = Jetpack_React_Page::get_legacy_route_redirects();
+
+		$this->assertSame( admin_url( 'admin.php?page=my-jetpack' ), $table['fallback'] );
+		foreach ( array( 'akismet', 'backup', 'scan', 'search', 'security', 'videopress' ) as $product ) {
+			$this->assertSame( admin_url( 'admin.php?page=my-jetpack' ) . '#/add-' . $product, $table['routes'][ '/product/' . $product ] );
+		}
+
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );
 		$table = Jetpack_React_Page::get_legacy_route_redirects();
 
 		$this->assertSame( admin_url( 'admin.php?page=jetpack-settings' ), $table['fallback'] );
@@ -296,11 +312,14 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
 		Status_Cache::clear();
 		wp_get_current_user()->add_cap( 'activate_plugins', ! $restricted );
+		if ( is_multisite() && ! $restricted ) {
+			grant_super_admin( get_current_user_id() );
+		}
 		$before = Jetpack_React_Page::get_legacy_route_redirects()['fallback'];
-		$this->assertSame( admin_url( 'admin.php?page=' . ( $offline ? 'jetpack-settings' : 'my-jetpack' ) ), $before );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$this->assertSame( admin_url( 'admin.php?page=' . ( $offline && $restricted ? 'jetpack-settings' : 'my-jetpack' ) ), $before );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );
 		$after = Jetpack_React_Page::get_legacy_route_redirects()['fallback'];
-		$this->assertSame( admin_url( 'admin.php?page=' . ( $offline && $restricted ? 'jetpack-settings' : 'my-jetpack' ) ), $after );
+		$this->assertSame( admin_url( 'admin.php?page=' . ( $offline ? 'jetpack-settings' : 'my-jetpack' ) ), $after );
 	}
 
 	/** @return array Landing permission cases. */

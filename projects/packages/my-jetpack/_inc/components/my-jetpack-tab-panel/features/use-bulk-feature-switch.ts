@@ -5,6 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
+import { QUERY_PRODUCT_BY_OWNERSHIP_KEY } from '../../../data/constants';
 import { hasPlainSwitch } from '../../../data/module-switch';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
 import {
@@ -32,7 +33,8 @@ type BulkResponse = { state: MainFeaturesState; failed: BulkFailure[] };
  * @return Whether the feature can be switched in bulk.
  */
 export function isBulkSwitchable( state: FeatureState ): boolean {
-	if ( state.pending || state.isSwitching ) {
+	// A feature waiting for an account connects one from its own control, which a batch cannot do.
+	if ( state.pending || state.isSwitching || state.accountNeeded ) {
 		return false;
 	}
 
@@ -167,13 +169,16 @@ export function useBulkFeatureSwitch() {
 			} catch ( error ) {
 				// The request as a whole failed, so the site may have switched some, all or none.
 				failedSlugs = targets.map( state => state.feature.slug );
-				queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
-				await fetchModules();
 				createErrorNotice(
 					( error as { message?: string } )?.message ||
 						__( 'Could not change the selected features. Please try again.', 'jetpack-my-jetpack' )
 				);
+				// The run stays busy until this lands.
+				await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
+				await fetchModules();
 			} finally {
+				// Even a failed run may have switched some, which can move products between ownership groups.
+				queryClient.invalidateQueries( { queryKey: [ QUERY_PRODUCT_BY_OWNERSHIP_KEY ] } );
 				held.forEach( ( { key, token } ) => clearRequestedSwitch( key, token ) );
 				setIsRunning( false );
 			}

@@ -7,7 +7,7 @@ import { useSendBounceConfirmationMutation } from '../data/use-send-bounce-confi
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
 import { canCompSubscriber } from '../lib/comp-eligibility';
-import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
+import { getSubscribedAt, getSubscriberLabel, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { recordTracksEvent } from '../lib/tracks';
@@ -19,7 +19,12 @@ import EmptyState from './empty-state';
 import CompModal from './modals/comp-modal';
 import RemoveCompModal from './modals/remove-comp-modal';
 import UnsubscribeModal from './modals/unsubscribe-modal';
-import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
+import type {
+	Subscriber,
+	SubscribersExportQuery,
+	SubscribersFilter,
+	SubscribersSortField,
+} from '../data/types';
 import type { Action, Field, View } from '@wordpress/dataviews';
 import type { JSX } from 'react';
 
@@ -45,6 +50,7 @@ type Props = {
 	onViewSubscriber: ( subscriber: Subscriber ) => void;
 	onSubscribersRemoved: ( removed: Subscriber[] ) => void;
 	onSelfOnlyChange: ( isSelfOnly: boolean ) => void;
+	onQueryChange: ( query: SubscribersExportQuery ) => void;
 };
 
 /**
@@ -56,6 +62,7 @@ type Props = {
  * @param props.onViewSubscriber     - Callback fired when the View row action is invoked.
  * @param props.onSubscribersRemoved - Callback fired with the rows that were actually removed.
  * @param props.onSelfOnlyChange     - Reports whether the viewer is the only subscriber, for the header's nudge.
+ * @param props.onQueryChange        - Reports the active filters, search and sort, for the header's CSV download.
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews( {
@@ -63,6 +70,7 @@ export default function SubscribersDataViews( {
 	onViewSubscriber,
 	onSubscribersRemoved,
 	onSelfOnlyChange,
+	onQueryChange,
 }: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
 	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
@@ -79,6 +87,15 @@ export default function SubscribersDataViews( {
 			.filter( Boolean );
 		return values.length ? values : [ 'all' ];
 	}, [ view.filters ] );
+
+	useEffect( () => {
+		onQueryChange( {
+			filters: apiFilters.filter( filter => filter !== 'all' ),
+			search: view.search ?? '',
+			sort: ( view.sort?.field as SubscribersSortField ) ?? 'date_subscribed',
+			sortOrder: ( view.sort?.direction ?? 'desc' ) as 'asc' | 'desc',
+		} );
+	}, [ apiFilters, view.search, view.sort?.field, view.sort?.direction, onQueryChange ] );
 
 	const queryParams = useMemo(
 		() => ( {
@@ -156,7 +173,7 @@ export default function SubscribersDataViews( {
 			{
 				id: 'name',
 				label: __( 'Name', 'jetpack-newsletter' ),
-				getValue: ( { item }: { item: Subscriber } ) => item.display_name || item.email_address,
+				getValue: ( { item }: { item: Subscriber } ) => getSubscriberLabel( item ),
 				render: ( { item }: { item: Subscriber } ) => <SubscriberIdentity subscriber={ item } />,
 				enableSorting: true,
 				enableHiding: false,

@@ -9,7 +9,7 @@ type RouteSearch = Record< string, unknown >;
 
 export type InternalLinkProps = {
 	/**
-	 * Route path inside the dashboard, e.g. `/post/$postId`.
+	 * Route path inside the dashboard, e.g. `/report/$kind/$id`.
 	 */
 	to: string;
 

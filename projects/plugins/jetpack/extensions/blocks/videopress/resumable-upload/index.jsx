@@ -1,6 +1,7 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
+import { createUploadAnalytics } from '@automattic/jetpack-shared-extension-utils/videopress-upload-analytics';
 import { Button } from '@wordpress/components';
 import { useCallback, useContext, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -21,12 +22,16 @@ export default function ResumableUpload( { file } ) {
 	const [ error, setError ] = useState( null );
 	const [ currentUploadKey, setCurrentUploadKey ] = useState( null );
 	const { onUploadFinished } = useContext( VideoPressBlockContext );
-	const tusUploaderRef = useRef( null );
-
-	tusUploaderRef.current = tusUploader;
+	const controllerRef = useRef( null );
+	const [ analytics ] = useState( () => createUploadAnalytics( file, 'block_editor' ) );
 
 	const startUpload = useCallback( () => {
+		controllerRef.current?.abort();
+		const controller = new AbortController();
+		controllerRef.current = controller;
+		analytics.start();
 		const onError = uploadError => {
+			setHasPaused( false );
 			setError( uploadError );
 		};
 
@@ -46,21 +51,35 @@ export default function ResumableUpload( { file } ) {
 		};
 
 		const uploader = resumableUploader( {
+			analytics,
+			signal: controller.signal,
 			onError,
 			onProgress,
 			onSuccess,
 			onUploadUuidRetrieved,
 		} );
 
-		getJWT()
-			.then( jwtData => {
-				const newUploader = uploader( file, jwtData );
-				setTusUploader( newUploader );
-			} )
-			.catch( jwtError => {
+		getJWT().then(
+			jwtData => {
+				if ( controller.signal.aborted ) {
+					return;
+				}
+				try {
+					setTusUploader( uploader( file, jwtData ) );
+				} catch ( uploadError ) {
+					analytics.fail( uploadError, 'transfer' );
+					setError( uploadError );
+				}
+			},
+			jwtError => {
+				if ( controller.signal.aborted ) {
+					return;
+				}
+				analytics.fail( jwtError, 'token' );
 				setError( jwtError );
-			} );
-	}, [ file, onUploadFinished, currentUploadKey ] );
+			}
+		);
+	}, [ file, onUploadFinished, currentUploadKey, analytics ] );
 
 	useEffect( () => {
 		// Kicks things off.
@@ -68,9 +87,8 @@ export default function ResumableUpload( { file } ) {
 
 		// Stop the upload when the block is removed.
 		return () => {
-			if ( null !== tusUploaderRef.current ) {
-				tusUploaderRef.current.abort();
-			}
+			analytics.pause();
+			controllerRef.current?.abort();
 		};
 		// We need to pass a blank array here to act as 'component mount/unmount'
 		// We don't want this effect to run again if `startUpload` changes.

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.12] - 2026-11-02
+### Added
+- Add the settings consolidation flag to the My Jetpack script data type. [#54414]
+
+### Removed
+- Remove the unused `activeThemeStylesheet` field from the My Jetpack Site Editor data type. [#54303]
+
+## [0.6.11] - 2026-10-20
+### Changed
+- Internal updates.
+
 ## [0.6.10] - 2026-10-14
 ### Added
 - Add `aiManageUrl` to the My Jetpack script data type. [#53519]
@@ -152,6 +163,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added jetpack-script-data package to consolidate the logic for Jetpack Initial state [#38430]
 
+[0.6.12]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.11...v0.6.12
+[0.6.11]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.10...v0.6.11
 [0.6.10]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.9...v0.6.10
 [0.6.9]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.8...v0.6.9
 [0.6.8]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.7...v0.6.8

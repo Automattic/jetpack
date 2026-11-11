@@ -228,15 +228,26 @@ for PROJECT in projects/*/*; do
 	fi
 
 	# - package.json link deps should not point outside the project.
+	# - wp-build dummy package.json should not have any dependencies.
 	for f in $( git ls-files "$PROJECT/package.json" "$PROJECT/*/package.json" ); do
-		while IFS=$'\t' read -r DEPTYPE DEP LINK; do
-			RP=$( realpath -m --relative-to="$PROJECT/" "${f%/*}/$LINK" )
-			if [[ "$RP" == ../* ]]; then
-				EXIT=1
-				LINE=$(jq --stream -r --arg DEPTYPE "$DEPTYPE" --arg DEP "$DEP" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$DEPTYPE,$DEP] then ",line=\( input_line_number )" else empty end' "$f")
-				echo "::error file=$f${LINE}::Dependency \`$DEP\` should not try to link outside of the project. Cross-project interactions should be done via public APIs."
-			fi
-		done < <( jq -r 'to_entries[] | .key as $deptype | select( [ "dependencies", "devDependencies", "optionalDependencies", "peerDependencies" ] | index( $deptype ) ) | .value | to_entries[] | select( .value | startswith( "link:" ) or startswith( "file:" ) ) | [ $deptype, .key, ( .value | sub( "^[^:]*:"; "" ) ) ] | @tsv' "$f" )
+		if [[ "$f" == "$PROJECT"/?(packages|routes|widgets)/*/package.json ]]; then
+			for DEPTYPE in dependencies devDependencies optionalDependencies peerDependencies; do
+				LINE=$(jq --stream -r --arg DEPTYPE "$DEPTYPE" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$DEPTYPE] then ",line=\( input_line_number )" else empty end' "$f")
+				if [[ -n "$LINE" ]]; then
+					EXIT=1
+					echo "::error file=$f${LINE}::Wp-build package.json files should not have $DEPTYPE. Any dependencies they require should be in the project's base package.json (\`$PROJECT/package.json\`)."
+				fi
+			done
+		else
+			while IFS=$'\t' read -r DEPTYPE DEP LINK; do
+				RP=$( realpath -m --relative-to="$PROJECT/" "${f%/*}/$LINK" )
+				if [[ "$RP" == ../* ]]; then
+					EXIT=1
+					LINE=$(jq --stream -r --arg DEPTYPE "$DEPTYPE" --arg DEP "$DEP" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$DEPTYPE,$DEP] then ",line=\( input_line_number )" else empty end' "$f")
+					echo "::error file=$f${LINE}::Dependency \`$DEP\` should not try to link outside of the project. Cross-project interactions should be done via public APIs."
+				fi
+			done < <( jq -r 'to_entries[] | .key as $deptype | select( [ "dependencies", "devDependencies", "optionalDependencies", "peerDependencies" ] | index( $deptype ) ) | .value | to_entries[] | select( .value | startswith( "link:" ) or startswith( "file:" ) ) | [ $deptype, .key, ( .value | sub( "^[^:]*:"; "" ) ) ] | @tsv' "$f" )
+		fi
 	done
 
 	# - should have only one of jsconfig.json or tsconfig.json.
@@ -746,6 +757,16 @@ else
 		LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["devEngines","packageManager"] then input_line_number - 1 else empty end' package.json)
 		echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 	fi
+fi
+
+# - webpack-config's wp-polyfill module list should be generated for MIN_WP_VERSION in .github/versions.sh.
+debug "Checking webpack-config's wp-polyfill modules vs versions.sh"
+FILE=projects/js-packages/webpack-config/src/babel/wp-polyfill-modules.json
+GENERATED_FOR="$(jq -r '.minWordPressVersion' "$FILE")"
+if [[ "$GENERATED_FOR" != "$MIN_WP_VERSION" ]]; then
+	EXIT=1
+	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["minWordPressVersion"] then input_line_number else empty end' "$FILE")
+	echo "::error file=$FILE,line=$LINE::Generated for WordPress $GENERATED_FOR and up, but MIN_WP_VERSION in .github/versions.sh is $MIN_WP_VERSION. Run \`pnpm run update-wp-polyfill-modules\` in projects/js-packages/webpack-config to regenerate it."
 fi
 
 # - Check for incorrect next-version tokens.

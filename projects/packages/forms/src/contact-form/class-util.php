@@ -46,12 +46,8 @@ class Util {
 		add_filter( 'pre_render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_suspend_block_template_id_in_post_content', 10, 2 );
 		add_filter( 'render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_restore_block_template_id_after_post_content', 10, 2 );
 
-		// Register the default for the `central-form-management` feature flag at bootstrap
-		// so that early callers of Contact_Form_Plugin::has_editor_feature_flag() — such as
-		// the Forms dashboard default-tab redirect, which runs before the `init` hook fires —
-		// see the correct value. Only the lightweight default is registered here; paid-plan
-		// flags stay in Contact_Form_Block::register_feature(), hooked later from
-		// Contact_Form_Block::register_block() on `init` priority 9.
+		// Registered at bootstrap, not on `init`, so has_editor_feature_flag() is right for callers
+		// that run earlier (#48080). Paid-plan flags stay in Contact_Form_Block::register_feature().
 		add_filter( 'jetpack_block_editor_feature_flags', '\Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block::register_central_form_management_default' );
 
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init', 9 );

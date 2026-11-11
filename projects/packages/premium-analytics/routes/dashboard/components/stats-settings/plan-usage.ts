@@ -1,4 +1,5 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { useStatsUpgradeLinkProps } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -26,19 +27,19 @@ export function getOverLimitMessage(
 }
 
 /**
- * The Stats tier-upgrade purchase screen for this site, the same flow the Stats "Plan usage"
- * section links to, returning to this dashboard after checkout.
+ * Link props for the Stats tier-upgrade screen, returning to this dashboard after checkout.
  *
- * @param from - Where the purchase started, reported to the checkout as `from`.
- * @return The URL, or `undefined` where script data is absent (e.g. Storybook without a seeded `window.JetpackScriptData`).
+ * @param from - Where the purchase started, reported with the upgrade events as `from`.
+ * @return The props, or `undefined` where script data is absent (e.g. Storybook without a seeded `window.JetpackScriptData`).
  */
-export function getPlanUpgradeUrl( from = 'jetpack-premium-analytics' ): string | undefined {
+export function usePlanUpgradeLinkProps( from = 'jetpack-premium-analytics' ) {
 	const site = getScriptData()?.site;
 	const blogId = site?.wpcom?.blog_id;
-	if ( ! site?.admin_url || ! blogId ) {
-		return undefined;
-	}
-
 	const backTo = encodeURIComponent( 'admin.php?page=jetpack-premium-analytics-wp-admin' );
-	return `${ site.admin_url }admin.php?page=stats#!/stats/purchase/${ blogId }?from=${ from }&productType=commercial&redirect_uri=${ backTo }`;
+	const wpcomHref = blogId
+		? `${ site?.admin_url }admin.php?page=stats#!/stats/purchase/${ blogId }?from=${ from }&productType=commercial&redirect_uri=${ backTo }`
+		: undefined;
+	const linkProps = useStatsUpgradeLinkProps( from, wpcomHref );
+
+	return site?.admin_url && blogId ? linkProps : undefined;
 }

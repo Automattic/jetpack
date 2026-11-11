@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: The modernized dashboard, behind a feature flag, no longer says a restore didn't start unless it has read the restores list at least once.
-

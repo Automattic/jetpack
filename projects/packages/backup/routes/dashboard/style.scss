@@ -48,6 +48,13 @@
 		min-height: 400px;
 	}
 
+	// A failed log has no panes to fill the height or the second column.
+	&--failed {
+		grid-template-columns: 1fr;
+		min-height: 0;
+		flex: none;
+	}
+
 	&__detail--empty {
 		display: flex;
 		align-items: center;

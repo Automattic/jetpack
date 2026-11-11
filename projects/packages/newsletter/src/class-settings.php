@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
@@ -22,7 +23,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.18.0';
+	const PACKAGE_VERSION = '0.18.5';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -155,6 +156,10 @@ class Settings {
 		// so an inline check here would always see the unfiltered default.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
+		}
+
 		// Priority 20 runs after add_script_data(), which replaces the whole `newsletter` key on the Newsletter page.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_subscribers_url_script_data' ), 20 );
 
@@ -210,13 +215,6 @@ class Settings {
 		}
 
 		self::load_wp_build_with_screen_alias();
-
-		// wp-build registers standalone modules (e.g. the init module) on
-		// wp_default_scripts, which has already fired by admin_menu. Register them
-		// directly so the init module makes it into the import map.
-		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
-			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
 	}
 
 	/**
@@ -317,6 +315,52 @@ class Settings {
 	}
 
 	/**
+	 * Register Newsletter with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		// The same gates add_wp_admin_menu() applies, since admin-ajax never builds the menu.
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
+			|| ! self::is_modernized()
+			|| ! $this->should_show_menu_item()
+			|| ! $this->is_subscriptions_active()
+			|| ! ( new Connection_Manager() )->is_connected()
+		) {
+			return $members;
+		}
+
+		$members[ self::ADMIN_PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_newsletter',
+			'build_page'   => 'jetpack-newsletter-dashboard',
+			'init_modules' => array( '@jetpack-newsletter/init' ),
+			/** "Newsletter" is a product name, do not translate. */
+			'title'        => 'Newsletter',
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Newsletter routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		$this->admin_init();
+	}
+
+	/**
 	 * Admin init actions.
 	 */
 	public function admin_init() {
@@ -379,6 +423,14 @@ class Settings {
 		// only queues events into `window._tkq`; without `jp-tracks` loaded, no
 		// pixel.gif requests fire and the queue grows forever.
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		wp_add_inline_script(
+			'jp-tracks',
+			sprintf(
+				'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;',
+				absint( Connection_Manager::get_site_id( true ) )
+			),
+			'before'
+		);
 
 		if ( self::is_modernized() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but
@@ -557,6 +609,13 @@ class Settings {
 		}
 
 		require_once $build_index;
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
+			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 			'jetpack-newsletter',

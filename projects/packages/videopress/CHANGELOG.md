@@ -5,6 +5,87 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.62.0] - 2026-11-09
+### Added
+- Dashboard: Add a Playlists tab to create, edit, publish and delete video playlists, with every Video Playlist block setting. [#54504]
+
+### Changed
+- Stats dashboard: open the Top videos list tall enough for its ten entries. [#54603]
+- Top videos widget: Take the chart's accessible name from the widget title instead of repeating it. [#54513]
+- Update package dependencies. [#54512]
+- Use the design system progress bar for the upload, processing and storage meters. [#54512]
+- Use the design system tooltip for the upload buttons. [#54512]
+
+### Fixed
+- Recording: Explain camera and microphone errors with steps to fix them, and retry once access is allowed. [#54509]
+- Uploads: Report failures when an upload cannot be initialized. [#54475]
+
+## [0.61.0] - 2026-11-02
+### Added
+- Add camera recording with selectable filters, animated controls, mirrored preview, and trim-and-cut editing before uploading from the dashboard and VideoPress block. [#54233]
+- Analytics: Play the video on its stats report. [#54291]
+
+### Changed
+- Overview: Make the date range picker keyboard-navigable with arrow keys. [#54200]
+- Show the error when connecting from the pricing table fails in a notice above the table, so it no longer pushes the paid plan's button out of line. [#54218]
+- Update package dependencies. [#53869]
+
+### Fixed
+- Stats: Fix incorrect video statistics on sites configured to use HTML query separators. [#54262]
+- Video Playlist and Latest Videos Playlist blocks: Show the first video and a grid of thumbnails linking to the post in newsletter emails. [#54261]
+
+## [0.60.1] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [0.60.0] - 2026-10-26
+### Added
+- Make the Trim & cut editor available by default. [#54053]
+- Top videos widget: Upload the first video from the widget's empty state and follow it while it processes. [#53887]
+
+### Changed
+- Require widget contract 2.0.0 of the Premium Analytics dashboard. [#53885]
+- Top videos widget: Show the View all link and the CSV download in the card footer. [#53881]
+- Update package dependencies. [#53951]
+
+### Fixed
+- Dashboard: Show why connecting the site failed on the pricing and connect screens. [#53289]
+- Editor: Prevent timeline handles from jumping after releasing a drag outside the timeline. [#54049]
+- Keep the playhead in place when adjusting trim handles. [#54045]
+- Top videos widget: the title, description and help note declared in widget.json reach the translation catalog. [#53850]
+- Video block: Attach newly uploaded videos to the post or page being edited. [#54044]
+
+## [0.59.0] - 2026-10-20
+### Added
+- Channel blocks: Show authors a call to action, and optionally visitors a note, while a channel has no videos or playlists. [#53510]
+
+### Changed
+- Settings: Match the card spacing and top margin of the other Jetpack settings screens. [#53607]
+
+## [0.58.0] - 2026-10-19
+### Added
+- Add a Channel Details block to channel sites, with the channel's handle, subscribers, videos, playlists, views and start date. [#53506]
+- Add an Episode Navigation block. [#53509]
+- Add a Playlist Details block. [#53508]
+- Add a Video Details block, and let the VideoPress Video block play the newest upload. [#53507]
+- Channel: Add a page per playlist. The Video Playlist block can show the playlist being viewed, its entries keep the playlist context, and All Playlists cards link to playlist pages and can hide the playlist being viewed. [#53504]
+- Channel: Add the data layer the channel blocks read: video lists, play and subscriber counts. [#53503]
+- Latest Videos Playlist: Add sorting, search and length filters, numbered pages, an option to leave out the video being viewed, and view counts with upload dates. [#53505]
+- Show an upload link in Top videos when the site has no VideoPress videos. [#53469]
+- Video Playlist block: Add a source setting to show a playlist published on the site, picked from a list and previewed in the editor. All Playlists block: Add a "Recently updated" order and an option to show each playlist's last update and length. [#53657]
+
+### Changed
+- Name the videos and their views above the Top videos list. [#53697]
+- Update package dependencies. [#53004] [#53806]
+- Use apply_shortcodes() terminology instead of do_shortcode(). [#53552]
+- Video Playlist: Open this site's video pages in the same tab, and mark the entry of the video being viewed. [#53502]
+
+### Fixed
+- Channel: Only open a channel video page for a video uploaded to this site. [#53501]
+- Name the Top videos chart after its widget, so screen readers can tell it apart from the other dashboard charts. [#53333]
+- Prevent new uploads from reusing attachment IDs retained by VideoPress after a site restore. [#53791]
+- VideoPress: Show failed conversions with delete and re-upload guidance, and retry locked resumable uploads. [#53614]
+
 ## [0.57.0] - 2026-10-12
 ### Added
 - Add trim and cut editing to the video block toolbar and clarify the editor tool icons. [#53100]
@@ -180,7 +261,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.47.1] - 2026-08-20
 ### Changed
-- Update dependencies. [#49464]
+- Update dependencies.
 
 ## [0.47.0] - 2026-08-19
 ### Added
@@ -481,7 +562,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.35.3] - 2026-03-02
 ### Changed
-- Update dependencies. [#46758]
+- Update dependencies.
 
 ## [0.35.2] - 2026-02-26
 ### Changed
@@ -563,7 +644,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.32.15] - 2025-11-18
 ### Changed
-- Update dependencies. [#45553]
+- Update dependencies.
 
 ## [0.32.14] - 2025-11-17
 ### Changed
@@ -592,11 +673,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.32.8] - 2025-09-29
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.32.7] - 2025-09-22
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.32.6] - 2025-09-19
 ### Changed
@@ -612,7 +693,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.32.3] - 2025-09-01
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.32.2] - 2025-08-25
 ### Changed
@@ -670,7 +751,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.30.1] - 2025-06-24
 ### Changed
-- Update dependencies. [#43885]
+- Update dependencies.
 
 ## [0.30.0] - 2025-06-23
 ### Changed
@@ -805,7 +886,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.25.11] - 2025-02-11
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.25.10] - 2025-02-10
 ### Changed
@@ -855,7 +936,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.25.2] - 2024-11-26
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.25.1] - 2024-11-25
 ### Changed
@@ -914,7 +995,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.24.9] - 2024-09-23
 ### Changed
-- Update dependencies. [#38595]
+- Update dependencies.
 
 ## [0.24.8] - 2024-09-16
 ### Changed
@@ -2337,6 +2418,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.62.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.61.0...v0.62.0
+[0.61.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.60.1...v0.61.0
+[0.60.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.60.0...v0.60.1
+[0.60.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.59.0...v0.60.0
+[0.59.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.58.0...v0.59.0
+[0.58.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.56.0...v0.57.0
 [0.56.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.54.0...v0.55.0

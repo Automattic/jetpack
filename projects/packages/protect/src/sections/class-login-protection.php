@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Brute force protection, account protection and WordPress.com login.
  *
- * @since $$next-version$$
+ * @since 0.2.0
  */
 class Login_Protection implements Dashboard_Section {
 
@@ -59,7 +59,8 @@ class Login_Protection implements Dashboard_Section {
 				'matchByEmail' => SSO_Helpers::match_by_email(),
 				'twoStep'      => SSO_Helpers::is_two_step_required(),
 			),
-			'currentIp'         => (string) IP_Utils::get_ip(),
+			// Don't suggest the fallback address when the configured trusted header can't be resolved.
+			'currentIp'         => method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ? '' : (string) IP_Utils::get_ip(),
 		);
 	}
 

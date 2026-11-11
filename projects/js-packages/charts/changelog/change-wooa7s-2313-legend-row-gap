@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Legend: Set wrapped rows of a horizontal legend closer together than items on one row, and expose both gaps as CSS variables.

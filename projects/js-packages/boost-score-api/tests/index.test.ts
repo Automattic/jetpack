@@ -5,6 +5,7 @@ import {
 	getScoreLetter,
 	didScoresChange,
 	getScoreMovementPercentage,
+	getScoreTier,
 } from '../src/index';
 
 const mockData = {
@@ -57,6 +58,19 @@ describe( 'requestSpeedScores', () => {
 		] );
 	} );
 
+	it( 'passes on that the comparison without Boost is still measuring', async () => {
+		post.mockResolvedValue( { ...mockData, scores: { ...mockData.scores, noBoostPending: true } } );
+
+		const scores = await requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce'
+		);
+
+		expect( scores ).toEqual( { ...mockData.scores, noBoostPending: true } );
+	} );
+
 	it( 'asks for a fresh measurement when forced', async () => {
 		post.mockResolvedValue( mockData );
 
@@ -93,6 +107,28 @@ describe( 'requestSpeedScores', () => {
 		await jest.advanceTimersByTimeAsync( 5000 );
 		await expect( request ).resolves.toEqual( mockData.scores );
 		expect( onPending ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'reports the progress of every pending response', async () => {
+		jest.useFakeTimers();
+		post
+			.mockResolvedValueOnce( { status: 'pending', progress: { elapsed: 0, expected: 40 } } )
+			.mockResolvedValueOnce( { status: 'pending', progress: { elapsed: 5, expected: 40 } } )
+			.mockResolvedValue( mockData );
+		const onProgress = jest.fn();
+		const request = requestSpeedScores(
+			true,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ onProgress }
+		);
+		await jest.advanceTimersByTimeAsync( 10000 );
+		await expect( request ).resolves.toEqual( mockData.scores );
+		expect( onProgress.mock.calls ).toEqual( [
+			[ { elapsed: 0, expected: 40 } ],
+			[ { elapsed: 5, expected: 40 } ],
+		] );
 	} );
 
 	it( 'does not report pending when scores are ready', async () => {
@@ -288,5 +324,18 @@ describe( 'getScoreMovementPercentage', () => {
 		changedMockData.scores.noBoost.mobile = 70;
 
 		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 13 );
+	} );
+} );
+
+describe( 'getScoreTier', () => {
+	it.each( [
+		[ 0, 'poor' ],
+		[ 50, 'poor' ],
+		[ 51, 'medium' ],
+		[ 70, 'medium' ],
+		[ 71, 'good' ],
+		[ 100, 'good' ],
+	] )( 'puts a score of %i in the %s tier', ( score, tier ) => {
+		expect( getScoreTier( Number( score ) ) ).toBe( tier );
 	} );
 } );

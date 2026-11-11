@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix comments from readers signed in with WordPress.com going to spam or not showing after posting, and Backspace or undo wiping a comment being written.

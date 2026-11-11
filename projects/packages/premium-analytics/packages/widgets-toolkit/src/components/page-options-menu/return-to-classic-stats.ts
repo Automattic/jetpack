@@ -1,7 +1,7 @@
 /**
- * WordPress dependencies
+ * Internal dependencies
  */
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getClassicStatsUrl } from './classic-stats-url';
 
 /**
  * Leaves the dashboard for classic Stats, where the invitation back lives.
@@ -14,5 +14,9 @@ import { getAdminUrl } from '@automattic/jetpack-script-data';
 export function returnToClassicStats(
 	location: Pick< Location, 'assign' > = window.location
 ): void {
-	location.assign( getAdminUrl( 'admin.php?page=stats' ) );
+	const url = getClassicStatsUrl();
+
+	if ( url ) {
+		location.assign( url );
+	}
 }

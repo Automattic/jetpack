@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Icon } from '@wordpress/components';
 import { flushSync, useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { check } from '@wordpress/icons';
+import { border, published } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import {
 	Button,
@@ -259,14 +259,12 @@ function ChecklistSteps( {
 					>
 						<CollapsibleCard.Header className="jetpack-newsletter-overview__step-header">
 							<Stack direction="row" align="center" gap="sm">
-								<span
+								<Icon
+									icon={ complete ? published : border }
 									className={ clsx( 'jetpack-newsletter-overview__step-status', {
 										'jetpack-newsletter-overview__step-status--complete': complete,
 									} ) }
-									aria-hidden="true"
-								>
-									{ complete ? <Icon icon={ check } size={ 12 } /> : null }
-								</span>
+								/>
 								<Card.Title
 									className={ clsx( 'jetpack-newsletter-overview__step-title', {
 										'jetpack-newsletter-overview__step-title--complete': complete,

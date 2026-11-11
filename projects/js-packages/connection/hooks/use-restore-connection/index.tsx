@@ -27,9 +27,15 @@ function toErrorMessage( error: unknown ): string {
  * Restore connection hook.
  * It will initiate an API request attempting to restore the connection, or reconnect if it cannot be restored.
  *
+ * @param {object} [options]             - Hook options.
+ * @param {string} [options.redirectUrl] - Where to return after reauthorizing the user. Defaults to My Jetpack (deprecated).
+ * @param {string} [options.from]        - The `from` reported to WordPress.com, from `CONNECTION_FROM`. Defaults to 'my-jetpack' (deprecated).
  * @return {object} - The hook data.
  */
-export default function useRestoreConnection() {
+export default function useRestoreConnection( {
+	redirectUrl,
+	from,
+}: { redirectUrl?: string; from?: string } = {} ) {
 	// Register the connection store lazily and use the returned descriptor so
 	// the store can't be dispatched without being initialized first. Idempotent
 	// across consumers.
@@ -45,15 +51,13 @@ export default function useRestoreConnection() {
 		connectionStore
 	) as unknown as ConnectionStoreDispatch;
 
-	const USER_CONNECTION_URL = getUserConnectionUrl();
-
 	/**
 	 * Initiate connection restore.
 	 *
 	 * Kept referentially stable: callers memoize CTA actions on it, and a fresh
 	 * function every render would defeat that.
 	 *
-	 * @param {boolean} autoReconnectUser - If user connection needs to be reestablished, automatically initiate the flow.
+	 * @param {boolean} autoReconnectUser - If user connection needs to be reestablished, automatically initiate the flow. When false, the caller handles it and the connection store is updated instead.
 	 * @return {Promise<object>} - The API request promise.
 	 */
 	const restoreConnection = useCallback(
@@ -66,10 +70,14 @@ export default function useRestoreConnection() {
 				.then( ( connectionStatusData: { status: string } ) => {
 					// status 'in_progress' means the user needs to re-connect their WP.com account.
 					if ( 'in_progress' === connectionStatusData.status ) {
-						disconnectUserSuccess();
-						setConnectionErrors( {} );
+						// A redirect leaves the store alone: clearing the errors would unmount the banner's spinner before the page leaves.
 						if ( autoReconnectUser ) {
-							window.location.href = USER_CONNECTION_URL;
+							// Built here, not on render: many dashboards run this through useConnectionErrorNotice()
+							// only to read the error state, and the URL's warning would fire on every one.
+							window.location.href = getUserConnectionUrl( { redirect_url: redirectUrl, from } );
+						} else {
+							disconnectUserSuccess();
+							setConnectionErrors( {} );
 						}
 					} else {
 						window.location.reload();
@@ -84,7 +92,7 @@ export default function useRestoreConnection() {
 					throw error;
 				} );
 		},
-		[ disconnectUserSuccess, setConnectionErrors, USER_CONNECTION_URL ]
+		[ disconnectUserSuccess, setConnectionErrors, redirectUrl, from ]
 	);
 
 	useEffect( () => {

@@ -4,5 +4,12 @@
 	"title": "Hello World",
 	"description": "A minimal example widget.",
 	"category": "demo",
-	"presentation": "full-bleed"
+	"presentation": "full-bleed",
+	"attributes": [
+		{
+			"id": "message",
+			"type": "text",
+			"label": "Message"
+		}
+	]
 }

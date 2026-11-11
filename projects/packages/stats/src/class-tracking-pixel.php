@@ -26,6 +26,13 @@ class Tracking_Pixel {
 	 */
 	const STATS_ARRAY_TO_STRING_FILTER = 'stats_array';
 
+	/**
+	 * Where the AMP pixel sends views, which AMP_Consent_Sanitizer matches on.
+	 *
+	 * @var string
+	 */
+	const AMP_PIXEL_URL = 'https://pixel.wp.com/g.gif';
+
 	const TRACKED_UTM_PARAMETERS = array(
 		'utm_id',
 		'utm_source',
@@ -185,36 +192,28 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 			$data['post']
 		);
 
-		// OFF (default): byte-for-byte identical to the historical output.
-		if ( ! Options::get_option( 'honor_cookie_consent' ) ) {
+		// Without the WP Consent API plugin there is no consent to honor, so the output stays byte-for-byte historical.
+		if ( ! function_exists( 'wp_has_consent' ) ) {
 			return "_stq = window._stq || [];\n" . $pushes;
 		}
 
-		// Fail closed when the WP Consent API plugin is active (an unavailable client-side API
-		// means "wait", not "fire"); fail open otherwise to preserve historical tracking.
-		return self::build_consent_gate( $pushes, ! function_exists( 'wp_has_consent' ) );
+		return self::build_consent_gate( $pushes );
 	}
 
 	/**
-	 * Wrap the tracking pushes in a WP Consent API gate.
+	 * Wrap the tracking pushes in a WP Consent API gate, checked in the browser because cached HTML is shared across visitors.
 	 *
-	 * The check runs in the browser because cached HTML is shared across visitors, deferred to
-	 * DOMContentLoaded (and re-run on the `wp_consent_type_defined` readiness event) so a
-	 * late-loading consent plugin is still honored. The check is idempotent.
-	 *
-	 * `_jpStatsFire.done` is set before the pushes, not after, so the gate is at-most-once even
-	 * if a push throws. Retrying can't recover: the stats sender assigns the beacon `src` before
-	 * any of its fallible DOM work, so a later exception means the view was already counted and
-	 * a replay would double-count it.
+	 * `_jpStatsFire.done` is set before the pushes so a push that throws is never replayed: the
+	 * sender assigns the beacon `src` first, so that view was already counted.
 	 *
 	 * @access private
-	 * @param string $pushes    The `_stq.push(...)` statements to gate.
-	 * @param bool   $fail_open Whether to fire when the client-side WP Consent API is unavailable.
+	 * @param string $pushes The `_stq.push(...)` statements to gate.
 	 * @return string
 	 */
-	private static function build_consent_gate( $pushes, $fail_open ) {
-		$fail_open_literal = $fail_open ? 'true' : 'false';
-
+	private static function build_consent_gate( $pushes ) {
+		// A delay-JS optimizer can load the WP Consent API after `load` without any event, so recheck on each script load (captured: it doesn't bubble).
+		// That recheck needs a stored allow, a type a banner has set, or an opt-out fallback: an empty fallback allows anyone, even where a delayed banner has yet to set opt-in.
+		// A stored deny wins: without a consent type, which some banners set only on the first visit, wp_has_consent() ignores it.
 		return sprintf(
 			'_stq = window._stq || [];
 function _jpStatsFire() {
@@ -222,31 +221,45 @@ function _jpStatsFire() {
 	_jpStatsFire.done = true;
 	%1$s
 }
+function _jpStatsStoredChoice() {
+	return typeof window.consent_api_get_cookie === "function" && !! window.consent_api ?
+		window.consent_api_get_cookie( window.consent_api.cookie_prefix + "_statistics" ) : "";
+}
+function _jpStatsSafeToRecheck() {
+	return _jpStatsStoredChoice() === "allow" || typeof window.wp_consent_type !== "undefined" || String( window.wp_fallback_consent_type || "" ).indexOf( "optout" ) !== -1;
+}
 function _jpStatsCheck() {
-	if ( typeof window.wp_has_consent === "function" ) {
-		var consented;
-		try {
-			consented = window.wp_has_consent( "statistics" );
-		} catch ( e ) {
-			consented = %2$s;
-		}
-		if ( consented ) { _jpStatsFire(); }
+	if ( _jpStatsFire.done || typeof window.wp_has_consent !== "function" ) { return; }
+	if ( window.waitfor_consent_hook && typeof window.wp_consent_type === "undefined" ) { return; }
+	var consented;
+	try {
+		consented = _jpStatsStoredChoice() !== "deny" && window.wp_has_consent( "statistics" );
+	} catch ( e ) {
+		window.console && console.warn( "Jetpack Stats: wp_has_consent() threw, so Stats waits for a consent change.", e );
 		return;
 	}
-	if ( %2$s ) { _jpStatsFire(); }
+	if ( consented ) { _jpStatsFire(); }
 }
 document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 	if ( event && event.detail && event.detail.statistics === "allow" ) { _jpStatsFire(); }
 } );
 document.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 window.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
+document.addEventListener( "load", function ( event ) {
+	if ( event && event.target && event.target.tagName === "SCRIPT" && _jpStatsSafeToRecheck() ) { _jpStatsCheck(); }
+}, true );
+window.addEventListener( "load", function () {
+	if ( typeof window.wp_has_consent !== "function" ) {
+		window.console && console.warn( "Jetpack Stats: the WP Consent API script has not loaded yet, so Stats waits for it and for a consent choice." );
+	}
+	_jpStatsCheck();
+}, { once: true } );
 if ( document.readyState === "loading" ) {
 	document.addEventListener( "DOMContentLoaded", _jpStatsCheck, { once: true } );
 } else {
 	_jpStatsCheck();
 }',
-			$pushes,
-			$fail_open_literal
+			$pushes
 		);
 	}
 
@@ -390,7 +403,7 @@ if ( document.readyState === "loading" ) {
 		$data['rand'] = 'RANDOM'; // AMP placeholder.
 		$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
 		$data         = array_map( 'rawurlencode', $data );
-		return add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
+		return add_query_arg( $data, self::AMP_PIXEL_URL );
 	}
 
 	/**
@@ -406,7 +419,43 @@ if ( document.readyState === "loading" ) {
 			return;
 		}
 
-		printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+		self::print_amp_pixel( $data );
+	}
+
+	/**
+	 * Print the AMP pixel, held for the page's `amp-consent` when the WP Consent API is active.
+	 *
+	 * @param array $data Array of data for the AMP pixel tracker.
+	 * @return void
+	 */
+	private static function print_amp_pixel( $data ) {
+		if ( ! function_exists( 'wp_has_consent' ) ) {
+			printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+			return;
+		}
+
+		// Only the AMP plugin runs AMP_Consent_Sanitizer.
+		if ( ! function_exists( 'amp_is_request' ) || ! amp_is_request() ) {
+			return;
+		}
+
+		printf( '<amp-pixel data-block-on-consent src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+	}
+
+	/**
+	 * Register AMP_Consent_Sanitizer when the WP Consent API is active.
+	 * Do not use this function directly, it is hooked into `amp_content_sanitizers`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $sanitizers Sanitizer classes and their args.
+	 * @return array
+	 */
+	public static function add_amp_consent_sanitizer( $sanitizers ) {
+		if ( function_exists( 'wp_has_consent' ) ) {
+			$sanitizers[ AMP_Consent_Sanitizer::class ] = array();
+		}
+		return $sanitizers;
 	}
 
 	/**
@@ -453,7 +502,7 @@ if ( document.readyState === "loading" ) {
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 */
 	public static function render_amp_footer( $data ) {
-		printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+		self::print_amp_pixel( $data );
 	}
 
 	/**

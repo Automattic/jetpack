@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Line up the values and the change badges in their own columns in the list widgets when a comparison is on.

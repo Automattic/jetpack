@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the missing icon on the remove button of the default image picker.

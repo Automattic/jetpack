@@ -1,8 +1,8 @@
 import { getLocaleData, resetLocaleData, setLocaleData } from '@wordpress/i18n';
 import {
 	formatScoreDelta,
+	getEstimatedPercent,
 	getScoreDelta,
-	getScoreTier,
 	getScoreTierColor,
 	getScoreTierLabel,
 } from './score-utils';
@@ -14,14 +14,13 @@ test( 'uses the shared score card color tokens for each tier', () => {
 } );
 
 test.each( [
-	[ 0, 'poor' ],
-	[ 50, 'poor' ],
-	[ 51, 'medium' ],
-	[ 70, 'medium' ],
-	[ 71, 'good' ],
-	[ 100, 'good' ],
-] )( 'keeps the existing score tier at %i', ( score, tier ) => {
-	expect( getScoreTier( Number( score ) ) ).toBe( tier );
+	[ 0, 0 ],
+	[ 20, 45 ],
+	[ 40, 90 ],
+	[ 80, 96 ],
+	[ 400, 99 ],
+] )( 'estimates a run %ss into a usual 40s as %s%% done', ( elapsed, percent ) => {
+	expect( getEstimatedPercent( elapsed, 40 ) ).toBe( percent );
 } );
 
 test.each( [

@@ -22,6 +22,7 @@ interface StoreSelect {
 	getSiteIsRegistering: () => boolean;
 	getUserIsConnecting: () => boolean;
 	getConnectionStatus: () => Record< string, unknown >;
+	getUserConnectionError?: () => unknown;
 }
 
 describe( 'useConnection', () => {
@@ -69,6 +70,24 @@ describe( 'useConnection', () => {
 			spySetApiNonce,
 		};
 	};
+
+	it.each( [
+		[ 'reports the store error', () => 'failed', 'failed' ],
+		[ 'reports false when an older store lacks the selector', undefined, false ],
+	] )( '%s', ( _name, selector, expected ) => {
+		let storeSelect: StoreSelect;
+		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) as StoreSelect ) ) );
+		const original = storeSelect.getUserConnectionError;
+		storeSelect.getUserConnectionError = selector;
+
+		try {
+			const { result } = renderHook( () => useConnection() );
+
+			expect( result.current.connectError ).toBe( expected );
+		} finally {
+			storeSelect.getUserConnectionError = original;
+		}
+	} );
 
 	it( 'set api root and nonce on start', () => {
 		const { spySetApiRoot, spySetApiNonce } = setupStubs();

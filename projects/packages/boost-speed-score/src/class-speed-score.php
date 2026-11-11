@@ -25,7 +25,7 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '0.6.0';
+	const PACKAGE_VERSION = '0.6.2';
 
 	/**
 	 * Array of module slugs that are currently active and can impact speed score.
@@ -214,6 +214,8 @@ class Speed_Score {
 			return $url;
 		}
 
+		$polled = array();
+
 		// Poll update if there is an ongoing request for scores with boost disabled.
 		$url_no_boost           = $this->get_boost_modules_disabled_url( $url );
 		$score_request_no_boost = $this->get_score_request_by_url( $url_no_boost );
@@ -227,11 +229,14 @@ class Speed_Score {
 		// Poll update if there is an ongoing request for scores with boost enabled.
 		$score_request = $this->get_score_request_by_url( $url );
 		if ( $score_request && $score_request->is_pending() ) {
+			$polled[] = $score_request;
 			$response = $score_request->poll_update();
 			if ( is_wp_error( $response ) ) {
 				return $response;
 			}
 		}
+
+		Speed_Score_Durations::record_finished_run( $polled );
 
 		// If this is a fresh install, there might not be any speed score history. In which case, we want to fetch the initial scores.
 		// While updating plugin from 1.2 -> 1.3, the history will be missing along with a non-pending score request due to data structure change.
@@ -317,6 +322,22 @@ class Speed_Score {
 	}
 
 	/**
+	 * How far along the pending run is, measured from the request with Boost: the only one the dashboard waits for.
+	 *
+	 * @param Speed_Score_Request|null $score_request Speed score request.
+	 *
+	 * @return array{elapsed: int, expected: int} Seconds since dispatch, and the seconds a run usually takes on this site.
+	 */
+	private function get_progress( $score_request ) {
+		$started = $score_request && $score_request->is_pending() ? $score_request->get_created() : microtime( true );
+
+		return array(
+			'elapsed'  => (int) round( microtime( true ) - $started ),
+			'expected' => Speed_Score_Durations::expected(),
+		);
+	}
+
+	/**
 	 * Prepare the speed score response.
 	 *
 	 * @param string              $url                    URL of the speed is requested for.
@@ -332,7 +353,9 @@ class Speed_Score {
 
 		$response = array();
 
-		if ( ( ! $score_request || $score_request->is_success() ) && ( ! $score_request_no_boost || $score_request_no_boost->is_success() ) ) {
+		// The site's own score is ready before the comparison run finishes; noBoost then reads the previous comparison.
+		$no_boost_failed = $score_request_no_boost && $score_request_no_boost->is_error();
+		if ( ( ! $score_request || $score_request->is_success() ) && ! $no_boost_failed ) {
 			$response['status'] = 'success';
 
 			$response['scores'] = array(
@@ -343,21 +366,26 @@ class Speed_Score {
 			// Only include noBoost scores if at least one module is enabled.
 			if ( $score_request && ! empty( $score_request->get_active_modules() ) ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
+				// Keeps the dashboard polling: only a poll collects the comparison result.
+				if ( $score_request_no_boost && $score_request_no_boost->is_pending() ) {
+					$response['scores']['noBoostPending'] = true;
+				}
 			}
 
 			$response['scores']['isStale'] = $history->is_stale();
 
 		} elseif ( ( $score_request && $score_request->is_error() ) || ( $score_request_no_boost && $score_request_no_boost->is_error() ) ) {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.
-			if ( $score_request->is_error() ) {
+			if ( $score_request && $score_request->is_error() ) {
 				// Serialized version of score request contains the status property and error description if any.
 				$response = $score_request->jsonSerialize();
 			} else {
 				$response = $score_request_no_boost->jsonSerialize();
 			}
 		} else {
-			// If no request ended up in error/success as previous conditions dictate, it means that either of them are in pending state.
-			$response['status'] = 'pending';
+			// The request with Boost is still pending.
+			$response['status']   = 'pending';
+			$response['progress'] = $this->get_progress( $score_request );
 		}
 
 		return rest_ensure_response( $response );

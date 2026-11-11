@@ -6,16 +6,14 @@ import {
 } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { MyJetpackRoutes } from '../../constants';
+import { getRouteHref } from '../../utils/route-href';
 import {
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_LEGACY_PRODUCTS,
 } from './constants';
-import type { TabPanel } from '@wordpress/components';
-import type { ComponentProps } from 'react';
-
-type TabPanelProps = ComponentProps< typeof TabPanel >;
+import type { MyJetpackSection } from './types';
 
 // Carried by a pricing page opened from a feature's details, so checkout can return there.
 const RETURN_FEATURE_PARAM = 'return_feature';
@@ -34,17 +32,49 @@ export function getFeaturePricingHref( path: string, feature: string ) {
 /**
  * Where checkout returns to when the pricing page was opened from a feature's details.
  *
- * Read from the hash rather than the router, so the detail cards outside a route can use it.
+ * Read from the URL rather than the router, so the detail cards outside a route can use it.
  *
- * @param hash - The page's location hash.
+ * @param route - The current route, such as `/features?return_feature=stats`.
  * @return The admin URL of the feature's details, or an empty string.
  */
-export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
-	const feature = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' ).get( RETURN_FEATURE_PARAM );
+export function getFeatureCheckoutReturnUrl( route = getRouteHref() ) {
+	const feature = new URLSearchParams( route.split( '?' )[ 1 ] ?? '' ).get( RETURN_FEATURE_PARAM );
 
 	return feature
 		? getMyJetpackUrl( `#${ MyJetpackRoutes.Features }?${ new URLSearchParams( { feature } ) }` )
 		: '';
+}
+
+// What an account connection started from Features brings back: the open feature, layout, search, tag
+// and filter. A status filter is left behind, since connecting can move the feature out of it.
+const CONNECT_RETURN_PARAMS = [ 'feature', 'view', 'search', 'module_tag', 'filter' ];
+const STATUS_FILTERS = [ 'available', 'active', 'inactive' ];
+
+/**
+ * Where an account connection started from Features returns to.
+ *
+ * Read from the URL rather than the router, so it still answers once an install has replaced the button that asked.
+ *
+ * @param route - The current route, such as `/features?view=list`.
+ * @param extra - More query values for the return, such as the click it comes back for.
+ * @return The admin URL of the same Features view.
+ */
+export function getFeatureConnectReturnUrl(
+	route = getRouteHref(),
+	extra: Record< string, string > = {}
+) {
+	const current = new URLSearchParams( route.split( '?' )[ 1 ] ?? '' );
+	const kept = new URLSearchParams();
+	CONNECT_RETURN_PARAMS.forEach( key => {
+		const value = current.get( key );
+		if ( value && ! ( key === 'filter' && STATUS_FILTERS.includes( value ) ) ) {
+			kept.set( key, value );
+		}
+	} );
+	Object.entries( extra ).forEach( ( [ key, value ] ) => kept.set( key, value ) );
+	const query = kept.toString();
+
+	return getMyJetpackUrl( `#${ MyJetpackRoutes.Features }${ query ? `?${ query }` : '' }` );
 }
 
 /**
@@ -63,8 +93,8 @@ export function getModulesManagementUrl( classicUrl: string ): string {
  *
  * @return The sections for the My Jetpack tab panel.
  */
-export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
-	const tabs = [
+export function getMyJetpackSections() {
+	const tabs: { name: MyJetpackSection; title: string }[] = [
 		{
 			name: MY_JETPACK_SECTION_OVERVIEW,
 			title: __( 'Overview', 'jetpack-my-jetpack' ),

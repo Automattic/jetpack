@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Settings: Show the classic Modules list when the REST API rejects authentication.

@@ -9,43 +9,43 @@ import styles from './styles.module.scss';
 export const getFixerMessage = fixable => {
 	switch ( fixable.fixer ) {
 		case 'replace':
-			return __( 'Jetpack Scan will replace the affected file or directory.', 'jetpack-protect' );
+			return __( 'Jetpack will replace the affected file or directory.', 'jetpack-protect' );
 		case 'delete':
-			return __( 'Jetpack Scan will delete the affected file or directory.', 'jetpack-protect' );
+			return __( 'Jetpack will delete the affected file or directory.', 'jetpack-protect' );
 		case 'update':
 			if ( fixable.target ) {
 				return sprintf(
 					/* translators: %s: Version that the plugin will be upgraded to  */
 					__(
-						'Jetpack Scan will update the vulnerable extension to a newer version %s.',
+						'Jetpack will update the vulnerable extension to a newer version %s.',
 						'jetpack-protect'
 					),
 					fixable.target
 				);
 			}
 			return __(
-				'Jetpack Scan will update the vulnerable extension to a newer version.',
+				'Jetpack will update the vulnerable extension to a newer version.',
 				'jetpack-protect'
 			);
 		case 'edit':
-			return __( 'Jetpack Scan will edit the affected file or directory.', 'jetpack-protect' );
+			return __( 'Jetpack will edit the affected file or directory.', 'jetpack-protect' );
 		case 'rollback':
 			if ( fixable.target ) {
 				return sprintf(
 					/* translators: %s: Version that the plugin will be upgraded to  */
 					__(
-						'Jetpack Scan will rollback the affected file to the version from %s.',
+						'Jetpack will rollback the affected file to the version from %s.',
 						'jetpack-protect'
 					),
 					fixable.target
 				);
 			}
 			return __(
-				'Jetpack Scan will rollback the affected file to an older (clean) version.',
+				'Jetpack will rollback the affected file to an older (clean) version.',
 				'jetpack-protect'
 			);
 		default:
-			return __( 'Jetpack Scan will resolve the threat.', 'jetpack-protect' );
+			return __( 'Jetpack will resolve the threat.', 'jetpack-protect' );
 	}
 };
 

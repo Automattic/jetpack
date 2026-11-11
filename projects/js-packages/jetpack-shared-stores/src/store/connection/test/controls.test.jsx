@@ -104,8 +104,16 @@ describe( 'controls', () => {
 
 		it( 'rejects with error', async () => {
 			const error = new Error( 'failed' );
+			const invalidateResolution = jest.fn();
+			const dispatch = () => ( { invalidateResolution } );
 			getAuthorizationUrl.mockRejectedValue( error );
-			await expect( connectUser( { resolveSelect } )( {} ) ).rejects.toThrow( error );
+
+			await expect(
+				connectUser( { dispatch, resolveSelect } )( { redirectUri: 'REDIRECT_URI' } )
+			).rejects.toThrow( error );
+			expect( invalidateResolution ).toHaveBeenCalledWith( 'getAuthorizationUrl', [
+				'REDIRECT_URI',
+			] );
 		} );
 	} );
 

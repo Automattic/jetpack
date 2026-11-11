@@ -1,13 +1,26 @@
-// The plain form inside stays unseen until the script mounts the app or
-// leaves it in place, so the swap does not flash. A noscript style reveals it.
+// The server draws the app's box, unseen until the script mounts the app or
+// leaves it in place, so the swap neither flashes nor moves the page. A
+// noscript style reveals it.
 .jetpack-comments:not(.is-mounted):not(.is-plain) {
 	visibility: hidden;
 }
 
-.jetpack-comments.is-mounted {
+// Its name, email and website, which the app asks for in its dialog instead.
+.jetpack-comments:not(.is-plain) .jetpack-comments__plain {
+	display: none;
+}
+
+.jetpack-comments {
 	--jetpack-comments-pad: 1em;
 	// The avatar's, which the submit's height matches.
 	--jetpack-comments-avatar-size: 40px;
+}
+
+// Past a theme's `.comment div`, which Reply moves the form under, yet below
+// every rule of ours with two classes. Popovers and block content keep theirs.
+.jetpack-comments:not(.is-plain),
+div.jetpack-comments:where(:not(.is-plain)) div:where(:not(.components-popover, .components-popover *, .editor-styles-wrapper *)) {
+	padding: 0;
 }
 
 // One box around the textarea and the submit row, in the post's own colours.
@@ -16,6 +29,12 @@
 	position: relative;
 	border: 2px solid currentColor;
 	overflow-anchor: none;
+}
+
+// No box: in a theme's grid or flex form, an empty one adds a gap as the app
+// mounts. Here, not in the dialog's stylesheet, which loads with the dialog.
+jetpack-comments-dialog {
+	display: contents;
 }
 
 .jetpack-comments__visually-hidden {

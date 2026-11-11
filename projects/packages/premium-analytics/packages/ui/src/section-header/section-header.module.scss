@@ -168,16 +168,6 @@ $section-header-visual-condensed-size: 44px;
 	}
 }
 
-.notice {
-	margin-block-start: var(--wpds-dimension-gap-md);
-
-	// The slot's occupant may have nothing to say and render nothing; the
-	// wrapper must not keep its margin then.
-	&:empty {
-		display: none;
-	}
-}
-
 /*
  * Pinned: a sticky band that stops at the top of the surface's scroll
  * container while the content scrolls under it. Opaque, in the page header's

@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\IP;
  */
 class Utils {
 
-	const PACKAGE_VERSION = '0.7.0';
+	const PACKAGE_VERSION = '0.7.1';
 
 	/**
 	 * Get the current user's IP address.
@@ -20,35 +20,76 @@ class Utils {
 	 * @return string|false IP address.
 	 */
 	public static function get_ip() {
-		$trusted_header_data = get_site_option( 'trusted_ip_header' );
-		if ( isset( $trusted_header_data->trusted_header ) && isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
-			$ip            = wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it below.
-			$segments      = $trusted_header_data->segments;
-			$reverse_order = $trusted_header_data->reverse;
-		} else {
-			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it below.
+		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
+		$ip          = self::get_ip_from_trusted_header( $remote_addr );
+		if ( $ip ) {
+			return $ip;
 		}
 
-		if ( ! $ip ) {
+		return self::pick_ip( $remote_addr, 1, false, $remote_addr );
+	}
+
+	/**
+	 * Whether the request carries the configured trusted header but `get_ip()` couldn't take an
+	 * address from it, so it fell back to `REMOTE_ADDR`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_trusted_header_unresolved() {
+		return false === self::get_ip_from_trusted_header( null );
+	}
+
+	/**
+	 * Read the address from the configured trusted header.
+	 *
+	 * @param string|null $short_list_fallback Address to use when the header has fewer entries than the configured segments.
+	 * @return string|false|null IP address, false if the header yields no valid address, or null if no header is configured or the request lacks it.
+	 */
+	private static function get_ip_from_trusted_header( $short_list_fallback ) {
+		$trusted_header_data = get_site_option( 'trusted_ip_header' );
+		if ( ! isset( $trusted_header_data->trusted_header ) || ! isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
+			return null;
+		}
+
+		// The stored header setting can go stale, leaving the header empty, too short, or without a valid address.
+		return self::pick_ip(
+			wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
+			$trusted_header_data->segments ?? 1,
+			! empty( $trusted_header_data->reverse ),
+			$short_list_fallback
+		);
+	}
+
+	/**
+	 * Pick one address out of a comma-separated list.
+	 *
+	 * @param string|null $value         Raw list of addresses.
+	 * @param int         $segments      Which entry to use, counted from the end of the list.
+	 * @param bool        $reverse_order Whether to reverse the list first.
+	 * @param string|null $fallback      Address to use when the list has fewer entries than `$segments`.
+	 * @return string|false IP address.
+	 */
+	private static function pick_ip( $value, $segments, $reverse_order, $fallback ) {
+		if ( ! $value ) {
 			return false;
 		}
 
-		$ips = explode( ',', $ip );
-		if ( ! isset( $segments ) || ! $segments ) {
+		$ips = explode( ',', $value );
+		if ( ! $segments ) {
 			$segments = 1;
 		}
-		if ( isset( $reverse_order ) && $reverse_order ) {
+		if ( $reverse_order ) {
 			$ips = array_reverse( $ips );
 		}
 		$ip_count = count( $ips );
 		if ( 1 === $ip_count ) {
 			return self::clean_ip( $ips[0] );
 		} elseif ( $ip_count >= $segments ) {
-			$the_one = $ip_count - $segments;
-			return self::clean_ip( $ips[ $the_one ] );
-		} else {
-			return self::clean_ip( isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
+			return self::clean_ip( $ips[ $ip_count - $segments ] );
 		}
+		return $fallback ? self::clean_ip( $fallback ) : false;
 	}
 
 	/**
