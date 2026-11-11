@@ -45,7 +45,7 @@ const WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_widget_types';
  *
  * @since 0.9.0
  */
-const WIDGET_API_VERSION = '2.2.0';
+const WIDGET_API_VERSION = '2.3.0';
 
 /**
  * Returns the i18n schema describing which widget metadata fields are
@@ -547,7 +547,7 @@ add_action( Widget_Type_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_w
  * A layout instance carries only `type` and `attributes`, and the host titles a card by its type, so a
  * composition that places one implementation under several titles registers one type per title.
  *
- * @since $$next-version$$
+ * @since 0.17.0
  *
  * @return array<string, array{implementation: string, title: string, help?: string, icon?: string}> Types keyed by name.
  */
@@ -625,7 +625,7 @@ function get_detail_page_widget_types() {
  * Registers the detail page widget types whose implementation is registered: its modules,
  * attributes, actions and plan feature under the type's own name, title, help and icon.
  *
- * @since $$next-version$$
+ * @since 0.17.0
  *
  * @param Widget_Type_Registry|null $registry Optional. The registry being hydrated. Defaults to the main instance.
  * @return void

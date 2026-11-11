@@ -147,28 +147,55 @@ describe( 'normalizeReportParams', () => {
 		expect( result.step ).toBe( step );
 	} );
 
-	it( 'recalculates primary but preserves comparison from URL', () => {
-		const compFrom = '2025-12-20T00:00:00.000-05:00';
-		const compTo = '2026-01-18T23:59:59.999-05:00';
-
+	it.each( [
+		[ 'the comparison preset from the recomputed primary', 'previous-period' ],
+		[ 'the previous period for a comparison preset the primary does not offer', 'previous-week' ],
+	] as const )( 'measures %s', ( _name, comparePreset ) => {
 		const result = normalizeReportParams( {
 			from: STALE_FROM,
 			to: STALE_TO,
 			preset: 'last-30-days',
 			interval: 'day',
 			comp: '1',
-			compare_from: compFrom,
-			compare_to: compTo,
-			compare_preset: 'previous-period',
+			compare_from: '2025-12-20T00:00:00.000-05:00',
+			compare_to: '2026-01-18T23:59:59.999-05:00',
+			compare_preset: comparePreset,
 		} );
 
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
 		expect( result.comp ).toBe( '1' );
+		expect( result.compare_from ).toBe( '2025-12-21T00:00:00.000-05:00' );
+		expect( result.compare_to ).toBe( '2026-01-19T23:59:59.999-05:00' );
+		expect( result.compare_preset ).toBe( 'previous-period' );
+	} );
+
+	it.each( [
+		[
+			'a hand-picked window’s comparison',
+			{ preset: 'custom', compare_preset: 'previous-period' },
+			'previous-period',
+		],
+		[ 'comparison dates that no preset names', { preset: 'last-30-days' }, undefined ],
+	] as const )( 'keeps %s as given', ( _name, extra, comparePreset ) => {
+		const compFrom = '2025-12-20T00:00:00.000-05:00';
+		const compTo = '2026-01-18T23:59:59.999-05:00';
+
+		const result = normalizeReportParams( {
+			from: STALE_FROM,
+			to: STALE_TO,
+			interval: 'day',
+			comp: '1',
+			compare_from: compFrom,
+			compare_to: compTo,
+			...extra,
+		} );
+
+		expect( result.comp ).toBe( '1' );
 		expect( result.compare_from ).toBe( compFrom );
 		expect( result.compare_to ).toBe( compTo );
-		expect( result.compare_preset ).toBe( 'previous-period' );
+		expect( result.compare_preset ).toBe( comparePreset );
 	} );
 
 	// The router JSON-parses search values, so an unquoted URL (hand-edited or
@@ -186,7 +213,6 @@ describe( 'normalizeReportParams', () => {
 			comp: 1 as unknown as '1',
 			compare_from: compFrom,
 			compare_to: compTo,
-			compare_preset: 'previous-period',
 		} );
 
 		expect( result.comp ).toBe( '1' );
@@ -300,6 +326,23 @@ describe( 'normalizeReportParams', () => {
 		expect( result.preset ).toBe( 'all-time' );
 		expect( result.from ).toBe( '2023-01-01T00:00:00.000-05:00' );
 		expect( result.to ).toBe( FRESH_TO );
+	} );
+
+	it( 'keeps the comparison as given when the all-time start cannot be read', () => {
+		const result = normalizeReportParams( {
+			from: '2023-01-01T00:00:00.000+99:00',
+			to: STALE_TO,
+			preset: 'all-time',
+			interval: 'day',
+			comp: '1',
+			compare_from: '2025-12-20T00:00:00.000-05:00',
+			compare_to: '2026-01-18T23:59:59.999-05:00',
+			compare_preset: 'previous-period',
+		} );
+
+		expect( result.compare_from ).toBe( '2025-12-20T00:00:00.000-05:00' );
+		expect( result.compare_to ).toBe( '2026-01-18T23:59:59.999-05:00' );
+		expect( result.compare_preset ).toBe( 'previous-period' );
 	} );
 
 	it( 'rebuilds a year preset that arrives without its range', () => {

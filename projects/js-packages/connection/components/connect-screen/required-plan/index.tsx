@@ -37,20 +37,15 @@ function ConnectScreenRequiredPlan( {
 	logo,
 	rna = false,
 }: Props ) {
-	const {
-		handleRegisterSite,
-		siteIsRegistering,
-		userIsConnecting,
-		registrationError,
-		isOfflineMode,
-	} = useConnection( {
-		registrationNonce,
-		redirectUri,
-		apiRoot,
-		apiNonce,
-		autoTrigger,
-		from,
-	} );
+	const { handleRegisterSite, siteIsRegistering, userIsConnecting, connectError, isOfflineMode } =
+		useConnection( {
+			registrationNonce,
+			redirectUri,
+			apiRoot,
+			apiNonce,
+			autoTrigger,
+			from,
+		} );
 
 	const productSlug = wpcomProductSlug ? wpcomProductSlug : '';
 
@@ -65,11 +60,11 @@ function ConnectScreenRequiredPlan( {
 		from,
 	} );
 
-	const displayButtonError = Boolean( registrationError || checkoutError );
+	const displayButtonError = Boolean( connectError || checkoutError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
 	const handleButtonClick = productSlug ? handleCheckoutWorkflow : handleRegisterSite;
-	const errorCode = getRegistrationErrorCode( registrationError );
-	const errorDisplay = getRegistrationErrorDisplay( registrationError, isOfflineMode );
+	const errorCode = getRegistrationErrorCode( connectError );
+	const errorDisplay = getRegistrationErrorDisplay( connectError, isOfflineMode );
 
 	return (
 		<ConnectScreenRequiredPlanVisual

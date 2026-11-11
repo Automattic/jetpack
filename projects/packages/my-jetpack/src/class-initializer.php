@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
@@ -47,7 +48,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.16.0';
+	const PACKAGE_VERSION = '6.17.1';
 
 	/**
 	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
@@ -227,7 +228,19 @@ class Initializer {
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+			// Standalone plugins reach admin-ui only through the admin menu, which admin-ajax never builds.
+			if ( method_exists( Admin_Shell::class, 'init' ) ) {
+				Admin_Shell::init();
+			}
+		}
+
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
+
+		// Not on admin_init: modules are usually toggled over REST, where admin_init never fires.
+		add_action( 'jetpack_activate_module', array( Historically_Active_Modules::class, 'expire_refresh' ) );
+		add_action( 'jetpack_deactivate_module', array( Historically_Active_Modules::class, 'expire_refresh' ) );
 
 		// Nothing else gets to talk over the takeover. See both methods for why it
 		// takes two hooks rather than one.
@@ -243,7 +256,7 @@ class Initializer {
 		// Sets up JITMS.
 		JITM::configure();
 
-		// Add "Jetpack Manage" menu item.
+		// Track whether the user is an agency, for the Automattic for Agencies banner.
 		Jetpack_Manage::init();
 
 		/**
@@ -854,6 +867,56 @@ class Initializer {
 	}
 
 	/**
+	 * Register My Jetpack with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		// A site that still needs onboarding is redirected to the takeover, which isn't a wp-build page.
+		if ( ! self::current_user_can_access_page() || ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) || null !== self::get_onboarding_redirect_args_for_step( '' ) ) {
+			return $members;
+		}
+
+		$members['my-jetpack'] = array(
+			'build_prefix' => 'jetpack_my_jetpack',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-my-jetpack/init' ),
+			'title'        => 'My Jetpack',
+			'capability'   => 'edit_posts',
+			'handles'      => array( 'my_jetpack_main_app', 'my_jetpack_ai_app', 'jetpack-script-data', 'jetpack-connection', 'my-jetpack-header-controls', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready My Jetpack's routes and page data while another dashboard's page is open.
+	 *
+	 * Skips the screen ID alias: on another page it would make the generated enqueue boot a second app.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		require_once dirname( __DIR__ ) . '/build/build.php';
+
+		if ( function_exists( 'jetpack_my_jetpack_register_script_modules' ) ) {
+			jetpack_my_jetpack_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+		WP_Build_Polyfills::register(
+			'my-jetpack',
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+		);
+
+		// On the host page the shell removes this again; the guest endpoint runs it.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+	}
+
+	/**
 	 * Require the generated build file with the screen ID aliased across its enqueue check.
 	 *
 	 * @see WP_Build_Screen_Id::load_with_alias()
@@ -998,12 +1061,13 @@ class Initializer {
 				// wp_localize_script() decodes the HTML entities WordPress stores names with.
 				'userFirstName'          => (string) wp_get_current_user()->first_name,
 				'lifecycleStats'         => array(
-					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
-					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
-					'brokenModules'             => Red_Bubble_Notifications::check_for_broken_modules(),
-					'isSiteConnected'           => $connection->is_connected(),
-					'isUserConnected'           => $connection->is_user_connected(),
-					'modules'                   => self::get_active_modules(),
+					'jetpackPlugins'                      => self::get_installed_jetpack_plugins(),
+					'historicallyActiveModules'           => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
+					'historicallyActiveModulesRefreshDue' => Historically_Active_Modules::is_refresh_due(),
+					'brokenModules'                       => Red_Bubble_Notifications::check_for_broken_modules(),
+					'isSiteConnected'                     => $connection->is_connected(),
+					'isUserConnected'                     => $connection->is_user_connected(),
+					'modules'                             => self::get_active_modules(),
 				),
 				'recommendedModules'     => array(
 					'modules'    => self::get_recommended_modules(),
@@ -1110,15 +1174,8 @@ class Initializer {
 	 * @return string The management URL.
 	 */
 	public static function get_modules_management_url( $args = array(), &$eligible = null ) {
-		$eligible = false;
-		/**
-		 * Filters whether links to the classic Modules screen may send people to the Features tab in My Jetpack instead.
-		 *
-		 * @since 6.11.0
-		 * @param bool $available True to allow the Features tab; false keeps the classic Modules screen, for a host where My Jetpack is not shown.
-		 */
-		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
-		$available = $available && self::is_modules_to_features_enabled();
+		$eligible  = false;
+		$available = self::host_shows_my_jetpack() && self::is_modules_to_features_enabled();
 		$classic   = add_query_arg( array_merge( urlencode_deep( $args ), array( 'page' => 'jetpack_modules' ) ), admin_url( 'admin.php' ) );
 		if (
 			! $available
@@ -1555,7 +1612,38 @@ class Initializer {
 	}
 
 	/**
-	 * Whether settings move to My Jetpack: the flag is on and My Jetpack's page is available.
+	 * Whether the host shows My Jetpack.
+	 *
+	 * @return bool
+	 */
+	private static function host_shows_my_jetpack() {
+		/**
+		 * Filters whether the host shows My Jetpack, which lets Modules links open Features and settings move to My Jetpack.
+		 *
+		 * @since 6.11.0
+		 * @since 6.17.1 False also keeps settings on the Settings screen.
+		 * @param bool $available True to allow the Features tab; false keeps the classic Modules and Settings screens, for a host where My Jetpack is not shown.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+	}
+
+	/**
+	 * Whether settings move to My Jetpack on this site: the flag is on, My Jetpack initializes, and the host shows it.
+	 *
+	 * It needs no admin menu, so URL builders that also run in REST use it, while page loads use `is_settings_consolidation_enabled()`.
+	 *
+	 * @since 6.17.1
+	 *
+	 * @return bool
+	 */
+	public static function is_settings_consolidation_on_for_site() {
+		return Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG )
+			&& self::should_initialize()
+			&& self::host_shows_my_jetpack();
+	}
+
+	/**
+	 * Whether settings move to My Jetpack: consolidation is on for the site and My Jetpack's page is available.
 	 *
 	 * Without the page, moved settings would have nowhere to go, so they stay on the Settings screen.
 	 *
@@ -1564,11 +1652,11 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_settings_consolidation_enabled() {
-		return Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG ) && self::is_admin_page_available();
+		return self::is_settings_consolidation_on_for_site() && self::is_admin_page_available();
 	}
 
 	/**
-	 * Point the module's configure URL at its settings panel while the flag is on.
+	 * Point the module's configure URL at its settings panel while settings consolidation is on for the site.
 	 *
 	 * @since 6.16.0
 	 *
@@ -1589,9 +1677,7 @@ class Initializer {
 	}
 
 	/**
-	 * Where a module's settings live: its panel in Features while the flag is on, `$fallback` otherwise.
-	 *
-	 * Reads the flag alone, not `is_settings_consolidation_enabled()`: that one needs the admin menu, which REST requests never build.
+	 * Where a module's settings live: its panel in Features while settings consolidation is on for the site, `$fallback` otherwise.
 	 *
 	 * @since 6.16.0
 	 *
@@ -1600,7 +1686,7 @@ class Initializer {
 	 * @return string
 	 */
 	public static function resolve_settings_url( $module, $fallback ) {
-		if ( ! in_array( $module, self::SETTINGS_PANEL_MODULES, true ) || ! Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG ) ) {
+		if ( ! in_array( $module, self::SETTINGS_PANEL_MODULES, true ) || ! self::is_settings_consolidation_on_for_site() ) {
 			return $fallback;
 		}
 

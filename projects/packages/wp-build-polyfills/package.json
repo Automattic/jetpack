@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-wp-build-polyfills",
-	"version": "0.7.3",
+	"version": "0.7.4",
 	"private": true,
 	"description": "Polyfills for WordPress Core packages not available or incomplete in older WP versions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wp-build-polyfills/#readme",
@@ -56,7 +56,7 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
-		"@babel/core": "7.29.7",
+		"@babel/core": "7.29.13",
 		"@wordpress/views": "~3.1.0"
 	}
 }

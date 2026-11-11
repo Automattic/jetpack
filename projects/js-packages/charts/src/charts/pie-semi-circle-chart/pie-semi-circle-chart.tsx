@@ -291,7 +291,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		chartRef,
 		svgRef,
 		selectedArc,
-		getSegmentHandlers,
+		getSegmentProps,
 		getKeyboardTooltipAnchor,
 		selectionOutputProps,
 		chartProps,
@@ -300,6 +300,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		withTooltips,
 		tooltipOffsetX,
 		tooltipOffsetY,
+		legendValueDisplay,
 	} );
 
 	if ( ! isValid ) {
@@ -412,10 +413,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 										arcs.map( arcDatum => (
 											<g
 												key={ arcDatum.data.label }
-												{ ...getSegmentHandlers(
-													arcDatum.data,
-													navigationArcs.indexOf( arcDatum )
-												) }
+												{ ...getSegmentProps( arcDatum.data, navigationArcs.indexOf( arcDatum ) ) }
 											>
 												<path
 													d={ path( arcDatum ) || '' }

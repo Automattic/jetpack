@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "6.2.0",
+	"version": "6.2.1",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -47,6 +47,11 @@
 			"jetpack:src": "./components/gravatar/index.tsx",
 			"types": "./build/components/gravatar/index.d.ts",
 			"default": "./build/components/gravatar/index.js"
+		},
+		"./highlight-banner": {
+			"jetpack:src": "./components/highlight-banner/index.tsx",
+			"types": "./build/components/highlight-banner/index.d.ts",
+			"default": "./build/components/highlight-banner/index.js"
 		},
 		"./jetpack-footer": {
 			"jetpack:src": "./components/jetpack-footer/index.tsx",
@@ -141,7 +146,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.29.7",
+		"@babel/core": "7.29.13",
 		"@jest/globals": "30.5.2",
 		"@storybook/addon-docs": "10.6.3",
 		"@storybook/react": "10.6.3",

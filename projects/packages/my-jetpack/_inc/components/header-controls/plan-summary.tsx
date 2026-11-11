@@ -1,3 +1,4 @@
+import { CONNECTION_FROM } from '@automattic/jetpack-connection';
 import { __, _n } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -31,6 +32,7 @@ const PlanSummary: FC< { purchases: Purchase[] | null; hasFailed?: boolean } > =
 			<PlanSectionFooter
 				numberOfPurchases={ 0 }
 				hasComplete={ hasComplete }
+				from={ CONNECTION_FROM?.myJetpackHeaderPlans }
 				tracksProperties={ HEADER_TRACKS_PROPERTIES }
 			/>
 		) : null;
@@ -62,6 +64,7 @@ const PlanSummary: FC< { purchases: Purchase[] | null; hasFailed?: boolean } > =
 				<PlanSectionFooter
 					numberOfPurchases={ purchases.length }
 					hasComplete={ hasComplete }
+					from={ CONNECTION_FROM?.myJetpackHeaderPlans }
 					tracksProperties={ HEADER_TRACKS_PROPERTIES }
 				/>
 			) }

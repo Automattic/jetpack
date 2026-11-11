@@ -209,6 +209,7 @@ function PostTrafficActivityDashboardStory( {
  * Mirrors the production placement (full width × 2 rows).
  */
 export const WidgetDashboardWithWidget: StoryObj< PostTrafficActivityDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PostTrafficActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
