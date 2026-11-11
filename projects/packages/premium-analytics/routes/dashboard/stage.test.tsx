@@ -1437,13 +1437,13 @@ describe( 'Dashboard customizing', () => {
 		expect( screen.queryByText( 'interval control' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers Customize as a header button, withdrawn while customizing and focused on leaving', async () => {
+	it( 'offers Customize as a header button, withdrawn while customizing, keeping focus across the swap', async () => {
 		render( <Dashboard /> );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
 		expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Done' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
 

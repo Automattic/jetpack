@@ -166,7 +166,7 @@ describe( 'detail-page-customize', () => {
 	} );
 
 	describe( 'DetailPageActions', () => {
-		it( 'offers Customize as a button after the page actions, outside the menu', async () => {
+		it( 'offers Customize as a button outside the menu', async () => {
 			const user = userEvent.setup();
 			const onCustomize = jest.fn();
 			render(
@@ -247,7 +247,7 @@ describe( 'detail-page-customize', () => {
 			}
 		);
 
-		it( 'leaves focus alone when customize mode starts on its own, as an empty layout does', () => {
+		it( 'leaves focus alone at load and when customize mode starts on its own, as an empty layout does', () => {
 			const dashboardActions = <button>Cancel</button>;
 			const { rerender } = render(
 				<DetailPageActions
@@ -256,6 +256,7 @@ describe( 'detail-page-customize', () => {
 					editingActions={ dashboardActions }
 				/>
 			);
+			expect( document.body ).toHaveFocus();
 
 			rerender(
 				<DetailPageActions
