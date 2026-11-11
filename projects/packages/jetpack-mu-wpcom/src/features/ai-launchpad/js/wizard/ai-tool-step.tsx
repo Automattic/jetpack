@@ -35,8 +35,8 @@ interface Props {
 	onConnected: ( tool: AiTool, alreadyConnected?: boolean ) => void;
 	// Whether a connected tool has only read-only access.
 	readOnly: boolean;
-	// Called on each check with whether the account's MCP access is read only.
-	onReadOnlyChange: ( readOnly: boolean ) => void;
+	// Called on each check with the account's MCP access level.
+	onReadOnlyChange: ( accessLevel: string | null ) => void;
 	// Called each time the prompt for another AI tool is copied.
 	onPromptCopied: () => void;
 	titleRef?: Ref< HTMLHeadingElement >;
@@ -55,7 +55,7 @@ interface Props {
  * @param props.connected          - The AI tools shown as connected.
  * @param props.onConnected        - Called with the AI tool once its new connection shows up.
  * @param props.readOnly           - Whether a connected tool has only read-only access.
- * @param props.onReadOnlyChange   - Called on each check with whether the account's access is read only.
+ * @param props.onReadOnlyChange   - Called on each check with the account's MCP access level.
  * @param props.onPromptCopied     - Called each time the prompt for another AI tool is copied.
  * @param props.titleRef           - Ref to the view title, focused when the view opens.
  * @return The AI tool view.
@@ -120,7 +120,7 @@ export default function AiToolStep( {
 				if ( stopped || ! existing.length ) {
 					return;
 				}
-				onReadOnlyChange( isReadOnlyAccess( data?.access_level ) );
+				onReadOnlyChange( data?.access_level ?? null );
 				setExistingTools( existing );
 				existing.forEach( tool => onConnected( tool, true ) );
 			} )
@@ -144,7 +144,7 @@ export default function AiToolStep( {
 						return;
 					}
 					const readOnlyAccess = isReadOnlyAccess( data?.access_level );
-					onReadOnlyChange( readOnlyAccess );
+					onReadOnlyChange( data?.access_level ?? null );
 					const newTools = findNewConnections(
 						data?.connections ?? [],
 						clicked,
