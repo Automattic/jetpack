@@ -3524,9 +3524,10 @@ class Manager {
 		}
 
 		// WordPress.com answers only a claim it doesn't block; without an answer, keep trunk's vacant-slot rule.
-		$wpcom_decided       = $send_owner_claim && is_array( $token_details ) && array_key_exists( 'connection_owner', $token_details );
+		$wpcom_answer        = $send_owner_claim && is_array( $token_details ) && isset( $token_details['connection_owner'] ) ? (bool) $token_details['connection_owner'] : null;
+		$wpcom_decided       = null !== $wpcom_answer;
 		$is_connection_owner = $wpcom_decided
-			? $token_details['connection_owner']
+			? $wpcom_answer
 			: $can_manage_connection && ! $this->has_connected_owner() && $this->can_fill_unconnected_owner_slot( $current_user_id );
 		$switched_by_wpcom   = $wpcom_decided && $is_connection_owner && $recorded_owner_id && $recorded_owner_id !== $current_user_id;
 
