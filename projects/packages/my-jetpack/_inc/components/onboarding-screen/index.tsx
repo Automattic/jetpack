@@ -1,7 +1,7 @@
 import { Container, Col } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
-import { Button } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { lazy, Suspense, useCallback, useState } from 'react';
@@ -10,6 +10,7 @@ import { useFullScreen } from '../../hooks/use-fullscreen';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import Testimonials from '../testimonials';
 import ConnectionForm from './connection-form/connection-form';
+import { withLoadLimit } from './load-limit';
 import styles from './styles.module.scss';
 import type { ComponentType, FC, ReactNode } from 'react';
 
@@ -34,9 +35,12 @@ const ConnectScreen: FC< { children?: ReactNode } > = ( { children } ) => (
 	</Container>
 );
 
+// The two ways out; the wizard reads its storage scope off the page itself.
+type WizardLinks = Pick< OnboardingWizardState, 'exitUrl' | 'dashboardUrl' >;
+
 // Stands in for a wizard that failed to load, keeping its skip: with the flag on,
 // My Jetpack keeps sending a site-only connection back here.
-const WizardFallback: FC< OnboardingWizardState > = ( { exitUrl, dashboardUrl } ) => {
+const WizardFallback: FC< WizardLinks > = ( { exitUrl, dashboardUrl } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 	const [ isSkipping, setIsSkipping ] = useState( false );
 
@@ -67,9 +71,18 @@ const WizardFallback: FC< OnboardingWizardState > = ( { exitUrl, dashboardUrl } 
 	);
 };
 
+/*
+ * How long the wizard's chunk gets before the single screen stands in. Webpack
+ * waits 120s on a hung request, which is two minutes of a blank dark window.
+ */
+const WIZARD_LOAD_LIMIT_MS = 15000;
+
 // A chunk of its own, so the single screen every flag-off site loads leaves out the wizard's art.
-const Wizard = lazy< ComponentType< OnboardingWizardState > >( () =>
-	import( /* webpackChunkName: "onboarding-wizard" */ './wizard' ).then(
+const Wizard = lazy< ComponentType< WizardLinks > >( () =>
+	withLoadLimit(
+		import( /* webpackChunkName: "onboarding-wizard" */ './wizard' ),
+		WIZARD_LOAD_LIMIT_MS
+	).then(
 		module => ( { default: module.Wizard } ),
 		error => {
 			// eslint-disable-next-line no-console
@@ -77,6 +90,16 @@ const Wizard = lazy< ComponentType< OnboardingWizardState > >( () =>
 			return { default: WizardFallback };
 		}
 	)
+);
+
+// The window the wizard opens into, saying it is busy rather than sitting blank.
+const WizardLoading: FC = () => (
+	<div className={ styles[ 'wizard-loading' ] } role="status">
+		<Spinner />
+		{ /* wp-admin's own class. This entry ships no @wordpress/ui, and importing it
+		     here would load it for every site, flag on or off. */ }
+		<span className="screen-reader-text">{ __( 'Loading setup…', 'jetpack-my-jetpack' ) }</span>
+	</div>
 );
 
 const OnboardingScreen: FC = () => {
@@ -88,7 +111,7 @@ const OnboardingScreen: FC = () => {
 
 	if ( wizard?.exitUrl ) {
 		return (
-			<Suspense fallback={ <div className={ styles[ 'wizard-loading' ] } /> }>
+			<Suspense fallback={ <WizardLoading /> }>
 				<Wizard exitUrl={ wizard.exitUrl } dashboardUrl={ wizard.dashboardUrl } />
 			</Suspense>
 		);

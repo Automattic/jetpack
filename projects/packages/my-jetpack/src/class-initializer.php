@@ -690,7 +690,7 @@ class Initializer {
 	 *
 	 * @since 6.11.0
 	 *
-	 * @return array{exitUrl: string, dashboardUrl: string}|null
+	 * @return array{exitUrl: string, dashboardUrl: string, runScope: string}|null
 	 */
 	public static function get_onboarding_wizard_state() {
 		if ( ! self::is_onboarding_wizard_enabled() ) {
@@ -702,6 +702,8 @@ class Initializer {
 			'exitUrl'      => admin_url( 'admin.php?page=my-jetpack' ),
 			// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 			'dashboardUrl' => admin_url(),
+			// Keys the run in session storage, which subdirectory sites on one domain share.
+			'runScope'     => substr( md5( admin_url() . '|' . get_current_user_id() ), 0, 12 ),
 		);
 	}
 

@@ -1192,11 +1192,11 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * Part of the description, not a badge beside the name: a pill next to six
- * names in a row is six pills, and the fact is a footnote about the row rather
- * than a label on it.
+ * "Already on", or why a locked switch cannot move. Part of the description,
+ * not a badge beside the name: a pill next to six names in a row is six pills,
+ * and the fact is a footnote about the row rather than a label on it.
  */
-.feature-row__already {
+.feature-row__note {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 
 	&::before {

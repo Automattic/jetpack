@@ -46,7 +46,11 @@ const dashboardUrl = 'http://example.com/wp-admin/';
 
 describe( 'OnboardingScreen when the wizard fails to load', () => {
 	beforeEach( () => {
-		window.myJetpackInitialState.onboardingWizard = { exitUrl, dashboardUrl };
+		window.myJetpackInitialState.onboardingWizard = {
+			exitUrl,
+			dashboardUrl,
+			runScope: 'a1b2c3d4e5f6',
+		};
 		Object.assign( mockConnection, { isRegistered: true, isUserConnected: false } );
 		mockApiFetch.mockReset().mockResolvedValue( {} );
 		mockAssignLocation.mockReset();

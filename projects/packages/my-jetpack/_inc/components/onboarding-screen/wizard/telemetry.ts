@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
+import { scopedKey } from './storage-key';
 
 /*
  * Tracks silently drops any name that misses `Jetpack_Tracks_Event::EVENT_NAME_REGEX`.
@@ -31,14 +32,14 @@ const FLOW_ID_KEY = 'jetpack-onboarding-flow-id';
  */
 function flowId(): string {
 	try {
-		const held = window.sessionStorage.getItem( FLOW_ID_KEY );
+		const held = window.sessionStorage.getItem( scopedKey( FLOW_ID_KEY ) );
 
 		if ( held ) {
 			return held;
 		}
 
 		const made = makeId();
-		window.sessionStorage.setItem( FLOW_ID_KEY, made );
+		window.sessionStorage.setItem( scopedKey( FLOW_ID_KEY ), made );
 
 		return made;
 	} catch {
@@ -68,7 +69,7 @@ function makeId(): string {
  */
 export function forgetFlowId(): void {
 	try {
-		window.sessionStorage.removeItem( FLOW_ID_KEY );
+		window.sessionStorage.removeItem( scopedKey( FLOW_ID_KEY ) );
 	} catch {
 		// Nothing was stored where storage is blocked.
 	}

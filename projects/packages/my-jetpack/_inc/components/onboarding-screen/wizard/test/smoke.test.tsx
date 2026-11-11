@@ -503,11 +503,9 @@ describe( 'Wizard resume after connecting', () => {
 
 		expect( heading() ).toHaveTextContent( "What's this site for?" );
 		// The rail is the only thing that counts the steps; the question column
-		// carries the question and nothing else.
-		// Counted from where this person starts. A connected site never sees the
-		// connect screen, so counting it would make the last step read 4 of 4 after
-		// three of them.
-		expect( screen.getAllByText( 'Step 1 of 3' ) ).toHaveLength( 1 );
+		// carries the question and nothing else. It counts the rows it lists, so a
+		// connected site is on step 2 of 4, under a ticked Connect.
+		expect( screen.getAllByText( 'Step 2 of 4' ) ).toHaveLength( 1 );
 		expect( screen.queryByRole( 'button', { name: 'Get started' } ) ).not.toBeInTheDocument();
 	} );
 
@@ -945,6 +943,29 @@ describe( 'Leaving setup', () => {
 		);
 	} );
 
+	// bfcache brings the page back exactly as it was left: mid-exit, every control waiting.
+	it( 'takes the controls back when Back restores the page', async () => {
+		mockApiFetch.mockReturnValueOnce( new Promise( () => {} ) );
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
+		act( () => {
+			window.dispatchEvent( new PageTransitionEvent( 'pageshow', { persisted: true } ) );
+		} );
+
+		expect( screen.getByRole( 'link', { name: 'Skip setup' } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
+		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		// And the run is kept again, so a reload from here still has it.
+		expect( savedRun() ).not.toBeNull();
+	} );
+
 	// Leaving mid-apply would abandon the module requests still queued.
 	it.each( [ 'Skip setup', 'Back to your WordPress site' ] )(
 		'ignores %s while modules are being switched',
@@ -1136,6 +1157,58 @@ describe( 'Coming back to a run in progress', () => {
 
 		expect( heading() ).toHaveTextContent( 'What we recommend' );
 		expect( screen.getByText( /For a store, these matter most/ ) ).toBeInTheDocument();
+	} );
+
+	// Subdirectory sites share one origin, and so one session storage.
+	it( 'keeps each site’s run to that site', async () => {
+		const scoped = ( runScope: string ) =>
+			( window.myJetpackInitialState.onboardingWizard = { exitUrl, dashboardUrl, runScope } );
+
+		try {
+			scoped( 'site-a' );
+			const { user, unmount } = setupWizard( { isUserConnected: true } );
+			await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+			unmount();
+
+			scoped( 'site-b' );
+			setupWizard( { isUserConnected: true } ).unmount();
+			expect( window.sessionStorage.getItem( 'jetpack-onboarding-run:site-a' ) ).toContain(
+				'"step":2'
+			);
+			expect( window.sessionStorage.getItem( 'jetpack-onboarding-run:site-b' ) ).toContain(
+				'"step":1'
+			);
+
+			scoped( 'site-a' );
+			setupWizard( { isUserConnected: true } );
+			expect( heading() ).toHaveTextContent( 'What we recommend' );
+		} finally {
+			delete window.myJetpackInitialState.onboardingWizard;
+		}
+	} );
+
+	// Each answer reaches a request or a Tracks event, so nothing comes back that
+	// the wizard could not have written.
+	it( 'drops restored answers it could not have given', () => {
+		window.sessionStorage.setItem(
+			'jetpack-onboarding-run',
+			JSON.stringify( {
+				step: 2,
+				furthestStep: 2,
+				choices: { 1: 'blog', 9: 'store', 2: { nested: true } },
+				freeText: '',
+				wanted: { monitor: true, stats: 'off', 'contact-form': 1 },
+			} )
+		);
+
+		setupWizard( { isUserConnected: true } );
+
+		expect( screen.getByText( /For a blog, these matter most/ ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) ).toBeChecked();
+		// Neither of these was a switch the user moved, so both keep what the site has.
+		expect( screen.getByRole( 'switch', { name: 'Jetpack Stats' } ) ).toBeChecked();
+		expect( screen.getByRole( 'switch', { name: 'Contact Form' } ) ).not.toBeChecked();
 	} );
 
 	it( 'keeps the switches the user moved', async () => {
@@ -1380,7 +1453,23 @@ describe( 'What the wizard reports', () => {
 		await waitFor( () =>
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
 				'jetpack_my_jetpack_onboarding_wizard_apply_result',
-				expect.objectContaining( { offered: 4, switched_on: 1, failed: 0 } )
+				expect.objectContaining( { offered: 4, switched_on: 1, switched_off: 0, failed: 0 } )
+			)
+		);
+	} );
+
+	// Turning a module off is a change too, and was only visible per switch.
+	it( 'counts what the run switched off', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Jetpack Stats' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_my_jetpack_onboarding_wizard_apply_result',
+				expect.objectContaining( { switched_on: 0, switched_off: 1, failed: 0 } )
 			)
 		);
 	} );
@@ -1515,6 +1604,10 @@ describe( 'The feature step', () => {
 			'aria-disabled',
 			'true'
 		);
+		// A dimmed switch alone says nothing about why, to the eye or to a screen reader.
+		expect(
+			screen.getByRole( 'switch', { name: 'Downtime Monitor' } )
+		).toHaveAccessibleDescription( 'Alerts if it goes down. Set by a site administrator' );
 	} );
 
 	// Continue before the list arrives would apply nothing and report nothing changed.
@@ -1577,6 +1670,26 @@ describe( 'The feature step', () => {
 			expect( heading() ).toHaveTextContent( 'Some features need another look' )
 		);
 		expect( screen.getByText( 'Not changed' ) ).toBeInTheDocument();
+		expect( screen.getByText( /The rest are ready/ ) ).toBeInTheDocument();
+	} );
+
+	// "The rest are ready" is only true when some of the changes went through.
+	it( 'does not call the rest ready when none of the changes went through', async () => {
+		mockApply.mockResolvedValueOnce( [
+			{ slug: 'stats', name: 'Jetpack Stats', wanted: true, ok: true, changed: false },
+			{ slug: 'monitor', name: 'Downtime Monitor', wanted: true, ok: false, changed: true },
+		] );
+
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await expect(
+			screen.findByText(
+				"Your changes didn't go through. You can try them again in Jetpack settings."
+			)
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /The rest are ready/ ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [

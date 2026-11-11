@@ -481,6 +481,8 @@ type OnboardingWizardState = {
 	exitUrl: string;
 	// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 	dashboardUrl: string;
+	// This site and user, hashed: what the saved run is stored under.
+	runScope: string;
 };
 
 type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';

@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { clampStep, TOTAL_STEPS } from './lib';
+import { scopedKey } from './storage-key';
 import type { WizardState, WizardStep } from './lib';
 import type { SetupModuleResult } from './use-setup-modules';
 
@@ -24,6 +25,26 @@ export type SavedRun = {
 	// What the apply did, kept so a reload on the finish step reports it again.
 	results?: SetupModuleResult[];
 };
+
+/**
+ * The entries of a stored object that pass a test, or none for anything else.
+ *
+ * @param value - Whatever was in storage.
+ * @param keep  - Whether to keep one entry.
+ * @return A plain object of the kept entries.
+ */
+function entriesWhere< T >(
+	value: unknown,
+	keep: ( key: string, entry: unknown ) => entry is T
+): Record< string, T > {
+	if ( ! value || typeof value !== 'object' || Array.isArray( value ) ) {
+		return {};
+	}
+
+	return Object.fromEntries(
+		Object.entries( value ).filter( ( [ key, entry ] ) => keep( key, entry ) )
+	) as Record< string, T >;
+}
 
 /**
  * Whether a stored value is a list of apply results this wizard wrote.
@@ -56,7 +77,7 @@ function isResults( value: unknown ): value is SetupModuleResult[] {
  */
 export function readSavedRun(): SavedRun | null {
 	try {
-		const held = window.sessionStorage.getItem( KEY );
+		const held = window.sessionStorage.getItem( scopedKey( KEY ) );
 
 		if ( ! held ) {
 			return null;
@@ -84,9 +105,17 @@ export function readSavedRun(): SavedRun | null {
 		return {
 			step,
 			furthestStep: clampStep( Math.min( Math.max( parsed.furthestStep, step ), lastStep ) ),
-			choices: parsed.choices ?? {},
+			// Only answers a step could have given, and only switches: anything else would
+			// reach a request.
+			choices: entriesWhere(
+				parsed.choices,
+				( key, entry ): entry is string => isStep( Number( key ) ) && typeof entry === 'string'
+			),
 			freeText: typeof parsed.freeText === 'string' ? parsed.freeText : '',
-			wanted: parsed.wanted ?? {},
+			wanted: entriesWhere(
+				parsed.wanted,
+				( _key, entry ): entry is boolean => typeof entry === 'boolean'
+			),
 			results,
 		};
 	} catch {
@@ -99,7 +128,7 @@ export function readSavedRun(): SavedRun | null {
 /**
  * Keeps this run where a reload can find it.
  *
- * @return A writer, and a way to throw the run away once it is over.
+ * @return A writer, a way to throw the run away once it is over, and a way to take that back.
  */
 export function useSavedRun() {
 	// A ref, so a save racing the clear in the same render still sees it.
@@ -111,7 +140,7 @@ export function useSavedRun() {
 		}
 
 		try {
-			window.sessionStorage.setItem( KEY, JSON.stringify( run ) );
+			window.sessionStorage.setItem( scopedKey( KEY ), JSON.stringify( run ) );
 		} catch {
 			// Nothing to do: the flow works without it.
 		}
@@ -123,11 +152,16 @@ export function useSavedRun() {
 		done.current = true;
 
 		try {
-			window.sessionStorage.removeItem( KEY );
+			window.sessionStorage.removeItem( scopedKey( KEY ) );
 		} catch {
 			// As above.
 		}
 	}, [] );
 
-	return { save, forget };
+	// Back can restore the page from bfcache after `forget`, with the run still on screen.
+	const resume = useCallback( () => {
+		done.current = false;
+	}, [] );
+
+	return { save, forget, resume };
 }

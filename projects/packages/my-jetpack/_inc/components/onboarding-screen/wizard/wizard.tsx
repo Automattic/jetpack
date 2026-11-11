@@ -143,7 +143,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	 * doing it all again.
 	 */
 	const [ saved ] = useState( readSavedRun );
-	const { save: saveRun, forget: forgetRun } = useSavedRun();
+	const { save: saveRun, forget: forgetRun, resume: resumeRun } = useSavedRun();
 
 	/*
 	 * Kept as asked for, and held to what is reachable on every render: a connected user
@@ -184,6 +184,21 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	// Catches a second click in the same tick, before `isLeaving` has rendered.
 	const leaving = useRef( false );
 	const busy = isApplying || isLeaving;
+
+	// Back can restore this page from bfcache mid-exit, with every control still waiting on it.
+	useEffect( () => {
+		const onPageShow = ( event: PageTransitionEvent ) => {
+			if ( event.persisted ) {
+				leaving.current = false;
+				setIsLeaving( false );
+				resumeRun();
+			}
+		};
+
+		window.addEventListener( 'pageshow', onPageShow );
+		return () => window.removeEventListener( 'pageshow', onPageShow );
+	}, [ resumeRun ] );
+
 	// Missing entries mean "leave it as the site has it", which for five of the six
 	// is already on. Written only when the user moves a switch.
 	const [ wantedModules, setWantedModules ] = useState< Record< string, boolean > >(
@@ -350,10 +365,11 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 			.then( results => {
 				setModuleResults( results );
 				// Counts, not a list, because a property holding a list cannot be grouped on.
-				const { on, failed } = tallyResults( results );
+				const { on, off, failed } = tallyResults( results );
 				track( WIZARD_EVENTS.applyResult, {
 					offered: results.length,
 					switched_on: on,
+					switched_off: off,
 					failed,
 				} );
 			} )
@@ -461,17 +477,12 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		),
 	}[ meta.kind ];
 
-	/*
-	 * Counted from the step this person actually starts on. A connected site never
-	 * sees the connect screen, so telling them they are on step 2 of 4 counts a
-	 * step that was never theirs and leaves the last one reading 4 of 4 after
-	 * three.
-	 */
+	// Counted as the rail lists them, so a connected site reads "2 of 4" under a ticked Connect.
 	const stepCount = sprintf(
 		/* translators: 1: number of the current step. 2: total number of steps. */
 		__( 'Step %1$d of %2$d', 'jetpack-my-jetpack' ),
-		step - firstStep + 1,
-		TOTAL_STEPS - firstStep
+		step + 1,
+		TOTAL_STEPS
 	);
 
 	return (

@@ -48,6 +48,18 @@ function FeatureRow( {
 		[ module.slug, onChange ]
 	);
 
+	/*
+	 * A locked switch says why it cannot move, in Jetpack settings' own words: the
+	 * override is a filter, which a plugin can set as well as a host. "Already on"
+	 * only while the switch still agrees, or it reads "Already on" beside "off".
+	 */
+	let note: string | null = null;
+	if ( module.locked ) {
+		note = __( 'Set by a site administrator', 'jetpack-my-jetpack' );
+	} else if ( module.activated && checked ) {
+		note = __( 'Already on', 'jetpack-my-jetpack' );
+	}
+
 	return (
 		<div className={ styles[ 'feature-row' ] }>
 			<span className={ styles[ 'feature-row__glyph' ] } aria-hidden="true">
@@ -83,14 +95,11 @@ function FeatureRow( {
 					 * things about to happen. Saying which are already running is the
 					 * difference between asking permission and reporting the state.
 					 */ }
-					{ /* Only while the switch still agrees, or it reads "Already on" beside "off". */ }
-					{ module.activated && checked && (
+					{ note && (
 						<>
 							{ /* A real space: the dot before it is drawn in CSS, which a screen
 							     reader does not read, so the words would run together. */ }{ ' ' }
-							<span className={ styles[ 'feature-row__already' ] }>
-								{ __( 'Already on', 'jetpack-my-jetpack' ) }
-							</span>
+							<span className={ styles[ 'feature-row__note' ] }>{ note }</span>
 						</>
 					) }
 				</Text>
@@ -101,11 +110,11 @@ function FeatureRow( {
 				id={ toggleId }
 				className={ styles[ 'feature-row__switch' ] }
 				checked={ checked }
-				// Host-forced: a request to move it would fail, as it does in Jetpack settings.
+				// Forced by an override: a request to move it would fail, as it does in Jetpack settings.
 				disabled={ module.locked }
 				onCheckedChange={ handleChange }
 				aria-labelledby={ nameId }
-				// Already on is its own element now, so it is named here or it is unsaid.
+				// The note is its own element, so it is named here or it is unsaid.
 				aria-describedby={ descriptionId }
 			/>
 		</div>

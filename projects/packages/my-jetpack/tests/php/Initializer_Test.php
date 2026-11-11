@@ -872,9 +872,16 @@ class Initializer_Test extends BaseTestCase {
 	/**
 	 * The wizard never runs on WordPress.com Simple, even with its flag on: the
 	 * platform owns the connection and nobody chose to install Jetpack there.
+	 *
+	 * With the Jetpack plugin running, so only the platform check can say no.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_wizard_is_disabled_on_wpcom_simple() {
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 		Constants::set_constant( 'IS_WPCOM', true );
 		StatusCache::clear();
 
@@ -887,9 +894,16 @@ class Initializer_Test extends BaseTestCase {
 	 *
 	 * Note this deliberately differs from is_onboarding_available(), which stays
 	 * true on WoA — only the wizard is gated, the existing takeover is untouched.
+	 *
+	 * With the Jetpack plugin running, so only the platform check can say no.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_wizard_is_disabled_on_woa() {
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
@@ -1439,6 +1453,35 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertTrue( Initializer::has_never_registered_jetpack() );
 		$this->assertTrue( Initializer::is_onboarding_wizard_enabled() );
 		$this->assertNotNull( Initializer::get_onboarding_wizard_state() );
+	}
+
+	/**
+	 * The run is stored per site and per user, so two admins sharing a browser tab,
+	 * or two subdirectory sites on one domain, never resume each other's.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_wizard_scopes_its_run_to_the_user() {
+		$this->enable_wizard();
+		$this->log_in_as_admin();
+		$scope = Initializer::get_onboarding_wizard_state()['runScope'];
+
+		$this->assertMatchesRegularExpression( '/^[0-9a-f]{12}$/', $scope );
+		$this->assertSame( $scope, Initializer::get_onboarding_wizard_state()['runScope'] );
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'second_admin',
+					'user_pass'  => 'pass',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		$this->assertNotSame( $scope, Initializer::get_onboarding_wizard_state()['runScope'] );
 	}
 
 	/**

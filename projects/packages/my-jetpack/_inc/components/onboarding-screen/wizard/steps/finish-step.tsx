@@ -39,10 +39,17 @@ function summarise( results: SetupModuleResult[], counts: Tally ) {
 	if ( counts.failed ) {
 		return {
 			title: __( 'Some features need another look', 'jetpack-my-jetpack' ),
-			description: __(
-				'The rest are ready. You can try the others again in Jetpack settings.',
-				'jetpack-my-jetpack'
-			),
+			// "The rest" only when some of the changes went through.
+			description:
+				counts.on + counts.off > 0
+					? __(
+							'The rest are ready. You can try the others again in Jetpack settings.',
+							'jetpack-my-jetpack'
+						)
+					: __(
+							"Your changes didn't go through. You can try them again in Jetpack settings.",
+							'jetpack-my-jetpack'
+						),
 		};
 	}
 

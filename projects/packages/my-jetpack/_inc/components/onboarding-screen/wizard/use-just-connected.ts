@@ -1,3 +1,5 @@
+import { scopedKey } from './storage-key';
+
 const KEY = 'jetpack-onboarding-connecting';
 
 // Read once per page load and remembered, because the flag is consumed on the
@@ -13,7 +15,7 @@ let answer: boolean | null = null;
  */
 export function markConnecting(): void {
 	try {
-		window.sessionStorage.setItem( KEY, '1' );
+		window.sessionStorage.setItem( scopedKey( KEY ), '1' );
 	} catch {
 		// Private browsing and blocked site data both throw. The flow works
 		// without the flag; only the arrival moment is lost.
@@ -31,8 +33,8 @@ export function markConnecting(): void {
 export function useJustConnected(): boolean {
 	if ( answer === null ) {
 		try {
-			answer = window.sessionStorage.getItem( KEY ) === '1';
-			window.sessionStorage.removeItem( KEY );
+			answer = window.sessionStorage.getItem( scopedKey( KEY ) ) === '1';
+			window.sessionStorage.removeItem( scopedKey( KEY ) );
 		} catch {
 			answer = false;
 		}
