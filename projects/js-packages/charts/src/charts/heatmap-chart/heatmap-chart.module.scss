@@ -7,7 +7,8 @@ $heatmap-empty-fill: var(--a8c-charts-color-track);
 
 // JS sets the ends (getHeatmapScale). Unresolved, the floor is 15% of the
 // primary.
-$heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c-charts-color-heatmap-primary)) calc(var(--a8c-charts-heatmap-cell-intensity) * 100%), var(--a8c-charts-color-heatmap-low, color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) 15%, var(--a8c-charts-color-background, #fff))));
+$heatmap-low: var(--a8c-charts-color-heatmap-low, color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) 15%, var(--a8c-charts-color-background, #fff)));
+$heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c-charts-color-heatmap-primary)) calc(var(--a8c-charts-heatmap-cell-intensity) * 100%), $heatmap-low);
 
 .heatmap-chart {
 	position: relative;
@@ -179,7 +180,7 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 // incomplete period reads as neither a quiet one nor the lowest step.
 .heatmap-chart__cell--partial {
 	background:
-		repeating-linear-gradient(45deg, var(--a8c-charts-color-heatmap-low, color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) 15%, var(--a8c-charts-color-background, #fff))) 0 var(--wpds-dimension-gap-xs), $heatmap-empty-fill var(--wpds-dimension-gap-xs) calc(2 * var(--wpds-dimension-gap-xs))),
+		repeating-linear-gradient(45deg, $heatmap-low 0 var(--wpds-dimension-gap-xs), $heatmap-empty-fill var(--wpds-dimension-gap-xs) calc(2 * var(--wpds-dimension-gap-xs))),
 		$heatmap-empty-fill;
 }
 
