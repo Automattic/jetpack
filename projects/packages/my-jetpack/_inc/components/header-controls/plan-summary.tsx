@@ -1,17 +1,16 @@
 import { CONNECTION_FROM } from '@automattic/jetpack-connection';
-import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { caution, error } from '@wordpress/icons';
 import { Button, Icon, Link, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
-import { PRODUCT_STATUSES } from '../../constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
-import { PlanLogo, PlanSectionFooter, getManagePurchaseUrl, getRenewUrl } from '../plans-section';
+import { PlanLogo, PlanSectionFooter, getPurchaseExpiry } from '../plans-section';
 import styles from './style.module.scss';
 import type { Purchase } from '../../data/types';
+import type { PurchaseExpiryState } from '../plans-section';
 import type { FC, ReactNode } from 'react';
 
 // Tells the plan links' Tracks events apart from the same links on the Overview.
@@ -20,10 +19,14 @@ const HEADER_TRACKS_PROPERTIES = { location: 'header' };
 // Rows past this fold behind a toggle, so the panel stays short.
 const VISIBLE_PLANS = 3;
 
-const STATE_ORDER = { expired: 0, 'expiring-soon': 1, default: 2 };
+const STATE_ORDER: Record< PurchaseExpiryState, number > = {
+	expired: 0,
+	'expiring-soon': 1,
+	active: 2,
+};
 
 interface PlanStatus {
-	state: keyof typeof STATE_ORDER;
+	state: PurchaseExpiryState;
 	text: string;
 	/** Resume or renew a plan that needs attention. */
 	action?: { label: string; href: string };
@@ -38,53 +41,48 @@ interface PlanStatus {
  * @return The plan's status.
  */
 function getPlanStatus( purchase: Purchase ): PlanStatus {
-	const { expiry_date, expiry_status, partner_name } = purchase;
-	const date = expiry_date ? dateI18n( 'F jS, Y', expiry_date ) : '';
+	const { state, date, partnerName, actionUrl } = getPurchaseExpiry( purchase );
 
 	// As on the Overview, a golden token never expires whatever its status says.
 	if ( isLifetimePurchase( purchase ) ) {
-		return { state: 'default', text: __( 'Never expires', 'jetpack-my-jetpack' ) };
+		return { state: 'active', text: __( 'Never expires', 'jetpack-my-jetpack' ) };
 	}
-	if ( date && PRODUCT_STATUSES.EXPIRED === expiry_status ) {
+	if ( state === 'expired' ) {
 		return {
-			state: 'expired',
+			state,
 			// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
 			text: sprintf( __( 'Expired on %1$s', 'jetpack-my-jetpack' ), date ),
-			action: {
-				label: __( 'Resume', 'jetpack-my-jetpack' ),
-				href: getManagePurchaseUrl( purchase ),
-			},
+			action: { label: __( 'Resume', 'jetpack-my-jetpack' ), href: actionUrl },
 			iconLabel: __( 'Expired', 'jetpack-my-jetpack' ),
 		};
 	}
-	if ( date && PRODUCT_STATUSES.EXPIRING_SOON === expiry_status ) {
+	if ( state === 'expiring-soon' ) {
 		return {
-			state: 'expiring-soon',
+			state,
 			// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
 			text: sprintf( __( 'Expires on %1$s', 'jetpack-my-jetpack' ), date ),
-			action: { label: __( 'Renew', 'jetpack-my-jetpack' ), href: getRenewUrl( purchase ) },
+			action: { label: __( 'Renew', 'jetpack-my-jetpack' ), href: actionUrl },
 			iconLabel: __( 'Expiring soon', 'jetpack-my-jetpack' ),
 		};
 	}
-	if ( ! date && partner_name ) {
+	if ( partnerName ) {
 		return {
-			state: 'default',
+			state,
 			// translators: %1$s is the name of the hosting partner. i.e.- Bluehost, InMotion, Pressable, Jurassic Ninja, etc..
-			text: sprintf( __( 'Managed by: %1$s', 'jetpack-my-jetpack' ), partner_name ),
+			text: sprintf( __( 'Managed by: %1$s', 'jetpack-my-jetpack' ), partnerName ),
 		};
 	}
-	if ( ! date ) {
-		return { state: 'default', text: __( 'Never expires', 'jetpack-my-jetpack' ) };
+	// No expiry date: the helper's date is a 100-year placeholder, not one to show.
+	if ( ! purchase.expiry_date ) {
+		return { state, text: __( 'Never expires', 'jetpack-my-jetpack' ) };
 	}
 	return {
-		state: 'default',
+		state,
 		// translators: %1$s is the formatted date the plan runs until, i.e.- November 24th, 2024
 		text: sprintf( __( 'Active until %1$s', 'jetpack-my-jetpack' ), date ),
 	};
 }
 
-// Each translated label comes from getPlanStatus(): a ternary between two __() calls here gets
-// merged by the minifier into one call, which breaks string extraction in production builds.
 const PlanRow: FC< { name: string; status: PlanStatus; children?: ReactNode } > = ( {
 	name,
 	status: { state, text, action, iconLabel },
@@ -180,7 +178,7 @@ const PlanSummary: FC< { purchases: Purchase[] | null; hasFailed?: boolean } > =
 				) : (
 					<PlanRow
 						name={ __( 'Jetpack Essentials', 'jetpack-my-jetpack' ) }
-						status={ { state: 'default', text: __( 'Free', 'jetpack-my-jetpack' ) } }
+						status={ { state: 'active', text: __( 'Free', 'jetpack-my-jetpack' ) } }
 					/>
 				) }
 			</ul>

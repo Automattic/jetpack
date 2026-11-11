@@ -46,32 +46,55 @@ const PlanSection: FC< PlanSectionProps > = ( { purchase } ) => {
 	);
 };
 
-/**
- * The WordPress.com page that manages, and resumes, a purchase.
- *
- * @param purchase - A WPCOM purchase.
- * @return The URL.
- */
-export const getManagePurchaseUrl = ( purchase: Purchase ) =>
-	`https://wordpress.com/me/purchases/${ purchase.domain }/${ purchase.ID }`;
+export type PurchaseExpiryState = 'expired' | 'expiring-soon' | 'active';
+
+export interface PurchaseExpiry {
+	state: PurchaseExpiryState;
+	/** The formatted expiry date, or 100 years after subscribing when there is none (as in Store Admin). */
+	date: string;
+	/** The hosting partner that provisioned a purchase with no expiry date. */
+	partnerName: string | null;
+	/** The renew checkout for a purchase expiring soon, otherwise its WordPress.com purchase page. */
+	actionUrl: string;
+}
 
 /**
- * The WordPress.com checkout that renews a purchase.
+ * When a purchase expires and where to renew or resume it, for each view to word its own way.
  *
  * @param purchase - A WPCOM purchase.
- * @return The URL.
+ * @return The purchase's expiry details.
  */
-export const getRenewUrl = ( purchase: Purchase ) =>
-	`https://wordpress.com/checkout/${ purchase.product_slug }/renew/${ purchase.ID }/${ purchase.domain }`;
+export function getPurchaseExpiry( purchase: Purchase ): PurchaseExpiry {
+	const { ID, domain, expiry_date, expiry_status, partner_name, product_slug, subscribed_date } =
+		purchase;
+
+	let state: PurchaseExpiryState = 'active';
+	if ( PRODUCT_STATUSES.EXPIRED === expiry_status ) {
+		state = 'expired';
+	} else if ( PRODUCT_STATUSES.EXPIRING_SOON === expiry_status ) {
+		state = 'expiring-soon';
+	}
+
+	const hundredYearDate = getDate( subscribed_date );
+	hundredYearDate.setFullYear( hundredYearDate.getFullYear() + 100 );
+
+	return {
+		state,
+		date: dateI18n( 'F jS, Y', expiry_date ?? hundredYearDate ),
+		partnerName: ! expiry_date && partner_name ? partner_name : null,
+		actionUrl:
+			state === 'expiring-soon'
+				? `https://wordpress.com/checkout/${ product_slug }/renew/${ ID }/${ domain }`
+				: `https://wordpress.com/me/purchases/${ domain }/${ ID }`,
+	};
+}
 
 const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
-	const { expiry_date, expiry_status, partner_name, product_name, subscribed_date } = purchase;
+	const { product_name, subscribed_date } = purchase;
+	const { state, date: expiryDate, partnerName, actionUrl } = getPurchaseExpiry( purchase );
 
-	const managePurchaseUrl = getManagePurchaseUrl( purchase );
-	const renewUrl = getRenewUrl( purchase );
-
-	const isExpired = PRODUCT_STATUSES.EXPIRED === expiry_status;
-	const isExpiringSoon = PRODUCT_STATUSES.EXPIRING_SOON === expiry_status;
+	const isExpired = state === 'expired';
+	const isExpiringSoon = state === 'expiring-soon';
 	const isExpiringPurchase = isExpired || isExpiringSoon;
 
 	const expiryMessageClassName = clsx( {
@@ -80,12 +103,6 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 	} );
 
 	const expiryMessage = useCallback( () => {
-		const hundredYearDate = getDate( subscribed_date );
-		hundredYearDate.setFullYear( hundredYearDate.getFullYear() + 100 );
-
-		// If expiry_date is null, we'll default to 100 years in the future (same behavior in Store Admin).
-		const expiryDate = dateI18n( 'F jS, Y', expiry_date ?? hundredYearDate );
-
 		if ( isExpiringPurchase ) {
 			// Expiring soon
 			if ( isExpiringSoon ) {
@@ -104,12 +121,11 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 			);
 		}
 
-		if ( ! expiry_date && partner_name ) {
-			// This means the subscription was provisioned by a hosting partner.
+		if ( partnerName ) {
 			return sprintf(
 				// translators: %1$s is the name of the hosting partner. i.e.- Bluehost, InMotion, Pressable, Jurassic Ninja, etc..
 				__( 'Managed by: %1$s', 'jetpack-my-jetpack' ),
-				partner_name
+				partnerName
 			);
 		}
 		return sprintf(
@@ -117,7 +133,7 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 			__( 'Expires on %1$s', 'jetpack-my-jetpack' ),
 			expiryDate
 		);
-	}, [ expiry_date, isExpiringPurchase, isExpiringSoon, partner_name, subscribed_date ] );
+	}, [ expiryDate, isExpiringPurchase, isExpiringSoon, partnerName ] );
 
 	const expiryAction = useCallback( () => {
 		if ( ! isExpiringPurchase ) {
@@ -126,24 +142,24 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 		if ( isExpiringSoon ) {
 			return (
-				<Link href={ renewUrl } openInNewTab>
+				<Link href={ actionUrl } openInNewTab>
 					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
 				</Link>
 			);
 		}
 
 		return (
-			<Link href={ managePurchaseUrl } openInNewTab>
+			<Link href={ actionUrl } openInNewTab>
 				{ __( 'Resume subscription', 'jetpack-my-jetpack' ) }
 			</Link>
 		);
-	}, [ isExpiringPurchase, isExpiringSoon, managePurchaseUrl, renewUrl ] );
+	}, [ actionUrl, isExpiringPurchase, isExpiringSoon ] );
 
 	if ( isLifetimePurchase( purchase ) ) {
 		return (
 			<Text variant="body-md" className={ styles[ 'expire-date' ] }>
 				<span className={ styles[ 'expire-date--with-icon' ] }>
-					{ __( 'Never Expires', 'jetpack-my-jetpack' ) }
+					{ __( 'Never expires', 'jetpack-my-jetpack' ) }
 				</span>
 				<GoldenTokenTooltip productName={ product_name } giftedDate={ subscribed_date } />
 			</Text>
