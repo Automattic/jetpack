@@ -33,7 +33,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.7",
+		"@babel/core": "7.29.13",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
 		"webpack": "5.112.2",
