@@ -47,7 +47,7 @@ function getPlanStatus( purchase: Purchase ): PlanStatus {
 	if ( isLifetimePurchase( purchase ) ) {
 		return { state: 'active', text: __( 'Never expires', 'jetpack-my-jetpack' ) };
 	}
-	if ( state === 'expired' ) {
+	if ( date && state === 'expired' ) {
 		return {
 			state,
 			// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
@@ -56,7 +56,7 @@ function getPlanStatus( purchase: Purchase ): PlanStatus {
 			iconLabel: __( 'Expired', 'jetpack-my-jetpack' ),
 		};
 	}
-	if ( state === 'expiring-soon' ) {
+	if ( date && state === 'expiring-soon' ) {
 		return {
 			state,
 			// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
@@ -72,8 +72,7 @@ function getPlanStatus( purchase: Purchase ): PlanStatus {
 			text: sprintf( __( 'Managed by: %1$s', 'jetpack-my-jetpack' ), partnerName ),
 		};
 	}
-	// No expiry date: the helper's date is a 100-year placeholder, not one to show.
-	if ( ! purchase.expiry_date ) {
+	if ( ! date ) {
 		return { state, text: __( 'Never expires', 'jetpack-my-jetpack' ) };
 	}
 	return {

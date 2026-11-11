@@ -50,8 +50,8 @@ export type PurchaseExpiryState = 'expired' | 'expiring-soon' | 'active';
 
 export interface PurchaseExpiry {
 	state: PurchaseExpiryState;
-	/** The formatted expiry date, or 100 years after subscribing when there is none (as in Store Admin). */
-	date: string;
+	/** The formatted expiry date, or null when the purchase has none. */
+	date: string | null;
 	/** The hosting partner that provisioned a purchase with no expiry date. */
 	partnerName: string | null;
 	/** The renew checkout for a purchase expiring soon, otherwise its WordPress.com purchase page. */
@@ -65,8 +65,7 @@ export interface PurchaseExpiry {
  * @return The purchase's expiry details.
  */
 export function getPurchaseExpiry( purchase: Purchase ): PurchaseExpiry {
-	const { ID, domain, expiry_date, expiry_status, partner_name, product_slug, subscribed_date } =
-		purchase;
+	const { ID, domain, expiry_date, expiry_status, partner_name, product_slug } = purchase;
 
 	let state: PurchaseExpiryState = 'active';
 	if ( PRODUCT_STATUSES.EXPIRED === expiry_status ) {
@@ -75,12 +74,9 @@ export function getPurchaseExpiry( purchase: Purchase ): PurchaseExpiry {
 		state = 'expiring-soon';
 	}
 
-	const hundredYearDate = getDate( subscribed_date );
-	hundredYearDate.setFullYear( hundredYearDate.getFullYear() + 100 );
-
 	return {
 		state,
-		date: dateI18n( 'F jS, Y', expiry_date ?? hundredYearDate ),
+		date: expiry_date ? dateI18n( 'F jS, Y', expiry_date ) : null,
 		partnerName: ! expiry_date && partner_name ? partner_name : null,
 		actionUrl:
 			state === 'expiring-soon'
@@ -91,7 +87,7 @@ export function getPurchaseExpiry( purchase: Purchase ): PurchaseExpiry {
 
 const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 	const { product_name, subscribed_date } = purchase;
-	const { state, date: expiryDate, partnerName, actionUrl } = getPurchaseExpiry( purchase );
+	const { state, date, partnerName, actionUrl } = getPurchaseExpiry( purchase );
 
 	const isExpired = state === 'expired';
 	const isExpiringSoon = state === 'expiring-soon';
@@ -103,6 +99,12 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 	} );
 
 	const expiryMessage = useCallback( () => {
+		const hundredYearDate = getDate( subscribed_date );
+		hundredYearDate.setFullYear( hundredYearDate.getFullYear() + 100 );
+
+		// If there's no expiry date, we'll default to 100 years in the future (same behavior in Store Admin).
+		const expiryDate = date ?? dateI18n( 'F jS, Y', hundredYearDate );
+
 		if ( isExpiringPurchase ) {
 			// Expiring soon
 			if ( isExpiringSoon ) {
@@ -133,7 +135,7 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 			__( 'Expires on %1$s', 'jetpack-my-jetpack' ),
 			expiryDate
 		);
-	}, [ expiryDate, isExpiringPurchase, isExpiringSoon, partnerName ] );
+	}, [ date, isExpiringPurchase, isExpiringSoon, partnerName, subscribed_date ] );
 
 	const expiryAction = useCallback( () => {
 		if ( ! isExpiringPurchase ) {
