@@ -99,7 +99,7 @@ class Publicize_Setup {
 			 */
 			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
 
-			// Registered here, not with the other controllers, because the Social dashboard also loads while Publicize is off.
+			// Not with the other controllers: the Social dashboard also loads while Publicize is off. Simple always has it on.
 			new REST_API\Script_Data_Controller();
 		}
 
@@ -154,6 +154,10 @@ class Publicize_Setup {
 			REST_API\Message_Templates_Placeholders_Controller::class,
 			Jetpack_Social_Settings\Settings::class,
 		);
+
+		if ( $is_wpcom_simple ) {
+			$rest_controllers[] = REST_API\Script_Data_Controller::class;
+		}
 
 		// Load the REST controllers.
 		foreach ( $rest_controllers as $controller ) {
