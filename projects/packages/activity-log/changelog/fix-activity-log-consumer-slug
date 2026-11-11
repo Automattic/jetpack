@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Use the Activity Log consumer slug when Activity Log opens from another dashboard.
