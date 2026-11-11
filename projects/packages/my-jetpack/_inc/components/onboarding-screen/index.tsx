@@ -82,13 +82,8 @@ const WizardFallback: FC< WizardLinks > = ( { exitUrl, dashboardUrl } ) => {
 		</div>
 	);
 
-	// Until the store has it, a connected user reads as unconnected and would be offered to connect.
-	if ( ! connectionKnown ) {
-		return <WizardLoading />;
-	}
-
 	// Past the wizard's connect step: connecting again would only repeat the authorization.
-	if ( isUserConnected ) {
+	if ( connectionKnown && isUserConnected ) {
 		return (
 			<OnboardingLayout>
 				<JetpackLogo height={ 24 } />

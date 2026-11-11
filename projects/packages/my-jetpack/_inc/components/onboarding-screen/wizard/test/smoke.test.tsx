@@ -1610,7 +1610,6 @@ describe( 'The feature step', () => {
 		).toHaveAccessibleDescription( 'Alerts if it goes down. Set by a site administrator' );
 	} );
 
-	// apply() runs on the set it was started with, so a move mid-apply would never be sent.
 	it( 'holds every switch while the modules are being switched', async () => {
 		const { user, refresh } = setupWizard( { isUserConnected: true } );
 		await featureStep( user );

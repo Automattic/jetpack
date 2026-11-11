@@ -19,7 +19,6 @@ type FeaturesStepProps = {
 	// Missing entries mean the module keeps whatever the site already does.
 	wanted: Record< string, boolean >;
 	onChange: ( slug: string, want: boolean ) => void;
-	// True while the wizard applies or leaves: a switch moved then would not be sent.
 	disabled?: boolean;
 };
 
