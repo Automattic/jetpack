@@ -1375,6 +1375,7 @@ describe( 'HeatmapChart partial cells', () => {
 		const grid = screen.getByRole( 'grid' );
 
 		grid.focus();
+		// The first arrow key only selects the first cell.
 		await userEvent.setup().keyboard( '{ArrowDown}{ArrowRight}' );
 
 		expect( grid ).toHaveAttribute(
