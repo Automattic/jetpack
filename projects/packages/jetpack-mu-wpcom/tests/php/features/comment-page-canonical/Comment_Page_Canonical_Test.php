@@ -4,6 +4,8 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -16,30 +18,31 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/comment-page-canonical/co
 class Comment_Page_Canonical_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Globals the test replaces, restored in tear_down().
+	 * Globals the test replaces.
 	 *
 	 * @var array
 	 */
 	private $saved_globals = array();
 
 	/**
-	 * Save the query globals.
+	 * @before
 	 */
-	public function set_up() {
-		parent::set_up();
+	#[Before]
+	public function save_globals() {
 		foreach ( array( 'wp', 'wp_query', 'wp_the_query', 'post' ) as $name ) {
 			$this->saved_globals[ $name ] = $GLOBALS[ $name ] ?? null;
 		}
 	}
 
 	/**
-	 * Restore the query globals.
+	 * @after
 	 */
-	public function tear_down() {
+	#[After]
+	public function restore_globals() {
 		foreach ( $this->saved_globals as $name => $value ) {
 			$GLOBALS[ $name ] = $value;
 		}
-		parent::tear_down();
+		$GLOBALS['wp_rewrite']->set_permalink_structure( '' );
 	}
 
 	/**
@@ -47,12 +50,15 @@ class Comment_Page_Canonical_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @dataProvider provide_requests
 	 *
-	 * @param array    $request_vars Query vars parsed from the request.
-	 * @param int      $page         The `page` query var of a multi-page post.
-	 * @param callable $expected     Builds the expected canonical URL from the post ID.
+	 * @param array    $request_vars        Query vars parsed from the request.
+	 * @param int      $page                The `page` query var of a multi-page post.
+	 * @param string   $permalink_structure The site's permalink structure.
+	 * @param callable $expected            Builds the expected canonical URL from the post ID.
 	 */
 	#[DataProvider( 'provide_requests' )]
-	public function test_canonical_url( $request_vars, $page, $expected ) {
+	public function test_canonical_url( $request_vars, $page, $permalink_structure, $expected ) {
+		$GLOBALS['wp_rewrite']->set_permalink_structure( $permalink_structure );
+
 		$post_id = wp_insert_post(
 			array(
 				'post_title'  => 'Paged comments',
@@ -83,17 +89,26 @@ class Comment_Page_Canonical_Test extends \WorDBless\BaseTestCase {
 			'comment page filled in by the template' => array(
 				array(),
 				0,
+				'',
 				fn( $post_id ) => get_permalink( $post_id ),
 			),
 			'comment page in the request'            => array(
 				array( 'cpage' => 2 ),
 				0,
+				'',
 				fn() => get_comments_pagenum_link( 2 ),
 			),
-			'multi-page post'                        => array(
+			'multi-page post, plain permalinks'      => array(
 				array(),
 				2,
+				'',
 				fn( $post_id ) => add_query_arg( 'page', 2, get_permalink( $post_id ) ),
+			),
+			'multi-page post, pretty permalinks'     => array(
+				array(),
+				2,
+				'/%postname%/',
+				fn() => home_url( '/paged-comments/2/' ),
 			),
 		);
 	}
