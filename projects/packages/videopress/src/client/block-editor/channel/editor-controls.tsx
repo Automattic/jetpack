@@ -14,11 +14,20 @@ export type ChannelPlaylist = {
 	videos?: PlaylistEntry[];
 };
 
+export type ChannelSeries = {
+	id: number;
+	name: string;
+	parent: number;
+	videos?: PlaylistEntry[];
+};
+
 export type EmptyStateMode = 'none' | 'author' | 'all';
 
 type ChannelEditorData = {
 	// The site's published playlists, most recently updated first.
 	playlists?: ChannelPlaylist[];
+	// The site's series, by name, with the videos a series playlist shows.
+	series?: ChannelSeries[];
 };
 
 declare global {
@@ -40,6 +49,70 @@ export function editorSourcePlaylist( key = '' ): ChannelPlaylist | null | undef
 		return undefined;
 	}
 	return ( key ? playlists.find( playlist => playlist.key === key ) : playlists[ 0 ] ) ?? null;
+}
+
+/**
+ * The series a block with the `series` source shows.
+ *
+ * @param id - Selected series term ID.
+ * @return The series; null when there is no such series; undefined when the editor was not given the list.
+ */
+export function editorSeries( id = 0 ): ChannelSeries | null | undefined {
+	const series = window.videopressChannelEditor?.series;
+	if ( ! Array.isArray( series ) ) {
+		return undefined;
+	}
+	return ( id ? series.find( item => item.id === id ) : undefined ) ?? null;
+}
+
+type SeriesPickerProps = {
+	value?: number;
+	onChange: ( value: number ) => void;
+};
+
+/**
+ * Pick one of the site's series.
+ *
+ * @param props          - Component props.
+ * @param props.value    - Selected series term ID; 0 for none.
+ * @param props.onChange - ID setter.
+ * @return The control.
+ */
+export function SeriesPicker( { value = 0, onChange }: SeriesPickerProps ) {
+	const series = window.videopressChannelEditor?.series ?? [];
+	const options = [
+		{ value: '0', label: __( 'Choose a series', 'jetpack-videopress-pkg' ) },
+		...series.map( item => {
+			/* translators: %s: name of a series nested under another one. */
+			const nested = __( '— %s', 'jetpack-videopress-pkg' );
+			return {
+				value: String( item.id ),
+				label: item.parent ? sprintf( nested, item.name ) : item.name,
+			};
+		} ),
+	];
+	if ( value && ! series.some( item => item.id === value ) ) {
+		options.push( {
+			value: String( value ),
+			/* translators: %d: ID of a series that no longer exists. */
+			label: sprintf( __( 'Missing series (%d)', 'jetpack-videopress-pkg' ), value ),
+		} );
+	}
+
+	return (
+		<SelectControl
+			__next40pxDefaultSize
+			__nextHasNoMarginBottom
+			label={ __( 'Series', 'jetpack-videopress-pkg' ) }
+			help={ __(
+				'Shows the series’ videos and those of its sub-series, newest first. New videos in the series show up automatically.',
+				'jetpack-videopress-pkg'
+			) }
+			value={ String( value ) }
+			options={ options }
+			onChange={ id => onChange( Number( id ) || 0 ) }
+		/>
+	);
 }
 
 type EmptyStateControlProps = {

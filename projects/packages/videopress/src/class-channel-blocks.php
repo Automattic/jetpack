@@ -71,8 +71,8 @@ class Channel_Blocks {
 	}
 
 	/**
-	 * Hand the editor the site's playlists, most recently updated first, for the playlist pickers
-	 * of the blocks that show one and for their canvas previews. An inline script rather than a
+	 * Hand the editor the site's playlists, most recently updated first, and its series, for the
+	 * pickers of the blocks that show one and for their canvas previews. An inline script rather than a
 	 * REST route, so WordPress.com Simple's editor gets it too.
 	 *
 	 * @return void
@@ -103,7 +103,13 @@ class Channel_Blocks {
 		}
 		wp_add_inline_script(
 			$handle,
-			'window.videopressChannelEditor = ' . wp_json_encode( array( 'playlists' => $playlists ), JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ) . ';',
+			'window.videopressChannelEditor = ' . wp_json_encode(
+				array(
+					'playlists' => $playlists,
+					'series'    => Series_Playlist_Adapter::editor_series(),
+				),
+				JSON_HEX_TAG | JSON_UNESCAPED_SLASHES
+			) . ';',
 			'before'
 		);
 	}

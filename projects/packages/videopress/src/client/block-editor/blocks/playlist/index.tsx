@@ -35,6 +35,7 @@ function PlaylistBlockEdit( props: BlockEditProps< PlaylistAttributes > ) {
 				<SourcedPlaylistEdit
 					attributes={ props.attributes }
 					setAttributes={ props.setAttributes }
+					clientId={ props.clientId }
 				/>
 			) : (
 				<Edit { ...props } />

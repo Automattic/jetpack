@@ -17,6 +17,7 @@ use WP_Query;
  *
  * The option is an object keyed by playlist key; every record holds the
  * playlist title, description, videos, and the id of the post it lives in.
+ * Series playlists also carry a `type`, see Series_Playlist_Adapter.
  */
 class Playlist_Index {
 
@@ -82,12 +83,13 @@ class Playlist_Index {
 		add_action( 'deleted_post', array( __CLASS__, 'remove_post' ) );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_schedule_build' ) );
 		add_action( self::BUILD_HOOK, array( __CLASS__, 'build' ) );
+		Series_Playlist_Adapter::init();
 	}
 
 	/**
 	 * Get every indexed playlist, keyed by playlist key.
 	 *
-	 * @return array<string, array{title: string, description: string, videos: array, post_id: int}>
+	 * @return array<string, array{title: string, description: string, videos: array, post_id: int, type?: string, series?: int}>
 	 */
 	public static function get_playlists() {
 		$index = get_option( self::OPTION_NAME, array() );
@@ -240,6 +242,11 @@ class Playlist_Index {
 				$key = $post->ID . '-' . $ordinal;
 			}
 
+			if ( Series_Playlist_Adapter::is_series_block( $attrs ) ) {
+				$records[ $key ] = Series_Playlist_Adapter::to_record( $attrs, $post );
+				continue;
+			}
+
 			$records[ $key ] = array(
 				'title'       => isset( $attrs['playlistTitle'] ) && is_string( $attrs['playlistTitle'] )
 					? sanitize_text_field( $attrs['playlistTitle'] )
@@ -290,11 +297,10 @@ class Playlist_Index {
 
 			if ( self::BLOCK_NAME === ( $block['blockName'] ?? null ) ) {
 				$attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
-				// A block that shows another playlist ( any `source` but own ) is not one itself.
-				if ( isset( $attrs['source'] ) && 'own' !== $attrs['source'] ) {
-					continue;
+				// A block that shows another playlist is not one itself; a series playlist is.
+				if ( self::is_playlist( $attrs ) ) {
+					$found[] = $attrs;
 				}
-				$found[] = $attrs;
 			}
 
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
@@ -303,6 +309,17 @@ class Playlist_Index {
 		}
 
 		return $found;
+	}
+
+	/**
+	 * Whether a Video Playlist block is a playlist of its own: its own videos, or a series.
+	 *
+	 * @param array $attrs Block attributes.
+	 *
+	 * @return bool
+	 */
+	public static function is_playlist( array $attrs ) {
+		return ! isset( $attrs['source'] ) || 'own' === $attrs['source'] || Series_Playlist_Adapter::is_series_block( $attrs );
 	}
 
 	/**
