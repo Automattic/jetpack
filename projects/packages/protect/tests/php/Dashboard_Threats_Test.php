@@ -19,11 +19,27 @@ use WorDBless\BaseTestCase;
 class Dashboard_Threats_Test extends BaseTestCase {
 
 	/**
-	 * Forget the fixes each test records.
+	 * Start each test with no plugins, so get_plugins() never reads the plugin folder other projects' tests share.
+	 */
+	public function set_up() {
+		parent::set_up();
+		wp_cache_set( 'plugins', array( '' => array() ), 'plugins' );
+	}
+
+	/**
+	 * Forget the fixes and plugins each test records.
 	 */
 	public function tear_down() {
 		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		wp_cache_delete( 'plugins', 'plugins' );
 		parent::tear_down();
+	}
+
+	/**
+	 * Install a single-file plugin, as get_plugins() would report it.
+	 */
+	private static function install_test_plugin() {
+		wp_cache_set( 'plugins', array( '' => array( 'protect-state-test.php' => array( 'Name' => 'Protect State Test' ) ) ), 'plugins' );
 	}
 
 	/**
@@ -211,10 +227,7 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provider_plugin_state' )]
 	public function test_plugin_state( $is_active, $expected ) {
-		$file = WP_PLUGIN_DIR . '/protect-state-test.php';
-		wp_mkdir_p( WP_PLUGIN_DIR );
-		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect State Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		wp_clean_plugins_cache( false );
+		self::install_test_plugin();
 		update_option( 'active_plugins', $is_active ? array( 'protect-state-test.php' ) : array() );
 
 		$threat = Dashboard_Threats::format(
@@ -225,7 +238,6 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				),
 			)
 		);
-		wp_delete_file( $file );
 
 		$this->assertSame( $expected, $threat['extension']['state'] );
 	}
@@ -252,10 +264,7 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provider_delete_action' )]
 	public function test_delete_action( $status, $expected ) {
-		$file = WP_PLUGIN_DIR . '/protect-state-test.php';
-		wp_mkdir_p( WP_PLUGIN_DIR );
-		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect State Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		wp_clean_plugins_cache( false );
+		self::install_test_plugin();
 		update_option( 'active_plugins', array() );
 		wp_set_current_user(
 			wp_insert_user(
@@ -276,7 +285,6 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				),
 			)
 		);
-		wp_delete_file( $file );
 		wp_set_current_user( 0 );
 
 		$this->assertSame( $expected, ! empty( $threat['extension']['actions']['delete'] ) );

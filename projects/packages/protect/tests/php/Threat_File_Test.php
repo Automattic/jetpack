@@ -25,12 +25,21 @@ class Threat_File_Test extends BaseTestCase {
 	private $files = array();
 
 	/**
-	 * Remove the test's files and cached checksums.
+	 * Start each test with no plugins, so get_plugins() never reads the plugin folder other projects' tests share.
+	 */
+	public function set_up() {
+		parent::set_up();
+		wp_cache_set( 'plugins', array( '' => array() ), 'plugins' );
+	}
+
+	/**
+	 * Remove the test's files, plugins, and cached checksums.
 	 */
 	public function tear_down() {
 		foreach ( $this->files as $file ) {
 			wp_delete_file( $file );
 		}
+		wp_cache_delete( 'plugins', 'plugins' );
 		delete_transient( Threat_File::CHECKSUMS_CACHE );
 		remove_all_filters( 'map_meta_cap' );
 		remove_all_filters( 'pre_http_request' );
@@ -111,8 +120,11 @@ class Threat_File_Test extends BaseTestCase {
 			'drop-in'           => WP_CONTENT_DIR . '/db-error.php',
 		);
 		if ( 'plugin' === $where ) {
-			$this->write( WP_PLUGIN_DIR . '/protect-test-plugin/protect-test-plugin.php', "<?php\n/**\n * Plugin Name: Protect Test Plugin\n */\n" );
-			wp_clean_plugins_cache( false );
+			$plugin = array(
+				'Name'    => 'Protect Test Plugin',
+				'Version' => '1.0',
+			);
+			wp_cache_set( 'plugins', array( '' => array( 'protect-test-plugin/protect-test-plugin.php' => $plugin ) ), 'plugins' );
 		}
 		if ( 'registered-theme' === $where ) {
 			$this->write( WP_CONTENT_DIR . '/protect-test-themes/protect-test-theme/style.css', "/*\nTheme Name: Protect Test Theme\n*/\n" );
