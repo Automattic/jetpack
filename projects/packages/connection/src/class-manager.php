@@ -3432,15 +3432,12 @@ class Manager {
 	/**
 	 * Authorizes the user by obtaining and storing the user token.
 	 *
-	 * A user with `jetpack_connect` takes a vacant owner slot. A recorded owner with an unusable token
-	 * still holds the slot while ownership is locked; see can_fill_unconnected_owner_slot(). For an
-	 * occupied slot, the token request sends the site's view of the owner and WordPress.com decides,
-	 * switching the owner in that same request and reporting it as `connection_owner`.
-	 * Anyone else is linked as a secondary user.
+	 * When ownership is transferable, the token request claims the owner slot, and a `connection_owner`
+	 * answer from WordPress.com decides the owner. Without an answer, a user with `jetpack_connect` takes a vacant slot, unless a lock protects a recorded owner
+	 * (see can_fill_unconnected_owner_slot()). Anyone else is linked as a secondary user.
 	 *
 	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
-	 * @since $$next-version$$ An admin becomes the owner when WordPress.com reports the owner's connection broken.
-	 * @since $$next-version$$ A user becomes the owner only when WordPress.com reports them as the owner, even when the owner slot is empty.
+	 * @since $$next-version$$ Claim the owner slot, and let WordPress.com's answer decide the owner.
 	 * @since $$next-version$$ A locked owner with an unusable token is no longer replaced.
 	 *
 	 * @param array $data The request data.
@@ -3495,19 +3492,24 @@ class Manager {
 		}
 
 		// Only a user who may manage the site connection can own it; others link as secondary users.
-		$can_claim_owner   = current_user_can( 'jetpack_connect' ) && $this->can_fill_unconnected_owner_slot( $current_user_id );
-		$is_vacant_locally = $can_claim_owner && ! $this->has_connected_owner();
+		$can_manage_connection = current_user_can( 'jetpack_connect' );
+		$recorded_owner_id     = (int) \Jetpack_Options::get_option( 'master_user' );
 
-		// What only the site knows. WordPress.com adds the owner's token health and decides the owner in this request.
-		// Read before the token write, which clears the stored errors has_owner_connection_error() reads.
-		$owner_claim = array(
-			'owner_claim'          => $can_claim_owner ? 1 : 0,
-			'local_owner_unusable' => \Jetpack_Options::get_option( 'master_user' ) && ( ! $this->has_connected_owner() || $this->has_owner_connection_error() ) ? 1 : 0,
-			'owner_transferable'   => $this->is_ownership_transferable() ? 1 : 0,
-		);
+		// A locked site never claims, so WordPress.com leaves the owner to the site's own rule.
+		$send_owner_claim = $can_manage_connection && $this->is_ownership_transferable();
+		$owner_claim      = $send_owner_claim ? array(
+			'owner_claim'          => 1,
+			// Read before the token write, which clears the stored errors has_owner_connection_error() reads.
+			'local_owner_unusable' => $this->is_recorded_owner_unusable() ? 1 : 0,
+		) : array();
 
 		$token_details = null;
-		$token         = $this->get_tokens()->get( $data, $this->api_url( 'token' ), $owner_claim, $token_details );
+		$token         = $this->get_tokens()->get(
+			$data,
+			$this->api_url( 'token' ),
+			$owner_claim,
+			$token_details
+		);
 
 		if ( is_wp_error( $token ) ) {
 			$code = $token->get_error_code();
@@ -3521,12 +3523,12 @@ class Manager {
 			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
 		}
 
-		// WordPress.com decides who owns the site, so a response without `connection_owner` leaves the slot as it is.
-		// The site's own gate still caps it, so a WordPress.com answer can't promote an editor or pass a lock.
-		$is_connection_owner = $can_claim_owner
-			&& ! empty( $token_details['connection_owner'] )
-			&& $this->get_connection_owner_id() !== $current_user_id;
-		$switched_by_wpcom   = $is_connection_owner && ! $is_vacant_locally;
+		// WordPress.com answers only a claim it doesn't block; without an answer, keep trunk's vacant-slot rule.
+		$wpcom_decided       = $send_owner_claim && is_array( $token_details ) && array_key_exists( 'connection_owner', $token_details );
+		$is_connection_owner = $wpcom_decided
+			? $token_details['connection_owner']
+			: $can_manage_connection && ! $this->has_connected_owner() && $this->can_fill_unconnected_owner_slot( $current_user_id );
+		$switched_by_wpcom   = $wpcom_decided && $is_connection_owner && $recorded_owner_id && $recorded_owner_id !== $current_user_id;
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
@@ -3574,6 +3576,20 @@ class Manager {
 		( new Nonce_Handler() )->reschedule();
 
 		return 'authorized';
+	}
+
+	/**
+	 * Whether the recorded connection owner's token is unusable on this site.
+	 *
+	 * WordPress.com can't see a token the site holds but can't use, so the owner claim reports it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private function is_recorded_owner_unusable() {
+		return \Jetpack_Options::get_option( 'master_user' )
+			&& ( ! $this->has_connected_owner() || $this->has_owner_connection_error() );
 	}
 
 	/**
