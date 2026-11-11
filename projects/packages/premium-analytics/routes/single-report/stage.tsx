@@ -19,7 +19,7 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { PeriodChangeStatus, SectionTabs, StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
-	DetailPageActions,
+	CustomizeActions,
 	PageEmptyState,
 	PageNotice,
 	describeError,
@@ -405,14 +405,14 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 									) : undefined
 								}
 								actions={
-									<DetailPageActions
+									<CustomizeActions
 										isCustomizing={ isCustomizing }
 										onCustomize={ canCustomize ? startCustomizing : undefined }
 										onReset={ resetToDefault }
 										editingActions={ <WidgetDashboard.Actions /> }
 									>
 										{ adapter.headerActions?.( summary ) }
-									</DetailPageActions>
+									</CustomizeActions>
 								}
 							>
 								<SinglePageLayout

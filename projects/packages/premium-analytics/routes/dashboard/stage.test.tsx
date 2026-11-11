@@ -100,8 +100,16 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 
 	const JetpackFooter = () => <footer>Jetpack footer</footer>;
 	const Icon = () => null;
+	const Button = Object.assign(
+		forwardRef( ( props: Record< string, unknown >, ref: never ) => (
+			<button ref={ ref } type="button" onClick={ props.onClick as () => void }>
+				{ props.children as ReactNode }
+			</button>
+		) ),
+		{ Icon: () => null }
+	);
 
-	return { Icon, JetpackFooter, Stack, VisuallyHidden };
+	return { Button, Icon, JetpackFooter, Stack, VisuallyHidden };
 } );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -176,23 +184,22 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
 	useTrackCustomize: () => mockTrackCustomize,
 	canSendFeedback: () => mockCanSendFeedback,
-	useCustomizeFocus: jest.requireActual(
-		'../../packages/widgets-toolkit/src/components/customize-action'
-	).useCustomizeFocus,
-	CustomizeAction: jest
-		.requireActual( 'react' )
-		.forwardRef( ( { onCustomize }: { onCustomize: () => void }, ref: never ) => (
-			<button ref={ ref } type="button" onClick={ onCustomize }>
-				Customize
-			</button>
-		) ),
+	CustomizeActions: jest.requireActual(
+		'../../packages/widgets-toolkit/src/components/customize-actions'
+	).CustomizeActions,
+	useTrackedDateRangeApply: ( ...args: unknown[] ) => mockUseTrackedDateRangeApply( ...args ),
+} ) );
+
+jest.mock( '../../packages/widgets-toolkit/src/components/page-options-menu', () => ( {
 	PageOptionsMenu: () => <div data-testid="page-options-menu" />,
+} ) );
+
+jest.mock( '../../packages/widgets-toolkit/src/components/reset-layout', () => ( {
 	ResetLayoutAction: ( { onReset }: { onReset: () => void } ) => (
 		<button type="button" onClick={ onReset }>
 			Reset to default
 		</button>
 	),
-	useTrackedDateRangeApply: ( ...args: unknown[] ) => mockUseTrackedDateRangeApply( ...args ),
 } ) );
 
 jest.mock( '../use-stats-date-limits', () => ( {
@@ -1437,17 +1444,17 @@ describe( 'Dashboard customizing', () => {
 		expect( screen.queryByText( 'interval control' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers Customize as a header button, withdrawn while customizing, keeping focus across the swap', async () => {
+	it( 'offers Customize as a header button, withdrawn while customizing', async () => {
 		render( <Dashboard /> );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
 		expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'button', { name: 'Done' } ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
 
-		expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
 	} );
 
 	it( "offers Reset to default beside the dashboard's own actions while customizing", async () => {

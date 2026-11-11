@@ -2,9 +2,6 @@ import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
-import { CustomizeAction, useCustomizeFocus } from '../customize-action';
-import { PageOptionsMenu } from '../page-options-menu';
-import { ResetLayoutAction } from '../reset-layout';
 import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
 import type { ReactNode } from 'react';
 
@@ -160,59 +157,6 @@ export function DetailPageBreadcrumbs( { isCustomizing, children }: DetailPageBr
 		<Stack direction="row" align="center" gap="sm">
 			{ children }
 			<Badge intent="informational">{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }</Badge>
-		</Stack>
-	);
-}
-
-export type DetailPageActionsProps = {
-	isCustomizing: boolean;
-	/** Enters customize mode; Customize is on offer only when given. */
-	onCustomize?: () => void;
-	/** Resets the layout to default; the Reset button shows while customizing, only when given. */
-	onReset?: () => void | Promise< void >;
-	/**
-	 * The dashboard's own actions, `<WidgetDashboard.Actions />`, created by the route.
-	 * Each bundle carries its own copy of `@wordpress/widget-dashboard`, so one rendered
-	 * from here would read a context the route's `WidgetDashboard` never provides.
-	 */
-	editingActions: ReactNode;
-	/** The page's own actions, shown ahead of Customize while not customizing. */
-	children?: ReactNode;
-};
-
-/**
- * The actions slot of a detail page. Idle, it holds the page's own actions,
- * Customize and the page options menu; customizing, the dashboard's own Cancel
- * and Done take their place, Reset to default beside them, and the menu stays.
- *
- * @param props                - Component props.
- * @param props.isCustomizing  - Whether the page is in customize mode.
- * @param props.onCustomize    - Called when the reader selects Customize.
- * @param props.onReset        - Called when the reader confirms Reset to default.
- * @param props.editingActions - The dashboard's own actions, shown while customizing.
- * @param props.children       - The page's own actions.
- * @return The slot content.
- */
-export function DetailPageActions( {
-	isCustomizing,
-	onCustomize,
-	onReset,
-	editingActions,
-	children,
-}: DetailPageActionsProps ) {
-	const customizeFocus = useCustomizeFocus( isCustomizing, onCustomize );
-
-	return (
-		<Stack ref={ customizeFocus.frameRef } direction="row" align="center" gap="sm">
-			{ isCustomizing ? editingActions : children }
-			{ ! isCustomizing && customizeFocus.onCustomize && (
-				<CustomizeAction
-					ref={ customizeFocus.customizeRef }
-					onCustomize={ customizeFocus.onCustomize }
-				/>
-			) }
-			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
-			<PageOptionsMenu />
 		</Stack>
 	);
 }

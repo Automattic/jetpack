@@ -25,11 +25,8 @@ import {
 } from '@jetpack-premium-analytics/ui';
 import {
 	canSendFeedback,
-	CustomizeAction,
+	CustomizeActions,
 	DashboardSectionProvider,
-	PageOptionsMenu,
-	ResetLayoutAction,
-	useCustomizeFocus,
 	useHostLinkSearch,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
@@ -203,7 +200,6 @@ function Dashboard(): JSX.Element {
 		[ trackCustomize ]
 	);
 	const startCustomizing = useCallback( () => onEditChange( true ), [ onEditChange ] );
-	const customizeFocus = useCustomizeFocus( editMode, startCustomizing );
 	const onLayoutChange = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
 			trackCustomize.layoutChange( layout, nextLayout );
@@ -278,7 +274,7 @@ function Dashboard(): JSX.Element {
 		planOffersComparison;
 
 	// The tour's anchors, handed in by the elements below once they mount.
-	const [ customizeFrame, setCustomizeFrame ] = useState< HTMLDivElement | null >( null );
+	const [ customizeButton, setCustomizeButton ] = useState< HTMLButtonElement | null >( null );
 	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
 	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
@@ -287,7 +283,7 @@ function Dashboard(): JSX.Element {
 		// Every tile is a section; the grid draws them in layout order.
 		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
 		dateControls: controlsAnchor,
-		customize: customizeFrame?.querySelector( 'button' ) ?? null,
+		customize: customizeButton,
 		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
 		sectionTabs: tabListFrame?.querySelector( '[role="tablist"]' ) ?? null,
 	};
@@ -535,29 +531,16 @@ function Dashboard(): JSX.Element {
 								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 								actions={
-									<Stack ref={ customizeFocus.frameRef } direction="row" gap="sm">
-										{ /* At rest `WidgetDashboard.Actions` would add its own Customize beside ours. */ }
-										{ editMode && (
-											<>
-												<WidgetDashboard.Actions />
-												<ResetLayoutAction onReset={ resetToDefault } />
-											</>
-										) }
-										{ ! editMode &&
-											! isSettingsActive &&
-											canCustomizeSection &&
-											customizeFocus.onCustomize && (
-												<Stack ref={ setCustomizeFrame } direction="row">
-													<CustomizeAction
-														ref={ customizeFocus.customizeRef }
-														onCustomize={ customizeFocus.onCustomize }
-													/>
-												</Stack>
-											) }
-										<Stack ref={ setOptionsMenuFrame } direction="row">
-											<PageOptionsMenu />
-										</Stack>
-									</Stack>
+									<CustomizeActions
+										isCustomizing={ editMode }
+										onCustomize={
+											! isSettingsActive && canCustomizeSection ? startCustomizing : undefined
+										}
+										onReset={ resetToDefault }
+										editingActions={ <WidgetDashboard.Actions /> }
+										customizeRef={ setCustomizeButton }
+										optionsMenuRef={ setOptionsMenuFrame }
+									/>
 								}
 								className={ styles.dashboard }
 							>

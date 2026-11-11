@@ -22,7 +22,7 @@ import {
 	StatsBreadcrumbs,
 } from '@jetpack-premium-analytics/ui';
 import {
-	DetailPageActions,
+	CustomizeActions,
 	DetailPageBreadcrumbs,
 	DetailPageLayout,
 	PageNotice,
@@ -232,7 +232,7 @@ function AuthorDetail(): JSX.Element {
 									</DetailPageBreadcrumbs>
 								}
 								actions={
-									<DetailPageActions
+									<CustomizeActions
 										isCustomizing={ isCustomizing }
 										onCustomize={ canCustomize ? startCustomizing : undefined }
 										onReset={ resetToDefault }
