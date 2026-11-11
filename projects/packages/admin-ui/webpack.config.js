@@ -1,7 +1,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
-module.exports = {
+const adminUi = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	output: {
@@ -41,3 +41,42 @@ module.exports = {
 		],
 	},
 };
+
+// The admin shell client: one script module, so a page makes one request for it. See class-admin-shell.php.
+const adminShell = {
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.devtool,
+	entry: { 'admin-shell': './src/admin-shell/index.js' },
+	output: {
+		...jetpackWebpackConfig.output,
+		path: path.resolve( './build' ),
+		filename: '[name].js',
+		library: { type: 'module' },
+		module: true,
+		chunkFormat: 'module',
+	},
+	experiments: { outputModule: true },
+	optimization: {
+		...jetpackWebpackConfig.optimization,
+		concatenateModules: true,
+	},
+	resolve: {
+		...jetpackWebpackConfig.resolve,
+	},
+	node: false,
+	plugins: jetpackWebpackConfig.StandardPlugins( {
+		DependencyExtractionPlugin: false,
+		I18nCheckPlugin: false,
+		I18nLoaderPlugin: false,
+		I18nSafeMangleExportsPlugin: false,
+		MiniCssExtractPlugin: false,
+		MiniCssWithRtlPlugin: false,
+		WebpackRtlPlugin: false,
+	} ),
+	module: {
+		strictExportPresence: true,
+		rules: [ jetpackWebpackConfig.TranspileRule( { exclude: /node_modules\// } ) ],
+	},
+};
+
+module.exports = [ adminUi, adminShell ];

@@ -80,6 +80,10 @@ if ( class_exists( \Automattic\Jetpack\PremiumAnalytics\Classic_Stats::class ) )
 if ( method_exists( \Automattic\Jetpack\Admin_UI\Admin_Shell::class, 'register_feature_flag' ) ) {
 	\Automattic\Jetpack\Admin_UI\Admin_Shell::register_feature_flag();
 }
+// Here too, not only in Admin_Menu: admin-ajax requests never build the menu, and the guest endpoint lives there.
+if ( method_exists( \Automattic\Jetpack\Admin_UI\Admin_Shell::class, 'init' ) ) {
+	\Automattic\Jetpack\Admin_UI\Admin_Shell::init();
+}
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';

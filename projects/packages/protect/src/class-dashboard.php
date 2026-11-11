@@ -116,6 +116,7 @@ class Dashboard {
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		Threat_Count::init();
+		Settings::init();
 		add_action( 'add_option_' . Scan_Status::OPTION_NAME, array( Dashboard_Threats::class, 'prune_on_stored_scan' ), 10, 2 );
 		add_action( 'update_option_' . Scan_Status::OPTION_NAME, array( Dashboard_Threats::class, 'prune_on_stored_scan' ), 10, 2 );
 

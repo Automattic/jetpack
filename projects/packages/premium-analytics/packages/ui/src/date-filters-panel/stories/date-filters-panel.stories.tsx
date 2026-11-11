@@ -10,10 +10,7 @@ import {
 import { setLocaleData, resetLocaleData } from '@wordpress/i18n';
 import { endOfDay, subDays, startOfDay } from 'date-fns';
 import { useCallback, useRef, useState } from 'react';
-import {
-	getStoryIntervalOptions,
-	resolveStoryInterval,
-} from '../../date-interval-dropdown/stories/story-interval-options';
+import { getStoryIntervalState } from '../../date-interval-dropdown/stories/story-interval-options';
 import { DateFiltersPanel } from '../date-filters-panel';
 import type { DateControlTriggerProps } from '../../utils/date-control-trigger';
 import type { DateRange } from '../date-filters-panel';
@@ -194,8 +191,12 @@ function DateFiltersPanelStory( {
 	 * back to the finest allowed, the same coercion the report params apply.
 	 */
 	const [ pickedInterval, setPickedInterval ] = useState< IntervalType | undefined >( undefined );
-	const intervalOptions = getStoryIntervalOptions( stagedPrimary.presetId );
-	const interval = resolveStoryInterval( pickedInterval, intervalOptions );
+	const { options: intervalOptions, interval } = getStoryIntervalState(
+		stagedPrimary.presetId,
+		stagedPrimary.range,
+		STORYBOOK_TIMEZONE,
+		pickedInterval
+	);
 
 	return (
 		<div
