@@ -494,10 +494,7 @@ class Scan_Section_Test extends BaseTestCase {
 	#[DataProvider( 'provider_delete_plugin' )]
 	public function test_delete_software_only_deletes_inactive_plugins( $files, $active, $slug, $is_deleted ) {
 		foreach ( $files as $file ) {
-			// wp_mkdir_p() refuses the test environment's plugin root, whose path has `..` in it.
-			if ( ! is_dir( dirname( WP_PLUGIN_DIR . "/$file" ) ) ) {
-				mkdir( dirname( WP_PLUGIN_DIR . "/$file" ), 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-			}
+			wp_mkdir_p( dirname( WP_PLUGIN_DIR . "/$file" ) );
 			file_put_contents( WP_PLUGIN_DIR . "/$file", "<?php\n/**\n * Plugin Name: $file\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		}
 		self::seed_plugin_cache( $files );

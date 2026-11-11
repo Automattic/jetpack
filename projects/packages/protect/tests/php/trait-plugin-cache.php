@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 /**
- * Seeds get_plugins()'s cache, so it never reads the plugin folder other projects' tests share in parallel CI runs.
+ * Seeds get_plugins()'s cache, so each test lists exactly the plugins it installs, without reading the plugins folder.
  */
 trait Plugin_Cache {
 
