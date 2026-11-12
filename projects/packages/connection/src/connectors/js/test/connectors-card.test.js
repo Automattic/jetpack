@@ -376,14 +376,14 @@ describe( 'Connectors card', () => {
 		} );
 
 		it.each( [
-			[ 'promises the owner slot', true, /you will become the new connection owner/ ],
-			[ 'does not promise a locked owner slot', false, /You can still connect/ ],
+			[ 'offers the owner slot', true, /you can become the new connection owner/ ],
+			[ 'does not offer an owner slot it cannot take', false, /You can still connect/ ],
 		] )( '%s to an admin connecting past a broken owner', ( _, transferable, copy ) => {
 			renderCard( {
 				state: {
 					...unlinkedAdmin,
 					connectionStatus: { isRegistered: true, hasConnectedOwner: false },
-					isOwnershipTransferable: transferable,
+					canTakeOwnerSlot: transferable,
 				},
 				search: '?connector=wordpress_com',
 			} );

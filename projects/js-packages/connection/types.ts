@@ -137,7 +137,8 @@ export type ConnectionScriptData = {
 	siteSuffix: string;
 	connectionErrors: Array< string | object >;
 	isOfflineMode: boolean;
-	isOwnershipTransferable: boolean;
+	/** Whether connecting would make the viewer the connection owner. */
+	canTakeOwnerSlot: boolean;
 	/** Owner identity; null when unresolvable or when the viewer lacks the jetpack_connect capability. */
 	connectionOwner: ConnectionOwner | null;
 	/**

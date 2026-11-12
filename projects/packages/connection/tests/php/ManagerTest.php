@@ -1986,18 +1986,18 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * With both tokens healthy and the owner's connection recorded as broken, restore() relinks
-	 * only the current user, unless ownership is locked and they are not the owner.
+	 * With both tokens healthy and an owner error on record, restore() relinks only the current user
+	 * when that would make them the owner, and otherwise falls back to a full reconnect.
 	 *
 	 * @dataProvider provider_restore_owner_error_with_healthy_tokens
 	 *
-	 * @param bool   $user_is_owner    Whether the current user is the connection owner.
-	 * @param bool   $transferable     Whether ownership can be transferred.
-	 * @param string $expected_method  The repair path restore() should take.
-	 * @param mixed  $expected_return  The value restore() should return.
+	 * @param string $owner           Who `master_user` names: `self`, `other`, or `deleted`.
+	 * @param bool   $transferable    Whether ownership can be transferred.
+	 * @param string $direction       The owner error's `error_direction`.
+	 * @param string $expected_method The repair path restore() should take.
 	 */
 	#[DataProvider( 'provider_restore_owner_error_with_healthy_tokens' )]
-	public function test_restore_owner_error_with_healthy_tokens_relinks_only_the_user( $user_is_owner, $transferable, $expected_method, $expected_return ) {
+	public function test_restore_owner_error_with_healthy_tokens_relinks_only_the_user( $owner, $transferable, $direction, $expected_method ) {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'test_restore_user',
@@ -2006,20 +2006,31 @@ class ManagerTest extends TestCase {
 			)
 		);
 		wp_set_current_user( $user_id );
-		$owner_id = $user_is_owner ? $user_id : $user_id + 1;
+		$owner_ids = array(
+			'self'    => $user_id,
+			'deleted' => 4242,
+		);
+		$owner_id  = $owner_ids[ $owner ] ?? wp_insert_user(
+			array(
+				'user_login' => 'test_restore_owner',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
 		\Jetpack_Options::update_option( 'master_user', $owner_id );
 		update_option(
 			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
 			array(
-				'no_valid_user_token' => array(
+				'signature_mismatch' => array(
 					(string) $owner_id => array(
-						'error_code'    => 'no_valid_user_token',
-						'user_id'       => (string) $owner_id,
-						'error_message' => 'Test message',
-						'error_data'    => array(),
-						'timestamp'     => time(),
-						'nonce'         => 'test_nonce',
-						'error_type'    => 'xmlrpc',
+						'error_code'      => 'signature_mismatch',
+						'user_id'         => (string) $owner_id,
+						'error_message'   => 'Test message',
+						'error_data'      => array(),
+						'timestamp'       => time(),
+						'nonce'           => 'test_nonce',
+						'error_type'      => 'xmlrpc',
+						'error_direction' => $direction,
 					),
 				),
 			)
@@ -2040,12 +2051,15 @@ class ManagerTest extends TestCase {
 			->getMock();
 		$manager->method( 'is_site_connection' )->willReturn( false );
 		$manager->method( 'get_tokens' )->willReturn( $tokens );
-		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
+		// A deleted owner resolves to no owner, as Manager::get_connection_owner() does.
+		$manager->method( 'get_connection_owner_id' )->willReturn( 'deleted' === $owner ? false : $owner_id );
 		$manager->method( 'is_ownership_transferable' )->willReturn( $transferable );
+		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
 
 		try {
-			$this->assert_restore_routes( $manager, $expected_method, $expected_return );
+			$this->assert_restore_routes( $manager, $expected_method, 'authorize' );
 		} finally {
+			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
 			delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
 			\Jetpack_Options::delete_option( 'master_user' );
 		}
@@ -2054,13 +2068,119 @@ class ManagerTest extends TestCase {
 	/**
 	 * Data provider for test_restore_owner_error_with_healthy_tokens_relinks_only_the_user.
 	 *
-	 * @return array<string, array{0: bool, 1: bool, 2: string, 3: mixed}>
+	 * @return array<string, array{0: string, 1: bool, 2: string, 3: string}>
 	 */
 	public static function provider_restore_owner_error_with_healthy_tokens() {
 		return array(
-			'owner relinks'                     => array( true, false, 'refresh_user_token', 'authorize' ),
-			'non-owner relinks to become owner' => array( false, true, 'refresh_user_token', 'authorize' ),
-			'non-owner with locked ownership'   => array( false, false, 'reconnect', 'authorize' ),
+			'owner relinks'                       => array( 'self', false, 'outgoing', 'refresh_user_token' ),
+			'non-owner relinks to become owner'   => array( 'other', true, 'outgoing', 'refresh_user_token' ),
+			'non-owner with locked ownership'     => array( 'other', false, 'outgoing', 'reconnect' ),
+			'unproven owner error is not claimed' => array( 'other', true, 'incoming', 'reconnect' ),
+			'deleted owner, locked ownership'     => array( 'deleted', false, 'outgoing', 'refresh_user_token' ),
+		);
+	}
+
+	/**
+	 * Test whether connecting would make a user the connection owner.
+	 *
+	 * @param string $owner        Who `master_user` names: `none`, `self`, `deleted`, or `other`.
+	 * @param string $owner_state  For `other`: `healthy`, `rejected` (outgoing error), `unproven` (incoming error), or `missing` (no token).
+	 * @param bool   $transferable Whether ownership can be transferred.
+	 * @param string $role         The user's role.
+	 * @param bool   $atomic       Whether the site is on WordPress.com Atomic.
+	 * @param bool   $expected     Whether the user can take the slot.
+	 * @dataProvider provide_can_take_owner_slot
+	 */
+	#[DataProvider( 'provide_can_take_owner_slot' )]
+	public function test_can_take_owner_slot( $owner, $owner_state, $transferable, $role, $atomic, $expected ) {
+		$user_id   = wp_insert_user(
+			array(
+				'user_login' => 'test_take_slot_user',
+				'user_pass'  => '123',
+				'role'       => $role,
+			)
+		);
+		$owner_ids = array(
+			'none'    => 0,
+			'self'    => $user_id,
+			'deleted' => 4242,
+		);
+		$owner_id  = $owner_ids[ $owner ] ?? wp_insert_user(
+			array(
+				'user_login' => 'test_take_slot_owner',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		if ( in_array( $owner_state, array( 'rejected', 'unproven' ), true ) ) {
+			update_option(
+				Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
+				array(
+					'signature_mismatch' => array(
+						(string) $owner_id => array(
+							'error_code'      => 'signature_mismatch',
+							'user_id'         => (string) $owner_id,
+							'timestamp'       => time(),
+							'error_direction' => 'rejected' === $owner_state ? 'outgoing' : 'incoming',
+						),
+					),
+				)
+			);
+		}
+
+		if ( $atomic ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh.php' );
+		}
+		StatusCache::clear();
+
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'get_connection_owner_id', 'is_ownership_transferable' ) )
+			->getMock();
+		$manager->method( 'get_connection_owner_id' )->willReturn( 'other' === $owner && 'missing' !== $owner_state ? $owner_id : false );
+		$manager->method( 'is_ownership_transferable' )->willReturn( $transferable );
+		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+		$filter_disconnect_cap = static function () {
+			return array( 'edit_others_posts' );
+		};
+		if ( 'editor' === $role ) {
+			add_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+		}
+
+		try {
+			$this->assertSame( $expected, $manager->can_take_owner_slot( $user_id ) );
+		} finally {
+			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
+			remove_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+			Constants::clear_constants();
+			StatusCache::clear();
+			delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
+			\Jetpack_Options::delete_option( 'master_user' );
+		}
+	}
+
+	/**
+	 * Data provider for test_can_take_owner_slot.
+	 *
+	 * @return array
+	 */
+	public static function provide_can_take_owner_slot() {
+		return array(
+			'no owner recorded'              => array( 'none', '', false, 'administrator', false, true ),
+			'the owner themselves, locked'   => array( 'self', '', false, 'administrator', false, true ),
+			'deleted owner, locked'          => array( 'deleted', '', false, 'administrator', false, true ),
+			'healthy owner'                  => array( 'other', 'healthy', true, 'administrator', false, false ),
+			'rejected owner token'           => array( 'other', 'rejected', true, 'administrator', false, true ),
+			'unproven owner error'           => array( 'other', 'unproven', true, 'administrator', false, false ),
+			'rejected owner token, locked'   => array( 'other', 'rejected', false, 'administrator', false, false ),
+			'rejected owner token on Atomic' => array( 'other', 'rejected', true, 'administrator', true, false ),
+			'missing owner token on Atomic'  => array( 'other', 'missing', true, 'administrator', true, true ),
+			'rejected owner token, editor'   => array( 'other', 'rejected', true, 'editor', false, false ),
+			'missing owner token, editor'    => array( 'other', 'missing', true, 'editor', false, true ),
+			'user without jetpack_connect'   => array( 'none', '', true, 'author', false, false ),
 		);
 	}
 
