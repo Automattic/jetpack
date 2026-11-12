@@ -5,10 +5,10 @@ import {
 	AnalyticsQueryClientProvider,
 	useStatsYearlyProduct,
 } from '@jetpack-premium-analytics/data';
-import { Button, Icon, JetpackFooter, Notice } from '@jetpack-premium-analytics/externals';
+import { Button, Icon, JetpackFooter, Notice, Stack } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
-import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import { PageOptionsMenu, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -77,17 +77,21 @@ function PlanChoice() {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 			actions={
-				isOfflineMode ? null : (
-					<Button
-						variant="outline"
-						size="compact"
-						disabled={ pendingPlan !== null }
-						loading={ pendingPlan === 'existing' }
-						onClick={ chooseExisting }
-					>
-						{ __( 'I already have a plan', 'jetpack-premium-analytics-pkg' ) }
-					</Button>
-				)
+				<Stack direction="row" align="center" gap="sm">
+					{ ! isOfflineMode && (
+						<Button
+							variant="outline"
+							size="compact"
+							disabled={ pendingPlan !== null }
+							loading={ pendingPlan === 'existing' }
+							onClick={ chooseExisting }
+						>
+							{ __( 'I already have a plan', 'jetpack-premium-analytics-pkg' ) }
+						</Button>
+					) }
+
+					<PageOptionsMenu />
+				</Stack>
 			}
 		>
 			<div className="jetpack-premium-analytics-connect-stage__content">
