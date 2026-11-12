@@ -230,6 +230,16 @@ describe( 'Connect stage', () => {
 		expect( screen.queryByRole( 'button', { name: 'Start for free' } ) ).not.toBeInTheDocument();
 	} );
 
+	it.each( [
+		{ mode: 'beside the plan choice', isOfflineMode: false },
+		{ mode: 'in offline mode', isOfflineMode: true },
+	] )( 'offers the page options menu $mode', ( { isOfflineMode } ) => {
+		setIsOfflineMode( isOfflineMode );
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'prices the paid plan per month from the yearly product', async () => {
 		render( <Stage /> );
 

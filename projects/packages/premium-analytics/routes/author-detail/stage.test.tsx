@@ -410,10 +410,10 @@ describe( 'author detail stage', () => {
 
 		const { unmount } = render( stage() );
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await expect(
-			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		await expect( screen.findByRole( 'menuitem', { name: 'Customize' } ) ).resolves.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 		unmount();
 
 		mockSummary();

@@ -219,6 +219,17 @@ describe( 'dated report pages', () => {
 			);
 		}
 	);
+
+	it.each( [ clicks, searchTerms, downloads, utm ] )(
+		'$name offers the page options menu in its header',
+		page => {
+			mockRecords( page, {} );
+
+			render( <page.Page /> );
+
+			expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
+		}
+	);
 } );
 
 describe( 'UtmReportPage', () => {

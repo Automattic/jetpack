@@ -31,7 +31,12 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: () => null,
-	Page: ( { children }: { children: ReactNode } ) => <main>{ children }</main>,
+	Page: ( { actions, children }: { actions: ReactNode; children: ReactNode } ) => (
+		<main>
+			{ actions }
+			{ children }
+		</main>
+	),
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
@@ -97,6 +102,7 @@ function setScriptData( isUserConnected: boolean ) {
 			wpcom: { blog_id: 123 },
 		},
 		connection: { connectionStatus: { isRegistered: true, isUserConnected } },
+		user: { current_user: { capabilities: { manage_options: true } } },
 	} as unknown as typeof window.JetpackScriptData;
 }
 
@@ -138,6 +144,14 @@ describe( 'UpgradePage', () => {
 	afterEach( () => {
 		jest.useRealTimers();
 		delete window.JetpackScriptData;
+	} );
+
+	it( 'offers the page options menu', async () => {
+		setScriptData( true );
+		mockEndpoints();
+		await renderPage();
+
+		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'links checkout to the tier picked on the slider', async () => {

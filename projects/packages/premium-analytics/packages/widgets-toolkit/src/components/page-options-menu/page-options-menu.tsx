@@ -26,30 +26,42 @@ import { FeedbackModal } from './feedback-modal';
 import { SwitchOffDialog } from './switch-off-dialog';
 
 const SETTINGS_PATH = '/settings';
+const CONNECT_PATH = '/connect';
+
+/**
+ * Whether a route is the page on screen, whatever its search.
+ *
+ * @param to - The route's path.
+ * @return Whether the router is on that route.
+ */
+function useIsCurrentRoute( to: string ): boolean {
+	// The router marks a link to the page on screen with `data-status`, which the hook's type leaves out.
+	const linkProps = useLinkProps( {
+		to,
+		activeOptions: { exact: true, includeSearch: false },
+	} ) as Record< string, unknown >;
+
+	return linkProps[ 'data-status' ] === 'active';
+}
 
 /**
  * The menu's link to the Settings page, with the report window and the tab to return to.
- * Disabled on the Settings page itself.
+ * Disabled where the page cannot open: on itself, and on the connect page its guard sends the reader back to.
  *
  * @return The menu item.
  */
 function SettingsMenuItem() {
 	const search = useReportNavigationSearch();
-
-	// The router marks a link to the page on screen with `data-status`, which the hook's type leaves out.
-	const linkProps = useLinkProps( {
-		to: SETTINGS_PATH,
-		activeOptions: { exact: true, includeSearch: false },
-	} ) as Record< string, unknown >;
-	const isCurrentPage = linkProps[ 'data-status' ] === 'active';
+	const isSettingsPage = useIsCurrentRoute( SETTINGS_PATH );
+	const isConnectPage = useIsCurrentRoute( CONNECT_PATH );
 
 	const prefix = <Icon icon={ cog } />;
 	const label = (
 		<Menu.ItemLabel>{ __( 'Settings', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
 	);
 
-	// A link item takes no disabled state, so the page's own entry is a plain item.
-	if ( isCurrentPage ) {
+	// A link item takes no disabled state, so the disabled entry is a plain item.
+	if ( isSettingsPage || isConnectPage ) {
 		return (
 			<Menu.Item disabled prefix={ prefix }>
 				{ label }
@@ -70,21 +82,23 @@ function SettingsMenuItem() {
 
 type PageOptionsMenuProps = {
 	/*
-	 * Enters customize mode; Customize is on offer only when given.
+	 * Enters customize mode; Customize is disabled without it.
 	 */
 	onCustomize?: () => void;
 
 	/*
-	 * The page's tabs, for the reader to arrange; on offer only with two or more.
+	 * The page's tabs, for the reader to arrange; Arrange tabs is disabled with fewer than two.
 	 */
 	tabs?: ArrangeableTabs;
 };
 
 /**
  * The page options menu of a Premium Analytics page: arranging the layout and the
- * tabs, where the page has them, the Settings page and, apart from them, feedback
- * and the way back to classic Stats. After the configurations design (WOOA7S-2055)
- * less its Usage entry.
+ * tabs, disabled where the page has none, the Settings page and, apart from them,
+ * feedback and the way back to classic Stats. After the configurations design
+ * (WOOA7S-2055) less its Usage entry.
+ *
+ * Settings, feedback and the way back are left out for a reader or a site they never apply to.
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2098).
  *
@@ -116,6 +130,7 @@ export function PageOptionsMenu( { onCustomize, tabs }: PageOptionsMenuProps ) {
 	const openArrangeTabs = useCallback( () => setIsArrangingTabs( true ), [] );
 	const closeArrangeTabs = useCallback( () => setIsArrangingTabs( false ), [] );
 
+	// A menu with nothing the reader can use is left out.
 	if ( ! onCustomize && ! canArrangeTabs && ! hasSettings && ! canGiveFeedback && ! canSwitchOff ) {
 		return null;
 	}
@@ -135,24 +150,25 @@ export function PageOptionsMenu( { onCustomize, tabs }: PageOptionsMenuProps ) {
 					}
 				/>
 				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
-					{ onCustomize && (
-						<Menu.Item prefix={ <Icon icon={ pencil } /> } onClick={ onCustomize }>
-							<Menu.ItemLabel>
-								{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					) }
-					{ canArrangeTabs && (
-						<Menu.Item prefix={ <Icon icon={ chevronUpDown } /> } onClick={ openArrangeTabs }>
-							<Menu.ItemLabel>
-								{ __( 'Arrange tabs', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					) }
-					{ ( onCustomize || canArrangeTabs ) && hasSettings && <Menu.Separator /> }
+					<Menu.Item
+						prefix={ <Icon icon={ pencil } /> }
+						disabled={ ! onCustomize }
+						onClick={ onCustomize }
+					>
+						<Menu.ItemLabel>{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
+					</Menu.Item>
+					<Menu.Item
+						prefix={ <Icon icon={ chevronUpDown } /> }
+						disabled={ ! canArrangeTabs }
+						onClick={ openArrangeTabs }
+					>
+						<Menu.ItemLabel>
+							{ __( 'Arrange tabs', 'jetpack-premium-analytics-pkg' ) }
+						</Menu.ItemLabel>
+					</Menu.Item>
+					{ hasSettings && <Menu.Separator /> }
 					{ hasSettings && <SettingsMenuItem /> }
-					{ ( onCustomize || canArrangeTabs || hasSettings ) &&
-						( canGiveFeedback || canSwitchOff ) && <Menu.Separator /> }
+					{ ( canGiveFeedback || canSwitchOff ) && <Menu.Separator /> }
 					{ canGiveFeedback && (
 						<Menu.Item prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
 							<Menu.ItemLabel>

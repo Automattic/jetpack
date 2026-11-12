@@ -665,7 +665,7 @@ describe( 'single-report stage', () => {
 		{ summary: { isError: true }, state: 'errored' },
 		{ summary: { isNotFound: true }, state: 'not found' },
 	] )(
-		'offers the page options menu without Customize while the summary is $state',
+		'offers the page options menu with Customize disabled while the summary is $state',
 		async ( { summary } ) => {
 			const user = userEvent.setup();
 			mockSummary( summary );
@@ -675,9 +675,8 @@ describe( 'single-report stage', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 
 			await expect(
-				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
-			).resolves.toBeInTheDocument();
-			expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+				screen.findByRole( 'menuitem', { name: 'Customize' } )
+			).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 		}
 	);
 
