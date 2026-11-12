@@ -52,7 +52,7 @@ class Seo_Tools {
 	 * @return bool
 	 */
 	public static function is_disabled() {
-		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
+		/** This filter is documented in projects/packages/seo/src/class-seo-tools.php */
 		return (bool) apply_filters( 'jetpack_disable_seo_tools', null !== self::get_conflicting_plugin() );
 	}
 
@@ -63,7 +63,15 @@ class Seo_Tools {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
+		/**
+		 * Can be used by SEO plugin authors to disable the conflicting output of SEO Tools.
+		 *
+		 * @module seo-tools
+		 *
+		 * @since jetpack-5.0.0
+		 *
+		 * @param bool True if SEO Tools should be disabled, false otherwise.
+		 */
 		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
 			return false;
 		}

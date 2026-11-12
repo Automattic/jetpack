@@ -36,7 +36,7 @@ add_action(
 	function () {
 		if (
 			! is_seo_disabled()
-			/** This filter is already documented in modules/seo-tools/class-jetpack-seo-utils.php */
+			/** This filter is documented in projects/packages/seo/src/class-seo-tools.php */
 			&& ! apply_filters( 'jetpack_disable_seo_tools', false )
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'jetpack-seo' );

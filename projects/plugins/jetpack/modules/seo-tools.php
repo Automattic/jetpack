@@ -34,7 +34,7 @@ add_filter(
 	}
 );
 
-/** This filter is documented in modules/seo-tools/class-jetpack-seo-utils.php */
+/** This filter is documented in projects/packages/seo/src/class-seo-tools.php */
 if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
 	require_once __DIR__ . '/seo-tools/class-jetpack-seo.php';
 	new Jetpack_SEO();
