@@ -1,8 +1,14 @@
+@use "@wordpress/base-styles/breakpoints";
+
 .card {
 	background-color: var(--jp-white);
 	height: 100%;
 	padding: calc(var(--spacing-base) * 8);
 	position: relative;
+
+	@media (max-width: #{breakpoints.$break-small - 1px}) {
+		padding-inline: calc(var(--spacing-base) * 3);
+	}
 }
 
 .container {
@@ -34,8 +40,13 @@
 .product-icon {
 	display: flex;
 	align-items: center;
-	height: calc(var(--spacing-base) * 4);
+	min-height: calc(var(--spacing-base) * 4);
 	margin-bottom: calc(var(--spacing-base) * 4);
+}
+
+.product-bundle-icons {
+	flex-wrap: wrap;
+	row-gap: var(--spacing-base);
 }
 
 .plus-icon {
