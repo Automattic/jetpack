@@ -555,14 +555,14 @@ function get_detail_page_widget_types() {
 	return array(
 		'jpa/email-time-series--total-opens'    => array(
 			'implementation' => 'jpa/email-time-series',
-			'title'          => __( 'Opens, first 30 days', 'jetpack-premium-analytics-pkg' ),
-			'help'           => __( 'Daily opens for the 30 days after this email was sent. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
+			'title'          => __( 'Opens over time', 'jetpack-premium-analytics-pkg' ),
+			'help'           => __( 'Opens over the window chosen above, counted from the send. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
 			'icon'           => 'jpa/seen',
 		),
 		'jpa/email-time-series--total-clicks'   => array(
 			'implementation' => 'jpa/email-time-series',
-			'title'          => __( 'Clicks, first 30 days', 'jetpack-premium-analytics-pkg' ),
-			'help'           => __( 'Daily clicks for the 30 days after this email was sent. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
+			'title'          => __( 'Clicks over time', 'jetpack-premium-analytics-pkg' ),
+			'help'           => __( 'Clicks over the window chosen above, counted from the send. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
 			'icon'           => 'jpa/link',
 		),
 		'jpa/email-breakdown--location-opens'   => array(
