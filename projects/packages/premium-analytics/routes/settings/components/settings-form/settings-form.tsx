@@ -1,35 +1,19 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
-import {
-	AnalyticsQueryClientProvider,
-	useStatsSettings,
-	type StatsSettings,
-} from '@jetpack-premium-analytics/data';
+import { useStatsSettings, type StatsSettings } from '@jetpack-premium-analytics/data';
 import {
 	Card,
 	DataForm,
-	Link,
 	Notice,
 	Spinner,
 	Stack,
-	Text,
 	VisuallyHidden,
 	type Form,
 } from '@jetpack-premium-analytics/externals';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
-import {
-	createInterpolateElement,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-} from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { ConsentCard } from './consent-card';
-import { PlanUsageCard } from './plan-usage-card';
-import { getFields } from './stats-settings-fields';
-import styles from './stats-settings.module.scss';
-import { usePlanUsage } from './use-plan-usage';
+import { getFields } from './settings-form-fields';
 import type { JSX } from 'react';
 
 type CardGroup = { id: string; label: string; children: Array< keyof StatsSettings > };
@@ -69,9 +53,6 @@ const getCardGroups = ( offered?: string[] ): CardGroup[] => {
 		} ) )
 		.filter( group => group.children.length > 0 );
 };
-
-// Long enough for a usual plan usage answer, short enough that a slow one leaves the settings usable.
-const PLAN_USAGE_HOLD_MS = 2000;
 
 // apiFetch writes these itself when the request never reached the site.
 const CLIENT_ERROR_CODES = [ 'fetch_error', 'offline_error' ];
@@ -122,44 +103,14 @@ function getSettingChanges(
 }
 
 /**
- * The dashboard's Settings tab: the plan usage, the Stats settings, and where to switch Stats off.
+ * The Stats settings form: a card per group of settings the site offers, each change saved as it is made.
  *
- * @return The Settings tab content.
+ * @return The form, its loading or load error state, or nothing when the site offers no setting.
  */
-export function StatsSettingsPanel(): JSX.Element {
-	return (
-		// Outside any widget, so outside the provider `WidgetRoot` mounts for widgets.
-		<AnalyticsQueryClientProvider>
-			<StatsSettingsContent />
-		</AnalyticsQueryClientProvider>
-	);
-}
-
-/**
- * The Settings tab's cards, once it is known whether the plan usage card is among them.
- *
- * @return The Settings tab content.
- */
-function StatsSettingsContent(): JSX.Element {
-	const { isLoading: isLoadingPlanUsage, failureCount } = usePlanUsage();
-	// Latched: the card refetches a failed usage on mount, which must not swap the tab back and unmount it.
-	const [ isHolding, setHolding ] = useState( isLoadingPlanUsage );
-	// After a failed attempt, the card shows the retries rather than the whole tab waiting them out.
-	if ( isHolding && ( ! isLoadingPlanUsage || failureCount > 0 ) ) {
-		setHolding( false );
-	}
-	useEffect( () => {
-		if ( ! isHolding ) {
-			return;
-		}
-		const timer = setTimeout( () => setHolding( false ), PLAN_USAGE_HOLD_MS );
-		return () => clearTimeout( timer );
-	}, [ isHolding ] );
-	const premiumAnalytics = getScriptData()?.premium_analytics;
-	const roles = premiumAnalytics?.stats_settings?.roles;
-	const featuresUrl = premiumAnalytics?.stats_settings?.features_url;
-	const featuresScreen = premiumAnalytics?.stats_settings?.features_screen;
-	const offered = premiumAnalytics?.stats_settings?.fields;
+export function SettingsForm(): JSX.Element | null {
+	const statsSettings = getScriptData()?.premium_analytics?.stats_settings;
+	const roles = statsSettings?.roles;
+	const offered = statsSettings?.fields;
 	const fields = useMemo( () => getFields( roles ?? [] ), [ roles ] );
 	const cardGroups = useMemo( () => getCardGroups( offered ), [ offered ] );
 	const offeredSettings = useMemo(
@@ -204,27 +155,18 @@ function StatsSettingsContent(): JSX.Element {
 		[ createErrorNotice, createSuccessNotice, saveChange, settings, trackEvent ]
 	);
 
-	// A plan without a view limit has no usage card, so briefly hold the whole tab rather than shift it once that is known.
-	if ( isHolding ) {
+	if ( cardGroups.length === 0 ) {
+		return null;
+	}
+
+	if ( settings ) {
 		return (
-			<Stack direction="column" align="center" className={ styles.root } aria-busy="true">
-				<Spinner />
-				<VisuallyHidden role="status">
-					{ __( 'Loading your Stats settings…', 'jetpack-premium-analytics-pkg' ) }
-				</VisuallyHidden>
-			</Stack>
+			<DataForm data={ settings } fields={ fields } form={ formLayout } onChange={ onChange } />
 		);
 	}
 
-	let form: JSX.Element | null;
-	if ( cardGroups.length === 0 ) {
-		form = null;
-	} else if ( settings ) {
-		form = (
-			<DataForm data={ settings } fields={ fields } form={ formLayout } onChange={ onChange } />
-		);
-	} else if ( isError ) {
-		form = (
+	if ( isError ) {
+		return (
 			<Notice.Root intent="error">
 				<Notice.Description>
 					{ __(
@@ -234,55 +176,24 @@ function StatsSettingsContent(): JSX.Element {
 				</Notice.Description>
 			</Notice.Root>
 		);
-	} else {
-		// DataForm has no loading state, so draw its cards from the same form config until the data arrives.
-		form = (
-			<Stack direction="column" gap="xl" aria-busy="true">
-				<VisuallyHidden role="status">
-					{ __( 'Loading your Stats settings…', 'jetpack-premium-analytics-pkg' ) }
-				</VisuallyHidden>
-				{ cardGroups.map( group => (
-					<Card.Root key={ group.id }>
-						<Card.Header>
-							<Card.Title>{ group.label }</Card.Title>
-						</Card.Header>
-						<Card.Content>
-							<Spinner />
-						</Card.Content>
-					</Card.Root>
-				) ) }
-			</Stack>
-		);
 	}
 
+	// DataForm has no loading state, so draw its cards from the same form config until the data arrives.
 	return (
-		<Stack direction="column" gap="xl" className={ styles.root }>
-			<PlanUsageCard />
-			{ form }
-			<ConsentCard />
-			{ featuresUrl && (
-				<Card.Root>
+		<Stack direction="column" gap="xl" aria-busy="true">
+			<VisuallyHidden role="status">
+				{ __( 'Loading your Stats settings…', 'jetpack-premium-analytics-pkg' ) }
+			</VisuallyHidden>
+			{ cardGroups.map( group => (
+				<Card.Root key={ group.id }>
 					<Card.Header>
-						<Card.Title>{ __( 'Activation', 'jetpack-premium-analytics-pkg' ) }</Card.Title>
+						<Card.Title>{ group.label }</Card.Title>
 					</Card.Header>
 					<Card.Content>
-						<Text>
-							{ createInterpolateElement(
-								'modules' === featuresScreen
-									? __(
-											'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack modules</link>.',
-											'jetpack-premium-analytics-pkg'
-										)
-									: __(
-											'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack features</link>.',
-											'jetpack-premium-analytics-pkg'
-										),
-								{ link: <Link href={ featuresUrl } /> }
-							) }
-						</Text>
+						<Spinner />
 					</Card.Content>
 				</Card.Root>
-			) }
+			) ) }
 		</Stack>
 	);
 }

@@ -1,3 +1,5 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
+import { useStatsAppPlanUsage } from '@jetpack-premium-analytics/data';
 import {
 	Button,
 	Card,
@@ -13,32 +15,38 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { getOverLimitMessage, usePlanUpgradeLinkProps } from './plan-usage';
-import styles from './stats-settings.module.scss';
-import { usePlanUsage } from './use-plan-usage';
+import { usePlanUpgradeLinkProps } from '../../../use-plan-upgrade-link-props';
+import { getOverLimitMessage } from './plan-usage';
+import styles from './plan-usage-card.module.scss';
 import type { JSX } from 'react';
 
 const TIERED_BILLING_URL =
 	'https://jetpack.com/support/jetpack-stats/free-or-paid/paid-stats-tier-billing/';
 
+type UsageMeterProps = {
+	/*
+	 * The plan's billable views limit for the cycle.
+	 */
+	limit: number;
+
+	/*
+	 * The billable views counted so far this cycle.
+	 */
+	usage?: number;
+
+	/*
+	 * Days until the cycle restarts.
+	 */
+	daysToReset?: number;
+};
+
 /**
  * The usage meter: views used against the plan's limit, and when the cycle restarts.
  *
- * @param props             - Component props.
- * @param props.limit       - The plan's billable views limit for the cycle.
- * @param props.usage       - The billable views counted so far this cycle.
- * @param props.daysToReset - Days until the cycle restarts.
+ * @param {UsageMeterProps} props - The component props.
  * @return The meter.
  */
-function UsageMeter( {
-	limit,
-	usage = 0,
-	daysToReset,
-}: {
-	limit: number;
-	usage?: number;
-	daysToReset?: number;
-} ): JSX.Element {
+function UsageMeter( { limit, usage = 0, daysToReset }: UsageMeterProps ): JSX.Element {
 	const usageText = formatMetricValue( usage, 'number', { decimals: 0 } );
 	const limitText = formatMetricValue( limit, 'number', { decimals: 0 } );
 	const label = sprintf(
@@ -88,13 +96,22 @@ function UsageMeter( {
 }
 
 /**
- * The Settings tab's "Your current plan" card.
+ * The Settings page's "Your current plan" card.
  *
  * @return The card, or nothing when the plan has no limit to meter.
  */
 export function PlanUsageCard(): JSX.Element | null {
-	const { data, isLoading, isError, refetch, limit, overLimitMonths } = usePlanUsage();
-	const overLimitMessage = getOverLimitMessage( overLimitMonths );
+	const { data, isLoading, isError, refetch } = useStatsAppPlanUsage();
+
+	// Legacy plans and no plan report a null limit, and a zero limit gives nothing to meter against either.
+	const limit =
+		typeof data?.views_limit === 'number' && data.views_limit > 0 ? data.views_limit : null;
+
+	// VIP sites get a comped Jetpack Complete plan, and Calypso suppresses the over-limit warning for
+	// them as a temporary measure (Automattic/wp-calypso#107396), keyed on the site's VIP flag rather than this host guess.
+	const isVip = getScriptData()?.site?.host === 'vip';
+	const overLimitMessage = getOverLimitMessage( isVip ? null : data?.over_limit_months );
+
 	const trackEvent = useTrackEvent();
 	const upgradeLink = usePlanUpgradeLinkProps();
 	const retry = useCallback( () => refetch(), [ refetch ] );

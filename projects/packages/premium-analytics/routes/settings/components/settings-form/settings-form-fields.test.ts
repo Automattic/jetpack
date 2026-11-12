@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getFields } from './stats-settings-fields';
+import { getFields } from './settings-form-fields';
 
 const ROLES = [
 	{ slug: 'administrator', name: 'Administrator', count: 2 },

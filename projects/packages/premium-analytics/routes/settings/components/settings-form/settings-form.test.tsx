@@ -1,7 +1,7 @@
 import { useStatsSettings } from '@jetpack-premium-analytics/data';
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { StatsSettingsPanel } from './stats-settings';
+import { SettingsForm } from './settings-form';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -25,11 +25,6 @@ jest.mock( '@wordpress/data', () => {
 	} );
 } );
 
-jest.mock( './plan-usage-card', () => ( { PlanUsageCard: () => null } ) );
-
-const mockUsePlanUsage = jest.fn();
-jest.mock( './use-plan-usage', () => ( { usePlanUsage: () => mockUsePlanUsage() } ) );
-
 const useStatsSettingsMock = useStatsSettings as jest.Mock;
 
 const SETTINGS = {
@@ -44,30 +39,23 @@ const ROLES = [
 	{ slug: 'editor', name: 'Editor', count: null },
 ];
 
-const setScriptData = (
-	featuresUrl: string | null,
-	{
-		featuresScreen = null,
-		fields,
-	}: { featuresScreen?: 'features' | 'modules' | null; fields?: string[] } = {}
-) => {
+const setScriptData = ( fields?: string[] ) => {
 	window.JetpackScriptData = {
 		premium_analytics: {
 			stats_settings: {
 				fields,
 				roles: ROLES,
-				features_url: featuresUrl,
-				features_screen: featuresScreen,
+				features_url: null,
+				features_screen: null,
 			},
 		},
 	} as typeof window.JetpackScriptData;
 };
 
-describe( 'StatsSettingsPanel', () => {
+describe( 'SettingsForm', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockUsePlanUsage.mockReturnValue( { isLoading: false } );
-		setScriptData( null );
+		setScriptData();
 	} );
 
 	afterEach( () => {
@@ -92,7 +80,7 @@ describe( 'StatsSettingsPanel', () => {
 			saveChange: jest.fn().mockRejectedValue( error ),
 		} );
 
-		render( <StatsSettingsPanel /> );
+		render( <SettingsForm /> );
 		await userEvent.click(
 			screen.getByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
 		);
@@ -137,7 +125,7 @@ describe( 'StatsSettingsPanel', () => {
 			saveChange: jest.fn().mockResolvedValue( undefined ),
 		} );
 
-		render( <StatsSettingsPanel /> );
+		render( <SettingsForm /> );
 		await interact();
 
 		expect( mockTrackEvent.mock.calls ).toEqual(
@@ -152,7 +140,7 @@ describe( 'StatsSettingsPanel', () => {
 			saveChange: jest.fn().mockRejectedValue( { code: 'offline_error' } ),
 		} );
 
-		render( <StatsSettingsPanel /> );
+		render( <SettingsForm /> );
 		await userEvent.click(
 			screen.getByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
 		);
@@ -167,7 +155,7 @@ describe( 'StatsSettingsPanel', () => {
 			saveChange: jest.fn(),
 		} );
 
-		render( <StatsSettingsPanel /> );
+		render( <SettingsForm /> );
 
 		// The Notice also announces its text through a live region, so it appears twice.
 		expect(
@@ -177,106 +165,15 @@ describe( 'StatsSettingsPanel', () => {
 		).not.toHaveLength( 0 );
 	} );
 
-	it( 'leaves out the Activation card when there is no Jetpack features screen to link to', () => {
-		useStatsSettingsMock.mockReturnValue( {
-			settings: SETTINGS,
-			isError: false,
-			saveChange: jest.fn(),
-		} );
-
-		render( <StatsSettingsPanel /> );
-
-		expect( screen.queryByText( 'Activation' ) ).not.toBeInTheDocument();
-	} );
-
-	it.each( [
-		[ 'features', 'Jetpack features', 'admin.php?page=my-jetpack#/features?search=stats' ],
-		[ 'modules', 'Jetpack modules', 'admin.php?page=jetpack_modules&s=stats' ],
-	] as const )(
-		'names the %s screen the Activation card links to',
-		( featuresScreen, name, url ) => {
-			useStatsSettingsMock.mockReturnValue( {
-				settings: SETTINGS,
-				isError: false,
-				saveChange: jest.fn(),
-			} );
-			setScriptData( url, { featuresScreen } );
-
-			render( <StatsSettingsPanel /> );
-
-			expect( screen.getByRole( 'link', { name } ) ).toHaveAttribute( 'href', url );
-		}
-	);
-
-	it( 'draws no card while the plan usage loads, so the tab does not shift when it arrives', () => {
-		mockUsePlanUsage.mockReturnValue( { isLoading: true } );
-		useStatsSettingsMock.mockReturnValue( {
-			settings: SETTINGS,
-			isError: false,
-			saveChange: jest.fn(),
-		} );
-
-		render( <StatsSettingsPanel /> );
-
-		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Loading your Stats settings…' );
-		expect( screen.queryByText( 'Admin bar widget' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'draws the cards once the first plan usage attempt fails, leaving the retries to the card', () => {
-		mockUsePlanUsage.mockReturnValue( { isLoading: true, failureCount: 1 } );
-		useStatsSettingsMock.mockReturnValue( {
-			settings: SETTINGS,
-			isError: false,
-			saveChange: jest.fn(),
-		} );
-
-		render( <StatsSettingsPanel /> );
-
-		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
-	} );
-
-	it( 'draws the cards when the plan usage is still loading after two seconds', () => {
-		jest.useFakeTimers();
-		mockUsePlanUsage.mockReturnValue( { isLoading: true, failureCount: 0 } );
-		useStatsSettingsMock.mockReturnValue( {
-			settings: SETTINGS,
-			isError: false,
-			saveChange: jest.fn(),
-		} );
-		render( <StatsSettingsPanel /> );
-
-		act( () => jest.advanceTimersByTime( 2000 ) );
-
-		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
-		jest.useRealTimers();
-	} );
-
-	it( 'keeps the cards once the plan usage has answered, while the card retries a failed usage', () => {
-		mockUsePlanUsage.mockReturnValue( { isLoading: true } );
-		useStatsSettingsMock.mockReturnValue( {
-			settings: SETTINGS,
-			isError: false,
-			saveChange: jest.fn(),
-		} );
-		const { rerender } = render( <StatsSettingsPanel /> );
-		mockUsePlanUsage.mockReturnValue( { isLoading: false } );
-		rerender( <StatsSettingsPanel /> );
-
-		mockUsePlanUsage.mockReturnValue( { isLoading: true } );
-		rerender( <StatsSettingsPanel /> );
-
-		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
-	} );
-
 	it( 'leaves out a card whose settings the site does not offer', () => {
-		setScriptData( null, { fields: [ 'admin_bar', 'wpcom_reader_views_enabled' ] } );
+		setScriptData( [ 'admin_bar', 'wpcom_reader_views_enabled' ] );
 		useStatsSettingsMock.mockReturnValue( {
 			settings: SETTINGS,
 			isError: false,
 			saveChange: jest.fn(),
 		} );
 
-		render( <StatsSettingsPanel /> );
+		render( <SettingsForm /> );
 
 		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'WordPress.com Reader' ) ).toBeInTheDocument();
@@ -288,18 +185,15 @@ describe( 'StatsSettingsPanel', () => {
 	} );
 
 	it( 'draws no form, and no load error, when the site offers no setting', () => {
-		setScriptData( null, { fields: [ 'consent' ] } );
+		setScriptData( [ 'consent' ] );
 		useStatsSettingsMock.mockReturnValue( {
 			settings: undefined,
 			isError: true,
 			saveChange: jest.fn(),
 		} );
 
-		render( <StatsSettingsPanel /> );
+		const { container } = render( <SettingsForm /> );
 
-		expect(
-			screen.queryByText( 'Your Stats settings could not be loaded. Reload the page to try again.' )
-		).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Admin bar widget' ) ).not.toBeInTheDocument();
+		expect( container ).toBeEmptyDOMElement();
 	} );
 } );
