@@ -75,4 +75,4 @@ const store = createReduxStore( STORE_NAME, {
 
 register( store );
 
-export { store as coverageStore, STORE_NAME as COVERAGE_STORE_NAME };
+export { store as coverageStore };

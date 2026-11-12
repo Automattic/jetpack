@@ -204,8 +204,8 @@ add_action( 'load-options-general.php', 'wpcom_fiverr' );
  */
 function wpcom_site_management_panel_link() {
 	?>
-	<a href="https://wordpress.com/sites/<?php echo esc_attr( wpcom_get_site_slug() ); ?>/settings">
-		<?php esc_html_e( 'Manage gift subscriptions, ownership, and other site tools on WordPress.com ↗', 'jetpack-mu-wpcom' ); ?>
+	<a href="https://my.wordpress.com/sites/<?php echo esc_attr( wpcom_get_site_slug() ); ?>">
+		<?php esc_html_e( 'Manage site ownership and other site tools on WordPress.com ↗', 'jetpack-mu-wpcom' ); ?>
 	</a>
 	<?php
 }

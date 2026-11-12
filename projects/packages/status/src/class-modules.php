@@ -218,6 +218,8 @@ class Modules {
 			$active = array_intersect( $active, $this->get_available() );
 		}
 
+		Feature_Policy::ensure_hooks();
+
 		/**
 		 * Allow filtering of the active modules.
 		 *
@@ -471,14 +473,12 @@ class Modules {
 				require_once $this->get_path( $module );
 			}
 
-			$active[] = $module;
-			$this->update_active( $active );
+			$this->update_active( array_merge( $this->get_saved_active(), array( $module ) ) );
 
 			$state->state( 'error', false ); // the override.
 			ob_end_clean();
 		} else { // Not a Jetpack plugin.
-			$active[] = $module;
-			$this->update_active( $active );
+			$this->update_active( array_merge( $this->get_saved_active(), array( $module ) ) );
 		}
 
 		if ( $redirect ) {
@@ -493,9 +493,12 @@ class Modules {
 	/**
 	 * Deactivate module.
 	 *
+	 * A module a `jetpack_active_modules` callback forces on keeps running; callers that report
+	 * back to a person should check is_active() afterwards.
+	 *
 	 * @param string $module Module slug.
 	 *
-	 * @return bool
+	 * @return bool Whether the saved list changed.
 	 */
 	public function deactivate( $module ) {
 		/**
@@ -507,10 +510,21 @@ class Modules {
 		 */
 		do_action( 'jetpack_pre_deactivate_module', $module );
 
-		$active = $this->get_active();
-		$new    = array_filter( array_diff( $active, (array) $module ) );
+		return $this->update_active( array_filter( array_diff( $this->get_saved_active(), (array) $module ) ) );
+	}
 
-		return $this->update_active( $new );
+	/**
+	 * The active modules as saved, before filters add or drop any.
+	 *
+	 * Switching one module builds on this rather than get_active(), which would save whatever a
+	 * `jetpack_active_modules` callback forces on.
+	 *
+	 * @return string[] Module slugs.
+	 */
+	private function get_saved_active() {
+		$saved = \Jetpack_Options::get_option( 'active_modules', array() );
+
+		return is_array( $saved ) ? array_values( $saved ) : array();
 	}
 
 	/**

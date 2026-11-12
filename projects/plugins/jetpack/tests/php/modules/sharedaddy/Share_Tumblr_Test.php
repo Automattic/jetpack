@@ -28,9 +28,6 @@ class Share_Tumblr_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		// Sharing sources are instantiated with the string service slug as the id in production
-		// (see Sharing_Service), so the @param int phpdoc on the constructor is inaccurate here.
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
 		$this->tumblr = new Share_Tumblr( 'tumblr', array( 'button_style' => 'official' ) );
 	}
 

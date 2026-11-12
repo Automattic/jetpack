@@ -33,7 +33,7 @@ export type XyChartTooltipProps< Datum extends object > = {
 	tooltipPlacement?: TooltipPlacement;
 	/** Override the tooltip top anchor in SVG coordinates, including negative offsets. */
 	tooltipAnchorTop?: number;
-	/** Merge overrides with the default box styles; use `unstyled` to strip the box styling. */
+	/** Inline overrides on the tooltip surface; `unstyled` drops both. */
 	style?: VisxTooltipProps[ 'style' ];
 	snapTooltipToDatumX?: boolean;
 	snapTooltipToDatumY?: boolean;

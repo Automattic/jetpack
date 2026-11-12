@@ -2,6 +2,116 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.18.0] - 2026-11-06
+### Added
+- Transfer connection ownership: Note that moving a Jetpack plan is an additional step, and link to the support doc on transferring a plan.
+
+## [2.17.0] - 2026-11-04
+### Added
+- Add CONNECTION_FROM entry-point names with isStandardEntryPoint() and isUnifiedConnectionFlow(), and warn in development when a connect link has no `from`, a legacy `from`, or no return URL. [#54498]
+
+### Changed
+- Update package dependencies. [#54512]
+
+## [2.16.0] - 2026-11-02
+### Changed
+- Tracking: Send a null context instead of `jetpack-dashboard` when the connection dialogs get none, and add a ConnectionPlacement placement option to the dialogs, the ownership transfer and the error notice. [#54214]
+- Update package dependencies. [#53869]
+
+### Fixed
+- Show connection owner and administrator names containing characters like & correctly. [#54197]
+
+## [2.15.0] - 2026-10-28
+### Added
+- Add a refreshConnectionStatus() store action that reads the site's connection status from the server again. [#53941]
+- Tracking: Add trackConnectionEvent() and bumpConnectionStat() helpers, and record Tracks events from the ownership transfer, owner disconnect and protected owner dialogs. [#54059]
+
+### Fixed
+- Record the offline mode that setIsOfflineMode() is given. [#53941]
+
+## [2.14.0] - 2026-10-26
+### Added
+- Add a get-calypso-origin subpath export, so a bundle can get the Calypso origin without loading the connection store. [#53721]
+- Add `getTracksIdentity()` and `initializeTracksIdentity()` helpers that identify the viewer to Tracks by their WordPress.com account. [#53861]
+- Ask for confirmation before disconnecting your user account, and offer to transfer ownership first when you own the connection. [#53865]
+- Connection error notice: Add a ConnectionErrorView component that renders an existing useConnectionErrorNotice() result, and let the reconnect flow return to a chosen page via `reconnectRedirectUrl` and `reconnectFrom`. [#53596]
+- Connect screen and ConnectButton: Show clear messages for every registration failure (WordPress.com rejected or couldn't verify the site, the site's own REST request failed, or the site couldn't reach WordPress.com), with the underlying cause underneath when it helps (for example the network error). [#53289]
+- Support React 19. [#53882]
+
+### Changed
+- Describe the ownership lock from one place, so a badge and the confirmation dialog cannot say it differently, and name the owner disconnect dialog in sentence case. [#54034]
+- Update package dependencies. [#53951]
+
+## [2.13.2] - 2026-10-20
+### Changed
+- Add `isInSafeMode` to the connection status type and the local `displayName` and `email` to the current user type. [#53785]
+
+## [2.13.1] - 2026-10-19
+### Changed
+- Update package dependencies. [#53806]
+
+## [2.13.0] - 2026-10-15
+### Added
+- Transfer connection ownership to another connected administrator from the Connectors page. [#53581]
+
+## [2.12.1] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [2.12.0] - 2026-10-14
+### Added
+- Add a component for transferring connection ownership, and offer it from the manage connection dialog instead of linking out to WordPress.com. The connection owner can now be updated in the store, so surfaces reflect a transfer without a page reload. [#53359]
+- Add the registration failure reason to the connection status type. [#51177]
+
+## [2.11.1] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [2.11.0] - 2026-10-06
+### Fixed
+- Checkout workflow: Stop the busy state and return a checkoutError when site registration or the product lookup fails, and show an error on the Required Plan connect screen. [#53069]
+
+## [2.10.0] - 2026-10-05
+### Added
+- Add a confirmation dialog an administrator uses to become the protected owner. [#52980]
+- Add a dialog for the confirmed owner to release protected ownership of a site. [#53028]
+
+### Deprecated
+- Deprecate `runConnectionHealthCheck`, which is now a no-op. [#52977]
+
+### Removed
+- Remove the `includeHealthErrors` option from `useConnectionErrorNotice` and `ConnectionError`, along with the connection health-check store state and selector. [#52977]
+
+## [2.9.0] - 2026-09-29
+### Added
+- Add protected owner selectors and types to the connection store. [#52861]
+
+## [2.8.0] - 2026-09-28
+### Added
+- Disconnect dialog: Ask for optional feedback when deactivating Jetpack from the Plugins page. [#52828]
+- Export `getUserConnectionUrl` from a subpath that bundlers without SCSS support can import. [#52810]
+
+### Changed
+- Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
+
+### Fixed
+- Show restore failures in connection error notices without the "ApiError:" prefix. [#52718]
+
+## [2.7.0] - 2026-09-23
+### Added
+- Add `ConnectionErrorDetails`, for describing a connection error outside a notice, and rate each error for the viewer so the connection error notice shows a break only the connection owner can repair as a warning. [#52130]
+
+### Fixed
+- Explain what to do when the connection store is registered more than once. [#51731]
+
+## [2.6.0] - 2026-09-23
+### Added
+- Track clicks on the reconnect CTA and the Site Health and support links in the connection error notice. [#52617]
+
+## [2.5.3] - 2026-09-21
+### Changed
+- Update dependencies.
+
 ## [2.5.2] - 2026-09-18
 ### Changed
 - Update package dependencies. [#52187]
@@ -153,8 +263,7 @@
 
 ## [1.4.52] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [1.4.51] - 2026-05-19
 ### Changed
@@ -803,8 +912,7 @@
 
 ## [0.32.0] - 2024-02-05
 ### Changed
-- Allow using blog ID instead of site suffix in checkout URL. [#34996]
-- Allow using blog ID instead of site suffix in checkout URL. [#35004]
+- Allow using blog ID instead of site suffix in checkout URL. [#34996] [#35004]
 - Updated package dependencies.
 
 ## [0.31.2] - 2024-01-29
@@ -1496,6 +1604,24 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.18.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.17.0...v2.18.0
+[2.17.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.16.0...v2.17.0
+[2.16.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.15.0...v2.16.0
+[2.15.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.14.0...v2.15.0
+[2.14.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.2...v2.14.0
+[2.13.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.1...v2.13.2
+[2.13.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.0...v2.13.1
+[2.13.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.12.1...v2.13.0
+[2.12.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.12.0...v2.12.1
+[2.12.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.11.1...v2.12.0
+[2.11.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.11.0...v2.11.1
+[2.11.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.10.0...v2.11.0
+[2.10.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.9.0...v2.10.0
+[2.9.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.8.0...v2.9.0
+[2.8.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.7.0...v2.8.0
+[2.7.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.6.0...v2.7.0
+[2.6.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.3...v2.6.0
+[2.5.3]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.2...v2.5.3
 [2.5.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.4.2...v2.5.0

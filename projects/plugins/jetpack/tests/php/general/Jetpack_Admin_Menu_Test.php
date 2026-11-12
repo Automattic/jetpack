@@ -6,11 +6,14 @@
 use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_WP_Build_Page;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
+use Automattic\Jetpack\Scan\Admin_Bar_Notice;
 use Automattic\Jetpack\Scan\Admin_Sidebar_Link;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use Automattic\Jetpack\VideoPress\Admin_UI;
+use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Class Jetpack_Admin_Menu_Test
  */
@@ -53,6 +56,163 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'id' );
 		Jetpack_Options::delete_option( 'blog_token' );
 		Jetpack_Options::delete_option( 'user_tokens' );
+	}
+
+	/**
+	 * Check the Scan toolbar's offline policy.
+	 *
+	 * @dataProvider scan_toolbar_offline_modes
+	 * @param string $offline_filter Offline-mode filter callback.
+	 * @param bool   $expected       Whether the toolbar or refresh is enabled.
+	 * @param bool   $load_helpers   Whether to load through the Scan entry point.
+	 */
+	#[DataProvider( 'scan_toolbar_offline_modes' )]
+	public function test_scan_toolbar_respects_offline_mode( $offline_filter, $expected, $load_helpers = false ) {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Jetpack Scan is currently not supported on multisite.' );
+		}
+
+		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-bar-notice.php';
+		require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
+
+		// See Admin_Bar_Notice_Test::set_up().
+		remove_all_filters( 'jetpack_protect_threat_notifications_enabled' );
+		add_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+		update_option( 'jetpack_offline_mode', false );
+		StatusCache::clear();
+		delete_transient( 'jetpack_scan_state' );
+
+		$instance = new ReflectionProperty( Admin_Bar_Notice::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$previous = $instance->getValue();
+		$instance->setValue( null, null );
+		foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'admin_bar_menu' ) as $hook ) {
+			remove_all_actions( $hook );
+		}
+
+		try {
+			$this->assertTrue( Jetpack::is_connection_ready() );
+			if ( $load_helpers ) {
+				require JETPACK__PLUGIN_DIR . 'modules/scan/scan.php';
+				$this->assertInstanceOf( Admin_Bar_Notice::class, $instance->getValue() );
+			} else {
+				Admin_Bar_Notice::instance();
+			}
+			foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts' ) as $hook ) {
+				wp_dequeue_script( Admin_Bar_Notice::SCRIPT_NAME );
+				do_action( $hook );
+				$this->assertSame( $expected, wp_script_is( Admin_Bar_Notice::SCRIPT_NAME, 'enqueued' ) );
+			}
+			$bar = new WP_Admin_Bar();
+			do_action( 'admin_bar_menu', $bar );
+			$this->assertSame( $expected, null !== $bar->get_node( 'jetpack-scan-notice' ) );
+		} finally {
+			$instance->setValue( null, $previous );
+			wp_dequeue_script( Admin_Bar_Notice::SCRIPT_NAME );
+			remove_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+			StatusCache::clear();
+		}
+	}
+
+	/**
+	 * Offline states for the Scan toolbar.
+	 *
+	 * @return array Offline and connected cold-cache cases.
+	 */
+	public static function scan_toolbar_offline_modes() {
+		return array(
+			'offline'              => array( '__return_true', false ),
+			'connected cold cache' => array( '__return_false', true ),
+		);
+	}
+
+	/**
+	 * Check the Scan sidebar refresh's offline policy.
+	 *
+	 * @dataProvider scan_toolbar_offline_modes
+	 * @param string $offline_filter Offline-mode filter callback.
+	 * @param bool   $expected       Whether the toolbar or refresh is enabled.
+	 */
+	#[DataProvider( 'scan_toolbar_offline_modes' )]
+	public function test_scan_sidebar_refresh_respects_offline_mode( $offline_filter, $expected ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';
+		add_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+		update_option( 'jetpack_offline_mode', false );
+		StatusCache::clear();
+		delete_transient( 'jetpack_scan_state' );
+		delete_transient( 'jetpack_rewind_state' );
+		wp_clear_scheduled_hook( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+
+		$refresh = new ReflectionMethod( Admin_Sidebar_Link::class, 'maybe_refresh_transient_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$refresh->setAccessible( true );
+		}
+		try {
+			$this->assertTrue( Jetpack::is_connection_ready() );
+			$refresh->invoke( new Admin_Sidebar_Link() );
+			$this->assertSame( $expected, false !== wp_next_scheduled( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK ) );
+		} finally {
+			wp_clear_scheduled_hook( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+			remove_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+			StatusCache::clear();
+		}
+	}
+
+	/**
+	 * The Scan loader respects the same offline policy as the toolbar helper.
+	 */
+	public function test_scan_loader_offline() {
+		$this->test_scan_toolbar_respects_offline_mode( '__return_true', false, true );
+	}
+
+	/**
+	 * A queued refresh sends its signed requests only while connected.
+	 *
+	 * @dataProvider queued_scan_refresh_modes
+	 * @param string $offline_filter    Offline-mode filter callback.
+	 * @param array  $expected_requests Expected outgoing request paths.
+	 */
+	#[DataProvider( 'queued_scan_refresh_modes' )]
+	public function test_queued_scan_refresh_respects_offline_mode( $offline_filter, $expected_requests ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';
+		$sidebar = new Admin_Sidebar_Link();
+		$sidebar->init_hooks();
+		wp_schedule_single_event( time() - 1, Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+		$event = wp_get_scheduled_event( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+		$this->assertNotFalse( $event );
+		add_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+		update_option( 'jetpack_offline_mode', false );
+		StatusCache::clear();
+		delete_transient( 'jetpack_scan_state' );
+		delete_transient( 'jetpack_rewind_state' );
+		$requests   = array();
+		$block_http = function ( $response, $args, $url ) use ( &$requests ) {
+			$this->assertStringStartsWith( 'X_JETPACK ', $args['headers']['Authorization'] ?? '' );
+			$requests[] = wp_parse_url( $url, PHP_URL_PATH );
+			return new WP_Error( 'blocked_for_test' );
+		};
+		add_filter( 'pre_http_request', $block_http, 10, 3 );
+		try {
+			do_action_ref_array( $event->hook, $event->args );
+			$this->assertSame( $expected_requests, $requests );
+		} finally {
+			remove_filter( 'pre_http_request', $block_http );
+			remove_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+			wp_clear_scheduled_hook( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+			StatusCache::clear();
+		}
+	}
+
+	/**
+	 * @return array Offline and connected queued refresh expectations.
+	 */
+	public static function queued_scan_refresh_modes() {
+		return array(
+			'offline'   => array( '__return_true', array() ),
+			'connected' => array( '__return_false', array( '/wpcom/v2/sites/1234/scan', '/wpcom/v2/sites/1234/rewind' ) ),
+		);
 	}
 
 	/**
@@ -99,9 +259,8 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	public function test_jetpack_admin_menu_order() {
 		global $submenu;
 
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
-		$jetpack_react = new Jetpack_React_Page();
-		$jetpack_react->jetpack_add_settings_sub_nav_item();
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-settings-react-page.php';
+		( new Jetpack_Settings_React_Page() )->get_page_hook();
 
 		// Jetpack only inits My Jetpack for admin/cron/POST/CLI requests, none of which
 		// hold under PHPUnit, so register it by hand or it is absent from the menu.
@@ -118,7 +277,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		$this->satisfy_conditional_registrar_gates();
 		Admin_Sidebar_Link::instance()->maybe_add_admin_link();
-		Jetpack_Manage::add_submenu_jetpack();
 		Jetpack_Subscriptions::init()->add_subscribers_menu();
 
 		/*
@@ -128,6 +286,11 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		 */
 		Admin_Menu::add_menu( 'Aaa External', 'Aaa External <span aria-hidden="true">↗</span>', 'manage_options', 'https://example.org/aaa-external', null, 100 );
 		Admin_Menu::add_menu( 'Aaa Bottom', 'Aaa Bottom', 'manage_options', 'aaa-bottom-fixture', '__return_null', 998 );
+
+		// jetpack-mu-wpcom adds its wp-build pages after this sort, which the wpcomsh run simulates.
+		if ( class_exists( WPCOM_WP_Build_Page::class ) ) {
+			remove_all_actions( 'admin_menu', WPCOM_WP_Build_Page::REGISTER_PRIORITY );
+		}
 
 		do_action( 'admin_menu' );
 
@@ -139,7 +302,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 'my-jetpack', $items[0][2], 'My Jetpack should be pinned to the top of the Jetpack submenu.' );
 
-		$settings_slug = Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) );
+		$settings_slug = 'jetpack-settings';
 		$settings_at   = array_search( $settings_slug, array_column( $items, 2 ), true );
 
 		$this->assertNotFalse( $settings_at, 'Settings should be registered in the Jetpack submenu.' );
@@ -212,25 +375,25 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$this->satisfy_conditional_registrar_gates();
 
 		return array(
-			'my-jetpack'     => array( My_Jetpack_Initializer::class, 'add_my_jetpack_menu_item' ),
-			'activity-log'   => array( Jetpack_Activity_Log::class, 'add_wp_admin_submenu' ),
-			'backup'         => array( Jetpack_Backup::class, 'add_wp_admin_submenu' ),
-			'videopress'     => array( Admin_UI::class, 'enable_menu' ),
-			'scan-backup'    => array( Admin_Sidebar_Link::instance(), 'maybe_add_admin_link' ),
-			'jetpack-manage' => array( Jetpack_Manage::class, 'add_submenu_jetpack' ),
-			'subscribers'    => array( Jetpack_Subscriptions::init(), 'add_subscribers_menu' ),
-			'settings'       => array( new Jetpack_React_Page(), 'jetpack_add_settings_sub_nav_item' ),
+			'my-jetpack'   => array( My_Jetpack_Initializer::class, 'add_my_jetpack_menu_item' ),
+			'activity-log' => array( Jetpack_Activity_Log::class, 'add_wp_admin_submenu' ),
+			'backup'       => array( Jetpack_Backup::class, 'add_wp_admin_submenu' ),
+			'videopress'   => array( Admin_UI::class, 'enable_menu' ),
+			'scan-backup'  => array( Admin_Sidebar_Link::instance(), 'maybe_add_admin_link' ),
+			'subscribers'  => array( Jetpack_Subscriptions::init(), 'add_subscribers_menu' ),
+			'settings'     => array( new Jetpack_Settings_React_Page(), 'get_page_hook' ),
 		);
 	}
 
 	/**
-	 * Opens the gates on the four registrars that only register under a condition.
+	 * Opens the gates on the three registrars that only register under a condition.
 	 *
-	 * Scan, Backup, Jetpack Manage and Subscribers are the call sites that regressed in the two
-	 * curation PRs before #52003, so leaving them unregistered here would test past the history.
+	 * Scan, Backup and Subscribers are the call sites that regressed in the two curation PRs
+	 * before #52003, so leaving them unregistered here would test past the history.
 	 */
 	private function satisfy_conditional_registrar_gates() {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-settings-react-page.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 		// Only loaded when the Scan module is active, so the autoloader does not reach it here.
 		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';

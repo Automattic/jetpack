@@ -1,4 +1,6 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+
+let mockStatus = 'active';
 
 jest.mock( '../../../connected-product-card', () => {
 	const { createElement } = jest.requireActual( 'react' );
@@ -10,7 +12,7 @@ jest.mock( '../../../connected-product-card', () => {
 
 jest.mock( '../../../../data/products/use-product', () => ( {
 	__esModule: true,
-	default: () => ( { detail: { status: 'active', doesModuleNeedAttention: false } } ),
+	default: () => ( { detail: { status: mockStatus, doesModuleNeedAttention: false } } ),
 } ) );
 
 jest.mock( '../../../../data/use-simple-query', () => ( {
@@ -82,5 +84,20 @@ describe( 'BackupCard activity icon', () => {
 		expect( icon ).toHaveClass( 'gridicons-history' );
 		expect( icon ).toHaveAttribute( 'height', '24' );
 		expect( icon ).toHaveAttribute( 'width', '24' );
+	} );
+} );
+
+describe( 'BackupCard with the backup module off', () => {
+	afterEach( () => {
+		mockStatus = 'active';
+	} );
+
+	it( 'tells a plan holder their backups are still running', () => {
+		mockStatus = 'module_disabled';
+		const BackupCard = require( '../index' ).default;
+
+		render( <BackupCard admin={ true } /> );
+
+		expect( screen.getByText( /Your backups are still running/ ) ).toBeInTheDocument();
 	} );
 } );

@@ -1,14 +1,11 @@
 /**
  * External dependencies
  */
-import {
-	Modal,
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -68,7 +65,7 @@ const ExportResponsesModal = ( {
 			onRequestClose={ onRequestClose }
 			size="large"
 		>
-			<VStack spacing={ 6 }>
+			<Stack direction="column" gap="xl">
 				{ selectedTestCount > 0 && (
 					<Notice.Root intent="info">
 						<Notice.Description>
@@ -89,7 +86,7 @@ const ExportResponsesModal = ( {
 				{ isGoogleDriveEnabled && (
 					<GoogleDriveExport onExport={ onExport } autoConnect={ autoConnectGdrive } />
 				) }
-			</VStack>
+			</Stack>
 		</Modal>
 	);
 };

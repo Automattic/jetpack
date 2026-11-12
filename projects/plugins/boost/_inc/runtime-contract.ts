@@ -14,9 +14,13 @@ export const SUBPAGES = [
 
 export type Subpage = ( typeof SUBPAGES )[ number ];
 
+// Former tab URLs select a scroll destination on the single dashboard page.
 export type Tab = 'overview' | 'settings';
 
 export const LOCATION_CHANGE_EVENT = 'jetpack-boost:location-change';
+
+// Successful user-started runs only; no payload.
+export const SPEED_TEST_COMPLETE_EVENT = 'jetpack-boost:speed-test-complete';
 
 /** Everything that means the location changed; the chassis dispatches the custom one. */
 export const LOCATION_EVENTS = [ 'hashchange', 'popstate', LOCATION_CHANGE_EVENT ];
@@ -27,6 +31,7 @@ export const LOCATION_EVENTS = [ 'hashchange', 'popstate', LOCATION_CHANGE_EVENT
  */
 export const ONBOARDING_CHANGE_EVENT = 'jetpack-boost:onboarding-change';
 
+// Keep this slot ID stable for the webpack composition; it now sits below Overview.
 export const SETTINGS_SLOT_ID = 'jb-settings-tab-mount';
 export const SUBPAGE_SLOT_ID = 'jb-subpage-mount';
 

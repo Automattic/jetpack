@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Remove unnecessary `shell: true` from Docker command spawning, silencing the Node.js DEP0190 deprecation warning.

@@ -1,20 +1,16 @@
 /**
  * External dependencies
  */
-import { device } from '@jetpack-premium-analytics/icons';
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 import {
 	WIDGET_ROW_LIMIT,
-	calculateDelta,
 	describeError,
-	getCombinedPeriodMax,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	buildLeaderboardRow,
-	sharePercentage,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -24,6 +20,7 @@ import {
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import usePlatformViews from './use-platform-views';
 import { type TopPlatformsAttributes } from './widget';
@@ -57,38 +54,26 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 		}
 	);
 
-	const maxViews = getCombinedPeriodMax(
-		data.map( item => item.views ),
-		hasComparison ? data.map( item => item.previousViews ) : []
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: data.length === 0 },
+		__( 'You don’t have platforms recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
-	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => {
-		const previousValue = item.previousViews;
 
-		return {
-			id: `${ index }-${ item.key }`,
-			...buildLeaderboardRow( {
-				label: item.label,
-				media: { kind: 'none' },
-				action: { kind: 'static' },
-			} ),
-			currentValue: item.views,
-			currentShare: sharePercentage( item.views, maxViews ),
-			previousValue,
-			previousShare:
-				hasComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxViews )
-					: undefined,
-			delta:
-				hasComparison && previousValue !== undefined
-					? calculateDelta( item.views, previousValue )
-					: undefined,
-		};
-	} );
+	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
+		id: `${ index }-${ item.key }`,
+		...buildLeaderboardRow( {
+			label: item.label,
+			media: { kind: 'none' },
+			action: { kind: 'static' },
+		} ),
+		currentValue: item.views,
+		previousValue: item.previousViews,
+	} ) );
 
 	return (
 		<div className={ styles.content }>
 			<WidgetState
-				isLoading={ isLoading }
+				isLoading={ emptyState.isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ data.length === 0 }
@@ -99,10 +84,7 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 					),
 					onRetry: refetch,
 				} ) }
-				empty={ {
-					icon: device,
-					description: __( 'No platform data in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
+				empty={ emptyState.empty }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
@@ -111,6 +93,13 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 					withOverlayLabel
 					showLegend={ false }
 					dataFormat={ DATA_FORMAT }
+					columns={ {
+						label:
+							platformDimension === 'platform'
+								? __( 'Operating systems', 'jetpack-premium-analytics-pkg' )
+								: __( 'Browsers', 'jetpack-premium-analytics-pkg' ),
+						metric: 'views',
+					} }
 				/>
 			</WidgetState>
 		</div>

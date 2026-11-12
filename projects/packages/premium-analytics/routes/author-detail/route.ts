@@ -6,10 +6,12 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { redirectIfReportLocked } from '../reports/redirect-if-locked';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 
@@ -47,6 +49,8 @@ export const route = {
 			throw redirect( { to: '/' } );
 		}
 
+		redirectIfReportLocked( 'authors', search );
+
 		// A malformed path param would render site-wide stats under an author
 		// header; this also closes the `?author_id=` spoof.
 		const authorId = params?.authorId;
@@ -58,20 +62,20 @@ export const route = {
 		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsAuthorSeed = currentSearch.author_id !== authorId;
 
-		// The seed mirrors post-detail/route.ts, which explains each step; this
-		// page carries no report origin, since its breadcrumb is fixed.
+		// This page carries no report origin, since its breadcrumb is fixed.
 		if ( needsDateSeed || needsAuthorSeed ) {
-			try {
-				await ensureCoreSettingsReady();
-			} catch {
-				// Proceed with the default seed below.
-			}
+			// Not awaited, as in `dateWindowRedirect()`: the seed doesn't read the settings.
+			ensureCoreSettingsReady().catch( () => {} );
 
 			const reportParams = normalizeReportParams(
 				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 			);
 			delete reportParams.post_id;
-			const seeded: Record< string, unknown > = { ...reportParams, author_id: authorId };
+			const seeded: Record< string, unknown > = {
+				...reportParams,
+				...pickDashboardOriginParams( currentSearch ),
+				author_id: authorId,
+			};
 
 			throw redirect( {
 				to: '/author/$authorId',

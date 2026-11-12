@@ -3,10 +3,12 @@
  */
 import {
 	getDatePart,
+	PRESET_CUSTOM,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_24_HOURS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_365_DAYS,
+	PRESET_LAST_3_YEARS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_90_DAYS,
 	PRESET_LAST_MONTH,
@@ -21,6 +23,19 @@ import {
 import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 
 export type { IntervalType };
+
+/** The buckets a plan can lock; days stay open so a range always has one. */
+export const LOCKABLE_INTERVALS = [
+	'week',
+	'month',
+	'quarter',
+	'year',
+] as const satisfies readonly IntervalType[];
+
+export type LockableInterval = ( typeof LOCKABLE_INTERVALS )[ number ];
+
+/** The locks of a surface whose plan sets no interval limits. */
+export const NO_LOCKED_INTERVALS: readonly LockableInterval[] = [];
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
 	// Callers may pass a full offset-bearing ISO datetime rather than a bare
@@ -43,6 +58,13 @@ export function getDaysBetweenInclusive( from: string, to: string ): number {
 	return days + 1;
 }
 
+function getCalendarYearSpan( from: string, to: string ): number {
+	const fromYear = Number( getDatePart( from ).slice( 0, 4 ) );
+	const toYear = Number( getDatePart( to ).slice( 0, 4 ) );
+
+	return toYear - fromYear + 1;
+}
+
 function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] {
 	// Hours, not days, so a range one second short of a full year (8759 hours)
 	// still rounds to 365 and categorizes as yearly.
@@ -50,11 +72,22 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		Math.abs( differenceInHours( localTZDate( to ), localTZDate( from ) ) / 24 )
 	);
 
-	// No bucket between month and year: Stats has no quarterly one.
-	if ( daysDiff >= 1095 ) {
-		return [ 'month', 'year' ];
+	// An unreadable range has no length to pick a bucket from; days read as a
+	// plain series, where hours would flatten it into one point.
+	if ( Number.isNaN( daysDiff ) ) {
+		return [ 'day' ];
+	}
+
+	// Three calendar years is three yearly bars, the shortest window that reads
+	// as a series. A day count cannot say that: a range covers three years well
+	// before it holds three years of days.
+	if ( getCalendarYearSpan( from, to ) >= 3 ) {
+		return [ 'month', 'quarter', 'year' ];
+	} else if ( daysDiff > 366 ) {
+		return [ 'month', 'quarter' ];
 	} else if ( daysDiff >= 365 ) {
-		return [ 'month' ];
+		// Months by default; weeks stay on offer for a single year, leap or not.
+		return [ 'month', 'week', 'quarter' ];
 	} else if ( daysDiff >= 90 ) {
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
@@ -72,6 +105,25 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 	return [ 'hour' ];
 }
 
+function isLockedInterval( interval: IntervalType, locked: readonly LockableInterval[] ): boolean {
+	return locked.some( bucket => bucket === interval );
+}
+
+/**
+ * Drop the buckets the plan locks, landing on days when none is left.
+ *
+ * @param intervals - The buckets the range allows, default first.
+ * @param locked    - The buckets the plan locks.
+ * @return The open buckets.
+ */
+function withoutLockedIntervals(
+	intervals: IntervalType[],
+	locked: readonly LockableInterval[]
+): IntervalType[] {
+	const open = intervals.filter( interval => ! isLockedInterval( interval, locked ) );
+	return open.length ? open : [ 'day' ];
+}
+
 /**
  * Allowed intervals for a preset, default first.
  *
@@ -80,6 +132,35 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  * not the applied one: a bucket it would coerce away springs back on Apply.
  */
 export function getAllowedIntervalsForPreset(
+	preset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
+): IntervalType[] {
+	return withoutLockedIntervals( allowedIntervalsForPreset( preset, from, to ), locked );
+}
+
+/**
+ * The buckets the range could draw but the plan locks, for the control to show as locked.
+ *
+ * @param preset - The preset being edited.
+ * @param from   - The range start.
+ * @param to     - The range end.
+ * @param locked - The buckets the plan locks.
+ * @return The locked buckets, in the range's order.
+ */
+export function getLockedIntervalsForPreset(
+	preset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	locked: readonly LockableInterval[]
+): LockableInterval[] {
+	return allowedIntervalsForPreset( preset, from, to ).filter(
+		( interval ): interval is LockableInterval => isLockedInterval( interval, locked )
+	);
+}
+
+function allowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
@@ -104,7 +185,11 @@ export function getAllowedIntervalsForPreset(
 		case PRESET_LAST_12_MONTHS:
 		case PRESET_LAST_365_DAYS:
 		case PRESET_LAST_YEAR:
-			return [ 'month' ];
+			return [ 'month', 'week', 'quarter' ];
+		// Named for the order, not the options: the range offers this window
+		// years too, but behind months, and this preset is read in years.
+		case PRESET_LAST_3_YEARS:
+			return [ 'year', 'month', 'quarter' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}
@@ -120,15 +205,42 @@ export function resolveIntervalForRange(
 	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string,
-	current?: string
+	current?: string,
+	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
 ): IntervalType {
-	const allowed = getAllowedIntervalsForPreset( preset, from, to );
+	const allowed = getAllowedIntervalsForPreset( preset, from, to, locked );
 
 	if ( isIntervalType( current ) && allowed.includes( current ) ) {
 		return current;
 	}
 
 	return allowed[ 0 ] ?? 'day';
+}
+
+/**
+ * Resolve the interval for a range picked while `currentPreset` was active.
+ *
+ * A different named preset starts from its own default; any other change
+ * carries `currentInterval` unless the new range disallows it.
+ */
+export function resolveIntervalForPresetChange(
+	currentPreset: PrimaryPresetId | undefined,
+	nextPreset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	currentInterval?: string,
+	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
+): IntervalType {
+	const switchesNamedPreset =
+		!! nextPreset && nextPreset !== PRESET_CUSTOM && nextPreset !== currentPreset;
+
+	return resolveIntervalForRange(
+		nextPreset,
+		from,
+		to,
+		switchesNamedPreset ? undefined : currentInterval,
+		locked
+	);
 }
 
 /** Default interval for a preset / date range. */
@@ -138,26 +250,4 @@ export function getDefaultIntervalForPeriod(
 	to: string
 ): IntervalType {
 	return resolveIntervalForRange( preset, from, to );
-}
-
-export function getDateFormatFromInterval(
-	preset: PrimaryPresetId | undefined,
-	from: string,
-	to: string
-): string {
-	const interval = getDefaultIntervalForPeriod( preset, from, to );
-
-	switch ( interval ) {
-		case 'hour':
-			return 'HH:mm';
-		case 'day':
-		case 'week':
-			return 'MMM d';
-		case 'month':
-			return 'MMM yyyy';
-		case 'year':
-			return 'yyyy';
-		default:
-			return 'MMM d';
-	}
 }

@@ -18,20 +18,14 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 class Footer_Links {
 
 	/**
-	 * Get the slug and label of My Jetpack's products tab, for footer links to it.
+	 * Whether My Jetpack reports that its admin page is available to the current user.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
-	 * @return array{slug: string, label: string}
+	 * @return bool
 	 */
-	public static function get_my_jetpack_products_section() {
-		$products_section = method_exists( My_Jetpack_Initializer::class, 'get_products_section' )
-			? My_Jetpack_Initializer::get_products_section()
-			: null;
-
-		return $products_section ?? array(
-			'slug'  => 'products',
-			'label' => _x( 'Products', 'Navigation item', 'jetpack' ),
-		);
+	public static function is_my_jetpack_available() {
+		return method_exists( My_Jetpack_Initializer::class, 'is_admin_page_available' )
+			&& My_Jetpack_Initializer::is_admin_page_available();
 	}
 }

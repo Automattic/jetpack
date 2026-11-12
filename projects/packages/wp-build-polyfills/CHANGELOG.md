@@ -5,6 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.4] - 2026-11-06
+### Changed
+- Replace the widget-primitives module of an active Gutenberg older than 24.4.0, the first release that exports useWidgetIdentity.
+
+## [0.7.3] - 2026-11-04
+### Changed
+- Update dependencies. [#54497]
+- Update package dependencies. [#54512]
+
+### Fixed
+- Serve the bundled widget-primitives module below Gutenberg 24.2.0, the first release whose copy exports useWidgetActions. [#54512]
+
+## [0.7.2] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
+## [0.7.1] - 2026-10-28
+### Changed
+- Update dependencies.
+
+## [0.7.0] - 2026-10-26
+### Added
+- Add emit-widget-strings, which writes a gettext reference stub for widget.json metadata so the strings reach translation catalogs. [#53850]
+
+## [0.6.5] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [0.6.4] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+
+### Fixed
+- Keep the newest bundled copy of a polyfilled script module when several plugins register it, and take widget-primitives from Gutenberg only from 24.1.0. [#53004]
+
+## [0.6.3] - 2026-10-14
+### Changed
+- Cache stamped bundles so repeat builds only re-stamp the bundles that changed. [#53459]
+
+## [0.6.2] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [0.6.1] - 2026-10-05
+### Changed
+- Internal updates.
+
+## [0.6.0] - 2026-09-23
+### Added
+- Add a `WP_Build_Screen_Id` helper that hooks a wp-build dashboard's screen-ID alias before the generated enqueue check and the restore after, so the two can't be hooked out of order or one dropped. [#52583]
+- Add `loadI18nManifest()` to cache another build's i18n manifest by URL, so its lazy bundles can load catalogs on demand. [#52634]
+
+## [0.5.8] - 2026-09-23
+### Fixed
+- Exclude `src/js/` from published package. [#52650]
+
+## [0.5.7] - 2026-09-21
+### Fixed
+- Apply polyfills and a higher WordPress version threshold that `register()` receives after the polyfills are already registered, instead of silently ignoring them. [#52470]
+
 ## [0.5.6] - 2026-09-18
 ### Changed
 - Update package dependencies. [#52187]
@@ -14,11 +74,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.5] - 2026-09-15
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [0.5.4] - 2026-09-14
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [0.5.3] - 2026-09-09
 ### Changed
@@ -68,7 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.4] - 2026-07-22
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [0.2.3] - 2026-07-20
 ### Changed
@@ -77,7 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.2] - 2026-07-13
 ### Changed
-- Update dependencies. [#49464]
+- Update dependencies.
 
 ## [0.2.1] - 2026-07-09
 ### Changed
@@ -177,6 +237,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Add @wordpress/ui to devDependencies so the boot module bundles it instead of externalizing it as an unregistered wp-ui script handle, which caused a blank page at runtime. [#47727]
 
+[0.7.4]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.6.5...v0.7.0
+[0.6.5]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.6.4...v0.6.5
+[0.6.4]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.6.3...v0.6.4
+[0.6.3]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.6.2...v0.6.3
+[0.6.2]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.8...v0.6.0
+[0.5.8]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.7...v0.5.8
+[0.5.7]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.3...v0.5.4

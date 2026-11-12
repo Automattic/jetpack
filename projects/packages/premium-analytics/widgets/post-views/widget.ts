@@ -1,20 +1,11 @@
 /**
- * WordPress dependencies
- */
-import { seen } from '@wordpress/icons';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
-/**
  * Internal dependencies
  */
-import {
-	chartTypeAttributeField,
-	type ChartDisplayChartType,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ChartDisplayChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * How the views series is drawn. The shared chart-display list keeps every
- * chart widget's dropdown identical and ties it to the toolkit's own union.
+ * How the views series is drawn. The alias ties the attribute to the
+ * toolkit's own union, which the chart reads.
  */
 export type PostViewsChartType = ChartDisplayChartType;
 
@@ -32,8 +23,6 @@ export type PostViewsAttributes = {
  * the page's chart interval.
  */
 export default {
-	icon: seen,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< PostViewsAttributes >[],
 	example: {
 		attributes: {
 			chartType: 'bar',

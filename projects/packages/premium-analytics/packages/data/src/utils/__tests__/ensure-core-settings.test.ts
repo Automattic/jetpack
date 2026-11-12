@@ -4,7 +4,12 @@
  * success/failure. The `mock` prefix is required for jest.mock hoisting.
  */
 const mockGetEntityRecord = jest.fn();
+const mockCurrentUserCan = jest.fn();
 const mockResolveSelect = jest.fn( () => ( { getEntityRecord: mockGetEntityRecord } ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	currentUserCan: ( capability: string ) => mockCurrentUserCan( capability ),
+} ) );
 
 jest.mock( '@wordpress/core-data', () => ( {
 	store: 'core',
@@ -20,9 +25,19 @@ describe( 'ensureCoreSettingsReady', () => {
 		jest.resetModules();
 		mockGetEntityRecord.mockReset();
 		mockResolveSelect.mockClear();
+		mockCurrentUserCan.mockReturnValue( true );
 	} );
 
-	it( 'memoizes the resolved promise and fetches settings only once', async () => {
+	it( 'requests nothing for a reader the settings route would refuse', async () => {
+		mockCurrentUserCan.mockReturnValue( false );
+		const { ensureCoreSettingsReady } = await import( '../ensure-core-settings' );
+
+		await expect( ensureCoreSettingsReady() ).resolves.toBeUndefined();
+		expect( mockCurrentUserCan ).toHaveBeenCalledWith( 'manage_options' );
+		expect( mockGetEntityRecord ).not.toHaveBeenCalled();
+	} );
+
+	it( 'memoizes the resolved promise and fetches the site record only once', async () => {
 		mockGetEntityRecord.mockResolvedValue( {} );
 		const { ensureCoreSettingsReady } = await import( '../ensure-core-settings' );
 
@@ -31,17 +46,16 @@ describe( 'ensureCoreSettingsReady', () => {
 
 		expect( first ).toBe( second );
 		await expect( first ).resolves.toBeUndefined();
-		// 'site' + 'settings' fetched once; the second call reuses the memo.
-		expect( mockGetEntityRecord ).toHaveBeenCalledTimes( 2 );
+		expect( mockGetEntityRecord ).toHaveBeenCalledTimes( 1 );
+		expect( mockGetEntityRecord ).toHaveBeenCalledWith( 'root', 'site' );
 	} );
 
-	it( 'clears the memo on rejection so a later call retries', async () => {
+	it( 'clears the memo on rejection so a later call asks core-data again', async () => {
 		mockGetEntityRecord.mockRejectedValueOnce( new Error( 'boom' ) );
 		const { ensureCoreSettingsReady } = await import( '../ensure-core-settings' );
 
 		await expect( ensureCoreSettingsReady() ).rejects.toThrow( 'boom' );
 
-		// A transient failure must not be cached: the next call re-attempts.
 		mockGetEntityRecord.mockResolvedValue( {} );
 		await expect( ensureCoreSettingsReady() ).resolves.toBeUndefined();
 	} );

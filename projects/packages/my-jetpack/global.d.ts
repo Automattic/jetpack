@@ -282,6 +282,16 @@ type PlanExpirationAlert = {
 	expiry_message?: string;
 	manage_url?: string;
 	products_effected?: JetpackProductName[];
+	// WordPress.com's own notice for its plans, replacing the generated one.
+	wpcom_plan_notice?: {
+		title: string;
+		message: string;
+		actions: { label: string; url: string }[];
+		is_dismissible: boolean;
+		level: 'warning' | 'error';
+		// Matches the WordPress.com expiry notices' own Tracks events.
+		track_props: Record< Lowercase< string >, string | number >;
+	};
 };
 
 type PlanExpiredAlerts = Record< `${ JetpackPlanSlug }--plan_expired`, PlanExpirationAlert >;
@@ -312,6 +322,7 @@ type ProtectHasThreatsAlert = Record< 'protect_has_threats', ProtectHasThreatsAl
 type PluginsNeedingInstallAlertData = {
 	needs_installed?: JetpackModule[];
 	needs_activated_only?: JetpackModule[];
+	is_silent?: true;
 };
 
 type PluginsNeedingInstallAlert = Record<
@@ -412,6 +423,7 @@ type ProtectData = {
 		files: string[];
 		has_unchecked_items?: boolean;
 		last_checked: string;
+		last_scan_failed?: boolean;
 		num_plugins_threats: number;
 		num_themes_threats: number;
 		num_threats: number;
@@ -437,6 +449,7 @@ type ProtectData = {
 		standalone_mode?: boolean;
 		waf_supported: boolean;
 		waf_enabled: boolean;
+		waf_provided_by_host?: boolean;
 	};
 };
 
@@ -462,10 +475,99 @@ type VideopressData = {
 	videoCount: number;
 };
 
+// The onboarding wizard's configuration, set only while its feature flag is on.
+type OnboardingWizardState = {
+	// Where skipping the wizard lands: the My Jetpack dashboard.
+	exitUrl: string;
+	// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
+	dashboardUrl: string;
+};
+
+type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';
+
+type MainFeaturesState = {
+	jetpack: MainFeaturePluginStatus;
+	features: MainFeature[];
+	// Optional: a plugin carrying an older copy of this package sends none.
+	module_groups?: MainFeatureModuleGroup[];
+	hidden_modules?: string[];
+	available_admin_pages?: string[];
+	plugin_installs?: MainFeatureInstallAccess;
+};
+
+type OfflineFeaturesSeed = {
+	mainFeatures: Omit< MainFeaturesState, 'features' > & {
+		features: Array< Omit< MainFeature, 'upgrade' > & { upgrade: null } >;
+	};
+	plugins: Record< string, { active: boolean; [ key: string ]: unknown } >;
+};
+
+type OfflineFeaturesScriptData = import( '@automattic/jetpack-script-data' ).MyJetpackScriptData & {
+	offlineFeatures?: OfflineFeaturesSeed;
+};
+
+type MainFeatureModuleGroup = {
+	label: string;
+	groups?: string[];
+	modules: string[];
+};
+
+// Whether the current user may install plugins here: not while file changes are off site-wide, or not with their role.
+type MainFeatureInstallAccess = 'allowed' | 'disabled' | 'not_permitted';
+
+type MainFeature = {
+	slug: string;
+	name: string;
+	description: string;
+	long_description: string;
+	icon: string;
+	manage_url: string;
+	essential: boolean;
+	// Its plan, not a switch, decides whether it runs, whichever plugin delivers it.
+	plan_driven?: boolean;
+	in_jetpack: boolean;
+	plugin: string;
+	plugin_name: string;
+	plugin_url: string;
+	plugin_status: MainFeaturePluginStatus;
+	// Set when the host forces the plugin, so the owner's switch would only flip back.
+	plugin_override: '' | 'active' | 'inactive';
+	free_highlights: string[];
+	paid_highlights: string[];
+	pricing_notes?: string[];
+	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
+	// A host may send it elsewhere instead, with an absolute `url`.
+	upgrade: { path: string; name: string; url?: string };
+	// Whether the site already pays for the feature, directly or through a bundle.
+	included?: boolean;
+	// What to expect after turning it on, such as picking a plan.
+	setup_note?: string;
+	screenshot: string;
+	// `owned` is per plan: a site on Growth owns that one and can still buy Complete.
+	plans: Array< { slug: string; name: string; owned?: boolean } >;
+	// The Security and Growth filter pills' categories.
+	groups: string[];
+	info_url: string;
+	docs_url: string;
+	product: string;
+	module: string;
+	// Whether the feature needs a connected WordPress.com user account.
+	needs_account?: boolean;
+};
+
 interface Window {
 	myJetpackInitialState?: {
+		isOfflineFeatures?: boolean | '1';
+		mainFeatures: MainFeaturesState | null;
+		featuresBanner: { isDismissed: boolean } | null;
+		onboardingWizard?: OnboardingWizardState;
+		// Optional: a plugin carrying an older copy of this package sends none.
+		header?: {
+			connectorsUrl: string | null;
+		};
 		siteSuffix: string;
 		siteUrl: string;
+		homeUrl: string;
 		latestBoostSpeedScores: {
 			previousScores: {
 				desktop: number;
@@ -487,17 +589,25 @@ interface Window {
 		fileSystemWriteAccess: 'yes' | 'no';
 		isStatsModuleActive: string;
 		canUserViewStats: boolean;
+		hiddenFeatures?: Array< string >;
+		deprecatedModules?: Array< string >;
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			accountConnect?: boolean;
+			headerControls?: boolean;
+			overviewV1: boolean;
+			premiumAnalyticsEnabled: boolean;
 			showAiModuleToggle: boolean;
+			showAiModuleToggleOnceConnected?: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
 		purchaseToken: string;
 		lifecycleStats: {
 			historicallyActiveModules: JetpackModule[];
+			historicallyActiveModulesRefreshDue?: boolean;
 			brokenModules: {
 				needs_site_connection: JetpackModule[];
 				needs_user_connection: JetpackModule[];
@@ -539,11 +649,11 @@ interface Window {
 					has_free_offering: boolean;
 					feature_identifying_paid_plan: string;
 					has_paid_plan_for_product: boolean;
-					features_by_tier: Array< string >;
+					has_protect_page?: boolean;
+					scan_results_url?: string;
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;
-					is_tiered_pricing: boolean;
 					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
 					long_description: string;
@@ -554,11 +664,29 @@ interface Window {
 					post_checkout_url?: string;
 					manage_paid_plan_purchase_url?: string;
 					renew_paid_plan_purchase_url?: string;
+					purchase_replacement?: {
+						slug: string;
+						title: string;
+						wpcom_product_slug: string;
+					} | null;
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
+						is_free?: boolean;
 						available: boolean;
+						catalog_available?: boolean;
+						requires_support?: boolean;
 						wpcom_product_slug: string;
 						wpcom_free_product_slug?: string;
+						terms?: Array< {
+							available: boolean;
+							wpcom_product_slug: string;
+							product_term?: string;
+							currency_code?: string;
+							full_price?: number;
+							discount_price?: number;
+							full_price_per_month?: number;
+							discount_price_per_month?: number;
+						} >;
 						product_term: string;
 						currency_code: string;
 						full_price: number;
@@ -657,11 +785,33 @@ interface Window {
 		sandboxedDomain: string;
 		isDevVersion: boolean;
 		userIsAdmin: string;
+		userFirstName: string;
 		isWelcomeTourActive: boolean;
 		seoOptIn: {
 			showCard: boolean;
 			redirect: string;
 		};
+		// Security modules whose settings live on the Protect page, keyed by module slug; empty without that page.
+		protectPageModuleUrls?: Record< string, string >;
+		// Null unless the partner coupon screen replaces the dashboard.
+		partnerCoupon?: {
+			coupon: {
+				coupon_code: string;
+				preset: string;
+				partner: {
+					name: string;
+					prefix: string;
+					logo?: { src: string; width: number; height: number } | null;
+				};
+				product: {
+					title: string;
+					slug: string;
+					description: string;
+					features: string[];
+				};
+			};
+			assetBaseUrl: string;
+		} | null;
 	};
 	myJetpackRest?: {
 		apiRoot: string;
@@ -670,5 +820,9 @@ interface Window {
 	/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
 	jetpackMenuBadges?: {
 		setCount: ( menuSlug: string, count: number ) => void;
+	};
+	/** Alerts another menu item already counts, so the async My Jetpack badge skips them. */
+	myJetpackNotificationBubble?: {
+		excludedAlerts: string[];
 	};
 }

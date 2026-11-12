@@ -7,14 +7,15 @@ import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
+import { mockRecordEvent } from '../../../../tests/js/dashboard-toolkit-test-utils';
 import { DASHBOARD_FEEDBACK_BANNER_KEY, DASHBOARD_PREFERENCES_SCOPE } from '../constants';
 import { resetFeedbackBannerForTesting, useFeedbackBanner } from './use-feedback-banner';
 
-const mockRecordEvent = jest.fn();
-
-jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	useTrackEvent: () => mockRecordEvent,
-} ) );
+jest.mock(
+	'@jetpack-premium-analytics/widgets-toolkit',
+	() =>
+		jest.requireActual( '../../../../tests/js/dashboard-toolkit-test-utils' ).mockDashboardToolkit
+);
 
 type PreferencesSelectors = {
 	get: ( scope: string, key: string ) => string | undefined;

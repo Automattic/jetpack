@@ -5,6 +5,7 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Badge, Tabs } from '@wordpress/ui';
+import type { JSX } from 'react';
 
 type Status = 'inbox' | 'spam' | 'trash';
 

@@ -37,6 +37,9 @@
 			     covered by inspection rather than by execution. -->
 			<file>php/json-api/Jetpack_Json_Api_Endpoints_Accessibility_Test.php</file>
 		</testsuite>
+		<testsuite name="google-font-face">
+			<directory suffix="Test.php">php/modules/google-font-face</directory>
+		</testsuite>
 		<testsuite name="infinite-scroll">
 			<directory suffix="Test.php">php/modules/infinite-scroll</directory>
 		</testsuite>

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Remove COLOR_GRAY_100, an unused hardcoded grey the widgets toolkit re-exported.
-

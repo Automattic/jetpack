@@ -59,8 +59,7 @@ class Orders_Fulfilled_Over_Time_Controller extends Abstract_Csv_Report_Controll
 	 */
 	public function get_additional_params(): array {
 		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
-			'filters'   => array(
+			'filters' => array(
 				array(
 					'key'     => 'fulfillment_status',
 					'compare' => '=',

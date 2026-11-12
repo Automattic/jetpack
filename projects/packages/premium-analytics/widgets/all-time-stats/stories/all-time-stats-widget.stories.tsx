@@ -27,7 +27,6 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import AllTimeStatsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -39,7 +38,7 @@ const ALL_TIME_STATS_RENDER_MODULE = 'storybook/all-time-stats';
 
 // `presentation` comes from widget.json ( 'framed' ), so the host frames the
 // widget and renders its identity (title + icon).
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 function renderAllTimeStats() {
 	return <AllTimeStatsRender attributes={ { reportParams: getDefaultQueryParams() } } />;
@@ -122,8 +121,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no summary fields: the widget shows its empty state (the neutral
- * trending glyph and "No stats recorded yet.").
+ * Resolved with no summary fields: every tile shows its placeholder.
  */
 export const Empty: Story = {
 	render: () => renderAllTimeStatsOnPreset( 'last-365-days' ),
@@ -145,6 +143,7 @@ function AllTimeStatsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetCon
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <AllTimeStatsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

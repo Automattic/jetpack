@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -142,6 +143,26 @@ class Crm extends Product {
 	}
 
 	/**
+	 * Perform the CRM specific activation routines.
+	 *
+	 * @param bool|WP_Error $current_result Is the result of the top level activation actions.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $current_result ) {
+		if ( is_wp_error( $current_result ) ) {
+			return $current_result;
+		}
+
+		/*
+		 * CRM sets this on activation to send the next admin page load to its own full-screen
+		 * setup wizard — which, activated from here, is the My Jetpack screen the owner is still on.
+		 */
+		delete_option( 'jpcrm_do_redirect' );
+
+		return $current_result;
+	}
+
+	/**
 	 * Get the URL the user is taken after activating the product
 	 *
 	 * @return ?string
@@ -175,7 +196,7 @@ class Crm extends Product {
 
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) || str_starts_with( $purchase->product_slug, 'jetpack_pro_' ) ) {
 					return true;
 				}
 			}
@@ -194,6 +215,9 @@ class Crm extends Product {
 			'jetpack_complete',
 			'jetpack_complete_monthly',
 			'jetpack_complete_bi_yearly',
+			'jetpack_pro_yearly',
+			'jetpack_pro_bi_yearly',
+			'jetpack_pro_monthly',
 		);
 	}
 
@@ -204,6 +228,6 @@ class Crm extends Product {
 	 * @return boolean|array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'complete' );
+		return array( 'pro', 'complete' );
 	}
 }

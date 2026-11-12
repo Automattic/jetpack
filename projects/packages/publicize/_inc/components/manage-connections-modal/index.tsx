@@ -69,15 +69,6 @@ export const ManageConnectionsModal = () => {
 				 * don't tuck under the wp-admin sidebar: `services-list` (its
 				 * horizontal half) and `menu-aware` (the confirmation view). See the
 				 * workaround section in style.module.scss.
-				 *
-				 * Leave the portal on its default `document.body` container. It is
-				 * tempting to pass `getWpCompatOverlaySlot()` so the popup stacks in
-				 * the reserved band rather than relying on the editor chrome being a
-				 * `position: fixed` stacking context — but the slot sits at z-index
-				 * 1000000003 and the disconnect confirmation inside this modal is a
-				 * `@wordpress/components` ConfirmDialog at 100000, so the modal would
-				 * cover its own confirmation. Both must move together; see
-				 * WordPress/gutenberg#76135.
 				 */ }
 				<Dialog.Popup
 					size={ isSmall ? 'full' : 'large' }
@@ -87,7 +78,7 @@ export const ManageConnectionsModal = () => {
 				>
 					<Dialog.Header className={ styles[ 'modal-header' ] }>
 						<Dialog.Title>{ title }</Dialog.Title>
-						<Dialog.CloseIcon />
+						<Dialog.CloseIconButton />
 					</Dialog.Header>
 					{ hasKeyringResult ? (
 						/*

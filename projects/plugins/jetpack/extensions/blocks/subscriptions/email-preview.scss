@@ -14,3 +14,18 @@
 		flex-shrink: 0;
 	}
 }
+
+// Inline, not flex: `@wordpress/ui` keeps its new-tab indicator an
+// inline-block so the link underline stays off it, and a flex item
+// blockifies it back under the underline.
+.jetpack-newsletter-preview-modal__design-link {
+
+	svg {
+		vertical-align: middle;
+	}
+
+	.jetpack-newsletter-preview-modal__design-link-label {
+		margin-inline-start: 4px;
+		vertical-align: middle;
+	}
+}

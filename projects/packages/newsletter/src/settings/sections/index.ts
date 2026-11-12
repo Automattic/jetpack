@@ -2,6 +2,7 @@
  * Export all section components
  */
 export { EmailContentSection } from './email-content-section';
+export { EmailDesignSection } from './email-design-section';
 export { EmailBylineSection } from './email-byline-section';
 export { EmailDefaultsSection } from './email-defaults-section';
 export { EmailSenderSettingsSection } from './email-sender-settings-section';

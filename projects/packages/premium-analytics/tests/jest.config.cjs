@@ -1,11 +1,13 @@
 const path = require( 'path' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
+const visxResponsiveModuleMapper = require( 'jetpack-js-tools/jest/visx-responsive-module-mapper.cjs' );
 // Shared with the guard test in `js/test-groups.test.ts`, so the two can never
 // disagree about which suites a group claims.
 const { GROUPS_DIR, groupedMemberFiles } = require( './group-members.cjs' );
 const { singleCopyModuleMapper } = require( './single-copy-modules.cjs' );
 
 const rootDir = path.join( __dirname, '..' );
+const JS_TRANSFORM = '\\.m?[jt]sx?$';
 
 const escapeRegExp = value => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
 
@@ -40,10 +42,20 @@ module.exports = {
 	// A jsdom suite rendering real components runs tens of times slower on a CI runner sharing its
 	// cores with every other project's workers, which took two suites past Jest's 5s default.
 	testTimeout: 20_000,
+	// Jest keeps a transform cache per `id`, so the timezone passes must share this one to reuse it.
+	id: 'premium-analytics',
+	transform: {
+		...baseConfig.transform,
+		[ JS_TRANSFORM ]: [
+			path.join( __dirname, 'shared-transform-cache.cjs' ),
+			baseConfig.transform[ JS_TRANSFORM ][ 1 ],
+		],
+	},
 	testPathIgnorePatterns: [ ...baseConfig.testPathIgnorePatterns, ...groupingIgnorePatterns ],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
 		...singleCopyModuleMapper( rootDir ),
+		...visxResponsiveModuleMapper( rootDir ),
 		// Reached only through `@wordpress/core-data`'s editor features, and costly to load.
 		'^@wordpress/block-editor$': path.join( __dirname, 'block-editor-mock.cjs' ),
 		// Stub CSS imports (e.g. `@automattic/charts/style.css` pulled in via

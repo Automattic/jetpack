@@ -283,6 +283,9 @@ class Images {
 		$permalink = get_permalink( $post_id );
 
 		foreach ( $post_images as $post_image ) {
+			if ( ! $post_image instanceof \WP_Post ) {
+				continue;
+			}
 			$current_image = self::get_attachment_data( $post_image->ID, $permalink, $width, $height );
 			if ( false !== $current_image ) {
 				$images[] = $current_image;
@@ -852,7 +855,7 @@ class Images {
 
 		if ( is_array( $media ) ) {
 			foreach ( $media as $item ) {
-				if ( 'image' === $item['type'] ) {
+				if ( is_array( $item ) && isset( $item['type'] ) && 'image' === $item['type'] ) {
 					$image = $item;
 					break;
 				}
@@ -1118,7 +1121,7 @@ class Images {
 			return false;
 		}
 
-		if ( ! empty( $meta['videopress'] ) ) {
+		if ( isset( $meta['videopress']['poster'] ) && isset( $meta['videopress']['width'] ) && isset( $meta['videopress']['height'] ) ) {
 			// Use poster image for VideoPress videos.
 			$url         = $meta['videopress']['poster'];
 			$meta_width  = $meta['videopress']['width'];

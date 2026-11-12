@@ -1,6 +1,11 @@
 // Charts
 export { AreaChart, AreaChartUnresponsive } from './charts/area-chart';
-export { BarChart, BarChartUnresponsive } from './charts/bar-chart';
+export {
+	BarChart,
+	BarChartUnresponsive,
+	useBarColors,
+	useBarLegendItems,
+} from './charts/bar-chart';
 export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
 export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
 export { GeoChart, GeoChartUnresponsive } from './charts/geo-chart';
@@ -21,7 +26,7 @@ export { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from './charts/pie
 export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 
 // Components
-export { BaseTooltip } from './components/tooltip';
+export { BaseTooltip, TooltipBox } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export { TrendIndicator } from './components/trend-indicator';
 
@@ -68,6 +73,7 @@ export type {
 	LegendPosition,
 	ChartLegendConfig,
 	SeriesChartLegendConfig,
+	ComparisonItemLabel,
 	SeriesVisibilityProps,
 	BaseChartProps,
 	GoogleDataTableColumn,
@@ -75,6 +81,7 @@ export type {
 	LegendShape,
 	LegendShapeLabel,
 	LegendShapeRenderProps,
+	BarChartLayout,
 } from './types';
 export type * from './visx/types';
 export type { PieChartProps, PieChartRenderTooltipParams } from './charts/pie-chart';
@@ -82,7 +89,13 @@ export type {
 	PieSemiCircleChartProps,
 	PieSemiCircleChartRenderTooltipParams,
 } from './charts/pie-semi-circle-chart';
-export type { GeoChartProps, GeoRegion, GeoResolution, GeoChartError } from './charts/geo-chart';
+export type {
+	GeoChartProps,
+	GeoRegion,
+	GeoResolution,
+	GeoDisplayMode,
+	GeoChartError,
+} from './charts/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
@@ -91,13 +104,18 @@ export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 export { useLeaderboardLegendItems } from './charts/leaderboard-chart/hooks';
 
 // Previously available via '@automattic/charts/tooltip', '@automattic/charts/legend'
-export { AccessibleTooltip } from './components/tooltip';
-export type { BaseTooltipProps, TooltipData, TooltipProps } from './components/tooltip';
+export { AccessibleTooltip, XYChartTooltip } from './components/tooltip';
+export type {
+	BaseTooltipProps,
+	TooltipBoxProps,
+	TooltipData,
+	TooltipProps,
+} from './components/tooltip';
 export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
 
 // Previously available via '@automattic/charts/bar-chart', '@automattic/charts/line-chart', etc.
 export type { AreaChartProps } from './charts/area-chart';
-export type { BarChartProps, BandHighlightSelection } from './charts/bar-chart';
+export type { BarChartProps, BandHighlightSelection, BarLegendOptions } from './charts/bar-chart';
 export type {
 	BarListChartProps,
 	RenderLabelProps,
@@ -106,6 +124,8 @@ export type {
 export type {
 	ConversionFunnelChartProps,
 	FunnelStep,
+	FunnelTooltipContent,
+	FunnelTooltipRow,
 	StepLabelRenderProps,
 	StepRateRenderProps,
 	MainMetricRenderProps,

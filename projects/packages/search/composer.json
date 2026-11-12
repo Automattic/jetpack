@@ -12,7 +12,6 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
@@ -63,14 +62,13 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-search",
 		"textdomain": "jetpack-search-pkg",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "8.1.x-dev"
+			"dev-trunk": "8.4.x-dev"
 		},
 		"version-constants": {
 			"::VERSION": "src/class-package.php"

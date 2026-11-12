@@ -9,3 +9,4 @@ export { useZeroValueDisplay } from './use-zero-value-display';
 export { useDataWithPercentages } from './use-data-with-percentages';
 export { useLegendVisibilityData } from './use-legend-visibility-data';
 export { usePrefersReducedMotion } from './use-prefers-reduced-motion';
+export { useIsomorphicLayoutEffect } from './use-isomorphic-layout-effect';

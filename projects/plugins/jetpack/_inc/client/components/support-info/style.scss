@@ -5,12 +5,12 @@
 .jp-support-info {
 	position: absolute;
 	top: rem.convert(27px);
-	right: rem.convert(25px);
+	inset-inline-end: rem.convert(25px);
 	z-index: 1;
 
 	@include layout.breakpoint( "<480px" ) {
 		top: rem.convert(20px);
-		right: rem.convert(16px);
+		inset-inline-end: rem.convert(16px);
 	}
 
 	.jp-form-fieldset & {

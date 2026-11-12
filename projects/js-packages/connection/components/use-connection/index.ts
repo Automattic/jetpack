@@ -1,60 +1,36 @@
 import restApi from '@automattic/jetpack-api';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { STORE_ID } from '../../state/store.jsx';
+import { isConnectionOwner } from '../../types.ts';
 import type {
-	ConnectionOwner,
+	ConnectError,
 	RegistrationError,
 	UserConnectionData,
 	UseConnectionProps,
 	UseConnectionReturn,
 } from './types.ts';
-import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types.ts';
 import type { SyntheticEvent } from 'react';
 
 type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
 
 /**
- * Shared empty-value fallbacks for absent store slices.
+ * Shared empty-value fallback for an absent `userConnectionData` slice.
  *
  * `useSelect` shallow-compares the object its callback returns and re-renders on
  * any difference, so a fresh `{}` literal per call would make an absent slice
  * look like a change on every store update, anywhere in the store.
  *
- * Typed rather than asserted: both shapes have no required members, so an empty
- * object really is one of them.
+ * Typed rather than asserted: the shape has no required members, so an empty
+ * object really is one.
  */
 const EMPTY_USER_CONNECTION_DATA: UserConnectionData = {};
-const EMPTY_CONNECTION_ERROR_MAP: ConnectionErrorMap = {};
 
 const initialState =
 	window?.JP_CONNECTION_INITIAL_STATE ||
 	getScriptData()?.connection ||
 	( {} as Record< string, string > );
-
-/**
- * Whether a raw store value is a usable connection owner.
- *
- * The value starts life as server-provided JSON and crosses an untyped store, so
- * it is checked rather than asserted: consumers decide ownership by comparing
- * `owner.id` to the viewer's ID, and a partial owner would pass that test by
- * matching `undefined` against `undefined`. Anything short of a complete owner
- * means "owner unknown".
- *
- * @param {unknown} value - The raw selector value.
- * @return {boolean} Whether the value is a complete connection owner.
- */
-function isConnectionOwner( value: unknown ): value is ConnectionOwner {
-	return (
-		!! value &&
-		typeof value === 'object' &&
-		'id' in value &&
-		typeof value.id === 'number' &&
-		'displayName' in value &&
-		typeof value.displayName === 'string'
-	);
-}
 
 /**
  * Hook to handle the connection process.
@@ -82,11 +58,11 @@ export default function useConnection( {
 	const {
 		siteIsRegistering,
 		userIsConnecting,
+		userConnectionError,
 		userConnectionData,
 		connectedPlugins,
 		connectionOwner,
 		connectionErrors,
-		connectionHealthErrors,
 		isRegistered,
 		isUserConnected,
 		hasConnectedOwner,
@@ -99,6 +75,10 @@ export default function useConnection( {
 		return {
 			siteIsRegistering: select( STORE_ID ).getSiteIsRegistering() as boolean,
 			userIsConnecting: select( STORE_ID ).getUserIsConnecting() as boolean,
+			// Optional-call too: an older bundled copy of this store can be the one registered.
+			userConnectionError:
+				( select( STORE_ID ).getUserConnectionError?.() as ConnectError | undefined ) ||
+				( false as const ),
 			// The assertion sits on the selector call — the one untyped step — so the
 			// fallback stays a real `UserConnectionData` rather than an empty object
 			// asserted into one.
@@ -109,14 +89,6 @@ export default function useConnection( {
 				Record< string, unknown > | unknown[],
 			connectionOwner: isConnectionOwner( owner ) ? owner : null,
 			connectionErrors: select( STORE_ID ).getConnectionErrors() as Array< string | object >,
-			// Always a code→user→error map (selector defaults to `{}`), unlike
-			// `connectionErrors` which can be an array — so type it as the real
-			// `ConnectionErrorMap` and skip the array normalization downstream.
-			// Optional-call the selector: downstream consumers that register a
-			// partial connection-store mock may not define it.
-			connectionHealthErrors:
-				( select( STORE_ID ).getConnectionHealthErrors?.() as ConnectionErrorMap | undefined ) ??
-				EMPTY_CONNECTION_ERROR_MAP,
 			isOfflineMode: select( STORE_ID ).getIsOfflineMode() as boolean,
 			isRegistered: ( connectionStatus.isRegistered ?? false ) as boolean,
 			isUserConnected: ( connectionStatus.isUserConnected ?? false ) as boolean,
@@ -124,12 +96,14 @@ export default function useConnection( {
 		};
 	}, [] );
 
+	const connectError = registrationError || userConnectionError;
+
 	/**
 	 * User register process handler.
 	 *
 	 * @return Promise when running the user connection process. Otherwise, nothing.
 	 */
-	const handleConnectUser = (): Promise< unknown > => {
+	const handleConnectUser = useCallback( (): Promise< unknown > => {
 		if ( ! skipUserConnection ) {
 			return connectUser( { from, redirectUri, skipPricingPage } );
 		} else if ( redirectUri ) {
@@ -138,7 +112,7 @@ export default function useConnection( {
 		}
 
 		return Promise.resolve();
-	};
+	}, [ skipUserConnection, connectUser, from, redirectUri, skipPricingPage ] );
 
 	/**
 	 * Site register process handler.
@@ -152,17 +126,20 @@ export default function useConnection( {
 	 * @param {Event} [e] - Event that dispatched handleRegisterSite
 	 * @return Promise when running the site connection process. Otherwise, nothing.
 	 */
-	const handleRegisterSite = ( e?: Event | SyntheticEvent ): Promise< unknown > => {
-		e && e.preventDefault();
+	const handleRegisterSite = useCallback(
+		( e?: Event | SyntheticEvent ): Promise< unknown > => {
+			e && e.preventDefault();
 
-		if ( isRegistered ) {
-			return handleConnectUser();
-		}
+			if ( isRegistered ) {
+				return handleConnectUser();
+			}
 
-		return registerSite( { registrationNonce, redirectUri, from } ).then( () => {
-			return handleConnectUser();
-		} );
-	};
+			return registerSite( { registrationNonce, redirectUri, from } ).then( () => {
+				return handleConnectUser();
+			} );
+		},
+		[ isRegistered, registerSite, registrationNonce, redirectUri, from, handleConnectUser ]
+	);
 
 	/**
 	 * Initialize/Setup the REST API.
@@ -190,12 +167,12 @@ export default function useConnection( {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		connectError,
 		userConnectionData,
 		connectionOwner,
 		hasConnectedOwner,
 		connectedPlugins,
 		connectionErrors,
-		connectionHealthErrors,
 		isOfflineMode,
 	};
 }

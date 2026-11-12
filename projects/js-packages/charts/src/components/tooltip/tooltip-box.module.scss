@@ -1,0 +1,7 @@
+// `.surface` is the look alone, for a chart that positions the box itself.
+@use "surface";
+
+.surface {
+
+	@include surface.surface;
+}

@@ -92,6 +92,16 @@ As threats are detected, new rules are added to Jetpack Protect’s firewall, wh
 
 WordPress security is something that evolves over time. Jetpack Protect leverages the extensive database of WPScan, an Automattic brand. All vulnerabilities are entered into our database by dedicated WordPress security professionals and updated constantly as new information becomes available.
 
+== ONE PAGE FOR YOUR SITE'S SECURITY ==
+
+Once your site is connected, Jetpack → Protect shows everything in one place. The Overview tab sums up scan results, the firewall, login protection, and downtime monitoring. The Settings tab is where you change their settings. The page covers:
+- Scan results, with the threats found and how to fix them
+- The Web Application Firewall, with its IP allow and block lists
+- Login protection: brute force attack protection, account protection, and logging in with WordPress.com
+- Downtime monitoring, with email alerts when your site goes down
+
+It is the same Protect page the Jetpack plugin shows. If you use both plugins, they share it, so you see one Protect item in the Jetpack menu.
+
 == JETPACK PROTECT IS EASY TO SETUP AND USE ==
 
 There’s nothing to configure – the setup process is as easy as:
@@ -126,15 +136,15 @@ By upgrading Protect, you gain access to WordPress malware scanning with one-cli
 
 = Does this plugin require the Jetpack plugin to work? =
 
-Jetpack Protect does not require the Jetpack plugin to run and secure your site.
+Jetpack Protect does not require the Jetpack plugin to run and secure your site. If you use both, they share the same Protect page under Jetpack → Protect.
 
 = What are the differences between Jetpack Protect, Jetpack Scan, and WPScan plugins? =
 
 Jetpack Protect is a new WordPress security plugin from Jetpack containing our security features only. You can start with Jetpack Protect’s free vulnerability scanning features and upgrade Jetpack Protect to access automated malware scanning and our web application firewall. By upgrading Protect, you are enabling Jetpack Scan to the plugin.
 
-Jetpack Scan is a product that can be purchased for use in conjunction with the main Jetpack plugin or Jetpack Protect. Jetpack Scan includes automated malware scanning and our web application firewall but does not contain the vulnerability scanning feature from the Protect plugin. If you purchase Jetpack Security or Jetpack Complete, Jetpack Scan is also included in those bundles.
+Jetpack Scan is a product that can be purchased for use in conjunction with the main Jetpack plugin or Jetpack Protect. Jetpack Scan includes automated malware scanning and our web application firewall but does not contain the vulnerability scanning feature from the Protect plugin. If you purchase Jetpack Pro or Jetpack Complete, Jetpack Scan is also included in those bundles.
 
-If you are already a Jetpack Scan, Jetpack Security, or Jetpack Complete customer, you can also take advantage of Jetpack Protect’s vulnerability scanning feature by installing the Jetpack Protect plugin.
+If you are already a Jetpack Scan, Jetpack Security, Jetpack Pro, or Jetpack Complete customer, you can also take advantage of Jetpack Protect’s vulnerability scanning feature by installing the Jetpack Protect plugin.
 
 WPScan is an enterprise vulnerability scanning solution. It is not recommended for small to medium-sized businesses. If you are an enterprise company looking for custom WordPress site protection solutions, please visit: https://wpscan.com/
 
@@ -146,13 +156,17 @@ Jetpack Protect requires a publicly accessible site to perform the vulnerability
 
 = How will I know if Jetpack Protect has found WordPress security vulnerabilities and malware? =
 
-You can visit Jetpack Protect dashboard in your WordPress admin panel to see the security threats and malware found by the integrated malware scanner.
+Go to Jetpack → Protect in your WordPress admin panel to see the security threats and malware found by the integrated malware scanner.
 
 = What do I do if Jetpack Protect finds a security threat? =
 
-When the vulnerability scanner finds a security threat, you can view the recommended actions on the Jetpack Protect dashboard to secure your sites.
+When the vulnerability scanner finds a security threat, you can view the recommended actions on the Protect page to secure your sites.
 
 If you have upgraded Protect, your site will also be automatically scanned for malware each day, and you will be notified instantly via email if any threats are detected. You will be able to fix most issues in one click.
+
+= Where do I turn on downtime monitoring or logging in with WordPress.com? =
+
+On the Settings tab of the Protect page. If you had them on with the Jetpack plugin and then removed it, they stay off until you turn them on there.
 
 = Can I set the time of the daily security scan? =
 

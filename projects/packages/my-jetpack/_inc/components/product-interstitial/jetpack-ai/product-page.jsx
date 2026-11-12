@@ -13,14 +13,15 @@ import { useCallback, useState, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import { MyJetpackRoutes } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import useAnalytics from '../../../hooks/use-analytics';
 import { useGoBack } from '../../../hooks/use-go-back';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
+import { connectionScreenRoute, productsFrom } from '../../../utils/connect-url';
 import GoBackLink from '../../go-back-link';
 import LoadingBlock from '../../loading-block';
-import { getProductsSectionPath } from '../../my-jetpack-tab-panel/utils';
 import { ProductInterstitialMyJetpack } from '../../product-interstitial-modal';
 import styles from './style.module.scss';
 
@@ -31,7 +32,10 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-
  * @return {object} React component for the product page
  */
 export default function () {
-	const { onClickGoBack } = useGoBack( { slug: 'jetpack-ai', fallback: getProductsSectionPath() } );
+	const { onClickGoBack, backTo } = useGoBack( {
+		slug: 'jetpack-ai',
+		fallback: MyJetpackRoutes.Features,
+	} );
 	const { detail, isLoading } = useProduct( 'jetpack-ai' );
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
@@ -83,7 +87,7 @@ export default function () {
 	// isRegistered works as a flag to know if the page can link to a post creation or not
 	const ctaURL = isRegistered
 		? 'post-new.php?use_ai_block=1&_wpnonce=' + window?.jetpackAi?.nonce
-		: '#/connection';
+		: '#' + connectionScreenRoute( productsFrom( 'jetpack-ai' ) );
 	const newPostCta = __( 'Create new post', 'jetpack-my-jetpack' );
 	const installCta = __(
 		'Connect to Jetpack to start using the AI Assistant',
@@ -199,7 +203,7 @@ export default function () {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ getProductsSectionPath() }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -319,7 +323,7 @@ export default function () {
 											</Button>
 										</Notice.Actions>
 									) }
-									<Notice.CloseIcon onClick={ onNoticeClose } />
+									<Notice.CloseIconButton onClick={ onNoticeClose } />
 								</Notice.Root>
 							</div>
 						) }

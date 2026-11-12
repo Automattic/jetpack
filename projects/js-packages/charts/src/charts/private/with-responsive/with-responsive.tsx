@@ -1,7 +1,9 @@
 import { useParentSize } from '@visx/responsive';
 import clsx from 'clsx';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useIsomorphicLayoutEffect } from '../../../hooks';
 import { ChartScopeContext } from '../../../providers/chart-scope';
+import { warnOnce } from '../../../utils/warn-once';
 import styles from './with-responsive.module.scss';
 import type { BaseChartProps } from '../../../types';
 import type { ComponentType } from 'react';
@@ -33,19 +35,35 @@ export type ResponsiveConfig = {
 	resizeDebounceTime?: number;
 };
 
-// useLayoutEffect on the client (so containment is resolved before paint, no flash),
-// useEffect on the server to avoid React's SSR warning.
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+export type ResponsiveOptions = {
+	/**
+	 * Hold the chart back until the box has been measured, which is what keeps a chart that
+	 * draws its geometry from that box from painting once at the wrong size. Defaults to true:
+	 * a chart that lays itself out from its own content has nothing to gain by waiting and may
+	 * turn it off, which costs it nothing, where forgetting to turn it on brings the jump back.
+	 */
+	waitForSize?: boolean;
+	/**
+	 * Whether the chart supplies a height of its own when the box has none, as both pie charts
+	 * do: one falls back to a default size, the other halves its width. Defaults to false,
+	 * where a box with no height leaves the chart nothing to draw in.
+	 */
+	derivesOwnHeight?: boolean;
+};
 
 /**
  * A higher-order component that provides responsive dimensions
  * to the wrapped chart component using useParentSize from `@visx/responsive`.
  *
- * @param WrappedComponent - The chart component to be wrapped.
+ * @param WrappedComponent         - The chart component to be wrapped.
+ * @param options                  - Options for the wrapper.
+ * @param options.waitForSize      - Whether to hold the chart back until the box is measured.
+ * @param options.derivesOwnHeight - Whether the chart has a height without the box providing one.
  * @return A functional component that renders the wrapped component with responsive dimensions.
  */
 export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'options' > >( // 'options' is excluded so that each chart can define its own options type
-	WrappedComponent: ComponentType< T >
+	WrappedComponent: ComponentType< T >,
+	{ waitForSize = true, derivesOwnHeight = false }: ResponsiveOptions = {}
 ) {
 	return function ResponsiveChart( {
 		resizeDebounceTime = 300,
@@ -139,14 +157,55 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			}
 		}, [ hasAspectRatio, availableWidth, aspectRatio, containedHeight, parentHeight ] );
 
-		const wrappedComponent = (
-			<WrappedComponent
-				width={ boxWidth }
-				height={ boxHeight }
-				size={ size }
-				{ ...( chartProps as T ) }
-			/>
-		);
+		// Handed 0×0, a chart paints at a size it loses a frame later, and jumps. Width and
+		// height report together, so a measured width settles the height with or without a
+		// definite one.
+		const isMeasured = parentWidth > 0;
+		// A chart given its own size takes its geometry from the content box ChartLayout measures,
+		// not from this one, so it has nothing here to wait for.
+		const hasDimensions =
+			( size !== undefined && size > 0 ) || ( boxWidth > 0 && ( boxHeight > 0 || isMeasured ) );
+
+		// Only the first paint waits: a hidden ancestor measures the chart at 0×0, and
+		// unmounting it there would drop its zoom and series state.
+		const hasBeenSized = useRef( ! waitForSize );
+		hasBeenSized.current = hasBeenSized.current || hasDimensions;
+
+		// A chart drawn from its box is invisible at no height, and visx only says it bailed.
+		if ( waitForSize && ! derivesOwnHeight && isMeasured && boxHeight === 0 ) {
+			warnOnce(
+				'with-responsive:no-height',
+				'A chart takes its height from its parent, and this parent has no height of its own, so the chart has none to draw in. Give the parent a height, or pass the chart an aspectRatio or an explicit height.'
+			);
+		}
+
+		// A shrink-to-fit parent takes its width from this wrapper, whose own width is a
+		// percentage of it, so waiting would pin both at 0 for good. Give up once for a box that
+		// is laid out and still measures 0; display:none leaves no box, and that one can wait.
+		const [ hasNoSizeToWaitFor, setHasNoSizeToWaitFor ] = useState( false );
+		useIsomorphicLayoutEffect( () => {
+			if ( hasBeenSized.current || hasNoSizeToWaitFor ) {
+				return;
+			}
+			const node = wrapperRef.current;
+			if ( node && node.getClientRects().length > 0 && node.clientWidth === 0 ) {
+				warnOnce(
+					'with-responsive:no-width',
+					'A chart takes its width from its parent, and this parent takes its width from its contents, so neither can resolve. Give the parent a width, or pass the chart an explicit width.'
+				);
+				setHasNoSizeToWaitFor( true );
+			}
+		} );
+
+		const wrappedComponent =
+			hasBeenSized.current || hasNoSizeToWaitFor ? (
+				<WrappedComponent
+					width={ boxWidth }
+					height={ boxHeight }
+					size={ size }
+					{ ...( chartProps as T ) }
+				/>
+			) : null;
 
 		// The outer element fills the parent (via CSS) so its live height reflects the
 		// real available space; JS sets width/height only when they are passed

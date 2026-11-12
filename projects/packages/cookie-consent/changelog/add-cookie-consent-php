@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add the cookie-consent PHP backend: banner/CCPA controls, Interactivity module enqueue, and consent log REST controller.

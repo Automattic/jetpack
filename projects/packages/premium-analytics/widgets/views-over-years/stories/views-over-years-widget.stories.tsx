@@ -149,7 +149,7 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Empty — a site the endpoint has no views for.
+ * Empty — a site the endpoint has no views for: the current month alone, at zero.
  */
 export const Empty: Story = {
 	render: renderViewsOverYears,
@@ -188,6 +188,7 @@ function ViewsOverYearsDashboardStory( {
  * Mirrors the production placement (full width × 2 rows).
  */
 export const WidgetDashboardWithWidget: StoryObj< ViewsOverYearsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <ViewsOverYearsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2026-10-15
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update package dependencies. [#48118] [#49012] [#49755] [#49828] [#51009] [#51400] [#51665] [#52297] [#52893]
+
 ## [0.5.1] - 2026-04-13
 ### Changed
 - Convert to ESM. This should not affect the operation of the action. [#46995]
@@ -96,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove duplicated last run button for scheduled event notification
 - Remove duplicated last run button for workflow_run events
 
+[0.5.2]: https://github.com/Automattic/action-test-results-to-slack/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/Automattic/action-test-results-to-slack/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/Automattic/action-test-results-to-slack/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/Automattic/action-test-results-to-slack/compare/v0.4.1...v0.4.2

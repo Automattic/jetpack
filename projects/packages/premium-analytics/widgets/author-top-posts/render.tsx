@@ -2,31 +2,34 @@
  * External dependencies
  */
 import { toAuthorId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	LeaderboardChart,
 	LeaderboardPostLabel,
 	LeaderboardSkeleton,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	authorPostsCsvExporter,
 	describeError,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { postList } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import useAuthorTopPosts from './use-author-top-posts';
-import type { AuthorTopPostsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes. `Record< never, never >` so the render-only type
+ * can compose host fields such as `reportParams` without collapsing to `never`.
+ */
+export type AuthorTopPostsAttributes = Record< never, never >;
 
 type AuthorTopPostsRenderAttributes = AuthorTopPostsAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -42,10 +45,12 @@ function AuthorTopPostsInner() {
 	const { reportParams } = useWidgetRootContext();
 	const authorId = toAuthorId( reportParams.author_id );
 
-	const { rows, isLoading, isFetching, isError, error, hasData, refetch } = useAuthorTopPosts(
-		authorId,
-		reportParams,
-		WIDGET_ROW_LIMIT
+	const { rows, authorName, isLoading, isFetching, isError, error, hasData, refetch } =
+		useAuthorTopPosts( authorId, reportParams, WIDGET_ROW_LIMIT );
+
+	const csvExporter = useMemo(
+		() => authorPostsCsvExporter( authorId, authorName ),
+		[ authorId, authorName ]
 	);
 
 	const chartData = useMemo< LeaderboardChartData >(
@@ -61,58 +66,54 @@ function AuthorTopPostsInner() {
 					/>
 				),
 				currentValue: row.views,
-				currentShare: row.share,
 			} ) ),
 		[ rows ]
 	);
 
+	useReportActions( {
+		csv: {
+			exporter: csvExporter,
+			status: { isLoading, isFetching, isError: ! hasData && isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				<WidgetState
-					isLoading={ isLoading }
-					isFetching={ isFetching }
-					// Stale rows stay on screen through a failed background refetch.
-					isError={ ! hasData && isError }
-					isEmpty={ rows.length === 0 }
-					error={ describeError( error, {
-						retryDescription: __(
-							"We couldn't load this author's posts. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						onRetry: refetch,
-					} ) }
-					empty={
-						authorId <= 0
-							? {
-									icon: reports,
-									description: __(
-										'Open an author to see their top posts here.',
-										'jetpack-premium-analytics-pkg'
-									),
-								}
-							: {
-									icon: postList,
-									description: __(
-										'No views recorded for this author’s posts in this period.',
-										'jetpack-premium-analytics-pkg'
-									),
-								}
-					}
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<LeaderboardChart
-						data={ chartData }
-						withOverlayLabel
-						showLegend={ false }
-						dataFormat={ DATA_FORMAT }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="authors" />
-			</WidgetFooter>
-		</>
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// Stale rows stay on screen through a failed background refetch.
+				isError={ ! hasData && isError }
+				isEmpty={ rows.length === 0 }
+				error={ describeError( error, {
+					retryDescription: __(
+						"We couldn't load this author's posts. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: refetch,
+				} ) }
+				empty={
+					authorId <= 0
+						? {
+								description: __(
+									'Open an author to see their top posts here.',
+									'jetpack-premium-analytics-pkg'
+								),
+							}
+						: undefined
+				}
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<LeaderboardChart
+					data={ chartData }
+					withOverlayLabel
+					showLegend={ false }
+					dataFormat={ DATA_FORMAT }
+					columns={ { label: __( 'Posts', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
+				/>
+			</WidgetState>
+		</div>
 	);
 }
 

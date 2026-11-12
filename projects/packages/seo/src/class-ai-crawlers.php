@@ -6,16 +6,13 @@
  * answer-engine bots) by appending per-user-agent `Disallow` rules to the
  * WordPress-generated robots.txt.
  *
- * Persistence uses a STORE-INTENT model rather than a literal blocked list. The
- * durable option `jetpack_seo_ai_crawler_overrides` holds only *deviations* from
- * each bot's default policy (training crawlers blocked, answer-engine crawlers
- * allowed); a bot with no stored override falls back to its default.
- * This keeps the stored map sparse and means newly added training crawlers are
- * covered automatically without a migration.
+ * The option `jetpack_seo_blocked_crawlers` holds the crawlers the owner blocked, per
+ * group. Every other crawler is allowed, so robots.txt doesn't change when the SEO page
+ * reaches a site (JETPACK-3135).
  *
  * Caveat: the `robots_txt` filter only feeds WordPress's *virtual* robots.txt.
  * A detected static file in the WordPress installation is not modified — a
- * limitation surfaced in the AI tab (see {@see self::has_static_robots_txt()}).
+ * limitation surfaced in the GEO tab (see {@see self::has_static_robots_txt()}).
  *
  * @package automattic/jetpack-seo-package
  */
@@ -28,14 +25,45 @@ namespace Automattic\Jetpack\SEO;
 class Ai_Crawlers {
 
 	/**
-	 * Option holding the sparse map of per-crawler overrides
-	 * (`slug => bool`, true = blocked). Only entries that deviate from the bot's
-	 * default policy are stored. Mirrored in the plugin's settings endpoint
-	 * whitelist (`jp_group => 'seo-tools'`).
+	 * Option holding the blocked crawlers as `array( 'answer' => …, 'training' => … )`, each
+	 * `'all'` (every crawler in the group, including ones added to the catalog later) or a
+	 * list of slugs. A missing group or an empty list blocks nothing. Registered with
+	 * `show_in_rest` by {@see Dashboard_Data::register_rest_settings()} so the GEO tab can save it.
 	 *
 	 * @var string
 	 */
-	const OPTION = 'jetpack_seo_ai_crawler_overrides';
+	const OPTION = 'jetpack_seo_blocked_crawlers';
+
+	/**
+	 * Option the GEO tab saved before {@see self::OPTION}: `slug => bool`, holding only changes
+	 * from the old defaults (training crawlers blocked, answer engines allowed). Deleted once
+	 * {@see self::migrate_legacy_overrides()} has copied it.
+	 *
+	 * @var string
+	 */
+	const LEGACY_OPTION = 'jetpack_seo_ai_crawler_overrides';
+
+	/**
+	 * Priority of {@see self::migrate_legacy_overrides()} on the `default_option_` filter.
+	 *
+	 * @var int
+	 */
+	const MIGRATION_PRIORITY = 20;
+
+	/**
+	 * The crawler groups, matching each catalog entry's `type`.
+	 *
+	 * @var string[]
+	 */
+	const GROUPS = array( 'answer', 'training' );
+
+	/**
+	 * The `robots_txt` priority: after WordPress.com Simple appends bare `Disallow`
+	 * lines at 11, which would otherwise land in the last AI crawler group.
+	 *
+	 * @var int
+	 */
+	const ROBOTS_TXT_PRIORITY = 12;
 
 	/**
 	 * Wire the robots.txt filter.
@@ -43,95 +71,106 @@ class Ai_Crawlers {
 	 * @return void
 	 */
 	public static function init() {
-		add_filter( 'robots_txt', array( __CLASS__, 'append_directives' ), 10, 2 );
+		add_filter( 'robots_txt', array( __CLASS__, 'append_directives' ), self::ROBOTS_TXT_PRIORITY, 2 );
 	}
 
 	/**
-	 * The known AI crawler catalog: slug => [ label, user_agent, type ].
+	 * The known AI crawler catalog: slug => [ label, user_agents, type ].
 	 *
-	 * `slug` is the stable key persisted in the override map and sent by the AI
-	 * tab; `user_agent` is the token written to the `User-agent:` robots line;
+	 * `slug` is the stable key persisted in {@see self::OPTION} and sent by the GEO
+	 * tab; `user_agents` are every robots.txt token the operator uses for that
+	 * crawler, each written to its own `User-agent:` group;
 	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
-	 * cite in live AI answers) or `training` (collects to train models; some, like
-	 * Google Gemini, also ground AI answers but are filed here). Training crawlers
-	 * are blocked by default; answer-engine crawlers are allowed.
+	 * cite in live AI answers) or `training` (collects to train models).
 	 *
-	 * @return array<string, array<string, string>>
+	 * @return array<string, array{label: string, user_agents: string[], type: string}>
 	 */
 	public static function get_catalog() {
-		// Labels are the name a user is most likely to recognize, with the exact
-		// robots.txt user-agent token in parentheses so a technical user can verify
-		// the emitted directive (and to disambiguate the search/training pairs, e.g.
-		// ChatGPT's GPTBot vs OAI-SearchBot).
+		// Labels are the name a user is most likely to recognize. The GEO tab lists the
+		// exact tokens under each so a technical user can verify the emitted directives.
 		$catalog = array(
 			// Answer-engine crawlers fetch pages so AI assistants can cite them in
-			// live answers. Allowed by default — blocking them costs AI visibility.
+			// live answers. Blocking them costs AI visibility.
 			'oai-searchbot'      => array(
-				'label'      => __( 'ChatGPT Search (OAI-SearchBot)', 'jetpack-seo' ),
-				'user_agent' => 'OAI-SearchBot',
-				'type'       => 'answer',
+				'label'       => __( 'ChatGPT Search', 'jetpack-seo' ),
+				'user_agents' => array( 'OAI-SearchBot' ),
+				'type'        => 'answer',
 			),
 			'claude-searchbot'   => array(
-				'label'      => __( 'Claude Search (Claude-SearchBot)', 'jetpack-seo' ),
-				'user_agent' => 'Claude-SearchBot',
-				'type'       => 'answer',
+				'label'       => __( 'Claude Search', 'jetpack-seo' ),
+				'user_agents' => array( 'Claude-SearchBot' ),
+				'type'        => 'answer',
 			),
 			'perplexitybot'      => array(
-				'label'      => __( 'Perplexity (PerplexityBot)', 'jetpack-seo' ),
-				'user_agent' => 'PerplexityBot',
-				'type'       => 'answer',
+				'label'       => __( 'Perplexity', 'jetpack-seo' ),
+				'user_agents' => array( 'PerplexityBot' ),
+				'type'        => 'answer',
 			),
 			'amzn-searchbot'     => array(
-				'label'      => __( 'Amazon Alexa (Amzn-SearchBot)', 'jetpack-seo' ),
-				'user_agent' => 'Amzn-SearchBot',
-				'type'       => 'answer',
+				'label'       => __( 'Amazon Alexa', 'jetpack-seo' ),
+				'user_agents' => array( 'Amzn-SearchBot' ),
+				'type'        => 'answer',
 			),
-			// Training crawlers collect content to train AI models. Blocked by
-			// default. Some (e.g. Google Gemini) are also used to ground live AI
-			// answers, so blocking them protects privacy but can cost that
-			// visibility — filed here as training and blocked by default so the
-			// owner actively opts in.
+			'meta-webindexer'    => array(
+				'label'       => __( 'Meta AI Search', 'jetpack-seo' ),
+				'user_agents' => array( 'meta-webindexer' ),
+				'type'        => 'answer',
+			),
+			'duckassistbot'      => array(
+				'label'       => __( 'DuckDuckGo Search Assist', 'jetpack-seo' ),
+				'user_agents' => array( 'DuckAssistBot' ),
+				'type'        => 'answer',
+			),
+			// Training crawlers collect content to train AI models. Blocking them doesn't
+			// affect search results or Google's AI Overviews. Google-Extended also covers
+			// Gemini app answers.
 			'gptbot'             => array(
-				'label'      => __( 'ChatGPT (GPTBot)', 'jetpack-seo' ),
-				'user_agent' => 'GPTBot',
-				'type'       => 'training',
+				'label'       => __( 'ChatGPT', 'jetpack-seo' ),
+				'user_agents' => array( 'GPTBot' ),
+				'type'        => 'training',
 			),
 			'claudebot'          => array(
-				'label'      => __( 'Claude (ClaudeBot)', 'jetpack-seo' ),
-				'user_agent' => 'ClaudeBot',
-				'type'       => 'training',
+				'label'       => __( 'Claude', 'jetpack-seo' ),
+				'user_agents' => array( 'ClaudeBot', 'anthropic-ai', 'Claude-Web' ),
+				'type'        => 'training',
 			),
 			'google-extended'    => array(
-				'label'      => __( 'Google Gemini (Google-Extended)', 'jetpack-seo' ),
-				'user_agent' => 'Google-Extended',
-				'type'       => 'training',
+				'label'       => __( 'Google Gemini', 'jetpack-seo' ),
+				'user_agents' => array( 'Google-Extended' ),
+				'type'        => 'training',
 			),
 			'applebot-extended'  => array(
-				'label'      => __( 'Apple Intelligence (Applebot-Extended)', 'jetpack-seo' ),
-				'user_agent' => 'Applebot-Extended',
-				'type'       => 'training',
+				'label'       => __( 'Apple Intelligence', 'jetpack-seo' ),
+				'user_agents' => array( 'Applebot-Extended' ),
+				'type'        => 'training',
 			),
 			'meta-externalagent' => array(
-				'label'      => __( 'Meta AI (meta-externalagent)', 'jetpack-seo' ),
-				'user_agent' => 'meta-externalagent',
-				'type'       => 'training',
+				'label'       => __( 'Meta AI', 'jetpack-seo' ),
+				'user_agents' => array( 'meta-externalagent', 'FacebookBot' ),
+				'type'        => 'training',
 			),
 			'bytespider'         => array(
-				'label'      => __( 'ByteDance (Bytespider)', 'jetpack-seo' ),
-				'user_agent' => 'Bytespider',
-				'type'       => 'training',
+				'label'       => __( 'ByteDance', 'jetpack-seo' ),
+				'user_agents' => array( 'Bytespider' ),
+				'type'        => 'training',
 			),
 			'ccbot'              => array(
-				'label'      => __( 'Common Crawl (CCBot)', 'jetpack-seo' ),
-				'user_agent' => 'CCBot',
-				'type'       => 'training',
+				'label'       => __( 'Common Crawl', 'jetpack-seo' ),
+				'user_agents' => array( 'CCBot' ),
+				'type'        => 'training',
 			),
 			'amazonbot'          => array(
 				// Amazon's own docs: Amazonbot "may be used to train Amazon AI
 				// models" (Amzn-SearchBot is the answer-engine bot above).
-				'label'      => __( 'Amazon (Amazonbot)', 'jetpack-seo' ),
-				'user_agent' => 'Amazonbot',
-				'type'       => 'training',
+				'label'       => __( 'Amazon', 'jetpack-seo' ),
+				'user_agents' => array( 'Amazonbot' ),
+				'type'        => 'training',
+			),
+			'omgili'             => array(
+				// Webz.io crawls to sell web data, including for AI training.
+				'label'       => __( 'Webz.io', 'jetpack-seo' ),
+				'user_agents' => array( 'omgili', 'omgilibot', 'Webzio-Extended' ),
+				'type'        => 'training',
 			),
 		);
 
@@ -139,22 +178,9 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * Whether a catalog bot is blocked when the owner hasn't set an override for
-	 * it: training crawlers are blocked by default; answer-engine crawlers are
-	 * allowed.
-	 *
-	 * @param string $slug Catalog slug.
-	 * @return bool
-	 */
-	private static function is_blocked_by_default( $slug ) {
-		$catalog = self::get_catalog();
-		return isset( $catalog[ $slug ] ) && 'training' === $catalog[ $slug ]['type'];
-	}
-
-	/**
 	 * Whether WordPress.com's site-wide data-sharing opt-out is enabled.
 	 *
-	 * Its later `robots_txt` filter remains authoritative over per-bot settings.
+	 * Its `robots_txt` filter remains authoritative over per-bot settings.
 	 *
 	 * @return bool
 	 */
@@ -163,115 +189,194 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * Whether the existing data-sharing policy forces a catalog bot to be blocked.
+	 * The user agents WordPress.com's data-sharing opt-out blocks while it's on.
 	 *
-	 * @param string $slug Catalog slug.
-	 * @return bool
+	 * A copy of the list in jetpack-mu-wpcom's blog-privacy `robots_txt` filter;
+	 * AiCrawlersTest runs both filters together to keep them in step.
+	 *
+	 * @return string[]
 	 */
-	private static function is_blocked_by_data_sharing_policy( $slug ) {
-		return self::has_data_sharing_opt_out()
-			&& in_array(
-				$slug,
-				array(
-					'amazonbot',
-					'applebot-extended',
-					'bytespider',
-					'ccbot',
-					'claudebot',
-					'google-extended',
-					'gptbot',
-					'meta-externalagent',
-					'perplexitybot',
-				),
-				true
-			);
+	private static function get_data_sharing_user_agents() {
+		return array(
+			'Amazonbot',
+			'anthropic-ai',
+			'Applebot-Extended',
+			'Bytespider',
+			'CCBot',
+			'ClaudeBot',
+			'FacebookBot',
+			'Google-Extended',
+			'GPTBot',
+			'meta-externalagent',
+			'omgili',
+			'omgilibot',
+			'PerplexityBot',
+			'SentiBot',
+			'sentibot',
+		);
 	}
 
 	/**
-	 * The resolved, sparse override map: `slug => bool` (true = blocked).
+	 * The catalog slugs WordPress.com's data-sharing opt-out blocks while it's on: every
+	 * crawler with a user agent on its list. {@see self::append_directives()} writes the
+	 * crawler's other user agents, so the whole crawler is blocked.
 	 *
-	 * Reads the stored option, drops unknown slugs, casts values to bool, and
-	 * drops any entry that equals the bot's default policy — so the returned map
-	 * contains only real deviations. A bot absent from this map falls back to its
-	 * default in {@see self::is_blocked()}.
-	 *
-	 * @return array<string, bool>
+	 * @return string[]
 	 */
-	public static function get_overrides() {
-		$stored = get_option( self::OPTION, array() );
-		if ( ! is_array( $stored ) ) {
-			return array();
-		}
-
-		$catalog   = self::get_catalog();
-		$overrides = array();
-		foreach ( $stored as $slug => $blocked ) {
-			if ( ! isset( $catalog[ $slug ] ) ) {
-				continue;
+	public static function get_data_sharing_blocked_slugs() {
+		$user_agents = self::get_data_sharing_user_agents();
+		$slugs       = array();
+		foreach ( self::get_catalog() as $slug => $info ) {
+			if ( array_intersect( $info['user_agents'], $user_agents ) ) {
+				$slugs[] = $slug;
 			}
-			$blocked = (bool) $blocked;
-			// Only keep entries that actually deviate from the default policy
-			// (training blocked, answer-engine allowed) — resolved from the
-			// catalog we already hold rather than re-fetching it per slug.
-			if ( $blocked === ( 'training' === $catalog[ $slug ]['type'] ) ) {
-				continue;
-			}
-			$overrides[ $slug ] = $blocked;
 		}
-
-		return $overrides;
+		return $slugs;
 	}
 
 	/**
-	 * Whether a given crawler is currently blocked, applying an override when one
-	 * exists and otherwise the bot's default policy. Unknown slugs return false.
+	 * The crawlers the owner blocked, per group.
+	 *
+	 * @return array<string, string|string[]> `'all'` or a list of slugs for each group.
+	 */
+	public static function get_blocked() {
+		return self::sanitize_blocked( get_option( self::OPTION, array() ) );
+	}
+
+	/**
+	 * Normalizes a stored or submitted {@see self::OPTION} value: both groups present, each
+	 * `'all'` or a list of slugs. Drops unknown slugs and slugs from the other group, and
+	 * saves a list naming every crawler in its group as `'all'`.
+	 *
+	 * @param mixed      $value   The value to normalize.
+	 * @param array|null $catalog Optional {@see self::get_catalog()} result, to avoid building it again.
+	 * @return array<string, string|string[]>
+	 */
+	public static function sanitize_blocked( $value, $catalog = null ) {
+		$value   = is_array( $value ) ? $value : array();
+		$catalog = is_array( $catalog ) ? $catalog : self::get_catalog();
+		$groups  = array_fill_keys( self::GROUPS, array() );
+		foreach ( $catalog as $slug => $info ) {
+			if ( isset( $groups[ $info['type'] ] ) ) {
+				$groups[ $info['type'] ][] = $slug;
+			}
+		}
+
+		$blocked = array();
+		foreach ( $groups as $type => $slugs ) {
+			$group = $value[ $type ] ?? array();
+			if ( 'all' === $group ) {
+				$blocked[ $type ] = 'all';
+				continue;
+			}
+			$list             = is_array( $group )
+				? array_values( array_intersect( $slugs, array_filter( $group, 'is_string' ) ) )
+				: array();
+			$blocked[ $type ] = ( $slugs && count( $list ) === count( $slugs ) ) ? 'all' : $list;
+		}
+
+		return $blocked;
+	}
+
+	/**
+	 * Run {@see self::migrate_legacy_overrides()} the first time {@see self::OPTION} is read while missing.
+	 *
+	 * @return void
+	 */
+	public static function register_legacy_migration() {
+		// After register_setting()'s default (priority 10), which would replace the migrated value.
+		add_filter( 'default_option_' . self::OPTION, array( __CLASS__, 'migrate_legacy_overrides' ), self::MIGRATION_PRIORITY );
+	}
+
+	/**
+	 * `default_option_` callback: copies {@see self::LEGACY_OPTION} into {@see self::OPTION}, then deletes it.
+	 *
+	 * A training crawler saved as allowed means the owner worked on that group, so its unsaved
+	 * siblings stay blocked. With no old option there is nothing to write.
+	 *
+	 * @param mixed $default_value The value `get_option()` would return for the missing option.
+	 * @return mixed The migrated value, or `$default_value` when there is nothing to migrate.
+	 */
+	public static function migrate_legacy_overrides( $default_value ) {
+		// The catalog loads translations, which must wait for `init`.
+		if ( ! did_action( 'init' ) ) {
+			return $default_value;
+		}
+
+		$legacy = get_option( self::LEGACY_OPTION );
+		if ( ! is_array( $legacy ) ) {
+			return $default_value;
+		}
+
+		$catalog          = self::get_catalog();
+		$answer_blocked   = array();
+		$training_allowed = array();
+		foreach ( $legacy as $slug => $value ) {
+			$type = $catalog[ $slug ]['type'] ?? null;
+			if ( 'answer' === $type && $value ) {
+				$answer_blocked[] = $slug;
+			} elseif ( 'training' === $type && ! $value ) {
+				$training_allowed[] = $slug;
+			}
+		}
+
+		$training = array_keys( wp_list_filter( $catalog, array( 'type' => 'training' ) ) );
+		$blocked  = self::sanitize_blocked(
+			array(
+				'answer'   => $answer_blocked,
+				'training' => $training_allowed ? array_diff( $training, $training_allowed ) : array(),
+			),
+			$catalog
+		);
+		// add_option() applies this filter again. Re-armed after, for other sites read in this request.
+		remove_filter( 'default_option_' . self::OPTION, array( __CLASS__, 'migrate_legacy_overrides' ), self::MIGRATION_PRIORITY );
+		$added = add_option( self::OPTION, $blocked, '', true );
+		self::register_legacy_migration();
+		if ( $added ) {
+			delete_option( self::LEGACY_OPTION );
+		}
+
+		return $blocked;
+	}
+
+	/**
+	 * Whether a given crawler is currently blocked. Unknown slugs return false.
 	 *
 	 * @param string $slug Catalog slug.
 	 * @return bool
 	 */
 	public static function is_blocked( $slug ) {
-		$catalog = self::get_catalog();
-		if ( ! isset( $catalog[ $slug ] ) ) {
-			return false;
-		}
-		if ( self::is_blocked_by_data_sharing_policy( $slug ) ) {
-			return true;
-		}
-
-		$overrides = self::get_overrides();
-		return array_key_exists( $slug, $overrides )
-			? $overrides[ $slug ]
-			: self::is_blocked_by_default( $slug );
+		return in_array( $slug, self::get_blocked_slugs(), true );
 	}
 
 	/**
-	 * The catalog slugs currently blocked (override or default).
+	 * The catalog slugs currently blocked. While WordPress.com's data-sharing opt-out
+	 * is on, its list replaces the owner's choices, as it does in robots.txt.
 	 *
 	 * @return string[]
 	 */
 	public static function get_blocked_slugs() {
-		// Resolve the override map and catalog once, then fold in the per-type
-		// default — rather than calling is_blocked() per slug (which would re-read
-		// the option and rebuild the catalog on every robots.txt render).
-		$overrides = self::get_overrides();
-		$blocked   = array();
-		foreach ( self::get_catalog() as $slug => $info ) {
-			$is_blocked = self::is_blocked_by_data_sharing_policy( $slug )
-				|| ( array_key_exists( $slug, $overrides )
-					? $overrides[ $slug ]
-					: ( 'training' === $info['type'] ) );
-			if ( $is_blocked ) {
-				$blocked[] = $slug;
+		if ( self::has_data_sharing_opt_out() ) {
+			return self::get_data_sharing_blocked_slugs();
+		}
+
+		$catalog = self::get_catalog();
+		$blocked = self::sanitize_blocked( get_option( self::OPTION, array() ), $catalog );
+		$slugs   = array();
+		foreach ( $catalog as $slug => $info ) {
+			$group = $blocked[ $info['type'] ] ?? array();
+			if ( 'all' === $group || in_array( $slug, $group, true ) ) {
+				$slugs[] = $slug;
 			}
 		}
-		return $blocked;
+		return $slugs;
 	}
 
 	/**
 	 * Whether the site allows search-engine (and therefore AI-crawler) indexing.
 	 *
 	 * When `blog_public` is off, WordPress disallows everything in robots.txt, so
-	 * per-crawler controls are moot — the AI tab surfaces this instead of showing
+	 * per-crawler controls are moot — the GEO tab surfaces this instead of showing
 	 * toggles that can't take effect.
 	 *
 	 * @return bool
@@ -302,7 +407,7 @@ class Ai_Crawlers {
 	 * @return bool
 	 */
 	public static function has_static_robots_txt() {
-		return file_exists( ABSPATH . 'robots.txt' );
+		return Static_Files::exists( 'robots.txt' );
 	}
 
 	/**
@@ -321,30 +426,36 @@ class Ai_Crawlers {
 	 * Append `Disallow: /` blocks for each blocked AI crawler to robots.txt.
 	 *
 	 * @param string $output The robots.txt content assembled so far.
-	 * @param bool   $public Whether the site is public (`blog_public`). When
-	 *                       false WordPress already disallows everything, but the
-	 *                       explicit per-bot blocks are still valid and harmless.
+	 * @param bool   $public Whether the site is public (`blog_public`). Unused: the
+	 *                       per-bot blocks apply either way.
 	 * @return string The robots.txt content with AI-crawler directives appended.
 	 */
 	public static function append_directives( $output, $public ) {
 		unset( $public );
 
-		// WordPress.com's existing privacy filter owns the site-wide opt-out and
-		// runs later at priority 12. Defer to it instead of emitting duplicate
-		// directives from this per-bot filter.
-		if ( self::is_path_based_multisite() || self::has_data_sharing_opt_out() ) {
+		if ( self::is_path_based_multisite() ) {
 			return $output;
 		}
 
-		$catalog = self::get_catalog();
-		$blocked = self::get_blocked_slugs();
-		if ( empty( $blocked ) ) {
+		// WordPress.com's privacy filter writes its own list while the opt-out is on, so
+		// write only the user agents it leaves out rather than duplicate its directives.
+		$skip        = self::has_data_sharing_opt_out() ? self::get_data_sharing_user_agents() : array();
+		$catalog     = self::get_catalog();
+		$user_agents = array();
+		foreach ( self::get_blocked_slugs() as $slug ) {
+			foreach ( $catalog[ $slug ]['user_agents'] as $user_agent ) {
+				if ( ! in_array( $user_agent, $skip, true ) ) {
+					$user_agents[] = $user_agent;
+				}
+			}
+		}
+		if ( empty( $user_agents ) ) {
 			return $output;
 		}
 
 		$lines = array( '', '# AI crawlers blocked via Jetpack SEO.' );
-		foreach ( $blocked as $slug ) {
-			$lines[] = 'User-agent: ' . $catalog[ $slug ]['user_agent'];
+		foreach ( $user_agents as $user_agent ) {
+			$lines[] = 'User-agent: ' . $user_agent;
 			$lines[] = 'Disallow: /';
 			$lines[] = '';
 		}
@@ -353,9 +464,9 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * The AI tab's crawler bootstrap payload: the catalog (camelCased for JS), the
-	 * current sparse override map, and the environment flags that decide whether
-	 * the controls render or are replaced by an explanation.
+	 * The GEO tab's crawler bootstrap payload: the catalog (camelCased for JS), the
+	 * crawlers the owner blocked, the crawlers the data-sharing opt-out blocks, and the
+	 * environment flags that decide whether the controls render or are replaced by an explanation.
 	 *
 	 * @return array
 	 */
@@ -363,20 +474,21 @@ class Ai_Crawlers {
 		$catalog = array();
 		foreach ( self::get_catalog() as $slug => $info ) {
 			$catalog[] = array(
-				'slug'      => $slug,
-				'label'     => $info['label'],
-				'userAgent' => $info['user_agent'],
-				'type'      => $info['type'],
+				'slug'       => $slug,
+				'label'      => $info['label'],
+				'userAgents' => $info['user_agents'],
+				'type'       => $info['type'],
 			);
 		}
 
 		return array(
 			'catalog'              => $catalog,
-			'overrides'            => (object) self::get_overrides(),
+			'blocked'              => self::get_blocked(),
 			'searchEnginesVisible' => self::search_engines_allowed(),
 			'restrictedSubdomain'  => self::is_crawl_restricted_subdomain(),
 			'staticRobotsTxt'      => self::has_static_robots_txt(),
 			'dataSharingOptOut'    => self::has_data_sharing_opt_out(),
+			'dataSharingBlocked'   => self::get_data_sharing_blocked_slugs(),
 			'pathBasedMultisite'   => self::is_path_based_multisite(),
 			'privacySettingsUrl'   => self::privacy_settings_url(),
 			'robotsTxtUrl'         => home_url( '/robots.txt' ),
@@ -384,11 +496,11 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * URL of the settings screen holding "Prevent third-party sharing", linked from
-	 * the AI tab when that setting is governing crawler access.
+	 * URL of the site visibility settings (private, Coming Soon, "Prevent third-party
+	 * sharing"), linked from the dashboard wherever one of them governs a toggle.
 	 *
-	 * Points at wp-admin → Settings → Reading, which is the same-origin home of the
-	 * option on the sites where it exists (WordPress.com). Left as a package method
+	 * Points at wp-admin → Settings → Reading, which is the same-origin home of those
+	 * options on the sites where they exist (WordPress.com). Left as a package method
 	 * so a Calypso deep link can replace it without touching the client.
 	 *
 	 * @return string

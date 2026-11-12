@@ -58,8 +58,7 @@ function rangeKey( range?: DateRange ): string | undefined {
 }
 
 /**
- * The surface key of a post detail page, shared by the card that raises the
- * signal and the page that settles it.
+ * The surface key of a post detail page, so a signal raised on one post never fires on another.
  *
  * @param postId - The post the page shows.
  * @return The surface key.
@@ -134,7 +133,7 @@ export function useSettlePeriodChange(
 ): number | undefined {
 	const { signal, settle } = useContext( PeriodChangeSignalContext );
 	const [ attention, setAttention ] = useState< Attention >();
-	const observed = useRef< string >();
+	const observed = useRef< string >( undefined );
 	const appliedKey = rangeKey( appliedRange );
 	const observation = `${ surface }|${ appliedKey ?? '' }`;
 

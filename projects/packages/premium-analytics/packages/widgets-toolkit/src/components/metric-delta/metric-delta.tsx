@@ -35,6 +35,9 @@ export type MetricDeltaProps = {
 
 	className?: string;
 
+	/** The element the delta renders as, for a spot that allows phrasing content only, such as a button. */
+	render?: ComponentProps< typeof Stack >[ 'render' ];
+
 	/**
 	 * Text alignment
 	 * @default 'center'
@@ -52,6 +55,11 @@ export type MetricDeltaProps = {
 	 * @default 'number'
 	 */
 	absoluteFormat?: 'number' | 'currency';
+
+	/**
+	 * Currency of a `currency` absolute value; defaults to the store currency.
+	 */
+	currencyCode?: string;
 };
 
 function calculatePercentageChange( current: number, previous: number ): number | null {
@@ -75,16 +83,22 @@ export function MetricDelta( {
 	hideZero = false,
 	invertColors = false,
 	className,
+	render,
 	justify = 'center',
 	showAbsolute = false,
 	absoluteFormat = 'number',
+	currencyCode,
 }: MetricDeltaProps ) {
 	const absoluteChange = current - previous;
 	const percentageChange = calculatePercentageChange( current, previous );
 
 	if ( percentageChange === null ) {
 		return (
-			<Stack justify={ justify } className={ clsx( styles.delta, styles.invalid, className ) }>
+			<Stack
+				render={ render }
+				justify={ justify }
+				className={ clsx( styles.delta, styles.invalid, className ) }
+			>
 				{ fallback }
 			</Stack>
 		);
@@ -96,7 +110,7 @@ export function MetricDelta( {
 
 	let displayValue: string;
 	if ( showAbsolute ) {
-		displayValue = formatMetricValue( absoluteChange, absoluteFormat );
+		displayValue = formatMetricValue( absoluteChange, absoluteFormat, { currencyCode } );
 		if ( absoluteChange > 0 ) {
 			displayValue = `+${ displayValue }`;
 		}
@@ -111,6 +125,7 @@ export function MetricDelta( {
 
 	return (
 		<Stack
+			render={ render }
 			justify={ justify }
 			className={ clsx(
 				styles.delta,

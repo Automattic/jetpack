@@ -1,5 +1,5 @@
 /**
- * Provide the `jetpackConfig` that webpack.dashboard.config.js declares as an external, which esbuild cannot.
+ * Provide the `jetpackConfig` global `@automattic/jetpack-config` reads, which esbuild cannot declare as an external.
  */
 export function provideJetpackConfig(): void {
 	( globalThis as typeof globalThis & { jetpackConfig?: object } ).jetpackConfig = {

@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Search;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Unit tests for the AI_Answers class.
@@ -83,6 +84,56 @@ class AI_Answers_Test extends Search_TestCase {
 		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
 		$this->assertTrue( AI_Answers::is_enabled() );
 		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+	}
+
+	/**
+	 * @dataProvider ai_filter_sites
+	 * @param string $site Site environment.
+	 */
+	#[DataProvider( 'ai_filter_sites' )]
+	public function test_ai_filter_disables_answers_and_reports_master_off( $site ) {
+		if ( 'self-hosted' === $site ) {
+			$this->turn_ai_master_on();
+		} elseif ( 'simple' === $site ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		} elseif ( 'atomic' === $site ) {
+			$this->force_atomic_site();
+			$GLOBALS['jetpack_search_test_internal_env'] = false;
+		}
+		update_option( AI_Answers::ENABLED_OPTION, true );
+		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true', 999 );
+
+		try {
+			$this->assertTrue( AI_Answers::is_master_enabled() );
+			$this->assertTrue( AI_Answers::is_enabled() );
+
+			add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+			$this->assertFalse( AI_Answers::should_enforce_master() );
+			$this->assertFalse( AI_Answers::is_master_enabled() );
+			$this->assertFalse( AI_Answers::is_enabled() );
+			$this->assertTrue( AI_Answers::is_saved_on() );
+
+			remove_filter( 'jetpack_ai_enabled', '__return_false' );
+
+			$this->assertTrue( AI_Answers::is_master_enabled() );
+			$this->assertTrue( AI_Answers::is_enabled() );
+		} finally {
+			remove_filter( 'jetpack_ai_enabled', '__return_false' );
+			remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true', 999 );
+		}
+	}
+
+	/**
+	 * @return array Site environments.
+	 */
+	public static function ai_filter_sites() {
+		return array(
+			'standalone Search' => array( 'standalone' ),
+			'self-hosted'       => array( 'self-hosted' ),
+			'WordPress.com'     => array( 'simple' ),
+			'Atomic'            => array( 'atomic' ),
+		);
 	}
 
 	/**

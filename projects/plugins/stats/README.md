@@ -8,6 +8,7 @@ This project is a packaging shell. All the behaviour lives in monorepo packages:
 - `automattic/jetpack-stats-admin` — the Odyssey dashboard wrapper and the REST proxy to the WordPress.com stats API.
 - `automattic/jetpack-connection` — the WordPress.com connection.
 - `automattic/jetpack-my-jetpack` — the My Jetpack product card.
+- `automattic/jetpack-premium-analytics` and `automattic/jetpack-woocommerce-stats` — Stats v2 and its WooCommerce section.
 
 ## Requires a WordPress.com connection
 
@@ -16,6 +17,8 @@ Stats is a WordPress.com client. Collection happens through the `pixel.wp.com/g.
 ## Coexisting with the Jetpack plugin
 
 While the full Jetpack plugin is active it owns the `stats` admin menu, because it chooses between the legacy Stats screen and the Odyssey dashboard. This plugin registers the dashboard only when the Jetpack plugin is absent. See `Jetpack_Stats_Plugin::initialize_other_packages()`.
+
+Stats v2 follows the same split: without the Jetpack plugin, this plugin boots it once `Enablement::is_enabled()` says so. When the classic Stats page is retired, Stats v2 replaces it and `admin.php?page=stats` opens Stats v2. See `Jetpack_Stats_Plugin::configure_packages()`.
 
 ## Development
 
@@ -26,11 +29,3 @@ jp phan plugins/stats
 ```
 
 The plugin has no front-end build. The dashboard React app is served from the WordPress.com CDN by the `jetpack-stats-admin` package.
-
-## Release
-
-The plugin is mirrored to GitHub only. `composer.json` sets `mirror-repo` to `Automattic/jetpack-stats-plugin`, so a trunk build pushes there, and `beta-plugin-slug` to `jetpack-stats`, so builds reach the Jetpack Beta Tester.
-
-`autotagger` and `autorelease` are on, so a trunk build tags the mirror repo and attaches a zip to the GitHub release. Neither fires while the changelog holds a prerelease version such as `0.1.0-alpha`.
-
-WordPress.org publishing stays off. There is no `wp-svn-autopublish` and no `wp-plugin-slug`, because the plugin is not in the directory yet. Publishing there is tracked separately in STATS-343 Phase 6, and it is what turns `beta-plugin-slug` into `wp-plugin-slug`.

@@ -2,26 +2,27 @@
  * External dependencies
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
-import { EmptyState, Text } from '@jetpack-premium-analytics/externals';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { Icon, Text } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
-	ReportErrorState,
 	ReportPageLayout,
 	ReportPageSection,
-	ReportPageShell,
+	ReportErrorState,
 	ReportRecordsTable,
 	ReportCsvAction,
 	useReportCsvExport,
-	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Spinner } from '@wordpress/components';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { type JSX } from 'react';
 /**
  * Internal dependencies
  */
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { getCommentFollowersFields, useCommentFollowersReportRecords } from './config';
 import styles from './page.module.css';
@@ -83,13 +84,16 @@ function CommentFollowersReport(): JSX.Element {
 		status: records,
 		sort: sortCommentFollowerCsvRows,
 	} );
-	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS[ 'comment-followers' ];
+	const { getLabel } = REPORTS[ 'comment-followers' ];
+	// The endpoint reports site-wide followers apart from the per-post rows, so either can exist alone.
+	const hasAllPostsFollowers = ( records.allPostsFollowers ?? 0 ) > 0;
+	const hasPostRows = records.rows.length > 0;
 
 	return (
-		<ReportPageShell
-			visual={ <StatsPageIcon /> }
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
@@ -97,52 +101,45 @@ function CommentFollowersReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
-					<>
+			<ReportPageLayout title={ getLabel() }>
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load subscribers. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
+					{ ( hasAllPostsFollowers || hasPostRows ) && (
 						<ReportPageSection className={ styles.summary }>
 							<Text variant="heading-md" render={ <h3 /> }>
 								{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
 							</Text>
-							{ records.isLoading ? (
-								<Spinner />
-							) : (
-								<MetricValue
-									value={ records.allPostsFollowers ?? 0 }
-									dataFormat={ { type: 'number' } }
-								/>
-							) }
+							<MetricValue
+								value={ records.allPostsFollowers ?? 0 }
+								dataFormat={ { type: 'number' } }
+							/>
 						</ReportPageSection>
+					) }
+					{ ( hasPostRows || ! hasAllPostsFollowers ) && (
 						<ReportRecordsTable< StatsCommentFollowersItem >
 							data={ records.rows }
 							fields={ fields }
 							getItemId={ getCommentFollowerRowId }
 							isLoading={ records.isLoading }
+							isFetching={ records.isFetching }
 							initialView={ RECORDS_VIEW }
 							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
-							empty={
-								<EmptyState.Root>
-									<EmptyState.Title>
-										{ __( 'No subscribers', 'jetpack-premium-analytics-pkg' ) }
-									</EmptyState.Title>
-								</EmptyState.Root>
-							}
 						/>
-					</>
-				) }
+					) }
+				</ReportErrorState>
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 
 /**
  * Registry entry point; React Query and error handling come from the shared
- * report stage that renders this lazily.
+ * report stage that renders this.
  *
  * @return The Comments Subscribers report page.
  */

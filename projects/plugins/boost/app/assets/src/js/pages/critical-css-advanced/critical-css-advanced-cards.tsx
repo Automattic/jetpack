@@ -28,7 +28,7 @@ const CriticalCssAdvancedCards = () => {
 				);
 
 	return (
-		<Stack direction="column" gap="xl">
+		<Stack direction="column" gap="xl" className={ styles.cards }>
 			<Card.Root>
 				<Card.Content>
 					<Stack direction="column" gap="md">
@@ -103,7 +103,9 @@ const RecommendationCard = ( { recommendation, errorSet, onDismiss }: Recommenda
 					</Stack>
 				</Card.Header>
 				<Card.Content>
-					<CriticalCssErrorDescription errorSet={ errorSet } />
+					<Text variant="body-md" render={ <div /> } className={ styles.description }>
+						<CriticalCssErrorDescription errorSet={ errorSet } />
+					</Text>
 				</Card.Content>
 			</Card.Root>
 		</Collapse>

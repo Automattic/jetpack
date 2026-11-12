@@ -29,12 +29,6 @@ export type PopularPostWithMetrics = {
 	commentCount: number | undefined;
 };
 
-/**
- * The window the card ranked over, as the date fields of the shared report
- * params — the shape the detail page's route takes.
- */
-export type PopularPostRange = Pick< ReportParams, 'from' | 'to' | 'preset' | 'interval' >;
-
 // The window the card ranks over, pinned to the period its title names rather
 // than following the dashboard's range, which would make that title false the
 // moment the section filter moved.
@@ -51,11 +45,6 @@ export type UsePopularPostScope = {
 
 export type UsePopularPostResult = {
 	post: PopularPostWithMetrics | null;
-	/**
-	 * The window the winner was ranked over. The card's detail link opens on it,
-	 * so the post's own page reports on the period the card's title names.
-	 */
-	range: PopularPostRange;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -76,14 +65,11 @@ export function usePopularPost( scope?: UsePopularPostScope ): UsePopularPostRes
 
 	// Resolved per render rather than once at module load, so the window is never
 	// older than the render that reads it.
-	const { preset, from, to, interval } = isAuthorScoped
+	const { from, to, interval } = isAuthorScoped
 		? scope.reportParams
 		: getDefaultQueryParams( false, POPULAR_POST_PRESET );
 
-	const range = useMemo( () => ( { preset, from, to, interval } ), [ preset, from, to, interval ] );
-
-	// `interval` rides along because the params type requires it; it describes the
-	// destination's chart, not this request. It cannot reach the API either way:
+	// `interval` rides along because the params type requires it. It cannot reach the API:
 	// the param mapper does derive a `period` from it, but the query layer
 	// overwrites that with `day` for any window carrying no explicit `period`, and
 	// `interval` itself is absent from the stats param allow-list and the key.
@@ -147,7 +133,6 @@ export function usePopularPost( scope?: UsePopularPostScope ): UsePopularPostRes
 
 	return {
 		post,
-		range,
 		isLoading,
 		isFetching,
 		// Surfaced even with rows on screen: `placeholderData` only applies while

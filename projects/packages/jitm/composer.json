@@ -55,7 +55,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-jitm",
 		"textdomain": "jetpack-jitm",
 		"version-constants": {
@@ -65,7 +64,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "5.0.x-dev"
+			"dev-trunk": "5.1.x-dev"
 		}
 	}
 }

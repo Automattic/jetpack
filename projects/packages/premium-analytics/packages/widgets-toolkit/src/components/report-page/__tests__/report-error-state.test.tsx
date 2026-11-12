@@ -1,46 +1,58 @@
 /**
  * External dependencies
  */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../../../../tests/js/notice-test-utils';
 import { ReportErrorState } from '../report-error-state';
 
+const RETRY_COPY = "We couldn't load clicks. Please try again in a moment.";
+
+function buildState( status: { isError: boolean; error?: unknown; refetch?: () => unknown } ) {
+	return (
+		<ReportErrorState
+			status={ { error: null, refetch: jest.fn(), ...status } }
+			retryDescription={ RETRY_COPY }
+		>
+			<p>Report table</p>
+		</ReportErrorState>
+	);
+}
+
 describe( 'ReportErrorState', () => {
-	it( 'renders the given title', () => {
-		render( <ReportErrorState title="Unable to load posts" onRetry={ jest.fn() } /> );
-
-		expect( screen.getByText( 'Unable to load posts' ) ).toBeInTheDocument();
+	beforeEach( () => {
+		jest.useFakeTimers();
 	} );
 
-	it( 'renders a custom description', () => {
-		render(
-			<ReportErrorState
-				title="Unable to load posts"
-				description="The posts report is unavailable."
-				onRetry={ jest.fn() }
-			/>
-		);
-
-		expect( screen.getByText( 'The posts report is unavailable.' ) ).toBeInTheDocument();
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
-	it( 'renders the default description', () => {
-		render( <ReportErrorState title="Unable to load posts" onRetry={ jest.fn() } /> );
+	it( 'replaces the report sections with a notice whose Retry refetches', async () => {
+		const refetch = jest.fn();
+		const { rerender } = render( buildState( { isError: false, refetch } ) );
 
-		expect(
-			screen.getByText( "We couldn't load this data. Please try again in a moment." )
-		).toBeInTheDocument();
+		expect( screen.getByText( 'Report table' ) ).toBeInTheDocument();
+
+		rerender( buildState( { isError: true, refetch } ) );
+
+		expect( getNoticeText( RETRY_COPY ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Report table' ) ).not.toBeInTheDocument();
+
+		await userEvent
+			.setup( { advanceTimers: jest.advanceTimersByTime } )
+			.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'calls onRetry when Retry is clicked', () => {
-		const onRetry = jest.fn();
-		render( <ReportErrorState title="Unable to load posts" onRetry={ onRetry } /> );
+	it( 'offers no Retry when the request is denied', () => {
+		render( buildState( { isError: true, error: { error: 'unauthorized', status: 403 } } ) );
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
-		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
-
-		expect( onRetry ).toHaveBeenCalledTimes( 1 );
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );

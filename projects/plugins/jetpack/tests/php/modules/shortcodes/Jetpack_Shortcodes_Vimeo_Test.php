@@ -58,7 +58,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	public function test_shortcodes_vimeo() {
 		$content = '[vimeo]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -126,7 +126,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	#[DataProvider( 'get_sample_shortcode_attributes' )]
 	public function test_shortcode_attributes( $attribute_string, $extracted_attributes ) {
 		$content           = '[vimeo ' . $attribute_string . ']';
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( 'vimeo.com/video/' . $extracted_attributes['id'], $shortcode_content );
 

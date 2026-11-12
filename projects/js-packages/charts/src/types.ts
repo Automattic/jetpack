@@ -134,6 +134,7 @@ export type ThemeAnnotationStyles = {
 export type DataPoint = {
 	label: string;
 	value: number;
+	/** Per-point fill override for BarChart; other built-in charts ignore it. */
 	color?: string;
 };
 
@@ -186,10 +187,11 @@ export type DataPointDate = {
 	dateString?: string;
 	value: number | null;
 	label?: string;
+	/** Per-point fill override for BarChart; other built-in charts ignore it. */
 	color?: string;
 };
 
-export type LeaderboardEntry = {
+type LeaderboardEntryFields = {
 	/**
 	 * Unique internal key (e.g., 'key-direct')
 	 */
@@ -212,19 +214,18 @@ export type LeaderboardEntry = {
 	previousValue?: number;
 
 	/**
-	 * Width of current bar, as % of the current value
+	 * Width of current bar, as %. Derived from the values when omitted; a passed value wins.
+	 * A negative share extends the bar from a shared zero point toward the inline start, for every row.
 	 */
-	currentShare: number;
+	currentShare?: number;
 
 	/**
-	 * Width of previous bar, as % of the current value. Omit when this row has
-	 * no matching comparison-period value.
+	 * Width of previous bar, as %. Derived from `previousValue` when omitted; a passed value wins.
 	 */
 	previousShare?: number;
 
 	/**
-	 * Delta of the entry. Omit when the percentage change is unavailable, such
-	 * as when the row has no comparison value or its previous value is zero.
+	 * Percentage change. Derived from the values when omitted; a passed value wins.
 	 */
 	delta?: number;
 
@@ -243,7 +244,8 @@ export type LeaderboardEntry = {
 	 * For links or other interactive affordances (external-link icons, info
 	 * tooltips), put them in the `label` render prop instead of using onClick —
 	 * a row is either a button (onClick) or carries interactive label content,
-	 * never both, since interactive elements cannot be nested in HTML.
+	 * never both, since interactive elements cannot be nested in HTML. The
+	 * exception is a row that sets `hasInteractiveLabel`.
 	 */
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 
@@ -258,6 +260,21 @@ export type LeaderboardEntry = {
 	 */
 	ariaLabel?: string;
 };
+
+export type LeaderboardEntry = LeaderboardEntryFields &
+	(
+		| { hasInteractiveLabel?: false }
+		| {
+				/**
+				 * Set when the `label` holds its own link or button. The row's button
+				 * then sits behind the row instead of around it, so both stay operable.
+				 * Requires `onClick`, and `ariaLabel` since the button wraps no text.
+				 */
+				hasInteractiveLabel: true;
+				onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
+				ariaLabel: string;
+		  }
+	);
 
 export type GradientStop = {
 	offset: string;
@@ -288,13 +305,21 @@ export type SeriesData = {
 
 /**
  * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
- * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
- * `opacity` sets the shadow translucency.
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%).
  */
 export type BarStyles = {
 	widthFactor?: number;
+	/**
+	 * Draws the comparison bar translucent, in its primary's color, instead of the opaque tones the chart picks.
+	 * @deprecated Comparison bars are opaque. Leave this unset; set the comparison series' `options.stroke` for a color of its own.
+	 */
 	opacity?: number;
 };
+
+/**
+ * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot; `stacked` stacks every primary in one bar, the first series at the bottom.
+ */
+export type BarChartLayout = 'grouped' | 'overlap' | 'stacked';
 
 export type MultipleDataPointsDate = {
 	label: string;
@@ -376,9 +401,15 @@ export type ChartTheme = {
 	 *
 	 * `fontFamily: 'inherit'` is load-bearing here — it overrides the font stack
 	 * `buildChartTheme` injects inline on SVG `<text>`.
+	 *
+	 * Give `fontSize` in pixels (`12` or `'12px'`). Margins and pie labels cannot measure `rem`, `em`, `%` or `var()`, so they use the default size and labels can clip (CHARTS-303). An invalid size is dropped.
 	 */
 	svgLabelSmall?: Omit< TextProps, 'fill' >;
-	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
+	/**
+	 * Styles for large SVG text (eg. axis titles), passed through to the XYChart theme.
+	 *
+	 * Give `fontSize` in pixels, as for `svgLabelSmall`.
+	 */
 	svgLabelBig?: TextProps;
 	annotationStyles?: ThemeAnnotationStyles;
 	/** LeaderboardChart specific settings */
@@ -405,6 +436,18 @@ export type ChartTheme = {
 		};
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
+	};
+	/** Compact mode for `compactWhenShort` line, area and bar charts */
+	compactWhenShort?: {
+		/** Height (px) below which the chart turns compact */
+		below?: number;
+		/** Margin the chart defaults to while compact */
+		margin?: {
+			top?: number;
+			right?: number;
+			bottom?: number;
+			left?: number;
+		};
 	};
 	/**
 	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
@@ -435,6 +478,9 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
+	};
+	compactWhenShort: Required< NonNullable< ChartTheme[ 'compactWhenShort' ] > > & {
+		margin: Required< NonNullable< ChartTheme[ 'compactWhenShort' ] >[ 'margin' ] >;
 	};
 	heatmapChart: Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >;
 };
@@ -489,6 +535,12 @@ export type AxisOptions = {
 	 * so callers can force a specific axis (e.g. integer-only steps on a sparse chart).
 	 */
 	tickValues?: ScaleInput< AxisScale >[];
+	/**
+	 * Most decimal places a value-axis tick may carry, so labels rounded to that precision never repeat;
+	 * an axis holding fewer than two steps widens to the nearest ones. Whole-number data always uses 0.
+	 * Ignored on a log scale, or when `tickValues` or the value scale's `domain` is set. Line and bar charts only.
+	 */
+	tickDecimals?: number;
 	axisClassName?: string;
 	axisLineClassName?: string;
 	labelClassName?: string;
@@ -636,6 +688,9 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	shapeStyles?: LegendShapeStyles;
 };
 
+/** Names a comparison series' legend item after the label of the series it is compared with. */
+export type ComparisonItemLabel = ( seriesLabel: string ) => string;
+
 /**
  * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
  * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
@@ -650,6 +705,17 @@ export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
 	 * uncollapsed one toggles only its own.
 	 */
 	collapseGroups?: boolean;
+	/**
+	 * Append a static, non-interactive item explaining the comparison overlay whenever a series
+	 * has `options.type === 'comparison'`. Skipped when that series already has its own item.
+	 * Pass a string to replace the default label.
+	 */
+	comparisonItem?: boolean | string;
+	/**
+	 * Append one static item per comparison series instead, named by calling this with the label
+	 * of the series it is compared with, and left out while that series is hidden.
+	 */
+	comparisonSeriesItems?: ComparisonItemLabel;
 };
 
 /**
@@ -662,6 +728,18 @@ export interface SeriesVisibilityProps {
 	 * Omit to retain the provider's existing visibility for the chart ID.
 	 */
 	defaultHiddenSeries?: readonly string[];
+}
+
+/**
+ * Compact mode for cartesian charts placed in short containers.
+ */
+export interface CompactWhenShortProps {
+	/**
+	 * Drop the axes, grid and legend, and default to `theme.compactWhenShort.margin`, while the
+	 * chart is shorter than `theme.compactWhenShort.below`. Series hidden through the legend stay
+	 * hidden until the chart is tall again. Horizontal bar charts ignore it.
+	 */
+	compactWhenShort?: boolean;
 }
 
 /**
@@ -680,6 +758,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 * Additional CSS class name for the chart container
 	 */
 	className?: string;
+	/**
+	 * Accessible name of the chart. Name it after what it shows, and give each chart on a page a different name. Each chart type has a localized default, such as "Line chart".
+	 */
+	ariaLabel?: string;
 	/**
 	 * Width of the chart container in pixels. When omitted, the chart fills its parent's width.
 	 */

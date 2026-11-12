@@ -400,12 +400,14 @@ class Sharing_Service {
 			$options = array();
 		}
 
+		$placement_saved = isset( $options['global']['show'] );
+
 		// Defaults.
 		$options['global'] = array(
 			'button_style'  => 'icon-text',
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
-			'show'          => ! isset( $options['global'] ) ? array( 'post', 'page' ) : array(),
+			'show'          => $placement_saved ? array() : array( 'post', 'page' ),
 			'custom'        => $options['global']['custom'] ?? array(),
 		);
 
@@ -460,10 +462,13 @@ class Sharing_Service {
 				}
 			}
 
-			$data['show'] = array_intersect( $data['show'], $shows );
-			if ( $data['show'] ) {
-				$options['global']['show'] = $data['show'];
-			}
+			$options['global']['show'] = array_intersect( $data['show'], $shows );
+			$placement_saved           = true;
+		}
+
+		// Store no placement until one is chosen, so Likes keeps its own default; get_global_options() falls back to posts and pages.
+		if ( ! $placement_saved && array( 'post', 'page' ) === ( $options['global']['show'] ?? null ) ) {
+			unset( $options['global']['show'] );
 		}
 
 		update_option( 'sharing-options', $options );
@@ -512,7 +517,7 @@ class Sharing_Service {
 	/**
 	 * Save a sharing service for use.
 	 *
-	 * @param int                     $id Sharing unique ID.
+	 * @param string                  $id Sharing unique ID.
 	 * @param Sharing_Advanced_Source $service Sharing service.
 	 *
 	 * @return void
@@ -570,22 +575,17 @@ class Sharing_Service {
 		if ( ! $_blog_id ) {
 			$_blog_id = $blog_id;
 		}
+		if ( ! ( $post_id > 0 ) ) {
+			$totals = $this->get_site_totals_by_service( $_blog_id );
+			return false === $service_name ? array_sum( $totals ) : ( $totals[ $service_name ] ?? 0 );
+		}
 		if ( $service_name === false ) {
-			if ( $post_id > 0 ) {
-				// total number of shares for this post
-				$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND post_id = %d', $_blog_id, $post_id );
-				$cache_key = "sharing_service_get_total_b{$_blog_id}_p{$post_id}";
-			} else {
-				// total number of shares for this blog
-				$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d', $_blog_id );
-				$cache_key = "sharing_service_get_total_b{$_blog_id}";
-			}
-		} elseif ( $post_id > 0 ) {
+			// total number of shares for this post
+			$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND post_id = %d', $_blog_id, $post_id );
+			$cache_key = "sharing_service_get_total_b{$_blog_id}_p{$post_id}";
+		} else {
 			$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND post_id = %d AND share_service = %s', $_blog_id, $post_id, $service_name );
 			$cache_key = "sharing_service_get_total_b{$_blog_id}_p{$post_id}_s{$service_name}";
-		} else {
-			$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND share_service = %s', $_blog_id, $service_name );
-			$cache_key = "sharing_service_get_total_b{$_blog_id}_s{$service_name}";
 		}
 
 		$ret = wp_cache_get( $cache_key, 'sharing' );
@@ -595,6 +595,30 @@ class Sharing_Service {
 			wp_cache_set( $cache_key, $ret, 'sharing', 5 * MINUTE_IN_SECONDS );
 		}
 		return $ret;
+	}
+
+	/**
+	 * Share counts for the whole site, per service.
+	 *
+	 * A site-wide read of sharing_stats scans all of the site's rows, so all services are read in one query and cached for an hour.
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @return int[] Service ID => shares.
+	 */
+	private function get_site_totals_by_service( $blog_id ) {
+		global $wpdb;
+
+		$cache_key = "sharing_service_get_site_totals_by_service_b{$blog_id}";
+		$totals    = wp_cache_get( $cache_key, 'sharing' );
+		if ( false === $totals ) {
+			$totals = array();
+			$rows   = $wpdb->get_results( $wpdb->prepare( 'SELECT share_service, SUM( count ) AS total FROM sharing_stats WHERE blog_id = %d GROUP BY share_service', $blog_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Cached in the sharing group.
+			foreach ( (array) $rows as $row ) {
+				$totals[ $row->share_service ] = (int) $row->total;
+			}
+			wp_cache_set( $cache_key, $totals, 'sharing', HOUR_IN_SECONDS );
+		}
+		return $totals;
 	}
 
 	/**
@@ -924,7 +948,7 @@ function sharing_process_requests() {
 	global $post;
 
 	// Only process if: single post and share=X defined
-	if ( ( is_page() || is_single() ) && isset( $_GET['share'] ) && is_string( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( $post instanceof WP_Post && ( is_page() || is_single() ) && isset( $_GET['share'] ) && is_string( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sharer = new Sharing_Service();
 
 		$service = $sharer->get_service( sanitize_text_field( wp_unslash( $_GET['share'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -1013,7 +1037,7 @@ function sharing_display( $text = '', $echo = false ) {
 	$display_options = null;
 
 	if ( is_array( $options ) ) {
-		$display_options = $options['global']['show'];
+		$display_options = $options['global']['show'] ?? array( 'post', 'page' );
 	}
 
 	if ( is_front_page() && ( is_array( $display_options ) && ! in_array( 'index', $display_options, true ) ) ) {
@@ -1106,7 +1130,7 @@ function sharing_display( $text = '', $echo = false ) {
 		 */
 		$enabled = apply_filters( 'sharing_enabled', $sharer->get_blog_services() );
 
-		if ( is_countable( $enabled['all'] ) && ( count( $enabled['all'] ) > 0 ) ) {
+		if ( ! empty( $enabled['all'] ) ) {
 			$dir = get_option( 'text_direction' );
 
 			// Wrapper.

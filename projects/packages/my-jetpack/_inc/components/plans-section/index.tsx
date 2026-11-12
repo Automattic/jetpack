@@ -1,22 +1,22 @@
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { PRODUCT_STATUSES } from '../../constants';
-import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
+import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
 import useProduct from '../../data/products/use-product';
-import useSimpleQuery from '../../data/use-simple-query';
+import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
-import useAnalytics from '../../hooks/use-analytics';
+import useAnalytics, { type TracksProperties } from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { getConnectUrl } from '../../utils/connect-url';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
+import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
-import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import styles from './style.module.scss';
 import type { FC } from 'react';
 
@@ -26,6 +26,14 @@ interface PlanSectionProps {
 
 interface PlanSectionHeaderAndFooterProps {
 	numberOfPurchases: number;
+}
+
+interface PlanSectionFooterProps extends PlanSectionHeaderAndFooterProps {
+	hasComplete: boolean;
+	/** The name "Activate a license" connects under; undefined from an older shared connection script, which then sends `my-jetpack`. */
+	from: string | undefined;
+	/** Added to each link's Tracks event, e.g. where the links are shown. */
+	tracksProperties?: TracksProperties;
 }
 
 const PlanSection: FC< PlanSectionProps > = ( { purchase } ) => {
@@ -38,23 +46,51 @@ const PlanSection: FC< PlanSectionProps > = ( { purchase } ) => {
 	);
 };
 
+export type PurchaseExpiryState = 'expired' | 'expiring-soon' | 'active';
+
+export interface PurchaseExpiry {
+	state: PurchaseExpiryState;
+	/** The formatted expiry date, or null when the purchase has none. */
+	date: string | null;
+	/** The hosting partner that provisioned a purchase with no expiry date. */
+	partnerName: string | null;
+	/** The renew checkout for a purchase expiring soon, otherwise its WordPress.com purchase page. */
+	actionUrl: string;
+}
+
+/**
+ * When a purchase expires and where to renew or resume it, for each view to word its own way.
+ *
+ * @param purchase - A WPCOM purchase.
+ * @return The purchase's expiry details.
+ */
+export function getPurchaseExpiry( purchase: Purchase ): PurchaseExpiry {
+	const { ID, domain, expiry_date, expiry_status, partner_name, product_slug } = purchase;
+
+	let state: PurchaseExpiryState = 'active';
+	if ( PRODUCT_STATUSES.EXPIRED === expiry_status ) {
+		state = 'expired';
+	} else if ( PRODUCT_STATUSES.EXPIRING_SOON === expiry_status ) {
+		state = 'expiring-soon';
+	}
+
+	return {
+		state,
+		date: expiry_date ? dateI18n( 'F jS, Y', expiry_date ) : null,
+		partnerName: ! expiry_date && partner_name ? partner_name : null,
+		actionUrl:
+			state === 'expiring-soon'
+				? `https://wordpress.com/checkout/${ product_slug }/renew/${ ID }/${ domain }`
+				: `https://wordpress.com/me/purchases/${ domain }/${ ID }`,
+	};
+}
+
 const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
-	const {
-		ID,
-		expiry_date,
-		expiry_status,
-		partner_name,
-		product_name,
-		product_slug,
-		subscribed_date,
-		domain,
-	} = purchase;
+	const { product_name, subscribed_date } = purchase;
+	const { state, date, partnerName, actionUrl } = getPurchaseExpiry( purchase );
 
-	const managePurchaseUrl = `https://wordpress.com/me/purchases/${ domain }/${ ID }`;
-	const renewUrl = `https://wordpress.com/checkout/${ product_slug }/renew/${ ID }/${ domain }`;
-
-	const isExpired = PRODUCT_STATUSES.EXPIRED === expiry_status;
-	const isExpiringSoon = PRODUCT_STATUSES.EXPIRING_SOON === expiry_status;
+	const isExpired = state === 'expired';
+	const isExpiringSoon = state === 'expiring-soon';
 	const isExpiringPurchase = isExpired || isExpiringSoon;
 
 	const expiryMessageClassName = clsx( {
@@ -66,8 +102,8 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 		const hundredYearDate = getDate( subscribed_date );
 		hundredYearDate.setFullYear( hundredYearDate.getFullYear() + 100 );
 
-		// If expiry_date is null, we'll default to 100 years in the future (same behavior in Store Admin).
-		const expiryDate = dateI18n( 'F jS, Y', expiry_date ?? hundredYearDate );
+		// If there's no expiry date, we'll default to 100 years in the future (same behavior in Store Admin).
+		const expiryDate = date ?? dateI18n( 'F jS, Y', hundredYearDate );
 
 		if ( isExpiringPurchase ) {
 			// Expiring soon
@@ -87,12 +123,11 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 			);
 		}
 
-		if ( ! expiry_date && partner_name ) {
-			// This means the subscription was provisioned by a hosting partner.
+		if ( partnerName ) {
 			return sprintf(
 				// translators: %1$s is the name of the hosting partner. i.e.- Bluehost, InMotion, Pressable, Jurassic Ninja, etc..
 				__( 'Managed by: %1$s', 'jetpack-my-jetpack' ),
-				partner_name
+				partnerName
 			);
 		}
 		return sprintf(
@@ -100,7 +135,7 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 			__( 'Expires on %1$s', 'jetpack-my-jetpack' ),
 			expiryDate
 		);
-	}, [ expiry_date, isExpiringPurchase, isExpiringSoon, partner_name, subscribed_date ] );
+	}, [ date, isExpiringPurchase, isExpiringSoon, partnerName, subscribed_date ] );
 
 	const expiryAction = useCallback( () => {
 		if ( ! isExpiringPurchase ) {
@@ -109,24 +144,24 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 		if ( isExpiringSoon ) {
 			return (
-				<Link href={ renewUrl } openInNewTab>
+				<Link href={ actionUrl } openInNewTab>
 					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
 				</Link>
 			);
 		}
 
 		return (
-			<Link href={ managePurchaseUrl } openInNewTab>
+			<Link href={ actionUrl } openInNewTab>
 				{ __( 'Resume subscription', 'jetpack-my-jetpack' ) }
 			</Link>
 		);
-	}, [ isExpiringPurchase, isExpiringSoon, managePurchaseUrl, renewUrl ] );
+	}, [ actionUrl, isExpiringPurchase, isExpiringSoon ] );
 
 	if ( isLifetimePurchase( purchase ) ) {
 		return (
 			<Text variant="body-md" className={ styles[ 'expire-date' ] }>
 				<span className={ styles[ 'expire-date--with-icon' ] }>
-					{ __( 'Never Expires', 'jetpack-my-jetpack' ) }
+					{ __( 'Never expires', 'jetpack-my-jetpack' ) }
 				</span>
 				<GoldenTokenTooltip productName={ product_name } giftedDate={ subscribed_date } />
 			</Text>
@@ -156,32 +191,45 @@ const PlanSectionHeader: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 				) }
 			</h3>
 			<div className={ styles.logo }>
-				<svg
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					<path
-						d="M0 4C0 1.79086 1.79086 0 4 0H20C22.2091 0 24 1.79086 24 4V20C24 22.2091 22.2091 24 20 24H4C1.79086 24 0 22.2091 0 20V4Z"
-						fill="#003010"
-					/>
-					<path
-						d="M12 4C7.58779 4 4 7.58779 4 12C4 16.4122 7.58779 20 12 20C16.4122 20 20 16.4122 20 12C20 7.58779 16.4122 4 12 4ZM11.5878 13.3282H7.60305L11.5878 5.57252V13.3282ZM12.3969 18.4122V10.6565H16.3817L12.3969 18.4122Z"
-						fill="#0CED57"
-					/>
-				</svg>
+				<PlanLogo />
 			</div>
 		</>
 	);
 };
 
-const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPurchases } ) => {
+export const PlanLogo: FC = () => (
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path
+			d="M0 4C0 1.79086 1.79086 0 4 0H20C22.2091 0 24 1.79086 24 4V20C24 22.2091 22.2091 24 20 24H4C1.79086 24 0 22.2091 0 20V4Z"
+			fill="#003010"
+		/>
+		<path
+			d="M12 4C7.58779 4 4 7.58779 4 12C4 16.4122 7.58779 20 12 20C16.4122 20 20 16.4122 20 12C20 7.58779 16.4122 4 12 4ZM11.5878 13.3282H7.60305L11.5878 5.57252V13.3282ZM12.3969 18.4122V10.6565H16.3817L12.3969 18.4122Z"
+			fill="#0CED57"
+		/>
+	</svg>
+);
+
+/**
+ * Whether the Features tab would have anything under its Included in plan filter.
+ *
+ * @return Whether the catalog contains an included feature.
+ */
+function hasIncludedFeatures(): boolean {
+	const features = getMyJetpackWindowInitialState( 'mainFeatures' )?.features;
+
+	return Array.isArray( features ) ? features.some( feature => feature.included ) : false;
+}
+
+export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
+	numberOfPurchases,
+	hasComplete,
+	from,
+	tracksProperties,
+} ) => {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
-	const { detail: complete } = useProduct( 'complete' );
-	const hasComplete = complete.hasPaidPlanForProduct;
+	const connectFrom = from ?? 'my-jetpack';
 
 	const planManageDescription = _n(
 		'Manage your plan',
@@ -193,20 +241,24 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 	const planPurchaseDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
 
 	const planManageClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_plans_manage_click' );
-	}, [ recordEvent ] );
+		recordEvent( 'jetpack_myjetpack_plans_manage_click', tracksProperties );
+	}, [ recordEvent, tracksProperties ] );
 
 	const viewIncludedFeaturesClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_plans_view_included_features_click' );
-	}, [ recordEvent ] );
+		recordEvent( 'jetpack_myjetpack_plans_view_included_features_click', tracksProperties );
+	}, [ recordEvent, tracksProperties ] );
 
 	const planPurchaseClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
-	}, [ recordEvent ] );
+		recordEvent( 'jetpack_myjetpack_plans_purchase_click', tracksProperties );
+	}, [ recordEvent, tracksProperties ] );
 
 	const activateLicenseClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_activate_license_click' );
-	}, [ recordEvent ] );
+		// `from` only when the click connects the user first, so it never reports a connection that didn't start.
+		recordEvent(
+			'jetpack_myjetpack_activate_license_click',
+			isUserConnected ? tracksProperties : { ...tracksProperties, from: connectFrom }
+		);
+	}, [ connectFrom, isUserConnected, recordEvent, tracksProperties ] );
 
 	/*
 	 * Avoid ternary as code minification will break translation function. :(
@@ -229,6 +281,15 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 
 	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
 
+	// Not getMyJetpackRouteUrl() for the return: on My Jetpack itself it's a bare hash, which Calypso ignores.
+	const activateLicenseUrl = isUserConnected
+		? getMyJetpackRouteUrl( MyJetpackRoutes.AddLicense )
+		: getConnectUrl( connectFrom, getMyJetpackUrl( `#${ MyJetpackRoutes.AddLicense }` ) );
+
+	// A purchase is not the same thing as a covered feature: a domain or a free plan counts
+	// as one, and the list the link promises would then be empty.
+	const showIncludedFeatures = hasIncludedFeatures();
+
 	return (
 		<ul className={ styles[ 'actions-list' ] }>
 			{ numberOfPurchases > 0 && (
@@ -238,11 +299,11 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 					</Link>
 				</li>
 			) }
-			{ numberOfPurchases > 0 && (
+			{ showIncludedFeatures && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Link
 						onClick={ viewIncludedFeaturesClickHandler }
-						href={ getMyJetpackUrl( `#${ getProductsSectionPath( '?filter=included' ) }` ) }
+						href={ getMyJetpackRouteUrl( `${ MyJetpackRoutes.Features }?filter=included` ) }
 					>
 						{ __( 'View included features', 'jetpack-my-jetpack' ) }
 					</Link>
@@ -257,10 +318,7 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 			) }
 			{ ! hasComplete && loadAddLicenseScreen && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Link
-						onClick={ activateLicenseClickHandler }
-						href={ isUserConnected ? getMyJetpackUrl( '#/add-license' ) : getUserConnectionUrl() }
-					>
+					<Link onClick={ activateLicenseClickHandler } href={ activateLicenseUrl }>
 						{ activateLicenceDescription }
 					</Link>
 				</li>
@@ -271,12 +329,8 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 
 const PlansSection: FC = () => {
 	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
-	const { isSiteConnected } = useMyJetpackConnection();
-	const response = useSimpleQuery< Purchase[] >( {
-		name: QUERY_PURCHASES_KEY,
-		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
-		options: { enabled: isSiteConnected },
-	} );
+	const { detail: complete } = useProduct( 'complete' );
+	const response = useSitePurchases();
 
 	const { isLoading, isError } = response;
 	const purchases = response.data;
@@ -296,7 +350,7 @@ const PlansSection: FC = () => {
 						) )
 					) : (
 						<section className={ styles[ 'plan-container' ] }>
-							{ /* TODO: Convert this to link when the Products tab filtering is ready */ }
+							{ /* TODO: Convert this to link when the Features tab filtering is ready */ }
 							<h4>
 								{ __( 'Jetpack Essentials', 'jetpack-my-jetpack' ) }
 								<svg
@@ -318,7 +372,13 @@ const PlansSection: FC = () => {
 						</section>
 					) ) }
 			</div>
-			{ userIsAdmin && <PlanSectionFooter numberOfPurchases={ numberOfPurchases } /> }
+			{ userIsAdmin && (
+				<PlanSectionFooter
+					numberOfPurchases={ numberOfPurchases }
+					hasComplete={ complete.hasPaidPlanForProduct }
+					from={ CONNECTION_FROM?.myJetpackPlans }
+				/>
+			) }
 		</section>
 	);
 };

@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.4",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
@@ -33,6 +34,8 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
 		"test-php": "@composer phpunit",
 		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"watch": [
@@ -52,14 +55,13 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-admin-ui",
 		"textdomain": "jetpack-admin-ui",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.12.x-dev"
+			"dev-trunk": "0.14.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

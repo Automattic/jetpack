@@ -51,9 +51,7 @@ class Jetpack_Options_Test extends TestCase {
 		return array(
 			'wpcom_user_id' => 12345,
 			'local_user_id' => 7,
-			'locked'        => true,
 			'confirmed_at'  => '2026-08-13T12:00:00Z',
-			'confirmed_by'  => 'popup',
 		);
 	}
 

@@ -11,13 +11,25 @@
 import metadata from '../block.json';
 
 /**
+ * Attributes that come from PayPal, which the form leaves out.
+ */
+export const PAYPAL_SET_ATTRIBUTES = [
+	'paymentLink',
+	// The payment's own integration_mode, so a LINK or QR block re-sends it as it is.
+	'integrationMode',
+	// The PayPal SDK URL, which only a BUTTON-mode payment has. The legacy paste-code
+	// path shares the attribute, and its blocks have neither resourceId nor isApiManaged,
+	// so the read-back GET leaves them alone.
+	'scriptSrc',
+];
+
+/**
  * Attributes the PayPal payment is the source of truth for. Everything else
- * (image, format, colors, button text) belongs to the block. The image is sent
- * to PayPal but never read back: its attachment id has no PayPal counterpart,
- * and PayPal silently drops an image it cannot fetch.
+ * (image, format, colors, button text) belongs to the block. The image stays on
+ * the site.
  */
 export const RESOURCE_ATTRIBUTES = [
-	'paymentLink',
+	...PAYPAL_SET_ATTRIBUTES,
 	'productName',
 	'price',
 	'currencyCode',
@@ -44,6 +56,12 @@ export const RESOURCE_ATTRIBUTES = [
 	'collectShippingAddress',
 	'returnUrl',
 ];
+
+/**
+ * The payment the block points at and everything read from it. Reset together, so the
+ * next save creates a new payment.
+ */
+export const PAYMENT_ATTRIBUTES = [ 'isApiManaged', 'resourceId', ...RESOURCE_ATTRIBUTES ];
 
 /**
  * Attributes each gating control owns, keyed by the attribute that gates them.
@@ -86,6 +104,16 @@ export function turnGateOff( gate ) {
 let nextKey = 1;
 
 /**
+ * Whether an option group has at least one priced option.
+ *
+ * @param {object} dim - The option group.
+ * @return {boolean} True when an option carries an amount.
+ */
+function hasPricedOption( dim ) {
+	return ( dim.options || [] ).some( opt => `${ opt.unit_amount?.value ?? '' }`.trim() !== '' );
+}
+
+/**
  * Reduce a variants structure to what PayPal prices, so two copies compare on content.
  *
  * Editor-only `_key`s, the per-option currency and empty amounts are left out.
@@ -112,10 +140,10 @@ function comparableVariants( variants ) {
 /**
  * Put a payment's variants into the shape the variant builder edits.
  *
- * Adds the `_key`s the builder uses for React keys, and infers `primary` from
- * where the prices are when the payment does not carry the flag. `primary` is
- * what the form reads for "per-variant pricing is on", so a payment with no
- * prices at all leaves every group unflagged rather than guessing at the first.
+ * Adds the `_key`s the builder uses for React keys. PayPal flags exactly one group
+ * `primary` whether or not it is priced, but `primary` is what the form reads for
+ * "per-variant pricing is on", so the flag is kept only on a group that carries a
+ * price, and inferred from where the prices are when the payment has none.
  *
  * @param {object} variants - Variants data from the payment.
  * @return {object|null} Editable variants, or null when there are none.
@@ -127,20 +155,38 @@ export function normalizeResourceVariants( variants ) {
 	}
 
 	const hasPrimaryFlag = dimensions.some( dim => dim.primary );
-	const pricedIndex = dimensions.findIndex( dim =>
-		( dim.options || [] ).some( opt => `${ opt.unit_amount?.value ?? '' }`.trim() !== '' )
-	);
+	const pricedIndex = dimensions.findIndex( hasPricedOption );
 
 	return {
 		dimensions: dimensions.map( ( dim, i ) => ( {
 			...dim,
 			_key: dim._key || `rs-${ nextKey++ }`,
-			primary: hasPrimaryFlag ? !! dim.primary : pricedIndex === i,
+			primary: ( hasPrimaryFlag ? !! dim.primary : pricedIndex === i ) && hasPricedOption( dim ),
 			options: ( dim.options || [] ).map( opt => ( {
 				...opt,
 				_key: opt._key || `rs-${ nextKey++ }`,
 			} ) ),
 		} ) ),
+	};
+}
+
+/**
+ * Flag the first option group primary when none is.
+ *
+ * PayPal rejects variants without exactly one primary group, while the form only
+ * flags one once it carries prices. normalizeResourceVariants() drops the flag again.
+ *
+ * @param {object} variants - The variants data.
+ * @return {object} Variants with one primary group.
+ */
+export function withPrimaryDimension( variants ) {
+	if ( ! variants?.dimensions?.length || variants.dimensions.some( dim => dim.primary ) ) {
+		return variants;
+	}
+
+	return {
+		...variants,
+		dimensions: variants.dimensions.map( ( dim, i ) => ( { ...dim, primary: i === 0 } ) ),
 	};
 }
 
@@ -192,10 +238,41 @@ export function isSameValue( key, a, b ) {
 }
 
 /**
+ * Whether a read-back change is bookkeeping rather than something done at PayPal.
+ *
+ * `integrationMode` belongs to the payment: a sibling going stacked flips it, and the
+ * merchant never sets or sees it. A first `scriptSrc` arriving is the same. One that
+ * went empty means the payment lost BUTTON mode, which matters only to a stacked block,
+ * so only a stacked block is told.
+ *
+ * @param {string} key    - Attribute name.
+ * @param {*}      prior  - The block's value before the read-back.
+ * @param {string} format - The block's display format.
+ * @return {boolean} True when the change says nothing to the merchant.
+ */
+export function isBookkeeping( key, prior, format ) {
+	if ( key === 'integrationMode' ) {
+		return true;
+	}
+	if ( key !== 'scriptSrc' ) {
+		return false;
+	}
+	if ( 'STACKED' !== format ) {
+		return true;
+	}
+
+	const fallback = metadata.attributes.scriptSrc.default;
+
+	return ( prior ?? fallback ) === fallback;
+}
+
+/**
  * Work out which block attributes differ from the payment PayPal holds.
  *
  * A field the payment no longer carries goes back to its block.json default,
- * so a description or a per-option price removed elsewhere clears here too.
+ * so a description or a per-option price removed elsewhere clears here too. The
+ * link is the exception: it is fixed to the payment's id, so a read with an empty
+ * link keeps the block's.
  *
  * @param {object} current      - The block's current attributes.
  * @param {object} fromResource - Attributes mapped from the payment by the server.
@@ -205,6 +282,10 @@ export function getResourceAttributeUpdates( current, fromResource ) {
 	const updates = {};
 
 	RESOURCE_ATTRIBUTES.forEach( key => {
+		if ( key === 'paymentLink' && ! fromResource?.paymentLink ) {
+			return;
+		}
+
 		const fallback = metadata.attributes[ key ]?.default;
 		const value = current?.[ key ] === undefined ? fallback : current[ key ];
 

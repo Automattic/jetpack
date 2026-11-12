@@ -1,15 +1,10 @@
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils/site-type-utils';
-import {
-	Icon,
-	Card,
-	CardMedia,
-	CardBody,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Icon, Card, CardMedia, CardBody } from '@wordpress/components';
 import { image as imageIcon } from '@wordpress/icons';
+import { Stack, Text } from '@wordpress/ui';
 import photon from 'photon';
+import { htmlspecialcharsDecode } from '../../utils.ts';
 import './style.scss';
 
 /**
@@ -35,7 +30,9 @@ function photonSafeUrl( url: string = '' ): string | null {
 }
 
 const ImageSelectButton = ( { choice, handleFilePreview } ) => {
-	const label = choice.label ? `${ choice.selected }: ${ choice.label }` : choice.selected;
+	const selected = htmlspecialcharsDecode( String( choice.selected ?? '' ) );
+	const choiceLabel = choice.label ? htmlspecialcharsDecode( String( choice.label ) ) : '';
+	const label = choiceLabel ? `${ selected }: ${ choiceLabel }` : selected;
 	const hasImage = choice.image?.src;
 	return (
 		<Card
@@ -57,7 +54,7 @@ const ImageSelectButton = ( { choice, handleFilePreview } ) => {
 							className="jp-forms__image-select-preview-image"
 							width={ 138 }
 							height={ 144 }
-							alt={ choice.selected }
+							alt={ selected }
 							loading="lazy"
 							src={ photonSafeUrl( choice.image.src ) ?? undefined }
 						/>
@@ -74,16 +71,19 @@ const ImageSelectButton = ( { choice, handleFilePreview } ) => {
 					inlineEnd: 'xSmall',
 				} }
 			>
-				<HStack
+				{ /* No `align`: Stack sets alignment inline, which would beat the stylesheet's
+				     `align-items: baseline` on this wrapper. */ }
+				<Stack
 					className="jp-forms__image-select-preview-label-wrapper"
-					spacing="2"
-					alignment="topLeft"
+					direction="row"
+					gap="sm"
+					justify="flex-start"
 				>
-					<Text className="jp-forms__image-select-preview-selected">{ choice.selected }</Text>
-					<Text title={ choice.label } className="jp-forms__image-select-preview-label">
-						{ choice.label }
+					<Text className="jp-forms__image-select-preview-selected">{ selected }</Text>
+					<Text title={ choiceLabel } className="jp-forms__image-select-preview-label">
+						{ choiceLabel }
 					</Text>
-				</HStack>
+				</Stack>
 			</CardBody>
 		</Card>
 	);
@@ -94,11 +94,13 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 		<>
 			{ ( choices?.length ?? 0 ) === 0 && '-' }
 			{ ( choices?.length ?? 0 ) > 0 && (
-				<HStack
-					spacing="2"
-					alignment="topLeft"
-					wrap={ true }
+				<Stack
+					align="flex-start"
 					className="jp-forms__image-select-preview-wrapper"
+					direction="row"
+					gap="sm"
+					justify="flex-start"
+					wrap="wrap"
 				>
 					{ choices.map( choice => {
 						return (
@@ -109,7 +111,7 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 							/>
 						);
 					} ) }
-				</HStack>
+				</Stack>
 			) }
 		</>
 	);

@@ -6,7 +6,7 @@ import type { Activity } from './types';
 import type { Action } from '@wordpress/dataviews';
 
 interface InitialStateWithCalypsoSlug {
-	jetpackStatus?: { calypsoSlug?: string };
+	jetpackStatus?: { calypsoSlug?: string; restoreUrlTemplate?: string };
 }
 
 declare const JPACTIVITYLOG_INITIAL_STATE: InitialStateWithCalypsoSlug | undefined;
@@ -17,6 +17,12 @@ const calypsoSlug: string =
 		? JPACTIVITYLOG_INITIAL_STATE?.jetpackStatus?.calypsoSlug
 		: undefined ) ?? '';
 
+// The in-admin restore screen, with `{rewindId}` to fill in; empty when the Backup dashboard can't take it.
+const restoreUrlTemplate: string =
+	( typeof JPACTIVITYLOG_INITIAL_STATE !== 'undefined'
+		? JPACTIVITYLOG_INITIAL_STATE?.jetpackStatus?.restoreUrlTemplate
+		: undefined ) ?? '';
+
 type Tracks = { recordEvent: ( name: string, props?: Record< string, unknown > ) => void };
 
 type UseActivityActionsOptions = {
@@ -25,18 +31,9 @@ type UseActivityActionsOptions = {
 };
 
 /**
- * Row actions for the DataViews table. The single primary action deep-
- * links into the Jetpack Cloud Backup restore flow for the row's rewind
- * point (`https://cloud.jetpack.com/backup/{slug}/restore/{rewindId}`)
- * and opens in a new tab. Eligibility requires `activityIsRewindable`,
- * a `rewindId`, and a `calypsoSlug` from Initial_State; rows missing
- * any of those don't render the action.
- *
- * TEMPORARY: this off-site link is a stop-gap until the Backup wp-admin
- * port (https://github.com/Automattic/jetpack/pull/48236) lands. Once
- * that ships, every row action here should point at the in-admin
- * Backup page instead of cloud.jetpack.com so users stay inside their
- * own wp-admin for the restore flow.
+ * Row actions for the DataViews table. "Restore backup" opens the in-admin
+ * Backup restore screen when the Backup dashboard provides one
+ * (`restoreUrlTemplate`), otherwise the Jetpack Cloud restore flow in a new tab.
  *
  * @param options           - Hook options.
  * @param options.isLoading - Whether the list is currently fetching. Kept
@@ -54,10 +51,27 @@ export function useActivityActions( {
 			isPrimary: true,
 			label: __( 'Restore backup', 'jetpack-activity-log' ),
 			icon: <Icon icon={ backup } />,
-			isEligible: item => Boolean( item.activityIsRewindable && item.rewindId && calypsoSlug ),
+			isEligible: item =>
+				Boolean(
+					item.activityIsRewindable && item.rewindId && ( restoreUrlTemplate || calypsoSlug )
+				),
 			callback: async items => {
 				const item = items[ 0 ];
-				if ( ! item?.rewindId || ! calypsoSlug ) {
+				if ( ! item?.rewindId ) {
+					return;
+				}
+				if ( restoreUrlTemplate ) {
+					tracks?.recordEvent( 'jetpack_activity_log_restore_backup_click', {
+						rewind_id: item.rewindId,
+						activity_name: item.activityName,
+						destination: 'wp-admin',
+					} );
+					window.location.assign(
+						restoreUrlTemplate.replace( '{rewindId}', encodeURIComponent( item.rewindId ) )
+					);
+					return;
+				}
+				if ( ! calypsoSlug ) {
 					return;
 				}
 				const url = `https://cloud.jetpack.com/backup/${ encodeURIComponent(

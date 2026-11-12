@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 4.7.1
+Stable tag: 4.8.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,7 +79,7 @@ Jetpack Boost makes small changes to the way that data is sent from your WordPre
 
 Jetpack Boost includes a growing number of separate features which can be turned on individually to improve your site’s performance. These include:
 
-* **Optimize CSS Loading**: This feature determines the most important CSS that your site needs to display your site’s initial content as quickly as possible, and embeds it directly into your site header.
+* **Optimize CSS Loading**: This feature identifies the styles needed to display your site’s initial content quickly. See “Can I also defer non-essential CSS with Jetpack Boost?” below for how Critical CSS is applied.
 * **Page Cache**: This feature stores your website's pages as static HTML files, bypassing the need for dynamic generation. This means visitors receive pages faster, reducing wait times and improving overall site performance.
 * **Defer Non-Essential JavaScript**: This feature forces all of the JavaScript which is not deemed essential to displaying your site to load after your site’s main content has been loaded.
 * **Image CDN**: This feature automatically resizes images to a more appropriate size for your visitors' screens, converts them to modern image formats, and serves them from Jetpack's worldwide network of servers.
@@ -98,9 +98,11 @@ We recommend that you install Jetpack Boost, and try it for yourself. It include
 
 = Can I also defer non-essential CSS with Jetpack Boost? =
 
-Jetpack Boost automatically defers non-essential CSS if its “Optimize CSS Loading” feature is enabled.
+Jetpack Boost automatically defers non-essential CSS when its “Optimize CSS Loading” feature is enabled and usable Critical CSS is available for the page.
 
 The “Optimize CSS Loading” feature identifies the most important CSS rules your site needs to display your pages as quickly as possible (commonly called “Critical CSS”), and defers all other CSS rules from loading until your main content has loaded.
+
+Boost embeds Critical CSS in the page header after the page title. Generated CSS larger than 512 KiB is rejected with an error message, and any previous CSS for that page group is removed. Previously saved CSS above this limit is also not embedded. Without usable Critical CSS, this feature leaves stylesheets loading normally; other page groups can still be optimized.
 
 = What are Web Vitals? =
 
@@ -189,43 +191,51 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.7.1 - 2026-09-16
+### 4.8.2 - 2026-11-06
 #### Added
-- My Jetpack: Allow the Automattic for Agencies banner to be dismissed.
+- Connection: Add a Connected view to the Users page, show connection errors on the Connectors card, and transfer connection ownership to another administrator without leaving your site, with a note that moving a Jetpack plan is an additional step.
+- Dashboard: Add breadcrumbs linking to My Jetpack.
+- My Jetpack: Add an Available filter to the Features list, and recognize Jetpack Pro subscriptions, licenses and catalog offers while preserving existing plans.
+- Site Health: Add Jetpack connection details to the Info tab and the copied site info report.
 
 #### Changed
-- Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com.
-- General: Update minimum WordPress version to 7.0.
-- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
-- Remove the Upgraded pill from module titles on the settings page.
-- Sidebar: sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom.
-- Speed Score: Wait up to four minutes for a slow speed test instead of two.
-- Tested up to WordPress 7.1.
+- Activity Log: Show the connection error notice only when a connection error has been recorded.
+- Connection: Clarify connection, Offline Mode and ownership notices, confirm account disconnections and list the plugins that stop working, and show clearer errors and owner details on the Connectors card.
+- Dashboard: Show "Checking site speed…" while a speed test runs, and show "Run speed test" as an icon on screens 480px wide or narrower.
+- Getting Started: Send premium upgrades to the My Jetpack upgrade page, where a license key can also be redeemed.
+- Image Guide: Render the overlay with React; administrators now load WordPress's data and React scripts on the front end.
+- My Jetpack: Ask for a WordPress.com account only when something in use needs one, and leave plugins included in a bundle plan out of the menu notification badge.
+- My Jetpack: Connect accounts from the feature cards that need one, turn a module on once Install or Activate Jetpack finishes, open Modules links in Features, and restore the "Included in plan" view.
+- My Jetpack: List VaultPress Backup among the plans that include Activity Log history, and simplify the Search paid-plan wording.
+- My Jetpack: Show the avatar and connection status control in the headers of My Jetpack and the modern Boost dashboard, with access to connection and plan details.
+- My Jetpack: Simplify the Features tab with switches instead of status badges, flat cards and aligned notices, and show it in Offline Mode.
 - Update package dependencies.
-- Upgrade modal: refresh the copy to match the plan comparison on Jetpack.com.
 
-#### Removed
-- Updated PHP version requirements to PHP 7.4 or newer.
+#### Deprecated
+- Dashboard: Deprecate the filter that restores the legacy dashboard, which will be removed in a future release.
 
 #### Fixed
-- Activity Log: Continue the wp-admin menu color behind the page frame on WordPress.com and third-party admin color schemes.
-- Activity Log: Fix the page overlapping the admin menu in right-to-left languages.
-- Admin dashboards: Keep the page header and content in view when the wp-admin menu is taller than the window.
-- Concatenate JS: Preserve deferred and asynchronous script loading.
-- Connection: Hide connection error notices from users who cannot fix the connection.
-- Connection: Update wording for some connection error notices.
-- Defer JS: Stop moving the Jetpack Likes script out of place, so Like blocks and comment likes no longer stick on "Loading…".
-- JITM: Fix missing messages and a console error on sites without the Jetpack plugin active.
-- My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated.
-- My Jetpack: Keep the Automattic for Agencies banner hidden after dismissing it and switching tabs.
-- My Jetpack: keep the stats chart tooltip under sticky and fixed page elements.
-- My Jetpack: Show the right product status as soon as fresher plan data is available, instead of reusing an earlier lookup.
-- My Jetpack: Stop repeating the partner lookup request on every page load.
-- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen.
-- Page Cache: keep cache invalidation best-effort when a cache subdirectory disappears mid-walk, instead of throwing an uncaught exception that could break saving templates or posts.
-- Speed Score: Restore the with and without Boost comparison and the score change notice on sites whose score has not moved.
-- Speed Score: Stop the My Jetpack card re-testing the site on every page load.
-- Status: Detect a site served on any 127.0.0.0/8 loopback address, or on 0.0.0.0, as a local site.
+- Accessibility: Announce the score history chart and a disabled Cornerstone Pages Save button correctly to screen readers, and show the selected history day's focus ring on any bar color.
+- Activity Log: Show an empty date picker on the free plan, instead of a date range it does not apply.
+- Cache cleanup: Prevent memory exhaustion when removing expired optimization data.
+- Concatenate: Improve loading of combined scripts and styles.
+- Concatenate: Improve minification reliability.
+- Concatenate JS: Fix scripts printed on their own failing to load on sites served from a custom port.
+- Connection: Fix reconnecting an account disconnecting other users, an empty Safe Mode window, owner names with characters like &, untranslated Connectors card text, and spurious Site Health connection failures.
+- Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing.
+- Critical CSS: Enable automatic regeneration after upgrading, reduce repeated styles, print after the page title, and reject generated CSS above 512 KiB with an error message.
+- Critical CSS: Keep generation running when the site returns an older status or a page never answers, and report a Regenerate that did not start or a request the site refused.
+- Dashboard: Fix "Something went wrong!" on WordPress 7.1 when the site data request fails, old scores in the header after a test started from My Jetpack, and oversized links in notices.
+- Footer: Show the Features link to administrators only.
+- Image CDN: Fix some images hosted on other sites failing to load when their file name ends in a size like -600x400.
+- Image Guide: Fix duplicate guides appearing after the guide is paused and resumed, and open popup links in separate new tabs.
+- LCP: Stop cropping optimized images when their box has a different shape, their URL has a query string, or their original file is offloaded or deleted, and size the image to its box when the theme sets `object-fit: cover`.
+- My Jetpack: Fetch a new speed score when the saved one is incomplete, and show the highest-priority notice first.
+- My Jetpack: Fix layout problems on the setup and connection screens and in the Help tab on narrow screens, scroll to the first Features results after filtering, and return to the previous tab from upgrade screens.
+- My Jetpack: Keep product switches, statuses and the Overview connection card in sync after changes, including failed changes, Beta or development plugin copies, and switching VideoPress off without Jetpack.
+- My Jetpack: Stop showing $0, NaN or $0.00 prices when prices cannot be loaded, and stop offering retired Security and Growth plans while preserving existing subscriptions.
+- Optimize LCP Images: Re-analyze cornerstone pages a few minutes after a template, Global Styles or Additional CSS change, show an error when a re-analysis can't start, and skip the analysis on a cornerstone page save when no results are stored.
+- Overview: Show grade ranges that match how the overall grade is calculated.
 
 --------
 

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Reset the E2E site state in one request instead of a wp-cli call per setting.
+
+

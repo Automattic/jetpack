@@ -1,11 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	FacebookLinkPreview,
 	TwitterLinkPreview,
 	GoogleSearchPreview,
 } from '@automattic/social-previews';
-import apiFetch from '@wordpress/api-fetch';
 import { ToggleControl } from '@wordpress/components';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -93,39 +91,6 @@ export const SEO = withModuleSettingsFormHelpers(
 			siteIconPreviewSize: 512,
 		};
 
-		state = {
-			optInInProgress: false,
-			optInError: false,
-		};
-
-		// Opt an existing self-hosted install into the new Jetpack SEO dashboard.
-		// Hits the seo package's opt-in route (registered in
-		// projects/packages/seo/src/class-initializer.php), which marks the surface
-		// visible, activates the seo-tools module, and returns the dashboard URL to
-		// redirect to.
-		handleSeoOptIn = () => {
-			analytics.tracks.recordEvent( 'jetpack_wpa_seo_optin_banner_click', {
-				surface: 'traffic_settings',
-			} );
-
-			this.setState( { optInInProgress: true, optInError: false } );
-
-			apiFetch( {
-				path: '/jetpack/v4/seo/opt-in',
-				method: 'POST',
-			} )
-				.then( response => {
-					if ( response?.redirect ) {
-						window.location.href = response.redirect;
-						return;
-					}
-					this.setState( { optInInProgress: false, optInError: true } );
-				} )
-				.catch( () => {
-					this.setState( { optInInProgress: false, optInError: true } );
-				} );
-		};
-
 		toggleSeoEnhancer = () => {
 			const isEnabled = this.props.getOptionValue( 'ai_seo_enhancer_enabled' );
 
@@ -174,59 +139,6 @@ export const SEO = withModuleSettingsFormHelpers(
 			this.props.updateFormStateOptionValue( 'advanced_seo_title_formats', newCustomSeoTitles );
 		};
 
-		// Shown only when the SEO package reports the opt-in is available for this install
-		// (feature flag on, self-hosted, not yet opted in), surfaced on
-		// `window.JetpackScriptData.seo.optin_available` by Surface_Visibility::inject_optin_availability().
-		seoOptInBanner = () => {
-			if ( ! getScriptData()?.seo?.optin_available ) {
-				return null;
-			}
-
-			const ctaCaption = this.state.optInInProgress
-				? _x( 'Switching…', 'Button caption', 'jetpack' )
-				: _x(
-						'Use the new experience',
-						'Button caption',
-						'jetpack',
-						/* dummy arg to avoid bad minification */ 0
-					);
-
-			return (
-				<SimpleNotice
-					status="is-info"
-					showDismiss={ false }
-					className="jp-seo-optin-banner"
-					title={ __( 'SEO has a new home', 'jetpack' ) }
-				>
-					<div className="jp-seo-optin-banner__content">
-						<p>
-							{ __(
-								'Manage all of your search engine optimization from the redesigned Jetpack SEO dashboard.',
-								'jetpack'
-							) }
-						</p>
-						{ this.state.optInError && (
-							<p className="jp-seo-optin-banner__error">
-								{ __(
-									'Something went wrong while switching to the new experience. Please try again.',
-									'jetpack'
-								) }
-							</p>
-						) }
-						<Button
-							primary
-							rna
-							compact
-							onClick={ this.handleSeoOptIn }
-							disabled={ this.state.optInInProgress }
-						>
-							{ ctaCaption }
-						</Button>
-					</div>
-				</SimpleNotice>
-			);
-		};
-
 		saveButton = props => {
 			const isSaving = this.props.isSavingAnyOption( this.constants.moduleOptionsArray );
 			return (
@@ -269,7 +181,6 @@ export const SEO = withModuleSettingsFormHelpers(
 				return acc;
 			}, [] );
 			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0;
-			const optInBanner = this.seoOptInBanner();
 
 			const frontPageMetaCharCountClasses = clsx( {
 				'jp-seo-front-page-description-count': true,
@@ -291,7 +202,6 @@ export const SEO = withModuleSettingsFormHelpers(
 					saveDisabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
 					hideButton={ hasConflictingSeoPlugin || ! hasSeoTools }
 				>
-					{ optInBanner && <div className="jp-settings-card__notice">{ optInBanner }</div> }
 					{ hasSeoTools && hasConflictingSeoPlugin && (
 						<div className="jp-settings-card__notice">
 							<SimpleNotice showDismiss={ false }>

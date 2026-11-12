@@ -1,36 +1,40 @@
 /**
  * External dependencies
  */
+import { Button, Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
 	ReportDrilldownTable,
 	ReportPageLayout,
-	ReportPageShell,
+	ReportErrorState,
 	ReportPageTabs,
-	ReportCsvAction,
-	useReportCsvExport,
-	useReportRetry,
-	type CsvColumn,
+	ExporterCsvAction,
+	utmCsvExporters,
+	UtmUrlBuilderDialog,
+	type UtmReportRow,
+	type UtmUrlBuilderValues,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { Page } from '@wordpress/admin-ui';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
 	getReportUtmTabs,
-	getTabTitle,
 	getUtmFields,
 	getUtmTabLabel,
 	resolveSection,
+	useBuildUrlAction,
 	useUtmReportRecords,
-	type UtmReportRow,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -68,16 +72,6 @@ function getUtmRowParentId( item: UtmReportRow ): string | undefined {
 }
 
 /**
- * Keep nested posts identifiable after the UTM hierarchy is flattened into CSV rows.
- *
- * @param item - The UTM parent or nested post row.
- * @return The UTM value or UTM-qualified post title.
- */
-function getUtmCsvLabel( item: UtmReportRow ): string {
-	return item.groupLabel ? `${ item.groupLabel } > ${ item.label }` : item.label;
-}
-
-/**
  * Premium Analytics UTM report page.
  *
  * @return The UTM report page.
@@ -87,49 +81,49 @@ function UtmReport(): JSX.Element {
 	const tabs = useMemo( () => getReportUtmTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useUtmReportRecords( activeTab, reportParams );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
-	const csvColumns = useMemo< CsvColumn< UtmReportRow >[] >(
-		() => [
-			{ label: getUtmTabLabel( activeTab ), getValue: getUtmCsvLabel },
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-		],
-		[ activeTab ]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: `utm-${ activeTab }`,
-		range: reportParams,
-		status: records,
-	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.utm;
+	const [ builderValues, setBuilderValues ] = useState< Partial< UtmUrlBuilderValues > | null >(
+		null
+	);
+	const openBlankBuilder = useCallback( () => setBuilderValues( {} ), [] );
+	const closeBuilder = useCallback( () => setBuilderValues( null ), [] );
+	const buildUrlAction = useBuildUrlAction( setBuilderValues );
+	const actions = useMemo( () => [ buildUrlAction ], [ buildUrlAction ] );
 
 	return (
-		<ReportPageShell
-			visual={ <StatsPageIcon /> }
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<>
+					<Button variant="outline" size="compact" onClick={ openBlankBuilder }>
+						{ __( 'Build URL', 'jetpack-premium-analytics-pkg' ) }
+					</Button>
+					<ExporterCsvAction
+						exporter={ utmCsvExporters[ activeTab ] }
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+				</>
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getUtmTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
+				withAllTime
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load UTM data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportDrilldownTable< UtmReportRow >
 						key={ activeTab }
 						data={ records.rows }
@@ -137,15 +131,20 @@ function UtmReport(): JSX.Element {
 						getItemId={ getUtmRowId }
 						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
+						actions={ actions }
 						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
 						collapsible
 						defaultExpanded="none"
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
-		</ReportPageShell>
+			{ builderValues && (
+				<UtmUrlBuilderDialog initialValues={ builderValues } onClose={ closeBuilder } />
+			) }
+		</Page>
 	);
 }
 

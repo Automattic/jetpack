@@ -1,4 +1,5 @@
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
+import { forwardRef } from 'react';
+import type { AnchorHTMLAttributes, ForwardedRef, ReactNode } from 'react';
 
 type RouteSearch =
 	| Record< string, unknown >
@@ -12,6 +13,7 @@ type MockRouteLinkProps = {
 } & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
 
 let currentSearch: Record< string, unknown > = {};
+let currentRoutePath = '/';
 
 /**
  * Set the search params supplied to route-link updater functions.
@@ -23,6 +25,15 @@ export function setMockRouteSearch( search: Record< string, unknown > = {} ): vo
 }
 
 /**
+ * Set the path of the page on screen, which `useLinkProps` marks a link to as current.
+ *
+ * @param path - Current route path.
+ */
+export function setMockRoutePath( path = '/' ): void {
+	currentRoutePath = path;
+}
+
+/**
  * Render a WordPress route link as an anchor for component tests.
  *
  * @param root0          - Link props.
@@ -30,9 +41,13 @@ export function setMockRouteSearch( search: Record< string, unknown > = {} ): vo
  * @param root0.params   - Route path params.
  * @param root0.search   - Search params or updater.
  * @param root0.children - Link contents.
+ * @param ref            - Forwarded to the anchor, as the design system link passes one.
  * @return The rendered anchor.
  */
-function MockRouteLink( { to, params, search, children, ...props }: MockRouteLinkProps ) {
+function RouteLinkAnchor(
+	{ to, params, search, children, ...props }: MockRouteLinkProps,
+	ref: ForwardedRef< HTMLAnchorElement >
+) {
 	const path = Object.entries( params ?? {} ).reduce(
 		( currentPath, [ key, value ] ) => currentPath.replace( `$${ key }`, String( value ) ),
 		to
@@ -49,15 +64,19 @@ function MockRouteLink( { to, params, search, children, ...props }: MockRouteLin
 	const queryString = query.toString();
 
 	return (
-		<a href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
+		<a ref={ ref } href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
 			{ children }
 		</a>
 	);
 }
 
+const MockRouteLink = forwardRef( RouteLinkAnchor );
+
 /** Shared Jest replacement for the WordPress route module. */
 export const mockWordPressRoute = {
 	Link: MockRouteLink,
+	useLinkProps: ( { to }: { to: string } ) =>
+		to === currentRoutePath ? { 'data-status': 'active', 'aria-current': 'page' } : {},
 	useSearch: () => currentSearch,
 	// Swallows the write. A component under test may hold a hook that commits to
 	// the URL, and rendering it must not need a router.

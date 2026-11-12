@@ -4,6 +4,7 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { close, chevronUp, chevronDown } from '@wordpress/icons';
+import type { JSX } from 'react';
 
 type ResponseNavigationProps = {
 	hasNext: boolean;

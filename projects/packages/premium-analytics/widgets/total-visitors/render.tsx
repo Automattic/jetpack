@@ -4,6 +4,7 @@
 import { useStatsVisits, withoutComparison } from '@jetpack-premium-analytics/data';
 import { Text } from '@jetpack-premium-analytics/externals';
 import {
+	HEADLINE_COUNT_FORMAT,
 	AbbreviatedValue,
 	describeError,
 	MetricSparklineSkeleton,
@@ -14,16 +15,20 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { people } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { TotalVisitorsAttributes } from './widget';
 import type { StatsVisitsParams, StatsVisitsResponse } from '@jetpack-premium-analytics/data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
+
+/**
+ * Configurable attributes for the Total visitors widget. There are none: the
+ * metric is fixed and the date range comes from the dashboard picker.
+ */
+export type TotalVisitorsAttributes = Record< never, never >;
 
 // Report params are usually URL-driven (WidgetRoot's fallback), but the host
 // and Storybook may also pass them via `attributes`.
@@ -39,8 +44,6 @@ type TotalVisitorsWidgetProps = WidgetRenderProps< TotalVisitorsRenderAttributes
 // summed headline (a daily visitor counts 30 times across 30 daily buckets but
 // only 13 across 13 weekly ones). Views are additive and unaffected.
 const PERIOD = 'day';
-
-const HEADLINE_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
 
 /**
  * The period's visitor total over an area sparkline of the trend.
@@ -77,7 +80,8 @@ function TotalVisitorsMetric() {
 				// `placeholderData` keeps the prior rows on a transient refetch failure,
 				// so only surface the error when there is nothing left to show.
 				isError={ isError && points.length === 0 }
-				isEmpty={ points.length === 0 }
+				// `stats/visits` zero-fills every bucket of an idle window.
+				isEmpty={ ! points.some( value => value > 0 ) }
 				error={ describeError( error, {
 					retryDescription: __(
 						"We couldn't load your visitors. Please try again in a moment.",
@@ -85,17 +89,13 @@ function TotalVisitorsMetric() {
 					),
 					onRetry: refetch,
 				} ) }
-				empty={ {
-					icon: people,
-					description: __( 'No visitors in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <MetricSparklineSkeleton /> }
 			>
 				<div className={ styles.body }>
 					{ /* Not `MetricValue`: it pins a 20px line-height at any font size, which
 					    clips 32px glyphs. `heading-2xl` pairs 32px with 40px. */ }
 					<Text variant="heading-2xl">
-						<AbbreviatedValue value={ total } dataFormat={ HEADLINE_FORMAT } />
+						<AbbreviatedValue value={ total } dataFormat={ HEADLINE_COUNT_FORMAT } />
 					</Text>
 					<div className={ styles.chart }>
 						{ /* `withResponsive` caps width at 1200px by default, stranding space on a

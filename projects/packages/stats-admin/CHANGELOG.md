@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.40.0 - 2026-11-09
+### Added
+- Admin bar: Add a 7-day views chart with views and visitors on hover, off by default behind a feature flag. [#54234]
+
+### Changed
+- Update package dependencies. [#54512]
+
+## 0.39.3 - 2026-11-02
+### Changed
+- Stats widget: render a loading skeleton instead of a spinner while the script loads. [#54257]
+
+## 0.39.2 - 2026-10-28
+### Added
+- Add a filter that lets the host skip the pre-connection Stats dashboard. [#54138]
+
+## 0.39.1 - 2026-10-26
+### Changed
+- Admin bar: Load the views chart without relying on the Stats page. [#53831]
+
+## 0.39.0 - 2026-10-12
+### Added
+- Add the jetpack_stats_url filter to the admin bar views chart, the admin bar Stats menu link and the post list Views column, and deprecate jetpack_stats_post_list_column_url in its favor. [#52905]
+- Stats app: Pass the site timezone to the app, so links into the new analytics dashboard keep whole days across daylight-saving changes. [#52905]
+
+### Changed
+- Admin bar: Add the Stats chart from admin_bar_menu, so the admin-bar REST endpoint returns it too. [#53082]
+- Settings: Save the WordPress.com Reader setting through the Stats package, and answer a save the site did not store with a 500 status. [#53357]
+
+### Fixed
+- Post list column: Show view counts on lists with more than 100 posts, such as Pages, instead of leaving them blank. [#53045]
+
+## 0.38.2 - 2026-10-05
+### Fixed
+- Decide the dashboard's paywalls from the site's current features rather than from a plan it cached before its last upgrade. [#52098]
+
+## 0.38.1 - 2026-09-28
+### Fixed
+- Notices: Prevent a dismissed notice from coming back for up to 5 minutes after it is dismissed. [#52599]
+
+## 0.38.0 - 2026-09-23
+### Added
+- Add a REST route to read and change the Stats settings, for the Settings tab in the Stats dashboard. [#52540]
+- Add the views chart and Stats link to the admin bar, and let any plugin that ships Stats add the Stats widget to the WordPress dashboard. [#52528]
+
+## 0.37.0 - 2026-09-21
+### Changed
+- Hide WordPress admin notices on the Stats dashboard, and let hosts show or hide the Stats sidebar entry. [#52351]
+
 ## 0.36.0 - 2026-09-15
 ### Added
 - Notices: Add an `include_details` parameter that returns a detail record per notice, so a dismissal can escalate, and accept a dismissal that omits `postponed_for`. [#52075]
@@ -50,7 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.31.10 - 2026-07-20
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## 0.31.9 - 2026-07-13
 ### Changed
@@ -106,11 +154,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.30.6 - 2026-02-02
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## 0.30.5 - 2026-01-26
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## 0.30.4 - 2025-12-15
 ### Changed
@@ -122,7 +170,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.30.2 - 2025-12-01
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## 0.30.1 - 2025-11-10
 ### Changed
@@ -157,11 +205,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.28.2 - 2025-07-28
 ### Changed
-- Update dependencies. [#39303]
+- Update dependencies.
 
 ## 0.28.1 - 2025-07-21
 ### Changed
-- Update dependencies. [#39303]
+- Update dependencies.
 
 ## 0.28.0 - 2025-07-14
 ### Changed
@@ -184,7 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.26.1 - 2025-05-05
 ### Changed
-- Update dependencies. [#39303]
+- Update dependencies.
 
 ## 0.26.0 - 2025-04-28
 ### Removed
@@ -212,7 +260,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.24.5 - 2025-03-18
 ### Changed
-- Update dependencies. [#39303]
+- Update dependencies.
 
 ## 0.24.4 - 2025-03-12
 ### Changed
@@ -271,7 +319,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.22.1 - 2024-09-23
 ### Changed
-- Update dependencies. [#39303]
+- Update dependencies.
 
 ## 0.22.0 - 2024-09-16
 ### Added

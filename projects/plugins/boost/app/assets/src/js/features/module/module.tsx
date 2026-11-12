@@ -12,6 +12,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { Notice, Link } from '@wordpress/ui';
 import Pill from '$features/ui/pill/pill';
 import ModuleRow from './module-row';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import { useModuleSurface } from './surface';
 import type { ReactNode } from 'react';
 
@@ -79,6 +80,7 @@ const Module = ( {
 
 	const handleToggle = () => {
 		const newState = ! isModuleActive;
+		recordBoostEvent( 'module_toggle_clicked', { module: slug, status: newState ? 'on' : 'off' } );
 		const deactivateMessage = __( 'Deactivating module', 'jetpack-boost' );
 		const activateMessage = __( 'Activating module', 'jetpack-boost' );
 

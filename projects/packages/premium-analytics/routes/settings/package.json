@@ -1,0 +1,8 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-settings-route",
+	"route": {
+		"path": "/settings",
+		"page": "jetpack-premium-analytics"
+	}
+}

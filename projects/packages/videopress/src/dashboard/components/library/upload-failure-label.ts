@@ -21,6 +21,9 @@ export type UploadFailureLabel = {
  * @return {UploadFailureLabel} The summary, plus a cause when one was established.
  */
 export function getUploadFailureLabel( failureReason?: UploadFailureReason ): UploadFailureLabel {
+	if ( failureReason === 'details' ) {
+		return { summary: __( 'Details weren’t saved', 'jetpack-videopress-pkg' ) };
+	}
 	const summary = __( 'Upload failed', 'jetpack-videopress-pkg' );
 
 	// The connection notice above the library carries the diagnosis and the

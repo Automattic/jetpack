@@ -1,5 +1,6 @@
 {
 	"name": "jpa/devices",
+	"icon": "jpa/mobile",
 	"title": "Devices",
 	"description": "Top device types and screen sizes for your visitors.",
 	"help": {

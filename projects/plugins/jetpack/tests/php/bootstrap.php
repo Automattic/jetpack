@@ -121,9 +121,23 @@ if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 
 require __DIR__ . '/lib/mock-functions.php';
 require __DIR__ . '/lib/trait-activates-ai-module.php';
+require __DIR__ . '/lib/trait-reads-block-availability.php';
 require __DIR__ . '/lib/CallableMock.php';
 require __DIR__ . '/_inc/lib/mocks/simplepie.php';
 require $test_root . '/includes/functions.php';
+
+// Suppress PHP 8.6 deprecation warnings from WordPress core.
+// @todo: Remove this when resolved in WP core.
+if ( PHP_VERSION_ID >= 80600 ) {
+	set_error_handler(
+		function ( $errno, $errstr, $errfile = '' ) {
+			return E_DEPRECATED === $errno
+				&& $errstr === 'Function spl_object_hash() is deprecated since 8.6, consider using spl_object_id() instead'
+				&& str_ends_with( $errfile, 'tests/phpunit/includes/functions.php' );
+		},
+		E_ALL
+	);
+}
 
 // Speed things up by turning down the password hashing cost.
 tests_add_filter(
@@ -229,20 +243,6 @@ if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
 
 // Load trait for WP_UnitTestCase PHPUnit 10 compat.
 require_once __DIR__ . '/WP_UnitTestCase_Fix.php';
-
-// Suppress PHP 8.5 deprecation warnings from WordPress core.
-// See here: https://core.trac.wordpress.org/ticket/63061
-// @todo: Remove this when resolved in WP core.
-if ( PHP_VERSION_ID >= 80500 ) {
-	set_error_handler(
-		function ( $errno, $errstr, $errfile = '' ) {
-			return E_DEPRECATED === $errno
-				&& $errstr === 'Using null as an array offset is deprecated, use an empty string instead'
-				&& str_ends_with( $errfile, 'wp-includes/theme.php' );
-		},
-		E_ALL
-	);
-}
 
 require $test_root . '/includes/bootstrap.php';
 

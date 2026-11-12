@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/variables";
 @use "../../shared/styles/jetpack-variables";
 
 // Editor and View styles
@@ -16,7 +16,7 @@
 		margin-inline-end: 0.3em;
 
 		// Mimic core focus style.
-		border-radius: gb.$radius-block-ui;
+		border-radius: variables.$radius-block-ui;
 
 		&:focus {
 			box-shadow: 0 0 0 1px currentColor;

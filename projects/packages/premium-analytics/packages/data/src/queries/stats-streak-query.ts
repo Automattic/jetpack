@@ -14,9 +14,10 @@ export type { StatsStreakResponse };
 export const statsStreakQuery = (
 	params: StatsStreakParams
 ): StatsReportQueryOptions< 'streak' > => {
+	const endDate = params.endDate ?? getDatePart( params.to ) ?? params.end_date ?? params.date;
 	const streakParams: StatsProxyParams = {
 		startDate: params.startDate ?? getDatePart( params.from ) ?? params.start_date,
-		endDate: params.endDate ?? getDatePart( params.to ) ?? params.end_date ?? params.date,
+		endDate,
 		...( params.max !== undefined ? { max: params.max } : {} ),
 	};
 
@@ -26,6 +27,7 @@ export const statsStreakQuery = (
 		endpoint: 'stats/streak',
 		params: streakParams,
 		sanitizer: 'streak',
+		windowEnd: endDate ?? null,
 		enabled: !! ( streakParams.startDate && streakParams.endDate ),
 	} );
 };

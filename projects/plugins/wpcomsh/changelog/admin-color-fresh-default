@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Admin color schemes: Stop labelling the Fresh scheme "Default", which duplicated the Default (Modern) entry on WordPress 7.0.

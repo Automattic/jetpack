@@ -66,20 +66,24 @@ const useStatsVisits = ( blogID: string, isEnabled: boolean, options: StatsVisit
 		return `${ baseEndpoint }?${ queryParams }`;
 	}, [ blogID, queryParams ] );
 
-	const { data, isLoading, error } = useSimpleQuery< StatsVisitsData >( {
-		name: QUERY_STATS_VISITS_KEY,
-		query: { path: endpoint() },
-		options: {
-			enabled: isEnabled,
-			gcTime: 5000,
-			refetchOnMount: 'always',
-		},
-	} );
+	const { data, isLoading, isFetching, isError, error, refetch } =
+		useSimpleQuery< StatsVisitsData >( {
+			name: QUERY_STATS_VISITS_KEY,
+			query: { path: endpoint() },
+			options: {
+				enabled: isEnabled,
+				gcTime: 60_000,
+				staleTime: 60_000,
+			},
+		} );
 
 	return {
 		data,
 		isLoading,
+		isFetching,
+		isError,
 		error,
+		refetch,
 	};
 };
 

@@ -6,10 +6,16 @@ import PricingTable, {
 	PricingTableItem,
 } from '@automattic/jetpack-components/pricing-table';
 import ProductPrice from '@automattic/jetpack-components/product-price';
-import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
+import { getRegistrationErrorSummary } from '@automattic/jetpack-connection/connection-error-message';
 import useConnection from '@automattic/jetpack-connection/use-connection';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { useState } from 'react';
+import { store as noticesStore } from '@wordpress/notices';
+import { Notice } from '@wordpress/ui';
+import { useEffect, useRef, useState } from 'react';
+import useVideoPressCheckout from '../../../client/hooks/use-videopress-checkout';
+import { useUpsellImpression } from '../../hooks/use-upsell-impression';
+import { recordVideoPressUpgradeClick } from '../../hooks/use-videopress-upgrade';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import PageSubTitle from '../page-subtitle';
 import './style.scss';
@@ -17,7 +23,7 @@ import './style.scss';
 /**
  * Pre-connection upsell shown when the site isn't registered yet. A port of the
  * legacy dashboard's pricing table (`PricingSection`): the paid column drives
- * `useProductCheckoutWorkflow` (Get VideoPress), the free column registers the
+ * `useVideoPressCheckout` (Get VideoPress), the free column registers the
  * site and connects the user via `useConnection` (Start for free). Reads the
  * product/price payload from `JPVIDEOPRESS_INITIAL_STATE.pricing`, which the
  * server only populates for disconnected sites.
@@ -33,6 +39,8 @@ export default function PricingUpsell() {
 	const pricing = state?.pricing;
 	const siteSuffix = state?.jetpackStatus?.calypsoSlug ?? '';
 	const redirectUrl = VIDEOPRESS_ADMIN_PAGE;
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Hooks must run before the missing-pricing guard.
+	const impressionRef = useUpsellImpression< HTMLButtonElement >( 'pricing_upsell' );
 
 	// These hooks must run unconditionally (Rules of Hooks) and therefore precede
 	// the `! pricing` guard below, which the gate already makes unreachable in
@@ -40,18 +48,40 @@ export default function PricingUpsell() {
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
-	const { handleRegisterSite, userIsConnecting } = useConnection( {
-		from: 'jetpack-videopress',
-		redirectUri: redirectUrl,
-	} );
+	const { handleRegisterSite, userIsConnecting, registrationError, isOfflineMode } = useConnection(
+		{
+			from: 'jetpack-videopress',
+			redirectUri: redirectUrl,
+		}
+	);
 
-	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+	const { run, hasCheckoutStarted, checkoutError } = useVideoPressCheckout( {
 		productSlug: pricing?.yearly?.slug ?? '',
 		redirectUrl,
 		siteSuffix,
 		useBlogIdSuffix: true,
 		from: 'jetpack-videopress',
 	} );
+
+	const { createErrorNotice } = useDispatch( noticesStore );
+	useEffect( () => {
+		if ( checkoutError ) {
+			createErrorNotice(
+				__( 'Checkout could not start. Please try again.', 'jetpack-videopress-pkg' ),
+				{
+					type: 'snackbar',
+				}
+			);
+		}
+	}, [ checkoutError, createErrorNotice ] );
+
+	// Below the large breakpoint the table stacks, so the notice can be off screen.
+	const noticeRef = useRef< HTMLDivElement >( null );
+	useEffect( () => {
+		if ( registrationError ) {
+			noticeRef.current?.scrollIntoView?.( { block: 'nearest' } );
+		}
+	}, [ registrationError ] );
 
 	if ( ! pricing ) {
 		return null;
@@ -66,6 +96,19 @@ export default function PricingUpsell() {
 			subTitle={ <PageSubTitle /> }
 		>
 			<div className="vp-connection-gate__upsell">
+				{ registrationError && (
+					<Notice.Root
+						ref={ noticeRef }
+						intent="error"
+						role="alert"
+						className="vp-connection-gate__notice"
+					>
+						<Notice.Description>
+							{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
+								__( 'An error occurred. Please try again.', 'jetpack-videopress-pkg' ) }
+						</Notice.Description>
+					</Notice.Root>
+				) }
 				<PricingTable title={ title } items={ pricingItems }>
 					<PricingTableColumn primary>
 						<PricingTableHeader>
@@ -85,7 +128,11 @@ export default function PricingUpsell() {
 								currency={ yearly.currency }
 							/>
 							<Button
-								onClick={ () => run() }
+								ref={ impressionRef }
+								onClick={ () => {
+									recordVideoPressUpgradeClick( 'pricing_upsell' );
+									run();
+								} }
 								isLoading={ hasCheckoutStarted }
 								fullWidth
 								disabled={ isConnecting || hasCheckoutStarted || userIsConnecting }
@@ -106,7 +153,7 @@ export default function PricingUpsell() {
 								variant="secondary"
 								onClick={ () => {
 									setIsConnecting( true );
-									handleRegisterSite();
+									handleRegisterSite().catch( () => setIsConnecting( false ) );
 								} }
 								isLoading={ userIsConnecting || isConnecting }
 								disabled={ userIsConnecting || isConnecting || hasCheckoutStarted }

@@ -4,7 +4,7 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
-import { defaultTheme } from '../themes';
+import { createPaletteGenerator } from '../private/palette-generator';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { SeriesData } from '../../../types';
 import type { GlobalChartsContextValue } from '../types';
@@ -1167,12 +1167,9 @@ describe( 'ChartContext', () => {
 				legendShape: 'rect',
 			} );
 
-			// Should get theme legend shape styles (not line styles), with the comparison bar
-			// opacity layered on so the swatch matches the translucent comparison bar.
 			expect( styles.shapeStyles ).toEqual( {
 				fill: '#LEGEND1',
 				stroke: '#BORDER1',
-				opacity: 0.5,
 			} );
 		} );
 	} );
@@ -1318,11 +1315,11 @@ describe( 'ChartContext', () => {
 			expect( styles ).toHaveProperty( 'glyph' );
 			expect( styles ).toHaveProperty( 'shapeStyles' );
 
-			// Verify types
+			// A series without an `options` key is still a series, so theme styles apply.
 			expect( typeof styles.color ).toBe( 'string' );
-			expect( typeof styles.lineStyles ).toBe( 'object' );
-			expect( typeof styles.glyph ).toBe( 'function' );
-			expect( typeof styles.shapeStyles ).toBe( 'object' );
+			expect( styles.lineStyles ).toEqual( { strokeWidth: 2 } );
+			expect( styles.glyph ).toBe( mockGlyph );
+			expect( styles.shapeStyles ).toEqual( { fill: '#SHAPE1' } );
 		} );
 
 		it( 'returns complete ElementStyles object for DataPointPercentage', () => {
@@ -1893,12 +1890,21 @@ describe( 'ChartContext', () => {
 			return <div>Test</div>;
 		};
 
-		const renderWithSlots = ( slots: Array< string | undefined > ) => {
+		const renderWithSlots = (
+			slots: Array< string | undefined >,
+			extraRoles?: Record< string, string >
+		) => {
 			slots.forEach( ( color, slot ) => {
 				if ( color !== undefined ) {
 					container.style.setProperty( `--a8c-charts-color-series-${ slot + 1 }`, color );
 				}
 			} );
+
+			if ( extraRoles ) {
+				Object.entries( extraRoles ).forEach( ( [ property, value ] ) =>
+					container.style.setProperty( property, value )
+				);
+			}
 
 			return render(
 				<GlobalChartsProvider>
@@ -1990,19 +1996,16 @@ describe( 'ChartContext', () => {
 		} );
 
 		describe( 'Error Handling', () => {
-			it( 'keeps an unparseable value without crashing', () => {
+			it( 'compacts out an unparseable value without crashing', () => {
 				expect( () => renderWithSlots( [ '#invalid', '#ff0000' ] ) ).not.toThrow();
 
-				expect( colorAt( 0 ) ).toBe( '#invalid' );
-				expect( colorAt( 1 ) ).toBe( '#ff0000' );
+				expect( colorAt( 0 ) ).toBe( '#ff0000' );
 			} );
 
-			it( 'keeps malformed hex values without crashing', () => {
+			it( 'compacts out malformed hex values without crashing', () => {
 				expect( () => renderWithSlots( [ '#ff', '#gggggg', '#00ff00' ] ) ).not.toThrow();
 
-				expect( colorAt( 0 ) ).toBe( '#ff' );
-				expect( colorAt( 1 ) ).toBe( '#gggggg' );
-				expect( colorAt( 2 ) ).toBe( '#00ff00' );
+				expect( colorAt( 0 ) ).toBe( '#00ff00' );
 			} );
 
 			it( 'keeps resolving the later slots after one fails to convert', () => {
@@ -2034,6 +2037,79 @@ describe( 'ChartContext', () => {
 			} );
 		} );
 
+		describe( 'Background-aware generation', () => {
+			const seed = '#3858e9';
+			const labels = [ '#1e1e1e', '#f0f0f0' ];
+
+			it( 'wires the resolved dark background into the generator', () => {
+				// Fixture guard: proves index 1 actually depends on the background for this seed,
+				// so a match below can't pass by coincidence.
+				const onDark = createPaletteGenerator( [ seed ], '#1e1e1e', labels )( 1 );
+				const onLight = createPaletteGenerator( [ seed ], '#ffffff', labels )( 1 );
+				expect( onDark ).not.toBe( onLight );
+
+				renderWithSlots( [ seed ], { '--a8c-charts-color-background': '#1e1e1e' } );
+
+				expect( colorAt( 1 ) ).toBe( onDark );
+			} );
+
+			it( 'falls back to a white background when the resolved value does not normalize to hex', () => {
+				renderWithSlots( [ seed ], { '--a8c-charts-color-background': 'not-a-real-color' } );
+
+				expect( colorAt( 1 ) ).toBe( createPaletteGenerator( [ seed ], '#ffffff', labels )( 1 ) );
+			} );
+
+			it( 'falls back to a white background when the background is transparent', () => {
+				const onWhite = createPaletteGenerator( [ seed ], '#ffffff', labels )( 1 );
+				const onBlack = createPaletteGenerator( [ seed ], '#000000', labels )( 1 );
+				expect( onWhite ).not.toBe( onBlack );
+
+				renderWithSlots( [ seed ], { '--a8c-charts-color-background': 'transparent' } );
+
+				expect( colorAt( 1 ) ).toBe( onWhite );
+			} );
+
+			it( 'falls back to a white background when the background is a translucent color', () => {
+				const onWhite = createPaletteGenerator( [ seed ], '#ffffff', labels )( 1 );
+				const onBlack = createPaletteGenerator( [ seed ], '#000000', labels )( 1 );
+				expect( onWhite ).not.toBe( onBlack );
+
+				renderWithSlots( [ seed ], { '--a8c-charts-color-background': 'rgba(0, 0, 0, 0.5)' } );
+
+				expect( colorAt( 1 ) ).toBe( onWhite );
+			} );
+
+			it( 'wires the resolved label colors into the generator, leaving out a see-through one', () => {
+				const firstSix = ( at: ( index: number ) => string ) =>
+					Array.from( { length: 6 }, ( _, index ) => at( index ) );
+				const inverseOnly = firstSix(
+					createPaletteGenerator( [ seed ], '#ffffff', [ '#f0f0f0' ] )
+				);
+				expect( inverseOnly ).not.toEqual(
+					firstSix( createPaletteGenerator( [ seed ], '#ffffff', labels ) )
+				);
+
+				renderWithSlots( [ seed ], { '--a8c-charts-color-label': 'transparent' } );
+
+				expect( firstSix( colorAt ) ).toEqual( inverseOnly );
+			} );
+
+			it( 'uses the resolved background for group colors when no seed resolves', () => {
+				const background = '#1e1e1e';
+
+				// An unparseable slot 1 keeps the resolved palette empty even after resolution;
+				// an unset slot 1 would instead fall back to its own terminal literal.
+				renderWithSlots( [ '#invalid' ], { '--a8c-charts-color-background': background } );
+
+				const groupColor = contextValue.getElementStyles( {
+					data: createMockDataWithGroup( 'test-group' ),
+					index: 0,
+				} ).color;
+
+				expect( groupColor ).toBe( createPaletteGenerator( [], background, labels )( 0 ) );
+			} );
+		} );
+
 		describe( 'Server-Side Rendering', () => {
 			// Slot 1's terminal literal is the palette's only carrier under SSR.
 			it( 'falls back to the seed when getComputedStyle is unavailable', () => {
@@ -2061,15 +2137,6 @@ describe( 'ChartContext', () => {
 
 				expect( colorAt( 0 ) ).toBe( initialColor );
 				expect( colorAt( 0 ) ).toBe( '#ff0000' );
-			} );
-		} );
-	} );
-
-	describe( 'defaultTheme', () => {
-		it( 'exposes default barChart comparison styles', () => {
-			expect( defaultTheme.barChart.barStyles.comparison ).toEqual( {
-				widthFactor: 1.5,
-				opacity: 0.5,
 			} );
 		} );
 	} );

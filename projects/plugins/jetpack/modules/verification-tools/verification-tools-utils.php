@@ -10,7 +10,7 @@ if ( ! function_exists( 'jetpack_verification_extract_code' ) ) {
 	/**
 	 * Extract a site verification code from a meta tag.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @param string $code Verification meta tag.
 	 * @return string|false Extracted code, or false when none is found.
@@ -27,7 +27,7 @@ if ( ! function_exists( 'jetpack_verification_validate_code' ) ) {
 	/**
 	 * Validate and normalize a site verification code.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @param mixed $code Verification code or meta tag.
 	 * @return string|false Normalized code, or false when invalid.
@@ -63,7 +63,7 @@ if ( ! function_exists( 'jetpack_verification_validate_codes' ) ) {
 	/**
 	 * Validate jetpack verification codes.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @param array $verification_services_codes - array of verification codes.
 	 * @return array Validated verification codes.

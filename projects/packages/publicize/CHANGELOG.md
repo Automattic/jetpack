@@ -5,6 +5,100 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.88.10] - 2026-11-09
+### Changed
+- Connections list: Use the design system switch for the connection toggles. [#54512]
+- Sharing activity: Use the design system tooltip for share times. [#54512]
+- Update package dependencies. [#54391] [#54512]
+
+## [0.88.9] - 2026-11-02
+### Changed
+- Overview: Replace the traffic chart's date range dropdown with a menu button. [#54203]
+- Update package dependencies. [#53869]
+
+### Fixed
+- Prevent PHP errors by limiting direct access to files. [#54244]
+- Sharing activity: Focus Cancel first in the Delete confirmation for a scheduled share, so pressing Enter no longer deletes it. [#54408]
+
+## [0.88.8] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [0.88.7] - 2026-10-26
+### Changed
+- Update package dependencies. [#53951]
+
+### Fixed
+- Social: Explain why connecting the site failed instead of always showing a generic error. [#53289]
+
+## [0.88.6] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004] [#53806]
+
+## [0.88.5] - 2026-10-14
+### Changed
+- Update dependencies. [#53618]
+
+### Fixed
+- Fix low-contrast placeholder chips in the share message help text and the available placeholders list. [#53615]
+
+## [0.88.4] - 2026-10-12
+### Changed
+- Internal updates.
+
+## [0.88.3] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [0.88.2] - 2026-10-05
+### Changed
+- Update package dependencies. [#52999]
+
+### Fixed
+- Connections: Let a Facebook or Instagram connection with no Page or account saved pick one when reconnecting. [#52963]
+- Fix post updates failing when Social post meta has duplicate rows. [#52910]
+
+## [0.88.1] - 2026-09-29
+### Changed
+- Use core SnackbarNotices instead of Jetpack GlobalNotices. [#52193]
+
+### Fixed
+- Dashboard: Stop logging a console error about missing Jetpack configuration. [#52809]
+
+## [0.88.0] - 2026-09-28
+### Changed
+- Keyring: Stop passing Settings > Sharing as the return page of a connection request. [#52658]
+- Load admin script data on the new Jetpack Settings page. [#52589]
+- Show the Jetpack in-dashboard message above the tabs, from the shared slot. [#52641]
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Deprecated
+- Deprecate `Publicize::admin_page_load()` and `Publicize::display_connection_error()`. [#52658]
+- Deprecate `Publicize::force_user_connection()` and `Publicize::admin_page_warning()`, which backed the account-linking notice on Settings > Sharing. [#52407]
+- Deprecate `Publicize_Base::get_available_service_data()`, which now always returns an empty array; services and their connect URLs come from the `publicize/services` REST endpoint. [#52697]
+
+### Removed
+- Remove the connection-error notice from Settings > Sharing. [#52658]
+- Remove the retired Publicize services from `Keyring_Helper::SERVICES`, leaving Google Site Verification as the only service connected from the site. [#52658]
+- Remove the unreachable connection-completed branch of the Keyring request handler. [#52658]
+- Remove the WordPress.com account-linking notice from Settings > Sharing. [#52407]
+- Remove the `Publicize_UI` methods deprecated in 0.42.3: `sharing_menu()`, `wrapper_admin_page()`, `management_page()`, `load_assets()` and `admin_page()`. [#52697]
+- Services: Remove the legacy `ID`, `connect_URL`, `external_users_only` and `multiple_external_user_ID_support` fields from the services list on Jetpack sites. [#52697]
+
+### Fixed
+- Exclude `build/assets/index.d.ts` from published package. [#52650]
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+
+## [0.87.1] - 2026-09-21
+### Changed
+- Connections: Open the Instagram Business help link as the WordPress.com support doc inside the Help Center on WordPress.com sites. [#52436]
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Bluesky: Pre-fill the handle field when reconnecting an account. [#52187]
+- Dashboard: Target contextual messages at the Social screen again, and show them on every tab. [#52471]
+
 ## [0.87.0] - 2026-09-15
 ### Added
 - Connections: Add a REST endpoint to receive updated connections from WordPress.com. [#52128]
@@ -347,7 +441,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.73.1] - 2026-03-02
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.73.0] - 2026-02-26
 ### Added
@@ -493,7 +587,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.67.6] - 2025-11-24
 ### Changed
-- Update dependencies. [#45745]
+- Update dependencies.
 
 ## [0.67.5] - 2025-11-21
 ### Fixed
@@ -501,11 +595,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.67.4] - 2025-11-19
 ### Changed
-- Update dependencies. [#45745]
+- Update dependencies.
 
 ## [0.67.3] - 2025-11-18
 ### Changed
-- Update dependencies. [#45745]
+- Update dependencies.
 
 ## [0.67.2] - 2025-11-17
 ### Changed
@@ -522,7 +616,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.66.19] - 2025-10-27
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.66.18] - 2025-10-20
 ### Fixed
@@ -530,7 +624,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.66.17] - 2025-10-10
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.66.16] - 2025-10-06
 ### Changed
@@ -538,11 +632,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.66.15] - 2025-09-29
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.66.14] - 2025-09-22
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.66.13] - 2025-09-19
 ### Changed
@@ -569,7 +663,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.66.8] - 2025-08-18
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.66.7] - 2025-08-14
 ### Changed
@@ -619,11 +713,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.65.7] - 2025-06-30
 ### Changed
-- Update dependencies. [#44061]
+- Update dependencies.
 
 ## [0.65.6] - 2025-06-24
 ### Changed
-- Update dependencies. [#44061]
+- Update dependencies.
 
 ## [0.65.5] - 2025-06-23
 ### Changed
@@ -632,7 +726,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.65.4] - 2025-06-16
 ### Changed
-- Update dependencies. [#42943]
+- Update dependencies.
 
 ## [0.65.3] - 2025-06-05
 ### Changed
@@ -1649,6 +1743,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.88.10]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.9...v0.88.10
+[0.88.9]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.8...v0.88.9
+[0.88.8]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.7...v0.88.8
+[0.88.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.6...v0.88.7
+[0.88.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.5...v0.88.6
+[0.88.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.4...v0.88.5
+[0.88.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.3...v0.88.4
+[0.88.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.2...v0.88.3
+[0.88.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.1...v0.88.2
+[0.88.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.0...v0.88.1
+[0.88.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.87.1...v0.88.0
+[0.87.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.87.0...v0.87.1
 [0.87.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.86.2...v0.87.0
 [0.86.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.86.1...v0.86.2
 [0.86.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.86.0...v0.86.1

@@ -20,7 +20,6 @@ import { render, screen } from '@testing-library/react';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { keys, queryClient } from '../src/dashboard/data/query-client';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
-import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -28,8 +27,8 @@ const BACKUP_REWIND_ID = '1786644531.100';
 const RESTORE_ROW_ID = 'restore-912682';
 // 14:11 UTC; read as local time on the GMT-3 runner it would render three hours late.
 const RESTORE_WHEN = '2026-09-03 14:11:00';
-const RESTORE_RENDERED_AT = 'Sep 3, 2026, 2:11 PM';
-const RESTORE_READ_AS_LOCAL = 'Sep 3, 2026, 5:11 PM';
+const RESTORE_RENDERED_AT = 'September 3, 2026 2:11 pm';
+const RESTORE_READ_AS_LOCAL = 'September 3, 2026 5:11 pm';
 
 const NOT_ON_THIS_PAGE =
 	"That item isn't on this page of the activity log. It may be on another page, or no longer available.";
@@ -65,24 +64,17 @@ function activityRows() {
 /**
  * Point every route the Overview reads at a fixed set of answers.
  *
- * @param options            - Fixture options.
- * @param options.restores   - What `/jetpack/v4/restores` resolves with.
- * @param options.standalone - Whether the standalone plugin is active, which is what
- *                           opens the review prompt's own read of the collection.
- * @param options.activity   - 'ok' to answer the rewindable feed, 'error' to 5xx it.
+ * @param options          - Fixture options.
+ * @param options.restores - What `/jetpack/v4/restores` resolves with.
+ * @param options.activity - 'ok' to answer the rewindable feed, 'error' to 5xx it.
  */
-function mockEndpoints( {
-	restores = [] as unknown,
-	standalone = false,
-	activity = 'ok' as 'ok' | 'error',
-} = {} ) {
+function mockEndpoints( { restores = [] as unknown, activity = 'ok' as 'ok' | 'error' } = {} ) {
 	mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
 		const path = o?.path ?? '';
 		if ( path.includes( '/site/capabilities' ) ) {
 			return Promise.resolve( {
 				hasBackupPlan: true,
 				hasScan: false,
-				local: { isStandalonePluginActive: standalone },
 			} );
 		}
 		if ( path.includes( '/site/rewindable-activity' ) ) {
@@ -146,8 +138,6 @@ async function rowTexts(): Promise< string[] > {
 }
 
 beforeEach( () => {
-	resetListStateForTesting();
-
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 
@@ -190,21 +180,13 @@ describe( 'a restore that has already ended', () => {
 		render( <OverviewStage /> );
 		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
 
-		expect( screen.getByText( 'Restore to Aug 13, 2026, 6:08 PM' ) ).toBeVisible();
+		expect( screen.getByText( 'Restore to August 13, 2026 6:08 pm' ) ).toBeVisible();
 	} );
 
 	it( 'reads the collection once for the whole screen', async () => {
 		render( <OverviewStage /> );
 		// Witness: the row is on screen, so the single request below is one
 		// that answered rather than one nobody made.
-		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
-
-		expect( requestedPaths( '/jetpack/v4/restores' ) ).toHaveLength( 1 );
-	} );
-
-	it( 'still reads it once when the review prompt reads it too', async () => {
-		mockEndpoints( { restores: [ failedRestore() ], standalone: true } );
-		render( <OverviewStage /> );
 		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
 
 		expect( requestedPaths( '/jetpack/v4/restores' ) ).toHaveLength( 1 );

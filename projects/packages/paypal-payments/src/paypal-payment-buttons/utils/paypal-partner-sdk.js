@@ -26,6 +26,22 @@ const ANCHOR_BINDING_TIMEOUT_MS = 10000;
 export const ONBOARD_CALLBACK_NAME = 'jetpackPayPalOnboardComplete';
 
 /**
+ * The `type` of the message the plugin's return page posts when PayPal sends
+ * the seller back to it. Mirrors PayPal_Payment_Buttons::ONBOARDING_RETURN_MESSAGE.
+ */
+export const ONBOARDING_RETURN_MESSAGE = 'jetpack-paypal-onboarding-return';
+
+/**
+ * The page PayPal sends the seller back to, or the editor itself when the
+ * plugin did not provide one.
+ *
+ * @return {string} The return URL.
+ */
+export function getOnboardingReturnUrl() {
+	return window.jetpackPayPalPayments?.onboardingReturnUrl || window.location.href;
+}
+
+/**
  * Sandbox flags for the frame PayPal's lightbox opens in.
  *
  * `allow-top-navigation` is deliberately absent: without it the browser blocks
@@ -87,6 +103,33 @@ export function loadPartnerScript( environment, doc ) {
 		);
 		doc.body.appendChild( script );
 	} );
+}
+
+/**
+ * Report a popup the browser refuses to open from PayPal's frame.
+ *
+ * The mini-browser is a popup the SDK opens from the frame it runs in, so the
+ * popup blocker still applies, and it is silent: open() hands back null and
+ * nothing else happens.
+ *
+ * @param {Window}   realm     - The window PayPal's SDK runs in.
+ * @param {Function} onBlocked - Called when open() returns nothing.
+ * @return {Function} Puts the realm's own open() back.
+ */
+export function watchForBlockedPopup( realm, onBlocked ) {
+	const nativeOpen = realm.open;
+
+	realm.open = ( ...args ) => {
+		const popup = nativeOpen.apply( realm, args );
+		if ( ! popup ) {
+			onBlocked();
+		}
+		return popup;
+	};
+
+	return () => {
+		realm.open = nativeOpen;
+	};
 }
 
 /**

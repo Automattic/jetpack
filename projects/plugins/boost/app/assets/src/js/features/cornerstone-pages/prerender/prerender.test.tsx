@@ -17,15 +17,16 @@ jest.mock( '$features/notice/context', () => ( {
 	useNotices: () => ( { setNotice: mockSetNotice } ),
 } ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
-jest.mock( '@automattic/jetpack-components', () => ( {
-	getRedirectUrl: ( slug: string ) => `https://jetpack.com/redirect/?source=${ slug }`,
-	IconTooltip: ( { forceShow, children }: { forceShow: boolean; children: React.ReactNode } ) =>
-		forceShow ? <div role="tooltip">{ children }</div> : null,
-} ) );
 
 let mockState: { active: boolean; available: boolean } | undefined;
 const mockSetState = jest.fn();
 const mockSetNotice = jest.fn();
+
+// speak() also writes the warning into `@wordpress/a11y`'s live region, so match the tooltip only.
+const warning = () =>
+	screen.queryByText( /Prerendering pages can be unsafe/, {
+		ignore: '#a11y-speak-polite, script, style',
+	} );
 
 const renderPrerender = ( row: boolean ) =>
 	render(
@@ -81,6 +82,25 @@ describe( 'Prerender', () => {
 		);
 	} );
 
+	it.each( [ false, true ] )( 'closes the warning with Escape (row: %s)', row => {
+		renderPrerender( row );
+		const trigger = screen.getByRole( 'button', { name: 'be mindful' } );
+		trigger.focus();
+		fireEvent.click( trigger );
+		expect( warning() ).toBeTruthy();
+		fireEvent.keyDown( trigger, { key: 'Escape' } );
+		expect( warning() ).toBeNull();
+		expect( trigger.ownerDocument.activeElement ).toBe( trigger );
+		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+	} );
+
+	it( 'closes the warning on a press elsewhere', () => {
+		renderPrerender( false );
+		fireEvent.click( screen.getByRole( 'button', { name: 'be mindful' } ) );
+		fireEvent.pointerDown( document.body );
+		expect( warning() ).toBeNull();
+	} );
+
 	it( 'reflects an enabled module', () => {
 		mockState = { active: true, available: true };
 		renderPrerender( false );
@@ -92,18 +112,16 @@ describe( 'Prerender', () => {
 		const { recordBoostEvent } = jest.requireMock( '$lib/utils/analytics' );
 		renderPrerender( false );
 
-		expect( screen.queryByRole( 'tooltip' ) ).toBeNull();
-		fireEvent.click( screen.getByRole( 'link', { name: 'be mindful' } ) );
+		expect( warning() ).toBeNull();
+		fireEvent.click( screen.getByRole( 'button', { name: 'be mindful' } ) );
 
 		expect( recordBoostEvent ).toHaveBeenCalledWith( 'prerender_warning_message_clicked', {} );
-		expect( screen.getByRole( 'tooltip' ).textContent ).toContain(
-			'Prerendering pages can be unsafe'
-		);
+		expect( warning() ).toBeTruthy();
 		expect( screen.getByRole( 'link', { name: /^Learn more/ } ).getAttribute( 'href' ) ).toContain(
 			'jetpack-boost-unsafe-speculation-rules'
 		);
 
-		fireEvent.click( screen.getByRole( 'link', { name: 'be mindful' } ) );
-		expect( screen.queryByRole( 'tooltip' ) ).toBeNull();
+		fireEvent.click( screen.getByRole( 'button', { name: 'be mindful' } ) );
+		expect( warning() ).toBeNull();
 	} );
 } );

@@ -28,6 +28,7 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		remove_all_filters( Admin_UI::CHAPTERS_EDITOR_FILTER );
+		remove_all_filters( 'jetpack_videopress_trim_cut' );
 		unset( $GLOBALS[ self::ROUTES_GLOBAL ] );
 	}
 
@@ -96,6 +97,23 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 		$this->assertTrue( Admin_UI::is_chapters_editor_enabled() );
 	}
 
+	/** Test trim and cut is generally available. */
+	public function test_trim_cut_defaults_to_enabled() {
+		$this->assertTrue( Admin_UI::is_trim_cut_enabled() );
+	}
+
+	/** Test trim and cut keeps the shared route when chapters are disabled. */
+	public function test_trim_cut_enabled_keeps_editor_route_without_chapters() {
+		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_false' );
+		$fixture                        = $this->get_fixture_routes();
+		$GLOBALS[ self::ROUTES_GLOBAL ] = $fixture;
+
+		Admin_UI::maybe_strip_chapters_editor_routes();
+
+		$this->assertTrue( Admin_UI::is_trim_cut_enabled() );
+		$this->assertSame( $fixture, $GLOBALS[ self::ROUTES_GLOBAL ] );
+	}
+
 	/** Tests that the editor route is the only path the constant covers. */
 	public function test_chapters_editor_route_paths_covers_only_the_editor_route() {
 		$this->assertSame( array( '/video/$id/editor' ), Admin_UI::CHAPTERS_EDITOR_ROUTE_PATHS );
@@ -117,21 +135,15 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 		$this->assertSame( array( array( 'name' => 'pathless' ) ), $stripped );
 	}
 
-	/**
-	 * Opt out of the now-default-on chapters editor.
-	 *
-	 * Every guard below the early return in `maybe_strip_chapters_editor_routes()`
-	 * is only reachable with the feature disabled, so these tests have to turn it
-	 * off explicitly — without this they would pass vacuously, returning before
-	 * touching the code they exist to cover.
-	 */
-	private function disable_chapters_editor() {
+	/** Disable both editors so route-stripping guards are exercised. */
+	private function disable_editors() {
 		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_false' );
+		add_filter( 'jetpack_videopress_trim_cut', '__return_false' );
 	}
 
 	/** Tests that the registry global loses the editor route when the filter is off. */
 	public function test_maybe_strip_chapters_editor_routes_strips_global_when_off() {
-		$this->disable_chapters_editor();
+		$this->disable_editors();
 
 		$GLOBALS[ self::ROUTES_GLOBAL ] = $this->get_fixture_routes();
 
@@ -152,7 +164,7 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 
 	/** Tests that a missing registry global does not error. */
 	public function test_maybe_strip_chapters_editor_routes_missing_global_does_not_error() {
-		$this->disable_chapters_editor();
+		$this->disable_editors();
 
 		unset( $GLOBALS[ self::ROUTES_GLOBAL ] );
 
@@ -163,7 +175,7 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 
 	/** Tests that an empty registry global does not error and stays empty. */
 	public function test_maybe_strip_chapters_editor_routes_empty_global_does_not_error() {
-		$this->disable_chapters_editor();
+		$this->disable_editors();
 
 		$GLOBALS[ self::ROUTES_GLOBAL ] = array();
 
@@ -174,7 +186,7 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 
 	/** Tests that a non-array registry global is left untouched (graceful degradation). */
 	public function test_maybe_strip_chapters_editor_routes_non_array_global_does_not_error() {
-		$this->disable_chapters_editor();
+		$this->disable_editors();
 
 		$GLOBALS[ self::ROUTES_GLOBAL ] = 'not-an-array';
 

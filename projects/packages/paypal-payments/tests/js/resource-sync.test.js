@@ -8,11 +8,13 @@ import metadata from '../../src/paypal-payment-buttons/block.json';
 import {
 	GATED_ATTRIBUTES,
 	getResourceAttributeUpdates,
+	isBookkeeping,
 	normalizeResourceVariants,
 	RESOURCE_ATTRIBUTES,
 	resetToDefaults,
 	turnGateOff,
 	withCurrency,
+	withPrimaryDimension,
 } from '../../src/paypal-payment-buttons/utils/resource-sync';
 
 const blockAttributes = {
@@ -89,6 +91,18 @@ describe( 'getResourceAttributeUpdates', () => {
 				resourceAttributes
 			)
 		).toEqual( { productDescription: '', productId: '', returnUrl: '' } );
+	} );
+
+	it( 'keeps the block link when the payment comes back with an empty link', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, { ...resourceAttributes, paymentLink: '' } )
+		).toEqual( {} );
+	} );
+
+	it( 'fills in the link for a block with an empty link', () => {
+		expect(
+			getResourceAttributeUpdates( { ...blockAttributes, paymentLink: '' }, resourceAttributes )
+		).toEqual( { paymentLink: resourceAttributes.paymentLink } );
 	} );
 
 	it( 'reads the product id back from the payment', () => {
@@ -256,7 +270,8 @@ describe( 'getResourceAttributeUpdates', () => {
 		expect( getResourceAttributeUpdates( current, fromResource ) ).toEqual( {} );
 	} );
 
-	it( 'treats editor keys and empty per-option amounts as no difference', () => {
+	// The save flags the first group for PayPal, so the flag comes back on an unpriced group.
+	it( 'treats editor keys, empty amounts and an unpriced primary flag as no difference', () => {
 		const current = {
 			...blockAttributes,
 			variantsEnabled: true,
@@ -265,7 +280,7 @@ describe( 'getResourceAttributeUpdates', () => {
 					{
 						_key: 'vb-1',
 						name: 'Size',
-						primary: true,
+						primary: false,
 						options: [
 							{ _key: 'vb-2', label: 'Small', unit_amount: { currency_code: 'USD', value: '' } },
 							{ _key: 'vb-3', label: 'Large', unit_amount: { currency_code: 'USD', value: '' } },
@@ -296,7 +311,6 @@ describe( 'a block built from a fully populated payment', () => {
 		productName: 'Widget',
 		currencyCode: 'USD',
 		productDescription: 'A fine widget.',
-		imageUrl: 'https://example.com/widget.png',
 		variantsEnabled: true,
 		variants: {
 			dimensions: [
@@ -397,11 +411,57 @@ describe( 'normalizeResourceVariants', () => {
 		const normalized = normalizeResourceVariants( {
 			dimensions: [
 				{ name: 'Color', primary: false, options: [ { label: 'Red' } ] },
-				{ name: 'Size', primary: true, options: [ { label: 'Small' } ] },
+				{
+					name: 'Size',
+					primary: true,
+					options: [ { label: 'Small', unit_amount: { currency_code: 'USD', value: '12.50' } } ],
+				},
 			],
 		} );
 
 		expect( normalized.dimensions.map( dim => dim.primary ) ).toEqual( [ false, true ] );
+	} );
+
+	// PayPal flags a group on every payment, priced or not, and the save flags the first
+	// one itself, so an unpriced flag must not reopen the form with pricing on.
+	it( 'drops the flag from a group that carries no price', () => {
+		const normalized = normalizeResourceVariants( {
+			dimensions: [
+				{ name: 'Color', primary: true, options: [ { label: 'Red' } ] },
+				{ name: 'Size', primary: false, options: [ { label: 'Small' } ] },
+			],
+		} );
+
+		expect( normalized.dimensions.map( dim => dim.primary ) ).toEqual( [ false, false ] );
+	} );
+} );
+
+describe( 'withPrimaryDimension', () => {
+	it( 'flags the first group when none is', () => {
+		const variants = withPrimaryDimension( {
+			dimensions: [
+				{ name: 'Color', primary: false, options: [ { label: 'Red' } ] },
+				{ name: 'Size', options: [ { label: 'Small' } ] },
+			],
+		} );
+
+		expect( variants.dimensions.map( dim => dim.primary ) ).toEqual( [ true, false ] );
+	} );
+
+	it( 'leaves a flagged group where it is', () => {
+		const variants = {
+			dimensions: [
+				{ name: 'Color', primary: false, options: [ { label: 'Red' } ] },
+				{ name: 'Size', primary: true, options: [ { label: 'Small' } ] },
+			],
+		};
+
+		expect( withPrimaryDimension( variants ) ).toBe( variants );
+	} );
+
+	it( 'passes empty variants through', () => {
+		expect( withPrimaryDimension( null ) ).toBeNull();
+		expect( withPrimaryDimension( { dimensions: [] } ) ).toEqual( { dimensions: [] } );
 	} );
 } );
 
@@ -460,9 +520,12 @@ describe( 'GATED_ATTRIBUTES', () => {
 		'productId',
 		'customerNotes',
 		'returnUrl',
-		// Shown under the shipping toggle, but PayPal stores it on every payment, so the
-		// toggle leaves it alone.
+		// The address toggle is separate from shipping fees, so no gate clears it.
 		'collectShippingAddress',
+		// Both come off the payment rather than a form field, so a gate would have
+		// nothing to open or close.
+		'integrationMode',
+		'scriptSrc',
 	];
 
 	it( 'accounts for every resource attribute exactly once', () => {
@@ -480,6 +543,11 @@ describe( 'GATED_ATTRIBUTES', () => {
 		];
 
 		named.forEach( key => expect( metadata.attributes ).toHaveProperty( key ) );
+
+		// The resource attributes too, which overlap but are a separate list: the
+		// read-back falls back to the block.json default, so one missing from
+		// block.json resolves to undefined and never settles.
+		RESOURCE_ATTRIBUTES.forEach( key => expect( metadata.attributes ).toHaveProperty( key ) );
 	} );
 
 	it( 'resets an attribute to its block.json default', () => {
@@ -506,7 +574,6 @@ describe( 'GATED_ATTRIBUTES', () => {
 				shippingMode: 'QUANTITY',
 				shippingValue: '5.00',
 				shippingAdditionalValue: '2.00',
-				collectShippingAddress: true,
 				maxQuantity: 25,
 				variants: { dimensions: [ { name: 'Size', options: [] } ] },
 			};
@@ -524,4 +591,35 @@ describe( 'GATED_ATTRIBUTES', () => {
 			).toEqual( {} );
 		}
 	);
+} );
+
+describe( 'isBookkeeping', () => {
+	// A link block sharing the payment with a stacked one takes BUTTON on mount,
+	// which is the payment's doing rather than the merchant's.
+	it( 'counts a mode change as bookkeeping whatever the block had', () => {
+		expect( isBookkeeping( 'integrationMode', '' ) ).toBe( true );
+		expect( isBookkeeping( 'integrationMode', 'LINK' ) ).toBe( true );
+	} );
+
+	it( 'counts a first SDK URL on a stacked block as bookkeeping', () => {
+		expect( isBookkeeping( 'scriptSrc', '', 'STACKED' ) ).toBe( true );
+		expect( isBookkeeping( 'scriptSrc', undefined, 'STACKED' ) ).toBe( true );
+	} );
+
+	it( 'counts a cleared SDK URL on a link block as bookkeeping', () => {
+		// scriptSrc is written to every block sharing the payment, and only a stacked
+		// sibling draws with it.
+		expect( isBookkeeping( 'scriptSrc', 'https://www.paypal.test/sdk/js', 'LINK' ) ).toBe( true );
+	} );
+
+	// The payment lost BUTTON mode at PayPal, so the stacked block has nothing to draw.
+	it( 'leaves a cleared SDK URL on a stacked block for the merchant', () => {
+		expect( isBookkeeping( 'scriptSrc', 'https://www.paypal.com/sdk/js', 'STACKED' ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'leaves a price change for the merchant', () => {
+		expect( isBookkeeping( 'price', metadata.attributes.price.default ) ).toBe( false );
+	} );
 } );

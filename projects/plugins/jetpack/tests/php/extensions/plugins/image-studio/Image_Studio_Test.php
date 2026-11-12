@@ -99,6 +99,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
+		remove_filter( 'jetpack_active_modules', array( 'Jetpack_AI_Settings', 'drop_ai_module' ), 100 );
 		delete_option( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
@@ -586,20 +587,19 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a jetpack_ai_enabled kill-switch filter does not take Image
-	 * Studio down in Big Sky/CIAB environments. The environment enable predates
-	 * the master gates and never consulted the filter chain there — on
-	 * WordPress.com, Big Sky's free-trial __return_false callback targets the
-	 * AI Assistant sidebar only, while Image Studio stays offered so Jetpack
-	 * keeps signalling Big Sky to defer its own copy. Only the host gate, the
-	 * master option, and the per-feature toggles may turn it off.
+	 * Same as test_master_option_off_disables_image_studio_in_big_sky(), through the filter route.
 	 */
-	public function test_ai_enabled_filter_does_not_gate_big_sky_environment() {
+	public function test_ai_enabled_filter_off_disables_image_studio_in_big_sky() {
 		$this->enable_big_sky();
-		add_filter( 'jetpack_ai_enabled', '__return_false' );
-
 		$this->assertTrue( ImageStudio\is_image_studio_environment_available() );
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		\Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
+
+		$this->assertFalse( ImageStudio\is_image_studio_environment_available() );
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
 	/**

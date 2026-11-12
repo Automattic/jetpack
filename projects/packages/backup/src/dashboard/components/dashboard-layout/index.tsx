@@ -1,5 +1,7 @@
 import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
+import { ConnectionError } from '@automattic/jetpack-connection/use-connection-error-notice';
 import { Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
 import Gates from '../gates';
@@ -52,6 +54,11 @@ export default function DashboardLayout( { children, actions }: Props ) {
 		>
 			<div className="jpb-dashboard-body">
 				<div className="jpb-dashboard-body__inner">
+					{ /* Above the gate: a broken token can still pass `useGateState`'s checks. */ }
+					<div className="jpb-connection-error">
+						<ConnectionError trackingContext="backup" />
+					</div>
+					<JitmSlot />
 					<Gates>{ children }</Gates>
 				</div>
 			</div>

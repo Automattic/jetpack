@@ -1,12 +1,6 @@
 /* The height chain from the tile down: WidgetState's blocks are 100%, so is
  * this, and the chart below fills it rather than hugging its rows. */
 .root {
-
-	/* The tooltip is a one-line pill, so it takes the compact padding of a plain
-	 * tooltip; the chart reads it inline, and only a stylesheet gets the token
-	 * fallbacks. */
-	--jpa-heatmap-tooltip-padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
-
 	block-size: 100%;
 }
 

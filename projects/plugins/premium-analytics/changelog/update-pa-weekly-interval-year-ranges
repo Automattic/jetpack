@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Date controls: Add the weekly chart interval to year-long date ranges such as Last 12 months, next to the monthly default.

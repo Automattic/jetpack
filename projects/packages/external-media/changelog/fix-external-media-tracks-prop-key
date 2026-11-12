@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-External Media: rename the `mediaSource` Tracks prop to `media_source` so the event is no longer rejected at ingest.

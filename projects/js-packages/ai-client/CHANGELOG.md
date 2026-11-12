@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.11] - 2026-11-09
+### Changed
+- Update package dependencies. [#54512]
+- Use the design system tooltip for the feedback buttons and the logo generator prompt. [#54512]
+
+## [0.35.10] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869] [#54390]
+
+## [0.35.9] - 2026-10-28
+### Changed
+- Update dependencies.
+
+## [0.35.8] - 2026-10-26
+### Changed
+- Update package dependencies. [#53867] [#53909] [#53951]
+
+## [0.35.7] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004] [#53675] [#53806]
+
+## [0.35.6] - 2026-10-14
+### Changed
+- Update dependencies. [#53618]
+
+## [0.35.5] - 2026-10-12
+### Changed
+- Update dependencies. [#53250]
+
+## [0.35.4] - 2026-10-05
+### Changed
+- Update package dependencies. [#52949]
+- Use WordPress Design System colors in the image and logo generator. [#53022]
+
+### Fixed
+- Logo generator: Stop the upgrade nudge's button colors from applying to other upgrade banners. [#52974]
+
+## [0.35.3] - 2026-09-29
+### Changed
+- Update dependencies.
+
+## [0.35.2] - 2026-09-28
+### Changed
+- Update dependencies. [#52691]
+
+### Removed
+- Remove unused dependency on `@automattic/jetpack-explat`, which does not exist outside the monorepo. [#52769]
+
+## [0.35.1] - 2026-09-21
+### Changed
+- Update package dependencies. [#52187]
+
 ## [0.35.0] - 2026-09-15
 ### Added
 - Add a `jwt` subpath export so consumers can import `requestJwt` without the rest of the client. [#51969]
@@ -14,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.34.37] - 2026-09-09
 ### Changed
-- Update dependencies. [#51438]
+- Update dependencies.
 
 ## [0.34.36] - 2026-09-08
 ### Changed
@@ -34,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.34.32] - 2026-08-03
 ### Changed
-- Update dependencies. [#50841]
+- Update dependencies.
 
 ## [0.34.31] - 2026-07-27
 ### Changed
@@ -61,19 +113,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.34.26] - 2026-06-26
 ### Changed
-- Update dependencies. [#49821]
+- Update dependencies.
 
 ## [0.34.25] - 2026-06-25
 ### Changed
-- Update dependencies. [#49821]
+- Update dependencies.
 
 ## [0.34.24] - 2026-06-24
 ### Changed
-- Update dependencies. [#49821]
+- Update dependencies.
 
 ## [0.34.23] - 2026-06-23
 ### Changed
-- Update dependencies. [#49821]
+- Update dependencies.
 
 ## [0.34.22] - 2026-06-22
 ### Changed
@@ -153,7 +205,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.34.5] - 2026-03-02
 ### Changed
-- Update dependencies. [#46758]
+- Update dependencies.
 
 ## [0.34.4] - 2026-02-26
 ### Changed
@@ -161,7 +213,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.34.3] - 2026-02-23
 ### Changed
-- Update dependencies. [#46758]
+- Update dependencies.
 
 ## [0.34.2] - 2026-02-18
 ### Changed
@@ -219,7 +271,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.33.24] - 2025-12-08
 ### Changed
-- Update dependencies. [#45553]
+- Update dependencies.
 
 ## [0.33.23] - 2025-12-01
 ### Changed
@@ -231,7 +283,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.33.21] - 2025-11-18
 ### Changed
-- Update dependencies. [#45553]
+- Update dependencies.
 
 ## [0.33.20] - 2025-11-17
 ### Changed
@@ -256,11 +308,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.33.15] - 2025-09-29
 ### Changed
-- Update dependencies. [#44940]
+- Update dependencies.
 
 ## [0.33.14] - 2025-09-22
 ### Changed
-- Update dependencies. [#44940]
+- Update dependencies.
 
 ## [0.33.13] - 2025-09-19
 ### Changed
@@ -276,7 +328,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.33.10] - 2025-09-01
 ### Changed
-- Update dependencies. [#44940]
+- Update dependencies.
 
 ## [0.33.9] - 2025-08-25
 ### Changed
@@ -284,7 +336,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.33.8] - 2025-08-18
 ### Changed
-- Update dependencies. [#44615]
+- Update dependencies.
 
 ## [0.33.7] - 2025-08-14
 ### Changed
@@ -421,7 +473,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.2] - 2025-03-12
 ### Changed
-- Update dependencies. [#42328]
+- Update dependencies.
 
 ## [0.27.1] - 2025-03-10
 ### Added
@@ -453,7 +505,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.26.1] - 2025-02-11
 ### Changed
-- Update dependencies. [#38958]
+- Update dependencies.
 
 ## [0.26.0] - 2025-02-10
 ### Added
@@ -593,7 +645,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.16.2] - 2024-08-19
 ### Changed
-- Update dependencies. [#38861] [#38662] [#38665] [#38893]
+- Update dependencies. [#38662] [#38665] [#38861] [#38893]
 
 ### Fixed
 - Lossless image optimization for images (should improve performance with no visible changes). [#38750]
@@ -777,7 +829,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.1] - 2024-01-29
 ### Changed
-- Update dependencies. [#35170]
+- Update dependencies.
 
 ## [0.5.0] - 2024-01-25
 ### Changed
@@ -967,6 +1019,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.35.11]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.10...v0.35.11
+[0.35.10]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.9...v0.35.10
+[0.35.9]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.8...v0.35.9
+[0.35.8]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.7...v0.35.8
+[0.35.7]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.6...v0.35.7
+[0.35.6]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.5...v0.35.6
+[0.35.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.4...v0.35.5
+[0.35.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.3...v0.35.4
+[0.35.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.2...v0.35.3
+[0.35.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.1...v0.35.2
+[0.35.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.37...v0.35.0
 [0.34.37]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.36...v0.34.37
 [0.34.36]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.35...v0.34.36

@@ -1,4 +1,5 @@
 import { AdminPage as JetpackAdminPage } from '@automattic/jetpack-components';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
@@ -6,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import useNotices from '../../hooks/use-notices';
 import useProtectData from '../../hooks/use-protect-data';
+import useThreatCountSync from '../../hooks/use-threat-count-sync';
 import Notice from '../notice';
 
 /**
@@ -39,6 +41,8 @@ const ProtectApp = () => {
 			current: { threats: numThreats },
 		},
 	} = useProtectData();
+
+	useThreatCountSync( numThreats );
 
 	// Redirect to the setup page if the site is not registered.
 	useEffect( () => {
@@ -101,6 +105,7 @@ const ProtectApp = () => {
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-protect' ) }</Tabs.Tab>
 					</Tabs.List>
 				</div>
+				<JitmSlot inset />
 				{ /* Every tab panel shares the same react-router <Outlet />, which always
 				     renders the active route. Tabs.Panel (via @base-ui/react) keeps the
 				     outgoing panel mounted until its close transition completes, so

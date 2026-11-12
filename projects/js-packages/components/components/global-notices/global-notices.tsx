@@ -9,6 +9,10 @@ export type GlobalNoticesProps = {
 /**
  * Renders the global notices.
  *
+ * @deprecated Use `SnackbarNotices` from `@wordpress/notices` instead. Pages
+ * rendered by `@wordpress/boot` already mount one, so mounting this as well
+ * shows every notice twice.
+ *
  * @param {GlobalNoticesProps} props - Component props.
  *
  * @return {import('react').ReactNode} The rendered notices list.

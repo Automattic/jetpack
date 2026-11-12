@@ -187,6 +187,9 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 			$this->assertSame( $expected, wpcom_expiry_notices_banner_heading( $this->message_state( $overrides ) ) );
 		}
 
+		// West of UTC the displayed date can pass before billing's day ends: still "today".
+		$this->assertSame( 'Your Business plan expires today', wpcom_expiry_notices_banner_heading( $this->message_state( array( 'days_remaining' => -1 ) ) ) );
+
 		// The day of expiry is never "expired", and never a neutral countdown either.
 		$this->assertSame(
 			'Your Business plan expires today',
@@ -209,6 +212,10 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 			),
 			array(
 				array( 'days_remaining' => 0 ),
+				'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and 50 GB of storage. Renew now to keep everything in place.',
+			),
+			array(
+				array( 'days_remaining' => -1 ),
 				'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and 50 GB of storage. Renew now to keep everything in place.',
 			),
 			array(
@@ -280,6 +287,25 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringStartsWith( 'Your site will move to the Free plan,', wpcom_expiry_notices_banner_body( $state, true ) );
 	}
 
+	public function test_the_early_reminder_dates_the_start_of_billings_day_in_the_site_timezone(): void {
+		$state = $this->message_state( array( 'expiry_ts' => 1767311999 ) ); // 2026-01-01 23:59:59 UTC.
+
+		update_option( 'date_format', 'F j, Y' );
+		$expected = array(
+			'Europe/Rome'     => 'After January 1, 2026,',
+			'America/Chicago' => 'After December 31, 2025,',
+		);
+		$original = get_option( 'timezone_string' );
+		try {
+			foreach ( $expected as $timezone => $start ) {
+				update_option( 'timezone_string', $timezone );
+				$this->assertStringStartsWith( $start, wpcom_expiry_notices_banner_body( $state, true ), "wrong date in {$timezone}" );
+			}
+		} finally {
+			update_option( 'timezone_string', $original );
+		}
+	}
+
 	public function test_after_the_revert_the_body_and_cta_ask_for_support(): void {
 		$state = $this->message_state(
 			array(
@@ -342,5 +368,33 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 			'Your Business plan expires in 5 days. Your site will move to the Free plan and you’ll lose plugins, custom themes, and 50 GB of storage. Renew now to keep everything in place.',
 			wpcom_expiry_notices_banner_sentence( $this->message_state( array( 'days_remaining' => 5 ) ), true )
 		);
+	}
+
+	public function test_my_jetpack_gets_this_notice_for_the_plan_and_none_when_it_is_not_due(): void {
+		set_current_screen( 'jetpack_page_my-jetpack' );
+		$alerts = array(
+			'business-bundle--plan_expiring_soon'    => array( 'product_slug' => 'business-bundle' ),
+			'jetpack_backup_t1_yearly--plan_expired' => array( 'product_slug' => 'jetpack_backup_t1_yearly' ),
+		);
+
+		$this->set_purchase( 45 );
+		$this->assertSame(
+			array( 'jetpack_backup_t1_yearly--plan_expired' ),
+			array_keys( wpcom_expiry_notices_my_jetpack_plan_alerts( $alerts ) )
+		);
+
+		$this->set_purchase( 5 );
+		$filtered = wpcom_expiry_notices_my_jetpack_plan_alerts( $alerts );
+		$notice   = $filtered['business-bundle--plan_expiring_soon']['wpcom_plan_notice'];
+		$this->assertStringContainsString( '5 days', $notice['title'] );
+		$this->assertSame( 'Renew now', $notice['actions'][0]['label'] );
+		$this->assertStringContainsString( rawurlencode( 'page=my-jetpack' ), $notice['actions'][0]['url'] );
+		$this->assertSame( 'my_jetpack', $notice['track_props']['surface'] );
+		$this->assertArrayNotHasKey( 'wpcom_plan_notice', $filtered['jetpack_backup_t1_yearly--plan_expired'] );
+
+		$this->set_purchase( -5 );
+		$this->act_as_non_owner();
+		$notice = wpcom_expiry_notices_my_jetpack_plan_alerts( $alerts )['business-bundle--plan_expired']['wpcom_plan_notice'];
+		$this->assertSame( array(), $notice['actions'] );
 	}
 }

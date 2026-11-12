@@ -5,7 +5,19 @@ import type { ReportParams, StatsLocationsComparisonItem } from '@jetpack-premiu
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
 	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const mockUseStatsLocations = useStatsLocations as jest.MockedFunction< typeof useStatsLocations >;
@@ -81,6 +93,34 @@ describe( 'useLocationsReportRecords', () => {
 		} );
 	} );
 
+	it.each( [
+		[ 'regions', 'region' ],
+		[ 'cities', 'city' ],
+	] as const )( 'does not request %s while the plan locks them', ( tab, geoMode ) => {
+		window.JetpackScriptData = {
+			premium_analytics: {
+				initial_full_sync_finished: 1,
+				plan_gates: {
+					tier: 'paid',
+					locked_features: {
+						'regions-cities': { description: '', support_url: '', upgrade_url: '' },
+					},
+					locked_widget_types: {},
+				},
+			},
+		} as unknown as typeof window.JetpackScriptData;
+
+		try {
+			renderHook( () => useLocationsReportRecords( tab, params ) );
+		} finally {
+			delete window.JetpackScriptData;
+		}
+
+		expect( mockUseStatsLocations ).toHaveBeenCalledWith( expect.objectContaining( { geoMode } ), {
+			enabled: false,
+		} );
+	} );
+
 	it( 'scopes the active tab to the selected country', () => {
 		renderHook( () => useLocationsReportRecords( 'regions', params, 'IN' ) );
 
@@ -105,9 +145,24 @@ describe( 'useLocationsReportRecords', () => {
 	} );
 
 	it( 'orders country filter options by views, descending', () => {
+		mockUseStatsLocations.mockReturnValue(
+			reportResult( {
+				comparisonRows: {
+					rows: [
+						{ ...rows[ 0 ], label: 'Brazil', countryCode: 'BR', countryFull: 'Brazil', views: 2 },
+						rows[ 0 ],
+					],
+					hasComparison: true,
+				},
+			} )
+		);
+
 		const { result } = renderHook( () => useLocationsReportRecords( 'regions', params ) );
 
-		expect( result.current.countries.options ).toEqual( [ { code: 'IN', label: 'India' } ] );
+		expect( result.current.countries.options ).toEqual( [
+			{ code: 'IN', label: 'India' },
+			{ code: 'BR', label: 'Brazil' },
+		] );
 	} );
 
 	it( 'carries the previous period through to the table rows', () => {

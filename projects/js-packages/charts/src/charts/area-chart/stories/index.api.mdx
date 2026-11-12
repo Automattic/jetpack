@@ -13,6 +13,7 @@ Stacked-by-default area chart component with responsive behaviour.
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
+| `ariaLabel` | `string` | `'Area chart'` | Accessible name. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names). |
 | `width` | `number?` | responsive | Chart width in pixels |
 | `height` | `number?` | responsive | Chart height in pixels |
 | `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
@@ -32,6 +33,7 @@ Stacked-by-default area chart component with responsive behaviour.
 | `defaultHiddenSeries` | `readonly string[]` | — | Series labels to hide the first time the provider sees this `chartId`. User changes persist across remounts, and reset only on a `chartId` change; later values for the same ID are ignored. |
 | `rescaleYOnVisibilityChange` | `boolean?` | `true` | Whether the value axis rescales to the visible series when the visible set changes. Set `false` to pin it to the full data range so the baseline doesn't move as series are hidden |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'?` | grid shown | Control grid visibility |
+| `compactWhenShort` | `boolean?` | `false` | Below `theme.compactWhenShort.below` (140px by default), drop the axes, grid and legend and default to `theme.compactWhenShort.margin`. See [Compact When Short](./?path=/docs/js-packages-charts-library-charts-area-chart--docs#compact-when-short) |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
 | `options` | `ChartOptions?` | `{}` | Advanced axis and scale configuration |
 | `onPointerDown` | `(event: EventHandlerParams) => void?` | - | Pointer down event handler |
@@ -78,6 +80,12 @@ type SeriesChartLegendConfig = {
 	interactive?: boolean;
 	// Collapse series sharing a `group` into one item (line, bar, area charts only).
 	collapseGroups?: boolean;
+	// Append a static "Comparison period" item styled like the `type: 'comparison'` series
+	// (a string replaces the label). Only added when those series have no item of their own.
+	comparisonItem?: boolean | string;
+	// Append one static item per comparison series instead, named from the label of the item it
+	// was folded into and left out while that series is hidden.
+	comparisonSeriesItems?: ( seriesLabel: string ) => string;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
 	labelStyles?: LegendLabelStyles;

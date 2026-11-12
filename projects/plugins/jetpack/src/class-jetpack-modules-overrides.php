@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Feature_Policy;
+
 /**
  * Provides methods for dealing with module overrides.
  *
@@ -37,6 +39,10 @@ class Jetpack_Modules_Overrides {
 	 * @return bool Whether there is a filter on the jetpack_active_modules option.
 	 */
 	public function do_overrides_exist() {
+		if ( method_exists( Feature_Policy::class, 'ensure_hooks' ) ) {
+			Feature_Policy::ensure_hooks();
+		}
+
 		return ( has_filter( 'option_jetpack_active_modules' ) || has_filter( 'jetpack_active_modules' ) );
 	}
 

@@ -60,6 +60,18 @@ export const FittedToHeight: Story = {
 	decorators: [ withCard( '160px' ) ],
 };
 
+/** Name the columns above two values per row; the header hides on a height-1 tile. */
+export const WithColumns: Story = {
+	args: {
+		items: items.map( ( item, index ) => ( {
+			...item,
+			value: [ ( 3 + index * 24_317 ).toLocaleString( 'en' ), item.value ],
+		} ) ),
+		columns: { label: 'Emails', values: [ 'Opens', 'Open rate' ] },
+	},
+	decorators: [ withCard( '260px' ) ],
+};
+
 /** Render every row when fitting is disabled. */
 export const AllRows: Story = {
 	args: { items, fitRows: false },

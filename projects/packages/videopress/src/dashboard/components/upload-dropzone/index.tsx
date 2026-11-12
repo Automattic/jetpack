@@ -1,11 +1,15 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
-import { EmptyState, Text } from '@wordpress/ui';
-import { useVideoPressUpgrade } from '../../hooks/use-videopress-upgrade';
-import { FREE_TIER_AT_LIMIT_MESSAGE, FREE_TIER_AT_LIMIT_NOTICE_ID } from '../free-tier-notice';
+import { store as noticesStore } from '@wordpress/notices';
+import { EmptyState, Text, Tooltip } from '@wordpress/ui';
+import RecordVideoButton from '../../../client/components/video-recording';
+import {
+	FREE_TIER_AT_LIMIT_MESSAGE,
+	FREE_TIER_AT_LIMIT_NOTICE_ID,
+} from '../free-tier-notice/constants';
 import {
 	describeRefusal,
 	filterVideoFiles,
@@ -13,6 +17,7 @@ import {
 	videoFileAccept,
 } from './video-files';
 import './style.scss';
+import type { UploadRefusal } from '../../utils/upload-refusal-analytics';
 import type { MouseEvent } from 'react';
 
 /**
@@ -26,7 +31,8 @@ import type { MouseEvent } from 'react';
  * its button as refusing, while the caller keeps the FreeTierNotice and the
  * slicing of a multi-file drop down to the plan — `dataTransfer` can carry
  * several files regardless of `allowMultiple`, so `onFiles` must always expect
- * an array.
+ * an array. The caller also owns the upgrade route (`onUpgrade`), so the surface
+ * renders where the checkout workflow is not wired, such as the Top videos widget.
  *
  * REFUSING is this component's job, though, not the caller's. A drop the plan
  * or the file type can't accept used to be dropped on the floor here — the
@@ -50,6 +56,9 @@ import type { MouseEvent } from 'react';
  *                            marketing shape; Home's emptied-library state
  *                            passes the quieter "it will show up here"
  *                            promise instead.
+ * @param props.onUpgrade     - Starts the upgrade the at-limit notice offers.
+ *                            Without it the notice carries no action.
+ * @param props.onRefused     - Receives refusals for consumers that measure them.
  * @return The dropzone element.
  */
 const UploadDropzone = ( {
@@ -58,17 +67,20 @@ const UploadDropzone = ( {
 	allowMultiple = false,
 	copyVariant,
 	subCopy,
+	onUpgrade,
+	onRefused,
 }: {
 	onFiles: ( files: File[] ) => void;
 	disabled?: boolean;
 	allowMultiple?: boolean;
 	copyVariant?: 'single' | 'multiple';
 	subCopy?: string;
+	onUpgrade?: () => void;
+	onRefused?: ( refusal: UploadRefusal ) => void;
 } ) => {
 	const inputRef = useRef< HTMLInputElement >( null );
 	const [ dragging, setDragging ] = useState( false );
-	const { createErrorNotice } = useGlobalNotices();
-	const runUpgrade = useVideoPressUpgrade();
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const plural = ( copyVariant ?? ( allowMultiple ? 'multiple' : 'single' ) ) === 'multiple';
 	const dropzoneClassName = `vp-upload-dropzone${ dragging ? ' is-dragging' : '' }${
 		disabled ? ' is-disabled' : ''
@@ -81,9 +93,12 @@ const UploadDropzone = ( {
 	const rejectAtLimit = useCallback( () => {
 		createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
 			id: FREE_TIER_AT_LIMIT_NOTICE_ID,
-			actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+			actions: onUpgrade
+				? [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: onUpgrade } ]
+				: [],
+			type: 'snackbar',
 		} );
-	}, [ createErrorNotice, runUpgrade ] );
+	}, [ createErrorNotice, onUpgrade ] );
 
 	// Everything that arrives as files — a drop, or the picker's change —
 	// lands here so the type filter and the limit are enforced once. Rejecting
@@ -105,34 +120,49 @@ const UploadDropzone = ( {
 			// fact about the plan standing in for the answer to a question about
 			// the file, which sent both testers off to check their plan.
 			const videos = await filterVideoFiles( files );
+			if ( videos.length < files.length ) {
+				onRefused?.( {
+					reason: 'file_validation',
+					counts: { attempted: files.length, skipped: files.length - videos.length },
+				} );
+			}
 			if ( ! videos.length ) {
 				// The message is derived, not fixed: a real `.webm` is a video we
 				// can't take, and saying "Only video files can be uploaded" to
 				// someone holding one is simply untrue.
 				createErrorNotice( await describeRefusal( files ), {
 					id: INVALID_FILE_NOTICE_ID,
+					type: 'snackbar',
 				} );
 				return;
 			}
 			if ( disabled ) {
+				onRefused?.( {
+					reason: 'plan_limit',
+					counts: { attempted: files.length, skipped: videos.length },
+				} );
 				rejectAtLimit();
 				return;
 			}
 			onFiles( videos );
 		},
-		[ createErrorNotice, disabled, onFiles, rejectAtLimit ]
+		[ createErrorNotice, disabled, onFiles, onRefused, rejectAtLimit ]
 	);
 
 	const openPicker = useCallback( () => {
 		if ( disabled ) {
+			onRefused?.( { reason: 'plan_limit' } );
 			rejectAtLimit();
 			return;
 		}
 		inputRef.current?.click();
-	}, [ disabled, rejectAtLimit ] );
+	}, [ disabled, onRefused, rejectAtLimit ] );
 
 	const onSurfaceClick = useCallback(
 		( event: MouseEvent< HTMLDivElement > ) => {
+			if ( ! event.currentTarget.contains( event.target as Node ) ) {
+				return;
+			}
 			// The picker button lives inside this surface and opens the picker
 			// itself, so its click has to stop here or the file dialog would be
 			// asked for twice.
@@ -142,20 +172,6 @@ const UploadDropzone = ( {
 			openPicker();
 		},
 		[ openPicker ]
-	);
-
-	const pickerButton = (
-		<Button
-			className="vp-upload-dropzone__button"
-			variant="primary"
-			__next40pxDefaultSize
-			onClick={ openPicker }
-			aria-disabled={ disabled }
-		>
-			{ plural
-				? __( 'Select videos to upload', 'jetpack-videopress-pkg' )
-				: __( 'Select a video to upload', 'jetpack-videopress-pkg' ) }
-		</Button>
 	);
 
 	return (
@@ -236,15 +252,31 @@ const UploadDropzone = ( {
 				 * mouse user gets before committing, and the click-to-explain
 				 * is the only path a touch user has.
 				 */ }
-				{ disabled ? (
-					// Only at the limit. An enabled tooltip here would just
-					// restate the button's own label; the header needs one
-					// because it is refusing from a toolbar with no copy
-					// around it.
-					<Tooltip text={ FREE_TIER_AT_LIMIT_MESSAGE }>{ pickerButton }</Tooltip>
-				) : (
-					pickerButton
-				) }
+				{ /*
+				 * Only at the limit. An enabled tooltip here would just
+				 * restate the button's own label; the header needs one
+				 * because it is refusing from a toolbar with no copy
+				 * around it.
+				 */ }
+				<Tooltip.Root disabled={ ! disabled }>
+					<Tooltip.Trigger
+						render={
+							<Button
+								className="vp-upload-dropzone__button"
+								variant="primary"
+								__next40pxDefaultSize
+								onClick={ openPicker }
+								aria-disabled={ disabled }
+							/>
+						}
+					>
+						{ plural
+							? __( 'Select videos to upload', 'jetpack-videopress-pkg' )
+							: __( 'Select a video to upload', 'jetpack-videopress-pkg' ) }
+					</Tooltip.Trigger>
+					<Tooltip.Popup>{ FREE_TIER_AT_LIMIT_MESSAGE }</Tooltip.Popup>
+				</Tooltip.Root>
+				<RecordVideoButton onRecorded={ file => onFiles( [ file ] ) } disabled={ disabled } />
 			</div>
 			<input
 				ref={ inputRef }

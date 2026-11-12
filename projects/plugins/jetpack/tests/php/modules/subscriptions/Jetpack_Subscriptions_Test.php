@@ -4,9 +4,11 @@ require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/paywall/paywall.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Sync\Defaults;
@@ -18,6 +20,7 @@ use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_CONTAINS_PAYWALL
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\NEWSLETTER_COLUMN_ID;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -30,6 +33,8 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	protected $admin_user_id;
 	protected $plan_id;
 	protected $product_id = 1234;
+
+	const PAYWALL_POST_CONTENT = "<!-- wp:paragraph -->\n<p>Free part</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:jetpack/paywall /-->\n\n<!-- wp:paragraph -->\n<p>Subscriber part</p>\n<!-- /wp:paragraph -->";
 
 	public function set_up() {
 		parent::set_up();
@@ -192,6 +197,127 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create();
 		wp_publish_post( $post_id );
 		$this->assertEmpty( get_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function paywall_access_level_provider() {
+		$without_paywall = "<!-- wp:paragraph -->\n<p>Everything is free</p>\n<!-- /wp:paragraph -->";
+
+		return array(
+			'paywall block, no access set'           => array( self::PAYWALL_POST_CONTENT, null, 'subscribers', true ),
+			'paywall block, access everybody'        => array( self::PAYWALL_POST_CONTENT, 'everybody', 'subscribers', true ),
+			'paywall block, access paid subscribers' => array( self::PAYWALL_POST_CONTENT, 'paid_subscribers', 'paid_subscribers', true ),
+			'no paywall block, no access set'        => array( $without_paywall, null, 'everybody', false ),
+			'no paywall block, access everybody'     => array( $without_paywall, 'everybody', 'everybody', false ),
+		);
+	}
+
+	/**
+	 * Posts saved outside the block editor must still be gated by their Paywall block.
+	 *
+	 * @param string      $content            Post content.
+	 * @param string|null $stored_access      Access level stored on the post, or null for none.
+	 * @param string      $expected_access    Access level expected from Jetpack_Memberships::get_post_access_level().
+	 * @param bool        $expected_paywalled Whether the post is flagged as containing paywalled content.
+	 * @dataProvider paywall_access_level_provider
+	 */
+	#[DataProvider( 'paywall_access_level_provider' )]
+	public function test_paywall_block_gates_post_without_access_level( $content, $stored_access, $expected_access, $expected_paywalled ) {
+		$post_id = $this->factory->post->create( array( 'post_content' => $content ) );
+		if ( null !== $stored_access ) {
+			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $stored_access );
+		}
+		Jetpack_Memberships::clear_post_access_level_cache();
+
+		\Automattic\Jetpack\Extensions\Subscriptions\add_paywalled_content_post_meta( $post_id, get_post( $post_id ) );
+
+		$this->assertSame( (string) $stored_access, get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+		$this->assertSame( $expected_access, Jetpack_Memberships::get_post_access_level( $post_id ) );
+		$this->assertSame( $expected_paywalled, (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+	}
+
+	/**
+	 * The Newsletter column in the posts list shows the access level visitors get, not the raw meta.
+	 *
+	 * @param string      $content            Post content.
+	 * @param string|null $stored_access      Access level stored on the post, or null for none.
+	 * @param string      $expected_access    Access level expected from Jetpack_Memberships::get_post_access_level().
+	 * @param bool        $expected_paywalled Paywalled-content flag, covered by the test above.
+	 * @dataProvider paywall_access_level_provider
+	 */
+	#[DataProvider( 'paywall_access_level_provider' )]
+	public function test_newsletter_column_shows_effective_access_level( $content, $stored_access, $expected_access, $expected_paywalled ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$labels = array(
+			'everybody'        => 'Everybody',
+			'subscribers'      => 'Subscribers',
+			'paid_subscribers' => 'Paid Subscribers',
+		);
+
+		$post_id = $this->factory->post->create( array( 'post_content' => $content ) );
+		if ( null !== $stored_access ) {
+			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $stored_access );
+		}
+		Jetpack_Memberships::clear_post_access_level_cache();
+
+		ob_start();
+		\Automattic\Jetpack\Extensions\Subscriptions\render_newsletter_access_rows( NEWSLETTER_COLUMN_ID, $post_id );
+		$this->assertSame( $labels[ $expected_access ], ob_get_clean() );
+	}
+
+	public static function newsletter_plan_meta_provider(): array {
+		return array(
+			'tier with mailing list off' => array(
+				array(
+					'jetpack_memberships_type'            => 'tier',
+					'jetpack_memberships_site_subscriber' => '0',
+				),
+				true,
+			),
+			'legacy mailing list plan'   => array( array( 'jetpack_memberships_site_subscriber' => '1' ), true ),
+			'non-tier plan'              => array( array( 'jetpack_memberships_site_subscriber' => '0' ), false ),
+		);
+	}
+
+	/**
+	 * @dataProvider newsletter_plan_meta_provider
+	 */
+	#[DataProvider( 'newsletter_plan_meta_provider' )]
+	public function test_has_configured_newsletter_plan( array $meta, bool $expected ): void {
+		// Outrank wpcomsh's priority-1000 filter.
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
+		$plan_id = $this->factory->post->create( array( 'post_type' => Jetpack_Memberships::$post_type_plan ) );
+		foreach ( $meta as $key => $value ) {
+			update_post_meta( $plan_id, $key, $value );
+		}
+
+		$this->assertSame( $expected, Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) );
+	}
+
+	/**
+	 * Removing the Paywall block makes a post with no stored access level public again.
+	 */
+	public function test_removing_paywall_block_ungates_post() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		register_subscription_block();
+
+		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
+		Jetpack_Memberships::clear_post_access_level_cache();
+		$this->assertSame( 'subscribers', Jetpack_Memberships::get_post_access_level( $post_id ) );
+		$this->assertTrue( (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => "<!-- wp:paragraph -->\n<p>Free part</p>\n<!-- /wp:paragraph -->",
+			)
+		);
+		Jetpack_Memberships::clear_post_access_level_cache();
+
+		$this->assertSame( 'everybody', Jetpack_Memberships::get_post_access_level( $post_id ) );
+		$this->assertEmpty( get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 	}
 
 	/**
@@ -529,6 +655,62 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			// Removing the filter.
 			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 		}
+	}
+
+	public static function subscribe_prompt_visibility_provider() {
+		$prompts  = array(
+			'modal'           => array( 'Jetpack_Subscribe_Modal', 'should_user_see_modal', 'post' ),
+			'overlay'         => array( 'Jetpack_Subscribe_Overlay', 'should_user_see_overlay', 'home' ),
+			'floating button' => array( 'Jetpack_Subscribe_Floating_Button', 'should_user_see_floating_button', 'post' ),
+		);
+		$statuses = array(
+			'unsubscribed' => array( null, true ),
+			'pending'      => array( 'pending', false ),
+			'active'       => array( 'active', false ),
+		);
+
+		$cases = array();
+		foreach ( $prompts as $prompt_name => $prompt ) {
+			foreach ( $statuses as $status_name => $status ) {
+				$cases[ "$prompt_name, $status_name" ] = array_merge( $prompt, $status );
+			}
+		}
+		return $cases;
+	}
+
+	/**
+	 * Subscribe prompts are only shown to readers who are neither subscribed nor awaiting confirmation.
+	 *
+	 * @param string      $prompt_class Prompt class name.
+	 * @param string      $method       Visibility method on the prompt.
+	 * @param string      $page         Page to visit: 'post' or 'home'.
+	 * @param string|null $blog_sub     Token blog_sub status, or null for no subscription.
+	 * @param bool        $expected     Whether the prompt should be shown.
+	 * @dataProvider subscribe_prompt_visibility_provider
+	 */
+	#[DataProvider( 'subscribe_prompt_visibility_provider' )]
+	public function test_subscribe_prompt_visibility_for_subscription_status( $prompt_class, $method, $page, $blog_sub, $expected ) {
+		wp_set_current_user( $this->regular_non_subscriber_id );
+		$post_id = $this->factory->post->create();
+		$this->go_to( 'post' === $page ? get_permalink( $post_id ) : home_url( '/' ) );
+
+		$service          = new class() extends Jetpack_Token_Subscription_Service {
+			public $payload = array();
+
+			public function get_token_payload() {
+				return $this->payload;
+			}
+		};
+		$service->payload = null === $blog_sub ? array() : array( 'blog_sub' => $blog_sub );
+		$inject_service   = static function () use ( $service ) {
+			return $service;
+		};
+		add_filter( 'earn_premium_content_subscription_service', $inject_service, PHP_INT_MAX );
+
+		$actual = $prompt_class::init()->$method();
+		remove_filter( 'earn_premium_content_subscription_service', $inject_service, PHP_INT_MAX );
+
+		$this->assertSame( $expected, $actual );
 	}
 
 	/**

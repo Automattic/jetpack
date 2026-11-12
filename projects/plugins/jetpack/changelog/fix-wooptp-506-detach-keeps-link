@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-PayPal Payment Buttons: removing a block no longer deletes its payment link from PayPal.

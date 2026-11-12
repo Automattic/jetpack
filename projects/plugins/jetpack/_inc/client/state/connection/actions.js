@@ -18,7 +18,6 @@ import {
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
-	JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 } from 'state/action-types';
 
 export const fetchSiteConnectionStatus = () => {
@@ -227,15 +226,5 @@ export const resetConnectUser = () => {
 		dispatch( {
 			type: RESET_CONNECT_USER,
 		} );
-	};
-};
-
-export const setHasSeenWCConnectionModal = () => {
-	return dispatch => {
-		dispatch( {
-			type: JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
-		} );
-
-		return restApi.setHasSeenWCConnectionModal();
 	};
 };

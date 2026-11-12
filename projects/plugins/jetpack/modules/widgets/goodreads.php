@@ -172,14 +172,14 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 
-		$instance['user_id'] = trim( wp_kses( stripslashes( $new_instance['user_id'] ), array() ) );
+		$instance['user_id'] = trim( wp_kses( stripslashes( $new_instance['user_id'] ?? '' ), array() ) );
 		if ( ! empty( $instance['user_id'] ) && ( ! isset( $old_instance['user_id'] ) || $instance['user_id'] !== $old_instance['user_id'] ) ) {
 			if ( ! $this->goodreads_user_id_exists( $instance['user_id'] ) ) {
 				$instance['user_id'] = 'invalid';
 			}
 		}
-		$instance['title'] = wp_kses( stripslashes( $new_instance['title'] ), array() );
-		$shelf             = wp_kses( stripslashes( $new_instance['shelf'] ), array() );
+		$instance['title'] = wp_kses( stripslashes( $new_instance['title'] ?? '' ), array() );
+		$shelf             = wp_kses( stripslashes( $new_instance['shelf'] ?? '' ), array() );
 		if ( array_key_exists( $shelf, $this->shelves ) ) {
 			$instance['shelf'] = $shelf;
 		}

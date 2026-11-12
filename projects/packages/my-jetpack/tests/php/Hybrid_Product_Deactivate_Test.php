@@ -22,12 +22,16 @@ use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_Error;
 
+require_once __DIR__ . '/class-moduleless-hybrid-product.php';
+
 /**
  * Unit tests for Hybrid_Product::deactivate().
  *
  * @covers \Automattic\Jetpack\My_Jetpack\Hybrid_Product::deactivate
+ * @covers \Automattic\Jetpack\My_Jetpack\Hybrid_Product::do_product_specific_deactivation
  */
 #[CoversMethod( Hybrid_Product::class, 'deactivate' )]
+#[CoversMethod( Hybrid_Product::class, 'do_product_specific_deactivation' )]
 class Hybrid_Product_Deactivate_Test extends TestCase {
 
 	/**
@@ -47,6 +51,18 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	private $pre_deactivate_listener;
 
 	/**
+	 * Modules a single test adds to the available list.
+	 *
+	 * @var string[]
+	 */
+	private $extra_available_modules = array();
+
+	/**
+	 * @var string|null
+	 */
+	private $protect_development_plugin_file;
+
+	/**
 	 * Installs mock Jetpack plugin files, seeds the available-modules
 	 * option, and registers a scoped listener on
 	 * `jetpack_pre_deactivate_module` so we can count module deactivations
@@ -63,19 +79,8 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 		// short-circuited by the missing-Jetpack branch.
 		require_once WP_PLUGIN_DIR . '/jetpack/jetpack.php';
 
-		// Register the modules the Hybrid_Product subclasses care about
-		// as "available" so Modules::get_active() doesn't filter them out.
-		Jetpack_Options::update_option(
-			'available_modules',
-			array(
-				JETPACK__VERSION => array(
-					'videopress' => '1.0',
-					'search'     => '1.0',
-					'protect'    => '1.0',
-					'publicize'  => '1.0',
-				),
-			)
-		);
+		// A filter, not the available_modules option, since Modules::get_available() memoizes its first caller.
+		add_filter( 'jetpack_get_available_modules', array( $this, 'add_available_modules' ) );
 
 		$user_id = wp_insert_user(
 			array(
@@ -101,6 +106,14 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	 * clears WorDBless state.
 	 */
 	public function tearDown(): void {
+		if ( null !== $this->protect_development_plugin_file ) {
+			unlink( $this->protect_development_plugin_file );
+			rmdir( dirname( $this->protect_development_plugin_file ) );
+			wp_cache_delete( 'plugins', 'plugins' );
+			$this->protect_development_plugin_file = null;
+		}
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_available_modules' ) );
+		$this->extra_available_modules = array();
 		if ( null !== $this->pre_deactivate_listener ) {
 			remove_action( 'jetpack_pre_deactivate_module', $this->pre_deactivate_listener );
 			$this->pre_deactivate_listener = null;
@@ -133,6 +146,52 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	}
 
 	/**
+	 * Install and activate a mock of the standalone Protect plugin.
+	 *
+	 * @param bool $development Whether to activate development beside an inactive stable copy.
+	 * @return string The active plugin filename.
+	 */
+	private function activate_standalone_protect_plugin( $development = false ) {
+		if ( ! file_exists( WP_PLUGIN_DIR . '/jetpack-protect' ) ) {
+			mkdir( WP_PLUGIN_DIR . '/jetpack-protect', 0777, true );
+		}
+		copy( __DIR__ . '/assets/protect-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack-protect/jetpack-protect.php' );
+		$filename = 'jetpack-protect/jetpack-protect.php';
+		if ( $development ) {
+			$filename                              = 'jetpack-protect-dev/jetpack-protect.php';
+			$this->protect_development_plugin_file = WP_PLUGIN_DIR . '/' . $filename;
+			if ( ! file_exists( dirname( $this->protect_development_plugin_file ) ) ) {
+				mkdir( dirname( $this->protect_development_plugin_file ), 0777, true );
+			}
+			copy( __DIR__ . '/assets/protect-mock-plugin.txt', $this->protect_development_plugin_file );
+		}
+		wp_cache_delete( 'plugins', 'plugins' );
+		activate_plugins( $filename );
+		return $filename;
+	}
+
+	/**
+	 * Registers the modules the Hybrid_Product subclasses declare as available.
+	 *
+	 * @param array $modules Available modules: slug => version.
+	 * @return array
+	 */
+	public function add_available_modules( $modules ) {
+		return array_merge(
+			$modules,
+			array(
+				'backup'     => '1.0',
+				'videopress' => '1.0',
+				'search'     => '1.0',
+				'protect'    => '1.0',
+				'publicize'  => '1.0',
+				'stats'      => '1.0',
+			),
+			array_fill_keys( $this->extra_available_modules, '1.0' )
+		);
+	}
+
+	/**
 	 * Mark a module as active in the Jetpack active_modules option.
 	 *
 	 * @param string $module Module slug.
@@ -150,14 +209,20 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	 * $module_name. Guards against future subclasses (or overrides) that
 	 * could silently drop the module-deactivation contract.
 	 *
-	 * @return array<string, array{0: class-string, 1: string}>
+	 * @return array<string, array{0: class-string, 1: string, 2?: string[], 3?: bool, 4?: bool, 5?: bool}>
 	 */
 	public static function provide_hybrid_subclasses_with_modules() {
 		return array(
-			'videopress' => array( Videopress::class, 'videopress' ),
-			'search'     => array( Search::class, 'search' ),
-			'protect'    => array( Protect::class, 'protect' ),
-			'social'     => array( Social::class, 'publicize' ),
+			'backup'                                    => array( Backup::class, 'backup' ),
+			'videopress'                                => array( Videopress::class, 'videopress' ),
+			'search'                                    => array( Search::class, 'search' ),
+			'protect'                                   => array( Protect::class, 'protect' ),
+			'protect page'                              => array( Protect::class, 'protect-dashboard', array( 'protect-dashboard' ) ),
+			'protect plugin with the page on offer'     => array( Protect::class, 'protect', array( 'protect-dashboard' ), true ),
+			'protect REST with the page on offer'       => array( Protect::class, 'protect', array( 'protect-dashboard' ), true, true ),
+			'protect dev plugin with the page on offer' => array( Protect::class, 'protect', array( 'protect-dashboard' ), true, false, true ),
+			'protect dev REST with the page on offer'   => array( Protect::class, 'protect', array( 'protect-dashboard' ), true, true, true ),
+			'social'                                    => array( Social::class, 'publicize' ),
 		);
 	}
 
@@ -165,18 +230,39 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	 * Every Hybrid_Product subclass with a $module_name must, when its
 	 * module is active, deactivate the module as part of ::deactivate().
 	 *
-	 * @param class-string $class  Hybrid_Product subclass under test.
-	 * @param string       $module Jetpack module slug for the subclass.
+	 * @param class-string $class   Hybrid_Product subclass under test.
+	 * @param string       $module  Jetpack module slug for the subclass.
+	 * @param string[]     $offered Modules to add to the available list.
+	 * @param bool         $standalone Whether the standalone Protect plugin is active.
+	 * @param bool         $rest Whether to use the Features REST switch.
+	 * @param bool         $development Whether the development plugin is active beside stable.
 	 * @dataProvider provide_hybrid_subclasses_with_modules
 	 */
 	#[DataProvider( 'provide_hybrid_subclasses_with_modules' )]
-	public function test_deactivate_turns_off_active_module( $class, $module ) {
+	public function test_deactivate_turns_off_active_module( $class, $module, $offered = array(), $standalone = false, $rest = false, $development = false ) {
+		$this->extra_available_modules = $offered;
+		$standalone_file               = null;
+		if ( $standalone ) {
+			$standalone_file = $this->activate_standalone_protect_plugin( $development );
+		}
 		$this->set_module_active( $module );
 		$this->assertTrue( ( new Modules() )->is_active( $module ) );
 
-		$result = $class::deactivate();
-
-		$this->assertTrue( $result );
+		if ( $rest ) {
+			$request = new \WP_REST_Request( 'POST' );
+			$request->set_body_params(
+				array(
+					'plugin' => 'jetpack-protect',
+					'action' => 'deactivate',
+				)
+			);
+			$this->assertInstanceOf( \WP_REST_Response::class, REST_Main_Features::switch_plugin( $request ) );
+		} else {
+			$this->assertTrue( $class::deactivate() );
+		}
+		if ( null !== $standalone_file ) {
+			$this->assertFalse( is_plugin_active( $standalone_file ) );
+		}
 		$this->assertFalse(
 			( new Modules() )->is_active( $module ),
 			"Module {$module} should be deactivated after {$class}::deactivate()."
@@ -190,7 +276,7 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 
 	/**
 	 * When the Jetpack module is already inactive, ::deactivate() must
-	 * skip the module branch entirely — the is_active() gate is what
+	 * skip the module branch entirely — the saved-and-active gate is what
 	 * prevents a spurious jetpack_pre_deactivate_module action.
 	 */
 	public function test_deactivate_skips_modules_deactivate_when_module_inactive() {
@@ -205,6 +291,43 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 			$this->pre_deactivate_calls,
 			'Modules::deactivate() must not be called when the module was already inactive.'
 		);
+	}
+
+	public function test_deactivate_succeeds_when_a_saved_module_is_unavailable() {
+		$this->set_module_active( 'backup' );
+		$drop_backup = static function ( $modules ) {
+			unset( $modules['backup'] );
+			return $modules;
+		};
+		add_filter( 'jetpack_get_available_modules', $drop_backup, 20 );
+
+		try {
+			$this->assertFalse( ( new Modules() )->is_active( 'backup' ) );
+			$result = Backup::deactivate();
+		} finally {
+			remove_filter( 'jetpack_get_available_modules', $drop_backup, 20 );
+		}
+
+		$this->assertTrue( $result );
+		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
+		$this->assertArrayNotHasKey( 'backup', $this->pre_deactivate_calls );
+	}
+
+	public function test_deactivate_succeeds_when_its_standalone_plugin_forces_the_module_on() {
+		$force = static function ( $modules ) {
+			return array_merge( $modules, array( 'videopress' ) );
+		};
+		add_filter( 'jetpack_active_modules', $force );
+
+		try {
+			$this->assertTrue( ( new Modules() )->is_active( 'videopress' ) );
+			$result = Videopress::deactivate();
+		} finally {
+			remove_filter( 'jetpack_active_modules', $force );
+		}
+
+		$this->assertTrue( $result );
+		$this->assertArrayNotHasKey( 'videopress', $this->pre_deactivate_calls );
 	}
 
 	/**
@@ -252,17 +375,11 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	}
 
 	/**
-	 * A Hybrid_Product subclass with an empty $module_name (Backup
-	 * inherits null from Product) must not touch the Modules API and
-	 * must not error.
+	 * A Hybrid_Product subclass with an empty $module_name must not touch
+	 * the Modules API and must not error.
 	 */
 	public function test_deactivate_noop_for_module_name_empty() {
-		$this->assertEmpty(
-			Backup::$module_name,
-			'Precondition: Backup should have an empty $module_name for this test to be meaningful.'
-		);
-
-		$result = Backup::deactivate();
+		$result = Moduleless_Hybrid_Product::deactivate();
 
 		$this->assertTrue( $result );
 		$this->assertSame(

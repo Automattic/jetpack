@@ -1,18 +1,18 @@
 /**
  * External dependencies
  */
-import {
-	formatNumber,
-	formatNumberCompact,
-	formatCurrency,
-	getCurrencyObject,
-} from '@automattic/number-formatters';
+import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
+import { __, sprintf } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { storeCurrencyFormatters } from './store-currency';
 
 /**
  * Metric type that determines the formatting strategy.
  *
  * - `number`     → `formatNumber` / `formatNumberCompact` (decimals default: 0)
- * - `currency`   → `formatCurrency` with symbol positioning (decimals from the currency)
+ * - `currency`   → `formatCurrency` with symbol positioning (decimals from the store, else the currency)
  * - `percentage` → `Intl` percent style, signDisplay defaults to `exceptZero` (decimals default: 2)
  * - `average`    → `formatNumber` (decimals default: 2), em dash for Infinity
  */
@@ -22,9 +22,15 @@ export type FormatMetricValueOptions = {
 	/**
 	 * Decimal precision of the full value; compact output picks its own.
 	 * Defaults to 0 for number and 2 for average/percentage; currency ignores it
-	 * and prints its own minor units.
+	 * and prints the store's price decimals, or the currency's own minor units.
 	 */
 	decimals?: number;
+
+	/**
+	 * For `number`, show a positive value that rounds to zero as "< 0.1" (at one
+	 * decimal) rather than "0.0", so a tiny amount does not read as none.
+	 */
+	markBelowPrecision?: boolean;
 
 	/**
 	 * Use compact notation with K/M suffixes above 999: one decimal while the
@@ -41,8 +47,8 @@ export type FormatMetricValueOptions = {
 	signDisplay?: Intl.NumberFormatOptions[ 'signDisplay' ];
 
 	/**
-	 * ISO 4217 currency code (e.g. `'USD'`, `'EUR'`).
-	 * @default 'USD'
+	 * ISO 4217 currency code (e.g. `'USD'`, `'EUR'`). Defaults to the WooCommerce store
+	 * currency, or USD on a site without a store. Only the default takes the store's price decimals.
 	 */
 	currencyCode?: string;
 };
@@ -81,7 +87,8 @@ export function formatMetricValue(
 		decimals,
 		useMultipliers = false,
 		signDisplay,
-		currencyCode = 'USD',
+		currencyCode,
+		markBelowPrecision = false,
 	}: FormatMetricValueOptions = {}
 ): string {
 	if ( value === null || value === undefined ) {
@@ -99,8 +106,14 @@ export function formatMetricValue(
 
 	switch ( type ) {
 		case 'currency': {
+			const store = storeCurrencyFormatters();
+			const { formatCurrency, getCurrencyObject } = store;
+			const code = currencyCode ?? store.code;
+			// An explicit code keeps its own decimals even when it is the store's: WordAds pays in USD.
+			const storeDecimals = currencyCode === undefined ? store.decimals : undefined;
+
 			if ( compact ) {
-				const { symbol, symbolPosition } = getCurrencyObject( 0, currencyCode );
+				const { symbol, symbolPosition } = getCurrencyObject( 0, code );
 
 				// Detect if the locale places a space between symbol
 				// and number (e.g. BRL "R$ 1.5K", EUR "1.5K €").
@@ -108,7 +121,7 @@ export function formatMetricValue(
 				// must preserve it.
 				// TODO(WOOA7S-1214): upstream formatCurrencyCompact()
 				// in @automattic/number-formatters would remove this.
-				const probe = formatCurrency( 0, currencyCode );
+				const probe = formatCurrency( 0, code );
 				const charIndex =
 					symbolPosition === 'before'
 						? probe.indexOf( symbol ) + symbol.length
@@ -136,7 +149,7 @@ export function formatMetricValue(
 					: `${ sign }${ compactFormatted }${ separator }${ symbol }`;
 			}
 
-			const baseFormatted = formatCurrency( numericValue, currencyCode );
+			const baseFormatted = formatCurrency( numericValue, code, { decimals: storeDecimals } );
 
 			if (
 				numericValue > 0 &&
@@ -172,6 +185,16 @@ export function formatMetricValue(
 
 		case 'number':
 		default: {
+			const smallestShown = 10 ** -( decimals ?? 0 );
+			// Below half the smallest step is exactly what rounds to zero.
+			if ( markBelowPrecision && numericValue > 0 && numericValue < smallestShown / 2 ) {
+				return sprintf(
+					/* translators: %s: the smallest value shown at this precision, e.g. "0.1". */
+					__( '< %s', 'jetpack-premium-analytics-pkg' ),
+					formatNumber( smallestShown, { decimals: decimals ?? 0 } )
+				);
+			}
+
 			return compact
 				? formatNumberCompact( numericValue, {
 						numberFormatOptions: {

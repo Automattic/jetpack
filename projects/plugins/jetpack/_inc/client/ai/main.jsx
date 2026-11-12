@@ -13,11 +13,13 @@
  * MCP hub as the landing view and no tab bar.
  */
 
-import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
+import { AdminPage, JitmSlot } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { useDispatch } from '@wordpress/data';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
 import ChunkErrorBoundary from './components/chunk-error-boundary/index';
 import LoadingSpinner from './components/loading-spinner/index';
@@ -25,6 +27,7 @@ import PageNotice, { getPageNoticeState } from './components/page-notice';
 import { GATED_VIEWS } from './constants';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
+import { splitViewAnchor } from './mcp/anchors';
 import McpConnectCallout from './mcp/connect-callout';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
@@ -32,9 +35,11 @@ import McpSetup from './mcp/setup';
 import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
+import useSiteAbilities from './mcp/use-site-abilities';
 import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
 import AiOverview from './overview';
+import { EVENTS, recordAiHubEvent } from './tracks';
 
 // Split into its own chunk: only this tab uses DataViews and the AI client.
 const ScheduledTasks = lazy(
@@ -47,6 +52,7 @@ const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 // Sub-views are nested under their owning tab's path segment, so the active
 // tab is always the first segment of the view key.
 const MCP_SUB_VIEWS = [ 'mcp/read', 'mcp/write', 'mcp/setup' ];
+const ANCHOR_VIEWS = [ 'mcp/read', 'mcp/write' ];
 
 // The sub-views shipped as flat top-level hashes (#/setup) before they were
 // nested; keep old bookmarks and external links working.
@@ -71,11 +77,15 @@ const getTabViews = () => {
 
 // The first tab is the default: Overview when visible (matching the design),
 // otherwise the MCP hub. A hash pointing at a hidden view falls back too.
-const getViewFromHash = () => {
+const getRouteFromHash = () => {
 	const tabViews = getTabViews();
 	const raw = window.location.hash.replace( /^#\//, '' );
-	const hash = LEGACY_VIEW_ALIASES[ raw ] ?? raw;
-	return [ ...tabViews, ...MCP_SUB_VIEWS ].includes( hash ) ? hash : tabViews[ 0 ];
+	const { view, anchor } = splitViewAnchor(
+		LEGACY_VIEW_ALIASES[ raw ] ?? raw,
+		[ ...tabViews, ...MCP_SUB_VIEWS ],
+		ANCHOR_VIEWS
+	);
+	return { view: view ?? tabViews[ 0 ], anchor };
 };
 
 const VIEW_TITLES = {
@@ -91,7 +101,7 @@ const VIEW_TITLES = {
 const SUB_VIEW_DESCRIPTIONS = {
 	'mcp/read': __( 'View your site’s content.', 'jetpack' ),
 	'mcp/write': __( 'Create, update, and manage content on your site.', 'jetpack' ),
-	'mcp/setup': __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
+	'mcp/setup': __( 'Get instructions for connecting your external AI agent.', 'jetpack' ),
 };
 
 /**
@@ -183,6 +193,7 @@ export default function App() {
 	const {
 		blogId,
 		activityLogUrl,
+		activityLogFiltered = false,
 		apiRoot,
 		apiNonce,
 		upgradeUrl,
@@ -193,17 +204,18 @@ export default function App() {
 		masterEnabled = true,
 		masterForcedOff = '',
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
-		manageUrl = 'admin.php?page=my-jetpack#/products',
+		manageUrl = 'admin.php?page=my-jetpack#/features',
 		hasMyJetpack = true,
+		canConnectSite = true,
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
+		isSelfHosted = false,
 	} = window?.jetpackAiSettings ?? {};
-	const [ view, setView ] = useState( getViewFromHash );
-	// Save feedback goes through the shared GlobalNotices snackbars (the
-	// design-system SnackbarList behind @wordpress/notices): transient,
-	// auto-dismissing, no page-level styling needed.
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const [ route, setRoute ] = useState( getRouteFromHash );
+	const { view, anchor } = route;
+	// Save feedback goes through the snackbars boot's layout renders.
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const mcpViewedRecorded = useRef( false );
 	// Strict false: older page data (undefined) must not read as unlinked.
@@ -217,6 +229,9 @@ export default function App() {
 	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings( { skip: showConnectNotice || ! blogId } );
+	const showRemoteAbilities = isSelfHosted && ! showConnectNotice && !! blogId;
+	const publishedAbilities = useSiteAbilities( { enabled: showRemoteAbilities } );
+	const remoteAbilities = showRemoteAbilities ? publishedAbilities : null;
 	const {
 		isLoading: isAiSettingsLoading,
 		savingKeys: aiSavingKeys,
@@ -246,7 +261,7 @@ export default function App() {
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
 	useEffect( () => {
-		const syncViewFromHash = () => setView( getViewFromHash() );
+		const syncViewFromHash = () => setRoute( getRouteFromHash() );
 		window.addEventListener( 'popstate', syncViewFromHash );
 		window.addEventListener( 'hashchange', syncViewFromHash );
 		return () => {
@@ -261,6 +276,12 @@ export default function App() {
 	// The first path segment names the owning tab, so sub-views keep their
 	// parent tab (MCP and Connectors) selected.
 	const activeTab = view.split( '/' )[ 0 ];
+
+	useEffect( () => {
+		if ( showFeaturesView ) {
+			recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+		}
+	}, [ activeTab, showFeaturesView ] );
 
 	useEffect( () => {
 		if ( ! isLoading && hasMcpAccess && isMcpContext && ! mcpViewedRecorded.current ) {
@@ -280,6 +301,7 @@ export default function App() {
 				// makes the store replace the previous outcome for this surface,
 				// so retries never show stale results alongside fresh ones.
 				createErrorNotice( __( 'Failed to save MCP settings. Please try again.', 'jetpack' ), {
+					type: 'snackbar',
 					id: 'jetpack-mcp-save-status',
 					explicitDismiss: true,
 				} );
@@ -297,6 +319,7 @@ export default function App() {
 					// The shared id keeps this surface last-outcome-wins: a
 					// success replaces a sticky error from an earlier attempt.
 					createSuccessNotice( __( 'Your AI settings have been saved.', 'jetpack' ), {
+						type: 'snackbar',
 						id: 'jetpack-ai-save-status',
 					} );
 					return true;
@@ -304,6 +327,7 @@ export default function App() {
 				() => {
 					// Errors must not auto-vanish before they're read.
 					createErrorNotice( __( 'Failed to save AI settings. Please try again.', 'jetpack' ), {
+						type: 'snackbar',
 						id: 'jetpack-ai-save-status',
 						explicitDismiss: true,
 					} );
@@ -316,7 +340,7 @@ export default function App() {
 
 	const navigateToView = useCallback( newView => {
 		window.history.pushState( null, '', '#/' + newView );
-		setView( newView );
+		setRoute( { view: newView, anchor: null } );
 	}, [] );
 
 	// Set when navigation came from a control that unmounts with its view (the
@@ -423,6 +447,8 @@ export default function App() {
 					</Tabs.Root>
 				</div>
 			) }
+			{ /* Outside the padded content div, so it takes the page gutter via `inset`. */ }
+			<JitmSlot inset />
 			<div
 				className={ `jetpack-ai-admin__content${
 					view === 'scheduled-tasks' ? ' jetpack-ai-admin__content--scheduled-tasks' : ''
@@ -431,7 +457,6 @@ export default function App() {
 				{ isSubView && (
 					<BackEyebrow label={ VIEW_TITLES[ activeTab ] } onNavigate={ navigateToParent } />
 				) }
-				<GlobalNotices />
 
 				<PageNotice
 					state={ noticeState }
@@ -439,6 +464,7 @@ export default function App() {
 					userConnectionUrl={ userConnectionUrl }
 					manageUrl={ manageUrl }
 					hasMyJetpack={ hasMyJetpack }
+					canConnectSite={ canConnectSite }
 				/>
 
 				{ isMcpContext && (
@@ -465,12 +491,14 @@ export default function App() {
 						) }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess && (
-							<Stack direction="column" gap="md">
+							<Stack direction="column" gap="lg">
 								{ view === 'mcp' && (
 									<McpHub
+										remoteAbilities={ remoteAbilities }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										activityLogUrl={ activityLogUrl }
+										activityLogFiltered={ activityLogFiltered }
 										savingToolIds={ savingToolIds }
 										onNavigate={ handleMcpNavigate }
 										onUpdate={ handleUpdate }
@@ -482,6 +510,8 @@ export default function App() {
 								) }
 								{ view === 'mcp/read' && (
 									<McpRead
+										remoteAbilities={ remoteAbilities }
+										anchor={ anchor }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										savingToolIds={ savingToolIds }
@@ -490,6 +520,8 @@ export default function App() {
 								) }
 								{ view === 'mcp/write' && (
 									<McpWrite
+										remoteAbilities={ remoteAbilities }
+										anchor={ anchor }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										savingToolIds={ savingToolIds }
@@ -505,11 +537,11 @@ export default function App() {
 				{ view === 'overview' && (
 					<AiOverview
 						activityLogUrl={ activityLogUrl }
+						activityLogFiltered={ activityLogFiltered }
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
 						canLoadUsage={ canLoadUsage }
-						// Same preconditions the MCP hub applies to its copy of the
-						// row: the copy promises AI-agent actions, which need MCP.
+						// Same preconditions the MCP hub applies to its copy of the row.
 						showActivityLog={
 							!! blogId && hasMcpAccess && getSiteLevelEnabled( mcpAbilities ?? {}, blogId )
 						}
@@ -531,6 +563,7 @@ export default function App() {
 							<AiFeatures
 								settings={ aiSettings }
 								isUserConnected={ isUserConnected }
+								masterForcedOff={ masterForcedOff }
 								savingKeys={ aiSavingKeys }
 								onUpdate={ handleAiSettingsUpdate }
 							/>

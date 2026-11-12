@@ -35,7 +35,10 @@ const MinifyLegacyNotice = () => {
 						{ __( 'Learn more', 'jetpack-boost' ) }
 					</Notice.ActionLink>
 				</Notice.Actions>
-				<Notice.CloseIcon onClick={ dismissAlert } label={ __( 'Dismiss', 'jetpack-boost' ) } />
+				<Notice.CloseIconButton
+					onClick={ dismissAlert }
+					label={ __( 'Dismiss', 'jetpack-boost' ) }
+				/>
 			</Notice.Root>
 		)
 	);

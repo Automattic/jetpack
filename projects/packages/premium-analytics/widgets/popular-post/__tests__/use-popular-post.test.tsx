@@ -175,28 +175,6 @@ describe( 'usePopularPost', () => {
 		expect( result.current.isError ).toBe( false );
 	} );
 
-	it( 'returns a null post when the period has no post views', async () => {
-		mockApiFetch.mockImplementation( ( { path = '', url = '' }: MockedFetchArgs ) => {
-			const target = path || url;
-
-			if ( target.includes( 'stats/top-posts' ) ) {
-				return Promise.resolve( {
-					date: '2026-06-30',
-					period: 'day',
-					days: {},
-					summary: { postviews: [] },
-				} );
-			}
-
-			return Promise.resolve( {} );
-		} );
-
-		const { result } = renderHook( () => usePopularPost(), { wrapper } );
-
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
-		expect( result.current.post ).toBeNull();
-	} );
-
 	it( 'never attributes the previous winner’s metrics to a new one', async () => {
 		let releaseRunnerUpStats: () => void = () => {};
 		const runnerUpStats = new Promise( resolve => {
@@ -370,12 +348,6 @@ describe( 'usePopularPost', () => {
 			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
 
 			expect( result.current.post?.title ).toBe( 'Winning & popular post' );
-			expect( result.current.range ).toEqual( {
-				from: '2026-01-01T00:00:00',
-				to: '2026-06-30T23:59:59',
-				interval: 'month',
-				preset: 'year-2026',
-			} );
 			expect( requestPaths( 'stats/top-posts' ) ).toEqual( [] );
 
 			const ranking = decodeURIComponent( requestPaths( 'stats/top-authors' )[ 0 ] );
@@ -489,46 +461,20 @@ describe( 'usePopularPost', () => {
 
 			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
 
-			expect( result.current.range.from ).toBe( '2025-09-01T00:00:00.000-07:00' );
-			expect( result.current.range.to ).toBe( '2026-08-27T23:59:59.999-07:00' );
-			expect( decodeURIComponent( topPostsRequestPaths()[ 0 ] ) ).toContain(
-				'start_date=2025-09-01T00:00:00.000-07:00'
-			);
-		} );
-
-		it( 'reports the window it ranked over, for the card to link on', async () => {
-			mockEndpoints();
-
-			const { result } = renderHook( () => usePopularPost(), { wrapper } );
-
-			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
-
-			// The preset travels with the dates: the detail page recomputes the
-			// range from it, and both its date control and the dashboard's render
-			// it as a pill.
-			expect( result.current.range.preset ).toBe( 'last-12-months' );
-			expect( result.current.range.from ).toContain( '2025-09-01T00:00:00' );
-			expect( result.current.range.to ).toContain( '2026-08-27T23:59:59' );
-			// Whatever the detail page would have resolved for this window, so its
-			// route has no incomplete window to seed.
-			expect( result.current.range.interval ).toBe( 'month' );
+			const ranking = decodeURIComponent( topPostsRequestPaths()[ 0 ] );
+			expect( ranking ).toContain( 'start_date=2025-09-01T00:00:00.000-07:00' );
+			expect( ranking ).toContain( 'date=2026-08-27T23:59:59.999-07:00' );
 		} );
 	} );
 
-	it( 'ranks once, with no comparison report and no re-rank on re-render', async () => {
+	it( 'keeps one ranking request across a re-render while the clock moves on', async () => {
 		mockEndpoints();
 
+		// Real timers, unlike the ranking window suite, so time passes between renders.
 		const { result, rerender } = renderHook( () => usePopularPost(), { wrapper } );
 
 		await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
 
-		// The card renders no period-over-period delta, so a second ranking request
-		// for a comparison window would be fetched and thrown away.
-		expect( topPostsRequestPaths() ).toHaveLength( 1 );
-
-		// Nothing the dashboard re-renders the widget for — a new date range, a
-		// comparison toggle — reaches the request: the card reads no host params,
-		// so it keeps ranking over its own window.
 		rerender();
 
 		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );

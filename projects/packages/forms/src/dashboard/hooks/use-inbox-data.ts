@@ -12,6 +12,7 @@ import { isCollectionFormatField } from '../components/inspector/utils.ts';
 import { getResponseStatusFilter } from '../constants.ts';
 import { useDashboardSearchParams } from '../router/dashboard-search-params-context.tsx';
 import { store as dashboardStore } from '../store/index.js';
+import getResponseFilterParams from './get-response-filter-params.ts';
 /**
  * Types
  */
@@ -225,32 +226,10 @@ export default function useInboxData( options: UseInboxDataOptions = {} ): UseIn
 	}, [ editedRecords, statusFilter ] );
 
 	// Prepare query params for counts resolver
-	const countsQueryParams = useMemo( () => {
-		const params: Record< string, unknown > = {};
-		if ( currentQuery?.search ) {
-			params.search = currentQuery.search;
-		}
-		if ( currentQuery?.parent ) {
-			params.parent = currentQuery.parent;
-		}
-		if ( currentQuery?.source ) {
-			params.source = currentQuery.source;
-		}
-		if ( currentQuery?.before ) {
-			params.before = currentQuery.before;
-		}
-		if ( currentQuery?.after ) {
-			params.after = currentQuery.after;
-		}
-		if ( currentQuery?.is_unread !== undefined ) {
-			params.is_unread = currentQuery.is_unread;
-		}
-		if ( currentQuery?.is_test !== undefined ) {
-			params.is_test = currentQuery.is_test;
-		}
-
-		return params;
-	}, [ currentQuery ] );
+	const countsQueryParams = useMemo(
+		() => getResponseFilterParams( currentQuery ),
+		[ currentQuery ]
+	);
 
 	// Use the getCounts selector with resolver - this will automatically fetch and cache counts
 	// The resolver ensures counts are only fetched once for the same query params across all hook instances

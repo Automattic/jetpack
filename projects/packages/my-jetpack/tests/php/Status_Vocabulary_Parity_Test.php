@@ -13,7 +13,7 @@ use ReflectionClass;
 
 /**
  * The status string is the join between the two halves of the product card contract:
- * Plan_Matrix_Test asserts which status each plan state produces, and the Products page
+ * Plan_Matrix_Test asserts which status each plan state produces, and the product cards
  * asserts which action each status produces. Adding a status to one side and not the
  * other silently drops a card into ActionButton's "Learn more" default, so pin the two
  * vocabularies to each other here.
@@ -24,7 +24,7 @@ use ReflectionClass;
 class Status_Vocabulary_Parity_Test extends TestCase {
 
 	/**
-	 * The TypeScript constants file the Products page reads its statuses from.
+	 * The TypeScript constants file the product cards read their statuses from.
 	 */
 	private const CONSTANTS_PATH = __DIR__ . '/../../_inc/constants.ts';
 

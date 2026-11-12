@@ -1,8 +1,12 @@
 import { __ } from '@wordpress/i18n';
+import { useEffect } from 'react';
+import { Stack } from '@wordpress/ui';
+import { useCloudCssUpgradeNotice } from '$features/critical-css/cloud-css-upgrade-notice';
 import CacheDebugLogCard from '../../pages/cache-debug-log/cache-debug-log-card';
 import CriticalCssAdvancedCards from '../../pages/critical-css-advanced/critical-css-advanced-cards';
 import GettingStarted from '../../pages/getting-started/getting-started';
 import PurchaseSuccess from '../../pages/purchase-success/purchase-success';
+import BackToSettingsLink from './back-to-settings-link';
 import SubpageFrame from './subpage-frame';
 import type { Subpage } from '../../../../../../_inc/runtime-contract';
 
@@ -15,6 +19,13 @@ type ModernSubpageProps = {
  * @param props.subpage - Sub-page to render.
  */
 const ModernSubpage = ( { subpage }: ModernSubpageProps ) => {
+	const [ { data: pendingNotice }, { mutate: setPendingNotice } ] = useCloudCssUpgradeNotice();
+	useEffect( () => {
+		if ( subpage === 'purchase-successful' && pendingNotice ) {
+			setPendingNotice( false );
+		}
+	}, [ subpage, pendingNotice, setPendingNotice ] );
+
 	switch ( subpage ) {
 		case 'cache-debug-log':
 			return (
@@ -25,7 +36,10 @@ const ModernSubpage = ( { subpage }: ModernSubpageProps ) => {
 		case 'critical-css-advanced':
 			return (
 				<SubpageFrame title={ __( 'Critical CSS recommendations', 'jetpack-boost' ) }>
-					<CriticalCssAdvancedCards />
+					<Stack direction="column" gap="lg">
+						<BackToSettingsLink />
+						<CriticalCssAdvancedCards />
+					</Stack>
 				</SubpageFrame>
 			);
 		case 'getting-started':

@@ -25,7 +25,9 @@ jest.mock( 'react-redux', () => ( {
 // Mock store actions — they are injected via connect; with connect mocked they
 // won't be passed, so we supply them as props below.
 jest.mock( '../../store/actions', () => ( {} ) );
-jest.mock( '../../store/selectors', () => ( {} ) );
+jest.mock( '../../store/selectors', () => ( {
+	getSort: jest.requireActual( '../../store/selectors' ).getSort,
+} ) );
 
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { render } from '@testing-library/react';

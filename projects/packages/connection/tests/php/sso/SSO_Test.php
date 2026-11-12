@@ -9,7 +9,10 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RequiresMethod;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WP_Error;
 
@@ -49,7 +52,22 @@ class SSO_Test extends BaseTestCase {
 		);
 		wp_set_current_user( 0 );
 		$this->set_sso_user_for_2fa( null );
+		$this->set_two_step_required( false );
 		parent::tear_down();
+	}
+
+	/**
+	 * Set the private $two_step_required property via reflection.
+	 *
+	 * @param bool $required Whether the SSO attempt failed for lack of two-step authentication.
+	 */
+	private function set_two_step_required( $required ) {
+		$reflection = new \ReflectionClass( SSO::class );
+		$property   = $reflection->getProperty( 'two_step_required' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $this->sso, $required );
 	}
 
 	/**
@@ -118,6 +136,143 @@ class SSO_Test extends BaseTestCase {
 		$instance_a = SSO::get_instance();
 		$instance_b = SSO::get_instance();
 		$this->assertSame( $instance_a, $instance_b );
+	}
+
+	public function test_add_standalone_module_lists_sso_once() {
+		$this->assertSame( array( 'monitor', 'sso' ), array_values( SSO::add_standalone_module( array( 'monitor', 'sso' ) ) ) );
+		$this->assertSame( array( 'monitor', 'sso' ), SSO::add_standalone_module( array( 'monitor' ) ) );
+	}
+
+	/**
+	 * A standalone plugin starts SSO only where the Jetpack plugin's module loader would.
+	 *
+	 * @dataProvider provide_standalone_sites
+	 *
+	 * @param bool $connected Whether the site has a connected owner.
+	 * @param bool $offline   Whether the site is in offline mode.
+	 * @param bool $active    Whether the `sso` module is on.
+	 * @param bool $starts    Whether SSO should start.
+	 */
+	#[DataProvider( 'provide_standalone_sites' )]
+	public function test_maybe_start_standalone_needs_a_connected_owner_and_the_module( $connected, $offline, $active, $starts ) {
+		self::set_up_standalone_site( $connected, $offline, $active );
+
+		SSO::maybe_start_standalone();
+		$started = null !== SSO::$instance;
+
+		self::clear_standalone_site();
+		$this->assertSame( $starts, $started );
+	}
+
+	/**
+	 * Defining the Jetpack class can't be undone, so this runs in its own process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_maybe_start_standalone_leaves_sso_to_the_jetpack_plugin() {
+		self::set_up_standalone_site( true, false, true );
+		// Before PHP 8.3, class_alias() needs a user-defined class, so not stdClass.
+		class_alias( self::class, 'Jetpack' );
+
+		SSO::maybe_start_standalone();
+
+		$this->assertNull( SSO::$instance );
+	}
+
+	/**
+	 * SSO starts on `after_setup_theme`, or at once when a plugin calls init_standalone() after it.
+	 *
+	 * @dataProvider provide_after_setup_theme_states
+	 *
+	 * @param bool $fired Whether `after_setup_theme` has already fired.
+	 */
+	#[DataProvider( 'provide_after_setup_theme_states' )]
+	public function test_init_standalone_starts_sso_on_or_after_after_setup_theme( $fired ) {
+		global $wp_actions;
+		$saved                           = $wp_actions['after_setup_theme'] ?? null;
+		$wp_actions['after_setup_theme'] = $fired ? 1 : 0;
+		self::set_up_standalone_site( true, false, true );
+
+		SSO::init_standalone();
+		$priority = has_action( 'after_setup_theme', array( SSO::class, 'maybe_start_standalone' ) );
+		$started  = null !== SSO::$instance;
+
+		remove_action( 'after_setup_theme', array( SSO::class, 'maybe_start_standalone' ), -2 );
+		if ( null === $saved ) {
+			unset( $wp_actions['after_setup_theme'] );
+		} else {
+			$wp_actions['after_setup_theme'] = $saved;
+		}
+		self::clear_standalone_site();
+		$this->assertSame( $fired ? false : -2, $priority );
+		$this->assertSame( $fired, $started );
+	}
+
+	/**
+	 * Whether `after_setup_theme` has already fired.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_after_setup_theme_states() {
+		return array(
+			'not yet fired' => array( false ),
+			'already fired' => array( true ),
+		);
+	}
+
+	/**
+	 * Make the site a standalone plugin would see, with SSO not yet started.
+	 *
+	 * @param bool $connected Whether the site has a connected owner.
+	 * @param bool $offline   Whether the site is in offline mode.
+	 * @param bool $active    Whether the `sso` module is on.
+	 */
+	private static function set_up_standalone_site( $connected, $offline, $active ) {
+		if ( $connected ) {
+			$user_id = wp_insert_user(
+				array(
+					'user_login' => 'sso_owner',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			);
+			\Jetpack_Options::update_option( 'id', 123 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
+		\Jetpack_Options::update_option( 'active_modules', $active ? array( 'sso' ) : array() );
+		add_filter( 'jetpack_get_available_standalone_modules', array( SSO::class, 'add_standalone_module' ) );
+		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
+		( new Manager() )->reset_connection_status();
+		\Automattic\Jetpack\Status\Cache::clear();
+		SSO::$instance = null;
+	}
+
+	/**
+	 * Undo set_up_standalone_site().
+	 */
+	private static function clear_standalone_site() {
+		remove_all_filters( 'jetpack_get_available_standalone_modules' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token', 'user_tokens', 'master_user', 'active_modules' ) );
+	}
+
+	/**
+	 * Data provider for test_maybe_start_standalone_needs_a_connected_owner_and_the_module.
+	 *
+	 * @return array
+	 */
+	public static function provide_standalone_sites() {
+		return array(
+			'connected, module on'     => array( true, false, true, true ),
+			'not connected, module on' => array( false, false, true, false ),
+			'offline, module on'       => array( true, true, true, false ),
+			'connected, module off'    => array( true, false, false, false ),
+		);
 	}
 
 	// ──────────────────────────────────────────────
@@ -289,6 +444,117 @@ class SSO_Test extends BaseTestCase {
 
 		$this->assertContains( 'jetpack-sso', $classes );
 		$this->assertNotContains( 'jetpack-sso-form-display', $classes );
+	}
+
+	// ──────────────────────────────────────────────
+	// login_form
+	// ──────────────────────────────────────────────
+
+	/**
+	 * Test that login_form makes two-step setup the primary action when the site requires it.
+	 */
+	public function test_login_form_makes_two_step_setup_primary_when_required() {
+		$this->set_two_step_required( true );
+
+		ob_start();
+		$this->sso->login_form();
+		$output = ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '/<a [^>]*button-primary[^>]*source=calypso-me-security-two-step/', $output );
+		$this->assertMatchesRegularExpression( '/calypso-me-security-two-step.*jetpack-sso-then.*genericon-wordpress.*jetpack-sso-or.*jetpack-sso-toggle/s', $output );
+		$this->assertStringNotContainsString( 'force_reauth', $output );
+		$this->assertSame( 1, substr_count( $output, 'button-primary' ) );
+		$this->assertSame( 1, substr_count( $output, 'jetpack-sso-or' ) );
+	}
+
+	/**
+	 * Test that the two-step screen shows the SSO form on a site that defaults to the password form.
+	 */
+	public function test_login_body_class_shows_sso_form_on_two_step_screen_when_site_defaults_to_password_form() {
+		global $action;
+		$action = 'login';
+		$this->set_two_step_required( true );
+		add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+
+		$classes = $this->sso->login_body_class( array() );
+
+		remove_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+
+		$this->assertContains( 'jetpack-sso-form-display', $classes );
+	}
+
+	/**
+	 * Test that the no-JS toggle to the password form still works on the two-step screen.
+	 */
+	public function test_login_body_class_honors_password_form_toggle_on_two_step_screen() {
+		global $action;
+		$action                                = 'login';
+		$_GET['jetpack-sso-show-default-form'] = '1';
+		$this->set_two_step_required( true );
+
+		$classes = $this->sso->login_body_class( array() );
+
+		$this->assertNotContains( 'jetpack-sso-form-display', $classes );
+	}
+
+	/**
+	 * Test that a regular login keeps the password form on a site that defaults to it.
+	 */
+	public function test_login_body_class_keeps_password_form_for_regular_login_when_site_defaults_to_it() {
+		global $action;
+		$action = 'login';
+		add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+
+		$classes = $this->sso->login_body_class( array() );
+
+		remove_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+
+		$this->assertNotContains( 'jetpack-sso-form-display', $classes );
+	}
+
+	/**
+	 * Test that the two-step screen renders its controls when the password form is hidden site-wide.
+	 */
+	public function test_login_form_keeps_two_step_controls_when_login_form_hidden() {
+		$this->set_two_step_required( true );
+		add_filter( 'jetpack_remove_login_form', '__return_true' );
+
+		ob_start();
+		$this->sso->login_form();
+		$output = ob_get_clean();
+
+		remove_filter( 'jetpack_remove_login_form', '__return_true' );
+
+		$this->assertStringContainsString( 'source=calypso-me-security-two-step', $output );
+		$this->assertStringNotContainsString( 'jetpack-sso-toggle', $output );
+	}
+
+	/**
+	 * Test that login_form keeps the username and password option when two-step authentication is required.
+	 *
+	 * An account with a password on this site can still use it, so the two-step screen must not be the only way in.
+	 */
+	public function test_login_form_keeps_password_login_when_two_step_required() {
+		$this->set_two_step_required( true );
+
+		ob_start();
+		$this->sso->login_form();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'jetpack-sso-toggle', $output );
+	}
+
+	/**
+	 * Test that login_form shows the regular login options and no two-step setup on a regular login.
+	 */
+	public function test_login_form_omits_two_step_setup_by_default() {
+		ob_start();
+		$this->sso->login_form();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'calypso-me-security-two-step', $output );
+		$this->assertStringContainsString( 'genericon-wordpress', $output );
+		$this->assertStringContainsString( 'jetpack-sso-toggle', $output );
 	}
 
 	// ──────────────────────────────────────────────

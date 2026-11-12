@@ -381,7 +381,7 @@ class Connection_Health_Test_Base {
 	 */
 	protected function helper_get_support_url() {
 		/**
-		 * Filters the Jetpack support URL used in connection health tests.
+		 * Filters the Jetpack support URL used in connection health tests and the Site Health Info section.
 		 *
 		 * @since 8.5.0
 		 *
@@ -479,25 +479,6 @@ class Connection_Health_Test_Base {
 		}
 
 		return self::failing_test( $args );
-	}
-
-	/**
-	 * Gets translated text to enable outbound requests.
-	 *
-	 * @param string $protocol Either 'HTTP' or 'HTTPS'.
-	 *
-	 * @return string
-	 */
-	protected function helper_enable_outbound_requests( $protocol ) {
-		return sprintf(
-			/* translators: %1$s - request protocol, either http or https */
-			__(
-				'Your server did not successfully connect to WordPress.com using %1$s.
-				Please ask your hosting provider to confirm your server can make outbound requests to WordPress.com.',
-				'jetpack-connection'
-			),
-			$protocol
-		);
 	}
 
 	/**

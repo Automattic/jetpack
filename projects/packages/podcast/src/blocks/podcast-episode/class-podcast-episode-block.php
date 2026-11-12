@@ -77,21 +77,20 @@ class Podcast_Episode_Block {
 	}
 
 	/**
-	 * Mark the block plan-gated so the editor shows the upgrade prompt (no-op if
-	 * the site has access). Standard paid-block behavior: nudge on Atomic/Simple,
-	 * hidden on self-hosted Jetpack where nudges are off — upsell in the dashboard.
+	 * Gate unpaid sites while keeping existing episodes editable when no upgrade is available.
 	 */
 	public static function flag_plan_gated() {
 		if ( Podcast_Gate::has_product_access() ) {
 			return;
 		}
 
+		$required_plan = Podcast_Gate::get_required_plan_slug();
 		\Jetpack_Gutenberg::set_extension_unavailable(
 			'podcast-episode',
-			'missing_plan',
+			$required_plan ? 'missing_plan' : 'missing_plan__no_offer',
 			array(
 				'required_feature' => 'podcast-episode',
-				'required_plan'    => Podcast_Gate::get_required_plan_slug(),
+				'required_plan'    => $required_plan,
 			)
 		);
 	}
@@ -240,6 +239,7 @@ class Podcast_Episode_Block {
 		$is_explicit    = ! empty( $attributes['explicit'] );
 		$duration       = isset( $attributes['duration'] ) ? (string) $attributes['duration'] : '';
 		$show_poster    = ! isset( $attributes['showPoster'] ) || ! empty( $attributes['showPoster'] );
+		$show_author    = ! isset( $attributes['showAuthor'] ) || ! empty( $attributes['showAuthor'] );
 		$transcript_url = isset( $attributes['transcriptUrl'] ) ? esc_url_raw( $attributes['transcriptUrl'] ) : '';
 		$location_name  = isset( $attributes['locationName'] ) ? (string) $attributes['locationName'] : '';
 		$license        = isset( $attributes['license'] ) ? (string) $attributes['license'] : '';
@@ -285,8 +285,8 @@ class Podcast_Episode_Block {
 
 		$author_id        = (int) $post->post_author;
 		$title            = get_the_title( $post );
-		$author_name      = get_the_author_meta( 'display_name', $author_id );
-		$author_url       = esc_url_raw( (string) get_the_author_meta( 'url', $author_id ) );
+		$author_name      = $show_author ? get_the_author_meta( 'display_name', $author_id ) : '';
+		$author_url       = $show_author ? esc_url_raw( (string) get_the_author_meta( 'url', $author_id ) ) : '';
 		$publish_date_iso = get_the_date( 'c', $post );
 		$publish_date     = get_the_date( '', $post );
 		$episode_url      = get_permalink( $post );
@@ -635,7 +635,8 @@ class Podcast_Episode_Block {
 		}
 
 		$title          = get_the_title( $post );
-		$author_name    = get_the_author_meta( 'display_name', (int) $post->post_author );
+		$show_author    = ! isset( $attrs['showAuthor'] ) || ! empty( $attrs['showAuthor'] );
+		$author_name    = $show_author ? get_the_author_meta( 'display_name', (int) $post->post_author ) : '';
 		$publish_date   = get_the_date( '', $post );
 		$duration       = isset( $attrs['duration'] ) ? trim( (string) $attrs['duration'] ) : '';
 		$season_number  = isset( $attrs['seasonNumber'] ) ? (int) $attrs['seasonNumber'] : 0;

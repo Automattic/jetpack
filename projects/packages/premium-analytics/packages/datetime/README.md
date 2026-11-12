@@ -161,34 +161,50 @@ if inputs are invalid
 **Supported presets:**
 
 - `previous-period` - Same duration, immediately before reference
+- `previous-period-match-day-of-week` - Same duration, shifted back by the
+  fewest whole weeks that clear the reference, so it starts on the same weekday
+  (offered by `getComparisonOptions` for ranges of up to 28 days, except exact
+  week multiples, where it coincides with `previous-period`)
 - `previous-week` - Same duration, one week before the reference
 - `previous-month` - Same duration, anchored one month before the reference end
 - `previous-year` - Same duration, anchored one year before the reference end
+- `previous-year-match-day-of-week` - Same duration, 52 weeks (364 days) before
+  the reference, so it starts on the same weekday
 
 A reference starting on the 1st of a month instead keeps its calendar dates for
 `previous-month` / `previous-year`, so its duration can differ: Year to date on
 1 March 2028 (61 days) compares against 1 January to 1 March 2027 (60 days).
-For whole-month references, `previous-period` steps back by the month count
-(July against June, a calendar year against the previous calendar year), and
-`previous-month` / `previous-year` stay aligned to calendar month boundaries.
-Whole months are read from the range itself, so a rolling window that happens
-to land on one (April 1-30 from "Last 30 days") compares against all 31 days of
-March.
+For whole-month references, from the 1st to a month end, `previous-period`
+steps back by the month count (July against June, a calendar year against the
+previous calendar year), and `previous-month` / `previous-year` stay aligned to
+calendar month boundaries. A month starting mid-month (September 8 to October
+7) keeps its day count, and so does a "Last N days" preset passed as
+`primaryPresetId`: April 1-30 from "Last 30 days" compares against March 2-31.
 
-A to-date preset (`last-12-months` runs to the end of today) is measured on
-the window it covers once its running month closes, so `previous-period` steps
-back twelve months and stops as many days short as the reference does; both
-windows are the same length. `previous-month` / `previous-year` shift the dates
-as read.
+A to-date preset (`last-12-months` and `last-3-years` both run to the end of
+today) is measured on the window it covers once its running unit closes: the
+month for `last-12-months`, the year for `last-3-years`. So `previous-period`
+steps back twelve months or three years and stops as many days short as the
+reference does; both windows are the same length. `previous-month` /
+`previous-year` shift the dates as read, and so do the `match-day-of-week`
+variants: a whole-week shift ignores the month shape and the to-date preset
+alike.
 
 #### `getComparisonOptions( reference, options? )`
 
 The comparison options the given range offers, in display order: the previous
 period always; the week, month, and year shifts only while they cannot overlap
 the range (7, 28, and 364 inclusive days at most); an option resolving to the
-same window as an earlier one is dropped. Each option carries the resolved
-`range` plus a `label` naming the comparison target ("Previous 7 days",
-"Same period in July", "Same period in 2024") and a trigger `shortLabel`.
+same window as another is folded into it as an alias; a weekday-aligned variant
+yields to whichever option it coincides with, not necessarily its calendar
+sibling (a single-day `previous-period-match-day-of-week` folds into
+`previous-week`). The weekday-aligned period is offered
+up to 28 days (except where it coincides with another entry, as an exact week
+multiple usually does), the weekday-aligned year up to 364. Each option carries the resolved
+`range`, the `aliases` folded into it, a `label` naming the comparison target
+("Previous 7 days", "Same period in July", "Same period in 2024", "Same period
+last year (match day of week)"), a trigger `shortLabel`, and a `legendLabel` a chart
+legend repeats after each metric ("Prev. 7 days", "Jul", "2024").
 
 **Parameters:**
 
@@ -200,7 +216,20 @@ same window as an earlier one is dropped. Each option carries the resolved
 **Returns:** `ComparisonOption[]` - Empty when the range is incomplete or
 inverted
 
-### Range Measurement
+#### `findComparisonOption( options, id )`
+
+The option a comparison preset selects from `getComparisonOptions`, matching
+either its `id` or one of its `aliases`.
+
+**Parameters:**
+
+- `options`: `ComparisonOption[]` - Options from `getComparisonOptions`
+- `id`: `ComparisonPresetId` - The comparison preset
+
+**Returns:** `ComparisonOption | undefined` - `undefined` when no option in
+`options` has that id or alias
+
+### Range Measurement and Stepping
 
 #### `getDateRangeSpan( range? )`
 
@@ -217,6 +246,43 @@ getDateRangeSpan( { from, to } );
 A whole-month range stays in days below two months and only collapses into
 years from two years up, so "Last 30 days" reads as 30 days and a
 twelve-month window as 12 months.
+
+#### `planDateStep( range, direction, context )`
+
+Decides a step in full, for the arrows that offer it and the filters that
+apply it to share one answer: whether the window can move that way, where it
+lands, what the landing is called, and the `step` it is to carry. `context`
+carries the applied `presetId`, the `step` search param the window was reached
+by, the site `timeZone`, `now` and the plan's `earliestDate`. Returns
+`undefined` when the window cannot move.
+
+A window steps by one unit, decided once and carried in the URL as `step`: a
+preset's own (`last-7-days` moves 7 days, `month-to-date` a month,
+`last-12-months` 12 months, `year-to-date` a year, `last-3-years` 3 years,
+`last-24-hours` 24 elapsed hours), or the shape a hand-picked window has on its
+first step, written as an
+ISO 8601 duration (`P30D`, `P1M`, `P1Y`, `PT6H`: whole calendar months step by
+months, whole years by years, any other run of whole days by its days, anything
+else by its hours). The applied preset wins over a `step` the URL carries; a
+`step` the URL cannot name, or longer than a century, is ignored. Every later step moves the same way
+whatever shape it lands on, so the reverse step always undoes it: a 30-day
+window stepped back onto a whole June returns to its 30 days. "All time" does
+not step.
+
+A step moves the start by the unit and rebuilds both ends on the calendar, so a
+window cut at today steps away whole. Backward, the step has to start on or
+after `earliestDate`. Forward, the next window has to have begun; its end is
+cut at the end of today (of the running hour, by hours), so "Last month" steps
+into the month in progress and "Oct 1 – 30" into Oct 31 – today. The landing
+reads as a preset only when it is the window of the preset the reader set out
+from; anywhere else it is `custom`.
+
+```typescript
+planDateStep( range, 'previous', { presetId: 'last-7-days', timeZone, now: new Date() } );
+// { range: the 7 days before, presetId: 'custom', step: 'last-7-days' }
+planDateStep( range, 'next', { step: 'last-7-days', timeZone, now: new Date() } );
+// { range: the last 7 days, presetId: 'last-7-days', step: 'last-7-days' }
+```
 
 ## Types
 
@@ -235,7 +301,13 @@ it cannot resolve, and the chart passes that straight through.
 ### `ComparisonPresetId`
 
 ```typescript
-type ComparisonPresetId = 'previous-period' | 'previous-month' | 'previous-year';
+type ComparisonPresetId =
+	| 'previous-period'
+	| 'previous-period-match-day-of-week'
+	| 'previous-week'
+	| 'previous-month'
+	| 'previous-year'
+	| 'previous-year-match-day-of-week';
 ```
 
 ### `DateRangeSpan`

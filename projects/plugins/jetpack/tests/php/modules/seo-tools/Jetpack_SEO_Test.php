@@ -5,14 +5,15 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-posts.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-titles.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-utils.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo.php';
 
 /**
- * Tests for Jetpack_SEO::set_custom_og_tags() — specifically that per-post custom
- * SEO descriptions are only applied on singular views.
+ * Tests that Jetpack_SEO applies per-post SEO settings only on singular views.
  */
 class Jetpack_SEO_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -38,7 +39,9 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		update_option( 'show_on_front', 'posts' );
 		delete_option( 'page_on_front' );
+		delete_option( 'page_for_posts' );
 		delete_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION );
+		delete_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION );
 		parent::tear_down();
 	}
 
@@ -107,5 +110,186 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 		$tags = $this->seo->set_custom_og_tags( array() );
 
 		$this->assertSame( 'Static front page description.', $tags['og:description'] ?? '', 'og:description should use the static front page\'s custom description when front-page meta is blank.' );
+	}
+
+	/**
+	 * The posts page shows its own description, or the homepage's when it has none to show.
+	 *
+	 * @dataProvider provide_posts_page_descriptions
+	 *
+	 * @param array  $page_args            Post fields for the posts page.
+	 * @param string $seo_description      SEO description saved on the posts page.
+	 * @param string $expected_description The posts page's description in its tags, or empty for none.
+	 * @param string $expected_title       The og:title set for the posts page, or empty for none.
+	 */
+	#[DataProvider( 'provide_posts_page_descriptions' )]
+	public function test_posts_page_description( $page_args, $seo_description, $expected_description, $expected_title ) {
+		$this->go_to_posts_page( $page_args, $seo_description );
+
+		ob_start();
+		$this->seo->meta_tags();
+		$output = ob_get_clean();
+		$tags   = $this->seo->set_custom_og_tags( array() );
+
+		$this->assertStringContainsString( '<meta name="description" content="' . ( $expected_description ? $expected_description : 'Front page description.' ) . '" />', $output );
+		$this->assertSame( $expected_description, $tags['og:description'] ?? '' );
+		$this->assertSame( $expected_title, $tags['og:title'] ?? '' );
+	}
+
+	/**
+	 * Data provider for test_posts_page_description.
+	 *
+	 * @return array
+	 */
+	public static function provide_posts_page_descriptions() {
+		$excerpt = array( 'post_excerpt' => 'Blog excerpt.' );
+
+		return array(
+			'SEO description wins over excerpt' => array( $excerpt, 'Blog SEO description.', 'Blog SEO description.', 'Our Blog' ),
+			'excerpt when no SEO description'   => array( $excerpt, '', 'Blog excerpt.', 'Our Blog' ),
+			'neither set'                       => array( array( 'post_excerpt' => '' ), '', '', 'Our Blog' ),
+			'password-protected'                => array( $excerpt + array( 'post_password' => 'secret' ), 'Blog SEO description.', '', 'Our Blog' ),
+			'private page'                      => array( $excerpt + array( 'post_status' => 'private' ), 'Blog SEO description.', '', '' ),
+		);
+	}
+
+	/**
+	 * The posts page's title comes from its own SEO title, then the Pages title format, never from a listed post.
+	 *
+	 * @dataProvider provide_posts_page_titles
+	 *
+	 * @param array  $page_args      Post fields for the posts page.
+	 * @param string $seo_title      SEO title saved on the posts page.
+	 * @param bool   $pages_format   Whether a Pages title format is set.
+	 * @param string $expected_title Expected document title.
+	 * @param string $expected_og    Expected og:title, or empty for none.
+	 */
+	#[DataProvider( 'provide_posts_page_titles' )]
+	public function test_posts_page_title( $page_args, $seo_title, $pages_format, $expected_title, $expected_og ) {
+		$post_id = self::factory()->post->create( array( 'post_title' => 'Latest Post' ) );
+		update_post_meta( $post_id, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, 'Post SEO Title' );
+
+		if ( $pages_format ) {
+			update_option(
+				Jetpack_SEO_Titles::TITLE_FORMATS_OPTION,
+				array(
+					'pages' => array(
+						array(
+							'type'  => 'token',
+							'value' => 'page_title',
+						),
+						array(
+							'type'  => 'string',
+							'value' => ' | Pages format',
+						),
+					),
+				)
+			);
+		}
+
+		$this->go_to_posts_page( $page_args, '' );
+		update_post_meta( get_queried_object_id(), Jetpack_SEO_Posts::HTML_TITLE_META_KEY, $seo_title );
+
+		$this->assertSame( $expected_title, Jetpack_SEO_Titles::get_custom_title( 'Default Title' ) );
+		$this->assertSame( $expected_og, $this->seo->set_custom_og_tags( array() )['og:title'] ?? '' );
+	}
+
+	/**
+	 * Data provider for test_posts_page_title.
+	 *
+	 * @return array
+	 */
+	public static function provide_posts_page_titles() {
+		return array(
+			'SEO title'          => array( array(), 'Blog SEO Title', false, 'Blog SEO Title', 'Blog SEO Title' ),
+			'pages title format' => array( array(), '', true, 'Our Blog | Pages format', 'Our Blog | Pages format' ),
+			'neither set'        => array( array(), '', false, 'Default Title', 'Our Blog' ),
+			'private page'       => array( array( 'post_status' => 'private' ), 'Blog SEO Title', true, 'Default Title', '' ),
+		);
+	}
+
+	/**
+	 * A site that hands SEO to another plugin keeps its Open Graph tags on the posts page.
+	 */
+	public function test_posts_page_og_tags_unchanged_when_seo_tools_disabled() {
+		$this->go_to_posts_page( array( 'post_excerpt' => 'Blog excerpt.' ), '' );
+
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+
+		$this->assertSame( array(), $this->seo->set_custom_og_tags( array() ) );
+	}
+
+	/**
+	 * Creates a posts page on a site with a static front page, and views it.
+	 *
+	 * @param array  $page_args       Post fields for the posts page.
+	 * @param string $seo_description SEO description saved on the posts page.
+	 */
+	private function go_to_posts_page( $page_args, $seo_description ) {
+		$front_page_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		$posts_page_id = self::factory()->post->create(
+			$page_args + array(
+				'post_type'  => 'page',
+				'post_title' => 'Our Blog',
+			)
+		);
+		update_post_meta( $posts_page_id, Jetpack_SEO_Posts::DESCRIPTION_META_KEY, $seo_description );
+
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $front_page_id );
+		update_option( 'page_for_posts', $posts_page_id );
+		update_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, 'Front page description.' );
+
+		$this->go_to( get_permalink( $posts_page_id ) );
+	}
+
+	/**
+	 * A post's noindex setting applies to that post's own page, not to archives listing it.
+	 *
+	 * @dataProvider provide_noindex_views
+	 *
+	 * @param string $view           Which page to load: 'single', 'home', 'category', or 'front'.
+	 * @param bool   $expect_noindex Whether the page should get a robots noindex tag.
+	 */
+	#[DataProvider( 'provide_noindex_views' )]
+	public function test_noindex_only_applies_to_the_post_being_viewed( $view, $expect_noindex ) {
+		$cat_id  = self::factory()->category->create();
+		$post_id = self::factory()->post->create( array( 'post_category' => array( $cat_id ) ) );
+		update_post_meta( $post_id, Jetpack_SEO_Posts::NOINDEX_META_KEY, true );
+
+		if ( 'front' === $view ) {
+			$page_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
+			update_post_meta( $page_id, Jetpack_SEO_Posts::NOINDEX_META_KEY, true );
+			update_option( 'show_on_front', 'page' );
+			update_option( 'page_on_front', $page_id );
+		}
+
+		$urls = array(
+			'single'   => get_permalink( $post_id ),
+			'home'     => home_url( '/' ),
+			'category' => get_category_link( $cat_id ),
+			'front'    => home_url( '/' ),
+		);
+		$this->go_to( $urls[ $view ] );
+
+		ob_start();
+		$this->seo->meta_tags();
+		$output = ob_get_clean();
+
+		$this->assertSame( $expect_noindex, str_contains( $output, '<meta name="robots" content="noindex" />' ), $output );
+	}
+
+	/**
+	 * Data provider for test_noindex_only_applies_to_the_post_being_viewed.
+	 *
+	 * @return array
+	 */
+	public static function provide_noindex_views() {
+		return array(
+			'single post'           => array( 'single', true ),
+			'static front page'     => array( 'front', true ),
+			'latest-posts homepage' => array( 'home', false ),
+			'category archive'      => array( 'category', false ),
+		);
 	}
 }

@@ -2,42 +2,39 @@
  * External dependencies
  */
 import {
-	mergeStatsClicksComparisonRows,
 	useStatsClicks,
 	type StatsClicksComparisonItem,
 	type StatsClicksItem,
-	type StatsNormalizedReport,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
-	calculateDelta,
-	getCombinedPeriodMax,
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
-	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	clicksCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { link } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type ClicksAttributes = Record< never, never >;
 
 type ClicksRenderAttributes = ClicksAttributes & Partial< ReportParamsFieldAttributes >;
 type ClicksWidgetProps = WidgetRenderProps< ClicksRenderAttributes >;
@@ -86,7 +83,11 @@ function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): stri
 	return item.link ?? '';
 }
 
-function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
+/**
+ * Maps a merged data-layer row (comparison matching and the row cap happen in
+ * `mergeStatsClicksComparisonRows`) onto the widget's row shape.
+ */
+export function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 	const href = safeHttpUrl( item.link );
 
 	return {
@@ -101,50 +102,13 @@ function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 }
 
 /**
- * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present. Rows are capped
- * client-side by `max`; `max = 0` keeps all rows.
- */
-export function toClickRowsWithComparison(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	max: number
-): { rows: ClickRow[]; hasComparison: boolean } {
-	const { rows, hasComparison } = mergeStatsClicksComparisonRows( report, comparisonReport, max );
-	const clickRows = rows.map( toClickRow );
-
-	return {
-		rows: clickRows,
-		hasComparison,
-	};
-}
-
-/**
- * `toClickRowsWithComparison` without the `hasComparison` flag.
- */
-export function toClickRows(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	max: number
-): ClickRow[] {
-	return toClickRowsWithComparison( report, comparisonReport, max ).rows;
-}
-
-/**
  * Maps normalized click rows onto the shape `LeaderboardChart` expects.
  */
 function buildLeaderboardData(
 	rows: ClickRow[],
-	withComparison: boolean,
 	onDrillDown?: ( row: ClickRow ) => void
 ): LeaderboardChartData {
-	const maxClicks = getCombinedPeriodMax(
-		rows.map( row => row.value ),
-		withComparison ? rows.map( row => row.previousValue ) : []
-	);
-
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
 
 		return {
@@ -168,16 +132,7 @@ function buildLeaderboardData(
 				} ),
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxClicks ),
-			previousValue,
-			previousShare:
-				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxClicks )
-					: undefined,
-			delta:
-				withComparison && previousValue !== undefined
-					? calculateDelta( row.value, previousValue )
-					: undefined,
+			previousValue: row.previousValue,
 		};
 	} );
 }
@@ -207,11 +162,12 @@ export function ClicksLeaderboard( {
 }: ClicksLeaderboardProps ) {
 	return (
 		<LeaderboardChart
-			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
+			data={ buildLeaderboardData( rows, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Links', 'jetpack-premium-analytics-pkg' ), metric: 'clicks' } }
 		/>
 	);
 }
@@ -231,10 +187,8 @@ function ClicksInner() {
 		...reportParams,
 		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsClicks(
-		statsParams,
-		{ maxRows: WIDGET_ROW_LIMIT }
-	);
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsClicks( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => ( comparisonRows?.rows ?? [] ).map( toClickRow ),
@@ -257,6 +211,11 @@ function ClicksInner() {
 		}
 	}, [ selectedClickLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedClick ] );
 
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have clicked links recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
+
 	const handleDrillDown = useCallback(
 		( row: ClickRow ) => {
 			selectClick( row.label );
@@ -272,11 +231,19 @@ function ClicksInner() {
 		/>
 	) : null;
 
+	useReportActions( {
+		csv: {
+			exporter: clicksCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
 		<div className={ styles.content }>
 			{ backLink }
 			<WidgetState
-				isLoading={ isLoading }
+				isLoading={ emptyState.isLoading }
 				isFetching={ isFetching }
 				// `placeholderData` keeps the prior period's rows on screen while `isError`
 				// flips true, so a transient refetch failure should not replace them.
@@ -289,10 +256,7 @@ function ClicksInner() {
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
-				empty={ {
-					icon: link,
-					description: __( 'No clicks in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
+				empty={ emptyState.empty }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<ClicksLeaderboard
@@ -314,9 +278,6 @@ export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<ClicksInner />
-				<WidgetFooter>
-					<ReportLink report="clicks" />
-				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

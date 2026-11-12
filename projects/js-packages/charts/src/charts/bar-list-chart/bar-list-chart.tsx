@@ -2,6 +2,7 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { Group } from '@visx/group';
 import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
 import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
@@ -19,6 +20,8 @@ export interface BarListChartProps extends Exclude<
 	BarChartProps,
 	'orientation' | 'size' | 'gridVisibility'
 > {
+	/** Bar lists are always horizontal, and horizontal bars ignore `compactWhenShort`. */
+	compactWhenShort?: never;
 	options?: {
 		/**
 		 * Scale for the y axis. Exclude the type property.
@@ -235,6 +238,7 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 		top: 0,
 	},
 	className,
+	ariaLabel,
 	...rest
 } ) => {
 	const { getElementStyles } = useGlobalChartsContext();
@@ -333,6 +337,7 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 				xScale: chartOptions.xScale,
 				yScale: chartOptions.yScale,
 			} }
+			ariaLabel={ ariaLabel ?? __( 'Bar list chart', 'jetpack-charts' ) }
 			{ ...rest }
 		/>
 	);

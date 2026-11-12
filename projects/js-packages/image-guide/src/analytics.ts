@@ -1,5 +1,4 @@
-import { get } from 'svelte/store';
-import { guideState } from './stores/GuideState.ts';
+import { selectors, subscribeToFacts } from './stores/store.ts';
 import { MeasurableImageStore } from './stores/MeasurableImageStore.ts';
 
 /**
@@ -54,16 +53,21 @@ export default class ImageGuideAnalytics {
 		imageStore: MeasurableImageStore
 	): Promise< ImageProperties > {
 		return new Promise( resolve => {
+			let unsubscribe = () => {};
+			let emitted = false;
 			// Wait until the image is loaded and then track the state.
-			imageStore.loading.subscribe( loading => {
-				if ( ! loading ) {
-					const oversizedRatio = get( imageStore.oversizedRatio );
+			const track = () => {
+				if ( ! selectors.getImageFacts( imageStore.id ).loading && ! emitted ) {
+					emitted = true;
+					const {
+						oversizedRatio,
+						fileSize,
+						sizeOnPage,
+						expectedSize,
+						potentialSavings,
+						url: imageURL,
+					} = imageStore.getSnapshot();
 					const severity = getSeverity( oversizedRatio );
-					const fileSize = get( imageStore.fileSize );
-					const sizeOnPage = get( imageStore.sizeOnPage );
-					const expectedSize = get( imageStore.expectedSize );
-					const potentialSavings = get( imageStore.potentialSavings );
-					const imageURL = get( imageStore.url );
 
 					const props: ImageProperties = {
 						severity,
@@ -86,8 +90,11 @@ export default class ImageGuideAnalytics {
 					} );
 
 					resolve( props );
+					unsubscribe();
 				}
-			} );
+			};
+			unsubscribe = subscribeToFacts( track, imageStore.id );
+			track();
 		} );
 	}
 
@@ -131,7 +138,7 @@ export default class ImageGuideAnalytics {
 	 */
 	public static trackInitialState() {
 		ImageGuideAnalytics.tracksCallback( 'image_guide_initial_ui_state', {
-			image_guide_state: get( guideState ),
+			image_guide_state: selectors.getGuideState(),
 		} );
 	}
 
@@ -140,7 +147,7 @@ export default class ImageGuideAnalytics {
 	 */
 	public static trackUIStateChange() {
 		ImageGuideAnalytics.tracksCallback( 'image_guide_ui_state_change', {
-			image_guide_state: get( guideState ),
+			image_guide_state: selectors.getGuideState(),
 		} );
 	}
 }

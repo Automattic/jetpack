@@ -25,7 +25,7 @@ describe( 'Stats followers normalizer', () => {
 			icon: 'https://secure.gravatar.com/avatar/example?d=mm',
 			link: null,
 			date_subscribed: '2026-06-16T18:53:05+00:00',
-			subscription_id: 111,
+			subscription_id: undefined,
 			actions: [ { type: 'follow', data: false } ],
 			children: null,
 		} );

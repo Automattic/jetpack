@@ -144,12 +144,12 @@ const StatsByDayChart = ( {
 			return null;
 		}
 		return (
-			<div className="podcast-stats-chart__tooltip">
+			<>
 				<strong>{ formatPodcastDate( datum.dateString ) }</strong>
 				<span className="podcast-stats-chart__tooltip-value">
 					{ formatNumber( Number( datum.value ?? 0 ) ) }
 				</span>
-			</div>
+			</>
 		);
 	}, [] );
 

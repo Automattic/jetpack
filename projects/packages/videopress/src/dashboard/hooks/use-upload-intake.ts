@@ -1,35 +1,43 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { FREE_TIER_AT_LIMIT_MESSAGE } from '../components/free-tier-notice';
+import { store as noticesStore } from '@wordpress/notices';
+import { FREE_TIER_AT_LIMIT_MESSAGE } from '../components/free-tier-notice/constants';
 import {
 	INVALID_FILE_NOTICE_ID,
 	NOT_A_VIDEO_MESSAGE,
 } from '../components/upload-dropzone/video-files';
-import { planVideoDrop } from '../utils/upload-drop';
+import { filterVideoFiles, planVideoDrop } from '../utils/upload-drop';
+import { recordUploadRefusal, type UploadRefusalLocation } from '../utils/upload-refusal-analytics';
 import { useFreeTier } from './use-free-tier';
 import { useUpload } from './use-upload';
 import { useVideoPressUpgrade } from './use-videopress-upgrade';
 
 /**
- * The shared multi-file upload entry point behind every "give me your files"
- * surface — the Library's DropZone, its header "Upload video" picker, and the
- * welcome modal's primary CTA. Enforces the free-tier cap up front so no
- * surface can sneak past the limit, and raises the same notices from all of
- * them.
+ * Validate selected videos against the plan limit and enqueue accepted files.
  *
- * @return A callback that plans and starts uploads for a picked or dropped
- * file set, returning how many uploads it actually started — 0 when the whole
- * selection was refused (with the refusal already surfaced as a notice).
+ * @param location  - Handler receiving this selection.
+ * @param onStarted - Receives temporary IDs for the accepted uploads.
+ * @return File intake callback, returning the accepted count.
  */
-export function useUploadIntake(): ( files: File[] ) => number {
-	const { isFree, isUnlimited, limit, videoCount } = useFreeTier();
+export function useUploadIntake(
+	location: Exclude< UploadRefusalLocation, 'library_dropzone' >,
+	onStarted?: ( ids: string[] ) => void
+): ( files: File[] ) => number {
+	const { isFree, isUnlimited, limit, videoCount, knownVideoCount } = useFreeTier();
 	const { startUpload } = useUpload();
-	const { createErrorNotice } = useGlobalNotices();
-	const runUpgrade = useVideoPressUpgrade();
+	const { createErrorNotice } = useDispatch( noticesStore );
+	const runUpgrade = useVideoPressUpgrade( 'upload_limit' );
 
 	return useCallback(
 		( files: File[] ): number => {
+			const eligibleFiles = filterVideoFiles( files );
+			if ( eligibleFiles.length < files.length ) {
+				recordUploadRefusal( location, {
+					reason: 'file_validation',
+					counts: { attempted: files.length, skipped: files.length - eligibleFiles.length },
+				} );
+			}
 			const decision = planVideoDrop( files, {
 				isFree,
 				isUnlimited,
@@ -38,20 +46,38 @@ export function useUploadIntake(): ( files: File[] ) => number {
 			} );
 
 			if ( decision.kind === 'no-videos' ) {
-				createErrorNotice( NOT_A_VIDEO_MESSAGE, { id: INVALID_FILE_NOTICE_ID } );
-				return 0;
-			}
-
-			if ( decision.kind === 'at-limit' ) {
-				createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
-					actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+				createErrorNotice( NOT_A_VIDEO_MESSAGE, {
+					id: INVALID_FILE_NOTICE_ID,
+					type: 'snackbar',
 				} );
 				return 0;
 			}
 
-			decision.toUpload.forEach( file => startUpload( file ) );
+			if ( decision.kind === 'at-limit' ) {
+				recordUploadRefusal( location, {
+					reason: 'plan_limit',
+					counts: { attempted: files.length, skipped: eligibleFiles.length },
+				} );
+				createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
+					actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+					type: 'snackbar',
+				} );
+				return 0;
+			}
+
+			const ids = decision.toUpload.map( ( file, index ) =>
+				startUpload( file, {
+					isFree,
+					videoCountBefore: knownVideoCount === undefined ? undefined : knownVideoCount + index,
+				} )
+			);
+			onStarted?.( ids );
 
 			if ( decision.skipped > 0 ) {
+				recordUploadRefusal( location, {
+					reason: 'plan_limit',
+					counts: { attempted: files.length, skipped: decision.skipped },
+				} );
 				createErrorNotice(
 					sprintf(
 						/* translators: %d: number of videos that could not be uploaded because the plan limit was reached. */
@@ -62,12 +88,24 @@ export function useUploadIntake(): ( files: File[] ) => number {
 							'jetpack-videopress-pkg'
 						),
 						decision.skipped
-					)
+					),
+					{ type: 'snackbar' }
 				);
 			}
 
 			return decision.toUpload.length;
 		},
-		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
+		[
+			location,
+			isFree,
+			isUnlimited,
+			limit,
+			videoCount,
+			knownVideoCount,
+			startUpload,
+			createErrorNotice,
+			runUpgrade,
+			onStarted,
+		]
 	);
 }

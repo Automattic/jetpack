@@ -8,11 +8,11 @@ const url = ( suffix: string ) =>
 const SETTINGS_ARG = '&p=%2F%3Ftab%3Dsettings';
 
 describe( 'resolveRoute', () => {
-	it.each( [ '', '#', '#/' ] )( 'treats %p as the Overview root', suffix => {
+	it.each( [ '', '#', '&p=%2F%3Ftab%3Doverview' ] )( 'treats %p as the Overview root', suffix => {
 		expect( resolveRoute( url( suffix ) ).route ).toEqual( { subpage: null, tab: 'overview' } );
 	} );
 
-	it( 'reads the tab out of the chassis route arg', () => {
+	it( 'preserves the former Settings URL as a section destination', () => {
 		expect( resolveRoute( url( SETTINGS_ARG ) ).route ).toEqual( {
 			subpage: null,
 			tab: 'settings',
@@ -23,11 +23,17 @@ describe( 'resolveRoute', () => {
 		expect( resolveRoute( url( '&tab=settings' ) ).route.tab ).toBe( 'overview' );
 	} );
 
-	it( 'promotes a tab carried in the hash into the route arg', () => {
-		const { route, normalizedUrl } = resolveRoute( url( '#/?tab=settings' ) );
+	it.each( [ '#/', '#/?tab=settings' ] )( 'promotes %s into the section destination', hash => {
+		const { route, normalizedUrl } = resolveRoute( url( hash ) );
 
 		expect( route ).toEqual( { subpage: null, tab: 'settings' } );
 		expect( normalizedUrl ).toBe( url( SETTINGS_ARG ) );
+	} );
+
+	it( 'lets an explicit Overview hash return to the top from Settings', () => {
+		const { route, normalizedUrl } = resolveRoute( url( `${ SETTINGS_ARG }#/?tab=overview` ) );
+		expect( route ).toEqual( { subpage: null, tab: 'overview' } );
+		expect( normalizedUrl ).toBe( url( '&p=%2F' ) );
 	} );
 
 	it( 'parses the hash query before matching a sub-page', () => {
@@ -95,6 +101,22 @@ describe( 'navigateTo', () => {
 		expect( window.history ).toHaveLength( before + 1 );
 		expect( listener ).toHaveBeenCalledTimes( 1 );
 
+		window.removeEventListener( LOCATION_CHANGE_EVENT, listener );
+	} );
+
+	it( 'does not repeat a redirect to the current URL', () => {
+		const listener = jest.fn();
+		window.addEventListener( LOCATION_CHANGE_EVENT, listener );
+		const target = settingsUrl();
+		navigateTo( target );
+		const length = window.history.length;
+		listener.mockClear();
+
+		navigateTo( target );
+		navigateTo( target, { replace: true } );
+
+		expect( window.history ).toHaveLength( length );
+		expect( listener ).not.toHaveBeenCalled();
 		window.removeEventListener( LOCATION_CHANGE_EVENT, listener );
 	} );
 

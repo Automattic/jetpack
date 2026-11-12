@@ -1,5 +1,6 @@
 {
 	"name": "jpa/stats-top-posts",
+	"icon": "jpa/page",
 	"title": "Top pages",
 	"description": "Your most viewed posts, pages, and archives.",
 	"help": {
@@ -12,5 +13,23 @@
 		]
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "contentView",
+			"type": "jpa/select",
+			"label": "View",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "posts",
+					"label": "Posts & pages"
+				},
+				{
+					"value": "archives",
+					"label": "Archives"
+				}
+			]
+		}
+	]
 }

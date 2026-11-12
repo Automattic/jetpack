@@ -130,12 +130,20 @@ describe( 'SubscriberList fitRows', () => {
 		expect( footerText() ).toBe( '26 more' );
 	} );
 
-	it( 'shows the footer even when the caller had no further rows', () => {
-		layout = mockLayout( tileFor( 4 ) );
+	it( 'counts only the hidden rows when the total is unknown', () => {
+		layout = mockLayout( tileFor( 4, false ) );
+		const items = makeItems( 10 );
+		const { rerender } = render( <SubscriberList items={ items } moreCount={ null } /> );
 
-		render( <SubscriberList items={ makeItems( 10 ) } /> );
+		expect( visibleNames() ).toHaveLength( 3 );
+		expect( footerText() ).toBe( '7 more' );
 
-		expect( footerText() ).toBe( '6 more' );
+		rerender( <SubscriberList items={ items } moreCount={ 20 } /> );
+		expect( visibleNames() ).toHaveLength( 3 );
+		expect( footerText() ).toBe( '27 more' );
+
+		rerender( <SubscriberList items={ items } moreCount={ null } /> );
+		expect( footerText() ).toBe( '7 more' );
 	} );
 
 	it( 'refits when the tile is resized', () => {
@@ -194,5 +202,44 @@ describe( 'SubscriberList fitRows', () => {
 
 		expect( visibleNames() ).toHaveLength( 10 );
 		expect( footerText() ).toBeNull();
+	} );
+} );
+
+describe( 'SubscriberList links', () => {
+	it( 'opens a row link in a new tab when the item does not set openInNewTab', () => {
+		render(
+			<SubscriberList
+				items={ [ { id: 'ada', name: 'Ada Lovelace', href: 'https://example.com/ada' } ] }
+			/>
+		);
+
+		const link = screen.getByRole( 'link', { name: /Ada Lovelace/ } );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'keeps a row link in the same tab when the item opts out', () => {
+		render(
+			<SubscriberList
+				items={ [
+					{ id: 'ada', name: 'Ada Lovelace', href: 'https://example.com/ada', openInNewTab: false },
+				] }
+			/>
+		);
+
+		// One link only: a new-tab link rendered beside it would carry a target.
+		const links = screen.getAllByRole( 'link' );
+		expect( links ).toHaveLength( 1 );
+		expect( links[ 0 ] ).not.toHaveAttribute( 'target' );
+	} );
+
+	it( 'renders the name as plain text when the href has an unsafe scheme', () => {
+		render(
+			<SubscriberList
+				items={ [ { id: 'ada', name: 'Ada Lovelace', href: 'javascript:alert(1)' } ] }
+			/>
+		);
+
+		expect( screen.getByText( 'Ada Lovelace' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 } );

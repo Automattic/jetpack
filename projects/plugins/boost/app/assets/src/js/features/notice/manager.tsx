@@ -26,12 +26,12 @@ const Notice = ( { notice, onDismiss }: NoticeProps ) => {
 	);
 };
 
-const NoticeManager = () => {
+const NoticeManager = ( { modern = false }: { modern?: boolean } ) => {
 	const { notices, removeNotice } = useNotices();
 
 	return (
 		Object.keys( notices ).length > 0 && (
-			<div className={ clsx( 'stackable-snackbars', styles.wrapper ) }>
+			<div className={ clsx( 'stackable-snackbars', modern ? styles.modern : styles.wrapper ) }>
 				{ Object.values( notices ).map( notice => (
 					<Notice
 						key={ notice.id }

@@ -35,10 +35,6 @@ describe( 'withoutComparison', () => {
 		expect( result ).toEqual( { ...PARAMS, stat_fields: 'views,visitors' } );
 	} );
 
-	it( 'leaves params that carry no comparison untouched', () => {
-		expect( withoutComparison( PARAMS ) ).toEqual( PARAMS );
-	} );
-
 	/*
 	 * The two halves of the same notion, and the reason the report pages can
 	 * strip a comparison and trust it is gone. It holds only while the fields

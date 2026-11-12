@@ -6,9 +6,19 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
+use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
+use Automattic\Jetpack\Stats_Admin\Admin_Bar as Stats_Admin_Bar;
+use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
+use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget;
 use Automattic\Jetpack\Stats_Plugin\Jetpack_Stats_Plugin;
+use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -25,6 +35,7 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	public function set_up() {
 		$this->reset_static( Stats_Dashboard::class, 'initialized', false );
 		$this->reset_static( Stats_Admin_Main::class, 'instance', null );
+		$this->reset_static( Analytics::class, 'initialized', false );
 	}
 
 	/**
@@ -33,6 +44,9 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		( new Connection_Manager() )->reset_connection_status();
+		remove_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
+		delete_option( Enablement_Setting::ENABLED_OPTION );
 	}
 
 	/**
@@ -77,17 +91,20 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The complete set of hooks `bootstrap()` registers, as `hook, method, priority`.
+	 * The complete set of hooks `bootstrap()` registers, as `hook, callback, priority`.
 	 */
 	private function bootstrap_hooks() {
+		$plugin = Jetpack_Stats_Plugin::class;
+
 		return array(
-			array( 'plugins_loaded', 'configure_packages', 1 ),
-			array( 'plugins_loaded', 'initialize_other_packages', 10 ),
-			array( 'activated_plugin', 'handle_plugin_activation', 10 ),
-			array( 'jetpack_site_registered', 'activate_stats_module', 10 ),
-			array( 'deactivate_jetpack/jetpack.php', 'activate_stats_module', 10 ),
-			array( 'plugin_action_links_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, 'plugin_page_add_links', 10 ),
-			array( 'jetpack_get_available_standalone_modules', 'filter_available_modules_add_stats', 10 ),
+			array( 'plugins_loaded', array( $plugin, 'configure_packages' ), 1 ),
+			array( 'plugins_loaded', array( $plugin, 'initialize_other_packages' ), 10 ),
+			array( 'activated_plugin', array( $plugin, 'handle_plugin_activation' ), 10 ),
+			array( 'jetpack_site_registered', array( $plugin, 'activate_stats_module' ), 10 ),
+			array( 'deactivate_jetpack/jetpack.php', array( $plugin, 'activate_stats_module' ), 10 ),
+			array( 'plugin_action_links_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, array( $plugin, 'plugin_page_add_links' ), 10 ),
+			array( 'jetpack_get_available_standalone_modules', array( $plugin, 'filter_available_modules_add_stats' ), 10 ),
+			array( 'wp_consent_api_registered_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, '__return_true', 10 ),
 		);
 	}
 
@@ -105,6 +122,40 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		foreach ( $GLOBALS['wp_filter']['admin_menu']->callbacks as $callbacks ) {
 			foreach ( $callbacks as $callback ) {
 				if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof Stats_Dashboard ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Report the Stats module as active.
+	 *
+	 * @param array $modules Active module slugs.
+	 * @return array
+	 */
+	public function activate_stats( $modules ) {
+		$modules[] = 'stats';
+		return $modules;
+	}
+
+	/**
+	 * Whether the Stats column is queued for the Posts list.
+	 *
+	 * `Admin_Post_List_Column` hooks an instance method, so `has_filter()` cannot match it against a class name.
+	 *
+	 * @return bool
+	 */
+	private function post_list_column_is_registered() {
+		if ( ! isset( $GLOBALS['wp_filter']['manage_posts_columns'] ) ) {
+			return false;
+		}
+
+		foreach ( $GLOBALS['wp_filter']['manage_posts_columns']->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof Admin_Post_List_Column ) {
 					return true;
 				}
 			}
@@ -143,22 +194,22 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 * WordPress stores actions as filters, so `has_filter()` and `remove_filter()` cover both.
 	 */
 	public function test_bootstrap_registers_every_hook() {
-		foreach ( $this->bootstrap_hooks() as list( $hook, $method, $priority ) ) {
-			remove_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ), $priority );
+		foreach ( $this->bootstrap_hooks() as list( $hook, $callback, $priority ) ) {
+			remove_filter( $hook, $callback, $priority );
 
 			$this->assertFalse(
-				has_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ) ),
-				"$hook still holds $method before bootstrap() runs."
+				has_filter( $hook, $callback ),
+				"$hook still holds its callback before bootstrap() runs."
 			);
 		}
 
 		Jetpack_Stats_Plugin::bootstrap();
 
-		foreach ( $this->bootstrap_hooks() as list( $hook, $method, $priority ) ) {
+		foreach ( $this->bootstrap_hooks() as list( $hook, $callback, $priority ) ) {
 			$this->assertSame(
 				$priority,
-				has_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ) ),
-				"bootstrap() did not register $method on $hook."
+				has_filter( $hook, $callback ),
+				"bootstrap() did not register its callback on $hook."
 			);
 		}
 	}
@@ -197,6 +248,22 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 
 		$this->assertCount( 2, $links );
 		$this->assertStringContainsString( 'Deactivate', $links[1] );
+	}
+
+	/**
+	 * Stats v2 answers `jetpack_stats_url`, so the link follows it there once it is on.
+	 */
+	public function test_plugin_action_link_follows_the_stats_url_filter() {
+		add_filter(
+			'jetpack_stats_url',
+			static function () {
+				return 'https://example.org/wp-admin/admin.php?page=stats-v2';
+			}
+		);
+
+		$links = Jetpack_Stats_Plugin::plugin_page_add_links( array() );
+
+		$this->assertStringContainsString( 'href="https://example.org/wp-admin/admin.php?page=stats-v2"', $links[0] );
 	}
 
 	/**
@@ -285,6 +352,36 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Without the Jetpack plugin, nothing else adds Stats to the admin bar, the Posts list or the WordPress dashboard.
+	 */
+	public function test_connected_site_gets_the_admin_bar_posts_column_and_dashboard_widget() {
+		$this->fake_connection();
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertNotFalse( has_action( 'wp_before_admin_bar_render', array( Stats_Admin_Bar::class, 'add_site_menu_link' ) ) );
+		$this->assertNotFalse( has_action( 'admin_bar_menu', array( Stats_Admin_Bar::class, 'maybe_add_chart_node' ) ) );
+		$this->assertNotFalse( has_action( 'admin_bar_init', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
+		$this->assertNotFalse( has_action( 'wp_dashboard_setup', array( WP_Dashboard_Odyssey_Widget::class, 'register_widget' ) ) );
+		$this->assertTrue( $this->post_list_column_is_registered() );
+	}
+
+	/**
+	 * The widget checks the module itself when the dashboard loads, so only the admin bar and the column are left out here.
+	 */
+	public function test_connected_site_with_stats_off_gets_no_admin_bar_or_posts_column() {
+		$this->fake_connection();
+
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertFalse( has_action( 'wp_before_admin_bar_render', array( Stats_Admin_Bar::class, 'add_site_menu_link' ) ) );
+		$this->assertFalse( has_action( 'admin_bar_menu', array( Stats_Admin_Bar::class, 'maybe_add_chart_node' ) ) );
+		$this->assertFalse( has_action( 'admin_bar_init', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
+		$this->assertFalse( $this->post_list_column_is_registered() );
+	}
+
+	/**
 	 * The Odyssey dashboard and the block editor both read stats through the
 	 * `jetpack/v4/stats-app` proxy, which `Stats_Admin\REST_Controller` registers. Walk the
 	 * real path — `configure_packages()` then the `Config` initializer — so the assertion
@@ -309,5 +406,106 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		// Odyssey reads `is_commercial` from this route to decide what to paywall, and the
 		// Subscribers and Store tabs from the same response.
 		$this->assertContains( '/jetpack/v4/site', $routes );
+	}
+
+	/**
+	 * Stats v2 boots when the package's rule says so.
+	 *
+	 * @dataProvider provide_stats_v2_states
+	 *
+	 * @param bool $opted_in Whether the site opted in to Stats v2.
+	 * @param bool $expected Whether Stats v2 boots.
+	 */
+	#[DataProvider( 'provide_stats_v2_states' )]
+	public function test_stats_v2_boots_with_the_packages( $opted_in, $expected ) {
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		update_option( Enablement_Setting::ENABLED_OPTION, (int) $opted_in );
+
+		Jetpack_Stats_Plugin::configure_packages();
+
+		$this->assertSame( $expected, Analytics::is_initialized() );
+		$this->assertSame(
+			$expected,
+			false !== has_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ) ),
+			'The WooCommerce section boots with Stats v2.'
+		);
+	}
+
+	/**
+	 * Stats v2 states, as opted in, boots.
+	 *
+	 * @return array
+	 */
+	public static function provide_stats_v2_states() {
+		return array(
+			'off by default' => array( false, false ),
+			'opted in'       => array( true, true ),
+		);
+	}
+
+	/**
+	 * Booting here too would leave the menu title and the WooCommerce section to whichever plugin loads first.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_stats_v2_is_left_to_the_jetpack_plugin() {
+		require_once __DIR__ . '/stubs/class-jetpack.php';
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		Jetpack_Stats_Plugin::configure_packages();
+
+		$this->assertFalse( Analytics::is_initialized() );
+	}
+
+	/**
+	 * The setting is what turns Stats v2 on, so it has to be there while Stats v2 is off.
+	 */
+	public function test_stats_v2_setting_is_registered_while_it_is_off() {
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertSame( 0, has_action( 'rest_api_init', array( Enablement_Setting::class, 'register' ) ) );
+	}
+
+	/**
+	 * The classic Stats menu steps aside only once it is retired and Stats v2 is there to take over.
+	 *
+	 * @dataProvider provide_classic_menu_states
+	 *
+	 * @param bool $module_active Whether the Stats module is active.
+	 * @param bool $opted_in      Whether the site opted in to Stats v2.
+	 * @param bool $retired       Whether the classic Stats page is retired.
+	 * @param bool $kept          Whether the classic Stats menu is registered.
+	 */
+	#[DataProvider( 'provide_classic_menu_states' )]
+	public function test_classic_menu_gives_way_to_stats_v2( $module_active, $opted_in, $retired, $kept ) {
+		$this->fake_connection();
+		if ( $module_active ) {
+			add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		}
+		update_option( Enablement_Setting::ENABLED_OPTION, (int) $opted_in );
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+
+		Jetpack_Stats_Plugin::configure_packages();
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertSame( $kept, $this->dashboard_menu_is_registered() );
+	}
+
+	/**
+	 * Classic menu states, as module active, opted in, classic page retired, menu kept.
+	 *
+	 * @return array
+	 */
+	public static function provide_classic_menu_states() {
+		return array(
+			'Stats v2 off'                 => array( true, false, false, true ),
+			'Stats v2 beside classic'      => array( true, true, false, true ),
+			'classic retired'              => array( true, false, true, false ),
+			'retired, Stats v2 not booted' => array( false, false, true, true ),
+		);
 	}
 }

@@ -22,31 +22,44 @@ export function toFiniteNumber( value: unknown ): number | undefined {
 }
 
 /**
- * Best-effort subscription date, accepting either payload shape.
+ * Turn a naive UTC timestamp into ISO 8601, leaving zoned ones alone; zero dates come back empty.
  *
- * List rows carry the `wpcom_`/`email_` pair — Calypso prefers `wpcom_date_subscribed`, falling
- * back to the email subscription date for email-only subscribers. The individual-subscriber
- * endpoint instead sends a single `date_subscribed`, which is why the detail panel showed nothing
- * before it was handled here.
+ * @param raw - Date string from either payload shape.
+ * @return ISO-ish date string or empty.
+ */
+function normalizeDate( raw?: string | null ): string {
+	if ( ! raw || ZERO_DATE.test( raw ) ) {
+		return '';
+	}
+	return HAS_TIMEZONE.test( raw ) ? raw : `${ raw.replace( ' ', 'T' ) }+00:00`;
+}
+
+/**
+ * Earliest of the subscriber's Reader and email subscription dates.
  *
- * The two shapes also differ in format: list dates are naive UTC (`2026-07-28 19:02:09`) and need
- * pinning to UTC so they render in the caller's locale rather than being read as local time
- * (matching Calypso's `getFormattedSubscriptionDate`), while the individual date already carries an
- * offset — appending a second one would make it unparseable.
+ * Matches WP.com's date sort, which orders by the earlier non-zero date. List dates are naive UTC,
+ * individual dates already carry an offset. `date_subscribed` is the fallback when the pair is missing.
  *
  * @param subscriber - Subscriber row or detail payload.
  * @return ISO-ish date string or empty.
  */
 export function getSubscribedAt( subscriber: Subscriber | SubscriberDetails ): string {
-	const raw =
-		subscriber.wpcom_date_subscribed ||
-		subscriber.email_date_subscribed ||
-		( subscriber as SubscriberDetails ).date_subscribed ||
-		'';
-	if ( ! raw || ZERO_DATE.test( raw ) ) {
-		return '';
+	const isValid = ( date: string ) => !! date && ! Number.isNaN( Date.parse( date ) );
+	// The individual endpoint also returns cancelled email subscriptions, which report
+	// `Not subscribed`; the list never fetches them, so skip them to keep both views in step.
+	const emailDate =
+		subscriber.subscription_status === 'Not subscribed' ? null : subscriber.email_date_subscribed;
+	const dates = [ subscriber.wpcom_date_subscribed, emailDate ]
+		.map( normalizeDate )
+		.filter( isValid );
+
+	if ( ! dates.length ) {
+		const fallback = normalizeDate( ( subscriber as SubscriberDetails ).date_subscribed );
+		return isValid( fallback ) ? fallback : '';
 	}
-	return HAS_TIMEZONE.test( raw ) ? raw : `${ raw }+00:00`;
+	return dates.reduce( ( earliest, date ) =>
+		Date.parse( date ) < Date.parse( earliest ) ? date : earliest
+	);
 }
 
 /**

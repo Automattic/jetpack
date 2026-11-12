@@ -86,7 +86,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 	}
 
 	/**
-	 * Every `jetpack_waf_*` option, plus the Protect options carrying the same data.
+	 * Every `jetpack_waf_*` option, the Protect options carrying the same data, and the Akismet API key.
 	 *
 	 * `jetpack_protect_global_whitelist` is populated from `jetpack_waf_ip_allow_list`,
 	 * and `jetpack_protect_key` is a shared secret.
@@ -102,11 +102,12 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 			'share debug data'   => array( 'jetpack_waf_share_debug_data' ),
 			'protect key'        => array( 'jetpack_protect_key' ),
 			'protect allow list' => array( 'jetpack_protect_global_whitelist' ),
+			'akismet key'        => array( 'wordpress_api_key' ),
 		);
 	}
 
 	/**
-	 * Tests that firewall settings are stripped for users without `manage_options`.
+	 * Tests that restricted options are removed for users without `manage_options`.
 	 *
 	 * @dataProvider restricted_options
 	 *
@@ -123,7 +124,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 	}
 
 	/**
-	 * Tests that firewall settings are still returned to administrators.
+	 * Tests that restricted options are returned to administrators.
 	 *
 	 * @dataProvider restricted_options
 	 *
@@ -163,6 +164,33 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( 'success', $result->get_data()['code'] );
 		$this->assertSame( 0, get_option( $option_name ) );
+	}
+
+	public function test_update_protect_global_whitelist_is_deprecated_but_still_saves() {
+		$this->setExpectedDeprecated( 'jetpack/v4/settings' );
+
+		$request = new WP_REST_Request();
+		$request->set_body_params( array( 'jetpack_protect_global_whitelist' => '3.3.3.3' ) );
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 'success', $result->get_data()['code'] );
+		$this->assertSame( '3.3.3.3', get_option( 'jetpack_waf_ip_allow_list' ) );
+	}
+
+	public function test_update_protect_global_whitelist_reports_invalid_ip() {
+		$this->setExpectedDeprecated( 'jetpack/v4/settings' );
+		update_option( 'jetpack_waf_ip_allow_list', '1.1.1.1' );
+
+		$request = new WP_REST_Request();
+		$request->set_body_params( array( 'jetpack_protect_global_whitelist' => 'not-an-ip' ) );
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'some_updated', $result->get_error_code() );
+		$this->assertSame( 400, $result->get_error_data()['status'] );
+		$this->assertSame( '1.1.1.1', get_option( 'jetpack_waf_ip_allow_list' ) );
 	}
 
 	/**
@@ -350,10 +378,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$request->set_body_params(
 			array(
 				'subscription_options' => array(
-					// The free tier description stores plain markdown source, so all
-					// HTML tags are stripped via `wp_kses( ..., array() )`. kses removes
-					// the tags themselves but keeps their text content, so the `<script>`
-					// wrapper is gone while the inner `alert(1)` text remains.
+					// The free tier description stores plain markdown source, so `wp_kses( ..., array() )` strips all tags.
 					'free_tier_description' => '<script>alert(1)</script>Just the **markdown** text',
 				),
 			)
@@ -364,7 +389,14 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$this->assertSame( 200, $result->get_status() );
 		$stored = get_option( 'subscription_options' );
 		$this->assertStringNotContainsString( '<script', $stored['free_tier_description'] );
-		$this->assertSame( 'alert(1)Just the **markdown** text', $stored['free_tier_description'] );
+		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertSame()` when we drop support for WP 7.1.
+		$this->assertThat(
+			$stored['free_tier_description'],
+			$this->logicalOr(
+				$this->identicalTo( 'alert(1)Just the **markdown** text' ),
+				$this->identicalTo( 'Just the **markdown** text' )
+			)
+		);
 	}
 
 	/**

@@ -16,7 +16,7 @@ export function useScheduledTasks( { blogId, apiNonce } ) {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ error, setError ] = useState( null );
 	const [ inFlightIds, setInFlightIds ] = useState( [] );
-	const refreshTimer = useRef();
+	const refreshTimer = useRef( undefined );
 
 	const request = useCallback(
 		async ( path = '', options = {} ) => {

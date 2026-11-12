@@ -111,9 +111,9 @@ const storySections = [
 		default_layout: [],
 	},
 	{
-		id: 'woocommerce/store',
-		slug: 'store',
-		label: 'Store',
+		id: 'woocommerce-analytics/woocommerce',
+		slug: 'woocommerce',
+		label: 'WooCommerce',
 		order: 40,
 		default_layout: [],
 	},
@@ -162,6 +162,7 @@ function DashboardSectionsGridStory() {
 const meta: Meta< typeof DashboardSectionsGridStory > = {
 	title: 'Packages/Premium Analytics/Routes/Dashboard/SectionsGrid',
 	component: DashboardSectionsGridStory,
+	tags: [ 'widget-dashboard' ],
 	decorators: [
 		Story => (
 			<div

@@ -51,7 +51,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_resolve_goal' ) ) {
 	 * to install WooCommerce at GET.
 	 *
 	 * The payload is the fallback and only covers one race: the wizard PUT is fire-and-forget in
-	 * wizard/wizard.tsx, so a prewarmed tailor can land before the option is written. The output schema
+	 * wizard/wizard.tsx, so the tailor can land before the option is written. The output schema
 	 * has already validated the payload's goal against the same six slugs.
 	 *
 	 * @param array $payload The AI output payload — the persisted one on read, the incoming one at PUT.
@@ -107,7 +107,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_tracks_context' ) ) {
 	 * The shared analytics context merged into every AI Launchpad Tracks event, mirroring the
 	 * client-side context in `js/lib/tracks.ts`. Values are null until the corresponding data
 	 * exists. Only model-inferred fields are included — never the user's raw title/description
-	 * (`brand_name`/`tagline` echo them near-verbatim and are excluded).
+	 * (`brand_name` echoes them near-verbatim and is excluded).
 	 *
 	 * @param string[]|null $rendered_task_ids The rendered task ids, when the caller has them.
 	 * @return array The context props.
@@ -237,7 +237,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
 			// server-fired events fire inside REST requests, where $pagenow is index.php, and
 			// the two recorders have to report the same screen for the same user.
 			'screen'        => 'admin.php',
-			'ref'           => 'experiment_wpcom_launchpad_personalization_202607_v1',
+			'ref'           => 'ai_launchpad',
 			'site_type'     => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ? 'simple' : 'atomic',
 			'agent_name'    => 'ai_launchpad',
 			'agent_version' => \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,
@@ -384,14 +384,270 @@ if ( ! function_exists( 'wpcom_ai_launchpad_get_ai_task_ids' ) ) {
 
 		$task_ids = array_values( array_unique( $task_ids ) );
 
-		// Sell sites always render a Choose-a-theme task (see AI_Launchpad_REST::get_current_tasks), so the
-		// switch_theme listener and skip validation must count it even when the AI did not pick one — and
-		// even when a partial write left the payload with an inferred goal but no task list. Resolved
-		// through the shared helper so this mirror cannot disagree with the list it is mirroring.
-		if ( 'sell' === wpcom_ai_launchpad_resolve_goal( $payload ) && ! in_array( 'site_theme_selected', $task_ids, true ) ) {
+		// Sell sites render a Choose-a-theme task unless their list was tailored for an AI-built site (see
+		// AI_Launchpad_REST::get_current_tasks), so the switch_theme listener and skip validation must count it
+		// even when the AI did not pick one — and even when a partial write left the payload with an inferred
+		// goal but no task list. Resolved through the shared helpers so this mirror cannot disagree with the list.
+		if ( 'sell' === wpcom_ai_launchpad_resolve_goal( $payload ) && ! wpcom_ai_launchpad_is_list_ai_built() && ! in_array( 'site_theme_selected', $task_ids, true ) ) {
 			$task_ids[] = 'site_theme_selected';
 		}
 
 		return $task_ids;
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_site_locale' ) ) {
+	/**
+	 * The site's own language, as opposed to the language the current request is being read in.
+	 *
+	 * `get_locale()` is not it on WordPress.com Simple: there the locale follows the logged-in user
+	 * through wp-admin and the REST calls it makes, so a French site read by an Italian admin reports
+	 * Italian — and the pages we create, plus the language the AI is told to write in, would follow
+	 * the reader instead of the site. `get_blog_lang_code()` is the blog's own `lang_id` setting.
+	 * Same resolution the coming-soon page already uses for the same reason.
+	 *
+	 * @return string A WordPress locale, or a WordPress.com language code on Simple.
+	 */
+	function wpcom_ai_launchpad_site_locale() {
+		if ( function_exists( 'get_blog_lang_code' ) ) {
+			$code = get_blog_lang_code();
+			// Empty when the blog has no language set; fall through to the request's own.
+			if ( is_string( $code ) && '' !== $code ) {
+				return $code;
+			}
+		}
+
+		return get_locale();
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_in_site_language' ) ) {
+	/**
+	 * Runs a callback with translations switched to the site language.
+	 *
+	 * Requests from wp-admin, its REST calls included, translate into the admin user's language. Copy
+	 * that ends up in the site's own posts and pages is public content and follows the site language.
+	 *
+	 * A site language WordPress cannot load — the pack is missing or mid-install — falls back to
+	 * English rather than to whatever the reader happens to use, which would publish one admin's
+	 * language onto a site that does not speak it, and give the next admin a different page.
+	 *
+	 * @param callable $callback The callback to run.
+	 * @return mixed The callback's return value.
+	 */
+	function wpcom_ai_launchpad_in_site_language( $callback ) {
+		$site_locale = wpcom_ai_launchpad_site_locale();
+		$switched    = false;
+
+		if ( $site_locale !== determine_locale() ) {
+			// en_US is always switchable, so the fallback cannot fail in turn.
+			$switched = switch_to_locale( $site_locale ) || switch_to_locale( 'en_US' );
+		}
+
+		try {
+			return $callback();
+		} finally {
+			if ( $switched ) {
+				restore_previous_locale();
+			}
+		}
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_site_copy' ) ) {
+	/**
+	 * The copy the client writes into the site's posts and pages, in the site language.
+	 *
+	 * The `fallback_*` templates take the site name as their `%s`; the client fills it in.
+	 *
+	 * @return array<string, string|string[]>
+	 */
+	function wpcom_ai_launchpad_site_copy() {
+		return wpcom_ai_launchpad_in_site_language(
+			static function () {
+				return array(
+					'about_page_title'            => _x( 'About', 'page title', 'jetpack-mu-wpcom' ),
+					'contact_page_title'          => _x( 'Contact', 'page title', 'jetpack-mu-wpcom' ),
+					'contact_page_heading'        => __( 'Get in touch', 'jetpack-mu-wpcom' ),
+					'contact_form_name_label'     => __( 'Name', 'jetpack-mu-wpcom' ),
+					'contact_form_email_label'    => __( 'Email', 'jetpack-mu-wpcom' ),
+					'contact_form_message_label'  => __( 'Message', 'jetpack-mu-wpcom' ),
+					'events_page_title'           => _x( 'Events', 'page title', 'jetpack-mu-wpcom' ),
+					'events_page_heading'         => __( 'Upcoming events', 'jetpack-mu-wpcom' ),
+					'event_name_placeholder'      => __( 'Event name', 'jetpack-mu-wpcom' ),
+					'event_details_placeholder'   => __( 'Date, time, and place', 'jetpack-mu-wpcom' ),
+					'video_page_title'            => _x( 'Videos', 'page title', 'jetpack-mu-wpcom' ),
+					'video_page_heading'          => _x( 'Watch', 'video page heading', 'jetpack-mu-wpcom' ),
+					'gallery_page_title'          => _x( 'Gallery', 'page title', 'jetpack-mu-wpcom' ),
+					'gallery_page_heading'        => _x( 'Take a look', 'gallery page heading', 'jetpack-mu-wpcom' ),
+					'portfolio_piece_placeholder' => __( 'What this project was, who it was for, and what you did.', 'jetpack-mu-wpcom' ),
+					'fallback_site_name'          => _x( 'your new site', 'stands in for a blank site name', 'jetpack-mu-wpcom' ),
+					/* translators: %s: the site name. */
+					'fallback_post_title'         => __( 'Getting started with %s', 'jetpack-mu-wpcom' ),
+					/* translators: %s: the site name. */
+					'fallback_post_subtitle'      => __( 'Introduce %s to your readers.', 'jetpack-mu-wpcom' ),
+					'fallback_post_paragraphs'    => array(
+						/* translators: %s: the site name. */
+						__( 'This is the first post on %s. It marks the starting point of something new, and there is plenty more to come.', 'jetpack-mu-wpcom' ),
+						__( 'Thanks for being here at the very beginning. Stay tuned for what comes next.', 'jetpack-mu-wpcom' ),
+					),
+					'fallback_about_paragraphs'   => array(
+						/* translators: %s: the site name. */
+						__( 'This is where the story of %s begins. Use this page to share who is behind the site and what it is all about.', 'jetpack-mu-wpcom' ),
+						__( 'Tell visitors how it started, what they can expect to find here, and where it is headed next.', 'jetpack-mu-wpcom' ),
+					),
+				);
+			}
+		);
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_builder_spec' ) ) {
+	/**
+	 * The site spec the user confirmed in the AI Website Builder chat, or null when there is none.
+	 *
+	 * The option holds a JSON string or an array; a spec without a siteType is just the builder's defaults.
+	 *
+	 * @return array|null
+	 */
+	function wpcom_ai_launchpad_builder_spec() {
+		// The option can grow large with editor state, and one request reads it several times.
+		static $cache = array(
+			'raw'  => null,
+			'spec' => null,
+		);
+
+		$raw = get_option( 'big_sky_site_metadata' );
+		if ( null !== $cache['raw'] && $raw === $cache['raw'] ) {
+			return $cache['spec'];
+		}
+
+		$spec = is_string( $raw ) ? json_decode( $raw, true ) : $raw;
+		if ( ! is_array( $spec ) || empty( $spec['siteType'] ) || ! is_string( $spec['siteType'] ) ) {
+			$spec = null;
+		}
+
+		$cache = array(
+			'raw'  => $raw,
+			'spec' => $spec,
+		);
+		return $spec;
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_is_ai_built' ) ) {
+	/**
+	 * Whether the user confirmed a site spec in the AI Website Builder chat, which hides the tasks the builder already did.
+	 *
+	 * @return bool
+	 */
+	function wpcom_ai_launchpad_is_ai_built() {
+		return null !== wpcom_ai_launchpad_builder_spec();
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_goal_from_builder_spec' ) ) {
+	/**
+	 * Maps a builder spec to a wizard goal slug.
+	 *
+	 * @param array $spec The builder spec.
+	 * @return string One of sell, write, portfolio, educate or build.
+	 */
+	function wpcom_ai_launchpad_goal_from_builder_spec( $spec ) {
+		$type = isset( $spec['siteType'] ) && is_string( $spec['siteType'] ) ? $spec['siteType'] : '';
+
+		// Features arrive as a list of names or as a name => enabled map.
+		$features = array();
+		if ( isset( $spec['siteFeatures'] ) && is_array( $spec['siteFeatures'] ) ) {
+			foreach ( $spec['siteFeatures'] as $key => $value ) {
+				if ( is_int( $key ) && is_string( $value ) ) {
+					$features[] = $value;
+				} elseif ( is_string( $key ) && $value ) {
+					$features[] = $key;
+				}
+			}
+		}
+		$goals = isset( $spec['siteGoals'] ) && is_array( $spec['siteGoals'] ) ? $spec['siteGoals'] : array();
+
+		if (
+			'store' === $type
+			|| in_array( 'sell_physical_goods', $features, true )
+			|| in_array( 'sell_services', $features, true )
+			|| in_array( 'sell_services', $goals, true )
+		) {
+			return 'sell';
+		}
+		if ( in_array( $type, array( 'blog', 'news', 'personal' ), true ) ) {
+			return 'write';
+		}
+		if ( in_array( $type, array( 'portfolio', 'photography', 'art', 'music', 'fashion' ), true ) ) {
+			return 'portfolio';
+		}
+		if ( 'education' === $type ) {
+			return 'educate';
+		}
+		return 'build';
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_builder_input' ) ) {
+	/**
+	 * The wizard input inferred from the builder spec, or null when the site is not AI-built.
+	 *
+	 * @return array|null An array with goal, site_name and description.
+	 */
+	function wpcom_ai_launchpad_builder_input() {
+		$spec = wpcom_ai_launchpad_builder_spec();
+		if ( null === $spec ) {
+			return null;
+		}
+
+		$lines = array();
+		if ( ! empty( $spec['siteDescription'] ) && is_string( $spec['siteDescription'] ) ) {
+			$lines[] = $spec['siteDescription'];
+		}
+		if ( ! empty( $spec['topic'] ) && is_string( $spec['topic'] ) && 'General' !== $spec['topic'] ) {
+			$lines[] = 'Topic: ' . $spec['topic'];
+		}
+		if ( ! empty( $spec['siteGoals'] ) && is_array( $spec['siteGoals'] ) ) {
+			$goals = array_filter( $spec['siteGoals'], 'is_string' );
+			if ( $goals ) {
+				$lines[] = 'Goals: ' . implode( '; ', $goals );
+			}
+		}
+
+		$description = trim( implode( "\n", $lines ) );
+		// The spec always has a siteType, so an AI-built site never falls back to the wizard.
+		if ( '' === $description ) {
+			$title       = isset( $spec['siteTitle'] ) && is_string( $spec['siteTitle'] ) ? trim( $spec['siteTitle'] ) : '';
+			$description = '' === $title ? $spec['siteType'] : $title . ' (' . $spec['siteType'] . ')';
+		}
+		$description = function_exists( 'mb_substr' ) ? mb_substr( $description, 0, 1000, 'UTF-8' ) : substr( $description, 0, 1000 );
+
+		$site_name = trim( wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES ) );
+		if ( '' === $site_name && isset( $spec['siteTitle'] ) && is_string( $spec['siteTitle'] ) ) {
+			$site_name = $spec['siteTitle'];
+		}
+		$site_name = function_exists( 'mb_substr' ) ? mb_substr( $site_name, 0, 200, 'UTF-8' ) : substr( $site_name, 0, 200 );
+
+		return array(
+			'goal'        => wpcom_ai_launchpad_goal_from_builder_spec( $spec ),
+			'site_name'   => $site_name,
+			'description' => $description,
+		);
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_is_list_ai_built' ) ) {
+	/**
+	 * Whether the saved list was tailored for an AI-built site.
+	 *
+	 * Read from the list, not the live option, so a site marked later keeps the list it already has.
+	 *
+	 * @return bool
+	 */
+	function wpcom_ai_launchpad_is_list_ai_built() {
+		$ai_output = get_option( 'wpcom_ai_launchpad_ai_output' );
+		return is_array( $ai_output ) && ! empty( $ai_output['ai_built'] );
 	}
 }

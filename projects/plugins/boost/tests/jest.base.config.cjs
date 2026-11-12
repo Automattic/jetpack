@@ -1,6 +1,8 @@
 const path = require( 'path' );
 const coverageConfig = require( 'jetpack-js-tools/jest/config.coverage.js' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
+const { resolveMapperTarget } = require( 'jetpack-js-tools/jest/jest-resolver.js' );
+const visxResponsiveModuleMapper = require( 'jetpack-js-tools/jest/visx-responsive-module-mapper.cjs' );
 
 module.exports = {
 	rootDir: path.join( __dirname, '..' ),
@@ -14,7 +16,7 @@ module.exports = {
 		...coverageConfig.collectCoverageFrom,
 		'!<rootDir>/_inc/overview/jest.config.cjs',
 	],
-	// Reuse shared transforms without the optional jest-console setup.
+	// Shared transforms, plus the `import.meta.url` Babel plugin.
 	transform: {
 		...baseConfig.transform,
 		'\\.m?[jt]sx?$': [
@@ -31,10 +33,11 @@ module.exports = {
 	// Mirror the TypeScript path aliases from tsconfig.json so tests can import
 	// modules that use the `$lib`/`$features`/`$layout`/`$svg` aliases.
 	moduleNameMapper: {
+		...visxResponsiveModuleMapper( path.join( __dirname, '..' ) ),
 		// The build externalizes this to a single `wp.components`, so shared React
 		// context works across packages. pnpm gives the plugin and the components
 		// package separate copies, which would break that context here.
-		'^@wordpress/components$': require.resolve( '@wordpress/components' ),
+		'^@wordpress/components$': resolveMapperTarget( '@wordpress/components', __dirname ),
 		'^\\$lib/(.*)$': '<rootDir>/app/assets/src/js/lib/$1',
 		'^\\$features/(.*)$': '<rootDir>/app/assets/src/js/features/$1',
 		'^\\$layout/(.*)$': '<rootDir>/app/assets/src/js/layout/$1',

@@ -48,7 +48,7 @@ class Block_Replacement {
 			$video_info = video_get_info_by_blogpostid( get_current_blog_id(), $post_id );
 			if ( $video_info && $video_info->guid ) {
 				$videopress_shortcode = sprintf( '[videopress %s]', esc_attr( $video_info->guid ) );
-				$block_content        = preg_replace( '/<video.*?<\/video>/is', do_shortcode( $videopress_shortcode ), $block_content );
+				$block_content        = preg_replace( '/<video.*?<\/video>/is', apply_shortcodes( $videopress_shortcode ), $block_content );
 			}
 		}
 		return $block_content;

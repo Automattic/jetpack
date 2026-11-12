@@ -1,6 +1,5 @@
-import { ProgressBar } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Progress, Stack, Text } from '@wordpress/ui';
 import { usePosterUrl } from '../../hooks/use-poster-url';
 import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import { formatDuration } from '../../utils/format';
@@ -11,16 +10,7 @@ import type { LibraryItem } from '../../types/library';
 type Props = { item: LibraryItem };
 
 /**
- * Render the media-area for one DataViews grid card. Layers (priority order):
- * 1. uploading / promoting / deleting → ProgressBar overlay
- * 2. failed    → red overlay with Retry
- * 3. local     → "Local video" placeholder + hover-revealed Upload button
- * 4. videopress → thumbnail image + duration badge + click/hover "Edit details"
- *
- * For idle VideoPress videos the whole thumbnail is a button that opens the
- * video's Details (mirroring Core, where clicking the media opens it), and the
- * shared `.vp-library__hover-action` overlay reveals an "Edit details" label on
- * hover/focus. Local videos keep their existing "Upload to VideoPress" button.
+ * Show upload progress or a poster, with details access for upload drafts and VideoPress videos.
  *
  * @param props      - Component props.
  * @param props.item - The library item rendered by this card.
@@ -45,6 +35,21 @@ export default function ThumbnailField( { item }: Props ) {
 				<img className="vp-library__thumbnail-image" src={ posterUrl } alt={ title } />
 			) : null }
 
+			{ isVideoPressIdle && item.conversionFailed ? (
+				<Stack
+					direction="column"
+					gap="xs"
+					align="center"
+					justify="center"
+					className="vp-library__failed"
+				>
+					<Text>{ __( 'Conversion failed', 'jetpack-videopress-pkg' ) }</Text>
+					<Text variant="body-sm">
+						{ __( 'Delete this video and upload it again.', 'jetpack-videopress-pkg' ) }
+					</Text>
+				</Stack>
+			) : null }
+
 			{ isVideoPressIdle && isProcessing ? (
 				<Stack
 					direction="column"
@@ -62,10 +67,15 @@ export default function ThumbnailField( { item }: Props ) {
 								)
 							: __( 'Processing', 'jetpack-videopress-pkg' ) }
 					</Text>
-					<ProgressBar
+					<Progress.Root
 						className="vp-library__progress-bar"
-						value={ processingProgress ?? undefined }
-					/>
+						aria-label={ __( 'Processing', 'jetpack-videopress-pkg' ) }
+						value={ processingProgress }
+					>
+						<Progress.Track>
+							<Progress.Indicator />
+						</Progress.Track>
+					</Progress.Root>
 				</Stack>
 			) : null }
 
@@ -75,7 +85,7 @@ export default function ThumbnailField( { item }: Props ) {
 				</span>
 			) : null }
 
-			{ isVideoPressIdle ? (
+			{ isVideoPressIdle || ( id.startsWith( 'upload-' ) && upload.status !== 'failed' ) ? (
 				<button
 					type="button"
 					className="vp-library__open-details"
@@ -130,7 +140,15 @@ export default function ThumbnailField( { item }: Props ) {
 					className="vp-library__progress"
 				>
 					<Text className="vp-library__progress-percent">{ Math.round( upload.progress ) }%</Text>
-					<ProgressBar className="vp-library__progress-bar" value={ upload.progress } />
+					<Progress.Root
+						className="vp-library__progress-bar"
+						aria-label={ __( 'Uploading…', 'jetpack-videopress-pkg' ) }
+						value={ upload.progress }
+					>
+						<Progress.Track>
+							<Progress.Indicator />
+						</Progress.Track>
+					</Progress.Root>
 				</Stack>
 			) : null }
 
@@ -143,7 +161,15 @@ export default function ThumbnailField( { item }: Props ) {
 					className="vp-library__progress"
 				>
 					<Text>{ __( 'Deleting…', 'jetpack-videopress-pkg' ) }</Text>
-					<ProgressBar className="vp-library__progress-bar" />
+					<Progress.Root
+						className="vp-library__progress-bar"
+						aria-label={ __( 'Deleting…', 'jetpack-videopress-pkg' ) }
+						value={ null }
+					>
+						<Progress.Track>
+							<Progress.Indicator />
+						</Progress.Track>
+					</Progress.Root>
 				</Stack>
 			) : null }
 

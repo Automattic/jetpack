@@ -62,8 +62,8 @@ export const mixedColorFormatRoles: Record< string, string > = {
  * The `--wp-admin-theme-color` each WordPress admin color scheme publishes, copied from
  * `@wordpress/base-styles`' `admin-schemes.css`.
  *
- * `fresh` and `default` have no `admin-color-*` block of their own and take the `:root` value,
- * so they are absent here rather than duplicated.
+ * `fresh` has no `admin-color-*` block of its own and takes the host's `:root` value, so it is
+ * absent here. `modern` is the WordPress default since 7.0.
  */
 export const WP_ADMIN_COLOR_SCHEMES: Record< string, string > = {
 	light: '#007cba',

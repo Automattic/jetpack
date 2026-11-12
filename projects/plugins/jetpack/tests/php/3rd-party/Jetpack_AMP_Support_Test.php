@@ -73,6 +73,29 @@ class Jetpack_AMP_Support_Test extends WP_UnitTestCase {
 
 		$this->assertEquals( '<div class="sd-content"><amp-social-share type="whatsapp" height="32px" width="32px" aria-label="Share on WhatsApp" title="Share on WhatsApp"></amp-social-share></div>', $social_icons );
 
+		// Pinterest.
+		$services = array(
+			'visible' => array(
+				'pinterest' => new Share_Pinterest( 'pinterest', array() ),
+			),
+		);
+
+		$pinterest_image = static function () {
+			return array(
+				array(
+					'type' => 'image',
+					'src'  => 'https://example.com/pin.jpg',
+				),
+			);
+		};
+		add_filter( 'jetpack_images_pre_get_images', $pinterest_image );
+
+		$social_icons = Jetpack_AMP_Support::render_sharing_html( '<div class="sd-content"><ul><li>Pinterest</li></ul></div>', $services );
+
+		remove_filter( 'jetpack_images_pre_get_images', $pinterest_image );
+
+		$this->assertEquals( '<div class="sd-content"><amp-social-share type="pinterest" height="32px" width="32px" aria-label="Share on Pinterest" title="Share on Pinterest" data-param-media="https://example.com/pin.jpg"></amp-social-share></div>', $social_icons );
+
 		// Reset global post.
 		$post = null;
 	}

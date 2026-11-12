@@ -1,4 +1,5 @@
-.comment-form__verbum .verbum-subscriptions .verbum-form {
+// #respond prefix so theme rules like `#respond label` can't win.
+#respond .comment-form__verbum .verbum-subscriptions .verbum-form {
 
 	.verbum-form__content {
 		// protect the button from style leaks from the site; reset all.
@@ -29,7 +30,8 @@
 
 			input {
 				color: var(--verbum-font-color);
-				background-color: transparent;
+				// Shorthand also clears theme background images.
+				background: transparent;
 				width: 100%;
 				height: 100%;
 				padding-left: 48px;
@@ -99,10 +101,6 @@
 	.verbum-mail-form-cookie-consent {
 		margin-bottom: 16px;
 		padding: 0 21px;
-
-		.verbum-toggle-control {
-			padding: 0 21px;
-		}
 
 		.verbum-toggle-control__text {
 			font-size: 0.875rem;

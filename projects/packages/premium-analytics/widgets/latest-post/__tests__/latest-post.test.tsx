@@ -44,7 +44,7 @@ describe( 'LatestPostWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'Publish a post to see its stats here.' )
+			screen.findByText( 'Your latest post will show here.' )
 		).resolves.toBeInTheDocument();
 		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).not.toContain( 'author=' );
 	} );
@@ -84,7 +84,7 @@ describe( 'LatestPostWidget', () => {
 		const link = await screen.findByRole( 'link', { name: 'Hello world' } );
 		const { pathname, searchParams } = getMockRouteLinkUrl( link );
 
-		expect( pathname ).toBe( '/post/779' );
+		expect( pathname ).toBe( '/report/post/779' );
 		expect( searchParams.get( 'from' ) ).toBe( '2026-03-01' );
 		expect( searchParams.get( 'to' ) ).toBe( '2026-03-10' );
 		expect( searchParams.get( 'ref' ) ).toBe( 'posts' );

@@ -5,12 +5,13 @@ import type {
 	SeriesData,
 	SeriesChartLegendConfig,
 	SeriesVisibilityProps,
+	CompactWhenShortProps,
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
 import type { CrosshairStyle, RenderTooltipParams } from '../../visx/types';
 import type { GlyphProps } from '@visx/xychart';
-import type { ReactNode, SVGProps, FC, CSSProperties } from 'react';
+import type { ReactNode, SVGProps, CSSProperties } from 'react';
 
 export type LineChartAnnotationProps = {
 	datum: DataPointDate;
@@ -19,8 +20,8 @@ export type LineChartAnnotationProps = {
 	subjectType?: 'circle' | 'line-vertical' | 'line-horizontal';
 	styles?: AnnotationStyles;
 	testId?: string;
-	renderLabel?: FC< { title: string; subtitle?: string } >;
-	renderLabelPopover?: FC< { title: string; subtitle?: string } >;
+	renderLabel?: ( props: { title: string; subtitle?: string } ) => ReactNode;
+	renderLabelPopover?: ( props: { title: string; subtitle?: string } ) => ReactNode;
 };
 
 export type CurveType = 'smooth' | 'linear' | 'monotone';
@@ -30,7 +31,8 @@ export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > &
 	position?: 'start' | 'end';
 };
 
-export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
+export interface LineChartProps
+	extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps, CompactWhenShortProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */
@@ -81,7 +83,8 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 
 export type TooltipDatum = {
 	key: string;
-	value: number;
+	/** The series' reading, or null when the bucket has none. */
+	value: number | null;
 };
 
 export type LineChartGlyphProps = {

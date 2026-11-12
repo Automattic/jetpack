@@ -26,9 +26,6 @@ window.wp = window.wp || {};
 	 */
 	Uploader = function ( options ) {
 		var self = this,
-			isIE =
-				navigator.userAgent.indexOf( 'Trident/' ) !== -1 ||
-				navigator.userAgent.indexOf( 'MSIE ' ) !== -1,
 			elements = {
 				container: 'container',
 				browser: 'browse_button',
@@ -92,17 +89,6 @@ window.wp = window.wp || {};
 			! ( this.dropzone && this.dropzone.length )
 		) {
 			return;
-		}
-
-		// Make sure flash sends cookies (seems in IE it does without switching to urlstream mode)
-		if (
-			! isIE &&
-			'flash' === plupload.predictRuntime( this.plupload ) &&
-			( ! this.plupload.required_features ||
-				! Object.hasOwn( this.plupload.required_features, 'send_binary_string' ) )
-		) {
-			this.plupload.required_features = this.plupload.required_features || {};
-			this.plupload.required_features.send_binary_string = true;
 		}
 
 		// Initialize the plupload instance.
@@ -295,10 +281,20 @@ window.wp = window.wp || {};
 				return error( pluploadL10n.default_error, e, file );
 			}
 
+			if ( response === null || typeof response !== 'object' ) {
+				return error( pluploadL10n.default_error, null, file );
+			}
+
 			if ( typeof response.media !== 'undefined' ) {
-				response = vp.handleRestApiResponse( response, file );
-			} else {
-				response = vp.handleStandardResponse( response, file );
+				if ( response.media.length !== 1 ) {
+					return error( pluploadL10n.default_error, null, file );
+				}
+
+				response = vp.handleRestApiResponse( response );
+			} else if ( typeof response.success === 'undefined' ) {
+				return error( pluploadL10n.default_error, null, file );
+			} else if ( ! response.success ) {
+				return error( response.data && response.data.message, response.data, file );
 			}
 
 			for ( const k of [ 'file', 'loaded', 'size', 'percent' ] ) {

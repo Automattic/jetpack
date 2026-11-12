@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -9,42 +10,13 @@ import { getSettings, setSettings } from '@wordpress/date';
 import { EN_US_SETTINGS, ES_ES_SETTINGS } from '../../../__fixtures__/wp-date-settings';
 import { PostHighlightCard } from '../post-highlight-card';
 import type { PostHighlightCardProps } from '../post-highlight-card';
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
 
-type MockRouteLinkProps = {
-	to: string;
-	params?: Record< string, unknown >;
-	search?: Record< string, unknown >;
-	children: ReactNode;
-} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
-
-// `forwardRef`, because the design system link that renders this forwards a ref.
 jest.mock( '@wordpress/route', () => {
-	const { forwardRef } = jest.requireActual( 'react' ) as typeof import( 'react' );
+	const { mockWordPressRoute } = jest.requireActual(
+		'../../../../../../tests/js/route-test-utils'
+	);
 
-	return {
-		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(
-			( { to, params, search, children, ...props }, ref ) => {
-				const path = Object.entries( params ?? {} ).reduce(
-					( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
-					to
-				);
-				const query = new URLSearchParams();
-				Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-					if ( value !== undefined && value !== null ) {
-						query.set( key, String( value ) );
-					}
-				} );
-				const queryString = query.toString();
-
-				return (
-					<a ref={ ref } href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
-						{ children }
-					</a>
-				);
-			}
-		),
-	};
+	return mockWordPressRoute;
 } );
 
 const props: PostHighlightCardProps = {
@@ -65,7 +37,10 @@ const BASE_SETTINGS = getSettings();
 
 describe( 'PostHighlightCard', () => {
 	beforeEach( () => setSettings( EN_US_SETTINGS ) );
-	afterEach( () => setSettings( BASE_SETTINGS ) );
+	afterEach( () => {
+		setSettings( BASE_SETTINGS );
+		jest.useRealTimers();
+	} );
 
 	it( 'links the title to the detail route and carries the report window', () => {
 		render(
@@ -79,7 +54,7 @@ describe( 'PostHighlightCard', () => {
 		const href = screen.getByRole( 'link', { name: /^Quarterly update/ } ).getAttribute( 'href' );
 		const url = new URL( href ?? '', 'http://localhost' );
 
-		expect( url.pathname ).toBe( '/post/12' );
+		expect( url.pathname ).toBe( '/report/post/12' );
 		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
 		expect( url.searchParams.get( 'to' ) ).toBe( '2026-06-30' );
 	} );
@@ -92,25 +67,8 @@ describe( 'PostHighlightCard', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	it( 'keeps the title as plain text when the post URL is unsafe', () => {
-		render( <PostHighlightCard { ...props } url="javascript:alert(1)" /> );
-
-		expect( screen.getByText( 'Quarterly update' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'links the title to the post', () => {
-		render( <PostHighlightCard { ...props } /> );
-
-		// `openInNewTab` appends a screen-reader hint to the accessible name.
-		expect( screen.getByRole( 'link', { name: /^Quarterly update/ } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/quarterly-update/'
-		);
-	} );
-
 	// The title used to be wrapped in `<Link>` unconditionally, so a revert here is plausible.
-	it( 'keeps the title readable as plain text when the post URL is unsafe', () => {
+	it( 'keeps the title as plain text when the post URL is unsafe', () => {
 		render( <PostHighlightCard { ...props } url="javascript:alert(1)" /> );
 
 		expect( screen.getByText( 'Quarterly update' ) ).toBeInTheDocument();
@@ -123,6 +81,17 @@ describe( 'PostHighlightCard', () => {
 		expect( screen.getByText( 'Post published on Jun 5, 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
 		expect( screen.getByText( '42' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shortens a large count by default', () => {
+		render(
+			<PostHighlightCard
+				{ ...props }
+				metrics={ [ { key: 'views', label: 'Views', value: 1234 } ] }
+			/>
+		);
+
+		expect( screen.getByText( '1.2K' ) ).toBeInTheDocument();
 	} );
 
 	it( "writes the publish date in the site's locale and date format", () => {
@@ -159,13 +128,15 @@ describe( 'PostHighlightCard', () => {
 		expect( screen.getByText( '0' ) ).toBeInTheDocument();
 	} );
 
-	// A lifetime metric shown next to a period-scoped one must say so, and the
-	// `title` tooltip alone is invisible to assistive technology.
-	it( 'exposes a metric note as both a tooltip and visually hidden text', () => {
+	it( 'shows a metric note in a tooltip on the metric label', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <PostHighlightCard { ...props } /> );
 
-		expect( screen.getByTitle( 'All-time total.' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'All-time total.' ) ).toBeInTheDocument();
+		await user.hover( screen.getByText( 'Likes' ) );
+		await act( () => jest.runAllTimersAsync() );
+
+		expect( screen.getByTestId( 'metric-note-tooltip' ) ).toHaveTextContent( 'All-time total.' );
 	} );
 
 	it( 'renders the featured image only when one is present', () => {

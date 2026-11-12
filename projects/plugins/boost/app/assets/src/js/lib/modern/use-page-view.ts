@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { getPageViewEventName, recordBoostEvent } from '$lib/utils/analytics';
+import { resolveRoute } from './routes';
 import type { ModernRoute } from './routes';
 
 /**
@@ -16,7 +17,7 @@ function getPageViewEvent( route: ModernRoute ): { name: string; path: string } 
 	}
 
 	return {
-		name: route.tab === 'settings' ? 'page_view_settings' : 'page_view_overview',
+		name: 'page_view_overview',
 		path: '/',
 	};
 }
@@ -32,7 +33,7 @@ export function usePageView( route: ModernRoute, enabled: boolean ): void {
 	const lastRecorded = useRef< string | null >( null );
 
 	useEffect( () => {
-		if ( ! enabled ) {
+		if ( ! enabled || resolveRoute().route.subpage !== route.subpage ) {
 			return;
 		}
 

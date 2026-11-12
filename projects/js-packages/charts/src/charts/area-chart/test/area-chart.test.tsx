@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { GlobalChartsProvider } from '../../../providers';
@@ -53,13 +53,13 @@ describe( 'AreaChart', () => {
 	};
 
 	test.each( [ [ 'Escape', '{Escape}' ] ] )(
-		'returns focus to the grid after %s',
+		'returns focus to the chart after %s',
 		async ( _name, keys ) => {
 			jest.useFakeTimers();
 			try {
 				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 				renderWithProvider();
-				const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+				const chart = screen.getByRole( 'application', { name: /area chart/i } );
 
 				await user.tab();
 				expect( chart ).toHaveFocus();
@@ -139,7 +139,7 @@ describe( 'AreaChart', () => {
 
 		test( 'renders with valid data', () => {
 			renderWithProvider();
-			expect( screen.getByRole( 'grid', { name: /area chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /area chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -188,6 +188,77 @@ describe( 'AreaChart', () => {
 		} );
 	} );
 
+	describe( 'Y-Axis Ticks', () => {
+		test( 'labels a whole-number range smaller than the tick count once per whole number', () => {
+			renderWithProvider( {
+				stacked: false,
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1, 1, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'keeps every tick on a y domain the caller pinned', () => {
+			renderWithProvider( {
+				stacked: false,
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 0, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+				options: {
+					yScale: { domain: [ 0, 1 ] },
+					axis: { y: { tickFormat: ( value: number ) => `${ Math.round( value * 100 ) }%` } },
+				},
+			} );
+
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
+			expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
+		} );
+
+		test( 'keeps fractional ticks for a normalized stack even when the data is whole numbers', () => {
+			renderWithProvider( {
+				stacked: true,
+				stackOffset: 'expand',
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1, 1, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+					{
+						label: 'Series B',
+						data: [ 1, 0, 0, 1 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
+			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ).length ).toBeGreaterThan( 2 );
+		} );
+	} );
+
 	describe( 'Stacking', () => {
 		test( 'is stacked by default', () => {
 			renderWithProvider();
@@ -204,7 +275,7 @@ describe( 'AreaChart', () => {
 
 		test( 'accepts custom stackOffset', () => {
 			renderWithProvider( { stackOffset: 'expand' } );
-			expect( screen.getByRole( 'grid', { name: /area chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /area chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -273,7 +344,7 @@ describe( 'AreaChart', () => {
 
 			// Open a tooltip via keyboard navigation, then verify the hidden
 			// series' label is absent from the rendered tooltip rows.
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			chart.focus();
 			await user.keyboard( '{ArrowRight}' );
 
@@ -293,7 +364,7 @@ describe( 'AreaChart', () => {
 			} );
 
 			await user.click( screen.getByText( 'Series A' ) );
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			chart.focus();
 			await user.keyboard( '{ArrowRight}' );
 
@@ -691,7 +762,7 @@ describe( 'AreaChart', () => {
 				context?.toggleSeriesVisibility( chartId, 'Series A' );
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			chart.focus();
 			await user.keyboard( '{ArrowRight}' );
 
@@ -704,16 +775,17 @@ describe( 'AreaChart', () => {
 	describe( 'Without GlobalChartsProvider', () => {
 		test( 'self-wraps in a provider when none is present', () => {
 			render( <AreaChartUnresponsive { ...defaultProps } /> );
-			expect( screen.getByRole( 'grid', { name: /area chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /area chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'Accessibility', () => {
 		test( 'chart container has expected ARIA attributes', () => {
 			renderWithProvider();
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			expect( chart ).toHaveAttribute( 'tabIndex', '0' );
 			expect( chart ).toHaveAttribute( 'aria-label', 'Area chart' );
+			expect( screen.queryByLabelText( 'XYChart' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -746,12 +818,12 @@ describe( 'AreaChart', () => {
 	} );
 
 	describe( 'Hover glyphs', () => {
-		// Trigger the AccessibleTooltip's keyboard nav so a tooltip is opened
+		// Trigger the XYChartTooltip's keyboard nav so a tooltip is opened
 		// against a known datum index, which is the only reliable way to
 		// surface the visx TooltipContext state in a jsdom environment.
 		const focusFirstDatum = async () => {
 			const user = userEvent.setup();
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			chart.focus();
 			await user.keyboard( '{ArrowRight}' );
 		};
@@ -807,12 +879,6 @@ describe( 'AreaChart', () => {
 		} );
 
 		test( 'renders glyphs only for series with a datum at the hovered x (mismatched x-domains)', async () => {
-			// Each series' data[0] is a different date. Keyboard nav fires
-			// showTooltip for every series at its own data[selectedIndex];
-			// the LAST one wins as the nearestDatum, so the resolved hover
-			// date is Series B's. HoverGlyphs should:
-			//   - Skip Series A (no datum at Series B's date) — cumulative += 0
-			//   - Render a glyph for Series B
 			renderWithProvider( {
 				data: [
 					{
@@ -829,9 +895,8 @@ describe( 'AreaChart', () => {
 
 			const glyphs = screen.getAllByTestId( /^area-chart-hover-glyph-/ );
 			expect( glyphs ).toHaveLength( 1 );
-			// Only Series B (index 1) has a datum at the hovered date.
-			expect( screen.getByTestId( 'area-chart-hover-glyph-1' ) ).toBeInTheDocument();
-			expect( screen.queryByTestId( 'area-chart-hover-glyph-0' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'area-chart-hover-glyph-0' ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'area-chart-hover-glyph-1' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -901,7 +966,7 @@ describe( 'AreaChart', () => {
 
 			// The visx grid has no role/testid, so query its internal class from within the plot.
 			/* eslint-disable testing-library/no-node-access */
-			const plot = screen.getByRole( 'grid' );
+			const plot = screen.getByRole( 'application' );
 			expect( plot.querySelector( '.visx-rows' ) ).toBeInTheDocument();
 
 			const buttons = screen.getAllByRole( 'button' );
@@ -982,5 +1047,45 @@ describe( 'AreaChart', () => {
 
 			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
 		} );
+	} );
+
+	it( 'gives no keyboard stop to a date only a hidden series has', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<GlobalChartsProvider>
+				<AreaChartUnresponsive
+					width={ 500 }
+					height={ 300 }
+					stacked={ false }
+					defaultHiddenSeries={ [ 'Series B' ] }
+					chartId="test-hidden-only-date-area"
+					data={ [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 5, label: 'Jan 1' },
+								{ date: new Date( '2024-01-03' ), value: 15, label: 'Jan 3' },
+							],
+						},
+					] }
+				/>
+			</GlobalChartsProvider>
+		);
+
+		screen.getByRole( 'application', { name: /area chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}' );
+
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveAttribute(
+			'data-testid',
+			'chart-tooltip-1'
+		);
 	} );
 } );

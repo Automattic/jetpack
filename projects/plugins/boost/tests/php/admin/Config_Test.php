@@ -19,10 +19,16 @@ use PHPUnit\Framework\TestCase;
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
 class Config_Test extends TestCase {
+	private $registered_pages;
+
 	protected function setUp(): void {
 		parent::setUp();
 		\Brain\Monkey\setUp();
 		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
+		Functions\when( 'get_plugin_page_hookname' )->justReturn( 'jetpack_page_my-jetpack' );
+		Functions\when( 'current_user_can' )->justReturn( true );
+		$this->registered_pages                                  = $GLOBALS['_registered_pages'] ?? null;
+		$GLOBALS['_registered_pages']['jetpack_page_my-jetpack'] = true;
 
 		// Define required constants if they're not already defined
 		if ( ! defined( 'JETPACK_BOOST_VERSION' ) ) {
@@ -43,6 +49,7 @@ class Config_Test extends TestCase {
 	}
 
 	protected function tearDown(): void {
+		$GLOBALS['_registered_pages'] = $this->registered_pages;
 		Mockery::close();
 		\Brain\Monkey\tearDown();
 		parent::tearDown();
@@ -231,6 +238,15 @@ class Config_Test extends TestCase {
 		$this->assertFalse( Config::is_my_jetpack_available() );
 	}
 
+	public function test_my_jetpack_availability_tracks_registered_page() {
+		Functions\when( 'did_action' )->justReturn( 1 );
+		unset( $GLOBALS['_registered_pages']['jetpack_page_my-jetpack'] );
+
+		$this->assertFalse( Config::is_my_jetpack_available() );
+		$GLOBALS['_registered_pages']['jetpack_page_my-jetpack'] = true;
+		$this->assertTrue( Config::is_my_jetpack_available() );
+	}
+
 	public function test_get_hosting_provider_woa() {
 		$this->setupCommonMocks();
 
@@ -289,7 +305,7 @@ class Config_Test extends TestCase {
 			$method->setAccessible( true );
 		}
 
-		$result = $method->invokeArgs( new Config(), array() );
+		$result = $method->invokeArgs( null, array() );
 
 		$this->assertIsArray( $result );
 		$this->assertArrayNotHasKey( 'attachment', $result );

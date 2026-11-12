@@ -46,11 +46,11 @@ add_action( 'wp_enqueue_scripts', 'wpcom_expiry_notices_enqueue_frontend_banner_
 /**
  * Body class the stylesheet keys theme offsets on.
  *
- * @param string[] $classes Body classes.
- * @return string[]
+ * @param string[]|mixed $classes Body classes; a theme filter may have returned a non-array.
+ * @return string[]|mixed
  */
-function wpcom_expiry_notices_frontend_banner_body_class( array $classes ): array {
-	if ( null !== wpcom_expiry_notices_frontend_banner_data() ) {
+function wpcom_expiry_notices_frontend_banner_body_class( $classes ) {
+	if ( is_array( $classes ) && null !== wpcom_expiry_notices_frontend_banner_data() ) {
 		$classes[] = 'has-wpcom-expiry-banner';
 	}
 	return $classes;

@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import semver from 'semver';
 import type { CardItem, CardBuilderProps } from './types.ts';
+import type { JSX } from 'react';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 

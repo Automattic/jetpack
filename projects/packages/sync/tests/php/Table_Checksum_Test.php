@@ -56,6 +56,9 @@ class Table_Checksum_Test extends BaseTestCase {
 	/**
 	 * Analytics checksum schemas are registered centrally and use the shared gate.
 	 *
+	 * WPCOM mirrors these field lists (jetpack_wpcom_sync_checksum_allowed_tables) and both sides hash
+	 * over their own lists, so a change must ship with the matching WPCOM change before this pin moves.
+	 *
 	 * @param string   $table_name           Checksum table key.
 	 * @param string[] $key_fields           Expected key fields.
 	 * @param string[] $checksum_fields      Expected checksum fields.
@@ -79,6 +82,13 @@ class Table_Checksum_Test extends BaseTestCase {
 			'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_analytics_tables',
 			$table['is_table_enabled_callback']
 		);
+
+		// An extra config key would change which rows get hashed, so the key set is pinned too.
+		$expected_keys = array( 'table', 'range_field', 'key_fields', 'checksum_fields', 'is_table_enabled_callback' );
+		if ( $checksum_text_fields ) {
+			$expected_keys[] = 'checksum_text_fields';
+		}
+		$this->assertEqualsCanonicalizing( $expected_keys, array_keys( $table ) );
 	}
 
 	/**

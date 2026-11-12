@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove the admin color override now that the WordPress packages default to the modern admin color scheme (blueberry).

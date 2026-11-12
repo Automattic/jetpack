@@ -6,6 +6,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import metadata from './block.json';
 import Body from './body';
@@ -29,16 +30,18 @@ export const MailchimpSubscribeEdit = ( {
 	const [ connected, setConnected ] = useState( API_STATE_LOADING );
 	const [ connectURL, setConnectURL ] = useState( null );
 	const [ currentUserConnected, setCurrentUserconnected ] = useState( null );
+	const [ isRechecking, setIsRechecking ] = useState( false );
 
 	const apiCall = useCallback( () => {
 		const isUserConnected = isCurrentUserConnected();
 
 		if ( isUserConnected ) {
-			apiFetch( { path: '/wpcom/v2/mailchimp', method: 'GET' } ).then(
+			return apiFetch( { path: '/wpcom/v2/mailchimp', method: 'GET' } ).then(
 				( { connect_url: url, code } ) => {
 					setConnectURL( url );
 					setConnected( code === 'connected' ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED );
 					setCurrentUserconnected( isUserConnected );
+					return code;
 				},
 				( { message } ) => {
 					setConnectURL( null );
@@ -49,23 +52,41 @@ export const MailchimpSubscribeEdit = ( {
 					noticeOperations.createErrorNotice( message );
 				}
 			);
-		} else {
-			apiFetch( {
-				path: addQueryArgs( '/jetpack/v4/connection/url', {
-					from: 'jetpack-block-editor',
-					redirect: window.location.href,
-				} ),
-			} ).then( url => {
-				setConnectURL( url );
-				setConnected( API_STATE_NOTCONNECTED );
-				setCurrentUserconnected( isUserConnected );
-			} );
 		}
+		return apiFetch( {
+			path: addQueryArgs( '/jetpack/v4/connection/url', {
+				from: 'jetpack-block-editor',
+				redirect: window.location.href,
+			} ),
+		} ).then( url => {
+			setConnectURL( url );
+			setConnected( API_STATE_NOTCONNECTED );
+			setCurrentUserconnected( isUserConnected );
+		} );
 	}, [ setConnectURL, setConnected, setCurrentUserconnected, noticeOperations ] );
 
 	useEffect( () => {
 		apiCall();
 	}, [ apiCall ] );
+
+	const recheckConnection = useCallback( () => {
+		setIsRechecking( true );
+		noticeOperations.removeAllNotices();
+		apiCall()
+			.then( code => {
+				// An authorized Mailchimp account still reads as not connected until an audience is saved.
+				if ( code === 'not_connected' ) {
+					noticeOperations.createNotice( {
+						status: 'warning',
+						content: __(
+							'Mailchimp is not connected yet. Connect your account and choose an audience, then check again.',
+							'jetpack'
+						),
+					} );
+				}
+			} )
+			.finally( () => setIsRechecking( false ) );
+	}, [ apiCall, noticeOperations ] );
 
 	let content;
 
@@ -82,7 +103,8 @@ export const MailchimpSubscribeEdit = ( {
 					icon={ icon }
 					notices={ notices }
 					connectURL={ connectURL }
-					apiCall={ apiCall }
+					onRecheck={ recheckConnection }
+					isRechecking={ isRechecking }
 				/>
 			);
 		} else {

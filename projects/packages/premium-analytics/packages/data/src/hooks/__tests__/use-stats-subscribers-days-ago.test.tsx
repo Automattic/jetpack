@@ -11,7 +11,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 import { useStatsSubscribersDaysAgo } from '../use-stats-subscribers';
 import type { ReactNode } from 'react';
 
-jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -104,5 +104,28 @@ describe( 'useStatsSubscribersDaysAgo', () => {
 
 		await waitFor( () => expect( result.current.isError ).toBe( true ) );
 		expect( result.current.counts[ 0 ] ).toBe( 412 );
+	} );
+
+	it( 'returns the paid counts in offset order, leaving a missing or null day undefined', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			const date = new URL( path, 'https://example.test' ).searchParams.get( 'date' ) ?? '';
+			const rows: Record< string, Array< string | number | null > > = {
+				'2026-08-15': [ date, 412, 37 ],
+				'2026-07-16': [ date, null, null ],
+			};
+			return Promise.resolve( {
+				date,
+				unit: 'day',
+				fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+				data: date in rows ? [ rows[ date ] ] : [],
+			} );
+		} );
+
+		const { result } = renderHook( () => useStatsSubscribersDaysAgo( [ 30, 60, 90 ] ), {
+			wrapper,
+		} );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( result.current.paidCounts ).toEqual( [ 37, undefined, undefined ] );
 	} );
 } );

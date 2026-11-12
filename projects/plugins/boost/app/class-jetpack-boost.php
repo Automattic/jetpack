@@ -23,6 +23,7 @@ use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
+use Automattic\Jetpack_Boost\Lib\Cleanup_Transients;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Pages;
@@ -40,7 +41,9 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_Storage;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Storage\File_Storage;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Cornerstone_Pages;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_LCP_Analysis;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
@@ -132,7 +135,8 @@ class Jetpack_Boost {
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
 
-		add_action( 'jetpack_boost_general_cleanup', array( Transient::class, 'delete_expired' ) );
+		add_action( 'jetpack_boost_general_cleanup', array( Cleanup_Transients::class, 'run_cleanup' ) );
+		add_action( Cleanup_Transients::FOLLOWUP_HOOK, array( Cleanup_Transients::class, 'run_cleanup' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -183,6 +187,8 @@ class Jetpack_Boost {
 		// Remove this option to prevent the notice from showing up.
 		delete_site_option( 'jetpack_boost_static_minification' );
 
+		jetpack_boost_minify_empty_caches_for_rules();
+
 		// Add upgrade check for Cornerstone Pages.
 		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
 		if ( is_array( $pages ) && in_array( home_url( '' ), $pages, true ) ) {
@@ -200,6 +206,19 @@ class Jetpack_Boost {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
 			jetpack_boost_minify_activation();
+		}
+
+		if ( ! get_option( 'jetpack_boost_page_cache_uri_keys' ) ) {
+			$home_url  = home_url();
+			$home_host = wp_parse_url( $home_url, PHP_URL_HOST );
+			if ( is_string( $home_host ) ) {
+				$home_port = wp_parse_url( $home_url, PHP_URL_PORT );
+				if ( is_int( $home_port ) ) {
+					$home_host .= ':' . $home_port;
+				}
+				( new Boost_Cache( new File_Storage( strtolower( $home_host ) ) ) )->delete_recursive( $home_url );
+			}
+			update_option( 'jetpack_boost_page_cache_uri_keys', 1, false );
 		}
 
 		$page_cache = new Module( new Page_Cache() );
@@ -295,6 +314,7 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_deactivate' );
 
 		wp_clear_scheduled_hook( 'jetpack_boost_general_cleanup' );
+		wp_clear_scheduled_hook( Cleanup_Transients::FOLLOWUP_HOOK );
 
 		// Tell Minify JS/CSS to clean up.
 		jetpack_boost_page_optimize_deactivate();
@@ -465,6 +485,7 @@ class Jetpack_Boost {
 		// Delete the last run options for the network-wide cron jobs.
 		delete_site_option( 'jetpack_boost_404_tester_last_run' );
 		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
+		delete_site_option( 'jetpack_boost_minify_cache_rules_applied' );
 
 		// Delete stored Critical CSS and LCP data.
 		( new Critical_CSS_Storage() )->clear();

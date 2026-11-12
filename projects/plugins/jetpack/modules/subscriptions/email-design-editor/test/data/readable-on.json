@@ -1,0 +1,138 @@
+{
+	"description": "Colors made readable on a background by WPCOM_Email_Text_Color::readable_on(), with is_neutral() of each result, as the reference for the design editor's JavaScript port. Change both copies together.",
+	"minimumContrast": 4.5,
+	"cases": [
+		{
+			"color": "#0073aa",
+			"background": "#ffffff",
+			"readable": "#0073aa",
+			"neutral": false
+		},
+		{
+			"color": "#0073aa",
+			"background": "#1e1e1e",
+			"readable": "#008dd1",
+			"neutral": false
+		},
+		{
+			"color": "#0073aa",
+			"background": "#002b36",
+			"readable": "#0098e0",
+			"neutral": false
+		},
+		{
+			"color": "#333333",
+			"background": "#1e1e1e",
+			"readable": "#858585",
+			"neutral": true
+		},
+		{
+			"color": "#333333",
+			"background": "#ffffff",
+			"readable": "#333333",
+			"neutral": true
+		},
+		{
+			"color": "#767676",
+			"background": "#000000",
+			"readable": "#767676",
+			"neutral": true
+		},
+		{
+			"color": "#c0ffee",
+			"background": "#ffffff",
+			"readable": "#008561",
+			"neutral": false
+		},
+		{
+			"color": "#c0ffee",
+			"background": "#000000",
+			"readable": "#c0ffee",
+			"neutral": false
+		},
+		{
+			"color": "#ff006e",
+			"background": "#8b0000",
+			"readable": "#ff8abc",
+			"neutral": false
+		},
+		{
+			"color": "#f59e0b",
+			"background": "#ffff00",
+			"readable": "#9d6506",
+			"neutral": false
+		},
+		{
+			"color": "#ffffff",
+			"background": "#ffffff",
+			"readable": "#757575",
+			"neutral": true
+		},
+		{
+			"color": "#000000",
+			"background": "#000000",
+			"readable": "#757575",
+			"neutral": true
+		},
+		{
+			"color": "#3a86ff",
+			"background": "#e8f4ff",
+			"readable": "#0060fa",
+			"neutral": false
+		},
+		{
+			"color": "#8b0000",
+			"background": "#2d2d2d",
+			"readable": "#ff5c5c",
+			"neutral": false
+		},
+		{
+			"color": "#632cff",
+			"background": "#113af5",
+			"readable": "#d6c7ff",
+			"neutral": false
+		},
+		{
+			"color": "rgb(0 115 170)",
+			"background": "#1e1e1e",
+			"readable": "#008dd1",
+			"neutral": false
+		},
+		{
+			"color": "hsl(200, 100%, 33%)",
+			"background": "#ffffff",
+			"readable": "#0070a8",
+			"neutral": false
+		}
+	],
+	"neutral": [
+		{
+			"color": "#777777",
+			"neutral": true
+		},
+		{
+			"color": "#000000",
+			"neutral": true
+		},
+		{
+			"color": "#ffffff",
+			"neutral": true
+		},
+		{
+			"color": "#0073aa",
+			"neutral": false
+		},
+		{
+			"color": "#c0ffee",
+			"neutral": false
+		},
+		{
+			"color": "#262626",
+			"neutral": true
+		},
+		{
+			"color": "#f2f2f2",
+			"neutral": true
+		}
+	]
+}

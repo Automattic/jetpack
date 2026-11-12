@@ -1,13 +1,9 @@
-// Each of the six progress bars has to say what it is measuring.
+// Each progress bar has to say what it is measuring.
 //
-// The trap: `ProgressBar` supplies a generic "Loading …" `aria-label` and
-// spreads caller props after it, so a bare `<ProgressBar />` is labelled — just
-// not usefully — and any test that finds *a* progressbar passes against it. The
-// `<Text>` beside each bar never reaches the accessible name.
-//
-// These routes externalize `@wordpress/components`, so wp-admin runs core's
-// copy, not the one jest resolves. The override rests on that prop-spread
-// ordering, which is not a documented contract.
+// The trap: a bare `<Progress.Root>` is an unnamed progressbar, and the
+// `<Text>` beside each bar never reaches its accessible name — so any test
+// that finds *a* progressbar passes against a bar a screen reader cannot
+// place. Querying by name is what pins each label to its bar.
 
 const mockApiFetch = jest.fn();
 
@@ -33,7 +29,6 @@ import userEvent from '@testing-library/user-event';
 import { stage as DownloadStage } from '../routes/download/stage';
 import { stage as RestoreStage } from '../routes/restore/stage';
 import BackupStatusPanel from '../src/dashboard/components/backup-status';
-import BackupStatusBanner from '../src/dashboard/components/backup-status/banner';
 import { queryClient } from '../src/dashboard/data/query-client';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
@@ -130,16 +125,6 @@ beforeEach( () => {
 } );
 
 describe( 'the Overview screen', () => {
-	// The banner sits above a usable activity list while a routine backup
-	// runs, so what is progressing is the backup — not the page, which has
-	// already loaded, and not the list beside it.
-	it( 'names the running backup in the banner', async () => {
-		render( <BackupStatusBanner progress={ 37 } /> );
-
-		const bar = await progressBarNamed( 'Backing up your site' );
-		expect( bar ).toBeInTheDocument();
-	} );
-
 	// One name covers both of the panel's modes. `in-progress` reports a
 	// real percentage and `no-backups` runs indeterminate, but they are the
 	// same situation to the reader — the first backup has not arrived yet —

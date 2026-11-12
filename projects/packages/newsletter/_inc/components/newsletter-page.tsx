@@ -1,4 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -6,13 +7,14 @@ import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
 import './newsletter-page.scss';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 export type NewsletterTab = 'overview' | 'subscribers' | 'settings';
 
 type Props = {
 	activeTab: NewsletterTab;
 	actions?: ReactNode;
+	hasUnsavedChanges?: boolean;
 	/**
 	 * Whether the active tab's CONTENT should sit inside a horizontally-padded
 	 * container. The tab nav itself is always padded the same way regardless
@@ -62,6 +64,7 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
  * @param props                   - Component props.
  * @param props.activeTab         - Which tab the current route represents.
  * @param props.actions           - Optional actions slot (top-right of the Page header).
+ * @param props.hasUnsavedChanges - Whether Settings has unsaved changes or pending autosaves.
  * @param props.contentHasPadding - Whether the active tab's content gets the page's horizontal padding (defaults to true).
  * @param props.hideFooter        - When true, suppresses the `JetpackFooter` rendered beneath the body slot.
  * @param props.children          - Tab content.
@@ -70,6 +73,7 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
 export default function NewsletterPage( {
 	activeTab,
 	actions,
+	hasUnsavedChanges = false,
 	contentHasPadding = true,
 	hideFooter = false,
 	children,
@@ -93,6 +97,20 @@ export default function NewsletterPage( {
 			) {
 				return;
 			}
+			if (
+				activeTab === 'settings' &&
+				next !== activeTab &&
+				hasUnsavedChanges &&
+				// eslint-disable-next-line no-alert
+				! window.confirm(
+					__(
+						'You have unsaved changes. Are you sure you want to leave this tab?',
+						'jetpack-newsletter'
+					)
+				)
+			) {
+				return;
+			}
 			// SAFETY: This is the dashboard's complete search state, but generated route types are unavailable.
 			navigate( {
 				search: {
@@ -102,12 +120,19 @@ export default function NewsletterPage( {
 				},
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate, overviewEnabled ]
+		[ activeTab, hasUnsavedChanges, navigate, overviewEnabled ]
 	);
 
 	const contentClass = contentHasPadding
 		? 'jetpack-newsletter-page__content jetpack-newsletter-page__content--padded'
 		: 'jetpack-newsletter-page__content';
+
+	const content = (
+		<>
+			<JitmSlot inset />
+			<div className={ contentClass }>{ children }</div>
+		</>
+	);
 
 	return (
 		<AdminPage
@@ -133,10 +158,10 @@ export default function NewsletterPage( {
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
-					<div className={ contentClass }>{ children }</div>
+					{ content }
 				</Tabs.Root>
 			) : (
-				<div className={ contentClass }>{ children }</div>
+				content
 			) }
 		</AdminPage>
 	);

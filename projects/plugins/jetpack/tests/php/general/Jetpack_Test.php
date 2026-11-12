@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -120,6 +121,50 @@ class Jetpack_Test extends WP_UnitTestCase {
 	 */
 	public function test_init() {
 		$this->assertInstanceOf( 'Jetpack', Jetpack::init() );
+	}
+
+	public function test_connected_tracking_initialization_does_not_resolve_current_user() {
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
+		Jetpack_Options::update_option( 'master_user', self::$admin_id );
+		Jetpack_Options::update_option( 'user_tokens', array( self::$admin_id => 'dummy.usertoken.' . self::$admin_id ) );
+		Jetpack_Options::update_option( 'tos_agreed', false );
+		StatusCache::set( 'is_offline_mode', false );
+		$connection = new Connection_Manager();
+		$connection->reset_connection_status();
+
+		$initialized = new ReflectionProperty( Plugin_Tracking::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$was_initialized  = $initialized->getValue();
+		$previous_user    = $GLOBALS['current_user'];
+		$previous_actions = $GLOBALS['wp_actions'];
+		$user_resolutions = 0;
+		$count_resolution = static function ( $user_id ) use ( &$user_resolutions ) {
+			++$user_resolutions;
+			return $user_id;
+		};
+
+		try {
+			$initialized->setValue( null, false );
+			$GLOBALS['wp_actions']['jetpack_initialize_tracking'] = 0;
+			remove_all_actions( 'jetpack_activate_module' );
+			add_filter( 'determine_current_user', $count_resolution );
+			unset( $GLOBALS['current_user'] );
+
+			( new MockJetpack() )->initialize_tracking();
+
+			$this->assertSame( 0, $user_resolutions );
+			$this->assertArrayNotHasKey( 'current_user', $GLOBALS );
+			$this->assertTrue( has_action( 'jetpack_activate_module' ) );
+		} finally {
+			remove_filter( 'determine_current_user', $count_resolution );
+			$GLOBALS['current_user'] = $previous_user;
+			$GLOBALS['wp_actions']   = $previous_actions;
+			$initialized->setValue( null, $was_initialized );
+			$connection->reset_connection_status();
+		}
 	}
 
 	/**
@@ -1205,48 +1250,6 @@ EXPECTED;
 	}
 
 	/**
-	 * Data provider for test_get_registration_error_description.
-	 *
-	 * @return array
-	 */
-	public static function provider_registration_error_description() {
-		$long         = str_repeat( 'a', 400 );
-		$real_message = 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.';
-
-		return array(
-			'a status code is not copy'         => array( 'wpcom_5??', '503', '' ),
-			'a status code as an int'           => array( 'wpcom_408', 408, '' ),
-			'the jetpack_id response body'      => array( 'jetpack_id', 'Error Details: Jetpack ID is empty. Do not publicly post this error message! {"body":"..."}', '' ),
-			'a real message is kept'            => array( 'cannot_save_secrets', $real_message, $real_message ),
-			'an empty message stays empty'      => array( 'missing_secrets', '', '' ),
-			'an over-long message is truncated' => array( 'some_code', $long, str_repeat( 'a', 250 ) ),
-		);
-	}
-
-	/**
-	 * @param string     $error_code The error code.
-	 * @param string|int $message    The error message.
-	 * @param string     $expected   The expected description.
-	 * @dataProvider provider_registration_error_description
-	 */
-	#[DataProvider( 'provider_registration_error_description' )]
-	public function test_get_registration_error_description( $error_code, $message, $expected ) {
-		$this->assertSame( $expected, Jetpack::get_registration_error_description( $error_code, $message ) );
-	}
-
-	/**
-	 * Truncation must not split a multibyte character, or the notice renders a replacement glyph.
-	 */
-	public function test_get_registration_error_description_does_not_split_multibyte_characters() {
-		$message = str_repeat( 'é', 400 );
-
-		$description = Jetpack::get_registration_error_description( 'some_code', $message );
-
-		$this->assertSame( str_repeat( 'é', 250 ), $description );
-		$this->assertSame( 250, mb_strlen( $description ) );
-	}
-
-	/**
 	 * The module list is globbed from `modules/` at runtime while the names come from the
 	 * generated `module-headings.php`, so a module can exist with no entry in that map. The
 	 * untranslated header has to survive that, or the name reaches clients as null.
@@ -1283,6 +1286,16 @@ EXPECTED;
 
 		$translated = Jetpack::get_translated_modules( $modules );
 
-		$this->assertSame( 'Secure Sign On', $translated['sso']['name'] );
+		$this->assertSame( 'WordPress.com login', $translated['sso']['name'] );
+	}
+
+	/**
+	 * Tests that a module's configure link opens the Settings page, searching for the module.
+	 */
+	public function test_module_configuration_url_opens_the_settings_page() {
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-settings' ) . '#/settings?term=markdown',
+			Jetpack::module_configuration_url( 'markdown' )
+		);
 	}
 } // end class

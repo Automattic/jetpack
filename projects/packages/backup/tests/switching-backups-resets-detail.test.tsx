@@ -20,7 +20,7 @@ jest.mock( '@wordpress/route', () => ( {
 	// `search` is folded into the href rather than spread onto the node: the
 	// Download action carries the file selection there now, and React would
 	// warn about an object-valued attribute on an `<a>` — which
-	// `@wordpress/jest-console` turns into a suite failure.
+	// the `jetpack-js-tools` console guard turns into a test failure.
 	Link: ( {
 		children,
 		to,
@@ -42,7 +42,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
-import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -72,7 +71,6 @@ function backupEntry( rewindId: string, title: string ) {
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
-	resetListStateForTesting();
 
 	mockApiFetch.mockReset();
 	mockApiFetch.mockImplementation( ( o: { path?: string; data?: { rewind_id?: string } } ) => {

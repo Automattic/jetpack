@@ -35,7 +35,7 @@ class Jetpack_Shortcodes_Presentations_Test extends WP_UnitTestCase {
 	public function test_shortcodes_presentations_presentation() {
 		$content = '[presentation]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}

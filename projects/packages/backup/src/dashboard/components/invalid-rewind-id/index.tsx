@@ -1,5 +1,5 @@
-import { __ } from '@wordpress/i18n';
-import { Icon, arrowLeft } from '@wordpress/icons';
+import { __, isRTL } from '@wordpress/i18n';
+import { Icon, arrowLeft, arrowRight } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../dashboard-layout';
@@ -38,7 +38,7 @@ export default function InvalidRewindId( { prefix, title, body }: Props ) {
 		<DashboardLayout>
 			<div className={ prefix }>
 				<Link to="/" className={ `${ prefix }__back` }>
-					<Icon icon={ arrowLeft } size={ 18 } />
+					<Icon icon={ isRTL() ? arrowRight : arrowLeft } size={ 18 } />
 					{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
 				</Link>
 				<Card.Root className={ `${ prefix }__card` }>

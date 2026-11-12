@@ -199,57 +199,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * An account with no agency partnership gets no menu item, however many sites it has.
-	 */
-	public function test_add_submenu_jetpack_requires_an_agency_account() {
-		$this->connect_user( $this->admin_id );
-		$this->prime_site_count( $this->admin_id, 2 );
-		$this->store_partner_type( $this->admin_id, 'none' );
-
-		$this->assertNull( Jetpack_Manage::add_submenu_jetpack() );
-	}
-
-	public function test_add_submenu_jetpack_registers_for_an_agency_account() {
-		$this->connect_user( $this->admin_id );
-		$this->prime_site_count( $this->admin_id, 2 );
-		$this->store_partner_type( $this->admin_id, 'agency' );
-
-		$this->assertIsString( Jetpack_Manage::add_submenu_jetpack() );
-	}
-
-	/**
-	 * A stored answer is trusted however old it is, so the sidebar does not flap while stale.
-	 */
-	public function test_add_submenu_jetpack_trusts_a_stale_stored_answer() {
-		$this->connect_user( $this->admin_id );
-		$this->prime_site_count( $this->admin_id, 2 );
-		$this->store_partner_type( $this->admin_id, 'agency', YEAR_IN_SECONDS );
-
-		$this->assertIsString( Jetpack_Manage::add_submenu_jetpack() );
-	}
-
-	/**
-	 * Fails if the gates swap order: the site count is left unprimed, so reaching it costs a request.
-	 */
-	public function test_add_submenu_jetpack_rejects_a_non_agency_without_any_http_request() {
-		$this->connect_user( $this->admin_id );
-		$this->store_partner_type( $this->admin_id, 'none' );
-		$this->mock_http( array() );
-
-		$this->assertNull( Jetpack_Manage::add_submenu_jetpack() );
-		$this->assertSame( 0, $this->http_request_count );
-	}
-
-	/**
-	 * Test that the menu doesn't appear for non-admins.
-	 */
-	public function test_add_submenu_jetpack_editor() {
-		wp_set_current_user( $this->editor_id );
-
-		$this->assertNull( Jetpack_Manage::add_submenu_jetpack() );
-	}
-
-	/**
 	 * Test that the banner is not dismissed by default.
 	 */
 	public function test_is_banner_dismissed_defaults_to_false() {

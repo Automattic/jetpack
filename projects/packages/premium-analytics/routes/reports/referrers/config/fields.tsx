@@ -1,9 +1,13 @@
 /**
  * External dependencies
  */
-import { Link, Stack } from '@jetpack-premium-analytics/externals';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	ExternalLink,
+	MetricWithComparison,
+	type ReferrerRecord,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -11,21 +15,6 @@ import { __ } from '@wordpress/i18n';
  */
 import styles from './fields.module.css';
 import type { Field } from '@jetpack-premium-analytics/externals';
-
-/**
- * A flattened referrer group, source, or domain shown in the records table.
- */
-export type ReferrerRecord = {
-	id: string;
-	parentId?: string;
-	parentLabel?: string;
-	label: string;
-	views: number;
-	previousValue?: number;
-	link?: string;
-	icon?: string;
-	hasChildren?: boolean;
-};
 
 /**
  * Fixed-size favicon slot for a referrer row.
@@ -91,8 +80,7 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 					</Stack>
 				);
 
-				// Group/source rows keep DataViews' title treatment and never link
-				// away; only leaf referrers use the drilldown leaf treatment.
+				// Group/source rows never link away; only leaf referrers do.
 				if ( isGroup ) {
 					return label;
 				}
@@ -100,9 +88,9 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 				return (
 					<DrilldownLeafCell groupLabel={ item.parentLabel }>
 						{ safeUrl ? (
-							<Link href={ safeUrl } openInNewTab rel="noopener noreferrer">
+							<ExternalLink href={ safeUrl } variant="default">
 								{ label }{ ' ' }
-							</Link>
+							</ExternalLink>
 						) : (
 							label
 						) }

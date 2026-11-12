@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-AI Launchpad: rework the tailoring prompt to rank tasks by relevance to the user's site intent and write site-specific task subtitles, and retry once on a transient AI failure.

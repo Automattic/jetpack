@@ -235,15 +235,9 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 	 * @return string Column HTML.
 	 */
 	public function column_price( $item ) {
-		if ( ! isset( $item['line_items'][0]['unit_amount'] ) ) {
-			return '—';
-		}
+		$price = PayPal_Payment_Buttons::resource_price( $item );
 
-		$amount   = $item['line_items'][0]['unit_amount'];
-		$value    = $amount['value'] ?? '0.00';
-		$currency = $amount['currency_code'] ?? 'USD';
-
-		return esc_html( PayPal_Payment_Buttons::format_price( $value, $currency ) );
+		return '' === $price ? '—' : esc_html( $price );
 	}
 
 	/**
@@ -339,8 +333,8 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 
 		printf(
 			'<p>%s</p><p>%s</p>',
-			esc_html__( 'No payment links found.', 'jetpack-paypal-payments' ),
-			esc_html__( 'Create your first payment link by adding a PayPal Payment Buttons block in the editor.', 'jetpack-paypal-payments' )
+			esc_html__( 'No payment buttons found.', 'jetpack-paypal-payments' ),
+			esc_html__( 'Create your first payment button by adding a PayPal Payment Buttons block in the editor.', 'jetpack-paypal-payments' )
 		);
 	}
 

@@ -5,6 +5,7 @@ import { castToNumber } from '$lib/utils/cast-to-number';
 import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
+import { describeRefusedReply } from './describe-refused-reply';
 import { standardizeError } from '@automattic/jetpack-boost-score-api';
 
 type Viewport = {
@@ -151,14 +152,16 @@ const LOGIN_REQUIRED_HEADER = 'x-jetpack-boost-generation-blocked';
 /**
  * Helper method to prepare a Browser Interface for Critical CSS generation.
  *
- * @param {Object} requestGetParameters - GET parameters to include with each request.
- * @param {string} proxyNonce           - Nonce to use when proxying CSS requests.
- * @param {Set}    loginRequiredUrls    - Collects the URLs the site would only show to a logged-in visitor.
+ * @param {Object}      requestGetParameters - GET parameters to include with each request.
+ * @param {string}      proxyNonce           - Nonce to use when proxying CSS requests.
+ * @param {Set}         loginRequiredUrls    - Collects the URLs the site would only show to a logged-in visitor.
+ * @param {AbortSignal} signal               - Ends page loads and requests when generation is cancelled.
  */
 async function createBrowserInterface(
 	requestGetParameters: Record< string, string >,
 	proxyNonce: string,
-	loginRequiredUrls: Set< string >
+	loginRequiredUrls: Set< string >,
+	signal: AbortSignal
 ) {
 	const CriticalCSSGenerator = await criticalCssGenerator();
 	return new ( class extends CriticalCSSGenerator.BrowserInterfaceIframe {
@@ -167,19 +170,24 @@ async function createBrowserInterface(
 				requestGetParameters,
 				verifyPage,
 				allowScripts: false,
+				signal,
 			} );
 		}
 
 		async fetch( url: string, options: RequestInit, context?: string ) {
 			if ( context === 'css' && ! isSameOrigin( url ) ) {
-				return prepareAdminAjaxRequest( {
-					action: 'boost_proxy_css',
-					proxy_url: url,
-					nonce: proxyNonce,
-				} );
+				return prepareAdminAjaxRequest(
+					{
+						action: 'boost_proxy_css',
+						proxy_url: url,
+						nonce: proxyNonce,
+					},
+					undefined,
+					{ signal }
+				);
 			}
 
-			const response = await fetch( url, options );
+			const response = await fetch( url, { signal, ...options } );
 			if ( response.headers.get( LOGIN_REQUIRED_HEADER ) === 'login-required' ) {
 				loginRequiredUrls.add( pageUrlKey( url, requestGetParameters ) );
 			}
@@ -255,7 +263,8 @@ async function generateForKeys(
 				browserInterface: await createBrowserInterface(
 					requestGetParameters,
 					proxyNonce,
-					loginRequiredUrls
+					loginRequiredUrls,
+					signal
 				),
 				urls,
 				viewports,
@@ -271,10 +280,20 @@ async function generateForKeys(
 				maxPages: 10,
 			} );
 
+			// A run cancelled while the pages were loading built this CSS from fewer pages; do not keep it.
+			if ( signal.aborted ) {
+				return;
+			}
+
 			let providerFailed: unknown | Error | null = null;
 
 			try {
-				await callbacks.setProviderCss( key, css );
+				const result = await callbacks.setProviderCss( key, css );
+				if ( result === false ) {
+					// The server already recorded the provider error; keep it and exclude rejected bytes.
+					stepsFailed++;
+					continue;
+				}
 
 				totalSize += css.length;
 				maxSize = css.length > maxSize ? css.length : maxSize;
@@ -284,9 +303,16 @@ async function generateForKeys(
 			}
 
 			if ( providerFailed instanceof Error ) {
-				throw new ProviderCssSaveError( providerFailed.message );
+				throw new ProviderCssSaveError(
+					( await describeRefusedReply( providerFailed ) ) ?? providerFailed.message
+				);
 			}
 		} catch ( err ) {
+			// A cancelled run's page errors describe the cancellation, not the site.
+			if ( signal.aborted ) {
+				return;
+			}
+
 			if ( err instanceof ProviderCssSaveError ) {
 				stepsFailed++;
 				await callbacks.setProviderErrors(

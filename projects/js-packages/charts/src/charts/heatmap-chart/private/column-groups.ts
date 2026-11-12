@@ -2,10 +2,12 @@ import { warnOnce } from '../../../utils/warn-once';
 import type { HeatmapColumnGroup } from '../types';
 
 export type ColumnGroupLayout = {
-	/** One per data column: its grid column line, whether a gap track precedes it, and its group's index. */
-	columns: { line: number; gapBefore: boolean; group?: number }[];
-	/** The groups as given, each with the grid column line its label starts on; none when any was unusable. */
-	groups: ( HeatmapColumnGroup & { line: number } )[];
+	/** One per data column: its grid column line and band, whether a gap track precedes it, and its group's index. */
+	columns: { line: number; band: number; gapBefore: boolean; group?: number }[];
+	/** The groups as given, each with the grid column line and band its label sits on; none when any was unusable. */
+	groups: ( HeatmapColumnGroup & { line: number; band: number } )[];
+	/** Rows of groups the columns are laid out on. */
+	bands: number;
 };
 
 const isSpan = ( span: number ) => Number.isInteger( span ) && span > 0;
@@ -26,9 +28,11 @@ export const resolveColumnGroups = (
 	const ungrouped = (): ColumnGroupLayout => ( {
 		columns: Array.from( { length: columnCount }, ( _, index ) => ( {
 			line: firstLine + index,
+			band: 0,
 			gapBefore: false,
 		} ) ),
 		groups: [],
+		bands: 1,
 	} );
 
 	// An empty grid draws nothing, so static groups awaiting data are not a misuse.
@@ -55,17 +59,84 @@ export const resolveColumnGroups = (
 		if ( groupIndex > 0 ) {
 			line += 1;
 		}
-		laidOut.push( { ...group, line } );
+		laidOut.push( { ...group, line, band: 0 } );
 		for ( let offset = 0; offset < group.span; offset++ ) {
-			columns.push( { line, gapBefore: groupIndex > 0 && offset === 0, group: groupIndex } );
+			columns.push( {
+				line,
+				band: 0,
+				gapBefore: groupIndex > 0 && offset === 0,
+				group: groupIndex,
+			} );
 			line += 1;
 		}
 	} );
 	// An ungrouped tail opens no further gap.
 	while ( columns.length < columnCount ) {
-		columns.push( { line, gapBefore: false } );
+		columns.push( { line, band: 0, gapBefore: false } );
 		line += 1;
 	}
 
-	return { columns, groups: laidOut };
+	return { columns, groups: laidOut, bands: 1 };
+};
+
+export type WrappedColumnGroupLayout = ColumnGroupLayout & {
+	/** Columns per group slot: the widest group in that position on any band. */
+	slotSpans: number[];
+};
+
+/**
+ * Wraps the groups onto bands of equal group count, each band starting back at
+ * the first data line so the groups line up in slots down the bands.
+ *
+ * @param layout - The unwrapped layout from `resolveColumnGroups`.
+ * @param bands  - Bands to aim for; the groups split as evenly as whole bands allow.
+ * @return The wrapped layout, or null when there is nothing to wrap: one band, one group, or a column outside every group.
+ */
+export const wrapColumnGroups = (
+	layout: ColumnGroupLayout,
+	bands: number
+): WrappedColumnGroupLayout | null => {
+	const { columns, groups } = layout;
+	if ( bands < 2 || groups.length < 2 || columns.some( column => column.group === undefined ) ) {
+		return null;
+	}
+
+	const perBand = Math.ceil( groups.length / bands );
+	const slotSpans: number[] = Array( perBand ).fill( 0 );
+	groups.forEach( ( group, index ) => {
+		const slot = index % perBand;
+		slotSpans[ slot ] = Math.max( slotSpans[ slot ], group.span );
+	} );
+	const slotLines: number[] = [];
+	let line = columns[ 0 ].line;
+	slotSpans.forEach( ( span, slot ) => {
+		if ( slot > 0 ) {
+			line += 1;
+		}
+		slotLines.push( line );
+		line += span;
+	} );
+
+	const wrappedGroups = groups.map( ( group, index ) => ( {
+		...group,
+		line: slotLines[ index % perBand ],
+		band: Math.floor( index / perBand ),
+	} ) );
+	const wrappedColumns = columns.map( column => {
+		const group = column.group as number;
+		const offset = column.line - groups[ group ].line;
+		return {
+			...column,
+			line: wrappedGroups[ group ].line + offset,
+			band: wrappedGroups[ group ].band,
+			gapBefore: offset === 0 && group % perBand > 0,
+		};
+	} );
+
+	return {
+		columns: wrappedColumns,
+		groups: wrappedGroups,
+		bands: Math.ceil( groups.length / perBand ),
+		slotSpans,
+	};
 };

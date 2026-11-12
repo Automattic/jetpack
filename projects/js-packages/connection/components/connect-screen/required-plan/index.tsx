@@ -1,4 +1,8 @@
 import { __ } from '@wordpress/i18n';
+import {
+	getRegistrationErrorCode,
+	getRegistrationErrorDisplay,
+} from '../../../helpers/get-connect-screen-error-message';
 import useProductCheckoutWorkflow from '../../../hooks/use-product-checkout-workflow';
 import useConnection from '../../use-connection';
 import ConnectScreenRequiredPlanVisual from './visual';
@@ -33,34 +37,34 @@ function ConnectScreenRequiredPlan( {
 	logo,
 	rna = false,
 }: Props ) {
-	const {
-		handleRegisterSite,
-		siteIsRegistering,
-		userIsConnecting,
-		registrationError,
-		isOfflineMode,
-	} = useConnection( {
-		registrationNonce,
-		redirectUri,
-		apiRoot,
-		apiNonce,
-		autoTrigger,
-		from,
-	} );
+	const { handleRegisterSite, siteIsRegistering, userIsConnecting, connectError, isOfflineMode } =
+		useConnection( {
+			registrationNonce,
+			redirectUri,
+			apiRoot,
+			apiNonce,
+			autoTrigger,
+			from,
+		} );
 
 	const productSlug = wpcomProductSlug ? wpcomProductSlug : '';
 
-	const { run: handleCheckoutWorkflow, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+	const {
+		run: handleCheckoutWorkflow,
+		hasCheckoutStarted,
+		checkoutError,
+	} = useProductCheckoutWorkflow( {
 		productSlug,
 		redirectUrl: redirectUri,
 		siteProductAvailabilityHandler,
 		from,
 	} );
 
-	const displayButtonError = Boolean( registrationError );
+	const displayButtonError = Boolean( connectError || checkoutError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
 	const handleButtonClick = productSlug ? handleCheckoutWorkflow : handleRegisterSite;
-	const errorCode = registrationError ? registrationError.response?.code : undefined;
+	const errorCode = getRegistrationErrorCode( connectError );
+	const errorDisplay = getRegistrationErrorDisplay( connectError, isOfflineMode );
 
 	return (
 		<ConnectScreenRequiredPlanVisual
@@ -74,6 +78,7 @@ function ConnectScreenRequiredPlan( {
 			handleButtonClick={ handleButtonClick }
 			displayButtonError={ displayButtonError }
 			errorCode={ errorCode }
+			errorDisplay={ errorDisplay }
 			buttonIsLoading={ buttonIsLoading }
 			logo={ logo }
 			isOfflineMode={ isOfflineMode }

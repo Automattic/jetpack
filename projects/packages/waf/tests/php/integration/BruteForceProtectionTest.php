@@ -187,6 +187,13 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Verify that every caller shares one instance, so login hooks are registered once.
+	 */
+	public function test_instance_is_reused() {
+		$this->assertSame( Brute_Force_Protection::instance(), Brute_Force_Protection::instance() );
+	}
+
+	/**
 	 * Verifies that the transient value is not acted upon (decremented) if the transient value was indeed not set.
 	 *
 	 * @backupGlobals enabled
@@ -247,5 +254,17 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 			array( 'some-string' ),
 			array( (object) array() ),
 		);
+	}
+
+	/**
+	 * Test that ip_is_allowed matches an IP inside a CIDR entry on the allow list.
+	 */
+	public function test_ip_is_allowed_matches_cidr_entry() {
+		update_option( 'jetpack_waf_ip_allow_list', '1.1.1.1 192.168.0.0/24' );
+
+		$this->assertTrue( $this->instance->ip_is_allowed( '192.168.0.42' ) );
+		$this->assertFalse( $this->instance->ip_is_allowed( '192.168.1.42' ) );
+
+		delete_option( 'jetpack_waf_ip_allow_list' );
 	}
 }

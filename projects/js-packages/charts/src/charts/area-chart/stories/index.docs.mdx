@@ -150,6 +150,22 @@ By default, charts **fill their parent container's dimensions**. The parent must
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
+### Compact When Short
+
+Set `compactWhenShort` to drop the axes, grid and legend while the chart is shorter than `theme.compactWhenShort.below` (140px by default). Only the areas remain, and they keep their tooltips and keyboard navigation. The chart compares the height it was given, legend included, so hiding the legend never flips it back. Series hidden through the legend stay hidden until the chart is tall enough to show the legend again.
+
+<Canvas of={ AreaChartStories.CompactWhenShort } />
+
+In compact mode the margin defaults to `theme.compactWhenShort.margin`, and any side you pass through `margin` still wins. To change the threshold, set it on the theme:
+
+<Source
+	language="jsx"
+	code={ `// Applies to every chart under this provider
+	<GlobalChartsProvider theme={ { compactWhenShort: { below: 180 } } }>
+		<AreaChart data={ data } compactWhenShort />
+	</GlobalChartsProvider>` }
+/>
+
 ## Animation
 
 The Area Chart supports an optional entry animation:
@@ -162,7 +178,8 @@ The Area Chart supports an optional entry animation:
 
 ## Accessibility
 
-- Chart container has `role="grid"` with an `aria-label` of `"Area chart"`.
+- Chart container has `role="application"`, so screen readers pass arrow keys through to the chart's point navigation.
+- Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - Tab to focus the chart; arrow keys navigate data points; tooltips are announced to screen readers.
 - **Escape**: Close a keyboard-opened tooltip and return focus to the chart
 - All series colors can be overridden through the palette custom properties; do not rely on color alone to distinguish series.

@@ -8,6 +8,10 @@
 		align-items: center;
 		margin-bottom: 1em;
 
+		&.compact-header {
+			margin-block-end: 0;
+		}
+
 		@media screen and ( max-width: 530px ) {
 			flex-direction: column;
 			align-items: flex-start;
@@ -23,6 +27,13 @@
 		svg {
 			fill: var(--wp-admin-theme-color);
 		}
+	}
+
+	// Icon-first buttons have no text baseline, so center them instead.
+	.row-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-xs);
 	}
 
 	.summary {

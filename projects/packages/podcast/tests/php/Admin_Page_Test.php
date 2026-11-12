@@ -13,8 +13,10 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
 use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -37,6 +39,11 @@ class Admin_Page_Test extends BaseTestCase {
 	protected function tearDown(): void {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
+		remove_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_tracks_transport' ) );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) );
+		wp_dequeue_script( 'wp-jp-i18n-loader' );
+		wp_deregister_script( 'wp-jp-i18n-loader' );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'restore_screen_id_after_wp_build' ) );
 		remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_podcast_script_data' ) );
@@ -138,6 +145,68 @@ class Admin_Page_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'preload', $data['podcast'] );
 		$this->assertIsArray( $data['podcast']['preload'] );
+	}
+
+	/**
+	 * @param array       $options Site visibility options.
+	 * @param string|null $filter Status filter to force true.
+	 * @param bool        $expected Expected public visibility.
+	 * @dataProvider provide_site_visibility_states
+	 */
+	#[DataProvider( 'provide_site_visibility_states' )]
+	public function test_inject_script_data_reports_site_visibility( $options, $filter, $expected ) {
+		Status_Cache::clear();
+		foreach ( $options as $name => $value ) {
+			update_option( $name, $value );
+		}
+		if ( null !== $filter ) {
+			add_filter( $filter, '__return_true' );
+		}
+
+		try {
+			$data = Admin_Page::inject_podcast_script_data( array() );
+			$this->assertSame( $expected, $data['podcast']['is_site_public'] ?? null );
+		} finally {
+			if ( null !== $filter ) {
+				remove_filter( $filter, '__return_true' );
+			}
+			Status_Cache::clear();
+		}
+	}
+
+	public static function provide_site_visibility_states(): array {
+		return array(
+			'public without launch status' => array( array( 'blog_public' => '1' ), null, true ),
+			'public and launched'          => array(
+				array(
+					'blog_public'   => '1',
+					'launch-status' => 'launched',
+				),
+				null,
+				true,
+			),
+			'discouraged string'           => array( array( 'blog_public' => '0' ), null, false ),
+			'discouraged integer'          => array( array( 'blog_public' => 0 ), null, false ),
+			'private'                      => array( array( 'blog_public' => '-1' ), null, false ),
+			'unlaunched'                   => array(
+				array(
+					'blog_public'   => '1',
+					'launch-status' => 'unlaunched',
+				),
+				null,
+				false,
+			),
+			'coming soon option'           => array(
+				array(
+					'blog_public'              => '1',
+					'wpcom_public_coming_soon' => 1,
+				),
+				null,
+				false,
+			),
+			'private status filter'        => array( array( 'blog_public' => '1' ), 'jetpack_is_private_site', false ),
+			'coming soon status filter'    => array( array( 'blog_public' => '1' ), 'jetpack_is_coming_soon', false ),
+		);
 	}
 
 	/**
@@ -307,5 +376,27 @@ class Admin_Page_Test extends BaseTestCase {
 	private function enter_podcast_admin_request(): void {
 		set_current_screen( 'jetpack_page_jetpack-podcast' );
 		$_GET['page'] = Admin_Page::ADMIN_PAGE_SLUG;
+	}
+
+	public function test_admin_init_queues_the_i18n_loader_enqueue() {
+		Admin_Page::admin_init();
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) ) );
+	}
+
+	public function test_enqueue_i18n_loader_enqueues_the_loader_when_it_is_registered() {
+		wp_register_script( 'wp-jp-i18n-loader', false, array(), '1.0', true );
+
+		Admin_Page::enqueue_i18n_loader();
+
+		$this->assertTrue( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
+	}
+
+	public function test_enqueue_i18n_loader_does_nothing_when_the_loader_is_not_registered() {
+		wp_deregister_script( 'wp-jp-i18n-loader' );
+
+		Admin_Page::enqueue_i18n_loader();
+
+		$this->assertFalse( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
 	}
 }

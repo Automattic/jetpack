@@ -131,8 +131,23 @@ describe( 'MostPopularTimeWidget', () => {
 		render( <MostPopularTimeWidget attributes={ {} } /> );
 
 		await expect(
-			screen.findByText( 'Not enough data to determine your most popular time yet.' )
+			screen.findByText( 'Your busiest day and hour will show here once visitors start arriving.' )
 		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'renders a Monday peak at midnight, which the endpoint reports as 0', async () => {
+		mockApiFetch.mockResolvedValue( {
+			highest_day_of_week: 0,
+			highest_day_percent: 31,
+			highest_hour: 0,
+			highest_hour_percent: 5,
+		} );
+
+		const { container } = render( <MostPopularTimeWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( 'Monday' ) ).resolves.toBeInTheDocument();
+		expect( container ).toHaveTextContent( 'Best dayMonday31% of views' );
+		expect( container ).toHaveTextContent( 'Best hour12 am5% of views' );
 	} );
 
 	it( 'keeps the rendered peak when a refetch fails', async () => {

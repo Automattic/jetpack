@@ -6,10 +6,9 @@
  * endpoint. All requests are authenticated via PayPal_OAuth and include
  * a PayPal-Request-Id header for idempotency.
  *
- * Note: The PayPal-Partner-Attribution-Id header is NOT supported on
- * Payment Links API endpoints. BN code attribution is applied via the
- * `at_code` query parameter on payment link URLs instead (see
- * PayPal_Payment_Buttons::render_api_managed_button).
+ * Every request carries the PayPal-Partner-Attribution-Id header; the
+ * payment links themselves are attributed separately, through the `at_code`
+ * query parameter PayPal_Payment_Buttons::add_partner_attribution() appends.
  *
  * Updated for WOOPTP-151: Token auto-refresh on 403 with retry,
  * network timeout handling with exponential backoff, and PayPal
@@ -100,6 +99,11 @@ class PayPal_API_Client {
 
 	/**
 	 * Allowed PayPal domains for payment link URLs.
+	 *
+	 * Checked by validate_paypal_url() on a link PayPal returns, and by
+	 * PayPal_Payment_Buttons::sanitize_paypal_script_url() on a URL stored in a block
+	 * attribute. The editor keeps its own copy in utils/validation.js, and
+	 * test_paypal_host_allow_lists_are_in_sync() compares the two.
 	 *
 	 * @var array
 	 */
@@ -436,8 +440,9 @@ class PayPal_API_Client {
 			$error_data = $result->get_error_data();
 			$status     = isset( $error_data['status'] ) ? (int) $error_data['status'] : 0;
 
-			// Auth failure (401/403) — refresh token and retry exactly once.
-			if ( in_array( $status, array( 401, 403 ), true ) && ! $auth_retried ) {
+			// Auth failure (401/403) — refresh token and retry exactly once. There is no
+			// site token to refresh when WordPress.com makes the call.
+			if ( in_array( $status, array( 401, 403 ), true ) && ! $auth_retried && ! PayPal_Partner_Onboarding::is_platform_managed() ) {
 				$auth_retried = true;
 				PayPal_OAuth::clear_cached_token();
 
@@ -503,65 +508,20 @@ class PayPal_API_Client {
 	 * Handles token retrieval, header construction, response validation,
 	 * and error mapping. Includes PayPal-Request-Id for idempotency.
 	 *
-	 * Note: PayPal-Partner-Attribution-Id is NOT supported on Payment Links
-	 * API endpoints. BN code attribution is handled via the `at_code` query
-	 * parameter on payment link URLs in the render layer.
-	 *
 	 * @param string     $method          HTTP method (GET, POST, PUT, DELETE).
 	 * @param string     $endpoint        API endpoint path (appended to base URL).
 	 * @param array|null $body            Request body data (JSON-encoded for POST/PUT).
 	 * @param int|array  $expected_status Status code, or codes, that count as success.
-	 * @param string     $request_id      Optional. Idempotency key. Auto-generated if empty.
+	 * @param string     $request_id      Idempotency key.
 	 * @return array|null|\WP_Error Decoded response body, null for 204, or WP_Error.
 	 */
-	private static function make_request( $method, $endpoint, $body, $expected_status, $request_id = '' ) {
-		$token = PayPal_OAuth::get_access_token();
-		if ( is_wp_error( $token ) ) {
-			return $token;
-		}
-
-		$url = PayPal_OAuth::get_base_url() . $endpoint;
-
-		// Generate a unique request ID for idempotency if not provided.
-		if ( empty( $request_id ) ) {
-			$request_id = wp_generate_uuid4();
-		}
-
-		$args = array(
-			'method'  => $method,
-			'timeout' => self::REQUEST_TIMEOUT,
-			'headers' => array(
-				'Authorization'     => 'Bearer ' . $token,
-				'Content-Type'      => 'application/json',
-				'Accept'            => 'application/json',
-				'PayPal-Request-Id' => $request_id,
-			),
-		);
-
-		if ( null !== $body && in_array( $method, array( 'POST', 'PUT' ), true ) ) {
-			$args['body'] = wp_json_encode( $body, JSON_UNESCAPED_SLASHES );
-		}
-
-		$response = wp_remote_request( $url, $args );
+	private static function make_request( $method, $endpoint, $body, $expected_status, $request_id ) {
+		$response = PayPal_Partner_Onboarding::is_platform_managed()
+			? PayPal_Platform_Client::request( $method, $endpoint, $body, $request_id )
+			: self::make_direct_request( $method, $endpoint, $body, $request_id );
 
 		if ( is_wp_error( $response ) ) {
-			$message = $response->get_error_message();
-
-			// Distinguish timeouts from other network errors for retry logic.
-			$is_timeout = false !== strpos( strtolower( $message ), 'timeout' )
-				|| false !== strpos( strtolower( $message ), 'timed out' );
-
-			return new \WP_Error(
-				$is_timeout ? 'paypal_api_timeout' : 'paypal_api_request_failed',
-				$is_timeout
-					? __( 'The request to PayPal timed out. Please try again.', 'jetpack-paypal-payments' )
-					: sprintf(
-						/* translators: %s: error message from the HTTP request */
-						__( 'PayPal API request failed: %s', 'jetpack-paypal-payments' ),
-						$message
-					),
-				array( 'status' => 0 )
-			);
+			return $response;
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
@@ -592,6 +552,64 @@ class PayPal_API_Client {
 	}
 
 	/**
+	 * Call PayPal from the site, with the merchant's own credentials.
+	 *
+	 * @param string     $method     HTTP method (GET, POST, PUT, DELETE).
+	 * @param string     $endpoint   API endpoint path (appended to base URL).
+	 * @param array|null $body       Request body data (JSON-encoded for POST/PUT).
+	 * @param string     $request_id Idempotency key.
+	 * @return array|\WP_Error The wp_remote_request() response, or WP_Error when PayPal was unreachable.
+	 */
+	private static function make_direct_request( $method, $endpoint, $body, $request_id ) {
+		$token = PayPal_OAuth::get_access_token();
+		if ( is_wp_error( $token ) ) {
+			return $token;
+		}
+
+		$url = PayPal_OAuth::get_base_url() . $endpoint;
+
+		$args = array(
+			'method'  => $method,
+			'timeout' => self::REQUEST_TIMEOUT,
+			'headers' => array(
+				'Authorization'                 => 'Bearer ' . $token,
+				'Content-Type'                  => 'application/json',
+				'Accept'                        => 'application/json',
+				'PayPal-Request-Id'             => $request_id,
+				'PayPal-Partner-Attribution-Id' => PayPal_Payment_Buttons::get_partner_attribution_id(),
+			),
+		);
+
+		if ( null !== $body && in_array( $method, array( 'POST', 'PUT' ), true ) ) {
+			$args['body'] = wp_json_encode( $body, JSON_UNESCAPED_SLASHES );
+		}
+
+		$response = wp_remote_request( $url, $args );
+
+		if ( is_wp_error( $response ) ) {
+			$message = $response->get_error_message();
+
+			// Distinguish timeouts from other network errors for retry logic.
+			$is_timeout = false !== strpos( strtolower( $message ), 'timeout' )
+				|| false !== strpos( strtolower( $message ), 'timed out' );
+
+			return new \WP_Error(
+				$is_timeout ? 'paypal_api_timeout' : 'paypal_api_request_failed',
+				$is_timeout
+					? __( 'The request to PayPal timed out. Please try again.', 'jetpack-paypal-payments' )
+					: sprintf(
+						/* translators: %s: error message from the HTTP request */
+						__( 'PayPal API request failed: %s', 'jetpack-paypal-payments' ),
+						$message
+					),
+				array( 'status' => 0 )
+			);
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Parse a PayPal error response into a WP_Error.
 	 *
 	 * Maps PayPal's standard error response format to descriptive WP_Error
@@ -609,17 +627,28 @@ class PayPal_API_Client {
 		$error_name    = isset( $data['name'] ) ? sanitize_text_field( $data['name'] ) : 'UNKNOWN_ERROR';
 		$error_message = isset( $data['message'] ) ? sanitize_text_field( $data['message'] ) : '';
 		$error_details = isset( $data['details'] ) && is_array( $data['details'] ) ? $data['details'] : array();
+		$debug_id      = isset( $data['debug_id'] ) ? sanitize_text_field( $data['debug_id'] ) : '';
 
 		// Build a human-readable message (never raw API text).
 		$message = self::get_user_friendly_message( $status_code, $error_name, $error_message, $error_details );
+
+		// The debug ID is what PayPal support resolves, so the merchant must be able to quote it.
+		if ( '' !== $debug_id ) {
+			$message .= ' ' . sprintf(
+				/* translators: %s: PayPal's debug ID for the failed request. */
+				__( 'PayPal debug ID: %s.', 'jetpack-paypal-payments' ),
+				$debug_id
+			);
+		}
 
 		return new \WP_Error(
 			'paypal_api_' . strtolower( $error_name ),
 			$message,
 			array(
-				'status'      => $status_code,
-				'paypal_name' => $error_name,
-				'details'     => $error_details,
+				'status'          => $status_code,
+				'paypal_name'     => $error_name,
+				'paypal_debug_id' => $debug_id,
+				'details'         => $error_details,
 			)
 		);
 	}

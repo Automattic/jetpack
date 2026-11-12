@@ -1,5 +1,6 @@
 {
 	"name": "jpa/post-comments",
+	"icon": "jpa/comment",
 	"title": "Latest comments",
 	"description": "The latest comments on the post or page being viewed.",
 	"help": {

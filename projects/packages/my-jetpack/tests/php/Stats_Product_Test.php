@@ -3,23 +3,33 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\My_Jetpack\Products\Pro;
 use Automattic\Jetpack\My_Jetpack\Products\Stats;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
+
+require_once __DIR__ . '/assets/premium-analytics/class-analytics.php';
 
 /**
  * Unit tests for the Stats product's destination URLs.
  *
  * The Premium Analytics dashboard replaces the Stats page, so both URLs this
- * product hands the UI have to follow it. The flag lives on the Jetpack plugin,
- * mocked here through ./assets/jetpack-mock-plugin.txt.
+ * product hands the UI have to follow it. The Jetpack plugin is mocked through
+ * ./assets/jetpack-mock-plugin.txt, the package through ./assets/premium-analytics/class-analytics.php.
  *
  * @package automattic/my-jetpack
  * @see \Automattic\Jetpack\My_Jetpack\Products\Stats
  */
 class Stats_Product_Test extends TestCase {
+
+	/**
+	 * The first filename Stats declares for its standalone plugin.
+	 */
+	private const STANDALONE_PLUGIN_FILE = 'jetpack-stats/jetpack-stats.php';
 
 	/**
 	 * The current user id.
@@ -70,6 +80,9 @@ class Stats_Product_Test extends TestCase {
 	public function tearDown(): void {
 		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- It's declared on the mock from ./assets/jetpack-mock-plugin.txt
 		\Jetpack::$mock_premium_analytics_enabled = false;
+		Analytics::$mock_initialized              = false;
+
+		$this->uninstall_standalone_plugin();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -113,6 +126,16 @@ class Stats_Product_Test extends TestCase {
 		$this->assertStringNotContainsString( 'page=stats', (string) $manage_url );
 	}
 
+	/**
+	 * The standalone Stats plugin boots the dashboard without the Jetpack plugin.
+	 */
+	public function test_manage_url_follows_premium_analytics_booted_by_another_plugin() {
+		$this->set_premium_analytics_enabled( false );
+		Analytics::$mock_initialized = true;
+
+		$this->assertSame( admin_url( 'admin.php?page=' . Stats::PREMIUM_ANALYTICS_PAGE_SLUG ), Stats::get_manage_url() );
+	}
+
 	public function test_post_activation_url_reports_the_plan_choice_to_the_stats_dashboard() {
 		$this->set_premium_analytics_enabled( false );
 
@@ -142,5 +165,66 @@ class Stats_Product_Test extends TestCase {
 		$this->set_premium_analytics_enabled( true );
 
 		$this->assertNull( Stats::get_purchase_url() );
+	}
+
+	public function test_never_connected_site_is_asked_to_connect_instead_of_getting_a_purchase_url() {
+		$this->set_premium_analytics_enabled( false );
+		Jetpack_Options::delete_option( 'id' );
+
+		$this->assertSame( Products::STATUS_NEEDS_FIRST_SITE_CONNECTION, Stats::get_status() );
+		$this->assertNull( Stats::get_purchase_url() );
+	}
+
+	public function test_standalone_plugin_is_not_active_when_only_the_jetpack_plugin_is() {
+		$this->assertFalse( Stats::is_standalone_plugin_active() );
+	}
+
+	public function test_standalone_plugin_is_active_once_installed_and_activated() {
+		$this->install_standalone_plugin();
+		activate_plugin( self::STANDALONE_PLUGIN_FILE );
+
+		$this->assertTrue( Stats::is_standalone_plugin_active() );
+	}
+
+	/**
+	 * @dataProvider provide_pro_subscriptions
+	 * @param string $slug Pro subscription slug.
+	 */
+	#[DataProvider( 'provide_pro_subscriptions' )]
+	public function test_pro_owners_do_not_get_standalone_stats_upgrades( $slug ) {
+		Wpcom_Products::reset_purchases_cache();
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array( (object) array( 'product_slug' => $slug ) ), HOUR_IN_SECONDS );
+		$this->assertFalse( Stats::is_upgradable() );
+	}
+
+	/**
+	 * @return array Pro subscription terms.
+	 */
+	public static function provide_pro_subscriptions() {
+		return array_map( static fn( $slug ) => array( $slug ), Pro::get_paid_plan_product_slugs() );
+	}
+
+	/**
+	 * Copy the standalone Stats mock plugin into place.
+	 */
+	private function install_standalone_plugin() {
+		$target = WP_PLUGIN_DIR . '/' . self::STANDALONE_PLUGIN_FILE;
+		if ( ! file_exists( dirname( $target ) ) ) {
+			mkdir( dirname( $target ), 0777, true );
+		}
+		copy( __DIR__ . '/assets/stats-mock-plugin.txt', $target );
+		wp_cache_delete( 'plugins', 'plugins' );
+	}
+
+	/**
+	 * Remove the standalone Stats mock plugin, so it cannot answer another test class's
+	 * "standalone plugin absent" case.
+	 */
+	private function uninstall_standalone_plugin() {
+		$target = WP_PLUGIN_DIR . '/' . self::STANDALONE_PLUGIN_FILE;
+		if ( file_exists( $target ) ) {
+			unlink( $target );
+		}
+		wp_cache_delete( 'plugins', 'plugins' );
 	}
 }

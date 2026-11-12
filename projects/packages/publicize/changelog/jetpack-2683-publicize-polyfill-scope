@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Comment-only: document why the block editor polyfill registration is not gated on a page slug.
-
-

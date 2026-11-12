@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { useInvalidateVideo, useVideo } from '../use-video';
@@ -130,6 +130,34 @@ describe( 'useVideo', () => {
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 		expect( result.current.video ).toBeUndefined();
 		expect( fetchMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'polls a new attachment through registration and stops when it is playable', async () => {
+		jest.useFakeTimers();
+		try {
+			const fetchMock = mockApiFetch( async () => ( { id: 42 } ) );
+			const { result, unmount } = renderHook( () => useVideo( 42, { pollForRegistration: true } ), {
+				wrapper: createTestWrapper(),
+			} );
+			await waitFor( () => expect( result.current.video?.type ).toBe( 'local' ) );
+			fetchMock.mockResolvedValue( {
+				id: 42,
+				jetpack_videopress: { guid: 'g' },
+				media_details: { videopress: { finished: true, poster: 'https://example.com/poster.jpg' } },
+			} );
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( 5_001 );
+			} );
+			await waitFor( () => expect( result.current.video?.type ).toBe( 'videopress' ) );
+			const calls = fetchMock.mock.calls.length;
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( 10_000 );
+			} );
+			expect( fetchMock ).toHaveBeenCalledTimes( calls );
+			unmount();
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 } );
 

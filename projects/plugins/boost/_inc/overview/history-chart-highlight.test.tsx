@@ -14,6 +14,8 @@ jest.mock( '@automattic/charts', () => ( {
 				onClick={ () =>
 					onBandHighlightChange?.( {
 						datum: data[ 0 ].data[ 0 ],
+						key: data[ 0 ].label,
+						index: 0,
 						x: 20,
 						y: 0,
 						width: 10,
@@ -34,10 +36,11 @@ const props = {
 	range: getHistoryWindow( 0 ),
 	dayCount: 30 as const,
 	canGoNext: false,
+	canGoPrevious: true,
+	showSingleDate: false,
 	onPrevious: jest.fn(),
 	onNext: jest.fn(),
 	onRetry: jest.fn(),
-	onDismissFreshStart: jest.fn(),
 };
 
 test( 'keeps the entering chart highlighted when the other chart clears its selection', () => {
@@ -45,9 +48,10 @@ test( 'keeps the entering chart highlighted when the other chart clears its sele
 	fireEvent.click( screen.getByRole( 'button', { name: 'Highlight Desktop' } ) );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Highlight Mobile' } ) );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Leave Desktop' } ) );
-	expect( screen.getByTestId( 'history-highlight' ) ).toHaveStyle( {
-		left: 'calc(var(--wpds-dimension-padding-lg) + 20px)',
-	} );
+	// eslint-disable-next-line jest-dom/prefer-to-have-attribute -- jsdom v31's getComputedStyle (used by toHaveStyle) normalizes the calc to "auto". Check the style attribute directly.
+	expect( screen.getByTestId( 'history-highlight' ).getAttribute( 'style' ) ).toContain(
+		'left: calc(var(--wpds-dimension-padding-lg) + 20px)'
+	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Leave Mobile' } ) );
 	expect( screen.queryByTestId( 'history-highlight' ) ).not.toBeInTheDocument();
 } );

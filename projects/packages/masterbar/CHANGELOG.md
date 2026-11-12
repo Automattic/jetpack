@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.3] - 2026-11-09
+### Changed
+- Update dependencies. [#54497]
+- Update package dependencies. [#54512]
+
+## [0.30.2] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869] [#54382]
+
+### Fixed
+- Admin menu: Keep the open mobile menu above page headers such as WooCommerce's. [#54341]
+
+## [0.30.1] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [0.30.0] - 2026-10-26
+### Added
+- Admin menu: Add the jetpack_masterbar_upsell_nudge filter so the rendered upsell nudge can be suppressed. [#51815]
+
+## [0.29.5] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+
+## [0.29.4] - 2026-10-14
+### Changed
+- Update dependencies.
+
+## [0.29.3] - 2026-10-12
+### Changed
+- Internal updates.
+
+## [0.29.2] - 2026-10-05
+### Changed
+- Update package dependencies. [#52999]
+
+## [0.29.1] - 2026-09-29
+### Changed
+- Admin color schemes: Ask users who still use a WordPress.com-specific color scheme to switch. [#52793]
+- Admin color schemes: Mark the WordPress.com-specific color schemes as deprecated and list them last on the profile page. [#52793]
+
+## [0.29.0] - 2026-09-28
+### Added
+- DIFM Express: Show Posts, Media and Pages in wp-admin while a build is still awaiting the customer's content. [#52237]
+
+## [0.28.3] - 2026-09-21
+### Changed
+- Admin menu: Restore the default "WooCommerce" label for the WooCommerce menu item on Commerce and Commerce-trial sites, reverting the "Store setup" relabel. [#52392]
+- Update package dependencies. [#52187]
+
 ## [0.28.2] - 2026-09-15
 ### Changed
 - Update dependencies. [#52269]
@@ -86,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.24] - 2026-05-11
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.27.23] - 2026-05-04
 ### Changed
@@ -106,7 +156,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.19] - 2026-04-06
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.27.18] - 2026-03-30
 ### Changed
@@ -153,7 +203,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.9] - 2026-01-26
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.27.8] - 2026-01-19
 ### Changed
@@ -215,7 +265,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.23.2] - 2025-09-22
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.23.1] - 2025-09-19
 ### Changed
@@ -653,6 +703,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.30.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.30.2...v0.30.3
+[0.30.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.30.1...v0.30.2
+[0.30.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.30.0...v0.30.1
+[0.30.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.5...v0.30.0
+[0.29.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.4...v0.29.5
+[0.29.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.3...v0.29.4
+[0.29.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.2...v0.29.3
+[0.29.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.1...v0.29.2
+[0.29.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.0...v0.29.1
+[0.29.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.28.3...v0.29.0
+[0.28.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.28.2...v0.28.3
 [0.28.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.28.1...v0.28.2
 [0.28.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.38...v0.28.0

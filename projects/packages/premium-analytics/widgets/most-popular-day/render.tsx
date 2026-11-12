@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { useStatsSite } from '@jetpack-premium-analytics/data';
+import { STATS_SITE_SUMMARY_FIELDS, useStatsSite } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { calendar } from '@jetpack-premium-analytics/icons';
 import {
+	HEADLINE_COUNT_FORMAT,
 	AbbreviatedValue,
 	describeError,
 	HighlightField,
@@ -21,8 +21,14 @@ import { Stack } from '@jetpack-premium-analytics/externals';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { MostPopularDayAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * The widget has no user-configurable attributes. The "most popular day"
+ * highlight is a site-wide summary that does not depend on the dashboard date
+ * range, so no report params are consumed either.
+ */
+export type MostPopularDayAttributes = Record< never, never >;
 
 // The highlight is site-wide and ignores report params, but the host may still
 // inject them via `attributes`, so the shape has to accept them.
@@ -38,8 +44,6 @@ type MostPopularDayHighlightProps = {
 	share?: number;
 };
 
-const VIEWS_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
-
 /**
  * Presentational body for the "Most popular day" widget. Loading / error / empty
  * are handled by `<WidgetState>` in the report component.
@@ -54,7 +58,7 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 			/>
 			<HighlightField
 				label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
-				value={ <AbbreviatedValue value={ views } dataFormat={ VIEWS_FORMAT } /> }
+				value={ <AbbreviatedValue value={ views } dataFormat={ HEADLINE_COUNT_FORMAT } /> }
 				// A summary without an all-time total gives no share to state; "0% of
 				// views" would read as a measurement rather than a missing one.
 				caption={
@@ -81,7 +85,9 @@ function readBestDay( summary: Record< string, unknown > | undefined ) {
  * summary is site-wide, so it does not read the dashboard date range.
  */
 function MostPopularDayReport() {
-	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSite();
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSite( {
+		stat_fields: STATS_SITE_SUMMARY_FIELDS,
+	} );
 
 	const summary = data?.stats;
 	const date = readBestDay( summary );
@@ -109,9 +115,8 @@ function MostPopularDayReport() {
 						onRetry: () => void refetch(),
 					} ) }
 					empty={ {
-						icon: calendar,
 						description: __(
-							'Not enough views yet to pick a most popular day.',
+							'Your best day for traffic will show here once visitors start arriving.',
 							'jetpack-premium-analytics-pkg'
 						),
 					} }

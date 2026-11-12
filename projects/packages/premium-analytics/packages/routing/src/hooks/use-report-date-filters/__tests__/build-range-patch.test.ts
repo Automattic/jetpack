@@ -11,6 +11,7 @@ jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
+import { planDateStep } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -76,6 +77,23 @@ describe( 'buildRangePatch', () => {
 		// `day` is allowed for last-30-days too, so the selection survives.
 		expect( patch?.interval ).toBe( 'day' );
 	} );
+
+	it.each( [
+		[ true, 'day' ],
+		[ false, 'week' ],
+	] )(
+		'resets the interval on a preset change only when asked (reset: %s)',
+		( resetIntervalOnPresetChange, expected ) => {
+			const patch = buildRangePatch( {
+				nextRange: { from, to: wideTo },
+				nextPresetId: 'last-30-days',
+				resetIntervalOnPresetChange,
+				effective: { preset: 'year-to-date', interval: 'week' },
+			} );
+
+			expect( patch?.interval ).toBe( expected );
+		}
+	);
 
 	// A day bucket on a day-long window draws the whole range as one bar.
 	it( 'coerces a day bucket when switching to a day-long preset', () => {
@@ -149,6 +167,51 @@ describe( 'buildRangePatch', () => {
 
 		expect( patch?.from ).toBe( '2026-07-09T14:30:00.000+00:00' );
 		expect( patch?.to ).toBe( '2026-07-10T14:30:00.000+00:00' );
+	} );
+
+	/*
+	 * Rounding a stepped `to` up to the end of its day stretches a rolling
+	 * window on every step and pushes its next window into the future, hiding
+	 * the forward arrow.
+	 */
+	it( 'steps a rolling window back and forward without changing its length', () => {
+		const hourFrom = new TZDate( '2026-07-09T15:00:00.000+00:00', 'UTC' );
+		const hourTo = new TZDate( '2026-07-10T14:59:59.999+00:00', 'UTC' );
+		const stepContext = { timeZone: 'UTC', now: hourTo, presetId: 'last-24-hours' } as const;
+		const previous = planDateStep( { from: hourFrom, to: hourTo }, 'previous', stepContext );
+		const back = buildRangePatch( {
+			nextRange: previous?.range,
+			nextPresetId: 'custom',
+			exactRange: true,
+			step: previous?.step,
+			effective: { preset: 'last-24-hours', interval: 'hour' },
+		} );
+
+		expect( back ).toMatchObject( {
+			from: '2026-07-08T15:00:00.000+00:00',
+			to: '2026-07-09T14:59:59.999+00:00',
+			interval: 'hour',
+			preset: 'custom',
+			step: 'last-24-hours',
+		} );
+
+		const backRange = {
+			from: new TZDate( back?.from ?? '', 'UTC' ),
+			to: new TZDate( back?.to ?? '', 'UTC' ),
+		};
+		const returned = planDateStep( backRange, 'next', {
+			...stepContext,
+			presetId: 'custom',
+			step: back?.step,
+		} )?.range;
+		expect( returned?.from.getTime() ).toBe( hourFrom.getTime() );
+		expect( returned?.to.getTime() ).toBe( hourTo.getTime() );
+	} );
+
+	it( 'clears the step the URL carries on any range change but a step', () => {
+		const patch = buildRangePatch( { nextRange: { from, to }, effective: { step: 'P7D' } } );
+
+		expect( patch ).toHaveProperty( 'step', undefined );
 	} );
 
 	it( 're-derives the comparison range from the new primary range when enabled', () => {

@@ -28,18 +28,15 @@ describe( 'Stats streak normalizer', () => {
 		} );
 	} );
 
-	it( 'buckets a half-hour zone by its own midnight', () => {
-		// 2016-04-29 18:45 UTC is 00:15 the next day in India.
-		expect(
-			sanitizeStatsStreakResponse( { data: { 1461955500: 1 } }, inZone( 'Asia/Kolkata' ) )
-		).toEqual( { '2016-04-30': 1 } );
-	} );
-
-	it( 'accepts an offset zone as well as a named one', () => {
-		expect(
-			sanitizeStatsStreakResponse( { data: { 1461955500: 1 } }, inZone( '+05:30' ) )
-		).toEqual( { '2016-04-30': 1 } );
-	} );
+	// 2016-04-29 18:45 UTC is 00:15 the next day in India.
+	it.each( [ 'Asia/Kolkata', '+05:30' ] )(
+		'buckets a half-hour zone by its own midnight, written as %s',
+		zone => {
+			expect( sanitizeStatsStreakResponse( { data: { 1461955500: 1 } }, inZone( zone ) ) ).toEqual(
+				{ '2016-04-30': 1 }
+			);
+		}
+	);
 
 	it( 'follows the zone across a DST change', () => {
 		// New York is a day behind UTC on both, under EDT for the first and EST for

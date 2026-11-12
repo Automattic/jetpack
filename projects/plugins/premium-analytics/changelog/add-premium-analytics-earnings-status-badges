@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Ads: Show payment status as a badge in the Earnings History widget, and shorten the pending statuses to one word with the reason beside them. Negative amounts in the widget are no longer red; only the badge carries colour.

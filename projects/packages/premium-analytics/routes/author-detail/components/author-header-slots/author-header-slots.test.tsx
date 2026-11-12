@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
+import { isValidElement } from '@wordpress/element';
 import { authorHeaderSlots, authorSubtitle } from './author-header-slots';
 import type { AuthorSummary } from '../../hooks';
 
@@ -77,19 +78,28 @@ describe( 'authorHeaderSlots', () => {
 		expect( screen.getByText( 'Loading…' ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the name while the posts half loads or fails', () => {
-		const loading = authorHeaderSlots( {
-			summary: { ...resolved, postCount: undefined, isPostsLoading: true },
-		} );
-		expect( loading.title ).toBe( 'Priya Patel' );
-		expect( loading.busy ).toBeUndefined();
-		expect( loading.subTitle ).not.toBe( 'Priya Patel' );
+	it.each( [
+		[ 'loads', { isPostsLoading: true }, 'writing since July 2023' ],
+		[ 'fails', { isPostsError: true }, 'writing since July 2023' ],
+		[
+			'fails with no month',
+			{ isPostsError: true, firstPublishedDate: undefined },
+			"We couldn't load this author's posts.",
+		],
+	] )( 'keeps the name and the month while the post count %s', ( _name, state, subTitle ) => {
+		const slots = authorHeaderSlots( { summary: { ...resolved, ...state } } );
 
-		const failed = authorHeaderSlots( {
-			summary: { ...resolved, postCount: undefined, isPostsError: true },
+		expect( slots.title ).toBe( 'Priya Patel' );
+		expect( slots.busy ).toBeUndefined();
+		expect( slots.subTitle ).toBe( subTitle );
+	} );
+
+	it( 'holds a subtitle placeholder while the post count loads with no month', () => {
+		const slots = authorHeaderSlots( {
+			summary: { ...resolved, isPostsLoading: true, firstPublishedDate: undefined },
 		} );
-		expect( failed.title ).toBe( 'Priya Patel' );
-		expect( failed.subTitle ).toBe( "We couldn't load this author's posts." );
+
+		expect( isValidElement( slots.subTitle ) ).toBe( true );
 	} );
 
 	it.each( [

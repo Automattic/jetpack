@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_REST_Server;
 
@@ -26,9 +28,104 @@ class Widget_Modules_Test extends TestCase {
 	 * Reset REST globals after route registration tests.
 	 */
 	protected function tearDown(): void {
+		Constants::clear_constants();
 		global $wp_rest_server;
 		$wp_rest_server = null;
+		unset( $_GET['p'] );
 		parent::tearDown();
+	}
+
+	/**
+	 * The route content preload runs after the widget modules join the boot dependencies.
+	 */
+	public function test_route_content_preload_is_hooked_after_the_widget_modules() {
+		$this->assertSame( 20, has_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\preload_requested_route_content' ) );
+	}
+
+	/**
+	 * The REST preload rides the generated page's own preload paths.
+	 */
+	public function test_rest_preload_joins_the_generated_page_preloads() {
+		$this->assertNotFalse( has_filter( 'jpa_jetpack_premium_analytics_wp_admin_preload_paths', __NAMESPACE__ . '\\preload_dashboard_rest_responses' ) );
+		$this->assertSame( array( 'existing', '/wp/v2/settings' ), array_slice( preload_dashboard_rest_responses( array( 'existing' ) ), 0, 2 ) );
+	}
+
+	/**
+	 * On Simple the client calls public-api and wp-admin cannot answer these routes, so nothing is added.
+	 */
+	public function test_rest_preload_is_skipped_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertSame( array( 'existing' ), preload_dashboard_rest_responses( array( 'existing' ) ) );
+	}
+
+	/**
+	 * Only the requested route's content module turns static.
+	 *
+	 * @param string|null $location The `p` query arg, or null for none.
+	 * @param string[]    $static   Content routes expected static.
+	 * @dataProvider provide_requested_routes
+	 */
+	#[DataProvider( 'provide_requested_routes' )]
+	public function test_preloads_only_the_requested_route_content( $location, $static ) {
+		if ( null !== $location ) {
+			$_GET['p'] = $location;
+		}
+
+		$dependencies = array(
+			array(
+				'import' => 'dynamic',
+				'id'     => 'jetpack-premium-analytics/widgets/traffic-chart/render',
+			),
+			array(
+				'import' => 'static',
+				'id'     => 'jetpack-premium-analytics/routes/video-detail/route',
+			),
+		);
+		$expected     = $dependencies;
+		foreach ( array( 'dashboard', 'post-detail' ) as $route ) {
+			$content        = array(
+				'import' => 'dynamic',
+				'id'     => 'jetpack-premium-analytics/routes/' . $route . '/content',
+			);
+			$dependencies[] = $content;
+			$expected[]     = in_array( $route, $static, true ) ? array( 'import' => 'static' ) + $content : $content;
+		}
+
+		// The page's registered routes, as the generated `jpa_register_…_route()` stores them.
+		$routes = array(
+			array(
+				'path'           => '/',
+				'content_module' => 'jetpack-premium-analytics/routes/dashboard/content',
+			),
+			array(
+				'path'           => '/post/$postId',
+				'content_module' => 'jetpack-premium-analytics/routes/post-detail/content',
+			),
+			array(
+				'path'         => '/video/$videoId',
+				'route_module' => 'jetpack-premium-analytics/routes/video-detail/route',
+			),
+		);
+
+		$this->assertSame( $expected, preload_requested_route_content( $dependencies, $routes ) );
+	}
+
+	/**
+	 * Requested locations and the routes whose content they preload.
+	 *
+	 * @return array
+	 */
+	public static function provide_requested_routes() {
+		return array(
+			'no location is the dashboard'     => array( null, array( 'dashboard' ) ),
+			'search params are ignored'        => array( '/?section=store', array( 'dashboard' ) ),
+			'a param segment matches any id'   => array( '/post/12?from=x', array( 'post-detail' ) ),
+			'literal segments ignore case'     => array( '/POST/12', array( 'post-detail' ) ),
+			'literal segments are decoded'     => array( '/%70ost/12', array( 'post-detail' ) ),
+			'a route without a content module' => array( '/video/3', array() ),
+			'an unknown path'                  => array( '/nope', array() ),
+		);
 	}
 
 	/**
@@ -84,5 +181,71 @@ class Widget_Modules_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $response );
 		$this->assertIsArray( $response->get_data() );
+	}
+
+	/**
+	 * Every record says where its bundles' catalogs live, so the client can load a plugin's
+	 * translations the way it loads the package's own.
+	 */
+	public function test_records_carry_the_catalog_location() {
+		register_widget_type(
+			'plugin/catalog-location',
+			array(
+				'render_module' => 'plugin/widgets/catalog-location/render',
+				'category'      => 'stats',
+				'title'         => 'Catalog location',
+				'textdomain'    => 'plugin-domain',
+				'i18n_manifest' => 'https://example.org/plugin/build/i18n-manifest.json',
+			)
+		);
+
+		$records = array_column( get_widget_modules_response()->get_data(), null, 'name' );
+
+		$this->assertArrayHasKey( 'plugin/catalog-location', $records );
+		$this->assertSame( 'plugin-domain', $records['plugin/catalog-location']['textdomain'] );
+		$this->assertSame( 'https://example.org/plugin/build/i18n-manifest.json', $records['plugin/catalog-location']['i18n_manifest'] );
+	}
+
+	/**
+	 * Every record says which former names its type answers to, so the client can render a
+	 * layout saved before a rename.
+	 */
+	public function test_records_carry_the_former_names() {
+		register_widget_type(
+			'plugin/renamed',
+			array(
+				'render_module' => 'plugin/widgets/renamed/render',
+				'former_names'  => array( 'plugin/old-name' ),
+			)
+		);
+		register_widget_type( 'plugin/never-renamed', array( 'render_module' => 'plugin/widgets/never-renamed/render' ) );
+
+		$records = array_column( get_widget_modules_response()->get_data(), null, 'name' );
+
+		$this->assertSame( array( 'plugin/old-name' ), $records['plugin/renamed']['former_names'] );
+		$this->assertNull( $records['plugin/never-renamed']['former_names'] );
+		$this->assertArrayNotHasKey( 'plugin/old-name', $records );
+	}
+
+	/**
+	 * The former names reach the client as a list, whatever shape the registrant passed: a keyed array
+	 * would serialize as an object and break the rename map.
+	 */
+	public function test_records_publish_the_former_names_as_a_list() {
+		register_widget_type(
+			'plugin/renamed-twice',
+			array(
+				'render_module' => 'plugin/widgets/renamed-twice/render',
+				'former_names'  => array(
+					5 => 'plugin/old-a',
+					9 => 'plugin/old-a',
+					2 => 'plugin/old-b',
+				),
+			)
+		);
+
+		$records = array_column( get_widget_modules_response()->get_data(), null, 'name' );
+
+		$this->assertSame( array( 'plugin/old-a', 'plugin/old-b' ), $records['plugin/renamed-twice']['former_names'] );
 	}
 }

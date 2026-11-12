@@ -72,7 +72,7 @@ export async function connectIfNeeded( page: Page ): Promise< void > {
 		logger.debug( 'Connecting Jetpack Boost...' );
 		const jetpackBoostPage = new JetpackBoostPage( page );
 		await jetpackBoostPage.visit();
-		await jetpackBoostPage.connect();
+		await jetpackBoostPage.chooseFreePlan();
 	} else {
 		logger.debug( 'Jetpack Boost is already connected.' );
 	}
@@ -191,17 +191,17 @@ export async function createTestPosts( testPostTitles: string[] ): Promise< void
  */
 export async function setDashboardModernization( enabled: boolean ) {
 	await executeWpCommand( 'plugin activate e2e-dashboard-modernization' );
+	// update_option() never creates a missing option with a false value, so store '0' instead.
 	await executeWpCommand( [
 		'option',
 		'update',
 		'e2e_boost_dashboard_modernization',
-		JSON.stringify( enabled ),
-		'--format=json',
+		enabled ? '1' : '0',
 	] );
 }
 
 /**
- * Restore the default dashboard filter and remove the test option.
+ * Restore the default (modern) dashboard and remove the test option.
  */
 export async function resetDashboardModernization() {
 	await executeWpCommand( [

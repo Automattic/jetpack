@@ -33,6 +33,11 @@ class Menu_Visibility {
 	 * @return void
 	 */
 	public static function init() {
+		// An older admin-ui, loaded first by another plugin, may predate the resolver; items then stay visible.
+		if ( ! method_exists( Admin_Menu::class, 'set_visibility_resolver' ) ) {
+			return;
+		}
+
 		Admin_Menu::set_visibility_resolver( array( __CLASS__, 'resolve' ) );
 
 		// Memoized answers last one registration pass, which is as long as they can stay true.

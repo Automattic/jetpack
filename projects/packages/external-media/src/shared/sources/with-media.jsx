@@ -8,11 +8,7 @@ import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
 import { PATH_RECENT } from '../constants';
-import {
-	authenticateMediaSource,
-	getGooglePhotosPickerSession,
-	setGooglePhotosPickerSession,
-} from '../media-service';
+import { authenticateMediaSource } from '../media-service';
 import { MediaSource } from '../media-service/types';
 import './with-media.scss';
 
@@ -269,54 +265,6 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 					.catch( this.handleApiError );
 			};
 
-			createPickerSession = () => {
-				return apiFetch( {
-					path: '/wpcom/v2/external-media/session/google_photos',
-					method: 'POST',
-				} )
-					.then( response => {
-						if ( 'code' in response ) {
-							throw response;
-						}
-						return response;
-					} )
-					.then( session => {
-						setGooglePhotosPickerSession( session );
-						return session;
-					} );
-			};
-
-			fetchPickerSession = sessionId => {
-				return apiFetch( {
-					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
-					method: 'GET',
-				} )
-					.then( response => {
-						if ( 'code' in response ) {
-							throw response;
-						}
-						return response;
-					} )
-					.then( session => {
-						setGooglePhotosPickerSession( session );
-						return session;
-					} );
-			};
-
-			deletePickerSession = ( sessionId, updateState = true ) => {
-				return apiFetch( {
-					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
-					method: 'DELETE',
-				} ).then( () => updateState && setGooglePhotosPickerSession( null ) );
-			};
-
-			getPickerStatus = () => {
-				return apiFetch( {
-					path: '/wpcom/v2/external-media/connection/google_photos/picker_status',
-					method: 'GET',
-				} );
-			};
-
 			mapImageToResult = image => ( {
 				alt: image.name,
 				caption: image.caption,
@@ -461,11 +409,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 								selectButtonText={ selectButtonText }
 								path={ path }
 								onChangePath={ this.onChangePath }
-								pickerSession={ this.props.pickerSession }
-								createPickerSession={ this.createPickerSession }
-								fetchPickerSession={ this.fetchPickerSession }
-								deletePickerSession={ this.deletePickerSession }
-								getPickerStatus={ this.getPickerStatus }
+								noticeOperations={ this.props.noticeOperations }
 							/>
 						</div>
 					</Modal>
@@ -497,7 +441,6 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 
 			return {
 				postId: currentPostId ?? 0,
-				pickerSession: getGooglePhotosPickerSession(),
 				existingMedia,
 			};
 		} )( withNotices( WithMediaComponent ) );

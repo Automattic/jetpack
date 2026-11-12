@@ -284,6 +284,59 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Data provider for allow lists the endpoint must reject.
+	 *
+	 * @return array<string,array{array,string}> [ $allow_list, $expected_error_code ]
+	 */
+	public static function invalid_protect_allow_lists() {
+		return array(
+			'nested entry'    => array( array( array( '198.51.100.1' ) ), 'invalid_input' ),
+			'invalid address' => array( array( '198.51.100.1', 'not-an-ip' ), 'invalid_ip' ),
+		);
+	}
+
+	/**
+	 * An invalid allow list is rejected without changing the stored list.
+	 *
+	 * @dataProvider invalid_protect_allow_lists
+	 *
+	 * @param array  $allow_list          The posted allow list.
+	 * @param string $expected_error_code The expected error code.
+	 */
+	#[DataProvider( 'invalid_protect_allow_lists' )]
+	public function test_post_rejects_invalid_protect_allow_list( $allow_list, $expected_error_code ) {
+		update_option( 'jetpack_waf_ip_allow_list', '203.0.113.5' );
+
+		$response = $this->make_post_request( wp_json_encode( array( 'jetpack_protect_whitelist' => $allow_list ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertWPError( $response );
+		$this->assertSame( $expected_error_code, $response->get_error_code() );
+		$this->assertSame( '203.0.113.5', get_option( 'jetpack_waf_ip_allow_list' ) );
+	}
+
+	/**
+	 * Test POST `sites/%s/settings` turns on the AI Launchpad.
+	 */
+	public function test_post_turns_on_the_ai_launchpad() {
+		$response = $this->make_post_request( wp_json_encode( array( 'wpcom_ai_launchpad_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertTrue( $response['updated']['wpcom_ai_launchpad_enabled'] );
+		$this->assertSame( '1', (string) get_option( 'wpcom_ai_launchpad_enabled' ) );
+	}
+
+	/**
+	 * Test POST `sites/%s/settings` can't turn off the AI Launchpad.
+	 */
+	public function test_post_does_not_turn_off_the_ai_launchpad() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+
+		$response = $this->make_post_request( wp_json_encode( array( 'wpcom_ai_launchpad_enabled' => false ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertArrayNotHasKey( 'wpcom_ai_launchpad_enabled', $response['updated'] );
+		$this->assertSame( '1', (string) get_option( 'wpcom_ai_launchpad_enabled' ) );
+	}
+
+	/**
 	 * The free tier description is capped to 500 characters to match the
 	 * paid-tier description field.
 	 */
@@ -521,6 +574,16 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'hide_free_tier' => false ), get_option( 'subscription_options' ) );
 	}
 
+	public function test_post_sharing_options_keeps_the_label_backslashes() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+
+		$this->make_post_request( wp_json_encode( array( 'sharing_label' => 'Share \o/' ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->make_post_request( wp_json_encode( array( 'sharing_button_style' => 'icon' ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertSame( 'icon', $response['updated']['sharing_button_style'] );
+		$this->assertSame( 'Share \o/', get_option( 'sharing-options' )['global']['sharing_label'] );
+	}
+
 	/**
 	 * Returns the response of a successful GET request to `sites/%s/settings`.
 	 */
@@ -671,6 +734,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'posts_per_page'                       => '(int) Number of posts to show on blog pages',
 					'posts_per_rss'                        => '(int) Number of posts to show in the RSS feed',
 					'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
+					'wpcom_ai_launchpad_enabled'           => '(bool) Turn on the AI Launchpad (Site Setup)',
 					'show_on_front'                        => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
 					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
@@ -803,6 +867,16 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_onboarding_profile bool'       => array( 'woocommerce_onboarding_profile', true, array( true ) ),
 			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', static::$onboarding_profile_example, static::$onboarding_profile_example ),
 			'show_on_front'                             => array( 'show_on_front', 'page', 'page' ),
+			'jetpack_protect_whitelist'                 => array(
+				'jetpack_protect_whitelist',
+				array( '203.0.113.5', '198.51.100.1-198.51.100.20' ),
+				array( 'local' => array( '203.0.113.5', '198.51.100.1 - 198.51.100.20' ) ),
+			),
+			'jetpack_protect_whitelist GET shape'       => array(
+				'jetpack_protect_whitelist',
+				array( 'local' => array( '203.0.113.5' ) ),
+				array( 'local' => array( '203.0.113.5' ) ),
+			),
 			'subscription_options html'                 => array(
 				'subscription_options',
 				array(

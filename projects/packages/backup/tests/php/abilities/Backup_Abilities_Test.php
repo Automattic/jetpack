@@ -8,10 +8,12 @@
 namespace Automattic\Jetpack\Backup\V0005\Abilities;
 
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionClass;
 use WorDBless\BaseTestCase;
+use WP_Error;
 
 /**
  * @covers \Automattic\Jetpack\Backup\V0005\Abilities\Backup_Abilities
@@ -58,6 +60,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
 		remove_all_filters( 'jetpack_backup_abilities_should_load' );
 		remove_all_filters( 'pre_http_request' );
@@ -643,9 +647,9 @@ class Backup_Abilities_Test extends BaseTestCase {
 	 * Without a Backup plan, `register_abilities()` must bail before
 	 * touching the registry so the abilities never appear in
 	 * /wp-abilities/v1/abilities/. We exercise the bail by leaving the
-	 * `jetpack_backup_abilities_should_load` filter unset and not mocking
-	 * `My_Jetpack\Products\Backup::is_active()` — in the test environment
-	 * that resolves to false, which makes the gate close.
+	 * `jetpack_backup_abilities_should_load` filter unset and seeding no
+	 * plugin or plan — in the test environment that resolves to false,
+	 * which makes the gate close.
 	 *
 	 * Pre-registering the `site` fixture category so `register_abilities()`
 	 * *could* register if the gate were open — that's the realistic
@@ -666,6 +670,39 @@ class Backup_Abilities_Test extends BaseTestCase {
 				wp_has_ability( $slug ),
 				"Ability {$slug} must not register when there is no Backup plan."
 			);
+		}
+	}
+
+	/**
+	 * The plan, not the backup module, decides Backup, so a plan holder who turned the module off still gets the abilities.
+	 */
+	public function test_register_ignores_the_backup_module(): void {
+		if ( ! function_exists( 'wp_register_ability' ) || ! function_exists( 'wp_has_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API not available in this test environment.' );
+		}
+
+		if ( ! is_dir( WP_PLUGIN_DIR . '/jetpack' ) ) {
+			mkdir( WP_PLUGIN_DIR . '/jetpack', 0777, true );
+		}
+		file_put_contents( WP_PLUGIN_DIR . '/jetpack/jetpack.php', "<?php\n/**\n * Plugin Name: Jetpack\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		wp_cache_delete( 'plugins', 'plugins' );
+		activate_plugin( 'jetpack/jetpack.php' );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+		set_transient(
+			\Automattic\Jetpack\My_Jetpack\Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => array( 'backups' ),
+				'available' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->ensure_site_category();
+		$this->simulate_doing_abilities_init();
+		Backup_Abilities::register_abilities();
+
+		foreach ( array_keys( Backup_Abilities::get_abilities() ) as $slug ) {
+			$this->assertTrue( wp_has_ability( $slug ), "Ability {$slug} must register for a plan holder with the backup module off." );
 		}
 	}
 
@@ -692,6 +729,32 @@ class Backup_Abilities_Test extends BaseTestCase {
 	public function test_can_manage_backups_allows_admin(): void {
 		wp_set_current_user( $this->admin_id );
 		$this->assertTrue( Backup_Abilities::can_manage_backups() );
+	}
+
+	/**
+	 * @param string $callback Permission callback name.
+	 * @dataProvider provider_permission_callbacks
+	 */
+	#[DataProvider( 'provider_permission_callbacks' )]
+	public function test_offline_mode_denies_an_admin_with_its_reason( string $callback ): void {
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
+
+		$result = Backup_Abilities::$callback();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'offline_mode', $result->get_error_code() );
+	}
+
+	/**
+	 * @return array<string, array{string}>
+	 */
+	public static function provider_permission_callbacks(): array {
+		return array(
+			'view'   => array( 'can_view_backups' ),
+			'manage' => array( 'can_manage_backups' ),
+		);
 	}
 
 	/**

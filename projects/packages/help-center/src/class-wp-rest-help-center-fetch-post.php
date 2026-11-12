@@ -155,7 +155,7 @@ class WP_REST_Help_Center_Fetch_Post extends WP_REST_Help_Center_Controller {
 		}
 
 		$response = json_decode( wp_remote_retrieve_body( $body ), true );
-		if ( ! array_key_exists( $locale, $response ) ) {
+		if ( ! is_array( $response ) || ! array_key_exists( $locale, $response ) ) {
 			return $default_alternate_data;
 		}
 

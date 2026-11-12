@@ -1,10 +1,10 @@
 import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
 import { useEffect, useState } from 'react';
-import AIAgentAccessControl from 'components/ai-agent-access-control';
 import AiAnswersTab from 'components/ai-answers-tab';
 import ExperienceSelector from 'components/experience-selector';
 import NoticesList from 'components/global-notices';
@@ -136,12 +136,6 @@ export default function DashboardPage( { isLoading = false } ) {
 	const readerChatGuidelinesUrl = useSelect( select =>
 		select( STORE_ID ).getReaderChatGuidelinesUrl()
 	);
-	const aiAgentAccessGuidelinesUrl = useSelect( select =>
-		select( STORE_ID ).getAIAgentAccessGuidelinesUrl()
-	);
-	const isAIAgentAccessAvailable = useSelect( select =>
-		select( STORE_ID ).isAIAgentAccessAvailable()
-	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
@@ -268,15 +262,9 @@ export default function DashboardPage( { isLoading = false } ) {
 			errorMessage: __( 'Could not restore the product search template.', 'jetpack-search-pkg' ),
 		};
 	}
-	const showAIAgentAccessGuidelinesLink =
-		! isReaderChatAvailable ||
-		! supportsSearch ||
-		! isReaderChatEnabled ||
-		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
 	const isReaderChatControlAvailable = isReaderChatAvailable && supportsSearch;
 	const hasAdditionalSettings =
 		isReaderChatControlAvailable ||
-		isAIAgentAccessAvailable ||
 		( supportsInstantSearch && isInstantSearchEnabled ) ||
 		showWooCommerceProductSearchControl;
 
@@ -330,15 +318,14 @@ export default function DashboardPage( { isLoading = false } ) {
 							<Tabs.Tab value="ai-answers">{ __( 'AI Answers', 'jetpack-search-pkg' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
+					<JitmSlot inset />
+					{ hasConnectionError && (
+						<Stack direction="column" className="jp-search-dashboard-connection-error">
+							<ConnectionError trackingContext="search" />
+						</Stack>
+					) }
 					<Tabs.Panel value="overview">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
-							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
-							<div className="jp-search-dashboard-row">
-								<div
-									id="jp-admin-notices"
-									className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
-								/>
-							</div>
 							{ isPageLoading && <Loading /> }
 							{ ! isPageLoading && (
 								<MockedSearchContent
@@ -349,11 +336,6 @@ export default function DashboardPage( { isLoading = false } ) {
 						</div>
 						{ ! isPageLoading && (
 							<>
-								{ hasConnectionError && (
-									<Stack direction="column">
-										<ConnectionError />
-									</Stack>
-								) }
 								{ isNewPricing && supportsInstantSearch && (
 									<PlanInfo
 										hasIndex={ postCount !== 0 }
@@ -397,18 +379,14 @@ export default function DashboardPage( { isLoading = false } ) {
 															<ReaderChatControl
 																isAvailable={ isReaderChatControlAvailable }
 																isEnabled={ isReaderChatEnabled }
-																isSaving={ isSavingEitherOption || isOverLimit }
+																isSaving={
+																	isSavingEitherOption || ( isOverLimit && ! isReaderChatEnabled )
+																}
 																guidelinesUrl={ readerChatGuidelinesUrl }
 																updateOptions={ updateOptions }
 															/>
 														</div>
 													) }
-													<AIAgentAccessControl
-														className="jp-search-ai-agent-access-card"
-														guidelinesUrl={ aiAgentAccessGuidelinesUrl }
-														isAvailable={ isAIAgentAccessAvailable }
-														showGuidelinesLink={ showAIAgentAccessGuidelinesLink }
-													/>
 													{ supportsInstantSearch && isInstantSearchEnabled && (
 														<div className="jp-search-settings-card">
 															<SearchSuggestionsControl
@@ -446,7 +424,6 @@ export default function DashboardPage( { isLoading = false } ) {
 											domain={ domain }
 											isDisabledFromOverLimit={ isOverLimit }
 											isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-											isAIAgentAccessAvailable={ isAIAgentAccessAvailable }
 											isReaderChatAvailable={ isReaderChatAvailable }
 											isReaderChatEnabled={ isReaderChatEnabled }
 											supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
@@ -457,7 +434,6 @@ export default function DashboardPage( { isLoading = false } ) {
 											isSavingEitherOption={ isSavingEitherOption }
 											isTogglingModule={ isTogglingModule }
 											isTogglingInstantSearch={ isTogglingInstantSearch }
-											aiAgentAccessGuidelinesUrl={ aiAgentAccessGuidelinesUrl }
 											readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
 											isSearchSuggestionsEnabled={ isSearchSuggestionsEnabled }
 										/>

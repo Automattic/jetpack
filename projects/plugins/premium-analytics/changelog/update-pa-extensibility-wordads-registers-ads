@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the Ads tab: WordAds is a Jetpack plugin module, which registers the tab itself.

@@ -12,6 +12,7 @@ import { Button, Card, Fieldset, Link, Stack, Text } from '@wordpress/ui';
  * Internal dependencies
  */
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 interface SubscribeModalSectionProps {
 	data: NewsletterSettings;

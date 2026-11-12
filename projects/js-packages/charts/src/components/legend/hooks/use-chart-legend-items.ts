@@ -1,22 +1,26 @@
 import { formatNumber } from '@automattic/number-formatters';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import {
 	useGlobalChartsContext,
 	type GetElementStylesParams,
 	type ElementStyles,
 } from '../../../providers';
-import { formatPercentage } from '../../../utils';
+import { formatDataPointValue } from '../../../utils';
 import type {
+	ComparisonItemLabel,
 	SeriesData,
 	DataPointDate,
 	DataPointPercentageCalculated,
 	LegendShape,
+	SeriesChartLegendConfig,
 } from '../../../types';
+import type { LegendValueDisplay } from '../../../utils';
 import type { BaseLegendItem } from '../types';
 import type { GlyphProps } from '@visx/xychart';
 import type { ReactNode } from 'react';
 
-export type LegendValueDisplay = 'percentage' | 'value' | 'valueDisplay' | 'none';
+export type { LegendValueDisplay };
 
 export interface ChartLegendOptions {
 	withGlyph?: boolean;
@@ -30,6 +34,33 @@ export interface ChartLegendOptions {
 	 * primary series. Off by default, so every series gets its own item.
 	 */
 	collapseGroups?: boolean;
+	/**
+	 * Append a static item explaining the comparison overlay whenever a series has
+	 * `options.type === 'comparison'`. Skipped when that series already has its own
+	 * item. Pass a string to replace the default label.
+	 */
+	comparisonItem?: SeriesChartLegendConfig[ 'comparisonItem' ];
+	/** One static item per comparison series instead; see `SeriesChartLegendConfig`. */
+	comparisonSeriesItems?: SeriesChartLegendConfig[ 'comparisonSeriesItems' ];
+	/** Each series' swatch color, by index, in place of its series color. */
+	seriesColors?: string[];
+}
+
+/**
+ * Wraps `getElementStyles` so a swatch takes the color given for its series.
+ * @param getElementStyles - Function to get element styles
+ * @param seriesColors     - Each series' swatch color, by index
+ * @return Element styles with the given color
+ */
+function withSeriesColors(
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
+	seriesColors: string[]
+): ( params: GetElementStylesParams ) => ElementStyles {
+	return params => {
+		const styles = getElementStyles( params );
+
+		return { ...styles, color: seriesColors[ params.index ] ?? styles.color };
+	};
 }
 
 /**
@@ -50,16 +81,7 @@ function formatPointValue(
 
 	// Handle DataPointPercentageCalculated (pie chart data with calculated percentage)
 	if ( 'percentage' in point ) {
-		switch ( legendValueDisplay ) {
-			case 'percentage':
-				return formatPercentage( point.percentage );
-			case 'value':
-				return formatNumber( point.value );
-			case 'valueDisplay':
-				return point.valueDisplay || formatNumber( point.value );
-			default:
-				return '';
-		}
+		return formatDataPointValue( point, legendValueDisplay );
 	}
 
 	// Handle DataPointDate (time series data)
@@ -235,6 +257,83 @@ function processSeriesData(
 }
 
 /**
+ * Builds the static item that names the comparison overlay, styled like its first series.
+ * Skipped when a comparison series already has an item of its own, so nothing is listed twice.
+ * @param seriesData       - The series data to search for a comparison series
+ * @param items            - The legend items already built from the series
+ * @param label            - The item label
+ * @param getElementStyles - Function to get element styles
+ * @param legendShape      - The shape type for legend items (string literal or React component)
+ * @return The legend item, or null when it would add nothing
+ */
+function buildComparisonLegendItem(
+	seriesData: SeriesData[],
+	items: BaseLegendItem[],
+	label: string,
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
+	legendShape?: LegendShape< SeriesData[], number >
+): BaseLegendItem | null {
+	const itemLabels = new Set( items.map( item => item.label ) );
+	const index = seriesData.findIndex(
+		series => series.options?.type === 'comparison' && ! itemLabels.has( series.label )
+	);
+
+	if ( index === -1 ) {
+		return null;
+	}
+
+	const { color, shapeStyles } = getElementStyles( {
+		data: seriesData[ index ],
+		index,
+		legendShape,
+	} );
+
+	return { label, color, shapeStyle: shapeStyles, interactive: false };
+}
+
+/**
+ * Builds one static item per comparison series folded into another series' item, named after
+ * that item and styled like the comparison series itself.
+ * @param seriesData       - The series data to search for comparison series
+ * @param items            - The legend items already built from the series
+ * @param formatLabel      - Names an item after the label of the item it was folded into
+ * @param getElementStyles - Function to get element styles
+ * @param legendShape      - The shape type for legend items (string literal or React component)
+ * @return The legend items, in series order
+ */
+function buildPerSeriesComparisonItems(
+	seriesData: SeriesData[],
+	items: BaseLegendItem[],
+	formatLabel: ComparisonItemLabel,
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
+	legendShape?: LegendShape< SeriesData[], number >
+): BaseLegendItem[] {
+	return seriesData.flatMap( ( series, index ) => {
+		const owner = items.find( item => item.seriesLabels?.includes( series.label ) );
+
+		if (
+			series.options?.type !== 'comparison' ||
+			! owner ||
+			owner.seriesLabels?.[ 0 ] === series.label
+		) {
+			return [];
+		}
+
+		const { color, shapeStyles } = getElementStyles( { data: series, index, legendShape } );
+
+		return [
+			{
+				label: formatLabel( owner.label ),
+				color,
+				shapeStyle: shapeStyles,
+				interactive: false,
+				describesSeries: series.label,
+			},
+		];
+	} );
+}
+
+/**
  * Processes point data into legend items
  * @param pointData          - The point data to process
  * @param getElementStyles   - Function to get element styles
@@ -296,9 +395,12 @@ export function useChartLegendItems<
 		withGlyph = false,
 		glyphSize = 8,
 		collapseGroups = false,
+		comparisonItem = false,
+		comparisonSeriesItems,
+		seriesColors,
 		renderGlyph,
 	} = options;
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles: getSeriesStyles } = useGlobalChartsContext();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
@@ -307,8 +409,12 @@ export function useChartLegendItems<
 
 		// Handle SeriesData (multiple series with data points)
 		if ( 'data' in data[ 0 ] ) {
-			return processSeriesData(
-				data as SeriesData[],
+			const seriesData = data as SeriesData[];
+			const getElementStyles = seriesColors
+				? withSeriesColors( getSeriesStyles, seriesColors )
+				: getSeriesStyles;
+			const items = processSeriesData(
+				seriesData,
 				getElementStyles,
 				showValues,
 				withGlyph,
@@ -317,12 +423,39 @@ export function useChartLegendItems<
 				renderGlyph,
 				legendShape
 			);
+
+			if ( comparisonSeriesItems ) {
+				return [
+					...items,
+					...buildPerSeriesComparisonItems(
+						seriesData,
+						items,
+						comparisonSeriesItems,
+						getElementStyles,
+						legendShape
+					),
+				];
+			}
+
+			const comparison = comparisonItem
+				? buildComparisonLegendItem(
+						seriesData,
+						items,
+						typeof comparisonItem === 'string'
+							? comparisonItem
+							: __( 'Comparison period', 'jetpack-charts' ),
+						getElementStyles,
+						legendShape
+					)
+				: null;
+
+			return comparison ? [ ...items, comparison ] : items;
 		}
 
 		// Handle DataPointDate or DataPointPercentageCalculated (single data points)
 		return processPointData(
 			data as ( DataPointDate | DataPointPercentageCalculated )[],
-			getElementStyles,
+			getSeriesStyles,
 			showValues,
 			legendValueDisplay,
 			withGlyph,
@@ -332,12 +465,15 @@ export function useChartLegendItems<
 		);
 	}, [
 		data,
-		getElementStyles,
+		getSeriesStyles,
 		showValues,
 		legendValueDisplay,
 		withGlyph,
 		glyphSize,
 		collapseGroups,
+		comparisonItem,
+		comparisonSeriesItems,
+		seriesColors,
 		renderGlyph,
 		legendShape,
 	] );

@@ -126,20 +126,6 @@ describe( 'Stats top posts normalizer', () => {
 		);
 	} );
 
-	it( 'keeps all by-date buckets when the query has a range end date', () => {
-		const result = sanitizeStatsTopPostsResponse( topPostsFixture, {
-			period: 'day',
-			start_date: '2026-06-15',
-			end_date: '2026-06-16',
-		} );
-
-		expect( result.data ).toHaveLength( 2 );
-		expect( result.data.map( item => item.time_interval ) ).toEqual( [
-			'2026-06-15',
-			'2026-06-16',
-		] );
-	} );
-
 	it( 'limits by-date buckets to the requested date range', () => {
 		const result = sanitizeStatsTopPostsResponse(
 			{

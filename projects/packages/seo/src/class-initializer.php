@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.4';
+	const PACKAGE_VERSION = '0.11.0';
 
 	/**
 	 * WordPress.com site feature that enables the Jetpack SEO surface.
@@ -60,20 +60,6 @@ class Initializer {
 	const SCRIPT_DATA_KEY = 'seo';
 
 	/**
-	 * Option recording whether sitemap generation is enabled.
-	 *
-	 * Read in place of the standalone `sitemaps` module's active state. Module-active
-	 * state is filtered against the modules present on disk, so once that module is
-	 * removed it would read as inactive even for sites that had it on. A one-time
-	 * migration in the Jetpack plugin seeds this option from the site's existing module
-	 * state and keeps it in sync while the legacy module still exists. See
-	 * `Jetpack::migrate_sitemaps_module_to_seo_option()`.
-	 *
-	 * @var string
-	 */
-	const SITEMAP_ENABLED_OPTION = 'jetpack_seo_sitemap_enabled';
-
-	/**
 	 * Option recording that the user has deliberately turned the site's sitemap OFF,
 	 * so WordPress core's own sitemap should be suppressed too ("off" means no sitemap
 	 * at all, not a fallback to `/wp-sitemap.xml`).
@@ -90,20 +76,6 @@ class Initializer {
 	const SUPPRESS_WP_SITEMAP_OPTION = 'jetpack_seo_suppress_wp_sitemap';
 
 	/**
-	 * Option recording whether canonical URLs are enabled.
-	 *
-	 * Read in place of the standalone `canonical-urls` module's active state. Module-active
-	 * state is filtered against the modules present on disk, so once that module is
-	 * removed it would read as inactive even for sites that had it on. A one-time
-	 * migration in the Jetpack plugin seeds this option from the site's existing module
-	 * state and keeps it in sync while the legacy module still exists. See
-	 * `Jetpack::migrate_canonical_urls_module_to_seo_option()`.
-	 *
-	 * @var string
-	 */
-	const CANONICAL_ENABLED_OPTION = 'jetpack_seo_canonical_urls_enabled';
-
-	/**
 	 * Option recording whether the Jetpack SEO surface is discoverable on this site.
 	 *
 	 * Gates whether the SEO admin menu registers on self-hosted sites. Seeded once by the
@@ -113,9 +85,12 @@ class Initializer {
 	 * Absent until seeded, in which case self-hosted defaults to hidden (the non-disruptive
 	 * default). See {@see Surface_Visibility::is_visible()}.
 	 *
+	 * Replaces `jetpack_seo_surface_visible`, which was seeded before the self-hosted rollout and
+	 * marked every install since as fresh; a new key makes every site re-seed once on upgrade.
+	 *
 	 * @var string
 	 */
-	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible';
+	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
 
 	/**
 	 * Whether the package has been initialized.
@@ -141,6 +116,9 @@ class Initializer {
 		if ( ! self::is_available() ) {
 			return;
 		}
+
+		// Before anything can read the AI crawler choices.
+		Ai_Crawlers::register_legacy_migration();
 
 		// The opt-in endpoint must be reachable even before the surface is visible, so
 		// existing self-hosted installs can switch to the new experience from the legacy
@@ -187,10 +165,14 @@ class Initializer {
 			return;
 		}
 
-		// The admin menu and app shell register whenever the surface is visible, even
-		// when the `seo-tools` module is inactive, so SEO stays discoverable and can be
-		// turned on from within the page itself (JETPACK-1700). When the module is off,
-		// the Overview renders only its "enable SEO tools" affordance.
+		// Each SEO module's configure URL defaults to Jetpack › Settings filtered to the
+		// module. Once the surface is visible that view only points here, so link here.
+		foreach ( array( 'seo-tools', 'verification-tools', 'sitemaps' ) as $module ) {
+			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
+		}
+
+		// The page registers whenever the surface is visible, even with `seo-tools` off, so
+		// a saved link still offers "Enable SEO tools"; the menu item hides with the module.
 		//
 		// Priority 1: load the wp-build bundle (and define its render function)
 		// before `add_menu_item()` runs at the default priority and needs it.
@@ -205,18 +187,14 @@ class Initializer {
 		// Overview).
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_reads' ) );
 
-		// Keep the Overview's cached content-coverage counts honest. Hooked here rather than
-		// alongside the admin surface above because posts are written from everywhere — the
-		// block editor (REST), the classic editor, wp-cli, cron, other plugins — and the
-		// cache has to be dropped wherever that happens, not just where it's read.
-		Content_Coverage::register_invalidation();
+		self::register_write_hooks();
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
-		// endpoints until then. Expose the core `blog_public` option to the REST settings
-		// endpoint so the Settings tab can save search-engine visibility via
-		// `/wp/v2/settings` (the Jetpack settings endpoint only accepts Jetpack options).
-		// Writes are still capability-gated by the core settings controller.
+		// endpoints until then. Everything the dashboard saves is exposed to WordPress
+		// core's `/wp/v2/settings` endpoint, which exists on every platform the package
+		// runs on and capability-gates writes itself; module activation, the one thing
+		// `register_setting()` can't express, has its own package-owned route.
 		if ( self::is_seo_tools_module_active() ) {
 			// Front-end JSON-LD schema output and author profile schema fields.
 			// Intentionally NOT gated: every site keeps emitting its structured data —
@@ -227,12 +205,12 @@ class Initializer {
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 
-			// GEO-tab front-end services. These are paid surfaces on WordPress.com: a
-			// plan-gated site has the GEO tab hidden from its dashboard, so it must not
-			// keep emitting their front-end output either — otherwise it would still
-			// serve /llms.txt and AI-crawler robots.txt directives it doesn't qualify
-			// for. Self-hosted is never gated, so it always registers both.
+			// Paid front-end output. A plan-gated WordPress.com site has these controls
+			// hidden from its dashboard, so it must not keep emitting their output either —
+			// otherwise it would still serve /llms.txt, AI-crawler robots.txt directives and
+			// Simple's archive canonical tags it doesn't qualify for. Self-hosted is never gated.
 			if ( ! self::is_gated() ) {
+				Canonical_Urls::init();
 				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
 				// the front end and stays behind the same gates as the schema above.
 				Llms_Txt::init();
@@ -241,7 +219,13 @@ class Initializer {
 				Ai_Crawlers::init();
 			}
 
-			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) );
+			// On `rest_api_init` rather than here: which option the front page description
+			// is stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
+			// plugin can add from anywhere up to the end of `init`. Priority 5 is after all
+			// of those and before core builds the settings route at 99.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
+			// Package-owned route for the three settings whose write switches a Jetpack module.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
 		}
@@ -252,6 +236,19 @@ class Initializer {
 		 * @since 0.1.0
 		 */
 		do_action( 'jetpack_seo_init' );
+	}
+
+	/**
+	 * Hook what any request that saves content needs: the page fields the SEO page saves, and
+	 * clearing the Overview counts and the stored llms.txt. WordPress.com calls this on its API
+	 * requests, which skip init().
+	 *
+	 * @return void
+	 */
+	public static function register_write_hooks() {
+		Content_Coverage::register_invalidation();
+		Llms_Txt::register_always_include();
+		Llms_Txt::register_invalidation();
 	}
 
 	/**
@@ -267,8 +264,9 @@ class Initializer {
 			return true;
 		}
 
+		// Only active features are needed for this check.
 		$features = ( new Host() )->is_wpcom_simple()
-			? Current_Plan::get_simple_site_specific_features()
+			? Current_Plan::get_simple_site_specific_features( false )
 			: Current_Plan::get()['features'];
 
 		return in_array( self::FEATURE_SLUG, $features['active'] ?? array(), true );
@@ -299,11 +297,11 @@ class Initializer {
 	 * FREE plan's supports list, so `Current_Plan::supports( 'advanced-seo' )` returns
 	 * true on self-hosted (never gated) and hijacks to `wpcom_site_has_feature()` on
 	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
-	 * Enhancer's plan check in {@see Dashboard_Data::get_ai_data()}.
+	 * Enhancer's plan check in {@see Dashboard_Data::get_geo_data()}.
 	 *
 	 * Public because {@see Admin_Page::inject_script_data()} reads it to build the
 	 * dashboard's gating payload, and {@see self::init()} uses it to decide whether the
-	 * GEO-tab front-end services register at all.
+	 * paid front-end output registers at all.
 	 *
 	 * @return bool
 	 */
@@ -313,20 +311,31 @@ class Initializer {
 	}
 
 	/**
-	 * The WordPress.com Premium checkout URL for this site, used by the upsell banner
-	 * shown to gated sites.
-	 *
-	 * Built server-side because the client doesn't have the site slug. `value_bundle`
-	 * is the wpcom Premium plan slug (see the `premium` entry in
-	 * `Automattic\Jetpack\Current_Plan`), and `Status::get_site_suffix()` resolves the
-	 * Calypso site slug (via `WPCOM_Masterbar::get_calypso_site_slug()` on wpcom).
+	 * Return the Premium checkout URL, or an empty string when upgrades are unavailable.
 	 *
 	 * @return string
 	 */
 	public static function get_upsell_url() {
-		$site_slug = ( new Status() )->get_site_suffix();
+		$host = new Host();
+		if ( $host->is_p2_site() ) {
+			return '';
+		}
 
-		return sprintf( 'https://wordpress.com/checkout/%s/value_bundle', $site_slug );
+		$plan       = $host->is_wpcom_simple() && class_exists( '\WPCOM_Store_API' )
+			? \WPCOM_Store_API::get_current_plan( get_current_blog_id() )
+			: Current_Plan::get();
+		$term       = substr( $plan['product_slug'] ?? '', -3 );
+		$product    = in_array( $term, array( '-2y', '-3y' ), true ) ? 'value_bundle' . $term : 'value_bundle';
+		$site_slug  = ( new Status() )->get_site_suffix();
+		$return_url = rawurlencode( Admin_Page::get_url() );
+
+		return add_query_arg(
+			array(
+				'redirect_to'     => $return_url,
+				'checkoutBackUrl' => $return_url,
+			),
+			sprintf( 'https://wordpress.com/checkout/%s/%s', $site_slug, $product )
+		);
 	}
 
 	/**

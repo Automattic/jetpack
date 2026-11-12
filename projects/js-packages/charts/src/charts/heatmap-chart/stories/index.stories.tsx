@@ -32,11 +32,6 @@ const meta: Meta< StoryArgs > = {
 		...themeArgTypes,
 		compact: { control: 'boolean', table: { category: 'Visual Style' } },
 		showValues: { control: 'boolean', table: { category: 'Visual Style' } },
-		tooltipVariant: {
-			control: 'radio',
-			options: [ 'light', 'dark' ],
-			table: { category: 'Visual Style' },
-		},
 		maxCellWidth: {
 			control: { type: 'number', min: 1 },
 			description: 'Maximum cell width in pixels in non-compact mode',
@@ -196,10 +191,6 @@ export const WithBarLegend: Story = {
 	args: { ...Default.args },
 };
 
-export const DarkTooltip: Story = {
-	args: { ...Default.args, tooltipVariant: 'dark' },
-};
-
 export const FixedDimensions: Story = {
 	args: {
 		...Default.args,
@@ -285,6 +276,26 @@ const MonthCalendarGrid = ( {
 			<HeatmapChart.Legend lessLabel="Fewer posts" moreLabel="More posts" />
 		</HeatmapChart>
 	);
+};
+
+/**
+ * `fitCells` grows the days with the container, wrapping the months onto more rows when
+ * that makes them larger. Drag the container's corner to see the row count change.
+ */
+export const MonthCalendarFitCells: StoryObj< MonthCalendarStoryArgs > = {
+	render: args => <MonthCalendarGrid { ...args } />,
+	args: {
+		...sharedThemeArgs,
+		compact: true,
+		fitCells: true,
+		withTooltips: true,
+		ariaLabel: 'Monthly posting activity',
+		containerWidth: '1200px',
+		containerHeight: '360px',
+		months: 12,
+		weekStartsOn: 1,
+		locale: '',
+	},
 };
 
 /**

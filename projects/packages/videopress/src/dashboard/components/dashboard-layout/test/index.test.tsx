@@ -26,6 +26,13 @@ jest.mock( '../../onboarding-modal', () => ( {
 	default: () => null,
 } ) );
 
+// Same reason: the guard reaches react-query via useUpload. Its own behavior
+// is covered by use-upload-unload-guard's tests.
+jest.mock( '../../../hooks/use-upload-unload-guard', () => ( {
+	__esModule: true,
+	useUploadUnloadGuard: jest.fn(),
+} ) );
+
 const mockUseNavigate = useNavigate as jest.Mock;
 const mockConnectionError = ConnectionError as jest.Mock;
 const mockUseConnectionErrorNotice = useConnectionErrorNotice as jest.MockedFunction<
@@ -56,11 +63,11 @@ describe( 'DashboardLayout', () => {
 		expect( notice.compareDocumentPosition( tabList ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 	} );
 
-	it( 'renders the notice with no props, so every tab describes the error the same way', () => {
+	it( 'renders the notice with only the tracking context, so every tab describes the error the same way', () => {
 		render( <DashboardLayout activeTab="settings">Settings body</DashboardLayout> );
 
 		expect( mockConnectionError ).toHaveBeenCalled();
-		expect( mockConnectionError.mock.calls[ 0 ][ 0 ] ).toEqual( {} );
+		expect( mockConnectionError.mock.calls[ 0 ][ 0 ] ).toEqual( { trackingContext: 'videopress' } );
 	} );
 
 	it( 'leaves no notice behind when the connection is healthy', () => {

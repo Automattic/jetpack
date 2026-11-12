@@ -583,7 +583,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 
 		// Process the shortcode with ref attribute
 		$shortcode = sprintf( '[contact-form ref="%d"]', $form_id );
-		$output    = do_shortcode( $shortcode );
+		$output    = apply_shortcodes( $shortcode );
 
 		// Verify the output contains the unique label from the synced form
 		// This ensures we're loading the actual referenced form, not a default form
@@ -596,7 +596,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 	public function test_shortcode_with_invalid_ref_returns_empty() {
 		// Process the shortcode with invalid ref
 		$shortcode = '[contact-form ref="99999"]'; // Non-existent form
-		$output    = do_shortcode( $shortcode );
+		$output    = apply_shortcodes( $shortcode );
 
 		// Should return empty or the original shortcode text (not render as a form)
 		$this->assertEmpty( $output, 'Shortcode with invalid ref should return empty' );
@@ -628,7 +628,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 
 		// Process the shortcode
 		$shortcode = sprintf( '[contact-form ref="%d"]', $form_id );
-		$output    = do_shortcode( $shortcode );
+		$output    = apply_shortcodes( $shortcode );
 
 		// Should return empty to prevent infinite loop
 		$this->assertEmpty( $output, 'Shortcode with circular ref should return empty' );
@@ -650,7 +650,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 
 		// Process the shortcode
 		$shortcode = sprintf( '[contact-form ref="%d"]', $trashed_form_id );
-		$output    = do_shortcode( $shortcode );
+		$output    = apply_shortcodes( $shortcode );
 
 		// Should not render trashed form
 		$this->assertEmpty( $output, 'Shortcode should not render trashed form' );

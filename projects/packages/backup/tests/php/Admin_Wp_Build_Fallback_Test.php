@@ -110,6 +110,8 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 	}
 
 	public function test_predicate_is_false_when_the_filter_is_off() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
 		$this->assertFalse( $this->is_wp_build_dashboard_active() );
 	}
 
@@ -127,10 +129,12 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 		$item = $this->get_queued_backup_menu_item();
 		$this->assertSame( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page', $item['function'] );
 		$this->assertSame( 'Jetpack VaultPress Backup', $item['page_title'] );
-		$this->assertSame( 'VaultPress Backup', $item['menu_title'] );
+		$this->assertSame( 'Backup', $item['menu_title'] );
 	}
 
 	public function test_menu_uses_the_legacy_dashboard_when_the_filter_is_off() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
 		Jetpack_Backup::add_wp_admin_submenu();
 
 		$item = $this->get_queued_backup_menu_item();
@@ -148,6 +152,8 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 	}
 
 	public function test_enqueue_registers_the_legacy_script_when_the_filter_is_off() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
 		Jetpack_Backup::enqueue_admin_scripts();
 
 		$this->assertTrue( wp_script_is( 'jetpack-backup', 'registered' ) );
@@ -166,6 +172,8 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 	}
 
 	public function test_admin_init_keeps_admin_notices_when_the_filter_is_off() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
 		add_action( 'admin_notices', '__return_null' );
 		add_action( 'all_admin_notices', '__return_null' );
 

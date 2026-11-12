@@ -71,7 +71,7 @@ export default function VideoLayout( {
 		>
 			{ hasConnectionError && (
 				<Stack direction="column">
-					<ConnectionError />
+					<ConnectionError trackingContext="videopress" />
 				</Stack>
 			) }
 			<VideoNav

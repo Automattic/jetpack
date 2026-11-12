@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Make the consent banner, modal, and controls render consistently across classic and block themes, and expose their colors, spacing, and stacking order as CSS custom properties so the appearance can be customized via Additional CSS.

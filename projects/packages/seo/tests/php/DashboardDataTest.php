@@ -1,7 +1,6 @@
 <?php
 /**
- * Tests for the dashboard's data builders: the payload shapes each tab
- * hydrates from and the durable-option reads behind them.
+ * Tests for the dashboard's data builders and live module state.
  *
  * @package automattic/jetpack-seo
  */
@@ -9,11 +8,14 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Dashboard_Data
+ * @covers \Automattic\Jetpack\SEO\Seo_Tools
  */
 #[CoversClass( Dashboard_Data::class )]
+#[CoversClass( Seo_Tools::class )]
 class DashboardDataTest extends SeoTestCase {
 
 	/**
@@ -28,10 +30,16 @@ class DashboardDataTest extends SeoTestCase {
 		\Jetpack_SEO_Utils::$has_legacy_front_page_meta = false;
 		\Jetpack_Redux_State_Helper::$site_image        = '';
 		\Jetpack_AI_Settings::$is_ai_seo_enabled        = true;
+		\Jetpack_AI_Settings::$is_ai_enabled            = true;
 		delete_option( 'advanced_seo_title_formats' );
+		delete_option( Dashboard_Data::FRONT_PAGE_META_OPTION );
 		delete_option( 'jetpack_ai_seo_enabled' );
+		delete_option( 'jetpack_seo_sitemap_enabled' );
+		delete_option( 'jetpack_seo_canonical_urls_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_ai_seo_enabled' );
+		remove_all_filters( 'jetpack_seo_conflicting_plugin' );
+		remove_all_filters( 'jetpack_disable_seo_tools' );
 
 		self::reset_plan();
 
@@ -43,15 +51,15 @@ class DashboardDataTest extends SeoTestCase {
 	 * control's state, so the dashboard disables the toggle rather than hiding
 	 * it and the saved choice stays visible.
 	 */
-	public function test_get_ai_data_reports_the_ai_seo_control_state() {
+	public function test_get_geo_data_reports_the_ai_seo_control_state() {
 		self::set_plan( 'jetpack_business' );
 		self::set_seo_tools_active( true );
 
-		$on = Dashboard_Data::get_ai_data()['enhancer'];
+		$on = Dashboard_Data::get_geo_data()['enhancer'];
 
 		\Jetpack_AI_Settings::$is_ai_seo_enabled = false;
 
-		$off = Dashboard_Data::get_ai_data()['enhancer'];
+		$off = Dashboard_Data::get_geo_data()['enhancer'];
 
 		$this->assertTrue( $on['available'], 'Precondition: available while the control is on.' );
 		$this->assertTrue( $on['aiSeoEnabled'] );
@@ -60,14 +68,25 @@ class DashboardDataTest extends SeoTestCase {
 	}
 
 	/**
+	 * The site-wide Jetpack AI switch is reported on its own, so the tab can name it.
+	 */
+	public function test_get_geo_data_reports_the_jetpack_ai_switch_state() {
+		$this->assertTrue( Dashboard_Data::get_geo_data()['enhancer']['aiEnabled'] );
+
+		\Jetpack_AI_Settings::$is_ai_enabled = false;
+
+		$this->assertFalse( Dashboard_Data::get_geo_data()['enhancer']['aiEnabled'] );
+	}
+
+	/**
 	 * The plan and the feature filter still veto availability outright — those
 	 * are entitlement questions, not a switched-off control.
 	 */
-	public function test_get_ai_data_enhancer_unavailable_without_the_entitlement() {
+	public function test_get_geo_data_enhancer_unavailable_without_the_entitlement() {
 		self::set_plan( 'jetpack_free' );
 		self::set_seo_tools_active( true );
 
-		$this->assertFalse( Dashboard_Data::get_ai_data()['enhancer']['available'] );
+		$this->assertFalse( Dashboard_Data::get_geo_data()['enhancer']['available'] );
 	}
 
 	/**
@@ -82,16 +101,12 @@ class DashboardDataTest extends SeoTestCase {
 		$this->assertArrayHasKey( 'site_visibility', $overview );
 		$this->assertArrayHasKey( 'site_verification', $overview );
 		$this->assertArrayHasKey( 'content_coverage', $overview );
-		$this->assertArrayHasKey( 'plan', $overview );
 
 		$this->assertArrayHasKey( 'search_engines_visible', $overview['site_visibility'] );
 		$this->assertIsBool( $overview['site_visibility']['search_engines_visible'] );
 
 		$this->assertArrayHasKey( 'total', $overview['content_coverage'] );
 		$this->assertIsInt( $overview['content_coverage']['total'] );
-
-		$this->assertArrayHasKey( 'seo_enabled_for_site', $overview['plan'] );
-		$this->assertIsBool( $overview['plan']['seo_enabled_for_site'] );
 	}
 
 	/**
@@ -112,38 +127,41 @@ class DashboardDataTest extends SeoTestCase {
 	}
 
 	/**
-	 * The AI tab bootstrap exposes the enhancer shape the React app expects, with
+	 * The GEO tab bootstrap exposes the enhancer shape the React app expects, with
 	 * boolean availability/enabled. Without a plan-supporting environment the
 	 * enhancer is unavailable.
 	 */
-	public function test_get_ai_data_shape() {
+	public function test_get_geo_data_shape() {
 		// Force the enhancer feature filter off so availability is deterministic
 		// regardless of whether Current_Plan happens to be loaded in the test
 		// environment (availability is `filter_on && plan_supports`).
 		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 
 		try {
-			$ai = Dashboard_Data::get_ai_data();
+			$geo = Dashboard_Data::get_geo_data();
 
-			$this->assertArrayHasKey( 'enhancer', $ai );
-			$this->assertArrayHasKey( 'available', $ai['enhancer'] );
-			$this->assertArrayHasKey( 'enabled', $ai['enhancer'] );
-			$this->assertIsBool( $ai['enhancer']['available'] );
-			$this->assertIsBool( $ai['enhancer']['enabled'] );
+			$this->assertArrayHasKey( 'enhancer', $geo );
+			$this->assertArrayHasKey( 'available', $geo['enhancer'] );
+			$this->assertArrayHasKey( 'enabled', $geo['enhancer'] );
+			$this->assertIsBool( $geo['enhancer']['available'] );
+			$this->assertIsBool( $geo['enhancer']['enabled'] );
 			// With the feature filter forced off, the enhancer is never available.
-			$this->assertFalse( $ai['enhancer']['available'] );
-			$this->assertArrayHasKey( 'llmsTxt', $ai );
-			$this->assertIsBool( $ai['llmsTxt']['enabled'] );
-			$this->assertIsString( $ai['llmsTxt']['url'] );
-			$this->assertIsBool( $ai['llmsTxt']['canServe'] );
-			$this->assertArrayHasKey( 'crawlers', $ai );
-			$this->assertIsArray( $ai['crawlers']['catalog'] );
-			// A sparse map, cast to an object by get_bootstrap_data() so an empty
-			// override set serializes as `{}` rather than `[]` — the same reason
-			// `title_formats` is cast in get_settings_data().
-			$this->assertIsObject( $ai['crawlers']['overrides'] );
-			$this->assertIsBool( $ai['crawlers']['dataSharingOptOut'] );
-			$this->assertIsBool( $ai['crawlers']['pathBasedMultisite'] );
+			$this->assertFalse( $geo['enhancer']['available'] );
+			$this->assertArrayHasKey( 'llmsTxt', $geo );
+			$this->assertIsBool( $geo['llmsTxt']['enabled'] );
+			$this->assertIsString( $geo['llmsTxt']['url'] );
+			$this->assertIsBool( $geo['llmsTxt']['canServe'] );
+			$this->assertArrayHasKey( 'crawlers', $geo );
+			$this->assertIsArray( $geo['crawlers']['catalog'] );
+			$this->assertSame(
+				array(
+					'answer'   => array(),
+					'training' => array(),
+				),
+				$geo['crawlers']['blocked']
+			);
+			$this->assertIsBool( $geo['crawlers']['dataSharingOptOut'] );
+			$this->assertIsBool( $geo['crawlers']['pathBasedMultisite'] );
 		} finally {
 			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 		}
@@ -197,68 +215,50 @@ class DashboardDataTest extends SeoTestCase {
 	}
 
 	/**
-	 * Reads the durable sitemap option without consulting the live module state
-	 * when the option is present (set or explicitly off).
+	 * @dataProvider provide_module_states
+	 * @param bool $sitemaps Whether sitemaps are active.
+	 * @param bool $canonical Whether canonical URLs are active.
 	 */
-	public function test_is_sitemap_enabled_reads_durable_option() {
-		$modules = new \Automattic\Jetpack\Modules();
-
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
-		$this->assertTrue( $this->invoke_private( Dashboard_Data::class, 'is_sitemap_enabled', $modules ) );
-
-		// Present-but-off: still read from the option, never the module fallback.
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '' );
-		$this->assertFalse( $this->invoke_private( Dashboard_Data::class, 'is_sitemap_enabled', $modules ) );
-
-		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
-	}
-
-	/**
-	 * Reads the durable canonical-urls option without consulting the live module state
-	 * when the option is present (set or explicitly off).
-	 */
-	public function test_is_canonical_enabled_reads_durable_option() {
-		$modules = new \Automattic\Jetpack\Modules();
-
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '1' );
-		$this->assertTrue( $this->invoke_private( Dashboard_Data::class, 'is_canonical_enabled', $modules ) );
-
-		// Present-but-off: still read from the option, never the module fallback.
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
-		$this->assertFalse( $this->invoke_private( Dashboard_Data::class, 'is_canonical_enabled', $modules ) );
-
-		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
-	}
-
-	/**
-	 * The Settings bootstrap sources `sitemap_active` / `canonical_active` from the durable
-	 * options, so the module toggles hydrate correctly without reading live module state.
-	 */
-	public function test_get_settings_data_reads_module_toggles_from_options() {
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
+	#[DataProvider( 'provide_module_states' )]
+	public function test_dashboard_follows_modules_despite_conflicting_obsolete_options( $sitemaps, $canonical ) {
+		update_option( 'jetpack_seo_sitemap_enabled', ! $sitemaps );
+		update_option( 'jetpack_seo_canonical_urls_enabled', ! $canonical );
 		add_filter(
 			'jetpack_active_modules',
-			static function ( $modules ) {
-				$modules[] = 'verification-tools';
-				return $modules;
+			static function () use ( $sitemaps, $canonical ) {
+				return array_keys(
+					array_filter(
+						array(
+							'sitemaps'           => $sitemaps,
+							'canonical-urls'     => $canonical,
+							'verification-tools' => true,
+						)
+					)
+				);
 			}
 		);
 
 		$settings = Dashboard_Data::get_settings_data();
+		$overview = Dashboard_Data::get_overview_data();
 
-		$this->assertArrayHasKey( 'sitemap_active', $settings );
-		$this->assertArrayHasKey( 'canonical_active', $settings );
-		$this->assertArrayHasKey( 'verification_tools_active', $settings );
-		$this->assertArrayHasKey( 'schema', $settings );
+		$this->assertSame( $sitemaps, $settings['sitemap_active'] );
+		$this->assertSame( $sitemaps, $overview['site_visibility']['sitemap_active'] );
+		$this->assertSame( $canonical, $settings['canonical_active'] );
+		$this->assertTrue( $settings['verification_tools_active'] );
 		$this->assertArrayHasKey( 'organization', $settings['schema'] );
 		$this->assertArrayHasKey( 'defaults', $settings['schema'] );
-		$this->assertTrue( $settings['sitemap_active'] );
-		$this->assertFalse( $settings['canonical_active'] );
-		$this->assertTrue( $settings['verification_tools_active'] );
+	}
 
-		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
-		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
+	/**
+	 * @return array Module activation combinations.
+	 */
+	public static function provide_module_states() {
+		return array(
+			'both active'    => array( true, true ),
+			'both inactive'  => array( false, false ),
+			'sitemaps only'  => array( true, false ),
+			'canonical only' => array( false, true ),
+		);
 	}
 
 	/**
@@ -355,6 +355,80 @@ class DashboardDataTest extends SeoTestCase {
 
 		$this->assertEquals( (object) $formats, $settings['title_formats'] );
 		$this->assertFalse( $settings['title_formats_editable'] );
+	}
+
+	/**
+	 * The locked front-page description shows what Jetpack saved, not the helper's legacy fallback.
+	 */
+	public function test_get_settings_data_shows_the_saved_description_while_output_is_disabled() {
+		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Saved description.' );
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+
+		$this->assertSame( 'Saved description.', Dashboard_Data::get_settings_data()['front_page_description'] );
+	}
+
+	/**
+	 * Every tab reads one output state, so the per-tab payloads no longer carry their own copy.
+	 *
+	 * @dataProvider provide_conflicting_seo_plugin_states
+	 * @param bool        $disabled Whether `jetpack_disable_seo_tools` is on.
+	 * @param string|null $name     What `jetpack_seo_conflicting_plugin` returns, or null for no callback.
+	 * @param bool        $paused   Whether the output should read as paused.
+	 * @param string      $expected The plugin name the output state should report.
+	 */
+	#[DataProvider( 'provide_conflicting_seo_plugin_states' )]
+	public function test_output_data_reports_the_pause_and_the_plugin( $disabled, $name, $paused, $expected ) {
+		if ( $disabled ) {
+			add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		}
+		if ( null !== $name ) {
+			add_filter(
+				'jetpack_seo_conflicting_plugin',
+				static function () use ( $name ) {
+					return $name;
+				}
+			);
+		}
+
+		$this->assertSame(
+			array(
+				'paused'             => $paused,
+				'conflicting_plugin' => $expected,
+			),
+			Dashboard_Data::get_output_data()
+		);
+		$this->assertArrayNotHasKey( 'conflicting_seo_plugin', Dashboard_Data::get_overview_data() );
+		$this->assertArrayNotHasKey( 'conflicting_seo_plugin', Dashboard_Data::get_settings_data() );
+		$llms_txt = Dashboard_Data::get_geo_data()['llmsTxt'];
+		$this->assertArrayNotHasKey( 'disabled', $llms_txt );
+		if ( $paused ) {
+			$this->assertFalse( $llms_txt['canServe'] );
+		}
+	}
+
+	public function test_general_disable_filter_can_override_the_plugin_default() {
+		add_filter(
+			'jetpack_seo_conflicting_plugin',
+			static function () {
+				return 'Yoast SEO';
+			}
+		);
+		$this->assertTrue( Seo_Tools::is_disabled() );
+		add_filter( 'jetpack_disable_seo_tools', '__return_false' );
+		$this->assertFalse( Seo_Tools::is_disabled() );
+		$this->assertFalse( Dashboard_Data::get_output_data()['paused'] );
+	}
+
+	/**
+	 * @return array Disable filter, filtered name, expected pause, expected name.
+	 */
+	public static function provide_conflicting_seo_plugin_states() {
+		return array(
+			'no conflict'                    => array( false, null, false, '' ),
+			'Jetpack stepped aside'          => array( true, ' Yoast SEO ', true, 'Yoast SEO' ),
+			'disabled without a plugin'      => array( true, null, true, '' ),
+			'conflict sets default disabled' => array( false, 'Yoast SEO', true, 'Yoast SEO' ),
+		);
 	}
 
 	/**

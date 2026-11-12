@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { comment, postList } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -22,9 +23,7 @@ function renderMetricGrid() {
 }
 
 describe( 'MetricTileGrid', () => {
-	afterEach( () => {
-		jest.restoreAllMocks();
-	} );
+	afterEach( () => jest.useRealTimers() );
 
 	it( 'renders metric tiles as a list', () => {
 		renderMetricGrid();
@@ -33,42 +32,6 @@ describe( 'MetricTileGrid', () => {
 		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 4 );
 		expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Comments' ) ).toBeInTheDocument();
-	} );
-
-	it( 'marks the list with the layout picked for its box', () => {
-		// jsdom lays nothing out, so the box measures 0x0: too short to stretch.
-		renderMetricGrid();
-
-		expect( screen.getByRole( 'list' ) ).toHaveAttribute( 'data-layout', 'compact' );
-	} );
-
-	it( 'picks the grid for a two-column widget with room for every row', () => {
-		jest.spyOn( HTMLElement.prototype, 'getBoundingClientRect' ).mockReturnValue( {
-			width: 580,
-			height: 326,
-			top: 0,
-			left: 0,
-			right: 580,
-			bottom: 326,
-			x: 0,
-			y: 0,
-			toJSON: () => ( {} ),
-		} );
-
-		render(
-			<div style={ { gridColumnEnd: 'span 2' } }>
-				<MetricTileGrid
-					tiles={ [
-						{ key: 'posts', label: 'Posts', value: 1 },
-						{ key: 'comments', label: 'Comments', value: 2 },
-						{ key: 'words', label: 'Words', value: 3 },
-						{ key: 'likes', label: 'Likes', value: 4 },
-					] }
-				/>
-			</div>
-		);
-
-		expect( screen.getByRole( 'list' ) ).toHaveAttribute( 'data-layout', 'grid' );
 	} );
 
 	it( 'renders the placeholder for null and non-finite values', () => {
@@ -106,7 +69,9 @@ describe( 'MetricTileGrid', () => {
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'exposes a tile note as visually hidden assistive text', () => {
+	it( 'shows a tile note in a tooltip on the tile header', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render(
 			<MetricTileGrid
 				tiles={ [
@@ -115,6 +80,11 @@ describe( 'MetricTileGrid', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'Sum of daily visitors.' ) ).toBeInTheDocument();
+		await user.hover( screen.getByText( 'Visitors' ) );
+		await act( () => jest.runAllTimersAsync() );
+
+		expect( screen.getByTestId( 'metric-note-tooltip' ) ).toHaveTextContent(
+			'Sum of daily visitors.'
+		);
 	} );
 } );

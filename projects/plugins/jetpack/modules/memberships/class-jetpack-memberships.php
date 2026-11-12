@@ -711,6 +711,15 @@ class Jetpack_Memberships {
 			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
+		// Only the editor switches a Paywall post to subscribers; REST, WP-CLI and importer saves don't.
+		// The block's name constant isn't loaded everywhere this runs, hence the literal.
+		if (
+			Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level
+			&& has_block( 'jetpack/paywall', $post_id )
+		) {
+			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
+		}
+
 		self::$post_access_level_cache[ $cache_key ] = $post_access_level;
 
 		return $post_access_level;
@@ -764,8 +773,17 @@ class Jetpack_Memberships {
 			self::$user_can_view_post_cache      = array();
 			return;
 		}
-		unset( self::$user_is_paid_subscriber_cache[ $user_id ] );
-		unset( self::$user_can_view_post_cache[ $user_id ] );
+		$prefix = $user_id . '_';
+		foreach ( array_keys( self::$user_is_paid_subscriber_cache ) as $cache_key ) {
+			if ( str_starts_with( $cache_key, $prefix ) ) {
+				unset( self::$user_is_paid_subscriber_cache[ $cache_key ] );
+			}
+		}
+		foreach ( array_keys( self::$user_can_view_post_cache ) as $cache_key ) {
+			if ( str_starts_with( $cache_key, $prefix ) ) {
+				unset( self::$user_can_view_post_cache[ $cache_key ] );
+			}
+		}
 	}
 
 	/**
@@ -817,6 +835,29 @@ class Jetpack_Memberships {
 	 * @return bool Whether the post can be viewed
 	 */
 	public static function user_can_view_post( $post_id = null ) {
+		return self::check_post_access( $post_id, true );
+	}
+
+	/**
+	 * Check the post's subscription requirement without granting access for editing it.
+	 *
+	 * @since 16.4
+	 *
+	 * @param int|null $post_id Explicit post ID, or the loop post when omitted.
+	 * @return bool Whether the visitor meets the post's subscription requirement.
+	 */
+	public static function user_has_subscription_access( $post_id = null ) {
+		return self::check_post_access( $post_id, false );
+	}
+
+	/**
+	 * Evaluate and cache post access with or without the editorial exception.
+	 *
+	 * @param int|null $post_id             Post to check.
+	 * @param bool     $allow_editor_access Whether editing the post can grant access.
+	 * @return bool Whether access is granted.
+	 */
+	private static function check_post_access( $post_id, $allow_editor_access ) {
 		$user_id = get_current_user_id();
 		if ( null === $post_id ) {
 			$post_id = get_the_ID();
@@ -826,7 +867,14 @@ class Jetpack_Memberships {
 			$post_id = 0;
 		}
 
-		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+
+		// Answered before the cache: it is keyed by user, and the same request still renders for that user afterwards.
+		if ( \Automattic\Jetpack\Extensions\Premium_Content\is_rendering_for_activitypub() ) {
+			return Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === self::get_post_access_level( $post_id );
+		}
+
+		$cache_key = sprintf( '%d_%d_%d', $user_id, $post_id, (int) $allow_editor_access );
 		if ( isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
 			return self::$user_can_view_post_cache[ $cache_key ];
 		}
@@ -838,12 +886,11 @@ class Jetpack_Memberships {
 		}
 
 		// we are sending the post to subscribers so the user is a subscriber
-		if ( defined( 'WPCOM_SENDING_POST_TO_SUBSCRIBERS' ) && WPCOM_SENDING_POST_TO_SUBSCRIBERS && Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
+		if ( $allow_editor_access && defined( 'WPCOM_SENDING_POST_TO_SUBSCRIBERS' ) && WPCOM_SENDING_POST_TO_SUBSCRIBERS && Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;
 		}
 
-		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 
 		$all_newsletters_plan_ids = self::get_all_newsletter_plan_ids();
@@ -859,7 +906,14 @@ class Jetpack_Memberships {
 			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
 		}
 
-		$can_view_post = $paywall->visitor_can_view_content( $all_newsletters_plan_ids, $post_access_level );
+		// Pass the post explicitly: callers outside the loop have no get_the_ID() to fall back on.
+		if ( $allow_editor_access ) {
+			// @phan-suppress-next-line PhanParamTooMany -- Concrete services accept the optional $post_id; interface omits it on purpose.
+			$can_view_post = $paywall->visitor_can_view_content( $all_newsletters_plan_ids, $post_access_level, $post_id );
+		} else {
+			$can_view_post = is_callable( array( $paywall, 'visitor_has_subscription_access' ) )
+				&& $paywall->visitor_has_subscription_access( $all_newsletters_plan_ids, $post_access_level, $post_id );
+		}
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
 		return $can_view_post;
@@ -911,10 +965,20 @@ class Jetpack_Memberships {
 			'posts_per_page' => 1,
 		);
 
-		// We want to see if user has any plan marked as a newsletter set up.
+		// Newsletter tiers or legacy mailing list plans.
 		if ( 'newsletter' === $type ) {
-			$query['meta_key']   = 'jetpack_memberships_site_subscriber';
-			$query['meta_value'] = true;
+			$query['meta_query'] = array(
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey
+				'relation' => 'OR',
+				array(
+					'key'   => 'jetpack_memberships_type',
+					'value' => self::$type_tier,
+				),
+				array(
+					'key'   => 'jetpack_memberships_site_subscriber',
+					'value' => '1',
+				),
+			);
 		}
 
 		$plans = get_posts( $query );
@@ -1044,24 +1108,63 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Transforms a number into it's short human-readable version.
+	 * Transforms a number into a human-readable join text string.
 	 *
-	 * @param int $subscribers_total The extrapolated excerpt string.
+	 * Supports short form (e.g. 45.8K), longer rounded format (e.g. 45,800), and raw count (e.g. 45,806)
+	 * via the `jetpack_memberships_subscriber_count_format` filter.
 	 *
-	 * @return string Human-readable version of the number. ie. 1.9 M.
+	 * @param int $subscribers_total Total number of subscribers.
+	 *
+	 * @return string Human-readable version of the number in context.
 	 */
 	public static function get_join_others_text( $subscribers_total ) {
-		if ( $subscribers_total >= 1000000 ) {
-			/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
-		}
-		if ( $subscribers_total >= 10000 ) {
-			/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
+		$subscribers_total = absint( $subscribers_total );
+
+		/**
+		 * Filter the format used for the subscriber count in the join others text.
+		 *
+		 * @since 16.4
+		 *
+		 * @param string $format            Subscriber count format: 'short', 'rounded', or 'raw'. Default 'short'.
+		 * @param int    $subscribers_total Total number of subscribers.
+		 */
+		$format = apply_filters( 'jetpack_memberships_subscriber_count_format', 'short', $subscribers_total );
+
+		switch ( strtolower( (string) $format ) ) {
+			case 'raw':
+				/* translators: %s: number of folks following the blog */
+				$text = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+				break;
+
+			case 'rounded':
+				if ( $subscribers_total >= 1000000 ) {
+					$rounded_total = (int) round( round( $subscribers_total / 1000000, 1 ) * 1000000 );
+				} elseif ( $subscribers_total >= 10000 ) {
+					$rounded_total = (int) round( round( $subscribers_total / 1000, 1 ) * 1000 );
+				} else {
+					$rounded_total = $subscribers_total;
+				}
+
+				/* translators: %s: number of folks following the blog */
+				$text = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $rounded_total, 'jetpack' ), number_format_i18n( $rounded_total ) );
+				break;
+
+			case 'short':
+			default:
+				if ( $subscribers_total >= 1000000 ) {
+					/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
+					$text = sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
+				} elseif ( $subscribers_total >= 10000 ) {
+					/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
+					$text = sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
+				} else {
+					/* translators: %s: number of folks following the blog */
+					$text = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+				}
+				break;
 		}
 
-		/* translators: %s: number of folks following the blog */
-		return sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+		return $text;
 	}
 
 	/**

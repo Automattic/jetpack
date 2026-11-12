@@ -19,7 +19,6 @@ import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { siteLocaleArgTypes, withSiteLocale } from '../../stories/with-site-locale';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostingActivityRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { SiteLocaleControls } from '../../stories/with-site-locale';
@@ -167,7 +166,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no posts in the last 12 months: the widget shows its empty state.
+ * Resolved with no posts in the last 12 months: the calendar, every day empty.
  */
 export const Empty: Story = {
 	render: renderPostingActivity,
@@ -180,7 +179,7 @@ function PostingActivityDashboardStory( dashboardArgs: WidgetDashboardWithWidget
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ POSTING_ACTIVITY_RENDER_MODULE }
 			renderComponent={ PostingActivityRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( true ) } }
@@ -189,6 +188,7 @@ function PostingActivityDashboardStory( dashboardArgs: WidgetDashboardWithWidget
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PostingActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

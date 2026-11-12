@@ -13,12 +13,10 @@
 
 	.text {
 		flex: 1;
-		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
-		line-height: 1.3em;
 	}
 
 	.index {
-		border: 1px solid #ccc;
+		border: 1px solid var(--wpds-color-stroke-surface-neutral);
 		border-radius: 50%;
 		display: block;
 		width: 1.4em;
@@ -26,8 +24,21 @@
 		text-align: center;
 		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 1.3em;
-		font-size: 14px;
 		margin-right: 5px;
+	}
+
+	// TODO(BOOST-702): remove with the legacy dashboard.
+	:global(.jb-dashboard) & {
+
+		.text {
+			// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
+			line-height: 1.3em;
+		}
+
+		.index {
+			border-color: #ccc;
+			font-size: 14px;
+		}
 	}
 }
 

@@ -7,8 +7,11 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
@@ -21,8 +24,10 @@ require_once __DIR__ . '/fixtures/wpcom-get-site-functions.php';
  * Tests for the /sites/%s get-site endpoint.
  *
  * @covers \WPCOM_JSON_API_GET_Site_Endpoint
+ * @covers \SAL_Site
  */
 #[CoversClass( WPCOM_JSON_API_GET_Site_Endpoint::class )]
+#[CoversClass( SAL_Site::class )]
 class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	use WP_UnitTestCase_Fix;
 	use Assert_Rest_Xmlrpc_Parity;
@@ -47,6 +52,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		delete_option( 'jetpack_test_legacy_gating_blog_ids' );
+		delete_option( 'wpcom_ai_launchpad_no_guidance' );
+		delete_option( 'wpcom_ai_launchpad_enabled' );
+		delete_option( 'wpcom_ai_launchpad_dismissed' );
+		foreach ( array( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $constant ) {
+			Constants::clear_single_constant( $constant );
+		}
+		StatusCache::clear();
 		$this->tear_down_rest_parity();
 		parent::tear_down();
 		WPCOM_JSON_API::init()->query         = array();
@@ -199,6 +211,138 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 				"`is_legacy_gating_site` must render the predicate's verdict ($transport)."
 			);
 		}
+	}
+
+	/**
+	 * Calypso gates My Home and the site overview on this flag, so it must render as the option's boolean.
+	 *
+	 * @dataProvider provide_ai_launchpad_no_guidance_states
+	 * @group json-api
+	 *
+	 * @param bool $set Whether the option is set on the site.
+	 */
+	#[DataProvider( 'provide_ai_launchpad_no_guidance_states' )]
+	#[Group( 'json-api' )]
+	public function test_ai_launchpad_no_guidance_renders_the_option( $set ) {
+		if ( $set ) {
+			update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
+		}
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'wpcom_ai_launchpad_no_guidance',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$options = (array) $body['options'];
+
+			$this->assertArrayHasKey( 'wpcom_ai_launchpad_no_guidance', $options, "Missing from the options ($transport)." );
+			$this->assertSame( $set, $options['wpcom_ai_launchpad_no_guidance'], "Wrong value ($transport)." );
+		}
+	}
+
+	/**
+	 * A skipped AI Launchpad is no-guidance and no longer enabled, matching the wp-admin surfaces.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_skipped_ai_launchpad_renders_as_no_guidance() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		update_option( 'wpcom_ai_launchpad_dismissed', 1 );
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'wpcom_ai_launchpad_enabled,wpcom_ai_launchpad_no_guidance',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$options = (array) $body['options'];
+
+			$this->assertTrue( $options['wpcom_ai_launchpad_no_guidance'], "Skipped must be no-guidance ($transport)." );
+			$this->assertFalse( $options['wpcom_ai_launchpad_enabled'], "Skipped must not be enabled ($transport)." );
+		}
+	}
+
+	/**
+	 * A site past the cutoff is no-guidance on Atomic unless it uses the AI Launchpad, but a self-hosted
+	 * site, which shares the blog ID sequence, keeps its guidance.
+	 *
+	 * @dataProvider provide_no_guidance_cutoff_hosts
+	 * @group json-api
+	 *
+	 * @param bool $is_atomic Whether the site is on WordPress.com Atomic.
+	 * @param bool $enabled   Whether wpcom_ai_launchpad_enabled is set.
+	 * @param bool $expected  Expected no-guidance value.
+	 */
+	#[DataProvider( 'provide_no_guidance_cutoff_hosts' )]
+	#[Group( 'json-api' )]
+	public function test_no_guidance_cutoff_only_applies_to_atomic( $is_atomic, $enabled, $expected ) {
+		Constants::set_constant( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID', 1 );
+		if ( $enabled ) {
+			update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		}
+		if ( $is_atomic ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh.php' );
+		}
+		// Host caches is_woa_site(), so an earlier check would hide the constants just set.
+		StatusCache::clear();
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'wpcom_ai_launchpad_no_guidance',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$options = (array) $body['options'];
+
+			$this->assertSame( $expected, $options['wpcom_ai_launchpad_no_guidance'], "Wrong value ($transport)." );
+		}
+	}
+
+	/**
+	 * Data provider for test_no_guidance_cutoff_only_applies_to_atomic.
+	 *
+	 * @return array
+	 */
+	public static function provide_no_guidance_cutoff_hosts() {
+		return array(
+			'Atomic'                   => array( true, false, true ),
+			'Atomic with AI Launchpad' => array( true, true, false ),
+			'self-hosted'              => array( false, false, false ),
+		);
+	}
+
+	/**
+	 * Data provider for test_ai_launchpad_no_guidance_renders_the_option.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_launchpad_no_guidance_states() {
+		return array(
+			'set'   => array( true ),
+			'unset' => array( false ),
+		);
 	}
 
 	/**

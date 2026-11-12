@@ -122,7 +122,7 @@ describe(
 		it( 'stamps real gettext calls but not gettext-shaped calls on other objects', () => {
 			// Runs before the strip tests below, matching the real build order
 			// (`build:stamp-textdomains` then `build:strip-unminified-prod`).
-			assert.ok( stampDir( FIXTURE_BUILD, DOMAIN ) > 0, 'some bundles were stamped' );
+			assert.ok( stampDir( FIXTURE_BUILD, DOMAIN ).count > 0, 'some bundles were stamped' );
 
 			for ( const file of [ 'routes/dashboard/content.js', 'routes/dashboard/content.min.js' ] ) {
 				const src = readFileSync( path.join( FIXTURE_BUILD, file ), 'utf8' );
@@ -130,14 +130,15 @@ describe(
 					src.includes( 'not-a-translatable-string' ),
 					`${ file }: the decoy call survived bundling, so this test still means something`
 				);
+				// The minifier quotes strings with backticks.
 				assert.match(
 					src,
-					/["']Hello from fixture["'],\s*["']jetpack-wp-build-polyfills["']/,
+					/["'`]Hello from fixture["'`],\s*["'`]jetpack-wp-build-polyfills["'`]/,
 					`${ file }: the real gettext call carries the domain`
 				);
 				assert.doesNotMatch(
 					src,
-					/not-a-translatable-string["'],\s*["']jetpack-wp-build-polyfills/,
+					/not-a-translatable-string["'`],\s*["'`]jetpack-wp-build-polyfills/,
 					`${ file }: the decoy call on an unrelated object was left alone`
 				);
 			}

@@ -1,5 +1,6 @@
 {
 	"name": "jpa/shares",
+	"icon": "jpa/share",
 	"title": "All-time top social media shares",
 	"description": "The number of times your content was shared to social networks.",
 	"help": {

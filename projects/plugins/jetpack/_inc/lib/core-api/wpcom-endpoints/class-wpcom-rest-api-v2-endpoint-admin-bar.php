@@ -33,7 +33,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_TOP_LEVEL_NODES = array( 'wp-logo', 'site-name', 'updates', 'command-palette', 'comments', 'new-content', 'my-account', 'agents-manager', 'agents-manager-ai-chat', 'help-center' );
+	const ALLOWED_TOP_LEVEL_NODES = array( 'wp-logo', 'site-name', 'updates', 'command-palette', 'comments', 'new-content', 'free-domain-upsell', 'stats', 'launch-site', 'reader', 'help-center', 'agents-manager-ai-chat', 'notes', 'my-account' );
 
 	/**
 	 * WPCOM_REST_API_V2_Endpoint_Admin_Bar constructor.
@@ -66,7 +66,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 	 * @return true|WP_Error True if the request has read access for the item, WP_Error object otherwise.
 	 */
 	public function get_item_permissions_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'read' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'Sorry, you are not allowed to view the admin bar on this site.', 'jetpack' ),
@@ -107,6 +107,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 		// Core only adds the command palette node when its assets are enqueued,
 		// which normally happens on admin_enqueue_scripts.
 		if ( function_exists( 'wp_enqueue_command_palette_assets' ) ) {
+			// Core expects $submenu to be an array whenever $menu is set, which isn't the case
+			// in a REST request after a plugin adds a menu page outside admin_menu.
+			global $submenu;
+			if ( ! is_array( $submenu ) ) {
+				$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			}
 			wp_enqueue_command_palette_assets();
 		}
 

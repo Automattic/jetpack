@@ -93,7 +93,7 @@ describe( 'default tooltip at hourly resolution', () => {
 			</GlobalChartsProvider>
 		);
 
-		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		screen.getByRole( 'application', { name: /line chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
 		expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '2.8.2026, 09 Uhr' );
@@ -130,7 +130,7 @@ describe( 'default tooltip at hourly resolution', () => {
 			</GlobalChartsProvider>
 		);
 
-		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		screen.getByRole( 'application', { name: /line chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
 		const tooltip = screen.getByTestId( 'chart-tooltip-0' );

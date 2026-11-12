@@ -1,19 +1,15 @@
 /**
  * WordPress dependencies
  */
-import {
-	Modal,
-	Spinner,
-	Tip,
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Modal, Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { tip } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -22,6 +18,7 @@ import FeedbackComments from '../../../src/dashboard/components/feedback-comment
 import PreviewFile from '../../../src/dashboard/components/inspector/preview-file';
 import ResponseFieldsIterator from '../../../src/dashboard/components/inspector/response-fields';
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
+import MarkAsSpamConfirmationModal from '../../../src/dashboard/components/mark-as-spam-confirmation-modal';
 import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
 import useMarkAsReadOnView from '../../../src/dashboard/hooks/use-mark-as-read-on-view';
 import { useMarkAsSpam } from '../../../src/dashboard/hooks/use-mark-as-spam.ts';
@@ -90,7 +87,6 @@ function SingleResponseView( {
 		onConfirmMarkAsSpam,
 		onCancelMarkAsSpam,
 		markAsSpamConfirmationMessage,
-		isSaving,
 	} = useMarkAsSpam( response as FormResponse | null, {
 		checkParameter: () => searchParams?.mark_as_spam === 1,
 		removeParameter: () => {
@@ -219,36 +215,40 @@ function SingleResponseView( {
 
 			{ response.status === 'spam' && (
 				<div className="jp-forms__inbox__tip-container">
-					<Tip>
-						{ sprintf(
-							/* translators: %d number of days. */
-							_n(
-								'Spam responses are permanently deleted after %d day.',
-								'Spam responses are permanently deleted after %d days.',
-								15,
-								'jetpack-forms'
-							),
-							// Number from https://github.com/Automattic/jetpack/blob/bde3cf9a89ce0d02e50469df173a6253383bd276/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L132
-							15
-						) }
-					</Tip>
+					<Notice.Root intent="info" icon={ tip }>
+						<Notice.Description>
+							{ sprintf(
+								/* translators: %d number of days. */
+								_n(
+									'Spam responses are permanently deleted after %d day.',
+									'Spam responses are permanently deleted after %d days.',
+									15,
+									'jetpack-forms'
+								),
+								// Number from https://github.com/Automattic/jetpack/blob/bde3cf9a89ce0d02e50469df173a6253383bd276/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L132
+								15
+							) }
+						</Notice.Description>
+					</Notice.Root>
 				</div>
 			) }
 
 			{ response.status === 'trash' && (
 				<div className="jp-forms__inbox__tip-container">
-					<Tip>
-						{ sprintf(
-							/* translators: %d number of days. */
-							_n(
-								'Items in trash are permanently deleted after %d day.',
-								'Items in trash are permanently deleted after %d days.',
-								emptyTrashDays,
-								'jetpack-forms'
-							),
-							emptyTrashDays
-						) }
-					</Tip>
+					<Notice.Root intent="info" icon={ tip }>
+						<Notice.Description>
+							{ sprintf(
+								/* translators: %d number of days. */
+								_n(
+									'Items in trash are permanently deleted after %d day.',
+									'Items in trash are permanently deleted after %d days.',
+									emptyTrashDays,
+									'jetpack-forms'
+								),
+								emptyTrashDays
+							) }
+						</Notice.Description>
+					</Notice.Root>
 				</div>
 			) }
 
@@ -262,14 +262,12 @@ function SingleResponseView( {
 				</Modal>
 			) }
 
-			<ConfirmDialog
+			<MarkAsSpamConfirmationModal
 				isOpen={ isConfirmDialogOpen }
 				onConfirm={ onConfirmMarkAsSpam }
 				onCancel={ onCancelMarkAsSpam }
-				isBusy={ isSaving }
-			>
-				{ markAsSpamConfirmationMessage }
-			</ConfirmDialog>
+				message={ markAsSpamConfirmationMessage }
+			/>
 		</>
 	);
 }

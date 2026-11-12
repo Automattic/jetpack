@@ -9,6 +9,8 @@
  * - A white mask makes the area visible, while a black mask makes the area invisible.
  */
 
+import type { JSX } from 'react';
+
 type Angle = `${ number }deg` | `${ number }rad` | `${ number }grad` | `${ number }turn` | 0 | '0';
 
 /**

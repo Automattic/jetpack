@@ -924,12 +924,8 @@ async function buildProject( t ) {
 
 	// Copy standard .github.
 	await copyDirectory( '.github/files/mirror-.github', npath.join( buildDir, '.github' ) );
-	await fs.unlink( npath.join( buildDir, '.github/.gitkeep' ) );
 
-	// Copy autotagger, autorelease, wp-svn-autopublish, and/or npmjs-autopublisher if enabled.
-	if ( composerJson.extra?.autotagger ) {
-		await copyDirectory( '.github/files/gh-autotagger', npath.join( buildDir, '.github' ) );
-	}
+	// Copy autorelease, wp-svn-autopublish, and/or npmjs-autopublisher if enabled.
 	if ( composerJson.extra?.autorelease ) {
 		await copyDirectory( '.github/files/gh-autorelease', npath.join( buildDir, '.github' ) );
 	}

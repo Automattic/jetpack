@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useContext } from 'react';
 import { ThreatModalContext } from './index.tsx';
 import styles from './styles.module.scss';
+import type { JSX } from 'react';
 
 /**
  * ThreatSummary component

@@ -6,7 +6,7 @@
 .dops-foldable-card.dops-card {
 
 	.jp-form-settings-group.foldable-wrapper & {
-		padding-right: 0;
+		padding-inline-end: 0;
 		margin-bottom: 0;
 		box-shadow: none;
 	}
@@ -21,8 +21,8 @@
 
 	&.is-expanded .dops-foldable-card__content {
 		position: relative;
-		padding-right: rem.convert(47px);
-		padding-left: rem.convert(24px);
+		padding-inline-end: rem.convert(47px);
+		padding-inline-start: rem.convert(24px);
 	}
 }
 
@@ -55,7 +55,7 @@
 	}
 
 	.dops-button {
-		margin-left: rem.convert(8px);
+		margin-inline-start: rem.convert(8px);
 	}
 }
 
@@ -72,7 +72,7 @@
 	.dops-foldable-card__summary_expanded {
 
 		@include breakpoints.breakpoint( "<480px" ) {
-			text-align: left;
+			text-align: start;
 			margin-top: rem.convert(8px);
 		}
 	}

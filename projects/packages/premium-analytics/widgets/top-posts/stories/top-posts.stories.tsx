@@ -20,7 +20,7 @@ import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import TopPostsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -40,12 +40,6 @@ interface TopPostsStoryControls {
 
 interface TopPostsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls, TopPostsStoryControls {}
-
-const withTopPostsCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '340px' } }>
-		<Story />
-	</div>
-);
 
 function renderTopPostsWidget( { withComparison, contentView }: TopPostsStoryControls ) {
 	return (
@@ -111,19 +105,19 @@ type DashboardStory = StoryObj< TopPostsDashboardStoryProps >;
 export const Default: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: false, contentView: 'posts' },
-	decorators: [ withTopPostsCanvas, withStoryRouter ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: true, contentView: 'posts' },
-	decorators: [ withTopPostsCanvas, withStoryRouter ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const Archives: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: true, contentView: 'archives' },
-	decorators: [ withTopPostsCanvas, withStoryRouter ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	parameters: {
 		docs: {
 			description: {
@@ -135,6 +129,7 @@ export const Archives: Story = {
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <TopPostsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -192,8 +187,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral chart
- * glyph and "No views in this period.").
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderTopPostsOnPreset( 'last-365-days' ),

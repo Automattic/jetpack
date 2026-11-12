@@ -65,7 +65,7 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 			<Dialog.Popup size="medium">
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Some forms may not appear here', 'jetpack-forms' ) }</Dialog.Title>
-					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-forms' ) } />
+					<Dialog.CloseIconButton label={ __( 'Close', 'jetpack-forms' ) } />
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="md">

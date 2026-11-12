@@ -1,6 +1,6 @@
 <?php
 /**
- * Dashboard Sections API: the registry helpers, the preview scope, and the REST routes.
+ * Dashboard Sections API: the registry helpers, the section script data, and the REST routes.
  *
  * The package's own sections register through this API from default-dashboard-sections.php,
  * the same way a plugin extending the dashboard does.
@@ -15,18 +15,6 @@ require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/rest-namespace.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
-
-/**
- * Filter through which the preview's section scope is resolved.
- */
-const DASHBOARD_PREVIEW_SCOPE_FILTER = 'jetpack_premium_analytics_dashboard_preview_scope';
-
-/**
- * Section slugs the customer preview exposes as tabs. A section still rolling out to some
- * sites is opened through the filter instead. Widget types are registered independently of
- * this, as they are of the per-section availability checks.
- */
-const PREVIEW_SECTIONS = array( 'traffic' );
 
 /**
  * Registers a dashboard section.
@@ -62,60 +50,17 @@ function get_available_dashboard_sections( $dashboard_name ) {
 }
 
 /**
- * Whether the dashboard is running as the customer-facing preview.
- *
- * The site's own opt-in means the preview. Anything else that switches the dashboard on, the
- * WordPress.com blog sticker or the `jetpack_premium_analytics_enabled` filter, means us.
- *
- * @since 0.6.0
- *
- * @return bool
- */
-function is_dashboard_preview_scoped() {
-	return (bool) get_option( Enablement_Setting::ENABLED_OPTION );
-}
-
-/**
- * Whether the preview exposes a dashboard section.
- *
- * @since 0.6.0
- *
- * @param string $dashboard_name Dashboard identifier. Only this package's own dashboard is scoped.
- * @param string $slug           URL-facing section slug.
- * @return bool
- */
-function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
-	$in_scope = DASHBOARD_NAME !== $dashboard_name
-		|| ! is_dashboard_preview_scoped()
-		|| in_array( $slug, PREVIEW_SECTIONS, true );
-
-	/**
-	 * Filters whether the preview exposes a dashboard section.
-	 *
-	 * `__return_true` restores the whole dashboard, which is how a development or test site
-	 * sees every tab.
-	 *
-	 * @since 0.6.0
-	 *
-	 * @param bool   $in_scope       Whether the preview exposes the section.
-	 * @param string $slug           URL-facing section slug.
-	 * @param string $dashboard_name Dashboard the section belongs to.
-	 */
-	return (bool) apply_filters( DASHBOARD_PREVIEW_SCOPE_FILTER, $in_scope, $slug, $dashboard_name );
-}
-
-/**
  * Slugs of the tabs the dashboard exposes, for the client's report routes.
  *
  * Reads the same sections the tab list does, so a report cannot outlive the tab it sits
- * behind. Null, never `array()`, before the registry is hydrated: an empty array is a
- * published scope that exposes nothing.
+ * behind. Null, never `array()`, while nothing is registered: an empty array means no
+ * tab is available.
  *
  * @since 0.6.0
  *
  * @return string[]|null
  */
-function get_dashboard_preview_scope_sections() {
+function get_available_dashboard_section_slugs() {
 	$registry = Dashboard_Section_Registry::get_instance();
 
 	if ( empty( $registry->get_all_registered( DASHBOARD_NAME ) ) ) {
@@ -131,39 +76,66 @@ function get_dashboard_preview_scope_sections() {
 }
 
 /**
- * Configures the preview scope script data.
+ * Slugs of the available tabs whose window follows the plan's Stats date limits.
+ *
+ * @since 0.14.0
+ *
+ * @return string[]
+ */
+function get_plan_date_limited_section_slugs() {
+	$slugs = array();
+
+	foreach ( Dashboard_Section_Registry::get_instance()->get_available_sections( DASHBOARD_NAME ) as $section ) {
+		if ( $section->follows_plan_date_limits ) {
+			$slugs[] = $section->slug;
+		}
+	}
+
+	return $slugs;
+}
+
+/**
+ * Configures the section script data.
  *
  * @since 0.6.0
  *
  * @return void
  */
-function configure_dashboard_preview_scope() {
-	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_preview_scope_script_data', 20 );
+function configure_dashboard_sections_script_data() {
+	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data', 20 );
 }
 
 /**
- * Injects the preview's section scope into JetpackScriptData.
+ * Injects the available section slugs, those the plan's date limits apply to, and whether the reader may see Stats, into JetpackScriptData.
  *
  * The same list travels over REST for the tab bar, but a report route reads no REST before
- * choosing its redirect, so it reads the scope from boot data instead.
+ * choosing its redirect, so it reads the slugs from boot data instead.
  *
  * @since 0.6.0
  *
  * @param array $data The script data passed by the assets package.
  * @return array
  */
-function inject_dashboard_preview_scope_script_data( array $data ): array {
-	$sections = get_dashboard_preview_scope_sections();
-
-	if ( null === $sections ) {
-		return $data;
-	}
-
+function inject_dashboard_sections_script_data( array $data ): array {
 	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
 		$data['premium_analytics'] = array();
 	}
 
-	$data['premium_analytics']['preview_sections'] = $sections;
+	// Surfaces outside any section, such as feedback, post to Stats endpoints.
+	$data['premium_analytics']['can_view_stats'] = Capabilities::current_user_can_view_stats();
+
+	// Switching the dashboard off sends the reader to classic Stats, so the client is told where that is.
+	$data['premium_analytics']['classic_stats_url'] = Classic_Stats::page_url();
+
+	// Once classic Stats is retired, Stats v2 stops asking for feedback.
+	$data['premium_analytics']['classic_stats_retired'] = Classic_Stats::is_retired();
+
+	$sections = get_available_dashboard_section_slugs();
+
+	if ( null !== $sections ) {
+		$data['premium_analytics']['sections']                   = $sections;
+		$data['premium_analytics']['plan_date_limited_sections'] = get_plan_date_limited_section_slugs();
+	}
 
 	return $data;
 }
@@ -221,65 +193,83 @@ function get_dashboard_section_schema() {
 		'title'      => 'jetpack-premium-analytics-dashboard-section',
 		'type'       => 'object',
 		'properties' => array(
-			'id'                  => array(
+			'id'                      => array(
 				'description' => __( 'Namespaced section identifier.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'slug'                => array(
+			'slug'                    => array(
 				'description' => __( 'URL-facing section slug, derived from the identifier.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'label'               => array(
+			'label'                   => array(
 				'description' => __( 'Translated display label, naming the section tab.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'title'               => array(
+			'title'                   => array(
 				'description' => __( 'Translated section heading, distinct from the tab label. Null falls back to the label.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
-			'order'               => array(
+			'order'                   => array(
 				'description' => __( 'Sort order, ascending.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'integer',
 				'readonly'    => true,
 			),
-			'date_filter'         => array(
+			'date_filter'             => array(
 				'description' => __( 'Which shape the section date filter takes: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'enum'        => Dashboard_Section::DATE_FILTERS,
 				'default'     => Dashboard_Section::DATE_FILTER_RANGE,
 				'readonly'    => true,
 			),
-			'date_filter_options' => array(
+			'date_filter_options'     => array(
 				'description' => __( 'What the section date filter supports, and where it renders.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'object',
 				'properties'  => array(
-					'with_date_comparison'     => array(
+					'with_date_comparison'         => array(
 						'description' => __( 'Whether the section supports period-over-period comparison at all. When false, no widget in the section receives comparison parameters.', 'jetpack-premium-analytics-pkg' ),
 						'type'        => 'boolean',
 						'default'     => true,
 					),
-					'with_header_date_control' => array(
+					'with_header_date_control'     => array(
 						'description' => __( 'Whether the section header renders the date control. When false, the section widgets host their own.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+					'with_header_interval_control' => array(
+						'description' => __( 'Whether the section header renders the chart interval control. When false, the section charts host their own.', 'jetpack-premium-analytics-pkg' ),
 						'type'        => 'boolean',
 						'default'     => true,
 					),
 				),
 				'readonly'    => true,
 			),
-			'requires_sync'       => array(
+			'requires_sync'           => array(
 				'description' => __( 'Whether the section\'s numbers stay incomplete until the analytics initial full sync has finished.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'boolean',
 				'default'     => false,
 				'readonly'    => true,
 			),
-			'default_layout'      => array(
+			'notice'                  => array(
+				'description' => __( 'Message shown above the section widgets, or null when there is none.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => array( 'string', 'null' ),
+				'default'     => null,
+				'readonly'    => true,
+			),
+			'default_layout'          => array(
 				'description' => __( 'Bundled default widget layout.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'array',
 				'items'       => array( 'type' => 'object' ),
+				'readonly'    => true,
+			),
+			'insertable_widget_types' => array(
+				'description' => __( 'Widget types the section inserter offers on top of its default layout.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'array',
+				'items'       => array( 'type' => 'string' ),
+				'default'     => array(),
 				'readonly'    => true,
 			),
 		),

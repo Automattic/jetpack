@@ -1,13 +1,16 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
+import PointerCard from 'components/pointer-card';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { getSupportUrl, openWpcomSupportDoc } from 'components/support-link';
 import analytics from 'lib/analytics';
 import { FEATURE_SIMPLE_PAYMENTS_JETPACK } from 'lib/plans/constants';
+import { getAdsSettingsUrl, isMovedOut } from 'lib/settings-consolidation';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
@@ -24,7 +27,7 @@ import { Ads } from './ads';
  * @param {object} props - Component props.
  * @return {import('react').Component} Feature description and CTA.
  */
-function EarnFeatureButton( props ) {
+export function EarnFeatureButton( props ) {
 	const {
 		buttonText,
 		featureConstant = '',
@@ -33,15 +36,20 @@ function EarnFeatureButton( props ) {
 		infoDescription,
 		supportLink,
 		wpcomSupportLink,
+		wpcomInfoLink,
 		title,
 	} = props;
 
-	const trackButtonClick = useCallback( () => {
-		analytics.tracks.recordJetpackClick( {
-			target: `visit-${ featureName }`,
-			feature: 'earn',
-		} );
-	}, [ featureName ] );
+	const trackButtonClick = useCallback(
+		event => {
+			analytics.tracks.recordJetpackClick( {
+				target: `visit-${ featureName }`,
+				feature: 'earn',
+			} );
+			openWpcomSupportDoc( event, wpcomInfoLink );
+		},
+		[ featureName, wpcomInfoLink ]
+	);
 
 	return (
 		<SettingsCard
@@ -65,7 +73,7 @@ function EarnFeatureButton( props ) {
 				compact
 				className="jp-settings-card__configure-link"
 				onClick={ trackButtonClick }
-				href={ infoLink }
+				href={ getSupportUrl( infoLink, wpcomInfoLink ) }
 				target="_blank"
 			>
 				{ buttonText }
@@ -80,7 +88,7 @@ function EarnFeatureButton( props ) {
  * @param {object} props - Component props.
  * @return {import('react').Component} Earn settings component.
  */
-function Earn( props ) {
+export function Earn( props ) {
 	const {
 		active,
 		hasConnectedOwner,
@@ -96,8 +104,10 @@ function Earn( props ) {
 		return null;
 	}
 
-	const foundAds = isModuleFound( 'wordads' ),
-		foundEarnBlocks = isModuleFound( 'earn' );
+	// Once the Ads settings have a new home, only a search shows their pointer here.
+	const adsSettingsUrl = getAdsSettingsUrl(),
+		foundAds = isModuleFound( 'wordads' ) && ( ! adsSettingsUrl || Boolean( searchTerm ) ),
+		foundEarnBlocks = ! isMovedOut( 'earn' ) && isModuleFound( 'earn' );
 
 	if ( ! foundAds && ! foundEarnBlocks ) {
 		return null;
@@ -164,6 +174,7 @@ function Earn( props ) {
 					supportLink={ getRedirectUrl( 'jetpack-support-pay-with-paypal' ) }
 					wpcomSupportLink="https://wordpress.com/support/wordpress-editor/blocks/pay-with-paypal/"
 					infoLink={ getRedirectUrl( 'jetpack-support-pay-with-paypal' ) }
+					wpcomInfoLink="https://wordpress.com/support/wordpress-editor/blocks/pay-with-paypal/"
 					infoDescription={ __(
 						'Accept credit card payments via PayPal for physical products, services, donations, or support of your creative work.',
 						'jetpack'
@@ -179,16 +190,17 @@ function Earn( props ) {
 		<div>
 			<QuerySite />
 			<h1 className="screen-reader-text">{ __( 'Jetpack Earn Settings', 'jetpack' ) }</h1>
-			<h2 className="jp-settings__section-title">
-				{ searchTerm
-					? __( 'Earn', 'jetpack' )
-					: __(
-							'Explore tools to earn money with your site.',
-							'jetpack',
-							/* dummy arg to avoid bad minification */ 0
-						) }
-			</h2>
-			{ foundAds && (
+			{ searchTerm && <h2 className="jp-settings__section-title">{ __( 'Earn', 'jetpack' ) }</h2> }
+			{ foundAds && adsSettingsUrl && (
+				<PointerCard
+					header={ _x( 'Ads', 'Ads header', 'jetpack' ) }
+					href={ adsSettingsUrl }
+					linkText={ __( 'Open Ads settings', 'jetpack' ) }
+				>
+					{ __( 'Your ads settings are on the Monetize page.', 'jetpack' ) }
+				</PointerCard>
+			) }
+			{ foundAds && ! adsSettingsUrl && (
 				<Ads
 					{ ...props }
 					configureUrl={ getRedirectUrl( 'calypso-stats-ads-day', {

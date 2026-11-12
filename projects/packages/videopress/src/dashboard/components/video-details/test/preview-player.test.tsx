@@ -108,6 +108,19 @@ describe( 'PreviewPlayer', () => {
 		expect( screen.getByTitle( 'Video preview' ) ).not.toBe( afterRename );
 	} );
 
+	it( 'keeps the iframe when processing supplies its first poster, then refreshes later poster edits', () => {
+		const { rerender } = render(
+			<PreviewPlayer video={ { ...baseVideo, isProcessing: true, thumbnailUrl: null } } />
+		);
+		const player = screen.getByTitle( 'Video preview' );
+		rerender( <PreviewPlayer video={ baseVideo } /> );
+		expect( screen.getByTitle( 'Video preview' ) ).toBe( player );
+		rerender(
+			<PreviewPlayer video={ { ...baseVideo, thumbnailUrl: 'https://example.test/custom.jpg' } } />
+		);
+		expect( screen.getByTitle( 'Video preview' ) ).not.toBe( player );
+	} );
+
 	it( 'plays local items without a GUID through a native video element', () => {
 		render( <PreviewPlayer video={ { ...baseVideo, type: 'local', guid: '' } } /> );
 
@@ -123,4 +136,13 @@ describe( 'PreviewPlayer', () => {
 
 		expect( container ).toBeEmptyDOMElement();
 	} );
+} );
+
+it( 'shows conversion failure recovery without minting a token or loading a player', () => {
+	render( <PreviewPlayer video={ { ...baseVideo, isPrivate: true, conversionFailed: true } } /> );
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent(
+		'Conversion failed. Delete this video and upload it again.'
+	);
+	expect( screen.queryByTitle( 'Video preview' ) ).not.toBeInTheDocument();
+	expect( mockedGetMediaToken ).not.toHaveBeenCalled();
 } );

@@ -91,7 +91,7 @@ function render( $attr, $content ) {
 			'<div class="%1$s" id="%2$s"><a href="%3$s" role="button" target="_blank">%4$s</a></div>',
 			esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 			esc_attr( $block_id ),
-			esc_attr( $url ),
+			esc_url( $url ),
 			wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
 		);
 	} else {
@@ -247,7 +247,7 @@ function deprecated_render_button_v1( $attributes, $block_id, $classes, $url ) {
 		esc_attr( $classes ),
 		esc_attr( $block_id ),
 		! empty( $submit_button_classes ) ? esc_attr( $submit_button_classes ) : 'wp-block-button__link',
-		esc_attr( $url ),
+		esc_url( $url ),
 		wp_kses_post( $submit_button_text )
 	);
 }

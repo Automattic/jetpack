@@ -5,16 +5,10 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget as Dashboard_Stats_Widget;
-use Automattic\Jetpack\Status;
 
 /**
  * Class that adds the Jetpack stats widget to the WordPress admin dashboard.
- *
- * Note that this widget renders whether or not the stats module is active because it currently
- * displays information about Akismet and Protect.
  */
 class Jetpack_Stats_Dashboard_Widget {
 
@@ -41,17 +35,16 @@ class Jetpack_Stats_Dashboard_Widget {
 	 * Sets up the Jetpack Stats widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
-		/**
-		 * Filter whether the Jetpack Stats dashboard widget should be shown to the current user.
-		 * By default, the dashboard widget is shown to users who can view_stats.
-		 *
-		 * @module stats
-		 * @since 11.9
-		 *
-		 * @param bool Whether to show the widget to the current user.
-		 */
-		// Temporarily show the widget to administrators for Simple sites as the view_stats capability is not available.
-		// TODO: Grant the view_stats capability to corresponding users for Simple sites.
+		// WordPress.com Simple sites load this class next to the stats-admin copy in jetpack-mu-wpcom, which can predate register_widget().
+		if ( method_exists( Dashboard_Stats_Widget::class, 'register_widget' ) ) {
+			// Atomic filters readiness to require a connected owner, which the package's own connection check does not see.
+			if ( Jetpack::is_connection_ready() && Dashboard_Stats_Widget::register_widget() ) {
+				add_action( 'admin_head', array( static::class, 'admin_head' ) );
+			}
+			return;
+		}
+
+		/** This filter is documented in projects/packages/stats-admin/src/class-wp-dashboard-odyssey-widget.php */
 		$can_user_view_stats = current_user_can( 'manage_options' ) || current_user_can( 'view_stats' );
 		if ( ! apply_filters( 'jetpack_stats_dashboard_widget_show_to_user', $can_user_view_stats ) ) {
 			return;
@@ -129,103 +122,21 @@ class Jetpack_Stats_Dashboard_Widget {
 	}
 
 	/**
-	 * Renders the widget and fires a dashboard widget action.
+	 * Renders the Jetpack Stats widget.
+	 *
+	 * @deprecated 16.5 Use WP_Dashboard_Odyssey_Widget::render() instead.
 	 */
 	public static function render_widget() {
-		// This function won't exist if the stats module is disabled.
-		if ( function_exists( 'stats_jetpack_dashboard_widget' ) ) {
-			stats_jetpack_dashboard_widget();
-		}
-
-		/**
-		 * Fires when the dashboard is loaded, but no longer used anywhere in the Jetpack plugin.
-		 * The action is still available for backward compatibility.
-		 *
-		 * @since 3.4.0
-		 */
-		do_action( 'jetpack_dashboard_widget' );
-
-		self::render_footer();
+		_deprecated_function( __METHOD__, 'jetpack-16.5', Dashboard_Stats_Widget::class . '::render' );
+		( new Dashboard_Stats_Widget() )->render();
 	}
 
 	/**
-	 * Load the widget footer showing brute force protection and Akismet stats.
+	 * Formerly rendered the brute force protection and Akismet footer. Outputs nothing.
+	 *
+	 * @deprecated 16.5
 	 */
 	public static function render_footer() {
-		?>
-		<footer>
-		<div class="blocked-container">
-			<div class="protect">
-				<h3><?php esc_html_e( 'Brute force attack protection', 'jetpack' ); ?></h3>
-				<?php if ( Jetpack::is_module_active( 'protect' ) ) : ?>
-					<p class="blocked-count">
-						<?php echo esc_html( number_format_i18n( get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ) ); ?>
-					</p>
-					<p><?php echo esc_html_x( 'Blocked malicious login attempts', '{#} Blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
-				<?php elseif ( current_user_can( 'jetpack_activate_modules' ) && ! ( new Status() )->is_offline_mode() ) : ?>
-					<a href="
-					<?php
-					echo esc_url(
-						wp_nonce_url(
-							Jetpack::admin_url(
-								array(
-									'action' => 'activate',
-									'module' => 'protect',
-								)
-							),
-							'jetpack_activate-protect'
-						)
-					);
-					?>
-								" class="button button-primary" title="<?php esc_attr_e( 'Jetpack helps to keep you secure from brute-force login attacks.', 'jetpack' ); ?>">
-						<?php esc_html_e( 'Activate', 'jetpack' ); ?>
-					</a>
-				<?php else : ?>
-					<?php esc_html_e( 'Brute force attack protection is inactive.', 'jetpack' ); ?>
-				<?php endif; ?>
-			</div>
-
-			<div class="akismet">
-				<h3><?php esc_html_e( 'Akismet Anti-spam', 'jetpack' ); ?></h3>
-				<?php if ( is_plugin_active( 'akismet/akismet.php' ) ) : ?>
-					<p class="blocked-count">
-						<?php echo esc_html( number_format_i18n( get_option( 'akismet_spam_count', 0 ) ) ); ?>
-					</p>
-					<p><?php echo esc_html_x( 'Blocked spam comments', '{#} Spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
-				<?php elseif ( current_user_can( 'activate_plugins' ) && ! is_wp_error( validate_plugin( 'akismet/akismet.php' ) ) ) : ?>
-					<a href="
-					<?php
-					echo esc_url(
-						wp_nonce_url(
-							add_query_arg(
-								array(
-									'action' => 'activate',
-									'plugin' => 'akismet/akismet.php',
-								),
-								admin_url( 'plugins.php' )
-							),
-							'activate-plugin_akismet/akismet.php'
-						)
-					);
-					?>
-								" class="button button-primary">
-						<?php esc_html_e( 'Activate', 'jetpack' ); ?>
-					</a>
-				<?php else : ?>
-					<p><a href="<?php echo esc_url( 'https://akismet.com/?utm_source=jetpack&utm_medium=link&utm_campaign=Jetpack%20Dashboard%20Widget%20Footer%20Link' ); ?>"><?php esc_html_e( 'Anti-spam can help to keep your blog safe from spam!', 'jetpack' ); ?></a></p>
-				<?php endif; ?>
-			</div>
-		</div>
-		<div class="footer-links">
-			<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-wordpress-com-stats' ) ); ?>" target="_blank">
-				<?php
-					$jetpack_logo = new Jetpack_Logo();
-					echo $jetpack_logo->get_jp_emblem( true );// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				?>
-			</a>
-		</div>
-		</footer>
-
-		<?php
+		_deprecated_function( __METHOD__, 'jetpack-16.5' );
 	}
 }

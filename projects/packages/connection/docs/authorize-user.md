@@ -2,7 +2,7 @@
 
 Once the site is [registered](register-site.md) (it has a blog token), you can authorize a user. This links a local WordPress user to their WordPress.com account and creates a "user token", which lets the Connection package make authenticated requests on that user's behalf.
 
-The first user to be authorized becomes the **connection owner** (also called the "master user"). A site can have a site-level connection with no authorized users (see `is_site_connection()`), but many features require at least one connected user.
+The first user with the `jetpack_connect` capability to be authorized becomes the **connection owner** (also called the "master user"), and so does any such user who authorizes while there is no connected owner (`has_connected_owner()` is false). `jetpack_connect` resolves to `manage_options` (administrators) by default and can be changed with the `jetpack_disconnect_cap` filter. Other users are always linked as secondary users, even when the owner slot is vacant. A site can have a site-level connection with no authorized users (see `is_site_connection()`), but many features require at least one connected user.
 
 ## The authorization flow
 

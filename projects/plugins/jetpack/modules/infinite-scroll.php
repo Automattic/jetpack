@@ -214,13 +214,9 @@ class Jetpack_Infinite_Scroll_Extras {
 
 		// VideoPress stand-alone plugin
 		global $videopress;
-		if ( ! empty( $videopress ) && The_Neverending_Home_Page::archive_supports_infinity() && is_a( $videopress, 'VideoPress' ) && method_exists( $videopress, 'enqueue_scripts' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassInstanceof -- Old obsolete plugin, not Jetpack VideoPress, AFAICT.
+		if ( ! empty( $videopress ) && The_Neverending_Home_Page::archive_supports_infinity() && $videopress instanceof \VideoPress && method_exists( $videopress, 'enqueue_scripts' ) ) {
 			$videopress->enqueue_scripts();
-		}
-
-		// VideoPress Jetpack module
-		if ( Jetpack::is_module_active( 'videopress' ) ) {
-			wp_enqueue_script( 'videopress' );
 		}
 
 		// Fire the post_gallery action early so Carousel scripts are present.

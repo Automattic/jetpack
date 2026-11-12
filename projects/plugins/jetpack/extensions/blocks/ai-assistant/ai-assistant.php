@@ -32,17 +32,24 @@ require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
  * registration if we need to.
  */
 function register_block() {
-	if (
-	( ( new Host() )->is_wpcom_simple()
-		|| ! ( new Status() )->is_offline_mode()
-	) && \Jetpack_AI_Settings::is_ai_enabled()
-		&& \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' )
-	) {
-		Blocks::jetpack_register_block(
-			__DIR__,
-			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
-		);
+	if ( ! ( new Host() )->is_wpcom_simple() && ( new Status() )->is_offline_mode() ) {
+		return;
 	}
+
+	if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
+		Jetpack_Gutenberg::set_extension_unavailable( 'ai-assistant', 'ai_disabled' );
+		return;
+	}
+
+	if ( ! \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) ) {
+		Jetpack_Gutenberg::set_extension_unavailable( 'ai-assistant', 'ai_disabled', array( 'feature' => 'writing_assistant' ) );
+		return;
+	}
+
+	Blocks::jetpack_register_block(
+		__DIR__,
+		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 

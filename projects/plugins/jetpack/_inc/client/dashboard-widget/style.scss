@@ -38,7 +38,9 @@
 
 		svg {
 			height: 20px;
-			margin: 0.15em 0 0 0.5em;
+			margin-block: 0.15em 0;
+			margin-inline-start: 0.5em;
+			margin-inline-end: 0;
 		}
 	}
 
@@ -63,7 +65,7 @@
 			overflow: hidden;
 
 			.button-primary {
-				float: right;
+				float: inline-end;
 			}
 		}
 
@@ -264,73 +266,6 @@
 					color: #999;
 				}
 			}
-		}
-	}
-
-	footer {
-		background: var(--jp-white-off);
-		overflow: hidden;
-
-		.blocked-container {
-
-			@include widget-card-background-container();
-			display: grid;
-			gap: 0 1em;
-			grid-template-columns: 1fr 1fr;
-		}
-
-		.protect,
-		.akismet {
-
-			@include widget-card;
-		}
-
-		h3 {
-			font-size: 1em;
-			font-weight: 400;
-			margin: 0 0 0.25em 0;
-			padding: 0;
-		}
-
-		p.blocked-count {
-			margin-top: 0;
-			margin-bottom: 6px;
-			margin-right: 8px;
-			font-weight: 500;
-			font-size: 2rem;
-			display: inline-block;
-			padding: 0 4px;
-			min-width: 36px;
-			text-align: center;
-		}
-
-		p {
-			margin: 0;
-			padding: 0;
-		}
-
-		section {
-			margin: 0;
-			padding: 0;
-			text-align: center;
-		}
-
-		.footer-links {
-			margin: 0 0 1.5em 1.5em;
-
-			svg {
-				height: 20px;
-			}
-
-			span {
-				float: right;
-			}
-		}
-
-		.button {
-
-			@include emerald-button-colors();
-			margin-top: 8px;
 		}
 	}
 }

@@ -29,6 +29,9 @@ export type BackupActivityItem = ActivityItemBase & {
 	kind: 'backup';
 	rewindId: string;
 	stats: string;
+	isRewindable: boolean;
+	/** When the backup started: the key to its size record. Null when WordPress.com sent none. */
+	backupPeriod: number | null;
 };
 
 export type NonBackupActivityItem = ActivityItemBase & {

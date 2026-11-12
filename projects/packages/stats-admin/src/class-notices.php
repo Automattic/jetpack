@@ -41,9 +41,8 @@ class Notices {
 	 * @return bool
 	 */
 	public function update_notice( $id, $status, $postponed_for = 0 ) {
-		delete_transient( self::STATS_DASHBOARD_NOTICES_CACHE_KEY );
-		delete_transient( self::STATS_DASHBOARD_NOTICES_DETAILS_CACHE_KEY );
-		return WPCOM_Client::request_as_blog(
+		$this->clear_cache();
+		$response = WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/jetpack-stats-dashboard/notices',
 				Jetpack_Options::get_option( 'id' )
@@ -66,6 +65,17 @@ class Notices {
 			),
 			'wpcom'
 		);
+		// A notices GET running alongside this POST can cache the pre-dismissal answer while the POST is in flight.
+		$this->clear_cache();
+		return $response;
+	}
+
+	/**
+	 * Drop both cached shapes of the WPCOM notices response.
+	 */
+	private function clear_cache() {
+		delete_transient( self::STATS_DASHBOARD_NOTICES_CACHE_KEY );
+		delete_transient( self::STATS_DASHBOARD_NOTICES_DETAILS_CACHE_KEY );
 	}
 
 	/**

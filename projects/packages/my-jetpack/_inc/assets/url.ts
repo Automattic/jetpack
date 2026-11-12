@@ -13,7 +13,10 @@ export function assetUrl( relativePath: string ): string | undefined {
 	// `myJetpackInitialState` is localized on the My Jetpack page only, so components
 	// this package exports to other plugins fall back to the script data, which is
 	// printed on every admin page. Rendering nothing beats a guaranteed 404.
-	const base = window.myJetpackInitialState?.assetsUrl ?? getScriptData()?.myJetpack?.assetsUrl;
+	// Typed here because plugins that import this file don't load My Jetpack's global.d.ts.
+	const initialState = ( window as { myJetpackInitialState?: { assetsUrl?: string } } )
+		.myJetpackInitialState;
+	const base = initialState?.assetsUrl ?? getScriptData()?.myJetpack?.assetsUrl;
 
 	if ( ! base ) {
 		return undefined;

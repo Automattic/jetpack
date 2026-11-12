@@ -184,7 +184,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		height: 0;
 		position: absolute;
 		top: -12px;
-		left: 73px;
+		inset-inline-start: 73px;
 		width: 0;
 	}
 
@@ -201,7 +201,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 			height: auto;
 			margin: 0;
 			padding: 0 14px;
-			text-align: left;
+			text-align: start;
 
 			&:hover {
 				border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -253,7 +253,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		color: $white;
 		position: absolute;
 		top: 0;
-		left: 0;
+		inset-inline-start: 0;
 		height: $size;
 		width: $size;
 		line-height: $size;
@@ -272,6 +272,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 }
 
 @mixin stats-fade-text($toColor) {
+	// Paired with the gradient's fixed "to right" direction: kept physical.
 	background-image: linear-gradient(to right, $transparent 0%, $toColor 90%);
 	position: absolute;
 	z-index: 1;

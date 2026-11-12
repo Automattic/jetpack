@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.8.2] - 2026-11-06
+### Added
+- Connection: Add a Connected view to the Users page, show connection errors on the Connectors card, and transfer connection ownership to another administrator without leaving your site, with a note that moving a Jetpack plan is an additional step. [#53150] [#53359] [#53581] [#53596] [#54527]
+- Dashboard: Add breadcrumbs linking to My Jetpack. [#53621]
+- My Jetpack: Add an Available filter to the Features list, and recognize Jetpack Pro subscriptions, licenses and catalog offers while preserving existing plans. [#53308] [#53421] [#53424] [#53425]
+- Site Health: Add Jetpack connection details to the Info tab and the copied site info report. [#54269]
+
+### Changed
+- Activity Log: Show the connection error notice only when a connection error has been recorded. [#52977]
+- Connection: Clarify connection, Offline Mode and ownership notices, confirm account disconnections and list the plugins that stop working, and show clearer errors and owner details on the Connectors card. [#53785] [#53861] [#53865] [#53892] [#54034] [#54035]
+- Dashboard: Show "Checking site speed…" while a speed test runs, and show "Run speed test" as an icon on screens 480px wide or narrower. [#53921] [#54352]
+- Getting Started: Send premium upgrades to the My Jetpack upgrade page, where a license key can also be redeemed. [#53162]
+- Image Guide: Render the overlay with React; administrators now load WordPress's data and React scripts on the front end. [#53209]
+- My Jetpack: Ask for a WordPress.com account only when something in use needs one, and leave plugins included in a bundle plan out of the menu notification badge. [#53242] [#54355]
+- My Jetpack: Connect accounts from the feature cards that need one, turn a module on once Install or Activate Jetpack finishes, open Modules links in Features, and restore the "Included in plan" view. [#53052] [#53990] [#53992] [#54007]
+- My Jetpack: List VaultPress Backup among the plans that include Activity Log history, and simplify the Search paid-plan wording. [#53181]
+- My Jetpack: Show the avatar and connection status control in the headers of My Jetpack and the modern Boost dashboard, with access to connection and plan details. [#54225] [#54276]
+- My Jetpack: Simplify the Features tab with switches instead of status badges, flat cards and aligned notices, and show it in Offline Mode. [#52988] [#53759] [#53990] [#54216]
+- Update package dependencies. [#52999] [#53004] [#53448] [#53806] [#53869] [#53951] [#54001] [#54072] [#54117] [#54118] [#54512] [#54557]
+
+### Deprecated
+- Dashboard: Deprecate the filter that restores the legacy dashboard, which will be removed in a future release. [#53348]
+
+### Fixed
+- Accessibility: Announce the score history chart and a disabled Cornerstone Pages Save button correctly to screen readers, and show the selected history day's focus ring on any bar color. [#53202] [#53237] [#53830]
+- Activity Log: Show an empty date picker on the free plan, instead of a date range it does not apply. [#53982]
+- Cache cleanup: Prevent memory exhaustion when removing expired optimization data. [#54432]
+- Concatenate: Improve loading of combined scripts and styles.
+- Concatenate: Improve minification reliability.
+- Concatenate JS: Fix scripts printed on their own failing to load on sites served from a custom port. [#53220]
+- Connection: Fix reconnecting an account disconnecting other users, an empty Safe Mode window, owner names with characters like &, untranslated Connectors card text, and spurious Site Health connection failures. [#52851] [#52916] [#53179] [#54030] [#54197]
+- Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing. [#52880]
+- Critical CSS: Enable automatic regeneration after upgrading, reduce repeated styles, print after the page title, and reject generated CSS above 512 KiB with an error message. [#53047] [#53211]
+- Critical CSS: Keep generation running when the site returns an older status or a page never answers, and report a Regenerate that did not start or a request the site refused. [#54581]
+- Dashboard: Fix "Something went wrong!" on WordPress 7.1 when the site data request fails, old scores in the header after a test started from My Jetpack, and oversized links in notices. [#53254] [#53438] [#54347] [#54396]
+- Footer: Show the Features link to administrators only. [#54541]
+- Image CDN: Fix some images hosted on other sites failing to load when their file name ends in a size like -600x400. [#54204]
+- Image Guide: Fix duplicate guides appearing after the guide is paused and resumed, and open popup links in separate new tabs. [#53209] [#53279]
+- LCP: Stop cropping optimized images when their box has a different shape, their URL has a query string, or their original file is offloaded or deleted, and size the image to its box when the theme sets `object-fit: cover`. [#53976] [#54207] [#54263] [#54264]
+- My Jetpack: Fetch a new speed score when the saved one is incomplete, and show the highest-priority notice first. [#53400] [#53918]
+- My Jetpack: Fix layout problems on the setup and connection screens and in the Help tab on narrow screens, scroll to the first Features results after filtering, and return to the previous tab from upgrade screens. [#52765] [#53402] [#53847] [#54101] [#54201]
+- My Jetpack: Keep product switches, statuses and the Overview connection card in sync after changes, including failed changes, Beta or development plugin copies, and switching VideoPress off without Jetpack. [#53247] [#53287] [#53356] [#53367] [#53371] [#53807] [#54156]
+- My Jetpack: Stop showing $0, NaN or $0.00 prices when prices cannot be loaded, and stop offering retired Security and Growth plans while preserving existing subscriptions. [#53854] [#54458]
+- Optimize LCP Images: Re-analyze cornerstone pages a few minutes after a template, Global Styles or Additional CSS change, show an error when a re-analysis can't start, and skip the analysis on a cornerstone page save when no results are stored. [#54344] [#54506]
+- Overview: Show grade ranges that match how the overall grade is calculated. [#53110]
+
+## [4.8.1] - 2026-10-08
+### Fixed
+- Page Cache: Improve cache key handling and URL purges for unusual request URIs and parameters. Clear old cached pages once after updating.
+
+## [4.8.0] - 2026-10-02
+### Security
+- Critical CSS: Improve the security of Critical CSS generation. [#52462]
+
+### Added
+- Connection: Surface SSL certificate verification failures reported by WordPress.com as a connection error notice, and flag connection errors with a badge on the Jetpack menu. [#52035] [#52332]
+- Critical CSS: Explain when pages could not be optimized because they are only shown to logged-in visitors, and let each group of these pages be dismissed separately. [#52462] [#52644]
+
+### Changed
+- Dashboard: Redesign the Overview around a "Your site speed" score card with score gain badges, a score history chart with day details that works with a keyboard and screen reader, and a "Run speed test" button. [#50140] [#52268] [#52284] [#52315] [#52331] [#52382] [#52383] [#52397] [#52429] [#52434] [#52447] [#52449] [#52460] [#52461] [#52481] [#52497] [#52547] [#52611] [#52613] [#52620] [#52625] [#52626] [#52640] [#52802] [#52803] [#52821] [#52830] [#52943] [#52945] [#52946]
+- Dashboard: Show the modernized dashboard by default. Add `add_filter( 'rsm_jetpack_ui_modernization_boost', '__return_false' );` to restore the previous dashboard. [#52496]
+- My Jetpack: Show the dashboard in the new rounded admin page frame, with restyled notices and a Features tab in place of the Products tab. [#52290] [#52446] [#52633] [#52785]
+- Settings: Show performance scores and optimization settings together in collapsible sections with short descriptions and restyled notices, and make tooltips and toggles work with a keyboard and screen reader. [#52286] [#52465] [#52498] [#52562] [#52563] [#52564] [#52566] [#52567] [#52609] [#52612] [#52624] [#52629] [#52642] [#52643] [#52645] [#52649] [#52661] [#52705] [#52706] [#52736] [#52800] [#52920] [#52926] [#52927] [#52935] [#52938] [#52939] [#52942] [#52952]
+- Update package dependencies. [#52187] [#52297]
+
+### Fixed
+- Activity Log: Honor the module setting, so the page can be turned off, and stop the frame from flashing while loading. [#52235] [#52409]
+- Connection: Report a broken connection on the My Jetpack connection card instead of saying everything looks good, stop showing stale connection error notices, and let users without admin access reconnect their own account or find an administrator who can. [#52130] [#52264] [#52614] [#52718]
+- Critical CSS: Stop generation from logging administrators out on sites with login-protected pages, and stop it restarting on its own after a failed run. [#52462] [#52731]
+- Defer JS: Keep scripts that come before a script left in place in their original order, fixing hidden product images and unclickable tabs on some sites using Jetpack Likes. [#52863]
+- Hide links to My Jetpack screens, including upgrade, license and footer links, when My Jetpack is unavailable. [#52499] [#52529] [#52557] [#52606]
+- My Jetpack: Fix the dashboard failing to load on WordPress.com-hosted sites. [#52362]
+- My Jetpack: Show each notice once, respond to module switches immediately, and fix the connection screen layout for right-to-left languages. [#52494] [#52749]
+- Page Cache: Show the module as running, without contradictory setup errors, on WP Cloud hosts such as Pressable that already cache pages. [#52348]
+- Performance history: Show the recorded decimal LCP, TBT, and CLS values in the history chart tooltips instead of whole numbers. [#52444]
+
 ## [4.7.1] - 2026-09-16
 ### Added
 - My Jetpack: Allow the Automattic for Agencies banner to be dismissed. [#51441]
@@ -353,7 +429,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Page Cache: Improve compatibility with sites using Endurance Page Cache. [#43416]
 - My Jetpack: Update the onboarding UI, changing it to a single button. [#43203]
 - UI: Updated currency formatting. [#42796]
-- Update package dependencies. [#43326] [#43354] [#43355] [#43398] [#43400] [#43425] [#43085]
+- Update package dependencies. [#43085] [#43326] [#43354] [#43355] [#43398] [#43400] [#43425]
 
 ### Removed
 - General: Update minimum WordPress version to 6.7. [#43192]
@@ -422,7 +498,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Concatenate JS/CSS: Ensure delivery method tester is only tested once per network on Multisite. [#41918]
 - UI: Change style of pills. [#42460]
 - UI: Upgrade CTAs on the Jetpack Boost admin now opens a modal instead of navigating to the upgrade page. [#42309] [#42416]
-- Update package dependencies. [#42511] [#42509]
+- Update package dependencies. [#42509] [#42511]
 
 ### Fixed
 - Critical CSS: Prevent the process from failing when a single provider fails storing its CSS. [#42110]
@@ -513,7 +589,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Critical CSS: Improved logic that generates URLs for critical CSS generation. [#39862]
-- General: Improved compatibility with WordPress 6.7. [#39877] [#39786]
+- General: Improved compatibility with WordPress 6.7. [#39786] [#39877]
 - General: Updated badges used to show state of features. [#40031]
 - Page Speed: Updated speed scores to be based on first cornerstone page. [#39863]
 
@@ -787,9 +863,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Updated checklist spacing and button font size and line height. [#31098]
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
 - Minify CSS: Moved the default URL base of minified CSS files to /\_jb_static, and added a constant to override it. [#31631]
-- Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
-- General: Updated checklist spacing and button font size and line height. [#31098]
-- Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
 
 ### Fixed
 - Critical CSS: Critical CSS Generation was skipping posts and pages on sites with fewer than 10 of either. [#31506]
@@ -799,7 +872,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image Guide: Fixed issues with Image Guide placement on the page with some themes. [#31410]
 - Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory. [30863]
 - Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory. [#30863]
-- Image Guide: Fixed issues with Image Guide placement on the page with some themes. [#31410]
 
 ## [1.9.1] - 2023-05-11
 ### Added
@@ -1045,6 +1117,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.8.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.8.1...4.8.2
+[4.8.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.8.0...4.8.1
+[4.8.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.7.1...4.8.0
 [4.7.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.7.0...4.7.1
 [4.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.3...4.7.0
 [4.6.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.2...4.6.3

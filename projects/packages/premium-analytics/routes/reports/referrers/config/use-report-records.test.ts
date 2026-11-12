@@ -5,7 +5,19 @@ import type { ReportParams, StatsReferrersComparisonItem } from '@jetpack-premiu
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
 	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const mockUseStatsReferrers = useStatsReferrers as jest.MockedFunction< typeof useStatsReferrers >;
@@ -78,6 +90,43 @@ describe( 'useReferrersReportRecords', () => {
 				label: 'google.com',
 				previousValue: 8,
 			} ),
+		] );
+	} );
+
+	it( 'offers spam only on eligible rows and drops a hidden domain with its nested rows', () => {
+		const spamRow = ( domain: string ): StatsReferrersComparisonItem => ( {
+			label: domain,
+			views: 2,
+			link: null,
+			icon: null,
+			labelIcon: null,
+			actions: [ { type: 'spam', data: { domain } } ],
+			children: [
+				{ label: '/page', views: 2, link: null, icon: null, labelIcon: null, children: null },
+			],
+		} );
+		mockUseStatsReferrers.mockReturnValue( {
+			comparisonRows: {
+				rows: [ ...comparisonRows, spamRow( 'kept.example' ), spamRow( 'spam.example' ) ],
+				hasComparison: false,
+			},
+			isLoading: false,
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsReferrers > );
+
+		const { result } = renderHook( () =>
+			useReferrersReportRecords(
+				{ from: '2026-07-09', to: '2026-07-10', interval: 'day' },
+				new Set( [ 'spam.example' ] )
+			)
+		);
+
+		expect( result.current.rows.map( row => [ row.label, row.spamDomain ?? null ] ) ).toEqual( [
+			[ 'Search Engines', null ],
+			[ 'google.com', null ],
+			[ 'kept.example', 'kept.example' ],
+			[ '/page', null ],
 		] );
 	} );
 

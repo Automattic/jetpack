@@ -90,8 +90,6 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertArrayHasKey( 'test__check_if_connected', $tests );
 		$this->assertArrayHasKey( 'test__master_user_exists_on_site', $tests );
 		$this->assertArrayHasKey( 'test__master_user_can_manage_options', $tests );
-		$this->assertArrayHasKey( 'test__outbound_http', $tests );
-		$this->assertArrayHasKey( 'test__outbound_https', $tests );
 		$this->assertArrayHasKey( 'test__identity_crisis', $tests );
 		$this->assertArrayHasKey( 'test__connection_token_health', $tests );
 		$this->assertArrayHasKey( 'test__wpcom_connection_test', $tests );
@@ -353,101 +351,6 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertFalse( $result['pass'] );
 	}
 
-	// -------------------------------------------------------------------------
-	// test__outbound_http
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test outbound_http passes with mocked successful response.
-	 */
-	public function test_outbound_http_passes_on_success() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => 'OK',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_http' );
-		$this->assertTrue( $result['pass'] );
-	}
-
-	/**
-	 * Test outbound_http fails when request returns an error code.
-	 */
-	public function test_outbound_http_fails_on_error() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 500 ),
-					'body'     => 'Error',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_http' );
-		$this->assertFalse( $result['pass'] );
-	}
-
-	/**
-	 * Test outbound_http fails when request returns a WP_Error.
-	 */
-	public function test_outbound_http_fails_on_wp_error() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return new \WP_Error( 'http_request_failed', 'Connection refused' );
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_http' );
-		$this->assertFalse( $result['pass'] );
-	}
-
-	// -------------------------------------------------------------------------
-	// test__outbound_https
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test outbound_https passes with mocked successful response.
-	 */
-	public function test_outbound_https_passes_on_success() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => 'OK',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_https' );
-		$this->assertTrue( $result['pass'] );
-	}
-
-	/**
-	 * Test outbound_https fails when request returns an error code.
-	 */
-	public function test_outbound_https_fails_on_error() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 500 ),
-					'body'     => 'Error',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_https' );
-		$this->assertFalse( $result['pass'] );
-	}
-
 	/**
 	 * Test an SSL-verification result reports a verified local_state error to the Error_Handler.
 	 */
@@ -583,10 +486,6 @@ class Connection_Health_Tests_Test extends TestCase {
 
 	/**
 	 * Test an inconclusive result preserves previously reported local_state errors.
-	 *
-	 * WP.com flags probe failures it could not classify (e.g. timeouts) as
-	 * inconclusive; they neither confirm nor disprove a stored error, and clearing
-	 * on them would flap the notice for a broken site that is occasionally slow.
 	 */
 	public function test_wpcom_connection_test_inconclusive_result_preserves_errors() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
@@ -599,6 +498,21 @@ class Connection_Health_Tests_Test extends TestCase {
 		);
 		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 
+		$this->evaluate_response(
+			array(
+				'connected'    => false,
+				'message'      => 'Example Site is not connected.',
+				'inconclusive' => true,
+			)
+		);
+
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test an inconclusive result is skipped rather than presented as a reconnect-worthy failure.
+	 */
+	public function test_wpcom_connection_test_inconclusive_result_is_skipped() {
 		$result = $this->evaluate_response(
 			array(
 				'connected'    => false,
@@ -607,8 +521,7 @@ class Connection_Health_Tests_Test extends TestCase {
 			)
 		);
 
-		$this->assertFalse( $result['pass'] );
-		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertEquals( 'skipped', $result['pass'] );
 	}
 
 	// -------------------------------------------------------------------------
@@ -1029,9 +942,9 @@ class Connection_Health_Tests_Test extends TestCase {
 
 		$this->assertFalse( $result['pass'] );
 		$this->assertSame( 'https://example.com/reconnect', $result['action'] );
-		// WP.com's message is preserved and the status code is appended in a labeled form.
+		// WP.com's message is preserved, and a 200 status code is not appended (it adds no signal).
 		$this->assertStringContainsString( 'Invalid token.', $result['short_description'] );
-		$this->assertStringContainsString( '(status code: 200)', $result['short_description'] );
+		$this->assertStringNotContainsString( 'status code', $result['short_description'] );
 	}
 
 	/**

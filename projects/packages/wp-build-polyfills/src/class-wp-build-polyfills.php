@@ -64,11 +64,21 @@ class WP_Build_Polyfills {
 	const GUTENBERG_RICH_TEXT_MIN_VERSION = '23.6.0';
 
 	/**
-	 * Minimum Gutenberg plugin version whose widget-primitives script module ships the
-	 * `WidgetHostProvider` / `useWidgetHost` seam that widget-dashboard >= 0.6.0 imports at
-	 * module scope (Gutenberg PR #81740, first released in 23.9.0).
+	 * Minimum Gutenberg plugin version whose widget-primitives script module ships
+	 * every export our bundles import at module scope: `HostLink` for
+	 * widget-dashboard >= 0.8.0 (Gutenberg PR #82952, 24.1.0), `useWidgetActions`
+	 * for Premium Analytics (widget-primitives 0.9.0, first released in 24.2.0), and
+	 * `useWidgetIdentity` for Premium Analytics (Gutenberg PR #85729, 24.4.0).
 	 */
-	const GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION = '23.9.0';
+	const GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION = '24.4.0';
+
+	/**
+	 * Global holding the bundled package version each polyfilled module was registered from.
+	 *
+	 * Shared across the package copies the active plugins bundle, so a newer copy can replace
+	 * an older registration and an older copy leaves a newer one alone.
+	 */
+	const MODULE_VERSIONS_GLOBAL = 'jetpack_wp_build_polyfills_module_versions';
 
 	/**
 	 * Tracks which polyfills have been requested and by which consumers.
@@ -331,8 +341,9 @@ class WP_Build_Polyfills {
 	 * Register polyfill script modules.
 	 *
 	 * Calls to wp_register_script_module() silently ignore duplicate registrations (first wins), so an
-	 * already registered module is left alone unless the active Gutenberg's copy is known to be
-	 * too old for this package's current build, in which case it is replaced.
+	 * already registered module is left alone unless it is known to be too old for this package's
+	 * current build: Gutenberg's copy below the minimum version, or another plugin's copy of this
+	 * package bundling an older package version. Those are replaced.
 	 *
 	 * @param string        $build_dir  Absolute path to the build directory.
 	 * @param string        $base_file  File path for plugins_url() computation.
@@ -345,15 +356,22 @@ class WP_Build_Polyfills {
 
 		$gutenberg_version = defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null;
 
+		if ( ! isset( $GLOBALS[ self::MODULE_VERSIONS_GLOBAL ] ) || ! is_array( $GLOBALS[ self::MODULE_VERSIONS_GLOBAL ] ) ) {
+			$GLOBALS[ self::MODULE_VERSIONS_GLOBAL ] = array();
+		}
+		$registered_versions = &$GLOBALS[ self::MODULE_VERSIONS_GLOBAL ];
+
 		$modules = array(
 			'boot'              => array(),
 			'route'             => array(),
 			'a11y'              => array(),
 			'widget-primitives' => array(
 				// Gutenberg re-registers Core's script modules with its own copies, and
-				// older ones lack exports widget-dashboard imports at module scope. The
+				// older ones lack exports the dashboard imports at module scope. The
 				// replacement only adds exports, so Gutenberg's own consumers keep working.
 				'gutenberg_min_version' => self::GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION,
+				// Core never ships it, so outside Gutenberg the newest bundled copy wins.
+				'newest_copy_wins'      => true,
 			),
 		);
 
@@ -376,11 +394,30 @@ class WP_Build_Polyfills {
 
 			$asset = require $asset_file;
 
-			if (
-				isset( $data['gutenberg_min_version'] )
+			$gutenberg_too_old = isset( $data['gutenberg_min_version'] )
 				&& null !== $gutenberg_version
-				&& ! self::is_gutenberg_version_safe( $data['gutenberg_min_version'], $gutenberg_version )
-			) {
+				&& ! self::is_gutenberg_version_safe( $data['gutenberg_min_version'], $gutenberg_version );
+
+			// Builds without `package_version` predate it and count as older than any that does.
+			$version = $asset['package_version'] ?? null;
+			$replace = $gutenberg_too_old;
+			$record  = false;
+
+			if ( ! empty( $data['newest_copy_wins'] ) ) {
+				if ( array_key_exists( $module_id, $registered_versions ) ) {
+					$current = $registered_versions[ $module_id ];
+					if ( null === $version || ( null !== $current && version_compare( $version, $current, '<=' ) ) ) {
+						continue;
+					}
+					$replace = true;
+					$record  = true;
+				} else {
+					// With a supported Gutenberg its copy stays; otherwise nobody else ships it.
+					$record = null === $gutenberg_version || $gutenberg_too_old;
+				}
+			}
+
+			if ( $replace ) {
 				wp_deregister_script_module( $module_id );
 			}
 
@@ -390,6 +427,10 @@ class WP_Build_Polyfills {
 				$asset['module_dependencies'] ?? array(),
 				$asset['version']
 			);
+
+			if ( $record ) {
+				$registered_versions[ $module_id ] = $version;
+			}
 		}
 	}
 }

@@ -542,13 +542,3 @@ export function sanitizeStatsSiteResponse( response: unknown ) {
 		stats: normalizeStatsSummary( coerceStatsRecord( payload.stats ) ),
 	};
 }
-
-export function combineStatsNormalizedReports< TItem extends StatsNormalizedItem >(
-	summaryReport?: Pick< StatsNormalizedReport< TItem >, 'summary' | 'data' >,
-	dataReport?: Pick< StatsNormalizedReport< TItem >, 'data' >
-): StatsNormalizedReport< TItem > {
-	return {
-		summary: summaryReport?.summary ?? {},
-		data: dataReport?.data ?? summaryReport?.data ?? [],
-	};
-}

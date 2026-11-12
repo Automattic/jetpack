@@ -145,8 +145,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no points: the widget shows its empty state (the neutral
- * customer glyph and "No subscriber data in this period.").
+ * Resolved with no points: the widget shows the generic empty state.
  */
 export const Empty: Story = {
 	render: () => renderSubscribersChartOnPreset( 'last-365-days' ),
@@ -189,6 +188,7 @@ function SubscribersChartDashboardStory( {
  * the host collapses the header controls behind the settings icon.
  */
 export const WidgetDashboardWithWidget: StoryObj< SubscribersChartDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <SubscribersChartDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

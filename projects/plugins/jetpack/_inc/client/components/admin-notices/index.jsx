@@ -100,6 +100,11 @@ class AdminNotices extends Component {
 			} );
 		}
 
+		// wp-build's page template hides what PHP prints beside the app, so show Jetpack's notices in it.
+		jQuery( '#wpbody-content' )
+			.find( '.jetpack-message, #jetpack-ssl-warning' )
+			.prependTo( $adminNotices );
+
 		// Hide the rest of the core notices, they don't look very good above the react app.
 		const $allNotices = jQuery( '.notice' );
 		if ( $allNotices.length > 0 ) {

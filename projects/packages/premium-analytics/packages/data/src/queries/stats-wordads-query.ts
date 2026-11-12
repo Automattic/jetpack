@@ -63,6 +63,7 @@ export const statsWordAdsStatsQuery = (
 		sanitizerParams: {
 			period: unit,
 			...( date ? { date } : {} ),
+			...( startDate ? { start_date: startDate } : {} ),
 		},
 		enabled: !! date,
 	} );

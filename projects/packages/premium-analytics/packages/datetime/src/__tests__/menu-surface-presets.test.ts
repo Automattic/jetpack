@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { getMenuSurfacePresetGroups } from '../presets';
-import { DETAIL_SURFACE_PRESETS } from '../presets/types';
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '../presets/types';
 
 const TIME_ZONE = 'America/New_York';
 
@@ -14,7 +14,7 @@ describe( 'getMenuSurfacePresetGroups', () => {
 		expect( idsOf( getMenuSurfacePresetGroups( TIME_ZONE ) ) ).toEqual( [
 			[ 'today', 'yesterday', 'last-24-hours', 'last-7-days', 'last-30-days' ],
 			[ 'month-to-date', 'last-month' ],
-			[ 'year-to-date', 'last-12-months' ],
+			[ 'year-to-date', 'last-12-months', 'last-3-years' ],
 		] );
 	} );
 
@@ -25,7 +25,7 @@ describe( 'getMenuSurfacePresetGroups', () => {
 
 	it( 'offers a detail surface every period the menu lists, all time last', () => {
 		const groups = getMenuSurfacePresetGroups( TIME_ZONE, {
-			presetIds: DETAIL_SURFACE_PRESETS,
+			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 			startDate: new Date( '2024-03-01T00:00:00.000Z' ),
 		} );
 

@@ -11,7 +11,7 @@ import {
 	buildLeaderboardRow,
 	flagUrl,
 	safeHttpUrl,
-	sharePercentage,
+	useMapName,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LeaderboardRowMedia,
@@ -21,7 +21,6 @@ import {
 import { useResizeObserver } from '@wordpress/compose';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { envelope } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -59,17 +58,10 @@ function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMet
 	];
 }
 
-/**
- * Shares are relative to the highest value in the set so the top row always
- * fills. The breakdown endpoints return no comparison period, so the comparison
- * fields are zeroed and the chart renders without deltas.
- */
 function buildLeaderboardData(
 	rows: EmailBreakdownRow[],
 	view: EmailBreakdownView
 ): LeaderboardChartData {
-	const maxValue = Math.max( ...rows.map( row => row.value ), 0 );
-
 	return rows.map( row => {
 		const media: LeaderboardRowMedia =
 			view === 'countries'
@@ -91,12 +83,22 @@ function buildLeaderboardData(
 				action: safeUrl ? { kind: 'link', href: safeUrl } : { kind: 'static' },
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxValue ),
-			previousValue: 0,
-			previousShare: 0,
-			delta: 0,
 		};
 	} );
+}
+
+function viewLabel( view: EmailBreakdownView ): string {
+	switch ( view ) {
+		case 'devices':
+			return __( 'Devices', 'jetpack-premium-analytics-pkg' );
+		case 'clients':
+			return __( 'Email clients', 'jetpack-premium-analytics-pkg' );
+		case 'links':
+			return __( 'Links', 'jetpack-premium-analytics-pkg' );
+		case 'countries':
+		default:
+			return __( 'Countries', 'jetpack-premium-analytics-pkg' );
+	}
 }
 
 function emptyStateText( view: EmailBreakdownView ): string {
@@ -145,6 +147,7 @@ export const EmailBreakdownLeaderboard = ( {
 	hasEmail = true,
 	onRetry,
 }: EmailBreakdownLeaderboardProps ) => {
+	const mapName = useMapName();
 	const data = useMemo( () => buildLeaderboardData( rows, view ), [ rows, view ] );
 	const geoData = useMemo( () => buildEmailGeoData( mapRows, metric ), [ mapRows, metric ] );
 
@@ -179,7 +182,6 @@ export const EmailBreakdownLeaderboard = ( {
 						: undefined,
 				} }
 				empty={ {
-					icon: envelope,
 					description: hasEmail
 						? emptyStateText( view )
 						: __( 'Select an email to see its breakdown.', 'jetpack-premium-analytics-pkg' ),
@@ -193,10 +195,11 @@ export const EmailBreakdownLeaderboard = ( {
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ { label: viewLabel( view ), metric: view === 'links' ? 'clicks' : metric } }
 					/>
 					{ renderMap && (
 						<div className={ styles.map } data-testid="email-breakdown-map">
-							<GeoChart data={ geoData } />
+							<GeoChart data={ geoData } ariaLabel={ mapName } />
 						</div>
 					) }
 				</div>

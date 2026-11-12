@@ -3,12 +3,12 @@
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import Emails, { EmailsList, type EmailRow } from '../render';
 import type { EmailMetric } from '../widget';
 
@@ -72,7 +72,7 @@ describe( 'EmailsList', () => {
 		const link = screen.getByRole( 'link', { name: 'Monthly newsletter' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/12' );
+		expect( url.pathname ).toBe( '/report/post/12' );
 		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
 		expect( url.searchParams.get( 'section' ) ).toBe( expectedSection );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'emails' );
@@ -80,14 +80,52 @@ describe( 'EmailsList', () => {
 	} );
 
 	it.each( [
-		[ 'opens', '420', '42%', '420 opens, 42% open rate' ],
-		[ 'clicks', '75', '7%', '75 clicks, 7% click rate' ],
-	] as const )( 'shows the %s count beside its rate', ( metric, count, rate, description ) => {
-		renderEmailsList( metric );
+		[ 'opens', '420', '42%', '420 opens, 42% open rate', 'Opens', 'Open rate' ],
+		[ 'clicks', '75', '7%', '75 clicks, 7% click rate', 'Clicks', 'Click rate' ],
+	] as const )(
+		'shows the %s count beside its rate, under their headings',
+		( metric, count, rate, description, countHeading, rateHeading ) => {
+			renderEmailsList( metric );
 
-		expect( screen.getByText( count ) ).toBeInTheDocument();
-		expect( screen.getByText( rate ) ).toBeInTheDocument();
-		expect( screen.getByText( description ) ).toBeInTheDocument();
+			expect( screen.getByText( count ) ).toBeInTheDocument();
+			expect( screen.getByText( rate ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Emails' ) ).toBeInTheDocument();
+			expect( screen.getByText( countHeading ) ).toBeInTheDocument();
+			expect( screen.getByText( rateHeading ) ).toBeInTheDocument();
+			// Screen readers hear one sentence per row, so it must stay out of the hidden figures.
+			expect(
+				screen.getByText( description, {
+					ignore: '[aria-hidden="true"], [aria-hidden="true"] *',
+				} )
+			).toBeInTheDocument();
+		}
+	);
+
+	it( 'offers the live email in a new tab beside the title', () => {
+		renderEmailsList( 'opens' );
+
+		expect(
+			screen.getByRole( 'link', { name: 'View "Monthly newsletter" in a new tab' } )
+		).toHaveAttribute( 'href', 'https://example.com/newsletter/' );
+	} );
+
+	it.each( [
+		[ 'no post ID', { link: 'https://example.com/digest/' }, 1 ],
+		[ 'no public URL', { postId: 7 }, 1 ],
+	] )( 'offers no "View" action for an email with %s', ( _case, overrides, links ) => {
+		render(
+			<WidgetRoot attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-30' } } }>
+				<EmailsList rows={ [ row( { id: 7, label: 'Digest', ...overrides } ) ] } metric="opens" />
+			</WidgetRoot>
+		);
+
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( links );
+		expect( screen.queryByRole( 'link', { name: /^View / } ) ).not.toBeInTheDocument();
+		// An empty action slot beside the label would still space it; the label holds the title alone.
+		// eslint-disable-next-line testing-library/no-node-access -- An empty slot has no accessible query target.
+		const label = screen.getByText( 'Digest' ).closest( 'li' )?.firstElementChild;
+		// eslint-disable-next-line testing-library/no-node-access -- Its child count is the check.
+		expect( label?.childElementCount ).toBe( 1 );
 	} );
 
 	it( 'keeps rows in the same order for either metric', () => {
@@ -108,23 +146,6 @@ describe( 'EmailsList', () => {
 
 		expect( labelsFor( 'opens' )[ 0 ] ).toContain( 'Newer' );
 		expect( labelsFor( 'clicks' )[ 0 ] ).toContain( 'Newer' );
-	} );
-
-	it( 'renders the rate at two decimals, trimming a trailing zero', () => {
-		render(
-			<WidgetRoot attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-30' } } }>
-				<EmailsList
-					rows={ [
-						row( { id: 1, label: 'Half a percent', opensRate: 11.5 } ),
-						row( { id: 2, label: 'Three decimals', opensRate: 3.814 } ),
-					] }
-					metric="opens"
-				/>
-			</WidgetRoot>
-		);
-
-		expect( screen.getByText( '11.5%' ) ).toBeInTheDocument();
-		expect( screen.getByText( '3.81%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows an em dash for a click rate with no attributable recipient', () => {
@@ -170,23 +191,6 @@ describe( 'EmailsList', () => {
 		expect( screen.getByText( '18,432 opens' ) ).toBeInTheDocument();
 	} );
 
-	it.each( [
-		[ 'opens', '420', '420 opens' ],
-		[ 'clicks', '75', '75 clicks' ],
-	] as const )(
-		'names the unit behind an unabbreviated %s count',
-		async ( metric, count, label ) => {
-			const user = userEvent.setup();
-			renderEmailsList( metric );
-
-			await user.hover( screen.getByText( count ) );
-
-			await expect(
-				screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-			).resolves.toHaveTextContent( label );
-		}
-	);
-
 	it( 'carries the report post ID and URL into the rendered detail link', async () => {
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-06-30',
@@ -218,9 +222,30 @@ describe( 'EmailsList', () => {
 		const link = await screen.findByRole( 'link', { name: 'API newsletter' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/71' );
+		expect( url.pathname ).toBe( '/report/post/71' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/api-newsletter/' );
 		expect( url.searchParams.get( 'section' ) ).toBe( 'email-opens' );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'emails' );
+	} );
+
+	it( 'keeps the download beside the rows a failed refetch leaves on screen', async () => {
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-30',
+			posts: [ { id: 71, title: 'API newsletter', opens: 30, total_sends: 100 } ],
+		} );
+		const { declaredAction } = renderWithActionsHost(
+			<Emails attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } } />
+		);
+		await expect(
+			screen.findByRole( 'link', { name: 'API newsletter' } )
+		).resolves.toBeInTheDocument();
+
+		mockApiFetch.mockRejectedValue( { code: 'not_found', data: { status: 404 } } );
+		await act( () => queryClient.refetchQueries() );
+		// React Query notifies its observers on the next macrotask.
+		await act( () => new Promise( resolve => setTimeout( resolve, 0 ) ) );
+
+		expect( screen.getByRole( 'link', { name: 'API newsletter' } ) ).toBeInTheDocument();
+		expect( declaredAction( 'download-csv' ) ).toBeDefined();
 	} );
 } );

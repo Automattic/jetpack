@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.1] - 2026-11-09
+### Fixed
+- Tracking pixel: Count visitors who allowed statistics when a performance plugin delays the WP Consent API script until they interact with the page. [#54520]
+
+## [0.24.0] - 2026-11-02
+### Changed
+- Abilities: get-visits takes and returns `period` and `num`, matching get-top-content and get-post-views, in place of `unit` and `quantity`. [#54227]
+- Abilities: Report counts WordPress.com could not supply as null instead of 0, and name the site that was read in every Stats reader's response. [#54231]
+- Tracking pixel: Honor the WP Consent API on every site, so visitors who have not allowed statistics cookies are not counted, and remove the honor_cookie_consent option. Without the WP Consent API plugin, tracking is unchanged. [#54187]
+
+## [0.23.2] - 2026-10-28
+### Fixed
+- Abilities: Fix the views, visitors, streak, followers, top content and post views the Stats abilities report, reject dates that do not exist, and return get-followers' `publicize` as an object. [#53385]
+
+## [0.23.1] - 2026-10-26
+### Changed
+- Internal updates.
+
+## [0.23.0] - 2026-10-12
+### Added
+- Settings: Add a method that saves the WordPress.com Reader setting, and give each settings error its HTTP status. [#53357]
+
+## [0.22.1] - 2026-10-05
+### Changed
+- Internal updates.
+
+## [0.22.0] - 2026-09-23
+### Added
+- Add a Settings class that reads and validates the Stats settings a site owner can change. [#52540]
+
 ## [0.21.1] - 2026-09-08
 ### Fixed
 - Return uncached connection errors for Stats requests with missing or rejected blog tokens so requests recover when the connection is restored. [#51998]
@@ -97,7 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.17.8] - 2026-02-02
 ### Changed
-- Update dependencies. [#39260]
+- Update dependencies.
 
 ## [0.17.7] - 2025-12-15
 ### Changed
@@ -181,7 +211,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.15.2] - 2025-02-24
 ### Changed
-- Update dependencies. [#39260]
+- Update dependencies.
 
 ## [0.15.1] - 2025-02-03
 ### Fixed
@@ -388,6 +418,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.24.1]: https://github.com/Automattic/jetpack-stats/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/Automattic/jetpack-stats/compare/v0.23.2...v0.24.0
+[0.23.2]: https://github.com/Automattic/jetpack-stats/compare/v0.23.1...v0.23.2
+[0.23.1]: https://github.com/Automattic/jetpack-stats/compare/v0.23.0...v0.23.1
+[0.23.0]: https://github.com/Automattic/jetpack-stats/compare/v0.22.1...v0.23.0
+[0.22.1]: https://github.com/Automattic/jetpack-stats/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/Automattic/jetpack-stats/compare/v0.21.1...v0.22.0
 [0.21.1]: https://github.com/Automattic/jetpack-stats/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/Automattic/jetpack-stats/compare/v0.20.4...v0.21.0
 [0.20.4]: https://github.com/Automattic/jetpack-stats/compare/v0.20.3...v0.20.4

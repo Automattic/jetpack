@@ -8,14 +8,14 @@
 	.components-button {
 
 		&:focus:not(:disabled):not(.is-primary) {
-			box-shadow: 0 0 0 2px var(--color-link, #3858e9);
+			box-shadow: 0 0 0 2px var(--wpds-color-stroke-focus);
 		}
 
 		&.is-link {
 			text-decoration: none;
 
 			&:not(:disabled) {
-				color: var(--color-link, #3858e9);
+				color: var(--wpds-color-foreground-interactive-brand);
 			}
 		}
 	}
@@ -27,7 +27,7 @@
 
 .jetpack-ai-logo-generator-modal-presenter__content {
 	border-radius: 4px;
-	background: var(--studio-gray-0, #f6f7f7);
+	background: var(--wpds-color-background-surface-neutral-weak);
 	display: flex;
 	align-items: center;
 	flex-grow: 1;
@@ -47,7 +47,7 @@
 		width: 15px;
 		height: 15px;
 		transform: rotate(-45deg);
-		background-color: var(--studio-gray-0, #f6f7f7);
+		background-color: var(--wpds-color-background-surface-neutral-weak);
 		content: "";
 		position: absolute;
 		top: -7.5px;
@@ -87,14 +87,14 @@
 .jetpack-ai-logo-generator-modal-presenter__description {
 	flex-grow: 1;
 	padding-top: 16px;
-	color: var(--studio-gray-50, #646970);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	overflow-y: auto;
 }
 
 .jetpack-ai-logo-generator-modal-presenter__actions {
 	padding-top: 16px;
 	margin-top: 16px;
-	border-top: 1px solid var(--studio-gray-5, #dcdcde);
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral);
 	display: flex;
 	gap: 24px;
 }
@@ -106,7 +106,7 @@
 	&.components-button,
 	&.components-button:hover,
 	&.components-button:active {
-		color: var(--color-link, #3858e9);
+		color: var(--wpds-color-foreground-interactive-brand);
 	}
 
 	.action-text {

@@ -6,3 +6,4 @@ import '../../packages/formatters/src/date/__tests__/format-date-range.test';
 import '../../packages/formatters/src/date/__tests__/format-date.test';
 import '../../packages/formatters/src/date/__tests__/format-hour-of-day.test';
 import '../../packages/formatters/src/date/__tests__/php-format.test';
+import '../../packages/formatters/src/metric/__tests__/store-currency.test';

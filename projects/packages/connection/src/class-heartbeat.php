@@ -127,7 +127,10 @@ class Heartbeat {
 
 		Jetpack_Options::update_option( 'last_heartbeat', time() );
 
-		$a8c_mc_stats->do_server_side_stats();
+		// Wait for each response, unlike do_server_side_stats(): a dropped heartbeat is not retried for a day.
+		foreach ( $a8c_mc_stats->get_stats_urls() as $url ) {
+			$a8c_mc_stats->do_server_side_stat( $url );
+		}
 
 		/**
 		 * Fires when we synchronize all registered options on heartbeat.

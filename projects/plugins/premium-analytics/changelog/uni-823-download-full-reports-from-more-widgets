@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Download CSV action to the Popular authors, Top links clicked, Top downloaded, Top referrers, Top searched terms, and Top videos widgets that saves the full report for the selected dates.

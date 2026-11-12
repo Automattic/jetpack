@@ -27,7 +27,11 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
-import { WidgetCanvas, withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	WidgetSizesCanvas,
+	getWidgetSizesMode,
+	withWidgetCanvas,
+} from '../../stories/with-widget-canvas';
 import EmailBreakdownRender, { MAP_MIN_WIDTH } from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
@@ -66,10 +70,15 @@ const MAP_CANVAS_WIDTH = `${ MAP_MIN_WIDTH + 2 * ( 16 + 1 ) + 48 }px`;
 
 // Widens the canvas under the same condition the widget mounts its map, so the
 // `showMap` control actually shows it instead of doing nothing in a one-column card.
-const withMapAwareWidgetCanvas: Decorator< EmailBreakdownStoryControls > = ( Story, { args } ) => (
-	<WidgetCanvas width={ args.showMap && args.view === 'countries' ? MAP_CANVAS_WIDTH : undefined }>
+const withMapAwareWidgetCanvas: Decorator< EmailBreakdownStoryControls > = ( Story, context ) => (
+	<WidgetSizesCanvas
+		mode={ getWidgetSizesMode( context ) }
+		width={
+			context.args.showMap && context.args.view === 'countries' ? MAP_CANVAS_WIDTH : undefined
+		}
+	>
 		<Story />
-	</WidgetCanvas>
+	</WidgetSizesCanvas>
 );
 
 function renderEmailBreakdown( { view, metric, showMap }: EmailBreakdownStoryControls ) {
@@ -177,8 +186,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the envelope glyph
- * and the per-view "no data yet" copy).
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: () => renderEmailBreakdownForState( 5603 ),
@@ -229,6 +237,7 @@ function EmailBreakdownDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< EmailBreakdownDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <EmailBreakdownDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

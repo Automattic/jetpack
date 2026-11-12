@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
-import { Tooltip } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useId, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Tooltip, VisuallyHidden } from '@wordpress/ui';
 import {
 	type Threat,
 	getFixerState,
@@ -9,7 +9,7 @@ import {
 	getFixerDescription,
 } from '@automattic/jetpack-scan';
 import styles from './styles.module.scss';
-import type { MouseEvent } from 'react';
+import type { JSX, MouseEvent } from 'react';
 
 /**
  * Threat Fixer Button component.
@@ -74,29 +74,44 @@ export default function ThreatFixerButton( {
 		[ onClick, threat ]
 	);
 
+	const descriptionId = useId();
+
 	if ( ! threat.fixable ) {
 		return null;
 	}
 
 	return (
 		<div>
-			<Tooltip className={ styles.tooltip } text={ tooltipText }>
-				<Button
-					size="small"
-					weight="regular"
-					variant="secondary"
-					onClick={ handleClick }
-					children={ buttonText }
-					className={ className }
-					isLoading={ fixerState.inProgress }
-					isDestructive={
-						( threat.fixable && threat.fixable.fixer === 'delete' ) ||
-						fixerState.error ||
-						fixerState.stale
+			<Tooltip.Root>
+				<Tooltip.Trigger
+					render={
+						<Button
+							size="small"
+							weight="regular"
+							variant="secondary"
+							onClick={ handleClick }
+							className={ className }
+							isLoading={ fixerState.inProgress }
+							isDestructive={
+								( threat.fixable && threat.fixable.fixer === 'delete' ) ||
+								fixerState.error ||
+								fixerState.stale
+							}
+							style={ { minWidth: '72px' } }
+							aria-describedby={ tooltipText ? descriptionId : undefined }
+						/>
 					}
-					style={ { minWidth: '72px' } }
-				/>
-			</Tooltip>
+				>
+					{ buttonText }
+				</Tooltip.Trigger>
+				<Tooltip.Popup className={ styles.tooltip }>{ tooltipText }</Tooltip.Popup>
+			</Tooltip.Root>
+			{ /* The popup is visual-only, so this carries the sentence to screen readers. */ }
+			{ tooltipText && (
+				<VisuallyHidden id={ descriptionId } render={ <span /> }>
+					{ tooltipText }
+				</VisuallyHidden>
+			) }
 		</div>
 	);
 }

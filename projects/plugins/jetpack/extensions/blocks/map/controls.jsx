@@ -41,6 +41,7 @@ const markerIcon = (
 export default ( {
 	attributes,
 	setAttributes,
+	onSetPoints,
 	apiKey,
 	apiKeySource,
 	apiKeyControl,
@@ -140,12 +141,7 @@ export default ( {
 			</PanelBody>
 			{ attributes.points.length ? (
 				<PanelBody title={ __( 'Markers', 'jetpack' ) } initialOpen={ false }>
-					<Locations
-						points={ attributes.points }
-						onChange={ value => {
-							setAttributes( { points: value } );
-						} }
-					/>
+					<Locations points={ attributes.points } onChange={ onSetPoints } />
 				</PanelBody>
 			) : null }
 			{ mapProvider === 'mapbox' ? (

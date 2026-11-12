@@ -29,19 +29,6 @@ describe( 'QrCodePreview', () => {
 		expect( screen.queryByRole( 'button', { name: 'Download' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'leaves the pending code unnamed for the second copy', () => {
-		// The canvas preview names it, so naming it here announces it twice.
-		render(
-			<QrCodePreview
-				url=""
-				className="jetpack-paypal-button__qr-canvas"
-				showPendingLabel={ false }
-			/>
-		);
-
-		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'captions the code while it is still pending', () => {
 		// The component used to render nothing without a link, so the caption went
 		// with it.

@@ -314,7 +314,9 @@ class Waf_Runtime {
 	 * @param int    $status_code Http status code.
 	 */
 	public function block( $action, $rule_id, $reason, $status_code = 403 ) {
-		if ( 'ip block list' === $reason ) {
+		// The recovery flow needs transients, `wp_salt()` and `$pagenow`, so it cannot run in
+		// standalone mode, where the WAF executes from `auto_prepend_file` before WordPress.
+		if ( 'ip block list' === $reason && defined( 'ABSPATH' ) ) {
 			$real_ip = $this->request->get_real_user_ip_address();
 
 			if ( $this->is_ip_allowed_for_recovery( $real_ip ) ) {
@@ -340,6 +342,10 @@ class Waf_Runtime {
 		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE ) {
 			$protocol = isset( $_SERVER['SERVER_PROTOCOL'] ) ? wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) : 'HTTP';
 			header( $protocol . ' 403 Forbidden', true, $status_code );
+			if ( 'ip block list' === $reason ) {
+				// Plain English: in standalone mode WordPress, and so translation, is not loaded yet.
+				die( 'Access to this site from your IP address has been blocked. If you manage this site, please log in for additional information. Otherwise, contact the site owner.' );
+			}
 			die( "rule $rule_id - reason $reason" );
 		}
 	}

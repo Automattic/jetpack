@@ -1,9 +1,13 @@
 import apiFetch from '@wordpress/api-fetch';
 import {
+	addComp,
 	addSubscribers,
 	fetchNewsletterCategories,
 	fetchSubscribedNewsletterCategories,
+	fetchSubscriberDetails,
+	fetchSubscribers,
 } from '../_inc/subscribers/data/api';
+import type { SubscribersQueryParams } from '../_inc/subscribers/data/types';
 
 jest.mock( '@wordpress/api-fetch' );
 
@@ -108,5 +112,95 @@ describe( 'addSubscribers', () => {
 		await addSubscribers( [ 'reader@example.com' ], [] );
 
 		expect( requestedOptions().data ).not.toHaveProperty( 'categories' );
+	} );
+} );
+
+describe( 'addComp', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockApiFetch.mockResolvedValue( {} );
+	} );
+
+	it( 'POSTs a user id for a subscriber with a wpcom account', async () => {
+		await addComp( { user_id: 229907063, plan_id: 51, no_expiration: true } );
+
+		expect( requestedOptions().path ).toBe( '/wpcom/v2/subscribers/comp' );
+		expect( requestedOptions().method ).toBe( 'POST' );
+		expect( requestedOptions().data ).toEqual( {
+			user_id: 229907063,
+			plan_id: 51,
+			no_expiration: true,
+		} );
+	} );
+
+	it( 'POSTs an email and no user id for an email-only subscriber', async () => {
+		await addComp( { email: 'reader@example.com', plan_id: 51 } );
+
+		expect( requestedOptions().data ).toEqual( { email: 'reader@example.com', plan_id: 51 } );
+		expect( requestedOptions().data ).not.toHaveProperty( 'user_id' );
+	} );
+} );
+
+const listQuery: SubscribersQueryParams = {
+	page: 1,
+	perPage: 20,
+	sort: 'date_subscribed',
+	sortOrder: 'desc',
+	filters: [ 'all' ],
+};
+
+const row = {
+	user_id: 1234,
+	email_address: 'reader@example.com',
+	subscription_status: 'Subscribed',
+};
+
+/**
+ * A one-row subscribers list response carrying the given subscriber fields.
+ *
+ * @param subscriber - Fields to merge into the row.
+ * @return List response.
+ */
+function listResponse( subscriber: Record< string, unknown > ) {
+	return { total: 1, pages: 1, page: 1, per_page: 20, subscribers: [ { ...row, ...subscriber } ] };
+}
+
+describe.each( [
+	[ 102030, '102030' ],
+	[ 0, '0' ],
+	[ null, '' ],
+	[ undefined, '' ],
+	[ '*', '*' ],
+] )( 'display_name %p from WP.com', ( raw, expected ) => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+	} );
+
+	it( `reaches the list as ${ JSON.stringify( expected ) }`, async () => {
+		mockApiFetch.mockResolvedValue( listResponse( { display_name: raw } ) );
+
+		const { subscribers } = await fetchSubscribers( listQuery );
+
+		expect( subscribers[ 0 ].display_name ).toBe( expected );
+	} );
+
+	it( `reaches the detail view as ${ JSON.stringify( expected ) }`, async () => {
+		mockApiFetch.mockResolvedValue( { ...row, display_name: raw } );
+
+		const subscriber = await fetchSubscriberDetails( { user_id: row.user_id } );
+
+		expect( subscriber.display_name ).toBe( expected );
+	} );
+} );
+
+describe( 'fetchSubscribers', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+	} );
+
+	it( 'tolerates a response with no subscribers array', async () => {
+		mockApiFetch.mockResolvedValue( { total: 0, pages: 0, page: 1, per_page: 20 } );
+
+		await expect( fetchSubscribers( listQuery ) ).resolves.toMatchObject( { subscribers: [] } );
 	} );
 } );

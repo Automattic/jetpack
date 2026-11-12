@@ -24,7 +24,7 @@ export type ReportCsvActionProps< Row > = Pick<
 export function ReportCsvAction< Row >( props: ReportCsvActionProps< Row > ) {
 	return (
 		<RowsCsvDownloadButton
-			label={ __( 'Download', 'jetpack-premium-analytics-pkg' ) }
+			label={ __( 'Download CSV', 'jetpack-premium-analytics-pkg' ) }
 			variant="solid"
 			showIcon={ false }
 			showLabel

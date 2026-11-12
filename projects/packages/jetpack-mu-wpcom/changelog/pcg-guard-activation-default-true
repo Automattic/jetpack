@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Plugin Conflicts Guardian: pcg_guard_activation now defaults to true, enabling the activation probe and install/update parse-error gate by default.

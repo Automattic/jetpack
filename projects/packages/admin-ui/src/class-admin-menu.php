@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Feature_Policy;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
@@ -17,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.12.1';
+	const PACKAGE_VERSION = '0.14.14';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -97,11 +98,9 @@ class Admin_Menu {
 	);
 
 	/**
-	 * Handle for the shared, token-only WPDS design-tokens stylesheet.
+	 * Handle for the bundled WPDS design-tokens stylesheet.
 	 *
-	 * Registered once and enqueued on every Jetpack admin page so that
-	 * `var(--wpds-*)` values resolve at runtime instead of falling back to
-	 * their hand-written hex defaults.
+	 * Fallback when Core/Gutenberg has not registered the `wp-theme` style.
 	 *
 	 * @var string
 	 */
@@ -213,6 +212,9 @@ class Admin_Menu {
 	public static function init() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
+			// Every plugin's admin menu comes through here, so the flag is listed wherever the shell could run.
+			Admin_Shell::register_feature_flag();
+			Admin_Shell::init();
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
@@ -238,6 +240,7 @@ class Admin_Menu {
 		self::$initialized            = false;
 		self::$top_level_initialized  = false;
 
+		remove_action( 'admin_menu', array( __CLASS__, 'take_over_akismet_menu' ), 4 );
 		remove_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 );
 		remove_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 );
 		remove_action( 'admin_menu', array( __CLASS__, 'top_level_menu_hook_callback' ), 1000 );
@@ -247,26 +250,35 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Handles the Akismet menu item when used alongside other stand-alone plugins
+	 * Registers the Akismet menu item through this class, so it sorts with the rest of the Jetpack menu.
 	 *
-	 * When Jetpack plugin is present, Akismet menu item is moved under the Jetpack top level menu, but if Akismet is active alongside other stand-alone plugins,
-	 * we use this method to move the menu item.
+	 * Akismet hooks admin_menu at priority 5 and, when the Jetpack plugin is active, defers its entry to
+	 * jetpack_admin_menu, which fires before this class registers its sorted items.
 	 */
 	private static function handle_akismet_menu() {
-		if ( class_exists( 'Akismet_Admin' ) ) {
-			add_action(
-				'admin_menu',
-				function () {
-					// Prevent Akismet from adding a menu item.
-					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
-
-					// Add an Anti-spam menu item for Jetpack.
-					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
-				},
-				4
-			);
-
+		if ( ! class_exists( 'Akismet_Admin' ) ) {
+			return;
 		}
+
+		// Initialized after priority 5, as when My Jetpack is the first caller: Akismet has already deferred.
+		if ( has_action( 'jetpack_admin_menu', array( 'Akismet_Admin', 'load_menu' ) ) ) {
+			self::take_over_akismet_menu();
+		} else {
+			add_action( 'admin_menu', array( __CLASS__, 'take_over_akismet_menu' ), 4 );
+		}
+	}
+
+	/**
+	 * Stops Akismet from adding its own menu item and queues ours in its place.
+	 *
+	 * @return void
+	 */
+	public static function take_over_akismet_menu() {
+		// Older Jetpack plugins unhook Akismet's admin_menu callback themselves and rely on this item.
+		remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		remove_action( 'jetpack_admin_menu', array( 'Akismet_Admin', 'load_menu' ) );
+
+		self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 	}
 
 	/**
@@ -412,17 +424,18 @@ class Admin_Menu {
 	 * Unlike add_menu(), the page gets neither the core-notice CSS nor the design tokens.
 	 * Parameters mirror add_menu_page(), with $args appended.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
-	 * @param string        $page_title The text to be displayed in the title tags of the page when the menu
-	 *                                  is selected.
-	 * @param string        $menu_title The text to be used for the menu.
-	 * @param string        $capability The capability required for this menu to be displayed to the user.
-	 * @param string        $menu_slug  The slug name to refer to this menu by. Should be unique for this menu.
-	 * @param callable|null $function   The function to be called to output the content for this page.
-	 * @param string        $icon_url   The URL to the icon to be used for this menu, or a dashicons class.
-	 * @param int|null      $position   The position in the menu order this item should appear.
-	 * @param array         $args       Optional. Visibility declaration for this item; see add_menu().
+	 * @param string         $page_title The text to be displayed in the title tags of the page when the menu
+	 *                                   is selected.
+	 * @param string         $menu_title The text to be used for the menu.
+	 * @param string         $capability The capability required for this menu to be displayed to the user.
+	 * @param string         $menu_slug  The slug name to refer to this menu by. Should be unique for this menu.
+	 * @param callable|null  $function   The function to be called to output the content for this page.
+	 * @param string         $icon_url   The URL to the icon to be used for this menu, or a dashicons class.
+	 * @param int|float|null $position   The position in the menu order this item should appear, as
+	 *                                   add_menu_page() takes it.
+	 * @param array          $args       Optional. Visibility declaration for this item; see add_menu().
 	 *
 	 * @return string The resulting page's hook_suffix
 	 */
@@ -473,19 +486,22 @@ class Admin_Menu {
 
 		/**
 		 * Let's return the page hook so consumers can use.
-		 * We know all pages will be under Jetpack top level menu page, so we can hardcode the first part of the string.
+		 * Pages normally sit under the Jetpack top level menu page, so we can hardcode the first part of the string.
 		 * Using get_plugin_page_hookname here won't work because the top level page is not registered yet.
 		 */
 		$hook = 'jetpack_page_' . $menu_slug;
 
-		// Track the page hook so the design-tokens stylesheet can be scoped to it.
-		self::$page_hooks[] = $hook;
+		// Core names the page admin_page_<slug> instead when the user has no Jetpack top-level menu.
+		foreach ( array( $hook, 'admin_page_' . $menu_slug ) as $page_hook ) {
+			// Track the page hook so the design-tokens stylesheet can be scoped to it.
+			self::$page_hooks[] = $page_hook;
 
-		// Hide WordPress core admin notices on this Jetpack page. The load-<hook>
-		// action only fires when the matching screen is being rendered, so this
-		// stays scoped to Jetpack pages and reaches every page registered here.
-		add_action( 'load-' . $hook, array( __CLASS__, 'hide_core_admin_notices' ) );
-		add_action( 'load-' . $hook . '-network', array( __CLASS__, 'hide_core_admin_notices' ) );
+			// Hide WordPress core admin notices on this Jetpack page. The load-<hook>
+			// action only fires when the matching screen is being rendered, so this
+			// stays scoped to Jetpack pages and reaches every page registered here.
+			add_action( 'load-' . $page_hook, array( __CLASS__, 'hide_core_admin_notices' ) );
+			add_action( 'load-' . $page_hook . '-network', array( __CLASS__, 'hide_core_admin_notices' ) );
+		}
 
 		return $hook;
 	}
@@ -608,6 +624,11 @@ class Admin_Menu {
 	 * @return array Map of item key to one of the VISIBILITY_* states.
 	 */
 	private static function get_visibility_states() {
+		// This filter is one a policy feeds, and nothing else need have read the policy this request.
+		if ( method_exists( Feature_Policy::class, 'ensure_hooks' ) ) {
+			Feature_Policy::ensure_hooks();
+		}
+
 		$states = array();
 		$items  = array_merge( self::$menu_items, self::$top_level_items );
 
@@ -620,11 +641,13 @@ class Admin_Menu {
 		 *
 		 * Governs the sidebar entry only — a hidden item's page stays reachable by URL, so this
 		 * is not an access control. States: 'default' follows the item's feature, 'visible' shows it, 'hidden' removes it.
+		 * `jetpack_feature_policy` runs after this. Item keys and examples:
+		 * https://github.com/Automattic/jetpack/blob/trunk/projects/packages/admin-ui/README.md#host-control
 		 *
 		 * @since 0.12.0
 		 *
 		 * @param array $states     Map of item key (menu slug unless the item declared one) to state.
-		 * @param array $menu_items The registered menu items, for context.
+		 * @param array $menu_items The registered menu items, each with its menu_slug, capability, and args.
 		 */
 		$states = apply_filters( 'jetpack_admin_menu_visibility', $states, $items );
 
@@ -916,29 +939,30 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Enqueues the shared, token-only WPDS design-tokens stylesheet.
+	 * Enqueues WPDS design tokens so `var(--wpds-*)` values resolve at runtime.
 	 *
-	 * Single entry point for any consumer that needs WPDS `var(--wpds-*)` values
-	 * to resolve at runtime on a Jetpack admin page. Registers the handle on
-	 * first use (idempotent) and enqueues it; the caller is responsible for
-	 * scoping the call to the right page(s). Since admin-ui is a dependency of
-	 * the Jetpack plugin and the modernized packages, both the plugin's
-	 * legacy/wrap_ui gate and this package's own dashboards call through here,
-	 * so the handle has a single owner and there is no duplicated enqueue logic.
+	 * Prefer Core/Gutenberg's `wp-theme` style when registered; otherwise ship
+	 * the bundled copy. The caller scopes the call to the right page(s).
 	 *
 	 * @return void
 	 */
 	public static function enqueue_design_tokens() {
+		// Registered since WP 7.1 (and by Gutenberg):
+		// https://make.wordpress.org/core/2026/07/31/design-system-theming-in-wordpress-7-1/
+		if ( wp_style_is( 'wp-theme', 'registered' ) ) {
+			wp_enqueue_style( 'wp-theme' );
+			return;
+		}
+
+		// @todo Remove this, the called function, and the webpack entrypoint it registers when WP 7.1 is the minimum version.
 		self::register_design_tokens_style();
 		wp_enqueue_style( self::DESIGN_TOKENS_HANDLE );
 	}
 
 	/**
-	 * Registers the shared, token-only WPDS design-tokens stylesheet.
+	 * Registers the bundled, token-only WPDS design-tokens stylesheet.
 	 *
-	 * The stylesheet only defines `:root{--wpds-*}` custom properties (no
-	 * component or class styles), giving every Jetpack admin page a single
-	 * runtime source for design tokens. It is safe to call repeatedly:
+	 * Used only when `wp-theme` is not registered. Safe to call repeatedly:
 	 * wp_register_style() is a no-op once the handle is registered.
 	 *
 	 * @return void

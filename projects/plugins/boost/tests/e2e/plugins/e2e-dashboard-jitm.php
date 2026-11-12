@@ -25,10 +25,18 @@ add_filter(
 	}
 );
 
+// JITM stays off in offline mode, so go online only for the Boost page and the JITM REST routes.
 add_filter(
 	'jetpack_offline_mode',
 	function ( $offline ) {
-		if ( ! ( defined( 'WP_CLI' ) && WP_CLI ) && get_option( 'e2e_boost_dashboard_jitm', false ) ) {
+		if ( ! get_option( 'e2e_boost_dashboard_jitm', false ) ) {
+			return $offline;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+		$uri  = isset( $_SERVER['REQUEST_URI'] ) ? rawurldecode( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) : '';
+		if ( ( is_admin() && 'jetpack-boost' === $page ) || preg_match( '#/(jetpack/v4|wpcom/v3)/jitm\b#', $uri ) ) {
 			return false;
 		}
 		return $offline;

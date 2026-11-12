@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -86,7 +87,10 @@ export default function useDeviceViews( {
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsDevices( statsParams, { maxRows: max } );
 
-	const items = ( comparisonRows?.rows ?? [] ).map( toDeviceView );
+	const items = useMemo(
+		() => ( comparisonRows?.rows ?? [] ).map( toDeviceView ),
+		[ comparisonRows ]
+	);
 
 	// The Stats queries carry `placeholderData: previousData => previousData`, so a
 	// failed range change keeps the prior period's rows in `data` while `isError`

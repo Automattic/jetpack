@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { ChartScopeContext } from '../../../../providers/chart-scope';
 import { withResponsive } from '../index';
 import type { BaseChartProps } from '../../../../types';
+import type { JSX } from 'react';
 
 // Mock the useParentSize hook
 jest.mock( '@visx/responsive', () => ( {
@@ -39,6 +40,15 @@ describe( 'withResponsive', () => {
 		} );
 	} );
 
+	// Restored on its own, not through jest.restoreAllMocks(), which would also detach the
+	// console spies the shared setup installs and leave later tests here without that guard.
+	let clientRectsSpy: jest.SpyInstance | null = null;
+	const mockClientRects = ( rects: DOMRect[] ) => {
+		clientRectsSpy = jest
+			.spyOn( Element.prototype, 'getClientRects' )
+			.mockReturnValue( rects as unknown as DOMRectList );
+	};
+
 	// Fully clear the mock (queued returns and implementation) after each test, then
 	// re-establish the default implementation, so a per-test override can't bleed
 	// into the next test.
@@ -46,6 +56,8 @@ describe( 'withResponsive', () => {
 		mockClientHeight = 0;
 		useParentSize.mockReset();
 		useParentSize.mockImplementation( () => DEFAULT_SIZE );
+		clientRectsSpy?.mockRestore();
+		clientRectsSpy = null;
 	} );
 
 	describe( 'component dimensions', () => {
@@ -116,6 +128,125 @@ describe( 'withResponsive', () => {
 			} ) );
 			render( <ResponsiveComponent data={ [] } /> );
 			expect( objectRef.current ).toBe( screen.getByTestId( 'responsive-wrapper' ) );
+		} );
+	} );
+
+	describe( 'first paint', () => {
+		const UNMEASURED = { parentRef: () => {}, width: 0, height: 0 };
+		// Waiting is the default, which a chart that lays itself out from its own content turns off.
+		const WaitingComponent = ResponsiveComponent;
+		const SelfLayingOutComponent = withResponsive( MockComponent, { waitForSize: false } );
+
+		test( 'renders a chart that lays itself out before any measurement', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			render( <SelfLayingOutComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders no waiting chart until the parent is measured, and keeps the wrapper in place', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			render( <WaitingComponent data={ [] } /> );
+			expect( screen.queryByTestId( 'mock-component' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'responsive-wrapper' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders at the measured size once the measurement lands', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			const { rerender } = render( <WaitingComponent data={ [] } /> );
+
+			useParentSize.mockImplementation( () => DEFAULT_SIZE );
+			rerender( <WaitingComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '600px',
+				height: '300px',
+			} );
+		} );
+
+		test( 'renders before any measurement when width and height are explicit', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			render( <WaitingComponent data={ [] } width={ 200 } height={ 120 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '200px',
+				height: '120px',
+			} );
+		} );
+
+		test( 'renders before any measurement when an aspectRatio derives the height from an explicit width', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			render( <WaitingComponent data={ [] } width={ 500 } aspectRatio={ 0.5 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '500px',
+				height: '250px',
+			} );
+		} );
+
+		test( 'renders before any measurement when the chart carries its own size', () => {
+			// Revealing a hidden chart into a shrink-to-fit parent changes no observed size, so
+			// one that waits here gets no later render in which to give up waiting.
+			useParentSize.mockImplementation( () => UNMEASURED );
+			render( <WaitingComponent data={ [] } size={ 200 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveAttribute( 'data-size', '200' );
+		} );
+
+		// Ahead of the test below, which spends the one no-height warning warnOnce allows per process.
+		test( 'says nothing about a height the chart supplies itself', () => {
+			const SelfHeightComponent = withResponsive( MockComponent, { derivesOwnHeight: true } );
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 0,
+			} ) );
+			render( <SelfHeightComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
+			expect( console ).not.toHaveWarned();
+		} );
+
+		test( 'renders in a parent with no definite height, which reports a width alone', () => {
+			// Waiting for that parent's height would hold the chart back for good, and one
+			// that grows from its own content would never get a height to report.
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 0,
+			} ) );
+			render( <WaitingComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '600px',
+				height: '0px',
+			} );
+			expect( console ).toHaveWarned();
+		} );
+
+		test( 'draws anyway in a laid-out wrapper that measures 0, which can never report', () => {
+			// A shrink-to-fit parent takes its width from the wrapper, so waiting would pin the
+			// width at 0 and wait on itself. The wrapper has a box, unlike a hidden one.
+			useParentSize.mockImplementation( () => UNMEASURED );
+			mockClientRects( [ new DOMRect() ] );
+
+			render( <WaitingComponent data={ [] } /> );
+
+			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
+			expect( console ).toHaveWarned();
+		} );
+
+		test( 'keeps waiting when the wrapper has no box at all, as under display: none', () => {
+			useParentSize.mockImplementation( () => UNMEASURED );
+			mockClientRects( [] );
+
+			render( <WaitingComponent data={ [] } /> );
+
+			expect( screen.queryByTestId( 'mock-component' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'stays mounted when an ancestor hides the chart and it measures 0 again', () => {
+			const { rerender } = render( <WaitingComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
+
+			// display: none measures 0×0; unmounting there would drop the chart's zoom and
+			// series state and re-run its entry animation on the way back.
+			useParentSize.mockImplementation( () => UNMEASURED );
+			rerender( <WaitingComponent data={ [] } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toBeInTheDocument();
 		} );
 	} );
 

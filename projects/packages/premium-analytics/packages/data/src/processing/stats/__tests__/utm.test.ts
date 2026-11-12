@@ -115,27 +115,6 @@ describe( 'Stats UTM normalizer', () => {
 		} );
 	} );
 
-	it( 'returns no children for an empty top posts object', () => {
-		const result = sanitizeStatsUtmResponse(
-			{
-				top_utm_values: {
-					direct: 7,
-				},
-				top_posts: {},
-			},
-			{ date: '2026-06-16' }
-		);
-
-		expect( result.data[ 0 ].items ).toEqual( [
-			{
-				label: 'direct',
-				value: 7,
-				paramValues: 'direct',
-				children: null,
-			},
-		] );
-	} );
-
 	it( 'keeps param values when top posts are null', () => {
 		const result = sanitizeStatsUtmResponse(
 			{
@@ -152,30 +131,6 @@ describe( 'Stats UTM normalizer', () => {
 				label: 'direct',
 				value: 7,
 				paramValues: 'direct',
-				children: null,
-			},
-		] );
-	} );
-
-	it( 'keeps param values when top post queries are disabled', () => {
-		const result = sanitizeStatsUtmResponse(
-			{
-				top_utm_values: {
-					'["newsletter","email"]': 24,
-				},
-			},
-			{
-				date: '2026-06-16',
-				query_top_posts: false,
-				utm_param: 'utm_source,utm_medium',
-			}
-		);
-
-		expect( result.data[ 0 ].items ).toEqual( [
-			{
-				label: 'newsletter / email',
-				value: 24,
-				paramValues: '["newsletter","email"]',
 				children: null,
 			},
 		] );

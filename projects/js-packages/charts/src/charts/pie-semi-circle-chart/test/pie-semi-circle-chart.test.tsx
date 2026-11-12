@@ -96,7 +96,7 @@ describe( 'PieSemiCircleChart', () => {
 
 		await user.hover( firstSegment );
 
-		// Wait for tooltip to be visible - it should show in the BaseTooltip component
+		// Wait for tooltip to be visible - it should show the default label: value content
 		const tooltip = await screen.findByRole( 'tooltip' );
 		expect( tooltip ).toHaveTextContent( 'MacOS' );
 
@@ -363,6 +363,60 @@ describe( 'PieSemiCircleChart', () => {
 	} );
 } );
 
+describe( 'PieSemiCircleChart keyboard navigation', () => {
+	it( 'names the focusable chart', () => {
+		renderPieChart( { data: mockData } );
+		expect( screen.getByRole( 'application', { name: 'Semi-circle chart' } ) ).toHaveAttribute(
+			'tabindex',
+			'0'
+		);
+	} );
+
+	it( 'starts at the leftmost segment, which is the largest value', async () => {
+		const user = userEvent.setup();
+		renderPieChart( { data: mockData, withTooltips: true } );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
+			'Category B'
+		);
+		expect( screen.getByTestId( 'pie-selected-ring' ) ).toHaveAttribute(
+			'd',
+			screen.getAllByTestId( 'pie-segment' )[ 1 ].getAttribute( 'd' )
+		);
+	} );
+
+	it( 'clears the selection when new values reorder the segments', async () => {
+		const user = userEvent.setup();
+		const { rerender } = renderPieChart( { data: mockData, withTooltips: true } );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
+			'Category B'
+		);
+
+		rerender(
+			<GlobalChartsProvider>
+				<PieSemiCircleChart
+					data={ [
+						{ ...mockData[ 0 ], value: 70 },
+						{ ...mockData[ 1 ], value: 30 },
+					] }
+					withTooltips
+				/>
+			</GlobalChartsProvider>
+		);
+
+		await waitFor( () =>
+			expect( screen.queryByTestId( 'pie-selected-ring' ) ).not.toBeInTheDocument()
+		);
+		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+	} );
+} );
+
 // Chart container at (100, 50); the tooltip box measures 120x40. Everything
 // else the charts measure (wrapper, clipping lookups) reports the container.
 const mockRects = () =>
@@ -410,5 +464,44 @@ describe( 'PieSemiCircleChart tooltip position', () => {
 		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
 			transform: 'translate(60px, 65px)',
 		} );
+	} );
+} );
+
+describe( 'PieSemiCircleChart segment labels', () => {
+	it( 'names every segment, so the application container is not empty', () => {
+		renderPieChart( { data: mockData } );
+
+		expect( screen.getByRole( 'img', { name: 'Category A: 30%' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'img', { name: 'Category B: 70%' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'names a segment by its share, whatever units the value carries', () => {
+		renderPieChart( {
+			data: [
+				{ label: 'Desktop', value: 0.867 },
+				{ label: 'Mobile', value: 0.133 },
+			],
+		} );
+
+		expect( screen.getByRole( 'img', { name: 'Desktop: 86.7%' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'names a segment by its label alone when the legend states no figure', () => {
+		renderPieChart( { data: mockData, legendValueDisplay: 'none' } );
+
+		expect( screen.getByRole( 'img', { name: 'Category A' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'names a segment with the figure its legend entry shows', () => {
+		renderPieChart( {
+			data: [
+				{ label: 'Desktop', value: 3, valueDisplay: '3K' },
+				{ label: 'Mobile', value: 1, valueDisplay: '1K' },
+			],
+			legendValueDisplay: 'valueDisplay',
+		} );
+
+		expect( screen.getByRole( 'img', { name: 'Desktop: 3K' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'img', { name: 'Mobile: 1K' } ) ).toBeInTheDocument();
 	} );
 } );

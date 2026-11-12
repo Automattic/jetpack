@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats: Only show the site-name admin bar link when the Stats module is active.

@@ -24,7 +24,6 @@ import {
 	type ReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscriberHighlightsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -61,7 +60,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Subscriber highlights" widget, ported from the Jetpack Stats Subscribers "All-time stats" card. Shows all-time subscribers from `useStatsSubscribersCounts`. A site with paid subscribers also sees paid and free subscribers; any other site sees the subscriber count 30, 60, and 90 days ago from `useStatsSubscribersDaysAgo`. Social followers join either set on any site that has some, and the tile is hidden rather than showing zero. The counts do not follow the dashboard date range. In Storybook, `registerReportMocks()` serves every endpoint, with no paid subscribers by default.',
+					'The "Subscriber highlights" widget, ported from the Jetpack Stats Subscribers "All-time stats" card. Shows all-time subscribers from `useStatsSubscribersCounts`. A site with paid subscribers also sees paid and free subscribers, and all three show their change since the `stats/subscribers` count 30 days ago; any other site sees the subscriber count 30, 60, and 90 days ago from `useStatsSubscribersDaysAgo`. Social followers join either set on any site that has some, and the tile is hidden rather than showing zero. The counts do not follow the dashboard date range. In Storybook, `registerReportMocks()` serves every endpoint, with no paid subscribers by default.',
 			},
 		},
 	},
@@ -73,7 +72,7 @@ type Story = StoryObj< PaidSubscribersControls >;
 
 /**
  * The widget on its own. Turn on "Has paid subscribers" to swap the 30, 60 and
- * 90 days ago tiles for the paid and free breakdown.
+ * 90 days ago tiles for the paid and free breakdown with a 30-day change.
  */
 export const Default: Story = {
 	render: renderSubscriberHighlights,
@@ -102,7 +101,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved without counts: the widget shows its empty state.
+ * Resolved without counts: every tile shows its placeholder.
  */
 export const Empty: Story = {
 	render: renderSubscriberHighlights,
@@ -120,7 +119,7 @@ function SubscriberHighlightsDashboardStory(
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ SUBSCRIBER_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={
 				SubscriberHighlightsRender as ComponentType< WidgetRenderProps< unknown > >
@@ -131,6 +130,7 @@ function SubscriberHighlightsDashboardStory(
 }
 
 export const WidgetDashboardWithWidget: StoryObj< SubscriberHighlightsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <SubscriberHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

@@ -149,13 +149,19 @@ function plainBox( sides ) {
 }
 
 /**
- * The chosen width, with its unit.
+ * Width, for the button card or the QR frame.
+ *
+ * max-width keeps a set Width inside its container. With no Width the
+ * stylesheet sizes the element. Mirrors get_width_rules() in
+ * class-paypal-payment-buttons.php.
  *
  * @param {object} attributes - The block attributes.
- * @return {string} The width, or '' when none is set.
+ * @return {object} A React style object, empty when none is set.
  */
-function chosenWidth( attributes ) {
-	return plainLength( attributes.blockWidth );
+export function getWidthStyle( attributes = {} ) {
+	const width = plainLength( attributes.blockWidth );
+
+	return width ? { width, maxWidth: '100%' } : {};
 }
 
 /**
@@ -173,9 +179,8 @@ export function isOutlineButton( attributes = {} ) {
 /**
  * Margin, from the Border Settings panel.
  *
- * The button card and the QR card take this and nothing else — Width and Border
- * go on the button or the QR frame. A QR-to-BUTTON format switch can leave a
- * margin behind, so the card keeps reading it.
+ * Only the QR card takes this. Width and Border go on the frame inside it.
+ * Margin is a QR-only control, so the button card drops a margin left over from QR.
  *
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
@@ -213,19 +218,14 @@ function getBorderStyle( attributes ) {
 }
 
 /**
- * Width and Border, for whichever element the format puts them on — the
- * checkout button or the QR frame. Mirrors get_width_and_border_rules().
+ * Width and Border, for the QR frame. Mirrors get_width_and_border_rules().
  *
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
  */
 export function getWidthAndBorderStyle( attributes = {} ) {
-	// max-width keeps a set Width inside the card. With no Width the stylesheet
-	// sizes the element.
-	const width = chosenWidth( attributes );
-
 	return {
-		...( width ? { width, maxWidth: '100%' } : {} ),
+		...getWidthStyle( attributes ),
 		...getBorderStyle( attributes ),
 	};
 }
@@ -311,8 +311,7 @@ export function getButtonStyle( attributes = {} ) {
 	return {
 		...getTextStyle( buttonTextColor, buttonFontSize ),
 		...( background ? { backgroundColor: background } : {} ),
-		// Width and Border go on the button, not the product card — see
-		// getMarginStyle().
-		...getWidthAndBorderStyle( attributes ),
+		// Width goes on the card around the button, see getWidthStyle().
+		...getBorderStyle( attributes ),
 	};
 }

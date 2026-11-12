@@ -6,7 +6,9 @@ import { useAllProducts } from '../../data/products/use-all-products';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectSite from '../../hooks/use-connect-site';
+import useForcedOffReason from '../../hooks/use-forced-off-reason';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { productsFrom } from '../../utils/connect-url';
 import ActionButton from '../action-button';
 import SecondaryButton from '../action-button/secondary-button';
 import Card from '../card';
@@ -75,6 +77,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		data: { ownedProducts },
 	} = useProductsByOwnership();
 	const isOwned = ownedProducts?.includes( slug );
+	const isForcedOff = !! useForcedOffReason( slug, status ).reason;
 
 	const isError =
 		status === PRODUCT_STATUSES.EXPIRED || status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR;
@@ -99,11 +102,13 @@ const ProductCard: FC< ProductCardProps > = props => {
 	const [ isActionLoading, setIsActionLoading ] = useState( false );
 	const { recordEvent } = useAnalytics();
 	const { siteIsRegistering, isUserConnected } = useMyJetpackConnection();
+	const connectFrom = productsFrom( slug );
 	const { connectSite } = useConnectSite( {
 		tracksInfo: {
 			event: `jetpack_myjetpack_product_card_fix_site_connection`,
-			properties: {},
+			properties: { from: connectFrom },
 		},
+		from: connectFrom,
 	} );
 	const isLoading =
 		isActionLoading || ( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
@@ -224,7 +229,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 						suppressNeedsAttention={ slug === 'protect' }
 					/>
 					{ admin && (
-						<div className={ styles.buttons }>
+						<div className={ clsx( styles.buttons, isForcedOff && styles[ 'is-forced-off' ] ) }>
 							{ secondaryAction && secondaryAction?.positionFirst && (
 								<SecondaryButton { ...secondaryAction } />
 							) }

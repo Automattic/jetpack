@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.8.0';
+	const PACKAGE_VERSION = '0.8.5';
 
 	/**
 	 * Singleton.
@@ -310,7 +310,7 @@ final class Image_CDN {
 	public static function parse_dimensions_from_filename( $src ) {
 		$width_height_string = array();
 
-		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode( '|', self::$extensions ) . '){1}(?:\?.*)?$#i', $src, $width_height_string ) ) {
+		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode( '|', self::$extensions ) . '){1}(?:[?\#].*)?$#i', $src, $width_height_string ) ) {
 			$width  = (int) $width_height_string[1];
 			$height = (int) $width_height_string[2];
 
@@ -586,7 +586,7 @@ final class Image_CDN {
 				}
 
 				// Detect if image source is for a custom-cropped thumbnail and prevent further URL manipulation.
-				if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode( '|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) ) {
+				if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode( '|', self::$extensions ) . '){1}$#i', basename( substr( $src, 0, strcspn( $src, '?#' ) ) ), $filename ) ) {
 					$fullsize_url = true;
 				}
 
@@ -844,7 +844,11 @@ final class Image_CDN {
 
 					if ( isset( $image_meta['width'] ) && isset( $image_meta['height'] ) ) {
 						$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $image_args['width'], $image_args['height'], $image_args['crop'] );
-						if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
+						if (
+							$image_resized // This could be false when the requested image size is larger than the full-size image.
+							&& isset( $image_resized[6] ) // This key can be manipulated by the `image_resize_dimensions` filter
+							&& isset( $image_resized[7] ) // This key can be manipulated by the `image_resize_dimensions` filter
+						) {
 							$image_meta['width']  = $image_resized[6];
 							$image_meta['height'] = $image_resized[7];
 						}
@@ -1086,7 +1090,7 @@ final class Image_CDN {
 
 			foreach ( $multipliers as $multiplier ) {
 
-				$newwidth = $base * $multiplier;
+				$newwidth = (int) round( $base * $multiplier );
 				foreach ( $currentwidths as $currentwidth ) {
 					// If a new width would be within 100 pixes of an existing one or larger than the full size image, skip.
 					if ( abs( $currentwidth - $newwidth ) < 50 || ( $newwidth > $fullwidth ) ) {
@@ -1251,18 +1255,26 @@ final class Image_CDN {
 	 * @return string
 	 **/
 	public static function strip_image_dimensions_maybe( $src ) {
-		$stripped_src = $src;
+		// Match on the path alone, so a size URL with a query string (e.g. `?ver=2`) is stripped too; the query is kept.
+		$path_length = strcspn( $src, '?#' );
+		$path        = substr( $src, 0, $path_length );
 
 		// Build URL, first removing WP's resized string so we pass the original image to Photon.
-		if ( preg_match( '#(-\d+x\d+)\.(' . implode( '|', self::$extensions ) . '){1}$#i', $src, $src_parts ) ) {
-			$stripped_src = str_replace( $src_parts[1], '', $src );
-			$upload_dir   = wp_get_upload_dir();
+		if ( preg_match( '#(-\d+x\d+)\.(' . implode( '|', self::$extensions ) . '){1}$#i', $path, $src_parts ) ) {
+			$stripped_path = str_replace( $src_parts[1], '', $path );
+			$upload_dir    = wp_get_upload_dir();
+
+			// Only uploads have an original on disk; an off-site URL shorter than the base URL
+			// would otherwise give an empty path, and file_exists() would find the uploads directory.
+			if ( ! str_starts_with( $stripped_path, $upload_dir['baseurl'] ) ) {
+				return $src;
+			}
 
 			// Extracts the file path to the image minus the base url.
-			$file_path = substr( $stripped_src, strlen( $upload_dir['baseurl'] ) );
+			$file_path = substr( $stripped_path, strlen( $upload_dir['baseurl'] ) );
 
 			if ( file_exists( $upload_dir['basedir'] . $file_path ) ) {
-				$src = $stripped_src;
+				$src = $stripped_path . substr( $src, $path_length );
 			}
 		}
 
@@ -1368,7 +1380,7 @@ final class Image_CDN {
 	 * @return null|\WP_Error The original response object without modification.
 	 */
 	public function should_rest_photon_image_downsize( $response, $endpoint_data, $request ) {
-		if ( ! is_a( $request, '\WP_REST_Request' ) ) {
+		if ( ! $request instanceof \WP_REST_Request ) {
 			return $response; // Something odd is happening. Do nothing and return the response.
 		}
 
@@ -1418,11 +1430,6 @@ final class Image_CDN {
 	 * @param \WP_REST_Request $request    Request object.
 	 */
 	public function should_rest_photon_image_downsize_insert_attachment( \WP_Post $attachment, \WP_REST_Request $request ) {
-		if ( ! is_a( $request, '\WP_REST_Request' ) ) {
-			// Something odd is happening.
-			return;
-		}
-
 		$this->should_rest_photon_image_downsize_override( $request );
 	}
 

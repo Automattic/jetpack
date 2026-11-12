@@ -1,7 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ProgressBar, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Progress } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { FormLegend, FormFieldset } from 'components/forms';
@@ -31,6 +32,14 @@ class Media extends Component {
 		this.props.updateOptions( {
 			videopress_private_enabled_for_site: ! this.props.getOptionValue(
 				'videopress_private_enabled_for_site'
+			),
+		} );
+	};
+
+	toggleShareMenuSetting = () => {
+		this.props.updateOptions( {
+			videopress_share_menu_disabled: ! this.props.getOptionValue(
+				'videopress_share_menu_disabled'
 			),
 		} );
 	};
@@ -88,7 +97,14 @@ class Media extends Component {
 				</p>
 				{ shouldDisplayStorage && (
 					<div className="media__videopress-storage">
-						<ProgressBar value={ Math.min( ( videoPressStorageUsed / 1000000 ) * 100, 100 ) } />
+						<Progress.Root
+							aria-label={ __( 'VideoPress storage', 'jetpack' ) }
+							value={ Math.min( ( videoPressStorageUsed / 1000000 ) * 100, 100 ) }
+						>
+							<Progress.Track className="media__videopress-storage-track">
+								<Progress.Indicator />
+							</Progress.Track>
+						</Progress.Root>
 						<span>
 							{ createInterpolateElement(
 								sprintf(
@@ -129,6 +145,21 @@ class Media extends Component {
 								label={
 									<span className="jp-form-toggle-explanation">
 										{ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
+									</span>
+								}
+							/>
+							<ToggleControl
+								__nextHasNoMarginBottom
+								id="videopress-share-menu"
+								disabled={
+									! this.props.getOptionValue( 'videopress' ) ||
+									this.props.isSavingAnyOption( 'videopress_share_menu_disabled' )
+								}
+								checked={ ! this.props.getOptionValue( 'videopress_share_menu_disabled' ) }
+								onChange={ this.toggleShareMenuSetting }
+								label={
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Video Sharing: Allow each video to show its share menu', 'jetpack' ) }
 									</span>
 								}
 							/>

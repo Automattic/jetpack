@@ -29,6 +29,7 @@ jest.mock( '@automattic/jetpack-connection', () => {
 	);
 
 	return {
+		CONNECTION_FROM: { myJetpackNoticeReconnect: 'my_jetpack_notice_reconnect' },
 		useConnectionErrorNotice: jest.fn(),
 		getReconnectErrorMessage: jest.fn(
 			( error: string ) => `There was an error reconnecting Jetpack. Error: ${ error }`
@@ -42,6 +43,9 @@ jest.mock( '@automattic/jetpack-connection', () => {
 	};
 } );
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getMyJetpackUrl: () => 'https://example.com/wp-admin/admin.php?page=my-jetpack',
+} ) );
 jest.mock( '../../use-analytics' );
 jest.mock( '../assignLocation' );
 
@@ -139,6 +143,8 @@ describe( 'useConnectionErrorsNotice', () => {
 		connectionError: undefined,
 		connectionErrors: {},
 		actions: [],
+		trackNoticeLinkClick: jest.fn(),
+		trackSupportLinkClick: jest.fn(),
 		restoreConnection: mockRestoreConnection,
 		isRestoringConnection: false,
 		restoreConnectionError: null,
@@ -177,14 +183,17 @@ describe( 'useConnectionErrorsNotice', () => {
 		expect( mockSetNotice ).not.toHaveBeenCalled();
 	} );
 
-	it( 'passes My Jetpack tracking/navigation wiring to the owner hook', () => {
+	it( 'passes My Jetpack tracking, navigation and reconnect wiring to the owner hook', () => {
 		renderWithNoticeContext();
 
 		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				navigate: assignLocation,
-				reconnectTrackingEvent: 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click',
+				trackingContext: 'my-jetpack',
+				trackingPlacement: 'page_notice',
 				trackingCallback: expect.any( Function ),
+				reconnectFrom: 'my_jetpack_notice_reconnect',
+				reconnectRedirectUrl: 'https://example.com/wp-admin/admin.php?page=my-jetpack',
 			} )
 		);
 	} );
@@ -239,6 +248,24 @@ describe( 'useConnectionErrorsNotice', () => {
 			tracksArgs: { error_count: 1, error_code: null, audience: 'site' },
 		} );
 		expect( getNoticeText() ).toContain( 'Connection failed' );
+	} );
+
+	it( 'takes the notice level from the severity the package rated', async () => {
+		setHookResult( {
+			...noError,
+			hasConnectionError: true,
+			severity: 'warning',
+			connectionErrorMessage: 'Connection failed',
+			connectionError: { error_message: 'Connection failed' },
+		} );
+
+		renderWithNoticeContext();
+
+		await waitFor( () => {
+			expect( mockSetNotice ).toHaveBeenCalled();
+		} );
+
+		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.level ).toBe( 'warning' );
 	} );
 
 	it( 'shows every displayable error, not just the effective one', async () => {

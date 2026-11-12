@@ -1,29 +1,35 @@
 import { useAiFeature } from '@automattic/jetpack-ai-client';
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { Tooltip, VisuallyHidden } from '@wordpress/ui';
 import { useSectionHasDraft } from '../hooks/use-drafts';
 import { suggestGuidelines } from '../lib/api';
 import { readSectionDraft } from '../lib/drafts';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
-export default function SectionGenerateButton( { slug } ) {
+export default function SectionGenerateButton( { slug, isShortLabel = false } ) {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startSectionLoading, stopSectionLoading, setSuggestion, showUpgradeNotice } =
 		useDispatch( AI_STORE_NAME );
 	const { hasFeature } = useAiFeature();
+	const descriptionId = useId();
 
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
 		[ slug ]
 	);
 	const isEmpty = ! useSectionHasDraft( slug );
-	const generateLabel = __( 'Generate guidelines', 'jetpack' );
-	const improveLabel = __( 'Improve guidelines', 'jetpack' );
+	const generateLabel = isShortLabel
+		? __( 'Generate', 'jetpack' )
+		: __( 'Generate guidelines', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+	const improveLabel = isShortLabel
+		? __( 'Improve', 'jetpack' )
+		: __( 'Improve guidelines', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 	const label = isEmpty ? generateLabel : improveLabel;
 
 	const handleClick = useCallback( async () => {
@@ -75,6 +81,7 @@ export default function SectionGenerateButton( { slug } ) {
 			onClick={ handleClick }
 			disabled={ sectionLoading }
 			accessibleWhenDisabled
+			aria-describedby={ hasFeature ? undefined : descriptionId }
 			className="jetpack-content-guidelines-ai__section-generate-button"
 		>
 			{ label }
@@ -83,7 +90,14 @@ export default function SectionGenerateButton( { slug } ) {
 
 	if ( ! hasFeature ) {
 		return (
-			<Tooltip text={ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }>{ button }</Tooltip>
+			<Tooltip.Root>
+				<Tooltip.Trigger render={ button } />
+				{ /* The popup is visual-only, so this carries the sentence to screen readers. */ }
+				<VisuallyHidden id={ descriptionId } render={ <span /> }>
+					{ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }
+				</VisuallyHidden>
+				<Tooltip.Popup>{ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }</Tooltip.Popup>
+			</Tooltip.Root>
 		);
 	}
 

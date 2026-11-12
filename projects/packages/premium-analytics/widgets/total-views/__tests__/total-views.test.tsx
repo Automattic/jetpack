@@ -3,6 +3,7 @@
  */
 import { useStatsVisits } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -22,6 +23,8 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 // Spread the real module: `WidgetRoot` and the toolkit helpers import from it too.
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsHourOfDay: jest.fn(),
+	useStatsStreak: jest.fn(),
 	useStatsVisits: jest.fn(),
 } ) );
 
@@ -70,25 +73,17 @@ describe( 'TotalViewsWidget', () => {
 		mockUseStatsVisits.mockReset();
 	} );
 
-	it( 'renders the abbreviated total over the sparkline series', () => {
+	it( 'renders the exact total over the sparkline series', () => {
 		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
 
 		renderWidget();
 
-		expect( screen.getByText( '292K' ) ).toBeInTheDocument();
+		expect( screen.getByText( '291,900' ) ).not.toHaveAttribute( 'aria-hidden' );
+		expect( screen.queryByText( '292K' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'sparkline' ) ).toHaveAttribute(
 			'data-points',
 			'100000,100000,91900'
 		);
-	} );
-
-	it( 'exposes the unabbreviated total to assistive technology', () => {
-		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
-
-		renderWidget();
-
-		expect( screen.getByText( '291,900' ) ).toBeInTheDocument();
-		expect( screen.getByText( '292K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 
 	it( 'does not force a decimal when the total is not abbreviated', () => {
@@ -109,18 +104,11 @@ describe( 'TotalViewsWidget', () => {
 		expect( screen.queryByText( '947.0' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps daily buckets on a coarse dashboard interval, so the total keeps its meaning', () => {
+	it( 'requests both traffic fields in daily buckets, without comparison, on any dashboard interval', () => {
 		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
 
-		renderWidget( { ...REPORT_PARAMS, interval: 'month' } as ReportParams );
-
-		expect( mockUseStatsVisits.mock.calls[ 0 ][ 0 ] ).toMatchObject( { period: 'day' } );
-	} );
-
-	it( 'requests both traffic fields, without comparison, so the two total cards share the query', () => {
-		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
-
-		renderWidget();
+		// A range long enough that the normalizer keeps a monthly interval.
+		renderWidget( { ...REPORT_PARAMS, from: '2026-01-01', interval: 'month' } as ReportParams );
 
 		const params = mockUseStatsVisits.mock.calls[ 0 ][ 0 ];
 		expect( params ).toMatchObject( { stat_fields: 'views,visitors', period: 'day' } );
@@ -130,12 +118,23 @@ describe( 'TotalViewsWidget', () => {
 		expect( params ).not.toHaveProperty( 'compare_preset' );
 	} );
 
-	it( 'renders the empty state when the range has no buckets', () => {
-		mockUseStatsVisits.mockReturnValue( visitsResult( { summary: { views: 0 }, data: [] } ) );
+	it.each( [
+		[ 'has no buckets', [] ],
+		[
+			'is zero-filled',
+			[
+				{ date_start: '2026-07-01', views: 0, visitors: 0 },
+				{ date_start: '2026-07-02', views: 0, visitors: 0 },
+			],
+		],
+	] )( 'renders the empty state, not a flat sparkline, when the range %s', ( _, data ) => {
+		mockUseStatsVisits.mockReturnValue( visitsResult( { summary: { views: 0 }, data } ) );
 
 		renderWidget();
 
-		expect( screen.getByText( 'No views in this period.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
 	} );
 
@@ -150,9 +149,14 @@ describe( 'TotalViewsWidget', () => {
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers a retry for a failure that can heal', () => {
+	it( 'refetches from the Retry action for a failure that can heal', async () => {
+		const refetch = jest.fn();
 		mockUseStatsVisits.mockReturnValue(
-			visitsResult( undefined, { isError: true, error: { error: 'no_connection', status: 403 } } )
+			visitsResult( undefined, {
+				isError: true,
+				error: { error: 'no_connection', status: 403 },
+				refetch,
+			} )
 		);
 
 		renderWidget();
@@ -160,7 +164,8 @@ describe( 'TotalViewsWidget', () => {
 		expect(
 			screen.getByText( "We couldn't load your views. Please try again in a moment." )
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'keeps the rendered rows when a refetch fails, instead of showing the error', () => {
@@ -170,7 +175,7 @@ describe( 'TotalViewsWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( '292K' ) ).toBeInTheDocument();
+		expect( screen.getByText( '291,900' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );

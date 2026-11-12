@@ -5,6 +5,7 @@ import {
 	getScoreLetter,
 	didScoresChange,
 	getScoreMovementPercentage,
+	getScoreTier,
 } from '../src/index';
 
 const mockData = {
@@ -57,6 +58,19 @@ describe( 'requestSpeedScores', () => {
 		] );
 	} );
 
+	it( 'passes on that the comparison without Boost is still measuring', async () => {
+		post.mockResolvedValue( { ...mockData, scores: { ...mockData.scores, noBoostPending: true } } );
+
+		const scores = await requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce'
+		);
+
+		expect( scores ).toEqual( { ...mockData.scores, noBoostPending: true } );
+	} );
+
 	it( 'asks for a fresh measurement when forced', async () => {
 		post.mockResolvedValue( mockData );
 
@@ -74,6 +88,182 @@ describe( 'requestSpeedScores', () => {
 			{ url: 'https://example.com' },
 			'nonce',
 		] );
+	} );
+
+	it( 'reports a pending measurement once before polling', async () => {
+		jest.useFakeTimers();
+		post.mockResolvedValueOnce( { status: 'pending' } ).mockResolvedValue( mockData );
+		const onPending = jest.fn();
+		const request = requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ onPending }
+		);
+		await jest.advanceTimersByTimeAsync( 0 );
+		expect( onPending ).toHaveBeenCalledTimes( 1 );
+		expect( post ).toHaveBeenCalledTimes( 1 );
+		await jest.advanceTimersByTimeAsync( 5000 );
+		await expect( request ).resolves.toEqual( mockData.scores );
+		expect( onPending ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'reports the progress of every pending response', async () => {
+		jest.useFakeTimers();
+		post
+			.mockResolvedValueOnce( { status: 'pending', progress: { elapsed: 0, expected: 40 } } )
+			.mockResolvedValueOnce( { status: 'pending', progress: { elapsed: 5, expected: 40 } } )
+			.mockResolvedValue( mockData );
+		const onProgress = jest.fn();
+		const request = requestSpeedScores(
+			true,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ onProgress }
+		);
+		await jest.advanceTimersByTimeAsync( 10000 );
+		await expect( request ).resolves.toEqual( mockData.scores );
+		expect( onProgress.mock.calls ).toEqual( [
+			[ { elapsed: 0, expected: 40 } ],
+			[ { elapsed: 5, expected: 40 } ],
+		] );
+	} );
+
+	it( 'passes on the cloud stage and finished scores, dropping what it does not know', async () => {
+		jest.useFakeTimers();
+		post
+			.mockResolvedValueOnce( {
+				status: 'pending',
+				progress: { elapsed: 5, expected: 40, stage: 'desktop', scores: { mobile: 71 } },
+			} )
+			.mockResolvedValueOnce( {
+				status: 'pending',
+				progress: { elapsed: 10, expected: 40, stage: 'tablet', scores: { mobile: 'soon' } },
+			} )
+			.mockResolvedValue( mockData );
+		const onProgress = jest.fn();
+		const request = requestSpeedScores(
+			true,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ onProgress }
+		);
+		await jest.advanceTimersByTimeAsync( 10000 );
+		await expect( request ).resolves.toEqual( mockData.scores );
+		expect( onProgress.mock.calls ).toEqual( [
+			[ { elapsed: 5, expected: 40, stage: 'desktop', scores: { mobile: 71 } } ],
+			[ { elapsed: 10, expected: 40 } ],
+		] );
+	} );
+
+	it( 'does not report pending when scores are ready', async () => {
+		post.mockResolvedValue( mockData );
+		const onPending = jest.fn();
+		await requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{
+				onPending,
+			}
+		);
+		expect( onPending ).not.toHaveBeenCalled();
+	} );
+
+	it( 'does not request scores when already cancelled', async () => {
+		const controller = new AbortController();
+		controller.abort();
+
+		await expect(
+			requestSpeedScores( false, 'https://example.com/wp-json/', 'https://example.com', 'nonce', {
+				signal: controller.signal,
+			} )
+		).resolves.toBeUndefined();
+		expect( post ).not.toHaveBeenCalled();
+	} );
+
+	it( 'stops polling when cancelled between requests', async () => {
+		jest.useFakeTimers();
+		post.mockResolvedValue( { status: 'pending' } );
+		const controller = new AbortController();
+		const request = requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ signal: controller.signal }
+		);
+		await jest.advanceTimersByTimeAsync( 5000 );
+		expect( post ).toHaveBeenCalledTimes( 2 );
+
+		controller.abort();
+		await jest.advanceTimersByTimeAsync( 5000 );
+		await expect( request ).resolves.toBeUndefined();
+		await jest.advanceTimersByTimeAsync( 240000 );
+		expect( post ).toHaveBeenCalledTimes( 2 );
+		expect( jest.getTimerCount() ).toBe( 0 );
+	} );
+
+	it.each( [
+		[ 'initial', 'success' ],
+		[ 'initial', 'error' ],
+		[ 'poll', 'success' ],
+		[ 'poll', 'error' ],
+	] )( 'discards a late %s request %s after cancellation', async ( stage, outcome ) => {
+		jest.useFakeTimers();
+		const controller = new AbortController();
+		let resolveResponse!: ( value: typeof mockData ) => void;
+		let rejectResponse!: ( error: Error ) => void;
+		const response = new Promise< typeof mockData >( ( resolve, reject ) => {
+			resolveResponse = resolve;
+			rejectResponse = reject;
+		} );
+		if ( stage === 'poll' ) {
+			post.mockResolvedValueOnce( { status: 'pending' } );
+		}
+		post.mockReturnValueOnce( response );
+		const request = requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ signal: controller.signal }
+		);
+		await jest.advanceTimersByTimeAsync( stage === 'poll' ? 5000 : 0 );
+		const expectedRequests = stage === 'poll' ? 2 : 1;
+		expect( post ).toHaveBeenCalledTimes( expectedRequests );
+
+		controller.abort();
+		if ( outcome === 'success' ) {
+			resolveResponse( mockData );
+		} else {
+			rejectResponse( new Error( 'Request failed' ) );
+		}
+		await expect( request ).resolves.toBeUndefined();
+		await jest.advanceTimersByTimeAsync( 240000 );
+		expect( post ).toHaveBeenCalledTimes( expectedRequests );
+		expect( jest.getTimerCount() ).toBe( 0 );
+	} );
+
+	it( 'returns completed scores and stops polling without cancellation', async () => {
+		jest.useFakeTimers();
+		post.mockResolvedValueOnce( { status: 'pending' } ).mockResolvedValueOnce( mockData );
+		const request = requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce'
+		);
+
+		await jest.advanceTimersByTimeAsync( 5000 );
+		await expect( request ).resolves.toEqual( mockData.scores );
+		await jest.advanceTimersByTimeAsync( 240000 );
+		expect( post ).toHaveBeenCalledTimes( 2 );
+		expect( jest.getTimerCount() ).toBe( 0 );
 	} );
 
 	it( 'waits 240 seconds before giving up on a pending score', async () => {
@@ -118,6 +308,11 @@ describe( 'getScoreLetter', () => {
 		expect( getScoreLetter( 45, 50 ) ).toBe( 'D' );
 		expect( getScoreLetter( 26, 30 ) ).toBe( 'E' );
 		expect( getScoreLetter( 0, 0 ) ).toBe( 'F' );
+		expect( getScoreLetter( 25, 25 ) ).toBe( 'F' );
+		expect( getScoreLetter( 35, 35 ) ).toBe( 'E' );
+		expect( getScoreLetter( 50, 50 ) ).toBe( 'D' );
+		expect( getScoreLetter( 90, 90 ) ).toBe( 'B' );
+		expect( getScoreLetter( 91, 91 ) ).toBe( 'A' );
 	} );
 } );
 
@@ -157,5 +352,18 @@ describe( 'getScoreMovementPercentage', () => {
 		changedMockData.scores.noBoost.mobile = 70;
 
 		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 13 );
+	} );
+} );
+
+describe( 'getScoreTier', () => {
+	it.each( [
+		[ 0, 'poor' ],
+		[ 50, 'poor' ],
+		[ 51, 'medium' ],
+		[ 70, 'medium' ],
+		[ 71, 'good' ],
+		[ 100, 'good' ],
+	] )( 'puts a score of %i in the %s tier', ( score, tier ) => {
+		expect( getScoreTier( Number( score ) ) ).toBe( tier );
 	} );
 } );

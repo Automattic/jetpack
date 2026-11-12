@@ -5,6 +5,7 @@ import { getDatePart, localTZDate } from '@jetpack-premium-analytics/datetime';
 import {
 	differenceInCalendarISOWeeks,
 	differenceInCalendarMonths,
+	differenceInCalendarQuarters,
 	differenceInCalendarYears,
 	differenceInMilliseconds,
 } from 'date-fns';
@@ -17,7 +18,7 @@ import type { StatsProxyParams } from '../api/stats-proxy-fetch';
 
 const MS_PER_HOUR = 60 * 60 * 1000;
 
-export type StatsPeriod = 'hour' | 'day' | 'week' | 'month' | 'year';
+export type StatsPeriod = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
 
 export type StatsQueryParamFields = {
 	period?: StatsPeriod | string;
@@ -69,6 +70,8 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 			return 'week';
 		case 'month':
 			return 'month';
+		case 'quarter':
+			return 'quarter';
 		case 'year':
 			return 'year';
 		case 'day':
@@ -130,6 +133,7 @@ const BUCKET_COUNTERS: Record< StatsPeriod, ( from: string, to: string ) => numb
 	day: getDaysBetweenInclusive,
 	week: countCalendarBuckets( differenceInCalendarISOWeeks ),
 	month: countCalendarBuckets( differenceInCalendarMonths ),
+	quarter: countCalendarBuckets( differenceInCalendarQuarters ),
 	year: countCalendarBuckets( differenceInCalendarYears ),
 };
 
@@ -152,6 +156,16 @@ export function getPeriodsBetweenInclusive(
 	return BUCKET_COUNTERS[ period ]( from, to );
 }
 
+/**
+ * Whether a `num` asks WPCOM for all time: every period from the start of the site's Stats.
+ *
+ * @param num - The `num` query param.
+ * @return True for a negative `num`.
+ */
+export function isAllTimeNum( num: unknown ): boolean {
+	return Number( num ) < 0;
+}
+
 export function reportParamsToStatsQueryParams(
 	params: StatsQueryParamInput = {}
 ): StatsQueryParams {
@@ -161,11 +175,17 @@ export function reportParamsToStatsQueryParams(
 			.map( key => [ key, params[ key ] ] )
 	) as StatsQueryParams;
 
+	const allTime = isAllTimeNum( params.num );
+	if ( allTime ) {
+		delete statsParams.start_date;
+	}
+
 	const period = params.period ?? getStatsPeriodFromInterval( params.interval );
 	// Stats v1.1 resolves an offset-bearing ISO datetime to the local calendar
 	// day (WOOA7S-1656/1664), so start_date/end_date pass through untrimmed.
 	const endDate = params.end_date ?? params.date ?? params.to;
-	const startDate = params.start_date ?? params.from;
+	// A start date would override the all-time window WPCOM derives from `num`.
+	const startDate = allTime ? undefined : ( params.start_date ?? params.from );
 	const days =
 		params.days ??
 		( startDate && endDate ? getDaysBetweenInclusive( startDate, endDate ) : undefined );

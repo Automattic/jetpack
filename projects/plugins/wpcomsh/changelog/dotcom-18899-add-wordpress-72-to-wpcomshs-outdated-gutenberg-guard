@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+On WordPress 7.2 beta builds, also ignore a Gutenberg plugin older than 24.3, the Gutenberg version bundled in WordPress 7.2.

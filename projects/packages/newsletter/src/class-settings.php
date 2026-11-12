@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
@@ -22,7 +23,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.15.0';
+	const PACKAGE_VERSION = '0.18.5';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -41,6 +42,11 @@ class Settings {
 
 	/**
 	 * Feature flag for the Newsletter Overview tab.
+	 *
+	 * Also gates the Stats tab and its REST endpoints: Stats is a temporary,
+	 * standalone page that eases development of the Overview dashboard's
+	 * eventual stats section -- it ships and retires with the same flag rather
+	 * than getting an independent one.
 	 */
 	const OVERVIEW_FEATURE_FLAG = 'newsletter-overview';
 
@@ -59,13 +65,6 @@ class Settings {
 	private static $wp_build_original_screen_id = null;
 
 	/**
-	 * The dashboard screen hide_jitms_on_wp_build_dashboard() opts out of JITMs.
-	 *
-	 * @var string|null
-	 */
-	private static $jitm_opt_out_screen_id = null;
-
-	/**
 	 * Register Newsletter feature flags.
 	 *
 	 * @return void
@@ -74,11 +73,13 @@ class Settings {
 		Feature_Flags::register(
 			self::OVERVIEW_FEATURE_FLAG,
 			array(
-				'default'     => false,
-				'description' => 'Enable the Newsletter Overview tab.',
+				'default'     => true,
+				'description' => 'Enable the Newsletter Overview and Stats tabs.',
 				'owner'       => 'jetpack-newsletter',
 			)
 		);
+
+		Subscriber_Stats_Controller::register();
 	}
 
 	/**
@@ -155,19 +156,14 @@ class Settings {
 		// so an inline check here would always see the unfiltered default.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
-		$host = new Host();
-
-		// Admin-ajax rather than `/wp/v2/users/me`: WordPress.com's public API drops user meta it hasn't allowlisted.
-		if ( $host->is_wpcom_platform() ) {
-			add_action(
-				'wp_ajax_jetpack_newsletter_dismiss_subscriber_count_notice',
-				static function () {
-					check_ajax_referer( 'jetpack_newsletter_dismiss_subscriber_count_notice' );
-					update_user_meta( get_current_user_id(), 'jetpack_newsletter_subscriber_count_notice_dismissed', 1 );
-					wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );
-				}
-			);
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
 		}
+
+		// Priority 20 runs after add_script_data(), which replaces the whole `newsletter` key on the Newsletter page.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_subscribers_url_script_data' ), 20 );
+
+		$host = new Host();
 
 		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php,
 		// which will call add_wp_admin_submenu() directly. Skip adding the menu here to avoid
@@ -218,18 +214,7 @@ class Settings {
 			return;
 		}
 
-		// Hooked either side of load_wp_build(), so the alias holds only for the generated
-		// enqueue check it registers at the same priority.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-		self::load_wp_build();
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
-
-		// wp-build registers standalone modules (e.g. the init module) on
-		// wp_default_scripts, which has already fired by admin_menu. Register them
-		// directly so the init module makes it into the import map.
-		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
-			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
+		self::load_wp_build_with_screen_alias();
 	}
 
 	/**
@@ -293,7 +278,6 @@ class Settings {
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-			self::maybe_opt_out_of_jitms( $page_suffix );
 		}
 	}
 
@@ -327,8 +311,53 @@ class Settings {
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-			self::maybe_opt_out_of_jitms( $page_suffix );
 		}
+	}
+
+	/**
+	 * Register Newsletter with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		// The same gates add_wp_admin_menu() applies, since admin-ajax never builds the menu.
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
+			|| ! self::is_modernized()
+			|| ! $this->should_show_menu_item()
+			|| ! $this->is_subscriptions_active()
+			|| ! ( new Connection_Manager() )->is_connected()
+		) {
+			return $members;
+		}
+
+		$members[ self::ADMIN_PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_newsletter',
+			'build_page'   => 'jetpack-newsletter-dashboard',
+			'init_modules' => array( '@jetpack-newsletter/init' ),
+			/** "Newsletter" is a product name, do not translate. */
+			'title'        => 'Newsletter',
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Newsletter routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		$this->admin_init();
 	}
 
 	/**
@@ -357,7 +386,7 @@ class Settings {
 		$is_block_theme         = wp_is_block_theme();
 		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . $site_suffix;
 
-		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
+		$wp_admin_subscriber_management_enabled = self::is_wp_admin_subscriber_management_enabled();
 
 		// Populate blog_id which is needed for API calls on Simple sites.
 		$data['site']['wpcom']['blog_id'] = $blog_id;
@@ -378,8 +407,6 @@ class Settings {
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),
 			'tracksUserData'                  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'showSubscriberCountNotice'       => $is_wpcom && ! get_user_meta( $current_user->ID, 'jetpack_newsletter_subscriber_count_notice_dismissed', true ),
-			'subscriberCountNoticeNonce'      => $is_wpcom ? wp_create_nonce( 'jetpack_newsletter_dismiss_subscriber_count_notice' ) : '',
 		);
 
 		return $data;
@@ -396,6 +423,14 @@ class Settings {
 		// only queues events into `window._tkq`; without `jp-tracks` loaded, no
 		// pixel.gif requests fire and the queue grows forever.
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		wp_add_inline_script(
+			'jp-tracks',
+			sprintf(
+				'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;',
+				absint( Connection_Manager::get_site_id( true ) )
+			),
+			'before'
+		);
 
 		if ( self::is_modernized() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but
@@ -575,6 +610,13 @@ class Settings {
 
 		require_once $build_index;
 
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
+			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
 		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 			'jetpack-newsletter',
 			array_merge(
@@ -582,6 +624,30 @@ class Settings {
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
 			)
 		);
+	}
+
+	/**
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @return void
+	 */
+	private static function load_wp_build_with_screen_alias() {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () {
+					self::load_wp_build();
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 	}
 
 	/**
@@ -595,7 +661,7 @@ class Settings {
 	 * Hooked only when modernization is on AND we're on the Newsletter admin page,
 	 * so this never affects any other request.
 	 *
-	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 * @since 0.16.0 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 *
 	 * @return void
 	 */
@@ -612,7 +678,7 @@ class Settings {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.16.0
 	 *
 	 * @return void
 	 */
@@ -627,41 +693,6 @@ class Settings {
 	}
 
 	/**
-	 * Opt the dashboard's screen out of JITMs while the wp-build dashboard serves it.
-	 *
-	 * @param string $screen_id The hook suffix the page was registered under, which is its screen ID.
-	 * @return void
-	 */
-	private static function maybe_opt_out_of_jitms( $screen_id ) {
-		// The legacy dashboard renders `#jp-admin-notices`, so it keeps its JITMs.
-		if ( ! self::is_modernized() ) {
-			return;
-		}
-
-		self::$jitm_opt_out_screen_id = $screen_id;
-		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_jitms_on_wp_build_dashboard' ), 10, 2 );
-	}
-
-	/**
-	 * Keep JITMs off the wp-build dashboard, which has no `#jp-admin-notices` to show them in.
-	 *
-	 * Fetching a JITM records a view, so one the page hides would still be counted.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param bool   $show      Whether to show JITMs on the screen.
-	 * @param string $screen_id The screen ID.
-	 * @return bool
-	 */
-	public static function hide_jitms_on_wp_build_dashboard( $show, $screen_id ) {
-		if ( null !== self::$jitm_opt_out_screen_id && self::$jitm_opt_out_screen_id === $screen_id ) {
-			return false;
-		}
-
-		return $show;
-	}
-
-	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
 	 * The modernized Newsletter dashboard, wp-admin subscriber management, and the
@@ -673,6 +704,47 @@ class Settings {
 	 */
 	private static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
+	}
+
+	/**
+	 * Returns true when subscribers are managed in wp-admin rather than on WordPress.com or Jetpack Cloud.
+	 *
+	 * @return bool
+	 */
+	private static function is_wp_admin_subscriber_management_enabled() {
+		/** This filter is documented in projects/plugins/jetpack/modules/subscriptions.php */
+		return (bool) apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
+	}
+
+	/**
+	 * Publish the Subscribers tab URL so other dashboards can link to it.
+	 *
+	 * @since 0.17.0
+	 *
+	 * @param array $data The existing script data.
+	 * @return array The script data, with `newsletter.subscribersUrl` set to null when the current user cannot open the tab.
+	 */
+	public static function add_subscribers_url_script_data( $data ) {
+		$data['newsletter']['subscribersUrl'] = self::is_subscribers_tab_available() ? Urls::get_subscribers_url() : null;
+
+		return $data;
+	}
+
+	/**
+	 * Whether the current user can open the Subscribers tab of the Newsletter page.
+	 *
+	 * Reads the admin menu, so it returns false until `admin_menu` has run.
+	 *
+	 * @return bool
+	 */
+	private static function is_subscribers_tab_available() {
+		// The legacy page and a host that manages subscribers elsewhere both leave the page Settings-only.
+		if ( ! self::is_modernized() || ! self::is_wp_admin_subscriber_management_enabled() ) {
+			return false;
+		}
+
+		// Registration applies the page's own gates: a connected site, the subscriptions module, and `manage_options`.
+		return function_exists( 'menu_page_url' ) && '' !== menu_page_url( self::ADMIN_PAGE_SLUG, false );
 	}
 
 	/**

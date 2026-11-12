@@ -13,8 +13,8 @@ use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Sections\Firewall as Protect_Firewall;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 use Automattic\Jetpack\Waf\Waf_Compatibility;
@@ -122,7 +122,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_scan_state',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'permission_callback' => __CLASS__ . '::view_scan_state_permission_check',
 			)
 		);
 
@@ -550,101 +550,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		register_rest_route(
-			'jetpack/v4',
-			'/recommendations/data',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_recommendations_data',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_recommendations_data',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-					'args'                => array(
-						'data' => array(
-							'required'          => true,
-							'type'              => 'object',
-							'validate_callback' => __CLASS__ . '::validate_recommendations_data',
-						),
-					),
-				),
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/recommendations/step',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_recommendations_step',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_recommendations_step',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-					'args'                => array(
-						'step' => array(
-							'required'          => true,
-							'type'              => 'string',
-							'validate_callback' => __CLASS__ . '::validate_string',
-						),
-					),
-				),
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/recommendations/product-suggestions',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_recommendations_product_suggestions',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-				),
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/recommendations/upsell',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_recommendations_upsell',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-				),
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/recommendations/conditional',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_conditional_recommendations',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-				),
-			)
-		);
-
-		// Get site discount.
-		register_rest_route(
-			'jetpack/v4',
-			'/site/discount',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_discount',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-			)
-		);
-
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -698,17 +603,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::set_has_seen_wc_connection_modal',
 				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-			)
-		);
-
-		// Get Jetpack introduction offers
-		register_rest_route(
-			'jetpack/v4',
-			'/intro-offers',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_intro_offers',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
 
@@ -811,179 +705,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_REST_Response( null, 302, array( 'location' => $redirect_url ) );
-	}
-
-	/**
-	 * Get the data for the recommendations
-	 *
-	 * @return array Recommendations data
-	 */
-	public static function get_recommendations_data() {
-		return Jetpack_Recommendations::get_recommendations_data();
-	}
-
-	/**
-	 * Update the data for the recommendations
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return bool true
-	 */
-	public static function update_recommendations_data( $request ) {
-		$data = $request['data'];
-		Jetpack_Recommendations::update_recommendations_data( $data );
-
-		return true;
-	}
-
-	/**
-	 * Get the data for the recommendations
-	 *
-	 * @return array Recommendations data
-	 */
-	public static function get_recommendations_step() {
-		return Jetpack_Recommendations::get_recommendations_step();
-	}
-
-	/**
-	 * Update the step for the recommendations
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return bool true
-	 */
-	public static function update_recommendations_step( $request ) {
-		$step = $request['step'];
-		Jetpack_Recommendations::update_recommendations_step( $step );
-
-		return true;
-	}
-
-	/**
-	 * Get product suggestions for the recommendations
-	 *
-	 * @return string|WP_Error The response from the wpcom product suggestions endpoint as a JSON object.
-	 */
-	public static function get_recommendations_product_suggestions() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
-		}
-
-		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
-		if ( ! $user_connected ) {
-			return wp_json_encode( array(), JSON_UNESCAPED_SLASHES );
-		}
-
-		$request_path  = sprintf( '/sites/%s/jetpack-recommendations/product-suggestions?locale=' . get_user_locale(), $blog_id );
-		$wpcom_request = Client::wpcom_json_api_request_as_user(
-			$request_path,
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-		} else {
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
-	}
-
-	/**
-	 * Get the upsell for the recommendations
-	 *
-	 * @return string The response from the wpcom upsell endpoint as a JSON object
-	 */
-	public static function get_recommendations_upsell() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
-		}
-
-		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
-		if ( ! $user_connected ) {
-			$response = array(
-				'hide_upsell' => true,
-			);
-
-			return $response;
-		}
-
-		$request_path  = sprintf( '/sites/%s/jetpack-recommendations/upsell?locale=' . get_user_locale(), $blog_id );
-		$wpcom_request = Client::wpcom_json_api_request_as_user(
-			$request_path,
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-		} else {
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
-	}
-
-	/**
-	 * Get conditional recommendations data.
-	 *
-	 * @return array Conditional recommendations data.
-	 */
-	public static function get_conditional_recommendations() {
-		return Jetpack_Recommendations::get_conditional_recommendations();
-	}
-
-	/**
-	 * Validate the recommendations data
-	 *
-	 * @param array           $value Value to check received by request.
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @param string          $param Name of the parameter passed to endpoint holding $value.
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function validate_recommendations_data( $value, $request, $param ) {
-		if ( ! is_array( $value ) ) {
-			/* translators: Name of a parameter that must be an object */
-			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'jetpack' ), $param ) );
-		}
-
-		foreach ( $value as $answer ) {
-			if ( is_array( $answer ) ) {
-				$validate = self::validate_array_of_strings( $answer, $request, $param );
-			} elseif ( is_string( $answer ) ) {
-				$validate = self::validate_string( $answer, $request, $param );
-			} elseif ( $answer === null ) {
-				$validate = true;
-			} else {
-				$validate = self::validate_boolean( $answer, $request, $param );
-			}
-
-			if ( is_wp_error( $validate ) ) {
-				return $validate;
-			}
-		}
-
-		return true;
 	}
 
 	/**
@@ -1364,6 +1085,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Verify that user can view the Scan state, the same users who see the Protect menu and the admin bar notice.
+	 *
+	 * @since 16.4
+	 *
+	 * @return bool|WP_Error Whether user has the capability 'manage_options'.
+	 */
+	public static function view_scan_state_permission_check() {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_view_scan_state',
+			REST_Connector::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
 	 * Verify that user can update Jetpack general settings.
 	 *
 	 * @since 4.3.0
@@ -1560,9 +1300,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$scan_state = self::scan_state();
 
 		if ( ! is_wp_error( $scan_state ) ) {
-			if ( ( new Host() )->is_woa_site() && ! empty( $scan_state->threats ) ) {
-				$scan_state->threats = array();
-			}
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
@@ -1652,7 +1389,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_user_connection_data() {
 		_deprecated_function( __METHOD__, 'jetpack-10.0.0', '\Automattic\Jetpack\Connection\REST_Connector::get_user_connection_data' );
 
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
 
 		$connection_owner   = ( new Connection_Manager() )->get_connection_owner();
 		$owner_display_name = false === $connection_owner ? null : $connection_owner->data->display_name;
@@ -1837,62 +1574,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Fetch the discount for this site and return it.
-	 *
-	 * @since 10.8
-	 *
-	 * @return array|WP_Error
-	 */
-	public static function get_site_discount() {
-		$site_id = Jetpack_Options::get_option( 'id' );
-
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'site_id_missing',
-				esc_html__( 'Site ID is missing.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			"/sites/$site_id/discount",
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		$data          = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( 200 !== $response_code ) {
-			return new WP_Error(
-				'discount_fetch_failed',
-				is_object( $data ) && property_exists( $data, 'error' ) ? $data->error : esc_html__( 'Could not retrieve site discount.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
-
-		if ( ! isset( $data ) ) {
-			return new WP_Error(
-				'discount_parse_error',
-				esc_html__( 'Could not parse discount', 'jetpack' ),
-				array( 'status' => 204 ) // no content.
-			);
-		}
-
-		return rest_ensure_response(
-			array(
-				'code' => 'success',
-				'data' => $data,
-			)
-		);
-	}
-
-	/**
 	 * Reset Jetpack options
 	 *
 	 * @since 4.3.0
@@ -2064,6 +1745,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_list_item',
 				'jp_group'          => 'comments',
 			),
+			'enable_blocks_comments'                    => array(
+				'description'       => esc_html__( 'Enable blocks in comments', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'comments',
+			),
 
 			// Custom Content Types.
 			'jetpack_portfolio'                         => array(
@@ -2113,7 +1801,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Blocked IP addresses', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
-				'validate_callback' => __CLASS__ . '::validate_string',
+				'validate_callback' => __CLASS__ . '::validate_waf_ip_block_list',
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'waf',
 			),
@@ -2267,12 +1955,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'protect',
 			),
 			'jetpack_protect_global_whitelist'          => array(
-				'description'       => esc_html__( 'Protect global IP allow list', 'jetpack' ),
+				'description'       => esc_html__( 'Deprecated. Use jetpack_waf_ip_allow_list instead. Writing this key replaces the site IP allow list.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_string',
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'protect',
+			),
+			// Not a module option: the free check runs without the Brute Force Protection module.
+			'jetpack_protect_vulnerability_checks'      => array(
+				'description'       => esc_html__( 'Check the site every day for known vulnerabilities in WordPress, plugins and themes.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
 			),
 
 			// Sharing.
@@ -2859,7 +2555,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'Jetpack_SEO_Titles::sanitize_title_formats',
 			),
 
-			// AI tab (Jetpack > SEO). Plain option the SEO package reads to serve
+			// GEO tab (Jetpack > SEO). Plain option the SEO package reads to serve
 			// /llms.txt. The front-end behavior is gated inside the package; this
 			// only round-trips the persisted state alongside the other seo-tools
 			// settings.
@@ -2871,21 +2567,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'seo-tools',
 			),
 
-			// AI tab (Jetpack > SEO). Sparse per-crawler override map the SEO
-			// package reads to emit robots.txt directives for blocked AI crawlers.
-			// Stored as `slug => bool` (true = blocked); catalog validation and
-			// default-pruning happen in `Ai_Crawlers::get_overrides()`.
-			'jetpack_seo_ai_crawler_overrides'          => array(
-				'description'       => esc_html__( 'AI crawler allow/block overrides.', 'jetpack' ),
-				'type'              => 'object',
-				'default'           => array(),
-				'jp_group'          => 'seo-tools',
-				'sanitize_callback' => __CLASS__ . '::sanitize_ai_crawler_overrides',
-			),
-
 			// VideoPress.
 			'videopress_private_enabled_for_site'       => array(
 				'description'       => esc_html__( 'Video Privacy: Restrict views to members of this site', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'videopress',
+			),
+			'videopress_share_menu_disabled'            => array(
+				'description'       => esc_html__( 'Hide the share menu on every video, overriding each video’s own setting', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -3480,6 +3171,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Validates the firewall's IP block list, refusing one that would block the user saving it.
+	 *
+	 * @since 16.4
+	 *
+	 * @param string          $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_waf_ip_block_list( $value, $request, $param ) {
+		$is_string = self::validate_string( $value, $request, $param );
+		// Another plugin can load an older Protect package without the check.
+		if ( true !== $is_string || ! method_exists( Protect_Firewall::class, 'validate_ip_block_list' ) ) {
+			return $is_string;
+		}
+
+		// Check the list as the sanitize_callback will store it, since the firewall reads the stored copy.
+		return Protect_Firewall::validate_ip_block_list( esc_textarea( $value ) );
+	}
+
+	/**
 	 * Validates that the parameter is a string.
 	 *
 	 * @since 4.3.0
@@ -3598,29 +3311,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Sanitize the AI crawler override map.
-	 *
-	 * Keeps the value package-agnostic: each key is normalized with sanitize_key()
-	 * and each value cast to bool. Catalog validation and default-pruning happen in
-	 * `Automattic\Jetpack\SEO\Ai_Crawlers::get_overrides()`.
-	 *
-	 * @param mixed $value The submitted override map.
-	 *
-	 * @return array<string, bool> Sanitized `slug => bool` map.
-	 */
-	public static function sanitize_ai_crawler_overrides( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$sanitized = array();
-		foreach ( $value as $k => $v ) {
-			$sanitized[ sanitize_key( $k ) ] = (bool) $v;
-		}
-		return $sanitized;
-	}
-
-	/**
 	 * Get the currently accessed route and return the module slug in it.
 	 *
 	 * @since 4.3.0
@@ -3686,9 +3376,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Remove options the current user cannot read.
 	 *
-	 * Covers every `jetpack_waf_*` option, plus the two Protect options that expose the
-	 * same data under a different name: `jetpack_protect_global_whitelist` is populated
-	 * from `jetpack_waf_ip_allow_list`, and `jetpack_protect_key` is a shared secret.
+	 * Covers every `jetpack_waf_*` option, `jetpack_protect_global_whitelist` (populated from
+	 * `jetpack_waf_ip_allow_list`), the `jetpack_protect_key` shared secret, and
+	 * `wordpress_api_key`, the site's Akismet API key.
 	 *
 	 * @since 16.2
 	 *
@@ -3703,6 +3393,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$restricted = array(
 			'jetpack_protect_key',
 			'jetpack_protect_global_whitelist',
+			'wordpress_api_key',
 		);
 
 		return array_filter(
@@ -3798,6 +3489,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
 				}
 		}
+
+		// When code forces matching by email, report the forced value and lock the setting.
+		if ( 'sso' === $module && isset( $options['jetpack_sso_match_by_email'] ) && SSO\Helpers::is_match_by_email_checkbox_disabled() ) {
+			$options['jetpack_sso_match_by_email']['current_value'] = SSO\Helpers::match_by_email();
+			$options['jetpack_sso_match_by_email']['locked']        = true;
+		}
+
 		// At this point some options have current_value not set because they're options
 		// that only get written on update, so we set current_value to the default one.
 		foreach ( $options as $key => $value ) {
@@ -3893,7 +3591,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_remote_value( $module, $option ) {
 
-		if ( in_array( $module, array( 'post-by-email' ), true ) ) {
+		// These are per-user values on WordPress.com, so each user gets their own local copy.
+		if ( in_array( $module, array( 'monitor', 'post-by-email' ), true ) ) {
 			$option .= get_current_user_id();
 		}
 
@@ -3918,6 +3617,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 					return false;
 				}
 				$value = Jetpack_Monitor::user_receives_notifications( false );
+				// Not saved: the user may not be connected yet, and would be stuck with this answer.
+				if ( is_wp_error( $value ) ) {
+					return false;
+				}
+				// An integer, as in Monitor::save_notifications_copy().
+				$value = (int) (bool) $value;
 				break;
 
 			case 'post-by-email':
@@ -3930,11 +3635,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$value = 'NULL'; // sentinel value so it actually gets set.
 				}
 				break;
-		}
-
-		// Normalize value to boolean.
-		if ( is_wp_error( $value ) || $value === null ) {
-			$value = false;
 		}
 
 		// Save option to use it next time.
@@ -4317,63 +4017,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$updated_option = Jetpack_Options::update_option( 'has_seen_wc_connection_modal', true );
 
 		return rest_ensure_response( array( 'success' => $updated_option ) );
-	}
-
-	/**
-	 * Fetch introdution offers.
-	 *
-	 * @since 10.9
-	 *
-	 * @return array|WP_Error
-	 */
-	public static function get_intro_offers() {
-		$site_id = Jetpack_Options::get_option( 'id' );
-
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'site_id_missing',
-				esc_html__( 'Site ID is missing.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			'/introductory-offers',
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-
-		if ( 200 !== $response_code ) {
-			return new WP_Error(
-				'intro_offers_fetch_failed',
-				esc_html__( 'Could not retrieve intro offers.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
-
-		$data = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( ! isset( $data ) ) {
-			return new WP_Error(
-				'intro_offers_error',
-				esc_html__( 'Could not parse intro offers.', 'jetpack' ),
-				array( 'status' => 204 ) // no content.
-			);
-		}
-
-		return rest_ensure_response(
-			array(
-				'code' => 'success',
-				'data' => $data,
-			)
-		);
 	}
 
 	/**

@@ -1,11 +1,11 @@
 import { Stack } from '@wordpress/ui';
-import { useEffect } from 'react';
-import { useElementSize } from '../../../hooks';
+import { useEffect, useState } from 'react';
+import { useElementSize, useIsomorphicLayoutEffect } from '../../../hooks';
 import { renderLegendSlot } from '../chart-composition';
 import styles from './chart-layout.module.scss';
 import type { GapSize, LegendPosition } from '../../../types';
 import type { LegendChild } from '../chart-composition/use-chart-children';
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, ReactNode, Ref } from 'react';
 
 /**
  * Measurements provided to the render prop when ChartLayout handles resize listening.
@@ -36,6 +36,8 @@ export interface ChartLayoutProps {
 	gap?: GapSize;
 	/** Additional class names */
 	className?: string;
+	/** Ref to the root element, the one `className` lands on */
+	rootRef?: Ref< HTMLDivElement >;
 	/** Inline styles (width, height, etc.) */
 	style?: CSSProperties;
 	/** Test ID for the container */
@@ -53,6 +55,7 @@ export const ChartLayout = ( {
 	onContentHeightChange,
 	gap,
 	className,
+	rootRef,
 	style,
 	'data-testid': dataTestId,
 	'data-chart-id': dataChartId,
@@ -60,6 +63,16 @@ export const ChartLayout = ( {
 	const [ contentRef, contentWidth, contentHeight ] = useElementSize< HTMLDivElement >();
 	const isRenderProp = typeof children === 'function';
 	const isMeasured = contentHeight > 0;
+
+	// Hold a render-prop chart one commit so it mounts at its measured height: visx keeps the
+	// scales an XYChart mounted with until an effect replaces them, so mounting at the fallback
+	// paints a frame over the legend. One attempt only, so an unmeasurable parent still renders.
+	const [ contentAttached, setContentAttached ] = useState( false );
+	useIsomorphicLayoutEffect( () => {
+		if ( isRenderProp ) {
+			setContentAttached( true );
+		}
+	}, [ isRenderProp ] );
 
 	// When using render-prop children, hide the layout until measurement is available
 	// to prevent layout shift. Plain ReactNode children don't need this since they
@@ -72,12 +85,18 @@ export const ChartLayout = ( {
 			onContentHeightChange( contentHeight );
 		}
 	}, [ isRenderProp, contentHeight, isMeasured, onContentHeightChange ] );
-	const renderedChildren = isRenderProp
-		? children( { contentWidth, contentHeight, isMeasured } )
-		: children;
+	let renderedChildren: ReactNode;
+	if ( typeof children === 'function' ) {
+		renderedChildren = contentAttached
+			? children( { contentWidth, contentHeight, isMeasured } )
+			: null;
+	} else {
+		renderedChildren = children;
+	}
 
 	return (
 		<Stack
+			ref={ rootRef }
 			direction="column"
 			gap={ gap }
 			className={ className }

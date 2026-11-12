@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the `/help-center/article-rating` endpoint so the Help Center can save a user's "Was this helpful?" answer for a support article.

@@ -222,6 +222,19 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( admin_url( 'admin.php?page=stats' ), $stats_node->href );
 	}
 
+	public function test_stats_link_follows_the_stats_url_filter() {
+		$filter = function ( $url, $args ) {
+			return 'dashboard' === $args['view'] ? 'https://example.org/new-stats' : $url;
+		};
+		add_filter( 'jetpack_stats_url', $filter, 10, 2 );
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard' );
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		remove_filter( 'jetpack_stats_url', $filter, 10 );
+
+		$this->assertSame( 'https://example.org/new-stats', $admin_bar->get_node( 'wpcom-stats' )->href );
+	}
+
 	/**
 	 * Core adds 'view-site' instead of 'dashboard' under 'site-name' in wp-admin
 	 * (is_admin() === true). The Stats link must show there too.

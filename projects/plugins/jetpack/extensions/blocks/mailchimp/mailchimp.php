@@ -11,10 +11,7 @@ namespace Automattic\Jetpack\Extensions\Mailchimp;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\External_Connections;
-use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 
@@ -104,40 +101,8 @@ function update_settings() {
 
 	check_admin_referer( 'writing-options' );
 
-	$site_id = Connection_Manager::get_site_id();
-	if ( is_wp_error( $site_id ) ) {
-		return;
-	}
-
-	if ( $audience === 'none' ) {
-		$data = array(
-			'follower_list_id' => '0',
-			'keyring_id'       => '0',
-		);
-	} else {
-		$connection = External_Connections::get_connection( 'mailchimp' );
-		if ( empty( $connection ) ) {
-			return;
-		}
-		$data = array(
-			'follower_list_id' => $audience,
-			'keyring_id'       => $connection['ID'],
-		);
-	}
-
-	if ( ( new Host() )->is_wpcom_simple() ) {
-		require_lib( 'mailchimp' );
-		$response = \MailchimpApi::save_settings( $site_id, $data );
-	} else {
-		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/mailchimp/settings', $site_id ),
-			'1.1',
-			array( 'method' => 'POST' ),
-			$data,
-			'rest'
-		);
-	}
-	if ( is_wp_error( $response ) ) {
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mailchimp-helper.php';
+	if ( is_wp_error( \Jetpack_Mailchimp_Helper::save_audience( $audience ) ) ) {
 		add_settings_error( 'general', 'settings_updated', __( 'Settings save failed.', 'jetpack' ), 'error' );
 	}
 }

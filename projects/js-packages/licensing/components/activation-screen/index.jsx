@@ -47,19 +47,17 @@ const parseAttachLicensesResult = result => {
 /**
  * The Activation Screen component.
  *
- * @param {object}    props                            -- The properties.
- * @param {Function?} props.onActivationSuccess        -- A function to call on success.
- * @param {string}    props.siteRawUrl                 -- url of the Jetpack Site
- * @param {string?}   props.startingLicense            -- pre-fill the license value
- * @param {string}    props.siteAdminUrl               -- URL of the Jetpack Site Admin
- * @param {string}    props.currentRecommendationsStep -- The current recommendation step.
- * @param {string}    props.currentUser                -- Current wpcom user info.
+ * @param {object}    props                     -- The properties.
+ * @param {Function?} props.onActivationSuccess -- A function to call on success.
+ * @param {string}    props.siteRawUrl          -- url of the Jetpack Site
+ * @param {string?}   props.startingLicense     -- pre-fill the license value
+ * @param {string}    props.siteAdminUrl        -- URL of the Jetpack Site Admin
+ * @param {string}    props.currentUser         -- Current wpcom user info.
  * @return {import('react').Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
 	const {
 		availableLicenses = [],
-		currentRecommendationsStep,
 		fetchingAvailableLicenses = false,
 		onActivationSuccess = () => null,
 		siteAdminUrl,
@@ -140,7 +138,6 @@ const ActivationScreen = props => {
 				siteRawUrl={ siteRawUrl }
 				productId={ activatedProduct }
 				siteAdminUrl={ siteAdminUrl }
-				currentRecommendationsStep={ currentRecommendationsStep }
 			/>
 			<ActivationScreenIllustration
 				imageUrl={
@@ -185,7 +182,6 @@ const ActivationScreen = props => {
 
 ActivationScreen.propTypes = {
 	availableLicenses: PropTypes.array,
-	currentRecommendationsStep: PropTypes.string,
 	fetchingAvailableLicenses: PropTypes.bool,
 	onActivationSuccess: PropTypes.func,
 	siteAdminUrl: PropTypes.string.isRequired,

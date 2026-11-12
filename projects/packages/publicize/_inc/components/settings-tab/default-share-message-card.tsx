@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Card, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { MessageTemplateEditor } from '../message-template-editor';
+import type { JSX } from 'react';
 
 const SAVE_DEBOUNCE_MS = 1000;
 

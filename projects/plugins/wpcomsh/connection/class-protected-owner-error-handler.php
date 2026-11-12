@@ -263,7 +263,7 @@ class Protected_Owner_Error_Handler {
 		?>
 		<input type="hidden" id="jetpack_prepopulate_email" value="<?php echo esc_attr( $email ); ?>" />
 		<input type="hidden" name="jetpack_create_missing_account" value="1" />
-		
+
 		<script type="text/javascript">
 		(function() {
 			document.addEventListener('DOMContentLoaded', function() {
@@ -272,7 +272,7 @@ class Protected_Owner_Error_Handler {
 				if (emailInput && emailInput.value) {
 					var emailField = document.getElementById('email');
 					var roleField = document.getElementById('role');
-					
+
 					if (emailField) {
 						emailField.value = emailInput.value;
 					}
@@ -437,7 +437,7 @@ class Protected_Owner_Error_Handler {
 			),
 		);
 
-		$wpcom_account_link = '<a href="https://wordpress.com/me/account" target="_blank">WordPress.com account</a>';
+		$wpcom_account_link = '<a href="https://my.wordpress.com/me/account" target="_blank">WordPress.com account</a>';
 
 		if ( 'email_match' === $status['match_type'] ) {
 			// Emails are in sync - show preventive warning

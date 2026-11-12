@@ -29,19 +29,6 @@ export function useChartTheme(): ChartTheme {
 					fontSize: 'var(--wpds-typography-font-size-sm)',
 					fontWeight: 400,
 				},
-				containerStyles: {
-					rowGap: 'var( --wpds-dimension-padding-sm )',
-					columnGap: 'var( --wpds-dimension-padding-sm )',
-				},
-				shapeStyles: [
-					{
-						transform: 'translate(0, 1px)',
-					},
-					{
-						transform: 'translate(0, 1px)',
-						strokeDasharray: '2, 2, 3, 2, 3, 2, 2',
-					},
-				],
 			},
 			leaderboardChart: {
 				labelSpacing: 'xs',
@@ -61,15 +48,10 @@ export function useChartTheme(): ChartTheme {
 					},
 				},
 			},
+			// Comparison lines are styled by `lineChart.lineStyles.comparison`, never by index.
 			seriesLineStyles: [
 				{
 					strokeWidth: 2,
-				},
-				{
-					strokeDasharray: '4 4',
-					strokeWidth: 1.5,
-					strokeLinecap: 'square' as const,
-					strokeDashoffset: 2,
 				},
 			],
 		};

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.1 - 2026-10-15
+### Fixed
+- Remove unnecessary `shell: true` from Docker command spawning, silencing the Node.js DEP0190 deprecation warning. [#49771]
+
 ## 2.0.0 - 2026-05-13
 ### Security
 - Rsync: Make it harder for a host-system attacker to attack the rsync proxy. [#47736]

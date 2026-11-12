@@ -3,15 +3,6 @@
  */
 import type { ComparativeLineChartSeries } from '../components/chart-comparative-line/types';
 
-export type ResolvedSeriesNames = {
-	/** The current-period label of each `group`, keyed by group. */
-	primaryByGroup: Map< string, string >;
-	/** The metric name to show for a series label, keyed by that label. */
-	seriesNames: Map< string, string >;
-	/** Whether the chart was handed more than one metric. */
-	isPaired: boolean;
-};
-
 /**
  * Resolve each group's current-period series.
  *
@@ -37,40 +28,4 @@ export function resolvePrimarySeriesByGroup(
 	}
 
 	return primarySeriesByGroup;
-}
-
-/**
- * Resolve the metric name each series' tooltip row should lead with. A
- * comparison row is named after its group's current period, not its own label
- * ('Visitors', not 'Visitors · previous period'). `isPaired` counts metrics
- * handed to the chart, not those currently visible, so a row's label doesn't reshape as a hidden counterpart is revealed.
- *
- * @param series - The series the chart was handed.
- * @return The group's primary labels, the per-label metric names, and whether more than one metric is present.
- */
-export function resolveSeriesNames(
-	series: readonly ComparativeLineChartSeries[]
-): ResolvedSeriesNames {
-	const primarySeriesByGroup = resolvePrimarySeriesByGroup( series );
-	const primaryByGroup = new Map(
-		Array.from( primarySeriesByGroup, ( [ group, primary ] ) => [ group, primary.label ] )
-	);
-	let currentCount = 0;
-
-	for ( const item of series ) {
-		if ( item.options?.type === 'comparison' ) {
-			continue;
-		}
-		currentCount++;
-	}
-
-	const seriesNames = new Map< string, string >();
-	for ( const item of series ) {
-		seriesNames.set(
-			item.label,
-			( item.group !== undefined && primaryByGroup.get( item.group ) ) || item.label
-		);
-	}
-
-	return { primaryByGroup, seriesNames, isPaired: currentCount > 1 };
 }

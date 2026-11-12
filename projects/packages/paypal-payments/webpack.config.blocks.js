@@ -4,7 +4,6 @@
 
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 
 /**
  * Internal variables
@@ -70,7 +69,8 @@ const sharedWebpackConfig = {
 						options: {
 							postcssOptions: {
 								plugins: [
-									require( '@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks' ).default,
+									require( '@wordpress/theme-build-tools/postcss-plugins/postcss-ds-token-fallbacks' )
+										.default,
 									require( 'autoprefixer' ),
 								],
 							},
@@ -89,22 +89,18 @@ const sharedWebpackConfig = {
 module.exports = [
 	{
 		...sharedWebpackConfig,
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			new CopyWebpackPlugin( {
-				patterns: [
-					{
-						from: 'src/block/**/block.json',
-						to: 'block/[name][ext]',
-						noErrorOnMissing: true,
-					},
-					{
-						from: 'src/paypal-payment-buttons/block.json',
-						to: 'paypal-payment-buttons/[name][ext]',
-						noErrorOnMissing: true,
-					},
-				],
-			} ),
-		],
+		output: {
+			...sharedWebpackConfig.output,
+			copy: [
+				{
+					from: 'src/block/**/block.json',
+					filename: 'block/[name][ext]',
+				},
+				{
+					from: 'src/paypal-payment-buttons/block.json',
+					filename: 'paypal-payment-buttons/[name][ext]',
+				},
+			],
+		},
 	},
 ];

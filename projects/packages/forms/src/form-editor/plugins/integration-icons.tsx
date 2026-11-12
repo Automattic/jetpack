@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
-import { Icon, Tooltip } from '@wordpress/components';
+import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
+import { Tooltip } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import { isValidSalesforceOrgId } from '../../blocks/contact-form/components/jetpack-integrations-modal/helpers/salesforce.tsx';
 import type { Integration } from '../../types/index.ts';
+import type { JSX } from 'react';
 
 type FormAttributes = {
 	jetpackCRM?: boolean;
@@ -83,8 +85,8 @@ const IntegrationIcons = ( {
 	return (
 		<span className="jetpack-form-pre-publish__integration-icons">
 			{ activeIntegrations.map( integration => (
-				<Tooltip key={ integration.id } text={ integration.title || '' }>
-					<span>
+				<Tooltip.Root key={ integration.id } disabled={ ! integration.title }>
+					<Tooltip.Trigger render={ <span /> }>
 						{ integration.iconUrl ? (
 							<img
 								src={ integration.iconUrl }
@@ -95,8 +97,9 @@ const IntegrationIcons = ( {
 						) : (
 							<Icon icon={ plugins } size={ 20 } />
 						) }
-					</span>
-				</Tooltip>
+					</Tooltip.Trigger>
+					<Tooltip.Popup>{ integration.title }</Tooltip.Popup>
+				</Tooltip.Root>
 			) ) }
 		</span>
 	);

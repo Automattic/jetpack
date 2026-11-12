@@ -44,13 +44,13 @@ class Jetpack_Shortcodes_Mixcloud_Test extends WP_UnitTestCase {
 	public function test_shortcodes_mixcloud_content_empty() {
 		$content = '[mixcloud id="" attr="1"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( $this->invalid_markup, $shortcode_content );
 
 		$content = '[mixcloud]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( $this->invalid_markup, $shortcode_content );
 	}
@@ -63,7 +63,7 @@ class Jetpack_Shortcodes_Mixcloud_Test extends WP_UnitTestCase {
 	public function test_shortcodes_mixcloud_content_is_not_mixcloud_link() {
 		$content = '[mixcloud id="test.com"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( $this->invalid_markup, $shortcode_content );
 	}
@@ -83,7 +83,7 @@ class Jetpack_Shortcodes_Mixcloud_Test extends WP_UnitTestCase {
 
 		$content = '[mixcloud width=500 height 100 mini="true" hide_followers="true" hide_artwork="true" light="true"]https://www.mixcloud.com/DJOneF/djonef-mashup-mix-june-2020/[/mixcloud]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( $this->invalid_markup, $shortcode_content );
 
@@ -115,7 +115,7 @@ class Jetpack_Shortcodes_Mixcloud_Test extends WP_UnitTestCase {
 
 		$content = '[mixcloud width=500 height 100 mini="true" hide_followers="true" hide_artwork="true" light="true"]https://www.mixcloud.com/DJOneF/djonef-mashup-mix-june-2020/[/mixcloud]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( '<iframe width="500" height="60" src="https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2FDJOneF%2Fdjonef-mashup-mix-june-2020%2F&amp;hide_artwork=1&amp;hide_cover=1&amp;light=1&amp;mini=1" frameborder="0" sandbox="allow-popups allow-scripts allow-same-origin allow-presentation"></iframe>', $shortcode_content );
 
@@ -148,7 +148,7 @@ class Jetpack_Shortcodes_Mixcloud_Test extends WP_UnitTestCase {
 
 		$content = '[mixcloud width=500 height 100 mini="true" hide_followers="true" hide_artwork="true" light="true"]https://www.mixcloud.com/DJOneF/djonef-mashup-mix-june-2020/[/mixcloud]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( '<iframe width="500" height="60" src="https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2FDJOneF%2Fdjonef-mashup-mix-june-2020%2F&amp;hide_artwork=1&amp;hide_cover=1&amp;light=1&amp;mini=1" frameborder="0" sandbox="allow-popups allow-scripts allow-same-origin allow-presentation"></iframe>', $shortcode_content );
 

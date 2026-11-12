@@ -12,12 +12,13 @@ export {
 	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
+	PRESET_LAST_3_YEARS,
 	PRESET_CUSTOM,
 	PRESET_ALL_TIME,
 	MENU_SURFACE_PRESETS,
 	MENU_SURFACE_PRESET_GROUPS,
 	QUICK_SURFACE_PRESETS,
-	DETAIL_SURFACE_PRESETS,
+	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 	YEAR_PRESET_PREFIX,
 	isSelectablePreset,
 	isPrimaryPreset,
@@ -48,4 +49,4 @@ export {
 	type QuickSurfaceOptions,
 } from './primary';
 
-export { getComparisonOptions, type ComparisonOption } from './comparison';
+export { findComparisonOption, getComparisonOptions, type ComparisonOption } from './comparison';

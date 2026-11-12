@@ -17,7 +17,7 @@ return [
     // PhanUndeclaredClassConstant : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
-    // PhanTypeMismatchPropertyDefault : 2 occurrences
+    // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
@@ -39,7 +39,6 @@ return [
         'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
         'app/modules/optimizations/page-cache/class-page-cache-setup.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-logger.php' => ['PhanCoalescingNeverNull'],
-        'app/modules/optimizations/page-cache/pre-wordpress/class-request.php' => ['PhanTypeMismatchPropertyDefault'],
         'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/page-optimize.php' => ['PhanUndeclaredFunction'],

@@ -53,9 +53,9 @@ export interface NewsletterScriptData {
 	overviewEnabled: boolean;
 	isSubscriptionSiteEditSupported: boolean;
 	setupPaymentPlansUrl: string;
+	/** Null when this site has no email design screen to link to. */
+	emailDesignUrl?: string | null;
 	isSitePublic: boolean;
-	showSubscriberCountNotice: boolean;
-	subscriberCountNoticeNonce: string;
 	tracksUserData?:
 		| {
 				userid: number;

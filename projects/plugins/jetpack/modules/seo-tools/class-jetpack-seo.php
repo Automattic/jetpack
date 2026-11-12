@@ -115,6 +115,24 @@ class Jetpack_SEO {
 	}
 
 	/**
+	 * Gets the posts page's SEO description, falling back to its excerpt.
+	 *
+	 * Jetpack_SEO_Posts::get_post_description() can't be used: it returns nothing off singular views.
+	 *
+	 * @param WP_Post $page The posts page.
+	 * @return string Description, or empty string if there is none to show.
+	 */
+	private function get_posts_page_description( $page ) {
+		if ( post_password_required( $page ) ) {
+			return '';
+		}
+
+		$description = Jetpack_SEO_Posts::get_post_custom_description( $page );
+
+		return $description ? $description : $page->post_excerpt;
+	}
+
+	/**
 	 * Constructs open graph tag data.
 	 *
 	 * @param array $tags Array of tag data.
@@ -134,6 +152,18 @@ class Jetpack_SEO {
 			? Jetpack_SEO_Posts::get_post_custom_description( get_post() )
 			: '';
 		$front_page_meta         = Jetpack_SEO_Utils::get_front_page_meta_description();
+
+		$posts_page = Jetpack_SEO_Utils::is_enabled_jetpack_seo() ? Jetpack_SEO_Utils::get_viewed_posts_page() : null;
+
+		if ( $posts_page ) {
+			$posts_page_title = wp_kses( $posts_page->post_title, array() );
+
+			if ( $posts_page_title && empty( $custom_title ) ) {
+				$tags['og:title'] = $posts_page_title;
+			}
+
+			$post_custom_description = wp_strip_all_tags( strip_shortcodes( $this->get_posts_page_description( $posts_page ) ) );
+		}
 
 		if ( class_exists( 'woocommerce' ) && is_shop() ) {
 			$shop_page_id = get_option( 'woocommerce_shop_page_id' );
@@ -183,6 +213,7 @@ class Jetpack_SEO {
 		$front_page_meta     = Jetpack_SEO_Utils::get_front_page_meta_description();
 		$description         = $front_page_meta ? $front_page_meta : get_bloginfo( 'description' );
 		$meta['description'] = trim( $description );
+		$posts_page          = Jetpack_SEO_Utils::get_viewed_posts_page();
 
 		// Try to target things if we're on a "specific" page of any kind.
 		if ( is_singular() ) {
@@ -197,6 +228,12 @@ class Jetpack_SEO {
 					);
 					$meta['description'] = $description;
 				}
+			}
+		} elseif ( $posts_page ) {
+			$description = $this->get_posts_page_description( $posts_page );
+
+			if ( $description ) {
+				$meta['description'] = wp_trim_words( strip_shortcodes( wp_strip_all_tags( $description, true ) ) );
 			}
 		} elseif ( is_author() ) {
 			$obj = get_queried_object();
@@ -270,7 +307,7 @@ class Jetpack_SEO {
 			$meta['description'] = wp_sprintf( $template, $post_count, $authors, $period );
 		}
 
-		$mark_as_noindex = Jetpack_SEO_Posts::get_post_noindex_setting( get_post() );
+		$mark_as_noindex = is_singular() && Jetpack_SEO_Posts::get_post_noindex_setting( get_post() );
 		if ( $mark_as_noindex ) {
 			$meta['robots'] = 'noindex';
 		}

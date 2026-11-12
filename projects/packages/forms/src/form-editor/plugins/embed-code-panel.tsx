@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
 import { CopyCodeRow } from './copy-code-row';
+import type { JSX } from 'react';
 
 export const EMBED_CODE_PANEL_PLUGIN = 'jetpack-form-embed-code-panel';
 
@@ -49,8 +50,19 @@ export const EmbedCodePanel = () => {
 	return (
 		<PluginPostStatusInfo className="jetpack-form-embed-code">
 			<div className="jetpack-form-embed-code__rows">
-				<CopyCodeRow text={ embedCode } label={ __( 'Embed code', 'jetpack-forms' ) } />
-				<CopyCodeRow text={ shortcode } label={ __( 'Shortcode', 'jetpack-forms' ) } />
+				<CopyCodeRow
+					text={ embedCode }
+					label={ __( 'Embed code', 'jetpack-forms' ) }
+					help={ __( 'Paste into the block editor or code editor.', 'jetpack-forms' ) }
+				/>
+				<CopyCodeRow
+					text={ shortcode }
+					label={ __( 'Shortcode', 'jetpack-forms' ) }
+					help={ __(
+						'Use in the classic editor, widgets, or anywhere shortcodes are supported.',
+						'jetpack-forms'
+					) }
+				/>
 			</div>
 		</PluginPostStatusInfo>
 	);

@@ -354,13 +354,15 @@ class Site_Health_Test extends TestCase {
 	 * Test that invoking a direct test callback returns correct structure for a failing test.
 	 */
 	public function test_direct_callback_returns_site_health_format_for_failing_test() {
-		// Mock HTTP to fail for outbound_http.
+		// A connected site whose WP.com test-connection request fails yields a failing direct test.
+		\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		\Jetpack_Options::update_option( 'id', 12345 );
 		add_filter(
 			'pre_http_request',
 			function () {
 				return array(
 					'response' => array( 'code' => 500 ),
-					'body'     => 'Error',
+					'body'     => '',
 				);
 			}
 		);
@@ -372,14 +374,14 @@ class Site_Health_Test extends TestCase {
 
 		$result = Site_Health::register_site_health_tests( $core_tests );
 
-		$this->assertArrayHasKey( 'test__outbound_http', $result['direct'] );
-		$callback = $result['direct']['test__outbound_http']['test'];
+		$this->assertArrayHasKey( 'test__wpcom_connection_test', $result['direct'] );
+		$callback = $result['direct']['test__wpcom_connection_test']['test'];
 
 		$output = $callback();
 
 		$this->assertIsArray( $output );
 		$this->assertNotEquals( 'good', $output['status'] );
-		$this->assertEquals( 'jetpack_test__outbound_http', $output['test'] );
+		$this->assertEquals( 'jetpack_test__wpcom_connection_test', $output['test'] );
 	}
 
 	/**

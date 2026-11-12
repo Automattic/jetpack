@@ -16,6 +16,8 @@ export function* getJetpackModules() {
 		}
 	} catch ( e ) {
 		console.error( e ); // eslint-disable-line no-console
+		// Recorded as a failed resolution, so a screen can tell a failed request from an empty list.
+		throw e;
 	} finally {
 		yield setIsLoading( false );
 	}

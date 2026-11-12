@@ -1,3 +1,14 @@
+// Widget roots clip overflow, so the focus ring is drawn inset and the ring
+// plus its gap must live inside the button's own box.
+$padding: calc(var(--wpds-dimension-padding-xs) + var(--wpds-border-width-focus));
+
+// Shared with the trail's separator and current label beside the link.
+@mixin text {
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 20px;
+}
+
 .backLink {
 	position: relative;
 	z-index: 2;
@@ -7,16 +18,13 @@
 	gap: var(--wpds-dimension-gap-xs);
 	min-block-size: 20px;
 	margin-block-end: var(--wpds-dimension-gap-md);
-	// Widget roots clip overflow, so the focus ring is drawn inset and the ring
-	// plus its gap must live inside the button's own box.
-	padding: calc(var(--wpds-dimension-padding-xs) + var(--wpds-border-width-focus));
+	padding: $padding;
 	color: var(--wpds-color-foreground-content-neutral-weak);
-	font: inherit;
-	font-size: 13px;
-	font-weight: 500;
-	line-height: 20px;
 	text-decoration: none;
 	cursor: pointer;
+	font: inherit;
+
+	@include text;
 }
 
 .backLink:hover,
@@ -40,6 +48,38 @@
 .label {
 	min-inline-size: 0;
 	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// Fills the row, which the link's 50% cap is measured against.
+.trail {
+	display: flex;
+	flex-grow: 1;
+	align-items: center;
+	min-inline-size: 0;
+
+	@include text;
+}
+
+// The current label truncates first, keeping the one control legible.
+.trail .backLink {
+	flex-shrink: 0;
+	align-self: center;
+	max-inline-size: 50%;
+	margin-block-end: 0;
+}
+
+// Matches the link's inline padding, so the slash sits centred.
+.separator {
+	padding-inline-end: $padding;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.current {
+	min-inline-size: 0;
+	overflow: hidden;
+	color: var(--wpds-color-foreground-content-neutral);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }

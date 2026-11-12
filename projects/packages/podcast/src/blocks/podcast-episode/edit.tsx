@@ -78,6 +78,7 @@ interface PodcastEpisodeAttributes {
 	licenseUrl?: string;
 	people?: Person[];
 	showPoster?: boolean;
+	showAuthor?: boolean;
 	coverArt?: CoverArt;
 	soundbites?: Soundbite[];
 	alternateEnclosures?: AlternateEnclosure[];
@@ -359,6 +360,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		licenseUrl,
 		people = [],
 		showPoster,
+		showAuthor,
 		coverArt,
 		soundbites = [],
 		alternateEnclosures = [],
@@ -599,6 +601,16 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						) }
 						checked={ !! showPoster }
 						onChange={ value => setAttributes( { showPoster: value } ) }
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
+						label={ __( 'Show author', 'jetpack-podcast' ) }
+						help={ __(
+							'Display the post author in the byline. Hiding it also removes the author from schema metadata.',
+							'jetpack-podcast'
+						) }
+						checked={ !! showAuthor }
+						onChange={ value => setAttributes( { showAuthor: value } ) }
 						__nextHasNoMarginBottom
 					/>
 					<BaseControl __nextHasNoMarginBottom>
@@ -874,9 +886,9 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 							: __( 'Untitled episode', 'jetpack-podcast' ) }
 					</h3>
 
-					{ ( postAuthor || postDate || duration ) && (
+					{ ( ( showAuthor && postAuthor ) || postDate || duration ) && (
 						<p className="jetpack-podcast-episode__byline">
-							{ postAuthor && (
+							{ showAuthor && postAuthor && (
 								<span className="jetpack-podcast-episode__author">{ postAuthor }</span>
 							) }
 							{ postDate && (

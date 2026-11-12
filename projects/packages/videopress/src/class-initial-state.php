@@ -79,14 +79,26 @@ class Initial_State {
 			return;
 		}
 
-		wp_add_inline_script( self::SCRIPT_HANDLE, ( new self() )->render(), 'before' );
+		self::attach_to( self::SCRIPT_HANDLE );
+	}
+
+	/**
+	 * Inline the initial-state payload, and the connection state, before a script.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $handle A registered script handle.
+	 * @return void
+	 */
+	public static function attach_to( $handle ) {
+		wp_add_inline_script( $handle, ( new self() )->render(), 'before' );
 
 		// Hydrate the JP connection store (`window.JP_CONNECTION_INITIAL_STATE`)
 		// so shared connection-aware hooks — notably
 		// `useProductCheckoutWorkflow`, which powers the upgrade CTA — work on
 		// the modernized dashboard exactly as they do on the legacy one. This
 		// also sets `window.jpTracksContext.blog_id` for `@automattic/jetpack-analytics`.
-		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
+		Connection_Initial_State::render_script( $handle );
 	}
 
 	/**
@@ -137,6 +149,7 @@ class Initial_State {
 			// hide gated UI without a round trip.
 			'features'               => array(
 				'chaptersEditor' => Admin_UI::is_chapters_editor_enabled(),
+				'trimCut'        => Admin_UI::is_trim_cut_enabled(),
 			),
 			// Authoritative map of accepted upload types (extension => mimetype),
 			// so the dashboard's drag-and-drop filter accepts exactly what the

@@ -95,7 +95,7 @@ const meta: Meta< StoryArgs > = {
 		labelTextColor: {
 			control: { type: 'color' },
 			description:
-				'Color of the label text on pie segments. Sets `--a8c-charts-color-label-inverse`.',
+				'Color of the label text on dark slices, and on a label plate regardless of slice color. Sets `--a8c-charts-color-label-inverse`.',
 			table: { category: 'Labels' },
 		},
 		labelBackgroundColor: {

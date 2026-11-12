@@ -13,6 +13,7 @@ export const PRESET_LAST_MONTH = 'last-month' as const;
 export const PRESET_YEAR_TO_DATE = 'year-to-date' as const;
 export const PRESET_LAST_12_MONTHS = 'last-12-months' as const;
 export const PRESET_LAST_YEAR = 'last-year' as const;
+export const PRESET_LAST_3_YEARS = 'last-3-years' as const;
 
 /**
  * All selectable (non-custom) preset IDs, in display order. Wider than what the
@@ -32,14 +33,25 @@ export const SELECTABLE_PRESETS = [
 	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
+	PRESET_LAST_3_YEARS,
 ] as const;
 
 export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
 
 /**
+ * The "Last N days" presets, which `getPreviousPeriodMonthCount` steps back by days.
+ */
+export const DAY_COUNT_PRESETS: readonly PrimaryPresetId[] = [
+	PRESET_LAST_7_DAYS,
+	PRESET_LAST_30_DAYS,
+	PRESET_LAST_90_DAYS,
+	PRESET_LAST_365_DAYS,
+];
+
+/**
  * The all-time marker. On the year surface it covers every year the surface
- * lists; on a detail page's quick surface it runs from the resource's own start
- * (its publish date) through today.
+ * lists; on a detail page it runs from the resource's own start (its publish
+ * date) through today. A report sends it as `num: -1`, so WPCOM picks the start.
  */
 export const PRESET_ALL_TIME = 'all-time' as const;
 
@@ -69,7 +81,7 @@ export type QuickSurfacePresetId = SelectablePresetId | typeof PRESET_ALL_TIME;
 export const MENU_SURFACE_PRESET_GROUPS = [
 	[ PRESET_TODAY, PRESET_YESTERDAY, PRESET_LAST_24_HOURS, PRESET_LAST_7_DAYS, PRESET_LAST_30_DAYS ],
 	[ PRESET_MONTH_TO_DATE, PRESET_LAST_MONTH ],
-	[ PRESET_YEAR_TO_DATE, PRESET_LAST_12_MONTHS ],
+	[ PRESET_YEAR_TO_DATE, PRESET_LAST_12_MONTHS, PRESET_LAST_3_YEARS ],
 	[ PRESET_ALL_TIME ],
 ] as const;
 
@@ -80,10 +92,12 @@ export const MENU_SURFACE_PRESET_GROUPS = [
 export const MENU_SURFACE_PRESETS = SELECTABLE_PRESETS;
 
 /**
- * What a resource detail page (post, video) offers: the whole menu, plus all
- * time, which such a page anchors on the resource's own publish date.
+ * The whole menu plus all time, as a detail page or a report offers it.
  */
-export const DETAIL_SURFACE_PRESETS = [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ] as const;
+export const MENU_SURFACE_PRESETS_WITH_ALL_TIME = [
+	...MENU_SURFACE_PRESETS,
+	PRESET_ALL_TIME,
+] as const;
 
 /**
  * Prefix of the per-year preset IDs, e.g. `year-2024`.

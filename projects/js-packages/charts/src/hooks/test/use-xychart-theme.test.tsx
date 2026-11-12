@@ -1,4 +1,6 @@
 import { renderHook } from '@testing-library/react';
+import { GlobalChartsProvider } from '../../providers';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { ChartScopeContext } from '../../providers/chart-scope';
 import { useXYChartTheme } from '../use-xychart-theme';
 import type { ReactNode } from 'react';
@@ -48,8 +50,7 @@ describe( 'useXYChartTheme', () => {
 		document.body.removeChild( scope );
 	} );
 
-	// The one label color that has to arrive resolved: visx paints it on a portal container appended to `document.body`, where the catalog is not declared, and concatenates it into `box-shadow: 0 1px 2px ${color}55`, which a `var()` chain would invalidate.
-	it( 'resolves the tooltip label color while the tick labels keep the pointer', () => {
+	it( 'hands visx the label pointer for the HTML label, even with an override in scope', () => {
 		const scope = document.createElement( 'div' );
 		scope.style.setProperty( '--a8c-charts-color-label-axis', '#0000ff' );
 		document.body.appendChild( scope );
@@ -60,12 +61,33 @@ describe( 'useXYChartTheme', () => {
 
 		const { result } = renderHook( () => useXYChartTheme( [] ), { wrapper } );
 
-		expect( result.current.htmlLabel.color ).toBe( '#0000ff' );
+		expect( result.current.htmlLabel.color ).toBe( CATALOG_POINTERS.labelAxis );
 		expect( result.current.svgLabelSmall.fill ).toBe(
 			'var(--a8c-charts-color-label-axis, #1e1e1e)'
 		);
 
 		document.body.removeChild( scope );
+	} );
+
+	it.each( [
+		[ -12, 11 ],
+		[ Infinity, 11 ],
+		[ 14, 14 ],
+		[ '-12px', 11 ],
+		[ '12.px', 11 ],
+		[ '9'.repeat( 400 ) + 'px', 11 ],
+		[ '0.875rem', '0.875rem' ],
+		[ 'var(--size)', 'var(--size)' ],
+	] )( 'renders a theme fontSize of %p as %p', ( fontSize, expected ) => {
+		const wrapper = ( { children }: { children: ReactNode } ) => (
+			<GlobalChartsProvider theme={ { svgLabelSmall: { fontSize } } }>
+				{ children }
+			</GlobalChartsProvider>
+		);
+
+		const { result } = renderHook( () => useXYChartTheme( [] ), { wrapper } );
+
+		expect( result.current.axisStyles.x.bottom.tickLabel.fontSize ).toBe( expected );
 	} );
 
 	it( 'gives the y axis its own roles, resolving to none', () => {

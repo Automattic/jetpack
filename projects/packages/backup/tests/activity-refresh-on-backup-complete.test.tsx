@@ -19,6 +19,11 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
+jest.mock( '@wordpress/a11y', () => {
+	const actual = jest.requireActual( '@wordpress/a11y' );
+	return { ...actual, speak: jest.fn( actual.speak ) };
+} );
+
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => () => {},
@@ -28,6 +33,7 @@ jest.mock( '@wordpress/route', () => ( {
 
 // Imports must come after the jest.mock factories above.
 import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { speak } from '@wordpress/a11y';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
 import { BACKUPS_POLL_INTERVAL_MS } from '../src/dashboard/hooks/use-backups';
@@ -155,7 +161,7 @@ function activityList(): HTMLElement {
 }
 
 describe( 'A backup finishing while the Overview is open', () => {
-	it( 'adds its row to the activity list, in exactly one request', async () => {
+	it( 'adds its row to the activity list, in exactly one request, and says so once', async () => {
 		render( <OverviewStage /> );
 
 		// The running backup is reported alongside the list, not in place
@@ -187,5 +193,32 @@ describe( 'A backup finishing while the Overview is open', () => {
 		// below is settled rather than merely early.
 		await pollAndSettle();
 		expect( calls.activity ).toBe( activityCallsWhileRunning + 1 );
+		expect(
+			( speak as jest.Mock ).mock.calls.filter( ( [ text ] ) => text === 'Your backup is ready.' )
+		).toHaveLength( 1 );
+	} );
+
+	it( 'reports a run that failed behind an older backup, on screen and aloud', async () => {
+		const olderBackup = { ...FINISHED_BACKUP, id: '0', period: '1786644531' };
+		backupRows = [ RUNNING_BACKUP, olderBackup ];
+		render( <OverviewStage /> );
+		await expect(
+			screen.findByRole( 'heading', { name: 'Older backup complete' } )
+		).resolves.toBeInTheDocument();
+		await pollAndSettle();
+
+		backupRows = [ { ...RUNNING_BACKUP, status: 'error' }, olderBackup ];
+		await pollAndSettle();
+
+		const failed =
+			"Your latest backup didn't complete. Your earlier backups can still be restored.";
+		await expect(
+			screen.findByText( failed, { ignore: '.a11y-speak-region' } )
+		).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect(
+				( speak as jest.Mock ).mock.calls.filter( ( [ text ] ) => text === failed )
+			).toHaveLength( 1 )
+		);
 	} );
 } );

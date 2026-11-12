@@ -8,7 +8,7 @@ import type { StatsPostCommentsResponse } from '../processing/stats';
 
 export type StatsPostCommentsParams = {
 	postId: number;
-	/** How many comments to return (the response's `found` carries the total). */
+	/** How many comments to return. */
 	number?: number;
 };
 
@@ -19,9 +19,8 @@ export const statsPostCommentsQuery = (
 ): StatsReportQueryOptions< 'postComments' > => {
 	const commentParams: StatsProxyParams = {
 		...( params.number ? { number: params.number } : {} ),
-		// Keep this compact people roster to regular, approved comments. The
-		// endpoint defaults to the same values, but spelling them out prevents
-		// pingbacks or moderation state from changing the card's meaning.
+		// Keep this compact people roster to regular, approved comments, so
+		// pingbacks or moderation state cannot change the card's meaning.
 		type: 'comment',
 		status: 'approved',
 		order: 'DESC',

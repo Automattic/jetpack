@@ -106,7 +106,11 @@ class Connections_Controller extends Base_Controller {
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'update_item_permissions_check' ),
 					'args'                => array(
-						'shared' => array(
+						'external_user_ID' => array(
+							'description' => __( 'External User Id - in case of services like Facebook.', 'jetpack-publicize-pkg' ),
+							'type'        => 'string',
+						),
+						'shared'           => array(
 							'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
 							'type'        => 'boolean',
 						),
@@ -508,6 +512,11 @@ class Connections_Controller extends Base_Controller {
 			$input = array(
 				'shared' => $request->get_param( 'shared' ),
 			);
+
+			$external_user_id = $request->get_param( 'external_user_ID' );
+			if ( ! empty( $external_user_id ) ) {
+				$input['external_user_ID'] = $external_user_id;
+			}
 
 			if ( $request->has_param( 'template' ) ) {
 				require_lib( 'publicize/util/message-templates' );

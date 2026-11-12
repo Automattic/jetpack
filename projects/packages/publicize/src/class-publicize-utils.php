@@ -32,7 +32,8 @@ class Publicize_Utils {
 	public static function is_jetpack_settings_page() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
-		return ! empty( $screen ) && 'toplevel_page_jetpack' === $screen->base;
+		// Older Jetpack plugins still render Settings at page=jetpack.
+		return ! empty( $screen ) && in_array( $screen->base, array( 'jetpack_page_jetpack-settings', 'toplevel_page_jetpack' ), true );
 	}
 
 	/**

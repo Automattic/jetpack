@@ -5,45 +5,40 @@ import {
 	BarChart,
 	Stack,
 	getBucketInfo,
+	useBarColors,
 	useGlobalChartsContext,
-	type TickResolution,
+	type BarChartLayout,
 } from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
-import { useResizeObserver } from '@wordpress/compose';
 import clsx from 'clsx';
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
-	appendTooltipExtras,
-	formatTooltipSeriesLabel,
 	isEmptyChartData,
 	getFixedYAxis,
-	dateFormatForResolution,
-	resolveSeriesNames,
-	resolveTooltipNames,
+	getYTickDecimals,
+	formatBucketTooltipDate,
+	toTickResolution,
+	type BucketResolution,
 } from '../../helpers';
+import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
+import { useChartName } from '../../hooks/use-chart-name';
+import { useComparativeLegend } from '../../hooks/use-comparative-legend';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
-import { ChartTooltip } from '../chart-tooltip';
+import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
 import type { ComparativeBarChartSeries } from './types';
 import type { DataFormat } from '../../types';
 import type { ComparativeDatePointDate, TooltipExtraSeries } from '../chart-comparative-line/types';
 import type { TooltipStyle } from '../chart-tooltip';
 import type { ComponentProps } from 'react';
-
-/**
- * Chart-area height (px) below which `compactWhenShort` degrades the chart to
- * a sparkline (no y-axis, grid, or legend). Matches the comparative line chart
- * so a metric switching chart type keeps the same breakpoint.
- */
-const COMPACT_CHART_HEIGHT = 140;
 
 type BarChartProps = ComponentProps< typeof BarChart >;
 type RenderTooltipParams = Parameters< NonNullable< BarChartProps[ 'renderTooltip' ] > >[ 0 ];
@@ -61,6 +56,9 @@ export type ComparativeBarChartProps = {
 
 	className?: string;
 
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
+
 	/** Format for chart values: y-axis ticks and tooltips. */
 	dataFormat: DataFormat;
 
@@ -72,17 +70,12 @@ export type ComparativeBarChartProps = {
 	 * from a known granularity instead of measuring the gaps between points, which a
 	 * single-bucket or DST-shortened series gives it no way to read.
 	 */
-	tickResolution?: TickResolution;
+	tickResolution?: BucketResolution;
 
 	/**
-	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Defaults to `formatDate`.
-	 */
-	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
-
-	/**
-	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
-	 * is too short for readable axis labels. Defaults to false.
+	 * Drop the axes, grid and legend while the chart is shorter than
+	 * `theme.compactWhenShort.below`.
+	 * Forwarded to `BarChart`. Defaults to false.
 	 */
 	compactWhenShort?: boolean;
 
@@ -102,17 +95,37 @@ export type ComparativeBarChartProps = {
 	defaultHiddenSeries?: readonly string[];
 
 	/**
-	 * Let the reader click legend items to show and hide series. Off by default:
-	 * a chart drawing one metric has nothing to compare, and its periods collapse
-	 * into a single item, so clicking it would just empty the chart.
+	 * Let the reader click legend items to show and hide series; the first item stays
+	 * locked so the chart is never emptied. Off by default: a chart drawing one metric
+	 * has nothing to compare.
 	 */
 	legendInteractive?: boolean;
+
+	/**
+	 * Names the comparison in each metric's previous-period legend item, e.g.
+	 * "Prev. 30 days". Defaults to "Previous period".
+	 */
+	comparisonLabel?: string;
 
 	/**
 	 * Series the tooltip reads out but the chart does not draw; see
 	 * `TooltipExtraSeries` for what listing one changes about the rows.
 	 */
 	tooltipExtras?: TooltipExtraSeries[];
+
+	/**
+	 * The bar chart's layout. `overlap` draws each `group` inside the one before it, with the previous period in a slot beside the current one; the tooltip and legend swatches then take the chart's bar colors, and one legend item names the previous period.
+	 */
+	layout?: BarChartLayout;
+
+	/** Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked. */
+	primarySeries?: string;
+
+	/** Overlap layout only. Whether the previous period is drawn; with `onPreviousPeriodShownChange`, its legend item becomes a toggle. See the README. */
+	previousPeriodShown?: boolean;
+
+	/** Called with the new value when the reader presses the previous-period legend item. */
+	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
 
 	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
 	onPointerDown?: BarChartProps[ 'onPointerDown' ];
@@ -136,36 +149,35 @@ export function ComparativeBarChart( {
 	series,
 	className,
 	chartId: providedChartId,
+	chartTitle,
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
-	formatTooltipDate = formatDate,
 	compactWhenShort = false,
 	maxWidth = Infinity,
 	defaultHiddenSeries,
 	legendInteractive = false,
+	comparisonLabel,
 	tooltipExtras,
+	layout,
+	primarySeries,
+	previousPeriodShown,
+	onPreviousPeriodShownChange,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution(
-		getBucketInfo( series, tickResolution ).displayResolution
-	);
+	const chartName = useChartName( chartTitle );
+	const libraryTickResolution = toTickResolution( tickResolution );
+	const { displayResolution } = getBucketInfo( series, libraryTickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { getElementStyles } = useGlobalChartsContext();
-
-	// The measured Stack fills its container (flex), so its height is independent
-	// of whether the axis/legend are shown — no measure/hide feedback loop.
-	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
-	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
-		const rect = entries[ 0 ]?.contentRect;
-		if ( rect ) {
-			setChartAreaHeight( rect.height );
-		}
-	} );
-	const isCompact = compactWhenShort && chartAreaHeight < COMPACT_CHART_HEIGHT;
+	const { isSeriesVisible } = useGlobalChartsContext();
+	const getBarColors = useBarColors();
+	const overlapLayout = layout === 'overlap' ? layout : undefined;
+	const previousPeriodToggle = overlapLayout !== undefined && previousPeriodShown !== undefined;
+	const interactiveLegend =
+		legendInteractive || ( previousPeriodToggle && onPreviousPeriodShownChange !== undefined );
 
 	// Aligning moves comparison dates onto the primary series' band slots; the
 	// originals survive in `realDate` for tooltips.
@@ -178,23 +190,25 @@ export function ComparativeBarChart( {
 		[ isEmptyData, tooltipExtras ]
 	);
 
-	// The opacity matters: a comparison series shares its primary's colour, dimmed
-	// only by the theme — without it the swatch reads as an identical twin.
+	// Each swatch takes the color its bar is drawn in.
 	const seriesStyles = useMemo< TooltipStyle[] >(
 		() =>
-			alignedSeries.map( ( seriesData, index ) => {
-				const { color, barStyles } = getElementStyles( { data: seriesData, index } );
-				return { stroke: color, opacity: barStyles?.opacity };
-			} ),
-		[ alignedSeries, getElementStyles ]
+			getBarColors( alignedSeries, { layout: layout ?? 'grouped' } ).map( stroke => ( {
+				stroke,
+			} ) ),
+		[ alignedSeries, getBarColors, layout ]
 	);
 
 	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
 		() => ( value: number ) =>
-			formatMetricValue( value, dataFormat.type, { useMultipliers: true } ),
+			formatMetricValue( value, dataFormat.type, {
+				useMultipliers: true,
+				currencyCode: dataFormat.options?.currencyCode,
+			} ),
 		[ dataFormat ]
 	);
+	const yTickDecimals = getYTickDecimals( dataFormat.type, dataFormat.options?.currencyCode );
 
 	// `undefined` hands the axis to the chart's derived formatter; `formatDate`'s
 	// `medium` default would otherwise put full site-format dates on every tick.
@@ -203,37 +217,133 @@ export function ComparativeBarChart( {
 		[ xTickFormatType ]
 	);
 
-	const { primaryByGroup, seriesNames, isPaired } = useMemo(
-		() => resolveSeriesNames( series ),
-		[ series ]
-	);
-	// A legend item names a metric; the solid mark against its previous-period twin
-	// is what tells the periods apart, so a metric's two periods always collapse.
-	const legendConfig = useMemo(
-		() => ( { collapseGroups: true, interactive: legendInteractive } ),
-		[ legendInteractive ]
-	);
-
-	const { names: tooltipNames, namesRows } = useMemo(
-		() => resolveTooltipNames( seriesNames, isPaired, tooltipExtras ),
-		[ seriesNames, isPaired, tooltipExtras ]
+	const primarySeriesByGroup = useMemo( () => resolvePrimarySeriesByGroup( series ), [ series ] );
+	const {
+		config: legendConfig,
+		items: comparativeLegendItems,
+		comparisonLabel: previousPeriodLabel,
+	} = useComparativeLegend(
+		alignedSeries,
+		interactiveLegend,
+		comparisonLabel,
+		undefined,
+		layout ?? 'grouped',
+		primarySeries
 	);
 
-	// Comparison points carry the primary's date for axis alignment, so read
-	// `realDate`; a multi-metric chart also prefixes the metric to avoid duplicate names.
-	const getTooltipLabel = useCallback(
-		( datum: { date?: Date; realDate?: Date }, _index: number, key: string ): string => {
-			const displayDate = datum.realDate ?? datum.date;
-			if ( ! displayDate ) {
-				return key;
+	const comparisonIndexes = useMemo(
+		() =>
+			alignedSeries.flatMap( ( item, index ) =>
+				item.options?.type === 'comparison' ? [ index ] : []
+			),
+		[ alignedSeries ]
+	);
+	const pickedOrFirstGroup = (
+		alignedSeries.find( item => item.label === primarySeries ) ?? alignedSeries[ 0 ]
+	)?.group;
+	const pickedComparisonIndex =
+		comparisonIndexes.find( index => alignedSeries[ index ].group === pickedOrFirstGroup ) ??
+		comparisonIndexes[ 0 ];
+
+	const drawnSeries = useMemo(
+		() =>
+			previousPeriodToggle && ! previousPeriodShown
+				? alignedSeries.filter( item => item.options?.type !== 'comparison' )
+				: alignedSeries,
+		[ previousPeriodToggle, alignedSeries, previousPeriodShown ]
+	);
+
+	// A metric's previous period is hidden and shown with it, as the line chart does under the same `chartId`.
+	const comparisonLabelsByGroup = useMemo( () => {
+		const labels = new Map< string | undefined, string[] >();
+		for ( const item of alignedSeries ) {
+			if ( item.options?.type === 'comparison' ) {
+				labels.set( item.group, [ ...( labels.get( item.group ) ?? [] ), item.label ] );
 			}
-			const name = tooltipNames.get( key );
-			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			// Without a name the row would otherwise lead with an internal label,
-			// so fall back to the date, which is always meaningful.
-			return namesRows && name ? formatTooltipSeriesLabel( name, date ) : date;
-		},
-		[ tooltipNames, namesRows, formatTooltipDate, tooltipDateFormat ]
+		}
+		return labels;
+	}, [ alignedSeries ] );
+
+	// Overlap paints the previous period as one slot, so one item names it, in the color of the picked metric's previous bar, or else of its widest shown bar.
+	const legendItems = useMemo( () => {
+		if ( ! overlapLayout ) {
+			return comparativeLegendItems;
+		}
+
+		const metricItems = comparativeLegendItems.filter( item => ! item.describesSeries );
+
+		if ( previousPeriodToggle ) {
+			const ownSeriesItems = metricItems.map( item => {
+				const group = alignedSeries.find( candidate => candidate.label === item.label )?.group;
+				return {
+					...item,
+					seriesLabels: [ item.label, ...( comparisonLabelsByGroup.get( group ) ?? [] ) ],
+				};
+			} );
+			if ( pickedComparisonIndex === undefined ) {
+				return ownSeriesItems;
+			}
+			const previousPeriodItem = {
+				label: previousPeriodLabel,
+				color: seriesStyles[ pickedComparisonIndex ].stroke,
+				shapeStyle: metricItems[ 0 ]?.shapeStyle,
+			};
+			if ( onPreviousPeriodShownChange ) {
+				return [
+					...ownSeriesItems,
+					{
+						...previousPeriodItem,
+						pressed: previousPeriodShown,
+						onToggle: () => onPreviousPeriodShownChange( ! previousPeriodShown ),
+					},
+				];
+			}
+			return previousPeriodShown
+				? [ ...ownSeriesItems, { ...previousPeriodItem, interactive: false } ]
+				: ownSeriesItems;
+		}
+
+		const pickedGroup = alignedSeries.find( item => item.label === primarySeries )?.group;
+		const shownPrevious = alignedSeries.flatMap( ( item, index ) =>
+			item.options?.type === 'comparison' && isSeriesVisible( chartId, item.label ) ? [ index ] : []
+		);
+		const legendPrevious =
+			shownPrevious.find( index => alignedSeries[ index ].group === pickedGroup ) ??
+			shownPrevious[ 0 ];
+
+		if ( legendPrevious === undefined ) {
+			return metricItems;
+		}
+
+		return [
+			...metricItems,
+			{
+				label: previousPeriodLabel,
+				color: seriesStyles[ legendPrevious ].stroke,
+				shapeStyle: metricItems[ 0 ]?.shapeStyle,
+				interactive: false,
+			},
+		];
+	}, [
+		overlapLayout,
+		comparativeLegendItems,
+		previousPeriodToggle,
+		pickedComparisonIndex,
+		previousPeriodShown,
+		onPreviousPeriodShownChange,
+		comparisonLabelsByGroup,
+		alignedSeries,
+		primarySeries,
+		isSeriesVisible,
+		chartId,
+		previousPeriodLabel,
+		seriesStyles,
+	] );
+
+	const formatTooltipBucket = useCallback(
+		( point: ComparativeDatePointDate ) =>
+			formatBucketTooltipDate( point, displayResolution, tickResolution ),
+		[ displayResolution, tickResolution ]
 	);
 
 	/**
@@ -264,49 +374,52 @@ export function ComparativeBarChart( {
 				// A hidden metric contributes no bar, so re-adding its shadow would put a
 				// series the reader chose not to see back in the tooltip.
 				const primaryLabel =
-					seriesData.group !== undefined ? primaryByGroup.get( seriesData.group ) : undefined;
+					seriesData.group !== undefined
+						? primarySeriesByGroup.get( seriesData.group )?.label
+						: undefined;
 				if ( primaryLabel && ! datumByKey[ primaryLabel ] ) {
 					continue;
 				}
 
 				// Comparison dates were aligned onto the primary axis, so the hovered
-				// category matches on `date`, not on `realDate`.
+				// category matches on `date`, not on `realDate`. A bucket the comparison
+				// lacks still gets an entry, so the tooltip keeps its column and reads a dash.
 				const paired = seriesData.data.find( point => point.date?.getTime() === hoveredTime );
 
-				if ( paired?.value != null ) {
-					augmented[ seriesData.label ] = { datum: paired, index, key: seriesData.label };
-				}
+				augmented[ seriesData.label ] = {
+					datum: paired ?? { date: hovered.date, value: null },
+					index,
+					key: seriesData.label,
+				};
 			}
 
 			return { ...tooltipData, datumByKey: augmented };
 		},
-		[ alignedSeries, primaryByGroup ]
+		[ alignedSeries, primarySeriesByGroup ]
 	);
-
-	// `seriesStyles` follows `alignedSeries`; the tooltip's rows do not, so pair
-	// them by key (see `ChartTooltip`'s `seriesKeys`).
-	const seriesKeys = useMemo( () => alignedSeries.map( item => item.label ), [ alignedSeries ] );
 
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => {
-			const { tooltipData, supplementaryRows } = appendTooltipExtras(
-				withComparisonDatum( params.tooltipData ),
-				tooltipExtras
-			);
+			// `seriesStyles` follows `alignedSeries`, so the model pairs rows by that order.
+			const model = buildDatedTooltipModel( {
+				tooltipData: withComparisonDatum( params.tooltipData ),
+				series: alignedSeries,
+				seriesStyles,
+				extras: tooltipExtras,
+				dataFormat,
+				formatDate: formatTooltipBucket,
+			} );
 
-			return (
-				<ChartTooltip
-					tooltipData={ tooltipData }
-					dataFormat={ dataFormat }
-					seriesStyles={ seriesStyles }
-					seriesKeys={ seriesKeys }
-					indicatorType="rect"
-					supplementaryRows={ supplementaryRows }
-					getLabel={ getTooltipLabel }
-				/>
-			);
+			return model && <DatedTooltip model={ model } indicatorType="rect" />;
 		},
-		[ dataFormat, seriesStyles, seriesKeys, getTooltipLabel, withComparisonDatum, tooltipExtras ]
+		[
+			dataFormat,
+			seriesStyles,
+			alignedSeries,
+			withComparisonDatum,
+			tooltipExtras,
+			formatTooltipBucket,
+		]
 	);
 
 	/**
@@ -323,12 +436,11 @@ export function ComparativeBarChart( {
 			axis: {
 				x: {
 					tickFormat: xTickFormat,
-					tickResolution,
+					tickResolution: libraryTickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
-					// Hide the y-axis on short tiles; its labels would otherwise overlap.
-					...( isCompact ? { display: false } : {} ),
+					tickDecimals: yTickDecimals,
 				},
 			},
 		};
@@ -338,19 +450,21 @@ export function ComparativeBarChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
+	}, [ xTickFormat, libraryTickResolution, yTickFormat, yTickDecimals, fixedYAxis ] );
 
 	return (
-		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
+		<Stack direction="column" className={ clsx( styles.chart, className ) }>
 			<BarChart
 				chartId={ chartId }
+				ariaLabel={ chartName }
 				className={ styles.chartContent }
-				data={ alignedSeries }
+				data={ drawnSeries }
+				layout={ layout }
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }
 				maxWidth={ maxWidth }
-				gridVisibility={ isCompact ? 'none' : undefined }
+				compactWhenShort={ compactWhenShort }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 				// A zero-value bar has no height, so a quiet day would otherwise read as
 				// missing data. This draws it as a hairline stub instead.
@@ -362,24 +476,21 @@ export function ComparativeBarChart( {
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
 			>
-				{ /* Circle swatches, not the bar's own shape: the legend only needs to name
-				     the metrics, since the chart itself tells the periods apart. */ }
-				{ ! isCompact && (
-					<BarChart.Legend
-						interactive={ legendInteractive }
-						shape="circle"
-						className={ styles.legend }
-						itemClassName={ styles.legendItem }
-						itemStyles={ { margin: 0 } }
-						labelClassName={ styles.legendLabel }
-						labelStyles={ {
-							maxWidth: '100%',
-							textOverflow: 'ellipsis',
-							margin: 0,
-						} }
-						shapeStyles={ { width: 8, height: 8, margin: 0 } }
-					/>
-				) }
+				<BarChart.Legend
+					items={ legendItems }
+					interactive={ interactiveLegend }
+					shape="rect"
+					className={ styles.legend }
+					itemClassName={ styles.legendItem }
+					itemStyles={ { margin: 0 } }
+					labelClassName={ styles.legendLabel }
+					labelStyles={ {
+						maxWidth: '100%',
+						textOverflow: 'ellipsis',
+						margin: 0,
+					} }
+					shapeStyles={ { margin: 0 } }
+				/>
 			</BarChart>
 		</Stack>
 	);

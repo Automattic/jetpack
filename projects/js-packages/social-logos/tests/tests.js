@@ -63,6 +63,7 @@ function verifyOtherBuildFiles() {
 	const expectedBuildFiles = new Set(
 		[
 			'css/example.css',
+			'css/social-logo-colors.css',
 			'font/codepoints.json',
 			'font/social-logos.css',
 			'font/social-logos.woff2',

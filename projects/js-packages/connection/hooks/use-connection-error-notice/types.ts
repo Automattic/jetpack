@@ -1,9 +1,10 @@
+import type { ConnectionPlacement } from '../../helpers/connection-tracking.ts';
 import type { ConnectionOwner } from '../../types.ts';
 import type { ReactElement } from 'react';
 
-// Part of this hook's public result contract, so re-export it: the package
+// Part of this hook's public contract, so re-export them: the package
 // barrel forwards this module's types to consumers.
-export type { ConnectionOwner };
+export type { ConnectionOwner, ConnectionPlacement };
 
 export interface ConnectionErrorData {
 	action?: string;
@@ -65,9 +66,18 @@ export interface Action {
  */
 export type RestoreConnection = ( autoReconnectUser?: boolean ) => Promise< unknown >;
 
+/**
+ * Consumer dispatch hook for connection-error-notice Tracks events. `data` is a
+ * `Record` (not `object`) so a consumer can index it without a cast.
+ */
+export type ConnectionErrorTrackingCallback = (
+	event: string,
+	data: Record< string, unknown >
+) => void;
+
 export interface ConnectionErrorProps {
 	actionHandlers?: Record< string, ( error: ConnectionErrorObject ) => void >;
-	trackingCallback?: ( ( event: string, data: object ) => void ) | null;
+	trackingCallback?: ConnectionErrorTrackingCallback | null;
 	customActions?:
 		| ( (
 				error: ConnectionErrorObject,
@@ -77,15 +87,49 @@ export interface ConnectionErrorProps {
 				}
 		  ) => Action[] )
 		| null;
-	/** Tracking event fired when the fallback "Restore Connection" CTA is clicked. */
+	/**
+	 * Tracking event fired when the fallback "Restore Connection" CTA is clicked.
+	 * Defaults to the canonical reconnect event; a non-canonical override only
+	 * fires when a `trackingCallback` is also supplied, since the no-callback
+	 * branch records the canonical events alone.
+	 */
 	reconnectTrackingEvent?: string;
+	/**
+	 * The surface rendering the notice, reported as the `context` property on every
+	 * connection-error-notice Tracks event (e.g. 'my-jetpack', 'protect'). Distinct
+	 * from `context` below, which is a display title line.
+	 */
+	trackingContext?: string;
+	/**
+	 * Where on the page the notice sits, reported as `placement` when set (e.g. 'header').
+	 * Only needed when one page renders the notice in more than one place.
+	 */
+	trackingPlacement?: ConnectionPlacement;
 	/** Navigation handler for URL-based actions. Defaults to setting `window.location.href`. */
 	navigate?: ( url: string ) => void;
+	/** Where the reconnect CTA returns after reauthorizing the user. Defaults to My Jetpack (deprecated). */
+	reconnectRedirectUrl?: string;
+	/** The `from` the reconnect CTA reports to WordPress.com, from `CONNECTION_FROM`. Defaults to 'my-jetpack' (deprecated). */
+	reconnectFrom?: string;
 	/** Optional feature-supplied context line rendered above the shared cause/action. */
 	context?: string | ReactElement;
-	/** Opt in to surfacing connection *health-check* failures. */
-	includeHealthErrors?: boolean;
 }
+
+/** Props for `<ConnectionErrorView />`. */
+export interface ConnectionErrorViewProps {
+	/** The `useConnectionErrorNotice()` result to render. */
+	notice: UseConnectionErrorNoticeResult;
+	/** Optional context line, shown in place of the title. */
+	context?: ConnectionErrorProps[ 'context' ];
+}
+
+/**
+ * How much of a problem the errors are for the viewer.
+ *
+ * `warning` marks a break only somebody else can repair, so the viewer is being
+ * told rather than asked to act.
+ */
+export type ConnectionErrorSeverity = 'error' | 'warning';
 
 /**
  * Identity of the person looking at the notice, used to phrase an error's scope
@@ -157,6 +201,8 @@ export interface UseConnectionErrorNoticeResult {
 	 * this never wraps an empty notice.
 	 */
 	hasConnectionError: boolean;
+	/** How much of a problem it is for this viewer, or null when nothing is broken. */
+	severity: ConnectionErrorSeverity | null;
 	/** The effective error's message, if any. */
 	connectionErrorMessage: string | undefined;
 	/** The full effective error object (with `error_type`, `error_data`, etc.). */
@@ -165,6 +211,18 @@ export interface UseConnectionErrorNoticeResult {
 	connectionErrors: ConnectionErrorMap;
 	/** Resolved, ready-to-render CTA actions for the effective error. */
 	actions: Action[];
+	/**
+	 * Track a click on a notice-body link (e.g. "Visit Site Health"). Consumers
+	 * that render `errorGroups[].noticeLinks` themselves call this from the link's
+	 * `onClick`; the package's own `<ConnectionError />` wires it for them.
+	 *
+	 * Optional: a consumer can be built against a newer copy of this package than
+	 * the shared runtime one the Jetpack autoloader resolves at update time, so
+	 * callers must tolerate its absence rather than assume it.
+	 */
+	trackNoticeLinkClick?: ( link: ConnectionErrorNoticeLink ) => void;
+	/** Track a click on the "Contact Jetpack Support" link. Optional; see `trackNoticeLinkClick`. */
+	trackSupportLinkClick?: () => void;
 	/** Initiates a connection restore (or reconnect when restore is not possible). */
 	restoreConnection: RestoreConnection;
 	/** Whether a connection restore is currently in progress. */

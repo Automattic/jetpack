@@ -39,7 +39,7 @@ const ModuleRow = ( { label, description, children, testId, toggle }: ModuleRowP
 				__nextHasNoMarginBottom={ true }
 			/>
 		) : (
-			<h3 className={ styles[ 'row-title' ] }>{ label }</h3>
+			<h4 className={ styles[ 'row-title' ] }>{ label }</h4>
 		) }
 		<Stack direction="column" gap="md" className={ styles[ 'row-body' ] }>
 			<div className={ styles[ 'row-description' ] }>{ description }</div>

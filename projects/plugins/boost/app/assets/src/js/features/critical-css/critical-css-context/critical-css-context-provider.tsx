@@ -8,6 +8,7 @@ import {
 	useSetProviderErrorsAction,
 	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
+import { describeRefusedReply } from '../lib/describe-refused-reply';
 import { runLocalGenerator } from '../lib/generate-critical-css';
 import { isExpiredSessionError } from '../lib/is-expired-session-error';
 import { CriticalCssErrorDetails } from '../lib/stores/critical-css-state-types';
@@ -108,8 +109,9 @@ const COMPLETION_HOLD_MS = 750;
 
 /**
  * For Critical CSS UI: Actually run the local generator and return its status.
+ * @param autoStart - Whether to start generation automatically when CSS has not been generated.
  */
-export function useLocalCriticalCssGenerator() {
+export function useLocalCriticalCssGenerator( autoStart = true ) {
 	// Local Generator status context.
 	const {
 		isGenerating,
@@ -140,21 +142,26 @@ export function useLocalCriticalCssGenerator() {
 				let abortController: AbortController | undefined;
 				let holdTimerId: ReturnType< typeof setTimeout > | undefined;
 				let sessionExpired = false;
+				// What the site answered the last save with, when it was not Boost's reply.
+				let refusedReply: { error: unknown; message: string | null } | undefined;
 
 				const saving = < T, >( request: Promise< T > ) =>
 					request.catch( async ( error: unknown ) => {
 						sessionExpired = sessionExpired || ( await isExpiredSessionError( error ) );
+						refusedReply = { error, message: await describeRefusedReply( error ) };
 						throw error;
 					} );
 
 				setGenerating( true );
 				abortController = runLocalGenerator( cssState.providers, proxyNonce, {
 					onError: ( error: Error ) => {
-						setFailedRun( { created: cssState.created, message: error.message, sessionExpired } );
+						const message =
+							( refusedReply?.error === error ? refusedReply.message : null ) ?? error.message;
+						setFailedRun( { created: cssState.created, message, sessionExpired } );
 
 						// Saving the error would fail the same way without a valid login.
 						if ( ! sessionExpired ) {
-							setCssState( criticalCssErrorState( error.message ) );
+							setCssState( criticalCssErrorState( message ) );
 						}
 					},
 
@@ -182,8 +189,13 @@ export function useLocalCriticalCssGenerator() {
 						}
 					},
 
-					setProviderCss: ( key: string, css: string ) => {
-						return saving( setProviderCssAction.mutateAsync( { key, css: maskContent( css ) } ) );
+					setProviderCss: async ( key: string, css: string ) => {
+						const state = await saving(
+							setProviderCssAction.mutateAsync( { key, css: maskContent( css ) } )
+						);
+						return state.providers.some(
+							provider => provider.key === key && provider.status === 'success'
+						);
 					},
 
 					setProviderErrors: ( key: string, errors: CriticalCssErrorDetails[] ) =>
@@ -197,7 +209,7 @@ export function useLocalCriticalCssGenerator() {
 						abortController.abort();
 					}
 				};
-			} else if ( cssState.status === 'not_generated' ) {
+			} else if ( autoStart && cssState.status === 'not_generated' ) {
 				// If there is no css generated, request that the generator start.
 				generateCriticalCssAction.mutate();
 			}
@@ -207,7 +219,7 @@ export function useLocalCriticalCssGenerator() {
 		// This effect triggers an actual process that is costly to start and stop, so we don't want to start/stop it
 		// every time an object ref like `cssState` is changed for a trivial reason.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[ cssState.status, cssState.providers.length, cssState.created ]
+		[ cssState.status, cssState.providers.length, cssState.created, autoStart ]
 	);
 
 	// Always calculate progress so it reflects the true state even after

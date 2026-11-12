@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.4.2] - 2026-11-09
+### Changed
+- Update dependencies. [#54609]
+
+## [8.4.1] - 2026-11-04
+### Changed
+- Update package dependencies. [#54391] [#54512]
+
+## [8.4.0] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
+### Removed
+- Search Dashboard: Remove the AI Agent Access toggle. [#53734]
+
+## [8.3.5] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [8.3.4] - 2026-10-26
+### Changed
+- Update package dependencies. [#53951]
+
+### Fixed
+- Dashboard: Activate free Search in place from "Start for free" instead of falling back to the $0 checkout. [#53397]
+- Instant Search: Open the filters panel below the results header on small screens, so the Filters toggle stays visible. [#53474]
+
+## [8.3.3] - 2026-10-19
+### Changed
+- Update dependencies. [#53618]
+- Update package dependencies. [#53004] [#53806]
+
+## [8.3.2] - 2026-10-12
+### Changed
+- Update dependencies. [#53250]
+
+### Fixed
+- Avoid requesting the Search plan in offline mode. [#53241]
+
+## [8.3.1] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [8.3.0] - 2026-10-05
+### Changed
+- Activate the free Search plan from the dashboard instead of sending you through a $0 checkout. [#52655]
+- Update package dependencies. [#52999]
+
+### Fixed
+- AI Answer: Show the disabled notice when the host turns off AI, and hide the block from the inserter whenever Jetpack AI is off. [#51971]
+- Dashboard: Start the experience switch and Restore default confirmations on Cancel, so pressing Enter no longer switches the search experience or deletes a customized template. [#53033]
+
+## [8.2.1] - 2026-09-29
+### Fixed
+- Dashboard: Show the connection error at the top of the page on every tab. [#52820]
+
+## [8.2.0] - 2026-09-28
+### Changed
+- Show the dashboard in the new rounded admin page frame. [#52506]
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- AI Answers: Keep the preview hidden when answers are turned off. [#52753]
+- AI Answers: Turn off answers when the `jetpack_ai_enabled` filter returns false. [#52748]
+- Blocks: Stop offering Search blocks in the Overlay search sidebar's widget inserter, and flag any already there. [#52670]
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+- Show Jetpack in-dashboard messages on every Search tab, not just Overview. [#52641]
+- Site Chat: Require a paid Search plan to enable and display chat. [#52386]
+
+## [8.1.3] - 2026-09-21
+### Changed
+- No Results block: Show each empty-state message as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure. [#51530]
+- Update package dependencies. [#52187]
+
 ## [8.1.2] - 2026-09-15
 ### Changed
 - Hide the Search sidebar item when the Search module is not active. [#52156]
@@ -247,8 +321,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search: Normalize page tabs onto shared minimal variant + jp-admin-page-tabs--minimal wrapper modifier. Bump @wordpress/ui to 0.13.0. [#48964]
 - Search: the AI Answer block (`jetpack-search/ai-answer`) no longer gates on the site-wide `jetpack_search_ai_answers_enabled` option — block presence in post content is the only switch. The option still governs the instant-search overlay. [#48993]
 - Search Blocks: let authors pick which suggestion sections appear in the Search Input dropdown (query completions, categories & tags, post titles) via a new per-block suggestionTypes attribute. Existing blocks default to all three. [#48991]
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ### Fixed
 - AI Answers: Fix the answer panel colors in dark mode. [#49019]
@@ -536,7 +609,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.54.4] - 2025-11-18
 ### Changed
-- Update dependencies. [#45745]
+- Update dependencies.
 
 ## [0.54.3] - 2025-11-17
 ### Changed
@@ -586,11 +659,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.20] - 2025-09-29
 ### Changed
-- Update dependencies. [#44615]
+- Update dependencies.
 
 ## [0.52.19] - 2025-09-22
 ### Changed
-- Update dependencies. [#44615]
+- Update dependencies.
 
 ## [0.52.18] - 2025-09-19
 ### Changed
@@ -606,7 +679,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.15] - 2025-09-01
 ### Changed
-- Update dependencies. [#44615]
+- Update dependencies.
 
 ## [0.52.14] - 2025-08-25
 ### Fixed
@@ -615,7 +688,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.13] - 2025-08-18
 ### Changed
-- Update dependencies. [#44615]
+- Update dependencies.
 
 ## [0.52.12] - 2025-08-14
 ### Changed
@@ -658,7 +731,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.4] - 2025-06-24
 ### Changed
-- Update dependencies. [#42919]
+- Update dependencies.
 
 ## [0.52.3] - 2025-06-23
 ### Changed
@@ -666,11 +739,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.2] - 2025-06-16
 ### Changed
-- Update dependencies. [#42919]
+- Update dependencies.
 
 ## [0.52.1] - 2025-06-10
 ### Changed
-- Update dependencies. [#42919]
+- Update dependencies.
 
 ## [0.52.0] - 2025-06-09
 ### Fixed
@@ -794,11 +867,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.47.11] - 2025-02-17
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.47.10] - 2025-02-11
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.47.9] - 2025-02-10
 ### Changed
@@ -834,7 +907,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.47.2] - 2024-11-26
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.47.1] - 2024-11-25
 ### Changed
@@ -933,7 +1006,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.44.15] - 2024-08-19
 ### Changed
-- Update dependencies. [#38861] [#38662]
+- Update dependencies. [#38662] [#38861]
 
 ### Fixed
 - Fix incorrect next-version tokens in php `@since` and/or `@deprecated` docs. [#38869]
@@ -965,7 +1038,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.44.8] - 2024-05-27
 ### Changed
-- Update dependencies. [#37356]
+- Update dependencies.
 
 ## [0.44.7] - 2024-05-20
 ### Changed
@@ -1024,8 +1097,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.43.5] - 2024-03-12
 ### Changed
 - Updated package dependencies. [#36325]
-- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36187]
-- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36187] [#36227]
 
 ## [0.43.4] - 2024-03-04
 ### Changed
@@ -1034,7 +1106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.43.3] - 2024-02-27
 ### Changed
-- Update dependencies. [#35170]
+- Update dependencies.
 
 ## [0.43.2] - 2024-02-19
 ### Changed
@@ -1051,7 +1123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.42.1] - 2024-01-29
 ### Changed
-- Update dependencies. [#35170]
+- Update dependencies.
 
 ## [0.42.0] - 2024-01-25
 ### Added
@@ -1659,7 +1731,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Search: refactored Settings to expose the settings array for sync [#24167]
-- Updated package dependencies. [#24189] [#24204] [#24302] [#24276] [#24296] [#24301]
+- Updated package dependencies. [#24189] [#24204] [#24276] [#24296] [#24301] [#24302]
 
 ### Fixed
 - Search: Fix left padding for upsell page [#24285]
@@ -1671,7 +1743,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
-- Updated package dependencies. [#24095] [#24230] [#24198] [#24228]
+- Updated package dependencies. [#24095] [#24198] [#24228] [#24230]
 
 ### Deprecated
 - Moved the options class into Connection. [#24095]
@@ -1919,6 +1991,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[8.4.2]: https://github.com/Automattic/jetpack-search/compare/v8.4.1...v8.4.2
+[8.4.1]: https://github.com/Automattic/jetpack-search/compare/v8.4.0...v8.4.1
+[8.4.0]: https://github.com/Automattic/jetpack-search/compare/v8.3.5...v8.4.0
+[8.3.5]: https://github.com/Automattic/jetpack-search/compare/v8.3.4...v8.3.5
+[8.3.4]: https://github.com/Automattic/jetpack-search/compare/v8.3.3...v8.3.4
+[8.3.3]: https://github.com/Automattic/jetpack-search/compare/v8.3.2...v8.3.3
+[8.3.2]: https://github.com/Automattic/jetpack-search/compare/v8.3.1...v8.3.2
+[8.3.1]: https://github.com/Automattic/jetpack-search/compare/v8.3.0...v8.3.1
+[8.3.0]: https://github.com/Automattic/jetpack-search/compare/v8.2.1...v8.3.0
+[8.2.1]: https://github.com/Automattic/jetpack-search/compare/v8.2.0...v8.2.1
+[8.2.0]: https://github.com/Automattic/jetpack-search/compare/v8.1.3...v8.2.0
+[8.1.3]: https://github.com/Automattic/jetpack-search/compare/v8.1.2...v8.1.3
 [8.1.2]: https://github.com/Automattic/jetpack-search/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/Automattic/jetpack-search/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/Automattic/jetpack-search/compare/v8.0.0...v8.1.0

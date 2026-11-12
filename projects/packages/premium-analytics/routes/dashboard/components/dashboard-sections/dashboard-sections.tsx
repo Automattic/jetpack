@@ -1,7 +1,8 @@
 import { SectionTabs } from '@jetpack-premium-analytics/ui';
+import { useMemo } from 'react';
 import styles from './dashboard-sections.module.scss';
 import type { DashboardSection, DashboardSectionId } from '../../config';
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 
 type DashboardSectionsProps = {
 	/**
@@ -23,6 +24,11 @@ type DashboardSectionsProps = {
 	 * Section panel content.
 	 */
 	children?: ReactNode;
+
+	/**
+	 * Receives the tab list wrapper, for the onboarding tour.
+	 */
+	tabListRef?: Ref< HTMLDivElement >;
 };
 
 /**
@@ -43,13 +49,20 @@ export function DashboardSections( {
 	value,
 	onChange,
 	children,
+	tabListRef,
 }: DashboardSectionsProps ) {
+	const tabs = useMemo(
+		() => sections.map( ( { slug, label } ) => ( { id: slug, label } ) ),
+		[ sections ]
+	);
+
 	return (
 		<SectionTabs
-			tabs={ sections.map( ( { slug, label } ) => ( { id: slug, label } ) ) }
+			tabs={ tabs }
 			value={ value }
 			onChange={ onChange }
 			rootClassName={ styles.root }
+			tabListRef={ tabListRef }
 		>
 			{ children }
 		</SectionTabs>

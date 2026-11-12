@@ -49,20 +49,22 @@ interface AnalyticsDateRange {
 	to: string;
 }
 
-type AnalyticsDashboardSection = 'traffic' | 'insights' | 'subscribers' | 'store';
+type AnalyticsDashboardSection = 'traffic' | 'insights' | 'subscribers' | 'woocommerce';
 type AnalyticsPostSection = 'traffic' | 'email-opens' | 'email-clicks';
 
 /**
  * Where to go, not how the URL is spelled.
  *
- * Only the two views Jetpack links to are modelled; the dashboard also serves
+ * Only the three views Jetpack links to are modelled; the dashboard also serves
  * `/reports/$report` and `/video/$videoId`. Deliberately absent: the site and
  * blog identifiers, resolved from script data so callers need not thread them
  * through props.
  */
 export type AnalyticsView =
 	| { view: 'dashboard'; section?: AnalyticsDashboardSection; range?: AnalyticsDateRange }
-	| { view: 'post'; id: number; section?: AnalyticsPostSection; range?: AnalyticsDateRange };
+	| { view: 'post'; id: number; section?: AnalyticsPostSection; range?: AnalyticsDateRange }
+	// Offered only to `manage_options`, so link to it from admin-only screens.
+	| { view: 'settings' };
 
 /**
  * `?section=` takes the slug — the segment after the namespace, so
@@ -70,7 +72,12 @@ export type AnalyticsView =
  * map, because the two coincide; it exists to reject unknown values arriving
  * from untyped JS callers.
  */
-const DASHBOARD_SECTIONS: readonly string[] = [ 'traffic', 'insights', 'subscribers', 'store' ];
+const DASHBOARD_SECTIONS: readonly string[] = [
+	'traffic',
+	'insights',
+	'subscribers',
+	'woocommerce',
+];
 
 /** Callers say `traffic`; the tab layout registry calls it `post-traffic`. */
 const POST_SECTIONS: Record< AnalyticsPostSection, string > = {
@@ -170,13 +177,41 @@ function rangeParams( range: AnalyticsDateRange, timezone: string ): Record< str
  * @param view - The requested view.
  * @return The search params to merge.
  */
-function analyticsSection( view: AnalyticsView ): Record< string, string > {
+function analyticsSection(
+	view: Exclude< AnalyticsView, { view: 'settings' } >
+): Record< string, string > {
 	const section =
 		view.view === 'dashboard'
 			? view.section && DASHBOARD_SECTIONS.includes( view.section ) && view.section
 			: view.section && POST_SECTIONS[ view.section ];
 
 	return section ? { section } : {};
+}
+
+/**
+ * The router's path-and-search for a view. Settings takes no section or range.
+ *
+ * @param view     - The requested view.
+ * @param timezone - The site timezone.
+ * @return The route, or null when the view has none.
+ */
+function analyticsRoute( view: AnalyticsView, timezone: string ): string | null {
+	if ( view.view === 'settings' ) {
+		return '/settings';
+	}
+
+	const path = view.view === 'dashboard' ? '/' : view.id > 0 && `/post/${ view.id }`;
+	if ( ! path ) {
+		return null;
+	}
+
+	const search = new URLSearchParams( {
+		...analyticsSection( view ),
+		...( view.range ? rangeParams( view.range, timezone ) : {} ),
+	} );
+	const query = search.toString();
+
+	return query ? `${ path }?${ query }` : path;
 }
 
 /**
@@ -200,21 +235,12 @@ export function getAnalyticsUrl( view: AnalyticsView ): string | null {
 		return null;
 	}
 
-	const path = view.view === 'dashboard' ? '/' : view.id > 0 && `/post/${ view.id }`;
-	if ( ! path ) {
+	const route = analyticsRoute( view, analytics.timezone );
+	if ( ! route ) {
 		return null;
 	}
 
-	const search = new URLSearchParams( {
-		...analyticsSection( view ),
-		...( view.range ? rangeParams( view.range, analytics.timezone ) : {} ),
-	} );
-	const query = search.toString();
-
-	const page = new URLSearchParams( {
-		page: analytics.page_slug,
-		p: query ? `${ path }?${ query }` : path,
-	} );
+	const page = new URLSearchParams( { page: analytics.page_slug, p: route } );
 
 	return getAdminUrl( `admin.php?${ page }` );
 }

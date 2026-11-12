@@ -7,7 +7,11 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Feature_Policy;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -88,11 +92,12 @@ class Admin_Menu_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		// A leftover top-level `jetpack` makes core add a second parent copy to the submenu.
-		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		global $menu, $submenu, $_parent_pages, $_registered_pages, $admin_page_hooks;
 		$menu              = array();
 		$submenu           = array();
 		$_parent_pages     = array();
 		$_registered_pages = array();
+		$admin_page_hooks  = array();
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
 		update_option( 'jetpack_options', array( 'id' => 123456 ) );
@@ -104,6 +109,8 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::set_connection_manager( $connection );
 		Admin_Menu::set_visibility_resolver( null );
 		remove_all_filters( 'jetpack_admin_menu_visibility' );
+		remove_all_filters( Feature_Policy::FILTER );
+		Feature_Policy::reset();
 		Admin_Menu::reset();
 		remove_all_filters( 'jetpack_offline_mode' );
 		if ( class_exists( '\Automattic\Jetpack\Status\Cache' ) ) {
@@ -117,6 +124,8 @@ class Admin_Menu_Test extends TestCase {
 		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 		wp_dequeue_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
 		wp_deregister_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
+		wp_dequeue_script( 'wp-theme' );
+		wp_deregister_script( 'wp-theme' );
 	}
 
 	/**
@@ -134,17 +143,18 @@ class Admin_Menu_Test extends TestCase {
 
 		static $top_registered = false;
 
+		add_menu_page(
+			'Jetpack',
+			'Jetpack',
+			'edit_posts',
+			'jetpack',
+			'__return_null',
+			'div',
+			3
+		);
+
 		if ( ! $top_registered ) {
 			$top_registered = true;
-			add_menu_page(
-				'Jetpack',
-				'Jetpack',
-				'edit_posts',
-				'jetpack',
-				'__return_null',
-				'div',
-				3
-			);
 
 			$user_id = wp_insert_user(
 				array(
@@ -197,6 +207,37 @@ class Admin_Menu_Test extends TestCase {
 			has_action( 'load-' . $hook . '-network', array( Admin_Menu::class, 'hide_core_admin_notices' ) ),
 			'Expected the network-admin load hook to hide core admin notices to be registered.'
 		);
+	}
+
+	/**
+	 * Standalone plugins never run Jetpack's bootstrap, so adding a menu must list the admin shell flag.
+	 *
+	 * @return void
+	 */
+	public function test_add_menu_registers_the_admin_shell_flag() {
+		Feature_Flags::reset();
+
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'shell_flag_menu', '__return_null' );
+
+		$this->assertNotNull( Feature_Flags::get( Admin_Shell::FLAG ) );
+		Feature_Flags::reset();
+	}
+
+	/**
+	 * A page core registers as admin_page_<slug>, for a user without the Jetpack menu, gets the same hooks.
+	 */
+	public function test_add_menu_covers_the_admin_page_fallback_hook() {
+		wp_set_current_user( self::$editor_user_id );
+		wp_dequeue_style( 'wp-theme' );
+		wp_deregister_style( 'wp-theme' );
+
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
+		$wp_suffix = add_submenu_page( 'jetpack', 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
+
+		$this->assertSame( 'admin_page_fallback_menu', $wp_suffix );
+		$this->assertNotFalse( has_action( 'load-' . $wp_suffix, array( Admin_Menu::class, 'hide_core_admin_notices' ) ) );
+		Admin_Menu::maybe_enqueue_design_tokens( $wp_suffix );
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
 	}
 
 	/**
@@ -379,6 +420,85 @@ class Admin_Menu_Test extends TestCase {
 		$this->assertNotContains(
 			Admin_Menu::get_top_level_menu_item_slug(),
 			array( 'all-hidden-a', 'all-hidden-b' )
+		);
+	}
+
+	/**
+	 * Akismet's item sorts below POSITION_FIRST however Admin_Menu and Akismet are ordered.
+	 *
+	 * Runs alone because the Akismet_Admin stub, once loaded, would add Akismet to every other test's menu.
+	 *
+	 * @param string $order Which side hooks in first; see akismet_order_data().
+	 *
+	 * @dataProvider akismet_order_data
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[DataProvider( 'akismet_order_data' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_akismet_item_sorts_below_the_first_item( $order ) {
+		global $submenu;
+
+		require_once __DIR__ . '/stubs/class-akismet-admin.php';
+
+		// PHPUnit 9 does not run setUpBeforeClass() in the child process, so make the admin here.
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'akismet_order_admin',
+					'user_pass'  => 'pass',
+					'user_email' => 'akismet_order_admin@example.com',
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		// The Jetpack plugin fires jetpack_admin_menu at 998, before Admin_Menu registers at 1000.
+		add_action(
+			'admin_menu',
+			function () {
+				do_action( 'jetpack_admin_menu' );
+			},
+			998
+		);
+
+		if ( 'akismet-first' === $order ) {
+			\Akismet_Admin::admin_menu();
+		} else {
+			add_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		}
+
+		if ( 'legacy-jetpack' === $order ) {
+			add_action(
+				'admin_menu',
+				function () {
+					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+				},
+				4
+			);
+		}
+
+		Admin_Menu::add_menu( 'First', 'First', 'edit_posts', 'akismet-first', '__return_null', Admin_Menu::POSITION_FIRST );
+
+		do_action( 'admin_menu' );
+
+		$slugs = array_column( $submenu['jetpack'], 2 );
+
+		$this->assertSame( 'akismet-first', $slugs[0] );
+		$this->assertCount( 1, array_keys( $slugs, 'akismet-key-config', true ) );
+	}
+
+	/**
+	 * Data provider for test_akismet_item_sorts_below_the_first_item.
+	 *
+	 * @return array
+	 */
+	public static function akismet_order_data() {
+		return array(
+			'Admin_Menu starts first'                 => array( 'admin-menu-first' ),
+			'Akismet hooks in first'                  => array( 'akismet-first' ),
+			'an older Jetpack unhooks Akismet itself' => array( 'legacy-jetpack' ),
 		);
 	}
 
@@ -601,6 +721,37 @@ class Admin_Menu_Test extends TestCase {
 		do_action( 'admin_menu' );
 
 		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Bundled tokens enqueue when Core has not registered the wp-theme style.
+	 *
+	 * @return void
+	 */
+	public function test_enqueue_design_tokens_falls_back_when_wp_theme_style_is_unregistered() {
+		wp_dequeue_style( 'wp-theme' );
+		wp_deregister_style( 'wp-theme' );
+
+		Admin_Menu::enqueue_design_tokens();
+
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+		$this->assertFalse( wp_style_is( 'wp-theme', 'registered' ) );
+	}
+
+	/**
+	 * Core/Gutenberg's wp-theme style is used when that handle is registered.
+	 *
+	 * @return void
+	 */
+	public function test_enqueue_design_tokens_uses_wp_theme_when_registered() {
+		if ( ! wp_style_is( 'wp-theme', 'registered' ) ) {
+			wp_register_style( 'wp-theme', 'https://example.com/wp-theme.css', array(), '7.1' );
+		}
+
+		Admin_Menu::enqueue_design_tokens();
+
+		$this->assertTrue( wp_style_is( 'wp-theme', 'enqueued' ) );
+		$this->assertFalse( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
 	}
 
 	/**
@@ -918,6 +1069,72 @@ class Admin_Menu_Test extends TestCase {
 		$this->render_menu();
 
 		$this->assertContains( 'host-forced', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * A `jetpack_feature_policy` entry reaches the sidebar through the bridge in the status package.
+	 *
+	 * @param array  $args The item's visibility declaration.
+	 * @param string $slug The name the policy uses for it.
+	 *
+	 * @dataProvider policy_slugs_data
+	 */
+	#[DataProvider( 'policy_slugs_data' )]
+	public function test_feature_policy_hides_a_sidebar_item( array $args, $slug ) {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			Feature_Policy::FILTER,
+			function ( $policy ) use ( $slug ) {
+				$policy[ $slug ] = array( 'visibility' => 'hidden' );
+				return $policy;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Policy', 'Policy', 'manage_options', 'policy-hidden', '__return_null', null, $args );
+		Admin_Menu::add_menu( 'Kept', 'Kept', 'manage_options', 'policy-kept', '__return_null' );
+
+		$this->render_menu();
+
+		$slugs = $this->get_submenu_slugs();
+		$this->assertNotContains( 'policy-hidden', $slugs );
+		$this->assertContains( 'policy-kept', $slugs );
+	}
+
+	/**
+	 * The names a policy can hide one sidebar item by.
+	 *
+	 * @return array
+	 */
+	public static function policy_slugs_data() {
+		return array(
+			'item key'    => array( array( 'key' => 'jetpack-policy' ), 'jetpack-policy' ),
+			'menu slug'   => array( array(), 'policy-hidden' ),
+			'product'     => array( array( 'product' => 'stats' ), 'stats' ),
+			'module gate' => array( array( 'module' => 'seo-tools' ), 'seo-tools' ),
+		);
+	}
+
+	/**
+	 * A policy can also put back an item whose gate is unsatisfied.
+	 */
+	public function test_feature_policy_forces_a_sidebar_item_visible() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+
+		add_filter(
+			Feature_Policy::FILTER,
+			function ( $policy ) {
+				$policy['stats'] = array( 'visibility' => 'visible' );
+				return $policy;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Policy', 'Policy', 'manage_options', 'policy-forced', '__return_null', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertContains( 'policy-forced', $this->get_submenu_slugs() );
 	}
 
 	/**

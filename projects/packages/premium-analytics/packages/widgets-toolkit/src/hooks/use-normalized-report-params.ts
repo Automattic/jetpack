@@ -3,8 +3,9 @@
  */
 import {
 	getDefaultPreset,
-	getStoreInfo,
 	normalizeReportParams,
+	useScopeLockedIntervals,
+	useSiteDay,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
 import { useSearch } from '@wordpress/route';
@@ -37,11 +38,12 @@ export function useNormalizedReportParams(
 		!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
 	const rawReportParams = hasReportParams ? attributes.reportParams : search;
 
-	const { launchedDate } = getStoreInfo();
-	const defaultPreset = getDefaultPreset( launchedDate );
+	const defaultPreset = getDefaultPreset();
+	const lockedIntervals = useScopeLockedIntervals();
+	const siteDay = useSiteDay();
 
-	return useMemo(
-		() => normalizeReportParams( rawReportParams, defaultPreset ),
-		[ rawReportParams, defaultPreset ]
-	);
+	return useMemo( () => {
+		void siteDay;
+		return normalizeReportParams( rawReportParams, defaultPreset, { lockedIntervals } );
+	}, [ rawReportParams, defaultPreset, lockedIntervals, siteDay ] );
 }

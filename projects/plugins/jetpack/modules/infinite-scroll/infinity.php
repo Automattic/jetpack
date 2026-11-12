@@ -899,7 +899,7 @@ class The_Neverending_Home_Page {
 			// Check if the taxonomy is attached to one post type only and use its plural name.
 			// If not, use "Posts" without confusing the users.
 			if (
-				is_a( $taxonomy, 'WP_Taxonomy' )
+				$taxonomy instanceof \WP_Taxonomy
 				&& is_countable( $taxonomy->object_type )
 				&& ! empty( $taxonomy->object_type )
 				&& count( $taxonomy->object_type ) < 2
@@ -1058,6 +1058,150 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
+	 * Get the markup for styles printed since the initial page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_Styles $wp_styles      Styles registry.
+	 * @param string[]  $initial_styles Handles already present on the page.
+	 * @return array[] List of arrays with `handle` and `html` keys, plus `src` and `media` for stylesheet files.
+	 */
+	public static function get_new_styles( $wp_styles, array $initial_styles ) {
+		$styles    = array();
+		$do_concat = $wp_styles->do_concat;
+
+		$wp_styles->do_concat = false;
+		foreach ( array_unique( $wp_styles->done ) as $handle ) {
+			$is_on_page = in_array( $handle, $initial_styles, true );
+			if ( $is_on_page && ! self::is_per_request_style( $handle ) ) {
+				continue;
+			}
+
+			ob_start();
+			$wp_styles->do_item( $handle );
+			$html = ob_get_clean();
+
+			if ( '' === trim( $html ) ) {
+				continue;
+			}
+
+			// The page already has a tag with this ID, so drop it to keep IDs unique.
+			if ( $is_on_page ) {
+				$html = preg_replace( '/(<style\b[^>]*?)\s+id=([\'"])[^\'"]*\2/i', '$1', $html );
+			}
+
+			$style = array(
+				'handle' => $handle,
+				'html'   => $html,
+			);
+
+			$registered = $wp_styles->registered[ $handle ];
+			if ( is_string( $registered->src ) && '' !== $registered->src ) {
+				$ver            = null === $registered->ver ? '' : ( $registered->ver ? $registered->ver : $wp_styles->default_version );
+				$style['src']   = wp_specialchars_decode( $wp_styles->_css_href( $registered->src, $ver, $handle ), ENT_QUOTES );
+				$style['media'] = $registered->args ? $registered->args : 'all';
+			}
+
+			$styles[] = $style;
+		}
+		$wp_styles->do_concat = $do_concat;
+
+		// `global-styles` is already on the page, so send the theme.json CSS of blocks it does not cover yet.
+		if ( in_array( 'global-styles', $initial_styles, true ) ) {
+			$block_css = self::get_theme_json_css_for_blocks( array_diff( $wp_styles->done, $initial_styles ) );
+			if ( '' !== $block_css ) {
+				$styles[] = array(
+					'handle' => 'global-styles',
+					'html'   => "<style>\n" . $block_css . "\n</style>\n",
+				);
+			}
+		}
+
+		return $styles;
+	}
+
+	/**
+	 * Get the theme.json styles of core blocks whose stylesheets are in the given handles.
+	 *
+	 * Core adds these to `global-styles` only for core blocks rendered in the same request.
+	 *
+	 * @see wp_add_global_styles_for_blocks()
+	 * @since $$next-version$$
+	 *
+	 * @param string[] $handles Style handles new to the page.
+	 * @return string CSS.
+	 */
+	private static function get_theme_json_css_for_blocks( array $handles ) {
+		$tree = WP_Theme_JSON_Resolver::resolve_theme_file_uris( WP_Theme_JSON_Resolver::get_merged_data() );
+		$css  = '';
+
+		foreach ( $tree->get_styles_block_nodes() as $metadata ) {
+			if ( isset( $metadata['name'] ) ) {
+				$block_name = $metadata['name'];
+			} else {
+				$block_name = empty( $metadata['path'] ) ? '' : wp_get_block_name_from_theme_json_path( $metadata['path'] );
+			}
+
+			if (
+				is_string( $block_name )
+				&& str_starts_with( $block_name, 'core/' )
+				&& in_array( 'wp-block-' . substr( $block_name, 5 ), $handles, true )
+			) {
+				$css .= $tree->get_styles_for_block( $metadata );
+			}
+		}
+
+		return $css;
+	}
+
+	/**
+	 * Whether a style's handle stays the same while its inline CSS is rebuilt for each request's blocks.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $handle Style handle.
+	 * @return bool
+	 */
+	private static function is_per_request_style( $handle ) {
+		return 'block-style-variation-styles' === $handle
+			|| str_starts_with( $handle, 'core-block-supports' )
+			|| str_starts_with( $handle, 'wp-style-engine-' );
+	}
+
+	/**
+	 * Point the printed markup of entries whose `src` a filter rewrote at the new URL.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $styles    Filtered style entries.
+	 * @param array $generated Entries as built by get_new_styles().
+	 * @return array
+	 */
+	private static function prefer_rewritten_src( $styles, array $generated ) {
+		$generated_src = array_column( $generated, 'src', 'handle' );
+
+		foreach ( $styles as $i => $style ) {
+			if (
+				isset( $style['handle'] )
+				&& isset( $style['html'] )
+				&& isset( $style['src'] )
+				&& isset( $generated_src[ $style['handle'] ] )
+				&& $style['src'] !== $generated_src[ $style['handle'] ]
+			) {
+				// Swap the URL in the printed tag so the handle's inline CSS still loads.
+				$html = str_replace( esc_url( $generated_src[ $style['handle'] ] ), esc_url( $style['src'] ), $style['html'], $count );
+				if ( $count ) {
+					$styles[ $i ]['html'] = $html;
+				} else {
+					unset( $styles[ $i ]['html'] );
+				}
+			}
+		}
+
+		return $styles;
+	}
+
+	/**
 	 * Provide IS with a list of the scripts and stylesheets already present on the page.
 	 * Since posts may contain require additional assets that haven't been loaded, this data will be used to track the additional assets.
 	 *
@@ -1067,7 +1211,7 @@ class The_Neverending_Home_Page {
 	public function action_wp_footer() {
 		global $wp_scripts, $wp_styles;
 
-		$scripts = is_a( $wp_scripts, 'WP_Scripts' ) ? $wp_scripts->done : array();
+		$scripts = $wp_scripts instanceof \WP_Scripts ? $wp_scripts->done : array();
 		/**
 		 * Filter the list of scripts already present on the page.
 		 *
@@ -1079,7 +1223,7 @@ class The_Neverending_Home_Page {
 		 */
 		$scripts = apply_filters( 'infinite_scroll_existing_scripts', $scripts );
 
-		$styles = is_a( $wp_styles, 'WP_Styles' ) ? $wp_styles->done : array();
+		$styles = $wp_styles instanceof \WP_Styles ? $wp_styles->done : array();
 		/**
 		 * Filter the list of styles already present on the page.
 		 *
@@ -1251,88 +1395,15 @@ class The_Neverending_Home_Page {
 		if ( is_array( $initial_styles ) ) {
 			global $wp_styles;
 
-			// Identify new styles needed by the latest set of IS posts
-			$new_styles = array_diff( $wp_styles->done, $initial_styles );
-
-			// If new styles are needed, extract relevant data from $wp_styles
-			if ( ! empty( $new_styles ) ) {
-				$results['styles'] = array();
-
-				foreach ( $new_styles as $handle ) {
-					// Abort if somehow the handle doesn't correspond to a registered stylesheet
-					if ( ! isset( $wp_styles->registered[ $handle ] ) ) {
-						continue;
-					}
-
-					// Provide basic style data
-					$style_data = array(
-						'handle' => $handle,
-						'media'  => 'all',
-					);
-
-					// Base source
-					$src = $wp_styles->registered[ $handle ]->src;
-
-					// Take base_url into account
-					if ( strpos( $src, 'http' ) !== 0 ) {
-						$src = $wp_styles->base_url . $src;
-					}
-
-					// Version and additional arguments
-					if ( null === $wp_styles->registered[ $handle ]->ver ) {
-						$ver = '';
-					} else {
-						$ver = $wp_styles->registered[ $handle ]->ver ? $wp_styles->registered[ $handle ]->ver : $wp_styles->default_version;
-					}
-
-					if ( isset( $wp_styles->args[ $handle ] ) ) {
-						$ver = $ver ? $ver . '&amp;' . $wp_styles->args[ $handle ] : $wp_styles->args[ $handle ];
-					}
-
-					// Full stylesheet source with version info
-					$style_data['src'] = add_query_arg( 'ver', $ver, $src );
-
-					// Parse stylesheet's conditional comments if present, converting to logic executable in JS
-					if ( isset( $wp_styles->registered[ $handle ]->extra['conditional'] ) && $wp_styles->registered[ $handle ]->extra['conditional'] ) {
-						// First, convert conditional comment operators to standard logical operators. %ver is replaced in JS with the IE version
-						$style_data['conditional'] = str_replace(
-							array(
-								'lte',
-								'lt',
-								'gte',
-								'gt',
-							),
-							array(
-								'%ver <=',
-								'%ver <',
-								'%ver >=',
-								'%ver >',
-							),
-							$wp_styles->registered[ $handle ]->extra['conditional']
-						);
-
-						// Next, replace any !IE checks. These shouldn't be present since WP's conditional stylesheet implementation doesn't support them, but someone could be _doing_it_wrong().
-						$style_data['conditional'] = preg_replace( '#!\s*IE(\s*\d+){0}#i', '1==2', $style_data['conditional'] );
-
-						// Lastly, remove the IE strings
-						$style_data['conditional'] = str_replace( 'IE', '', $style_data['conditional'] );
-					}
-
-					// Parse requested media context for stylesheet
-					if ( isset( $wp_styles->registered[ $handle ]->args ) ) {
-						$style_data['media'] = esc_attr( $wp_styles->registered[ $handle ]->args );
-					}
-
-					// Add stylesheet to data that will be returned to IS JS
-					array_push( $results['styles'], $style_data );
-				}
-			}
+			$results['styles'] = self::get_new_styles( $wp_styles, $initial_styles );
 		}
 
 		// Expose additional stylesheet data to filters, but only include in final `$results` array if needed.
 		if ( ! isset( $results['styles'] ) ) {
 			$results['styles'] = array();
 		}
+
+		$generated_styles = $results['styles'];
 
 		/**
 		 * Filter the additional styles required by the latest set of IS posts.
@@ -1342,6 +1413,9 @@ class The_Neverending_Home_Page {
 		 * @since 2.1.2
 		 *
 		 * @param array $results['styles'] Additional styles required by the latest set of IS posts.
+		 *                                 Each entry has `handle`, plus `html` (printed tags) and/or `src` and `media`.
+		 *                                 The client inserts `html` when present; rewriting `src` makes it load that URL instead.
+		 *                                 Entries with the IE-only `conditional` key are skipped.
 		 * @param array|bool $initial_styles Set of styles loaded on each page.
 		 * @param array $results Array of Infinite Scroll results.
 		 * @param array $query_args Array of Query arguments.
@@ -1355,6 +1429,10 @@ class The_Neverending_Home_Page {
 			$query_args,
 			$wp_query
 		);
+
+		if ( is_array( $results['styles'] ) ) {
+			$results['styles'] = self::prefer_rewritten_src( $results['styles'], $generated_styles );
+		}
 
 		if ( empty( $results['styles'] ) ) {
 			unset( $results['styles'] );
@@ -1658,13 +1736,43 @@ class The_Neverending_Home_Page {
 
 		if ( isset( $_REQUEST['query_args'] ) && is_array( $_REQUEST['query_args'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			foreach ( wp_unslash( $_REQUEST['query_args'] ) as $var => $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, sanitized below.
-				if ( in_array( $var, $allowed_vars, true ) && ! empty( $value ) ) {
-					$query_args[ $var ] = filter_var( $value );
+				if ( ! in_array( $var, $allowed_vars, true ) || empty( $value ) ) {
+					continue;
 				}
+
+				if ( 'post_type' === $var && ! self::is_queryable_post_type( $value ) ) {
+					continue;
+				}
+
+				$query_args[ $var ] = filter_var( $value );
 			}
 		}
 
 		return $query_args;
+	}
+
+	/**
+	 * Whether a post type supplied with the request may be queried on the front end.
+	 *
+	 * Core applies this test to the main query in WP::parse_request(), but the
+	 * Infinite Scroll query is a secondary one and never passes through it.
+	 *
+	 * @param mixed $post_type Post type name, or array of names, from the request.
+	 * @return bool
+	 */
+	private static function is_queryable_post_type( $post_type ) {
+		// WP_Query expands 'any' to the types that opted into search results.
+		if ( 'any' === $post_type ) {
+			return true;
+		}
+
+		foreach ( (array) $post_type as $type ) {
+			if ( ! is_string( $type ) || ! is_post_type_viewable( $type ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

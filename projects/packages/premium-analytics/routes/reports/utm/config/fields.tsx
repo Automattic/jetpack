@@ -2,13 +2,16 @@
  * External dependencies
  */
 import { DrilldownLeafCell } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	MetricWithComparison,
+	PostDetailLink,
+	type UtmReportRow,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { getUtmTabLabel, type UtmReportTabId } from './tabs';
-import type { UtmReportRow } from './aggregate';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
 const VIEWS_DATA_FORMAT = {

@@ -45,6 +45,8 @@ export type Backup = {
 	isDiscarded: boolean;
 	/** Whether the entry carries a populated `stats` object. */
 	hasStats: boolean;
+	/** True when the attempt finished with some files missing. */
+	hasWarnings: boolean;
 };
 
 /**

@@ -9,6 +9,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 require_once JETPACK__PLUGIN_DIR . 'tests/php/extensions/blocks/premium-content/class-test-jetpack-token-subscription-service.php';
+require_once JETPACK__PLUGIN_DIR . 'tests/php/3rd-party/fixtures/Activitypub/functions.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
@@ -122,6 +123,86 @@ class Jetpack_Memberships_User_Can_View_Post_Test extends WP_UnitTestCase {
 		);
 		$this->set_free_subscriber_token();
 
+		$this->assertTrue( Jetpack_Memberships::user_can_view_post( $post_id ) );
+	}
+
+	public function test_clear_cache_invalidates_only_requested_user() {
+		$user_ids  = self::factory()->user->create_many( 2, array( 'role' => 'subscriber' ) );
+		$post_ids  = array(
+			$this->create_post_with_access_level( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS ),
+			$this->create_post_with_access_level( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS ),
+		);
+		$plan_sets = array( array(), array( 1, 2 ), array( 3, 4 ) );
+
+		$has_access = false;
+		$get_access = static function () use ( &$has_access ) {
+			return $has_access;
+		};
+		$service    = $this->createStub( Test_Jetpack_Token_Subscription_Service::class );
+		$service->method( 'visitor_can_view_content' )->willReturnCallback( $get_access );
+		$service->method( 'visitor_has_subscription_access' )->willReturnCallback( $get_access );
+		add_filter(
+			PAYWALL_FILTER,
+			static function () use ( $service ) {
+				return $service;
+			},
+			20
+		);
+
+		foreach ( $user_ids as $user_id ) {
+			wp_set_current_user( $user_id );
+			foreach ( $post_ids as $post_id ) {
+				$this->assertFalse( Jetpack_Memberships::user_can_view_post( $post_id ) );
+				$this->assertFalse( Jetpack_Memberships::user_has_subscription_access( $post_id ) );
+			}
+			foreach ( $plan_sets as $plan_ids ) {
+				$this->assertFalse( Jetpack_Memberships::user_is_paid_subscriber( $plan_ids, $user_id ) );
+			}
+		}
+
+		$has_access = true;
+		Jetpack_Memberships::clear_cache( $user_ids[0] );
+
+		foreach ( $user_ids as $user_id ) {
+			wp_set_current_user( $user_id );
+			$expected = $user_ids[0] === $user_id;
+			foreach ( $post_ids as $post_id ) {
+				$this->assertSame( $expected, Jetpack_Memberships::user_can_view_post( $post_id ) );
+				$this->assertSame( $expected, Jetpack_Memberships::user_has_subscription_access( $post_id ) );
+			}
+			foreach ( $plan_sets as $plan_ids ) {
+				$this->assertSame( $expected, Jetpack_Memberships::user_is_paid_subscriber( $plan_ids, $user_id ) );
+			}
+		}
+	}
+
+	public function test_activitypub_render_ignores_editor_access_and_leaves_the_cache_alone() {
+		$post_id = $this->create_post_with_access_level( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$this->assertTrue( Jetpack_Memberships::user_can_view_post( $post_id ) );
+
+		add_filter( 'activitypub_is_activitypub_request', '__return_true' );
+		$this->assertFalse( Jetpack_Memberships::user_can_view_post( $post_id ) );
+		remove_filter( 'activitypub_is_activitypub_request', '__return_true' );
+
+		$this->assertTrue( Jetpack_Memberships::user_can_view_post( $post_id ) );
+	}
+
+	public function test_activitypub_render_ignores_subscriber_token() {
+		$post_id = $this->create_post_with_access_level( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS );
+		$this->set_free_subscriber_token();
+
+		$this->assertTrue( Jetpack_Memberships::user_can_view_post( $post_id ) );
+
+		add_filter( 'activitypub_is_activitypub_request', '__return_true' );
+		$this->assertFalse( Jetpack_Memberships::user_can_view_post( $post_id ) );
+	}
+
+	public function test_activitypub_render_keeps_ungated_post_viewable() {
+		$post_id = $this->create_post_with_access_level( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY );
+
+		add_filter( 'activitypub_is_activitypub_request', '__return_true' );
 		$this->assertTrue( Jetpack_Memberships::user_can_view_post( $post_id ) );
 	}
 }

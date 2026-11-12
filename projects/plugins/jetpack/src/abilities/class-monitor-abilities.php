@@ -13,6 +13,11 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack;
 use Jetpack_IXR_Client;
+use Jetpack_Monitor;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Registers Jetpack Downtime Monitor abilities with the WordPress Abilities API.
@@ -63,8 +68,8 @@ class Monitor_Abilities extends Registrar {
 	public static function get_abilities(): array {
 		return array(
 			'jetpack-monitor/get-monitor-status' => array(
-				'label'               => __( 'Get Jetpack Monitor status', 'jetpack' ),
-				'description'         => __( 'Return the current Downtime Monitor state as { module_active, user_connected, notifications_enabled, last_status_change }. notifications_enabled is a boolean (does the current user receive downtime alerts). last_status_change is the timestamp of the most recent up/down status transition recorded by the Monitor service, as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when no transition has been recorded — this reflects the legacy last_status_change projection, not necessarily the last time downtime began. Fails with jetpack_monitor_not_connected when the current user is not connected to Jetpack (connect first via the My Jetpack admin page), or jetpack_monitor_service_unreachable when the remote Monitor service cannot be reached. These abilities are only registered while the Monitor module is active; if they are absent from wp_get_abilities(), activate the Monitor module first.', 'jetpack' ),
+				'label'               => __( 'Get downtime monitoring status', 'jetpack' ),
+				'description'         => __( 'Return the current downtime monitoring state as { module_active, user_connected, notifications_enabled, last_status_change }. notifications_enabled is a boolean (does the current user receive downtime alerts). last_status_change is the timestamp of the most recent up/down status transition recorded by the downtime monitoring service, as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when no transition has been recorded — this reflects the legacy last_status_change projection, not necessarily the last time downtime began. Fails with jetpack_monitor_not_connected when the current user is not connected to Jetpack (connect first via the My Jetpack admin page), or jetpack_monitor_service_unreachable when the remote downtime monitoring service cannot be reached. These abilities are only registered while the Downtime monitoring module (slug `monitor`) is active; if they are absent from wp_get_abilities(), activate that module first.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
@@ -95,8 +100,8 @@ class Monitor_Abilities extends Registrar {
 			),
 
 			'jetpack-monitor/set-notifications'  => array(
-				'label'               => __( 'Set Jetpack Monitor notifications', 'jetpack' ),
-				'description'         => __( 'Enable or disable downtime email notifications for the current user. Idempotent — setting the state to the current value returns changed=false. Returns { enabled, changed }. Preconditions: the Monitor module must be active and the current user must be connected to Jetpack; call jetpack-monitor/get-monitor-status first to verify the connection. Fails with jetpack_monitor_module_inactive (activate the Monitor module first — these abilities are only registered while the module is active, so this error indicates a race) or jetpack_monitor_not_connected when preconditions are not met.', 'jetpack' ),
+				'label'               => __( 'Set downtime monitoring notifications', 'jetpack' ),
+				'description'         => __( 'Enable or disable downtime email notifications for the current user. Idempotent — setting the state to the current value returns changed=false. Returns { enabled, changed }. Preconditions: the Downtime monitoring module must be active and the current user must be connected to Jetpack; call jetpack-monitor/get-monitor-status first to verify the connection. Fails with jetpack_monitor_module_inactive (activate the Downtime monitoring module first — these abilities are only registered while the module is active, so this error indicates a race) or jetpack_monitor_not_connected when preconditions are not met.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'enabled' ),
@@ -182,7 +187,7 @@ class Monitor_Abilities extends Registrar {
 		if ( ! $module_active ) {
 			return new \WP_Error(
 				'jetpack_monitor_module_inactive',
-				__( 'The Monitor module is not active. Activate it before reading Monitor status.', 'jetpack' )
+				__( 'The Downtime monitoring module is not active. Activate it before reading the downtime monitoring status.', 'jetpack' )
 			);
 		}
 
@@ -197,7 +202,7 @@ class Monitor_Abilities extends Registrar {
 		if ( is_wp_error( $state ) ) {
 			return new \WP_Error(
 				'jetpack_monitor_service_unreachable',
-				__( 'The remote Jetpack Monitor service is unreachable. Retry shortly; this is typically transient.', 'jetpack' ),
+				__( 'The remote downtime monitoring service is unreachable. Retry shortly; this is typically transient.', 'jetpack' ),
 				array( 'underlying' => $state->get_error_code() )
 			);
 		}
@@ -206,7 +211,7 @@ class Monitor_Abilities extends Registrar {
 		if ( is_wp_error( $status_change ) ) {
 			return new \WP_Error(
 				'jetpack_monitor_service_unreachable',
-				__( 'The remote Jetpack Monitor service is unreachable. Retry shortly; this is typically transient.', 'jetpack' ),
+				__( 'The remote downtime monitoring service is unreachable. Retry shortly; this is typically transient.', 'jetpack' ),
 				array( 'underlying' => $status_change->get_error_code() )
 			);
 		}
@@ -221,10 +226,10 @@ class Monitor_Abilities extends Registrar {
 
 	/**
 	 * Execute: declarative state-setter. Idempotent — compares desired vs current
-	 * and returns changed=false when they match. Either way the local
-	 * `monitor_receive_notifications` option is synced to the remote value (after
-	 * the write on a change, and on the no-op path) so the legacy REST reader,
-	 * which trusts that option first, never reports a stale state.
+	 * and returns changed=false when they match. Either way the current user's
+	 * local copy of the value is synced to the remote one (after the write on a
+	 * change, and on the no-op path) so the legacy REST reader, which trusts that
+	 * copy first, never reports a stale state.
 	 *
 	 * @param array|null $input Input matching the ability's input_schema.
 	 * @return array|\WP_Error
@@ -248,14 +253,14 @@ class Monitor_Abilities extends Registrar {
 		if ( ! Jetpack::is_module_active( self::MODULE_SLUG ) ) {
 			return new \WP_Error(
 				'jetpack_monitor_module_inactive',
-				__( 'The Monitor module is not active. Activate it before configuring notifications.', 'jetpack' )
+				__( 'The Downtime monitoring module is not active. Activate it before configuring notifications.', 'jetpack' )
 			);
 		}
 
 		if ( ! static::is_user_connected_to_jetpack() ) {
 			return new \WP_Error(
 				'jetpack_monitor_not_connected',
-				__( 'The current user is not connected to Jetpack. Connect the user to Jetpack before configuring Monitor notifications.', 'jetpack' )
+				__( 'The current user is not connected to Jetpack. Connect the user to Jetpack before configuring downtime monitoring notifications.', 'jetpack' )
 			);
 		}
 
@@ -266,14 +271,8 @@ class Monitor_Abilities extends Registrar {
 		}
 
 		if ( $desired === $current ) {
-			// Sync the local `monitor_receive_notifications` option to the
-			// known-good remote value even on a no-op. The legacy
-			// `Jetpack_Core_Json_Api_Endpoints::get_remote_value` reader trusts
-			// this option before falling back to a remote read, so a stale local
-			// value would let it report the wrong state. The changed=true path
-			// below mirrors the option after a write; mirroring here keeps the
-			// unchanged path self-healing too.
-			update_option( 'monitor_receive_notifications', $current );
+			// Sync even on a no-op, so a stale local copy heals itself.
+			Jetpack_Monitor::save_notifications_copy( $current );
 
 			return array(
 				'enabled' => $current,
@@ -286,10 +285,8 @@ class Monitor_Abilities extends Registrar {
 			return $applied;
 		}
 
-		// Mirror the write to the `monitor_receive_notifications` option so the
-		// legacy `Jetpack_Core_Json_Api_Endpoints::get_remote_value` reader — the
-		// only other reader of this option — stays in sync with the remote state.
-		update_option( 'monitor_receive_notifications', $desired );
+		// Keep the legacy REST reader's local copy in sync with the write.
+		Jetpack_Monitor::save_notifications_copy( $desired );
 
 		return array(
 			'enabled' => $desired,

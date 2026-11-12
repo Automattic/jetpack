@@ -6,22 +6,29 @@ import {
 	computePrimaryRange,
 	getMenuSurfacePresetGroups,
 	getPresetLabel,
+	PRESET_ALL_TIME,
 	PRESET_CUSTOM,
 	type DateRange,
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { Button, Icon } from '@jetpack-premium-analytics/externals';
+import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange, formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
-import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpress/components';
-import { useMediaQuery } from '@wordpress/compose';
+import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
+import { useInstanceId, useMediaQuery } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { calendar, check, chevronDown } from '@wordpress/icons';
-import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { calendar, check, chevronDown, lock } from '@wordpress/icons';
+import clsx from 'clsx';
+import { useCallback, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { DateControlPopover } from '../date-control-popover';
 import { DateRangePopoverContent } from '../date-range-popover';
+import {
+	DATE_CONTROL_TRIGGER_DEFAULTS,
+	type DateControlTriggerProps,
+} from '../utils/date-control-trigger';
 import './date-period-dropdown.scss';
 
 /**
@@ -38,6 +45,13 @@ const ATTENTION_STYLE = {
 	'--date-period-dropdown-attention-duration': `${ PERIOD_CHANGE_ATTENTION_MS }ms`,
 } as CSSProperties;
 
+const getPresetIcon = ( isLocked: boolean, isSelected: boolean ) => {
+	if ( isLocked ) {
+		return lock;
+	}
+	return isSelected ? check : undefined;
+};
+
 type DatePeriodDropdownProps = {
 	/**
 	 * The applied preset, or undefined while a custom range drives the period.
@@ -49,8 +63,8 @@ type DatePeriodDropdownProps = {
 	appliedPresetId?: PrimaryPresetId;
 
 	/**
-	 * The applied range. Names the period on the trigger where no preset does,
-	 * and its exact dates are the trigger's tooltip either way.
+	 * The applied range, used for the trigger label and date tooltip.
+	 * Server-defined All time ranges omit the tooltip.
 	 */
 	appliedRange: DateRange;
 
@@ -65,6 +79,12 @@ type DatePeriodDropdownProps = {
 	 * the surface offers all time.
 	 */
 	allTimeStart?: Date;
+
+	/**
+	 * Whether WPCOM picks where all time starts, which leaves the applied range's start a
+	 * placeholder that the tooltip must not show.
+	 */
+	allTimeStartsOnServer?: boolean;
 
 	/**
 	 * IANA timezone string (e.g., 'America/New_York').
@@ -111,6 +131,9 @@ type DatePeriodDropdownProps = {
 	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
 	disabled?: boolean;
 
+	/** The trigger's look, over a neutral outline at the default size. */
+	triggerProps?: DateControlTriggerProps;
+
 	/**
 	 * Notifies the parent as the menu opens and closes, so it can mirror the
 	 * draft-while-open behaviour for related controls (the comparison label,
@@ -124,6 +147,15 @@ type DatePeriodDropdownProps = {
 	 * restarts it.
 	 */
 	attentionId?: number;
+
+	/** Presets shown with a lock, which cannot be picked. */
+	lockedPresetIds?: readonly QuickSurfacePresetId[];
+
+	/** The earliest day a custom range may include; earlier days cannot be picked or typed. */
+	earliestDate?: Date;
+
+	/** Why the locked presets are locked, shown under them and read as each one's description. */
+	lockNotice?: ReactNode;
 };
 
 /**
@@ -135,6 +167,7 @@ export function DatePeriodDropdown( {
 	appliedRange,
 	presetIds,
 	allTimeStart,
+	allTimeStartsOnServer = false,
 	timeZone,
 	onSelect,
 	range,
@@ -144,9 +177,14 @@ export function DatePeriodDropdown( {
 	canApply,
 	withCustomRange = true,
 	disabled = false,
+	triggerProps,
 	onOpenChange,
 	attentionId,
+	lockedPresetIds,
+	earliestDate,
+	lockNotice,
 }: DatePeriodDropdownProps ) {
+	const lockNoticeId = useInstanceId( DatePeriodDropdown, 'date-period-dropdown__lock-notice' );
 	// The menu floats free of the row it opens from, so the window is what says
 	// whether a second month fits beside the list.
 	const isWideScreen = useMediaQuery( `(min-width: ${ WIDE_MENU_THRESHOLD }px)` );
@@ -160,22 +198,33 @@ export function DatePeriodDropdown( {
 	 * click, Esc, trigger toggle) has to discard the draft the way Cancel does.
 	 */
 	const closedByActionRef = useRef( false );
+	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isEditingCustom, setIsEditingCustom ] = useState( false );
 
 	const handleToggle = useCallback(
-		( isOpen: boolean ) => {
-			if ( ! isOpen && ! closedByActionRef.current ) {
+		( nextIsOpen: boolean ) => {
+			if ( ! nextIsOpen && ! closedByActionRef.current ) {
 				onCancel();
 			}
 
 			closedByActionRef.current = false;
 			// Opened on an applied custom range, the menu lands on the calendar:
 			// nothing in the list names that range.
-			setIsEditingCustom( isOpen && withCustomRange && appliedPresetId === PRESET_CUSTOM );
-			onOpenChange?.( isOpen );
+			setIsEditingCustom( nextIsOpen && withCustomRange && appliedPresetId === PRESET_CUSTOM );
+			onOpenChange?.( nextIsOpen );
 		},
 		[ appliedPresetId, onCancel, onOpenChange, withCustomRange ]
 	);
+
+	const handleOpenChange = useCallback(
+		( nextIsOpen: boolean ) => {
+			setIsOpen( nextIsOpen );
+			handleToggle( nextIsOpen );
+		},
+		[ handleToggle ]
+	);
+
+	const onClose = useCallback( () => handleOpenChange( false ), [ handleOpenChange ] );
 
 	/*
 	 * Recompute the range at selection time: the memoized preset ranges go stale
@@ -205,57 +254,62 @@ export function DatePeriodDropdown( {
 	}, [ appliedPresetId, appliedRange, groups ] );
 
 	return (
-		<Dropdown
-			className="date-period-dropdown"
-			popoverProps={ { placement: 'bottom-start' } }
-			onToggle={ handleToggle }
-			renderToggle={ ( { isOpen, onToggle } ) => (
-				// The label names the period, so the dates live here: the design
-				// keeps them off the control's face.
-				<Tooltip text={ formatDateRange( appliedRange ) }>
-					<Button
-						className="date-period-dropdown__toggle"
-						variant="minimal"
-						tone="neutral"
-						disabled={ disabled }
-						onClick={ onToggle }
-						aria-expanded={ isOpen }
-						aria-haspopup="true"
-					>
-						{ attentionId !== undefined && (
-							// Keyed so a newer id starts the fade over without remounting the button.
-							<span
-								key={ attentionId }
-								className="date-period-dropdown__attention"
-								style={ ATTENTION_STYLE }
-								aria-hidden="true"
-							/>
-						) }
-						<Icon className="date-period-dropdown__glyph" icon={ calendar } size={ 18 } />
-						{ /* Own element so a label too wide for the trigger can ellipsize. */ }
-						<span className="date-period-dropdown__label">{ triggerLabel }</span>
-						<Icon className="date-period-dropdown__caret" icon={ chevronDown } size={ 18 } />
-					</Button>
-				</Tooltip>
-			) }
-			renderContent={ ( { onClose } ) => (
-				<div className="date-period-dropdown__panel">
-					<NavigableMenu
-						className="date-period-dropdown__menu"
-						role="menu"
-						aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }
-					>
+		<DateControlPopover
+			align="start"
+			title={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }
+			open={ isOpen }
+			onOpenChange={ handleOpenChange }
+			// The label names the period, so the dates live here: the design
+			// keeps them off the control's face.
+			tooltip={
+				appliedPresetId === PRESET_ALL_TIME && allTimeStartsOnServer
+					? undefined
+					: formatDateRange( appliedRange )
+			}
+			trigger={
+				<Button
+					{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
+					{ ...triggerProps }
+					className={ clsx( 'date-period-dropdown__toggle', triggerProps?.className ) }
+					disabled={ disabled }
+				>
+					{ attentionId !== undefined && (
+						// Keyed so a newer id starts the fade over without remounting the button.
+						<span
+							key={ attentionId }
+							className="date-period-dropdown__attention"
+							style={ ATTENTION_STYLE }
+							aria-hidden="true"
+						/>
+					) }
+					<Icon className="date-period-dropdown__glyph" icon={ calendar } size={ 18 } />
+					{ /* Own element so a label too wide for the trigger can ellipsize. */ }
+					<span className="date-period-dropdown__label">{ triggerLabel }</span>
+					<Icon className="date-period-dropdown__caret" icon={ chevronDown } size={ 18 } />
+				</Button>
+			}
+		>
+			{ /* Both halves stretch: the seam is drawn on the calendar, which would
+			   cut it short beside a longer list. */ }
+			<Stack direction="row" align="stretch" className="date-period-dropdown__panel">
+				{ /* A menu may hold only menu items, so the lock notice sits below it. */ }
+				<Stack direction="column">
+					<NavigableMenu role="menu" aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }>
 						{ groups.map( group => (
 							<MenuGroup key={ group[ 0 ].id }>
 								{ group.map( preset => {
 									const isSelected = preset.id === appliedPresetId;
+									const isLocked = lockedPresetIds?.includes( preset.id ) ?? false;
 
 									return (
 										<MenuItem
 											key={ preset.id }
 											role="menuitemradio"
 											isSelected={ isSelected }
-											icon={ isSelected ? check : undefined }
+											icon={ getPresetIcon( isLocked, isSelected ) }
+											// MenuItem keeps a disabled item focusable, so its lock notice is read out.
+											disabled={ isLocked }
+											aria-describedby={ isLocked && lockNotice ? lockNoticeId : undefined }
 											onClick={ () => {
 												closedByActionRef.current = true;
 												selectPreset( preset );
@@ -284,27 +338,34 @@ export function DatePeriodDropdown( {
 						) }
 					</NavigableMenu>
 
-					{ isEditingCustom && (
-						<DateRangePopoverContent
-							range={ range }
-							onChange={ onChange }
-							onApply={ () => {
-								closedByActionRef.current = true;
-								onApply();
-								onClose();
-							} }
-							onCancel={ () => {
-								closedByActionRef.current = true;
-								onCancel();
-								onClose();
-							} }
-							canApply={ canApply }
-							isWideScreen={ !! isWideScreen }
-							timeZone={ timeZone }
-						/>
+					{ lockNotice && (
+						<div id={ lockNoticeId } className="date-period-dropdown__lock-notice">
+							{ lockNotice }
+						</div>
 					) }
-				</div>
-			) }
-		/>
+				</Stack>
+
+				{ isEditingCustom && (
+					<DateRangePopoverContent
+						range={ range }
+						onChange={ onChange }
+						onApply={ () => {
+							closedByActionRef.current = true;
+							onApply();
+							onClose();
+						} }
+						onCancel={ () => {
+							closedByActionRef.current = true;
+							onCancel();
+							onClose();
+						} }
+						canApply={ canApply }
+						isWideScreen={ !! isWideScreen }
+						timeZone={ timeZone }
+						earliestDate={ earliestDate }
+					/>
+				) }
+			</Stack>
+		</DateControlPopover>
 	);
 }

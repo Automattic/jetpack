@@ -29,6 +29,7 @@ export type StatsSubscribersCountsResponse = StatsSubscribersCounts;
 
 export type StatsSubscribersDaysAgo = {
 	counts: Array< number | undefined >;
+	paidCounts: Array< number | undefined >;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -45,7 +46,7 @@ export function useStatsSubscribersReport( params: StatsReportParams, options?: 
 }
 
 /**
- * The subscriber count on each of the site-local days `daysAgo` names, in order.
+ * The total and paid subscriber counts on each of the site-local days `daysAgo` names, in order.
  * A day the endpoint has no count for reads as `undefined`.
  */
 export function useStatsSubscribersDaysAgo(
@@ -64,6 +65,7 @@ export function useStatsSubscribersDaysAgo(
 		combine: results => ( {
 			// `subscribers` is null for a day before the site existed, and the sanitizer's `value` reads that as 0, so a site younger than 90 days would report zero rather than no count.
 			counts: results.map( ( { data } ) => data?.data?.[ 0 ]?.subscribers ?? undefined ),
+			paidCounts: results.map( ( { data } ) => data?.data?.[ 0 ]?.subscribers_paid ?? undefined ),
 			isLoading: results.some( isAwaitingData ),
 			isFetching: results.some( result => result.isFetching ),
 			isError: results.some( result => result.isError ),
