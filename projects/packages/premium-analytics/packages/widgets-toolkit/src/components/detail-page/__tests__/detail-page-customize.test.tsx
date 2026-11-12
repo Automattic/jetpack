@@ -20,11 +20,8 @@ jest.mock(
 		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
-jest.mock( '@wordpress/compose', () => ( {
-	...jest.requireActual( '@wordpress/compose' ),
-	useViewportMatch: jest.fn( () => false ),
-} ) );
 
+const ViewportWidth = useViewportMatch.__experimentalWidthProvider;
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 
 const layout = [ { uuid: 'card', type: 'jpa/card' } ] as DashboardWidget[];
@@ -36,7 +33,6 @@ describe( 'detail-page-customize', () => {
 		jest.clearAllMocks();
 		jest.mocked( getScriptData ).mockReturnValue( {} as ReturnType< typeof getScriptData > );
 		jest.mocked( currentUserCan ).mockReturnValue( false );
-		jest.mocked( useViewportMatch ).mockReturnValue( false );
 	} );
 
 	describe( 'useDetailPageCustomize', () => {
@@ -150,12 +146,17 @@ describe( 'detail-page-customize', () => {
 	} );
 
 	describe( 'CustomizingBadge', () => {
-		it( 'leaves the Customizing badge out on a phone', () => {
-			jest.mocked( useViewportMatch ).mockReturnValue( true );
+		it.each( [
+			[ 'leaves the badge out on a phone', 375, false ],
+			[ 'keeps the badge on a wider screen', 782, true ],
+		] )( '%s', ( _name, width, hasBadge ) => {
+			render(
+				<ViewportWidth value={ width }>
+					<CustomizingBadge />
+				</ViewportWidth>
+			);
 
-			render( <CustomizingBadge /> );
-
-			expect( screen.queryByText( 'Customizing' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Customizing' ) !== null ).toBe( hasBadge );
 		} );
 	} );
 
