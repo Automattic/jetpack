@@ -214,11 +214,11 @@ class Blaze {
 
 		$dashboard             = self::create_dashboard( $menu_slug );
 		$members[ $menu_slug ] = array(
-			'kind'    => Admin_Shell::KIND_SCRIPT,
-			'title'   => self::get_menu_label(),
-			'handles' => array( Blaze_Dashboard::SCRIPT_HANDLE, Blaze_Dashboard::SCRIPT_HANDLE . '-style' ),
-			'load'    => array( $dashboard, 'admin_init' ),
-			'render'  => array( $dashboard, 'render_admin_shell_markup' ),
+			'kind'      => Admin_Shell::KIND_SCRIPT,
+			'title'     => self::get_menu_label(),
+			'handles'   => array( Blaze_Dashboard::SCRIPT_HANDLE, Blaze_Dashboard::SCRIPT_HANDLE . '-style' ),
+			'load'      => array( $dashboard, 'admin_init' ),
+			'container' => $dashboard->get_admin_shell_container(),
 		);
 		return $members;
 	}

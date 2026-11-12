@@ -223,27 +223,50 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		return inner;
 	};
 
-	// Its markup goes in first: the scripts mount into it as soon as they run.
+	// Pages whose scripts ran and failed: they can't run again in this document.
+	const failedScripts = new Set();
+
+	// Its container goes in first: the scripts mount into it as soon as they run.
 	const bootScriptGuest = async slug => {
+		if ( failedScripts.has( slug ) ) {
+			throw new Error( `Admin shell: ${ slug } failed to boot before` );
+		}
 		const { el, app, discard } = mountSection( slug );
-		stageOf( el ).innerHTML = members[ slug ].markup;
-		gate.mount( slug );
+		const container = document.createElement( 'div' );
+		container.id = members[ slug ].container.id;
+		container.className = members[ slug ].container.className;
+		stageOf( el ).append( container );
+		let mounted = false;
 		try {
 			const step = stopwatch();
 			const html = await prewarm( slug, 'switch' );
-			const added = await oneAtATime( () => addGuestAssets( html ) );
+			if ( visible !== slug ) {
+				// Left before its scripts came; they run on the next visit.
+				log( 'switch', `${ slug }: left before it booted` );
+				discard();
+				return;
+			}
+			gate.mount( slug );
+			mounted = true;
 			// Unscoped CSS, such as a global reset, would restyle the other apps while this one is hidden.
-			app.styles = added.styleNodes;
+			const added = await oneAtATime( () => addGuestAssets( html, app.styles ) );
 			app.place( visible === slug );
 			log( 'switch', `${ slug }: scripts fetched and run in ${ step() }`, added );
-			await whenRendered( el, RENDER_TIMEOUT );
+			// It may show its own loading state first, with no heading yet: anything it draws counts.
+			await whenRendered( el, RENDER_TIMEOUT, () => container.childElementCount > 0 );
 			log( 'switch', `${ slug }: rendered ${ step() } after the switch` );
 		} catch ( error ) {
 			delete warm[ slug ];
+			if ( mounted ) {
+				failedScripts.add( slug );
+			}
+			app.styles.forEach( node => node.remove() );
 			discard();
 			throw error;
 		} finally {
-			gate.mounted( slug );
+			if ( mounted ) {
+				gate.mounted( slug );
+			}
 		}
 		markReady( app );
 	};
@@ -394,6 +417,13 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		}
 		return show( url.href, { push: true, via } );
 	};
+
+	// Hash navigation, which script pages use, doesn't go through the history wrappers.
+	gate.listen( 'hashchange', () => {
+		if ( pageOf( location.href ) === visible ) {
+			lastUrl[ visible ] = location.href;
+		}
+	} );
 
 	// Not gated: the shell itself must hear Back/Forward across pages.
 	gate.listen( 'popstate', event => {

@@ -118,7 +118,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix?: string, build_page?: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool, kind: string, render?: callable}>
+	 * @return array<string, array{build_prefix?: string, build_page?: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool, kind: string, container?: array{id: string, class?: string}}>
 	 */
 	public static function get_members() {
 		/**
@@ -135,8 +135,8 @@ class Admin_Shell {
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
 		 * - media (bool)            Optional, default false. Whether the page opens the media library: the endpoint then prints it and its templates too.
-		 * - kind (string)           Optional, `wp-build` (default) or `script`. A `script` member needs no build keys; it sets `render` instead.
-		 * - render (callable)       `script` members only. Prints the markup the page's scripts mount into.
+		 * - kind (string)           Optional, `wp-build` (default) or `script`. A `script` member needs no build keys; it sets `container` instead.
+		 * - container (array)       `script` members only. The `id` and optional `class` of the element the page's scripts mount into.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -368,9 +368,10 @@ class Admin_Shell {
 				'bodyClass'   => self::screen_id( $slug ),
 			);
 			if ( $is_script ) {
-				ob_start();
-				call_user_func( $member['render'] );
-				$config['members'][ $slug ]['markup'] = ob_get_clean();
+				$config['members'][ $slug ]['container'] = array(
+					'id'        => $member['container']['id'],
+					'className' => $member['container']['class'] ?? '',
+				);
 			}
 		}
 		return $config;
@@ -571,7 +572,7 @@ class Admin_Shell {
 			'wp-build'        => self::REQUIRED_STRING_KEYS,
 			self::KIND_SCRIPT => array( 'title' ),
 		)[ $kind ] ?? null;
-		if ( null === $required || ( self::KIND_SCRIPT === $kind && ! is_callable( $member['render'] ?? null ) ) ) {
+		if ( null === $required || ( self::KIND_SCRIPT === $kind && ! self::is_valid_container( $member['container'] ?? null ) ) ) {
 			return null;
 		}
 		foreach ( $required as $key ) {
@@ -625,6 +626,18 @@ class Admin_Shell {
 		return is_array( $value )
 			&& isset( $value['title'] ) && is_string( $value['title'] ) && '' !== $value['title']
 			&& isset( $value['subtitle'] ) && is_string( $value['subtitle'] );
+	}
+
+	/**
+	 * Whether a value describes a script member's mount element: a non-empty string `id` and, optionally, a string `class`.
+	 *
+	 * @param mixed $container Value to check.
+	 * @return bool
+	 */
+	private static function is_valid_container( $container ) {
+		return is_array( $container )
+			&& isset( $container['id'] ) && is_string( $container['id'] ) && '' !== $container['id']
+			&& ( ! isset( $container['class'] ) || is_string( $container['class'] ) );
 	}
 
 	/**

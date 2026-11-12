@@ -88,6 +88,13 @@ class Dashboard {
 	private $css_prefix;
 
 	/**
+	 * Whether the page draws in the rounded frame, once is_framed() has worked it out.
+	 *
+	 * @var bool|null
+	 */
+	private $framed = null;
+
+	/**
 	 * Dashboard constructor.
 	 *
 	 * @param string $admin_page Dashboard admin page. Default is admin.php.
@@ -106,7 +113,7 @@ class Dashboard {
 	 * @return void
 	 */
 	public function render() {
-		if ( $this->is_framed( $GLOBALS['hook_suffix'] ?? '' ) ) {
+		if ( $this->is_framed() ) {
 			$this->render_framed();
 			return;
 		}
@@ -164,16 +171,16 @@ class Dashboard {
 	}
 
 	/**
-	 * Whether the page draws in the rounded frame of the Jetpack dashboards: under the Jetpack menu, with the admin shell on.
+	 * Whether the page draws in the rounded frame of the Jetpack dashboards: when it is one of the admin shell's pages.
 	 *
-	 * @param string $hook The current admin page.
 	 * @return bool
 	 */
-	private function is_framed( $hook ) {
-		return ! wp_doing_ajax()
-			&& str_starts_with( $hook, 'jetpack_page_' )
+	private function is_framed() {
+		$this->framed ??= ! wp_doing_ajax()
 			&& self::supports_admin_shell()
-			&& Admin_Shell::is_enabled();
+			&& Admin_Shell::is_enabled()
+			&& isset( Admin_Shell::get_members()[ $this->menu_slug ] );
+		return $this->framed;
 	}
 
 	/**
@@ -192,7 +199,8 @@ class Dashboard {
 	{$body} #wpfooter { display: none; }
 	{$frame} {
 		background: #1d2327;
-		padding: 0 8px 8px 0;
+		padding-block-end: 8px;
+		padding-inline-end: 8px;
 	}
 	{$frame}__stage {
 		background: #fff;
@@ -208,14 +216,17 @@ CSS;
 	}
 
 	/**
-	 * Print the container the app mounts into when the admin shell loads it, which shows its own loading state.
+	 * The element the app mounts into when the admin shell loads it.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return void
+	 * @return array{id: string, class: string}
 	 */
-	public function render_admin_shell_markup() {
-		printf( '<div id="wpcom" class="%s-dashboard"></div>', esc_attr( $this->css_prefix ) );
+	public function get_admin_shell_container() {
+		return array(
+			'id'    => 'wpcom',
+			'class' => $this->css_prefix . '-dashboard',
+		);
 	}
 
 	/**
@@ -270,7 +281,7 @@ JS;
 		$asset_handle = self::SCRIPT_HANDLE;
 		$asset_name   = 'build.min';
 
-		if ( $this->is_framed( $hook ) ) {
+		if ( $this->is_framed() ) {
 			$this->enqueue_frame_style( $hook );
 		}
 
