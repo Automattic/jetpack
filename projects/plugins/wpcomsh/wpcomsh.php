@@ -27,6 +27,7 @@ if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 
 /**
  * Returns a shared Atomic_Persistent_Data instance, as each new instance re-reads and decodes the data file.
+ * Replace this and its calls once Atomic_Persistent_Data has a singleton operation method.
  *
  * @return Atomic_Persistent_Data
  */
