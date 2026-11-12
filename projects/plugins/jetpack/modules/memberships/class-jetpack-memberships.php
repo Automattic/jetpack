@@ -319,9 +319,9 @@ class Jetpack_Memberships {
 
 		$post_type = get_post_type_object( $post->post_type );
 		if ( $cap === $post_type->cap->edit_post ) {
-			$caps[] = $post_type->cap->edit_others_posts;
+			$caps[] = 'edit_others_posts';
 		} elseif ( $cap === $post_type->cap->delete_post ) {
-			$caps[] = $post_type->cap->delete_others_posts;
+			$caps[] = 'delete_others_posts';
 		}
 
 		return $caps;
