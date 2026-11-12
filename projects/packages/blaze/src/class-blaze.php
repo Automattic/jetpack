@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
 use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_Controller;
 use Automattic\Jetpack\Blaze\REST_Controller;
@@ -83,6 +84,10 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
+		// An older admin-ui only takes wp-build pages into the shell.
+		if ( defined( Admin_Shell::class . '::KIND_SCRIPT' ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
 		// Redirect legacy/duplicate advertising URLs (the old tools.php location, or the
 		// admin.php?page=advertising slug when the standalone Blaze Ads plugin owns the
 		// menu). Runs late (after WooCommerce and core register their menus, so
@@ -218,6 +223,39 @@ class Blaze {
 				self::add_migration_notice_menu();
 			}
 		}
+	}
+
+	/**
+	 * Let the admin shell open the dashboard without a page load, when it sits in the Jetpack menu.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Admin shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ( new Host() )->is_wpcom_simple() || ! self::is_dashboard_enabled() || ! self::should_initialize()['can_init'] ) {
+			return $members;
+		}
+		/** This filter is documented in enable_blaze_menu(). */
+		$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
+		if ( ( 'advertising' === $menu_slug && self::is_standalone_blaze_ads_active() ) || 'jetpack' !== self::get_menu_parent() ) {
+			return $members;
+		}
+
+		/** This filter is documented in enable_blaze_menu(). */
+		$css_prefix = apply_filters( 'jetpack_blaze_dashboard_css_prefix', 'jp-blaze' );
+		$dashboard  = new Blaze_Dashboard( 'admin.php', $menu_slug, $css_prefix );
+
+		$members[ $menu_slug ] = array(
+			'kind'    => Admin_Shell::KIND_SCRIPT,
+			/** This filter is documented in enable_blaze_menu(). */
+			'title'   => apply_filters( 'jetpack_blaze_menu_label', 'Blaze Ads' ), // Product name, do not translate.
+			'handles' => array( Blaze_Dashboard::SCRIPT_HANDLE, Blaze_Dashboard::SCRIPT_HANDLE . '-style' ),
+			'load'    => array( $dashboard, 'load_as_admin_shell_guest' ),
+			'render'  => array( $dashboard, 'render_admin_shell_markup' ),
+		);
+		return $members;
 	}
 
 	/**

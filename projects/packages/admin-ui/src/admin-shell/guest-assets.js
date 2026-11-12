@@ -83,11 +83,12 @@ const runInline = async node => {
 	return kept;
 };
 
-const addStylesheet = node =>
+const addStylesheet = ( node, added ) =>
 	new Promise( resolve => {
 		const link = node.cloneNode( true );
 		link.onload = link.onerror = resolve;
 		document.head.append( link );
+		added.push( link );
 	} );
 
 /**
@@ -97,7 +98,7 @@ const addStylesheet = node =>
  *
  * @param {string} endpoint - Guest endpoint URL, nonce included.
  * @param {string} slug     - Guest page slug.
- * @return {Promise<object>} How many scripts and styles were added, and how many the page already had.
+ * @return {Promise<object>} How many scripts and styles were added, how many the page already had, and the style nodes added.
  */
 export async function applyGuestAssets( endpoint, slug ) {
 	const url = new URL( endpoint, location.href );
@@ -117,7 +118,7 @@ export async function applyGuestAssets( endpoint, slug ) {
 	const stylesheets = [];
 	// Inserted with async=false, external scripts download in parallel and still run in order.
 	let loading = [];
-	const added = { scripts: 0, styles: 0, skipped: 0, keptGlobals: [] };
+	const added = { scripts: 0, styles: 0, skipped: 0, keptGlobals: [], styleNodes: [] };
 	// Inline scripts carry no id when printed without a handle; match those by their text.
 	const inlineTexts = new Set(
 		[ ...document.querySelectorAll( 'script:not([src])' ) ].map( script => script.textContent )
@@ -131,9 +132,11 @@ export async function applyGuestAssets( endpoint, slug ) {
 			}
 			added.styles++;
 			if ( node.tagName === 'LINK' ) {
-				stylesheets.push( addStylesheet( node ) );
+				stylesheets.push( addStylesheet( node, added.styleNodes ) );
 			} else {
-				document.head.append( node.cloneNode( true ) );
+				const style = node.cloneNode( true );
+				document.head.append( style );
+				added.styleNodes.push( style );
 			}
 			continue;
 		}

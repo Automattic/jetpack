@@ -116,6 +116,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		if ( warm[ slug ] ) {
 			return warm[ slug ];
 		}
+		// A script member's scripts boot it as they run, so nothing can be done ahead of the switch.
+		if ( members[ slug ].kind === 'script' ) {
+			return Promise.resolve( null );
+		}
 		const total = stopwatch();
 		log( 'prewarm', `${ slug }: start (${ reason })` );
 		prefetchBoot().catch( () => {} ); // Download in parallel; bootFor() reports a failure.
@@ -174,12 +178,69 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	const markReady = app => {
 		app.to( 'ready' );
 		app.place( visible === app.slug );
-		rememberHeader( app.slug, app.el );
-		// Tab bars and actions often render just after the heading.
-		setTimeout( () => visible === app.slug && rememberHeader( app.slug, app.el ), 1000 );
+		if ( members[ app.slug ].kind !== 'script' ) {
+			rememberHeader( app.slug, app.el );
+			// Tab bars and actions often render just after the heading.
+			setTimeout( () => visible === app.slug && rememberHeader( app.slug, app.el ), 1000 );
+		}
+	};
+
+	// Empty copies of the host's layout wrappers, so the page gets the same rounded stage.
+	const stageFrame = () => {
+		const stage = hostEl.querySelector( '[class*="__stage"]' );
+		if ( ! stage ) {
+			return null;
+		}
+		const inner = stage.cloneNode( false );
+		let frame = inner;
+		for ( let node = stage.parentElement; node && node !== hostEl; node = node.parentElement ) {
+			const wrapper = node.cloneNode( false );
+			wrapper.append( frame );
+			frame = wrapper;
+		}
+		for ( const node of [ frame, ...frame.querySelectorAll( '*' ) ] ) {
+			node.removeAttribute( 'id' );
+		}
+		return { frame, inner };
+	};
+
+	// Its markup goes in first: the scripts mount into it as soon as they run.
+	const bootScriptGuest = async slug => {
+		const el = document.createElement( 'section' );
+		el.id = members[ slug ].mountId;
+		el.className = hostEl.className;
+		const layout = stageFrame();
+		( layout?.inner ?? el ).innerHTML = members[ slug ].markup ?? '';
+		if ( layout ) {
+			el.append( layout.frame );
+		}
+		[ ...apps.values() ].at( -1 ).el.after( el );
+		const app = createApp( slug, el );
+		apps.set( slug, app );
+		gate.mount( slug );
+		try {
+			const step = stopwatch();
+			const added = await oneAtATime( () => applyGuestAssets( guestAssetsUrl, slug ) );
+			// Unscoped CSS, such as a global reset, would restyle the other apps while this one is hidden.
+			app.styles = added.styleNodes;
+			app.place( visible === slug );
+			log( 'switch', `${ slug }: scripts fetched and run in ${ step() }`, added );
+			await whenRendered( el, RENDER_TIMEOUT );
+			log( 'switch', `${ slug }: rendered ${ step() } after the switch` );
+		} catch ( error ) {
+			apps.delete( slug );
+			el.remove();
+			throw error;
+		} finally {
+			gate.mounted( slug );
+		}
+		markReady( app );
 	};
 
 	const bootGuest = async ( slug, url ) => {
+		if ( members[ slug ].kind === 'script' ) {
+			return bootScriptGuest( slug );
+		}
 		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
 		const el = document.createElement( 'section' );
 		el.id = members[ slug ].mountId;
@@ -251,7 +312,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		const elapsed = stopwatch();
 		log( 'switch', `${ via }: ${ previous } → ${ slug }`, url );
 		if ( apps.get( previous )?.state === 'visible' ) {
-			rememberHeader( previous, apps.get( previous ).el );
+			if ( members[ previous ].kind !== 'script' ) {
+				rememberHeader( previous, apps.get( previous ).el );
+			}
 			scrollOf[ previous ] = window.scrollY;
 		}
 		// Hide the outgoing app before the URL changes, so its router never sees the new URL.
@@ -279,7 +342,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				app.place( true );
 				window.scrollTo( 0, scrollOf[ slug ] ?? 0 );
 				// On Back/Forward the browser's own popstate reaches the app; a second one would re-navigate.
-				if ( push ) {
+				// Script apps skip it: calypso-router throws on a popstate whose state has no `path`.
+				if ( push && members[ slug ].kind !== 'script' ) {
 					notifyRouters();
 				}
 			} else {

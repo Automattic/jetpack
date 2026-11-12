@@ -30,6 +30,12 @@ class Admin_Shell {
 	const REQUIRED_STRING_KEYS = array( 'build_prefix', 'build_page', 'title' );
 
 	/**
+	 * Member kind for a page that isn't built with wp-build: its classic scripts boot it when they run.
+	 * Such a page can join as a guest but never hosts the shell.
+	 */
+	const KIND_SCRIPT = 'script';
+
+	/**
 	 * The admin-ajax action that returns a guest's page data.
 	 */
 	const GUEST_ACTION = 'jetpack_admin_shell_guest';
@@ -112,7 +118,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool}>
+	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool, kind: string, render: callable|null}>
 	 */
 	public static function get_members() {
 		/**
@@ -129,6 +135,8 @@ class Admin_Shell {
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
 		 * - media (bool)            Optional, default false. Whether the page opens the media library: the endpoint then prints it and its templates too.
+		 * - kind (string)           Optional, `wp-build` (default) or `script`. A `script` member needs no build keys; it sets `render` instead.
+		 * - render (callable)       `script` members only. Prints the markup the page's scripts mount into.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -178,7 +186,7 @@ class Admin_Shell {
 		}
 
 		$members = self::get_members();
-		if ( count( $members ) < 2 || ! isset( $members[ $page ] ) ) {
+		if ( count( $members ) < 2 || ! isset( $members[ $page ] ) || self::KIND_SCRIPT === $members[ $page ]['kind'] ) {
 			return array( null, $members );
 		}
 		return array( $page, $members );
@@ -270,7 +278,8 @@ class Admin_Shell {
 	private static function load_guest( $member ) {
 		$snapshot = self::hook_snapshot();
 		call_user_func( $member['load'] );
-		$routes = self::run_page_init( $member );
+		// A script member's scripts come from the guest endpoint and boot the page as they run.
+		$routes = self::KIND_SCRIPT === $member['kind'] ? array() : self::run_page_init( $member );
 		self::remove_added_callbacks( $snapshot );
 
 		return $routes;
@@ -342,8 +351,10 @@ class Admin_Shell {
 		);
 		foreach ( array( $host => array() ) + $guests as $slug => $routes ) {
 			$member                     = $members[ $slug ];
+			$is_script                  = self::KIND_SCRIPT === $member['kind'];
 			$config['members'][ $slug ] = array(
-				'mountId'     => $member['build_page'] . '-wp-admin-app',
+				'kind'        => $member['kind'],
+				'mountId'     => $is_script ? 'jetpack-admin-shell-' . $slug : $member['build_page'] . '-wp-admin-app',
 				'routes'      => $routes,
 				'initModules' => $member['init_modules'],
 				'defaultPath' => $member['default_path'],
@@ -352,6 +363,11 @@ class Admin_Shell {
 				'adminTitle'  => self::admin_title( $slug, $member['title'] ),
 				'bodyClass'   => self::screen_id( $slug ),
 			);
+			if ( $is_script ) {
+				ob_start();
+				call_user_func( $member['render'] );
+				$config['members'][ $slug ]['markup'] = ob_get_clean();
+			}
 		}
 		return $config;
 	}
@@ -546,7 +562,20 @@ class Admin_Shell {
 			return null;
 		}
 
-		foreach ( self::REQUIRED_STRING_KEYS as $key ) {
+		$kind = $member['kind'] ?? 'wp-build';
+		if ( self::KIND_SCRIPT === $kind ) {
+			if ( ! isset( $member['render'] ) || ! is_callable( $member['render'] ) ) {
+				return null;
+			}
+			$member += array(
+				'build_prefix' => '',
+				'build_page'   => '',
+			);
+		} elseif ( 'wp-build' !== $kind ) {
+			return null;
+		}
+		$required = self::KIND_SCRIPT === $kind ? array( 'title' ) : self::REQUIRED_STRING_KEYS;
+		foreach ( $required as $key ) {
 			if ( ! isset( $member[ $key ] ) || ! is_string( $member[ $key ] ) || '' === $member[ $key ] ) {
 				return null;
 			}
@@ -563,6 +592,8 @@ class Admin_Shell {
 			'capability'   => 'manage_options',
 			'handles'      => array(),
 			'media'        => false,
+			'kind'         => $kind,
+			'render'       => null,
 		);
 
 		if (

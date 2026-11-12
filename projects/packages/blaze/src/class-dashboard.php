@@ -112,26 +112,61 @@ class Dashboard {
 				/>
 			</div>
 		</div>
-		<script>
-			jQuery(document).ready(function($) {
-				// Load SVG sprite.
-				$.get("https://widgets.wp.com/blaze-dashboard/common/gridicons-506499ddac13811fee8e.svg", function(data) {
-					var div = document.createElement("div");
-					div.innerHTML = new XMLSerializer().serializeToString(data.documentElement);
-					div.style = 'display: none';
-					document.body.insertBefore(div, document.body.childNodes[0]);
-				});
-				// we intercept on all anchor tags and change it to hashbang style.
-				$("#wpcom").on('click', 'a', function (e) {
-					const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
-					if (link && link.startsWith( '/<?php echo esc_attr( $this->menu_slug ); ?>' ) ) {
-						location.hash = `#!${link}`;
-						return false;
-					}
-				});
-			});
-		</script>
 		<?php
+	}
+
+	/**
+	 * Print the container the app mounts into when the admin shell loads it, which shows its own loading state.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function render_admin_shell_markup() {
+		printf( '<div id="wpcom" class="%s-dashboard"></div>', esc_attr( $this->css_prefix ) );
+	}
+
+	/**
+	 * Script that loads the icon sprite and turns the app's links into hashbang links.
+	 *
+	 * Attached to the dashboard script rather than printed by render(), so it also runs when the admin shell loads the page.
+	 *
+	 * @return string
+	 */
+	private function get_inline_script() {
+		$prefix = wp_json_encode( '/' . $this->menu_slug, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+		return <<<JS
+( function () {
+	fetch( 'https://widgets.wp.com/blaze-dashboard/common/gridicons-506499ddac13811fee8e.svg' )
+		.then( function ( response ) { return response.text(); } )
+		.then( function ( svg ) {
+			var div = document.createElement( 'div' );
+			div.innerHTML = svg;
+			div.style.display = 'none';
+			document.body.insertBefore( div, document.body.firstChild );
+		} );
+	var dashboard = document.getElementById( 'wpcom' );
+	dashboard && dashboard.addEventListener( 'click', function ( event ) {
+		var anchor = event.target.closest( 'a[href]' );
+		var link = anchor && anchor.getAttribute( 'href' );
+		if ( link && link.startsWith( {$prefix} ) ) {
+			location.hash = '#!' + link;
+			event.preventDefault();
+		}
+	} );
+} )();
+JS;
+	}
+
+	/**
+	 * Ready the dashboard's scripts while another Jetpack page is open in the admin shell.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
 	}
 
 	/**
@@ -194,6 +229,7 @@ class Dashboard {
 			$dashboard_config->get_js_config_data( $config_data ),
 			'before'
 		);
+		wp_add_inline_script( $asset_handle, $this->get_inline_script() );
 	}
 
 	/**
