@@ -78,6 +78,7 @@
 		{
 			"source": "/performance",
 			"rules": [
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
 				{
 					"destination": "admin.php?page=my-jetpack#/features?search=cdn",
 					"alreadyRedirects": true
@@ -96,7 +97,7 @@
 			"source": "/writing",
 			"rules": [
 				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
-				{ "destination": "admin.php?page=my-jetpack#/features" }
+				{ "destination": "admin.php?page=my-jetpack#/features", "alreadyRedirects": true }
 			],
 			"linkedFrom": [
 				"plugins/jetpack Unavailable_Blocks::get_editor_data(): fixUrl for blocks the Blocks module turned off; wants admin.php?page=my-jetpack#/features?search=blocks",
