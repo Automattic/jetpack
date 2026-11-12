@@ -9,13 +9,33 @@ import type {
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
 	SendBounceConfirmationResponse,
+	RawSubscriber,
+	RawSubscribersResponse,
 	SubscribedNewsletterCategories,
+	Subscriber,
 	SubscriberDetails,
 	SubscriberStats,
 	SubscribersFilter,
 	SubscribersQueryParams,
 	SubscribersResponse,
 } from './types';
+
+/**
+ * Restore the display name WP.com's formatter turned into an integer.
+ *
+ * An all-digits display name arrives as a number, and DataViews calls string methods on whatever
+ * the row title resolves to — one such subscriber replaces the entire list with an error boundary.
+ *
+ * @param subscriber - Raw subscriber row from WP.com.
+ * @return Row whose display name is a string.
+ */
+function normalizeSubscriber< T extends Subscriber >( subscriber: RawSubscriber< T > ): T {
+	// Annotated rather than built inline: the `as T` below would otherwise swallow the type error
+	// that stops someone deleting this coercion as redundant against `Subscriber`'s own types.
+	const display_name: string = String( subscriber.display_name ?? '' );
+
+	return { ...subscriber, display_name } as T;
+}
 
 /**
  * Fetch the paginated subscribers list from the Jetpack REST proxy
@@ -44,10 +64,13 @@ export function fetchSubscribers( params: SubscribersQueryParams ): Promise< Sub
 		.map( filter => `filters[]=${ encodeURIComponent( filter ) }` )
 		.join( '&' );
 
-	return apiFetch< SubscribersResponse >( {
+	return apiFetch< RawSubscribersResponse >( {
 		path: `${ baseUrl }&${ filterQuery }`,
 		method: 'GET',
-	} );
+	} ).then( response => ( {
+		...response,
+		subscribers: ( response?.subscribers ?? [] ).map( normalizeSubscriber ),
+	} ) );
 }
 
 /**
@@ -222,13 +245,13 @@ type IndividualParams = {
  * @return Subscriber profile.
  */
 export function fetchSubscriberDetails( params: IndividualParams ): Promise< SubscriberDetails > {
-	return apiFetch< SubscriberDetails >( {
+	return apiFetch< RawSubscriber< SubscriberDetails > >( {
 		path: addQueryArgs( '/wpcom/v2/subscribers/individual', {
 			subscription_id: params.subscription_id ?? 0,
 			user_id: params.user_id ?? 0,
 		} ),
 		method: 'GET',
-	} );
+	} ).then( raw => normalizeSubscriber< SubscriberDetails >( raw ) );
 }
 
 /**

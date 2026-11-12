@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getPlanLimitStatus } from '../../../plan-limit-status';
-import { usePlanUpgradeLinkProps } from '../stats-settings/plan-usage';
+import { usePlanUpgradeLinkProps } from '../../../use-plan-upgrade-link-props';
 import styles from './plan-limit-notice.module.scss';
 import type { JSX } from 'react';
 

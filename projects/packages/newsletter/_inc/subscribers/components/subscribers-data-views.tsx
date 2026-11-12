@@ -8,7 +8,7 @@ import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutat
 import { useSubscribers } from '../data/use-subscribers';
 import { isNarrowed, isPageSelected } from '../lib/bulk-remove-scope';
 import { canCompSubscriber } from '../lib/comp-eligibility';
-import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
+import { getSubscribedAt, getSubscriberLabel, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { recordTracksEvent } from '../lib/tracks';
@@ -196,7 +196,7 @@ export default function SubscribersDataViews( {
 			{
 				id: 'name',
 				label: __( 'Name', 'jetpack-newsletter' ),
-				getValue: ( { item }: { item: Subscriber } ) => item.display_name || item.email_address,
+				getValue: ( { item }: { item: Subscriber } ) => getSubscriberLabel( item ),
 				render: ( { item }: { item: Subscriber } ) => <SubscriberIdentity subscriber={ item } />,
 				enableSorting: true,
 				enableHiding: false,

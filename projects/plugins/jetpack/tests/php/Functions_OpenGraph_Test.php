@@ -9,7 +9,9 @@ use PHPUnit\Framework\Attributes\Group;
  * Class with PHPUnit tests for Open Graph functions.
  *
  * @since 3.9.2
+ * @covers ::jetpack_og_tags
  * @covers ::jetpack_og_get_image
+ * @covers ::jetpack_og_tags
  * @covers ::jetpack_og_get_description
  * @covers ::jetpack_og_remove_query_blocks
  * @covers ::jetpack_og_get_site_fallback_blank_image
@@ -18,7 +20,9 @@ use PHPUnit\Framework\Attributes\Group;
  * @covers ::jetpack_og_get_fallback_social_image
  * @group jetpack-opengraph
  */
+#[CoversFunction( 'jetpack_og_tags' )]
 #[CoversFunction( 'jetpack_og_get_image' )]
+#[CoversFunction( 'jetpack_og_tags' )]
 #[CoversFunction( 'jetpack_og_get_description' )]
 #[CoversFunction( 'jetpack_og_remove_query_blocks' )]
 #[CoversFunction( 'jetpack_og_get_site_fallback_blank_image' )]
@@ -53,6 +57,95 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		$wp_the_query = new WP_Query();
 
 		wp_delete_attachment( $this->icon_id );
+	}
+
+	/** The configured default must reach public output through the existing fallback hook. */
+	public function test_configured_share_image_is_used_before_site_fallbacks() {
+		\Automattic\Jetpack\SEO\Share_Image::init();
+		update_option( \Automattic\Jetpack\SEO\Share_Image::OPTION, $this->icon_id );
+		update_post_meta( $this->icon_id, '_wp_attachment_image_alt', 'Default & "quoted" image' );
+		$this->go_to( home_url( '/' ) );
+		try {
+			$image = jetpack_og_get_image();
+			$this->assertSame( wp_get_attachment_url( $this->icon_id ), $image['src'] );
+			$this->assertSame( 'Default & "quoted" image', $image['alt_text'] );
+			$GLOBALS['post'] = get_post( self::factory()->post->create( array( 'post_password' => 'secret' ) ) );
+			ob_start();
+			jetpack_og_tags();
+			$output = ob_get_clean();
+			$this->assertStringContainsString( 'property="og:image" content="' . esc_url( $image['src'] ), $output );
+			$this->assertStringContainsString( 'content="Default &amp; &quot;quoted&quot; image"', $output );
+		} finally {
+			delete_option( \Automattic\Jetpack\SEO\Share_Image::OPTION );
+			remove_filter( 'jetpack_og_default_site_image', array( \Automattic\Jetpack\SEO\Share_Image::class, 'fallback_image' ), 20 );
+		}
+	}
+
+	/**
+	 * @dataProvider provide_custom_share_image_filters
+	 * @param int  $priority Filter priority.
+	 * @param bool $fallback_only Whether the custom filter preserves an existing image.
+	 */
+	#[DataProvider( 'provide_custom_share_image_filters' )]
+	public function test_dashboard_image_stays_independent_of_saved_share_image( $priority, $fallback_only ) {
+		$share_image = \Automattic\Jetpack\SEO\Share_Image::class;
+		$share_image::init();
+		update_option( $share_image::OPTION, $this->icon_id );
+		$fallback = static function ( $image ) use ( $fallback_only ) {
+			return $fallback_only && ! empty( $image ) ? $image : array( 'src' => 'https://example.org/site-image.jpg' );
+		};
+		add_filter( 'jetpack_og_default_site_image', $fallback, $priority );
+		try {
+			$site = \Automattic\Jetpack\SEO\Dashboard_Data::get_site_data();
+			$this->assertSame( 'https://example.org/site-image.jpg', $site['image'] );
+			$expected = $fallback_only && $priority >= 20 ? wp_get_attachment_url( $this->icon_id ) : 'https://example.org/site-image.jpg';
+			$this->assertSame( $expected, \Automattic\Jetpack\SEO\Dashboard_Data::get_settings_data()['share_image_preview'] );
+			$this->assertSame( $expected, jetpack_og_get_fallback_social_image( 200, 200 )['src'] );
+			delete_option( $share_image::OPTION );
+			$this->assertSame( 'https://example.org/site-image.jpg', \Automattic\Jetpack\SEO\Dashboard_Data::get_settings_data()['share_image_preview'] );
+		} finally {
+			remove_filter( 'jetpack_og_default_site_image', $fallback, $priority );
+			remove_filter( 'jetpack_og_default_site_image', array( $share_image, 'fallback_image' ), 20 );
+			delete_option( $share_image::OPTION );
+		}
+	}
+
+	/** @return array */
+	public static function provide_custom_share_image_filters() {
+		return array(
+			'early override'         => array( 10, false ),
+			'late override'          => array( 30, false ),
+			'late fallback'          => array( 30, true ),
+			'same-priority fallback' => array( 20, true ),
+		);
+	}
+
+	/** Social overrides must retain their image without the default's unrelated alt text. */
+	public function test_social_image_override_does_not_inherit_default_alt() {
+		\Automattic\Jetpack\SEO\Share_Image::init();
+		update_option( \Automattic\Jetpack\SEO\Share_Image::OPTION, $this->icon_id );
+		update_post_meta( $this->icon_id, '_wp_attachment_image_alt', str_repeat( 'Default image alt ', 40 ) );
+		$post_id          = self::factory()->post->create();
+		$social_image_id  = self::create_upload_object( __DIR__ . '/jetpack-icon.jpg', 0, true );
+		$social_image_url = wp_get_attachment_url( $social_image_id );
+		update_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_JETPACK_SOCIAL_OPTIONS, array( 'attached_media' => array( array( 'id' => $social_image_id ) ) ) );
+		add_post_type_support( 'post', 'publicize' );
+		$this->go_to( get_permalink( $post_id ) );
+		$override = array( new \Automattic\Jetpack\Publicize\Publicize(), 'add_jetpack_social_og_images' );
+		add_filter( 'jetpack_open_graph_tags', $override, 12 );
+		try {
+			ob_start();
+			jetpack_og_tags();
+			$output = ob_get_clean();
+			$this->assertStringContainsString( esc_url( $social_image_url ), $output );
+			$this->assertStringNotContainsString( 'Default image alt', $output );
+		} finally {
+			remove_filter( 'jetpack_open_graph_tags', $override, 12 );
+			wp_delete_attachment( $social_image_id );
+			remove_post_type_support( 'post', 'publicize' );
+			delete_option( \Automattic\Jetpack\SEO\Share_Image::OPTION );
+			remove_filter( 'jetpack_og_default_site_image', array( \Automattic\Jetpack\SEO\Share_Image::class, 'fallback_image' ), 20 );
+		}
 	}
 
 	/**
@@ -229,6 +322,30 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		jetpack_og_tags();
 
 		return (string) ob_get_clean();
+	}
+
+	public function test_author_archive_omits_private_profile_names() {
+		$author_id = self::factory()->user->create(
+			array(
+				'display_name' => 'Public Pen Name',
+				'first_name'   => 'PrivateFirst',
+				'last_name'    => 'PrivateLast',
+				'description'  => 'Public author biography.',
+			)
+		);
+		self::factory()->post->create( array( 'post_author' => $author_id ) );
+		$this->set_permalink_structure( '' );
+		$this->go_to( get_author_posts_url( $author_id ) );
+
+		$output = $this->get_og_output();
+
+		$this->assertTrue( is_author() );
+		$this->assertStringContainsString( 'Public Pen Name', $output );
+		$this->assertStringContainsString( 'Public author biography.', $output );
+		$this->assertStringNotContainsString( 'profile:first_name', $output );
+		$this->assertStringNotContainsString( 'profile:last_name', $output );
+		$this->assertStringNotContainsString( 'PrivateFirst', $output );
+		$this->assertStringNotContainsString( 'PrivateLast', $output );
 	}
 
 	/**
