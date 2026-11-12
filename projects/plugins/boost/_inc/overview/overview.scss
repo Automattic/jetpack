@@ -249,6 +249,11 @@
 	color: var(--wpds-color-foreground-content-error-weak);
 }
 
+.jetpack-boost-overview__early-score {
+	margin-inline-start: var(--wpds-dimension-gap-sm);
+	white-space: nowrap;
+}
+
 
 .jetpack-boost-overview__history-card {
 	overflow: visible;
