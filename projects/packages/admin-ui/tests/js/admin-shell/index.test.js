@@ -54,10 +54,10 @@ jest.mock(
 	{ virtual: true }
 );
 
-const member = ( slug, guest ) => ( {
+const member = ( slug, guest, routes = guest ) => ( {
 	mountId: `${ slug }-app`,
 	initModules: guest ? [ `test-guest-${ guest }/init` ] : [],
-	routes: guest ? [ { route_module: `test-guest-${ guest }/route` } ] : [],
+	routes: routes ? [ { route_module: `test-guest-${ routes }/route` } ] : [],
 } );
 
 const settle = async () => {
@@ -84,6 +84,8 @@ beforeEach( () => {
 			host: member( 'host' ),
 			'guest-a': member( 'guest-a', 'a' ),
 			'guest-b': member( 'guest-b', 'b' ),
+			// Another page built from guest A's package: same init module.
+			'guest-a2': member( 'guest-a2', 'a', null ),
 		},
 		guestAssetsUrl: '/wp-admin/admin-ajax.php',
 		headerStorageKey: 'test',
@@ -92,6 +94,7 @@ beforeEach( () => {
 		<ul id="adminmenu">
 			<li><a href="/wp-admin/admin.php?page=guest-a">A</a></li>
 			<li><a href="/wp-admin/admin.php?page=guest-b">B</a></li>
+			<li><a href="/wp-admin/admin.php?page=guest-a2">A2</a></li>
 		</ul>
 		<div id="host-app"></div>
 		<script type="application/json" id="wp-script-module-data-@automattic/jetpack-admin-shell">${ JSON.stringify(
@@ -102,16 +105,50 @@ beforeEach( () => {
 	require( '../../../src/admin-shell/index' );
 } );
 
+afterEach( () => {
+	jest.useRealTimers();
+} );
+
 describe( 'admin shell prewarm', () => {
-	it( "retries a guest's init after it failed", async () => {
+	it( "retries a guest's init after it failed, without holding up other guests", async () => {
 		mockInits.a.mockRejectedValueOnce( new Error( 'apiFetch failed' ) );
 
 		hover( 'guest-a' );
+		await settle();
+		hover( 'guest-b' );
 		await settle();
 		hover( 'guest-a' );
 		await settle();
 
 		expect( mockInits.a ).toHaveBeenCalledTimes( 2 );
+		expect( mockInits.b ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'gives up on an init that never settles and boots the next guest', async () => {
+		jest.useFakeTimers();
+		mockInits.a.mockReturnValue( new Promise( () => {} ) );
+
+		hover( 'guest-a' );
+		hover( 'guest-b' );
+		await jest.advanceTimersByTimeAsync( 15000 );
+		hover( 'guest-a' );
+		await jest.advanceTimersByTimeAsync( 0 );
+
+		expect( mockInits.b ).toHaveBeenCalledTimes( 1 );
+		expect( mockInits.a ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'runs an init module shared by two pages once when both prewarm together', async () => {
+		let finishA;
+		mockInits.a.mockReturnValue( new Promise( resolve => ( finishA = resolve ) ) );
+
+		hover( 'guest-a' );
+		hover( 'guest-a2' );
+		await settle();
+		finishA();
+		await settle();
+
+		expect( mockInits.a ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( "evaluates each guest's route modules with its own Jetpack config when prewarms overlap", async () => {

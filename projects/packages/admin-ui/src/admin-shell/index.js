@@ -19,6 +19,7 @@ import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } fro
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
 const RENDER_TIMEOUT = 15000;
+const INIT_TIMEOUT = 15000;
 
 const readConfig = () => {
 	try {
@@ -102,7 +103,20 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 						step = stopwatch();
 						// Not bundled: wp-build's modules resolve through the page's import map at runtime.
 						const initModule = await import( /* webpackIgnore: true */ id );
-						await initModule.init?.();
+						/*
+						 * Bounded, so a hung init can't hold up every guest queued behind it. A timed-out init
+						 * may still finish later and set its globals; it runs again on the next attempt.
+						 */
+						let timer;
+						await Promise.race( [
+							initModule.init?.(),
+							new Promise( ( resolve, reject ) => {
+								timer = setTimeout(
+									() => reject( new Error( `Admin shell: ${ id } timed out` ) ),
+									INIT_TIMEOUT
+								);
+							} ),
+						] ).finally( () => clearTimeout( timer ) );
 						// Only once it succeeded, so a failed init runs again on the next attempt.
 						ranInit.add( id );
 						log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
