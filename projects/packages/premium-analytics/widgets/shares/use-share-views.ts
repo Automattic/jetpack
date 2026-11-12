@@ -30,7 +30,6 @@ interface ShareViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
-	/** The summary request's own error, even while earlier rows stay on screen. */
 	csvIsError: boolean;
 	refetch: () => void;
 }

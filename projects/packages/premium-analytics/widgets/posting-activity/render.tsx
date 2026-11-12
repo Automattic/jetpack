@@ -95,7 +95,6 @@ function PostingActivityInner() {
 			rows: csvRows,
 			columns: CSV_COLUMNS,
 			filenamePrefix: 'posting-activity',
-			hasDateRange: true,
 			range: { from: range.start, to: range.end },
 			status: { isLoading, isFetching, isError },
 		},

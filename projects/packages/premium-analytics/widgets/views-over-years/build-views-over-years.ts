@@ -95,13 +95,13 @@ export function buildViewsOverYearsRows(
 			yearViews += views;
 			yearDays += days;
 
-			return metric === 'average' ? Math.round( views / days ) : views;
+			return metric === 'average' ? views / days : views;
 		} );
 
 		rows.push( {
 			year,
 			months,
-			total: metric === 'average' ? Math.round( yearViews / yearDays ) : yearViews,
+			total: metric === 'average' ? yearViews / yearDays : yearViews,
 		} );
 	}
 

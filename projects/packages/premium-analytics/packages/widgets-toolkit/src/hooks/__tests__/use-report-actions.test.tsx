@@ -174,15 +174,14 @@ describe( 'useReportActions', () => {
 		}
 
 		it.each( [
-			[ 'the report window', true, undefined, 'things-2026-03-01_2026-03-10' ],
-			[ 'no dates', false, undefined, 'things' ],
+			[ 'the report window', { hasDateRange: true }, 'things-2026-03-01_2026-03-10' ],
+			[ 'no dates', { hasDateRange: false }, 'things' ],
 			[
 				'its own window',
-				true,
-				{ from: '2025-11-01', to: '2026-10-31' },
+				{ range: { from: '2025-11-01', to: '2026-10-31' } },
 				'things-2025-11-01_2026-10-31',
 			],
-		] )( 'saves the loaded rows, named after %s', async ( _, hasDateRange, range, filename ) => {
+		] )( 'saves the loaded rows, named after %s', async ( _, dating, filename ) => {
 			const { wrapper, declaredActions } = setUp();
 
 			renderHook(
@@ -193,8 +192,7 @@ describe( 'useReportActions', () => {
 							columns,
 							filenamePrefix: 'things',
 							status: ROWS_SETTLED,
-							hasDateRange,
-							range,
+							...dating,
 						},
 					} ),
 				{ wrapper }

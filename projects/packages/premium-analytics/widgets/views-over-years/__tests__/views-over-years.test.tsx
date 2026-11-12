@@ -308,9 +308,21 @@ describe( 'ViewsOverYears widget', () => {
 	} );
 
 	it.each( [
-		[ 'daily averages', { metric: 'average' }, {}, 'daily-average-views-over-years.csv' ],
-		[ 'one author', { authorScoped: true }, { author_id: '7' }, 'author-7-views-over-years.csv' ],
-	] )( 'names the file after %s', async ( _, attributes, scope, filename ) => {
+		[
+			'daily averages, unrounded',
+			{ metric: 'average' },
+			{},
+			'daily-average-views-over-years.csv',
+			`"2025","","","","","","","","","","","10","20","${ 920 / 61 }"`,
+		],
+		[
+			'one author',
+			{ authorScoped: true },
+			{ author_id: '7' },
+			'author-7-views-over-years.csv',
+			'"2025","","","","","","","","","","","300","620","920"',
+		],
+	] )( 'saves %s', async ( _, attributes, scope, filename, oldestYear ) => {
 		mockUseStatsAuthorAllTime.mockReturnValue( {
 			data: {
 				startDate: '2025-11-01',
@@ -328,6 +340,7 @@ describe( 'ViewsOverYears widget', () => {
 		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 
 		expect( downloads.files[ 0 ].filename ).toBe( filename );
+		expect( ( await downloads.lines() ).at( -1 ) ).toBe( oldestYear );
 	} );
 
 	it.each( [
