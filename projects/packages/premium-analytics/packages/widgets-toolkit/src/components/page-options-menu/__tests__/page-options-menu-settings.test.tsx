@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event';
  */
 import {
 	getMockRouteLinkUrl,
+	setMockRoutePath,
 	setMockRouteSearch,
 } from '../../../../../../tests/js/route-test-utils';
 import { DashboardSectionProvider } from '../../../hooks/use-dashboard-origin-search';
@@ -37,6 +38,7 @@ describe( 'page-options-menu Settings entry', () => {
 		jest.useFakeTimers();
 		jest.clearAllMocks();
 		setMockRouteSearch();
+		setMockRoutePath();
 	} );
 
 	afterEach( () => {
@@ -60,6 +62,19 @@ describe( 'page-options-menu Settings entry', () => {
 		expect( url.searchParams.get( 'preset' ) ).toBe( 'last-30-days' );
 		expect( url.searchParams.get( 'ds' ) ).toBe( 'traffic' );
 		expect( url.searchParams.has( 'section' ) ).toBe( false );
+	} );
+
+	it( 'is disabled on the Settings page', async () => {
+		jest.mocked( getScriptData ).mockReturnValue( WITH_SETTINGS );
+		setMockRoutePath( '/settings' );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+
+		render( <PageOptionsMenu /> );
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		const settings = await screen.findByRole( 'menuitem', { name: 'Settings' } );
+		expect( settings ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( settings ).not.toHaveAttribute( 'href' );
 	} );
 
 	it.each( [

@@ -5,7 +5,7 @@ import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { Icon, IconButton, Menu } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { cancelCircleFilled, cog, comment, moreVertical, pencil } from '@wordpress/icons';
-import { Link as RouteLink } from '@wordpress/route';
+import { Link as RouteLink, useLinkProps } from '@wordpress/route';
 import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
@@ -17,21 +17,45 @@ import { getClassicStatsUrl } from './classic-stats-url';
 import { FeedbackModal } from './feedback-modal';
 import { SwitchOffDialog } from './switch-off-dialog';
 
+const SETTINGS_PATH = '/settings';
+
 /**
  * The menu's link to the Settings page, with the report window and the tab to return to.
+ * Disabled on the Settings page itself.
  *
  * @return The menu item.
  */
 function SettingsMenuItem() {
 	const search = useReportNavigationSearch();
 
+	// The router marks a link to the page on screen with `data-status`, which the hook's type leaves out.
+	const linkProps = useLinkProps( {
+		to: SETTINGS_PATH,
+		activeOptions: { exact: true, includeSearch: false },
+	} ) as Record< string, unknown >;
+	const isCurrentPage = linkProps[ 'data-status' ] === 'active';
+
+	const prefix = <Icon icon={ cog } />;
+	const label = (
+		<Menu.ItemLabel>{ __( 'Settings', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
+	);
+
+	// A link item takes no disabled state, so the page's own entry is a plain item.
+	if ( isCurrentPage ) {
+		return (
+			<Menu.Item disabled prefix={ prefix }>
+				{ label }
+			</Menu.Item>
+		);
+	}
+
 	return (
 		<Menu.LinkItem
-			prefix={ <Icon icon={ cog } /> }
+			prefix={ prefix }
 			// Route types cannot resolve here.
-			render={ <RouteLink to="/settings" search={ search as unknown as never } /> }
+			render={ <RouteLink to={ SETTINGS_PATH } search={ search as unknown as never } /> }
 		>
-			<Menu.ItemLabel>{ __( 'Settings', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
+			{ label }
 		</Menu.LinkItem>
 	);
 }
