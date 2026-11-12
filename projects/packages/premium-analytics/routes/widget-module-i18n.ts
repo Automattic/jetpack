@@ -25,6 +25,7 @@ import {
 } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { useWidgetTypes } from '@wordpress/widget-primitives';
+import { reportError } from '@jetpack-premium-analytics/error-reporting';
 /**
  * Internal dependencies
  */
@@ -181,6 +182,28 @@ export function widgetModuleBundlePath( moduleId: string ): string | null {
 }
 
 /**
+ * Reports a widget module that failed to load, then lets the failure through.
+ *
+ * Nothing else sees it: the host renders every widget inside `React.lazy`, which takes the
+ * rejection and throws it in render instead, so there is no window `error` for the global
+ * handlers and no `unhandledrejection` either. Rethrowing keeps the host's own fallback, and the
+ * report is what carries a stale deploy to the chunk-load recovery.
+ *
+ * @param moduleId - The module id that was asked for.
+ * @param load     - The pending import.
+ * @return The imported module, or a rejection with the original error.
+ */
+function reportFailedModule(
+	moduleId: string,
+	load: Promise< WidgetModule >
+): Promise< WidgetModule > {
+	return load.catch( ( error: unknown ) => {
+		reportError( error, 'module', { module: moduleId } );
+		throw error;
+	} );
+}
+
+/**
  * `import()` a widget module, installing its translation catalog first.
  *
  * The package's own catalog location is assumed unless the caller passes the
@@ -200,16 +223,19 @@ export function resolveWidgetModuleWithI18n(
 ): Promise< WidgetModule > {
 	const bundlePath = widgetModuleBundlePath( moduleId );
 	if ( ! bundlePath ) {
-		return importModule( moduleId );
+		return reportFailedModule( moduleId, importModule( moduleId ) );
 	}
 	ensureCatalogManifest( catalog );
 	// A missing catalog resolves and the widget renders in English, and a
 	// stalled download resolves after a bounded wait — so this should not
 	// reject. If one ever escapes, import the module anyway: a widget that
 	// never loads at all is worse than an untranslated one.
-	return loadBundleI18nCatalog( catalog.domain, bundlePath )
-		.catch( () => undefined )
-		.then( () => importModule( moduleId ) );
+	return reportFailedModule(
+		moduleId,
+		loadBundleI18nCatalog( catalog.domain, bundlePath )
+			.catch( () => undefined )
+			.then( () => importModule( moduleId ) )
+	);
 }
 
 /**

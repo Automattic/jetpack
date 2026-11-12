@@ -1,3 +1,5 @@
+import { encodeMasked, maskEmails } from './mask-emails';
+
 const REDACTED = '[redacted]';
 const UNREPORTABLE = '[unreportable]';
 const SAFE_NAME = /^[A-Za-z0-9_-]{1,64}$/;
@@ -68,6 +70,22 @@ export function routePathname( path: string ): string {
 }
 
 /**
+ * Masks the email addresses an allowlisted value carries.
+ *
+ * On the decoded value, because an address reaches a link as `%40` as readily as `@`, and the
+ * allowlist keeps a value exactly as the link wrote it.
+ *
+ * @param raw - The value as it appears in the search string.
+ * @return The value with each address masked, unchanged when it carries none.
+ */
+function redactAllowedValue( raw: string ): string {
+	const decoded = decodeValue( raw );
+	const masked = maskEmails( decoded );
+
+	return masked === decoded ? raw : encodeMasked( masked );
+}
+
+/**
  * Redacts the query an allowlisted path or URL carries, by the rules of the page's own query.
  *
  * That query is a second search string nested inside one parameter value, so without this it
@@ -82,14 +100,15 @@ function redactNestedQuery( raw: string ): string {
 	const cut = path.search( /[?#]/ );
 
 	if ( cut === -1 ) {
-		return path === decoded ? raw : encodeURIComponent( path );
+		const masked = maskEmails( path );
+		return masked === decoded ? raw : encodeMasked( masked );
 	}
 
 	const nested = path[ cut ] === '?' ? path.slice( cut + 1 ).split( /[?#]/, 1 )[ 0 ] : '';
 	const query = redactQuery( nested );
-	const pathname = path.slice( 0, cut );
+	const pathname = maskEmails( path.slice( 0, cut ) );
 
-	return encodeURIComponent( query === '' ? pathname : `${ pathname }?${ query }` );
+	return encodeMasked( query === '' ? pathname : `${ pathname }?${ query }` );
 }
 
 /**
@@ -138,7 +157,9 @@ export function redactQuery( search: string ): string {
 			continue;
 		}
 
-		parts.push( `${ name }=${ ALLOWED_PARAMS.has( name ) ? raw : REDACTED }` );
+		parts.push(
+			`${ name }=${ ALLOWED_PARAMS.has( name ) ? redactAllowedValue( raw ) : REDACTED }`
+		);
 	}
 
 	return parts.join( '&' );

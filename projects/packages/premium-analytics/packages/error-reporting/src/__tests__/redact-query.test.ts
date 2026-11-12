@@ -12,6 +12,14 @@ describe( 'redactQuery', () => {
 		expect( redactQuery( '?email=a@b.c' ) ).toBe( 'email=[redacted]' );
 	} );
 
+	it( 'masks an email address an allowlisted value carries percent-encoded', () => {
+		expect( redactQuery( '?ref=jane%40example.com' ) ).toBe( 'ref=[email]' );
+	} );
+
+	it( 'keeps the rest of a masked value encoded, so the mask cannot forge a parameter', () => {
+		expect( redactQuery( '?ref=a%26b%40example.com' ) ).toBe( 'ref=a%26[email]' );
+	} );
+
 	it( 'keeps the parameters in their original order', () => {
 		expect( redactQuery( '?secret=1&p=/posts&other=2' ) ).toBe(
 			'secret=[redacted]&p=/posts&other=[redacted]'
@@ -52,6 +60,18 @@ describe( 'redactQuery', () => {
 			'post_url',
 			'https://user:pw@example.com/hello',
 			'https://example.com/hello',
+		],
+		[
+			'masks an email address in the query a route path carries',
+			'p',
+			'/reports?ref=jane@example.com',
+			'/reports?ref=[email]',
+		],
+		[
+			'masks an email address in the path of a post URL',
+			'post_url',
+			'https://example.com/author/jane@example.com/',
+			'https://example.com/author/[email]/',
 		],
 	] )( '%s', ( _label, name, value, expected ) => {
 		expect(
