@@ -143,8 +143,9 @@ const LONG_HISTORY_YEARS = [ 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 ];
 const LONG_HISTORY_YEARLY_BASE = [ 18000, 28000, 34000, 30000, 25000, 21000, 18000, 16000 ];
 const LONG_HISTORY_SEASONALITY = [ 1, 0.95, 1.05, 1, 0.9, 0.8, 0.75, 0.8, 1.1, 1.15, 1.05, 0.85 ];
 
-const jitter = ( seed: number ) =>
-	0.85 + 0.3 * ( Math.abs( Math.sin( seed * 12.9898 ) * 43758.5453 ) % 1 );
+const hashFraction = ( seed: number ) => Math.abs( Math.sin( seed * 12.9898 ) * 43758.5453 ) % 1;
+
+const jitter = ( seed: number ) => 0.85 + 0.3 * hashFraction( seed );
 
 // Launched late March 2018, one viral September 2021, and November 2025 still running.
 const longHistoryCell = ( year: number, month: number ): HeatmapCell | null => {
@@ -337,8 +338,44 @@ const calendarArgTypes = {
 // render, since `useCalendarHeatmapData` holds the series by reference.
 const raggedCalendarSeries = heatmapCalendarSeries.slice( 2, 115 );
 
-export const Calendar: StoryObj< CalendarStoryArgs > = {
-	render: args => <CalendarGrid { ...args } series={ raggedCalendarSeries } />,
+const calendarSeriesFrom = ( valueFor: ( dayIndex: number ) => number ): DataPointDate[] =>
+	raggedCalendarSeries.map( ( { date }, dayIndex ) => ( { date, value: valueFor( dayIndex ) } ) );
+
+const publicationSpikeSeries = calendarSeriesFrom( day =>
+	Math.round( 500 * 0.45 ** day + 4 * jitter( day ) )
+);
+
+const GROWTH_WEEKLY_SEASONALITY = [ 1.15, 1.05, 1, 0.95, 0.9, 0.8, 1.05 ];
+
+const gradualGrowthSeries = calendarSeriesFrom( day =>
+	Math.round( ( 20 + day * 1.6 ) * GROWTH_WEEKLY_SEASONALITY[ day % 7 ] * jitter( day + 500 ) )
+);
+
+const CALENDAR_VALUE_STEPS = [ 4, 30, 120, 900 ];
+
+const fewValuesCalendarSeries = calendarSeriesFrom(
+	day => CALENDAR_VALUE_STEPS[ Math.floor( hashFraction( day ) * CALENDAR_VALUE_STEPS.length ) ]
+);
+
+// Days 54 to 60 fill one whole column while weeks start on Monday, so the busy week reads as one.
+const oneBusyWeekSeries = calendarSeriesFrom( day =>
+	Math.round( ( day >= 54 && day <= 60 ? 140 : 18 ) * jitter( day ) )
+);
+
+const CALENDAR_DATASETS = {
+	'Steady traffic': raggedCalendarSeries,
+	'Publication spike and decay': publicationSpikeSeries,
+	'Gradual growth': gradualGrowthSeries,
+	'A few distinct values': fewValuesCalendarSeries,
+	'One busy week': oneBusyWeekSeries,
+};
+
+type CalendarDatasetStoryArgs = CalendarStoryArgs & { dataset: keyof typeof CALENDAR_DATASETS };
+
+export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
+	render: ( { dataset, ...args } ) => (
+		<CalendarGrid { ...args } series={ CALENDAR_DATASETS[ dataset ] } />
+	),
 	args: {
 		...sharedThemeArgs,
 		withTooltips: true,
@@ -346,8 +383,18 @@ export const Calendar: StoryObj< CalendarStoryArgs > = {
 		hideOutOfRangeDays: true,
 		locale: '',
 		timeZone: '',
+		dataset: 'Steady traffic',
 	},
-	argTypes: calendarArgTypes,
+	argTypes: {
+		...calendarArgTypes,
+		dataset: {
+			control: 'select' as const,
+			options: Object.keys( CALENDAR_DATASETS ),
+			description:
+				'Traffic shape the calendar draws, for comparing how the color scale reads on each.',
+			table: { category: 'Calendar' },
+		},
+	},
 };
 
 // Regression story for a one-column first month label in compact mode.
