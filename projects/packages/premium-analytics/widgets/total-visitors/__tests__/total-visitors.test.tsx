@@ -8,8 +8,6 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import TotalVisitorsRender from '../render';
-import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
-import { captureCsvDownloads } from '../../test-utils';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
@@ -179,57 +177,5 @@ describe( 'TotalVisitorsWidget', () => {
 
 		expect( screen.getByText( '291,900' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-	} );
-} );
-
-describe( 'TotalVisitorsWidget CSV download', () => {
-	let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
-
-	beforeEach( () => {
-		jest.useFakeTimers();
-		mockUseStatsVisits.mockReset();
-	} );
-
-	afterEach( () => {
-		downloads?.restore();
-		downloads = undefined;
-		jest.useRealTimers();
-	} );
-
-	it( 'saves one row per day of the range', async () => {
-		downloads = captureCsvDownloads();
-		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
-
-		const { findDeclaredAction } = renderWithActionsHost(
-			<TotalVisitorsRender attributes={ { reportParams: REPORT_PARAMS } } />
-		);
-		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
-
-		expect( downloads.files[ 0 ].filename ).toBe( 'total-visitors-2026-07-01_2026-07-31.csv' );
-		await expect( downloads.lines() ).resolves.toEqual( [
-			'"Date","Visitors"',
-			'"2026-07-01","100000"',
-			'"2026-07-02","100000"',
-			'"2026-07-03","91900"',
-		] );
-	} );
-
-	it.each( [
-		[
-			'the range is zero-filled',
-			visitsResult( {
-				summary: { views: 0, visitors: 0 },
-				data: [ { date_start: '2026-07-01', views: 0, visitors: 0 } ],
-			} ),
-		],
-		[ 'a refetch failed behind the rows on screen', visitsResult( REPORT, { isError: true } ) ],
-	] )( 'offers no download when %s', ( _, result ) => {
-		mockUseStatsVisits.mockReturnValue( result );
-
-		const { declaredAction } = renderWithActionsHost(
-			<TotalVisitorsRender attributes={ { reportParams: REPORT_PARAMS } } />
-		);
-
-		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 } );

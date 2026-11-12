@@ -8,8 +8,6 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import PopularDaysRender from '../render';
-import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
-import { captureCsvDownloads } from '../../test-utils';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
@@ -167,56 +165,5 @@ describe( 'PopularDaysWidget', () => {
 
 		expect( screen.getByText( 'Tuesday' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-	} );
-} );
-
-describe( 'PopularDaysWidget CSV download', () => {
-	let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
-
-	beforeEach( () => {
-		jest.useFakeTimers();
-		mockUseStatsVisits.mockReset();
-	} );
-
-	afterEach( () => {
-		downloads?.restore();
-		downloads = undefined;
-		jest.useRealTimers();
-	} );
-
-	it( 'saves the seven weekdays, Monday first, with no average for one the range never reached', async () => {
-		downloads = captureCsvDownloads();
-		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
-
-		const { findDeclaredAction } = renderWithActionsHost(
-			<PopularDaysRender attributes={ { reportParams: REPORT_PARAMS } } />
-		);
-		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
-		const lines = await downloads.lines();
-
-		expect( downloads.files[ 0 ].filename ).toBe( 'popular-days-2026-07-06_2026-07-26.csv' );
-		expect( lines ).toHaveLength( 8 );
-		expect( lines.slice( 0, 4 ) ).toEqual( [
-			'"Day","Average views","Total views"',
-			'"Monday","20","60"',
-			'"Tuesday","25","50"',
-			'"Wednesday","","0"',
-		] );
-	} );
-
-	it.each( [
-		[
-			'every day in range drew zero views',
-			visitsResult( { summary: { views: 0 }, data: [ dailyRow( '2026-07-06', 0 ) ] } ),
-		],
-		[ 'a refetch failed behind the rows on screen', visitsResult( REPORT, { isError: true } ) ],
-	] )( 'offers no download when %s', ( _, result ) => {
-		mockUseStatsVisits.mockReturnValue( result );
-
-		const { declaredAction } = renderWithActionsHost(
-			<PopularDaysRender attributes={ { reportParams: REPORT_PARAMS } } />
-		);
-
-		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 } );

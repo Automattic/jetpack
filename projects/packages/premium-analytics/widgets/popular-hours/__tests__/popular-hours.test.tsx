@@ -8,8 +8,6 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import PopularHoursRender from '../render';
-import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
-import { captureCsvDownloads } from '../../test-utils';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
@@ -238,60 +236,5 @@ describe( 'PopularHoursWidget', () => {
 
 		expect( screen.getByText( 'This data is unavailable right now.' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '7 pm' ) ).not.toBeInTheDocument();
-	} );
-} );
-
-describe( 'PopularHoursWidget CSV download', () => {
-	let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
-
-	beforeEach( () => {
-		jest.useFakeTimers();
-		mockUseStatsHourOfDay.mockReset();
-	} );
-
-	afterEach( () => {
-		downloads?.restore();
-		downloads = undefined;
-		jest.useRealTimers();
-	} );
-
-	it( 'saves the 24 hours, with each unrounded average per day', async () => {
-		downloads = captureCsvDownloads();
-		mockUseStatsHourOfDay.mockReturnValue( hourOfDayResult( { ...report(), days: 3 } ) );
-
-		const { findDeclaredAction } = renderWithActionsHost(
-			<PopularHoursRender attributes={ { reportParams: REPORT_PARAMS } } />
-		);
-		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
-		const lines = await downloads.lines();
-
-		expect( downloads.files[ 0 ].filename ).toBe( 'popular-hours-2026-07-14_2026-08-12.csv' );
-		expect( lines ).toHaveLength( 25 );
-		expect( lines[ 0 ] ).toBe( '"Hour","Average views per day","Total views"' );
-		expect( lines[ 1 ] ).toBe( '"00:00","0","0"' );
-		expect( lines[ 8 ] ).toBe( '"07:00","33.333333333333336","100"' );
-		expect( lines[ 20 ] ).toBe( '"19:00","100","300"' );
-	} );
-
-	it.each( [
-		[
-			'the range drew no views at all',
-			hourOfDayResult( {
-				...report(),
-				buckets: Array.from( { length: 24 }, ( _, hour ) => ( { hour, views: 0 } ) ),
-			} ),
-		],
-		[
-			'a refetch failed behind the rows on screen',
-			hourOfDayResult( report(), { isError: true } ),
-		],
-	] )( 'offers no download when %s', ( _, result ) => {
-		mockUseStatsHourOfDay.mockReturnValue( result );
-
-		const { declaredAction } = renderWithActionsHost(
-			<PopularHoursRender attributes={ { reportParams: REPORT_PARAMS } } />
-		);
-
-		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 } );

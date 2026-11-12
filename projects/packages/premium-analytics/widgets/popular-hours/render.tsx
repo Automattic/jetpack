@@ -7,8 +7,6 @@ import {
 	PeakDistribution,
 	WidgetRoot,
 	WidgetState,
-	useReportActions,
-	type CsvColumn,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -17,7 +15,7 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import { usePopularHours, type PopularHourBucket } from './use-popular-hours';
+import { usePopularHours } from './use-popular-hours';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
@@ -29,18 +27,6 @@ type PopularHoursWidgetProps = WidgetRenderProps< PopularHoursRenderAttributes >
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-const HOUR_COLUMNS: CsvColumn< PopularHourBucket >[] = [
-	{
-		label: __( 'Hour', 'jetpack-premium-analytics-pkg' ),
-		getValue: row => `${ String( row.hour ).padStart( 2, '0' ) }:00`,
-	},
-	{
-		label: __( 'Average views per day', 'jetpack-premium-analytics-pkg' ),
-		getValue: row => row.average,
-	},
-	{ label: __( 'Total views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.total },
-];
-
 function PopularHoursReport() {
 	const { buckets, peak, isLoading, isFetching, isError, error, refetch } = usePopularHours();
 
@@ -49,16 +35,6 @@ function PopularHoursReport() {
 	// Keep stale data visible for transient refetch failures. A changed response
 	// contract invalidates the cached interpretation, so surface that error.
 	const showError = isError && ( ! peak || error instanceof StatsResponseShapeError );
-	useReportActions( {
-		csv: {
-			rows: peak ? buckets : [],
-			columns: HOUR_COLUMNS,
-			filenamePrefix: 'popular-hours',
-			hasDateRange: true,
-			status: { isLoading, isFetching, isError },
-		},
-	} );
-
 	const valueDecimals = peak && peak.average < 10 && ! Number.isInteger( peak.average ) ? 1 : 0;
 
 	return (

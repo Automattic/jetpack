@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useStatsVisits, withoutComparison } from '@jetpack-premium-analytics/data';
-import { getDatePart } from '@jetpack-premium-analytics/datetime';
 import { Text } from '@jetpack-premium-analytics/externals';
 import {
 	HEADLINE_COUNT_FORMAT,
@@ -10,11 +9,9 @@ import {
 	describeError,
 	MetricSparklineSkeleton,
 	Sparkline,
-	useReportActions,
 	useWidgetRootContext,
 	WidgetRoot,
 	WidgetState,
-	type CsvColumn,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -48,11 +45,6 @@ type TotalVisitorsWidgetProps = WidgetRenderProps< TotalVisitorsRenderAttributes
 // only 13 across 13 weekly ones). Views are additive and unaffected.
 const PERIOD = 'day';
 
-const COLUMNS: CsvColumn< { date: string; value: number } >[] = [
-	{ label: __( 'Date', 'jetpack-premium-analytics-pkg' ), getValue: row => row.date },
-	{ label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
-];
-
 /**
  * The period's visitor total over an area sparkline of the trend.
  *
@@ -72,29 +64,13 @@ function TotalVisitorsMetric() {
 
 	// The sanitizer builds the report summary by summing the returned buckets.
 	const total = Number( report?.summary?.visitors ?? 0 );
-	const days = useMemo(
+	const points = useMemo(
 		() =>
-			( report?.data ?? [] ).map( row => {
-				const record = row as Record< string, unknown >;
-
-				return {
-					date: getDatePart( record.date_start ) ?? '',
-					value: Number( record.visitors ?? 0 ),
-				};
-			} ),
+			( report?.data ?? [] ).map( row =>
+				Number( ( row as Record< string, unknown > ).visitors ?? 0 )
+			),
 		[ report ]
 	);
-	const points = useMemo( () => days.map( day => day.value ), [ days ] );
-
-	useReportActions( {
-		csv: {
-			rows: points.some( value => value > 0 ) ? days : [],
-			columns: COLUMNS,
-			filenamePrefix: 'total-visitors',
-			hasDateRange: true,
-			status: { isLoading, isFetching, isError },
-		},
-	} );
 
 	return (
 		<div className={ styles.root }>
