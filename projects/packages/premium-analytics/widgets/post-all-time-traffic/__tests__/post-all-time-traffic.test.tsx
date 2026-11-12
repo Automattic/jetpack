@@ -28,7 +28,6 @@ const REPORT_PARAMS = {
 	post_id: 779,
 };
 
-// The current year closes the table, so the clock is pinned to the fixture's year.
 const NOW = new Date( '2026-03-15T12:00:00.000Z' );
 
 class ResizeObserverStub {
@@ -90,14 +89,14 @@ describe( 'PostAllTimeTrafficWidget CSV download', () => {
 		] );
 	} );
 
-	it( 'offers no download for a post without views', async () => {
+	it( 'offers no download for a table of zeros', async () => {
 		mockApiFetch.mockResolvedValue( {
 			...STATS_POST_RESPONSE,
-			years: { '2026': { total: 0, months: {} } },
+			years: { '2026': { total: 0, months: { '1': 0, '2': 0 } } },
 		} );
 
 		const { declaredAction } = renderWidget();
-		await expect( screen.findByText( 'No views yet.' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'grid' ) ).resolves.toBeInTheDocument();
 
 		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );

@@ -356,7 +356,10 @@ describe( 'EmailBreakdown widget type', () => {
 			);
 		}
 
-		it( 'saves every row, past the ones the card lists', async () => {
+		it.each( [
+			[ 'opens', 'Opens' ],
+			[ 'clicks', 'Clicks' ],
+		] )( 'saves every row of %s, past the ones the card lists', async ( metric, heading ) => {
 			const rowCount = WIDGET_ROW_LIMIT + 3;
 			downloads = captureCsvDownloads();
 			mockApiFetch.mockResolvedValue( {
@@ -365,7 +368,7 @@ describe( 'EmailBreakdown widget type', () => {
 						`C${ index }`,
 						rowCount - index,
 					] ),
-					fields: [ 'country', 'clicks_count' ],
+					fields: [ 'country', `${ metric }_count` ],
 				},
 				'countries-info': Object.fromEntries(
 					Array.from( { length: rowCount }, ( _, index ) => [
@@ -375,14 +378,14 @@ describe( 'EmailBreakdown widget type', () => {
 				),
 			} );
 
-			const { findDeclaredAction } = renderWithHost( { view: 'countries', metric: 'clicks' } );
+			const { findDeclaredAction } = renderWithHost( { view: 'countries', metric } );
 			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 			const lines = await downloads.lines();
 
-			expect( downloads.files[ 0 ].filename ).toBe( 'email-1234-countries-clicks.csv' );
+			expect( downloads.files[ 0 ].filename ).toBe( `email-1234-countries-${ metric }.csv` );
 			expect( lines ).toHaveLength( rowCount + 1 );
 			expect( lines.slice( 0, 2 ) ).toEqual( [
-				'"Country","Clicks"',
+				`"Country","${ heading }"`,
 				`"Country 0","${ rowCount }"`,
 			] );
 		} );

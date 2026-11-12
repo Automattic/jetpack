@@ -87,7 +87,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 		csv: {
 			...csv,
 			filenamePrefix: `video-${ videoId }-performance`,
-			hasDateRange: true,
+			range: { from: reportParams.from, to: reportParams.to },
 			status: { isLoading, isFetching, isError },
 		},
 	} );
