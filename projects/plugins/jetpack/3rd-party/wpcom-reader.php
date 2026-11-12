@@ -73,8 +73,8 @@ function jetpack_wpcomreader_set_up_post_id( $post = null ) {
 /**
  * Output feed item identifier based on current post ID.
  *
- * Custom feed templates can fire the item actions without setting up a post for each item,
- * leaving the global post on the main query's; only print an ID set up for this item.
+ * Custom feed templates can fire the item actions without setting up a post per item, so the
+ * global post is still the main query's; only print an ID that was set up for this item.
  *
  * @return void
  */

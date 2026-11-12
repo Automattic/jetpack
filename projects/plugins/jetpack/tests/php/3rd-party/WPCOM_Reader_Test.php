@@ -39,11 +39,12 @@ class WPCOM_Reader_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a feed loop prints each item's own post ID.
+	 * Test that a feed loop prints each item's own post ID, even after a nested loop in its content.
 	 */
 	public function test_feed_loop_prints_each_post_id() {
-		$post_ids = self::factory()->post->create_many( 2 );
-		$query    = new WP_Query(
+		$post_ids            = self::factory()->post->create_many( 2 );
+		$nested              = self::factory()->post->create();
+		$GLOBALS['wp_query'] = new WP_Query( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- wp_reset_postdata() restores from the main query.
 			array(
 				'post__in' => $post_ids,
 				'orderby'  => 'post__in',
@@ -51,11 +52,18 @@ class WPCOM_Reader_Test extends WP_UnitTestCase {
 		);
 
 		$output = '';
-		while ( $query->have_posts() ) {
-			$query->the_post();
+		while ( have_posts() ) {
+			the_post();
+
+			// A Query Loop block in the item's content, rendered before the item action fires.
+			$content_query = new WP_Query( array( 'p' => $nested ) );
+			while ( $content_query->have_posts() ) {
+				$content_query->the_post();
+			}
+			wp_reset_postdata();
+
 			$output .= get_echo( 'do_action', array( 'rss2_item' ) );
 		}
-		wp_reset_postdata();
 
 		$this->assertSame( $this->post_id_tag( $post_ids[0] ) . $this->post_id_tag( $post_ids[1] ), $output );
 	}
