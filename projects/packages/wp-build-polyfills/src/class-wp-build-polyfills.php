@@ -3,8 +3,8 @@
  * Polyfill registration for Core packages not available or incomplete in older WordPress versions.
  *
  * On WordPress 7.0 at the default threshold, wp-private-apis and wp-rich-text replace Core's copies,
- * and @wordpress/widget-primitives replaces Core's on every version; every other polyfill fills in
- * what Core lacks, or replaces a Gutenberg copy too old to use.
+ * and @wordpress/widget-primitives replaces Core's wherever Core ships one, from 7.2; every other
+ * polyfill fills in what Core lacks, or replaces a Gutenberg copy too old to use.
  *
  * @package automattic/jetpack-wp-build-polyfills
  */
@@ -407,7 +407,13 @@ class WP_Build_Polyfills {
 			$record  = false;
 
 			if ( ! empty( $data['newest_copy_wins'] ) ) {
-				if ( array_key_exists( $module_id, $registered_versions ) ) {
+				// From WP 7.2 Core ships its own copy, built from Gutenberg's wp/X branch and so
+				// behind the bundled one: 7.2 carries 0.10.0, which has no `useWidgetIdentity`.
+				// Only Core's is displaced, by its src; nothing exposes the version behind another.
+				$registered = wp_script_modules()->get_registered( $module_id );
+				$is_core    = null !== $registered && str_starts_with( $registered['src'], includes_url() );
+
+				if ( ! $is_core && array_key_exists( $module_id, $registered_versions ) ) {
 					$current = $registered_versions[ $module_id ];
 					if ( null === $version || ( null !== $current && version_compare( $version, $current, '<=' ) ) ) {
 						continue;
@@ -415,12 +421,8 @@ class WP_Build_Polyfills {
 					$replace = true;
 					$record  = true;
 				} else {
-					// From WP 7.2 Core ships its own copy, built from Gutenberg's wp/X branch and so
-					// behind the bundled one: 7.2 carries 0.10.0, which has no `useWidgetIdentity`.
-					// Only Core's is displaced, by its src; nothing exposes the version behind another.
-					$registered = wp_script_modules()->get_registered( $module_id );
-					$is_core    = null !== $registered && str_starts_with( $registered['src'], includes_url() );
-
+					// A copy released before this check records its version even where Core had
+					// already won the ID, so a recorded version cannot stand against Core's copy.
 					$record  = $gutenberg_too_old || ( null === $gutenberg_version && ( null === $registered || $is_core ) );
 					$replace = $record;
 				}
