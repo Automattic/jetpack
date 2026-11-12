@@ -1214,13 +1214,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * Sets the current user's account-wide MCP access level to full, as choosing Full access on the MCP connect
 	 * screen does: every write tool is turned on and per-tool opt-outs are cleared.
 	 *
-	 * Acts on the current user only, through wpcom's `wpcom_mcp_set_user_access_level()`. Where it is not defined, the
-	 * wizard links to the WordPress.com MCP settings instead.
+	 * Acts on the current user only, through wpcom's `wpcom_mcp_set_user_access_level()`, and only on a read-only
+	 * account: the wizard offers the button for no other, and a 409 keeps a since-tuned account's per-tool settings.
+	 * Where wpcom's helpers are not defined, or on any error, the wizard links to the WordPress.com MCP settings instead.
 	 *
 	 * @return array{access_level: string}|WP_Error
 	 */
 	public function allow_full_mcp_access() {
-		if ( ! function_exists( 'wpcom_mcp_set_user_access_level' ) ) {
+		if ( ! function_exists( 'wpcom_mcp_set_user_access_level' ) || ! function_exists( 'wpcom_mcp_get_user_access_level' ) ) {
 			return new WP_Error(
 				'mcp_access_unavailable',
 				__( 'MCP access can’t be changed here.', 'jetpack-mu-wpcom' ),
@@ -1228,8 +1229,18 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			);
 		}
 
+		$user_id = get_current_user_id();
 		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
-		$result = wpcom_mcp_set_user_access_level( get_current_user_id(), 'full' );
+		if ( 'read_only' !== wpcom_mcp_get_user_access_level( $user_id ) ) {
+			return new WP_Error(
+				'mcp_access_not_read_only',
+				__( 'MCP access isn’t read only, so it can’t be changed here.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
+		$result = wpcom_mcp_set_user_access_level( $user_id, 'full' );
 		if ( is_wp_error( $result ) ) {
 			$data = $result->get_error_data();
 			if ( ! is_array( $data ) || ! isset( $data['status'] ) ) {

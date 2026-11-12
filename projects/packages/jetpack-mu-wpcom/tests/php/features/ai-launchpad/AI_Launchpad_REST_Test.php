@@ -2274,6 +2274,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_post_mcp_access_allows_full_access_for_the_current_user() {
 		$user_id = get_current_user_id();
+		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_access_level' )->justReturn( 'read_only' );
 		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )
 			->once()
 			->with( $user_id, 'full' )
@@ -2298,6 +2299,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_post_mcp_access_reports_a_failed_write() {
+		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_access_level' )->justReturn( 'read_only' );
 		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )
 			->once()
 			->andReturn( new WP_Error( 'mcp_settings_unavailable', 'MCP settings are not available in this request.' ) );
@@ -2306,6 +2308,24 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 500, $result->get_status() );
 		$this->assertSame( 'mcp_settings_unavailable', $result->as_error()->get_error_code() );
+	}
+
+	/**
+	 * POST /mcp-access changes only a read-only account, so it never clears a tuned account's per-tool settings.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_post_mcp_access_leaves_an_account_that_is_not_read_only() {
+		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_access_level' )->justReturn( null );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )->never();
+
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
+
+		$this->assertSame( 409, $result->get_status() );
+		$this->assertSame( 'mcp_access_not_read_only', $result->as_error()->get_error_code() );
 	}
 
 	/**
