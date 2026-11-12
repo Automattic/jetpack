@@ -27,6 +27,7 @@ import {
 	AI_TOOL_CHAT_URLS,
 	buildWizardPayload,
 	canContinue,
+	GOAL_SLUGS,
 	goalsVariation,
 	isLastStep,
 	isReadOnlyAccess,
@@ -48,6 +49,8 @@ interface Props {
 	initialSiteName?: string;
 	// Existing site tagline (blogdescription). Pre-fills the Brief description.
 	initialIntent?: string;
+	// The site's site_intent. Preselects the goal when it is a goal slug.
+	initialGoal?: string;
 	// The site language, forwarded to the wizard payload and the AI call, which writes the drafts in it.
 	locale?: string;
 	// The account language, which the AI writes the task subtitles in.
@@ -74,6 +77,7 @@ interface Props {
  * @param props                 - Component props.
  * @param props.initialSiteName - Existing site title used to pre-fill Name.
  * @param props.initialIntent   - Existing site tagline used to pre-fill the description.
+ * @param props.initialGoal     - The site's site_intent, preselecting the goal when it is a goal slug.
  * @param props.locale          - Site language forwarded to the payload.
  * @param props.uiLocale        - Account language the task subtitles are written in.
  * @param props.copy            - Site-language copy for the fallback drafts.
@@ -87,6 +91,7 @@ interface Props {
 export function Wizard( {
 	initialSiteName = '',
 	initialIntent = '',
+	initialGoal,
 	locale = 'en',
 	uiLocale = locale,
 	copy,
@@ -97,7 +102,9 @@ export function Wizard( {
 	onComplete,
 }: Props ) {
 	const [ step, setStep ] = useState< WizardStep >( 0 );
-	const [ goal, setGoal ] = useState< GoalSlug | null >( null );
+	const [ goal, setGoal ] = useState< GoalSlug | null >(
+		() => GOAL_SLUGS.find( slug => slug === initialGoal ) ?? null
+	);
 	const variation = goalsVariation( assignedVariation );
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
 	const [ intent, setIntent ] = useState< string >( initialIntent );
