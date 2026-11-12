@@ -32,7 +32,6 @@ export type RowsCsvActionOptions< TRow > = {
 		isPlaceholderData: boolean;
 	};
 
-	// Never alongside the report download's options, so one call cannot mix the two.
 	exporter?: never;
 	report?: never;
 	rowCount?: never;
