@@ -220,6 +220,9 @@ export function MonthlyHeatmap( {
 				minCellWidth={ MIN_CELL_WIDTH }
 				minCellHeight={ MIN_CELL_HEIGHT }
 				maxCellHeight={ MAX_CELL_HEIGHT }
+				// A grid of months is read by comparing them against each other, which
+				// distance flattens: one viral month leaves the rest the same pale shade.
+				scale="buckets"
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
 				renderTooltip={ renderTooltip }

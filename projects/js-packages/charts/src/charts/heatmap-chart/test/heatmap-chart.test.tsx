@@ -584,7 +584,8 @@ const mockRects = () =>
 	} );
 
 describe( 'HeatmapChart value text contrast', () => {
-	// The low end, a mid-tone, and the high end of the scale.
+	// Three values on the bucket scale, which lands them on the low end, the
+	// mid-tone and the high end exactly.
 	const scale: HeatmapColumn[] = [
 		{ label: 'W1', data: [ { value: 1 }, { value: 60 }, { value: 100 } ] },
 	];
@@ -603,6 +604,7 @@ describe( 'HeatmapChart value text contrast', () => {
 					width={ 500 }
 					height={ 300 }
 					data={ scale }
+					scale="buckets"
 					primaryColor="#3858e9"
 					className={ className }
 				/>
@@ -1301,7 +1303,7 @@ describe( 'HeatmapChart bucket scale', () => {
 	const renderAscending = ( props = {} ) =>
 		render(
 			<GlobalChartsProvider>
-				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } { ...props }>
+				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } scale="buckets" { ...props }>
 					<HeatmapChart.Legend />
 				</HeatmapChart>
 			</GlobalChartsProvider>
@@ -1373,6 +1375,38 @@ describe( 'HeatmapChart bucket scale', () => {
 			'1',
 		] );
 		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [ '0', '0.5', '1' ] );
+	} );
+
+	test( 'places by distance rather than rank without a scale prop', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } />
+			</GlobalChartsProvider>
+		);
+
+		// Ranking would collapse the twenty-four values onto five steps.
+		expect( new Set( intensitiesOf( 'heatmap-cell' ) ).size ).toBe( 24 );
+	} );
+
+	test( "holds the legend to the cells' steps under the buckets scale", () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					data={ ascending }
+					scale="buckets"
+					scaleSteps={ 3 }
+				>
+					<HeatmapChart.Legend steps={ 7 } />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+
+		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [ '0', '0.5', '1' ] );
+		expect( console ).toHaveWarnedWith(
+			"[Charts] steps follows the chart's scaleSteps under the buckets scale, where a cell paints on exactly those 3 steps, so the legend keeps them. Set scaleSteps on the chart instead."
+		);
 	} );
 } );
 

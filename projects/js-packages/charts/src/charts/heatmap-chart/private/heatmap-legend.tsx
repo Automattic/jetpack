@@ -3,6 +3,7 @@ import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useContext } from 'react';
 import { useGlobalChartsTheme } from '../../../providers';
+import { warnOnce } from '../../../utils/warn-once';
 import styles from '../heatmap-chart.module.scss';
 import { HeatmapContext } from './heatmap-context';
 import { isEmptyValue } from './use-heatmap-colors';
@@ -11,9 +12,10 @@ import type { CSSProperties, FC } from 'react';
 export interface HeatmapLegendProps {
 	/**
 	 * Number of color swatches in the scale, not counting the empty-cell swatch.
-	 * Defaults to the chart's `scaleSteps`, which is what keeps the swatches and
-	 * the cells in step; a different count here reads as a scale the cells
-	 * do not paint on.
+	 * Defaults to the chart's `scaleSteps`. Under the `buckets` scale the cells
+	 * paint on exactly those steps, so the legend keeps them and a different
+	 * count here is ignored with a warning; set the chart's `scaleSteps`
+	 * instead. The `linear` scale is continuous, so there the count is free.
 	 */
 	steps?: number;
 	/**
@@ -37,7 +39,15 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 		return null;
 	}
 	const { extent, fillVars } = context;
-	const steps = requestedSteps ?? context.steps;
+	const ownStepsIgnored =
+		context.scale === 'buckets' && requestedSteps !== undefined && requestedSteps !== context.steps;
+	if ( ownStepsIgnored ) {
+		warnOnce(
+			'heatmap:legendSteps',
+			`steps follows the chart's scaleSteps under the buckets scale, where a cell paints on exactly those ${ context.steps } steps, so the legend keeps them. Set scaleSteps on the chart instead.`
+		);
+	}
+	const steps = ownStepsIgnored ? context.steps : ( requestedSteps ?? context.steps );
 	const labelStyle = legend.labelStyles;
 	const showsEmptyCell = isEmptyValue( 0, extent );
 

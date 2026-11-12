@@ -4,6 +4,8 @@ import type { HeatmapBuckets } from './heatmap-buckets';
 export type HeatmapContextValue = {
 	extent: [ number, number ];
 	buckets: HeatmapBuckets;
+	/** Which scale the cells paint on, which decides whether the legend may hold its own step count. */
+	scale: 'buckets' | 'linear';
 	/** How many color steps the cells and the legend share. */
 	steps: number;
 	/** The custom properties the fill reads, set on the grid and on each legend swatch. */

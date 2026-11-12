@@ -107,9 +107,6 @@ export function MonthCalendarHeatmap( {
 				columnGroups={ columnGroups }
 				compact
 				fitCells
-				// A day-by-day calendar is read for the size of its busiest days, which
-				// ranking flattens: a launch day and a quiet one share the darkest step.
-				scale="linear"
 				keyboardNavigation="calendar"
 				ariaLabel={ chartName }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"

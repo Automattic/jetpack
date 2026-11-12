@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Heatmap Chart: Color cells by their rank in equal-share buckets by default, with `scale="linear"` to restore the previous placement by distance, darken the top of the color range, and leave incomplete periods off the color scale with a hatched pattern.
+Heatmap Chart: Add `scale="buckets"` to color cells by their rank in equal-share buckets, keeping the existing placement by distance as the default, darken the top of the color range, and leave incomplete periods off the color scale with a hatched pattern.
