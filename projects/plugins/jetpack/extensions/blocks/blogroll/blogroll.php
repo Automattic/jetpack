@@ -125,3 +125,106 @@ function site_recommendations_settings() {
 }
 
 add_action( 'rest_api_init', __NAMESPACE__ . '\site_recommendations_settings' );
+
+/**
+ * Whether a post publishes its blogroll as OPML.
+ *
+ * @param \WP_Post|null $post Post object.
+ * @return bool
+ */
+function has_opml( $post ) {
+	return $post instanceof \WP_Post
+		&& 'publish' === $post->post_status
+		&& ! post_password_required( $post )
+		&& has_block( 'jetpack/blogroll', $post );
+}
+
+/**
+ * Collect the subscribable items of the blogroll blocks, including nested ones.
+ *
+ * Items without a feed URL cannot be subscribed to, so they are left out.
+ *
+ * @param array $blocks Parsed blocks.
+ * @param array $items  Items found so far, keyed by feed URL.
+ * @return array Items with `name`, `url` and `feed_url`, keyed by feed URL.
+ */
+function get_opml_items( $blocks, $items = array() ) {
+	foreach ( $blocks as $block ) {
+		if ( 'jetpack/blogroll-item' === $block['blockName'] && ! empty( $block['attrs']['feed_url'] ) ) {
+			$feed_url = $block['attrs']['feed_url'];
+			if ( ! isset( $items[ $feed_url ] ) ) {
+				$items[ $feed_url ] = array(
+					'name'     => wp_strip_all_tags( $block['attrs']['name'] ?? '' ),
+					'url'      => $block['attrs']['url'] ?? '',
+					'feed_url' => $feed_url,
+				);
+			}
+		}
+
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			$items = get_opml_items( $block['innerBlocks'], $items );
+		}
+	}
+
+	return $items;
+}
+
+/**
+ * The blogroll of a post as an OPML document.
+ *
+ * @param \WP_Post $post Post object.
+ * @return string OPML document.
+ */
+function get_opml( $post ) {
+	$opml  = '<?xml version="1.0" encoding="' . esc_attr( get_option( 'blog_charset' ) ) . '"?>' . "\n";
+	$opml .= '<opml version="2.0">' . "\n";
+	$opml .= "\t<head>\n";
+	$opml .= "\t\t<title>" . esc_xml( get_the_title( $post ) ) . "</title>\n";
+	$opml .= "\t</head>\n";
+	$opml .= "\t<body>\n";
+
+	foreach ( get_opml_items( parse_blocks( $post->post_content ) ) as $item ) {
+		$opml .= sprintf(
+			"\t\t" . '<outline type="rss" text="%1$s" xmlUrl="%2$s" htmlUrl="%3$s" />' . "\n",
+			esc_xml( $item['name'] ),
+			esc_url( $item['feed_url'] ),
+			esc_url( $item['url'] )
+		);
+	}
+
+	$opml .= "\t</body>\n";
+	$opml .= '</opml>' . "\n";
+
+	return $opml;
+}
+
+/**
+ * Serve the blogroll of the current post as OPML on `?opml`.
+ */
+function serve_opml() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- A public, read-only file; a bare ?opml has an empty value, so test presence.
+	if ( ! isset( $_GET['opml'] ) || ! is_singular() || ! has_opml( get_queried_object() ) ) {
+		return;
+	}
+
+	header( 'Content-Type: text/x-opml; charset=' . get_option( 'blog_charset' ) );
+	echo get_opml( get_queried_object() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in get_opml().
+	exit( 0 );
+}
+add_action( 'template_redirect', __NAMESPACE__ . '\serve_opml' );
+
+/**
+ * Print the rel="blogroll" discovery link on a post with a blogroll.
+ */
+function print_opml_link() {
+	if ( ! is_singular() || ! has_opml( get_queried_object() ) ) {
+		return;
+	}
+
+	printf(
+		'<link rel="blogroll" type="text/x-opml" title="%1$s" href="%2$s" />' . "\n",
+		esc_attr( get_the_title( get_queried_object() ) ),
+		esc_url( add_query_arg( 'opml', '', get_permalink( get_queried_object() ) ) )
+	);
+}
+add_action( 'wp_head', __NAMESPACE__ . '\print_opml_link' );
