@@ -203,7 +203,7 @@ function mockSummary( overrides: Record< string, unknown > = {} ) {
 
 describe( 'author detail stage', () => {
 	// The Authors report behind the crumb reads the available tabs off script data;
-	// the page options menu reads the reader's capabilities off it too.
+	// the Stats options menu reads the reader's capabilities off it too.
 	beforeAll( () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
 			configurable: true,
@@ -409,7 +409,7 @@ describe( 'author detail stage', () => {
 		mockSummary( { isNotFound: true, name: undefined } );
 
 		const { unmount } = render( stage() );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 		await expect( screen.findByRole( 'menuitem', { name: 'Customize' } ) ).resolves.toHaveAttribute(
 			'aria-disabled',
 			'true'
@@ -418,7 +418,7 @@ describe( 'author detail stage', () => {
 
 		mockSummary();
 		render( stage() );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 
 		expect( mockDashboardProps.editMode ).toBe( true );

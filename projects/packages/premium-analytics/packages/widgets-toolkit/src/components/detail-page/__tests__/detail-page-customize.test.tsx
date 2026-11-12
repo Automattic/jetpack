@@ -34,7 +34,7 @@ describe( 'detail-page-customize', () => {
 	} );
 
 	describe( 'useDetailPageCustomize', () => {
-		// Customize enters through the page options menu, and Reset to default is ours too.
+		// Customize enters through the Stats options menu, and Reset to default is ours too.
 		it.each( [
 			[ 'move', true ],
 			[ 'resize', true ],
@@ -165,7 +165,7 @@ describe( 'detail-page-customize', () => {
 	} );
 
 	describe( 'DetailPageActions', () => {
-		it( 'keeps Customize first in the page options menu beside the page actions', async () => {
+		it( 'keeps Customize first in the Stats options menu beside the page actions', async () => {
 			const user = userEvent.setup();
 			const onCustomize = jest.fn();
 			render(
@@ -182,7 +182,7 @@ describe( 'detail-page-customize', () => {
 			expect( screen.getByRole( 'link', { name: 'View post' } ) ).toBeInTheDocument();
 			expect( screen.queryByRole( 'menuitem' ) ).not.toBeInTheDocument();
 
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 			const items = await screen.findAllByRole( 'menuitem' );
 			expect( items.map( item => item.textContent ) ).toEqual( [
 				'Customize',
@@ -215,7 +215,7 @@ describe( 'detail-page-customize', () => {
 			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: 'Reset to default' } ) ).toBeInTheDocument();
 
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 			await expect(
 				screen.findByRole( 'menuitem', { name: 'Customize' } )
@@ -246,7 +246,7 @@ describe( 'detail-page-customize', () => {
 					editingActions={ dashboardActions }
 				/>
 			);
-			expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toHaveFocus();
+			expect( screen.getByRole( 'button', { name: 'Stats options' } ) ).toHaveFocus();
 		} );
 	} );
 } );

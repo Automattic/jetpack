@@ -80,7 +80,7 @@ function SettingsMenuItem() {
 	);
 }
 
-type PageOptionsMenuProps = {
+type StatsOptionsMenuProps = {
 	/*
 	 * Enters customize mode; Customize is disabled without it.
 	 */
@@ -93,7 +93,7 @@ type PageOptionsMenuProps = {
 };
 
 /**
- * The page options menu of a Premium Analytics page: arranging the layout and the
+ * The Stats options menu of a Premium Analytics page: arranging the layout and the
  * tabs, disabled where the page has none, the Settings page and, apart from them,
  * feedback and the way back to classic Stats. After the configurations design
  * (WOOA7S-2055) less its Usage entry.
@@ -102,10 +102,10 @@ type PageOptionsMenuProps = {
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2098).
  *
- * @param {PageOptionsMenuProps} props - The component props.
+ * @param {StatsOptionsMenuProps} props - The component props.
  * @return The menu, and whichever of its dialogs is open.
  */
-export function PageOptionsMenu( { onCustomize, tabs }: PageOptionsMenuProps ) {
+export function StatsOptionsMenu( { onCustomize, tabs }: StatsOptionsMenuProps ) {
 	const trackEvent = useTrackEvent();
 	const [ isFeedbackOpen, setIsFeedbackOpen ] = useState( false );
 	const [ isSwitchOffOpen, setIsSwitchOffOpen ] = useState( false );
@@ -142,7 +142,7 @@ export function PageOptionsMenu( { onCustomize, tabs }: PageOptionsMenuProps ) {
 					render={
 						<IconButton
 							icon={ moreVertical }
-							label={ __( 'Page options', 'jetpack-premium-analytics-pkg' ) }
+							label={ __( 'Stats options', 'jetpack-premium-analytics-pkg' ) }
 							variant="minimal"
 							tone="brand"
 							size="compact"

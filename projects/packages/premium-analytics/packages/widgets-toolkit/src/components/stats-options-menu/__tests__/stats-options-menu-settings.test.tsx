@@ -13,7 +13,7 @@ import {
 	setMockRouteSearch,
 } from '../../../../../../tests/js/route-test-utils';
 import { DashboardSectionProvider } from '../../../hooks/use-dashboard-origin-search';
-import { PageOptionsMenu } from '../page-options-menu';
+import { StatsOptionsMenu } from '../stats-options-menu';
 
 jest.mock(
 	'@automattic/jetpack-analytics',
@@ -33,7 +33,7 @@ const WITH_SETTINGS = {
 	premium_analytics: { stats_settings: { roles: [], features_url: null } },
 } as ReturnType< typeof getScriptData >;
 
-describe( 'page-options-menu Settings entry', () => {
+describe( 'stats-options-menu Settings entry', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
 		jest.clearAllMocks();
@@ -52,10 +52,10 @@ describe( 'page-options-menu Settings entry', () => {
 
 		render(
 			<DashboardSectionProvider section="traffic">
-				<PageOptionsMenu />
+				<StatsOptionsMenu />
 			</DashboardSectionProvider>
 		);
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 		const url = getMockRouteLinkUrl( await screen.findByRole( 'menuitem', { name: 'Settings' } ) );
 		expect( url.pathname ).toBe( '/settings' );
@@ -72,8 +72,8 @@ describe( 'page-options-menu Settings entry', () => {
 		setMockRoutePath( path );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		render( <PageOptionsMenu /> );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		render( <StatsOptionsMenu /> );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 		const settings = await screen.findByRole( 'menuitem', { name: 'Settings' } );
 		expect( settings ).toHaveAttribute( 'aria-disabled', 'true' );
@@ -84,8 +84,8 @@ describe( 'page-options-menu Settings entry', () => {
 		jest.mocked( getScriptData ).mockReturnValue( WITH_SETTINGS );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		render( <PageOptionsMenu /> );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		render( <StatsOptionsMenu /> );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 		const settings = await screen.findByRole( 'menuitem', { name: 'Settings' } );
 		const separatorsAbove = screen
@@ -102,8 +102,8 @@ describe( 'page-options-menu Settings entry', () => {
 		jest.mocked( getScriptData ).mockReturnValue( {} as ReturnType< typeof getScriptData > );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		render( <PageOptionsMenu /> );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		render( <StatsOptionsMenu /> );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 		await expect(
 			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )

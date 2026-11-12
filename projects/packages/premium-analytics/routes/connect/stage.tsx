@@ -8,7 +8,7 @@ import {
 import { Button, Icon, JetpackFooter, Notice, Stack } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
-import { PageOptionsMenu, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import { StatsOptionsMenu, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -90,7 +90,7 @@ function PlanChoice() {
 						</Button>
 					) }
 
-					<PageOptionsMenu />
+					<StatsOptionsMenu />
 				</Stack>
 			}
 		>

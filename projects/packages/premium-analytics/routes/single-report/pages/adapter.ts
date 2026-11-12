@@ -149,7 +149,7 @@ export type SingleReportAdapter< Summary extends EntitySummary = EntitySummary >
 	headerSlots( summary: Summary, context: HeaderContext ): SingleReportHeaderSlots;
 
 	/*
-	 * Actions beside the page options, such as View post.
+	 * Actions beside the Stats options, such as View post.
 	 */
 	headerActions?( summary: Summary ): ReactNode;
 

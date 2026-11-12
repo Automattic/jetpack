@@ -146,12 +146,12 @@ describe( 'UpgradePage', () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'offers the page options menu', async () => {
+	it( 'offers the Stats options menu', async () => {
 		setScriptData( true );
 		mockEndpoints();
 		await renderPage();
 
-		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Stats options' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'links checkout to the tier picked on the slider', async () => {

@@ -233,11 +233,11 @@ describe( 'Connect stage', () => {
 	it.each( [
 		{ mode: 'beside the plan choice', isOfflineMode: false },
 		{ mode: 'in offline mode', isOfflineMode: true },
-	] )( 'offers the page options menu $mode', ( { isOfflineMode } ) => {
+	] )( 'offers the Stats options menu $mode', ( { isOfflineMode } ) => {
 		setIsOfflineMode( isOfflineMode );
 		render( <Stage /> );
 
-		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Stats options' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'prices the paid plan per month from the yearly product', async () => {
