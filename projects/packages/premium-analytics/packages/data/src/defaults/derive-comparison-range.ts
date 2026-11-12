@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
 	dateToISOStringWithLocalTZ,
 	findComparisonOption,
@@ -13,7 +12,16 @@ import {
 	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
-type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
+/**
+ * The search params a comparison is measured from.
+ */
+type ComparisonSource = {
+	from?: string;
+	to?: string;
+	preset?: string;
+	comp?: string | number;
+	compare_preset?: string;
+};
 
 /**
  * Resolve the comparison params for the main range, in the site timezone: the
@@ -26,7 +34,7 @@ type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ]
  * @param opts - Report params carrying the main range and comparison state.
  * @return The comparison params, or undefined when comparison is off or the range unreadable.
  */
-export function deriveComparisonRange( opts: ReportParams ):
+export function deriveComparisonRange( opts: ComparisonSource ):
 	| {
 			compare_from: string;
 			compare_to: string;

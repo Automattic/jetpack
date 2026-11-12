@@ -322,6 +322,7 @@ This package exports the following public API:
 - `intervalMenuOptions` - The open, withheld and locked buckets an interval menu lists
 - `getDaysBetweenInclusive` - The calendar days a range spans, both ends counted
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
+- `deriveComparisonRange` - The comparison window a range offers for a comparison preset, else its previous period
 - `getStatsDatePolicy` - The date limits the site's plan sets
 - `getSectionDatePolicy` - The date limits a dashboard section follows
 - `isPlanDateLimitedSection` - Whether a dashboard section's dates follow the plan

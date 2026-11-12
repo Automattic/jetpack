@@ -160,8 +160,8 @@ export function normalizeReportParams(
 		...( authorId > 0 ? { author_id: authorId } : {} ),
 	};
 
-	// Comparison only ever comes from the URL; a fresh load gets its default
-	// from the routes' `seedSiteDateParams`.
+	// Comparison is on only where the URL turns it on; a fresh load gets its default from the
+	// routes' `seedSiteDateParams`.
 	if ( search && hasComparisonEnabled( search ) ) {
 		// A preset window was re-read as today's above, so its comparison preset is measured again
 		// from it; a hand-picked window, or one that cannot be measured, keeps the URL's comparison.
