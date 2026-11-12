@@ -13,7 +13,6 @@
 
 namespace Automattic\Jetpack\SEO;
 
-use Jetpack_SEO_Posts;
 use WP_Post;
 
 /**
@@ -45,8 +44,7 @@ class Post_Schema_Node {
 			return null;
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; Schema_Builder::emit() guards on class_exists.
-		$override = Jetpack_SEO_Posts::get_post_schema_type( $post );
+		$override = Post_Seo::get_schema_type( $post );
 		$type     = '' !== $override ? $override : self::default_schema_for_post( $post );
 
 		switch ( $type ) {
@@ -95,10 +93,9 @@ class Post_Schema_Node {
 			$node['image'] = $image;
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; Schema_Builder::emit() guards on class_exists.
-		$description = Jetpack_SEO_Posts::get_post_description( $post );
+		$description = Post_Seo::get_description( $post );
 		if ( $description ) {
-			// Cap it: get_post_description() falls back to full post_content, which
+			// Cap it: get_description() falls back to full post_content, which
 			// would otherwise dump the whole body into the markup. Decode last, or
 			// wp_trim_words() would strip decoded text such as "<div>".
 			$node['description'] = \WP_HTML_Decoder::decode_text_node( wp_trim_words( wp_strip_all_tags( $description ), self::DESCRIPTION_MAX_WORDS, '' ) );

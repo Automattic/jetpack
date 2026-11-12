@@ -620,11 +620,7 @@ class Llms_Txt {
 	 * @return string
 	 */
 	private static function summary( $post ) {
-		$seo_description = '';
-		if ( class_exists( 'Jetpack_SEO_Utils' ) && class_exists( 'Jetpack_SEO_Posts' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; guarded by the class_exists checks above.
-			$seo_description = wp_trim_words( strip_shortcodes( wp_strip_all_tags( \Jetpack_SEO_Posts::get_post_custom_description( $post ) ) ), Post_Schema_Node::DESCRIPTION_MAX_WORDS, '' );
-		}
+		$seo_description = wp_trim_words( strip_shortcodes( wp_strip_all_tags( Post_Seo::get_custom_description( $post ) ) ), Post_Schema_Node::DESCRIPTION_MAX_WORDS, '' );
 
 		// The SEO description and manual excerpt are deliberate public summaries; a body gate does not withhold them.
 		if ( '' !== $seo_description ) {

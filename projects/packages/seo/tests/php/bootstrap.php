@@ -28,11 +28,9 @@ require_once __DIR__ . '/SeoTestCase.php';
 
 // Controllable stand-ins for the host-plugin and platform code the SEO package
 // guards on. Tests set their public static properties.
-require_once __DIR__ . '/stubs/class-jetpack-seo-utils.php';
 require_once __DIR__ . '/stubs/class-jetpack-redux-state-helper.php';
 require_once __DIR__ . '/stubs/class-jetpack-ai-settings.php';
 require_once __DIR__ . '/stubs/class-jetpack-ai-sidebar.php';
-require_once __DIR__ . '/stubs/class-jetpack-seo-posts.php';
 require_once __DIR__ . '/stubs/class-jetpack-options.php';
 require_once __DIR__ . '/stubs/class-wc-structured-data.php';
 require_once __DIR__ . '/stubs/class-woocommerce.php';

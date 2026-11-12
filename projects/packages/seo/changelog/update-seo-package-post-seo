@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Own the per-post description and schema type logic, and remove Query Loop blocks with the block scanner helper; no change in behaviour.
+
+

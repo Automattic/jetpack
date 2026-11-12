@@ -3932,9 +3932,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/seo",
-                "reference": "943fe3f14e2ad603e2cb2c5b1d633e6d29fc9141"
+                "reference": "ed427ad20a0a66a80f8f3d348e50e305cc260831"
             },
             "require": {
+                "automattic/block-delimiter": "@dev",
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-plans": "@dev",
