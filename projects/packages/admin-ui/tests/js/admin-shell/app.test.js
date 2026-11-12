@@ -28,6 +28,18 @@ describe( 'createApp', () => {
 		expect( () => app.to( to ) ).toThrow( `can't go from ${ from } to ${ to }` );
 	} );
 
+	it( 'switches its stylesheets off while hidden and back on when shown', () => {
+		const app = newApp();
+		const link = document.head.appendChild( document.createElement( 'link' ) );
+		app.styles.push( link );
+		app.to( 'ready' );
+		app.place( false );
+
+		expect( link.disabled ).toBe( true );
+		app.place( true );
+		expect( link.disabled ).toBe( false );
+	} );
+
 	it( 'makes a hidden app inert and gives it back when shown', () => {
 		const app = newApp();
 		app.to( 'ready' );

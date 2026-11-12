@@ -97,14 +97,14 @@ const focusOn = heading => {
 };
 
 /**
- * Resolve once the app has rendered its first route: a page heading in its container.
+ * Resolve once the app has rendered its first route: by default, a page heading in its container.
  *
- * @param {HTMLElement} el      - The app's mount element.
- * @param {number}      timeout - Milliseconds before giving up.
+ * @param {HTMLElement} el         - The app's mount element.
+ * @param {number}      timeout    - Milliseconds before giving up.
+ * @param {Function}    [rendered] - Whether the app counts as rendered.
  * @return {Promise<void>} Resolves when rendered, rejects on timeout.
  */
-export function whenRendered( el, timeout ) {
-	const rendered = () => !! headingOf( el );
+export function whenRendered( el, timeout, rendered = () => !! headingOf( el ) ) {
 	if ( rendered() ) {
 		return Promise.resolve();
 	}

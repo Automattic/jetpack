@@ -158,10 +158,10 @@ class Admin_Shell_Test extends TestCase {
 			'every key set'      => array( $set + self::valid_member(), $set ),
 			'script member'      => array(
 				array(
-					'kind'   => Admin_Shell::KIND_SCRIPT,
-					'title'  => 'Forms',
-					'load'   => '__return_null',
-					'render' => '__return_null',
+					'kind'      => Admin_Shell::KIND_SCRIPT,
+					'title'     => 'Forms',
+					'load'      => '__return_null',
+					'container' => array( 'id' => 'wpcom' ),
 				),
 				array(
 					'init_modules' => array(),
@@ -169,6 +169,7 @@ class Admin_Shell_Test extends TestCase {
 					'capability'   => 'manage_options',
 					'handles'      => array(),
 					'media'        => false,
+					'header'       => null,
 				),
 			),
 		);
@@ -220,6 +221,14 @@ class Admin_Shell_Test extends TestCase {
 			'empty capability'       => array( 'jetpack-forms', array( 'capability' => '' ) + $valid ),
 			'default_path not text'  => array( 'jetpack-forms', array( 'default_path' => 1 ) + $valid ),
 			'media not a boolean'    => array( 'jetpack-forms', array( 'media' => 'yes' ) + $valid ),
+			'unknown kind'           => array( 'jetpack-forms', array( 'kind' => 'iframe' ) + $valid ),
+			'script without id'      => array(
+				'jetpack-forms',
+				array(
+					'kind'      => Admin_Shell::KIND_SCRIPT,
+					'container' => array( 'class' => 'jp-blaze-dashboard' ),
+				) + $valid,
+			),
 		);
 	}
 

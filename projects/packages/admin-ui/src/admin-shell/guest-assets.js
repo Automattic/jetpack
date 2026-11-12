@@ -106,10 +106,11 @@ export async function fetchGuestAssets( endpoint, slug ) {
  *
  * Resolves after the guest's stylesheets load, so the app never renders unstyled.
  *
- * @param {string} html - From fetchGuestAssets().
+ * @param {string}        html         - From fetchGuestAssets().
+ * @param {HTMLElement[]} [styleNodes] - Receives each style node as it is added, so a caller can switch them off mid-way.
  * @return {Promise<object>} How many scripts and styles were added, how many the page already had, and the style nodes added.
  */
-export async function addGuestAssets( html ) {
+export async function addGuestAssets( html, styleNodes = [] ) {
 	const template = document.createElement( 'template' );
 	template.innerHTML = html;
 	// Script modules are already in the host's import map; a second map would be ignored.
@@ -119,7 +120,7 @@ export async function addGuestAssets( html ) {
 	const stylesheets = [];
 	// Inserted with async=false, external scripts download in parallel and still run in order.
 	let loading = [];
-	const added = { scripts: 0, styles: 0, skipped: 0, keptGlobals: [], styleNodes: [] };
+	const added = { scripts: 0, styles: 0, skipped: 0, keptGlobals: [], styleNodes };
 	// Inline scripts carry no id when printed without a handle; match those by their text.
 	const inlineTexts = new Set(
 		[ ...document.querySelectorAll( 'script:not([src])' ) ].map( script => script.textContent )
