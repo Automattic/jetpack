@@ -365,6 +365,7 @@ export function Wizard( {
 							onConnected={ handleConnected }
 							readOnly={ readOnly }
 							onReadOnlyChange={ handleReadOnlyChange }
+							allowFullAccessFailed={ allowFullAccessFailed }
 							onPromptCopied={ () => setPromptCopied( true ) }
 						/>
 					) }

@@ -37,6 +37,8 @@ interface Props {
 	readOnly: boolean;
 	// Called on each check with the account's MCP access level.
 	onReadOnlyChange: ( accessLevel: string | null ) => void;
+	// Whether allowing full access from the wizard failed.
+	allowFullAccessFailed: boolean;
 	// Called each time the prompt for another AI tool is copied.
 	onPromptCopied: () => void;
 	titleRef?: Ref< HTMLHeadingElement >;
@@ -49,15 +51,16 @@ interface Props {
  * seconds, then shows the tool as connected. With read-only access it keeps checking, so allowing full access shows
  * the tool as connected.
  *
- * @param props                    - Component props.
- * @param props.variation          - The goals step's experiment variation.
- * @param props.detectsConnections - Whether a new connection can be detected.
- * @param props.connected          - The AI tools shown as connected.
- * @param props.onConnected        - Called with the AI tool once its new connection shows up.
- * @param props.readOnly           - Whether a connected tool has only read-only access.
- * @param props.onReadOnlyChange   - Called on each check with the account's MCP access level.
- * @param props.onPromptCopied     - Called each time the prompt for another AI tool is copied.
- * @param props.titleRef           - Ref to the view title, focused when the view opens.
+ * @param props                       - Component props.
+ * @param props.variation             - The goals step's experiment variation.
+ * @param props.detectsConnections    - Whether a new connection can be detected.
+ * @param props.connected             - The AI tools shown as connected.
+ * @param props.onConnected           - Called with the AI tool once its new connection shows up.
+ * @param props.readOnly              - Whether a connected tool has only read-only access.
+ * @param props.onReadOnlyChange      - Called on each check with the account's MCP access level.
+ * @param props.allowFullAccessFailed - Whether allowing full access from the wizard failed.
+ * @param props.onPromptCopied        - Called each time the prompt for another AI tool is copied.
+ * @param props.titleRef              - Ref to the view title, focused when the view opens.
  * @return The AI tool view.
  */
 export default function AiToolStep( {
@@ -67,6 +70,7 @@ export default function AiToolStep( {
 	onConnected,
 	readOnly,
 	onReadOnlyChange,
+	allowFullAccessFailed,
 	onPromptCopied,
 	titleRef,
 }: Props ) {
@@ -103,6 +107,9 @@ export default function AiToolStep( {
 		const other = connected[ 0 ] === 'chatgpt' ? 'claude' : 'chatgpt';
 		title = copy.connectedTitle( connected[ 0 ] );
 		subtitle = copy.connectedSubtitle( connected[ 0 ], other );
+	}
+	if ( view === 'read_only' && allowFullAccessFailed ) {
+		subtitle = copy.allowFullAccessFailed;
 	}
 
 	// Tools connected before the view opened show as connected from the start.
