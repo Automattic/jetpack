@@ -14,15 +14,18 @@ import { canSendFeedback } from './can-send-feedback';
 import { getClassicStatsUrl } from './classic-stats-url';
 import { FeedbackModal } from './feedback-modal';
 import { SwitchOffDialog } from './switch-off-dialog';
+import type { Ref } from 'react';
 
 /**
  * The page options menu of a Premium Analytics page: feedback and the way back to classic Stats.
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2098).
  *
+ * @param props            - Component props.
+ * @param props.triggerRef - The menu's trigger button.
  * @return The menu, and whichever of its dialogs is open.
  */
-export function PageOptionsMenu() {
+export function PageOptionsMenu( { triggerRef }: { triggerRef?: Ref< HTMLButtonElement > } ) {
 	const trackEvent = useTrackEvent();
 	const [ isFeedbackOpen, setIsFeedbackOpen ] = useState( false );
 	const [ isSwitchOffOpen, setIsSwitchOffOpen ] = useState( false );
@@ -49,6 +52,7 @@ export function PageOptionsMenu() {
 		<>
 			<Menu.Root>
 				<Menu.Trigger
+					ref={ triggerRef }
 					render={
 						<IconButton
 							icon={ moreVertical }

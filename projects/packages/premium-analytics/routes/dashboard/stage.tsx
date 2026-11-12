@@ -275,7 +275,7 @@ function Dashboard(): JSX.Element {
 
 	// The tour's anchors, handed in by the elements below once they mount.
 	const [ customizeButton, setCustomizeButton ] = useState< HTMLButtonElement | null >( null );
-	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
+	const [ optionsMenuButton, setOptionsMenuButton ] = useState< HTMLButtonElement | null >( null );
 	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
 	const [ tabListFrame, setTabListFrame ] = useState< HTMLDivElement | null >( null );
@@ -284,7 +284,7 @@ function Dashboard(): JSX.Element {
 		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
 		dateControls: controlsAnchor,
 		customize: customizeButton,
-		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
+		optionsMenu: optionsMenuButton,
 		sectionTabs: tabListFrame?.querySelector( '[role="tablist"]' ) ?? null,
 	};
 	// A step without its anchor is left out, so the counter counts what is on the page.
@@ -539,7 +539,7 @@ function Dashboard(): JSX.Element {
 										onReset={ resetToDefault }
 										editingActions={ <WidgetDashboard.Actions /> }
 										customizeRef={ setCustomizeButton }
-										optionsMenuRef={ setOptionsMenuFrame }
+										optionsMenuRef={ setOptionsMenuButton }
 									/>
 								}
 								className={ styles.dashboard }

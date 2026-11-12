@@ -34,7 +34,7 @@ import {
 import { stage as Dashboard } from './stage';
 import type { LockedSectionGate } from '@jetpack-premium-analytics/data';
 import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
-import type { ForwardedRef, ReactNode } from 'react';
+import type { ForwardedRef, ReactNode, Ref } from 'react';
 
 // Read inside the mocked functions, never at factory time — the factories run
 // while `./stage` is still importing, so these are in the temporal dead zone.
@@ -191,7 +191,13 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 jest.mock( '../../packages/widgets-toolkit/src/components/page-options-menu', () => ( {
-	PageOptionsMenu: () => <div data-testid="page-options-menu" />,
+	PageOptionsMenu: ( { triggerRef }: { triggerRef?: Ref< HTMLButtonElement > } ) => (
+		<div data-testid="page-options-menu">
+			<button ref={ triggerRef } type="button">
+				Page options
+			</button>
+		</div>
+	),
 } ) );
 
 jest.mock( '../../packages/widgets-toolkit/src/components/reset-layout', () => ( {
@@ -942,7 +948,7 @@ describe( 'Dashboard options menu', () => {
 		const actions = screen.getByTestId( 'widget-dashboard-actions' );
 		const reset = screen.getByRole( 'button', { name: 'Reset to default' } );
 
-		// The menu's frame, the tour's anchor, comes last.
+		// The menu, the tour's anchor, comes last.
 		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
 		expect( actions.nextElementSibling ).toBe( reset );
 		// eslint-disable-next-line testing-library/no-node-access -- same order check.
@@ -1034,12 +1040,13 @@ describe( 'Dashboard onboarding', () => {
 		}
 	);
 
-	it( 'anchors the tour on the Customize button', () => {
+	it( 'anchors the tour on the Customize button and the page options trigger', () => {
 		render( <Dashboard /> );
 
 		expect( jest.mocked( onboardingTourSteps ) ).toHaveBeenLastCalledWith(
 			expect.objectContaining( {
 				customize: screen.getByRole( 'button', { name: 'Customize' } ),
+				optionsMenu: screen.getByRole( 'button', { name: 'Page options' } ),
 			} ),
 			expect.anything()
 		);

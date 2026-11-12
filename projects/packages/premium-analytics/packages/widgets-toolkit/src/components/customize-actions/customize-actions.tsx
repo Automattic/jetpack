@@ -29,11 +29,12 @@ const CustomizeButton = forwardRef< HTMLButtonElement, { onCustomize: () => void
  *
  * @param isCustomizing - Whether the page is in customize mode.
  * @param onCustomize   - Enters customize mode; omitted where Customize is not offered.
- * @return Refs for the frame and the Customize button, and the `onCustomize` that button must use.
+ * @return Refs for the frame and the buttons it focuses, and the `onCustomize` Customize must use.
  */
 function useCustomizeFocus( isCustomizing: boolean, onCustomize?: () => void ) {
 	const frameRef = useRef< HTMLDivElement >( null );
 	const customizeRef = useRef< HTMLButtonElement >( null );
+	const menuTriggerRef = useRef< HTMLButtonElement >( null );
 	const wasCustomizing = useRef( isCustomizing );
 	const isEnteringFromButton = useRef( false );
 
@@ -67,12 +68,10 @@ function useCustomizeFocus( isCustomizing: boolean, onCustomize?: () => void ) {
 		}
 
 		// Falls back to the menu trigger where Customize is no longer offered.
-		(
-			customizeRef.current ?? frame.querySelector< HTMLElement >( '[aria-haspopup="menu"]' )
-		)?.focus();
+		( customizeRef.current ?? menuTriggerRef.current )?.focus();
 	}, [ isCustomizing ] );
 
-	return { frameRef, customizeRef, onCustomize: customize };
+	return { frameRef, customizeRef, menuTriggerRef, onCustomize: customize };
 }
 
 export type CustomizeActionsProps = {
@@ -91,14 +90,13 @@ export type CustomizeActionsProps = {
 	children?: ReactNode;
 	/** The Customize button, for a caller that anchors on it. */
 	customizeRef?: Ref< HTMLButtonElement >;
-	/** A frame around the page options menu, for a caller that anchors on it. */
-	optionsMenuRef?: Ref< HTMLDivElement >;
+	/** The page options menu trigger, for a caller that anchors on it. */
+	optionsMenuRef?: Ref< HTMLButtonElement >;
 };
 
 /**
- * The header actions of a page with a layout. Idle, they hold the page's own actions,
- * Customize and the page options menu; customizing, the dashboard's own Cancel and Done
- * take their place, Reset to default beside them, and the menu stays.
+ * The header actions of a page with a layout: Customize and the page options menu at rest,
+ * the dashboard's Cancel and Done with Reset to default while customizing.
  *
  * @param props                - Component props.
  * @param props.isCustomizing  - Whether the page is in customize mode.
@@ -107,7 +105,7 @@ export type CustomizeActionsProps = {
  * @param props.editingActions - The dashboard's own actions, shown while customizing.
  * @param props.children       - The page's own actions.
  * @param props.customizeRef   - The Customize button.
- * @param props.optionsMenuRef - A frame around the page options menu.
+ * @param props.optionsMenuRef - The page options menu trigger.
  * @return The actions.
  */
 export function CustomizeActions( {
@@ -121,6 +119,7 @@ export function CustomizeActions( {
 }: CustomizeActionsProps ) {
 	const focus = useCustomizeFocus( isCustomizing, onCustomize );
 	const customizeButtonRef = useMergeRefs( [ focus.customizeRef, customizeRef ] );
+	const menuTriggerRef = useMergeRefs( [ focus.menuTriggerRef, optionsMenuRef ] );
 
 	return (
 		<Stack ref={ focus.frameRef } direction="row" align="center" gap="sm">
@@ -129,13 +128,7 @@ export function CustomizeActions( {
 				<CustomizeButton ref={ customizeButtonRef } onCustomize={ focus.onCustomize } />
 			) }
 			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
-			{ optionsMenuRef ? (
-				<Stack ref={ optionsMenuRef } direction="row">
-					<PageOptionsMenu />
-				</Stack>
-			) : (
-				<PageOptionsMenu />
-			) }
+			<PageOptionsMenu triggerRef={ menuTriggerRef } />
 		</Stack>
 	);
 }
