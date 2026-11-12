@@ -68,8 +68,7 @@ class DashboardSettingsTest extends TestCase {
 		parent::setUp();
 
 		\Jetpack_Options::delete_option( 'active_modules' );
-		\Jetpack_SEO_Utils::$enabled = true;
-		$this->original_blog_public  = get_option( 'blog_public', null );
+		$this->original_blog_public = get_option( 'blog_public', null );
 
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
@@ -94,7 +93,6 @@ class DashboardSettingsTest extends TestCase {
 		remove_all_filters( 'pre_option_' . \Automattic\Jetpack\Current_Plan::PLAN_OPTION );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		\Wpcom_Test_Features::reset();
-		\Jetpack_SEO_Utils::$enabled = true;
 		self::reset_active_plan_cache();
 
 		foreach ( array_keys( get_registered_settings() ) as $option ) {
@@ -193,9 +191,9 @@ class DashboardSettingsTest extends TestCase {
 	 * @return void
 	 */
 	private function become_legacy_site() {
-		// The plugin helper is authoritative wherever it's loaded, so that's what has to
-		// say "off" — the package must never decide differently from the front end.
-		\Jetpack_SEO_Utils::$enabled = false;
+		// A WordPress.com Simple site without the `advanced-seo` feature.
+		Constants::set_constant( 'IS_WPCOM', true );
+		\Wpcom_Test_Features::$entitled = array();
 		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
 		// Re-register: which option is exposed is decided at registration time.
 		$this->reset_rest_server();
@@ -539,12 +537,7 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * And the legacy value survives that save. This is the regression the
-	 * `class_exists( 'Jetpack_SEO_Utils' )` check used to cause: wherever the Jetpack
-	 * plugin's SEO files aren't loaded — which includes the package's own runtime —
-	 * the site looked "modern", the description saved to the wrong option, and the
-	 * cleanup below then deleted the live one, wiping the site's public description.
-	 * Nothing here depends on that class existing.
+	 * And the legacy value survives that save.
 	 */
 	public function test_legacy_front_page_description_survives_a_save() {
 		$this->become_legacy_site();
@@ -578,11 +571,6 @@ class DashboardSettingsTest extends TestCase {
 	public function test_clearing_a_legacy_description_when_the_modern_option_is_unchanged() {
 		$this->act_as( 'administrator' );
 
-		$description = new \ReflectionMethod( Dashboard_Data::class, 'get_front_page_meta_description_without_helper' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$description->setAccessible( true );
-		}
-
 		foreach ( array( false, true ) as $modern_exists ) {
 			delete_option( Dashboard_Data::FRONT_PAGE_META_OPTION );
 			if ( $modern_exists ) {
@@ -590,13 +578,13 @@ class DashboardSettingsTest extends TestCase {
 			}
 
 			update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
-			$this->assertSame( 'Old description.', $description->invoke( null ) );
+			$this->assertSame( 'Old description.', Seo_Tools::get_front_page_meta_description() );
 
 			$response = $this->save_settings( array( Dashboard_Data::FRONT_PAGE_META_OPTION => '' ) );
 
 			$this->assertSame( 200, $response->get_status() );
 			$this->assertFalse( get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
-			$this->assertSame( '', $description->invoke( null ) );
+			$this->assertSame( '', Seo_Tools::get_front_page_meta_description() );
 		}
 	}
 
@@ -644,25 +632,22 @@ class DashboardSettingsTest extends TestCase {
 
 		$this->assertTrue( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
 
-		\Jetpack_SEO_Utils::$enabled = true;
+		\Wpcom_Test_Features::$entitled = array( 'advanced-seo' );
 
 		$this->assertFalse( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
 	}
 
 	/**
-	 * The site's plan does not get a vote where the plugin helper is loaded.
+	 * The site's plan does not get a vote off WordPress.com Simple.
 	 *
-	 * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` plan-gates only behind `IS_WPCOM`, so
+	 * `Seo_Tools::is_enabled()` plan-gates only behind `IS_WPCOM`, so
 	 * an Atomic site below the SEO plan still has SEO enabled and its front end still
 	 * prefers the modern description. A gate of our own that also covered Atomic would
 	 * send that site's edits to the legacy option, report success, and never change the
 	 * public description.
 	 */
-	public function test_a_plan_gate_does_not_override_the_plugin_helper() {
+	public function test_a_plan_gate_does_not_disable_seo_off_simple() {
 		self::set_plan( 'free_plan' );
-		// Plan-gated, but the helper — which is what the front end reads by — says SEO
-		// is on, exactly as it does on Atomic.
-		\Jetpack_SEO_Utils::$enabled = true;
 		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
 		$this->reset_rest_server();
 		$this->act_as( 'administrator' );
@@ -674,22 +659,11 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * The rule used where `Jetpack_SEO_Utils` isn't loaded — the WordPress.com Simple
-	 * path this PR exists to fix, and what decides which option a save targets there.
-	 *
-	 * It has to match `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` exactly, and that
-	 * helper plan-gates only behind `IS_WPCOM`. Reached directly because the package's
-	 * own test suite always loads a stand-in for the helper.
+	 * Whether SEO output is live decides which option a save targets: off for a
+	 * conflicting plugin anywhere, and plan-gated only behind `IS_WPCOM`.
 	 */
-	public function test_seo_enabled_without_the_plugin_helper() {
-		$enabled = function () {
-			$method = new \ReflectionMethod( Dashboard_Data::class, 'is_jetpack_seo_enabled_without_helper' );
-			// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
-			if ( PHP_VERSION_ID < 80100 ) {
-				$method->setAccessible( true );
-			}
-			return $method->invoke( null );
-		};
+	public function test_seo_enabled_rule() {
+		$enabled = array( Seo_Tools::class, 'is_enabled' );
 
 		// Self-hosted: never gated, whatever the plan says.
 		self::set_plan( 'free_plan' );
@@ -700,8 +674,7 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertFalse( $enabled() );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 
-		// WordPress.com Simple: the site's `advanced-seo` entitlement decides, which is
-		// exactly what the helper's IS_WPCOM branch asks `wpcom_site_has_feature()`.
+		// WordPress.com Simple: the site's `advanced-seo` entitlement decides.
 		Constants::set_constant( 'IS_WPCOM', true );
 		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
 		\Wpcom_Test_Features::$entitled = array();
@@ -737,20 +710,10 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * The front page description the Settings field shows, on a site that doesn't load
-	 * `Jetpack_SEO_Utils` — WordPress.com Simple. Reading it through `class_exists()`
-	 * returned `''` for every Simple site, so the field rendered blank over a live
-	 * description. Reached directly, because the suite always loads a stand-in helper.
+	 * The front page description the Settings field shows is the one the front end emits.
 	 */
-	public function test_front_page_description_without_the_plugin_helper() {
-		$description = function () {
-			$method = new \ReflectionMethod( Dashboard_Data::class, 'get_front_page_meta_description_without_helper' );
-			// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
-			if ( PHP_VERSION_ID < 80100 ) {
-				$method->setAccessible( true );
-			}
-			return $method->invoke( null );
-		};
+	public function test_front_page_description_follows_the_enabled_rule() {
+		$description = array( Seo_Tools::class, 'get_front_page_meta_description' );
 
 		// SEO on: the modern option wins, and falls back to the legacy one.
 		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Legacy description.' );
@@ -1043,14 +1006,15 @@ class DashboardSettingsTest extends TestCase {
 	public function test_legacy_front_page_description_survives_while_seo_is_disabled() {
 		$this->act_as( 'administrator' );
 		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Legacy description.' );
-		\Jetpack_SEO_Utils::$enabled = false;
+		Constants::set_constant( 'IS_WPCOM', true );
+		\Wpcom_Test_Features::$entitled = array();
 
 		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Modern description.' );
 
 		$this->assertSame( 'Legacy description.', get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
 
 		// And once SEO output is live, the superseded legacy value does go.
-		\Jetpack_SEO_Utils::$enabled = true;
+		\Wpcom_Test_Features::$entitled = array( 'advanced-seo' );
 		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Newer description.' );
 
 		$this->assertFalse( get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, false ) );
