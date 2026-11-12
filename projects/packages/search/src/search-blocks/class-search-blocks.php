@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Search;
 
-use Automattic\Jetpack\Status;
 
 /**
  * Registers Jetpack Search Interactivity API blocks and initializes their shared state.
@@ -2226,7 +2225,7 @@ HTML;
 	 * @return array<string, mixed>
 	 */
 	public static function build_initial_state() {
-		$is_private                = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
+		$is_private                = class_exists( Helper::class ) ? Helper::is_private_or_login_walled_site() : false;
 		$is_wpcom                  = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
 		$site_id                   = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && \Jetpack::is_module_active( 'photon' );

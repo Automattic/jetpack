@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -2042,5 +2043,52 @@ class Helpers_Test extends TestCase {
 			),
 			'Patterns containing the PCRE delimiter should still match.'
 		);
+	}
+
+	/**
+	 * Active plugin sets and whether each makes the site count as private for Instant Search.
+	 *
+	 * @return array
+	 */
+	public static function active_plugin_sets() {
+		return array(
+			'no plugins'         => array( array(), false ),
+			'ordinary plugins'   => array( array( 'akismet/akismet.php', 'jetpack/jetpack.php' ), false ),
+			'force login plugin' => array( array( 'akismet/akismet.php', 'wp-force-login/wp-force-login.php' ), true ),
+			'coming soon plugin' => array( array( 'cmp-coming-soon-maintenance/cmp-coming-soon-maintenance.php' ), true ),
+			'single-file plugin' => array( array( 'maintenance.php' ), true ),
+		);
+	}
+
+	/**
+	 * A login-wall plugin must flip isPrivateSite, or logged-in visitors are sent to the anonymous public API and get no results.
+	 *
+	 * @dataProvider active_plugin_sets
+	 *
+	 * @param string[] $plugins  Active plugin files.
+	 * @param bool     $expected Whether the site should count as private.
+	 */
+	#[DataProvider( 'active_plugin_sets' )]
+	public function test_login_wall_plugins_make_site_private( $plugins, $expected ) {
+		Status_Cache::clear();
+		update_option( 'active_plugins', $plugins );
+
+		$this->assertSame( $expected, Helper::is_private_or_login_walled_site() );
+
+		delete_option( 'active_plugins' );
+	}
+
+	/**
+	 * A site that is private through its blog_public setting stays private whatever plugins are active.
+	 */
+	public function test_private_site_stays_private_without_login_wall_plugins() {
+		Status_Cache::clear();
+		update_option( 'blog_public', '-1' );
+		update_option( 'active_plugins', array( 'akismet/akismet.php' ) );
+
+		$this->assertTrue( Helper::is_private_or_login_walled_site() );
+
+		delete_option( 'blog_public' );
+		delete_option( 'active_plugins' );
 	}
 }
