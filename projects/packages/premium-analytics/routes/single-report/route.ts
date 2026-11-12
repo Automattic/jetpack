@@ -80,7 +80,7 @@ export const route = {
 		const section = resolveSingleReportSection( page, currentSearch.section );
 		const needsSectionSeed = !! currentSearch.section && section?.slug !== currentSearch.section;
 
-		const limited = await dateWindowRedirect(
+		const limited = dateWindowRedirect(
 			currentSearch,
 			getSectionDatePolicy( page.dashboard_section ?? undefined ),
 			{
