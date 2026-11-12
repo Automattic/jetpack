@@ -677,7 +677,10 @@ class ManagerTest extends TestCase {
 		add_action( 'jetpack_authorize_ending_authorized', $record, 10, 2 );
 
 		$memo = new \ReflectionProperty( Manager::class, 'connection_owner_id' );
-		$memo->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$memo->setAccessible( true );
+		}
 		$memo->setValue( null, 999 );
 
 		try {
@@ -2246,7 +2249,12 @@ class ManagerTest extends TestCase {
 			)
 		);
 		// A static that would otherwise skip the unlink for a user ID an earlier test disconnected.
-		( new \ReflectionProperty( Manager::class, 'disconnected_users' ) )->setValue( null, array() );
+		$disconnected = new \ReflectionProperty( Manager::class, 'disconnected_users' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$disconnected->setAccessible( true );
+		}
+		$disconnected->setValue( null, array() );
 		// A fresh instance re-adds the `jetpack_unlinked_user` cleanup that earlier tests may have unhooked.
 		( new \ReflectionProperty( Error_Handler::class, 'instance' ) )->setValue( null, null );
 		Error_Handler::get_instance();
