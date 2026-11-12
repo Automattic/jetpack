@@ -71,27 +71,19 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	 * Test sitemap index generation with multiple sitemaps
 	 */
 	public function test_sitemap_index_generation() {
-		// Create enough posts to generate multiple sitemaps
-		self::factory()->post->create_many(
-			2000,
-			array(
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			)
-		);
+		$callback = $this->add_split_page_sitemap_fixture();
 
-		// Run updates until we reach the index generation
-		for ( $i = 0; $i < 3; $i++ ) {
-			$this->builder->update_sitemap();
-		}
+		$this->builder->update_sitemap();
 
-		// Check that index files were created
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$index     = $librarian->get_sitemap_text( 'sitemap-index-1.xml', JP_PAGE_SITEMAP_INDEX_TYPE );
 
 		$this->assertNotEmpty( $index );
 		$this->assertStringContainsString( '<sitemapindex', $index );
 		$this->assertStringContainsString( '<sitemap>', $index );
+		$this->assertStringContainsString( 'sitemap-2.xml', $index );
 	}
 
 	/**

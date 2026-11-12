@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Speed up a sitemap unit test by feeding URLs through a filter instead of creating 2000 posts.
+
+
