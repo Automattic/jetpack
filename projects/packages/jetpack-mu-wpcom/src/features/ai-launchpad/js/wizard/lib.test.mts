@@ -65,7 +65,7 @@ describe( 'AI tool connection', () => {
 		] );
 	} );
 
-	it( 'ignores tools the user never clicked Set up on, and unknown integrations', () => {
+	it( 'ignores tools the user never clicked Connect on, and unknown integrations', () => {
 		assert.deepEqual(
 			findNewConnections( [ 'claude', 'cursor' ], [ 'chatgpt' ], 'chatgpt', [] ),
 			[]
@@ -152,7 +152,7 @@ describe( 'AI tool view', () => {
 		assert.equal( aiToolView( [], null, false ), 'choose' );
 	} );
 
-	it( 'waits after a Set up click', () => {
+	it( 'waits after a Connect click', () => {
 		assert.equal( aiToolView( [], 'claude', false ), 'waiting' );
 	} );
 
@@ -172,7 +172,7 @@ describe( 'AI tool view', () => {
 } );
 
 describe( 'AI tool row status', () => {
-	it( 'shows Set up on a tool that is neither connected nor waiting', () => {
+	it( 'shows Connect on a tool that is neither connected nor waiting', () => {
 		assert.equal( aiToolRowStatus( 'chatgpt', [], null, false ), null );
 		assert.equal( aiToolRowStatus( 'chatgpt', [], 'claude', false ), null );
 	} );

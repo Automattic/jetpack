@@ -90,7 +90,7 @@ export function bringYourAiToolCopy() {
 			'jetpack-mu-wpcom'
 		),
 		connectedToAccount: __( 'Connected to your WordPress.com account', 'jetpack-mu-wpcom' ),
-		setUp: __( 'Set up', 'jetpack-mu-wpcom' ),
+		connect: __( 'Connect', 'jetpack-mu-wpcom' ),
 		otherToolTitle: __( 'Another AI tool', 'jetpack-mu-wpcom' ),
 		otherToolDescription: __( 'Copy a prompt and paste it into your AI', 'jetpack-mu-wpcom' ),
 		copyPrompt: __( 'Copy prompt', 'jetpack-mu-wpcom' ),

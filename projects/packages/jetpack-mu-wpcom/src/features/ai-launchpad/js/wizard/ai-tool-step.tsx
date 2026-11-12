@@ -27,7 +27,7 @@ import type { Ref } from 'react';
 
 interface Props {
 	variation: GoalsVariation;
-	// Whether a new connection can be detected. Without it, Set up only opens the AI tool.
+	// Whether a new connection can be detected. Without it, Connect only opens the AI tool.
 	detectsConnections: boolean;
 	// The AI tools shown as connected, in the order they connected.
 	connected: AiTool[];
@@ -45,7 +45,7 @@ interface Props {
 /**
  * The "Which AI do you use?" view, shown when Continue is clicked on "Build with AI".
  *
- * After a Set up click it waits for the new connection, checking when the tab is shown again and every few
+ * After a Connect click it waits for the new connection, checking when the tab is shown again and every few
  * seconds, then shows the tool as connected. With read-only access it keeps checking, so allowing full access shows
  * the tool as connected.
  *
@@ -72,7 +72,7 @@ export default function AiToolStep( {
 }: Props ) {
 	const id = useId();
 	const copy = bringYourAiToolCopy();
-	// The tools whose Set up was clicked.
+	// The tools whose Connect was clicked.
 	const [ clicked, setClicked ] = useState< AiTool[] >( [] );
 	// The tool clicked most recently, while still waiting for a connection.
 	const [ waitingFor, setWaitingFor ] = useState< AiTool | null >( null );
@@ -306,7 +306,7 @@ export default function AiToolStep( {
 											}
 										} }
 									>
-										{ copy.setUp }
+										{ copy.connect }
 									</ButtonLink>
 								) }
 							</span>

@@ -58,7 +58,7 @@ interface Props {
 	aiBuilt?: boolean;
 	// The goals step's ExPlat variation from the server; anything else renders control.
 	goalsVariation?: string | null;
-	// Whether the AI tool view can detect a new connection; without it, Set up only opens the tool.
+	// Whether the AI tool view can detect a new connection; without it, Connect only opens the tool.
 	mcpDetection?: boolean;
 	// Whether "Allow full access" can allow it in place; without it, the button opens the MCP settings.
 	mcpAllowFull?: boolean;

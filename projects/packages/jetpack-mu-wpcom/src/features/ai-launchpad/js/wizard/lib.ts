@@ -27,16 +27,16 @@ export type AiTool = keyof typeof AI_TOOL_URLS;
 /** How often the AI tool view checks for a connection while waiting. */
 export const MCP_POLL_INTERVAL_MS = 4000;
 
-/** How long after a Set up click the AI tool view keeps checking. */
+/** How long after a Connect click the AI tool view keeps checking. */
 export const MCP_POLL_TIMEOUT_MS = 10 * 60 * 1000;
 
 /**
- * The newly connected AI tools: tools the user clicked Set up on, not yet shown as connected, that have an active
+ * The newly connected AI tools: tools the user clicked Connect on, not yet shown as connected, that have an active
  * connection. An existing connection counts, because a user who already connected is not sent through a new
  * approval. The most recently clicked tool comes last, so it is the latest connection.
  *
  * @param connections - The connected integrations the endpoint returned.
- * @param clicked     - The tools the user clicked Set up on.
+ * @param clicked     - The tools the user clicked Connect on.
  * @param latest      - The tool clicked most recently.
  * @param connected   - The tools already shown as connected.
  * @return The newly connected tools.
@@ -95,7 +95,7 @@ export function aiToolView(
 }
 
 /**
- * The status shown in place of an AI tool's Set up button, or null to show Set up.
+ * The status shown in place of an AI tool's Connect button, or null to show Connect.
  *
  * @param tool       - The row's AI tool.
  * @param connected  - The AI tools shown as connected.
@@ -140,7 +140,7 @@ export function viewedStep(
 /** Where the user allows the account's MCP write access. */
 export const MCP_SETTINGS_URL = 'https://my.wordpress.com/me/preferences/mcp/write';
 
-/** The WordPress.com MCP server, for AI tools without a Set up link. */
+/** The WordPress.com MCP server, for AI tools without a Connect link. */
 const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
 
 /** Has any AI tool connect itself. Matches HELPER_PROMPT on Calypso's /me/mcp page; keep them in sync. */
