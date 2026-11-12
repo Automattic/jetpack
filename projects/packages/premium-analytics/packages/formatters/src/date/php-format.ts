@@ -229,8 +229,9 @@ function literalRunStart( segments: Segment[], index: number ): number {
  * Remove the day from a PHP format string, with its adjoining punctuation.
  *
  * The weekday goes too: neither has anything to name in a month-and-year label.
- * The run to remove is the one after the day (`F j, Y` → `F Y`), or the one
- * before it where nothing follows (`Y-m-d` → `Y-m`).
+ * The run to remove is the one after the day (`F j, Y` → `F Y`). A final day
+ * takes the text after it as its suffix (`Y年n月j日` → `Y年n月`), or the run
+ * before it when nothing follows (`Y-m-d` → `Y-m`).
  *
  * @param phpFormat - PHP `date()` format string.
  * @return The format without its day, or unchanged when it has none.
@@ -260,7 +261,6 @@ export function withoutDay( phpFormat: string ): string {
 				? [ index, following ]
 				: [ literalRunStart( segments, index ), last + 1 ];
 
-		// Text after a final day is its suffix (`Y年n月j日` → `Y年n月`), so it goes and the text before stays.
 		if ( following === segments.length && last + 1 < segments.length ) {
 			start = index;
 			while ( start > 0 && isSpace( segments[ start - 1 ] ) ) {

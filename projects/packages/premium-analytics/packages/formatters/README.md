@@ -96,8 +96,9 @@ formatDate( date, 'short' ); // '21 de junio'
 | `year`          | Year alone.                                     |
 | `iso`           | Machine-readable `YYYY-MM-DD`. Never localized. |
 
-Every form but `year` and `iso` is derived from the site's date format,
-so the day/month order and the punctuation are always the site's. Dropping the
+Every form but `year` and `iso` is derived from the date format in use (the
+site's, or the locale default when it lacks a day, month or year), so the
+day/month order and the punctuation always follow it. Dropping the
 year takes the punctuation that introduced it along with it, and the
 abbreviated month still comes from WordPress's translation tables, so a locale
 that does not shorten its month names simply keeps them whole.
