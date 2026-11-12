@@ -410,28 +410,35 @@ class Error_Handler {
 							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
 						}
 
+						// WordPress.com can still refuse a claim the site can't predict, so takeovers say "can", not "will".
+						$viewer_can_take_slot = $viewer_can_connect && $this->can_take_owner_slot( $manager, $viewer_id, $is_transferable );
+						// A deleted owner can never reconnect, so the copy offers no "instead".
+						$owner_deleted = $owner_id > 0 && ! get_userdata( $owner_id );
+						$lead          = $owner_deleted
+							? __( "The connection owner's user account no longer exists on this site.", 'jetpack-connection' )
+							: self::get_owner_reconnect_message( $owner_name );
+
 						if ( $viewer_can_connect_directly ) {
-							// Manager::authorize() makes this admin the owner when transferable, and
-							// otherwise links them.
-							$message = self::get_owner_reconnect_message( $owner_name )
-								. ' '
-								. ( $is_transferable
-									? __( 'If you connect your account instead, you will become the new connection owner.', 'jetpack-connection' )
-									: __( 'You can still connect your own WordPress.com account.', 'jetpack-connection' ) );
+							if ( ! $viewer_can_take_slot ) {
+								$next = __( 'You can still connect your own WordPress.com account.', 'jetpack-connection' );
+							} elseif ( $owner_deleted ) {
+								$next = __( 'If you connect your account, you can become the new connection owner.', 'jetpack-connection' );
+							} else {
+								$next = __( 'If you connect your account instead, you can become the new connection owner.', 'jetpack-connection' );
+							}
+							$message = $lead . ' ' . $next;
 							$action  = 'connect_user';
-						} elseif ( ! $is_transferable ) {
-							// Ownership is locked (a consumer declared it non-transferable).
-							// This admin cannot resolve the error themselves, so surface an
-							// informational notice naming the owner and offer no reconnect CTA.
-							$message = self::get_owner_reconnect_message( $owner_name );
-							$action  = 'none';
-						} elseif ( $viewer_can_connect ) {
-							// Ownership is transferable and this admin is connected, so the reconnect CTA stays.
-							// What Manager::restore() does depends on the clicking user's tokens, so the copy
-							// promises only the ownership change, never the disconnects a full reconnect adds.
-							$message = self::get_owner_reconnect_message( $owner_name )
+						} elseif ( $viewer_can_take_slot ) {
+							// Restore relinks this admin. The copy promises only the ownership change, never the disconnects a full reconnect adds.
+							$message = $lead
 								. ' '
-								. __( 'If you reconnect instead, you will become the new connection owner.', 'jetpack-connection' );
+								. ( $owner_deleted
+									? __( 'If you reconnect, you can become the new connection owner.', 'jetpack-connection' )
+									: __( 'If you reconnect instead, you can become the new connection owner.', 'jetpack-connection' ) );
+						} else {
+							// Reconnecting would only link this admin, so only the owner can fix it.
+							$message = $lead;
+							$action  = 'none';
 						}
 					}
 
@@ -980,6 +987,21 @@ class Error_Handler {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Whether connecting or relinking would make the viewer the connection owner.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Manager $manager         The connection manager.
+	 * @param int     $viewer_id       The viewer's user ID.
+	 * @param bool    $is_transferable Whether ownership is transferable, the answer before Manager::can_take_owner_slot().
+	 * @return bool
+	 */
+	private function can_take_owner_slot( Manager $manager, $viewer_id, $is_transferable ) {
+		// A partial update can load this class alongside a Manager that predates the method.
+		return method_exists( $manager, 'can_take_owner_slot' ) ? $manager->can_take_owner_slot( $viewer_id ) : $is_transferable;
 	}
 
 	/**

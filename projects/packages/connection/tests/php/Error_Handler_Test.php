@@ -3579,15 +3579,18 @@ class Error_Handler_Test extends BaseTestCase {
 	 * @param string|null $expected_action  The expected `error_data.action`, or null for none emitted.
 	 * @param string      $expected_message A fragment the message must contain.
 	 * @param string|null $site_error       A site-level error code also on record, if any.
+	 * @param bool        $owner_has_token  Whether the owner's token is stored, so only an outgoing rejection makes it unusable.
 	 * @dataProvider provide_secondary_admin_owner_error
 	 */
 	#[DataProvider( 'provide_secondary_admin_owner_error' )]
-	public function test_get_displayable_errors_secondary_admin_owner_error( $viewer_connected, $locked, $expected_action, $expected_message, $site_error = null ) {
+	public function test_get_displayable_errors_secondary_admin_owner_error( $viewer_connected, $locked, $expected_action, $expected_message, $site_error = null, $owner_has_token = false ) {
 		list( $owner_id, $admin_id ) = $this->create_owner_and_admin_viewer();
 
+		$tokens = $owner_has_token ? array( $owner_id => "token.secret.$owner_id" ) : array();
 		if ( $viewer_connected ) {
-			\Jetpack_Options::update_option( 'user_tokens', array( $admin_id => "token.secret.$admin_id" ) );
+			$tokens[ $admin_id ] = "token.secret.$admin_id";
 		}
+		\Jetpack_Options::update_option( 'user_tokens', $tokens );
 
 		if ( $locked ) {
 			Protected_Owner::set( 12345, $owner_id );
@@ -3607,6 +3610,42 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertSame( $expected_action, $displayed['error_data']['action'] ?? null );
 		$this->assertStringContainsString( 'The connection owner (Owner Person) needs to reconnect', $displayed['error_message'] );
 		$this->assertStringContainsString( $expected_message, $displayed['error_message'] );
+	}
+
+	/**
+	 * Test that a secondary admin is never asked to wait for a deleted owner to reconnect.
+	 *
+	 * @param bool   $viewer_connected Whether the viewer has a user token of their own.
+	 * @param string $expected_action  The expected `error_data.action`, or `restore` for none emitted.
+	 * @param string $expected_message The full expected message.
+	 * @dataProvider provide_deleted_owner_error
+	 */
+	#[DataProvider( 'provide_deleted_owner_error' )]
+	public function test_get_displayable_errors_deleted_owner_on_locked_site( $viewer_connected, $expected_action, $expected_message ) {
+		list( , $admin_id ) = $this->create_owner_and_admin_viewer();
+		\Jetpack_Options::update_option( 'master_user', 99999 );
+		Protected_Owner::set( 12345, 99999 );
+		if ( $viewer_connected ) {
+			\Jetpack_Options::update_option( 'user_tokens', array( $admin_id => "token.secret.$admin_id" ) );
+		}
+		$this->store_single_verified_error( 'invalid_connection_owner', '99999' );
+
+		$displayed = $this->error_handler->get_displayable_errors()['invalid_connection_owner']['99999'];
+
+		$this->assertSame( $expected_action, $displayed['error_data']['action'] ?? 'restore' );
+		$this->assertSame( $expected_message, $displayed['error_message'] );
+	}
+
+	/**
+	 * Data provider for test_get_displayable_errors_deleted_owner_on_locked_site.
+	 *
+	 * @return array
+	 */
+	public static function provide_deleted_owner_error() {
+		return array(
+			'not connected' => array( false, 'connect_user', "The connection owner's user account no longer exists on this site. If you connect your account, you can become the new connection owner." ),
+			'connected'     => array( true, 'restore', "The connection owner's user account no longer exists on this site. If you reconnect, you can become the new connection owner." ),
+		);
 	}
 
 	/**
@@ -3687,11 +3726,13 @@ class Error_Handler_Test extends BaseTestCase {
 	 */
 	public static function provide_secondary_admin_owner_error() {
 		return array(
-			'not connected, transferable'              => array( false, false, 'connect_user', 'If you connect your account instead, you will become the new connection owner.' ),
+			'not connected, transferable'              => array( false, false, 'connect_user', 'If you connect your account instead, you can become the new connection owner.' ),
 			'not connected, locked'                    => array( false, true, 'connect_user', 'You can still connect your own WordPress.com account.' ),
-			'connected, transferable'                  => array( true, false, null, 'If you reconnect instead, you will become the new connection owner.' ),
+			'connected, transferable'                  => array( true, false, null, 'If you reconnect instead, you can become the new connection owner.' ),
 			'connected, locked'                        => array( true, true, 'none', 'to restore the connection.' ),
-			'not connected, transferable, broken site' => array( false, false, null, 'If you reconnect instead, you will become the new connection owner.', 'no_valid_blog_token' ),
+			'not connected, unproven owner error'      => array( false, false, 'connect_user', 'You can still connect your own WordPress.com account.', null, true ),
+			'connected, unproven owner error'          => array( true, false, 'none', 'to restore the connection.', null, true ),
+			'not connected, transferable, broken site' => array( false, false, null, 'If you reconnect instead, you can become the new connection owner.', 'no_valid_blog_token' ),
 			'not connected, locked, broken site'       => array( false, true, 'none', 'to restore the connection.', 'no_valid_blog_token' ),
 			'not connected, site request blocked'      => array( false, false, 'connect_user', 'If you connect your account instead', 'xmlrpc_request_blocked' ),
 		);
@@ -3701,7 +3742,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test that an inbound-failure error recorded for the owner keeps its own message and offers no takeover.
 	 *
 	 * Connecting or reconnecting an account cannot fix a blocked request or a bad certificate, so
-	 * neither the `connect_user` action nor the "you will become the new connection owner" copy
+	 * neither the `connect_user` action nor the "you can become the new connection owner" copy
 	 * may follow from them, whether or not the viewing admin is connected.
 	 *
 	 * @param string $error_code       The inbound-failure error code.

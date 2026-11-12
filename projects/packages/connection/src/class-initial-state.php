@@ -87,7 +87,7 @@ class Initial_State {
 			'connectionErrors'           => Error_Handler::get_instance()->get_displayable_errors(),
 			'isOfflineMode'              => $status->is_offline_mode(),
 			'calypsoEnv'                 => ( new Status\Host() )->get_calypso_env(),
-			'isOwnershipTransferable'    => $manager->is_ownership_transferable(),
+			'canTakeOwnerSlot'           => $manager->can_take_owner_slot(),
 			'connectionOwner'            => $connection_owner,
 			'hasProtectedOwner'          => $has_protected_owner,
 			'requiresProtectedOwner'     => $requires_protected_owner,

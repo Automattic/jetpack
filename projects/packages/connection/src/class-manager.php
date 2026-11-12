@@ -3221,19 +3221,15 @@ class Manager {
 	/**
 	 * Whether relinking the current user would repair a recorded broken connection owner.
 	 *
-	 * True when the owner has a recorded error and the current user is the owner or could become one.
-	 * A locked-ownership non-owner would only be linked, so unlinking them would fix nothing.
+	 * True when the owner has a recorded error and relinking would make the current user the owner.
+	 * Anyone else would only be linked, so unlinking them would fix nothing.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	private function can_relink_as_owner() {
-		if ( ! $this->has_owner_connection_error() ) {
-			return false;
-		}
-
-		return get_current_user_id() === $this->get_connection_owner_id() || $this->is_ownership_transferable();
+		return $this->has_owner_connection_error() && $this->can_take_owner_slot();
 	}
 
 	/**
@@ -3603,10 +3599,47 @@ class Manager {
 	 *
 	 * @since $$next-version$$
 	 *
+	 * @param int|null $user_id The authorizing user's ID, whose remembered state counts. Defaults to the current user.
 	 * @return bool
 	 */
-	private function is_owner_slot_unusable() {
-		return ! $this->has_connected_owner() || $this->has_owner_token_rejection() || $this->is_unusable_owner_remembered();
+	private function is_owner_slot_unusable( $user_id = null ) {
+		return ! $this->has_connected_owner() || $this->has_owner_token_rejection() || $this->is_unusable_owner_remembered( $user_id );
+	}
+
+	/**
+	 * Whether connecting or relinking this user would make them the connection owner.
+	 *
+	 * The one rule behind the owner-error notice, Restore's relink and the connect prompt, so their promises match authorize().
+	 * Where WordPress.com answers the claim, it can still refuse one for a blog with a protected owner there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|null $user_id The user's ID. Defaults to the current user.
+	 * @return bool
+	 */
+	public function can_take_owner_slot( $user_id = null ) {
+		$user_id = null === $user_id ? get_current_user_id() : (int) $user_id;
+
+		if ( $user_id <= 0 || ! user_can( $user_id, 'jetpack_connect' ) ) {
+			return false;
+		}
+
+		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+
+		// No owner, the owner themselves, or a deleted owner: authorize()'s fallback gives them the slot.
+		if ( $owner_id <= 0 || $owner_id === $user_id || ! get_userdata( $owner_id ) ) {
+			return true;
+		}
+
+		if ( ! $this->is_ownership_transferable() ) {
+			return false;
+		}
+
+		// WordPress.com ignores claims on Atomic and from non-administrator codes, leaving only the local fallback.
+		$wpcom_answers = ! ( new Host() )->is_woa_site()
+			&& 'administrator' === ( new Roles() )->translate_user_to_role( get_userdata( $user_id ) );
+
+		return $wpcom_answers ? $this->is_owner_slot_unusable( $user_id ) : ! $this->has_connected_owner();
 	}
 
 	/**
@@ -3636,11 +3669,12 @@ class Manager {
 	 *
 	 * @since $$next-version$$
 	 *
+	 * @param int|null $user_id The user's ID. Defaults to the current user.
 	 * @return bool
 	 */
-	private function is_unusable_owner_remembered() {
-		$user_id = get_current_user_id();
-		$record  = $user_id ? get_user_meta( $user_id, self::RELINK_OWNER_UNUSABLE_META, true ) : null;
+	private function is_unusable_owner_remembered( $user_id = null ) {
+		$user_id = null === $user_id ? get_current_user_id() : (int) $user_id;
+		$record  = $user_id > 0 ? get_user_meta( $user_id, self::RELINK_OWNER_UNUSABLE_META, true ) : null;
 
 		return is_array( $record )
 			&& isset( $record['owner'] )

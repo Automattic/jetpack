@@ -16,7 +16,7 @@ describe( 'getUserConnectKind', () => {
 				hasConnectedOwner: false,
 				owner,
 				currentUserId: 2,
-				isOwnershipTransferable: false,
+				canTakeOwnerSlot: false,
 			},
 		],
 		[
@@ -26,10 +26,21 @@ describe( 'getUserConnectKind', () => {
 				hasConnectedOwner: false,
 				owner,
 				currentUserId: 1,
-				isOwnershipTransferable: false,
+				canTakeOwnerSlot: false,
 			},
 		],
 		[ 'secondary', { isRegistered: true, hasConnectedOwner: true, owner, currentUserId: 2 } ],
+		// A token WordPress.com rejects is still stored, so only the server can tell it is unusable.
+		[
+			'take-over',
+			{
+				isRegistered: true,
+				hasConnectedOwner: true,
+				owner,
+				currentUserId: 2,
+				canTakeOwnerSlot: true,
+			},
+		],
 		// Viewers without jetpack_connect get no owner object, but a connected owner still exists.
 		[ 'secondary', { isRegistered: true, hasConnectedOwner: true, owner: null, currentUserId: 2 } ],
 		[ 'first', { isRegistered: true, hasConnectedOwner: false, owner: null, currentUserId: 2 } ],
