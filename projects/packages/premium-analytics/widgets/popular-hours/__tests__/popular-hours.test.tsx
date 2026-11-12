@@ -255,7 +255,7 @@ describe( 'PopularHoursWidget CSV download', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'saves the 24 hours, with each average per day to two decimals', async () => {
+	it( 'saves the 24 hours, with each unrounded average per day', async () => {
 		downloads = captureCsvDownloads();
 		mockUseStatsHourOfDay.mockReturnValue( hourOfDayResult( { ...report(), days: 3 } ) );
 
@@ -269,7 +269,7 @@ describe( 'PopularHoursWidget CSV download', () => {
 		expect( lines ).toHaveLength( 25 );
 		expect( lines[ 0 ] ).toBe( '"Hour","Average views per day","Total views"' );
 		expect( lines[ 1 ] ).toBe( '"00:00","0","0"' );
-		expect( lines[ 8 ] ).toBe( '"07:00","33.33","100"' );
+		expect( lines[ 8 ] ).toBe( '"07:00","33.333333333333336","100"' );
 		expect( lines[ 20 ] ).toBe( '"19:00","100","300"' );
 	} );
 

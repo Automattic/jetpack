@@ -184,7 +184,7 @@ describe( 'PopularDaysWidget CSV download', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'saves the seven weekdays, Monday first', async () => {
+	it( 'saves the seven weekdays, Monday first, with no average for one the range never reached', async () => {
 		downloads = captureCsvDownloads();
 		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
 
@@ -200,7 +200,7 @@ describe( 'PopularDaysWidget CSV download', () => {
 			'"Day","Average views","Total views"',
 			'"Monday","20","60"',
 			'"Tuesday","25","50"',
-			'"Wednesday","0","0"',
+			'"Wednesday","","0"',
 		] );
 	} );
 

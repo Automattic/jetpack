@@ -29,9 +29,6 @@ type PopularHoursWidgetProps = WidgetRenderProps< PopularHoursRenderAttributes >
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-// Two decimals keep a quiet site's fraction of a view without float noise.
-const toHundredths = ( value: number ) => Math.round( value * 100 ) / 100;
-
 const HOUR_COLUMNS: CsvColumn< PopularHourBucket >[] = [
 	{
 		label: __( 'Hour', 'jetpack-premium-analytics-pkg' ),
@@ -39,7 +36,7 @@ const HOUR_COLUMNS: CsvColumn< PopularHourBucket >[] = [
 	},
 	{
 		label: __( 'Average views per day', 'jetpack-premium-analytics-pkg' ),
-		getValue: row => toHundredths( row.average ),
+		getValue: row => row.average,
 	},
 	{ label: __( 'Total views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.total },
 ];

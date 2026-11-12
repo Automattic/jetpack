@@ -37,7 +37,6 @@ interface PlatformViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
-	/** The primary request's failure, even while rows kept on screen hide it from `isError`. */
 	csvIsError: boolean;
 	error: unknown;
 	refetch: () => void;
