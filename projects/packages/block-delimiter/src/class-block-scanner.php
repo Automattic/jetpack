@@ -839,11 +839,12 @@ class Block_Scanner {
 		return new WP_HTML_Span( $this->delimiter_at, $this->delimiter_length );
 	}
 
-	// Debugging methods not meant for production use.
-
 	/**
 	 * Returns the document with every block of the given type removed, nested
-	 * blocks and their inner content included. All other content is kept as it is.
+	 * blocks and their inner content included.
+	 *
+	 * When a removed block sat on its own line, the line break after it goes too.
+	 * An opener with no matching closer removes everything after it.
 	 *
 	 * Example:
 	 *
@@ -866,6 +867,7 @@ class Block_Scanner {
 		$offset   = 0;
 		$depth    = 0;
 		$removing = false;
+		$removed  = false;
 
 		while ( $scanner->next_delimiter() ) {
 			$span = $scanner->get_span();
@@ -885,22 +887,26 @@ class Block_Scanner {
 				if ( ! $removing ) {
 					$output  .= substr( $source_text, $offset, $span->start - $offset );
 					$removing = true;
+					$removed  = true;
 				}
 				++$depth;
 				continue;
 			}
 
-			if ( self::CLOSER === $type ) {
-				--$depth;
-				if ( ! $removing || 0 !== $depth ) {
+			if ( $removing ) {
+				// Inside a removed block, only the closer that balances its opener ends the removal.
+				if ( self::CLOSER !== $type || 0 !== --$depth ) {
 					continue;
 				}
 				$removing = false;
-			} elseif ( $removing ) {
-				// A void block inside a block that is already being removed.
-				continue;
-			} else {
+			} elseif ( self::VOID === $type ) {
 				$output .= substr( $source_text, $offset, $span->start - $offset );
+				$removed = true;
+			} else {
+				// A closer with no opener is not a block; keep it as it is.
+				$output .= substr( $source_text, $offset, $end - $offset );
+				$offset  = $end;
+				continue;
 			}
 
 			$offset = $end;
@@ -911,12 +917,14 @@ class Block_Scanner {
 			}
 		}
 
-		if ( ! $removing ) {
-			$output .= substr( $source_text, $offset );
+		if ( ! $removed ) {
+			return $source_text;
 		}
 
-		return $output;
+		return $removing ? $output : $output . substr( $source_text, $offset );
 	}
+
+	// Debugging methods not meant for production use.
 
 	/**
 	 * Prints a debugging message showing the structure of the parsed delimiter.
