@@ -9,6 +9,7 @@ use Automattic\Jetpack\Reprint_Export\Activity_Log;
 use Automattic\Jetpack\Reprint_Export\Reprint_Exporter;
 use Automattic\Jetpack\Sync\Activity_Log_Event;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests the Activity_Log class.
@@ -51,18 +52,22 @@ class Reprint_Activity_Log_Test extends WP_UnitTestCase {
 	 */
 	public function test_maybe_init_logs_exporter_events() {
 		Reprint_Exporter::maybe_init();
-		Reprint_Exporter::record_event( 'public_key_installed', array( 'key_id' => '4b37f5a28eae7fed' ) );
+		Reprint_Exporter::record_event( 'public_key_installed' );
 
 		$entries = $this->logged_entries();
 		$this->assertCount( 1, $entries );
-		$this->assertSame( 'warning', $entries[0]['severity'] );
-		$this->assertStringContainsString( '4b37f5a28eae7fed', $entries[0]['content'] );
+		$this->assertSame( 'Migration key added', $entries[0]['title'] );
+		$this->assertSame( 'jetpack', $entries[0]['source'] );
 	}
 
 	/**
-	 * Served requests are logged once per throttle window, not once per request.
+	 * Served requests are logged once per migration, not once per request.
+	 *
+	 * @dataProvider provide_migration_start_events
+	 * @param string $start_event Event that starts a new migration.
 	 */
-	public function test_served_requests_are_throttled() {
+	#[DataProvider( 'provide_migration_start_events' )]
+	public function test_served_requests_are_logged_once_per_migration( $start_event ) {
 		Activity_Log::init();
 
 		for ( $i = 0; $i < 3; $i++ ) {
@@ -70,9 +75,22 @@ class Reprint_Activity_Log_Test extends WP_UnitTestCase {
 		}
 		$this->assertCount( 1, $this->logged_entries() );
 
-		delete_transient( Activity_Log::THROTTLE_TRANSIENT_PREFIX . 'export_served' );
+		Reprint_Exporter::record_event( $start_event, array() );
 		Reprint_Exporter::record_event( 'export_served', array( 'endpoint' => 'sql_chunk' ) );
-		$this->assertCount( 2, $this->logged_entries(), 'Once the window passes, the next request is logged.' );
+		$this->assertCount( 3, $this->logged_entries(), 'A new migration logs its first served request again.' );
+	}
+
+	/**
+	 * Data provider for test_served_requests_are_logged_once_per_migration.
+	 *
+	 * @return array
+	 */
+	public static function provide_migration_start_events() {
+		return array(
+			'secret rotated'       => array( 'secret_rotated' ),
+			'public key installed' => array( 'public_key_installed' ),
+			'window opened'        => array( 'window_opened' ),
+		);
 	}
 
 	/**
