@@ -286,14 +286,14 @@ function do_changelogs {
 			*-beta ) ARGS+=('-b');;
 		esac
 
+		if $FROM_RELEASE_BRANCH; then
+			ARGS+=( '-R' )
+		fi
+
 		# Explicitly pass the version number we want so there are no surprises.
 		ARGS+=( '-r' "${PROJECTS[$PLUGIN]}" )
 		ARGS+=("$PLUGIN");
-		if $FROM_RELEASE_BRANCH; then
-			tools/changelogger-release.sh -R "${ARGS[@]}"
-		else
-			tools/changelogger-release.sh "${ARGS[@]}"
-		fi
+		tools/changelogger-release.sh "${ARGS[@]}"
 	done
 
 	git add --all
