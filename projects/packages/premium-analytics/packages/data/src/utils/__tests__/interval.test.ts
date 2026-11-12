@@ -333,7 +333,7 @@ describe( 'needsReportDateParamsSeed', () => {
 			false,
 		],
 	] as const )(
-		'reads a %s link saved %s to %s by %s against the window it names today: reseed %s',
+		'reads the %s link saved %s to %s by %s against the window it names today: reseed %s',
 		( preset, from, to, interval, expected ) => {
 			jest.useFakeTimers().setSystemTime( Date.parse( '2026-11-10T12:00:00.000Z' ) );
 

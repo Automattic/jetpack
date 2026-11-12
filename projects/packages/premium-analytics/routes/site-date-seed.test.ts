@@ -144,8 +144,10 @@ describe( 'seedSiteDateParams', () => {
 			offersComparison: true,
 		};
 
-		const seeded = seedSiteDateParams( { section: 'traffic', preset, from, to, interval }, policy );
+		const link = { section: 'traffic', preset, from, to, interval };
+		const seeded = seedSiteDateParams( link, policy );
 
+		expect( needsReportDateParamsSeed( link, policy.lockedIntervals ) ).toBe( true );
 		expect( seeded.interval ).not.toBe( interval );
 		expect( needsReportDateParamsSeed( seeded, policy.lockedIntervals ) ).toBe( false );
 	} );
