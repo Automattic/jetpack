@@ -389,6 +389,37 @@ describe( 'HeaderControls', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.queryAllByRole( 'link', { name: /Purchase a plan/ } ) ).toHaveLength( links );
 	} );
+
+	it( 'sends a site with Pro to Complete checkout in the same term', async () => {
+		window.myJetpackInitialState = {
+			userIsAdmin: true,
+			blogID: '123',
+			myJetpackFlags: {},
+			lifecycleStats: { isSiteConnected: true, isUserConnected: true },
+		} as unknown as typeof window.myJetpackInitialState;
+		mockApiFetch.mockResolvedValue( [
+			{
+				ID: 1,
+				product_name: 'Jetpack Pro',
+				product_slug: 'jetpack_pro_bi_yearly',
+				expiry_date: null,
+				expiry_status: 'active',
+				subscribed_date: '2025-11-05T00:00:00+00:00',
+				domain: 'example.com',
+			},
+		] );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		await openControl();
+		const link = await screen.findByRole( 'link', { name: /Upgrade to Complete/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			expect.stringMatching(
+				/^https:\/\/wordpress\.com\/checkout\/123\/jetpack_complete_bi_yearly\?/
+			)
+		);
+		expect( screen.queryByRole( 'link', { name: /Purchase a plan/ } ) ).not.toBeInTheDocument();
+	} );
 } );
 
 describe( 'header controls script', () => {
