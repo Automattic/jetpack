@@ -5,16 +5,20 @@
  * @package automattic/jetpack
  */
 
-require_once __DIR__ . '/mocks/class-mock-woocommerce-fallback-renderer.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/markdown/markdown.php';
 
+use Automattic\Jetpack\Extensions\Markdown;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * @covers ::Automattic\Jetpack\Extensions\Markdown\make_content_email_safe
+ * @covers ::Automattic\Jetpack\Extensions\Markdown\register_block
  * @covers ::Automattic\Jetpack\Extensions\Markdown\render_email
  */
 #[CoversFunction( 'Automattic\Jetpack\Extensions\Markdown\make_content_email_safe' )]
+#[CoversFunction( 'Automattic\Jetpack\Extensions\Markdown\register_block' )]
 #[CoversFunction( 'Automattic\Jetpack\Extensions\Markdown\render_email' )]
 class Markdown_Block_Email_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -70,6 +74,8 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 	 * Test the wrapped content is what reaches the email engine's renderer.
 	 */
 	public function test_render_email_hands_wrapped_content_to_the_renderer() {
+		require_once __DIR__ . '/mocks/class-mock-woocommerce-fallback-renderer.php';
+
 		$rendered = Automattic\Jetpack\Extensions\Markdown\render_email(
 			'<table><tr><td>' . self::UNBREAKABLE_WORD . '</td></tr></table>',
 			array(),
@@ -77,5 +83,43 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertStringContainsString( '<td style="word-break: break-word;">' . self::UNBREAKABLE_WORD . '</td>', (string) $rendered );
+	}
+
+	/**
+	 * Test the block defers to the email engine when the e-mail editor is not installed,
+	 * instead of fataling on a class that isn't there.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_render_email_defers_when_the_email_editor_is_absent() {
+		$this->assertFalse(
+			class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Fallback' ),
+			'This test is only meaningful in a process where the renderer mock was never loaded.'
+		);
+
+		$this->assertNull( Markdown\render_email( '<table><tr><td>Cell</td></tr></table>', array(), new stdClass() ) );
+	}
+
+	/**
+	 * Test the block registers the e-mail renderer, which is what routes it away from the
+	 * engine's generic fallback.
+	 */
+	public function test_block_registers_the_email_renderer() {
+		$registry = WP_Block_Type_Registry::get_instance();
+		if ( $registry->is_registered( 'jetpack/markdown' ) ) {
+			$registry->unregister( 'jetpack/markdown' );
+		}
+
+		Markdown\register_block();
+
+		$block_type = $registry->get_registered( 'jetpack/markdown' );
+		$this->assertInstanceOf( WP_Block_Type::class, $block_type );
+		$this->assertSame(
+			'Automattic\\Jetpack\\Extensions\\Markdown\\render_email',
+			$block_type->render_email_callback
+		);
 	}
 }
