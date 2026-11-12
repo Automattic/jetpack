@@ -99,15 +99,27 @@ class Comment_Form_Test extends BaseTestCase {
 		$this->assertStringContainsString( '<input name="custom-foo-name" type="submit" id="custom-foo-id" class="foo-class" value="custom-foo-label" />', $markup );
 	}
 
-	public function test_site_name_is_plain_text() {
-		// Saving runs the name through esc_html(), so the option holds "The Horse&#039;s Tale & Co".
-		update_option( 'blogname', 'The Horse\'s Tale & Co' );
+	/**
+	 * @dataProvider provide_site_name_is_plain_text
+	 */
+	#[DataProvider( 'provide_site_name_is_plain_text' )]
+	public function test_site_name_is_plain_text( $saved, $expected ) {
+		// Saving runs the name through esc_html(), so the option holds "The Horse&#039;s Tale &amp; Co".
+		update_option( 'blogname', $saved );
 
 		$method = new \ReflectionMethod( Comment_Form::class, 'site_name' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true ); // Deprecated in PHP 8.5, needed before 8.1.
 		}
 
-		$this->assertSame( 'The Horse\'s Tale & Co', $method->invoke( null ) );
+		$this->assertSame( $expected, $method->invoke( null ) );
+	}
+
+	public static function provide_site_name_is_plain_text() {
+		return array(
+			'apostrophe and ampersand' => array( 'The Horse\'s Tale & Co', 'The Horse\'s Tale & Co' ),
+			'numeric reference'        => array( 'The Horse&#8217;s Tale', "The Horse\u{2019}s Tale" ),
+			'markup'                   => array( '<b>Tale</b>', '<b>Tale</b>' ),
+		);
 	}
 }
