@@ -84,7 +84,7 @@ test.each( [
 		expect( overall.getByText( String( label ) ) ).toHaveClass(
 			`jetpack-boost-overview__tier--${ tier }`
 		);
-		expect( overall.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		expect( overall.queryByRole( 'meter' ) ).not.toBeInTheDocument();
 	}
 );
 
@@ -92,7 +92,7 @@ test.each( [
 	[ 90, 'Good', 'good' ],
 	[ 60, 'Could improve', 'medium' ],
 	[ 40, 'Poor', 'poor' ],
-] )( 'renders device score %s with its tier, progress color, and delta', ( score, label, tier ) => {
+] )( 'renders device score %s with its tier and delta', ( score, label, tier ) => {
 	render(
 		<ScoreCards
 			scores={ {
@@ -109,13 +109,8 @@ test.each( [
 		);
 		expect( card.getByText( String( score ) ) ).toBeVisible();
 		expect( card.getByText( '+10 points' ) ).toBeVisible();
-		const progress = card.getByRole( 'progressbar', { name: device } );
+		const progress = card.getByRole( 'meter', { name: device } );
 		expect( progress ).toHaveValue( Number( score ) );
-		expect( progress ).toHaveClass( 'jetpack-boost-overview__progress' );
-		expect(
-			// eslint-disable-next-line testing-library/no-node-access -- The tier color is on the indicator, which has no role.
-			progress.querySelector( `.jetpack-boost-overview__progress--${ tier }` )
-		).toBeInTheDocument();
 	}
 } );
 
@@ -138,7 +133,7 @@ test.each< [ string, number, string, string, number, string, string[] ] >( [
 		const card = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
 		expect( card.getByText( label ) ).toBeVisible();
 		expect( card.getByText( label ) ).toHaveClass( new RegExp( `__is-${ intent }-intent$` ) );
-		expect( card.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( Number( score ) );
+		expect( card.getByRole( 'meter', { name: 'Desktop' } ) ).toHaveValue( Number( score ) );
 		expect( card.getByText( tierLabel ) ).toBeVisible();
 		expect( card.getByRole( 'button', { name: 'About points' } ) ).toBeVisible();
 		for ( const absentLabel of absentLabels ) {
@@ -168,7 +163,7 @@ test( 'hides unknown and stale deltas while retaining measured scores', () => {
 		] as const ) {
 			const card = within( screen.getByRole( 'region', { name: device } ) );
 			expect( card.getByText( String( score ) ) ).toBeVisible();
-			expect( card.getByRole( 'progressbar', { name: device } ) ).toHaveValue( score );
+			expect( card.getByRole( 'meter', { name: device } ) ).toHaveValue( score );
 		}
 	}
 } );
@@ -304,7 +299,7 @@ test( 'keeps the live region mounted before adding the calculating message', () 
 test( 'overlays calculating while retaining hidden scores and restores the row on completion', () => {
 	const scores = { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false };
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
-	const desktop = screen.getByRole( 'progressbar', { name: 'Desktop' } );
+	const desktop = screen.getByRole( 'meter', { name: 'Desktop' } );
 	rerender( <ScoreCards scores={ scores } isLoading isRunning /> );
 	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Checking site speed…' );
 	expect( desktop ).toBeInTheDocument();
@@ -316,7 +311,7 @@ test( 'overlays calculating while retaining hidden scores and restores the row o
 		<ScoreCards scores={ { ...scores, current: { desktop: 90, mobile: 70 } } } isScoreReady />
 	);
 	expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
-	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toBe( desktop );
+	expect( screen.getByRole( 'meter', { name: 'Desktop' } ) ).toBe( desktop );
 	expect( desktop ).toBeVisible();
 	expect( desktop ).toHaveValue( 90 );
 	expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
@@ -354,7 +349,7 @@ test( 'shows a failed refresh inside the card above the retained scores', () => 
 	const card = within( container.querySelector( '.jetpack-boost-overview__scores-card' )! );
 	const notice = card.getByText( 'Failed to load speed scores' );
 	const desktop = card.getByRole( 'region', { name: 'Desktop' } );
-	expect( within( desktop ).getByRole( 'progressbar' ) ).toHaveValue( 80 );
+	expect( within( desktop ).getByRole( 'meter' ) ).toHaveValue( 80 );
 	expect( notice.compareDocumentPosition( desktop ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 } );
 
@@ -365,7 +360,7 @@ test( 'retains scores with a busy state during a cached read', () => {
 			isLoading
 		/>
 	);
-	const desktop = screen.getByRole( 'progressbar', { name: 'Desktop' } );
+	const desktop = screen.getByRole( 'meter', { name: 'Desktop' } );
 	expect( desktop ).toHaveValue( 80 );
 	// eslint-disable-next-line testing-library/no-node-access -- Assert the rendered busy ancestor of the score.
 	expect( desktop.closest( '[aria-busy]' ) ).toHaveAttribute( 'aria-busy', 'true' );

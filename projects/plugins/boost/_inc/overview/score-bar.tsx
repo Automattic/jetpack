@@ -2,7 +2,7 @@ import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, error, mobile } from '@wordpress/icons';
-import { Badge, Progress, Text } from '@wordpress/ui';
+import { Badge, Meter, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import IndeterminateProgress from '../../app/assets/src/js/features/ui/indeterminate-progress/indeterminate-progress';
 import {
@@ -94,13 +94,19 @@ export default function ScoreBar( {
 									className="jetpack-boost-overview__score-icon"
 								/>
 								<Text variant="heading-md">{ score }</Text>
-								<Progress.Root className="jetpack-boost-score-bar__meter" value={ score }>
-									<Progress.Track className="jetpack-boost-score-bar__meter-track">
-										<Progress.Indicator
-											className={ `jetpack-boost-overview__progress--${ tier }` }
-										/>
-									</Progress.Track>
-								</Progress.Root>
+								<Meter.Root
+									className="jetpack-boost-score-bar__meter"
+									value={ score }
+									aria-label={
+										device === 'desktop'
+											? __( 'Desktop', 'jetpack-boost' )
+											: __( 'Mobile', 'jetpack-boost' )
+									}
+								>
+									<Meter.Track>
+										<Meter.Indicator className={ `jetpack-boost-overview__progress--${ tier }` } />
+									</Meter.Track>
+								</Meter.Root>
 								<span
 									className={ `jetpack-boost-score-bar__dot jetpack-boost-score-bar__dot--${ tier }` }
 								/>
