@@ -106,12 +106,15 @@ function verify_on_branch {
 	return 0
 }
 
-# Find the existing release branch on which to base the new release. For example:
+# Find the existing release branch on which to base the new release.
+# On a normal run, it'll return `trunk`.
+# On a -R run, it'll detect the branch to start from. For example:
 #  - 16.4.X: jetpack/branch-16.4.W or jetpack/branch-16.4
 #  - 16.4: jetpack/branch-16.4-beta.X or jetpack/branch-16.4-beta
 #  - 16.4-beta.X: jetpack/branch-16.4-beta.W or jetpack/branch-16.4-beta
 #  - 16.4-a.x: trunk
 #
+# Uses FROM_RELEASE_BRANCH, PLUGIN, and VERSION, and sets BASE_BRANCH.
 # @todo: Consider if it's easy or even worth supporting semver.
 function find_base_branch {
 	local prefix stable suffix potential_base_branch branch_ver
