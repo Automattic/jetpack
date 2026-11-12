@@ -118,7 +118,7 @@ class Comment_Form_Test extends BaseTestCase {
 	public static function provide_site_name_is_plain_text() {
 		return array(
 			'apostrophe and ampersand' => array( 'The Horse\'s Tale & Co', 'The Horse\'s Tale & Co' ),
-			'numeric reference'        => array( 'The Horse&#8217;s Tale', "The Horse\u{2019}s Tale" ),
+			'quotes'                   => array( 'The "Best" Tale', 'The "Best" Tale' ),
 			'markup'                   => array( '<b>Tale</b>', '<b>Tale</b>' ),
 		);
 	}

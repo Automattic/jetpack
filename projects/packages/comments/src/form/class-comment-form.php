@@ -401,13 +401,13 @@ class Comment_Form {
 	/**
 	 * The site's name, as plain text for the app to render.
 	 *
-	 * The option is saved through esc_html(), which also keeps any numeric reference an admin typed,
-	 * and the app renders text as written, entities and all.
+	 * The option is saved through esc_html(), and the app renders text as written, entities and all.
+	 * Decoded as core decodes it for its emails, so only what esc_html() encodes.
 	 *
 	 * @return string
 	 */
 	private static function site_name() {
-		return html_entity_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		return wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 	}
 
 	/**
