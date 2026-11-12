@@ -1,6 +1,6 @@
 import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
 import { useTooltip } from '@visx/tooltip';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import isEqual from 'fast-deep-equal';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -102,8 +102,14 @@ const cellName = ( info: HeatmapTooltipData ) =>
 	info.cellLabel ||
 	[ info.groupLabel, info.columnLabel, info.rowLabel ].filter( Boolean ).join( ' ' );
 
-const incompleteSuffix = ( partial?: boolean ) =>
-	partial ? ` ${ __( '(incomplete)', 'jetpack-charts' ) }` : '';
+const withIncompleteNote = ( text: string, partial?: boolean ) =>
+	partial
+		? sprintf(
+				/* translators: %s: a heatmap cell's name, or its name and value, whose period is unfinished. */
+				__( '%s (incomplete)', 'jetpack-charts' ),
+				text
+			)
+		: text;
 
 const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	data,
@@ -455,10 +461,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const defaultRenderTooltip = useCallback(
 		( info: HeatmapTooltipData ) => (
 			<div>
-				<strong>
-					{ cellName( info ) }
-					{ incompleteSuffix( info.partial ) }
-				</strong>
+				<strong>{ withIncompleteNote( cellName( info ), info.partial ) }</strong>
 				<div>
 					{ info.value === null ? __( 'No data', 'jetpack-charts' ) : formatNumber( info.value ) }
 				</div>
@@ -707,9 +710,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											info.value === null
 												? __( 'No data', 'jetpack-charts' )
 												: formatNumber( info.value );
-										const accessibleLabel = `${ cellName( info ) }: ${ valueLabel }${ incompleteSuffix(
+										const accessibleLabel = withIncompleteNote(
+											`${ cellName( info ) }: ${ valueLabel }`,
 											partial
-										) }`;
+										);
 
 										return (
 											<div

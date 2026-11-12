@@ -165,29 +165,43 @@ export function MonthlyHeatmap( {
 
 	const rowLabels = useMemo( () => rows.map( row => String( row.year ) ), [ rows ] );
 
+	// Named the way the chart names a cell to a screen reader: "Aug 2026", or the
+	// year alone for its roll-up.
+	const cellLabelFor = useCallback(
+		( { columnLabel, rowLabel, column, partial }: HeatmapTooltipData ) => {
+			if ( columns[ column ]?.summary ) {
+				return rowLabel ?? '';
+			}
+
+			const month = sprintf(
+				/* translators: 1: abbreviated month name, e.g. "Aug"; 2: year, e.g. "2026". */
+				_x( '%1$s %2$s', 'month and year', 'jetpack-premium-analytics-pkg' ),
+				columnLabel ?? '',
+				rowLabel ?? ''
+			).trim();
+
+			return partial
+				? sprintf(
+						/* translators: %s: a month and year the data does not yet fill, e.g. "Aug 2026". */
+						__( '%s (incomplete month)', 'jetpack-premium-analytics-pkg' ),
+						month
+					)
+				: month;
+		},
+		[ columns ]
+	);
+
 	const renderTooltip = useCallback(
-		( { value, columnLabel, rowLabel, column, partial }: HeatmapTooltipData ) => (
+		( info: HeatmapTooltipData ) => (
 			<CalendarHeatmapTooltip
-				value={ value }
-				// Named the way the chart names a cell to a screen reader: "Aug 2026",
-				// or the year alone for its roll-up.
-				cellLabel={
-					columns[ column ]?.summary
-						? ( rowLabel ?? '' )
-						: sprintf(
-								/* translators: 1: abbreviated month name, e.g. "Aug"; 2: year, e.g. "2026". */
-								_x( '%1$s %2$s', 'month and year', 'jetpack-premium-analytics-pkg' ),
-								columnLabel ?? '',
-								rowLabel ?? ''
-							).trim() +
-							( partial ? ` ${ __( '(incomplete month)', 'jetpack-premium-analytics-pkg' ) }` : '' )
-				}
+				value={ info.value }
+				cellLabel={ cellLabelFor( info ) }
 				emptyLabel={ emptyLabel }
 				formatValue={ formatValue }
 				inline
 			/>
 		),
-		[ columns, emptyLabel, formatValue ]
+		[ cellLabelFor, emptyLabel, formatValue ]
 	);
 
 	return (
