@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { RegistryProvider } from '@wordpress/data';
 /**
  * Internal dependencies
@@ -10,9 +10,12 @@ import { RegistryProvider } from '@wordpress/data';
 import { createNoticesRegistry } from '../../../../../tests/js/notice-test-utils';
 import { createWidgetActionsHost } from '../../../../../tests/js/widget-host-test-utils';
 import { WidgetRootContext } from '../../components/widget-root';
+import * as buildCsvModule from '../../helpers/build-csv';
 import { useReportActions } from '../use-report-actions';
+import type { CsvColumn } from '../../helpers/build-csv';
 import type { ReportCsvExporter } from '../../report-exports/types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
+import type { WidgetRuntimeAction } from '@wordpress/widget-primitives';
 import type { ReactNode } from 'react';
 
 jest.mock(
@@ -141,6 +144,92 @@ describe( 'useReportActions', () => {
 			'build-url',
 			'download-csv',
 		] );
+	} );
+
+	describe( 'with loaded rows', () => {
+		type Row = { day: string; views: number };
+		const columns: CsvColumn< Row >[] = [
+			{ label: 'Date', getValue: row => row.day },
+			{ label: 'Views', getValue: row => row.views },
+		];
+		const ROWS: Row[] = [ { day: '2026-03-01', views: 3 } ];
+		const LOCKED_CSV = {
+			premium_analytics: {
+				plan_gates: {
+					tier: 'free',
+					locked_features: { csv: { description: '', support_url: '', upgrade_url: '' } },
+				},
+			},
+		};
+		let mockSaveCsv: jest.SpiedFunction< typeof buildCsvModule.saveCsv >;
+
+		beforeEach( () => {
+			jest.useFakeTimers();
+			mockSaveCsv = jest.spyOn( buildCsvModule, 'saveCsv' ).mockImplementation( () => {} );
+		} );
+
+		afterEach( () => {
+			mockSaveCsv.mockRestore();
+			jest.useRealTimers();
+		} );
+
+		async function runDownload( action: WidgetRuntimeAction | undefined ) {
+			if ( ! action || ! ( 'callback' in action ) ) {
+				throw new Error( 'No download declared.' );
+			}
+			await act( async () => {
+				const done = action.callback();
+				jest.runAllTimers();
+				await done;
+			} );
+		}
+
+		it.each( [
+			[ 'the report window', { hasDateRange: true }, 'things-2026-03-01_2026-03-10' ],
+			[
+				'its own range',
+				{ hasDateRange: true, range: { from: '2025-11-01', to: '2026-10-31' } },
+				'things-2025-11-01_2026-10-31',
+			],
+			[ 'no dates', { hasDateRange: false }, 'things' ],
+		] )( 'saves the loaded rows, named after %s', async ( _, dating, filename ) => {
+			const { wrapper, declaredActions } = setUp();
+
+			renderHook(
+				() =>
+					useReportActions( {
+						csv: { rows: ROWS, columns, filenamePrefix: 'things', status: SETTLED, ...dating },
+					} ),
+				{ wrapper }
+			);
+
+			const download = declaredActions().find( action => action.id === 'download-csv' );
+			expect( download ).toEqual( expect.objectContaining( { relevance: 'medium' } ) );
+
+			await runDownload( download );
+
+			expect( mockSaveCsv ).toHaveBeenCalledWith( filename, '"Date","Views"\n"2026-03-01","3"' );
+		} );
+
+		it.each( [
+			[ 'there are no rows', [], SETTLED, undefined ],
+			[ 'the rows are refetching', ROWS, { ...SETTLED, isFetching: true }, undefined ],
+			[ 'the primary request failed', ROWS, { ...SETTLED, isError: true }, undefined ],
+			[ "the site's plan locks CSV exports", ROWS, SETTLED, LOCKED_CSV ],
+		] )( 'offers no download when %s', ( _, rows, status, scriptData ) => {
+			const { wrapper, declaredActions } = setUp();
+			mockGetScriptData.mockReturnValue( scriptData );
+
+			renderHook(
+				() =>
+					useReportActions( {
+						csv: { rows, columns, filenamePrefix: 'things', hasDateRange: true, status },
+					} ),
+				{ wrapper }
+			);
+
+			expect( declaredActions().map( action => action.id ) ).not.toContain( 'download-csv' );
+		} );
 	} );
 
 	it( 'declares nothing to a host that places no actions', () => {

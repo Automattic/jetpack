@@ -9,6 +9,10 @@ import { useWidgetActions } from '@wordpress/widget-primitives';
  */
 import { useExporterCsvAction } from '../components/download-csv/csv-download-action';
 import {
+	useRowsCsvAction,
+	type RowsCsvActionOptions,
+} from '../components/download-csv/rows-csv-action';
+import {
 	eraseExporterRowTypes,
 	reportCsvExporters,
 	type ExportableReport,
@@ -67,9 +71,10 @@ export type ReportActionsOptions< TItem, TRow > = {
 	relevance?: WidgetRelevance;
 
 	/**
-	 * The linked report's CSV download, offered once the widget's rows settle.
+	 * The CSV download, offered once the widget's rows settle: the linked report's, or for a
+	 * widget without a report, the rows it loaded.
 	 */
-	csv?: ReportCsvActionOptions< TItem, TRow >;
+	csv?: ReportCsvActionOptions< TItem, TRow > | RowsCsvActionOptions< TRow >;
 
 	/**
 	 * The widget's own actions, placed after the link and before the download.
@@ -109,13 +114,17 @@ export function useReportActions< TItem, TRow >( {
 	actions: widgetActions = [],
 }: ReportActionsOptions< TItem, TRow > ): boolean {
 	const search = useWidgetNavigationSearch( { section } );
-	const download = useExporterCsvAction( {
-		exporter: csv?.exporter
-			? eraseExporterRowTypes( csv.exporter )
-			: csv?.report && reportCsvExporters[ csv.report ],
-		status: csv?.status ?? SETTLED_EMPTY,
-		rowCount: csv?.rowCount ?? 0,
+	const rowsCsv = csv && 'rows' in csv ? csv : undefined;
+	const reportCsv = csv && ! ( 'rows' in csv ) ? csv : undefined;
+	const reportDownload = useExporterCsvAction( {
+		exporter: reportCsv?.exporter
+			? eraseExporterRowTypes( reportCsv.exporter )
+			: reportCsv?.report && reportCsvExporters[ reportCsv.report ],
+		status: reportCsv?.status ?? SETTLED_EMPTY,
+		rowCount: reportCsv?.rowCount ?? 0,
 	} );
+	const rowsDownload = useRowsCsvAction( rowsCsv );
+	const download = reportDownload ?? rowsDownload;
 
 	const actions: WidgetRuntimeAction[] = [];
 
