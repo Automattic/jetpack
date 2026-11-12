@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Custom Fonts: Stop loading fonts on front-end pages when the active theme has no annotation rules for the chosen fonts.
