@@ -34,14 +34,14 @@ This package provides those missing or updated packages so that plugins using `@
 | `@wordpress/a11y`  | `@wordpress/a11y`    |
 | `@wordpress/widget-primitives` | `@wordpress/widget-primitives` |
 
-Script modules use "first-wins" semantics — if Core or Gutenberg already registered the module, the polyfill is silently ignored. The exception is `@wordpress/widget-primitives`, which replaces the copy an active Gutenberg older than 24.4.0 registers.
+Script modules use "first-wins" semantics — if Core or Gutenberg already registered the module, the polyfill is silently ignored. The exception is `@wordpress/widget-primitives`: the bundled copy replaces Core's registration, which WordPress ships from 7.2 built from a Gutenberg branch behind the bundled copy, and the copy an active Gutenberg older than 24.4.0 registers. A Gutenberg 24.4.0 or later copy stays.
 
 ## How it works
 
 1. `WP_Build_Polyfills::register()` hooks into `wp_default_scripts` at **priority 20**, after Core and Gutenberg (both at the default priority 10) have registered their scripts.
 2. For each polyfill, it checks whether a built asset file exists (`build/scripts/*/index.asset.php` or `build/modules/*/index.asset.php`).
 3. For classic scripts, it checks whether the handle is already registered. Scripts marked for force replacement are deregistered and re-registered with the polyfill version when the WordPress version is below the script's threshold and active Gutenberg is not known to provide a compatible implementation. Non-force scripts are skipped if already registered.
-4. For script modules, it calls `wp_register_script_module()`, which ignores duplicates, except that `@wordpress/widget-primitives` first deregisters the copy an active Gutenberg older than 24.4.0 registers.
+4. For script modules, it calls `wp_register_script_module()`, which ignores duplicates, except that `@wordpress/widget-primitives` first deregisters any registration a supported Gutenberg did not make: Core's own copy, or an older copy from another plugin that bundles this package.
 
 `wp-private-apis` has an additional Gutenberg-version guard because the dashboard packages require a private-apis allowlist that includes `@wordpress/widget-dashboard`. Gutenberg 23.4.0 and older do not include that allowlist entry; Gutenberg 23.5.0 is expected to be the first active-Gutenberg version that matches the current `@next` package build used here.
 
