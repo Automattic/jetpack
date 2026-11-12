@@ -120,9 +120,15 @@ export async function closeDialogsOf( slug ) {
 		.flatMap( el => [ el, ...el.querySelectorAll( DIALOGS ) ] )
 		.filter( el => el.matches( DIALOGS ) );
 	dialogs.filter( d => ! escaped.has( d ) ).forEach( pressEscape );
+	// A modal gives the document back in an effect cleanup, which can run after it has left it.
+	const documentHidden = () =>
+		[ ...document.querySelectorAll( '#wpwrap, .a11y-speak-region' ) ].some( el =>
+			el.closest( '[aria-hidden="true"]' )
+		);
+	const open = () => dialogs.some( d => d.isConnected ) || ( dialogs.length && documentHidden() );
 	const start = performance.now();
 	// Timers, not frames: a Back in a background tab gets no animation frames.
-	while ( dialogs.some( d => d.isConnected ) && performance.now() - start < CLOSE_TIMEOUT ) {
+	while ( open() && performance.now() - start < CLOSE_TIMEOUT ) {
 		await new Promise( resolve => setTimeout( resolve, 16 ) );
 	}
 	// One that stayed open, such as behind a confirm, gets Escape again the next time.
