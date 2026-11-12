@@ -1,3 +1,5 @@
+@use "../../styles/widget-text" as *;
+
 .body {
 	display: flex;
 	flex-direction: column;
@@ -17,6 +19,8 @@
 }
 
 .views {
+
+	@include widget-text-weight;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 

@@ -76,6 +76,7 @@ export interface LeaderboardChartProps extends Pick<
 	 */
 	style?: React.CSSProperties & {
 		'--a8c-charts-border-radius-leaderboard-bar'?: string;
+		'--a8c-charts-font-weight-leaderboard'?: string;
 	};
 
 	/**

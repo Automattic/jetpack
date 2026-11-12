@@ -5,7 +5,7 @@
 	// so the table adds its own.
 	margin: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-xs);
 	border-collapse: collapse;
-	font-weight: 400; // Not the token, which `WidgetRoot` raises.
+	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: var(--wpds-typography-line-height-sm);
 	white-space: nowrap;
 }

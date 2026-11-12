@@ -1,0 +1,4 @@
+// In a widget this follows `WidgetRoot`; elsewhere, the design system weight.
+@mixin widget-text-weight {
+	font-weight: var(--jetpack-premium-analytics-widget-font-weight, var(--wpds-typography-font-weight-default));
+}

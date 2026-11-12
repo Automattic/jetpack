@@ -1,12 +1,14 @@
 @use "../../styles/widget-container" as *;
+@use "../../styles/widget-text" as *;
 
 .root {
 
 	@extend %widget-container;
 
-	// Widget text reads at 500, as in classic Stats. The token reaches design
-	// system text that sets it; headers, legends and tooltips set 400 to opt out.
-	// stylelint-disable-next-line plugin-wpds/no-setting-wpds-custom-properties -- scoped override, no theme API for weight.
-	--wpds-typography-font-weight-default: 500;
-	font-weight: var(--wpds-typography-font-weight-default);
+	// Classic Stats weight. Plain text inherits it; design system text opts in
+	// with `widget-text-weight`, and the charts leaderboard with its variable.
+	--jetpack-premium-analytics-widget-font-weight: 500;
+	--a8c-charts-font-weight-leaderboard: var(--jetpack-premium-analytics-widget-font-weight);
+
+	@include widget-text-weight;
 }

@@ -85,6 +85,8 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 .heatmap-chart__row-label {
 	color: var(--a8c-charts-color-label-secondary);
 	font-size: var(--wpds-typography-font-size-xs);
+	// Pinned so a host's text weight stays off the axis.
+	font-weight: var(--wpds-typography-font-weight-default);
 	// Pinned so the label height does not follow the host's line-height.
 	line-height: var(--wpds-typography-line-height-xs);
 	white-space: nowrap;
@@ -100,6 +102,7 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 .heatmap-chart__group-label {
 	color: var(--a8c-charts-color-label);
 	font-size: var(--wpds-typography-font-size-md);
+	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: var(--wpds-typography-line-height-sm);
 	white-space: nowrap;
 	text-align: center;

@@ -39,7 +39,8 @@
 	padding-block-end: var(--wpds-dimension-padding-xs);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-xs);
-	font-weight: 400; // Not the token, which `WidgetRoot` raises.
+	// Not inherited from `WidgetRoot`.
+	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: var(--wpds-typography-line-height-xs);
 	text-transform: uppercase;
 }
