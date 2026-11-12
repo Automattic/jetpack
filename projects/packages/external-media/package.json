@@ -20,6 +20,8 @@
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm build-js",
 		"clean": "rm -rf src/build/",
+		"test": "jest",
+		"test-coverage": "pnpm run test --coverage",
 		"watch": "pnpm run build-production-js && pnpm webpack watch"
 	},
 	"dependencies": {
@@ -50,10 +52,15 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.13",
+		"@testing-library/dom": "10.4.2",
+		"@testing-library/react": "16.3.3",
+		"@types/jest": "30.0.0",
 		"@types/react": "19.3.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/theme": "4.0.0",
 		"@wordpress/theme-build-tools": "1.0.0",
+		"babel-jest": "30.5.2",
+		"jest": "30.5.2",
 		"postcss": "8.5.23",
 		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.97.3",
