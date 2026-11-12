@@ -98,6 +98,9 @@ class Publicize_Setup {
 			 * We need this only on Jetpack sites for Google Site auto-verification.
 			 */
 			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
+
+			// Not with the other controllers: the Social dashboard also loads while Publicize is off. Simple always has it on.
+			new REST_API\Script_Data_Controller();
 		}
 
 		if ( $is_wpcom_simple ) {
@@ -151,6 +154,10 @@ class Publicize_Setup {
 			REST_API\Message_Templates_Placeholders_Controller::class,
 			Jetpack_Social_Settings\Settings::class,
 		);
+
+		if ( $is_wpcom_simple ) {
+			$rest_controllers[] = REST_API\Script_Data_Controller::class;
+		}
 
 		// Load the REST controllers.
 		foreach ( $rest_controllers as $controller ) {

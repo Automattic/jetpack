@@ -19,6 +19,7 @@ import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } fro
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
 const RENDER_TIMEOUT = 15000;
+const INIT_TIMEOUT = 15000;
 
 const readConfig = () => {
 	try {
@@ -73,6 +74,16 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 
 	// Pages built from one package share an init module; run each once.
 	const ranInit = new Set( members[ host ].initModules );
+	/*
+	 * One guest's init and route-module imports at a time: an init sets globals such as
+	 * `window.jetpackConfig` that its route modules read when they are evaluated.
+	 */
+	let booting = Promise.resolve();
+	const oneAtATime = task => {
+		const run = booting.then( task );
+		booting = run.catch( () => {} );
+		return run;
+	};
 	const warm = {};
 	// Everything short of mounting: a mounted router would start reading the visible page's URL.
 	const prewarm = ( slug, reason ) => {
@@ -86,29 +97,45 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			let step = stopwatch();
 			const added = await applyGuestAssets( guestAssetsUrl, slug );
 			log( 'prewarm', `${ slug }: page data fetched and applied in ${ step() }`, added );
-			for ( const id of members[ slug ].initModules ) {
-				if ( ! ranInit.has( id ) ) {
-					ranInit.add( id );
-					step = stopwatch();
-					// Not bundled: wp-build's modules resolve through the page's import map at runtime.
-					const initModule = await import( /* webpackIgnore: true */ id );
-					await initModule.init?.();
-					log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
+			return oneAtATime( async () => {
+				for ( const id of members[ slug ].initModules ) {
+					if ( ! ranInit.has( id ) ) {
+						step = stopwatch();
+						// Not bundled: wp-build's modules resolve through the page's import map at runtime.
+						const initModule = await import( /* webpackIgnore: true */ id );
+						/*
+						 * Bounded, so a hung init can't hold up every guest queued behind it. A timed-out init
+						 * may still finish later and set its globals; it runs again on the next attempt.
+						 */
+						let timer;
+						await Promise.race( [
+							initModule.init?.(),
+							new Promise( ( resolve, reject ) => {
+								timer = setTimeout(
+									() => reject( new Error( `Admin shell: ${ id } timed out` ) ),
+									INIT_TIMEOUT
+								);
+							} ),
+						] ).finally( () => clearTimeout( timer ) );
+						// Only once it succeeded, so a failed init runs again on the next attempt.
+						ranInit.add( id );
+						log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
+					}
 				}
-			}
-			const boot = await bootFor( slug );
-			const modules = members[ slug ].routes
-				.flatMap( route => [ route.route_module, route.content_module ] )
-				.filter( Boolean );
-			step = stopwatch();
-			await Promise.all( modules.map( id => import( /* webpackIgnore: true */ id ) ) );
-			log(
-				'prewarm',
-				`${ slug }: imported ${ modules.length } route modules in ${ step() }`,
-				modules
-			);
-			log( 'prewarm', `${ slug }: ready to boot, ${ total() } in all` );
-			return boot;
+				const boot = await bootFor( slug );
+				const modules = members[ slug ].routes
+					.flatMap( route => [ route.route_module, route.content_module ] )
+					.filter( Boolean );
+				step = stopwatch();
+				await Promise.all( modules.map( id => import( /* webpackIgnore: true */ id ) ) );
+				log(
+					'prewarm',
+					`${ slug }: imported ${ modules.length } route modules in ${ step() }`,
+					modules
+				);
+				log( 'prewarm', `${ slug }: ready to boot, ${ total() } in all` );
+				return boot;
+			} );
 		} )().catch( error => {
 			log( 'prewarm', `${ slug }: failed after ${ total() }`, error );
 			delete warm[ slug ];
