@@ -29,6 +29,32 @@ class WPCOM_JSON_API_Filter_Fields_Test extends WP_UnitTestCase {
 	);
 
 	/**
+	 * The shared API instance's query and endpoint before each test.
+	 *
+	 * @var array
+	 */
+	private $saved_state;
+
+	/**
+	 * Save the shared API instance's state.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$api               = WPCOM_JSON_API::init();
+		$this->saved_state = array( $api->query, $api->endpoint );
+	}
+
+	/**
+	 * Restore the shared API instance so `fields` does not leak into later tests.
+	 */
+	public function tear_down() {
+		$api           = WPCOM_JSON_API::init();
+		$api->query    = $this->saved_state[0];
+		$api->endpoint = $this->saved_state[1];
+		parent::tear_down();
+	}
+
+	/**
 	 * Run filter_fields() on RESPONSE with the given `fields` query value.
 	 *
 	 * @param mixed $fields The `fields` query value.
@@ -51,6 +77,7 @@ class WPCOM_JSON_API_Filter_Fields_Test extends WP_UnitTestCase {
 			'string'                 => array( 'ID, URL', array( 'ID', 'URL' ) ),
 			'array'                  => array( array( 'ID', ' URL' ), array( 'ID', 'URL' ) ),
 			'array with non-strings' => array( array( 'ID', array( 'x' ), 5 ), array( 'ID' ) ),
+			'string of separators'   => array( ',', array() ),
 		);
 	}
 

@@ -167,7 +167,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$response = array();
 
 		$fields = null;
-		if ( 'display' === $context && ! empty( $this->api->query['fields'] ) ) {
+		// Array `fields` skips this pre-filter; WPCOM_JSON_API::filter_fields() trims the output.
+		if ( 'display' === $context && ! empty( $this->api->query['fields'] ) && is_string( $this->api->query['fields'] ) ) {
 			$fields = array_fill_keys( array_map( 'trim', explode( ',', $this->api->query['fields'] ) ), true );
 		}
 

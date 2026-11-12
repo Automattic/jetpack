@@ -238,4 +238,24 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // ph
 		$this->assertInstanceOf( WP_Error::class, $response );
 		$this->assertSame( 'unknown_post', $response->get_error_code() );
 	}
+
+	/**
+	 * An array `fields` (from `fields[]=ID`) must not fatal; filter_fields() trims the output later.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_array_fields_does_not_fatal() {
+		$post_id                      = $this->create_post();
+		WPCOM_JSON_API::init()->query = array( 'fields' => array( 'ID', 'URL' ) );
+
+		$response = $this->get_endpoint()->callback(
+			'/sites/' . self::$blog_id . '/posts/' . $post_id,
+			self::$blog_id,
+			$post_id
+		);
+
+		$this->assertIsArray( $response );
+		$this->assertSame( $post_id, $response['ID'] );
+	}
 }
