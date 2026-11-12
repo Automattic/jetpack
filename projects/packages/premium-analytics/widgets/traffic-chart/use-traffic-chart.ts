@@ -60,6 +60,9 @@ export interface TrafficChartState {
 	/** True while either request is fetching, including comparison refetches. */
 	isFetching: boolean;
 	isError: boolean;
+	/** A primary request's failure even while placeholder rows hide it from `isError`. */
+	csvIsError: boolean;
+	timezone: string;
 	refetch: () => void;
 }
 
@@ -227,6 +230,8 @@ export default function useTrafficChart(
 		isLoading: viewsVisitors.isLoading || likesComments.isLoading,
 		isFetching: viewsVisitors.isFetching || likesComments.isFetching,
 		isError,
+		csvIsError: viewsVisitors.primary.isError || ( ! isHourly && likesComments.primary.isError ),
+		timezone: vvZone,
 		refetch,
 	};
 }

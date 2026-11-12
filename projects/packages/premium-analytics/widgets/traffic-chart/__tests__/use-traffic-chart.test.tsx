@@ -137,6 +137,21 @@ describe( 'useTrafficChart', () => {
 		expect( metrics[ 3 ].value ).toBe( 50 );
 	} );
 
+	it( 'reports a failed refetch to the CSV while the chart keeps its rows', async () => {
+		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+		await waitFor( () => expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 ) );
+		expect( result.current.csvIsError ).toBe( false );
+
+		mockApiFetch.mockImplementation( () =>
+			Promise.reject( { error: 'unauthorized', status: 403 } )
+		);
+		act( () => result.current.refetch() );
+		await waitFor( () => expect( result.current.csvIsError ).toBe( true ) );
+
+		expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 );
+		expect( result.current.isError ).toBe( false );
+	} );
+
 	it( 'pairs Views with Visitors, starting Views hidden only on the Visitors tab', async () => {
 		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
 
