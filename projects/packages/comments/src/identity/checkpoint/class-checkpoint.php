@@ -242,10 +242,10 @@ class Checkpoint {
 		$on_passport = ! empty( $_POST[ self::PASSPORT_FIELD ] );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		// Simple's remote login can land between the popup and submit. Its cookie dies with the
-		// WordPress.com session, so the code still earns a passport; core attributes the comment.
+		// Simple's remote login can land between the popup and submit, and dies with the WordPress.com
+		// session. Host-only: on *.wordpress.com the passport would span every site and skip Batcache.
 		if ( is_user_logged_in() ) {
-			if ( '' !== $code && self::is_same_site_request() ) {
+			if ( '' !== $code && ! COOKIE_DOMAIN && self::is_same_site_request() ) {
 				$identity = self::exchange( $code );
 
 				if ( ! is_wp_error( $identity ) ) {
