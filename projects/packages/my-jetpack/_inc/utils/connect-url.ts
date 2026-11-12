@@ -11,7 +11,7 @@ export type ConnectionScreenRoute = `${ typeof MyJetpackRoutes.Connection }?from
  * @return The URL.
  */
 export function getConnectUrl( from: string, returnTo: string = window.location.href ): string {
-	// Calypso ignores `skip_pricing` for a standard name; it keeps a legacy fallback off the plans page.
+	// `skip_pricing`: see connectionScreenRoute().
 	return getUserConnectionUrl( { from, redirect_url: returnTo, skip_pricing: true } );
 }
 
@@ -40,9 +40,18 @@ export function recommendationsFrom( slug: string ): string {
 /**
  * The route to the connection screen, with `from` in its query.
  *
- * @param from - The entry-point name, such as `my_jetpack_products_backup`.
+ * @param from                - The entry-point name, such as `my_jetpack_products_backup`.
+ * @param options             - Options.
+ * @param options.skipPricing - Whether the connection skips the plans page.
  * @return The route, such as `/connection?from=my_jetpack_products_backup`.
  */
-export function connectionScreenRoute( from: string ): ConnectionScreenRoute {
-	return `${ MyJetpackRoutes.Connection }?from=${ encodeURIComponent( from ) }`;
+export function connectionScreenRoute(
+	from: string,
+	{ skipPricing = false }: { skipPricing?: boolean } = {}
+): ConnectionScreenRoute {
+	const route: ConnectionScreenRoute = `${ MyJetpackRoutes.Connection }?from=${ encodeURIComponent(
+		from
+	) }`;
+	// Calypso ignores `skip_pricing` for a standard name; it keeps a legacy `my-jetpack` fallback off the plans page.
+	return skipPricing ? `${ route }&skip_pricing=true` : route;
 }

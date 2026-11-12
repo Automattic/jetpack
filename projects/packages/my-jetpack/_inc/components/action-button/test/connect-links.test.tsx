@@ -57,49 +57,36 @@ beforeEach( () => {
 } );
 
 describe( 'useProductStatusAction connect links', () => {
-	it( 'sends the product name from "Connect" and returns to the current page', () => {
+	it.each( [
+		[ 'the product name by default', undefined, 'my_jetpack_products_backup' ],
+		[
+			'the name a caller passes',
+			{ from: 'my_jetpack_overview_backup' },
+			'my_jetpack_overview_backup',
+		],
+	] )( '"Connect" sends %s and returns to the current page', ( _, options, from ) => {
 		withStatus( PRODUCT_STATUSES.USER_CONNECTION_ERROR );
-		const { result } = renderHook( () => useProductStatusAction( 'backup' ) );
+		const { result } = renderHook( () => useProductStatusAction( 'backup', options ) );
 
 		const params = connectUrlParams( result.current.action.href );
-		expect( params.get( 'from' ) ).toBe( 'my_jetpack_products_backup' );
+		expect( params.get( 'from' ) ).toBe( from );
 		expect( params.get( 'redirect_after_auth' ) ).toBe( window.location.href );
 	} );
 
-	it( 'opens the connection screen with the product name from "Activate"', () => {
+	it.each( [
+		[ 'the product name by default', undefined, 'my_jetpack_products_backup' ],
+		[
+			'the name a caller passes',
+			{ from: 'my_jetpack_overview_backup' },
+			'my_jetpack_overview_backup',
+		],
+	] )( '"Activate" opens the connection screen with %s', ( _, options, from ) => {
 		withStatus( PRODUCT_STATUSES.INACTIVE );
-		const { result } = renderHook( () => useProductStatusAction( 'jetpack-ai' ) );
+		const { result } = renderHook( () => useProductStatusAction( 'backup', options ) );
 
 		result.current.action.onClick( undefined );
 
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
-		expect( mockNavigate ).toHaveBeenCalledWith(
-			'/connection?from=my_jetpack_products_ai&skip_pricing=true'
-		);
-	} );
-
-	it( 'sends the name a caller passes from "Connect"', () => {
-		withStatus( PRODUCT_STATUSES.USER_CONNECTION_ERROR );
-		const { result } = renderHook( () =>
-			useProductStatusAction( 'backup', { from: 'my_jetpack_overview_backup' } )
-		);
-
-		expect( connectUrlParams( result.current.action.href ).get( 'from' ) ).toBe(
-			'my_jetpack_overview_backup'
-		);
-	} );
-
-	it( 'opens the connection screen with the name a caller passes from "Activate"', () => {
-		withStatus( PRODUCT_STATUSES.INACTIVE );
-		const { result } = renderHook( () =>
-			useProductStatusAction( 'backup', { from: 'my_jetpack_overview_backup' } )
-		);
-
-		result.current.action.onClick( undefined );
-
-		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
-		expect( mockNavigate ).toHaveBeenCalledWith(
-			'/connection?from=my_jetpack_overview_backup&skip_pricing=true'
-		);
+		expect( mockNavigate ).toHaveBeenCalledWith( `/connection?from=${ from }&skip_pricing=true` );
 	} );
 } );
