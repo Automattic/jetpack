@@ -233,7 +233,15 @@ export async function submitLogin( page: Page, user: string, password: string ):
 	if ( await toggle.isVisible().catch( () => false ) ) {
 		await toggle.click();
 	}
-	// wp-login.php focuses and selects the username field on a timer, which can clobber the fill.
+	/* wp-login.php focuses a field 200 ms after load, and empties the password first when the username
+	 * comes prefilled, as it does for a context that is already logged in. Fill only after that runs. */
+	await page
+		.waitForFunction(
+			() => !! document.querySelector( '#user_login:focus, #user_pass:focus' ),
+			null,
+			{ timeout: 5000 }
+		)
+		.catch( () => undefined );
 	await expect( async () => {
 		await page.locator( '#user_login' ).fill( user );
 		await page.locator( '#user_pass' ).fill( password );
