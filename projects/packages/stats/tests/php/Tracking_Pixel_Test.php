@@ -493,6 +493,59 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_add_amp_pixel_holds_the_pixel_for_consent_on_the_amp_plugin() {
+		require_once __DIR__ . '/mocks/wp-consent-api-mock.php';
+		require_once __DIR__ . '/mocks/amp-is-request-mock.php';
+		global $wp_the_query;
+		$wp_the_query->is_home = true;
+		$_SERVER['HTTP_HOST']  = '127.0.0.1';
+
+		ob_start();
+		Tracking_Pixel::add_amp_pixel();
+		$this->assertStringStartsWith( '<amp-pixel data-block-on-consent src="https://pixel.wp.com/g.gif?', (string) ob_get_clean() );
+	}
+
+	/**
+	 * AMP renderers with the WP Consent API active, and the pixel each should get.
+	 *
+	 * @return array
+	 */
+	public static function amp_renderers_with_consent_api() {
+		return array(
+			'AMP plugin, which can hold the pixel' => array( true, '<amp-pixel data-block-on-consent src="https://pixel.wp.com/g.gif?v=ext&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER"></amp-pixel>' ),
+			'another AMP renderer, which cannot'   => array( false, '' ),
+		);
+	}
+
+	/**
+	 * @dataProvider amp_renderers_with_consent_api
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool   $amp_plugin Whether the AMP plugin renders the request.
+	 * @param string $expected   Printed markup.
+	 */
+	#[DataProvider( 'amp_renderers_with_consent_api' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_render_amp_footer_with_consent_api( $amp_plugin, $expected ) {
+		require_once __DIR__ . '/mocks/wp-consent-api-mock.php';
+		if ( $amp_plugin ) {
+			require_once __DIR__ . '/mocks/amp-is-request-mock.php';
+		}
+		$_SERVER['HTTP_HOST'] = '127.0.0.1';
+
+		ob_start();
+		Tracking_Pixel::render_amp_footer( $this->amp_pixel_data() );
+		$this->assertSame( $expected, (string) ob_get_clean() );
+	}
+
+	/**
 	 * Test for Tracking_Pixel::add_amp_pixel on a request that is not AMP.
 	 */
 	public function test_add_amp_pixel_prints_nothing_on_a_non_amp_request() {
@@ -608,6 +661,10 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 			'consent API that loads only by the load event' => array( 'consent API that loads only by the load event', 1, 0, null ),
 			'consent API that a delay-JS optimizer loads after the load event' => array( 'consent API that a delay-JS optimizer loads after the load event', 1, 1, null ),
 			'script load with no stored choice while the fallback allows' => array( 'script load with no stored choice while the fallback allows', 0, 0, null ),
+			'opt-out consent API that a delay-JS optimizer loads after the load event' => array( 'opt-out consent API that a delay-JS optimizer loads after the load event', 1, 1, null ),
+			'custom opt-out consent API that a delay-JS optimizer loads after the load event' => array( 'custom opt-out consent API that a delay-JS optimizer loads after the load event', 1, 1, null ),
+			'banner that sets opt-out before a delay-JS optimizer loads the consent API' => array( 'banner that sets opt-out before a delay-JS optimizer loads the consent API', 1, 1, null ),
+			'banner whose opt-in never reaches the consent API in a delay-JS replay' => array( 'banner whose opt-in never reaches the consent API in a delay-JS replay', 0, 1, null ),
 			'consent API that never loads'                 => array( 'consent API that never loads', 0, 1, null ),
 			'consent API that throws'                      => array( 'consent API that throws', 0, 1, null ),
 			'stats sender that throws'                     => array( 'stats sender that throws', 0, 0, 'stats sender' ),

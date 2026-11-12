@@ -2,9 +2,14 @@
  * External dependencies
  */
 import { computeDateRangeFromPreset, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+import {
+	PRESET_ALL_TIME,
+	isSelectablePreset,
+	isYearPresetId,
+} from '@jetpack-premium-analytics/datetime';
 import {
 	REPORT_DATE_PARAM_KEYS,
+	omitComparisonReportParams,
 	pickReportOriginWindowParams,
 	toReportOriginWindowParams,
 } from '@jetpack-premium-analytics/routing';
@@ -14,8 +19,9 @@ type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
 /**
  * The date params a post or video detail route seeds its URL with.
  *
- * A link in opens the page on all time and keeps the linking window for the breadcrumbs;
- * a reload keeps the page's own range. `useDetailDateControls` anchors the all-time start.
+ * A link in opens the page on the linking window, or on all time when it carries none, and
+ * keeps the linking window for the breadcrumbs; a reload keeps the page's own range.
+ * `useDetailDateControls` anchors the all-time start.
  *
  * @param search     - The current route search params.
  * @param resourceId - The page's entity ID. Links never carry it under the scope param, so
@@ -32,6 +38,26 @@ export function seedDetailDateParams(
 		return {
 			...normalizeReportParams( search as NormalizeInput ),
 			...pickReportOriginWindowParams( search ),
+		};
+	}
+
+	// All time is left out: the page anchors it on its own entity, not the linking page's start.
+	const linksAWindow =
+		search.preset !== PRESET_ALL_TIME &&
+		( isSelectablePreset( search.preset ) ||
+			isYearPresetId( search.preset ) ||
+			( !! search.from && !! search.to ) );
+
+	if ( linksAWindow ) {
+		// Detail pages have no comparison, bucket or step control, so the range picks its own
+		// bucket; the origin window keeps all three for the way back.
+		const linked = omitComparisonReportParams( search );
+		delete linked.interval;
+		delete linked.step;
+
+		return {
+			...normalizeReportParams( linked as NormalizeInput ),
+			...toReportOriginWindowParams( search ),
 		};
 	}
 

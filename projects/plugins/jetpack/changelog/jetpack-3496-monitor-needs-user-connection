@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Protect: Require a connected WordPress.com account before downtime monitoring can be turned on.

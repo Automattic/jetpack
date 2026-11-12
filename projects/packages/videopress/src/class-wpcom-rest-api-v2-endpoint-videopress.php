@@ -595,7 +595,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		/**
 		 * Fires after a new in-process VideoPress registration is verified, before processing completes.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.62.0
 		 *
 		 * @param object      $info    Canonical video registration.
 		 * @param int         $blog_id Site where the attachment was promoted.

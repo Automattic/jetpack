@@ -4,7 +4,6 @@ export {
 	encodeRangeToSearchParams,
 } from './search/date-range';
 
-export { deriveComparisonRange } from './search/comparison';
 export { buildRangePatch } from './hooks/use-report-date-filters/build-range-patch';
 export {
 	REPORT_DATE_PARAM_KEYS,

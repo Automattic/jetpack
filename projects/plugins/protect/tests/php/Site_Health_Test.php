@@ -64,4 +64,14 @@ class Site_Health_Test extends BaseTestCase {
 
 		$this->assertSame( $expected, Site_Health::do_checks()['status'] );
 	}
+
+	public function test_turned_off_check_is_not_reported_as_no_threats() {
+		update_option( 'jetpack_protect_vulnerability_checks', 0 );
+
+		$check = Site_Health::do_checks();
+		delete_option( 'jetpack_protect_vulnerability_checks' );
+
+		$this->assertSame( 'recommended', $check['status'] );
+		$this->assertStringContainsString( 'is off', $check['label'] );
+	}
 }

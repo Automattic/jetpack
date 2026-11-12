@@ -269,6 +269,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$this->assertIsArray( $extensions );
 		$this->assertNotEmpty( $extensions );
 		$this->assertContains( 'onion', $extensions );
+		$this->assertSame( array(), get_option( 'jetpack_excluded_extensions', 'missing' ), 'The empty default should be stored so later requests skip the query.' );
 
 		update_option( 'jetpack_excluded_extensions', array( 'onion' ) );
 

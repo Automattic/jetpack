@@ -1,16 +1,24 @@
 /**
  * External dependencies
  */
-import { useStatsAppNoticeMutation, useStatsAppNotices } from '@jetpack-premium-analytics/data';
+import {
+	requestConsentCardFocus,
+	useConsentStatus,
+	useStatsAppNoticeMutation,
+	useStatsAppNotices,
+} from '@jetpack-premium-analytics/data';
 import { Notice } from '@jetpack-premium-analytics/externals';
-import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	useReportNavigationSearch,
+	useTrackEvent,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { useNavigate } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { requestConsentCardFocus, useConsentStatus } from '../stats-settings/consent-status';
 import styles from './visitor-consent-notice.module.scss';
 import type { JSX } from 'react';
 
@@ -59,16 +67,12 @@ export function useVisitorConsentNoticeVisibility(): boolean | undefined {
  * Invites a site whose cookie banner Stats cannot hear yet to finish the setup in Settings.
  * Render it only where `useVisitorConsentNoticeVisibility()` is true.
  *
- * @param props                - Component props.
- * @param props.onOpenSettings - Opens the Settings tab.
  * @return The notice.
  */
-export function VisitorConsentNotice( {
-	onOpenSettings,
-}: {
-	onOpenSettings: () => void;
-} ): JSX.Element {
+export function VisitorConsentNotice(): JSX.Element {
 	const bannerPlugin = useConsentStatus()?.banner_plugin;
+	const navigate = useNavigate();
+	const settingsSearch = useReportNavigationSearch();
 	const { createErrorNotice } = useDispatch( 'core/notices' );
 	const { mutate: updateNotice } = useStatsAppNoticeMutation( {
 		onError: () =>
@@ -96,8 +100,9 @@ export function VisitorConsentNotice( {
 	const openSettings = useCallback( () => {
 		trackEvent( 'jetpack_premium_analytics_visitor_consent_notice_set_up_click' );
 		requestConsentCardFocus();
-		onOpenSettings();
-	}, [ trackEvent, onOpenSettings ] );
+		// Route types cannot resolve here.
+		void navigate( { to: '/settings', search: settingsSearch } as unknown as never );
+	}, [ trackEvent, navigate, settingsSearch ] );
 
 	const recordLearnMoreClick = useCallback( () => {
 		trackEvent( 'jetpack_premium_analytics_visitor_consent_notice_learn_more_click' );

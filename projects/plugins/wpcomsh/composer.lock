@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9be91a4c6483b9306ac9143ea09b9229",
+    "content-hash": "31c547991325076623399c6e4fae6990",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -122,12 +122,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "541c1a337db228eaabc700491d9a4a43c8187ee1"
+                "reference": "974babc97924025e7598fe1ed17722fd57372dad"
             },
             "require": {
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -174,9 +175,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "7b7aa995c2cb0256bd6b1bc5d516a6b0e2c6f9c8"
+                "reference": "838ca9a21e304710a2e58934cfa1da5d6c6681d7"
             },
             "require": {
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
@@ -224,6 +226,12 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -659,7 +667,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "6f1ef42429e85eb9afec39c7bdeb8294d89d1079"
+                "reference": "2bf24e85da2429f75f8d697393901ec7396bdf5d"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -680,7 +688,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
@@ -2264,7 +2272,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "c8427a61cc20be181d04b1c4f040e1f6646dcd3e"
+                "reference": "86837df115c9b3bd702241c3c37c4af3f8118023"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2290,7 +2298,7 @@
             "extra": {
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.39.x-dev"
+                    "dev-trunk": "0.40.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -2674,16 +2682,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.10",
+            "version": "v2.11.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "01dacf401792f455da725fa07657f2a031d06628"
+                "reference": "b9e63d6daa6c329acab044f23e39074838404fa4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/01dacf401792f455da725fa07657f2a031d06628",
-                "reference": "01dacf401792f455da725fa07657f2a031d06628",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/b9e63d6daa6c329acab044f23e39074838404fa4",
+                "reference": "b9e63d6daa6c329acab044f23e39074838404fa4",
                 "shasum": ""
             },
             "require-dev": {
@@ -2725,7 +2733,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-09-16T13:59:30+00:00"
+            "time": "2026-11-12T09:45:14+00:00"
         },
         {
             "name": "league/uri",

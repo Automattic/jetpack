@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	getDefaultQueryParams,
-	needsReportDateParamsSeed,
-	queryClient,
-} from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
@@ -316,7 +312,7 @@ describe( 'PopularPostWidget', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'links the post to its detail page on the window it ranked over, naming the tab to return to', async () => {
+	it( 'links the post to its detail page on the host window, naming the tab to return to', async () => {
 		render(
 			<DashboardSectionProvider section="insights">
 				<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
@@ -326,25 +322,11 @@ describe( 'PopularPostWidget', () => {
 		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
 		const { searchParams: search } = getMockRouteLinkUrl( link );
 
-		expect( search.get( 'preset' ) ).toBe( 'last-12-months' );
-		expect( search.get( 'from' ) ).toContain( '2025-09-01T00:00:00' );
-		expect( search.get( 'to' ) ).toContain( '2026-08-27T23:59:59' );
+		expect( search.get( 'from' ) ).toBe( '2022-01-01T00:00:00.000+00:00' );
+		expect( search.get( 'to' ) ).toBe( '2022-12-31T23:59:59.999+00:00' );
 		expect( search.get( 'ref' ) ).toBe( 'posts' );
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 		expect( search.get( 'ds' ) ).toBe( 'insights' );
-
-		// A complete window, so the detail route reseeds the URL from these params
-		// rather than from its own defaults. (It does reseed either way — its
-		// redirect also fires on the `post_id` a link cannot carry — so what this
-		// pins is the window that survives, not whether the redirect happens.)
-		expect(
-			needsReportDateParamsSeed( {
-				from: search.get( 'from' ) ?? undefined,
-				to: search.get( 'to' ) ?? undefined,
-				interval: search.get( 'interval' ) ?? undefined,
-				preset: search.get( 'preset' ) as 'last-12-months',
-			} )
-		).toBe( false );
 	} );
 
 	it( 'renders on a saved instance that carries no report params', async () => {
