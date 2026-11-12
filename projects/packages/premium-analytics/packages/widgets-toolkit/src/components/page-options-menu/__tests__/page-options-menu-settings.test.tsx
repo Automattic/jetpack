@@ -64,9 +64,12 @@ describe( 'page-options-menu Settings entry', () => {
 		expect( url.searchParams.has( 'section' ) ).toBe( false );
 	} );
 
-	it( 'is disabled on the Settings page', async () => {
+	it.each( [
+		{ page: 'the Settings page', path: '/settings' },
+		{ page: 'the connect page, which its guard would bounce back to', path: '/connect' },
+	] )( 'is disabled on $page', async ( { path } ) => {
 		jest.mocked( getScriptData ).mockReturnValue( WITH_SETTINGS );
-		setMockRoutePath( '/settings' );
+		setMockRoutePath( path );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
 		render( <PageOptionsMenu /> );

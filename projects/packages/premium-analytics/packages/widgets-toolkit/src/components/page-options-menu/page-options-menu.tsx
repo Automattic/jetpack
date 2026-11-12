@@ -26,30 +26,42 @@ import { FeedbackModal } from './feedback-modal';
 import { SwitchOffDialog } from './switch-off-dialog';
 
 const SETTINGS_PATH = '/settings';
+const CONNECT_PATH = '/connect';
+
+/**
+ * Whether a route is the page on screen, whatever its search.
+ *
+ * @param to - The route's path.
+ * @return Whether the router is on that route.
+ */
+function useIsCurrentRoute( to: string ): boolean {
+	// The router marks a link to the page on screen with `data-status`, which the hook's type leaves out.
+	const linkProps = useLinkProps( {
+		to,
+		activeOptions: { exact: true, includeSearch: false },
+	} ) as Record< string, unknown >;
+
+	return linkProps[ 'data-status' ] === 'active';
+}
 
 /**
  * The menu's link to the Settings page, with the report window and the tab to return to.
- * Disabled on the Settings page itself.
+ * Disabled where the page cannot open: on itself, and on the connect page its guard sends the reader back to.
  *
  * @return The menu item.
  */
 function SettingsMenuItem() {
 	const search = useReportNavigationSearch();
-
-	// The router marks a link to the page on screen with `data-status`, which the hook's type leaves out.
-	const linkProps = useLinkProps( {
-		to: SETTINGS_PATH,
-		activeOptions: { exact: true, includeSearch: false },
-	} ) as Record< string, unknown >;
-	const isCurrentPage = linkProps[ 'data-status' ] === 'active';
+	const isSettingsPage = useIsCurrentRoute( SETTINGS_PATH );
+	const isConnectPage = useIsCurrentRoute( CONNECT_PATH );
 
 	const prefix = <Icon icon={ cog } />;
 	const label = (
 		<Menu.ItemLabel>{ __( 'Settings', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
 	);
 
-	// A link item takes no disabled state, so the page's own entry is a plain item.
-	if ( isCurrentPage ) {
+	// A link item takes no disabled state, so the disabled entry is a plain item.
+	if ( isSettingsPage || isConnectPage ) {
 		return (
 			<Menu.Item disabled prefix={ prefix }>
 				{ label }
