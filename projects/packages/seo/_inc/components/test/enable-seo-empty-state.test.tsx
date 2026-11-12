@@ -27,7 +27,7 @@ describe( 'EnableSeoEmptyState', () => {
 		expect( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				'SEO tools help your content get found: customize titles and meta descriptions, generate a sitemap, verify your site with search engines, and control how pages look when shared. Turn it on to manage all of it from here.'
+				'SEO tools help your content get found: customize titles and meta descriptions, add structured data, and manage content discovery. Sitemap, site verification and visibility settings remain available separately.'
 			)
 		).toBeInTheDocument();
 	} );

@@ -653,3 +653,18 @@ describe( 'Search & social previews', () => {
 		);
 	} );
 } );
+
+it( 'keeps independent module controls reachable when SEO tools are off', async () => {
+	const form = buildForm( { search_engines_visible: true } );
+	render( <SettingsScreen form={ form } independentOnly /> );
+	expect( screen.getByRole( 'checkbox', { name: 'Generate an XML sitemap' } ) ).toBeInTheDocument();
+	// eslint-disable-next-line testing-library/prefer-user-event -- Existing disclosure-test convention.
+	fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+	await expect(
+		screen.findByRole( 'checkbox', { name: 'Add canonical URLs to archive pages' } )
+	).resolves.toBeInTheDocument();
+	expect( screen.getByText( 'google field' ) ).toBeInTheDocument();
+	expect( screen.queryByTestId( 'schema' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'title structure' ) ).not.toBeInTheDocument();
+	expect( form.commit ).not.toHaveBeenCalled();
+} );

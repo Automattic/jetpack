@@ -1,7 +1,7 @@
 import { useDispatch } from '@wordpress/data';
 import DashboardLoadError from '../../_inc/components/dashboard-load-error';
 import DashboardSkeleton from '../../_inc/components/dashboard-skeleton';
-import SeoDisabledStage from '../../_inc/components/seo-disabled-stage';
+import EnableSeoEmptyState from '../../_inc/components/enable-seo-empty-state';
 import DashboardPage from '../../_inc/dashboard/dashboard-page';
 import { OVERVIEW_PATH, SETTINGS_PATH } from '../../_inc/data/get-preloaded';
 import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
@@ -20,7 +20,8 @@ const SettingsReady = () => {
 	const form = useSettingsForm();
 	return (
 		<DashboardPage active="settings">
-			<SettingsScreen form={ form } />
+			{ ! isSeoToolsActive() && <EnableSeoEmptyState screen="settings" /> }
+			<SettingsScreen form={ form } independentOnly={ ! isSeoToolsActive() } />
 		</DashboardPage>
 	);
 };
@@ -51,9 +52,7 @@ const Stage = () => {
 		);
 	}
 
-	// When the `seo-tools` module is off, show the enable affordance instead of the
-	// settings controls — they can't save (the REST endpoints aren't registered).
-	return isSeoToolsActive() ? <SettingsReady /> : <SeoDisabledStage active="settings" />;
+	return <SettingsReady />;
 };
 
 export { Stage as stage };

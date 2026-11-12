@@ -446,7 +446,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	public static function seo_settings_url_cases() {
 		return array(
 			'plan has the SEO page'         => array( array( 'seo-admin-ui' ), true, 'admin.php?page=jetpack-seo' ),
-			'existing install not opted in' => array( array( 'seo-admin-ui' ), false, 'admin.php?page=jetpack-settings#/traffic' ),
+			'existing install not opted in' => array( array( 'seo-admin-ui' ), false, 'admin.php?page=jetpack-seo' ),
 			'plan lacks the SEO page'       => array( array(), true, 'admin.php?page=jetpack-settings#/traffic' ),
 		);
 	}

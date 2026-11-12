@@ -88,6 +88,7 @@ const descriptionMaxLength = 300;
 
 interface Props {
 	form: SettingsForm;
+	independentOnly?: boolean;
 }
 
 interface SeoHostingData {
@@ -103,11 +104,12 @@ type SettingsSearch = Record< string, unknown > & { focus?: string };
  * sections (title structure, front-page description) edit local state while
  * typing and persist on an explicit per-section Save button.
  *
- * @param props      - Component props.
- * @param props.form - The settings form controller from `useSettingsForm`.
+ * @param props                 - Component props.
+ * @param props.form            - The settings form controller from `useSettingsForm`.
+ * @param props.independentOnly - Show settings that work while SEO tools are off.
  * @return The Settings tab content.
  */
-const SettingsScreen: FC< Props > = ( { form } ) => {
+const SettingsScreen: FC< Props > = ( { form, independentOnly = false } ) => {
 	const {
 		local,
 		isSaving,
@@ -401,21 +403,21 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 			{ ! gated && (
 				<>
-					{ /* Container for the site-level schema controls delivered by later
-				   issues. Own `id` so it can be deep-linked like `#verification`. */ }
-					<div id="schema" className={ styles.section }>
-						<SchemaCard
-							initialSettings={ local.schema }
-							onSave={ setSchemaSettings }
-							disabled={ outputLocked }
-						/>
-					</div>
+					{ ! independentOnly && (
+						<>
+							<div id="schema" className={ styles.section }>
+								<SchemaCard
+									initialSettings={ local.schema }
+									onSave={ setSchemaSettings }
+									disabled={ outputLocked }
+								/>
+							</div>
 
-					{ /* The signed-in user's Person / ProfilePage schema source — per-user,
-				   unlike the site-level Schema card above. */ }
-					<div id="author-profile" className={ styles.section }>
-						<AuthorProfileCard disabled={ outputLocked } />
-					</div>
+							<div id="author-profile" className={ styles.section }>
+								<AuthorProfileCard disabled={ outputLocked } />
+							</div>
+						</>
+					) }
 
 					<CollapsibleCard.Root defaultOpen={ false }>
 						<CollapsibleCard.Header render={ <h2 /> }>
@@ -445,33 +447,37 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						</CollapsibleCard.Content>
 					</CollapsibleCard.Root>
 
-					<TitleStructureField
-						formats={ local.title_formats }
-						onChange={ ( pageType, next ) =>
-							setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
-						}
-						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
-						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
-						titleSeparator={ local.title_separator }
-						editable={ ! outputLocked }
-						disabled={ isSaving }
-					/>
+					{ ! independentOnly && (
+						<>
+							<TitleStructureField
+								formats={ local.title_formats }
+								onChange={ ( pageType, next ) =>
+									setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
+								}
+								onSaveFormat={ pageType => commitTitleFormat( pageType ) }
+								isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
+								titleSeparator={ local.title_separator }
+								editable={ ! outputLocked }
+								disabled={ isSaving }
+							/>
 
-					{ frontPageDescriptionCard }
+							{ frontPageDescriptionCard }
 
-					<SocialPreviewsCard
-						description={ local.front_page_description }
-						frontPageTitleFormat={ local.title_formats.front_page ?? [] }
-						titleSeparator={ local.title_separator }
-						paused={ outputLocked }
-					/>
+							<SocialPreviewsCard
+								description={ local.front_page_description }
+								frontPageTitleFormat={ local.title_formats.front_page ?? [] }
+								titleSeparator={ local.title_separator }
+								paused={ outputLocked }
+							/>
+						</>
+					) }
 				</>
 			) }
 
 			{ /* Grandfathered exception: a gated site that kept a front-page description
 			   from the era it was free for all Simple sites keeps editing that one
 			   field — the value is still live, and the platform still reads/writes it. */ }
-			{ gated && local.has_legacy_front_page_meta && (
+			{ ! independentOnly && gated && local.has_legacy_front_page_meta && (
 				<div id="front-page-description" className={ styles.section }>
 					{ frontPageDescriptionCard }
 				</div>
