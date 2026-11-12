@@ -17,26 +17,6 @@ import {
 type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
 
 /**
- * Whether a link names a window the page can open on: a known preset, or both ends of a range.
- *
- * All time is left out: the page anchors it on its own entity, not the linking page's start.
- *
- * @param search - The search params the page was linked with.
- * @return Whether to open on the linking window.
- */
-function opensOnLinkedWindow( search: Record< string, unknown > ): boolean {
-	if ( search.preset === PRESET_ALL_TIME ) {
-		return false;
-	}
-
-	return (
-		isSelectablePreset( search.preset ) ||
-		isYearPresetId( search.preset ) ||
-		( !! search.from && !! search.to )
-	);
-}
-
-/**
  * The date params a post or video detail route seeds its URL with.
  *
  * A link in opens the page on the linking window, or on all time when it carries none, and
@@ -61,7 +41,14 @@ export function seedDetailDateParams(
 		};
 	}
 
-	if ( opensOnLinkedWindow( search ) ) {
+	// All time is left out: the page anchors it on its own entity, not the linking page's start.
+	const linksAWindow =
+		search.preset !== PRESET_ALL_TIME &&
+		( isSelectablePreset( search.preset ) ||
+			isYearPresetId( search.preset ) ||
+			( !! search.from && !! search.to ) );
+
+	if ( linksAWindow ) {
 		// Detail pages have no comparison, bucket or step control, so the range picks its own
 		// bucket; the origin window keeps all three for the way back.
 		const linked = omitComparisonReportParams( search );
