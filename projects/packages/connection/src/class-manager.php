@@ -3500,7 +3500,7 @@ class Manager {
 		$owner_claim      = $send_owner_claim ? array(
 			'owner_claim'          => 1,
 			// Read before the token write, which clears the stored errors has_owner_connection_error() reads.
-			'local_owner_unusable' => $this->is_recorded_owner_unusable() ? 1 : 0,
+			'local_owner_unusable' => $this->is_owner_slot_unusable() ? 1 : 0,
 		) : array();
 
 		$token_details = null;
@@ -3580,17 +3580,16 @@ class Manager {
 	}
 
 	/**
-	 * Whether the recorded connection owner's token is unusable on this site.
+	 * Whether this site has no usable connection owner: none recorded, a missing or malformed token, or a recorded owner error.
 	 *
-	 * WordPress.com can't see a token the site holds but can't use, so the owner claim reports it.
+	 * WordPress.com can't see a missing owner or a token the site holds but can't use, so the owner claim reports it.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
-	private function is_recorded_owner_unusable() {
-		return \Jetpack_Options::get_option( 'master_user' )
-			&& ( ! $this->has_connected_owner() || $this->has_owner_connection_error() );
+	private function is_owner_slot_unusable() {
+		return ! $this->has_connected_owner() || $this->has_owner_connection_error();
 	}
 
 	/**

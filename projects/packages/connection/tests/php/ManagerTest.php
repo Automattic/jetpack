@@ -637,12 +637,14 @@ class ManagerTest extends TestCase {
 		);
 		\Jetpack_Options::update_option( 'master_user', $recorded_owner_id );
 
-		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+		$tokens     = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
 			->onlyMethods( array( 'get', 'update_user_token' ) )
 			->getMock();
+		$sent_claim = array();
 		$tokens->method( 'get' )->willReturnCallback(
 			// The by-reference `$token_details` is the fourth parameter, so the first three must be declared.
-			static function ( $data, $url, $extra, &$token_details = null ) use ( $wpcom_owner ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			static function ( $data, $url, $extra, &$token_details = null ) use ( $wpcom_owner, &$sent_claim ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				$sent_claim = $extra;
 				if ( null !== $wpcom_owner ) {
 					$token_details = array( 'connection_owner' => $wpcom_owner );
 				}
@@ -682,6 +684,10 @@ class ManagerTest extends TestCase {
 		}
 
 		$this->assertSame( $expected_result, $result );
+		// No connected owner, so any claim must tell WordPress.com the slot is unusable.
+		if ( ! empty( $sent_claim ) ) {
+			$this->assertSame( 1, $sent_claim['local_owner_unusable'] );
+		}
 	}
 
 	/**
