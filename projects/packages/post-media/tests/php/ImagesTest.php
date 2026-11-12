@@ -321,6 +321,20 @@ class ImagesTest extends BaseTestCase {
 	}
 
 	/**
+	 * Test that from_gallery() does not leave its filter attached to get_post_galleries.
+	 *
+	 * @covers Automattic\Jetpack\Post_Media\Images::from_gallery
+	 */
+	public function test_from_gallery_does_not_break_get_post_galleries_html() {
+		$post_info = $this->get_post_with_gallery_shortcode();
+
+		Images::from_gallery( $post_info['post_id'] );
+
+		$this->assertFalse( has_filter( 'get_post_galleries', array( Images::class, 'filter_gallery_urls' ) ) );
+		$this->assertNotEmpty( get_post_galleries( $post_info['post_id'], true ) );
+	}
+
+	/**
 	 * Test if WooCommerce product gallery images are extracted from product meta.
 	 *
 	 * @since 0.1.4

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: Fix galleries disappearing from themes that use get_post_gallery() when Sharing is enabled.
