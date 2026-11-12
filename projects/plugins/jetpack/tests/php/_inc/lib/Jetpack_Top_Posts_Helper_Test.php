@@ -141,7 +141,9 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 
 	/**
 	 * The Stats API can return more posts than the `max` we ask for; get_top_posts() must
-	 * not do per-post work for any of the surplus.
+	 * not do per-post work for any of the surplus. Thumbnail lookups are done only for
+	 * the posts actually returned (bounded by the requested item count), not for every
+	 * candidate considered while filtering by type.
 	 */
 	public function test_get_top_posts_caps_work_at_requested_max() {
 		$this->fake_stats_response( array( 'post' => 100 ) );
@@ -149,8 +151,8 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 		$top_posts = Jetpack_Top_Posts_Helper::get_top_posts( '7', 3, 'post' );
 
 		$this->assertCount( 3, $top_posts );
-		$this->assertSame( self::REQUESTED_MAX, $this->processed_count(), 'Processed the wrong number of posts.' );
-		$this->assertSame( self::REQUESTED_MAX, $this->attached_media_calls, 'Ran the wrong number of attachment queries.' );
+		$this->assertSame( 3, $this->processed_count(), 'Processed the wrong number of posts.' );
+		$this->assertSame( 3, $this->attached_media_calls, 'Ran the wrong number of attachment queries.' );
 	}
 
 	/**
@@ -165,7 +167,8 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A response smaller than the requested max must be left alone.
+	 * A response smaller than the requested max must be left alone, and thumbnail work
+	 * is still bounded by the requested item count rather than the full response.
 	 */
 	public function test_get_top_posts_processes_short_response_in_full() {
 		$this->fake_stats_response( array( 'post' => 10 ) );
@@ -173,7 +176,7 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 		$top_posts = Jetpack_Top_Posts_Helper::get_top_posts( '7', 3, 'post' );
 
 		$this->assertSame( array_slice( $this->post_ids, 0, 3 ), array_column( $top_posts, 'id' ) );
-		$this->assertSame( 10, $this->processed_count() );
+		$this->assertSame( 3, $this->processed_count() );
 	}
 
 	/**
@@ -201,6 +204,6 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 		$this->fake_stats_response( array( 'page' => 100 ) );
 
 		$this->assertSame( array(), Jetpack_Top_Posts_Helper::get_top_posts( '7', 3, 'post' ) );
-		$this->assertSame( self::REQUESTED_MAX, $this->processed_count(), 'Did per-post work for the whole response.' );
+		$this->assertSame( 0, $this->processed_count(), 'Did per-post work despite nothing being renderable.' );
 	}
 }
