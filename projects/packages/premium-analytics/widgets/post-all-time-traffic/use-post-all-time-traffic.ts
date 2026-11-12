@@ -63,16 +63,12 @@ export default function usePostAllTimeTraffic(
 		// Read in the site timezone so the months fall on the site's own calendar.
 		const today = localTZDate();
 		const published = publishedAt ? localTZDate( publishedAt ) : undefined;
-		const publishedMonth = published && {
+		const publishedOn = published && {
 			year: published.getFullYear(),
 			month: published.getMonth(),
+			day: published.getDate(),
 		};
-		const built = buildAllTimeTrafficRows(
-			data,
-			metric,
-			{ year: today.getFullYear(), month: today.getMonth() },
-			publishedMonth
-		);
+		const built = buildAllTimeTrafficRows( data, metric, today, publishedOn );
 
 		// A rescheduled post keeps the views from before its new date; `monthlyHeatmapLifeStart`
 		// opens that oldest month whole.

@@ -13,6 +13,7 @@ import {
 } from '@jetpack-premium-analytics/datetime';
 import {
 	monthlyHeatmapLifeStart,
+	type DayKey,
 	type MonthKey,
 	type MonthlyHeatmapMetric,
 	type MonthlyHeatmapRow,
@@ -23,7 +24,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildViewsOverYearsRows, type DayKey, type MonthBucket } from './build-views-over-years';
+import { buildViewsOverYearsRows, type MonthBucket } from './build-views-over-years';
 
 // Before any WordPress.com site existed; the endpoint's DB walk stops at the site's registration.
 const EARLIEST_STATS_DATE = '2005-01-01';

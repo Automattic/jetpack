@@ -115,10 +115,17 @@ describe( 'PostAllTimeTraffic widget', () => {
 		expect( screen.getByText( 'More views' ) ).toBeInTheDocument();
 	} );
 
+	it( 'hatches the publish month and the current month, which the data does not fill', () => {
+		renderWidget();
+
+		expect( screen.getAllByTestId( 'heatmap-cell-partial' ) ).toHaveLength( 2 );
+	} );
+
 	it( 'draws views per day under the average metric', () => {
 		renderWidget( 779, { metric: 'average' } );
 
 		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 8' } ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'heatmap-cell-partial' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'More views per day' ) ).toBeInTheDocument();
 	} );
@@ -139,7 +146,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: /^Nov 2025: 10/ } ) );
 
 		expect( mockOpenPeriod ).toHaveBeenCalledWith( NOVEMBER_2025 );
 	} );
