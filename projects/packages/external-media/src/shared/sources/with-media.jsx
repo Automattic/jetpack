@@ -259,21 +259,34 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 						if ( itemWithErrors ) {
 							const { errors } = itemWithErrors;
 							const firstErrorKey = Object.keys( errors )[ 0 ];
-							this.handleApiError( {
-								code: firstErrorKey,
-								message: errors[ firstErrorKey ],
-							} );
-							return;
+							throw { code: firstErrorKey, message: errors[ firstErrorKey ] };
 						}
 
 						copied.push( ...result );
 					}
-
-					this.props.onClose();
-					this.props.onSelect( this.selectMediaForMode( copied ) );
 				} catch ( error ) {
 					this.handleApiError( error );
+					this.setState( { isCopying: false } );
+
+					// Earlier batches are already in the media library, so tell the user.
+					if ( copied.length > 0 ) {
+						this.props.noticeOperations.createErrorNotice(
+							sprintf(
+								/* translators: 1: number of items imported, 2: number of items selected. */
+								__(
+									'%1$d of %2$d items were added to your media library before the import stopped.',
+									'jetpack-external-media'
+								),
+								copied.length,
+								items.length
+							)
+						);
+					}
+					return;
 				}
+
+				this.props.onClose();
+				this.props.onSelect( this.selectMediaForMode( copied ) );
 			};
 
 			mapImageToResult = image => ( {
