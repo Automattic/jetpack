@@ -383,7 +383,21 @@ class Llms_Txt {
 			}
 		}
 
-		return implode( "\n\n", $blocks ) . "\n";
+		$text = implode( "\n\n", $blocks ) . "\n";
+
+		/**
+		 * Filters the llms.txt Markdown, e.g. to add a section.
+		 *
+		 * The result is stored for up to 12 hours; call Llms_Txt::clear_cache() when your section's data
+		 * changes. Anything but a non-empty string keeps the unfiltered text.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $text The llms.txt Markdown.
+		 */
+		$filtered = apply_filters( 'jetpack_seo_llms_txt', $text );
+
+		return is_string( $filtered ) && '' !== $filtered ? $filtered : $text;
 	}
 
 	/**
