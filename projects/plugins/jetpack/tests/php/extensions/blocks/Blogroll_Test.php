@@ -161,12 +161,23 @@ class Blogroll_Test extends \WP_UnitTestCase {
 		$without = self::factory()->post->create( array( 'post_content' => 'Hi' ) );
 
 		$this->go_to( get_permalink( $with ) );
-		$link = get_echo( 'Automattic\Jetpack\Extensions\Blogroll\print_opml_link' );
+		$link = self::print_opml_link();
 
 		$this->assertStringContainsString( 'rel="blogroll" type="text/x-opml"', $link );
 		$this->assertStringContainsString( esc_url( add_query_arg( 'opml', '', get_permalink( $with ) ) ), $link );
 
 		$this->go_to( get_permalink( $without ) );
-		$this->assertSame( '', get_echo( 'Automattic\Jetpack\Extensions\Blogroll\print_opml_link' ) );
+		$this->assertSame( '', self::print_opml_link() );
+	}
+
+	/**
+	 * Output of print_opml_link().
+	 *
+	 * @return string
+	 */
+	private static function print_opml_link() {
+		ob_start();
+		Blogroll\print_opml_link();
+		return (string) ob_get_clean();
 	}
 }
