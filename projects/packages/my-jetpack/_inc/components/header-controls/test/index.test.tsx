@@ -229,48 +229,63 @@ describe( 'HeaderControls', () => {
 		it( 'repairs under the header’s reconnect name, returning to this page', async () => {
 			mockUseConnectionState.mockReturnValue( stateWith( { action: 'REPAIR', status: 'error' } ) );
 			render( <HeaderControls trackingContext="my-jetpack" /> );
+			window.history.replaceState( null, '', `${ page }&p=later` );
+			const laterUrl = window.location.href;
 			await openControl();
 
 			expect( mockUseConnectionErrorNotice ).toHaveBeenLastCalledWith(
 				expect.objectContaining( {
 					reconnectFrom: 'my_jetpack_header_reconnect',
-					reconnectRedirectUrl: window.location.href,
+					reconnectRedirectUrl: laterUrl,
 				} )
 			);
-			expect( window.location.href ).toContain( page );
 		} );
 	} );
 
-	it( 'falls back to the legacy names when the shared script predates CONNECTION_FROM', async () => {
-		mockConnectionFromMissing = true;
-		try {
-			mockUseConnectionState.mockReturnValue(
-				stateWith( { action: 'CONNECT_SITE', status: 'warning' } )
-			);
-			const { unmount } = render( <HeaderControls trackingContext="my-jetpack" /> );
-			await openControl();
-
-			expect( screen.getByRole( 'link', { name: 'Connect site' } ) ).toHaveAttribute(
-				'href',
-				'admin.php?page=my-jetpack#/connection'
-			);
-			expect( mockUseConnectionErrorNotice ).toHaveBeenLastCalledWith(
-				expect.objectContaining( { reconnectFrom: undefined } )
-			);
-			unmount();
-
-			mockUseConnectionState.mockReturnValue(
-				stateWith( { action: 'CONNECT_USER', status: 'warning' } )
-			);
-			render( <HeaderControls trackingContext="my-jetpack" /> );
-			await openControl();
-
-			expect( mockGetUserConnectionUrl ).toHaveBeenLastCalledWith(
-				expect.objectContaining( { from: 'my-jetpack' } )
-			);
-		} finally {
+	describe( 'when the shared script predates CONNECTION_FROM', () => {
+		beforeEach( () => {
+			mockConnectionFromMissing = true;
+		} );
+		afterEach( () => {
 			mockConnectionFromMissing = false;
-		}
+		} );
+
+		it.each( [
+			[
+				'CONNECT_SITE',
+				'warning',
+				() =>
+					expect( screen.getByRole( 'link', { name: 'Connect site' } ) ).toHaveAttribute(
+						'href',
+						'admin.php?page=my-jetpack#/connection'
+					),
+			],
+			[
+				'CONNECT_USER',
+				'warning',
+				() =>
+					expect( mockGetUserConnectionUrl ).toHaveBeenLastCalledWith(
+						expect.objectContaining( { from: 'my-jetpack' } )
+					),
+			],
+			[
+				'REPAIR',
+				'error',
+				() =>
+					expect( mockUseConnectionErrorNotice ).toHaveBeenLastCalledWith(
+						expect.objectContaining( { reconnectFrom: undefined } )
+					),
+			],
+		] as const )(
+			'%s falls back to the legacy name',
+			async ( action, status, expectLegacyName ) => {
+				mockUseConnectionState.mockReturnValue( stateWith( { action, status } ) );
+				render( <HeaderControls trackingContext="my-jetpack" /> );
+				await openControl();
+
+				expectLegacyName();
+			}
+		);
 	} );
 
 	it( "shows why restoring the connection failed, as the Overview's card does", async () => {

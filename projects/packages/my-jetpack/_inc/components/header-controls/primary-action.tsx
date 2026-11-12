@@ -19,7 +19,6 @@ const PrimaryAction: FC< {
 	action: ConnectionState[ 'action' ];
 	repairActions: ReturnType< typeof useConnectionErrorNotice >[ 'actions' ];
 } > = ( { action, repairActions } ) => {
-	// An older shared jetpack-connection script may lack CONNECTION_FROM: its links then send `my-jetpack`.
 	const connectFrom = CONNECTION_FROM?.myJetpackHeader;
 
 	if ( action === 'CONNECT_USER' ) {
