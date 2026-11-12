@@ -7,6 +7,8 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import VideoDetailEmbedsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -102,5 +104,49 @@ describe( 'VideoDetailEmbedsWidget', () => {
 			screen.findByRole( 'link', { name: /getting-started/i } )
 		).resolves.toBeInTheDocument();
 		expect( mockApiFetch.mock.calls.length ).toBeGreaterThan( requestsBeforeRetry );
+	} );
+	describe( 'CSV download', () => {
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+		} );
+
+		function renderWithHost( response: unknown ) {
+			mockApiFetch.mockResolvedValue( response );
+
+			return renderWithActionsHost(
+				<VideoDetailEmbedsWidget
+					attributes={ {
+						reportParams: { ...getDefaultQueryParams( false, 'last-7-days' ), post_id: 105 },
+					} }
+				/>
+			);
+		}
+
+		it( 'saves every page the video is embedded on', async () => {
+			downloads = captureCsvDownloads();
+			const { findDeclaredAction } = renderWithHost( SINGLE_VIDEO_RESPONSE );
+
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			expect( downloads.files[ 0 ].filename ).toBe( 'video-105-embeds.csv' );
+			await expect( downloads.lines() ).resolves.toEqual( [
+				'"URL"',
+				'"https://example.com/getting-started/"',
+				'"https://example.com/blog/weekly-recap/"',
+			] );
+		} );
+
+		it( 'offers no download for a video embedded nowhere', async () => {
+			const { declaredAction } = renderWithHost( { ...SINGLE_VIDEO_RESPONSE, pages: [] } );
+
+			await expect(
+				screen.findByText( 'This video has not been embedded on any pages yet.' )
+			).resolves.toBeInTheDocument();
+
+			expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+		} );
 	} );
 } );

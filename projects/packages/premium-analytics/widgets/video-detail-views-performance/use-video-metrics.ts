@@ -50,6 +50,8 @@ export interface VideoMetricsState {
 	isError: boolean;
 	/** The raw request error, for `describeError()` to classify. */
 	error: unknown;
+	/** The zone the bucket dates are in. */
+	timezone: string;
 	hasData: boolean;
 	refetch: () => void;
 }
@@ -315,6 +317,7 @@ export default function useVideoMetrics(
 		isFetching,
 		isError,
 		error,
+		timezone,
 		hasData: !! data,
 		refetch: () => void refetch(),
 	};

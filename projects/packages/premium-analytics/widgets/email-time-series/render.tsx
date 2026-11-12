@@ -18,6 +18,8 @@ import {
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
 	type CountLabel,
 	type MetricTab,
@@ -131,6 +133,32 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 			},
 		];
 	}, [ chartReport, field, metric, active.timezone ] );
+
+	const csv = useMemo(
+		() =>
+			metricTabsToCsv(
+				metricTabs[ 0 ].current.some( point => ( point.value ?? 0 ) > 0 ) ? metricTabs : [],
+				{
+					zone: active.timezone,
+					// The timeline turns hourly on an hourly page, whatever bucket size the chart keeps.
+					withTime: reportParams.interval === 'hour',
+					dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+				}
+			),
+		[ metricTabs, active.timezone, reportParams.interval ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: `email-${ postId }-${ metric }`,
+			hasDateRange: true,
+			status: {
+				isLoading: active.isLoading,
+				isFetching: active.isFetching,
+				isError: active.isError,
+			},
+		},
+	} );
 
 	return (
 		<div className={ styles.root }>

@@ -3,11 +3,13 @@
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import EmailBreakdownWidget from '../render';
 import emailBreakdownWidgetType from '../widget';
 
@@ -329,5 +331,91 @@ describe( 'EmailBreakdown widget type', () => {
 		expect(
 			emailBreakdownWidgetType.attributes.every( attribute => attribute.relevance === 'high' )
 		).toBe( true );
+	} );
+	describe( 'CSV download', () => {
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
+		beforeEach( () => {
+			queryClient.clear();
+			mockApiFetch.mockReset();
+		} );
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+		} );
+
+		function renderWithHost( attributes: Record< string, unknown > ) {
+			return renderWithActionsHost(
+				<EmailBreakdownWidget
+					attributes={ {
+						reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+						...attributes,
+					} }
+				/>
+			);
+		}
+
+		it( 'saves every row, past the ones the card lists', async () => {
+			const rowCount = WIDGET_ROW_LIMIT + 3;
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( {
+				countries: {
+					data: Array.from( { length: rowCount }, ( _, index ) => [
+						`C${ index }`,
+						rowCount - index,
+					] ),
+					fields: [ 'country', 'clicks_count' ],
+				},
+				'countries-info': Object.fromEntries(
+					Array.from( { length: rowCount }, ( _, index ) => [
+						`C${ index }`,
+						{ country_full: `Country ${ index }` },
+					] )
+				),
+			} );
+
+			const { findDeclaredAction } = renderWithHost( { view: 'countries', metric: 'clicks' } );
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+			const lines = await downloads.lines();
+
+			expect( downloads.files[ 0 ].filename ).toBe( 'email-1234-countries-clicks.csv' );
+			expect( lines ).toHaveLength( rowCount + 1 );
+			expect( lines.slice( 0, 2 ) ).toEqual( [
+				'"Country","Clicks"',
+				`"Country 0","${ rowCount }"`,
+			] );
+		} );
+
+		it( 'labels link clicks as clicks and adds each URL', async () => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockImplementation( linksViewFetchMock() );
+
+			const { findDeclaredAction } = renderWithHost( { view: 'links', metric: 'opens' } );
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+			const lines = await downloads.lines();
+
+			expect( downloads.files[ 0 ].filename ).toBe( 'email-1234-links-clicks.csv' );
+			expect( lines[ 0 ] ).toBe( '"Link","Clicks","URL"' );
+			expect( lines ).toContain(
+				'"https://example.com/spring-sale","512","https://example.com/spring-sale"'
+			);
+			expect( lines ).toContain( '"Post URL","640",""' );
+		} );
+
+		it( 'withdraws the download when a refetch fails behind the rows on screen', async () => {
+			mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
+
+			const { findDeclaredAction, declaredAction } = renderWithHost( { view: 'countries' } );
+			await findDeclaredAction( 'download-csv' );
+
+			mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+			await act( async () => {
+				await queryClient.refetchQueries();
+			} );
+
+			await waitFor( () => expect( declaredAction( 'download-csv' ) ).toBeUndefined() );
+			expect( screen.getByText( 'United States' ) ).toBeInTheDocument();
+		} );
 	} );
 } );
