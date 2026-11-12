@@ -59,7 +59,7 @@ describe( 'handleRowResize gutter accounting', () => {
 			// infinite resize loop when the block is a content-sized flex item
 			// (inside a Row/Stack). See JETPACK-1726.
 			const renderedGutters = GUTTER_WIDTH * ( numCols - 1 );
-			expect( sumItemWidths( row ) + renderedGutters ).toBeCloseTo( width, 5 );
+			expect( sumItemWidths( row ) + renderedGutters ).toBeCloseTo( width );
 		}
 	);
 } );

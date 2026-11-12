@@ -43,13 +43,52 @@ export function createApp( slug, el ) {
 		place( onScreen ) {
 			if ( app.state === 'loading' ) {
 				el.style.display = onScreen ? '' : 'none';
+				el.inert = ! onScreen;
 				return;
 			}
 			app.to( onScreen ? 'visible' : 'hidden' );
 		},
+		// After a switch, so keyboard and screen reader users start on the page they opened.
+		focusHeading() {
+			const heading = headingOf( el );
+			if ( ! heading ) {
+				return;
+			}
+			focusOn( heading );
+			// The route a switch opens can render after this and replace the heading: follow it once.
+			const observer = new MutationObserver( () => {
+				const next = headingOf( el );
+				if ( heading.isConnected || ! next ) {
+					return;
+				}
+				stop();
+				// eslint-disable-next-line @wordpress/no-global-active-element -- The shell owns the whole document.
+				if ( document.activeElement === document.body ) {
+					focusOn( next );
+				}
+			} );
+			const timer = setTimeout( () => observer.disconnect(), FOLLOW_TIMEOUT );
+			const stop = () => {
+				observer.disconnect();
+				clearTimeout( timer );
+			};
+			observer.observe( el, { childList: true, subtree: true } );
+		},
 	};
 	return app;
 }
+
+// How long a focused heading is followed if the app replaces it.
+const FOLLOW_TIMEOUT = 2000;
+
+const headingOf = el => [ ...el.querySelectorAll( 'h1' ) ].find( h => h.textContent.trim() );
+
+const focusOn = heading => {
+	if ( ! heading.hasAttribute( 'tabindex' ) ) {
+		heading.tabIndex = -1;
+	}
+	heading.focus( { preventScroll: true } );
+};
 
 /**
  * Resolve once the app has rendered its first route: a page heading in its container.
@@ -59,7 +98,7 @@ export function createApp( slug, el ) {
  * @return {Promise<void>} Resolves when rendered, rejects on timeout.
  */
 export function whenRendered( el, timeout ) {
-	const rendered = () => !! el.querySelector( 'h1' )?.textContent.trim();
+	const rendered = () => !! headingOf( el );
 	if ( rendered() ) {
 		return Promise.resolve();
 	}

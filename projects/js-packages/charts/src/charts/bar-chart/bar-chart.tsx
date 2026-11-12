@@ -709,6 +709,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				isSeriesVisible,
 				chartWidth: width,
 				chartHeight: measuredChartHeight || 0,
+				legendItems,
+				chartType: 'bar',
 			} }
 		>
 			<ChartLayout

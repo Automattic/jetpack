@@ -43,14 +43,16 @@ class Stats_Links {
 	 */
 	public static function register() {
 		add_filter( 'jetpack_stats_url', array( __CLASS__, 'filter_url' ), 10, 2 );
+		// WordPress 7.2 answers an unregistered page on wp_admin_page_not_found and never reaches admin_page_access_denied.
+		add_action( 'wp_admin_page_not_found', array( __CLASS__, 'open_retired_stats_page' ) );
 		add_action( 'admin_page_access_denied', array( __CLASS__, 'open_retired_stats_page' ) );
 	}
 
 	/**
 	 * Open the dashboard in place of `admin.php?page=stats` once no plugin registers that page.
 	 *
-	 * Core fires this for every denied admin page, a registered one the user may not open included;
-	 * the capability check is what keeps that user on core's 403.
+	 * Before 7.2 core fires admin_page_access_denied for every denied admin page, a registered one the
+	 * user may not open included; the capability check is what keeps that user on core's 403.
 	 *
 	 * @return void
 	 */

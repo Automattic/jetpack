@@ -135,6 +135,7 @@ class Admin_Shell_Test extends TestCase {
 			'default_path' => '/responses',
 			'capability'   => 'edit_posts',
 			'handles'      => array( 'jetpack-forms-dashboard' ),
+			'media'        => true,
 		);
 
 		return array(
@@ -145,6 +146,7 @@ class Admin_Shell_Test extends TestCase {
 					'default_path' => null,
 					'capability'   => 'manage_options',
 					'handles'      => array(),
+					'media'        => false,
 				),
 			),
 			'every key set'      => array( $set + self::valid_member(), $set ),
@@ -196,6 +198,7 @@ class Admin_Shell_Test extends TestCase {
 			'handles holds non-text' => array( 'jetpack-forms', array( 'handles' => array( 1 ) ) + $valid ),
 			'empty capability'       => array( 'jetpack-forms', array( 'capability' => '' ) + $valid ),
 			'default_path not text'  => array( 'jetpack-forms', array( 'default_path' => 1 ) + $valid ),
+			'media not a boolean'    => array( 'jetpack-forms', array( 'media' => 'yes' ) + $valid ),
 		);
 	}
 
@@ -446,6 +449,62 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
+	 * A guest that prints wp-api-fetch must not set up a second nonce middleware on a host that has one.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_guards_api_fetch_setup() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$this->start_host_page( '__return_null', 'manage_options', array( 'wp-api-fetch' ) );
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+
+		$this->assertIsString( $html );
+		$guard = strpos( $html, 'if ( ! wp.apiFetch.nonceMiddleware ) {' );
+		$this->assertNotFalse( $guard );
+		$this->assertGreaterThan( $guard, strpos( $html, 'createNonceMiddleware' ) );
+	}
+
+	/**
+	 * Data provider for test_guest_assets_prints_media_library_only_when_asked.
+	 *
+	 * @return array[] Media flag, whether the page enqueues the media library itself.
+	 */
+	public static function provide_media_flags() {
+		return array(
+			'media'                       => array( true, false ),
+			'media the page enqueues too' => array( true, true ),
+			'no media'                    => array( false, false ),
+		);
+	}
+
+	/**
+	 * A media member gets the media library and the templates its modal renders from.
+	 *
+	 * @dataProvider provide_media_flags
+	 *
+	 * @param bool $media       Whether the guest opens the media library.
+	 * @param bool $own_enqueue Whether the page's loader enqueues it too.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_media_flags' )]
+	public function test_guest_assets_prints_media_library_only_when_asked( $media, $own_enqueue ) {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$load                      = function () use ( $own_enqueue ) {
+			if ( $own_enqueue ) {
+				$this->add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
+			}
+		};
+		$this->start_host_page( $load, 'manage_options', array(), $media );
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+
+		$this->assertIsString( $html );
+		$this->assertSame( $media, false !== strpos( $html, 'id="media-views-js"' ) );
+		$this->assertSame( $media, false !== strpos( $html, 'id="tmpl-media-modal"' ) );
+	}
+
+	/**
 	 * Add an action and remove it again in tearDown().
 	 *
 	 * @param string   $hook     Hook name.
@@ -463,9 +522,10 @@ class Admin_Shell_Test extends TestCase {
 	 * @param callable $load       Guest loader.
 	 * @param string   $capability Capability the guest requires.
 	 * @param string[] $handles    Handles the guest endpoint may return.
+	 * @param bool     $media      Whether the guest opens the media library.
 	 * @return void
 	 */
-	private function start_host_page( $load, $capability = 'manage_options', $handles = array() ) {
+	private function start_host_page( $load, $capability = 'manage_options', $handles = array(), $media = false ) {
 		require_once __DIR__ . '/fixtures/wp-build-routes.php';
 		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Shell::FLAG, '__return_true' );
 		wp_set_current_user(
@@ -486,6 +546,7 @@ class Admin_Shell_Test extends TestCase {
 					'init_modules' => array( '@jetpack/guest-init' ),
 					'capability'   => $capability,
 					'handles'      => $handles,
+					'media'        => $media,
 					'load'         => $load,
 				) + self::valid_member(),
 			)

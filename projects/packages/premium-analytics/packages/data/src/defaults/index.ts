@@ -1,3 +1,4 @@
+export { deriveComparisonRange } from './derive-comparison-range';
 export {
 	getDefaultPreset,
 	getDefaultQueryParams,

@@ -45,6 +45,7 @@ class Stats_Links_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_all_filters( 'jetpack_stats_url' );
 		remove_all_actions( 'admin_page_access_denied' );
+		remove_all_actions( 'wp_admin_page_not_found' );
 		remove_all_filters( 'wp_redirect' );
 		unset( $_GET['page'], $_GET[ Stats_Links::ROUTE_QUERY_ARG ], $GLOBALS['_parent_pages']['stats'] );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
@@ -67,6 +68,7 @@ class Stats_Links_Test extends BaseTestCase {
 
 		$this->assertSame( 10, has_filter( 'jetpack_stats_url', array( Stats_Links::class, 'filter_url' ) ) );
 		$this->assertSame( 10, has_action( 'admin_page_access_denied', array( Stats_Links::class, 'open_retired_stats_page' ) ) );
+		$this->assertSame( 10, has_action( 'wp_admin_page_not_found', array( Stats_Links::class, 'open_retired_stats_page' ) ) );
 	}
 
 	public function test_dashboard_view_points_at_the_dashboard() {
