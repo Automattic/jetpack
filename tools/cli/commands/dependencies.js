@@ -97,7 +97,7 @@ export function builder( yargs ) {
 		} )
 		.option( 'only-direct-dev-dependents', {
 			describe:
-				'With --add-dependents, follow only `require` and `dependencies` edges, plus projects that dev-depend on one of the results.',
+				'With --add-dependents, follow only `require` and `dependencies` edges, plus projects with any edge, including dev and test, to one of the results.',
 			type: 'boolean',
 		} )
 		.option( 'extra', {
@@ -133,7 +133,7 @@ export async function handler( argv ) {
 	const debug = argv.v ? m => console.error( chalkStderr.blue( m ) ) : () => {};
 	let deps = await getDependencies( process.cwd(), argv.extra, argv.dev === false );
 
-	// Composer and npm don't install a dependency's dev dependencies, so a change can't reach past one dev edge.
+	// Composer doesn't install a dependency's require-dev, and shipped JS doesn't import its devDependencies, so a change can't reach past one dev edge.
 	const dependents =
 		argv.addDependents && argv.onlyDirectDevDependents
 			? await getDependencies( process.cwd(), null, true )

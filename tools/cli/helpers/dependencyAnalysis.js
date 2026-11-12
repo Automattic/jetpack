@@ -153,6 +153,7 @@ export function filterDeps( deps, projects, options = {} ) {
 				keep.add( p );
 			}
 		}
+		return filterDeps( deps, [ ...keep ], { dependencies: options.dependencies } );
 	}
 
 	const ret = new Map();
