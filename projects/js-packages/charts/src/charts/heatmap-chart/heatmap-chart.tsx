@@ -129,7 +129,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	keyboardNavigation = 'grid',
 	ariaLabel,
 	primaryColor,
-	scale: valueScale = 'buckets',
+	scale: valueScale = 'linear',
 	scaleSteps = HEATMAP_SCALE_STEPS,
 	gap = 'md',
 	withTooltips = false,
@@ -231,8 +231,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		[ valueScale, extent, buckets ]
 	);
 	const heatmapContext = useMemo< HeatmapContextValue >(
-		() => ( { extent, buckets, steps, fillVars } ),
-		[ extent, buckets, steps, fillVars ]
+		() => ( { extent, buckets, scale: valueScale, steps, fillVars } ),
+		[ extent, buckets, valueScale, steps, fillVars ]
 	);
 
 	const columns = data.length;

@@ -202,9 +202,6 @@ function PostTrafficActivityInner() {
 									ariaLabel={ chartName }
 									primaryColor="var(--wp-admin-theme-color, #3858e9)"
 									withTooltips
-									// A post's daily views are a spike and a long tail, and ranking
-									// paints the spike and a quiet day the same darkest step.
-									scale="linear"
 									// The page span is already sized to the card, so width tracks
 									// never need to shrink below the design's 64px.
 									maxCellWidth={ 64 }
