@@ -751,7 +751,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 													<span
 														className={ clsx(
 															styles[ 'heatmap-chart__cell-value' ],
-															filled && CELL_VALUE_MODIFIER[ cellTextColor( normalized ) ]
+															// A hatch stripes the lowest fill tone over the empty one, so its
+															// figure takes the pick that tone gets as the scale's lowest step.
+															( filled || partial ) &&
+																CELL_VALUE_MODIFIER[ cellTextColor( normalized ) ]
 														) }
 													>
 														{ /* Compact display; tooltip and aria-label keep full precision. */ }
