@@ -62,6 +62,7 @@ export interface TrafficChartState {
 	isError: boolean;
 	/** A primary request's failure even while placeholder rows hide it from `isError`. */
 	csvIsError: boolean;
+	csvIsPlaceholderData: boolean;
 	timezone: string;
 	refetch: () => void;
 }
@@ -231,6 +232,9 @@ export default function useTrafficChart(
 		isFetching: viewsVisitors.isFetching || likesComments.isFetching,
 		isError,
 		csvIsError: viewsVisitors.primary.isError || ( ! isHourly && likesComments.primary.isError ),
+		csvIsPlaceholderData:
+			viewsVisitors.primary.isPlaceholderData ||
+			( ! isHourly && likesComments.primary.isPlaceholderData ),
 		timezone: vvZone,
 		refetch,
 	};

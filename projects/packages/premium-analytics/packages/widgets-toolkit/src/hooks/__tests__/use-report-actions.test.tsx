@@ -153,6 +153,7 @@ describe( 'useReportActions', () => {
 			{ label: 'Views', getValue: row => row.views },
 		];
 		const ROWS: Row[] = [ { day: '2026-03-01', views: 3 } ];
+		const ROWS_SETTLED = { ...SETTLED, isPlaceholderData: false };
 		let mockSaveCsv: jest.SpiedFunction< typeof buildCsvModule.saveCsv >;
 
 		beforeEach( () => {
@@ -181,7 +182,13 @@ describe( 'useReportActions', () => {
 			renderHook(
 				() =>
 					useReportActions( {
-						csv: { rows: ROWS, columns, filenamePrefix: 'things', status: SETTLED, hasDateRange },
+						csv: {
+							rows: ROWS,
+							columns,
+							filenamePrefix: 'things',
+							status: ROWS_SETTLED,
+							hasDateRange,
+						},
 					} ),
 				{ wrapper }
 			);
@@ -189,6 +196,26 @@ describe( 'useReportActions', () => {
 			await runDownload( declaredActions().find( action => action.id === 'download-csv' ) );
 
 			expect( mockSaveCsv ).toHaveBeenCalledWith( filename, '"Date","Views"\n"2026-03-01","3"' );
+		} );
+
+		it( 'offers no download while the rows are a previous range kept as placeholder', () => {
+			const { wrapper, declaredActions } = setUp();
+
+			renderHook(
+				() =>
+					useReportActions( {
+						csv: {
+							rows: ROWS,
+							columns,
+							filenamePrefix: 'things',
+							status: { ...ROWS_SETTLED, isPlaceholderData: true },
+							hasDateRange: true,
+						},
+					} ),
+				{ wrapper }
+			);
+
+			expect( declaredActions().find( action => action.id === 'download-csv' ) ).toBeUndefined();
 		} );
 	} );
 

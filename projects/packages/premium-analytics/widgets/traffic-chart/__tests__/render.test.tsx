@@ -120,6 +120,7 @@ beforeEach( () => {
 		isFetching: false,
 		isError: false,
 		csvIsError: false,
+		csvIsPlaceholderData: false,
 		timezone: 'UTC',
 		refetch: jest.fn(),
 	} );
@@ -459,6 +460,7 @@ describe( 'TrafficChart previous period', () => {
 				isFetching: false,
 				isError: false,
 				csvIsError: false,
+				csvIsPlaceholderData: false,
 				timezone: 'UTC',
 				refetch: jest.fn(),
 			} );
@@ -505,6 +507,7 @@ describe( 'TrafficChart with an idle window', () => {
 			isFetching: false,
 			isError: false,
 			csvIsError: false,
+			csvIsPlaceholderData: false,
 			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
@@ -541,6 +544,7 @@ describe( 'TrafficChart with an idle window', () => {
 			isFetching: false,
 			isError: false,
 			csvIsError: false,
+			csvIsPlaceholderData: false,
 			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
@@ -571,6 +575,7 @@ describe( 'TrafficChart with an idle window', () => {
 			isFetching: true,
 			isError: false,
 			csvIsError: false,
+			csvIsPlaceholderData: false,
 			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
@@ -597,6 +602,7 @@ describe( 'TrafficChart with an idle window', () => {
 			isFetching: false,
 			isError: false,
 			csvIsError: false,
+			csvIsPlaceholderData: false,
 			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
@@ -635,6 +641,7 @@ describe( 'TrafficChart CSV download', () => {
 		isFetching: false,
 		isError: false,
 		csvIsError: false,
+		csvIsPlaceholderData: false,
 		timezone: ZONE,
 		refetch: jest.fn(),
 	};

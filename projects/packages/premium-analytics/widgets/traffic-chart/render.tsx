@@ -100,6 +100,7 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 		isFetching,
 		isError,
 		csvIsError,
+		csvIsPlaceholderData,
 		timezone,
 		refetch,
 	} = useTrafficChart( reportParams, period );
@@ -123,7 +124,12 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 			...csv,
 			filenamePrefix: 'traffic-summary',
 			hasDateRange: true,
-			status: { isLoading, isFetching, isError: csvIsError },
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
 		},
 	} );
 
