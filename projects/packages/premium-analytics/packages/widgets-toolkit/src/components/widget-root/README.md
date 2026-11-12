@@ -15,6 +15,7 @@ Dashboard widgets are ES Modules loaded asynchronously via lazy-load. This means
 - **Report params resolution** - From widget attributes or URL fallback
 - **Context provider** - Child widgets access resolved params via `useWidgetRootContext()`
 - **Text weight** - Sets `--jpa-widget-font-weight` (500) without applying it. Text opts in with the `widget-text-weight` mixin, and the charts leaderboard through `--a8c-charts-font-weight-leaderboard`; everything else keeps the design system weight
+- **Text size** - Overrides `--wpds-typography-font-size-md` to 14px, so everything inside a widget that uses the medium size grows from 13px
 
 ## Usage
 

@@ -7,4 +7,9 @@
 	// Declared, not applied: text opts in with `widget-text-weight`.
 	--jpa-widget-font-weight: 500;
 	--a8c-charts-font-weight-leaderboard: var(--jpa-widget-font-weight);
+
+	// 14px body text, as classic Stats. Drop once the design system's `md`
+	// step is 14px (https://github.com/WordPress/gutenberg/pull/83073).
+	// stylelint-disable-next-line plugin-wpds/no-setting-wpds-custom-properties -- scoped to widgets on purpose.
+	--wpds-typography-font-size-md: 14px;
 }
