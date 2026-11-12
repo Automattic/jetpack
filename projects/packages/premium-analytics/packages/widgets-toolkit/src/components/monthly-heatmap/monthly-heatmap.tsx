@@ -166,7 +166,7 @@ export function MonthlyHeatmap( {
 	const rowLabels = useMemo( () => rows.map( row => String( row.year ) ), [ rows ] );
 
 	const renderTooltip = useCallback(
-		( { value, columnLabel, rowLabel, column }: HeatmapTooltipData ) => (
+		( { value, columnLabel, rowLabel, column, partial }: HeatmapTooltipData ) => (
 			<CalendarHeatmapTooltip
 				value={ value }
 				// Named the way the chart names a cell to a screen reader: "Aug 2026",
@@ -179,7 +179,8 @@ export function MonthlyHeatmap( {
 								_x( '%1$s %2$s', 'month and year', 'jetpack-premium-analytics-pkg' ),
 								columnLabel ?? '',
 								rowLabel ?? ''
-							).trim()
+							).trim() +
+							( partial ? ` ${ __( '(incomplete month)', 'jetpack-premium-analytics-pkg' ) }` : '' )
 				}
 				emptyLabel={ emptyLabel }
 				formatValue={ formatValue }
