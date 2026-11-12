@@ -68,6 +68,7 @@ describe.each( [
 			expect( screen.queryByTestId( 'product' )?.textContent ?? null ).toBe(
 				destination ? null : slug
 			);
+			expect( Boolean( screen.queryByRole( 'img' ) ) ).toBe( ! destination );
 		}
 	);
 } );
