@@ -309,6 +309,8 @@ EXPECTED;
 		} finally {
 			remove_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
 			Jetpack_Options::delete_option( 'active_modules_initialized' );
+			// State lives in a static for the whole run; a leftover message blocks later Modules redirects.
+			Jetpack::state( 'message', '' );
 		}
 
 		$this->assertSame( array(), self::$deactivated_modules );
