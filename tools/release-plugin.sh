@@ -578,9 +578,7 @@ if $FROM_RELEASE_BRANCH && [[ $(jq -r '.extra.changelogger.versioning // "semver
 fi
 
 if [[ -z $VERSION ]]; then
-	cd "$BASE/projects/$PLUGIN"
-	VERSION=$(changelogger version next) || die "Cannot determine version number for $PLUGIN. Please supply one on the command line."
-	cd "$BASE"
+	VERSION=$(cd "$BASE/projects/$PLUGIN" && changelogger version next) || die "Cannot determine version number for $PLUGIN. Please supply one on the command line."
 fi
 
 # @todo: Rip out multi-plugin release support altogether.
