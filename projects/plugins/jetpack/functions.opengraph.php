@@ -921,7 +921,8 @@ function jetpack_og_remove_query_blocks( $description ) {
 		return '';
 	}
 
-	// An older copy of the block-delimiter package can win the autoloader, so keep the fallback below.
+	// @todo Temporary: delete everything below this `if` once Block_Scanner::remove_blocks() has shipped in a Jetpack release.
+	// Until then another plugin can load an older block-delimiter package that lacks the method, and the old code covers that.
 	if ( method_exists( Block_Scanner::class, 'remove_blocks' ) ) {
 		return Block_Scanner::remove_blocks( $description, 'query' );
 	}
