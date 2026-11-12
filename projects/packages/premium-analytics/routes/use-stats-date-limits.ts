@@ -10,12 +10,9 @@ import {
 	type DateLimits,
 	type DateLimitUpsellCopy,
 	type StatsFeatureKey,
+	useSiteDay,
 } from '@jetpack-premium-analytics/data';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
-/**
- * Internal dependencies
- */
-import { useSiteDay } from './use-site-day';
 
 /**
  * The date limits a Stats surface declares in its report scope.

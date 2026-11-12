@@ -72,12 +72,33 @@ describe( 'useActiveSection', () => {
 		expect( mockCommit ).toHaveBeenCalledWith( { replace: true } );
 	} );
 
-	it( 'keeps a ?section= the stage renders itself instead of rewriting it', () => {
-		mockSearch.section = 'settings';
-		const { result } = renderHook( () => useActiveSection( SECTIONS, [ 'settings' ] ) );
+	it( 'keeps the section on screen when the tabs are rearranged, and names it in the URL', () => {
+		const { result, rerender } = renderHook( ( { sections } ) => useActiveSection( sections ), {
+			initialProps: { sections: SECTIONS },
+		} );
 
-		expect( result.current[ 0 ] ).toBe( 'settings' );
-		expect( mockStage ).not.toHaveBeenCalled();
+		rerender( { sections: [ SECTIONS[ 1 ], SECTIONS[ 0 ], SECTIONS[ 2 ] ] } );
+
+		expect( result.current[ 0 ] ).toBe( 'traffic' );
+		expect( result.current[ 2 ] ).toBe( true );
+		expect( mockStage ).toHaveBeenCalledWith( { section: 'traffic' } );
+		expect( mockCommit ).toHaveBeenCalledWith( { replace: true } );
+	} );
+
+	it( 'opens the next URL without ?section= on the first of the rearranged tabs', () => {
+		const rearranged = [ SECTIONS[ 1 ], SECTIONS[ 0 ], SECTIONS[ 2 ] ];
+		const { result, rerender } = renderHook( ( { sections } ) => useActiveSection( sections ), {
+			initialProps: { sections: SECTIONS },
+		} );
+		rerender( { sections: rearranged } );
+
+		// The URL names the section, and the reader later comes back to one that names none.
+		mockSearch.section = 'traffic';
+		rerender( { sections: rearranged } );
+		delete mockSearch.section;
+		rerender( { sections: rearranged } );
+
+		expect( result.current[ 0 ] ).toBe( 'insights' );
 	} );
 
 	it( 'waits for the sections before judging ?section=', () => {
@@ -100,7 +121,7 @@ describe( 'useActiveSection', () => {
 	] )(
 		'switches sections %s, with one history entry per change',
 		( _case, switchSearch, staged ) => {
-			const { result } = renderHook( () => useActiveSection( SECTIONS, [], switchSearch ) );
+			const { result } = renderHook( () => useActiveSection( SECTIONS, switchSearch ) );
 
 			act( () => result.current[ 1 ]( 'store' ) );
 

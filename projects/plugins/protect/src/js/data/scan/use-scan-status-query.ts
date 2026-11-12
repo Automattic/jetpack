@@ -48,6 +48,14 @@ export const isFirstScanNeeded = ( status: ScanStatus ) =>
 	! status?.lastScanFailed &&
 	status?.status === SCAN_STATUS_IDLE;
 
+/**
+ * Whether the site owner turned off the free daily vulnerability check, as `Protect_Status::STATUS_DISABLED` reports.
+ *
+ * @param status - The scan status.
+ * @return Whether the check is off.
+ */
+export const isChecksOff = ( status: ScanStatus ) => ( status?.status as string ) === 'disabled';
+
 export const isScanInProgress = ( status: ScanStatus ) => {
 	// If there has never been a scan, and the scan status is idle or unavailable, then we must still be getting set up.
 	const scanIsInitializing =

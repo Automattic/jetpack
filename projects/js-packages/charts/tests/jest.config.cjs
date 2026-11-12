@@ -1,5 +1,6 @@
 const path = require( 'path' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
+const { transformIgnorePattern } = require( 'jetpack-js-tools/jest/transform-ignore.js' );
 
 module.exports = {
 	...baseConfig,
@@ -14,10 +15,8 @@ module.exports = {
 			require.resolve
 		),
 	},
-	// Transform d3-* ESM packages. See config.base.js for the `(?!.*/node_modules/)` anchor.
-	transformIgnorePatterns: [
-		'/node_modules/(?!.*/node_modules/)(?!d3-|internmap/|uuid/|@wordpress/theme/)',
-	],
+	// d3-* and internmap are esm-only.
+	transformIgnorePatterns: [ transformIgnorePattern( [ 'd3-', 'internmap/' ] ) ],
 	setupFilesAfterEnv: [
 		...( baseConfig.setupFilesAfterEnv || [] ),
 		path.join( __dirname, 'setup-element-size-mock.js' ),

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Reuse generated attachment metadata in tests to speed them up.
+
+

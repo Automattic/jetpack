@@ -17,6 +17,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import { productsFrom } from '../../utils/connect-url';
 import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
@@ -94,6 +95,7 @@ export default function ProductInterstitial( {
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri,
+		from: productsFrom( slug ),
 	} );
 	const showBundledTOS =
 		! hideTOS &&

@@ -18,6 +18,8 @@
 		"build": "pnpm run clean && webpack --config webpack.config.js",
 		"build-production": "pnpm run clean && NODE_ENV=production BABEL_ENV=production webpack --config webpack.config.js && pnpm run validate",
 		"clean": "rm -rf build/",
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
@@ -29,6 +31,7 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@wordpress/browserslist-config": "7.1.0",
 		"@wordpress/theme": "4.0.0",
+		"jest": "30.5.2",
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"sass-embedded": "1.97.3",
