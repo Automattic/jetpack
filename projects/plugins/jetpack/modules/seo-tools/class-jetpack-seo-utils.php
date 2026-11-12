@@ -9,6 +9,9 @@ use Automattic\Jetpack\SEO\Seo_Tools;
 
 /**
  * Class containing utility static methods that other SEO tools are relying on.
+ *
+ * Methods the SEO package owns forward to it. Each keeps its old body as a fallback,
+ * because an older copy of the package can win the autoloader.
  */
 class Jetpack_SEO_Utils {
 	/**
@@ -28,7 +31,6 @@ class Jetpack_SEO_Utils {
 	 * @return bool True if SEO tools are enabled, false otherwise.
 	 */
 	public static function is_enabled_jetpack_seo() {
-		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
 		if ( method_exists( Seo_Tools::class, 'is_enabled' ) ) {
 			return Seo_Tools::is_enabled();
 		}
@@ -59,7 +61,6 @@ class Jetpack_SEO_Utils {
 	 * @return bool True if we should enable legacy usage, false otherwise.
 	 */
 	public static function has_legacy_front_page_meta() {
-		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
 		if ( method_exists( Seo_Tools::class, 'has_legacy_front_page_meta' ) ) {
 			return Seo_Tools::has_legacy_front_page_meta();
 		}
@@ -93,7 +94,6 @@ class Jetpack_SEO_Utils {
 	 * @return string Front page meta description string or empty string.
 	 */
 	public static function get_front_page_meta_description() {
-		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
 		if ( method_exists( Seo_Tools::class, 'get_front_page_meta_description' ) ) {
 			return Seo_Tools::get_front_page_meta_description();
 		}

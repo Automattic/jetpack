@@ -74,7 +74,7 @@ class Dashboard_Data {
 	 *
 	 * @var string
 	 */
-	const FRONT_PAGE_META_OPTION = 'advanced_seo_front_page_description';
+	const FRONT_PAGE_META_OPTION = Seo_Tools::FRONT_PAGE_META_OPTION;
 
 	/**
 	 * Option holding the AI SEO Enhancer's on/off state.
@@ -89,7 +89,7 @@ class Dashboard_Data {
 	 *
 	 * @var string
 	 */
-	const LEGACY_FRONT_PAGE_META_OPTION = 'seo_meta_description';
+	const LEGACY_FRONT_PAGE_META_OPTION = Seo_Tools::LEGACY_FRONT_PAGE_META_OPTION;
 
 	/**
 	 * Map of read-only dashboard routes: tab slug => data-builder callable. The

@@ -10,6 +10,9 @@ use Automattic\Jetpack\SEO\Post_Seo;
 
 /**
  * Provides static utility methods for managing SEO options for Posts and Pages.
+ *
+ * Methods the SEO package owns forward to it. Each keeps its old body as a fallback,
+ * because an older copy of the package can win the autoloader.
  */
 class Jetpack_SEO_Posts {
 	/**
@@ -29,8 +32,8 @@ class Jetpack_SEO_Posts {
 	/**
 	 * Allowed Schema.org types that can be stored in the per-post schema-type
 	 * meta. Empty string means "no override" — Schema_Builder picks a sensible
-	 * default for the post. Single source of truth for the meta enum, the
-	 * block-editor panel options, and Schema_Builder.
+	 * default for the post. Keep in sync with Post_Seo::ALLOWED_SCHEMA_TYPES in
+	 * the SEO package, which is what Schema_Builder reads.
 	 */
 	const ALLOWED_SCHEMA_TYPES = array( '', 'article', 'faq' );
 
@@ -42,7 +45,6 @@ class Jetpack_SEO_Posts {
 	 * @return string Post description or empty string.
 	 */
 	public static function get_post_description( $post = null ) {
-		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
 		if ( method_exists( Post_Seo::class, 'get_description' ) ) {
 			return Post_Seo::get_description( $post );
 		}
@@ -90,7 +92,6 @@ class Jetpack_SEO_Posts {
 	 * @return string Custom description or empty string
 	 */
 	public static function get_post_custom_description( $post = null ) {
-		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
 		if ( method_exists( Post_Seo::class, 'get_custom_description' ) ) {
 			return Post_Seo::get_custom_description( $post );
 		}
@@ -242,7 +243,6 @@ class Jetpack_SEO_Posts {
 	 * @return string A value from self::ALLOWED_SCHEMA_TYPES.
 	 */
 	public static function sanitize_schema_type( $value ) {
-		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
 		if ( method_exists( Post_Seo::class, 'sanitize_schema_type' ) ) {
 			return Post_Seo::sanitize_schema_type( $value );
 		}
@@ -258,7 +258,6 @@ class Jetpack_SEO_Posts {
 	 * @return string A value from self::ALLOWED_SCHEMA_TYPES ('' = no override).
 	 */
 	public static function get_post_schema_type( $post = null ) {
-		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
 		if ( method_exists( Post_Seo::class, 'get_schema_type' ) ) {
 			return Post_Seo::get_schema_type( $post );
 		}

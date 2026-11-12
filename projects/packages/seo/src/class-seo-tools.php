@@ -14,6 +14,21 @@ use Automattic\Jetpack\Constants;
  */
 class Seo_Tools {
 	/**
+	 * Option holding the front page meta description.
+	 *
+	 * @since $$next-version$$
+	 */
+	const FRONT_PAGE_META_OPTION = 'advanced_seo_front_page_description';
+
+	/**
+	 * Legacy option the description is stored in on WordPress.com sites that set
+	 * one while SEO tools were free for every Simple site.
+	 *
+	 * @since $$next-version$$
+	 */
+	const LEGACY_FRONT_PAGE_META_OPTION = 'seo_meta_description';
+
+	/**
 	 * Return the conflicting plugin's display name, or null when there is no conflict.
 	 *
 	 * @since 0.10.3
@@ -53,7 +68,7 @@ class Seo_Tools {
 			return false;
 		}
 
-		if ( Constants::is_true( 'IS_WPCOM' ) ) {
+		if ( Constants::is_true( 'IS_WPCOM' ) && function_exists( 'wpcom_site_has_feature' ) ) {
 			return wpcom_site_has_feature( 'advanced-seo', get_current_blog_id() );
 		}
 
@@ -69,7 +84,7 @@ class Seo_Tools {
 	 * @return bool
 	 */
 	public static function has_legacy_front_page_meta() {
-		return ! self::is_enabled() && (bool) get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION );
+		return ! self::is_enabled() && (bool) get_option( self::LEGACY_FRONT_PAGE_META_OPTION );
 	}
 
 	/**
@@ -80,10 +95,10 @@ class Seo_Tools {
 	 */
 	public static function get_front_page_meta_description() {
 		if ( self::is_enabled() ) {
-			$modern = get_option( Dashboard_Data::FRONT_PAGE_META_OPTION );
-			return (string) ( $modern ? $modern : get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, '' ) );
+			$modern = get_option( self::FRONT_PAGE_META_OPTION );
+			return (string) ( $modern ? $modern : get_option( self::LEGACY_FRONT_PAGE_META_OPTION, '' ) );
 		}
 
-		return (string) get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, '' );
+		return (string) get_option( self::LEGACY_FRONT_PAGE_META_OPTION, '' );
 	}
 }
