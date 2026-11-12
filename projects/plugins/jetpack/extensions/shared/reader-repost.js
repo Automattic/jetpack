@@ -337,7 +337,8 @@ if ( safeUrl ) {
 					)
 				: __(
 						'The original post could not be embedded. This can happen when its site is private or discourages search engines.',
-						'jetpack'
+						'jetpack',
+						/* dummy arg to avoid bad minification */ 0
 					),
 			{ isDismissible: true }
 		);
