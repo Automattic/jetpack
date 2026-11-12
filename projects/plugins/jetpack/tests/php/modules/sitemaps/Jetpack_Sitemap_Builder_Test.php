@@ -68,22 +68,32 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test sitemap index generation with multiple sitemaps
+	 * Posts that overflow one page sitemap continue in the next, each listed exactly once.
 	 */
-	public function test_sitemap_index_generation() {
-		$callback = $this->add_split_page_sitemap_fixture();
+	public function test_page_sitemaps_split_posts_by_id() {
+		global $wpdb;
+
+		// One multi-row INSERT: the post factory takes ~20 s for this many posts.
+		$rows = array();
+		for ( $i = 0; $i <= JP_SITEMAP_MAX_ITEMS; $i++ ) {
+			$rows[] = $wpdb->prepare( "(1, '2024-01-01 00:00:00', '2024-01-01 00:00:00', '', %s, '', 'publish', 'post', %s, '', '', '', '2024-01-01 00:00:00', '2024-01-01 00:00:00')", "Post $i", "post-$i" );
+		}
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Each row is prepared above.
+		$wpdb->query( "INSERT INTO $wpdb->posts (post_author, post_date, post_date_gmt, post_content, post_title, post_excerpt, post_status, post_type, post_name, to_ping, pinged, post_content_filtered, post_modified, post_modified_gmt) VALUES " . implode( ',', $rows ) );
+		$expected = array_map( 'get_permalink', $wpdb->get_col( "SELECT ID FROM $wpdb->posts WHERE post_status = 'publish' AND post_type = 'post' ORDER BY ID" ) );
 
 		$this->builder->update_sitemap();
 
-		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
-
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$index     = $librarian->get_sitemap_text( 'sitemap-index-1.xml', JP_PAGE_SITEMAP_INDEX_TYPE );
+		$listed    = array();
+		foreach ( array( 'sitemap-1.xml', 'sitemap-2.xml' ) as $name ) {
+			preg_match_all( '#<loc>([^<]+)</loc>#', (string) $librarian->get_sitemap_text( $name, JP_PAGE_SITEMAP_TYPE ), $matches );
+			$listed = array_merge( $listed, $matches[1] );
+		}
+		$listed = array_values( array_diff( $listed, array( home_url( '/' ) ) ) );
 
-		$this->assertNotEmpty( $index );
-		$this->assertStringContainsString( '<sitemapindex', $index );
-		$this->assertStringContainsString( '<sitemap>', $index );
-		$this->assertStringContainsString( 'sitemap-2.xml', $index );
+		$this->assertCount( JP_SITEMAP_MAX_ITEMS + 1, $expected );
+		$this->assertSame( $expected, $listed );
 	}
 
 	/**
@@ -502,6 +512,12 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'sitemap-index-1.xml', $master );
 		$this->assertStringNotContainsString( 'sitemap-1.xml', $master );
+
+		$index = $librarian->get_sitemap_text( 'sitemap-index-1.xml', JP_PAGE_SITEMAP_INDEX_TYPE );
+
+		$this->assertStringContainsString( '<sitemapindex', $index );
+		$this->assertStringContainsString( 'sitemap-1.xml', $index );
+		$this->assertStringContainsString( 'sitemap-2.xml', $index );
 	}
 
 	/**
