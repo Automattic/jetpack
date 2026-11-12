@@ -17,7 +17,7 @@ function wpcom_themes_show_banner() {
 		return;
 	}
 
-	// The Marketplace tab lists these themes on the screen itself, so the banner goes from every tab.
+	// The Marketplace tab lists these themes on the screen itself, so the banner is hidden on every tab.
 	if ( wpcom_themes_tab_enabled() ) {
 		return;
 	}

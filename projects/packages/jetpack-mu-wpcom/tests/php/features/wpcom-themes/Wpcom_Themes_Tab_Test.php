@@ -126,9 +126,11 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		Constants::clear_constants();
 		// Host memoizes is_woa_site past clear_constants().
 		Cache::clear();
-		wp_deregister_script( 'wpcom-themes-tab' );
-		wp_deregister_script( 'wpcom-themes-banner' );
-		delete_option( 'wpcom_admin_interface' );
+		// Deregistering leaves a handle in the queue, which wp_script_is( 'enqueued' ) reads.
+		foreach ( array( 'wpcom-themes-tab', 'wpcom-themes-banner' ) as $handle ) {
+			wp_dequeue_script( $handle );
+			wp_deregister_script( $handle );
+		}
 
 		// The shared reader caches in the object cache.
 		wp_cache_flush();
