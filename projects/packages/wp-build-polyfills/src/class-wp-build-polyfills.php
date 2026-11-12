@@ -415,10 +415,13 @@ class WP_Build_Polyfills {
 					$replace = true;
 					$record  = true;
 				} else {
-					// A supported Gutenberg's copy stays. Any other registration is Core's, built
-					// from Gutenberg's wp/X branch and so behind the bundled copy — WP 7.2 ships
-					// widget-primitives 0.10.0, which has no `useWidgetIdentity`.
-					$record  = null === $gutenberg_version || $gutenberg_too_old;
+					// From WP 7.2 Core ships its own copy, built from Gutenberg's wp/X branch and so
+					// behind the bundled one: 7.2 carries 0.10.0, which has no `useWidgetIdentity`.
+					// Only Core's is displaced, by its src; nothing exposes the version behind another.
+					$registered = wp_script_modules()->get_registered( $module_id );
+					$is_core    = null !== $registered && str_starts_with( $registered['src'], includes_url() );
+
+					$record  = $gutenberg_too_old || ( null === $gutenberg_version && ( null === $registered || $is_core ) );
 					$replace = $record;
 				}
 			}

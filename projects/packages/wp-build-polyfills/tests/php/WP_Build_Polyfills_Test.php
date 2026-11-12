@@ -911,11 +911,24 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 */
 	public function test_register_modules_replaces_core_widget_primitives_without_gutenberg() {
 		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
-		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/core-widget-primitives.js', array(), '1.0.0-core' );
+		wp_register_script_module( '@wordpress/widget-primitives', includes_url( 'js/dist/script-modules/widget-primitives/index.js' ), array(), '1.0.0-core' );
 
 		$this->invoke_register_modules( $this->make_widget_primitives_build( '0.11.0', 'bundled' ) );
 
 		$this->assert_widget_primitives_from( 'bundled' );
+	}
+
+	/**
+	 * Nothing exposes the package version behind a registration, so a copy from outside
+	 * wp-includes could be newer than the bundled one and keeps first-wins.
+	 */
+	public function test_register_modules_keeps_third_party_widget_primitives_without_gutenberg() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/other-plugin-widget-primitives.js', array(), '1.0.0-third-party' );
+
+		$this->invoke_register_modules( $this->make_widget_primitives_build( '0.11.0', 'bundled' ) );
+
+		$this->assert_widget_primitives_from( '1.0.0-third-party' );
 	}
 
 	/**
