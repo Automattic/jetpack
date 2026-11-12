@@ -6,7 +6,6 @@ import path from 'node:path';
 import timers from 'node:timers/promises';
 import chalk from 'chalk';
 import Listr from 'listr';
-import semver from 'semver';
 
 if ( process.argv.length <= 2 ) {
 	const name = path.relative( process.cwd(), process.argv[ 1 ] );
@@ -35,8 +34,9 @@ for ( const pkg of process.argv.slice( 2 ) ) {
 		);
 		process.exit( 1 );
 	}
-	if ( ! semver.validRange( m[ 2 ] ) ) {
-		console.error( chalk.red( `Invalid semver range "${ m[ 2 ] }"` ) );
+	// In our usage, Composer package versions are always either three-point or four-point.
+	if ( ! /^\d+(\.\d+){2,3}$/.test( m[ 2 ] ) ) {
+		console.error( chalk.red( `Invalid version "${ m[ 2 ] }"` ) );
 		process.exit( 1 );
 	}
 	listr.add( pollPackagist( m[ 1 ], m[ 2 ] ) );
@@ -61,11 +61,11 @@ if ( http2Client ) {
 /**
  * Poll packagist until the specified version of the named package is available.
  *
- * @param {string} name         - Package name to poll.
- * @param {string} versionRange - Version number/range to look for.
+ * @param {string} name    - Package name to poll.
+ * @param {string} version - Version number to look for.
  * @return {object} Listr task object.
  */
-function pollPackagist( name, versionRange ) {
+function pollPackagist( name, version ) {
 	const delay = 10 * 1000;
 	const reqHeaders = {
 		[ http2.constants.HTTP2_HEADER_METHOD ]: 'GET',
@@ -74,7 +74,7 @@ function pollPackagist( name, versionRange ) {
 			'Automattic-packagist-poll/1.0 (Source: https://github.com/Automattic/jetpack/blob/trunk/tools/js-tools/await-packagist-updates.mjs)',
 	};
 	return {
-		title: `${ name } ${ versionRange }`,
+		title: `${ name } ${ version }`,
 		task: async ( ctx, task ) => {
 			let i = 0;
 			while ( ! aborter.aborted ) {
@@ -193,12 +193,8 @@ function pollPackagist( name, versionRange ) {
 								try {
 									const data = JSON.parse( chunks.join( '' ) );
 									for ( const ver of data.packages[ name ] ) {
-										const sver = semver.coerce( ver.version_normalized );
-										// Semver can't handle four-point versions, so check for an exact match against Packagist's normalized version.
-										if (
-											ver.version_normalized === versionRange ||
-											( sver && semver.satisfies( sver, versionRange ) )
-										) {
+										// ver.version_normalized removes the 'v', but always uses four-point notation. Easier to just strip the 'v' for comparison.
+										if ( ver.version.replace( /^v/, '' ) === version ) {
 											task.title = `${ name } ${ ver.version }`;
 											return resolve( ver.version );
 										}
