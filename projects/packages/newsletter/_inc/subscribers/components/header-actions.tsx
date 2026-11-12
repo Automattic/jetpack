@@ -19,6 +19,7 @@ type Props = {
 	matchingCount: number;
 	narrowed: boolean;
 	isBulkRemoveRunning: boolean;
+	isBulkRemoveEnabled?: boolean;
 	onRemoveAll: () => void;
 	onRemoveMatching: () => void;
 };
@@ -74,6 +75,8 @@ export function getCsvDownloadUrl(
  * @param props.matchingCount          - Subscribers matching the table's search and filters.
  * @param props.narrowed               - Whether a search or filter is on.
  * @param props.isBulkRemoveRunning    - True while a bulk removal runs; the remove items are disabled.
+ * @param props.isBulkRemoveEnabled    - Whether WP.com has removal turned on for the site; the remove
+ *                                     items are hidden until it does.
  * @param props.onRemoveAll            - Open the confirm dialog for removing everyone.
  * @param props.onRemoveMatching       - Open the confirm dialog for removing the matches.
  * @return Action row.
@@ -87,6 +90,7 @@ export default function HeaderActions( {
 	matchingCount,
 	narrowed,
 	isBulkRemoveRunning,
+	isBulkRemoveEnabled = false,
 	onRemoveAll,
 	onRemoveMatching,
 }: Props ): JSX.Element {
@@ -108,6 +112,7 @@ export default function HeaderActions( {
 						matchingCount={ matchingCount }
 						narrowed={ narrowed }
 						isBulkRemoveRunning={ isBulkRemoveRunning }
+						isBulkRemoveEnabled={ isBulkRemoveEnabled }
 						onRemoveAll={ onRemoveAll }
 						onRemoveMatching={ onRemoveMatching }
 						onClose={ onClose }
@@ -125,6 +130,7 @@ type MoreMenuItemsProps = Pick<
 	| 'matchingCount'
 	| 'narrowed'
 	| 'isBulkRemoveRunning'
+	| 'isBulkRemoveEnabled'
 	| 'onRemoveAll'
 	| 'onRemoveMatching'
 > & {
@@ -140,6 +146,8 @@ type MoreMenuItemsProps = Pick<
  * @param props.matchingCount       - Subscribers matching the table's search and filters.
  * @param props.narrowed            - Whether a search or filter is on.
  * @param props.isBulkRemoveRunning - True while a bulk removal runs; the remove items are disabled.
+ * @param props.isBulkRemoveEnabled - Whether WP.com has removal turned on for the site; the remove
+ *                                  items are hidden until it does.
  * @param props.onRemoveAll         - Open the confirm dialog for removing everyone.
  * @param props.onRemoveMatching    - Open the confirm dialog for removing the matches.
  * @param props.onClose             - Close the menu.
@@ -151,6 +159,7 @@ function MoreMenuItems( {
 	matchingCount,
 	narrowed,
 	isBulkRemoveRunning,
+	isBulkRemoveEnabled,
 	onRemoveAll,
 	onRemoveMatching,
 	onClose,
@@ -184,25 +193,31 @@ function MoreMenuItems( {
 					{ __( 'Download as CSV', 'jetpack-newsletter' ) }
 				</MenuItem>
 			</MenuGroup>
-			<MenuGroup>
-				{ narrowed && matchingCount > 0 ? (
-					<MenuItem isDestructive disabled={ isBulkRemoveRunning } onClick={ handleRemoveMatching }>
-						{ sprintf(
-							// translators: %s: number of subscribers.
-							_n(
-								'Remove %s matching subscriber',
-								'Remove %s matching subscribers',
-								matchingCount,
-								'jetpack-newsletter'
-							),
-							formatNumber( matchingCount )
-						) }
+			{ isBulkRemoveEnabled ? (
+				<MenuGroup>
+					{ narrowed && matchingCount > 0 ? (
+						<MenuItem
+							isDestructive
+							disabled={ isBulkRemoveRunning }
+							onClick={ handleRemoveMatching }
+						>
+							{ sprintf(
+								// translators: %s: number of subscribers.
+								_n(
+									'Remove %s matching subscriber',
+									'Remove %s matching subscribers',
+									matchingCount,
+									'jetpack-newsletter'
+								),
+								formatNumber( matchingCount )
+							) }
+						</MenuItem>
+					) : null }
+					<MenuItem isDestructive disabled={ isBulkRemoveRunning } onClick={ handleRemoveAll }>
+						{ __( 'Remove all subscribers', 'jetpack-newsletter' ) }
 					</MenuItem>
-				) : null }
-				<MenuItem isDestructive disabled={ isBulkRemoveRunning } onClick={ handleRemoveAll }>
-					{ __( 'Remove all subscribers', 'jetpack-newsletter' ) }
-				</MenuItem>
-			</MenuGroup>
+				</MenuGroup>
+			) : null }
 		</>
 	);
 }

@@ -3,6 +3,7 @@ import { addQueryArgs } from '@wordpress/url';
 import type {
 	AddSubscribersResponse,
 	BulkRemoveResponse,
+	BulkRemoveStatusResponse,
 	ImportJob,
 	NewsletterCategoriesData,
 	RemoveSubscriberPayload,
@@ -108,13 +109,14 @@ export function startBulkRemove( {
 
 /**
  * Fetch a bulk removal's progress. Without a job id, WP.com returns the running removal, or else
- * the latest one from the last 30 days, or `{ job: null }`.
+ * the latest one from the last 30 days, or `{ job: null }`. `enabled` says whether the site can
+ * start a removal.
  *
  * @param jobId - Job to read, or undefined for the current one.
- * @return The job, or null.
+ * @return The job, or null, and whether removal is turned on for the site.
  */
-export function fetchBulkRemoveStatus( jobId?: number ): Promise< BulkRemoveResponse > {
-	return apiFetch< BulkRemoveResponse >( {
+export function fetchBulkRemoveStatus( jobId?: number ): Promise< BulkRemoveStatusResponse > {
+	return apiFetch< BulkRemoveStatusResponse >( {
 		path: jobId
 			? addQueryArgs( '/wpcom/v2/subscribers/bulk-remove/status', { job_id: jobId } )
 			: '/wpcom/v2/subscribers/bulk-remove/status',

@@ -601,8 +601,9 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 	/**
 	 * Proxy GET /wpcom/v2/sites/{blog_id}/subscribers/bulk-remove/status: progress and final
-	 * counts of a removal. Without `job_id`, the running removal, or else the latest one; the
-	 * body is `{ job: null }` when the site has none.
+	 * counts of a removal. Without `job_id`, the running removal, or else the latest one; `job`
+	 * is null when the site has none. The body passes through unchanged, including `enabled`,
+	 * which says whether WP.com lets the site start a removal.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error

@@ -99,8 +99,8 @@ describe( 'useStartBulkRemoveMutation', () => {
 			expectedCount: 100,
 		} );
 		expect( queryClient.getQueryData( BULK_REMOVE_QUERY_KEY ) ).toMatchObject( {
-			id: 7,
-			status: 'queued',
+			job: { id: 7, status: 'queued' },
+			enabled: true,
 		} );
 	} );
 
@@ -140,7 +140,30 @@ describe( 'useStartBulkRemoveMutation', () => {
 				.catch( () => undefined );
 		} );
 
-		expect( queryClient.getQueryData( BULK_REMOVE_QUERY_KEY ) ).toMatchObject( { id: 9 } );
+		expect( queryClient.getQueryData( BULK_REMOVE_QUERY_KEY ) ).toMatchObject( {
+			job: { id: 9 },
+		} );
+	} );
+
+	it( 'keeps removal turned on when the refusal shows the running job', async () => {
+		mockStartBulkRemove.mockRejectedValue( {
+			code: 'bulk_remove_in_progress',
+			data: { status: 409, job: buildJob( { id: 9 } ) },
+		} );
+		const { queryClient, wrapper } = setup();
+		queryClient.setQueryData( BULK_REMOVE_QUERY_KEY, { job: null, enabled: true } );
+		const { result } = renderHook( () => useStartBulkRemoveMutation(), { wrapper } );
+
+		await act( async () => {
+			await result.current
+				.mutateAsync( { scope: 'all', filters: [], search: '', expectedCount: 1 } )
+				.catch( () => undefined );
+		} );
+
+		expect( queryClient.getQueryData( BULK_REMOVE_QUERY_KEY ) ).toMatchObject( {
+			job: { id: 9 },
+			enabled: true,
+		} );
 	} );
 
 	it( 'fetches the running removal when the refusal does not include it', async () => {
@@ -174,10 +197,10 @@ describe( 'useBulkRemoveStatus', () => {
 		expect( invalidateSpy ).not.toHaveBeenCalled();
 
 		act( () => {
-			queryClient.setQueryData(
-				BULK_REMOVE_QUERY_KEY,
-				buildJob( { status: 'done', processed: 100, removed: 100, finished_at: 3 } )
-			);
+			queryClient.setQueryData( BULK_REMOVE_QUERY_KEY, {
+				job: buildJob( { status: 'done', processed: 100, removed: 100, finished_at: 3 } ),
+				enabled: true,
+			} );
 		} );
 
 		await waitFor( () =>
@@ -203,6 +226,45 @@ describe( 'useBulkRemoveStatus', () => {
 		await waitFor( () => expect( result.current.job?.status ).toBe( 'done' ) );
 		expect( invalidateSpy ).not.toHaveBeenCalled();
 		expect( mockRecordTracksEvent ).not.toHaveBeenCalled();
+	} );
+
+	it( 'reports removal as on only when WP.com says enabled is true', async () => {
+		mockFetchBulkRemoveStatus.mockResolvedValue( { job: null, enabled: true } );
+		const { wrapper } = setup();
+		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isEnabled ).toBe( true ) );
+		expect( result.current.job ).toBeNull();
+	} );
+
+	it( 'reports removal as off when enabled is false, and still shows the job', async () => {
+		mockFetchBulkRemoveStatus.mockResolvedValue( {
+			job: buildJob( { status: 'done' } ),
+			enabled: false,
+		} );
+		const { wrapper } = setup();
+		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+
+		await waitFor( () => expect( result.current.job?.status ).toBe( 'done' ) );
+		expect( result.current.isEnabled ).toBe( false );
+	} );
+
+	it( 'reports removal as off when WP.com does not send enabled', async () => {
+		mockFetchBulkRemoveStatus.mockResolvedValue( { job: null } );
+		const { wrapper } = setup();
+		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+
+		await waitFor( () => expect( mockFetchBulkRemoveStatus ).toHaveBeenCalled() );
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( result.current.isEnabled ).toBe( false );
+	} );
+
+	it( 'reports removal as off before the status loads', () => {
+		mockFetchBulkRemoveStatus.mockReturnValue( new Promise( () => undefined ) );
+		const { wrapper } = setup();
+		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+
+		expect( result.current.isEnabled ).toBe( false );
 	} );
 
 	it( 'fetches nothing when disabled', () => {

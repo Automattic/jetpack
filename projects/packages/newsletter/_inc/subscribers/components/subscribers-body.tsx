@@ -170,11 +170,13 @@ export default function SubscribersBody( {
 	);
 
 	// The site's running or latest bulk removal. Polled while it runs, so the progress notice and
-	// the disabled remove buttons survive leaving the page and coming back.
-	const { job: bulkRemoveJob, isActive: isBulkRemoveRunning } = useBulkRemoveStatus(
-		importRefreshEnabled,
-		handleBulkRemoveFinished
-	);
+	// the disabled remove buttons survive leaving the page and coming back. The remove actions only
+	// show once WP.com says removal is turned on for this site; the notice shows either way.
+	const {
+		job: bulkRemoveJob,
+		isActive: isBulkRemoveRunning,
+		isEnabled: isBulkRemoveEnabled,
+	} = useBulkRemoveStatus( importRefreshEnabled, handleBulkRemoveFinished );
 
 	const openRemoveAll = useCallback( () => setBulkRemoveScope( 'all' ), [] );
 	const openRemoveMatching = useCallback( () => setBulkRemoveScope( 'matching' ), [] );
@@ -194,10 +196,11 @@ export default function SubscribersBody( {
 				onListChange={ setList }
 				onRequestBulkRemove={ setBulkRemoveScope }
 				isBulkRemoveRunning={ isBulkRemoveRunning }
+				isBulkRemoveEnabled={ isBulkRemoveEnabled }
 			/>
 			<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
 			<BulkRemoveModal
-				scope={ isBulkRemoveRunning ? null : bulkRemoveScope }
+				scope={ isBulkRemoveRunning || ! isBulkRemoveEnabled ? null : bulkRemoveScope }
 				query={ exportQuery }
 				examples={ list.examples }
 				blogId={ blogId }
@@ -217,6 +220,7 @@ export default function SubscribersBody( {
 			matchingCount={ list.total }
 			narrowed={ isNarrowed( exportQuery.filters, exportQuery.search ) }
 			isBulkRemoveRunning={ isBulkRemoveRunning }
+			isBulkRemoveEnabled={ isBulkRemoveEnabled }
 			onRemoveAll={ openRemoveAll }
 			onRemoveMatching={ openRemoveMatching }
 		/>

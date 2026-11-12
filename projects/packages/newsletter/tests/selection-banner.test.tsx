@@ -93,6 +93,26 @@ describe( 'SelectionBanner', () => {
 		expect( screen.getByRole( 'button', { name: 'Remove 8 subscribers' } ) ).toBeInTheDocument();
 	} );
 
+	it( 'offers only this page when selecting across pages is off', () => {
+		render( <SelectionBanner { ...baseProps } canSelectAll={ false } /> );
+
+		expect(
+			screen.getByText( 'All 20 subscribers on this page are selected.' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Select all/ } ) ).not.toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Remove these 20' } ) );
+		expect( baseProps.onRemovePage ).toHaveBeenCalled();
+	} );
+
+	it( 'never offers to remove everyone when selecting across pages is off', () => {
+		render( <SelectionBanner { ...baseProps } isAllSelected canSelectAll={ false } /> );
+
+		expect(
+			screen.queryByRole( 'button', { name: 'Remove 15,000 subscribers' } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Remove these 20' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'disables removal while a removal runs', () => {
 		render( <SelectionBanner { ...baseProps } isAllSelected disabled /> );
 

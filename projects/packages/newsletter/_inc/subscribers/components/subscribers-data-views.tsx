@@ -57,6 +57,7 @@ type Props = {
 	onListChange: ( list: { total: number; examples: string[] } ) => void;
 	onRequestBulkRemove: ( scope: BulkRemoveScope ) => void;
 	isBulkRemoveRunning: boolean;
+	isBulkRemoveEnabled?: boolean;
 };
 
 /**
@@ -72,6 +73,8 @@ type Props = {
  * @param props.onListChange         - Reports the matching total and the first emails on the page, for the bulk remove menu item and dialog.
  * @param props.onRequestBulkRemove  - Open the bulk remove dialog, once every matching subscriber is selected.
  * @param props.isBulkRemoveRunning  - True while a bulk removal runs; the banner's remove buttons are disabled.
+ * @param props.isBulkRemoveEnabled  - Whether WP.com has removal turned on for the site. Until it
+ *                                   does, the banner offers no "Select all N" and removal stays per page.
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews( {
@@ -83,6 +86,7 @@ export default function SubscribersDataViews( {
 	onListChange,
 	onRequestBulkRemove,
 	isBulkRemoveRunning,
+	isBulkRemoveEnabled = false,
 }: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
@@ -334,7 +338,7 @@ export default function SubscribersDataViews( {
 				callback: ( items: Subscriber[] ) => {
 					// DataViews does not say whether this came from the bulk bar or a row menu, so a
 					// whole-page call while everyone is selected means everyone.
-					if ( isAllSelected && items.length === pageIds.length ) {
+					if ( isBulkRemoveEnabled && isAllSelected && items.length === pageIds.length ) {
 						onRequestBulkRemove( narrowed ? 'matching' : 'all' );
 						return;
 					}
@@ -346,6 +350,7 @@ export default function SubscribersDataViews( {
 			onViewSubscriber,
 			canShowCompAction,
 			sendBounceConfirmation,
+			isBulkRemoveEnabled,
 			isAllSelected,
 			pageIds,
 			narrowed,
@@ -446,7 +451,12 @@ export default function SubscribersDataViews( {
 		setAllSelected( false );
 	}, [] );
 
-	const selectAll = useCallback( () => setAllSelected( true ), [] );
+	// Selecting across pages leads to the background job, so it needs removal turned on for the site.
+	const selectAll = useCallback( () => {
+		if ( isBulkRemoveEnabled ) {
+			setAllSelected( true );
+		}
+	}, [ isBulkRemoveEnabled ] );
 	const removeSelectedOnPage = useCallback(
 		() => setPendingRemoval( selectedOnPage ),
 		[ selectedOnPage ]
@@ -537,6 +547,7 @@ export default function SubscribersDataViews( {
 						narrowed={ narrowed }
 						isAllSelected={ isAllSelected }
 						disabled={ isBulkRemoveRunning }
+						canSelectAll={ isBulkRemoveEnabled }
 						onSelectAll={ selectAll }
 						onRemovePage={ removeSelectedOnPage }
 						onRemoveAll={ requestBulkRemoveOfSelection }

@@ -2,7 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from '@wordpress/element';
 import { recordTracksEvent } from '../lib/tracks';
 import { fetchBulkRemoveStatus, fetchSubscribers, startBulkRemove } from './api';
-import type { BulkRemoveJob, BulkRemoveJobStatus, SubscribersFilter } from './types';
+import type {
+	BulkRemoveJob,
+	BulkRemoveJobStatus,
+	BulkRemoveState,
+	SubscribersFilter,
+} from './types';
 
 export const BULK_REMOVE_QUERY_KEY = [ 'subscribers-bulk-remove' ] as const;
 
@@ -27,20 +32,28 @@ export function isBulkRemoveActive( job: BulkRemoveJob | null | undefined ): boo
  * When a running job finishes, the subscriber list and details are refetched and `_finished` is
  * recorded.
  *
+ * The same response says whether the site can start a removal. WP.com turns owner removal on per
+ * site, and a response without `enabled` counts as off, so the remove actions stay hidden.
+ *
  * @param enabled    - Whether to fetch at all (false off the Subscribers tab).
  * @param onFinished - Called once when a job this screen saw running finishes.
- * @return The job (null when the site has none) and whether it is still running.
+ * @return The job (null when the site has none), whether it is still running, and whether the
+ * site can start a removal.
  */
 export function useBulkRemoveStatus( enabled = true, onFinished?: ( job: BulkRemoveJob ) => void ) {
 	const queryClient = useQueryClient();
-	const query = useQuery( {
+	const query = useQuery< BulkRemoveState >( {
 		queryKey: BULK_REMOVE_QUERY_KEY,
-		queryFn: async () => ( await fetchBulkRemoveStatus() ).job ?? null,
+		queryFn: async () => {
+			const response = await fetchBulkRemoveStatus();
+			return { job: response.job ?? null, enabled: response.enabled === true };
+		},
 		enabled,
-		refetchInterval: q => ( isBulkRemoveActive( q.state.data ) ? POLL_MS : false ),
+		refetchInterval: q => ( isBulkRemoveActive( q.state.data?.job ) ? POLL_MS : false ),
 	} );
 
-	const job = query.data ?? null;
+	const job = query.data?.job ?? null;
+	const isEnabled = query.data?.enabled === true;
 	const isActive = isBulkRemoveActive( job );
 
 	// Remember which job we saw running, so the finish is handled once, and not for a job that
@@ -74,7 +87,7 @@ export function useBulkRemoveStatus( enabled = true, onFinished?: ( job: BulkRem
 		}
 	}, [ job, isActive, queryClient ] );
 
-	return { job, isActive, isLoading: query.isLoading };
+	return { job, isActive, isEnabled, isLoading: query.isLoading };
 }
 
 export type BulkRemoveScope = 'all' | 'matching';
@@ -107,16 +120,21 @@ export function useStartBulkRemoveMutation() {
 		onSuccess: async job => {
 			// A status response already in flight is older than this job, so it must not land after it.
 			await queryClient.cancelQueries( { queryKey: BULK_REMOVE_QUERY_KEY } );
-			queryClient.setQueryData( BULK_REMOVE_QUERY_KEY, job );
+			// WP.com only starts a job when removal is on for the site.
+			queryClient.setQueryData< BulkRemoveState >( BULK_REMOVE_QUERY_KEY, { job, enabled: true } );
 		},
 		onError: async error => {
 			if ( error?.code !== 'bulk_remove_in_progress' ) {
 				return;
 			}
 			// Another removal is running: show it, or fetch it when the error does not carry it.
-			if ( error.data?.job ) {
+			const runningJob = error.data?.job;
+			if ( runningJob ) {
 				await queryClient.cancelQueries( { queryKey: BULK_REMOVE_QUERY_KEY } );
-				queryClient.setQueryData( BULK_REMOVE_QUERY_KEY, error.data.job );
+				queryClient.setQueryData< BulkRemoveState >( BULK_REMOVE_QUERY_KEY, old => ( {
+					job: runningJob,
+					enabled: old?.enabled ?? false,
+				} ) );
 			} else {
 				queryClient.invalidateQueries( { queryKey: BULK_REMOVE_QUERY_KEY } );
 			}

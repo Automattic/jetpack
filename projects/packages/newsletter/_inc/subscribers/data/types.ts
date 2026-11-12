@@ -158,6 +158,22 @@ export type BulkRemoveResponse = {
 	job: BulkRemoveJob | null;
 };
 
+/**
+ * The `status` route's body. `enabled` says whether owner removal is turned on for the site
+ * (WP.com turns it on per site). An older WP.com that does not send it counts as off.
+ */
+export type BulkRemoveStatusResponse = BulkRemoveResponse & {
+	enabled?: boolean;
+};
+
+/**
+ * What the screen keeps for bulk removal: the latest job and whether the site can start one.
+ */
+export type BulkRemoveState = {
+	job: BulkRemoveJob | null;
+	enabled: boolean;
+};
+
 export type AddSubscribersResponse = {
 	// Async import job id returned by `/sites/{id}/subscribers/import`.
 	upload_id?: number;

@@ -12,6 +12,7 @@ type Props = {
 	narrowed: boolean;
 	isAllSelected: boolean;
 	disabled: boolean;
+	canSelectAll?: boolean;
 	onSelectAll: () => void;
 	onRemovePage: () => void;
 	onRemoveAll: () => void;
@@ -30,6 +31,9 @@ type Props = {
  * @param props.narrowed      - Whether a search or filter is on.
  * @param props.isAllSelected - Whether "Select all N" was clicked.
  * @param props.disabled      - True while a removal runs.
+ * @param props.canSelectAll  - Whether to offer "Select all N". Selecting across pages starts the
+ *                            background job, so this is off until WP.com turns removal on for the
+ *                            site; the banner then offers only this page's rows.
  * @param props.onSelectAll   - Select every matching subscriber.
  * @param props.onRemovePage  - Remove the rows on this page, the existing way.
  * @param props.onRemoveAll   - Open the bulk confirm for every matching subscriber.
@@ -44,6 +48,7 @@ export default function SelectionBanner( {
 	narrowed,
 	isAllSelected,
 	disabled,
+	canSelectAll = true,
 	onSelectAll,
 	onRemovePage,
 	onRemoveAll,
@@ -70,7 +75,7 @@ export default function SelectionBanner( {
 	const n = formatNumber( matchingCount );
 	const k = formatNumber( pageCount );
 
-	if ( isAllSelected ) {
+	if ( isAllSelected && canSelectAll ) {
 		return (
 			<Notice.Root intent="neutral" className="jetpack-newsletter__selection-banner">
 				<Notice.Description>
@@ -171,29 +176,31 @@ export default function SelectionBanner( {
 				) }
 			</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionButton variant="minimal" onClick={ onSelectAll } disabled={ disabled }>
-					{ narrowed
-						? sprintf(
-								// translators: %s: number of subscribers.
-								_n(
-									'Select %s matching subscriber',
-									'Select all %s matching subscribers',
-									matchingCount,
-									'jetpack-newsletter'
-								),
-								n
-							)
-						: sprintf(
-								// translators: %s: number of subscribers.
-								_n(
-									'Select %s subscriber',
-									'Select all %s subscribers',
-									matchingCount,
-									'jetpack-newsletter'
-								),
-								n
-							) }
-				</Notice.ActionButton>
+				{ canSelectAll ? (
+					<Notice.ActionButton variant="minimal" onClick={ onSelectAll } disabled={ disabled }>
+						{ narrowed
+							? sprintf(
+									// translators: %s: number of subscribers.
+									_n(
+										'Select %s matching subscriber',
+										'Select all %s matching subscribers',
+										matchingCount,
+										'jetpack-newsletter'
+									),
+									n
+								)
+							: sprintf(
+									// translators: %s: number of subscribers.
+									_n(
+										'Select %s subscriber',
+										'Select all %s subscribers',
+										matchingCount,
+										'jetpack-newsletter'
+									),
+									n
+								) }
+					</Notice.ActionButton>
+				) : null }
 				<Notice.ActionButton onClick={ onRemovePage } disabled={ disabled }>
 					{ sprintf(
 						// translators: %s: number of subscribers on this page.

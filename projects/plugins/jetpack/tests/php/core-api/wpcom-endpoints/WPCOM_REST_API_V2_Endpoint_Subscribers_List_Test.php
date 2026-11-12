@@ -405,6 +405,46 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	}
 
 	/**
+	 * `/subscribers/bulk-remove/status` forwards to the wpcom
+	 * `/sites/{blog_id}/subscribers/bulk-remove/status` (v2) endpoint and returns its body
+	 * unchanged, `enabled` included, so the screen knows whether the site can start a removal.
+	 */
+	public function test_bulk_remove_status_forwards_and_passes_enabled_through() {
+		$body         = array(
+			'job'     => null,
+			'enabled' => true,
+		);
+		$captured_url = '';
+		$filter       = function ( $preempt, $parsed_args, $url ) use ( &$captured_url, $body ) {
+			$captured_url = $url;
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/subscribers/bulk-remove/status' );
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( $body, $response->get_data() );
+		$this->assertStringContainsString(
+			'/wpcom/v2/sites/' . static::$blog_id . '/subscribers/bulk-remove/status',
+			$captured_url
+		);
+	}
+
+	/**
 	 * `/subscribers/remove` rejects payloads with no identifiers at all — protects WP.com from
 	 * receiving a no-op cascade.
 	 */
