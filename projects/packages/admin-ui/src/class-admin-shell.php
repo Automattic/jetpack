@@ -118,7 +118,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool, kind: string, render: callable|null}>
+	 * @return array<string, array{build_prefix?: string, build_page?: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool, kind: string, render?: callable}>
 	 */
 	public static function get_members() {
 		/**
@@ -276,10 +276,14 @@ class Admin_Shell {
 	 * @return array[]|null Routes, or null when the guest's build or its routes aren't there.
 	 */
 	private static function load_guest( $member ) {
+		// Its scripts come from the guest endpoint and boot the page as they run.
+		if ( self::KIND_SCRIPT === $member['kind'] ) {
+			return array();
+		}
+
 		$snapshot = self::hook_snapshot();
 		call_user_func( $member['load'] );
-		// A script member's scripts come from the guest endpoint and boot the page as they run.
-		$routes = self::KIND_SCRIPT === $member['kind'] ? array() : self::run_page_init( $member );
+		$routes = self::run_page_init( $member );
 		self::remove_added_callbacks( $snapshot );
 
 		return $routes;
@@ -562,19 +566,14 @@ class Admin_Shell {
 			return null;
 		}
 
-		$kind = $member['kind'] ?? 'wp-build';
-		if ( self::KIND_SCRIPT === $kind ) {
-			if ( ! isset( $member['render'] ) || ! is_callable( $member['render'] ) ) {
-				return null;
-			}
-			$member += array(
-				'build_prefix' => '',
-				'build_page'   => '',
-			);
-		} elseif ( 'wp-build' !== $kind ) {
+		$kind     = $member['kind'] ?? 'wp-build';
+		$required = array(
+			'wp-build'        => self::REQUIRED_STRING_KEYS,
+			self::KIND_SCRIPT => array( 'title' ),
+		)[ $kind ] ?? null;
+		if ( null === $required || ( self::KIND_SCRIPT === $kind && ! is_callable( $member['render'] ?? null ) ) ) {
 			return null;
 		}
-		$required = self::KIND_SCRIPT === $kind ? array( 'title' ) : self::REQUIRED_STRING_KEYS;
 		foreach ( $required as $key ) {
 			if ( ! isset( $member[ $key ] ) || ! is_string( $member[ $key ] ) || '' === $member[ $key ] ) {
 				return null;
@@ -593,7 +592,6 @@ class Admin_Shell {
 			'handles'      => array(),
 			'media'        => false,
 			'kind'         => $kind,
-			'render'       => null,
 		);
 
 		if (

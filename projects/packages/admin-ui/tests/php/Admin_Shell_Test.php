@@ -164,8 +164,6 @@ class Admin_Shell_Test extends TestCase {
 					'render' => '__return_null',
 				),
 				array(
-					'build_prefix' => '',
-					'build_page'   => '',
 					'init_modules' => array(),
 					'default_path' => null,
 					'capability'   => 'manage_options',
@@ -189,10 +187,7 @@ class Admin_Shell_Test extends TestCase {
 	public function test_get_members_fills_in_only_missing_keys( $member, $optional ) {
 		$this->add_members( array( 'jetpack-forms-admin' => $member ) );
 
-		$expected = $optional + $member + array(
-			'kind'   => 'wp-build',
-			'render' => null,
-		);
+		$expected = $optional + $member + array( 'kind' => 'wp-build' );
 		$actual   = Admin_Shell::get_members()['jetpack-forms-admin'] ?? array();
 		ksort( $expected );
 		ksort( $actual );

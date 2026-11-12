@@ -13,8 +13,8 @@ import {
 import { createApp, whenRendered } from './app';
 import { announcePage, menuLabel, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
-import { applyGuestAssets } from './guest-assets';
-import { configureHeaders, rememberHeader, removeHeader, showHeader } from './header';
+import { addGuestAssets, applyGuestAssets, fetchGuestAssets } from './guest-assets';
+import { configureHeaders, rememberHeader, removeHeader, showHeader, wrapInCopies } from './header';
 import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } from './overlays';
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
@@ -89,6 +89,11 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		}
 	);
 
+	// Pages that aren't built with wp-build: their own scripts boot them.
+	const isScript = slug => members[ slug ].kind === 'script';
+	// A script page's header is styled from another origin, so a saved copy would show unstyled.
+	const remember = ( slug, el ) => isScript( slug ) || rememberHeader( slug, el );
+
 	const isMemberUrl = href => {
 		const url = new URL( href, location.href );
 		return (
@@ -116,9 +121,14 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		if ( warm[ slug ] ) {
 			return warm[ slug ];
 		}
-		// A script member's scripts boot it as they run, so nothing can be done ahead of the switch.
-		if ( members[ slug ].kind === 'script' ) {
-			return Promise.resolve( null );
+		// Its scripts boot it as they run, so only their download can happen ahead of the switch.
+		if ( isScript( slug ) ) {
+			log( 'prewarm', `${ slug }: fetching its scripts (${ reason })` );
+			warm[ slug ] = fetchGuestAssets( guestAssetsUrl, slug ).catch( error => {
+				delete warm[ slug ];
+				throw error;
+			} );
+			return warm[ slug ];
 		}
 		const total = stopwatch();
 		log( 'prewarm', `${ slug }: start (${ reason })` );
@@ -178,70 +188,13 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	const markReady = app => {
 		app.to( 'ready' );
 		app.place( visible === app.slug );
-		if ( members[ app.slug ].kind !== 'script' ) {
-			rememberHeader( app.slug, app.el );
-			// Tab bars and actions often render just after the heading.
-			setTimeout( () => visible === app.slug && rememberHeader( app.slug, app.el ), 1000 );
-		}
+		remember( app.slug, app.el );
+		// Tab bars and actions often render just after the heading.
+		setTimeout( () => visible === app.slug && remember( app.slug, app.el ), 1000 );
 	};
 
-	// Empty copies of the host's layout wrappers, so the page gets the same rounded stage.
-	const stageFrame = () => {
-		const stage = hostEl.querySelector( '[class*="__stage"]' );
-		if ( ! stage ) {
-			return null;
-		}
-		const inner = stage.cloneNode( false );
-		let frame = inner;
-		for ( let node = stage.parentElement; node && node !== hostEl; node = node.parentElement ) {
-			const wrapper = node.cloneNode( false );
-			wrapper.append( frame );
-			frame = wrapper;
-		}
-		for ( const node of [ frame, ...frame.querySelectorAll( '*' ) ] ) {
-			node.removeAttribute( 'id' );
-		}
-		return { frame, inner };
-	};
-
-	// Its markup goes in first: the scripts mount into it as soon as they run.
-	const bootScriptGuest = async slug => {
-		const el = document.createElement( 'section' );
-		el.id = members[ slug ].mountId;
-		el.className = hostEl.className;
-		const layout = stageFrame();
-		( layout?.inner ?? el ).innerHTML = members[ slug ].markup ?? '';
-		if ( layout ) {
-			el.append( layout.frame );
-		}
-		[ ...apps.values() ].at( -1 ).el.after( el );
-		const app = createApp( slug, el );
-		apps.set( slug, app );
-		gate.mount( slug );
-		try {
-			const step = stopwatch();
-			const added = await oneAtATime( () => applyGuestAssets( guestAssetsUrl, slug ) );
-			// Unscoped CSS, such as a global reset, would restyle the other apps while this one is hidden.
-			app.styles = added.styleNodes;
-			app.place( visible === slug );
-			log( 'switch', `${ slug }: scripts fetched and run in ${ step() }`, added );
-			await whenRendered( el, RENDER_TIMEOUT );
-			log( 'switch', `${ slug }: rendered ${ step() } after the switch` );
-		} catch ( error ) {
-			apps.delete( slug );
-			el.remove();
-			throw error;
-		} finally {
-			gate.mounted( slug );
-		}
-		markReady( app );
-	};
-
-	const bootGuest = async ( slug, url ) => {
-		if ( members[ slug ].kind === 'script' ) {
-			return bootScriptGuest( slug );
-		}
-		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
+	// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
+	const mountSection = slug => {
 		const el = document.createElement( 'section' );
 		el.id = members[ slug ].mountId;
 		el.className = hostEl.className;
@@ -252,6 +205,54 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			apps.delete( slug );
 			el.remove();
 		};
+		return { el, app, discard };
+	};
+
+	// Inside empty copies of the host's layout wrappers, so the page gets the same rounded stage.
+	const stageOf = el => {
+		const stage = hostEl.querySelector( '[class*="__stage"]' );
+		if ( ! stage ) {
+			log( 'switch', 'no stage on the host page: the script page shows without one' );
+			return el;
+		}
+		const inner = stage.cloneNode( false );
+		inner.removeAttribute( 'id' );
+		// A stable hook for the page's own CSS: boot's class names are hashed.
+		inner.classList.add( 'jetpack-admin-shell__stage' );
+		el.append( wrapInCopies( inner, stage.parentElement, hostEl ) );
+		return inner;
+	};
+
+	// Its markup goes in first: the scripts mount into it as soon as they run.
+	const bootScriptGuest = async slug => {
+		const { el, app, discard } = mountSection( slug );
+		stageOf( el ).innerHTML = members[ slug ].markup;
+		gate.mount( slug );
+		try {
+			const step = stopwatch();
+			const html = await prewarm( slug, 'switch' );
+			const added = await oneAtATime( () => addGuestAssets( html ) );
+			// Unscoped CSS, such as a global reset, would restyle the other apps while this one is hidden.
+			app.styles = added.styleNodes;
+			app.place( visible === slug );
+			log( 'switch', `${ slug }: scripts fetched and run in ${ step() }`, added );
+			await whenRendered( el, RENDER_TIMEOUT );
+			log( 'switch', `${ slug }: rendered ${ step() } after the switch` );
+		} catch ( error ) {
+			delete warm[ slug ];
+			discard();
+			throw error;
+		} finally {
+			gate.mounted( slug );
+		}
+		markReady( app );
+	};
+
+	const bootGuest = async ( slug, url ) => {
+		if ( isScript( slug ) ) {
+			return bootScriptGuest( slug );
+		}
+		const { el, app, discard } = mountSection( slug );
 		const removeStandIn = showHeaderAt( slug, el, url );
 
 		try {
@@ -312,9 +313,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		const elapsed = stopwatch();
 		log( 'switch', `${ via }: ${ previous } → ${ slug }`, url );
 		if ( apps.get( previous )?.state === 'visible' ) {
-			if ( members[ previous ].kind !== 'script' ) {
-				rememberHeader( previous, apps.get( previous ).el );
-			}
+			remember( previous, apps.get( previous ).el );
 			scrollOf[ previous ] = window.scrollY;
 		}
 		// Hide the outgoing app before the URL changes, so its router never sees the new URL.
@@ -342,8 +341,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				app.place( true );
 				window.scrollTo( 0, scrollOf[ slug ] ?? 0 );
 				// On Back/Forward the browser's own popstate reaches the app; a second one would re-navigate.
-				// Script apps skip it: calypso-router throws on a popstate whose state has no `path`.
-				if ( push && members[ slug ].kind !== 'script' ) {
+				if ( push ) {
 					notifyRouters();
 				}
 			} else {
