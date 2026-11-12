@@ -2079,16 +2079,17 @@ class Helpers_Test extends TestCase {
 	}
 
 	/**
-	 * A site that is private through its blog_public setting stays private whatever plugins are active.
+	 * A site that Status reports as private stays private whatever plugins are active.
 	 */
 	public function test_private_site_stays_private_without_login_wall_plugins() {
 		Status_Cache::clear();
-		update_option( 'blog_public', '-1' );
+		add_filter( 'jetpack_is_private_site', '__return_true' );
 		update_option( 'active_plugins', array( 'akismet/akismet.php' ) );
 
 		$this->assertTrue( Helper::is_private_or_login_walled_site() );
 
-		delete_option( 'blog_public' );
+		remove_filter( 'jetpack_is_private_site', '__return_true' );
 		delete_option( 'active_plugins' );
+		Status_Cache::clear();
 	}
 }

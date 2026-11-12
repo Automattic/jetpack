@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Search;
 
-
 /**
  * Registers Jetpack Search Interactivity API blocks and initializes their shared state.
  */
