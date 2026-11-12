@@ -142,6 +142,8 @@ type HeatmapTooltipData = {
 	groupLabel?: string;
 	/** Per-cell label from `HeatmapCell.label`. */
 	cellLabel?: string;
+	/** `HeatmapCell.partial`: the period is unfinished. The default tooltip says "(incomplete)" after the name; a custom one should say it too, since the hatch alone does not explain itself. */
+	partial?: boolean;
 	/** Zero-based row index of the cell. */
 	row: number;
 	/** Zero-based column index of the cell. */

@@ -101,6 +101,9 @@ const cellName = ( info: HeatmapTooltipData ) =>
 	info.cellLabel ||
 	[ info.groupLabel, info.columnLabel, info.rowLabel ].filter( Boolean ).join( ' ' );
 
+const incompleteSuffix = ( partial?: boolean ) =>
+	partial ? ` ${ __( '(incomplete)', 'jetpack-charts' ) }` : '';
+
 const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	data,
 	chartId: providedChartId,
@@ -299,6 +302,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 				columnLabel: data[ columnIndex ]?.label,
 				groupLabel: group === undefined ? undefined : groupLayout.groups[ group ]?.label,
 				cellLabel: cell?.label,
+				partial: cell?.partial === true,
 				row: rowIndex,
 				column: columnIndex,
 			};
@@ -442,7 +446,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const defaultRenderTooltip = useCallback(
 		( info: HeatmapTooltipData ) => (
 			<div>
-				<strong>{ cellName( info ) }</strong>
+				<strong>
+					{ cellName( info ) }
+					{ incompleteSuffix( info.partial ) }
+				</strong>
 				<div>
 					{ info.value === null ? __( 'No data', 'jetpack-charts' ) : formatNumber( info.value ) }
 				</div>
@@ -691,9 +698,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											info.value === null
 												? __( 'No data', 'jetpack-charts' )
 												: formatNumber( info.value );
-										const accessibleLabel = `${ cellName( info ) }: ${ valueLabel }${
-											partial ? ` ${ __( '(incomplete)', 'jetpack-charts' ) }` : ''
-										}`;
+										const accessibleLabel = `${ cellName( info ) }: ${ valueLabel }${ incompleteSuffix(
+											partial
+										) }`;
 
 										return (
 											<div

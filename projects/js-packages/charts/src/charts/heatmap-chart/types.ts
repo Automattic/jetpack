@@ -57,6 +57,8 @@ export type HeatmapTooltipData = {
 	/** Label of the column group the cell falls in, if any. */
 	groupLabel?: string;
 	cellLabel?: string;
+	/** The cell's period is unfinished; the default tooltip says so after the name. */
+	partial?: boolean;
 	row: number;
 	column: number;
 };

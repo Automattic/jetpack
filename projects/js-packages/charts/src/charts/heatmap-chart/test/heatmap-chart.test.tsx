@@ -1362,6 +1362,26 @@ describe( 'HeatmapChart partial cells', () => {
 		expect( partial ).toHaveAccessibleName( /November: 400/ );
 	} );
 
+	test( 'says in the tooltip that a partial period is incomplete', async () => {
+		renderChart( { data: withPartial, withTooltips: true } );
+
+		await userEvent.setup().hover( screen.getByTestId( 'heatmap-cell-partial' ) );
+
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+			'November (incomplete)'
+		);
+	} );
+
+	test( 'passes the partial flag to a custom tooltip', async () => {
+		const renderTooltip = jest.fn( () => <span>custom</span> );
+		renderChart( { data: withPartial, withTooltips: true, renderTooltip } );
+
+		await userEvent.setup().hover( screen.getByTestId( 'heatmap-cell-partial' ) );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+
+		expect( renderTooltip ).toHaveBeenCalledWith( expect.objectContaining( { partial: true } ) );
+	} );
+
 	test( 'says in the accessible name that a partial period is incomplete', () => {
 		renderChart( { data: withPartial } );
 
