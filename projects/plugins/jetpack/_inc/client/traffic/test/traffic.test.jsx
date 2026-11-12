@@ -6,7 +6,10 @@ jest.mock( 'components/pointer-card', () => ( {
 	FeaturesPointer: ( { search } ) => `${ search } pointer`,
 } ) );
 jest.mock( '../blaze', () => () => 'blaze card' );
-jest.mock( '../google-analytics', () => ( { GoogleAnalytics: () => null } ) );
+jest.mock( '../google-analytics', () => ( { GoogleAnalytics: () => 'ga card' } ) );
+jest.mock( '../google-analytics-moved', () => ( {
+	GoogleAnalyticsMoved: () => 'ga pointer',
+} ) );
 jest.mock( '../related-posts', () => ( { RelatedPosts: () => 'related-posts card' } ) );
 jest.mock( '../related-posts-moved', () => ( {
 	RelatedPostsMoved: () => 'related-posts pointer',
@@ -24,6 +27,7 @@ const findsOnly = {
 	'related-posts': module => module === 'related-posts',
 	blaze: module => module === 'blaze',
 	shortlinks: module => module === 'shortlinks',
+	ga: () => false,
 };
 
 describe( 'Traffic settings', () => {
@@ -58,11 +62,16 @@ describe( 'Traffic settings', () => {
 		[ 'shortlinks', 'off, in the tab', false, '', [ 'shortlinks card' ], '' ],
 		[ 'shortlinks', 'on, in the tab', true, '', [], '' ],
 		[ 'shortlinks', 'on, in a search', true, 'shortlinks', [ 'shortlinks pointer' ], '' ],
+		[ 'ga', 'off, in the tab', false, '', [ 'ga card' ], 'woa' ],
+		[ 'ga', 'on, in the tab', true, '', [], 'woa' ],
+		[ 'ga', 'on, in a search', true, 'analytics', [ 'ga pointer' ], 'woa' ],
+		[ 'ga', 'on, in another search', true, 'sitemap', [], 'woa' ],
+		[ 'ga', 'on without the panel', true, '', [ 'ga card' ], 'woa', false ],
 	] )(
 		'shows %s with the settings flag %s',
-		( module, _when, flag, searchTerm, expected, host ) => {
+		( module, _when, flag, searchTerm, expected, host, gaPanel = true ) => {
 			window.JetpackScriptData = {
-				myJetpack: { settingsConsolidation: flag },
+				myJetpack: { settingsConsolidation: flag, googleAnalyticsPanel: gaPanel },
 				site: { host },
 			};
 			try {

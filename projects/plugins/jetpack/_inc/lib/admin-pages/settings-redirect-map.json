@@ -2,7 +2,7 @@
 	"description": "Where each Jetpack Settings hash route and ?term= search goes once the Settings screen retires. Nothing reads it yet: the redirect document that page=jetpack-settings and the page=jetpack forwarder (Jetpack_React_Page) will print resolves these rules in PHP, since the server never sees the hash. It applies only while Initializer::is_settings_consolidation_enabled() is true. The Network Admin jetpack-settings page is out of scope. It is production-excluded in .gitattributes; the PR that first reads it must remove that exclusion.",
 	"matching": "`everySource` runs before any route or term rule. A term matches its decoded value, case-insensitively, before its route; an unmatched term falls back to its route. On page=jetpack-settings, an empty hash (the bare menu link) or an unknown route gets the /settings rules, as main.jsx does. On page=jetpack, an unknown route never reaches these rules: the forwarder (Jetpack_React_Page::get_legacy_route_redirects()) sends it to My Jetpack for admins and to Settings for everyone else, as it does today, so #/my-plan, #/dashboard and #/stats keep landing on My Jetpack. In each list, the first rule whose `when` all hold wins, and a rule without `when` is the default. A rule with `pending` keeps the source on Settings until each marker clears: `D<n>` is an open decision, `JETPACK-<n>` an issue that must land, `flag:<name>` a feature flag that must retire, `error-notice-home` a new home for the Jetpack::state( 'error' ) notice, which only Settings shows today, and `monetize-page` a Monetize page that shows the Ads settings (its flag on and the `monetize` module active), without which the Ads settings stay on Settings. A `destination` next to `pending` is where the source goes once it clears. A settings panel destination (`configure=`) waits on the issue that gives the panel that module's settings, since until then the panel's fallback links back here through configure_url. Destinations are relative to wp-admin. My Jetpack `#/` links work on every My Jetpack version, since its router rewrites them to `?p=`.",
 	"decisions": {
-		"D7": "Where Google Analytics settings go on Atomic (the SEO page, or Stats settings).",
+		"D7": "Where Google Analytics settings go on Atomic sites where the settings panel does not offer them (googleAnalyticsPanel is false).",
 		"D9": "Where users who cannot manage modules find Post by Email, Publicize and their own account connection, since Features needs manage_options.",
 		"D10": "What happens to the legacy SEO block on self-hosted sites that have not opted in to the SEO page.",
 		"D11": "Where the per-user usage tracking (Privacy) setting lives."
@@ -17,7 +17,8 @@
 		"socialPage": "Publicize registered admin.php?page=jetpack-social for this user (siteData.hasSocialPage), which its host, connection and jetpack_publicize_should_load filter decide.",
 		"adsSettingsHome": "Jetpack_Ads_Settings_Home::is_moved_off_settings(): settings consolidation is on and the Monetize page shows the Ads settings.",
 		"seoSurfaceVisible": "Automattic\\Jetpack\\SEO\\Initializer::is_seo_surface_visible().",
-		"odysseyStats": "Stats_Options::get_option( 'enable_odyssey_stats' )."
+		"odysseyStats": "Stats_Options::get_option( 'enable_odyssey_stats' ).",
+		"googleAnalyticsPanel": "Automattic\\Jetpack\\My_Jetpack\\Google_Analytics_Settings::is_available()."
 	},
 	"everySource": [
 		{
@@ -168,7 +169,7 @@
 		{
 			"source": "/traffic",
 			"rules": [
-				{ "when": { "host": "atomic" }, "pending": [ "D7" ] },
+				{ "when": { "host": "atomic", "googleAnalyticsPanel": false }, "pending": [ "D7" ] },
 				{ "when": { "seoSurfaceVisible": false }, "pending": [ "D10" ] },
 				{ "destination": "admin.php?page=my-jetpack#/features" }
 			],
@@ -264,6 +265,29 @@
 			"source": "related-posts",
 			"rules": [
 				{ "destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Drelated-posts" }
+			]
+		},
+		{
+			"source": "google analytics",
+			"rules": [
+				{
+					"when": { "googleAnalyticsPanel": true },
+					"destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dgoogle-analytics"
+				},
+				{ "when": { "host": "atomic" }, "pending": [ "D7" ] },
+				{ "destination": "admin.php?page=my-jetpack#/features" }
+			],
+			"note": "Only Atomic shows the Google Analytics card on /traffic. Google_Analytics_Settings::SLUG is the panel slug."
+		},
+		{
+			"source": "google-analytics",
+			"rules": [
+				{
+					"when": { "googleAnalyticsPanel": true },
+					"destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dgoogle-analytics"
+				},
+				{ "when": { "host": "atomic" }, "pending": [ "D7" ] },
+				{ "destination": "admin.php?page=my-jetpack#/features" }
 			]
 		},
 		{
