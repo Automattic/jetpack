@@ -893,10 +893,11 @@ class Block_Scanner_Test extends TestCase {
 	 *
 	 * @param string $source_text Input document.
 	 * @param string $expected    Expected document.
+	 * @param string $block_type  Block type to remove.
 	 */
 	#[DataProvider( 'provide_documents_with_blocks_to_remove' )]
-	public function test_remove_blocks( string $source_text, string $expected ): void {
-		$this->assertSame( $expected, Block_Scanner::remove_blocks( $source_text, 'query' ) );
+	public function test_remove_blocks( string $source_text, string $expected, string $block_type = 'query' ): void {
+		$this->assertSame( $expected, Block_Scanner::remove_blocks( $source_text, $block_type ) );
 	}
 
 	/**
@@ -906,7 +907,7 @@ class Block_Scanner_Test extends TestCase {
 	 */
 	public static function provide_documents_with_blocks_to_remove(): array {
 		return array(
-			'block between text'        => array(
+			'block between text'             => array(
 				'Before. <!-- wp:query {"queryId":49} -->
 <div class="wp-block-query"><!-- wp:post-template -->
 <!-- wp:post-title /-->
@@ -914,7 +915,7 @@ class Block_Scanner_Test extends TestCase {
 <!-- /wp:query --> After.',
 				'Before.  After.',
 			),
-			'nested blocks of the type' => array(
+			'nested blocks of the type'      => array(
 				'Before. <!-- wp:query {"queryId":1} -->
 <div class="wp-block-query">
 <!-- wp:query {"queryId":2} -->
@@ -924,11 +925,11 @@ class Block_Scanner_Test extends TestCase {
 <!-- /wp:query --> After.',
 				'Before.  After.',
 			),
-			'void block inside removed' => array(
+			'void block inside removed'      => array(
 				'Before. <!-- wp:query --><!-- wp:query /-->Inner<!-- /wp:query --> After.',
 				'Before.  After.',
 			),
-			'other blocks are kept'     => array(
+			'other blocks are kept'          => array(
 				'<!-- wp:paragraph -->
 <p>Kept.</p>
 <!-- /wp:paragraph -->
@@ -945,20 +946,28 @@ class Block_Scanner_Test extends TestCase {
 <h2>Kept too.</h2>
 <!-- /wp:heading -->',
 			),
-			'void block'                => array(
+			'void block'                     => array(
 				'Before. <!-- wp:query {"queryId":1} /--> After.',
 				'Before.  After.',
 			),
-			'namespaced lookalike kept' => array(
+			'namespaced lookalike kept'      => array(
 				'<!-- wp:acme/query -->Kept.<!-- /wp:acme/query -->',
 				'<!-- wp:acme/query -->Kept.<!-- /wp:acme/query -->',
 			),
-			'no blocks of the type'     => array(
+			'no blocks of the type'          => array(
 				'<!-- wp:paragraph --><p>Kept.</p><!-- /wp:paragraph -->',
 				'<!-- wp:paragraph --><p>Kept.</p><!-- /wp:paragraph -->',
 			),
-			'plain text'                => array( 'Plain text.', 'Plain text.' ),
-			'empty string'              => array( '', '' ),
+			'core-prefixed type name'        => array( 'A <!-- wp:query /--> B', 'A  B', 'core/query' ),
+			'core-prefixed markup'           => array( 'A <!-- wp:core/query /--> B', 'A  B' ),
+			'namespaced type'                => array( 'A <!-- wp:acme/list -->x<!-- /wp:acme/list --> B', 'A  B', 'acme/list' ),
+			'stray closer is kept'           => array(
+				'<!-- /wp:query --> A <!-- wp:query -->x<!-- /wp:query --> B',
+				'<!-- /wp:query --> A  B',
+			),
+			'unclosed opener drops the rest' => array( 'Intro <!-- wp:query --><div>list', 'Intro ' ),
+			'plain text'                     => array( 'Plain text.', 'Plain text.' ),
+			'empty string'                   => array( '', '' ),
 		);
 	}
 }
