@@ -58,6 +58,7 @@ jobs:
 
       - name: Detect changed projects
         id: changed
+        shell: bash
         run: |
           if [[ "$BUILD_SET" == all ]]; then
             CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
@@ -66,7 +67,7 @@ jobs:
             if [[ "$BUILD_SET" == nonwpcom ]]; then
               LIST=$( pnpm jetpack dependencies list --extra=build --ignore-root | sort | comm -23 - <(echo "$LIST") )
             fi
-            CHANGED=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' <<<"$LIST" )
+            CHANGED=$( printf '%s' "$LIST" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' )
           fi
           echo "CHANGED=${CHANGED}" >> "$GITHUB_ENV"
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
@@ -326,7 +327,7 @@ jobs:
   reminder_comment:
     name: Check WordPress.com test reminder
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 5  # 2026-11-10: Takes about 10 seconds.
     needs: build_all
     if: >
       ! cancelled() &&
