@@ -8,6 +8,7 @@ import {
 	useStatsEmailOpensTimeSeries,
 	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
+	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import {
@@ -40,6 +41,15 @@ type EmailTimeSeriesRenderAttributes = EmailTimeSeriesAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type EmailTimeSeriesWidgetProps = WidgetRenderProps< EmailTimeSeriesRenderAttributes >;
 
+/**
+ * The buckets the timeline draws: the ones the endpoint returns (hours, days,
+ * months), plus weeks aggregated from days.
+ */
+const EMAIL_PERIODS = [
+	'hour',
+	...STATS_CHART_BUCKET_PERIODS,
+] as const satisfies readonly StatsPeriod[];
+
 /** The timeline field each metric charts. */
 const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_count' > = {
 	opens: 'opens_count',
@@ -66,24 +76,34 @@ type EmailTimeSeriesReportProps = {
 	metric: EmailTimeSeriesMetric;
 	/** How the timeline is drawn. `MetricTabsChart` owns the default. */
 	chartType?: EmailTimeSeriesChartType;
+	/**
+	 * The bucket a host pinning the window asks for, ahead of the one the
+	 * range would pick: a lifetime of two months fits the endpoint's 30 buckets
+	 * only by the month, which the range rules keep for 90 days and up.
+	 */
+	interval?: string;
 };
 
 /**
  * Draws the selected email's opens or clicks timeline. Comparison report
  * params are ignored: there is no period-over-period view here.
  */
-function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProps ) {
+function EmailTimeSeriesReport( { metric, chartType, interval }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
-	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
+	const period = defaultPeriodForInterval( interval ?? reportParams.interval, EMAIL_PERIODS );
+	const queryParams = useMemo(
+		() => ( { ...reportParams, interval: period } ),
+		[ reportParams, period ]
+	);
 
 	// Both hooks are called every render (hooks rule); only the active
 	// metric's query is enabled.
-	const opens = useStatsEmailOpensTimeSeries( postId, reportParams, {
+	const opens = useStatsEmailOpensTimeSeries( postId, queryParams, {
 		enabled: hasSelection && metric === 'opens',
 	} );
-	const clicks = useStatsEmailClicksTimeSeries( postId, reportParams, {
+	const clicks = useStatsEmailClicksTimeSeries( postId, queryParams, {
 		enabled: hasSelection && metric === 'clicks',
 	} );
 	const active = metric === 'clicks' ? clicks : opens;
@@ -100,11 +120,11 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 			return undefined;
 		}
 
-		if ( period === 'day' ) {
+		if ( period !== 'week' ) {
 			return report;
 		}
 
-		// The endpoint only buckets by hour/day; weeks/months aggregate client-side.
+		// The endpoint never buckets by week, so weeks aggregate from its days.
 		return bucketStatsTimeSeries( report, period, point => {
 			const value = Number( point[ field ] ?? 0 );
 
@@ -161,6 +181,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					metrics={ metricTabs }
 					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
+					tickResolution={ period }
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel
 				/>
@@ -178,10 +199,17 @@ export default function EmailTimeSeries( { attributes = {} }: EmailTimeSeriesWid
 	const metric = attributes.metric ?? 'opens';
 	// Coerce unknown persisted values to the default.
 	const chartType = attributes.chartType === 'bar' ? 'bar' : 'line';
+	// As the host wrote it: `WidgetRoot` fits the interval to the range, which
+	// a pinned window has already settled.
+	const pinnedInterval = attributes.reportParams?.interval;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailTimeSeriesReport metric={ metric } chartType={ chartType } />
+			<EmailTimeSeriesReport
+				metric={ metric }
+				chartType={ chartType }
+				interval={ pinnedInterval }
+			/>
 		</WidgetRoot>
 	);
 }

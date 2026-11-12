@@ -326,14 +326,47 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'clamps coarser intervals to daily over the full requested span', () => {
+	it( 'clamps a weekly interval to daily over the full requested span', () => {
 		expect(
 			statsEmailClicksTimeSeriesQuery( 41, {
 				from: '2026-06-01',
 				to: '2026-06-30',
-				interval: 'month',
+				interval: 'week',
 			} ).queryKey[ 5 ]
 		).toEqual( { period: 'day', quantity: 30, date: '2026-06-01', stats_fields: 'timeline' } );
+	} );
+
+	it( 'asks for monthly buckets from the first of the start month, and hands the window to the sanitizer', () => {
+		const { queryKey } = statsEmailClicksTimeSeriesQuery( 41, {
+			from: '2026-06-22T00:00:00.000+00:00',
+			to: '2026-08-28T23:59:59.999+00:00',
+			interval: 'month',
+		} );
+
+		expect( queryKey[ 5 ] ).toEqual( {
+			period: 'month',
+			quantity: 3,
+			date: '2026-06-01',
+			stats_fields: 'timeline',
+		} );
+		// The edge months are clipped to the window, so the sanitizer needs both ends;
+		// `date` alone would clip every month to the first one.
+		expect( queryKey[ 8 ] ).toEqual( {
+			window_start: '2026-06-22T00:00:00.000+00:00',
+			window_end: '2026-08-28T23:59:59.999+00:00',
+			start_date: '2026-06-22T00:00:00.000+00:00',
+			end_date: '2026-08-28T23:59:59.999+00:00',
+		} );
+	} );
+
+	it( 'asks for at most 30 monthly buckets, past which the endpoint would answer its default', () => {
+		expect(
+			statsEmailClicksTimeSeriesQuery( 41, {
+				from: '2020-01-15',
+				to: '2026-08-28',
+				interval: 'month',
+			} ).queryKey[ 5 ]
+		).toMatchObject( { period: 'month', quantity: 30, date: '2020-01-01' } );
 	} );
 
 	it( 'keeps a same-day pinned window on daily buckets', () => {

@@ -8,16 +8,22 @@ import {
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { ButtonLink } from '@jetpack-premium-analytics/externals';
 import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { TRAFFIC_SECTION_SLUG, isEmailSection } from './config';
-import { useEmailTabScope } from './use-email-tab-scope';
+import { EMAIL_WINDOW_PARAM, TRAFFIC_SECTION_SLUG, isEmailSection } from './config';
+import {
+	DEFAULT_EMAIL_SEND_WINDOW,
+	EMAIL_SEND_WINDOWS,
+	isEmailSendWindow,
+	useEmailTabScope,
+	type EmailSendWindow,
+} from './use-email-tab-scope';
 import type { PostSummary } from './use-post-summary';
 import type { SingleReportPageSection } from '../../registry';
-import type { SectionState, SectionsContext } from '../adapter';
+import type { SectionScopeControl, SectionState, SectionsContext } from '../adapter';
 import type { PageEmptyStateProps } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -58,6 +64,26 @@ function notSentEmptyState(): PageEmptyStateProps {
 }
 
 /**
+ * How the send-window control names each window.
+ *
+ * @param window - The window.
+ * @return Its label.
+ */
+function emailSendWindowLabel( window: EmailSendWindow ): string {
+	switch ( window ) {
+		case 'send-day':
+			return __( 'Send day, by hour', 'jetpack-premium-analytics-pkg' );
+		case 'first-week':
+			return __( 'First 7 days', 'jetpack-premium-analytics-pkg' );
+		case 'all-time':
+			return __( 'All time, by month', 'jetpack-premium-analytics-pkg' );
+		case 'first-30-days':
+		default:
+			return __( 'First 30 days', 'jetpack-premium-analytics-pkg' );
+	}
+}
+
+/**
  * The post page's sections. Kept in full because the email gating is not obvious from the code.
  *
  * The traffic section is named for the post type ("Page traffic"), with a placeholder until the
@@ -77,12 +103,14 @@ function notSentEmptyState(): PageEmptyStateProps {
  * @param context.entityId   - The post id, as the URL carries it.
  * @param context.activeSlug - The section the URL names, if any.
  * @param context.timeZone   - The site timezone.
+ * @param context.search     - The URL's search params, for the send window.
+ * @param context.setSearch  - Writes the send window to the URL.
  * @return One state per section, in the record's order.
  */
 export function usePostSections(
 	summary: PostSummary,
 	sections: SingleReportPageSection[],
-	{ entityId, activeSlug, timeZone }: SectionsContext
+	{ entityId, activeSlug, timeZone, search, setSearch }: SectionsContext
 ): SectionState[] {
 	const postId = Number( entityId );
 	const postType = summary.type;
@@ -104,7 +132,35 @@ export function usePostSections(
 		() => parseSiteDateTime( summary.allTimeStart ),
 		[ summary.allTimeStart ]
 	);
-	const emailScope = useEmailTabScope( postId, allTimeStart, timeZone );
+	const requestedWindow = search[ EMAIL_WINDOW_PARAM ];
+	const emailWindow = isEmailSendWindow( requestedWindow )
+		? requestedWindow
+		: DEFAULT_EMAIL_SEND_WINDOW;
+	const emailScope = useEmailTabScope( postId, allTimeStart, timeZone, emailWindow );
+	const setEmailWindow = useCallback(
+		( value: string ) => {
+			if ( isEmailSendWindow( value ) && value !== emailWindow ) {
+				setSearch( { [ EMAIL_WINDOW_PARAM ]: value } );
+			}
+		},
+		[ emailWindow, setSearch ]
+	);
+	const emailWindowControl = useMemo< SectionScopeControl >(
+		() => ( {
+			field: {
+				id: EMAIL_WINDOW_PARAM,
+				type: 'jpa/select',
+				label: __( 'Time since send', 'jetpack-premium-analytics-pkg' ),
+				elements: EMAIL_SEND_WINDOWS.map( value => ( {
+					value,
+					label: emailSendWindowLabel( value ),
+				} ) ),
+			},
+			value: emailWindow,
+			onChange: setEmailWindow,
+		} ),
+		[ emailWindow, setEmailWindow ]
+	);
 	// A failed or missing post never brings a publish day, so the section stops waiting for it.
 	const hasNoPost = summary.isError || summary.isNotFound;
 	const emailScopeBlocked = ! emailScope && ! summary.isLoading && hasNoPost;
@@ -130,7 +186,11 @@ export function usePostSections(
 				} else if ( isEmailSendPending || ! emailScope ) {
 					state.scope = ! isEmailSendPending && emailScopeBlocked ? 'blocked' : 'pending';
 				} else {
-					state.scope = { reportParams: emailScope.reportParams, range: emailScope.range };
+					state.scope = {
+						reportParams: emailScope.reportParams,
+						range: emailScope.range,
+						control: emailWindowControl,
+					};
 				}
 
 				return state;
@@ -144,6 +204,7 @@ export function usePostSections(
 			isEmailSendPending,
 			emailScope,
 			emailScopeBlocked,
+			emailWindowControl,
 		]
 	);
 }

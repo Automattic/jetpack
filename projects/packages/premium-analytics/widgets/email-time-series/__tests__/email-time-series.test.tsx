@@ -20,6 +20,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		tickResolution,
 		empty,
 		hideSingleMetricLabel,
 	}: {
@@ -31,6 +32,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
+		tickResolution?: string;
 		empty?: ReactNode;
 		hideSingleMetricLabel?: boolean;
 	} ) => (
@@ -43,6 +45,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-dates={ metrics[ 0 ]?.current.map( point => point.date.toISOString() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
+			data-tick-resolution={ String( tickResolution ) }
 			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 		>
 			{ empty }
@@ -205,6 +208,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( values ).toHaveLength( 24 );
 		expect( values[ 0 ] ).toBe( '9' );
 		expect( values[ 23 ] ).toBe( '8' );
+		expect( chart ).toHaveAttribute( 'data-tick-resolution', 'hour' );
 		// Hours 9–23 of day one plus 0–8 of day two.
 		expect( chart ).toHaveAttribute( 'data-metric-total', '276' );
 
@@ -274,15 +278,14 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '15,7' );
 	} );
 
-	it( 'aggregates the daily buckets into calendar months when the page interval is monthly', async () => {
+	it( 'asks for monthly buckets when the page interval is monthly, and draws them as returned', async () => {
 		mockApiFetch.mockResolvedValue( {
 			timeline: {
-				unit: 'day',
+				unit: 'month',
 				fields: [ 'date', 'opens_count' ],
 				data: [
-					[ '2026-06-28', 4 ],
-					[ '2026-07-04', 10 ],
-					[ '2026-07-06', 5 ],
+					[ '2026-06-01', 4 ],
+					[ '2026-07-01', 15 ],
 				],
 			},
 		} );
@@ -308,6 +311,48 @@ describe( 'EmailTimeSeriesWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
+		expect( chart ).toHaveAttribute( 'data-tick-resolution', 'month' );
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'period=month' );
+		expect( requestedPath ).toContain( 'quantity=4' );
+		expect( requestedPath ).toContain( 'date=2026-05-01' );
+	} );
+
+	it( 'draws the bucket a pinned window names ahead of the one its range would pick', async () => {
+		mockApiFetch.mockResolvedValue( {
+			timeline: {
+				unit: 'month',
+				fields: [ 'date', 'opens_count' ],
+				data: [
+					[ '2026-06-01', 4 ],
+					[ '2026-07-01', 15 ],
+				],
+			},
+		} );
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					// Two months after the send: the range rules would read this by the
+					// day, which is more buckets than the endpoint answers.
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-06-22T00:00:00.000+08:00',
+						to: '2026-07-28T23:59:59.999+08:00',
+						interval: 'month',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'period=month' );
+		expect( requestedPath ).toContain( 'quantity=2' );
 	} );
 
 	it( 'answers a timeline with no buckets inside the chart, not with a widget-level empty state', async () => {

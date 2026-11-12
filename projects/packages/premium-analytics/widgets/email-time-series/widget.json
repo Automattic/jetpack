@@ -4,7 +4,7 @@
 	"title": "Email performance",
 	"description": "A single email's opens or clicks over time since it was sent.",
 	"help": {
-		"content": "How a single email performed over time: opens or clicks per day over the window the page reports — on the post detail page, the first 30 days after the send."
+		"content": "How a single email performed over time: opens or clicks over the window the page reports — on the post detail page, a window after the send, the first 30 days unless another is chosen."
 	},
 	"category": "stats",
 	"presentation": "framed",
