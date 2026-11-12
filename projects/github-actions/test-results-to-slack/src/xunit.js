@@ -80,7 +80,7 @@ export async function getXunitBlocks() {
 				elements: [
 					{
 						type: 'mrkdwn',
-						text: summaryItems.join( '\n' ),
+						text: summaryItems.join( '\n' ).substring( 0, 3000 ),
 					},
 				],
 			},

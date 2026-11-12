@@ -51,6 +51,17 @@ describe( 'xUnit report content', () => {
 		);
 	} );
 
+	test( 'reads failure details from an attribute-less failure node, as Mocha writes', async () => {
+		setInputData( { xunitReportPath: `${ rootPath }/mocha.xml` } );
+
+		const { getXunitBlocks } = await import( '../src/xunit.js' );
+		const blocks = await getXunitBlocks();
+
+		expect( blocks[ 3 ].elements[ 1 ].text ).toBe(
+			'```expected 4 to equal 3\nAssertionError: expected 4 to equal 3```'
+		);
+	} );
+
 	test.each`
 		description               | xunitReportPath
 		${ 'all tests passed' }   | ${ `${ rootPath }/all-passed.xml` }
