@@ -304,6 +304,7 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	metricTabsToCsv,
 	pairComparisonBuckets,
 	type ComparisonPeriodStarts,
 	siteChartFormatting,
