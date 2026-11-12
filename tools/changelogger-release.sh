@@ -201,7 +201,7 @@ for SLUG in "${TO_RELEASE[@]}"; do
 	# On a release branch, use a four-point version if the normal next version was already released.
 	FOURPOINT=
 	MIRROR=$(jq -r '.extra["mirror-repo"] // empty' composer.json)
-	if [[ -n "$RELEASEBRANCH" && -n "$MIRROR" && "$SLUG" != "$REL_SLUG" ]]; then
+	if [[ -n "$RELEASEBRANCH" && "$SLUG" == packages/* && -n "$MIRROR" && "$SLUG" != "$REL_SLUG" ]]; then
 		EXISTING_TAGS=$(git ls-remote --tags "https://github.com/$MIRROR" | sed 's|.*refs/tags/||')
 		if [[ "$OLDVER" =~ ^[0-9]+(\.[0-9]+){3}$ ]] || grep -qxF "v$(changelogger version next)" <<<"$EXISTING_TAGS"; then
 			FOURPOINT_BASE=$(cut -d. -f1-3 <<<"$OLDVER")
