@@ -92,6 +92,8 @@ class Activity_Log {
 
 		// Rendered as "Source: Jetpack"; without it, dashboards show "Source: Custom entry".
 		$entry['source'] = 'jetpack';
+		// Dashboards render warning entries with a caution icon, which reads as an alarm.
+		$entry['severity'] = 'info';
 
 		// Activity_Log_Event::create() needs Sync's listeners, which are only in place from init on.
 		if ( did_action( 'init' ) ) {
@@ -115,40 +117,36 @@ class Activity_Log {
 	 *
 	 * @param string $event Event name.
 	 * @param string $ip    Client IP of an export request, or ''.
-	 * @return array|null Title, content and severity, or null for an event that is not logged.
+	 * @return array|null Title and content, or null for an event that is not logged.
 	 */
 	public static function describe( $event, $ip = '' ) {
 		switch ( $event ) {
 			case 'secret_rotated':
 			case 'public_key_installed':
 				return array(
-					'title'    => __( 'Migration key added', 'jetpack' ),
-					'content'  => __( 'Migration key', 'jetpack' ),
-					'severity' => 'warning',
+					'title'   => __( 'Migration key added', 'jetpack' ),
+					'content' => __( 'Migration key', 'jetpack' ),
 				);
 
 			case 'window_opened':
 				return array(
-					'title'    => __( 'Site export enabled', 'jetpack' ),
-					'content'  => __( 'One-hour export window', 'jetpack' ),
-					'severity' => 'warning',
+					'title'   => __( 'Site export enabled', 'jetpack' ),
+					'content' => __( 'One-hour export window', 'jetpack' ),
 				);
 
 			case 'export_served':
 				return array(
-					'title'    => __( 'Site export in progress', 'jetpack' ),
-					'content'  => '' === $ip
+					'title'   => __( 'Site export in progress', 'jetpack' ),
+					'content' => '' === $ip
 						? __( 'Site export', 'jetpack' )
 						/* translators: %s: IP address of the client exporting the site. */
 						: sprintf( __( 'Site export from IP Address %s', 'jetpack' ), $ip ),
-					'severity' => 'info',
 				);
 
 			case 'credentials_discarded':
 				return array(
-					'title'    => __( 'Migration keys removed', 'jetpack' ),
-					'content'  => __( 'Site connected, disconnected or activated', 'jetpack' ),
-					'severity' => 'info',
+					'title'   => __( 'Migration keys removed', 'jetpack' ),
+					'content' => __( 'Site connected, disconnected or activated', 'jetpack' ),
 				);
 		}
 

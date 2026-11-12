@@ -88,6 +88,7 @@ class Reprint_Activity_Log_Test extends WP_UnitTestCase {
 		$entries = $this->logged_entries();
 		$this->assertCount( 1, $entries );
 		$this->assertSame( 'Migration key added', $entries[0]['title'] );
+		$this->assertSame( 'info', $entries[0]['severity'] );
 		$this->assertSame( 'jetpack', $entries[0]['source'] );
 	}
 
