@@ -12,6 +12,9 @@ import { prepareProductData } from '../../../data/utils/prepare-product-data';
 import PricingInterstitial from '../pricing-interstitial';
 
 jest.mock( '../../../data/products/use-activate-plugins' );
+jest.mock( '../../product-detail-card/skeleton', () => () => (
+	<span data-testid="offer-skeleton" />
+) );
 jest.mock( '../../../data/products/use-activate-search-free-product' );
 jest.mock( '../../../data/products/use-product' );
 jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
@@ -195,6 +198,7 @@ it.each( [ 'security', 'growth', 'complete' ] )(
 			screen.queryByRole( 'button', { name: `Get ${ legacyBundle }` } )
 		).not.toBeInTheDocument();
 		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'offer-skeleton' ) ).toBeInTheDocument();
 		isLoading = false;
 		rerender( <PricingInterstitial slug="search" /> );
 		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeEnabled();

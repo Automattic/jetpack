@@ -30,6 +30,9 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	TermsOfService: () => null,
 } ) );
 jest.mock( '@wordpress/ui', () => ( { ButtonLink: () => null } ) );
+jest.mock( '../../product-detail-card/skeleton', () => () => (
+	<span data-testid="offer-skeleton" />
+) );
 jest.mock( '../../product-detail-card', () => ( { slug, isUpsell, hideTOS } ) => (
 	<span data-testid={ isUpsell ? 'bundle' : 'product' } data-hide-tos={ String( !! hideTOS ) }>
 		{ slug }
@@ -104,6 +107,7 @@ it.each( [
 		} ) );
 		render( <ProductInterstitial slug="scan" bundle="security" /> );
 		expect( screen.queryByTestId( 'bundle' )?.textContent ?? null ).toBe( expected );
+		expect( Boolean( screen.queryByTestId( 'offer-skeleton' ) ) ).toBe( isLoading );
 		expect( screen.getByTestId( 'product' ) ).toHaveAttribute( 'data-hide-tos', productHidesTOS );
 	}
 );
