@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -60,6 +62,10 @@ class Social_Admin_Page_Test extends BaseTestCase {
 
 		remove_action( 'admin_enqueue_scripts', array( Social_Admin_Page::class, 'alias_screen_id_for_wp_build' ) );
 		remove_action( 'admin_enqueue_scripts', array( Social_Admin_Page::class, 'restore_screen_id_after_wp_build' ) );
+		remove_action( 'admin_enqueue_scripts', array( Social_Admin_Page::init(), 'enqueue_guest_scripts' ) );
+		wp_dequeue_script( Social_Admin_Page::GUEST_DATA_HANDLE );
+		wp_deregister_script( Social_Admin_Page::GUEST_DATA_HANDLE );
+		$this->set_wp_build_index( null );
 		unset( $_GET['refresh_plan_data'], $_GET['_wpnonce'], $_GET['page'], $GLOBALS['current_screen'] );
 		$this->refresh_called = false;
 		Jetpack_Options::delete_option( 'id' );
@@ -211,34 +217,42 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Who the admin shell offers Social to: the same users the Social menu shows it to.
+	 * Who the admin shell offers Social to: the users the Social menu shows it to, on a built, non-Simple site.
 	 *
 	 * @return array
 	 */
 	public static function provide_admin_shell_member_cases() {
 		return array(
-			'admin, Publicize off'  => array( 'administrator', false, true ),
-			'author, Publicize off' => array( 'author', false, false ),
-			'author, Publicize on'  => array( 'author', true, true ),
+			'admin, Publicize off'  => array( 'administrator', false, true, false, true, true ),
+			'author, Publicize off' => array( 'author', false, true, false, true, false ),
+			'author, Publicize on'  => array( 'author', true, true, false, true, true ),
+			'unbuilt'               => array( 'administrator', false, false, false, true, false ),
+			'Simple'                => array( 'administrator', false, true, true, true, false ),
+			'not connected'         => array( 'administrator', false, true, false, false, false ),
 		);
 	}
 
 	/**
-	 * The shell member applies the Social menu's gate.
+	 * The shell member applies the Social menu's gates, and needs the wp-build dashboard.
 	 *
 	 * @dataProvider provide_admin_shell_member_cases
 	 *
 	 * @param string $role         The current user's role.
 	 * @param bool   $publicize_on Whether the Publicize module is active.
+	 * @param bool   $built        Whether build/build.php exists.
+	 * @param bool   $simple       Whether the site is WordPress.com Simple.
+	 * @param bool   $connected    Whether the site has a blog token.
 	 * @param bool   $expected     Whether Social joins the shell.
 	 */
 	#[DataProvider( 'provide_admin_shell_member_cases' )]
-	public function test_admin_shell_member_follows_the_menu_gate( $role, $publicize_on, $expected ) {
-		if ( ! file_exists( dirname( __DIR__, 2 ) . '/build/build.php' ) ) {
-			$this->markTestSkipped( 'Social joins the shell only once its wp-build dashboard is built.' );
+	public function test_admin_shell_member_follows_the_menu_gate( $role, $publicize_on, $built, $simple, $connected, $expected ) {
+		$this->set_wp_build_index( __DIR__ . ( $built ? '/files/build-entry/build.php' : '/files/build-entry/absent.php' ) );
+		if ( $connected ) {
+			( new Tokens() )->update_blog_token( 'blog.token' );
 		}
-
-		( new Tokens() )->update_blog_token( 'blog.token' );
+		if ( $simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
 		$active_modules = static function () use ( $publicize_on ) {
 			return $publicize_on ? array( 'publicize' ) : array();
 		};
@@ -253,11 +267,45 @@ class Social_Admin_Page_Test extends BaseTestCase {
 			)
 		);
 
-		$members = Social_Admin_Page::init()->add_admin_shell_member( array() );
+		// is_connected() caches its answer across tests.
+		( new Connection_Manager() )->reset_connection_status();
 
-		remove_filter( 'jetpack_active_modules', $active_modules );
-		Jetpack_Options::delete_option( 'blog_token' );
+		try {
+			$members = Social_Admin_Page::init()->add_admin_shell_member( array() );
+		} finally {
+			remove_filter( 'jetpack_active_modules', $active_modules );
+			Jetpack_Options::delete_option( 'blog_token' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'IS_WPCOM' );
+		}
 
 		$this->assertSame( $expected, isset( $members['jetpack-social'] ) );
+	}
+
+	/**
+	 * Hosted by another dashboard, Social hydrates its connection store on a script of its own when assets print.
+	 */
+	public function test_admin_shell_guest_hydrates_the_connection_store() {
+		$this->set_wp_build_index( __DIR__ . '/files/build-entry/build.php' );
+		Social_Admin_Page::init()->load_as_admin_shell_guest();
+
+		set_current_screen( 'toplevel_page_jetpack' );
+		do_action( 'admin_enqueue_scripts', 'toplevel_page_jetpack' );
+
+		$this->assertTrue( wp_script_is( Social_Admin_Page::GUEST_DATA_HANDLE, 'enqueued' ) );
+		$this->assertNotEmpty( wp_scripts()->get_data( Social_Admin_Page::GUEST_DATA_HANDLE, 'before' ) );
+	}
+
+	/**
+	 * Point the build-entry lookup at a path of our choosing, or back at the real one with null.
+	 *
+	 * @param string|null $path Path to stand in for build/build.php.
+	 */
+	private function set_wp_build_index( $path ) {
+		$property = new \ReflectionProperty( Social_Admin_Page::class, 'wp_build_index' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
 	}
 }
