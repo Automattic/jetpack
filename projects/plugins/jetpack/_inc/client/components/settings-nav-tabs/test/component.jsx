@@ -97,6 +97,8 @@ describe( 'SettingsNavTabs', () => {
 		[ 'hides', 'Writing', 'Copy Post', 'copy-post', true, 0 ],
 		[ 'shows', 'Writing', 'custom content types', null, false, 1 ],
 		[ 'hides', 'Writing', 'custom content types', null, true, 0 ],
+		[ 'shows', 'Reader', 'the Reader', 'wpcom-reader', false, 1 ],
+		[ 'hides', 'Reader', 'the Reader', 'wpcom-reader', true, 0 ],
 	] )(
 		'%s a %s tab only %s (%s) would fill with the settings flag %s',
 		( _verb, tab, _name, module, flag, tabs ) => {

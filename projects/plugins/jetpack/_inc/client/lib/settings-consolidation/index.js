@@ -1,4 +1,4 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
 import { currentThemeIsBlockTheme, userCanManageModules } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
 
@@ -43,7 +43,10 @@ export function getMovedOutModules( state ) {
 			)
 		: [];
 
-	return [ 'earn', ...hiddenInFeatures ];
+	// WoA keeps the Reader on, so a pointer to its switch would mislead there.
+	const offWoA = isWoASite() ? [ 'wpcom-reader' ] : [];
+
+	return [ 'earn', ...offWoA, ...hiddenInFeatures ];
 }
 
 /**
