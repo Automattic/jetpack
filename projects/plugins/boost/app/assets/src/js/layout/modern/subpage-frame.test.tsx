@@ -49,7 +49,7 @@ describe( 'SubpageFrame', () => {
 			.spyOn( HTMLElement.prototype, 'getBoundingClientRect' )
 			.mockImplementation( function ( this: HTMLElement ) {
 				return {
-					width: this.tagName === 'OL' ? 250 : 100,
+					width: this.tagName === 'OL' ? 320 : 100,
 					height: 20,
 					top: 0,
 					left: 0,
