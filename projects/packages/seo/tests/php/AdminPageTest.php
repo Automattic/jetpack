@@ -517,7 +517,10 @@ class AdminPageTest extends TestCase {
 		}
 
 		$this->assertArrayHasKey( 'other', $members );
-		$this->assertSame( $expected_listed, isset( $members[ Admin_Page::MENU_SLUG ] ) );
+		$this->assertSame(
+			$expected_listed ? array( Admin_Page::class, 'load_as_admin_shell_guest' ) : null,
+			$members[ Admin_Page::MENU_SLUG ]['load'] ?? null
+		);
 	}
 
 	/**
@@ -540,7 +543,7 @@ class AdminPageTest extends TestCase {
 	public function test_admin_shell_guest_adds_the_page_data_when_assets_print() {
 		$this->set_wp_build_index( __DIR__ . '/files/build-entry/absent.php' );
 		Admin_Page::load_as_admin_shell_guest();
-		$this->assertFalse( has_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_script_data' ) ) );
+		$this->assertSame( 0, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'register_page_data' ) ) );
 
 		set_current_screen( 'toplevel_page_jetpack' );
 		do_action( 'admin_enqueue_scripts', 'toplevel_page_jetpack' );
