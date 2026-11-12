@@ -17,7 +17,7 @@ import {
 type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
 
 /**
- * The date params a post or video detail route seeds its URL with.
+ * The date params the single-report route seeds its URL with.
  *
  * A link in opens the page on the linking window, or on all time when it carries none, and
  * keeps the linking window for the breadcrumbs; a reload keeps the page's own range.
@@ -35,9 +35,12 @@ export function seedDetailDateParams(
 	scopeParam = 'post_id'
 ): Record< string, unknown > {
 	if ( search[ scopeParam ] === resourceId ) {
+		const origin = pickReportOriginWindowParams( search );
+
 		return {
 			...normalizeReportParams( search as NormalizeInput ),
-			...pickReportOriginWindowParams( search ),
+			// A URL saved without an origin returns as a page opened without a window does.
+			...( Object.keys( origin ).length ? origin : toReportOriginWindowParams( {} ) ),
 		};
 	}
 

@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import { useSearch } from '@wordpress/route';
 import { buildReportLink, readReportOriginSearch } from '@jetpack-premium-analytics/routing';
+import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { getReportDefinition, resolveReportOrigin } from './reports/registry';
+import { getReportDefinition, resolveReportOrigin } from '../../reports/registry';
 
 type BreadcrumbItem = { label: string; to?: string };
 
 /**
- * Build the breadcrumbs a post or video detail page adds after the Stats root.
+ * Build the breadcrumbs a single-report page adds after the Stats root.
  *
  * `StatsBreadcrumbs` renders the root crumb and its dashboard link, so this
  * hook returns only the crumbs that follow it.

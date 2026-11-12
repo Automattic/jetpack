@@ -10,7 +10,7 @@ import {
 	EN_US_SETTINGS,
 	ES_ES_SETTINGS,
 	utcDate,
-} from '../packages/formatters/src/date/__fixtures__/wp-date-settings';
+} from '../../packages/formatters/src/date/__fixtures__/wp-date-settings';
 import { formatPublishedDate, performanceSentence } from './detail-header';
 
 // Captured before any suite installs its own, since `setSettings` is global and
