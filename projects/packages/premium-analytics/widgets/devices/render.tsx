@@ -7,7 +7,9 @@ import {
 	WIDGET_ROW_LIMIT,
 	describeError,
 	WidgetRoot,
+	useReportActions,
 	useWidgetRootContext,
+	type CsvColumn,
 	type DonutSegmentInput,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -16,7 +18,7 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
-import useDeviceViews from './use-device-views';
+import useDeviceViews, { type DeviceView } from './use-device-views';
 /**
  * Types
  */
@@ -33,17 +35,26 @@ const PERCENTAGE_DATA_FORMAT = {
 	options: { decimals: 1, signDisplay: 'auto' as const },
 };
 
+const DEVICE_COLUMNS: CsvColumn< DeviceView >[] = [
+	{
+		label: __( 'Screen size', 'jetpack-premium-analytics-pkg' ),
+		getValue: row => row.displayLabel,
+	},
+	{ label: __( 'Share (%)', 'jetpack-premium-analytics-pkg' ), getValue: row => row.percentage },
+];
+
 function toRatio( percentage: number ) {
 	return percentage / 100;
 }
 
 function DevicesInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
-		reportParams,
-		max: WIDGET_ROW_LIMIT,
-		deviceProperty: 'screensize',
-	} );
+	const { data, hasComparison, isLoading, isFetching, isError, csvIsError, error, refetch } =
+		useDeviceViews( {
+			reportParams,
+			max: WIDGET_ROW_LIMIT,
+			deviceProperty: 'screensize',
+		} );
 
 	const segments = useMemo< DonutSegmentInput[] >(
 		() =>
@@ -55,10 +66,21 @@ function DevicesInner() {
 			} ) ),
 		[ data ]
 	);
+	const isEmpty = segments.every( segment => ! segment.value );
 	const emptyState = useNoViewsEmptyState(
-		{ isLoading, isError, isEmpty: segments.every( segment => ! segment.value ) },
+		{ isLoading, isError, isEmpty },
 		__( 'You don’t have devices recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
+
+	useReportActions( {
+		csv: {
+			rows: isEmpty ? [] : data,
+			columns: DEVICE_COLUMNS,
+			filenamePrefix: 'devices',
+			hasDateRange: true,
+			status: { isLoading, isFetching, isError: csvIsError },
+		},
+	} );
 
 	return (
 		<Donut

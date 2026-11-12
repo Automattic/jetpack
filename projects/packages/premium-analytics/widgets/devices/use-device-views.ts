@@ -42,6 +42,8 @@ interface DeviceViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	/** The primary request's failure, even while rows kept on screen hide it from `isError`. */
+	csvIsError: boolean;
 	error: unknown;
 	refetch: () => void;
 }
@@ -84,7 +86,7 @@ export default function useDeviceViews( {
 		deviceProperty,
 	};
 
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsDevices( statsParams, { maxRows: max } );
 
 	const items = useMemo(
@@ -105,6 +107,7 @@ export default function useDeviceViews( {
 		isLoading,
 		isFetching,
 		isError: showError,
+		csvIsError: primary.isError,
 		error: showError ? error : null,
 		refetch,
 	};

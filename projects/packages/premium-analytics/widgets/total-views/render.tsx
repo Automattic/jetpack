@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useStatsVisits, withoutComparison } from '@jetpack-premium-analytics/data';
+import { getDatePart } from '@jetpack-premium-analytics/datetime';
 import { Text } from '@jetpack-premium-analytics/externals';
 import {
 	HEADLINE_COUNT_FORMAT,
@@ -9,9 +10,11 @@ import {
 	describeError,
 	MetricSparklineSkeleton,
 	Sparkline,
+	useReportActions,
 	useWidgetRootContext,
 	WidgetRoot,
 	WidgetState,
+	type CsvColumn,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -44,6 +47,11 @@ type TotalViewsWidgetProps = WidgetRenderProps< TotalViewsRenderAttributes > & {
 // but both cards share one unit and one request.
 const PERIOD = 'day';
 
+const COLUMNS: CsvColumn< { date: string; value: number } >[] = [
+	{ label: __( 'Date', 'jetpack-premium-analytics-pkg' ), getValue: row => row.date },
+	{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
+];
+
 /**
  * The period's view total over an area sparkline of the trend.
  *
@@ -63,13 +71,26 @@ function TotalViewsMetric() {
 
 	// The sanitizer builds the report summary by summing the returned buckets.
 	const total = Number( report?.summary?.views ?? 0 );
-	const points = useMemo(
+	const days = useMemo(
 		() =>
-			( report?.data ?? [] ).map( row =>
-				Number( ( row as Record< string, unknown > ).views ?? 0 )
-			),
+			( report?.data ?? [] ).map( row => {
+				const record = row as Record< string, unknown >;
+
+				return { date: getDatePart( record.date_start ) ?? '', value: Number( record.views ?? 0 ) };
+			} ),
 		[ report ]
 	);
+	const points = useMemo( () => days.map( day => day.value ), [ days ] );
+
+	useReportActions( {
+		csv: {
+			rows: points.some( value => value > 0 ) ? days : [],
+			columns: COLUMNS,
+			filenamePrefix: 'total-views',
+			hasDateRange: true,
+			status: { isLoading, isFetching, isError },
+		},
+	} );
 
 	return (
 		<div className={ styles.root }>

@@ -37,6 +37,8 @@ interface PlatformViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	/** The primary request's failure, even while rows kept on screen hide it from `isError`. */
+	csvIsError: boolean;
 	error: unknown;
 	refetch: () => void;
 }
@@ -97,7 +99,7 @@ export default function usePlatformViews( {
 		deviceProperty,
 	};
 
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsDevices( statsParams, { maxRows: max } );
 
 	const rows = ( comparisonRows?.rows ?? [] ).map( item => toPlatformView( item, deviceProperty ) );
@@ -115,6 +117,7 @@ export default function usePlatformViews( {
 		isLoading,
 		isFetching,
 		isError: showError,
+		csvIsError: primary.isError,
 		error: showError ? error : null,
 		refetch,
 	};
