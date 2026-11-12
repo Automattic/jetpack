@@ -43,7 +43,7 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-// Stat row — Emails sent / Open rate / Click rate.
+// Subscriber stats.
 .jetpack-newsletter__detail-stats > * {
 	flex: 1 1 0;
 	min-width: 0;
@@ -57,9 +57,20 @@
 	--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 }
 
+.jetpack-newsletter__detail-stat-content {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.jetpack-newsletter__detail-stat-label {
+	overflow-wrap: anywhere;
+}
+
 .jetpack-newsletter__detail-stat-value {
 	display: block;
-	margin-top: var(--wpds-dimension-gap-sm);
+	margin-block-start: auto;
+	padding-block-start: var(--wpds-dimension-gap-sm);
 }
 
 // Grouped sections — Card already provides the outer border, so rows just sit
