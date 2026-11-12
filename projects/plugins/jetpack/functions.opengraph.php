@@ -921,78 +921,13 @@ function jetpack_og_remove_query_blocks( $description ) {
 		return '';
 	}
 
-	$output         = '';
-	$offset         = 0;
-	$depth          = 0;
-	$in_query_block = false;
-
-	$scanner = Block_Scanner::create( $description );
-	if ( ! $scanner ) {
+	// Another plugin can load an older block-delimiter copy without remove_blocks(), before ours or through
+	// its own autoloader (@since $$next-version$$). The description then keeps its Query Loop blocks.
+	if ( ! method_exists( Block_Scanner::class, 'remove_blocks' ) ) {
 		return $description;
 	}
 
-	while ( $scanner->next_delimiter() ) {
-		$span     = $scanner->get_span();
-		$match_at = $span->start;
-		$length   = $span->length;
-
-		// Check if this is a query block.
-		if ( $scanner->is_block_type( 'query' ) ) {
-			switch ( $scanner->get_delimiter_type() ) {
-				case Block_Scanner::OPENER:
-					if ( ! $in_query_block ) {
-						// Copy content before the query block.
-						$output        .= substr( $description, $offset, $match_at - $offset );
-						$in_query_block = true;
-					}
-					++$depth;
-					break;
-
-				case Block_Scanner::CLOSER:
-					--$depth;
-					if ( $in_query_block && $depth === 0 ) {
-						// We've exited the query block, continue from after it.
-						$in_query_block = false;
-						$offset         = $match_at + $length;
-
-						// Remove extra newline if present
-						if (
-							str_starts_with( substr( $description, $offset ), "\n" )
-							&& str_ends_with( $output, "\n" )
-						) {
-							++$offset;
-						}
-					}
-					break;
-
-				case Block_Scanner::VOID:
-					// Void query blocks should be removed entirely.
-					if ( ! $in_query_block ) {
-						$output .= substr( $description, $offset, $match_at - $offset );
-						$offset  = $match_at + $length;
-						// Remove extra newline if present
-						if (
-							str_starts_with( substr( $description, $offset ), "\n" )
-							&& str_ends_with( $output, "\n" )
-						) {
-							++$offset;
-						}
-					}
-					break;
-			}
-		} elseif ( ! $in_query_block ) {
-			// Not a query block, copy content including the delimiter if we're not inside a query block.
-			$output .= substr( $description, $offset, $match_at - $offset + $length );
-			$offset  = $match_at + $length;
-		}
-	}
-
-	// Add any remaining content after the last delimiter.
-	if ( ! $in_query_block ) {
-		$output .= substr( $description, $offset );
-	}
-
-	return $output;
+	return Block_Scanner::remove_blocks( $description, 'query' );
 }
 
 /**
