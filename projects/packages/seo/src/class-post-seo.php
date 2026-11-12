@@ -57,6 +57,11 @@ class Post_Seo {
 			}
 		}
 
+		// WordPress.com can load an older block-delimiter copy without remove_blocks(); the content then keeps its Query Loop blocks.
+		if ( ! method_exists( Block_Scanner::class, 'remove_blocks' ) ) {
+			return $content;
+		}
+
 		// A Query Loop block lists other posts, so its text doesn't describe this one.
 		return Block_Scanner::remove_blocks( $content, 'query' );
 	}
