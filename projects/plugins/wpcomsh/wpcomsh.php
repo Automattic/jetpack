@@ -25,6 +25,19 @@ if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 	require_once __DIR__ . '/class-atomic-persistent-data.php';
 }
 
+/**
+ * Returns a shared Atomic_Persistent_Data instance, as each new instance re-reads and decodes the data file.
+ *
+ * @return Atomic_Persistent_Data
+ */
+function wpcomsh_get_atomic_persistent_data() {
+	static $persistent_data = null;
+	if ( $persistent_data === null ) {
+		$persistent_data = new Atomic_Persistent_Data();
+	}
+	return $persistent_data;
+}
+
 require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
 require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-manager.php';
