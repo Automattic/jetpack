@@ -15,12 +15,7 @@ namespace Automattic\Jetpack\SEO;
 class Content_Coverage {
 
 	/**
-	 * Post-meta keys mirrored from `Jetpack_SEO_Posts` (in plugins/jetpack).
-	 * Duplicated here as literals on purpose: that plugin class is NOT reliably
-	 * loaded in this package's admin context (the `Jetpack_SEO_Utils`
-	 * `class_exists` guard in {@see Dashboard_Data::get_overview_data()} is there
-	 * for the same reason), so referencing its constants would fatal.
-	 * Content-coverage counting only needs the key strings, which are stable.
+	 * Post-meta keys holding the per-post SEO fields.
 	 */
 	const META_DESCRIPTION = 'advanced_seo_description';
 	const META_SCHEMA_TYPE = 'jetpack_seo_schema_type';

@@ -4,7 +4,7 @@
 // field here comes from a core REST record's `meta` object.
 
 // The allowed per-post Schema.org override. Mirrors
-// `Jetpack_SEO_Posts::ALLOWED_SCHEMA_TYPES` ('' = no override / default).
+// `Post_Seo::ALLOWED_SCHEMA_TYPES` ('' = no override / default).
 export type SchemaType = '' | 'article' | 'faq';
 
 // The SEO post meta as it arrives in a core REST record's `meta` object.
