@@ -26,6 +26,11 @@ export type RowsCsvActionOptions< TRow > = {
 	 * The primary request's state, its error not hidden by rows kept on screen.
 	 */
 	status: ReportCsvExportStatus;
+
+	// Never alongside the report download's options, so one call cannot mix the two.
+	exporter?: never;
+	report?: never;
+	rowCount?: never;
 };
 
 /** A download of the widget's loaded rows, or null until they settle. */

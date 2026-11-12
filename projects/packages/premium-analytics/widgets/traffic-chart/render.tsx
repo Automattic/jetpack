@@ -106,7 +106,7 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
 	const views = metricTabs.find( metric => metric.key === 'views' );
 
-	// Unlike the empty state below, a previous period with views does not make this one exportable.
+	// Export only when the current period has views; a previous period's views don't count.
 	const csv = useMemo(
 		() =>
 			views?.current.some( point => ( point.value ?? 0 ) > 0 )
@@ -115,11 +115,11 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 						withTime: period === 'hour',
 						dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
 					} )
-				: { rows: [], columns: [] },
+				: undefined,
 		[ metricTabs, views, timezone, period ]
 	);
 	useReportActions( {
-		csv: {
+		csv: csv && {
 			...csv,
 			filenamePrefix: 'traffic-summary',
 			hasDateRange: true,
