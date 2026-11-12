@@ -10,6 +10,8 @@ import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import PostViewsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -271,5 +273,57 @@ describe( 'PostViewsWidget', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 
 		await waitFor( () => expect( statsPostCalls() ).toHaveLength( 2 ) );
+	} );
+	describe( 'CSV download', () => {
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+		let defaultSettings: ReturnType< typeof getSettings >;
+
+		beforeEach( () => {
+			defaultSettings = getSettings();
+			// Fourteen hours ahead of UTC: a bucket written in any other zone lands on the day before.
+			setSettings( {
+				...defaultSettings,
+				timezone: { string: 'Pacific/Kiritimati', offset: 14, offsetFormatted: '14', abbr: '' },
+			} );
+		} );
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+			setSettings( defaultSettings );
+		} );
+
+		it( 'saves each bucket the chart draws, dated in the site zone', async () => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+
+			const { findDeclaredAction } = renderWithActionsHost(
+				<PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } />
+			);
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			expect( downloads.files[ 0 ].filename ).toBe( 'post-779-views-2026-07-01_2026-07-07.csv' );
+			await expect( downloads.lines() ).resolves.toEqual( [
+				'"Date","Views"',
+				'"2026-07-01","0"',
+				'"2026-07-02","5"',
+				'"2026-07-03","0"',
+				'"2026-07-04","7"',
+				'"2026-07-05","0"',
+				'"2026-07-06","0"',
+				'"2026-07-07","0"',
+			] );
+		} );
+
+		it( 'offers no download for a window without views', async () => {
+			mockApiFetch.mockResolvedValue( { data: [ [ '2026-06-25', 9 ] ] } );
+
+			const { declaredAction } = renderWithActionsHost(
+				<PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } />
+			);
+			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+
+			expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+		} );
 	} );
 } );

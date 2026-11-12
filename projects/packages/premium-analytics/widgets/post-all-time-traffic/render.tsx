@@ -11,7 +11,9 @@ import {
 	describeError,
 	monthRange,
 	monthlyHeatmapLabels,
+	monthlyHeatmapToCsv,
 	resolveMonthlyHeatmapMetric,
+	useReportActions,
 	useWidgetRootContext,
 	yearRange,
 	type MonthlyHeatmapMetric,
@@ -54,6 +56,25 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 			} ) ),
 		[ rows ]
 	);
+
+	const csv = useMemo(
+		() =>
+			monthlyHeatmapToCsv(
+				heatmapRows.some( row => row.months.some( value => ( value ?? 0 ) > 0 ) ) ? heatmapRows : []
+			),
+		[ heatmapRows ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix:
+				metric === 'average'
+					? `post-${ postId }-daily-average-all-time-traffic`
+					: `post-${ postId }-all-time-traffic`,
+			hasDateRange: false,
+			status: { isLoading, isFetching, isError },
+		},
+	} );
 
 	const openMonth = useMemo( () => {
 		if ( ! openPeriod ) {

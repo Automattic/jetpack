@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
 	HEADLINE_COUNT_FORMAT,
 	ChartEmptyState,
@@ -11,6 +12,8 @@ import {
 	WidgetState,
 	defaultPeriodForInterval,
 	getPostTypeCopy,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
@@ -65,6 +68,24 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 		],
 		[ current ]
 	);
+	const csv = useMemo(
+		() =>
+			metricTabsToCsv( current.some( point => point.value > 0 ) ? metricTabs : [], {
+				zone: reportingTimeZone(),
+				withTime: false,
+				dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+			} ),
+		[ current, metricTabs ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: `post-${ postId }-views`,
+			hasDateRange: true,
+			status: { isLoading, isFetching, isError },
+		},
+	} );
+
 	return (
 		<div className={ styles.root }>
 			<WidgetState

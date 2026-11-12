@@ -111,6 +111,7 @@ type EmailBreakdownRowsState = {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	csvIsError: boolean;
 	refetch: () => void;
 };
 
@@ -190,6 +191,7 @@ export default function useEmailBreakdownRows( {
 		// has data, a transient refetch failure keeps showing the populated rows
 		// instead of replacing them with the error state.
 		isError: activeQueries.some( query => query.isError && query.data === undefined ),
+		csvIsError: activeQueries.some( query => query.isError ),
 		refetch: () => activeQueries.forEach( query => query.refetch() ),
 	};
 }

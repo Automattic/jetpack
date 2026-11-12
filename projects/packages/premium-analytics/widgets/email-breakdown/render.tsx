@@ -12,7 +12,9 @@ import {
 	flagUrl,
 	safeHttpUrl,
 	useMapName,
+	useReportActions,
 	useWidgetRootContext,
+	type CsvColumn,
 	type LeaderboardChartData,
 	type LeaderboardRowMedia,
 	type GeoData,
@@ -113,6 +115,35 @@ function emptyStateText( view: EmailBreakdownView ): string {
 		default:
 			return __( 'No country data for this email yet.', 'jetpack-premium-analytics-pkg' );
 	}
+}
+
+function csvColumns(
+	view: EmailBreakdownView,
+	metric: EmailBreakdownMetric
+): CsvColumn< EmailBreakdownRow >[] {
+	const labels: Record< EmailBreakdownView, string > = {
+		countries: __( 'Country', 'jetpack-premium-analytics-pkg' ),
+		devices: __( 'Device', 'jetpack-premium-analytics-pkg' ),
+		clients: __( 'Email client', 'jetpack-premium-analytics-pkg' ),
+		links: __( 'Link', 'jetpack-premium-analytics-pkg' ),
+	};
+	const columns: CsvColumn< EmailBreakdownRow >[] = [
+		{ label: labels[ view ] ?? labels.countries, getValue: row => row.label },
+		{
+			label:
+				view === 'links' || metric === 'clicks'
+					? __( 'Clicks', 'jetpack-premium-analytics-pkg' )
+					: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
+			getValue: row => row.value,
+		},
+	];
+
+	return view === 'links'
+		? [
+				...columns,
+				{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+			]
+		: columns;
 }
 
 type EmailBreakdownLeaderboardProps = {
@@ -222,11 +253,23 @@ function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportPr
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { allRows, rows, isLoading, isFetching, isError, refetch } = useEmailBreakdownRows( {
-		postId,
-		view,
-		metric,
-		max: WIDGET_ROW_LIMIT,
+	const { allRows, rows, isLoading, isFetching, isError, csvIsError, refetch } =
+		useEmailBreakdownRows( {
+			postId,
+			view,
+			metric,
+			max: WIDGET_ROW_LIMIT,
+		} );
+
+	const columns = useMemo( () => csvColumns( view, metric ), [ view, metric ] );
+	useReportActions( {
+		csv: {
+			rows: allRows,
+			columns,
+			filenamePrefix: `email-${ postId }-${ view }-${ view === 'links' ? 'clicks' : metric }`,
+			hasDateRange: false,
+			status: { isLoading, isFetching, isError: csvIsError },
+		},
 	} );
 
 	return (
