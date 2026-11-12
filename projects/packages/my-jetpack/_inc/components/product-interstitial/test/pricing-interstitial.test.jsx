@@ -201,6 +201,7 @@ it.each( [ 'security', 'growth', 'complete' ] )(
 		expect( screen.getByTestId( 'offer-skeleton' ) ).toBeInTheDocument();
 		isLoading = false;
 		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.queryByTestId( 'offer-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeEnabled();
 		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
 		pro.pricingForUi = { catalogAvailable: true, available: true };

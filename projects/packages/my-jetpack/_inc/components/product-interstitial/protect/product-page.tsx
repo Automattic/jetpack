@@ -307,7 +307,7 @@ export default function ProtectProductPage() {
 								<div
 									className={ styles[ 'product-interstitial__section-sub-heading-placeholder' ] }
 								>
-									<LoadingBlock height="48px" width="100%" />
+									<LoadingBlock height="24px" width="100%" />
 								</div>
 							) : (
 								<p className={ styles[ 'product-interstitial__section-sub-heading' ] }>
