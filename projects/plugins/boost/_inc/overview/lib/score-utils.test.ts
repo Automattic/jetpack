@@ -1,6 +1,7 @@
 import { getLocaleData, resetLocaleData, setLocaleData } from '@wordpress/i18n';
 import {
 	formatScoreDelta,
+	getEstimatedPercent,
 	getScoreDelta,
 	getScoreTierColor,
 	getScoreTierLabel,
@@ -10,6 +11,16 @@ test( 'uses the shared score card color tokens for each tier', () => {
 	expect( getScoreTierColor( 'good' ) ).toBe( 'var(--jetpack-boost-score-good)' );
 	expect( getScoreTierColor( 'medium' ) ).toBe( 'var(--jetpack-boost-score-medium)' );
 	expect( getScoreTierColor( 'poor' ) ).toBe( 'var(--jetpack-boost-score-poor)' );
+} );
+
+test.each( [
+	[ 0, 0 ],
+	[ 20, 45 ],
+	[ 40, 90 ],
+	[ 80, 96 ],
+	[ 400, 99 ],
+] )( 'estimates a run %ss into a usual 40s as %s%% done', ( elapsed, percent ) => {
+	expect( getEstimatedPercent( elapsed, 40 ) ).toBe( percent );
 } );
 
 test.each( [

@@ -159,13 +159,7 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
 		return false;
 	}
 
-	$persistent_data = new \Atomic_Persistent_Data();
-
-	if ( $persistent_data->{"site_sticker_{$sticker_name}"} ) {
-		return true;
-	}
-
-	return false;
+	return (bool) wpcomsh_get_atomic_persistent_data()->{"site_sticker_{$sticker_name}"};
 }
 
 /**
@@ -231,7 +225,7 @@ add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
 function wpcomsh_get_wpcom_admin_interface_option() {
 
 	if ( class_exists( '\Atomic_Persistent_Data' ) ) {
-		$persistent_data = new \Atomic_Persistent_Data();
+		$persistent_data = wpcomsh_get_atomic_persistent_data();
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		if ( isset( $persistent_data->WPCOM_ADMIN_INTERFACE ) ) {

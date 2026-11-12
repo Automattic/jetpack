@@ -26,11 +26,22 @@ use WP_REST_Server;
 class Playlist_Manager {
 
 	/**
-	 * Route base under Rest_Controller::REST_NAMESPACE.
+	 * REST namespace for the playlist routes.
+	 *
+	 * The wpcom namespaces are the ones WordPress.com's public API serves for
+	 * Simple sites ( jetpack/v4 is only proxied to Jetpack-connected sites ), and
+	 * they resolve locally on Jetpack and Atomic sites.
 	 *
 	 * @var string
 	 */
-	const ROUTE = '/playlists';
+	const REST_NAMESPACE = 'wpcom/v3';
+
+	/**
+	 * Route base under REST_NAMESPACE.
+	 *
+	 * @var string
+	 */
+	const ROUTE = '/videopress/playlists';
 
 	/**
 	 * Accepted playlist keys, as sanitize_key() leaves them.
@@ -152,7 +163,7 @@ class Playlist_Manager {
 	 */
 	public static function register_rest_routes() {
 		register_rest_route(
-			Rest_Controller::REST_NAMESPACE,
+			self::REST_NAMESPACE,
 			self::ROUTE,
 			array(
 				array(
@@ -219,7 +230,7 @@ class Playlist_Manager {
 		);
 
 		register_rest_route(
-			Rest_Controller::REST_NAMESPACE,
+			self::REST_NAMESPACE,
 			self::ROUTE . '/(?P<key>' . self::KEY_PATTERN . ')',
 			array(
 				array(

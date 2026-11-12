@@ -7,6 +7,7 @@ import {
 	isYearPresetId,
 	parseDateStepId,
 	readSiteTimestamp,
+	toComparisonPresetId,
 	type SelectablePresetId,
 	type ComparisonPresetId,
 	type ComputablePresetId,
@@ -15,7 +16,7 @@ import {
 /**
  * Internal dependencies
  */
-import { getDefaultQueryParams } from '../defaults';
+import { getDefaultQueryParams, withComparisonPreset } from '../defaults';
 import {
 	NO_LOCKED_INTERVALS,
 	resolveIntervalForRange,
@@ -159,9 +160,17 @@ export function normalizeReportParams(
 		...( authorId > 0 ? { author_id: authorId } : {} ),
 	};
 
-	// Comparison only ever comes from the URL; a fresh load gets its default
-	// from the routes' `seedSiteDateParams`.
+	// Comparison is on only where the URL turns it on; a fresh load gets its default from the
+	// routes' `seedSiteDateParams`.
 	if ( search && hasComparisonEnabled( search ) ) {
+		// A preset window was re-read as today's above, so its comparison preset is measured again
+		// from it; a hand-picked window, or one that cannot be measured, keeps the URL's comparison.
+		const comparisonPresetId = presetRange && toComparisonPresetId( search.compare_preset );
+		const measured = comparisonPresetId && withComparisonPreset( normalized, comparisonPresetId );
+		if ( measured?.comp ) {
+			return measured;
+		}
+
 		normalized.compare_from = canonicalTimestamp( search.compare_from );
 		normalized.compare_to = canonicalTimestamp( search.compare_to );
 		normalized.compare_preset = search.compare_preset;
@@ -172,7 +181,7 @@ export function normalizeReportParams(
 }
 
 /**
- * Whether report date params are incomplete or the interval is invalid for the range.
+ * Whether report date params are incomplete or the interval is invalid for the window the report reads.
  */
 export function needsReportDateParamsSeed(
 	search?: ReportDateWindowSearch,
@@ -190,11 +199,8 @@ export function needsReportDateParamsSeed(
 		return true;
 	}
 
-	// Only rolling presets have preset-specific interval rules. Other presets
-	// derive their allowed intervals from the range, like an absent preset.
-	const preset = isSelectablePreset( search.preset ) ? search.preset : undefined;
+	// Against the window the widgets read: a preset names today's dates, not the ones the URL kept.
 	return (
-		resolveIntervalForRange( preset, search.from, search.to, search.interval, lockedIntervals ) !==
-		search.interval
+		normalizeReportParams( search, undefined, { lockedIntervals } ).interval !== search.interval
 	);
 }

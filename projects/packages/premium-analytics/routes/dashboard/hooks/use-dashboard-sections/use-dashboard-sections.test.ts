@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import { renderHook } from '@testing-library/react';
+import { DASHBOARD_PREFERENCES_SCOPE, setSectionOrder } from '@jetpack-premium-analytics/data';
+import { act, renderHook } from '@testing-library/react';
+// Registers the store the order is kept in.
+import '@wordpress/preferences';
 /**
  * Internal dependencies
  */
@@ -13,9 +16,19 @@ jest.mock( '@wordpress/core-data', () => ( {
 	useEntityRecords: ( ...args: unknown[] ) => mockUseEntityRecords( ...args ),
 } ) );
 
+const RECORDS = [
+	{ id: 'analytics/traffic', slug: 'traffic' },
+	{ id: 'analytics/insights', slug: 'insights' },
+];
+
 describe( 'useDashboardSections', () => {
 	beforeEach( () => {
 		mockUseEntityRecords.mockReset();
+	} );
+
+	afterEach( () => {
+		// The hook is still mounted, and follows the store.
+		act( () => setSectionOrder( DASHBOARD_PREFERENCES_SCOPE ) );
 	} );
 
 	it( 'asks core-data for every dashboard section, not its default first page', () => {
@@ -37,15 +50,23 @@ describe( 'useDashboardSections', () => {
 	} );
 
 	it( 'hands back the records in the server order once resolved', () => {
-		const records = [
-			{ id: 'analytics/traffic', slug: 'traffic' },
-			{ id: 'analytics/insights', slug: 'insights' },
-		];
-		mockUseEntityRecords.mockReturnValue( { records, hasResolved: true } );
+		mockUseEntityRecords.mockReturnValue( { records: RECORDS, hasResolved: true } );
 
 		const { result } = renderHook( () => useDashboardSections() );
 
-		expect( result.current.sections ).toBe( records );
+		expect( result.current.sections ).toBe( RECORDS );
 		expect( result.current.hasResolved ).toBe( true );
+	} );
+
+	it( 'follows the order the reader arranges, as they arrange it', () => {
+		mockUseEntityRecords.mockReturnValue( { records: RECORDS, hasResolved: true } );
+		const { result } = renderHook( () => useDashboardSections() );
+
+		act( () => setSectionOrder( DASHBOARD_PREFERENCES_SCOPE, [ 'insights' ] ) );
+
+		expect( result.current.sections.map( section => section.slug ) ).toEqual( [
+			'insights',
+			'traffic',
+		] );
 	} );
 } );

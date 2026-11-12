@@ -34,8 +34,9 @@ class Plan {
 
 	/**
 	 * Every Scan product's slug starts with this: monthly, bi-yearly and the legacy real-time ones.
+	 * Automattic for Agencies licenses add an `a4a_` prefix, as in `a4a_jetpack_scan_yearly`.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.10.2
 	 *
 	 * @var string
 	 */
@@ -116,6 +117,9 @@ class Plan {
 
 		$products = array_column( Current_Plan::get_products(), 'product_slug' );
 
-		return array() !== array_filter( $products, fn( $slug ) => 0 === strpos( (string) $slug, self::SCAN_PRODUCT_PREFIX ) );
+		return array() !== array_filter(
+			$products,
+			fn( $slug ) => 0 === strpos( (string) preg_replace( '/^a4a_/', '', (string) $slug ), self::SCAN_PRODUCT_PREFIX )
+		);
 	}
 }

@@ -493,6 +493,16 @@ type MainFeaturesState = {
 	hidden_modules?: string[];
 	available_admin_pages?: string[];
 	plugin_installs?: MainFeatureInstallAccess;
+	settings_entries?: MainFeatureSettingsEntry[];
+};
+
+// A setting with no module that opens in the settings panel, such as Google Analytics.
+type MainFeatureSettingsEntry = {
+	slug: string;
+	name: string;
+	description: string;
+	// On but missing what it needs to work, such as GA's Measurement ID, is `needs-setup`.
+	status: 'active' | 'inactive' | 'needs-setup';
 };
 
 type OfflineFeaturesSeed = {
@@ -508,7 +518,10 @@ type OfflineFeaturesScriptData = import( '@automattic/jetpack-script-data' ).MyJ
 
 type MainFeatureModuleGroup = {
 	label: string;
+	groups?: string[];
 	modules: string[];
+	// Settings entries listed under this heading when the site has them.
+	settings?: string[];
 };
 
 // Whether the current user may install plugins here: not while file changes are off site-wide, or not with their role.
@@ -544,6 +557,8 @@ type MainFeature = {
 	screenshot: string;
 	// `owned` is per plan: a site on Growth owns that one and can still buy Complete.
 	plans: Array< { slug: string; name: string; owned?: boolean } >;
+	// The Security and Growth filter pills' categories.
+	groups: string[];
 	info_url: string;
 	docs_url: string;
 	product: string;

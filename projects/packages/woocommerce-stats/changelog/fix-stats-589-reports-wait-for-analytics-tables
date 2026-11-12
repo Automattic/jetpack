@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Charts and Store performance: Use the shared error copy, so they say when the store's analytics data is still being prepared.

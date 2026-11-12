@@ -1,40 +1,17 @@
 import { test, expect } from '@playwright/test';
 import {
-	FORMS_LEAK,
 	MEMBERS,
 	expectShown,
 	installShellProbe,
 	menuLink,
 	openMember,
+	skipUnlessOnSite,
 	switchTo,
 	where,
 } from '../../helpers/admin-shell-helper';
 
-const pairs = MEMBERS.flatMap( ( a, i ) => MEMBERS.slice( i + 1 ).map( b => [ a, b ] as const ) );
-
-const FORMS = 'jetpack-forms-responses-wp-admin';
-
-/* Spike bugs seen on this matrix, first match wins. Delete a row when its fix lands. */
-const SPIKE_BUGS: { a?: string; b?: string; reason: string }[] = [
-	{
-		a: 'my-jetpack',
-		b: 'jetpack-settings',
-		reason: 'Spike bug: Settings renders blank when opened from My Jetpack.',
-	},
-	{
-		a: FORMS,
-		reason: FORMS_LEAK,
-	},
-	{
-		b: FORMS,
-		reason: 'Spike bug: switching to Forms sets the title to "Forms", not "Jetpack Forms".',
-	},
-	{
-		a: 'my-jetpack',
-		reason:
-			'Spike bug: back on My Jetpack, no sidebar item is highlighted (it matches the top-level link).',
-	},
-];
+/* Every ordered pair, so each member is tested as the host and as a guest. */
+const pairs = MEMBERS.flatMap( a => MEMBERS.filter( b => b !== a ).map( b => [ a, b ] as const ) );
 
 test.describe( 'Admin shell: navigation matrix', () => {
 	test.beforeEach( async ( { page } ) => {
@@ -43,12 +20,9 @@ test.describe( 'Admin shell: navigation matrix', () => {
 
 	for ( const [ a, b ] of pairs ) {
 		test( `${ a.slug } → ${ b.slug } → ${ a.slug }`, async ( { page } ) => {
-			const bug = SPIKE_BUGS.find(
-				row => ( ! row.a || row.a === a.slug ) && ( ! row.b || row.b === b.slug )
-			);
-			test.fail( !! bug, bug?.reason );
+			await skipUnlessOnSite( page, a.slug, b.slug );
 			await openMember( page, a.slug );
-			test.skip( ! ( await menuLink( page, b.slug ).count() ), `${ b.slug } is not in the menu` );
+			await expect( menuLink( page, b.slug ), `${ b.slug } is in the menu` ).toBeAttached();
 			await expectShown( page, a.slug );
 			const leftAt = await where( page );
 

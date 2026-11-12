@@ -12,7 +12,7 @@ use Automattic\Jetpack\WooCommerceStats\Api_Proxy_Controller;
 /**
  * One handler for every report WordPress.com serves, through the proxy controller's transport.
  *
- * @since $$next-version$$
+ * @since 0.3.3
  */
 class Wpcom_Forward_Handler implements Report_Handler {
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: Keep a working sitemap available while the first Jetpack index is generated.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+JSON API: Fix a fatal error on PHP 8 when an endpoint documents a field without a type.
