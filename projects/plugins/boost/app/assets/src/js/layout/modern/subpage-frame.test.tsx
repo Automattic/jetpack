@@ -9,6 +9,7 @@ const mockBackToSettings = jest.fn( ( event: MouseEvent ) => event.preventDefaul
 
 beforeEach( () => {
 	mockBackToSettings.mockClear();
+	// With My Jetpack on, the "no Jetpack link" checks fail if the header's Jetpack crumb returns.
 	Object.assign( window, { Jetpack_Boost: { site: { myJetpack: true } } } );
 } );
 jest.mock( '$lib/navigation/use-back-to-settings', () => ( {

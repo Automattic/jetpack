@@ -114,6 +114,7 @@ beforeEach( () => {
 	window.history.replaceState( null, '', '/?page=jetpack-boost' );
 	Object.assign( window, {
 		wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' },
+		// With My Jetpack on, the "no Jetpack link" checks fail if the header's Jetpack crumb returns.
 		Jetpack_Boost: { site: { myJetpack: true } },
 	} );
 	mockNavigate.mockReset();
@@ -140,18 +141,15 @@ describe( 'Boost dashboard stage', () => {
 	it.each( [
 		[ 'Overview', '' ],
 		[ 'Settings', SETTINGS_ARG ],
-	] )(
-		'titles the %s page "Boost", with no breadcrumbs, when My Jetpack is available',
-		( _page, query ) => {
-			window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
-			render( <Stage /> );
+	] )( 'titles the %s page "Boost", with no breadcrumbs', ( _page, query ) => {
+		window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
+		render( <Stage /> );
 
-			expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Boost' );
-			expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
-			expect( screen.queryByRole( 'navigation', { name: 'Breadcrumbs' } ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
-		}
-	);
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Boost' );
+		expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
+		expect( screen.queryByRole( 'navigation', { name: 'Breadcrumbs' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
+	} );
 
 	it.each( [ '', SETTINGS_ARG, '&tab=settings', '&p=%2F%3Ftab%3Doverview' ] )(
 		'renders one page for %s and scrolls to its destination',
