@@ -9,7 +9,6 @@ use Automattic\Jetpack\Reprint_Export\Activity_Log;
 use Automattic\Jetpack\Reprint_Export\Reprint_Exporter;
 use Automattic\Jetpack\Sync\Activity_Log_Event;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests the Activity_Log class.
@@ -69,34 +68,29 @@ class Reprint_Activity_Log_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Per-request events are logged once per throttle window, not once per request.
-	 *
-	 * @dataProvider provide_throttled_events
-	 * @param string $event Event name.
+	 * Served requests are logged once per throttle window, not once per request.
 	 */
-	#[DataProvider( 'provide_throttled_events' )]
-	public function test_per_request_events_are_throttled( $event ) {
+	public function test_served_requests_are_throttled() {
 		Activity_Log::init();
 
 		for ( $i = 0; $i < 3; $i++ ) {
-			Reprint_Exporter::record_event( $event, array( 'code' => 403 ) );
+			Reprint_Exporter::record_event( 'export_served', array( 'endpoint' => 'sql_chunk' ) );
 		}
 		$this->assertCount( 1, $this->logged_entries() );
 
-		delete_transient( Activity_Log::THROTTLE_TRANSIENT_PREFIX . $event );
-		Reprint_Exporter::record_event( $event, array( 'code' => 403 ) );
+		delete_transient( Activity_Log::THROTTLE_TRANSIENT_PREFIX . 'export_served' );
+		Reprint_Exporter::record_event( 'export_served', array( 'endpoint' => 'sql_chunk' ) );
 		$this->assertCount( 2, $this->logged_entries(), 'Once the window passes, the next request is logged.' );
 	}
 
 	/**
-	 * Data provider for test_per_request_events_are_throttled.
-	 *
-	 * @return array
+	 * Refused requests stay out of the log: a wrong credential is routine, not news for the owner.
 	 */
-	public static function provide_throttled_events() {
-		return array(
-			'served'  => array( 'export_served' ),
-			'refused' => array( 'export_refused' ),
-		);
+	public function test_refused_requests_are_not_logged() {
+		Activity_Log::init();
+
+		Reprint_Exporter::record_event( 'export_refused', array( 'code' => 403 ) );
+
+		$this->assertSame( array(), $this->logged_entries() );
 	}
 }

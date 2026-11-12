@@ -31,7 +31,7 @@ class Activity_Log {
 	 *
 	 * @var string[]
 	 */
-	const THROTTLED_EVENTS = array( 'export_served', 'export_refused' );
+	const THROTTLED_EVENTS = array( 'export_served' );
 
 	/**
 	 * Throttle window for THROTTLED_EVENTS, in seconds.
@@ -139,19 +139,6 @@ class Activity_Log {
 					'title'    => __( 'Site export in progress', 'jetpack' ),
 					'content'  => __( 'Jetpack is serving an export of this site. Further export requests in the next hour are not logged individually.', 'jetpack' ),
 					'severity' => 'info',
-				);
-
-			case 'export_refused':
-				$status = isset( $context['code'] ) ? (int) $context['code'] : 0;
-				$reason = isset( $context['reason_code'] ) ? sprintf( '%d: %s', $status, $context['reason_code'] ) : (string) $status;
-				return array(
-					'title'    => __( 'Site export request refused', 'jetpack' ),
-					'content'  => sprintf(
-						/* translators: %s: HTTP status code, optionally followed by a machine-readable reason. */
-						__( 'Jetpack refused a request to export this site (HTTP %s). Further refusals in the next hour are not logged individually.', 'jetpack' ),
-						$reason
-					),
-					'severity' => 'warning',
 				);
 
 			case 'credentials_discarded':
