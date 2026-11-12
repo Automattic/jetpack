@@ -65,9 +65,7 @@ export const route = {
 	// Boot runs this alongside its REST index fetch, so the sections and widget types the stage
 	// reads go out in parallel with it. Same queries as the hooks, or core-data fetches twice.
 	loader: () => {
-		const core = resolveSelect( coreStore ) as unknown as {
-			getEntityRecords: ( kind: string, name: string, query: object ) => Promise< unknown >;
-		};
+		const core = resolveSelect( coreStore );
 		core.getEntityRecords( 'root', 'dashboardSection', DASHBOARD_SECTIONS_QUERY ).catch( () => {} );
 		core.getEntityRecords( 'root', 'widgetModule', WIDGET_MODULES_QUERY ).catch( () => {} );
 	},
