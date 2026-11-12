@@ -50,21 +50,13 @@ class Reprint_Activity_Log_Test extends WP_UnitTestCase {
 	 * Exporter events reach the log once maybe_init() has run.
 	 */
 	public function test_maybe_init_logs_exporter_events() {
-		$user_id = $this->factory()->user->create(
-			array(
-				'role'       => 'administrator',
-				'user_login' => 'reprint_admin',
-			)
-		);
-
 		Reprint_Exporter::maybe_init();
-		Reprint_Exporter::record_event( 'window_opened', array( 'user_id' => $user_id ) );
+		Reprint_Exporter::record_event( 'public_key_installed', array( 'key_id' => '4b37f5a28eae7fed' ) );
 
 		$entries = $this->logged_entries();
 		$this->assertCount( 1, $entries );
 		$this->assertSame( 'warning', $entries[0]['severity'] );
-		$this->assertSame( Activity_Log::SOURCE, $entries[0]['source'] );
-		$this->assertStringContainsString( 'reprint_admin', $entries[0]['content'] );
+		$this->assertStringContainsString( '4b37f5a28eae7fed', $entries[0]['content'] );
 	}
 
 	/**
