@@ -317,7 +317,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 				columnLabel: data[ columnIndex ]?.label,
 				groupLabel: group === undefined ? undefined : groupLayout.groups[ group ]?.label,
 				cellLabel: cell?.label,
-				partial: cell?.partial === true,
+				partial: cell?.partial === true && ! data[ columnIndex ]?.summary,
 				row: rowIndex,
 				column: columnIndex,
 			};
@@ -694,8 +694,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 										const value = cell?.value ?? null;
 										const present = isPresent( value );
+										const info = buildTooltipData( columnIndex, rowIndex );
 										// A summary cell is on another scale, so it takes no fill.
-										const partial = cell?.partial === true && ! column.summary;
+										const partial = info.partial === true;
 										let testId = 'heatmap-cell';
 										if ( column.summary ) {
 											testId = 'heatmap-cell-summary';
@@ -705,7 +706,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										const filled =
 											present && ! partial && ! column.summary && ! isEmptyValue( value, extent );
 										const normalized = filled ? placeOnScale( value ) : 0;
-										const info = buildTooltipData( columnIndex, rowIndex );
 										const valueLabel =
 											info.value === null
 												? __( 'No data', 'jetpack-charts' )
