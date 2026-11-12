@@ -203,7 +203,11 @@ for SLUG in "${TO_RELEASE[@]}"; do
 	MIRROR=$(jq -r '.extra["mirror-repo"] // empty' composer.json)
 	if [[ -n "$RELEASEBRANCH" && "$SLUG" == packages/* && -n "$MIRROR" && "$SLUG" != "$REL_SLUG" ]]; then
 		EXISTING_TAGS=$(git ls-remote --tags "https://github.com/$MIRROR" | sed 's|.*refs/tags/||')
-		if [[ "$OLDVER" =~ ^[0-9]+(\.[0-9]+){3}$ ]] || grep -qxF "v$(changelogger version next)" <<<"$EXISTING_TAGS"; then
+		if [[ "$OLDVER" =~ ^[0-9]+(\.[0-9]+){3}$ ]] ||
+			grep -qxF "v$(changelogger version next --use-significance=patch)" <<<"$EXISTING_TAGS" ||
+			grep -qxF "v$(changelogger version next --use-significance=minor)" <<<"$EXISTING_TAGS" ||
+			grep -qxF "v$(changelogger version next --use-significance=major)" <<<"$EXISTING_TAGS"
+		then
 			FOURPOINT_BASE=$(cut -d. -f1-3 <<<"$OLDVER")
 			FOURPOINT_N=1
 			while grep -qxF "v$FOURPOINT_BASE.$FOURPOINT_N" <<<"$EXISTING_TAGS"; do
