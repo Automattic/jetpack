@@ -1,4 +1,3 @@
 {
-	"redefinable-internals": [ "exit", "die" ],
-	"cache-path": "../../.phpunit.cache/patchwork"
+	"redefinable-internals": [ "exit", "die" ]
 }
