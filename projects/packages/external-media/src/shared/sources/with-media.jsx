@@ -12,6 +12,8 @@ import { authenticateMediaSource } from '../media-service';
 import { MediaSource } from '../media-service/types';
 import './with-media.scss';
 
+const COPY_BATCH_SIZE = 10;
+
 /**
  * withMedia
  *
@@ -211,7 +213,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 					.catch( this.handleApiError );
 			};
 
-			copyMedia = ( items, apiUrl, source, shouldProxy = false ) => {
+			copyMedia = async ( items, apiUrl, source, shouldProxy = false ) => {
 				this.setState( { isCopying: items } );
 				this.props.noticeOperations.removeAllNotices();
 
@@ -221,22 +223,27 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 					this.modalElement.focus();
 				}
 
-				apiFetch( {
-					path: apiUrl,
-					method: 'POST',
-					data: {
-						external_ids: items.map( item => item.guid ), // WPCOM.
-						media: items.map( item => ( {
-							guid: item.guid,
-							caption: item.caption,
-							title: item.title,
-						} ) ),
-						service: source, // WPCOM.
-						post_id: this.props.postId,
-						should_proxy: shouldProxy,
-					},
-				} )
-					.then( result => {
+				// The copy endpoint sideloads items one by one, so batch requests to avoid timeouts.
+				const copied = [];
+				try {
+					for ( let i = 0; i < items.length; i += COPY_BATCH_SIZE ) {
+						const batch = items.slice( i, i + COPY_BATCH_SIZE );
+						let result = await apiFetch( {
+							path: apiUrl,
+							method: 'POST',
+							data: {
+								external_ids: batch.map( item => item.guid ), // WPCOM.
+								media: batch.map( item => ( {
+									guid: item.guid,
+									caption: item.caption,
+									title: item.title,
+								} ) ),
+								service: source, // WPCOM.
+								post_id: this.props.postId,
+								should_proxy: shouldProxy,
+							},
+						} );
+
 						// Convert response on Simple Sites.
 						if ( result.media ) {
 							result = result.media.map( image => ( {
@@ -259,10 +266,14 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 							return;
 						}
 
-						this.props.onClose();
-						this.props.onSelect( this.selectMediaForMode( result ) );
-					} )
-					.catch( this.handleApiError );
+						copied.push( ...result );
+					}
+
+					this.props.onClose();
+					this.props.onSelect( this.selectMediaForMode( copied ) );
+				} catch ( error ) {
+					this.handleApiError( error );
+				}
 			};
 
 			mapImageToResult = image => ( {

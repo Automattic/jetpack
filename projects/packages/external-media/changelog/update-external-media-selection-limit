@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Allow selecting up to 50 items at once in multi-select flows, and show a notice when the limit is reached instead of silently deselecting an item.
