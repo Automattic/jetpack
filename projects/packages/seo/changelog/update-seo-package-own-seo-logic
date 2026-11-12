@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move the SEO enabled check and per-post description and schema type logic into the package; no change in behaviour.
+
+

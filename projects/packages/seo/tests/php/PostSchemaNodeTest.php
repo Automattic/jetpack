@@ -19,15 +19,23 @@ use WP_Post;
 #[CoversClass( Post_Schema_Node::class )]
 class PostSchemaNodeTest extends TestCase {
 
+	protected function tearDown(): void {
+		remove_all_filters( 'get_post_metadata' );
+		parent::tearDown();
+	}
+
 	/**
-	 * Reset the host-plugin stubs (see tests/php/bootstrap.php) before each test.
-	 *
-	 * @return void
+	 * Make every post report the "faq" schema-type override, including unsaved ones.
 	 */
-	protected function setUp(): void {
-		parent::setUp();
-		\Jetpack_SEO_Posts::$schema_type = '';
-		\Jetpack_SEO_Posts::$description = '';
+	private function set_faq_schema_type() {
+		add_filter(
+			'get_post_metadata',
+			static function ( $value, $post_id, $key ) {
+				return Content_Coverage::META_SCHEMA_TYPE === $key ? array( 'faq' ) : $value;
+			},
+			10,
+			3
+		);
 	}
 
 	/**
@@ -48,6 +56,8 @@ class PostSchemaNodeTest extends TestCase {
 					'post_date'     => '2026-01-01 00:00:00',
 					'post_date_gmt' => '2026-01-01 00:00:00',
 					'post_author'   => 0,
+					// Marks the object as already loaded, so get_post() doesn't look this unsaved post up.
+					'filter'        => 'raw',
 				),
 				$fields
 			)
@@ -133,16 +143,22 @@ class PostSchemaNodeTest extends TestCase {
 	 */
 	#[DataProvider( 'provide_stored_article_text' )]
 	public function test_article_text_decodes_html_entities( $field, $stored, $expected ) {
-		\Jetpack_SEO_Posts::$description = 'description' === $field ? $stored : 'Summary';
-
 		$post_id = wp_insert_post(
 			array(
 				'post_status' => 'publish',
 				'post_title'  => 'headline' === $field ? $stored : 'Title',
 			)
 		);
-		$node    = Post_Schema_Node::build( get_post( $post_id ) );
+		update_post_meta( $post_id, Content_Coverage::META_DESCRIPTION, 'description' === $field ? $stored : 'Summary' );
+
+		// The description is only built on a singular view.
+		global $wp_query;
+		$wp_query              = new \WP_Query();
+		$wp_query->is_singular = true;
+
+		$node = Post_Schema_Node::build( get_post( $post_id ) );
 		wp_delete_post( $post_id, true );
+		$wp_query = new \WP_Query();
 
 		$this->assertSame( $expected, $node[ $field ] );
 	}
@@ -177,7 +193,7 @@ class PostSchemaNodeTest extends TestCase {
 	 * so the question (the `<summary>`) is not duplicated into the answer text.
 	 */
 	public function test_faq_answer_excludes_the_question() {
-		\Jetpack_SEO_Posts::$schema_type = 'faq';
+		$this->set_faq_schema_type();
 
 		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is <strong>SEO</strong> &amp; AEO?</summary>';
@@ -202,7 +218,7 @@ class PostSchemaNodeTest extends TestCase {
 	 * the paywall never sees the answers this node would expose.
 	 */
 	public function test_faq_is_null_for_gated_post() {
-		\Jetpack_SEO_Posts::$schema_type = 'faq';
+		$this->set_faq_schema_type();
 
 		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
@@ -229,8 +245,8 @@ class PostSchemaNodeTest extends TestCase {
 	 * an empty/invalid FAQPage.
 	 */
 	public function test_faq_without_details_blocks_is_null() {
-		\Jetpack_SEO_Posts::$schema_type = 'faq';
-		$node                            = Post_Schema_Node::build(
+		$this->set_faq_schema_type();
+		$node = Post_Schema_Node::build(
 			$this->make_post( array( 'post_content' => '<!-- wp:paragraph --><p>No FAQ here.</p><!-- /wp:paragraph -->' ) )
 		);
 		$this->assertNull( $node );

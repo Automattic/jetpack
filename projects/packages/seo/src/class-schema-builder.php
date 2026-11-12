@@ -13,7 +13,7 @@
  * author's full Person node (added to the same graph) by `@id`, and — like the
  * WebSite node — references the home-page Organization as its `publisher` by
  * stable `@id` rather than duplicating the node. Emission is gated on
- * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()`.
+ * {@see Seo_Tools::is_enabled()}.
  *
  * This class owns only the gating and serialization; the individual nodes and
  * their stable `@id`s live in their own builders ({@see Post_Schema_Node},
@@ -26,8 +26,6 @@
  */
 
 namespace Automattic\Jetpack\SEO;
-
-use Jetpack_SEO_Utils;
 
 /**
  * Emits Schema.org JSON-LD `@graph` documents into the page.
@@ -50,10 +48,7 @@ class Schema_Builder {
 	 * @return void
 	 */
 	public static function emit() {
-		// Both plugin classes must be loaded — they're not guaranteed in every
-		// context, and the post node builder calls Jetpack_SEO_Posts directly.
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack; guarded by the class_exists check on the same line.
-		if ( ! class_exists( 'Jetpack_SEO_Utils' ) || ! class_exists( 'Jetpack_SEO_Posts' ) || ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+		if ( ! Seo_Tools::is_enabled() ) {
 			return;
 		}
 
@@ -167,8 +162,7 @@ class Schema_Builder {
 	 * @return void
 	 */
 	public static function emit_woocommerce_breadcrumb_fallback() {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack; guarded by the class_exists check on the same line.
-		if ( ! class_exists( 'Jetpack_SEO_Utils' ) || ! class_exists( 'Jetpack_SEO_Posts' ) || ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+		if ( ! Seo_Tools::is_enabled() ) {
 			return;
 		}
 

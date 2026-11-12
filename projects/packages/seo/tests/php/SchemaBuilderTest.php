@@ -35,10 +35,7 @@ class SchemaBuilderTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		\Jetpack_SEO_Utils::$enabled     = true;
-		\Jetpack_SEO_Posts::$schema_type = '';
-		\Jetpack_SEO_Posts::$description = '';
-		\WooCommerce::$is_template       = false;
+		\WooCommerce::$is_template = false;
 		$this->remove_schema_builder_hooks();
 		$this->remove_woo_schema_hooks();
 		\WC()->structured_data->reset_data();
@@ -50,6 +47,8 @@ class SchemaBuilderTest extends TestCase {
 	 * @return void
 	 */
 	protected function tearDown(): void {
+		remove_all_filters( 'get_post_metadata' );
+		remove_all_filters( 'jetpack_disable_seo_tools' );
 		remove_all_filters( 'pre_option_blogname' );
 		remove_all_filters( 'pre_option_show_on_front' );
 		remove_all_filters( 'home_url' );
@@ -116,6 +115,20 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
+	 * Make every post report the "faq" schema-type override, including unsaved ones.
+	 */
+	private function set_faq_schema_type() {
+		add_filter(
+			'get_post_metadata',
+			static function ( $value, $post_id, $key ) {
+				return Content_Coverage::META_SCHEMA_TYPE === $key ? array( 'faq' ) : $value;
+			},
+			10,
+			3
+		);
+	}
+
+	/**
 	 * Build a WP_Post from a field overrides array, with sensible publish defaults.
 	 *
 	 * @param array $fields Field overrides.
@@ -133,6 +146,8 @@ class SchemaBuilderTest extends TestCase {
 					'post_date'     => '2026-01-01 00:00:00',
 					'post_date_gmt' => '2026-01-01 00:00:00',
 					'post_author'   => 0,
+					// Marks the object as already loaded, so get_post() doesn't look this unsaved post up.
+					'filter'        => 'raw',
 				),
 				$fields
 			)
@@ -337,7 +352,7 @@ class SchemaBuilderTest extends TestCase {
 	 * Nothing is emitted when the SEO feature is disabled.
 	 */
 	public function test_emits_nothing_when_feature_disabled() {
-		\Jetpack_SEO_Utils::$enabled = false;
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 		$this->assertNull( $this->emit_document( $this->make_post() ) );
 	}
 
@@ -425,7 +440,7 @@ class SchemaBuilderTest extends TestCase {
 	 * A "faq" override emits a `@graph` document containing a FAQPage node.
 	 */
 	public function test_emits_graph_with_faqpage_for_faq_override() {
-		\Jetpack_SEO_Posts::$schema_type = 'faq';
+		$this->set_faq_schema_type();
 
 		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
@@ -779,7 +794,7 @@ class SchemaBuilderTest extends TestCase {
 	 */
 	public function test_faqpage_has_no_publisher() {
 		$this->set_site_name( 'Acme Co' );
-		\Jetpack_SEO_Posts::$schema_type = 'faq';
+		$this->set_faq_schema_type();
 
 		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';

@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\SEO\Content_Gate;
+use Automattic\Jetpack\SEO\Post_Seo;
+
 /**
  * Provides static utility methods for managing SEO options for Posts and Pages.
  */
@@ -39,6 +42,11 @@ class Jetpack_SEO_Posts {
 	 * @return string Post description or empty string.
 	 */
 	public static function get_post_description( $post = null ) {
+		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
+		if ( method_exists( Post_Seo::class, 'get_description' ) ) {
+			return Post_Seo::get_description( $post );
+		}
+
 		$post = get_post( $post );
 		if ( ! ( $post instanceof WP_Post ) ) {
 			return '';
@@ -62,8 +70,8 @@ class Jetpack_SEO_Posts {
 
 		// The fall-through reads raw post_content, which never passes the `the_content` paywall.
 		$content = $post->post_content;
-		if ( \Automattic\Jetpack\SEO\Content_Gate::is_gated( $post ) ) {
-			$content = \Automattic\Jetpack\SEO\Content_Gate::public_teaser( $post );
+		if ( Content_Gate::is_gated( $post ) ) {
+			$content = Content_Gate::public_teaser( $post );
 			if ( '' === $content ) {
 				return '';
 			}
@@ -82,6 +90,11 @@ class Jetpack_SEO_Posts {
 	 * @return string Custom description or empty string
 	 */
 	public static function get_post_custom_description( $post = null ) {
+		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
+		if ( method_exists( Post_Seo::class, 'get_custom_description' ) ) {
+			return Post_Seo::get_custom_description( $post );
+		}
+
 		$post = get_post( $post );
 		if ( ! ( $post instanceof WP_Post ) ) {
 			return '';
@@ -229,6 +242,11 @@ class Jetpack_SEO_Posts {
 	 * @return string A value from self::ALLOWED_SCHEMA_TYPES.
 	 */
 	public static function sanitize_schema_type( $value ) {
+		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
+		if ( method_exists( Post_Seo::class, 'sanitize_schema_type' ) ) {
+			return Post_Seo::sanitize_schema_type( $value );
+		}
+
 		$value = is_string( $value ) ? sanitize_key( $value ) : '';
 		return in_array( $value, self::ALLOWED_SCHEMA_TYPES, true ) ? $value : '';
 	}
@@ -240,6 +258,11 @@ class Jetpack_SEO_Posts {
 	 * @return string A value from self::ALLOWED_SCHEMA_TYPES ('' = no override).
 	 */
 	public static function get_post_schema_type( $post = null ) {
+		// An older copy of the SEO package can win the autoloader, so keep the fallback below.
+		if ( method_exists( Post_Seo::class, 'get_schema_type' ) ) {
+			return Post_Seo::get_schema_type( $post );
+		}
+
 		$post = get_post( $post );
 		if ( ! ( $post instanceof WP_Post ) ) {
 			return '';

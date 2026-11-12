@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: SEO: Forward the SEO helper classes to the SEO package; no change in behaviour.
+
+
