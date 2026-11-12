@@ -61,20 +61,23 @@ describe( 'header stand-in', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'borrows another page’s standard header, with this page’s title, the Jetpack logo and none of its tabs or actions', () => {
+	it( 'borrows a saved standard header with the Jetpack logo, giving it this page’s title and none of its tabs or actions', () => {
 		save( 'a-custom', '<div><h1>Custom</h1></div>' );
 		save(
+			'b-icon',
+			'<div><header><span>Icon</span><h1 class="x__header-title">Icon</h1></header></div>'
+		);
+		save(
 			'forms',
-			'<div class="admin-ui-navigable-region"><header><h1 class="x__header-title">Forms</h1><div class="x__header-actions">New</div></header><div role="tablist">Tabs</div></div>'
+			'<div class="admin-ui-navigable-region"><header><div class="x__header-visual"><svg class="jetpack-logo"><path d="M1"></path></svg></div><h1 class="x__header-title">Forms</h1><div class="x__header-actions">New</div></header><div role="tablist">Tabs</div></div>'
 		);
 
 		showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter' );
 
 		const standIn = document.querySelector( '[data-shell-header="newsletter"]' );
 		expect( standIn.querySelector( 'h1' ) ).toHaveTextContent( 'Newsletter' );
-		expect( standIn.querySelector( 'h1' ) ).toHaveClass( 'x__header-title' );
+		expect( standIn.querySelector( 'svg.jetpack-logo path' ) ).toHaveAttribute( 'd', 'M1' );
 		expect( standIn ).not.toHaveTextContent( /New\b|Tabs/ );
-		expect( standIn.querySelector( 'svg.jetpack-logo' ) ).not.toBeNull();
 	} );
 
 	it( 'moves a saved header’s page-scoped styles to the page it is shown for', () => {

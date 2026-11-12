@@ -41,10 +41,6 @@ export function configureHeaders( prefix, members = {} ) {
 	}
 }
 
-// A copy of `JetpackLogo` from `@automattic/jetpack-components`, as dashboard headers render it.
-const JETPACK_LOGO =
-	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" height="20" class="jetpack-logo" aria-hidden="true"><path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"/></svg>';
-
 // Stand-ins on screen, by page.
 const standIns = new Map();
 
@@ -205,38 +201,31 @@ export function rememberHeader( slug, el ) {
 	} );
 }
 
-// The first saved standard page header: a custom one's styles don't survive having parts taken out.
+// A saved standard page header: a custom one's styles don't survive having parts taken out.
 const donor = () => {
 	try {
-		const key = Object.keys( localStorage )
+		const entries = Object.keys( localStorage )
+			.filter( key => key.startsWith( keyPrefix ) )
 			.sort()
-			.find(
-				candidate =>
-					candidate.startsWith( keyPrefix ) &&
-					localStorage.getItem( candidate ).includes( '__header-title' )
-			);
+			.map( key => [ key, localStorage.getItem( key ) ] )
+			.filter( ( [ , value ] ) => value.includes( '__header-title' ) );
+		// Prefer one with `JetpackLogo` as it last rendered, so this file needs no copy of the logo.
+		const [ key ] =
+			entries.find( ( [ , value ] ) => value.includes( 'jetpack-logo' ) ) ?? entries[ 0 ] ?? [];
 		return key ? readSaved( key.slice( keyPrefix.length ) ) : null;
 	} catch {
 		return null;
 	}
 };
 
-// Turn another page's header copy into this one's: its title and the Jetpack logo, nothing else.
+// Turn another page's header copy into this one's: its title and its icon, nothing else.
 const borrow = ( copy, title ) => {
 	copy
 		.querySelectorAll(
 			'[role="tablist"], [class*="__header-actions"], [class*="__header-subtitle"]'
 		)
 		.forEach( node => node.remove() );
-	const h1 = copy.querySelector( 'h1' );
-	h1.textContent = title;
-	let visual = copy.querySelector( '[class*="__header-visual"]' );
-	if ( ! visual ) {
-		visual = document.createElement( 'div' );
-		visual.style.cssText = 'display:grid;flex-shrink:0;width:24px;height:24px;place-items:center';
-		h1.before( visual );
-	}
-	visual.innerHTML = JETPACK_LOGO;
+	copy.querySelector( 'h1' ).textContent = title;
 };
 
 /**
