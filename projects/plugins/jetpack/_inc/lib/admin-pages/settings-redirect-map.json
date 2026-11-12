@@ -16,7 +16,7 @@
 		"capability": "The user has this capability.",
 		"host": "\"atomic\" for a WoA site.",
 		"moduleActive": "This Jetpack module is active.",
-		"siteConnected": "The site has a Jetpack connection and is not in offline mode, as on every WordPress.com platform site: Social_Admin_Page::add_menu() then registers the Social page.",
+		"socialPage": "Publicize registered admin.php?page=jetpack-social for this user (siteData.hasSocialPage), which its host, connection and jetpack_publicize_should_load filter decide.",
 		"adsSettingsHome": "Jetpack_Ads_Settings_Home::is_moved_off_settings(): settings consolidation is on and the Monetize page shows the Ads settings.",
 		"seoSurfaceVisible": "Automattic\\Jetpack\\SEO\\Initializer::is_seo_surface_visible().",
 		"odysseyStats": "Stats_Options::get_option( 'enable_odyssey_stats' )."
@@ -118,7 +118,7 @@
 				},
 				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
 				{
-					"when": { "siteConnected": true },
+					"when": { "socialPage": true },
 					"destination": "admin.php?page=jetpack-social",
 					"alreadyRedirects": true
 				},

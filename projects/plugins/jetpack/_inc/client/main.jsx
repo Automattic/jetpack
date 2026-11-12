@@ -46,6 +46,7 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	getPluginBaseUrl,
+	hasSocialPage,
 	userIsSubscriber,
 } from 'state/initial-state';
 import { hasProtectPage } from 'state/modules';
@@ -263,11 +264,10 @@ export class Main extends Component {
 				}
 			// Falls through.
 			case '/sharing':
-				// The Social page needs a connection, and offline mode reports 'offline', so only `true` gets it.
 				if ( '/sharing' === route && isSettingsConsolidationEnabled() ) {
 					window.location.replace(
 						getAdminUrl(
-							true === this.props.siteConnectionStatus
+							this.props.hasSocialPage
 								? 'admin.php?page=jetpack-social'
 								: 'admin.php?page=my-jetpack#/features?search=sharing'
 						)
@@ -442,6 +442,7 @@ export default connect(
 			connectingUserFrom: getConnectingUserFrom( state ),
 			isSubscriber: userIsSubscriber( state ),
 			hasProtectPage: hasProtectPage( state ),
+			hasSocialPage: hasSocialPage( state ),
 		};
 	},
 	dispatch => ( {

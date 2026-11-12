@@ -76,7 +76,7 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 
 	it.each( [
 		[ '/performance', 'admin.php?page=my-jetpack#/features?search=cdn' ],
-		[ '/sharing', 'admin.php?page=jetpack-social' ],
+		[ '/sharing', 'admin.php?page=my-jetpack#/features?search=sharing' ],
 	] )( 'sends %s to %s with the settings flag on', ( route, destination ) => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );
 		renderAt( route, false );
@@ -95,13 +95,11 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		}
 	);
 
-	it( 'sends #/sharing to Features in offline mode, which has no Social page', () => {
+	it( 'sends #/sharing to the Social page when it is registered', () => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );
-		renderAt( '/sharing', false, { siteConnectionStatus: 'offline', isOfflineMode: true } );
+		renderAt( '/sharing', false, { hasSocialPage: true } );
 
-		expect( getAdminUrl ).toHaveBeenCalledWith(
-			'admin.php?page=my-jetpack#/features?search=sharing'
-		);
+		expect( getAdminUrl ).toHaveBeenCalledWith( 'admin.php?page=jetpack-social' );
 		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
 		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
 	} );
