@@ -71,6 +71,7 @@ class Reprint_Exporter {
 	 */
 	public static function maybe_init() {
 		self::protect_options();
+		Activity_Log::init();
 
 		if ( self::is_available() ) {
 			self::init();
