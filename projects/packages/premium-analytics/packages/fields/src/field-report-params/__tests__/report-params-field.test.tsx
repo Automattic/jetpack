@@ -251,6 +251,19 @@ describe( 'report params field', () => {
 		jest.useRealTimers();
 	} );
 
+	it( "describes the new day's window once the site's midnight passes", () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T23:59:30.000Z' ) );
+		renderField();
+		const trigger = screen.getByRole( 'button', { name: /^Last 30 days$/ } );
+		expect( trigger ).toHaveAccessibleDescription( /August 20, 2026/ );
+
+		act( () => {
+			jest.advanceTimersByTime( 60 * 1000 );
+		} );
+
+		expect( trigger ).toHaveAccessibleDescription( /August 21, 2026/ );
+	} );
+
 	it( 'offers no bucket control by default', () => {
 		renderField();
 
@@ -287,6 +300,7 @@ describe( 'report params field', () => {
 			'Last month',
 			'Year to date',
 			'Last 12 months',
+			'Last 3 years',
 			'Custom range',
 		] );
 	} );

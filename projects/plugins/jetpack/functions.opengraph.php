@@ -178,9 +178,7 @@ function jetpack_og_tags() {
 			} else {
 				$tags['og:url'] = get_author_posts_url( $author->ID );
 			}
-			$tags['og:description']     = $author->description;
-			$tags['profile:first_name'] = get_the_author_meta( 'first_name', $author->ID );
-			$tags['profile:last_name']  = get_the_author_meta( 'last_name', $author->ID );
+			$tags['og:description'] = $author->description;
 		}
 	} elseif ( is_archive() ) {
 		$tags['og:type']  = 'website';

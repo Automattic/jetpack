@@ -25,7 +25,7 @@ type Search = Record< string, unknown >;
  * @param options.requested - The window the reader asked for, which the notice names; omitted when they asked for none.
  * @return The search and history state to redirect with, or undefined.
  */
-export async function dateWindowRedirect(
+export function dateWindowRedirect(
 	search: Search,
 	policy: StatsDatePolicy,
 	{
@@ -33,16 +33,13 @@ export async function dateWindowRedirect(
 		needsSeed = false,
 		requested,
 	}: { seed: ( search: Search ) => Search; needsSeed?: boolean; requested?: Search }
-): Promise< { search: Search; state: Search | undefined } | undefined > {
+): { search: Search; state: Search | undefined } | undefined {
 	let next: Search | undefined;
 	// The seed check must read the same locks as the limit, or each undoes the other's interval.
 	if ( needsSeed || needsReportDateParamsSeed( search, policy.lockedIntervals ) ) {
-		// Warms the core `site` record for `useSiteHomeUrl()`; the seed's own dates don't depend on it.
-		try {
-			await ensureCoreSettingsReady();
-		} catch {
-			// Proceed with the seed.
-		}
+		// Warms the core `site` record for `useSiteHomeUrl()`. Not awaited: the seed doesn't read it,
+		// and awaiting would hold every Stats request behind a settings round trip.
+		ensureCoreSettingsReady().catch( () => {} );
 
 		const seeded = seed( search );
 		next = limitStatsDateSearch( seeded, policy, { requested } ) ?? seeded;

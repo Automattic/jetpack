@@ -131,6 +131,7 @@ export {
 } from './utils/stats-date-policy';
 export {
 	DASHBOARD_PREFERENCES_SCOPE,
+	deriveComparisonRange,
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,

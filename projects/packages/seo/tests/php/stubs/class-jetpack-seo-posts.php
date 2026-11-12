@@ -32,6 +32,13 @@ if ( ! class_exists( 'Jetpack_SEO_Posts' ) ) {
 		public static $description = '';
 
 		/**
+		 * Custom SEO description returned to Llms_Txt.
+		 *
+		 * @var string
+		 */
+		public static $custom_description = '';
+
+		/**
 		 * Stub for the host plugin's per-post schema-type override.
 		 *
 		 * @param mixed $post Post (ignored by the stub).
@@ -49,6 +56,16 @@ if ( ! class_exists( 'Jetpack_SEO_Posts' ) ) {
 		 */
 		public static function get_post_description( $post ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- mirrors the host method signature.
 			return self::$description;
+		}
+
+		/**
+		 * Stub for the host plugin's custom SEO description.
+		 *
+		 * @param mixed $post Post (ignored by the stub).
+		 * @return string
+		 */
+		public static function get_post_custom_description( $post ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- mirrors the host method signature.
+			return self::$custom_description;
 		}
 	}
 }

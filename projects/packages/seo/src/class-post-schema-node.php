@@ -81,7 +81,7 @@ class Post_Schema_Node {
 	private static function build_article( WP_Post $post ) {
 		$node = array(
 			'@type'            => 'Article',
-			'headline'         => wp_strip_all_tags( get_the_title( $post ) ),
+			'headline'         => \WP_HTML_Decoder::decode_text_node( wp_strip_all_tags( get_the_title( $post ) ) ),
 			'datePublished'    => get_post_time( 'c', true, $post ),
 			'dateModified'     => get_post_modified_time( 'c', true, $post ),
 			'mainEntityOfPage' => array(
@@ -99,8 +99,9 @@ class Post_Schema_Node {
 		$description = Jetpack_SEO_Posts::get_post_description( $post );
 		if ( $description ) {
 			// Cap it: get_post_description() falls back to full post_content, which
-			// would otherwise dump the whole body into the markup.
-			$node['description'] = wp_trim_words( wp_strip_all_tags( $description ), self::DESCRIPTION_MAX_WORDS, '' );
+			// would otherwise dump the whole body into the markup. Decode last, or
+			// wp_trim_words() would strip decoded text such as "<div>".
+			$node['description'] = \WP_HTML_Decoder::decode_text_node( wp_trim_words( wp_strip_all_tags( $description ), self::DESCRIPTION_MAX_WORDS, '' ) );
 		}
 
 		return $node;
@@ -129,7 +130,7 @@ class Post_Schema_Node {
 			if ( 'core/details' !== ( $block['blockName'] ?? '' ) ) {
 				continue;
 			}
-			$question = trim( html_entity_decode( wp_strip_all_tags( (string) ( $block['innerHTML'] ?? '' ) ), ENT_QUOTES, 'UTF-8' ) );
+			$question = trim( \WP_HTML_Decoder::decode_text_node( wp_strip_all_tags( (string) ( $block['innerHTML'] ?? '' ) ) ) );
 
 			// Render only the inner blocks for the answer. Rendering the whole
 			// core/details block would re-include the <summary> (the question).
@@ -137,7 +138,7 @@ class Post_Schema_Node {
 			foreach ( $block['innerBlocks'] ?? array() as $inner_block ) {
 				$answer_html .= render_block( $inner_block );
 			}
-			$answer = trim( html_entity_decode( wp_strip_all_tags( $answer_html ), ENT_QUOTES, 'UTF-8' ) );
+			$answer = trim( \WP_HTML_Decoder::decode_text_node( wp_strip_all_tags( $answer_html ) ) );
 			if ( '' === $question || '' === $answer ) {
 				continue;
 			}

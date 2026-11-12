@@ -33,13 +33,11 @@ type SwitchSearch = (
  * the first section by order and the URL is rewritten to it.
  *
  * @param sections     - The available sections, in order.
- * @param stageSlugs   - Slugs of the tabs the stage renders itself.
  * @param switchSearch - Other search params a switch to a section commits with it.
  * @return The active section slug, a setter to change it, and whether the URL has committed it.
  */
 export function useActiveSection(
 	sections: DashboardSection[],
-	stageSlugs: readonly string[] = [],
 	switchSearch?: SwitchSearch
 ): [ DashboardSectionId, ( id: DashboardSectionId ) => void, boolean ] {
 	const { committed, effective, stage, commit } = useStagedSearch<
@@ -49,8 +47,8 @@ export function useActiveSection(
 		from: ROUTE_FROM,
 	} );
 
-	const activeSection = resolveSectionId( effective.section, sections, stageSlugs );
-	const isCommitted = activeSection === resolveSectionId( committed.section, sections, stageSlugs );
+	const activeSection = resolveSectionId( effective.section, sections );
+	const isCommitted = activeSection === resolveSectionId( committed.section, sections );
 
 	// Rewrite an unresolvable `?section=` to the slug actually rendered, so the
 	// URL never advertises a section that isn't shown. Replace instead of push:
