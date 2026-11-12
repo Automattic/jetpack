@@ -1,5 +1,4 @@
 Significance: patch
-Type: changed
-Comment: Fire an action when the stored llms.txt is cleared, so hosts can purge their cached copies.
+Type: added
 
-
+llms.txt: Add the `jetpack_seo_llms_txt_cleared` action so hosts and cache plugins can purge their cached copies when llms.txt changes.
