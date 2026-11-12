@@ -267,7 +267,7 @@ function do_apply_patches {
 	echo "${commits:-  (none)}"
 
 	# Add changelogs for any projects that need them.
-	pnpm jetpack changelog add
+	pnpm jetpack changelog add --release-branch --base-ref="$START_COMMIT"
 }
 
 function do_changelogs {
