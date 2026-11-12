@@ -2,8 +2,9 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { currencyDollar, envelope, lock, megaphone, payment, tip } from '@wordpress/icons';
 import { Button, ButtonLink, Card, Icon, Link, Stack, Text } from '@wordpress/ui';
-import { useIsStripeConnected } from '../../data/memberships';
+import { getPageData } from '../../data/state';
 import { trackOverviewClick } from '../../data/tracking';
+import { useSiteHasFeature } from '../../data/use-site-feature';
 import { getDocUrl } from './docs';
 import { getOverviewState } from './state';
 import type { DocKey } from './docs';
@@ -89,7 +90,7 @@ function LearnMore( { doc, feature, asLink }: TrackedProps & { doc: DocKey; asLi
  * @return The link.
  */
 function Upgrade( { feature }: TrackedProps ) {
-	const { upgradeUrl } = getOverviewState();
+	const { upgradeUrl } = getPageData();
 	const onClick = useCallback( () => trackOverviewClick( feature, 'upgrade' ), [ feature ] );
 
 	return upgradeUrl ? (
@@ -107,7 +108,9 @@ function Upgrade( { feature }: TrackedProps ) {
  * @return The card.
  */
 function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
-	const { hasWordAds, isWordAdsActive } = getOverviewState();
+	const state = getOverviewState();
+	const { isWordAdsActive } = state;
+	const hasWordAds = useSiteHasFeature( 'wordads', state.hasWordAds );
 	const open = useCallback( () => {
 		trackOverviewClick( 'ads', 'open' );
 		openTab( isWordAdsActive ? 'ads' : 'settings' );
@@ -116,23 +119,24 @@ function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 		? __( 'View ad dashboard', 'jetpack-monetize' )
 		: __( 'Earn ad revenue', 'jetpack-monetize' );
 
+	let actions: ReactNode = null;
+	if ( hasWordAds || isWordAdsActive ) {
+		actions = (
+			<Button variant="outline" size="compact" onClick={ open }>
+				{ title }
+			</Button>
+		);
+	} else if ( hasWordAds === false ) {
+		actions = (
+			<>
+				<Upgrade feature="ads" />
+				<LearnMore doc="ads" feature="ads" asLink />
+			</>
+		);
+	}
+
 	return (
-		<PromoCard
-			icon={ megaphone }
-			title={ title }
-			actions={
-				hasWordAds || isWordAdsActive ? (
-					<Button variant="outline" size="compact" onClick={ open }>
-						{ title }
-					</Button>
-				) : (
-					<>
-						<Upgrade feature="ads" />
-						<LearnMore doc="ads" feature="ads" asLink />
-					</>
-				)
-			}
-		>
+		<PromoCard icon={ megaphone } title={ title } actions={ actions }>
 			{ isWordAdsActive ? (
 				__(
 					"Check out your ad earnings history, including total earnings, total paid to date, and the amount that you've still yet to be paid.",
@@ -144,7 +148,7 @@ function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 						'Make money each time someone visits your site by displaying ads on your posts and pages.',
 						'jetpack-monetize'
 					) }
-					{ ! hasWordAds && (
+					{ hasWordAds === false && (
 						<>
 							{ ' ' }
 							<em>
@@ -161,20 +165,22 @@ function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 /**
  * Every way the site can earn, in Calypso's order.
  *
- * @param props             - Component props.
- * @param props.canUseWpcom - Whether the page can ask WordPress.com about Stripe.
- * @param props.openTab     - Opens another of the page's tabs.
+ * @param props         - Component props.
+ * @param props.openTab - Opens another of the page's tabs.
  * @return The cards.
  */
-export default function PromoCards( {
-	canUseWpcom,
-	openTab,
-}: {
-	canUseWpcom: boolean;
-	openTab: ( tab: TabValue ) => void;
-} ) {
-	const { hasSimplePayments } = getOverviewState();
-	const { data: isStripeConnected = false } = useIsStripeConnected( canUseWpcom );
+export default function PromoCards( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
+	const hasSimplePayments = useSiteHasFeature(
+		'simple-payments',
+		getOverviewState().hasSimplePayments
+	);
+	// Undefined while WordPress.com is asked, so neither button flashes before the answer.
+	let paypalAction: ReactNode = null;
+	if ( hasSimplePayments ) {
+		paypalAction = <LearnMore doc="paypal" feature="simple-payments" />;
+	} else if ( hasSimplePayments === false ) {
+		paypalAction = <Upgrade feature="simple-payments" />;
+	}
 
 	return (
 		<div className="jp-monetize-overview__promos">
@@ -183,15 +189,10 @@ export default function PromoCards( {
 				title={ __( 'Collect payments', 'jetpack-monetize' ) }
 				actions={ <LearnMore doc="payments" feature="recurring-payments" /> }
 			>
-				{ isStripeConnected
-					? __(
-							'Let visitors pay for digital goods and services or make quick, pre-set donations by inserting the Payment Button block.',
-							'jetpack-monetize'
-						)
-					: __(
-							'Let visitors pay for digital goods and services or make quick, pre-set donations by enabling the Payment Button block.',
-							'jetpack-monetize'
-						) }
+				{ __(
+					'Let visitors pay for digital goods and services or make quick, pre-set donations with the Payment Button block.',
+					'jetpack-monetize'
+				) }
 			</PromoCard>
 			<PromoCard
 				icon={ tip }
@@ -226,13 +227,7 @@ export default function PromoCards( {
 			<PromoCard
 				icon={ currencyDollar }
 				title={ __( 'Collect PayPal payments', 'jetpack-monetize' ) }
-				actions={
-					hasSimplePayments ? (
-						<LearnMore doc="paypal" feature="simple-payments" />
-					) : (
-						<Upgrade feature="simple-payments" />
-					)
-				}
+				actions={ paypalAction }
 			>
 				{ __(
 					'Accept credit and debit card payments via PayPal for physical products, services, donations, tips, or memberships.',

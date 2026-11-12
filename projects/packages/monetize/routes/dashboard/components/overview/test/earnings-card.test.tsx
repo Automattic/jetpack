@@ -1,11 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { CommissionFees } from '../earnings-card';
 
-jest.mock( '../state', () => ( {
-	getOverviewState: () => ( {
-		upgradeUrl: 'https://example.com/upgrade',
-		upgradeCommission: 0.02,
-	} ),
+jest.mock( '../state', () => ( { getOverviewState: () => ( { upgradeCommission: 0.02 } ) } ) );
+jest.mock( '../../../data/state', () => ( {
+	getPageData: () => ( { upgradeUrl: 'https://example.com/upgrade', tracks: true } ),
 } ) );
 
 describe( 'CommissionFees', () => {

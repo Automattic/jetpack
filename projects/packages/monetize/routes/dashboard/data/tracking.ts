@@ -1,6 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { getAdsSettingsData } from './ads-settings-data';
+import { getPageData } from './state';
 
 // Jetpack › Settings' event names, as in my-jetpack's settings-panel/use-settings-panel-tracking.ts.
 const ORIGIN = 'monetize-settings-tab';
@@ -19,7 +19,7 @@ const toggled = ( active: boolean ) => ( active ? 'on' : 'off' );
  * @param properties - Event properties.
  */
 function record( event: string, properties: Record< string, unknown > ) {
-	if ( ! getAdsSettingsData()?.tracks ) {
+	if ( ! getPageData().tracks ) {
 		return;
 	}
 

@@ -274,32 +274,52 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The `page` query arg, and the `monetize` script data each should end up with.
+	 * The `page` query arg, and the `monetize` script data keys each should end up with.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_script_data_pages() {
 		return array(
-			'the Monetize page' => array( 'jetpack-monetize', '{"other":1,"sections":{"example":{"title":"Ads"},"empty":{}}}' ),
-			'another page'      => array( 'jetpack', '{"other":1}' ),
+			'the Monetize page' => array( 'jetpack-monetize', array( 'other', 'sections', 'upgradeUrl', 'tracks' ) ),
+			'another page'      => array( 'jetpack', array( 'other' ) ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_script_data_pages
 	 *
-	 * @param string $page     The `page` query arg.
-	 * @param string $expected The `monetize` script data, as JSON.
+	 * @param string   $page     The `page` query arg.
+	 * @param string[] $expected The `monetize` script data keys.
 	 */
 	#[DataProvider( 'provide_script_data_pages' )]
-	public function test_add_script_data_adds_section_state_only_on_the_monetize_page( $page, $expected ) {
+	public function test_add_script_data_adds_the_page_data_only_on_the_monetize_page( $page, $expected ) {
 		$_GET['page'] = $page;
 		Dashboard::register_section( $this->section( 'example', array( 'title' => 'Ads' ) ) );
 		Dashboard::register_section( $this->section( 'empty', array() ) );
 
 		$data = Dashboard::add_script_data( array( 'monetize' => array( 'other' => 1 ) ) );
 
-		$this->assertSame( $expected, wp_json_encode( $data['monetize'], JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame( $expected, array_keys( $data['monetize'] ) );
+		if ( isset( $data['monetize']['sections'] ) ) {
+			$this->assertSame( '{"example":{"title":"Ads"},"empty":{}}', wp_json_encode( $data['monetize']['sections'], JSON_UNESCAPED_SLASHES ) );
+		}
+	}
+
+	public function test_upgrade_url_defaults_to_jetpack_creator() {
+		$this->assertStringContainsString( 'source=jetpack-creator-cta', Dashboard::get_upgrade_url() );
+	}
+
+	public function test_upgrade_url_follows_a_host_that_sells_its_own_plans() {
+		add_filter(
+			'jetpack_feature_upgrade',
+			function ( $upgrade, $slug ) {
+				return Dashboard::UPGRADE_SLUG === $slug ? array( 'url' => 'https://example.com/plans' ) : $upgrade;
+			},
+			10,
+			2
+		);
+
+		$this->assertSame( 'https://example.com/plans', Dashboard::get_upgrade_url() );
 	}
 
 	/**

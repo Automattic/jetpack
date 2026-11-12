@@ -1,5 +1,4 @@
 import { Stack } from '@wordpress/ui';
-import useWpcomConnection from '../../data/use-wpcom-connection';
 import ConnectionGate from '../connection-gate';
 import EarningsCard from './earnings-card';
 import PromoCards from './promo-cards';
@@ -14,15 +13,13 @@ import './style.scss';
  * @return The tab.
  */
 export default function Overview( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
-	const { canUseWpcom } = useWpcomConnection();
-
 	return (
 		<Stack direction="column" gap="2xl">
 			{ /* Only the earnings come from WordPress.com; the cards below work without it. */ }
 			<ConnectionGate>
 				<EarningsCard />
 			</ConnectionGate>
-			<PromoCards canUseWpcom={ canUseWpcom } openTab={ openTab } />
+			<PromoCards openTab={ openTab } />
 		</Stack>
 	);
 }

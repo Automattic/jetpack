@@ -3,6 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Card, Link, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
 import { useMembershipsEarnings } from '../../data/memberships';
+import { getPageData } from '../../data/state';
 import { getOverviewState } from './state';
 
 /**
@@ -13,7 +14,8 @@ import { getOverviewState } from './state';
  * @return The note.
  */
 export function CommissionFees( { commission }: { commission: number } ) {
-	const { upgradeUrl, upgradeCommission } = getOverviewState();
+	const { upgradeUrl } = getPageData();
+	const { upgradeCommission } = getOverviewState();
 
 	return (
 		<Text variant="body-sm">
