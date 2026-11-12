@@ -27,7 +27,7 @@ const label = __( 'All pages' );
 ```
 
 - **`ReportPageActions`** — the header's actions slot: the report's own actions,
-  then the page options menu. A report with no action of its own still renders it.
+  then the Stats options menu. A report with no action of its own still renders it.
 - **`ReportPageLayout`** — the scroll area below the page header: optional
   internal tabs, the section header pinned at its top, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
