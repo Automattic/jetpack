@@ -14,19 +14,13 @@ require_once JETPACK__PLUGIN_DIR . '3rd-party/wpcom-reader.php';
  *
  * @covers ::jetpack_wpcomreader_post_id
  * @covers ::jetpack_wpcomreader_set_up_post_id
+ * @covers ::jetpack_wpcomreader_track_set_up_posts
  */
 #[CoversFunction( 'jetpack_wpcomreader_post_id' )]
 #[CoversFunction( 'jetpack_wpcomreader_set_up_post_id' )]
+#[CoversFunction( 'jetpack_wpcomreader_track_set_up_posts' )]
 class WPCOM_Reader_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
-
-	/**
-	 * Clear the post ID left tracked by earlier loops in this process.
-	 */
-	public function set_up() {
-		parent::set_up();
-		jetpack_wpcomreader_set_up_post_id();
-	}
 
 	/**
 	 * Build the post-id element the feed prints for a post.
@@ -36,6 +30,15 @@ class WPCOM_Reader_Test extends WP_UnitTestCase {
 	 */
 	private function post_id_tag( $post_id ) {
 		return sprintf( '<post-id xmlns="com-wordpress:feed-additions:1">%d</post-id>', $post_id );
+	}
+
+	/**
+	 * Fire the feed head action, discarding what it prints.
+	 */
+	private function start_feed() {
+		ob_start();
+		do_action( 'rss2_head' );
+		ob_end_clean();
 	}
 
 	/**
@@ -62,6 +65,7 @@ class WPCOM_Reader_Test extends WP_UnitTestCase {
 			)
 		);
 
+		$this->start_feed();
 		$output = '';
 		while ( have_posts() ) {
 			the_post();
@@ -80,10 +84,12 @@ class WPCOM_Reader_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that items rendered off the global post, without a loop, print no post ID.
+	 * Test that items rendered off the global post, set up before the feed started, print no post ID.
 	 */
 	public function test_items_without_set_up_post_print_no_post_id() {
 		$GLOBALS['post'] = self::factory()->post->create_and_get();
+		setup_postdata( $GLOBALS['post'] );
+		$this->start_feed();
 
 		$output = $this->render_item() . $this->render_item();
 
@@ -96,6 +102,7 @@ class WPCOM_Reader_Test extends WP_UnitTestCase {
 	public function test_set_up_post_identifies_a_single_item() {
 		$GLOBALS['post'] = self::factory()->post->create_and_get();
 		$post_id         = $GLOBALS['post']->ID;
+		$this->start_feed();
 		setup_postdata( $GLOBALS['post'] );
 
 		$output = $this->render_item() . $this->render_item();

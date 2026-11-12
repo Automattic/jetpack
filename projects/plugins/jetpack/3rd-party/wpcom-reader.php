@@ -22,11 +22,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 foreach ( array( 'rss_head', 'rss1_head', 'rss2_head' ) as $rss_head_action ) {
 	add_action( $rss_head_action, 'jetpack_wpcomreader_feed_id' );
+	add_action( $rss_head_action, 'jetpack_wpcomreader_track_set_up_posts' );
 }
 foreach ( array( 'rss_item', 'rss1_item', 'rss2_item' ) as $rss_item_action ) {
 	add_action( $rss_item_action, 'jetpack_wpcomreader_post_id' );
 }
-add_action( 'the_post', 'jetpack_wpcomreader_set_up_post_id' );
 
 /**
  * Output feed identifier based on blog ID.
@@ -51,6 +51,18 @@ function jetpack_wpcomreader_feed_id() {
 			(int) $blog_id
 		);
 	}
+}
+
+/**
+ * Start tracking the posts set up by the feed's loop.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function jetpack_wpcomreader_track_set_up_posts() {
+	jetpack_wpcomreader_set_up_post_id();
+	add_action( 'the_post', 'jetpack_wpcomreader_set_up_post_id' );
 }
 
 /**
