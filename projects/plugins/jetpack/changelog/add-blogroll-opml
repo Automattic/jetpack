@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Blogroll: Publish the blogroll as an OPML file, so feed readers can subscribe to all its sites.
