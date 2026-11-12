@@ -64,6 +64,8 @@ class AI_Launchpad {
 			return;
 		}
 
+		// WordPress 7.2 answers an unregistered page on wp_admin_page_not_found and never reaches admin_page_access_denied.
+		add_action( 'wp_admin_page_not_found', array( __CLASS__, 'redirect_to_dashboard' ) );
 		add_action( 'admin_page_access_denied', array( __CLASS__, 'redirect_to_dashboard' ) );
 
 		self::load_wp_build();
