@@ -280,7 +280,6 @@ describe( 'PostViewsWidget', () => {
 
 		beforeEach( () => {
 			defaultSettings = getSettings();
-			// Fourteen hours ahead of UTC: a bucket written in any other zone lands on the day before.
 			setSettings( {
 				...defaultSettings,
 				timezone: { string: 'Pacific/Kiritimati', offset: 14, offsetFormatted: '14', abbr: '' },
@@ -313,6 +312,22 @@ describe( 'PostViewsWidget', () => {
 				'"2026-07-06","0"',
 				'"2026-07-07","0"',
 			] );
+		} );
+
+		it( 'dates an All time file from the publish day, not as all-time', async () => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+
+			const { findDeclaredAction } = renderWithActionsHost(
+				<PostViewsWidget
+					attributes={ { reportParams: { ...WINDOW_PARAMS, preset: 'all-time' } } }
+				/>
+			);
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			expect( downloads.files[ 0 ].filename ).toMatch(
+				/^post-779-views-2026-07-01_\d{4}-\d{2}-\d{2}\.csv$/
+			);
 		} );
 
 		it( 'offers no download for a window without views', async () => {

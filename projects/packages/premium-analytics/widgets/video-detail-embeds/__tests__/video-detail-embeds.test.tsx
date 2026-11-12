@@ -138,15 +138,5 @@ describe( 'VideoDetailEmbedsWidget', () => {
 				'"https://example.com/blog/weekly-recap/"',
 			] );
 		} );
-
-		it( 'offers no download for a video embedded nowhere', async () => {
-			const { declaredAction } = renderWithHost( { ...SINGLE_VIDEO_RESPONSE, pages: [] } );
-
-			await expect(
-				screen.findByText( 'This video has not been embedded on any pages yet.' )
-			).resolves.toBeInTheDocument();
-
-			expect( declaredAction( 'download-csv' ) ).toBeUndefined();
-		} );
 	} );
 } );

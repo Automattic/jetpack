@@ -81,7 +81,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 		csv: {
 			...csv,
 			filenamePrefix: `post-${ postId }-views`,
-			hasDateRange: true,
+			range: { from: reportParams.from, to: reportParams.to },
 			status: { isLoading, isFetching, isError },
 		},
 	} );

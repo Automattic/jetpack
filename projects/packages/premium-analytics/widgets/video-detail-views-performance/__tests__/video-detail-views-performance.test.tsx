@@ -376,7 +376,6 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 
 		beforeEach( () => {
 			defaultSettings = getSettings();
-			// Fourteen hours ahead of UTC: a bucket written in any other zone lands on the day before.
 			setSettings( {
 				...defaultSettings,
 				timezone: { string: 'Pacific/Kiritimati', offset: 14, offsetFormatted: '14', abbr: '' },
