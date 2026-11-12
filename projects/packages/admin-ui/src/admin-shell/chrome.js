@@ -20,8 +20,10 @@ const menuLink = slug =>
  * @return {string|null} The label, without count badges.
  */
 export function menuLabel( slug ) {
-	// Only the link's own text: badges like Forms' unread count are child elements.
-	const text = [ ...( menuLink( slug )?.childNodes ?? [] ) ]
+	const link = menuLink( slug );
+	// Only the label's own text: badges like Forms' unread count are child elements.
+	const label = link?.querySelector( '.wp-menu-name' ) ?? link;
+	const text = [ ...( label?.childNodes ?? [] ) ]
 		.filter( node => node.nodeType === Node.TEXT_NODE )
 		.map( node => node.textContent )
 		.join( '' )

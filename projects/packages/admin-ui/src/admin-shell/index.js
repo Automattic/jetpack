@@ -40,8 +40,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	}
 	// The title the host page was printed with, filters included.
 	members[ host ].adminTitle = document.title;
-	configureHeaders( headerStorageKey );
+	configureHeaders( headerStorageKey, members );
 	trackViewTransitions();
+	const titleOf = slug => menuLabel( slug ) ?? members[ slug ].title;
 
 	log(
 		'shell',
@@ -138,7 +139,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			apps.delete( slug );
 			el.remove();
 		};
-		const removeStandIn = showHeader( slug, el, menuLabel( slug ) ?? members[ slug ].title );
+		const removeStandIn = showHeader( slug, el, titleOf( slug ) );
 
 		try {
 			const waited = stopwatch();
@@ -315,7 +316,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	trackOverlays( () => visible );
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
-	const removeHostHeader = showHeader( host, hostEl, menuLabel( host ) ?? members[ host ].title );
+	const removeHostHeader = showHeader( host, hostEl, titleOf( host ) );
 	gate.mount( host );
 	log( 'host', `${ host } boots from the page load` );
 	whenRendered( hostEl, 30000 )

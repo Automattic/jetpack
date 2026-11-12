@@ -1,15 +1,20 @@
-import { configureHeaders, showHeader } from '../../../src/admin-shell/header';
+import { configureHeaders, rememberHeader, showHeader } from '../../../src/admin-shell/header';
 
 const PREFIX = 'jetpack-admin-shell-header:1:7:0.15.0:';
 
 beforeEach( () => {
 	localStorage.clear();
 	document.body.innerHTML = '<section id="app"></section>';
-	configureHeaders( PREFIX );
+	configureHeaders( PREFIX, MEMBERS );
 } );
 
-const save = ( slug, html ) =>
-	localStorage.setItem( PREFIX + slug, JSON.stringify( { html, css: '' } ) );
+const MEMBERS = {
+	forms: { bodyClass: 'jetpack_page_forms' },
+	newsletter: { bodyClass: 'jetpack_page_newsletter' },
+};
+
+const save = ( slug, html, css = '' ) =>
+	localStorage.setItem( PREFIX + slug, JSON.stringify( { html, css } ) );
 
 describe( 'header stand-in', () => {
 	it( 'drops headers an earlier release saved for this site and user, and no one else’s', () => {
@@ -38,7 +43,26 @@ describe( 'header stand-in', () => {
 		expect( standIn.querySelector( 'iframe, script' ) ).toBeNull();
 	} );
 
-	it( 'borrows another page’s header, with this page’s title, the Jetpack logo and none of its tabs or actions', () => {
+	it( 'saves the header and tab bar but none of the page content', () => {
+		jest.useFakeTimers();
+		const app = document.getElementById( 'app' );
+		app.innerHTML =
+			'<div class="admin-ui-navigable-region"><header><h1>Forms</h1></header><div><div role="tablist">Inbox</div></div><main>Responses</main></div>';
+
+		rememberHeader( 'forms', app );
+		jest.runAllTimers();
+		app.innerHTML = '';
+		showHeader( 'forms', app );
+
+		const standIn = document.querySelector( '[data-shell-header="forms"]' );
+		expect( standIn ).toHaveTextContent( 'Forms' );
+		expect( standIn.querySelector( '[role="tablist"]' ) ).toHaveTextContent( 'Inbox' );
+		expect( standIn ).not.toHaveTextContent( 'Responses' );
+		jest.useRealTimers();
+	} );
+
+	it( 'borrows another page’s standard header, with this page’s title, the Jetpack logo and none of its tabs or actions', () => {
+		save( 'a-custom', '<div><h1>Custom</h1></div>' );
 		save(
 			'forms',
 			'<div class="admin-ui-navigable-region"><header><h1 class="x__header-title">Forms</h1><div class="x__header-actions">New</div></header><div role="tablist">Tabs</div></div>'
@@ -48,24 +72,28 @@ describe( 'header stand-in', () => {
 
 		const standIn = document.querySelector( '[data-shell-header="newsletter"]' );
 		expect( standIn.querySelector( 'h1' ) ).toHaveTextContent( 'Newsletter' );
+		expect( standIn.querySelector( 'h1' ) ).toHaveClass( 'x__header-title' );
 		expect( standIn ).not.toHaveTextContent( /New\b|Tabs/ );
 		expect( standIn.querySelector( 'svg.jetpack-logo' ) ).not.toBeNull();
 	} );
 
-	it( 'moves a borrowed header’s page-scoped styles to the page being opened', () => {
-		localStorage.setItem(
-			PREFIX + 'forms',
-			JSON.stringify( {
-				html: '<div class="admin-ui-navigable-region"><header><h1 class="x__header-title">Forms</h1></header></div>',
-				css: 'body.jetpack_page_forms .jp-admin-page{margin:0}',
-			} )
-		);
+	it( 'moves a saved header’s page-scoped styles to the page it is shown for', () => {
+		jest.useFakeTimers();
+		document.head.innerHTML =
+			'<style>body.jetpack_page_forms .x__header-title{margin:0}body.jetpack_page_forms-x .x__header-title{margin:1px}</style>';
+		const app = document.getElementById( 'app' );
+		app.innerHTML =
+			'<div class="admin-ui-navigable-region"><header><h1 class="x__header-title">Forms</h1></header></div>';
 
-		showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter' );
+		rememberHeader( 'forms', app );
+		jest.runAllTimers();
+		showHeader( 'newsletter', app, 'Newsletter' );
 
-		expect( document.querySelector( '[data-shell-header="newsletter"] style' ) ).toHaveTextContent(
-			'body.jetpack_page_newsletter .jp-admin-page{margin:0}'
-		);
+		const css = document.querySelector( '[data-shell-header="newsletter"] style' ).textContent;
+		expect( css ).toContain( 'body.jetpack_page_newsletter .x__header-title' );
+		expect( css ).toContain( 'body.jetpack_page_forms-x .x__header-title' );
+		document.head.innerHTML = '';
+		jest.useRealTimers();
 	} );
 
 	it( 'gives the app back after a few seconds, even if it never shows a heading', () => {

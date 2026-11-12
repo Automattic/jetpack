@@ -24,4 +24,11 @@ describe( 'menuLabel', () => {
 
 		expect( menuLabel( 'forms' ) ).toBe( 'Forms' );
 	} );
+
+	it( 'reads a top-level item’s label from its menu name', () => {
+		document.body.innerHTML =
+			'<ul id="adminmenu"><li><a href="admin.php?page=activity-log"><div class="wp-menu-image"></div><div class="wp-menu-name">Activity Log</div></a></li></ul>';
+
+		expect( menuLabel( 'activity-log' ) ).toBe( 'Activity Log' );
+	} );
 } );
