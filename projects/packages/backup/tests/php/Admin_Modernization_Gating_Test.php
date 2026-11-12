@@ -329,11 +329,17 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		// The Activity Log package isn't installed here, so this also proves the missing class is tolerated.
 		do_action( 'jetpack_activity_log_initialized' );
 		$class_missing = Jetpack_Backup::get_activity_log_url();
+		require_once __DIR__ . '/fixtures/class-jetpack-activity-log.php';
+		$unavailable = Jetpack_Backup::get_activity_log_url();
+		$GLOBALS['jetpack_backup_test_activity_log_available'] = true;
+		$available = Jetpack_Backup::get_activity_log_url();
 
-		unset( $GLOBALS['wp_actions']['jetpack_activity_log_initialized'] );
+		unset( $GLOBALS['wp_actions']['jetpack_activity_log_initialized'], $GLOBALS['jetpack_backup_test_activity_log_available'] );
 		remove_all_filters( 'wp_doing_ajax' );
 		$this->assertNull( $not_initialized );
 		$this->assertNull( $class_missing );
+		$this->assertNull( $unavailable );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-activity-log' ), $available );
 	}
 
 	/** Make `menu_page_url()` see the Activity Log page the way a built admin menu would. */

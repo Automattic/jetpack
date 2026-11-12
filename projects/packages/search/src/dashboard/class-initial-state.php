@@ -196,7 +196,7 @@ class Initial_State {
 	 * @return string Guidelines admin URL, or an empty string when unavailable.
 	 */
 	protected function get_guidelines_url() {
-		// The admin shell loads this page over admin-ajax, which never builds the menu.
+		// No admin menu here: see Admin_Shell::guest_assets().
 		if ( wp_doing_ajax() ) {
 			return self::guidelines_page_will_register() ? esc_url_raw( admin_url( 'options-general.php?page=guidelines-wp-admin' ) ) : '';
 		}

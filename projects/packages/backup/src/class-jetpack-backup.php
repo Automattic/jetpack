@@ -380,8 +380,8 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
-		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
-		// so it only fires on the Backup admin page — no need to re-check the page here.
+		// Hooked only for the Backup page: via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
+		// or by the admin shell's guest load, so there's no need to re-check the page here.
 		if ( self::is_wp_build_dashboard_active() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but
 			// only enqueued when depended on; the esbuild bundles don't pull it in.
@@ -1298,7 +1298,7 @@ class Jetpack_Backup {
 	 * @return string|null
 	 */
 	public static function get_activity_log_url() {
-		// The admin shell loads this page over admin-ajax, which never builds the menu.
+		// No admin menu here: see Admin_Shell::guest_assets().
 		if ( wp_doing_ajax() ) {
 			return self::activity_log_page_will_register() ? admin_url( 'admin.php?page=jetpack-activity-log' ) : null;
 		}
