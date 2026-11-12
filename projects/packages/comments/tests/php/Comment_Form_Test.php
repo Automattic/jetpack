@@ -98,4 +98,16 @@ class Comment_Form_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( '<input name="custom-foo-name" type="submit" id="custom-foo-id" class="foo-class" value="custom-foo-label" />', $markup );
 	}
+
+	public function test_site_name_is_plain_text() {
+		// Saving runs the name through esc_html(), so the option holds "The Horse&#039;s Tale & Co".
+		update_option( 'blogname', 'The Horse\'s Tale & Co' );
+
+		$method = new \ReflectionMethod( Comment_Form::class, 'site_name' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true ); // Deprecated in PHP 8.5, needed before 8.1.
+		}
+
+		$this->assertSame( 'The Horse\'s Tale & Co', $method->invoke( null ) );
+	}
 }

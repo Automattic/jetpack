@@ -235,7 +235,7 @@ class Comment_Form {
 			'subscribe_blog'     => sprintf(
 				/* translators: %s is the site's name. */
 				__( 'Subscribe to keep up with %s.', 'jetpack-comments' ),
-				get_bloginfo( 'name' )
+				self::site_name()
 			),
 		);
 
@@ -399,6 +399,17 @@ class Comment_Form {
 	}
 
 	/**
+	 * The site's name, as plain text for the app to render.
+	 *
+	 * The option is saved through esc_html(), and the app renders text as written, entities and all.
+	 *
+	 * @return string
+	 */
+	private static function site_name() {
+		return wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+	}
+
+	/**
 	 * Register the bundle, and the stylesheet on a singular view.
 	 *
 	 * @return void
@@ -514,7 +525,7 @@ class Comment_Form {
 					'requireNameEmail'       => (bool) get_option( 'require_name_email' ),
 					'mustLogIn'              => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 					'site'                   => array(
-						'name'    => get_bloginfo( 'name' ),
+						'name'    => self::site_name(),
 						'iconUrl' => (string) get_site_icon_url( 64 ),
 					),
 					'manageSubscriptionsUrl' => $manage,
