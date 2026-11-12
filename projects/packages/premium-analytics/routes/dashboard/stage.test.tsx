@@ -55,11 +55,14 @@ let mockCanSendFeedback: boolean;
 const mockResetLayout = jest.fn();
 const mockChangeComparison = jest.fn();
 const mockStepDateRange = jest.fn();
+const mockZoomOutOfPeriod = jest.fn();
+let mockZoomOut: { presetId: string; range: unknown; onZoomOut: () => unknown } | undefined;
 let mockDateFiltersPanelProps: {
 	onChange: ( ...args: unknown[] ) => void;
 	onComparisonChange: ( ...args: unknown[] ) => void;
 	onApply: () => void;
 	stepping: { onStep: ( direction: 'previous' | 'next' ) => unknown };
+	zoomOut?: { onZoomOut: () => void };
 };
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 const mockUseTrackedDateRangeApply = jest.fn<
@@ -116,6 +119,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		onApply: jest.fn(),
 		onIntervalChange: jest.fn(),
 		stepping: { canStepBackward: true, canStepForward: true, onStep: mockStepDateRange },
+		zoomOut: mockZoomOut,
 	} ),
 } ) );
 
@@ -1214,6 +1218,32 @@ describe( 'Dashboard header date control', () => {
 		expect(
 			select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' )
 		).toBeUndefined();
+	} );
+
+	it( 'tracks a zoom out from the header as an applied range', () => {
+		const trackedOnChange = jest.fn();
+		const trackedOnApply = jest.fn();
+		mockUseTrackedDateRangeApply.mockReturnValue( { trackedOnChange, trackedOnApply } );
+		mockZoomOutOfPeriod.mockReturnValue( {
+			range: JULY_2026,
+			presetId: 'last-month',
+			interval: 'week',
+		} );
+		mockZoomOut = { presetId: 'last-month', range: JULY_2026, onZoomOut: mockZoomOutOfPeriod };
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		act( () => {
+			mockDateFiltersPanelProps.zoomOut?.onZoomOut();
+		} );
+		mockZoomOut = undefined;
+
+		expect( mockZoomOutOfPeriod ).toHaveBeenCalledTimes( 1 );
+		expect( trackedOnChange ).toHaveBeenCalledWith( JULY_2026, 'last-month', {
+			exactRange: true,
+			interval: 'week',
+		} );
+		expect( trackedOnApply ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'neither tracks nor remembers a step the filters refused', () => {

@@ -334,7 +334,8 @@ function Dashboard(): JSX.Element {
 		widgetSection,
 		dateFilters.appliedRange,
 		showsPeriodControl,
-		lockedIntervals
+		lockedIntervals,
+		{ withZoomOut: true }
 	);
 
 	const {
@@ -342,6 +343,7 @@ function Dashboard(): JSX.Element {
 		onComparisonChange: changeComparison,
 		onApply: applyDateRange,
 		stepping,
+		zoomOut,
 	} = dateFilters;
 
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
@@ -407,6 +409,23 @@ function Dashboard(): JSX.Element {
 	const dateStepping = useMemo(
 		() => ( { ...stepping, onStep: onDateStep } ),
 		[ stepping, onDateStep ]
+	);
+	// Zooming back out applies at once too, and is tracked the same way.
+	const zoomOutOfPeriod = zoomOut?.onZoomOut;
+	const onDateZoomOut = useCallback( () => {
+		const zoomed = zoomOutOfPeriod?.();
+
+		if ( zoomed ) {
+			trackedOnChange( zoomed.range, zoomed.presetId, {
+				exactRange: true,
+				interval: zoomed.interval,
+			} );
+			trackedOnApply();
+		}
+	}, [ zoomOutOfPeriod, trackedOnChange, trackedOnApply ] );
+	const dateZoomOut = useMemo(
+		() => zoomOut && { ...zoomOut, onZoomOut: onDateZoomOut },
+		[ zoomOut, onDateZoomOut ]
 	);
 
 	/*
@@ -490,6 +509,7 @@ function Dashboard(): JSX.Element {
 					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
 					stepping={ dateStepping }
+					zoomOut={ dateZoomOut }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
 				/>

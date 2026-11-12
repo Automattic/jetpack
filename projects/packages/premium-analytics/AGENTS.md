@@ -510,8 +510,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
 - Setting the period of the surface a widget sits on by writing the URL (`useReportDateFilters`,
   `useStagedSearch`) — call `useReportScope().openPeriod` instead. The host owns the period: it
   commits the range and draws the date control's attention to it. A host that offers none leaves
-  `openPeriod` undefined, so the click must degrade to inert. Opening another dashboard section
-  over a range is `useOpenSectionRange`.
+  `openPeriod` undefined, so the click must degrade to inert. On the dashboard the host also
+  keeps the window left (`up_*` params) for the date control's zoom-out. Opening another
+  dashboard section over a range is `useOpenSectionRange`.
 - Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
   can fire accidental form submissions. Use `type="button"` for non-submit actions.
 - Do not use inline `style={{ … }}` props in production widget render files — all widget

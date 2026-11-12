@@ -214,6 +214,45 @@ describe( 'buildRangePatch', () => {
 		expect( patch ).toHaveProperty( 'step', undefined );
 	} );
 
+	it( 'keeps the window a widget zoomed in from, by its preset, and clears it on any other range change', () => {
+		const zoomedIn = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			exactRange: true,
+			zoomedInFrom: { preset: 'last-30-days', interval: 'week', up_preset: 'last-7-days' },
+			effective: { preset: 'last-30-days', interval: 'week', up_preset: 'last-7-days' },
+		} );
+
+		// Its own, not the one it was itself zoomed in from.
+		expect( zoomedIn ).toMatchObject( {
+			up_preset: 'last-30-days',
+			up_interval: 'week',
+			up_from: undefined,
+		} );
+
+		const moved = buildRangePatch( { nextRange: { from, to: wideTo }, effective: zoomedIn ?? {} } );
+		expect( moved ).toHaveProperty( 'up_preset', undefined );
+		expect( moved ).toHaveProperty( 'up_interval', undefined );
+	} );
+
+	// A chart with one bar opens the window it is already drawing.
+	it( 'keeps no zoom-out window when a widget opens the window it is on', () => {
+		const effective = {
+			from: '2026-07-09T14:30:00.000+00:00',
+			to: '2026-07-10T14:30:00.000+00:00',
+			preset: 'custom',
+		} as const;
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			exactRange: true,
+			zoomedInFrom: effective,
+			effective,
+		} );
+
+		expect( patch ).toMatchObject( { up_from: undefined, up_preset: undefined } );
+	} );
+
 	it( 're-derives the comparison range from the new primary range when enabled', () => {
 		const patch = buildRangePatch( {
 			nextRange: { from, to },

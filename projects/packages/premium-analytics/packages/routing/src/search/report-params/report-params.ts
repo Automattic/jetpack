@@ -69,15 +69,30 @@ export function pickReportDateParams(
 const ORIGIN_WINDOW_PREFIX = 'ref_';
 
 /**
- * Store the linking page's window under the origin-window params, keeping only
- * what `expandOriginWindow()` cannot rebuild: a named range is its preset alone.
- * All time keeps its bounds too, since its start is the linking surface's own.
- *
- * @param search - The search params the detail page was linked with.
- * @return The origin-window params.
+ * Prefix of the params a surface keeps the window a widget zoomed in from under, so the
+ * date control can zoom back out to it. Cleared by any other range change.
  */
-export function toReportOriginWindowParams(
-	search: Record< string, unknown > | undefined
+const ZOOM_OUT_PREFIX = 'up_';
+
+/** The params `toZoomOutParams()` writes, every one optional so a patch can clear them. */
+export type ZoomOutParams = {
+	[
+		Key in ( typeof REPORT_DATE_PARAM_KEYS )[ number ] as `${ typeof ZOOM_OUT_PREFIX }${ Key }`
+	]?: string;
+};
+
+/**
+ * Store a window under prefixed params, keeping only what `expandOriginWindow()`
+ * cannot rebuild: a named range is its preset alone. All time keeps its bounds
+ * too, since its start is the surface's own.
+ *
+ * @param search - The search params naming the window.
+ * @param prefix - The prefix to store it under.
+ * @return The prefixed params.
+ */
+function storeOriginWindow(
+	search: Record< string, unknown > | undefined,
+	prefix: string
 ): Record< string, unknown > {
 	const linked = pickReportDateParams( search ) as NormalizeInput;
 	const origin: Record< string, unknown > =
@@ -107,10 +122,77 @@ export function toReportOriginWindowParams(
 	const stored: Record< string, unknown > = {};
 	for ( const [ key, value ] of Object.entries( origin ) ) {
 		if ( value !== undefined ) {
-			stored[ ORIGIN_WINDOW_PREFIX + key ] = value;
+			stored[ prefix + key ] = value;
 		}
 	}
 	return stored;
+}
+
+/**
+ * Read a window stored under prefixed params back, unprefixed and with its
+ * comparison rebuilt.
+ *
+ * @param search - The current route search params.
+ * @param prefix - The prefix it was stored under.
+ * @return The report-window params, or undefined when none are stored.
+ */
+function readOriginWindow(
+	search: Record< string, unknown > | undefined,
+	prefix: string
+): Record< string, unknown > | undefined {
+	const origin: Record< string, unknown > = {};
+	for ( const key of REPORT_DATE_PARAM_KEYS ) {
+		const value = search?.[ prefix + key ];
+		if ( value !== undefined ) {
+			origin[ key ] = value;
+		}
+	}
+	return Object.keys( origin ).length ? expandOriginWindow( origin ) : undefined;
+}
+
+/**
+ * Store the linking page's window under the origin-window params, for a detail page's way back.
+ *
+ * @param search - The search params the detail page was linked with.
+ * @return The origin-window params.
+ */
+export function toReportOriginWindowParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	return storeOriginWindow( search, ORIGIN_WINDOW_PREFIX );
+}
+
+/**
+ * Store a surface's window under the zoom-out params, for a period a widget opens inside it.
+ *
+ * @param search - The search params naming the window the widget zoomed in from.
+ * @return The zoom-out params.
+ */
+export function toZoomOutParams( search: Record< string, unknown > | undefined ): ZoomOutParams {
+	return storeOriginWindow( search, ZOOM_OUT_PREFIX ) as ZoomOutParams;
+}
+
+/**
+ * The zoom-out params, each cleared, for a patch that moves the window anywhere else.
+ *
+ * @return Every zoom-out param set to undefined.
+ */
+export function clearZoomOutParams(): ZoomOutParams {
+	return Object.fromEntries(
+		REPORT_DATE_PARAM_KEYS.map( key => [ ZOOM_OUT_PREFIX + key, undefined ] )
+	) as ZoomOutParams;
+}
+
+/**
+ * Read the window a surface can zoom back out to.
+ *
+ * @param search - The current route search params.
+ * @return The report-window params, or undefined when nothing was zoomed in from.
+ */
+export function readZoomOutWindow(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > | undefined {
+	return readOriginWindow( search, ZOOM_OUT_PREFIX );
 }
 
 /**
@@ -187,14 +269,7 @@ function pickReturnDateParams(
 		return pickReportDateParams( search );
 	}
 
-	const origin: Record< string, unknown > = {};
-	for ( const key of REPORT_DATE_PARAM_KEYS ) {
-		const value = search[ ORIGIN_WINDOW_PREFIX + key ];
-		if ( value !== undefined ) {
-			origin[ key ] = value;
-		}
-	}
-	return expandOriginWindow( origin );
+	return readOriginWindow( search, ORIGIN_WINDOW_PREFIX ) ?? {};
 }
 
 /**

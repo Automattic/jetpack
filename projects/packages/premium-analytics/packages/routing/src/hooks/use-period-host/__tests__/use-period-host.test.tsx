@@ -44,11 +44,13 @@ const wrapper = ( { children }: { children: ReactNode } ) => (
 );
 
 // A stage: its date control reads the URL, and its widgets set the period through the host.
-function renderStage( lockedIntervals?: readonly LockableInterval[] ) {
+function renderStage( lockedIntervals?: readonly LockableInterval[], withZoomOut = false ) {
 	return renderHook(
 		() => {
 			const dateFilters = useReportDateFilters( '/' );
-			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, lockedIntervals );
+			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, lockedIntervals, {
+				withZoomOut,
+			} );
 
 			return { dateFilters, host };
 		},
@@ -100,6 +102,18 @@ describe( 'usePeriodHost', () => {
 		act( () => result.current.host.openPeriod( MONTH ) );
 
 		expect( mockSearch ).toMatchObject( { preset: 'custom', interval } );
+	} );
+
+	it.each( [
+		[ 'offers a zoom out to the window left, when asked to', true, 'year-to-date' ],
+		[ 'offers no zoom out unless asked to', false, undefined ],
+	] )( '%s', ( _name, withZoomOut, presetId ) => {
+		const { result, rerender } = renderStage( undefined, withZoomOut );
+
+		act( () => result.current.host.openPeriod( WEEK ) );
+		rerender();
+
+		expect( result.current.dateFilters.zoomOut?.presetId ).toBe( presetId );
 	} );
 
 	it( 'leaves the calendar on the new period when the picker closes after it', () => {

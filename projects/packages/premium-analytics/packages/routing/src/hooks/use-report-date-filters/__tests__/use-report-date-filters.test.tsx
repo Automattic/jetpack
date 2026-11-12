@@ -817,6 +817,78 @@ describe( 'useReportDateFilters', () => {
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 
+	// Only a hand-picked window inside the stored one is a zoom-in: a section switch that lands
+	// back on the preset leaves the params behind, and a hand-edited URL may not resolve.
+	it.each( [
+		[ 'the URL carries no window zoomed in from', {} ],
+		[
+			'the applied window is a preset again',
+			{ up_preset: 'last-30-days', preset: 'last-7-days' },
+		],
+		[
+			'the applied window is not inside the stored one',
+			{ up_from: '2026-07-10T00:00:00.000+00:00', up_to: '2026-07-20T23:59:59.999+00:00' },
+		],
+		[ 'the stored window does not resolve', { up_from: 'not-a-date', up_to: 'not-a-date' } ],
+	] )( 'offers no zoom out while %s', ( _name, search ) => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-07-30T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-07-09T00:00:00.000+00:00',
+			to: '2026-07-09T23:59:59.999+00:00',
+			preset: 'custom',
+			...search,
+		} );
+
+		expect( result.current.zoomOut ).toBeUndefined();
+	} );
+
+	// The preset is read as today's window, like the applied one, and the bucket it was read
+	// with comes back; the comparison stays as the reader has it, measured on that window.
+	it( 'zooms back out to the window zoomed in from and clears it, keeping the comparison on', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-07-30T12:00:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-09T00:00:00.000+00:00',
+			to: '2026-07-09T23:59:59.999+00:00',
+			preset: 'custom',
+			interval: 'hour',
+			comp: '1',
+			compare_preset: 'previous-period',
+			compare_from: '2026-07-08T00:00:00.000+00:00',
+			compare_to: '2026-07-08T23:59:59.999+00:00',
+			up_preset: 'last-30-days',
+			up_interval: 'week',
+		} );
+
+		expect( result.current.zoomOut ).toMatchObject( { presetId: 'last-30-days' } );
+		expect( result.current.zoomOut?.range.from?.getTime() ).toBe(
+			Date.parse( '2026-07-01T00:00:00.000Z' )
+		);
+
+		let zoomed;
+		act( () => {
+			zoomed = result.current.zoomOut?.onZoomOut();
+		} );
+		rerender();
+
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockSearch ).toEqual( {
+			from: '2026-07-01T00:00:00.000+00:00',
+			to: '2026-07-30T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+			comp: '1',
+			compare_preset: 'previous-period',
+			compare_from: '2026-06-01T00:00:00.000+00:00',
+			compare_to: '2026-06-30T23:59:59.999+00:00',
+		} );
+		expect( result.current.zoomOut ).toBeUndefined();
+		expect( zoomed ).toEqual( {
+			range: result.current.appliedRange,
+			presetId: 'last-30-days',
+			interval: 'week',
+		} );
+	} );
+
 	it( 'replaces the current entry when the page reconciles the range', () => {
 		const { result, rerender } = renderDateFilters( {
 			from: '2026-07-01T00:00:00.000+00:00',

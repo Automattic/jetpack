@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	normalizeReportParams,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 	type LockableInterval,
@@ -18,6 +19,11 @@ import {
  */
 import { deriveComparisonRange } from '../../search/comparison';
 import { encodeRangeToSearchParams } from '../../search/date-range';
+import {
+	clearZoomOutParams,
+	toZoomOutParams,
+	type ZoomOutParams,
+} from '../../search/report-params';
 
 /**
  * The report search params the date filters read and stage.
@@ -27,7 +33,7 @@ export type ReportQuerySearchParams = Partial<
 		preset?: PrimaryPresetId;
 		compare_preset?: ComparisonPresetId;
 		comp?: '1';
-	}
+	} & ZoomOutParams
 >;
 
 type BuildRangePatchArgs = {
@@ -58,6 +64,13 @@ type BuildRangePatchArgs = {
 	step?: DateStepId;
 
 	/**
+	 * The window `nextRange` was zoomed in from, when a widget opened it: the
+	 * zoom-out control returns there. Any other range change clears the window
+	 * the URL carries.
+	 */
+	zoomedInFrom?: ReportQuerySearchParams;
+
+	/**
 	 * The current effective search params, used to re-derive the comparison
 	 * range and to resolve the interval for the next range.
 	 */
@@ -66,6 +79,27 @@ type BuildRangePatchArgs = {
 	/** The buckets the plan locks; the next range's interval avoids them. */
 	lockedIntervals?: readonly LockableInterval[];
 };
+
+/**
+ * The zoom-out params for a window opened from `origin`: none when it is the same window
+ * again, which would offer a zoom out to where the reader already is.
+ *
+ * @param origin - The window the new one was opened from.
+ * @param from   - The new window's start, as stored.
+ * @param to     - The new window's end, as stored.
+ * @return The params to store.
+ */
+function zoomOutParams(
+	origin: ReportQuerySearchParams | undefined,
+	from: string,
+	to: string
+): ZoomOutParams | undefined {
+	if ( ! origin ) {
+		return undefined;
+	}
+	const window = normalizeReportParams( origin as Parameters< typeof normalizeReportParams >[ 0 ] );
+	return window.from === from && window.to === to ? undefined : toZoomOutParams( origin );
+}
 
 /**
  * Builds the search-param patch to stage for a date-range change.
@@ -82,6 +116,7 @@ export function buildRangePatch( {
 	exactRange,
 	resetIntervalOnPresetChange,
 	step,
+	zoomedInFrom,
 	effective,
 	lockedIntervals,
 }: BuildRangePatchArgs ): ReportQuerySearchParams | null {
@@ -95,6 +130,7 @@ export function buildRangePatch( {
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 		patch.step = step;
+		Object.assign( patch, clearZoomOutParams(), zoomOutParams( zoomedInFrom, rangeFrom, rangeTo ) );
 
 		// Without the reset, the interval carries unless the new range disallows it.
 		patch.interval = resetIntervalOnPresetChange
