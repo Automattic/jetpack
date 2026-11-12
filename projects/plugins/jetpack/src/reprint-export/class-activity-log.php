@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Reprint_Export;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Sync\Activity_Log_Event;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Activity_Log {
 
 	/**
-	 * Events logged at most once per THROTTLE_SECONDS: an export is thousands of requests,
+	 * Events logged once per client IP per THROTTLE_SECONDS: an export is thousands of requests,
 	 * and every entry is a post insert plus a Sync queue item.
 	 *
 	 * @var string[]
@@ -65,7 +66,9 @@ class Activity_Log {
 			return;
 		}
 
-		$entry = self::describe( (string) $event );
+		// Only export requests reach the site directly; the rest come through the WordPress.com proxy.
+		$ip    = 'export_served' === $event ? (string) IP_Utils::get_ip() : '';
+		$entry = self::describe( (string) $event, $ip );
 		if ( null === $entry ) {
 			return;
 		}
@@ -78,10 +81,13 @@ class Activity_Log {
 
 		if ( in_array( $event, self::THROTTLED_EVENTS, true ) ) {
 			$transient = self::THROTTLE_TRANSIENT_PREFIX . $event;
-			if ( false !== get_transient( $transient ) ) {
+			$logged    = get_transient( $transient );
+			$logged    = is_array( $logged ) ? $logged : array();
+			if ( isset( $logged[ $ip ] ) ) {
 				return;
 			}
-			set_transient( $transient, time(), self::THROTTLE_SECONDS );
+			$logged[ $ip ] = time();
+			set_transient( $transient, $logged, self::THROTTLE_SECONDS );
 		}
 
 		// Rendered as "Source: Jetpack"; without it, dashboards show "Source: Custom entry".
@@ -108,9 +114,10 @@ class Activity_Log {
 	 * under "Plugin installed", so both stay short.
 	 *
 	 * @param string $event Event name.
+	 * @param string $ip    Client IP of an export request, or ''.
 	 * @return array|null Title, content and severity, or null for an event that is not logged.
 	 */
-	public static function describe( $event ) {
+	public static function describe( $event, $ip = '' ) {
 		switch ( $event ) {
 			case 'secret_rotated':
 			case 'public_key_installed':
@@ -130,7 +137,10 @@ class Activity_Log {
 			case 'export_served':
 				return array(
 					'title'    => __( 'Site export in progress', 'jetpack' ),
-					'content'  => __( 'Site export', 'jetpack' ),
+					'content'  => '' === $ip
+						? __( 'Site export', 'jetpack' )
+						/* translators: %s: IP address of the client exporting the site. */
+						: sprintf( __( 'Site export from IP Address %s', 'jetpack' ), $ip ),
 					'severity' => 'info',
 				);
 
