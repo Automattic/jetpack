@@ -23,7 +23,14 @@ const Inner = innerProps => {
 const Source = withMedia( 'google_photos' )( Inner );
 
 const renderAndCopy = async ( onSelect, onClose ) => {
-	render( <Source multiple onSelect={ onSelect } onClose={ onClose } /> );
+	render(
+		<Source
+			multiple
+			externalSource={ { label: 'Google Photos' } }
+			onSelect={ onSelect }
+			onClose={ onClose }
+		/>
+	);
 	await act( () => props.copyMedia( items, '/copy', 'google_photos' ) );
 };
 

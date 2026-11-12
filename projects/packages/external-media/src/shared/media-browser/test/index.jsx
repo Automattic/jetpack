@@ -58,10 +58,10 @@ describe( 'MediaBrowser selection limit', () => {
 	} );
 
 	it.each( [
-		[ 'below the limit', true, 49, false ],
-		[ 'at the limit', true, 50, true ],
-	] )( 'shows the limit message only at the limit (%s)', ( _, multiple, count, shown ) => {
-		renderBrowser( { multiple } );
+		[ 'below the limit', 49, false ],
+		[ 'at the limit', 50, true ],
+	] )( 'shows the limit message only at the limit (%s)', ( _, count, shown ) => {
+		renderBrowser();
 		selectFirst( count );
 
 		expect( screen.getByRole( 'status' ).textContent ).toBe( shown ? LIMIT_MESSAGE : '' );
