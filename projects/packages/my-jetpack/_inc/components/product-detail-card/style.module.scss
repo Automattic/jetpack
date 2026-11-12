@@ -1,13 +1,14 @@
-@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/mixins";
 
 .card {
 	background-color: var(--jp-white);
 	height: 100%;
-	padding: calc(var(--spacing-base) * 8);
+	padding-block: calc(var(--spacing-base) * 8);
+	padding-inline: calc(var(--spacing-base) * 3);
 	position: relative;
 
-	@media (max-width: #{breakpoints.$break-small - 1px}) {
-		padding-inline: calc(var(--spacing-base) * 3);
+	@include mixins.break-small {
+		padding-inline: calc(var(--spacing-base) * 8);
 	}
 }
 
