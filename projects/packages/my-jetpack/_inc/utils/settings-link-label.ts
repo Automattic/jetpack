@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 
 export type SettingsLinkLabel = {
 	/** What the link shows. */
@@ -56,7 +56,7 @@ export function getLeavingLinkLabel( url: string, name: string ): SettingsLinkLa
 
 	if ( /^options-[a-z]+\.php$/.test( file ) ) {
 		return {
-			text: __( 'Manage in Settings', 'jetpack-my-jetpack' ),
+			text: _x( 'Manage in Settings', 'link to the WordPress Settings menu', 'jetpack-my-jetpack' ),
 			label: sprintf(
 				/* translators: %s is the feature name. "Settings" is the WordPress admin menu. */
 				__( 'Manage %s in Settings', 'jetpack-my-jetpack' ),
