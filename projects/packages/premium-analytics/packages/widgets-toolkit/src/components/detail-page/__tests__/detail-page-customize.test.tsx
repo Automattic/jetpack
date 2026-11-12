@@ -184,7 +184,11 @@ describe( 'detail-page-customize', () => {
 
 			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 			const items = await screen.findAllByRole( 'menuitem' );
-			expect( items.map( item => item.textContent ) ).toEqual( [ 'Customize', 'Any feedback?' ] );
+			expect( items.map( item => item.textContent ) ).toEqual( [
+				'Customize',
+				'Arrange tabs',
+				'Any feedback?',
+			] );
 			expect(
 				screen.queryByRole( 'button', { name: 'Reset to default' } )
 			).not.toBeInTheDocument();
@@ -194,7 +198,7 @@ describe( 'detail-page-customize', () => {
 			expect( onCustomize ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		it( "keeps the menu, less Customize, and puts Reset to default beside the dashboard's own actions", async () => {
+		it( "keeps the menu, with Customize disabled, and puts Reset to default beside the dashboard's own actions", async () => {
 			const user = userEvent.setup();
 			render(
 				<DetailPageActions
@@ -212,9 +216,10 @@ describe( 'detail-page-customize', () => {
 			expect( screen.getByRole( 'button', { name: 'Reset to default' } ) ).toBeInTheDocument();
 
 			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-			const items = await screen.findAllByRole( 'menuitem' );
 
-			expect( items.map( item => item.textContent ) ).toEqual( [ 'Any feedback?' ] );
+			await expect(
+				screen.findByRole( 'menuitem', { name: 'Customize' } )
+			).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 		} );
 
 		it( 'moves focus back onto the menu trigger when leaving unmounts the focused control', async () => {

@@ -33,14 +33,6 @@ const WITH_SETTINGS = {
 	premium_analytics: { stats_settings: { roles: [], features_url: null } },
 } as ReturnType< typeof getScriptData >;
 
-const TABS = {
-	scope: 'jetpack-premium-analytics/test',
-	items: [
-		{ slug: 'traffic', label: 'Traffic' },
-		{ slug: 'insights', label: 'Insights' },
-	],
-};
-
 describe( 'page-options-menu Settings entry', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
@@ -85,15 +77,11 @@ describe( 'page-options-menu Settings entry', () => {
 		expect( settings ).not.toHaveAttribute( 'href' );
 	} );
 
-	it.each( [
-		{ name: 'sits apart from the entries above it', onCustomize: () => {}, above: 1 },
-		{ name: 'sits apart from Arrange tabs alone', tabs: TABS, above: 1 },
-		{ name: 'has no separator above it as the first entry', onCustomize: undefined, above: 0 },
-	] )( '$name', async ( { onCustomize, tabs, above } ) => {
+	it( 'sits apart from the layout options above it', async () => {
 		jest.mocked( getScriptData ).mockReturnValue( WITH_SETTINGS );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		render( <PageOptionsMenu onCustomize={ onCustomize } tabs={ tabs } /> );
+		render( <PageOptionsMenu /> );
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 
 		const settings = await screen.findByRole( 'menuitem', { name: 'Settings' } );
@@ -104,7 +92,7 @@ describe( 'page-options-menu Settings entry', () => {
 					separator.compareDocumentPosition( settings ) === Node.DOCUMENT_POSITION_FOLLOWING
 			);
 
-		expect( separatorsAbove ).toHaveLength( above );
+		expect( separatorsAbove ).toHaveLength( 1 );
 	} );
 
 	it( 'is absent where the site hands the user no Stats settings', async () => {

@@ -182,15 +182,14 @@ describe( 'page-options-menu Arrange tabs entry', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'is absent for a page with a single tab', async () => {
+	it( 'is disabled for a page with a single tab', async () => {
 		const user = setupUser();
 
 		render( <PageOptionsMenu tabs={ { scope: SCOPE, items: TABS.slice( 0, 1 ) } } /> );
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 
 		await expect(
-			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'menuitem', { name: 'Arrange tabs' } ) ).not.toBeInTheDocument();
+			screen.findByRole( 'menuitem', { name: 'Arrange tabs' } )
+		).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );

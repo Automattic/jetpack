@@ -139,10 +139,11 @@ describe( 'page-options-menu', () => {
 
 			expect( items.map( item => item.textContent ) ).toEqual( [
 				'Customize',
+				'Arrange tabs',
 				'Any feedback?',
 				'Switch off the preview',
 			] );
-			// The layout action sits apart from the rest.
+			// The layout options sit apart from the rest.
 			expect( screen.getByRole( 'separator' ) ).toBeInTheDocument();
 
 			await user.click( items[ 0 ] );
@@ -166,6 +167,7 @@ describe( 'page-options-menu', () => {
 
 			expect( items.map( item => item.textContent ) ).toEqual( [
 				'Customize',
+				'Arrange tabs',
 				'Switch off the preview',
 			] );
 		} );
@@ -180,17 +182,19 @@ describe( 'page-options-menu', () => {
 			expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'leaves Customize out where there is nothing to arrange', async () => {
+		it( 'disables the layout options where the page has nothing to arrange', async () => {
 			const user = setupUser();
 			render( <PageOptionsMenu /> );
 
 			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 
 			await expect(
-				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
-			).resolves.toBeInTheDocument();
-			expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
+				screen.findByRole( 'menuitem', { name: 'Customize' } )
+			).resolves.toHaveAttribute( 'aria-disabled', 'true' );
+			expect( screen.getByRole( 'menuitem', { name: 'Arrange tabs' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
 		} );
 
 		it( 'opens the feedback modal, reporting the opening and the answer as from the menu', async () => {
