@@ -7,6 +7,7 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
+	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ReportRecordsTable,
@@ -65,12 +66,14 @@ function TagsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ tagsCsvExporter }
-					items={ records.rows }
-					status={ records }
-					reportParams={ reportParams }
-				/>
+				<ReportPageActions>
+					<ExporterCsvAction
+						exporter={ tagsCsvExporter }
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+				</ReportPageActions>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>

@@ -7,6 +7,7 @@ import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
+	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ReportRecordsTable,
@@ -91,12 +92,14 @@ function VideosReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ videosCsvExporter }
-					items={ records.rows }
-					status={ records }
-					reportParams={ reportParams }
-				/>
+				<ReportPageActions>
+					<ExporterCsvAction
+						exporter={ videosCsvExporter }
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+				</ReportPageActions>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
