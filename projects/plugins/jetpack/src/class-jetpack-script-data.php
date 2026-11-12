@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Plugin;
 
+use Automattic\Jetpack\Comments\Comments;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
@@ -47,12 +48,13 @@ class Jetpack_Script_Data {
 			),
 		);
 
-		// Only the settings panel in My Jetpack reads it, so skip the theme folder scan elsewhere.
+		// Only the settings panel in My Jetpack reads these, so skip the theme folder scan elsewhere.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which data to print.
 		if ( 'my-jetpack' === sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ) && self::is_settings_consolidation_enabled() ) {
-			$data['jetpack']['themeSupports'] = array(
+			$data['jetpack']['themeSupports']            = array(
 				'infiniteScroll' => self::theme_supports_infinite_scroll(),
 			);
+			$data['jetpack']['isCommentBlocksAvailable'] = Comments::is_enabled();
 		}
 
 		return $data;

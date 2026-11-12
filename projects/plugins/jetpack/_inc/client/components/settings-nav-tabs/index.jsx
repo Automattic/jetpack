@@ -123,7 +123,11 @@ const SettingsNavTabs = props => {
 		) {
 			visibleTabs.push( '/sharing' );
 		}
-		if ( hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] ) ) {
+		// Once settings move out, admins find every Discussion setting in Features.
+		if (
+			! isSettingsConsolidationEnabled() &&
+			hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] )
+		) {
 			visibleTabs.push( '/discussion' );
 		}
 		if (

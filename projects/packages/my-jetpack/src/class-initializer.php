@@ -155,7 +155,7 @@ class Initializer {
 	/**
 	 * Modules whose Jetpack settings link opens in the Features panel. A subset of `moduleSettings` in `settings-panel/registry.ts`; see there for which modules stay out.
 	 */
-	public const SETTINGS_PANEL_MODULES = array( 'carousel', 'infinite-scroll', 'markdown', 'post-by-email', 'related-posts' );
+	public const SETTINGS_PANEL_MODULES = array( 'carousel', 'comments', 'infinite-scroll', 'markdown', 'post-by-email', 'related-posts' );
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)

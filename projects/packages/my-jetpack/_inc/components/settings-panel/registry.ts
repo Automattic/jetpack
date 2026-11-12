@@ -1,4 +1,5 @@
 import { CarouselSettings } from './carousel';
+import { CommentsSettings } from './comments';
 import { GoogleAnalyticsSettings } from './google-analytics';
 import { InfiniteScrollSettings } from './infinite-scroll';
 import { MarkdownSettings } from './markdown';
@@ -23,6 +24,7 @@ export type ModuleSettingsProps = {
  */
 export const moduleSettings: Record< string, ComponentType< ModuleSettingsProps > > = {
 	carousel: CarouselSettings,
+	comments: CommentsSettings,
 	'infinite-scroll': InfiniteScrollSettings,
 	markdown: MarkdownSettings,
 	'post-by-email': PostByEmailSettings,
