@@ -1310,6 +1310,24 @@ describe( 'HeatmapChart bucket scale', () => {
 		] );
 	} );
 
+	test( 'keeps an outlier apart from the rest under the linear scale', () => {
+		const spike: HeatmapColumn[] = [ 1, 2, 3, 500 ].map( value => ( { data: [ { value } ] } ) );
+
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ spike } scale="linear" />
+			</GlobalChartsProvider>
+		);
+
+		// Ranking would hand 3 and 500 the same darkest step; distance does not.
+		expect( intensitiesOf( 'heatmap-cell' ) ).toEqual( [
+			'0',
+			'0.002004008016032064',
+			'0.004008016032064128',
+			'1',
+		] );
+	} );
+
 	test( 'warns once and falls back to five steps for an unusable scaleSteps', () => {
 		for ( const scaleSteps of [ 1, 2.5, 400 ] ) {
 			const { unmount } = renderAscending( { scaleSteps } );

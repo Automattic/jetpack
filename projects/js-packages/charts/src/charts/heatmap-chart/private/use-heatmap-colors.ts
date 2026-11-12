@@ -65,3 +65,19 @@ export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] =>
  */
 export const isEmptyValue = ( value: number, extent: [ number, number ] ): boolean =>
 	value === 0 && extent[ 0 ] >= 0;
+
+/**
+ * Place a value by its distance from the extent's ends rather than its rank.
+ * A flat extent maps to 1, since every cell is equally the highest.
+ *
+ * @param value  - The value to place
+ * @param extent - Tuple of [min, max] from `getExtentOf`
+ * @return Position between 0 and 1
+ */
+export const getNormalizedValue = ( value: number, extent: [ number, number ] ): number => {
+	const [ min, max ] = extent;
+	if ( min === max ) {
+		return 1;
+	}
+	return Math.min( 1, Math.max( 0, ( value - min ) / ( max - min ) ) );
+};

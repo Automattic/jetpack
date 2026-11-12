@@ -117,8 +117,18 @@ export interface HeatmapChartProps extends Omit<
 	 */
 	primaryColor?: string;
 	/**
+	 * How a value picks its color. `buckets` ranks it against the series, so
+	 * every step holds about the same share of the cells and neighbors stay
+	 * apart. `linear` places it by distance between the lowest and highest
+	 * value, which keeps one outlier looking like an outlier at the cost of
+	 * flattening the rest. Default `buckets`; prefer `linear` for a series
+	 * whose point is the size of a spike, such as a day-by-day calendar.
+	 */
+	scale?: 'buckets' | 'linear';
+	/**
 	 * How many color steps the cells and the legend share. Values fall into that
 	 * many buckets, each holding about the same share of the series. Default 5.
+	 * Ignored under the `linear` scale, which is continuous.
 	 */
 	scaleSteps?: number;
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;

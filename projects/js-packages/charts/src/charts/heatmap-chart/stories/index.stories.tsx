@@ -316,6 +316,12 @@ const CalendarGrid = ( {
 };
 
 const calendarArgTypes = {
+	scale: {
+		control: { type: 'inline-radio' as const },
+		options: [ 'buckets', 'linear' ],
+		description: 'Whether a value picks its color by rank among its peers or by distance.',
+		table: { category: 'Calendar' },
+	},
 	weekStartsOn: {
 		control: { type: 'inline-radio' as const, labels: { 0: 'Sunday', 1: 'Monday' } },
 		options: [ 1, 0 ],
@@ -384,6 +390,7 @@ export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
 		locale: '',
 		timeZone: '',
 		dataset: 'Steady traffic',
+		scale: 'buckets',
 	},
 	argTypes: {
 		...calendarArgTypes,
