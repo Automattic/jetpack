@@ -3180,24 +3180,23 @@ class Error_Handler_Test extends BaseTestCase {
 	 *
 	 * @param string $error_code The (displayable) error code.
 	 * @param string $user_id    The user ID key the error is stored under.
+	 * @param string $direction  The `error_direction`; empty leaves the field out.
 	 */
-	private function store_single_verified_error( $error_code, $user_id ) {
-		update_option(
-			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
-			array(
-				$error_code => array(
-					$user_id => array(
-						'error_code'    => $error_code,
-						'user_id'       => $user_id,
-						'error_message' => 'Test message',
-						'error_data'    => array(),
-						'timestamp'     => time(),
-						'nonce'         => 'test_nonce',
-						'error_type'    => 'xmlrpc',
-					),
-				),
-			)
+	private function store_single_verified_error( $error_code, $user_id, $direction = '' ) {
+		$error = array(
+			'error_code'    => $error_code,
+			'user_id'       => $user_id,
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
 		);
+		if ( $direction ) {
+			$error['error_direction'] = $direction;
+		}
+
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( $error_code => array( $user_id => $error ) ) );
 	}
 
 	/**
@@ -3774,6 +3773,39 @@ class Error_Handler_Test extends BaseTestCase {
 			'site-level error'             => array( 11, 'no_valid_blog_token', '0', false ),
 			'unattributable error'         => array( 11, 'no_valid_user_token', 'invalid', false ),
 			'no recorded owner'            => array( 0, 'no_valid_user_token', '11', false ),
+		);
+	}
+
+	/**
+	 * Test which stored errors count as WordPress.com rejecting the owner's token.
+	 *
+	 * @param string $error_code The stored error code.
+	 * @param string $error_key  The user key the error is stored under.
+	 * @param string $direction  The stored `error_direction`.
+	 * @param bool   $expected   Whether it counts as a rejection.
+	 * @dataProvider provide_owner_token_rejection_cases
+	 */
+	#[DataProvider( 'provide_owner_token_rejection_cases' )]
+	public function test_has_owner_token_rejection( $error_code, $error_key, $direction, $expected ) {
+		\Jetpack_Options::update_option( 'master_user', 11 );
+		$this->store_single_verified_error( $error_code, $error_key, $direction );
+
+		$this->assertSame( $expected, $this->error_handler->has_owner_token_rejection() );
+	}
+
+	/**
+	 * Data provider for test_has_owner_token_rejection.
+	 *
+	 * @return array
+	 */
+	public static function provide_owner_token_rejection_cases() {
+		return array(
+			'outgoing signature mismatch'      => array( 'signature_mismatch', '11', 'outgoing', true ),
+			'outgoing invalid token'           => array( 'invalid_token', '11', 'outgoing', true ),
+			'incoming signature mismatch'      => array( 'signature_mismatch', '11', 'incoming', false ),
+			'legacy entry without a direction' => array( 'invalid_token', '11', '', false ),
+			'outgoing signing failure'         => array( 'could_not_sign', '11', 'outgoing', false ),
+			'another user rejected'            => array( 'invalid_token', '99', 'outgoing', false ),
 		);
 	}
 

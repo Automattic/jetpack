@@ -669,6 +669,11 @@ class ManagerTest extends TestCase {
 			return $disconnect_cap;
 		};
 		add_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+		$had_owner = null;
+		$record    = static function ( $data, $had_connected_owner ) use ( &$had_owner ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$had_owner = $had_connected_owner;
+		};
+		add_action( 'jetpack_authorize_ending_authorized', $record, 10, 2 );
 
 		try {
 			$result = $manager->authorize(
@@ -680,10 +685,13 @@ class ManagerTest extends TestCase {
 		} finally {
 			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
 			remove_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+			remove_action( 'jetpack_authorize_ending_authorized', $record, 10 );
 			\Jetpack_Options::delete_option( 'master_user' );
 		}
 
 		$this->assertSame( $expected_result, $result );
+		// An empty slot is a new connection, so the plugin's module setup still runs.
+		$this->assertSame( 'authorized' === $result ? false : null, $had_owner );
 		// No connected owner, so any claim must tell WordPress.com the slot is unusable.
 		if ( ! empty( $sent_claim ) ) {
 			$this->assertSame( 1, $sent_claim['local_owner_unusable'] );
@@ -751,15 +759,16 @@ class ManagerTest extends TestCase {
 			update_option(
 				Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
 				array(
-					'no_valid_user_token' => array(
+					'signature_mismatch' => array(
 						(string) $owner_id => array(
-							'error_code'    => 'no_valid_user_token',
-							'user_id'       => (string) $owner_id,
-							'error_message' => 'Test message',
-							'error_data'    => array(),
-							'timestamp'     => time(),
-							'nonce'         => 'test_nonce',
-							'error_type'    => 'xmlrpc',
+							'error_code'      => 'signature_mismatch',
+							'user_id'         => (string) $owner_id,
+							'error_message'   => 'Test message',
+							'error_data'      => array(),
+							'timestamp'       => time(),
+							'nonce'           => 'test_nonce',
+							'error_type'      => 'xmlrpc',
+							'error_direction' => 'outgoing',
 						),
 					),
 				)
@@ -802,6 +811,11 @@ class ManagerTest extends TestCase {
 
 		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
 		add_filter( 'pre_http_request', $intercept, 10, 2 );
+		$had_owner = null;
+		$record    = static function ( $data, $had_connected_owner ) use ( &$had_owner ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$had_owner = $had_connected_owner;
+		};
+		add_action( 'jetpack_authorize_ending_authorized', $record, 10, 2 );
 
 		try {
 			$result = $manager->authorize(
@@ -815,6 +829,7 @@ class ManagerTest extends TestCase {
 		} finally {
 			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
 			remove_filter( 'pre_http_request', $intercept, 10 );
+			remove_action( 'jetpack_authorize_ending_authorized', $record, 10 );
 			delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
 			\Jetpack_Options::delete_option( array( 'master_user', 'id' ) );
 		}
@@ -824,6 +839,8 @@ class ManagerTest extends TestCase {
 			array_intersect_key( $sent_body, array_flip( array( 'owner_claim', 'local_owner_unusable', 'owner_transferable' ) ) )
 		);
 		$this->assertSame( $expected_master ? 'authorized' : 'linked', $result );
+		// A stored owner token means an owner change, which skips the plugin's module reset.
+		$this->assertSame( $expected_master ? true : null, $had_owner );
 	}
 
 	/**
@@ -2044,6 +2061,143 @@ class ManagerTest extends TestCase {
 			'owner relinks'                     => array( true, false, 'refresh_user_token', 'authorize' ),
 			'non-owner relinks to become owner' => array( false, true, 'refresh_user_token', 'authorize' ),
 			'non-owner with locked ownership'   => array( false, false, 'reconnect', 'authorize' ),
+		);
+	}
+
+	/**
+	 * Test that a Restore relink still reports an unusable owner to `authorize()`, although the unlink clears the stored errors.
+	 *
+	 * @param bool $owner_changes     Whether `master_user` changes between the relink and the authorization.
+	 * @param int  $expected_unusable The `local_owner_unusable` value the claim should send.
+	 * @dataProvider provide_restore_relink_remembers_unusable_owner
+	 */
+	#[DataProvider( 'provide_restore_relink_remembers_unusable_owner' )]
+	public function test_restore_relink_remembers_unusable_owner( $owner_changes, $expected_unusable ) {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'test_relink_admin',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'test_relink_owner',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$owner_id => "key.secret.$owner_id",
+				$admin_id => "key.secret.$admin_id",
+			)
+		);
+		update_option(
+			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
+			array(
+				'signature_mismatch' => array(
+					(string) $owner_id => array(
+						'error_code'      => 'signature_mismatch',
+						'user_id'         => (string) $owner_id,
+						'error_message'   => 'Test message',
+						'error_data'      => array(),
+						'timestamp'       => time(),
+						'nonce'           => 'test_nonce',
+						'error_type'      => 'xmlrpc',
+						'error_direction' => 'outgoing',
+					),
+				),
+			)
+		);
+		// A static that would otherwise skip the unlink for a user ID an earlier test disconnected.
+		( new \ReflectionProperty( Manager::class, 'disconnected_users' ) )->setValue( null, array() );
+		// A fresh instance re-adds the `jetpack_unlinked_user` cleanup that earlier tests may have unhooked.
+		Error_Handler::$instance = null;
+		Error_Handler::get_instance();
+
+		$sent_claim = array();
+		$tokens     = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'validate', 'get' ) )
+			->getMock();
+		$tokens->method( 'validate' )->willReturn(
+			array(
+				'blog_token' => array( 'is_healthy' => true ),
+				'user_token' => array( 'is_healthy' => true ),
+			)
+		);
+		$tokens->method( 'get' )->willReturnCallback(
+			static function ( $data, $url, $extra ) use ( &$sent_claim ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				$sent_claim = $extra;
+				return 'usertoken.secret';
+			}
+		);
+
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_site_connection', 'get_tokens', 'get_connection_owner_id', 'is_ownership_transferable', 'unlink_user_from_wpcom', 'get_connected_user_data' ) )
+			->getMock();
+		$manager->method( 'is_site_connection' )->willReturn( false );
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
+		$manager->method( 'is_ownership_transferable' )->willReturn( true );
+		$manager->method( 'unlink_user_from_wpcom' )->willReturn( true );
+		$manager->method( 'get_connected_user_data' )->willReturn( false );
+
+		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+		add_filter( 'pre_http_request', array( $this, 'block_http_request' ) );
+
+		try {
+			$this->assertSame( 'authorize', $manager->restore() );
+			$this->assertFalse( Error_Handler::get_instance()->has_owner_token_rejection(), 'The unlink should have cleared the stored errors.' );
+
+			if ( $owner_changes ) {
+				\Jetpack_Options::update_option( 'master_user', 4242 );
+			}
+
+			$manager->authorize(
+				array(
+					'state' => (string) $admin_id,
+					'code'  => 'authorization_code',
+				)
+			);
+			$remembered = get_user_meta( $admin_id, Manager::RELINK_OWNER_UNUSABLE_META, true );
+		} finally {
+			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
+			remove_filter( 'pre_http_request', array( $this, 'block_http_request' ) );
+			delete_user_meta( $admin_id, Manager::RELINK_OWNER_UNUSABLE_META );
+			delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
+			\Jetpack_Options::delete_option( array( 'master_user', 'id', 'user_tokens' ) );
+		}
+
+		$this->assertSame( $expected_unusable, $sent_claim['local_owner_unusable'] );
+		$this->assertSame( '', $remembered, 'A successful token write should clear the record.' );
+	}
+
+	/**
+	 * Data provider for test_restore_relink_remembers_unusable_owner.
+	 *
+	 * @return array
+	 */
+	public static function provide_restore_relink_remembers_unusable_owner() {
+		return array(
+			'same owner is still unusable' => array( false, 1 ),
+			'owner changed since restore'  => array( true, 0 ),
+		);
+	}
+
+	/**
+	 * Short-circuits an HTTP request, such as a Tracks pixel, with an empty success.
+	 *
+	 * @return array
+	 */
+	public function block_http_request() {
+		return array(
+			'response' => array( 'code' => 200 ),
+			'body'     => '',
 		);
 	}
 

@@ -924,7 +924,7 @@ class Error_Handler {
 	/**
 	 * Whether a displayable error is on record for the current connection owner's own connection.
 	 *
-	 * Manager::authorize() reports this to WordPress.com as `local_owner_unusable` with its owner claim.
+	 * Drives the notice and Restore; the owner claim uses the stricter has_owner_token_rejection().
 	 *
 	 * @since $$next-version$$
 	 *
@@ -945,6 +945,36 @@ class Error_Handler {
 				&& empty( $display_config['survives_owner_promotion'] )
 				&& is_array( $users )
 				&& isset( $users[ $owner_id ] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether WordPress.com has rejected the connection owner's token on a request this site signed.
+	 *
+	 * Incoming errors don't count: an outsider who knows the owner's token key can get one verified.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function has_owner_token_rejection() {
+		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+
+		if ( $owner_id <= 0 ) {
+			return false;
+		}
+
+		$rejection_codes = array( 'invalid_token', 'unknown_token', 'token_mismatch', 'signature_mismatch' );
+
+		foreach ( $this->get_verified_errors() as $error_code => $users ) {
+			if ( in_array( $error_code, $rejection_codes, true )
+				&& is_array( $users )
+				&& isset( $users[ $owner_id ]['error_direction'] )
+				&& self::DIRECTION_OUTGOING === $users[ $owner_id ]['error_direction'] ) {
 				return true;
 			}
 		}
