@@ -146,9 +146,10 @@ describe( 'detail-page-customize', () => {
 	} );
 
 	describe( 'CustomizingBadge', () => {
+		// Not 600: the width provider treats it as wide, a real `max-width: 600px` query as narrow.
 		it.each( [
-			[ 'leaves the badge out on a phone', 375, false ],
-			[ 'keeps the badge on a wider screen', 782, true ],
+			[ 'leaves the badge out below the small breakpoint', 599, false ],
+			[ 'keeps the badge above the small breakpoint', 601, true ],
 		] )( '%s', ( _name, width, hasBadge ) => {
 			render(
 				<ViewportWidth value={ width }>
