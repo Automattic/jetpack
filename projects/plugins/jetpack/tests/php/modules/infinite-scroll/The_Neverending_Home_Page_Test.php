@@ -27,8 +27,8 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 	/**
 	 * @dataProvider get_scroll_option_data
 	 *
-	 * @param string|null $stored   The stored infinite_scroll option, or null when unset.
-	 * @param bool        $expected Whether loading on scroll is off.
+	 * @param string|int|null $stored   The stored infinite_scroll option, or null when unset.
+	 * @param bool            $expected Whether loading on scroll is off.
 	 */
 	#[DataProvider( 'get_scroll_option_data' )]
 	public function test_is_scroll_disabled( $stored, $expected ) {
@@ -52,6 +52,7 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 			'on'                      => array( '1', false ),
 			'off from Reading screen' => array( '', true ),
 			'off from settings API'   => array( '0', true ),
+			'off, cached as an int'   => array( 0, true ),
 		);
 	}
 
