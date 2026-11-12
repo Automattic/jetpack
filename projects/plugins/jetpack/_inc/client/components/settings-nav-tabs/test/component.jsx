@@ -41,6 +41,7 @@ const buildInitialState = ( protectPage, extraModules = {} ) => ( {
 describe( 'SettingsNavTabs', () => {
 	afterEach( () => {
 		delete window.JetpackScriptData;
+		delete window.CUSTOM_CONTENT_TYPE__INITIAL_STATE;
 	} );
 
 	// Atomic keeps the tab for the first release: the Protect page stays off there.
@@ -93,16 +94,25 @@ describe( 'SettingsNavTabs', () => {
 		[ 'hides', 'Sharing', 'Social', 'publicize', true, 0 ],
 		[ 'shows', 'Writing', 'Copy Post', 'copy-post', false, 1 ],
 		[ 'hides', 'Writing', 'Copy Post', 'copy-post', true, 0 ],
+		[ 'shows', 'Writing', 'custom content types', null, false, 1 ],
+		[ 'hides', 'Writing', 'custom content types', null, true, 0 ],
 	] )(
 		'%s a %s tab only %s would fill with the settings flag %s',
 		( _verb, tab, _name, module, flag, tabs ) => {
 			window.JetpackScriptData = { site: {}, myJetpack: { settingsConsolidation: flag } };
+			// A null module stands for custom content types, which the tab reads from CUSTOM_CONTENT_TYPE__INITIAL_STATE.
+			window.CUSTOM_CONTENT_TYPE__INITIAL_STATE = { active: ! module };
 
 			render(
 				<MemoryRouter initialEntries={ [ '/traffic' ] }>
 					<SettingsNavTabs />
 				</MemoryRouter>,
-				{ initialState: buildInitialState( true, { [ module ]: { activated: true } } ) }
+				{
+					initialState: buildInitialState(
+						true,
+						module ? { [ module ]: { activated: true } } : {}
+					),
+				}
 			);
 
 			expect( screen.queryAllByRole( 'tab', { name: tab } ) ).toHaveLength( tabs );
