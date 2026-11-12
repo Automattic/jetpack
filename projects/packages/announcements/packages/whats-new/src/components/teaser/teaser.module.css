@@ -1,0 +1,11 @@
+.teaser {
+	--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	--wp-ui-card-header-content-gap: var(--wpds-dimension-gap-sm);
+
+	/* WPDS has no elevation token. */
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.label {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

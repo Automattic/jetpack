@@ -38,11 +38,27 @@ The registrant translates its own strings. Every value is sanitized at registrat
 
 Do no I/O in the action: the read that fires it may be a REST request.
 
+## Showing the surface
+
+The surface is "What's new": a teaser of the newest announcement the user has not seen, and a dialog that shows it in full. It ships as one script module, `packages/whats-new`, registered as `@automattic/jetpack-announcements`.
+
+A host mounts it from its own JavaScript, with the contexts it shows. The [`@automattic/jetpack-announcements` js-package](../../js-packages/announcements/README.md) holds the contract and explains the build setup.
+
+```ts
+const { mountWhatsNew } = await import( '@automattic/jetpack-announcements' );
+
+mountWhatsNew( { contexts: [ 'my-plugin' ] } );
+```
+
+The module reads WordPress scripts from their globals, core-data among them, and does not enqueue them. A wp-build page provides them all.
+
+The teaser shows one announcement at a time, and never an older one once the newest is seen. Opening or dismissing it marks it as seen.
+
 ## REST routes
 
-| Route | Methods | Purpose |
-| --- | --- | --- |
-| `/wpcom/v2/jetpack-announcements` | `GET` | The announcements the current user may see. |
+| Route                                             | Methods      | Purpose                                          |
+| ------------------------------------------------- | ------------ | ------------------------------------------------ |
+| `/wpcom/v2/jetpack-announcements`                 | `GET`        | The announcements the current user may see.      |
 | `/wpcom/v2/jetpack-announcements/<vendor>/<slug>` | `GET`, `PUT` | One announcement. The write accepts `seen` only. |
 
 Both routes require a logged-in user. An announcement that names a `capability` is left out for users without it.
