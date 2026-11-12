@@ -1315,7 +1315,7 @@ class Jetpack_Backup {
 	private static function activity_log_page_will_register() {
 		return did_action( 'jetpack_activity_log_initialized' )
 			&& class_exists( 'Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log' )
-			&& \Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::is_available(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- Checked with class_exists(); the Activity Log package is optional.
+			&& \Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::is_available();
 	}
 
 	/**
