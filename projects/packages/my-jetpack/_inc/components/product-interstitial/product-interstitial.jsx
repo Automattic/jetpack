@@ -70,7 +70,7 @@ export default function ProductInterstitial( {
 		isNewBundleOffer,
 		isResolving: isBundleOfferResolving,
 	} = useBundleOffer( bundle );
-	const showSidebar = ! bundle || isBundleOfferResolving || Boolean( offeredBundle || children );
+	const showSidebar = ! bundle || Boolean( offeredBundle || children );
 	const { detail: bundleDetail } = useProduct( offeredBundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
@@ -242,7 +242,7 @@ export default function ProductInterstitial( {
 								supportingInfo={ supportingInfo }
 								preferProductName={ preferProductName }
 								ctaButtonLabel={ ctaButtonLabel }
-								hideTOS={ hideTOS || showBundledTOS || isBundleOfferResolving }
+								hideTOS={ hideTOS || showBundledTOS }
 								quantity={ quantity }
 								highlightLastFeature={ highlightLastFeature }
 								isFetching={ isActivating || siteIsRegistering }

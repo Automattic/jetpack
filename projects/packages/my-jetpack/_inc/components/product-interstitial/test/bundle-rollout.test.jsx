@@ -30,8 +30,10 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	TermsOfService: () => null,
 } ) );
 jest.mock( '@wordpress/ui', () => ( { ButtonLink: () => null } ) );
-jest.mock( '../../product-detail-card', () => ( { slug, isUpsell } ) => (
-	<span data-testid={ isUpsell ? 'bundle' : 'product' }>{ slug }</span>
+jest.mock( '../../product-detail-card', () => ( { slug, isUpsell, hideTOS } ) => (
+	<span data-testid={ isUpsell ? 'bundle' : 'product' } data-hide-tos={ String( !! hideTOS ) }>
+		{ slug }
+	</span>
 ) );
 
 describe.each( [
@@ -84,15 +86,15 @@ it( 'keeps the Pro page mounted but hidden while its availability is refreshing'
 } );
 
 it.each( [
-	[ false, false, false, 'security' ],
-	[ true, true, false, 'pro' ],
-	[ true, false, false, 'complete' ],
-	[ undefined, true, false, 'security' ],
-	[ 'yes', true, false, 'security' ],
-	[ false, false, true, null ],
+	[ false, false, false, 'security', 'true' ],
+	[ true, true, false, 'pro', 'true' ],
+	[ true, false, false, 'complete', 'true' ],
+	[ undefined, true, false, 'security', 'true' ],
+	[ 'yes', true, false, 'security', 'true' ],
+	[ false, false, true, null, 'false' ],
 ] )(
 	'selects %s/%s (loading %s) from the shared gate and customer eligibility',
-	( catalogAvailable, available, isLoading, expected ) => {
+	( catalogAvailable, available, isLoading, expected, productHidesTOS ) => {
 		useProduct.mockImplementation( slug => ( {
 			detail:
 				slug === 'pro'
@@ -102,6 +104,7 @@ it.each( [
 		} ) );
 		render( <ProductInterstitial slug="scan" bundle="security" /> );
 		expect( screen.queryByTestId( 'bundle' )?.textContent ?? null ).toBe( expected );
+		expect( screen.getByTestId( 'product' ) ).toHaveAttribute( 'data-hide-tos', productHidesTOS );
 	}
 );
 
