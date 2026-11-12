@@ -825,7 +825,11 @@ abstract class SAL_Post {
 		// @todo: factor this out
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$active_blog = get_active_blog_for_user( $user->ID );
+			/** This filter is documented in class.json-api-endpoints.php */
+			$active_blog = apply_filters( 'wpcom_api_pre_get_active_blog_author', false, $user->ID );
+			if ( false === $active_blog ) {
+				$active_blog = get_active_blog_for_user( $user->ID );
+			}
 			$site_id     = $active_blog->blog_id ?? -1;
 			$profile_URL = "https://gravatar.com/{$user->user_login}";
 		} else {
