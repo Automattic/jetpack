@@ -52,9 +52,10 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 */
 	protected function tearDown(): void {
 		parent::tearDown();
-		// Clean up any registered scripts.
-		global $wp_scripts;
+		// Clean up any registered scripts and styles.
+		global $wp_scripts, $wp_styles;
 		$wp_scripts = null;
+		$wp_styles  = null;
 
 		\WP_Block_Supports::$block_to_render = null;
 
@@ -271,6 +272,29 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertTrue( wp_script_is( PayPal_Payment_Buttons::STYLE_HANDLE, 'registered' ) );
 
 		wp_deregister_script( PayPal_Payment_Buttons::STYLE_HANDLE );
+	}
+
+	/**
+	 * Classic themes enqueue every registered block style handle on every page.
+	 */
+	public function test_register_block_attaches_no_style_handle() {
+		PayPal_Payment_Buttons::register_block();
+		$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( PayPal_Payment_Buttons::BLOCK_NAME );
+		unregister_block_type( PayPal_Payment_Buttons::BLOCK_NAME );
+
+		$this->assertNotNull( $block_type );
+		$this->assertSame( array(), $block_type->style_handles );
+	}
+
+	public function test_render_block_enqueues_the_front_end_style() {
+		// register_block_style() needs a built dist/, so register the handle directly.
+		wp_register_style( PayPal_Payment_Buttons::STYLE_HANDLE, 'https://example.org/style.css', array(), '1' );
+		$attributes = $this->stacked_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		$this->assertFalse( wp_style_is( PayPal_Payment_Buttons::STYLE_HANDLE, 'enqueued' ) );
+		$this->assertNotEmpty( PayPal_Payment_Buttons::render_block( $attributes, '' ) );
+		$this->assertTrue( wp_style_is( PayPal_Payment_Buttons::STYLE_HANDLE, 'enqueued' ) );
 	}
 
 	public function test_init_admin_registers_nothing_while_the_flag_is_off() {

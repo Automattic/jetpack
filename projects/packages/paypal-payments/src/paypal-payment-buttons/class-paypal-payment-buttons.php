@@ -800,9 +800,8 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Side-load the sibling style.css and register it under STYLE_HANDLE.
 	 *
-	 * A `file:` style in block.json would also make core register the editor bundle a
-	 * second time, so the block takes this handle as its `style` arg. Both bootstraps
-	 * call it.
+	 * Not passed as the block's `style` arg: classic themes enqueue every block's style
+	 * on every page. render_block() and load_editor_styles() enqueue it instead.
 	 *
 	 * @since 0.9.0
 	 * @return void
@@ -831,7 +830,6 @@ class PayPal_Payment_Buttons {
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
 				'plan_check'      => true,
-				'style'           => self::STYLE_HANDLE,
 			)
 		);
 	}
@@ -848,15 +846,16 @@ class PayPal_Payment_Buttons {
 	 * @return string|void The rendered block HTML.
 	 */
 	public static function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$api_managed = ! empty( $attributes['isApiManaged'] );
+		// V2 renders API-managed buttons; V1 renders legacy paste-code buttons.
+		$html = ! empty( $attributes['isApiManaged'] )
+			? self::render_api_managed_button( $attributes )
+			: self::render_legacy_button( $attributes );
 
-		// ─── V2: API-managed button ───
-		if ( $api_managed ) {
-			return self::render_api_managed_button( $attributes );
+		if ( ! empty( $html ) ) {
+			wp_enqueue_style( self::STYLE_HANDLE );
 		}
 
-		// ─── V1: Legacy paste-code button ───
-		return self::render_legacy_button( $attributes );
+		return $html;
 	}
 
 	/**
@@ -1551,6 +1550,8 @@ class PayPal_Payment_Buttons {
 			)
 		);
 		wp_enqueue_style( $handle );
+		// The canvas previews the block with its front-end styles.
+		wp_enqueue_style( self::STYLE_HANDLE );
 	}
 
 	/**
