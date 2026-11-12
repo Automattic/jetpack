@@ -87,7 +87,7 @@ export default function EarningsCard() {
 								<Stack key={ label } direction="column" gap="xs">
 									<Text variant="body-sm">{ label }</Text>
 									{ earnings ? (
-										<Text variant="heading-lg">
+										<Text variant="heading-xl">
 											{ formatCurrency( value ?? 0, earnings.currency ) }
 										</Text>
 									) : (
