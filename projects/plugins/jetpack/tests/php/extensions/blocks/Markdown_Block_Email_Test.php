@@ -65,8 +65,26 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 		preg_match_all( '/min-width: (\\d+)em;/', $html, $matches );
 		$this->assertCount( 10, $matches[1], 'Every cell should carry the floor.' );
 
-		// Five columns, each with 8px of padding either side, against the 612px content width.
-		$this->assertLessThanOrEqual( 612, 5 * ( (int) $matches[1][0] * 16 + 16 ) );
+		// A 390px phone, less the email's 24px of root padding either side, leaves 342px. Measure
+		// against that rather than the 612px desktop width, which is wide enough to accept a floor
+		// that overflows a phone.
+		$columns      = 5;
+		$mobile_width = 342;
+		$width        = static function ( $em ) use ( $columns ) {
+			// Each cell adds 8px of padding either side, and collapsed borders add one per column
+			// plus one.
+			return $columns * ( $em * 16 + 16 ) + $columns + 1;
+		};
+
+		$this->assertLessThanOrEqual(
+			$mobile_width,
+			$width( (int) $matches[1][0] ),
+			'The floor must leave a table of short columns inside the width a phone gives it.'
+		);
+
+		// The floor this replaced cleared the desktop width and still overflowed a phone, which is
+		// what makes the limit above worth asserting.
+		$this->assertGreaterThan( $mobile_width, $width( 4 ) );
 	}
 
 	/**
