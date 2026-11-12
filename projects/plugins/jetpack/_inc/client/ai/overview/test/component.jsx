@@ -443,12 +443,9 @@ describe( 'AiOverview', () => {
 				'Manage your site by chatting with Claude, ChatGPT, or another agent.'
 			)
 		).toBeInTheDocument();
-		// No setup sub-view to open unless the hub is there.
-		expect(
-			within( card ).queryByRole( 'link', { name: 'Other agents' } )
-		).not.toBeInTheDocument();
+		expect( within( card ).getByRole( 'link', { name: 'Other agents' } ) ).toBeInTheDocument();
 
-		rerender( <AiOverview { ...PROPS } isMcpEnabled={ false } showOtherAgents /> );
+		rerender( <AiOverview { ...PROPS } isMcpEnabled={ false } /> );
 		expect( within( card ).getByRole( 'link', { name: 'Settings' } ) ).toHaveAttribute(
 			'href',
 			expect.stringMatching( /#\/mcp$/ )

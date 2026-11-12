@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import analytics from 'lib/analytics';
-import McpConnectAgents from '../connect-agents';
+import McpConnectAgents from '../connect-agents-onboarding';
 
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 

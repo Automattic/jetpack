@@ -396,13 +396,13 @@ describe( 'Discover', () => {
 	// The skill itself shows in boot's side panel; see skill-panel.test.jsx.
 	test( 'View skill opens the skill’s side panel rather than a page', async () => {
 		window.jetpackAiSettings.featureFlags = { 'ai-hub-discover': true };
-		window.history.replaceState( null, '', '/wp-admin/admin.php?page=jetpack-ai#/discover' );
+		window.history.replaceState( null, '', '/wp-admin/admin.php?page=jetpack-ai#/skills' );
 		renderDiscover();
 		await user.click( within( card( 'SEO audit' ) ).getByRole( 'link', { name: /View skill/ } ) );
 
 		const route = new URL( window.location.href ).searchParams.get( 'p' );
 		expect( route ).toBe( '/?skill=seo-audit' );
-		expect( window.location.hash ).toBe( '#/discover' );
+		expect( window.location.hash ).toBe( '#/skills' );
 		// The list stays where it was, beside the panel.
 		expect( cards() ).toHaveLength( 15 );
 		window.history.replaceState( null, '', '/' );

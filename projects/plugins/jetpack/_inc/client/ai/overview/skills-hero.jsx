@@ -8,7 +8,7 @@
  * label and a row of two cards.
  */
 
-import { createInterpolateElement, useCallback, useId, useMemo } from '@wordpress/element';
+import { useCallback, useId, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Path, SVG } from '@wordpress/primitives';
 import { Link, Text } from '@wordpress/ui';
@@ -17,7 +17,7 @@ import { IN_APP_HISTORY_KEY, getViewHref, openSkillPanel } from '../discover/ski
 import { getCatalog } from '../discover/skills';
 import useSendSkill from '../discover/use-send-skill';
 import { useIsWordPressAgentAvailable } from '../discover/wordpress-agent';
-import { ConnectAgentsActions } from '../mcp/connect-agents';
+import { ConnectAgentsActions } from '../mcp/connect-agents-onboarding';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 
 // Discover's card styles, which the suggestions reuse.
@@ -68,19 +68,13 @@ export function pickSuggestedSkills( catalog ) {
 /**
  * Skills hero.
  *
- * @param {object}   props                   - Component props.
- * @param {boolean}  [props.isMcpEnabled]    - Whether agents can reach the site yet.
- * @param {boolean}  [props.showOtherAgents] - Whether to link the setup steps.
- * @param {Function} [props.onMcpNavigate]   - Opens a Settings sub-view ('setup').
- * @param {*}        [props.beforeSkills]    - Shown between the opening and the skills.
+ * @param {object}   props                 - Component props.
+ * @param {boolean}  [props.isMcpEnabled]  - Whether agents can reach the site yet.
+ * @param {Function} [props.onMcpNavigate] - Opens a Settings sub-view ('setup').
+ * @param {*}        [props.beforeSkills]  - Shown between the opening and the skills.
  * @return {object|null} Component markup, or null when this site has no skills to suggest.
  */
-export default function SkillsHero( {
-	isMcpEnabled = true,
-	showOtherAgents = false,
-	onMcpNavigate,
-	beforeSkills,
-} = {} ) {
+export default function SkillsHero( { isMcpEnabled = true, onMcpNavigate, beforeSkills } = {} ) {
 	const isSelfHosted = window?.jetpackAiSettings?.isSelfHosted === true;
 	const catalog = useMemo( () => getCatalog( isSelfHosted ), [ isSelfHosted ] );
 	const suggestions = useMemo( () => pickSuggestedSkills( catalog ), [ catalog ] );
@@ -121,7 +115,7 @@ export default function SkillsHero( {
 		}
 		event.preventDefault();
 		const oldURL = window.location.href;
-		window.history.pushState( { [ IN_APP_HISTORY_KEY ]: true }, '', getViewHref( 'discover' ) );
+		window.history.pushState( { [ IN_APP_HISTORY_KEY ]: true }, '', getViewHref( 'skills' ) );
 		window.dispatchEvent(
 			new window.HashChangeEvent( 'hashchange', { oldURL, newURL: window.location.href } )
 		);
@@ -144,7 +138,6 @@ export default function SkillsHero( {
 				<ConnectAgentsActions
 					isMcpEnabled={ isMcpEnabled }
 					onNavigate={ onMcpNavigate }
-					showOtherAgents={ showOtherAgents }
 					onOverview
 					centered
 					// Concrete asks sell the idea faster than "skills" does.
@@ -153,24 +146,6 @@ export default function SkillsHero( {
 						'jetpack'
 					) }
 				/>
-				{ /* An agent that can edit the site is the worry; the read and
-				     write controls on Settings are the answer. While access is
-				     off, the copy above already points there. */ }
-				{ isMcpEnabled && (
-					<Text
-						render={ <p /> }
-						variant="body-sm"
-						className="jetpack-ai-overview__muted jetpack-ai-overview__access-note"
-					>
-						{ createInterpolateElement(
-							__(
-								'You decide what agents can read and change. <link>Manage access</link>',
-								'jetpack'
-							),
-							{ link: <Link href={ getViewHref( 'mcp' ) } /> }
-						) }
-					</Text>
-				) }
 			</div>
 
 			{ beforeSkills }
@@ -204,7 +179,7 @@ export default function SkillsHero( {
 			{ /* Built without the skill param, so a panel left open before the
 			     Overview doesn't come back with the link. */ }
 			<div className="jetpack-ai-overview__browse">
-				<Link href={ getViewHref( 'discover' ) } onClick={ handleBrowse }>
+				<Link href={ getViewHref( 'skills' ) } onClick={ handleBrowse }>
 					{ __( 'Browse all skills', 'jetpack' ) }
 				</Link>
 			</div>

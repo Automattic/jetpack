@@ -28,7 +28,7 @@ const IGNORE_A11Y = { ignore: '.a11y-speak-region, script, style' };
 const PAGE = '/wp-admin/admin.php?page=jetpack-ai';
 
 // The address with a skill's panel open, as boot's router writes it.
-const panelUrl = slug => `${ PAGE }&p=${ encodeURIComponent( '/?skill=' + slug ) }#/discover`;
+const panelUrl = slug => `${ PAGE }&p=${ encodeURIComponent( '/?skill=' + slug ) }#/skills`;
 
 // Boot's route, read back from `?p=`.
 const routeSearch = () =>
@@ -79,7 +79,7 @@ describe( 'Skill panel', () => {
 		// Base UI's scroll lock restores the scroll position, which jsdom lacks.
 		scrollSpy = jest.spyOn( window, 'scrollTo' ).mockImplementation( () => {} );
 		analytics.tracks.recordEvent.mockClear();
-		window.history.replaceState( null, '', PAGE + '#/discover' );
+		window.history.replaceState( null, '', PAGE + '#/skills' );
 	} );
 
 	afterEach( () => {
@@ -96,7 +96,7 @@ describe( 'Skill panel', () => {
 		await user.click( viewLink( 'SEO audit' ) );
 
 		expect( routeSearch().get( 'skill' ) ).toBe( 'seo-audit' );
-		expect( window.location.hash ).toBe( '#/discover' );
+		expect( window.location.hash ).toBe( '#/skills' );
 		expect( window.history ).toHaveLength( before + 1 );
 		// The list stays, with the panel beside it and the open skill's card marked.
 		expect( card( 'SEO audit' ) ).toBeVisible();
@@ -115,13 +115,9 @@ describe( 'Skill panel', () => {
 		renderHub();
 
 		const region = panel();
+		expect( within( region ).getByText( 'SEO' ) ).toBeVisible();
 		expect(
-			within( region ).getByText( 'SEO · Works on WordPress.com and Jetpack sites' )
-		).toBeVisible();
-		expect(
-			within( region ).getByText(
-				'Your agent asks for your OK before it starts, and again before each change.'
-			)
+			within( region ).getByText( 'Works on WordPress.com and Jetpack sites' )
 		).toBeVisible();
 		expect( within( region ).getByText( SEO_PROMPT ) ).toBeVisible();
 		expect(
@@ -216,7 +212,7 @@ describe( 'Skill panel', () => {
 
 		expect( queryPanel() ).not.toBeInTheDocument();
 		expect( routeSearch().has( 'skill' ) ).toBe( false );
-		expect( window.location.hash ).toBe( '#/discover' );
+		expect( window.location.hash ).toBe( '#/skills' );
 		await waitFor( () => expect( viewLink( 'SEO audit' ) ).toHaveFocus() );
 	} );
 
@@ -273,7 +269,7 @@ describe( 'Skill panel', () => {
 		} );
 
 		expect( queryPanel() ).not.toBeInTheDocument();
-		expect( window.location.hash ).toBe( '#/discover' );
+		expect( window.location.hash ).toBe( '#/skills' );
 	} );
 
 	test( 'Send to agent in the panel uses Discover’s hand-off', async () => {
@@ -303,20 +299,18 @@ describe( 'Skill panel', () => {
 		);
 	} );
 
-	test( 'Send to agent leads the body as the primary action; the bar holds only Close', () => {
+	test( 'the bar holds the category and Close; the title and Send to agent lead the panel', () => {
 		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
 		renderHub();
 
-		// The bar is drawn first but comes last in the DOM, so Tab from the
-		// title walks the body and reaches Close before leaving the panel.
 		const region = panel();
 		const buttons = within( region ).getAllByRole( 'button' );
 		const send = within( region ).getByRole( 'button', { name: 'Send to agent' } );
 		const title = within( region ).getByRole( 'heading', { level: 2, name: 'SEO audit' } );
 		const prereq = within( region ).getByRole( 'heading', { level: 3, name: 'Prerequisites' } );
-		expect( buttons[ 0 ] ).toBe( send );
-		expect( buttons.at( -1 ) ).toHaveAccessibleName( 'Close' );
-		expect( prereq.compareDocumentPosition( buttons.at( -1 ) ) ).toBe(
+		expect( buttons[ 0 ] ).toHaveAccessibleName( 'Close' );
+		expect( buttons[ 1 ] ).toBe( send );
+		expect( buttons[ 0 ].compareDocumentPosition( title ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING
 		);
 		expect( title.compareDocumentPosition( send ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
@@ -381,7 +375,7 @@ describe( 'Skill panel', () => {
 describe( 'Skill panel gate', () => {
 	beforeEach( () => {
 		window.jetpackAiSettings = { isSelfHosted: true, featureFlags: { 'ai-hub-discover': true } };
-		window.history.replaceState( null, '', PAGE + '#/discover' );
+		window.history.replaceState( null, '', PAGE + '#/skills' );
 	} );
 
 	afterEach( () => {
@@ -401,7 +395,7 @@ describe( 'Skill panel gate', () => {
 		window.history.replaceState( null, '', PAGE + '#/mcp' );
 		expect( isSkillPanelOpen( { skill: 'seo-audit' } ) ).toBe( false );
 
-		window.history.replaceState( null, '', PAGE + '#/discover' );
+		window.history.replaceState( null, '', PAGE + '#/skills' );
 		delete window.jetpackAiSettings.featureFlags;
 		expect( isSkillPanelOpen( { skill: 'seo-audit' } ) ).toBe( false );
 	} );

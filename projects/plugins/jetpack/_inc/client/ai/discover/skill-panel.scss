@@ -1,10 +1,8 @@
 // The skill's side panel, built like Send's email panel (and Newsletter ›
-// Subscribers' before it): a bar with Close over a padded body. Boot draws
-// the surface, its width and its motion.
+// Subscribers' before it): a bar with the title and Close over a padded
+// body. Boot draws the surface, its width and its motion.
 
 .jetpack-ai-skill-panel {
-	// The bar with Close comes last in the DOM, after the body, and is drawn
-	// first; see skill-panel.jsx.
 	display: flex;
 	flex-direction: column;
 
@@ -16,9 +14,29 @@
 	}
 
 	&__header {
-		order: -1;
-		padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-lg);
-		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		padding-block: var(--wpds-dimension-padding-md);
+		padding-inline: var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-lg);
+		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+
+	// Takes the bar's free width, so Close stays at the end. The icon is the
+	// Overview sparkle's jetpack-green-50, which has no design-system token.
+	&__category {
+		flex: 1;
+		min-inline-size: 0;
+
+		svg {
+			fill: #008710;
+		}
+	}
+
+	// The skill's name and its one action, on the hub's page surface and with
+	// its tab strip's divider (see ../style.scss). The inspector sits outside
+	// the page, so it can't inherit --jetpack-ai-page-surface.
+	&__intro {
+		padding: var(--wpds-dimension-padding-2xl);
+		background: #fcfcfc;
+		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	}
 
 	&__body {
@@ -111,6 +129,18 @@
 		li + li {
 			margin-block-start: var(--wpds-dimension-gap-xs);
 		}
+	}
+}
+
+// Boot caps its inspector at 400, about 50 characters a line here; 480 gives
+// the text a ~60-character measure. Half the viewport at most, so the
+// catalog keeps room beside it.
+@media (min-width: 782px) {
+
+	.boot-layout__inspector:has(> .jetpack-ai-skill-panel) {
+		inline-size: min(480px, 50vw);
+		max-inline-size: min(480px, 50vw);
+		flex: 0 0 auto;
 	}
 }
 

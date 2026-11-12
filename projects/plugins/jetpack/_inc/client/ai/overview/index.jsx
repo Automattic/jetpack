@@ -11,10 +11,19 @@ import { speak } from '@wordpress/a11y';
 import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { connection, list, payment, starEmpty, tool } from '@wordpress/icons';
-import { Card, ButtonLink, Notice, Progress, Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import {
+	Card,
+	ButtonLink,
+	Notice,
+	Progress,
+	Skeleton,
+	Stack,
+	Text,
+	VisuallyHidden,
+} from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import NavRow from '../components/nav-row';
-import McpConnectAgents from '../mcp/connect-agents';
+import McpConnectAgents from '../mcp/connect-agents-onboarding';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 import AssistantBanner from './assistant-banner';
 import SkillsHero from './skills-hero';
@@ -311,7 +320,6 @@ function UsageCard( { upgradeUrl, planName } ) {
  *                                               site; when it cannot, usage is neither shown nor asked for.
  * @param {boolean}  [props.isMcpEnabled]        - Whether agents can reach the site yet; the
  *                                               connect card points at Settings while they cannot.
- * @param {boolean}  [props.showOtherAgents]     - Whether the connect card links the setup steps.
  * @param {Function} [props.onMcpNavigate]       - Opens a Settings sub-view ('setup').
  * @return {object} Component markup.
  */
@@ -323,7 +331,6 @@ export default function AiOverview( {
 	showActivityLog,
 	canLoadUsage = true,
 	isMcpEnabled = true,
-	showOtherAgents = false,
 	onMcpNavigate,
 } ) {
 	const recordLinkClick = ( linkType, slug ) => () =>
@@ -333,12 +340,7 @@ export default function AiOverview( {
 	const usageCard = canLoadUsage && <UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />;
 	// Without the Skills tab, the connect actions keep their card.
 	const connectCard = (
-		<McpConnectAgents
-			isMcpEnabled={ isMcpEnabled }
-			onNavigate={ onMcpNavigate }
-			showOtherAgents={ showOtherAgents }
-			onOverview
-		/>
+		<McpConnectAgents isMcpEnabled={ isMcpEnabled } onNavigate={ onMcpNavigate } onOverview />
 	);
 	return (
 		<Stack direction="column" gap="3xl">
@@ -349,7 +351,6 @@ export default function AiOverview( {
 				// the requests it meters are still the thing to act on.
 				<SkillsHero
 					isMcpEnabled={ isMcpEnabled }
-					showOtherAgents={ showOtherAgents }
 					onMcpNavigate={ onMcpNavigate }
 					beforeSkills={ usageCard }
 				/>

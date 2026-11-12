@@ -6,7 +6,7 @@
  * URL state: boot keeps its route in `?p=`, and the panel's `skill=<slug>` is a
  * search param of that route (`?p=/?skill=seo-audit`, as Send keeps
  * `p=/log?entry=12`), which is all the route's inspector gate can see. The tab
- * stays in the real hash (`#/discover`), which boot ignores. Writing the URL
+ * stays in the real hash (`#/skills`), which boot ignores. Writing the URL
  * through `window.history` rather than the router keeps that hash: the router
  * would fold it into `p`. Boot's router patches `pushState` and
  * `replaceState`, so it notices every write here and asks the gate again.
@@ -34,11 +34,11 @@ const ROUTE_PARAM = 'p';
 // Any origin will do: only the route's path and search are read.
 const ROUTE_BASE = 'https://route.invalid';
 
-const DISCOVER_HASH = '#/discover';
+const DISCOVER_HASH = '#/skills';
 
 // Skills had pages of their own at #/discover/<slug> before they opened in the
 // side panel. An old link like that names the open skill in the hash instead.
-const LEGACY_SKILL_HASH_PREFIX = DISCOVER_HASH + '/';
+const LEGACY_SKILL_HASH_PREFIX = '#/discover/';
 
 const isDiscoverEnabled = () => !! window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-discover' ];
 

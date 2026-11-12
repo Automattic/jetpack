@@ -87,23 +87,20 @@ function ConnectButton( { agent, icon, onOverview } ) {
  * manual setup for the rest. The card below wraps it; the Overview's opening
  * column uses it bare, under its own heading.
  *
- * @param {object}   props                   - Component props.
- * @param {boolean}  props.isMcpEnabled      - Whether agents can reach this site yet. While
- *                                           they cannot, the copy points at the access
- *                                           switch first.
- * @param {Function} [props.onNavigate]      - Called with 'setup' to open the setup sub-view.
- * @param {boolean}  [props.showOtherAgents] - Whether to link the setup sub-view, which only
- *                                           renders once the hub does.
- * @param {boolean}  [props.onOverview]      - Whether this sits on Overview, so the access
- *                                           switch is on Settings rather than below it.
- * @param {string}   props.description       - The copy while agents can reach the site.
- * @param {boolean}  [props.centered]        - Whether to centre everything, as the Overview does.
+ * @param {object}   props              - Component props.
+ * @param {boolean}  props.isMcpEnabled - Whether agents can reach this site yet. While
+ *                                      they cannot, the copy points at the access
+ *                                      switch first.
+ * @param {Function} [props.onNavigate] - Called with 'setup' to open the setup sub-view.
+ * @param {boolean}  [props.onOverview] - Whether this sits on Overview, so the access
+ *                                      switch is on Settings rather than below it.
+ * @param {string}   props.description  - The copy while agents can reach the site.
+ * @param {boolean}  [props.centered]   - Whether to centre everything, as the Overview does.
  * @return {object} Component markup.
  */
 export function ConnectAgentsActions( {
 	isMcpEnabled,
 	onNavigate,
-	showOtherAgents = true,
 	onOverview = false,
 	description,
 	centered = false,
@@ -145,16 +142,14 @@ export function ConnectAgentsActions( {
 					<ConnectButton key={ agent } agent={ agent } icon={ icon } onOverview={ onOverview } />
 				) ) }
 			</Stack>
-			{ showOtherAgents && (
-				<Text variant="body-sm" render={ <p /> } className="jetpack-ai-mcp__connect-description">
-					{ createInterpolateElement(
-						__( '<link>Other agents</link>: Claude Code, Cursor, VS Code, and more.', 'jetpack' ),
-						{
-							link: <Link href={ getViewHref( 'mcp/setup' ) } onClick={ handleOtherAgentsClick } />,
-						}
-					) }
-				</Text>
-			) }
+			<Text variant="body-sm" render={ <p /> } className="jetpack-ai-mcp__connect-description">
+				{ createInterpolateElement(
+					__( '<link>Other agents</link>: Claude Code, Cursor, VS Code, and more.', 'jetpack' ),
+					{
+						link: <Link href={ getViewHref( 'mcp/setup' ) } onClick={ handleOtherAgentsClick } />,
+					}
+				) }
+			</Text>
 		</Stack>
 	);
 }

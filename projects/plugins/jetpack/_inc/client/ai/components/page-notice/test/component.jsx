@@ -148,12 +148,9 @@ describe( 'getPageNoticeState', () => {
 	} );
 
 	describe( 'views the notice does not belong to', () => {
-		it.each( [ 'scheduled-tasks', 'discover', 'features' ] )(
-			'stays silent on the %s view',
-			view => {
-				expect( resolve( { view, blogId: 0 } ) ).toBeNull();
-			}
-		);
+		it.each( [ 'scheduled-tasks', 'skills', 'features' ] )( 'stays silent on the %s view', view => {
+			expect( resolve( { view, blogId: 0 } ) ).toBeNull();
+		} );
 
 		it( 'stays silent on an MCP sub-view', () => {
 			expect( resolve( { view: 'mcp/read', blogId: 0 } ) ).toBeNull();

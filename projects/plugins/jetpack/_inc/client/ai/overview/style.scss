@@ -247,12 +247,6 @@
 		max-inline-size: 28rem;
 	}
 
-	// As far under the buttons as the subhead is over them (md), where the
-	// column's own gap is sm.
-	&__hero > &__access-note {
-		margin-block-start: calc(var(--wpds-dimension-gap-md) - var(--wpds-dimension-gap-sm));
-	}
-
 	// The Jetpack AI sparkle over the heading, in jetpack.com's
 	// jetpack-green-50, which has no design-system token.
 	&__hero-icon {

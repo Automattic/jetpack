@@ -16,7 +16,7 @@ import { seen, pencil, chevronRight, info, published, caution, list } from '@wor
 import { Badge, Button, Card, Stack } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import { isWriteTool } from './categories';
-import McpConnectAgents from './connect-agents';
+import McpConnectAgents from './connect-agents-onboarding';
 import McpHowItWorks from './how-it-works';
 import { recordMcpTracksEvent } from './tracks';
 import {

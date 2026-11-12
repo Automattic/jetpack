@@ -2,10 +2,9 @@
  * A skill's side panel: what it needs, the prompt Send to agent hands over,
  * and the full instructions the agent follows. It opens from the right, beside
  * the catalog, in boot's route inspector, built like Send's email panel (and
- * Newsletter's subscriber panel before it): a bar with Close over a padded
- * body of section cards. Send to agent leads the body, under the skill's
- * title, as the panel's one primary action. Boot draws the surface and its
- * motion.
+ * Newsletter's subscriber panel before it): a bar with the title and Close
+ * over a padded body of section cards. Send to agent leads the body as the
+ * panel's one primary action. Boot draws the surface and its motion.
  *
  * Below boot's medium break the panel covers the hub, which goes inert behind
  * it (see main.jsx), so it says it's a modal dialog there and takes focus on
@@ -15,11 +14,12 @@
 import { useViewportMatch } from '@wordpress/compose';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { close, copySmall } from '@wordpress/icons';
+import { Icon, close, copySmall } from '@wordpress/icons';
 import { Button, Card, IconButton, Stack, Text } from '@wordpress/ui';
 import { EVENTS, recordAiHubEvent } from '../tracks';
+import { CATEGORY_ICONS } from './category-icons';
 import SendToAgentMenu from './send-to-agent';
-import { CategoryTile, FirstSkillBadge } from './skill-card';
+import { FirstSkillBadge } from './skill-card';
 import {
 	PANEL_TITLE_ID,
 	closeSkillPanel,
@@ -98,9 +98,25 @@ export function SkillPanel( {
 			role={ isModal ? 'dialog' : undefined }
 			aria-modal={ isModal ? 'true' : undefined }
 		>
-			<Stack direction="column" gap="lg" className="jetpack-ai-skill-panel__body">
-				<Stack direction="row" gap="sm" align="center" wrap="wrap">
-					{ /* heading-xl, as Send's panel title. */ }
+			<Stack direction="row" align="center" gap="sm" className="jetpack-ai-skill-panel__header">
+				<Stack direction="row" align="center" gap="xs" className="jetpack-ai-skill-panel__category">
+					<Icon icon={ CATEGORY_ICONS[ skill.category ] } size={ 20 } aria-hidden="true" />
+					<Text variant="body-md" className="jetpack-ai-discover__muted">
+						{ CATEGORY_LABELS[ skill.category ] }
+					</Text>
+				</Stack>
+				<IconButton
+					icon={ close }
+					label={ __( 'Close', 'jetpack' ) }
+					variant="minimal"
+					tone="neutral"
+					size="compact"
+					onClick={ onClose }
+				/>
+			</Stack>
+			<Stack direction="column" gap="lg" className="jetpack-ai-skill-panel__intro">
+				<Stack direction="column" gap="sm" align="flex-start">
+					<FirstSkillBadge slug={ skill.slug } />
 					<Text
 						variant="heading-xl"
 						className="jetpack-ai-skill-panel__title"
@@ -108,28 +124,18 @@ export function SkillPanel( {
 					>
 						{ skill.title }
 					</Text>
-					<FirstSkillBadge slug={ skill.slug } />
-				</Stack>
-				<Stack direction="row" gap="md" align="center">
-					<CategoryTile category={ skill.category } />
 					<Text render={ <p /> } variant="body-md" className="jetpack-ai-discover__muted">
-						{ CATEGORY_LABELS[ skill.category ] } · { APPLIES_LABELS[ skill.applies ] }
+						{ APPLIES_LABELS[ skill.applies ] }
 					</Text>
 				</Stack>
-				{ /* The panel's main action, where the eye lands after the title.
-				     A compact secondary button, as on the cards. */ }
 				<SendToAgentMenu
+					variant="solid"
 					className="jetpack-ai-skill-panel__send"
 					onSend={ handleSend }
 					showWordPressAgent={ showWordPressAgent }
 				/>
-				<Text render={ <p /> } variant="body-sm" className="jetpack-ai-discover__muted">
-					{ __(
-						'Your agent asks for your OK before it starts, and again before each change.',
-						'jetpack'
-					) }
-				</Text>
-
+			</Stack>
+			<Stack direction="column" gap="lg" className="jetpack-ai-skill-panel__body">
 				<PanelSection title={ __( 'Prerequisites', 'jetpack' ) }>
 					<Stack direction="column" gap="sm">
 						<Text render={ <p /> } variant="body-md">
@@ -195,25 +201,6 @@ export function SkillPanel( {
 						} ) }
 					</div>
 				</PanelSection>
-			</Stack>
-			{ /* The bar with Close comes last in the DOM and first on screen (the
-			     stylesheet orders it): focus opens on the title, so Tab walks the
-			     body and then reaches Close before it can leave the panel. */ }
-			<Stack
-				direction="row"
-				align="center"
-				justify="flex-end"
-				gap="xs"
-				className="jetpack-ai-skill-panel__header"
-			>
-				<IconButton
-					icon={ close }
-					label={ __( 'Close', 'jetpack' ) }
-					variant="minimal"
-					tone="neutral"
-					size="compact"
-					onClick={ onClose }
-				/>
 			</Stack>
 		</section>
 	);

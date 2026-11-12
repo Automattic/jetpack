@@ -46,7 +46,7 @@ describe( 'SkillsHero', () => {
 		window.history.replaceState( null, '', '/' );
 	} );
 
-	test( 'leads with the heading, the connect buttons and the access line, with no prompt box', () => {
+	test( 'leads with the heading and the connect buttons, with no prompt box', () => {
 		render( <SkillsHero /> );
 
 		expect(
@@ -54,19 +54,14 @@ describe( 'SkillsHero', () => {
 		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /^Connect Claude/ } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /^Connect ChatGPT/ } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Manage access' } ) ).toHaveAttribute(
-			'href',
-			expect.stringMatching( /#\/mcp$/ )
-		);
 		expect( screen.queryByRole( 'button', { name: 'Copy prompt' } ) ).not.toBeInTheDocument();
 		expect( useSendSkill ).toHaveBeenCalledWith( { location: 'overview_hero' } );
 	} );
 
-	test( 'with MCP access off, points at Settings instead of the access line', () => {
+	test( 'with MCP access off, points at Settings', () => {
 		render( <SkillsHero isMcpEnabled={ false } /> );
 
 		expect( screen.getByRole( 'link', { name: 'Settings' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Manage access' } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'suggests two skills on the Skills tab’s cards', () => {
@@ -141,7 +136,7 @@ describe( 'SkillsHero', () => {
 		await user.click( screen.getByRole( 'link', { name: 'View skill: Performance audit' } ) );
 
 		expect( writes ).toEqual( [ 'push' ] );
-		expect( window.location.hash ).toBe( '#/discover' );
+		expect( window.location.hash ).toBe( '#/skills' );
 		expect( getSkillParam() ).toBe( 'performance-audit' );
 		expect( getOpenSkillSlug() ).toBe( 'performance-audit' );
 		// One entry for the hash and the param, so Back returns to the
@@ -203,12 +198,12 @@ describe( 'SkillsHero', () => {
 		const link = screen.getByRole( 'link', { name: 'Browse all skills' } );
 
 		// Even followed by the browser, the address carries no skill.
-		expect( link ).toHaveAttribute( 'href', PAGE + '#/discover' );
+		expect( link ).toHaveAttribute( 'href', PAGE + '#/skills' );
 
 		await user.click( link );
 
 		await hashChanged;
-		expect( window.location.hash ).toBe( '#/discover' );
+		expect( window.location.hash ).toBe( '#/skills' );
 		expect( getSkillParam() ).toBe( '' );
 		expect( getOpenSkillSlug() ).toBe( '' );
 	} );

@@ -55,7 +55,7 @@ import { getStickyHeight } from './discover/use-toolbar-offset';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import { splitViewAnchor } from './mcp/anchors';
-import McpConnectAgents from './mcp/connect-agents';
+import McpConnectAgents from './mcp/connect-agents-onboarding';
 import McpConnectCallout from './mcp/connect-callout';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
@@ -103,8 +103,8 @@ const LEGACY_VIEW_ALIASES = {
 	write: 'mcp/write',
 	setup: 'mcp/setup',
 	features: 'mcp',
-	// The Discover tab is named Skills; its view key stays.
-	skills: 'discover',
+	// The Skills tab's hash was #/discover.
+	discover: 'skills',
 	settings: 'mcp',
 };
 
@@ -130,7 +130,7 @@ const getTabViews = () => {
 		views.push( ...GATED_VIEWS );
 	}
 	if ( isDiscoverEnabled() ) {
-		views.push( 'discover' );
+		views.push( 'skills' );
 	}
 	views.push( 'mcp' );
 	if ( window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-scheduled-tasks' ] ) {
@@ -146,7 +146,7 @@ const getTabViews = () => {
 const getRouteFromHash = () => {
 	const raw = getRawHash();
 	if ( getLegacySkill( raw ) ) {
-		return { view: 'discover', anchor: null };
+		return { view: 'skills', anchor: null };
 	}
 	const tabViews = getTabViews();
 	const { view, anchor } = splitViewAnchor(
@@ -161,7 +161,7 @@ const VIEW_TITLES = {
 	overview: __( 'Overview', 'jetpack' ),
 	'scheduled-tasks': __( 'Scheduled tasks', 'jetpack' ),
 	mcp: __( 'Settings', 'jetpack' ),
-	discover: __( 'Skills', 'jetpack' ),
+	skills: __( 'Skills', 'jetpack' ),
 	'mcp/read': __( 'Read', 'jetpack' ),
 	'mcp/write': __( 'Write', 'jetpack' ),
 	'mcp/setup': __( 'Connect external AI agent', 'jetpack' ),
@@ -205,7 +205,7 @@ const syncSkillPanelUrl = ( { isNavigation = false } = {} ) => {
 		openSkillPanel( legacySkill.slug, { replace: true } );
 		return;
 	}
-	if ( getSkillParam() && ( getRawHash() !== 'discover' || ! getPanelSkill( getSkillParam() ) ) ) {
+	if ( getSkillParam() && ( getRawHash() !== 'skills' || ! getPanelSkill( getSkillParam() ) ) ) {
 		closeSkillPanel( { replace: true } );
 	}
 };
@@ -755,7 +755,7 @@ export default function App() {
 			<div
 				ref={ contentRef }
 				className={ `jetpack-ai-admin__content${
-					activeTab === 'discover' ? ' jetpack-ai-admin__content--discover' : ''
+					activeTab === 'skills' ? ' jetpack-ai-admin__content--discover' : ''
 				}${ isPanelOpen ? ' jetpack-ai-admin__content--panel-open' : '' }` }
 			>
 				{ isSubView && (
@@ -766,7 +766,8 @@ export default function App() {
 
 				{ isMcpContext && (
 					<>
-						{ isLoading && <LoadingSpinner /> }
+						{ /* The setup steps are static, so they don't wait on the settings. */ }
+						{ isLoading && view !== 'mcp/setup' && <LoadingSpinner /> }
 
 						{ ! isLoading && error && ! showConnectNotice && <LoadErrorNotice message={ error } /> }
 
@@ -792,15 +793,10 @@ export default function App() {
 						{ /* Without the hub — offline, disconnected, unlinked, or no MCP
 						     access — the connect buttons still show: installing the
 						     connector happens in the agent, and the notice above says what
-						     the site needs first. The setup steps live in the hub, so the
-						     "Other agents" link waits for it. Overview carries the card
-						     whenever that tab exists. */ }
+						     the site needs first. Overview carries the card whenever that
+						     tab exists. */ }
 						{ view === 'mcp' && ! isLoading && ! hasHub && ! tabViews.includes( 'overview' ) && (
-							<McpConnectAgents
-								isMcpEnabled
-								onNavigate={ handleMcpNavigate }
-								showOtherAgents={ false }
-							/>
+							<McpConnectAgents isMcpEnabled onNavigate={ handleMcpNavigate } />
 						) }
 
 						{ hasHub && (
@@ -843,9 +839,11 @@ export default function App() {
 										onUpdate={ handleUpdate }
 									/>
 								) }
-								{ view === 'mcp/setup' && <McpSetup /> }
 							</Stack>
 						) }
+
+						{ /* Outside the hub, so "Other agents" can link here from first paint. */ }
+						{ view === 'mcp/setup' && <McpSetup /> }
 					</>
 				) }
 
@@ -885,10 +883,8 @@ export default function App() {
 						canLoadUsage={ canLoadUsage }
 						// Without the hub (offline, disconnected, unlinked, or no MCP
 						// access) the connect buttons still show: installing the
-						// connector happens in the agent. The setup steps live in the
-						// hub, so the "Other agents" link waits for it.
+						// connector happens in the agent.
 						isMcpEnabled={ ! hasHub || getSiteLevelEnabled( mcpAbilities ?? {}, blogId ) }
-						showOtherAgents={ hasHub }
 						onMcpNavigate={ handleMcpNavigate }
 						// Same preconditions the Settings hub applies to its copy of the row.
 						showActivityLog={
@@ -897,7 +893,7 @@ export default function App() {
 					/>
 				) }
 
-				{ activeTab === 'discover' && <Discover /> }
+				{ activeTab === 'skills' && <Discover /> }
 
 				{ view === 'scheduled-tasks' && (
 					<ChunkErrorBoundary>

@@ -1603,7 +1603,7 @@ describe( 'Discover tab (main.jsx)', () => {
 		`${ PAGE }&p=${ encodeURIComponent( '/?skill=' + slug ) }${ hash }`;
 
 	test( 'hands Discover no props: it reads what it needs itself', async () => {
-		window.history.replaceState( null, '', '#/discover' );
+		window.history.replaceState( null, '', '#/skills' );
 		render( <App /> );
 
 		await expect(
@@ -1627,7 +1627,7 @@ describe( 'Discover tab (main.jsx)', () => {
 	} );
 
 	test( 'shows as the second tab, right after Overview, with the flag', async () => {
-		window.history.replaceState( null, '', '#/discover' );
+		window.history.replaceState( null, '', '#/skills' );
 		render( <App /> );
 
 		expect( tabNames() ).toEqual( [ 'Overview', 'Skills', 'Settings' ] );
@@ -1653,7 +1653,7 @@ describe( 'Discover tab (main.jsx)', () => {
 			'true'
 		);
 		// Replaced, not pushed, so Back leaves as it would have.
-		expect( window.location.hash ).toBe( '#/discover' );
+		expect( window.location.hash ).toBe( '#/skills' );
 		expect( routeSearch().get( 'skill' ) ).toBe( 'seo-audit' );
 		expect( window.history ).toHaveLength( before );
 		// No skill page any more: the tab bar is the only navigation.
@@ -1662,7 +1662,7 @@ describe( 'Discover tab (main.jsx)', () => {
 	} );
 
 	test( 'another tab closes the panel and keeps the rest of the address', async () => {
-		window.history.replaceState( null, '', withSkill( 'seo-audit', '#/discover' ) );
+		window.history.replaceState( null, '', withSkill( 'seo-audit', '#/skills' ) );
 		render( <App /> );
 
 		await userEvent.click( screen.getByRole( 'tab', { name: 'Settings' } ) );
@@ -1681,7 +1681,7 @@ describe( 'Discover tab (main.jsx)', () => {
 			( breakpoint, operator ) => breakpoint === 'medium' && operator === '<'
 		);
 		try {
-			window.history.replaceState( null, '', withSkill( 'seo-audit', '#/discover' ) );
+			window.history.replaceState( null, '', withSkill( 'seo-audit', '#/skills' ) );
 			render( <App /> );
 			const root = adminPageRoot();
 
@@ -1695,7 +1695,7 @@ describe( 'Discover tab (main.jsx)', () => {
 	} );
 
 	test( 'beside a panel on a wide screen, the hub stays reachable', async () => {
-		window.history.replaceState( null, '', withSkill( 'seo-audit', '#/discover' ) );
+		window.history.replaceState( null, '', withSkill( 'seo-audit', '#/skills' ) );
 		render( <App /> );
 
 		await expect(
@@ -1705,7 +1705,7 @@ describe( 'Discover tab (main.jsx)', () => {
 	} );
 
 	test( 'a typed hash change leaves the address alone while boot navigates', async () => {
-		window.history.replaceState( null, '', withSkill( 'seo-audit', '#/discover' ) );
+		window.history.replaceState( null, '', withSkill( 'seo-audit', '#/skills' ) );
 		render( <App /> );
 		await expect(
 			screen.findByRole( 'heading', { name: 'Skills for your AI agent' } )
@@ -1759,7 +1759,7 @@ describe( 'Discover tab (main.jsx)', () => {
 
 			// Closing it lands on Discover with no panel.
 			await act( async () => closeSkillPanel() );
-			expect( window.location.hash ).toBe( '#/discover' );
+			expect( window.location.hash ).toBe( '#/skills' );
 			expect( getOpenSkillSlug() ).toBe( '' );
 		} finally {
 			replaceState.mockRestore();
@@ -1834,11 +1834,11 @@ describe( 'Discover tab (main.jsx)', () => {
 	test.each( [ 'not-a-skill', 'set-up-a-staging-site' ] )(
 		'a panel for a skill this site cannot run (%s) opens nothing and leaves the address',
 		async slug => {
-			window.history.replaceState( null, '', withSkill( slug, '#/discover' ) );
+			window.history.replaceState( null, '', withSkill( slug, '#/skills' ) );
 			render( <App /> );
 
 			await waitFor( () => expect( routeSearch().has( 'skill' ) ).toBe( false ) );
-			expect( window.location.hash ).toBe( '#/discover' );
+			expect( window.location.hash ).toBe( '#/skills' );
 		}
 	);
 } );
