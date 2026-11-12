@@ -14,14 +14,11 @@ if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
 }
 \Automattic\RedefineExit::setup();
 
-// Without a cache, every separate-process test re-rewrites all of WordPress and Jetpack.
-// One directory per tests config, because CI runs suites in parallel and Patchwork's cache writes aren't atomic.
-$jetpack_patchwork_cache = __DIR__ . '/../../.cache/patchwork/' . md5( (string) getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
+$jetpack_patchwork_cache = dirname( __DIR__, 2 ) . '/.cache/patchwork/' . md5( (string) getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
 if ( ! is_dir( $jetpack_patchwork_cache ) ) {
 	mkdir( $jetpack_patchwork_cache, 0777, true );
 }
-\Patchwork\Config\setCachePath( realpath( $jetpack_patchwork_cache ), __DIR__ );
-unset( $jetpack_patchwork_cache );
+\Patchwork\Config\setCachePath( $jetpack_patchwork_cache, __DIR__ );
 
 /*
  * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
