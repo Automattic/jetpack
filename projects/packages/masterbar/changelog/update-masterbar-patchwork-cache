@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Cache Patchwork's instrumented files in tests to speed up process-isolated tests.
+
+
