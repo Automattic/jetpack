@@ -297,10 +297,8 @@ if ( safeUrl ) {
 
 			// Controlled Post Content clones the entity blocks with different client IDs.
 			const candidates = blockEditor.getBlocksByName( 'core/embed' ).filter( clientId => {
-				const block = blockEditor.getBlock( clientId );
 				return (
-					block?.name === 'core/embed' &&
-					previewUrls.includes( block.attributes.url ) &&
+					previewUrls.includes( blockEditor.getBlock( clientId ).attributes.url ) &&
 					blockEditor.getBlockName( blockEditor.getBlockRootClientId( clientId ) ) ===
 						'core/post-content' &&
 					blockEditor.getBlockParentsByBlockName( clientId, 'core/query' ).length === 0
@@ -313,7 +311,6 @@ if ( safeUrl ) {
 		}
 
 		if (
-			! currentBlock ||
 			currentBlock.name !== 'core/embed' ||
 			! previewUrls.includes( currentBlock.attributes.url )
 		) {
@@ -336,11 +333,11 @@ if ( safeUrl ) {
 				? __(
 						'The original post could not be embedded. This can happen when its site is private or discourages search engines. A link to the original post has been added instead.',
 						'jetpack'
-				  )
+					)
 				: __(
 						'The original post could not be embedded. This can happen when its site is private or discourages search engines.',
 						'jetpack'
-				  ),
+					),
 			{ isDismissible: true }
 		);
 	} )();

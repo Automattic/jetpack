@@ -966,7 +966,7 @@ describe( 'reader-repost with the block-editor provider', () => {
 			delayed
 				? new Promise( resolve => {
 						finishPreview = resolve;
-				  } )
+					} )
 				: Promise.resolve( false )
 		);
 		const blockEditor = data.select( 'core/block-editor' );
