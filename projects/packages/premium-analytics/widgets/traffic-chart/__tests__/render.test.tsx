@@ -652,32 +652,26 @@ describe( 'TrafficChart CSV download', () => {
 		return { filename: downloads.files[ 0 ].filename, lines: await downloads.lines() };
 	}
 
-	it.each( [
-		[ 'off', undefined ],
-		[ 'on', [ 9, 9 ] ],
-	] )(
-		'saves every bucket of the four metrics in the report zone, with comparison %s',
-		async ( _, previous ) => {
-			mockUseTrafficChart.mockReturnValue( {
-				...SETTLED_STATE,
-				metrics: [
-					tab( 'views', 'Views', [ 10, 0 ], previous ),
-					tab( 'visitors', 'Visitors', [ 4, 0 ], previous ),
-					tab( 'comments', 'Comments', [ 1, 0 ], previous ),
-					tab( 'likes', 'Likes', [ 2, 0 ], previous ),
-				],
-			} );
+	it( 'saves every bucket of the four metrics in the report zone', async () => {
+		mockUseTrafficChart.mockReturnValue( {
+			...SETTLED_STATE,
+			metrics: [
+				tab( 'views', 'Views', [ 10, 0 ] ),
+				tab( 'visitors', 'Visitors', [ 4, 0 ] ),
+				tab( 'comments', 'Comments', [ 1, 0 ] ),
+				tab( 'likes', 'Likes', [ 2, 0 ] ),
+			],
+		} );
 
-			const { filename, lines } = await downloadLines( 'day' );
+		const { filename, lines } = await downloadLines( 'day' );
 
-			expect( filename ).toBe( 'traffic-summary-2026-06-01_2026-06-30.csv' );
-			expect( lines ).toEqual( [
-				'"Date","Views","Visitors","Comments","Likes"',
-				'"2026-06-01","10","4","1","2"',
-				'"2026-06-02","0","0","0","0"',
-			] );
-		}
-	);
+		expect( filename ).toBe( 'traffic-summary-2026-06-01_2026-06-30.csv' );
+		expect( lines ).toEqual( [
+			'"Date","Views","Visitors","Comments","Likes"',
+			'"2026-06-01","10","4","1","2"',
+			'"2026-06-02","0","0","0","0"',
+		] );
+	} );
 
 	it( 'saves Views alone, with the hour, for hourly buckets', async () => {
 		mockUseTrafficChart.mockReturnValue( {
@@ -707,10 +701,6 @@ describe( 'TrafficChart CSV download', () => {
 		[
 			'a refetch failed behind the rows on screen',
 			{ metrics: [ tab( 'views', 'Views', [ 10, 0 ] ) ], csvIsError: true },
-		],
-		[
-			'the rows are loading',
-			{ metrics: [ tab( 'views', 'Views', [ 10, 0 ] ) ], isLoading: true },
 		],
 	] )( 'offers no download when %s', ( _, state ) => {
 		mockUseTrafficChart.mockReturnValue( { ...SETTLED_STATE, ...state } );

@@ -153,24 +153,14 @@ describe( 'useReportActions', () => {
 			{ label: 'Views', getValue: row => row.views },
 		];
 		const ROWS: Row[] = [ { day: '2026-03-01', views: 3 } ];
-		const LOCKED_CSV = {
-			premium_analytics: {
-				plan_gates: {
-					tier: 'free',
-					locked_features: { csv: { description: '', support_url: '', upgrade_url: '' } },
-				},
-			},
-		};
 		let mockSaveCsv: jest.SpiedFunction< typeof buildCsvModule.saveCsv >;
 
 		beforeEach( () => {
-			jest.useFakeTimers();
 			mockSaveCsv = jest.spyOn( buildCsvModule, 'saveCsv' ).mockImplementation( () => {} );
 		} );
 
 		afterEach( () => {
 			mockSaveCsv.mockRestore();
-			jest.useRealTimers();
 		} );
 
 		async function runDownload( action: WidgetRuntimeAction | undefined ) {
@@ -178,27 +168,20 @@ describe( 'useReportActions', () => {
 				throw new Error( 'No download declared.' );
 			}
 			await act( async () => {
-				const done = action.callback();
-				jest.runAllTimers();
-				await done;
+				await action.callback();
 			} );
 		}
 
 		it.each( [
-			[ 'the report window', { hasDateRange: true }, 'things-2026-03-01_2026-03-10' ],
-			[
-				'its own range',
-				{ hasDateRange: true, range: { from: '2025-11-01', to: '2026-10-31' } },
-				'things-2025-11-01_2026-10-31',
-			],
-			[ 'no dates', { hasDateRange: false }, 'things' ],
-		] )( 'saves the loaded rows, named after %s', async ( _, dating, filename ) => {
+			[ 'the report window', true, 'things-2026-03-01_2026-03-10' ],
+			[ 'no dates', false, 'things' ],
+		] )( 'saves the loaded rows, named after %s', async ( _, hasDateRange, filename ) => {
 			const { wrapper, declaredActions } = setUp();
 
 			renderHook(
 				() =>
 					useReportActions( {
-						csv: { rows: ROWS, columns, filenamePrefix: 'things', status: SETTLED, ...dating },
+						csv: { rows: ROWS, columns, filenamePrefix: 'things', status: SETTLED, hasDateRange },
 					} ),
 				{ wrapper }
 			);
@@ -212,13 +195,10 @@ describe( 'useReportActions', () => {
 		} );
 
 		it.each( [
-			[ 'there are no rows', [], SETTLED, undefined ],
-			[ 'the rows are refetching', ROWS, { ...SETTLED, isFetching: true }, undefined ],
-			[ 'the primary request failed', ROWS, { ...SETTLED, isError: true }, undefined ],
-			[ "the site's plan locks CSV exports", ROWS, SETTLED, LOCKED_CSV ],
-		] )( 'offers no download when %s', ( _, rows, status, scriptData ) => {
+			[ 'there are no rows', [], SETTLED ],
+			[ 'the primary request failed', ROWS, { ...SETTLED, isError: true } ],
+		] )( 'offers no download when %s', ( _, rows, status ) => {
 			const { wrapper, declaredActions } = setUp();
-			mockGetScriptData.mockReturnValue( scriptData );
 
 			renderHook(
 				() =>

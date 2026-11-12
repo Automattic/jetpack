@@ -5,6 +5,7 @@ import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -137,19 +138,47 @@ describe( 'useTrafficChart', () => {
 		expect( metrics[ 3 ].value ).toBe( 50 );
 	} );
 
-	it( 'reports a failed refetch to the CSV while the chart keeps its rows', async () => {
-		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
-		await waitFor( () => expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 ) );
-		expect( result.current.csvIsError ).toBe( false );
+	it.each( [
+		[ 'views and visitors', 'views' ],
+		[ 'likes and comments', 'likes' ],
+	] )(
+		'reports a failed %s refetch to the CSV while the chart keeps its rows',
+		async ( _, failingField ) => {
+			const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+			await waitFor( () => expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 ) );
+			expect( result.current.csvIsError ).toBe( false );
 
-		mockApiFetch.mockImplementation( () =>
-			Promise.reject( { error: 'unauthorized', status: 403 } )
-		);
-		act( () => result.current.refetch() );
-		await waitFor( () => expect( result.current.csvIsError ).toBe( true ) );
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
+				if ( path.includes( failingField ) ) {
+					return Promise.reject( { error: 'unauthorized', status: 403 } );
+				}
+				return Promise.resolve(
+					path.includes( 'views' ) ? VIEWS_VISITORS_RESPONSE : LIKES_COMMENTS_RESPONSE
+				);
+			} );
+			act( () => result.current.refetch() );
+			await waitFor( () => expect( result.current.csvIsError ).toBe( true ) );
 
-		expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 );
-		expect( result.current.isError ).toBe( false );
+			expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 );
+			expect( result.current.isError ).toBe( false );
+		}
+	);
+
+	it( 'reports the site zone its buckets are dated in', async () => {
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { ...settings.timezone, string: 'Asia/Taipei', offset: 8 },
+		} );
+
+		try {
+			const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+			await waitFor( () => expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 ) );
+
+			expect( result.current.timezone ).toBe( 'Asia/Taipei' );
+		} finally {
+			setSettings( settings );
+		}
 	} );
 
 	it( 'pairs Views with Visitors, starting Views hidden only on the Visitors tab', async () => {
