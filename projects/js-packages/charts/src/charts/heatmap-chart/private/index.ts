@@ -1,5 +1,6 @@
 export {
 	getExtentOf,
+	getNormalizedValue,
 	getValueExtent,
 	isEmptyValue,
 	isPresent,

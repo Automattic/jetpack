@@ -36,6 +36,7 @@ import {
 	fitCompactCells,
 	getBucketedValue,
 	getExtentOf,
+	getNormalizedValue,
 	getHeatmapScale,
 	getValueBuckets,
 	HEATMAP_SCALE_STEPS,
@@ -122,6 +123,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	keyboardNavigation = 'grid',
 	ariaLabel,
 	primaryColor,
+	scale: valueScale = 'buckets',
 	scaleSteps = HEATMAP_SCALE_STEPS,
 	gap = 'md',
 	withTooltips = false,
@@ -214,6 +216,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const buckets = useMemo(
 		() => getValueBuckets( values, extent, steps ),
 		[ values, extent, steps ]
+	);
+	const placeOnScale = useCallback(
+		( value: number ) =>
+			valueScale === 'linear'
+				? getNormalizedValue( value, extent )
+				: getBucketedValue( value, buckets ),
+		[ valueScale, extent, buckets ]
 	);
 	const heatmapContext = useMemo< HeatmapContextValue >(
 		() => ( { extent, buckets, steps, fillVars } ),
@@ -692,7 +701,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										}
 										const filled =
 											present && ! partial && ! column.summary && ! isEmptyValue( value, extent );
-										const normalized = filled ? getBucketedValue( value, buckets ) : 0;
+										const normalized = filled ? placeOnScale( value ) : 0;
 										const info = buildTooltipData( columnIndex, rowIndex );
 										const valueLabel =
 											info.value === null
