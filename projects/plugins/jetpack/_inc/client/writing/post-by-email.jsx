@@ -84,9 +84,9 @@ class PostByEmail extends Component {
 							</span>
 						</ModuleToggle>
 					) : (
-						<span className="jp-form-toggle-explanation">
+						<p className="jp-form-toggle-explanation">
 							{ this.props.module( 'post-by-email' ).description }
-						</span>
+						</p>
 					) }
 					<FormFieldset>
 						{ ( this.props.userCanManageModules || emailAddress ) && (
