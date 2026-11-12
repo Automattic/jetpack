@@ -167,7 +167,9 @@ bucket lands in one list only.
 ### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
 Returns whether report date params are incomplete or the interval is invalid
-for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
+for the window the report reads (`from` / `to` / `interval` missing, or
+`interval` not allowed). A preset's window is the one it names today, not the
+saved `from` / `to`.
 
 **Parameters:**
 
@@ -319,7 +321,7 @@ This package exports the following public API:
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
 - `intervalMenuOptions` - The open, withheld and locked buckets an interval menu lists
 - `getDaysBetweenInclusive` - The calendar days a range spans, both ends counted
-- `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
+- `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the window the report reads
 - `deriveComparisonRange` - The comparison window a range offers for a comparison preset, else its previous period
 - `getStatsDatePolicy` - The date limits the site's plan sets
 - `getSectionDatePolicy` - The date limits a dashboard section follows
