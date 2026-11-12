@@ -98,3 +98,13 @@ export function trackBannerClick( type: 'upgrade' | 'connect' ) {
 export function trackPayoutSave( signedTos: boolean ) {
 	record( 'jetpack_monetize_ads_payout_save', { signed_tos: signedTos, origin: ORIGIN } );
 }
+
+/**
+ * Record a click on one of the Overview's cards, with Calypso's Earn page `feature` names.
+ *
+ * @param feature - The card's feature, e.g. `ads`.
+ * @param target  - What was clicked.
+ */
+export function trackOverviewClick( feature: string, target: 'learn-more' | 'upgrade' | 'open' ) {
+	record( 'jetpack_monetize_overview_click', { feature, target } );
+}
