@@ -8,6 +8,8 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
+	useReportActions,
+	type CsvColumn,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -18,7 +20,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useShareViews from './use-share-views';
+import useShareViews, { type ShareView } from './use-share-views';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /** No configurable attributes; the empty record allows host-provided fields. */
@@ -27,17 +29,33 @@ export type SharesAttributes = Record< never, never >;
 type SharesRenderAttributes = Partial< ReportParamsFieldAttributes > & SharesAttributes;
 type SharesWidgetProps = WidgetRenderProps< SharesRenderAttributes >;
 
+const CSV_COLUMNS: CsvColumn< ShareView >[] = [
+	{ label: __( 'Platform', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+	{ label: __( 'Shares', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
+];
+
 /**
  * Shares widget inner component. The share counts come from the all-time site
  * summary, so there is no date range or comparison period to read from context.
  */
 function SharesInner() {
-	const { data, isLoading, isFetching, isError, refetch } = useShareViews( {
-		max: WIDGET_ROW_LIMIT,
+	// Every network goes into the download; the card lists the top ones.
+	const { data, isLoading, isFetching, isError, csvIsError, refetch } = useShareViews( {
+		max: 0,
+	} );
+
+	useReportActions( {
+		csv: {
+			rows: data,
+			columns: CSV_COLUMNS,
+			filenamePrefix: 'shares',
+			hasDateRange: false,
+			status: { isLoading, isFetching, isError: csvIsError },
+		},
 	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		return data.map( ( service, index ) => ( {
+		return data.slice( 0, WIDGET_ROW_LIMIT ).map( ( service, index ) => ( {
 			id: `${ index }-${ service.service }`,
 			...buildLeaderboardRow( {
 				label: service.label,

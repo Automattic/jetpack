@@ -1,7 +1,13 @@
 /**
  * Internal dependencies
  */
-import { buildCsv, saveCsv, type CsvColumn } from '../../helpers/build-csv';
+import {
+	buildCsv,
+	buildCsvDateRangeFilename,
+	saveCsv,
+	type CsvColumn,
+	type CsvDateRange,
+} from '../../helpers/build-csv';
 import { getReportCsvFilename } from '../../report-exports/download-report-csv';
 import { useWidgetRootContext } from '../widget-root';
 import { useCsvDownloadAction, type CsvDownloadAction } from './csv-download-action';
@@ -21,6 +27,11 @@ export type RowsCsvActionOptions< TRow > = {
 	 * Whether the filename carries the report window's dates.
 	 */
 	hasDateRange: boolean;
+
+	/**
+	 * Dates the file by the widget's own window instead of the report window.
+	 */
+	range?: CsvDateRange;
 
 	/**
 	 * The primary request's state, its error not hidden by rows kept on screen.
@@ -49,7 +60,9 @@ export function useRowsCsvAction< TRow >(
 			isReportCsvReady( options.status, options.rows.length )
 			? async () => {
 					saveCsv(
-						getReportCsvFilename( options, reportParams ),
+						options.range
+							? buildCsvDateRangeFilename( options.filenamePrefix, options.range )
+							: getReportCsvFilename( options, reportParams ),
 						buildCsv( options.columns, options.rows )
 					);
 				}
