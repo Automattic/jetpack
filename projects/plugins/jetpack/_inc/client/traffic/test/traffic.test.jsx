@@ -12,6 +12,7 @@ jest.mock( '../related-posts-moved', () => ( {
 	RelatedPostsMoved: () => 'related-posts pointer',
 } ) );
 jest.mock( '../seo', () => () => null );
+jest.mock( '../seo-moved', () => ( { SeoMoved: () => <p>SEO pointer</p> } ) );
 jest.mock( '../seo-optin-banner', () => () => 'SEO opt-in banner' );
 jest.mock( '../shortlinks', () => () => 'shortlinks card' );
 jest.mock( '../site-stats', () => ( { SiteStats: () => null } ) );
@@ -21,6 +22,10 @@ jest.mock( '../verification-services', () => ( { VerificationServices: () => nul
 // Module scope keeps the prop reference stable (react/jsx-no-bind).
 const findsOnlySitemaps = module => module === 'sitemaps';
 const findsOnly = {
+	'seo-tools': module => module === 'seo-tools',
+	'canonical-urls': module => module === 'canonical-urls',
+	sitemaps: findsOnlySitemaps,
+	'verification-tools': module => module === 'verification-tools',
 	'related-posts': module => module === 'related-posts',
 	blaze: module => module === 'blaze',
 	shortlinks: module => module === 'shortlinks',
@@ -33,14 +38,19 @@ describe( 'Traffic settings', () => {
 		expect( screen.getByText( 'SEO opt-in banner' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders nothing when a search finds only sections that moved to the SEO dashboard', () => {
-		window.JetpackScriptData = { seo: { surface_visible: true } };
+	it.each( [
+		[ 'seo-tools', 'in a search', true, 'seo', true ],
+		[ 'canonical-urls', 'in a search', true, 'canonical', true ],
+		[ 'sitemaps', 'in a search', true, 'sitemap', true ],
+		[ 'verification-tools', 'in a search', true, 'verification', true ],
+		[ 'sitemaps', 'in the tab', true, '', false ],
+		[ 'sitemaps', 'in a search before the move', false, 'sitemap', false ],
+	] )( 'SEO pointer for %s %s', ( module, _when, moved, searchTerm, expected ) => {
+		window.JetpackScriptData = { seo: { surface_visible: moved } };
 		try {
-			const { container } = render(
-				<Traffic searchTerm="sitemap" isModuleFound={ findsOnlySitemaps } />
-			);
+			render( <Traffic active searchTerm={ searchTerm } isModuleFound={ findsOnly[ module ] } /> );
 
-			expect( container ).toBeEmptyDOMElement();
+			expect( !! screen.queryByText( 'SEO pointer' ) ).toBe( expected );
 		} finally {
 			delete window.JetpackScriptData;
 		}

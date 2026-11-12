@@ -22,6 +22,7 @@ import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
 import { RelatedPostsMoved } from './related-posts-moved';
 import SEO from './seo';
+import { SeoMoved } from './seo-moved';
 import SeoOptInBanner from './seo-optin-banner';
 import Shortlinks from './shortlinks';
 import { SiteStats } from './site-stats';
@@ -71,11 +72,12 @@ export class Traffic extends Component {
 		const foundMovedToDashboard =
 			foundSeo || foundCanonicalUrls || foundSitemaps || foundVerification;
 
-		// Once moved, those sections render nothing here, so they no longer count as a match.
 		const foundLegacySeoSections = ! seoMovedToDashboard && foundMovedToDashboard;
+		const showSeoPointer = seoMovedToDashboard && foundMovedToDashboard && !! this.props.searchTerm;
 
 		if (
 			! foundLegacySeoSections &&
+			! showSeoPointer &&
 			! foundStats &&
 			! foundShortlinks &&
 			! foundRelated &&
@@ -99,6 +101,7 @@ export class Traffic extends Component {
 						<RelatedPosts { ...commonProps } />
 					) ) }
 				{ foundMovedToDashboard && <SeoOptInBanner /> }
+				{ showSeoPointer && <SeoMoved /> }
 				{ ! seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (
 					<SEO
 						{ ...commonProps }
