@@ -32,30 +32,32 @@ const sync = () => apiFetch( { path: `${ PROXY_BASE }/ads/sync`, method: 'POST' 
 /**
  * Where ad earnings are paid, from WordPress.com.
  *
+ * @param enabled - Whether to ask, which needs a user connected to WordPress.com.
  * @return The query.
  */
-export function usePayout() {
+export function usePayout( enabled = true ) {
 	return useQuery< Payout, WpcomApiError >( {
 		queryKey: PAYOUT_KEY,
 		queryFn: async () => toPayout( await wpcomFetch< WpcomAdsSettings >( SETTINGS ) ),
+		enabled,
 	} );
 }
 
 /**
- * Save the PayPal address, and the terms when first signed.
+ * Save the PayPal address, the terms when first signed, or both.
  *
  * @return The mutation.
  */
 export function useSavePayout() {
 	const queryClient = useQueryClient();
 
-	return useMutation< Payout, WpcomApiError, { paypal: string; tos: boolean } >( {
+	return useMutation< Payout, WpcomApiError, { paypal?: string; tos: boolean } >( {
 		mutationFn: async ( { paypal, tos } ) =>
 			toPayout(
 				await wpcomFetch< WpcomAdsSettings >( {
 					...SETTINGS,
 					method: 'POST',
-					data: tos ? { paypal, tos: 'signed' } : { paypal },
+					data: { ...( paypal ? { paypal } : {} ), ...( tos ? { tos: 'signed' } : {} ) },
 				} )
 			),
 		onSuccess: payout => queryClient.setQueryData( PAYOUT_KEY, payout ),

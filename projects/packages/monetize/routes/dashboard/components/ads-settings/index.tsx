@@ -3,11 +3,12 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Fieldset, Link, Notice, Spinner, Stack, SwitchControl, Text } from '@wordpress/ui';
+import { useCallback } from 'react';
 import { getAdsSettingsData } from '../../data/ads-settings-data';
 import { trackClick } from '../../data/tracking';
 import { useAdsSettings } from '../../data/use-ads-settings';
 import { useHasWordAds } from '../../data/use-has-wordads';
-import { useWpcomAdsSync } from '../../data/use-wpcom-ads-settings';
+import { usePayout, useSavePayout, useWpcomAdsSync } from '../../data/use-wpcom-ads-settings';
 import useWpcomConnection from '../../data/use-wpcom-connection';
 import ConnectionGate from '../connection-gate';
 import { LearnMore, OptionSwitch } from './option-switch';
@@ -29,9 +30,29 @@ const trackEarningsClick = () => trackClick( 'view-earnings' );
  * @return The options.
  */
 function AdsOptions( { data }: { data: AdsSettingsData } ) {
-	const requestSync = useWpcomAdsSync( useWpcomConnection().canUseWpcom );
+	const { canUseWpcom } = useWpcomConnection();
+	const requestSync = useWpcomAdsSync( canUseWpcom );
 	const { values, loadError, saveError, saving, setOption, setModuleActive } =
 		useAdsSettings( requestSync );
+	const payout = usePayout( canUseWpcom );
+	const acceptTerms = useSavePayout();
+
+	const tosSigned = payout.data?.tosSigned;
+	const { mutateAsync: signTerms } = acceptTerms;
+	const onAdsToggle = useCallback(
+		async ( active: boolean ) => {
+			// Turning ads on agrees to the terms, so WordPress.com records that first.
+			if ( active && canUseWpcom && ! tosSigned ) {
+				try {
+					await signTerms( { tos: true } );
+				} catch {
+					return;
+				}
+			}
+			await setModuleActive( active );
+		},
+		[ canUseWpcom, tosSigned, signTerms, setModuleActive ]
+	);
 
 	if ( loadError ) {
 		return (
@@ -44,7 +65,7 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 	}
 
 	if ( ! values ) {
-		return <Spinner />;
+		return <Loading />;
 	}
 
 	const isActive = values.wordads;
@@ -91,7 +112,7 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 						<Text variant="body-sm">
 							{ createInterpolateElement(
 								__(
-									'By activating ads, you agree to the Automattic Ads <link>Terms of Service</link>.',
+									'By activating ads, you agree to the Automattic Ads <link>Terms of Service</link>, to post only <family>family-friendly content</family>, and not to purchase non-human traffic.',
 									'jetpack-monetize'
 								),
 								{
@@ -101,6 +122,9 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 											openInNewTab
 											onClick={ trackTermsClick }
 										/>
+									),
+									family: (
+										<Link href={ getRedirectUrl( 'wordads-family-safe-sites' ) } openInNewTab />
 									),
 								}
 							) }
@@ -113,9 +137,21 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 							) }
 							details={ <LearnMore href={ getRedirectUrl( 'jetpack-support-ads' ) } /> }
 							checked={ isActive }
-							disabled={ saving.has( 'wordads' ) || Boolean( data.moduleOverride ) }
-							onCheckedChange={ setModuleActive }
+							disabled={
+								saving.has( 'wordads' ) || acceptTerms.isPending || Boolean( data.moduleOverride )
+							}
+							onCheckedChange={ onAdsToggle }
 						/>
+						{ acceptTerms.isError && (
+							<Notice.Root intent="error">
+								<Notice.Description>
+									{ __(
+										'Ads could not be turned on because your agreement to the Terms of Service could not be saved. Please try again.',
+										'jetpack-monetize'
+									) }
+								</Notice.Description>
+							</Notice.Root>
+						) }
 						{ data.moduleOverride && (
 							<Notice.Root intent="info">
 								<Notice.Description>
@@ -300,6 +336,19 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 }
 
 /**
+ * A spinner centered in the tab while the settings load.
+ *
+ * @return The spinner.
+ */
+function Loading() {
+	return (
+		<Stack direction="row" justify="center" className="jp-monetize-loading">
+			<Spinner />
+		</Stack>
+	);
+}
+
+/**
  * The Ads options with a plan that includes WordAds, or the prompt to get one.
  *
  * @param props      - Component props.
@@ -310,7 +359,7 @@ function AdsCard( { data }: { data: AdsSettingsData } ) {
 	const hasWordAds = useHasWordAds( data.hasWordAds );
 
 	if ( hasWordAds === undefined ) {
-		return <Spinner />;
+		return <Loading />;
 	}
 
 	return hasWordAds ? <AdsOptions data={ data } /> : <AdsPrompt data={ data } />;

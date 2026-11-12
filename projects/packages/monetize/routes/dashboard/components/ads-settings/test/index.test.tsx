@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { getAdsSettingsData } from '../../../data/ads-settings-data';
 import { useAdsSettings } from '../../../data/use-ads-settings';
+import { usePayout, useSavePayout } from '../../../data/use-wpcom-ads-settings';
 import { AdsSettings } from '../index';
 import type { AdsSettingsData } from '../../../data/ads-settings-data';
 import type { AdsValues } from '../../../data/use-ads-settings';
@@ -18,7 +20,11 @@ jest.mock( '../../../data/use-wpcom-connection', () => ( {
 	__esModule: true,
 	default: () => ( { canUseWpcom: true } ),
 } ) );
-jest.mock( '../../../data/use-wpcom-ads-settings', () => ( { useWpcomAdsSync: () => jest.fn() } ) );
+jest.mock( '../../../data/use-wpcom-ads-settings', () => ( {
+	useWpcomAdsSync: () => jest.fn(),
+	usePayout: jest.fn(),
+	useSavePayout: jest.fn(),
+} ) );
 jest.mock( '../payout-card', () => ( { PayoutCard: () => null } ) );
 jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
 	getUserConnectionUrl: () => '#connect',
@@ -86,9 +92,38 @@ function renderTab(
 }
 
 const SWITCH = 'Enable ads and display an ad below each post';
+const acceptTerms = jest.fn();
 
 describe( 'AdsSettings', () => {
-	beforeEach( () => mockedApiFetch.mockReset() );
+	beforeEach( () => {
+		mockedApiFetch.mockReset();
+		acceptTerms.mockReset().mockResolvedValue( {} );
+		( usePayout as jest.Mock ).mockReturnValue( { data: { paypal: '', tosSigned: false } } );
+		( useSavePayout as jest.Mock ).mockReturnValue( {
+			mutateAsync: acceptTerms,
+			isPending: false,
+			isError: false,
+		} );
+	} );
+
+	it.each( [
+		[ 'accepts the terms before turning ads on', false, true, true ],
+		[ 'leaves ads off when the terms cannot be accepted', false, false, false ],
+		[ 'turns ads on straight away once the terms are signed', true, true, true ],
+	] )( '%s', async ( _name, tosSigned, accepted, activated ) => {
+		( usePayout as jest.Mock ).mockReturnValue( { data: { paypal: '', tosSigned } } );
+		if ( ! accepted ) {
+			acceptTerms.mockRejectedValue( new Error() );
+		}
+		renderTab( {}, { wordads: false } );
+		const { setModuleActive } = ( useAdsSettings as jest.Mock ).mock.results.at( -1 ).value;
+
+		await userEvent.click( screen.getByRole( 'switch', { name: SWITCH } ) );
+		await act( () => Promise.resolve() );
+
+		expect( acceptTerms ).toHaveBeenCalledTimes( tosSigned ? 0 : 1 );
+		expect( setModuleActive ).toHaveBeenCalledTimes( activated ? 1 : 0 );
+	} );
 
 	it.each( [
 		[ 'the upgrade prompt without a plan', { hasWordAds: false }, [], 'link', 'Upgrade' ],

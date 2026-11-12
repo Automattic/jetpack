@@ -1,10 +1,29 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, CheckboxControl, InputControl, Link, Notice, Stack } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import { trackPayoutSave } from '../../data/tracking';
 import { usePayout, useSavePayout } from '../../data/use-wpcom-ads-settings';
 import type { WpcomApiError } from '../../data/wpcom-request';
+
+/**
+ * Links to what the user agrees to.
+ *
+ * @return The links.
+ */
+function TermsLinks() {
+	return createInterpolateElement(
+		__(
+			'Read the <tos>Terms of Service</tos> and the <family>family-friendly content guidelines</family>.',
+			'jetpack-monetize'
+		),
+		{
+			tos: <Link href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) } openInNewTab />,
+			family: <Link href={ getRedirectUrl( 'wordads-family-safe-sites' ) } openInNewTab />,
+		}
+	);
+}
 
 /**
  * What to tell the user when a save fails.
@@ -57,8 +76,7 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 	const isDisabled = ! isReady || save.isPending;
 	const canSave =
 		isReady &&
-		address !== '' &&
-		( address !== stored?.paypal || agreed ) &&
+		( ( address !== '' && address !== stored?.paypal ) || agreed ) &&
 		( tosSigned || agreed );
 
 	return (
@@ -67,7 +85,7 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 				<Card.Title render={ <h2 /> }>{ __( 'Payouts', 'jetpack-monetize' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<Stack direction="column" gap="lg" align="start" aria-busy={ payout.isPending }>
+				<Stack direction="column" gap="lg" aria-busy={ payout.isPending }>
 					{ payout.isError && (
 						<Notice.Root intent="error">
 							<Notice.Description>
@@ -98,22 +116,24 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 						disabled={ isDisabled }
 						onValueChange={ onPaypalChange }
 					/>
-					{ isReady && ! tosSigned && (
-						<CheckboxControl
-							label={ __( 'I agree to the Automattic Ads Terms of Service.', 'jetpack-monetize' ) }
-							details={
-								<Link href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) } openInNewTab>
-									{ __( 'Read the Terms of Service', 'jetpack-monetize' ) }
-								</Link>
-							}
-							checked={ agreed }
-							disabled={ isDisabled }
-							onCheckedChange={ setAgreed }
-						/>
-					) }
-					<Button disabled={ ! canSave } loading={ save.isPending } onClick={ onSave }>
-						{ __( 'Save', 'jetpack-monetize' ) }
-					</Button>
+					<Stack direction="column" gap="lg" align="start">
+						{ isReady && (
+							<CheckboxControl
+								label={ __(
+									'I have read and agree to the Automattic Ads Terms of Service. I agree to post only family-friendly content and will not purchase non-human traffic.',
+									'jetpack-monetize'
+								) }
+								details={ <TermsLinks /> }
+								checked={ tosSigned || agreed }
+								// Signed terms can't be withdrawn.
+								disabled={ isDisabled || tosSigned }
+								onCheckedChange={ setAgreed }
+							/>
+						) }
+						<Button disabled={ ! canSave } loading={ save.isPending } onClick={ onSave }>
+							{ __( 'Save', 'jetpack-monetize' ) }
+						</Button>
+					</Stack>
 				</Stack>
 			</Card.Content>
 		</Card.Root>

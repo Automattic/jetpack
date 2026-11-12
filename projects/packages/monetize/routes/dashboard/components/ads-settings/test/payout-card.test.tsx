@@ -115,4 +115,28 @@ describe( 'PayoutCard', () => {
 			screen.findByText( 'Enter a valid PayPal email address.' )
 		).resolves.toBeVisible();
 	} );
+
+	it( 'keeps signed terms checked and locked', async () => {
+		await renderLoaded( { paypal: 'a@example.com', tosSigned: true } );
+
+		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+		expect( screen.getByRole( 'checkbox' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	it( 'saves the terms alone when there is no address yet', async () => {
+		const user = userEvent.setup();
+		await renderLoaded( { paypal: '', tosSigned: false } );
+
+		mockedApiFetch.mockResolvedValueOnce( toWpcom( { paypal: '', tosSigned: true } ) );
+		await user.click( screen.getByRole( 'checkbox' ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await waitFor( () =>
+			expect( mockedApiFetch ).toHaveBeenLastCalledWith( {
+				path: '/jetpack/v4/monetize/wpcom/v2/wordads/settings',
+				method: 'POST',
+				data: { tos: 'signed' },
+			} )
+		);
+	} );
 } );
