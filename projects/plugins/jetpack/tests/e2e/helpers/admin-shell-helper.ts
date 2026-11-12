@@ -468,6 +468,56 @@ export async function settle( page: Page, ms: number ): Promise< void > {
 }
 
 /**
+ * Wait until the page has gone `quietMs` with no DOM change and no request in flight, or `maxMs` passes.
+ *
+ * @param page    - Page under test.
+ * @param maxMs   - Longest wait, as a fixed settle would use.
+ * @param quietMs - Quiet time that counts as settled.
+ */
+export async function waitForQuiet( page: Page, maxMs: number, quietMs = 1000 ): Promise< void > {
+	const inFlight = new Set< Request >();
+	let lastNetwork = Date.now();
+	const started = ( request: Request ) => {
+		inFlight.add( request );
+		lastNetwork = Date.now();
+	};
+	const ended = ( request: Request ) => {
+		inFlight.delete( request );
+		lastNetwork = Date.now();
+	};
+	page.on( 'request', started );
+	page.on( 'requestfinished', ended );
+	page.on( 'requestfailed', ended );
+	try {
+		await page.evaluate( () => {
+			const w = window as unknown as { __jpLastMutation?: number };
+			w.__jpLastMutation = Date.now();
+			new MutationObserver( () => ( w.__jpLastMutation = Date.now() ) ).observe( document, {
+				subtree: true,
+				childList: true,
+				attributes: true,
+				characterData: true,
+			} );
+		} );
+		const deadline = Date.now() + maxMs;
+		while ( Date.now() < deadline ) {
+			const lastMutation = await page.evaluate(
+				() => ( window as unknown as { __jpLastMutation: number } ).__jpLastMutation
+			);
+			const now = Date.now();
+			if ( ! inFlight.size && now - lastNetwork >= quietMs && now - lastMutation >= quietMs ) {
+				return;
+			}
+			await settle( page, 250 );
+		}
+	} finally {
+		page.off( 'request', started );
+		page.off( 'requestfinished', ended );
+		page.off( 'requestfailed', ended );
+	}
+}
+
+/**
  * `search + hash` of the current URL.
  *
  * @param page - Page under test.
