@@ -39,8 +39,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string|null Rendered markup, or null to let the email engine render the block.
  */
 function render_email( $block_content, array $parsed_block, $rendering_context ) {
-	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Fallback' ) ||
-		! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Fallback' ) ) {
 		return null;
 	}
 
