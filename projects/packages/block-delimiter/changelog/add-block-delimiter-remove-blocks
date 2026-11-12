@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `Block_Scanner::remove_blocks()` to remove every block of a given type from a document.

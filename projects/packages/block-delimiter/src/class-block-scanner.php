@@ -842,6 +842,83 @@ class Block_Scanner {
 	// Debugging methods not meant for production use.
 
 	/**
+	 * Returns the document with every block of the given type removed, nested
+	 * blocks and their inner content included. All other content is kept as it is.
+	 *
+	 * Example:
+	 *
+	 *     $html = "Before.\n<!-- wp:query --><div>List</div><!-- /wp:query -->\nAfter.";
+	 *     "Before.\nAfter." === Block_Scanner::remove_blocks( $html, 'query' );
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $source_text Input document potentially containing block content.
+	 * @param string $block_type  Block type name to remove, e.g. "query" or "core/query".
+	 * @return string The document without those blocks.
+	 */
+	public static function remove_blocks( string $source_text, string $block_type ): string {
+		$scanner = self::create( $source_text );
+		if ( null === $scanner ) {
+			return $source_text;
+		}
+
+		$output   = '';
+		$offset   = 0;
+		$depth    = 0;
+		$removing = false;
+
+		while ( $scanner->next_delimiter() ) {
+			$span = $scanner->get_span();
+			$end  = $span->start + $span->length;
+
+			if ( ! $scanner->is_block_type( $block_type ) ) {
+				if ( ! $removing ) {
+					$output .= substr( $source_text, $offset, $end - $offset );
+					$offset  = $end;
+				}
+				continue;
+			}
+
+			$type = $scanner->get_delimiter_type();
+
+			if ( self::OPENER === $type ) {
+				if ( ! $removing ) {
+					$output  .= substr( $source_text, $offset, $span->start - $offset );
+					$removing = true;
+				}
+				++$depth;
+				continue;
+			}
+
+			if ( self::CLOSER === $type ) {
+				--$depth;
+				if ( ! $removing || 0 !== $depth ) {
+					continue;
+				}
+				$removing = false;
+			} elseif ( $removing ) {
+				// A void block inside a block that is already being removed.
+				continue;
+			} else {
+				$output .= substr( $source_text, $offset, $span->start - $offset );
+			}
+
+			$offset = $end;
+
+			// Removing a block that sat on its own line would otherwise leave a blank line behind.
+			if ( "\n" === ( $source_text[ $offset ] ?? '' ) && "\n" === substr( $output, -1 ) ) {
+				++$offset;
+			}
+		}
+
+		if ( ! $removing ) {
+			$output .= substr( $source_text, $offset );
+		}
+
+		return $output;
+	}
+
+	/**
 	 * Prints a debugging message showing the structure of the parsed delimiter.
 	 *
 	 * This is not meant to be used in production!

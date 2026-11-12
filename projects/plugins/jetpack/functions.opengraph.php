@@ -921,6 +921,11 @@ function jetpack_og_remove_query_blocks( $description ) {
 		return '';
 	}
 
+	// An older copy of the block-delimiter package can win the autoloader, so keep the fallback below.
+	if ( method_exists( Block_Scanner::class, 'remove_blocks' ) ) {
+		return Block_Scanner::remove_blocks( $description, 'query' );
+	}
+
 	$output         = '';
 	$offset         = 0;
 	$depth          = 0;
