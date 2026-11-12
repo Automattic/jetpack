@@ -143,7 +143,11 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
 		return false;
 	}
 
-	$persistent_data = new \Atomic_Persistent_Data();
+	// Sticker checks can run repeatedly within a request, so reuse the persistent data instance.
+	static $persistent_data = null;
+	if ( null === $persistent_data ) {
+		$persistent_data = new \Atomic_Persistent_Data();
+	}
 
 	if ( $persistent_data->{"site_sticker_{$sticker_name}"} ) {
 		return true;
