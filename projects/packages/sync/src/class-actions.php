@@ -1,6 +1,6 @@
 <?php
 /**
- * A class that defines syncable actions for Jetpack.
+ * A class that defines syncable actions for Jetpack!
  *
  * @package automattic/jetpack-sync
  */
