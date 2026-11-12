@@ -114,10 +114,11 @@ export function Wizard( {
 			data: payload,
 		} )
 			.then( () => {
-				const adminBarSiteName = document.querySelector( '#wp-admin-bar-site-name > a' );
+				// Core prints the name last, after the icons; replacing the whole link would drop them.
+				const nameNode = document.querySelector( '#wp-admin-bar-site-name > a' )?.lastChild;
 				const savedName = payload.site_name.trim();
-				if ( adminBarSiteName && savedName ) {
-					adminBarSiteName.textContent = savedName;
+				if ( nameNode?.nodeType === Node.TEXT_NODE && savedName ) {
+					nameNode.textContent = savedName;
 				}
 			} )
 			.catch( () => {} );
