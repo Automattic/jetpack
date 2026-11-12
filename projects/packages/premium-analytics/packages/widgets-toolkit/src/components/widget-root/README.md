@@ -14,6 +14,7 @@ Dashboard widgets are ES Modules loaded asynchronously via lazy-load. This means
 - **ChartsProvider** - Chart theme, site formatting and light tooltips
 - **Report params resolution** - From widget attributes or URL fallback
 - **Context provider** - Child widgets access resolved params via `useWidgetRootContext()`
+- **Text weight** - Widget text reads at 500: `--wpds-typography-font-weight-default` is raised to 500 inside. Text that must stay regular, such as column headers, legends and tooltips, sets `font-weight: 400`
 
 ## Usage
 

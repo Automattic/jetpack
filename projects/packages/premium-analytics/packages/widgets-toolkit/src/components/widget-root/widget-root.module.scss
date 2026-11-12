@@ -4,8 +4,8 @@
 
 	@extend %widget-container;
 
-	// Widget text reads at 500, as in classic Stats. The token reaches
-	// design system text that sets it; column headers opt back out to 400.
+	// Widget text reads at 500, as in classic Stats. The token reaches design
+	// system text that sets it; headers, legends and tooltips set 400 to opt out.
 	// stylelint-disable-next-line plugin-wpds/no-setting-wpds-custom-properties -- scoped override, no theme API for weight.
 	--wpds-typography-font-weight-default: 500;
 	font-weight: var(--wpds-typography-font-weight-default);

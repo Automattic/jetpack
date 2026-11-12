@@ -15,6 +15,7 @@
 }
 
 .label {
+	font-weight: 400; // Not inherited: `WidgetRoot` raises it.
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
