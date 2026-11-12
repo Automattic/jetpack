@@ -1,5 +1,4 @@
 Significance: patch
-Type: other
-Comment: SEO: Forward the SEO helper classes to the SEO package; no change in behaviour.
+Type: bugfix
 
-
+SEO: Stop including Query Loop block text in meta descriptions when Open Graph tags are off.
