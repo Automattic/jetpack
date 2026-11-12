@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: Add SEO to the admin shell e2e navigation matrix.
+Comment: Add SEO to the admin shell, which is off by default, and to its e2e navigation matrix.
 
 
