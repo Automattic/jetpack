@@ -4,7 +4,26 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-1hiCL/+wKFirv0BclRIGYHDHW9b60ObkaNLbqliNL7Q=
+overrides:
+  '@wordpress/ui>@wordpress/a11y': ^5.1.0
+  '@wordpress/ui>@wordpress/i18n': ^7.1.0
+  '@wordpress/ui>@wordpress/icons': ^20.0.0
+  '@wordpress/ui>@wordpress/theme': ^4.0.0
+  '@wordpress/ui>@wordpress/compose': ^9.1.0
+  '@wordpress/ui>@wordpress/element': ^10.1.0
+  '@wordpress/ui>@wordpress/warning': ^4.1.0
+  '@wordpress/ui>@wordpress/keycodes': ^5.1.0
+  '@wordpress/ui>@wordpress/primitives': ^5.1.0
+  '@wordpress/ui>@wordpress/private-apis': ^3.1.0
+  '@wordpress/ui>@wordpress/style-runtime': ^0.15.0
+  '@wordpress/ui>@wordpress/react-inert-value': ^2.1.0
+  '@wordpress/theme>@wordpress/compose': ^9.1.0
+  '@wordpress/theme>@wordpress/element': ^10.1.0
+  '@wordpress/theme>@wordpress/deprecated': ^5.1.0
+  '@wordpress/theme>@wordpress/private-apis': ^3.1.0
+  '@wordpress/theme>@wordpress/style-runtime': ^0.15.0
+
+pnpmfileChecksum: sha256-l/Mbm/Omust1IXfX0cfbvXMTBzwQoAG5yC+b5jMLKhI=
 
 patchedDependencies:
   '@wordpress/build': bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f
@@ -13,6 +32,12 @@ importers:
 
   .:
     devDependencies:
+      '@wordpress/theme':
+        specifier: github:WordPress/gutenberg#simison/design-system-agent-files-842d60&path:packages/theme
+        version: https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme
+      '@wordpress/ui':
+        specifier: github:WordPress/gutenberg#simison/design-system-agent-files-842d60&path:packages/ui
+        version: https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/ui
       husky:
         specifier: 9.1.7
         version: 9.1.7
@@ -448,7 +473,7 @@ importers:
         version: 14.6.8(@testing-library/dom@10.4.2)
       '@tsdown/css':
         specifier: 0.23.7
-        version: 0.23.7(sass-embedded@1.97.3)(tsdown@0.23.7)
+        version: 0.23.7(sass-embedded@1.97.3)(tsdown@0.23.7)(typescript@6.0.3)
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
@@ -829,7 +854,7 @@ importers:
         version: 5.112.2(clean-css@5.3.3)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(clean-css@5.3.3)(webpack@5.112.2)
 
   projects/js-packages/eslint-changed:
     dependencies:
@@ -1574,7 +1599,7 @@ importers:
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tsdown/css':
         specifier: 0.23.7
-        version: 0.23.7(sass-embedded@1.97.3)(tsdown@0.23.7)
+        version: 0.23.7(sass-embedded@1.97.3)(tsdown@0.23.7)(typescript@6.0.3)
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
@@ -2002,7 +2027,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)
+        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -2235,7 +2260,7 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       storybook:
         specifier: 10.6.3
         version: 10.6.3(@types/react@19.3.0)(react@19.3.0)
@@ -2244,7 +2269,7 @@ importers:
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/packages/blaze:
     dependencies:
@@ -2359,13 +2384,13 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       webpack:
         specifier: 5.112.2
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/packages/comments:
     dependencies:
@@ -2456,13 +2481,13 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       webpack:
         specifier: 5.112.2
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/packages/connection:
     dependencies:
@@ -2575,7 +2600,7 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -2584,7 +2609,7 @@ importers:
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/packages/explat:
     dependencies:
@@ -2767,13 +2792,13 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       webpack:
         specifier: 5.112.2
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/packages/forms:
     dependencies:
@@ -2926,7 +2951,7 @@ importers:
         version: 5.112.2(postcss@8.5.23)(sharp@0.35.5)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(sharp@0.35.5)(webpack@5.112.2)
     devDependencies:
       '@automattic/color-studio':
         specifier: 4.1.0
@@ -3011,7 +3036,7 @@ importers:
         version: 8.5.23
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.23)(webpack@5.112.2)
+        version: 8.2.0(postcss@8.5.23)(sharp@0.35.5)(webpack@5.112.2)
       postcss-modules:
         specifier: ^6.0.0
         version: 6.0.1(postcss@8.5.23)
@@ -3020,7 +3045,7 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(sharp@0.35.5)(webpack@5.112.2)
       sharp:
         specifier: 0.35.5
         version: 0.35.5
@@ -3359,7 +3384,7 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       wait-for-expect:
         specifier: 3.0.2
         version: 3.0.2
@@ -3368,7 +3393,7 @@ importers:
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/packages/jitm:
     devDependencies:
@@ -3431,13 +3456,13 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       webpack:
         specifier: 5.112.2
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/packages/menu-badges:
     devDependencies:
@@ -3525,7 +3550,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)
+        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.9
@@ -3735,7 +3760,7 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       storybook:
         specifier: 10.6.3
         version: 10.6.3(@types/react@19.3.0)(react@19.3.0)
@@ -3747,10 +3772,10 @@ importers:
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack-dev-server@6.0.0)(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack-dev-server@6.0.0)(webpack@5.112.2)
       webpack-dev-server:
         specifier: 6.0.0
-        version: 6.0.0(webpack-cli@7.2.1)(webpack@5.112.2)
+        version: 6.0.0(postcss@8.5.23)(webpack-cli@7.2.1)(webpack@5.112.2)
 
   projects/packages/newsletter:
     dependencies:
@@ -3916,13 +3941,13 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       webpack:
         specifier: 5.112.2
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
     optionalDependencies:
       react:
         specifier: 19.3.0
@@ -4016,7 +4041,7 @@ importers:
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
@@ -4071,7 +4096,7 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
 
   projects/packages/plans: {}
 
@@ -4592,7 +4617,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)
+        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.9
@@ -4807,7 +4832,7 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       storybook:
         specifier: 10.6.3
         version: 10.6.3(@types/react@19.3.0)(react@19.3.0)
@@ -4819,10 +4844,10 @@ importers:
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack-dev-server@6.0.0)(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack-dev-server@6.0.0)(webpack@5.112.2)
       webpack-dev-server:
         specifier: 6.0.0
-        version: 6.0.0(webpack-cli@7.2.1)(webpack@5.112.2)
+        version: 6.0.0(postcss@8.5.23)(webpack-cli@7.2.1)(webpack@5.112.2)
 
   projects/packages/rtc:
     dependencies:
@@ -5082,7 +5107,7 @@ importers:
         version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 7.1.0
-        version: 7.1.0(webpack@5.112.2)
+        version: 7.1.0(postcss@8.5.23)(webpack@5.112.2)
       '@wordpress/theme-build-tools':
         specifier: 1.0.0
         version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
@@ -5118,7 +5143,7 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       size-limit:
         specifier: 12.1.0
         version: 12.1.0(@size-limit/file@12.1.0)
@@ -5130,7 +5155,7 @@ importers:
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/packages/seo:
     dependencies:
@@ -5627,7 +5652,7 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       storybook:
         specifier: 10.6.3
         version: 10.6.3(@types/react@19.3.0)(react@19.3.0)
@@ -5639,7 +5664,7 @@ importers:
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/packages/woocommerce-stats:
     dependencies:
@@ -5700,7 +5725,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)
+        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme)
       jest:
         specifier: 30.5.2
         version: 30.5.2
@@ -6172,7 +6197,7 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       storybook:
         specifier: 10.6.3
         version: 10.6.3(@types/react@19.3.0)(react@19.3.0)
@@ -6187,7 +6212,7 @@ importers:
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/plugins/boost/tests/e2e:
     devDependencies:
@@ -6463,7 +6488,7 @@ importers:
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
     devDependencies:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
@@ -6587,7 +6612,7 @@ importers:
         version: 8.2.0(postcss@8.5.23)(webpack@5.112.2)
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
     optionalDependencies:
       react:
         specifier: 19.3.0
@@ -6826,13 +6851,13 @@ importers:
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+        version: 16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2)
       webpack:
         specifier: 5.112.2
         version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
+        version: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
 
   projects/plugins/protect/tests/e2e:
     devDependencies:
@@ -12024,12 +12049,40 @@ packages:
       react-dom:
         optional: true
 
+  '@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme':
+    resolution: {gitHosted: true, integrity: sha512-wg/ApWwe3KezYJM5EEeljRVNK1pssiI2lLgUViUUngzXogmJBBhkh69UEQQDNsdaMALM965h7KvFApd4xip9NQ==, path: packages/theme, tarball: https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191}
+    version: 4.0.0
+    engines: {node: '>=22.13.0'}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      react: ^18 || ^19
+      react-dom: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
   '@wordpress/token-list@4.1.0':
     resolution: {integrity: sha512-r8DCgJDIyGFVufgSedJ9vAhZQWJCNo0Evy/OTcFwVwRxYxi4X753bOZIcmb+VnIc7+rxxWes3K8VCmmUI0wKew==}
     engines: {node: '>=22.13.0'}
 
   '@wordpress/ui@0.26.0':
     resolution: {integrity: sha512-ET2RmxE/nfwRpq1fip1+YATtuLOrOyJJq6hRDDHTyC+8iToM/IbVg8dj/ES6zwlW8/UAEStvSj6IkmQuDvc3mA==}
+    engines: {node: '>=22.13.0'}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      react: ^18 || ^19
+      react-dom: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@wordpress/ui@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/ui':
+    resolution: {gitHosted: true, integrity: sha512-wg/ApWwe3KezYJM5EEeljRVNK1pssiI2lLgUViUUngzXogmJBBhkh69UEQQDNsdaMALM965h7KvFApd4xip9NQ==, path: packages/ui, tarball: https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191}
+    version: 0.26.0
     engines: {node: '>=22.13.0'}
     peerDependencies:
       '@types/react': ^18 || ^19
@@ -12242,7 +12295,6 @@ packages:
 
   ansi-html-community@0.0.8:
     resolution: {integrity: sha512-1APHAyr3+PCamwNw3bXCPp4HFLONZt/yIH0sZp0/469KWNTEy+qN5jQ3GVX6DMZ1UXAi34yVwtTeaG/HpBuuzw==}
-    engines: {'0': node >= 0.8.0}
     hasBin: true
 
   ansi-regex@2.1.1:
@@ -19527,6 +19579,23 @@ snapshots:
       '@types/react': 19.3.0
       date-fns: 4.4.0
 
+  '@base-ui/react@1.9.0(date-fns@4.4.0)':
+    dependencies:
+      '@babel/runtime': 7.29.13
+      '@base-ui/utils': 0.5.0
+      '@floating-ui/react-dom': 2.1.9
+      '@floating-ui/utils': 0.2.12
+      use-sync-external-store: 1.7.0
+    optionalDependencies:
+      date-fns: 4.4.0
+
+  '@base-ui/utils@0.5.0':
+    dependencies:
+      '@babel/runtime': 7.29.13
+      '@floating-ui/utils': 0.2.12
+      reselect: 5.3.0
+      use-sync-external-store: 1.7.0
+
   '@base-ui/utils@0.5.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@babel/runtime': 7.29.13
@@ -19851,6 +19920,10 @@ snapshots:
 
   '@date-fns/utc@2.1.1': {}
 
+  '@daypicker/react@10.0.2':
+    dependencies:
+      react-day-picker: 10.0.2
+
   '@daypicker/react@10.0.2(@types/react@19.3.0)(react@19.3.0)':
     dependencies:
       react: 19.3.0
@@ -20096,6 +20169,10 @@ snapshots:
     dependencies:
       '@floating-ui/core': 1.8.0
       '@floating-ui/utils': 0.2.12
+
+  '@floating-ui/react-dom@2.1.9':
+    dependencies:
+      '@floating-ui/dom': 1.8.0
 
   '@floating-ui/react-dom@2.1.9(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
@@ -21901,7 +21978,7 @@ snapshots:
 
   '@tsconfig/strictest@2.0.5': {}
 
-  '@tsdown/css@0.23.7(sass-embedded@1.97.3)(tsdown@0.23.7)':
+  '@tsdown/css@0.23.7(sass-embedded@1.97.3)(tsdown@0.23.7)(typescript@6.0.3)':
     dependencies:
       lightningcss: 1.33.0
       postcss-load-config: 6.0.1
@@ -21912,6 +21989,7 @@ snapshots:
     transitivePeerDependencies:
       - jiti
       - tsx
+      - typescript
       - yaml
 
   '@tybys/wasm-util@0.10.4':
@@ -23523,30 +23601,6 @@ snapshots:
 
   '@wordpress/browserslist-config@7.1.0': {}
 
-  '@wordpress/build@0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)':
-    dependencies:
-      '@wordpress/browserslist-config': 7.1.0
-      '@wordpress/style-runtime': 0.15.0
-      '@wordpress/theme-build-tools': 1.0.0(postcss@8.5.23)
-      autoprefixer: 10.6.2(postcss@8.5.23)
-      browserslist: 4.28.9
-      browserslist-to-esbuild: 2.1.1(browserslist@4.28.9)
-      change-case: 4.1.2
-      chokidar: 4.0.3
-      cssnano: 7.1.9(postcss@8.5.23)
-      fast-glob: 3.3.3
-      moment-timezone: 0.5.48
-      postcss: 8.5.23
-      postcss-modules: 6.0.1(postcss@8.5.23)
-      rolldown: 1.3.0
-      rtlcss: 4.3.0
-      sass-embedded: 1.97.3
-    transitivePeerDependencies:
-      - esbuild
-      - lightningcss
-      - stylelint
-      - vite
-
   '@wordpress/build@0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))':
     dependencies:
       '@wordpress/browserslist-config': 7.1.0
@@ -23593,6 +23647,32 @@ snapshots:
       sass-embedded: 1.97.3
     optionalDependencies:
       '@wordpress/theme': 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+    transitivePeerDependencies:
+      - esbuild
+      - lightningcss
+      - stylelint
+      - vite
+
+  '@wordpress/build@0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme)':
+    dependencies:
+      '@wordpress/browserslist-config': 7.1.0
+      '@wordpress/style-runtime': 0.15.0
+      '@wordpress/theme-build-tools': 1.0.0(@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme)(postcss@8.5.23)
+      autoprefixer: 10.6.2(postcss@8.5.23)
+      browserslist: 4.28.9
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.9)
+      change-case: 4.1.2
+      chokidar: 4.0.3
+      cssnano: 7.1.9(postcss@8.5.23)
+      fast-glob: 3.3.3
+      moment-timezone: 0.5.48
+      postcss: 8.5.23
+      postcss-modules: 6.0.1(postcss@8.5.23)
+      rolldown: 1.3.0
+      rtlcss: 4.3.0
+      sass-embedded: 1.97.3
+    optionalDependencies:
+      '@wordpress/theme': https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme
     transitivePeerDependencies:
       - esbuild
       - lightningcss
@@ -23883,6 +23963,20 @@ snapshots:
       - '@date-fns/tz'
       - '@emotion/is-prop-valid'
       - '@types/react-dom'
+
+  '@wordpress/compose@9.1.0':
+    dependencies:
+      '@types/mousetrap': 1.6.15
+      '@wordpress/deprecated': 5.1.0
+      '@wordpress/dom': 5.1.0
+      '@wordpress/element': 10.1.0
+      '@wordpress/is-shallow-equal': 6.1.0
+      '@wordpress/keycodes': 5.1.0
+      '@wordpress/priority-queue': 4.1.0
+      '@wordpress/private-apis': 3.1.0
+      '@wordpress/undo-manager': 2.1.0
+      change-case: 4.1.2
+      mousetrap: 1.6.5
 
   '@wordpress/compose@9.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
@@ -24209,6 +24303,13 @@ snapshots:
       '@wordpress/deprecated': 5.1.0
       moment: 2.31.0
       moment-timezone: 0.5.48
+
+  '@wordpress/dependency-extraction-webpack-plugin@7.1.0(postcss@8.5.23)(webpack@5.112.2)':
+    dependencies:
+      json2php: 0.0.9
+      webpack: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
+    transitivePeerDependencies:
+      - postcss
 
   '@wordpress/dependency-extraction-webpack-plugin@7.1.0(webpack@5.112.2)':
     dependencies:
@@ -24554,6 +24655,12 @@ snapshots:
       - '@types/react-dom'
       - preact-render-to-string
 
+  '@wordpress/element@10.1.0':
+    dependencies:
+      '@wordpress/escape-html': 4.1.0
+      change-case: 4.1.2
+      is-plain-object: 5.1.0
+
   '@wordpress/element@10.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@wordpress/escape-html': 4.1.0
@@ -24822,6 +24929,12 @@ snapshots:
       '@wordpress/hooks': 5.1.0
       gettext-parser: 1.4.0
       tannin: 1.2.0
+
+  '@wordpress/icons@20.0.0':
+    dependencies:
+      '@wordpress/element': 10.1.0
+      '@wordpress/primitives': 5.1.0
+      change-case: 4.1.2
 
   '@wordpress/icons@20.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
@@ -25621,6 +25734,11 @@ snapshots:
     dependencies:
       prettier: wp-prettier@3.9.6
 
+  '@wordpress/primitives@5.1.0':
+    dependencies:
+      '@wordpress/element': 10.1.0
+      clsx: 2.1.1
+
   '@wordpress/primitives@5.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@wordpress/element': 10.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -25645,6 +25763,8 @@ snapshots:
       requestidlecallback: 0.3.0
 
   '@wordpress/private-apis@3.1.0': {}
+
+  '@wordpress/react-inert-value@2.1.0': {}
 
   '@wordpress/react-inert-value@2.1.0(@types/react@19.3.0)(react@19.3.0)':
     dependencies:
@@ -25866,7 +25986,7 @@ snapshots:
       postcss: 8.5.23
       stylelint: 17.14.1(typescript@6.0.3)
 
-  '@wordpress/theme-build-tools@1.0.0(postcss@8.5.23)':
+  '@wordpress/theme-build-tools@1.0.0(@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme)(postcss@8.5.23)':
     dependencies:
       '@babel/parser': 7.29.13
       '@babel/types': 7.29.11
@@ -25874,7 +25994,20 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.31
       magic-string: 0.30.21
     optionalDependencies:
+      '@wordpress/theme': https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme
       postcss: 8.5.23
+
+  '@wordpress/theme@4.0.0':
+    dependencies:
+      '@wordpress/compose': 9.1.0
+      '@wordpress/deprecated': 5.1.0
+      '@wordpress/element': 10.1.0
+      '@wordpress/private-apis': 3.1.0
+      '@wordpress/style-runtime': 0.15.0
+      colorjs.io: 0.7.1
+      memize: 2.1.1
+    transitivePeerDependencies:
+      - '@types/react-dom'
 
   '@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
@@ -25920,6 +26053,18 @@ snapshots:
     optionalDependencies:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
+    transitivePeerDependencies:
+      - '@types/react-dom'
+
+  '@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/theme':
+    dependencies:
+      '@wordpress/compose': 9.1.0
+      '@wordpress/deprecated': 5.1.0
+      '@wordpress/element': 10.1.0
+      '@wordpress/private-apis': 3.1.0
+      '@wordpress/style-runtime': 0.15.0
+      colorjs.io: 0.7.1
+      memize: 2.1.1
     transitivePeerDependencies:
       - '@types/react-dom'
 
@@ -26029,6 +26174,29 @@ snapshots:
       tabbable: 6.5.1
     optionalDependencies:
       '@types/react': 19.3.0
+    transitivePeerDependencies:
+      - '@date-fns/tz'
+      - '@types/react-dom'
+
+  '@wordpress/ui@https://codeload.github.com/WordPress/gutenberg/tar.gz/38bd7c4739dd33debdb4d7736327f178da122191#path:packages/ui':
+    dependencies:
+      '@base-ui/react': 1.9.0(date-fns@4.4.0)
+      '@daypicker/react': 10.0.2
+      '@wordpress/a11y': 5.1.0
+      '@wordpress/compose': 9.1.0
+      '@wordpress/element': 10.1.0
+      '@wordpress/i18n': 7.1.0
+      '@wordpress/icons': 20.0.0
+      '@wordpress/keycodes': 5.1.0
+      '@wordpress/primitives': 5.1.0
+      '@wordpress/private-apis': 3.1.0
+      '@wordpress/react-inert-value': 2.1.0
+      '@wordpress/style-runtime': 0.15.0
+      '@wordpress/theme': 4.0.0
+      '@wordpress/warning': 4.1.0
+      clsx: 2.1.1
+      date-fns: 4.4.0
+      tabbable: 6.5.1
     transitivePeerDependencies:
       - '@date-fns/tz'
       - '@types/react-dom'
@@ -30325,7 +30493,7 @@ snapshots:
   minimizer-webpack-plugin@5.14.0(clean-css@5.3.3)(webpack@5.112.2):
     dependencies:
       jest-worker: 27.5.1
-      schema-utils: 4.8.3(webpack@5.112.2)
+      schema-utils: 4.8.3(clean-css@5.3.3)(webpack@5.112.2)
       terser: 5.51.2
       webpack: 5.112.2(clean-css@5.3.3)(webpack-cli@7.2.1)
     optionalDependencies:
@@ -30334,7 +30502,7 @@ snapshots:
   minimizer-webpack-plugin@5.14.0(postcss@8.5.23)(sharp@0.35.5)(webpack@5.112.2):
     dependencies:
       jest-worker: 27.5.1
-      schema-utils: 4.8.3(webpack@5.112.2)
+      schema-utils: 4.8.3(postcss@8.5.23)(sharp@0.35.5)(webpack@5.112.2)
       terser: 5.51.2
       webpack: 5.112.2(postcss@8.5.23)(sharp@0.35.5)(webpack-cli@7.2.1)
     optionalDependencies:
@@ -30344,7 +30512,7 @@ snapshots:
   minimizer-webpack-plugin@5.14.0(postcss@8.5.23)(webpack@5.112.2):
     dependencies:
       jest-worker: 27.5.1
-      schema-utils: 4.8.3(webpack@5.112.2)
+      schema-utils: 4.8.3(postcss@8.5.23)(webpack@5.112.2)
       terser: 5.51.2
       webpack: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
     optionalDependencies:
@@ -30928,6 +31096,18 @@ snapshots:
     dependencies:
       lilconfig: 3.1.4
 
+  postcss-loader@8.2.0(postcss@8.5.23)(sharp@0.35.5)(webpack@5.112.2):
+    dependencies:
+      cosmiconfig: 9.0.2
+      jiti: 2.7.0
+      postcss: 8.5.23
+      semver: 7.7.3
+    optionalDependencies:
+      webpack: 5.112.2(postcss@8.5.23)(sharp@0.35.5)(webpack-cli@7.2.1)
+    transitivePeerDependencies:
+      - sharp
+      - typescript
+
   postcss-loader@8.2.0(postcss@8.5.23)(typescript@6.0.3)(webpack@5.112.2):
     dependencies:
       cosmiconfig: 9.0.2(typescript@6.0.3)
@@ -31255,6 +31435,11 @@ snapshots:
     dependencies:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
+
+  react-day-picker@10.0.2:
+    dependencies:
+      '@date-fns/tz': 1.5.0
+      date-fns: 4.4.0
 
   react-day-picker@10.0.2(@types/react@19.3.0)(react@19.3.0):
     dependencies:
@@ -31816,6 +32001,25 @@ snapshots:
       sass-embedded-win32-arm64: 1.97.3
       sass-embedded-win32-x64: 1.97.3
 
+  sass-loader@16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(sharp@0.35.5)(webpack@5.112.2):
+    dependencies:
+      neo-async: 2.6.2
+    optionalDependencies:
+      sass-embedded: 1.97.3
+      webpack: 5.112.2(postcss@8.5.23)(sharp@0.35.5)(webpack-cli@7.2.1)
+    transitivePeerDependencies:
+      - postcss
+      - sharp
+
+  sass-loader@16.0.5(postcss@8.5.23)(sass-embedded@1.97.3)(webpack@5.112.2):
+    dependencies:
+      neo-async: 2.6.2
+    optionalDependencies:
+      sass-embedded: 1.97.3
+      webpack: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
+    transitivePeerDependencies:
+      - postcss
+
   sass-loader@16.0.5(sass-embedded@1.97.3):
     dependencies:
       neo-async: 2.6.2
@@ -31836,6 +32040,40 @@ snapshots:
       xmlchars: 2.2.0
 
   scheduler@0.28.0: {}
+
+  schema-utils@4.8.3(clean-css@5.3.3)(webpack@5.112.2):
+    dependencies:
+      '@types/json-schema': 7.0.15
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      ajv-keywords: 5.1.0(ajv@8.20.0)
+    optionalDependencies:
+      webpack: 5.112.2(clean-css@5.3.3)(webpack-cli@7.2.1)
+    transitivePeerDependencies:
+      - clean-css
+
+  schema-utils@4.8.3(postcss@8.5.23)(sharp@0.35.5)(webpack@5.112.2):
+    dependencies:
+      '@types/json-schema': 7.0.15
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      ajv-keywords: 5.1.0(ajv@8.20.0)
+    optionalDependencies:
+      webpack: 5.112.2(postcss@8.5.23)(sharp@0.35.5)(webpack-cli@7.2.1)
+    transitivePeerDependencies:
+      - postcss
+      - sharp
+
+  schema-utils@4.8.3(postcss@8.5.23)(webpack@5.112.2):
+    dependencies:
+      '@types/json-schema': 7.0.15
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      ajv-keywords: 5.1.0(ajv@8.20.0)
+    optionalDependencies:
+      webpack: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
+    transitivePeerDependencies:
+      - postcss
 
   schema-utils@4.8.3(webpack@5.112.2):
     dependencies:
@@ -32707,7 +32945,7 @@ snapshots:
       unconfig-core: 7.5.0
       verkit: 0.5.0
     optionalDependencies:
-      '@tsdown/css': 0.23.7(sass-embedded@1.97.3)(tsdown@0.23.7)
+      '@tsdown/css': 0.23.7(sass-embedded@1.97.3)(tsdown@0.23.7)(typescript@6.0.3)
       typescript: 6.0.3
     transitivePeerDependencies:
       - '@volar/typescript'
@@ -32996,6 +33234,8 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
+  use-sync-external-store@1.7.0: {}
+
   use-sync-external-store@1.7.0(react@19.3.0):
     dependencies:
       react: 19.3.0
@@ -33127,6 +33367,65 @@ snapshots:
 
   webidl-conversions@8.0.1: {}
 
+  webpack-cli@7.2.1(clean-css@5.3.3)(webpack@5.112.2):
+    dependencies:
+      '@discoveryjs/json-ext': 1.1.0
+      commander: 14.0.3
+      cross-spawn: 7.0.6
+      envinfo: 7.21.0
+      import-local: 3.2.0
+      interpret: 3.1.1
+      rechoir: 0.8.0
+      webpack: 5.112.2(clean-css@5.3.3)(webpack-cli@7.2.1)
+      webpack-merge: 6.0.1
+    transitivePeerDependencies:
+      - clean-css
+
+  webpack-cli@7.2.1(postcss@8.5.23)(sharp@0.35.5)(webpack@5.112.2):
+    dependencies:
+      '@discoveryjs/json-ext': 1.1.0
+      commander: 14.0.3
+      cross-spawn: 7.0.6
+      envinfo: 7.21.0
+      import-local: 3.2.0
+      interpret: 3.1.1
+      rechoir: 0.8.0
+      webpack: 5.112.2(postcss@8.5.23)(sharp@0.35.5)(webpack-cli@7.2.1)
+      webpack-merge: 6.0.1
+    transitivePeerDependencies:
+      - postcss
+      - sharp
+
+  webpack-cli@7.2.1(postcss@8.5.23)(webpack-dev-server@6.0.0)(webpack@5.112.2):
+    dependencies:
+      '@discoveryjs/json-ext': 1.1.0
+      commander: 14.0.3
+      cross-spawn: 7.0.6
+      envinfo: 7.21.0
+      import-local: 3.2.0
+      interpret: 3.1.1
+      rechoir: 0.8.0
+      webpack: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
+      webpack-merge: 6.0.1
+    optionalDependencies:
+      webpack-dev-server: 6.0.0(postcss@8.5.23)(webpack-cli@7.2.1)(webpack@5.112.2)
+    transitivePeerDependencies:
+      - postcss
+
+  webpack-cli@7.2.1(postcss@8.5.23)(webpack@5.112.2):
+    dependencies:
+      '@discoveryjs/json-ext': 1.1.0
+      commander: 14.0.3
+      cross-spawn: 7.0.6
+      envinfo: 7.21.0
+      import-local: 3.2.0
+      interpret: 3.1.1
+      rechoir: 0.8.0
+      webpack: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
+      webpack-merge: 6.0.1
+    transitivePeerDependencies:
+      - postcss
+
   webpack-cli@7.2.1(webpack-dev-server@6.0.0)(webpack@5.112.2):
     dependencies:
       '@discoveryjs/json-ext': 1.1.0
@@ -33153,6 +33452,20 @@ snapshots:
       webpack: 5.112.2(webpack-cli@7.2.1)
       webpack-merge: 6.0.1
 
+  webpack-dev-middleware@8.6.0(postcss@8.5.23)(webpack@5.112.2):
+    dependencies:
+      memfs: 4.80.0
+      mime-db: 1.54.0
+      range-parser: 1.3.0
+      schema-utils: 4.8.3(postcss@8.5.23)(webpack@5.112.2)
+    optionalDependencies:
+      webpack: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
+      ws: 8.22.1
+    transitivePeerDependencies:
+      - bufferutil
+      - postcss
+      - utf-8-validate
+
   webpack-dev-middleware@8.6.0(webpack@5.112.2):
     dependencies:
       memfs: 4.80.0
@@ -33164,6 +33477,42 @@ snapshots:
       ws: 8.22.1
     transitivePeerDependencies:
       - bufferutil
+      - utf-8-validate
+
+  webpack-dev-server@6.0.0(postcss@8.5.23)(webpack-cli@7.2.1)(webpack@5.112.2):
+    dependencies:
+      '@types/bonjour': 3.5.13
+      '@types/connect-history-api-fallback': 1.5.4
+      '@types/express': 5.0.6
+      '@types/express-serve-static-core': 5.1.3
+      '@types/serve-index': 1.9.4
+      '@types/serve-static': 2.2.0
+      '@types/ws': 8.18.2
+      ansi-html-community: 0.0.8
+      bonjour-service: 1.4.4
+      chokidar: 5.0.0
+      compression: 1.8.2
+      connect-history-api-fallback: 2.0.0
+      express: 5.2.1
+      graceful-fs: 4.2.11
+      http-proxy-middleware: 4.2.1
+      ipaddr.js: 2.5.0
+      launch-editor: 2.14.2
+      open: 11.0.4
+      p-retry: 8.0.1
+      schema-utils: 4.8.3(postcss@8.5.23)(webpack@5.112.2)
+      selfsigned: 5.5.0
+      serve-index: 1.9.2
+      tinyglobby: 0.2.17
+      webpack-dev-middleware: 8.6.0(postcss@8.5.23)(webpack@5.112.2)
+      ws: 8.22.1
+    optionalDependencies:
+      webpack: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
+      webpack-cli: 7.2.1(postcss@8.5.23)(webpack-dev-server@6.0.0)(webpack@5.112.2)
+    transitivePeerDependencies:
+      - bufferutil
+      - postcss
+      - supports-color
       - utf-8-validate
 
   webpack-dev-server@6.0.0(webpack-cli@7.2.1)(webpack@5.112.2):
@@ -33226,12 +33575,12 @@ snapshots:
       graceful-fs: 4.2.11
       mime-db: 1.54.0
       minimizer-webpack-plugin: 5.14.0(clean-css@5.3.3)(webpack@5.112.2)
-      schema-utils: 4.8.3(webpack@5.112.2)
+      schema-utils: 4.8.3(clean-css@5.3.3)(webpack@5.112.2)
       tapable: 2.3.3
       watchpack: 2.6.4
       webpack-sources: 3.7.0
     optionalDependencies:
-      webpack-cli: 7.2.1(webpack@5.112.2)
+      webpack-cli: 7.2.1(clean-css@5.3.3)(webpack@5.112.2)
     transitivePeerDependencies:
       - '@minify-html/node'
       - '@napi-rs/image'
@@ -33265,12 +33614,12 @@ snapshots:
       graceful-fs: 4.2.11
       mime-db: 1.54.0
       minimizer-webpack-plugin: 5.14.0(postcss@8.5.23)(sharp@0.35.5)(webpack@5.112.2)
-      schema-utils: 4.8.3(webpack@5.112.2)
+      schema-utils: 4.8.3(postcss@8.5.23)(sharp@0.35.5)(webpack@5.112.2)
       tapable: 2.3.3
       watchpack: 2.6.4
       webpack-sources: 3.7.0
     optionalDependencies:
-      webpack-cli: 7.2.1(webpack@5.112.2)
+      webpack-cli: 7.2.1(postcss@8.5.23)(sharp@0.35.5)(webpack@5.112.2)
     transitivePeerDependencies:
       - '@minify-html/node'
       - '@napi-rs/image'
@@ -33304,12 +33653,12 @@ snapshots:
       graceful-fs: 4.2.11
       mime-db: 1.54.0
       minimizer-webpack-plugin: 5.14.0(postcss@8.5.23)(webpack@5.112.2)
-      schema-utils: 4.8.3(webpack@5.112.2)
+      schema-utils: 4.8.3(postcss@8.5.23)(webpack@5.112.2)
       tapable: 2.3.3
       watchpack: 2.6.4
       webpack-sources: 3.7.0
     optionalDependencies:
-      webpack-cli: 7.2.1(webpack@5.112.2)
+      webpack-cli: 7.2.1(postcss@8.5.23)(webpack@5.112.2)
     transitivePeerDependencies:
       - '@minify-html/node'
       - '@napi-rs/image'

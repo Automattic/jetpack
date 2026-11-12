@@ -30,6 +30,8 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
+		"@wordpress/theme": "github:WordPress/gutenberg#simison/design-system-agent-files-842d60&path:packages/theme",
+		"@wordpress/ui": "github:WordPress/gutenberg#simison/design-system-agent-files-842d60&path:packages/ui",
 		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*"

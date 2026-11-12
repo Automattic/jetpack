@@ -96,3 +96,34 @@ patchedDependencies:
   # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
   # even if upstream fixes init-module handling first.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
+
+# Link agent skills shipped by the Gutenberg design system packages into the agent skills directories.
+permissions:
+  '@wordpress/theme':
+    skills: true
+  '@wordpress/theme@git+https://github.com/WordPress/gutenberg.git':
+    skills: true
+  '@wordpress/ui':
+    skills: true
+  '@wordpress/ui@git+https://github.com/WordPress/gutenberg.git':
+    skills: true
+
+# Gutenberg links its packages with `file:` specs that only resolve in its own checkout, so use published versions.
+overrides:
+  '@wordpress/ui>@wordpress/a11y': '^5.1.0'
+  '@wordpress/ui>@wordpress/i18n': '^7.1.0'
+  '@wordpress/ui>@wordpress/icons': '^20.0.0'
+  '@wordpress/ui>@wordpress/theme': '^4.0.0'
+  '@wordpress/ui>@wordpress/compose': '^9.1.0'
+  '@wordpress/ui>@wordpress/element': '^10.1.0'
+  '@wordpress/ui>@wordpress/warning': '^4.1.0'
+  '@wordpress/ui>@wordpress/keycodes': '^5.1.0'
+  '@wordpress/ui>@wordpress/primitives': '^5.1.0'
+  '@wordpress/ui>@wordpress/private-apis': '^3.1.0'
+  '@wordpress/ui>@wordpress/style-runtime': '^0.15.0'
+  '@wordpress/ui>@wordpress/react-inert-value': '^2.1.0'
+  '@wordpress/theme>@wordpress/compose': '^9.1.0'
+  '@wordpress/theme>@wordpress/element': '^10.1.0'
+  '@wordpress/theme>@wordpress/deprecated': '^5.1.0'
+  '@wordpress/theme>@wordpress/private-apis': '^3.1.0'
+  '@wordpress/theme>@wordpress/style-runtime': '^0.15.0'
