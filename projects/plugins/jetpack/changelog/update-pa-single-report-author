@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Premium Analytics: Serve the author page from /report/author/<id>, opening on All time like the post and video pages; the old /author/<id> address redirects.
+Premium Analytics: Serve the author page from /report/author/<id>; the old /author/<id> address redirects.

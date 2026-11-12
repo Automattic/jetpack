@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Single-report pages: Serve the author page from /report/author/<id>, rendered from its registered record and opening on All time like the post and video pages; the old /author/<id> address redirects.
+Single-report pages: Serve the author page from /report/author/<id>, rendered from its registered record; the old /author/<id> address redirects.
