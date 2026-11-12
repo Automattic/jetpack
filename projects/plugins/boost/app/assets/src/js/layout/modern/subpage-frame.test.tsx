@@ -49,7 +49,7 @@ describe( 'SubpageFrame', () => {
 			.spyOn( HTMLElement.prototype, 'getBoundingClientRect' )
 			.mockImplementation( function ( this: HTMLElement ) {
 				return {
-					width: this.tagName === 'OL' ? 320 : 100,
+					width: this.tagName === 'OL' ? 250 : 100,
 					height: 20,
 					top: 0,
 					left: 0,
@@ -72,7 +72,7 @@ describe( 'SubpageFrame', () => {
 			act( () => trigger.focus() );
 			// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
 			fireEvent.click( trigger );
-			const menuItem = await screen.findByRole( 'menuitem', { name: 'Jetpack' } );
+			const menuItem = await screen.findByRole( 'menuitem', { name: 'Boost' } );
 			// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
 			fireEvent.keyDown( menuItem, { key: 'Escape', code: 'Escape' } );
 			await waitFor( () => expect( trigger ).toHaveFocus() );
@@ -90,35 +90,25 @@ describe( 'SubpageFrame', () => {
 		}
 	} );
 
-	it.each( [ true, false ] )(
-		'renders one trail and heading with My Jetpack available: %s',
-		myJetpack => {
-			const title = 'Cache debug log';
-			Object.assign( window, {
-				wpApiSettings: { root: '/wp-json/', nonce: 'test' },
-				Jetpack_Boost: { site: { myJetpack } },
-			} );
-			render(
-				<BoostPage isSubpage subpage={ <SubpageFrame title={ title }>content</SubpageFrame> }>
-					dashboard
-				</BoostPage>
-			);
-			expect( screen.getAllByRole( 'navigation', { name: 'Breadcrumbs' } ) ).toHaveLength( 1 );
-			expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
-			expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( title );
-			expect( screen.queryAllByRole( 'link', { name: 'Jetpack' } ) ).toHaveLength(
-				myJetpack ? 1 : 0
-			);
-			expect( screen.getByRole( 'link', { name: 'Boost' } ) ).toHaveAttribute(
-				'href',
-				'?page=jetpack-boost&p=%2F%3Ftab%3Dsettings'
-			);
-			expect(
-				screen.getByText( title, { selector: '[aria-current="page"]' } )
-			).toBeInTheDocument();
-			// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
-			fireEvent.click( screen.getByRole( 'link', { name: 'Boost' } ) );
-			expect( mockBackToSettings ).toHaveBeenCalledTimes( 1 );
-		}
-	);
+	it( 'starts the trail at Boost, which returns to Settings', () => {
+		const title = 'Cache debug log';
+		Object.assign( window, { wpApiSettings: { root: '/wp-json/', nonce: 'test' } } );
+		render(
+			<BoostPage isSubpage subpage={ <SubpageFrame title={ title }>content</SubpageFrame> }>
+				dashboard
+			</BoostPage>
+		);
+		expect( screen.getAllByRole( 'navigation', { name: 'Breadcrumbs' } ) ).toHaveLength( 1 );
+		expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( title );
+		expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Boost' } ) ).toHaveAttribute(
+			'href',
+			'?page=jetpack-boost&p=%2F%3Ftab%3Dsettings'
+		);
+		expect( screen.getByText( title, { selector: '[aria-current="page"]' } ) ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
+		fireEvent.click( screen.getByRole( 'link', { name: 'Boost' } ) );
+		expect( mockBackToSettings ).toHaveBeenCalledTimes( 1 );
+	} );
 } );

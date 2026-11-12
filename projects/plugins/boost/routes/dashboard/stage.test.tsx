@@ -140,29 +140,18 @@ describe( 'Boost dashboard stage', () => {
 	it.each( [
 		[ 'Overview', '' ],
 		[ 'Settings', SETTINGS_ARG ],
-	] )( 'keeps the Boost title on %s when My Jetpack is unavailable', ( _page, query ) => {
-		Object.assign( window, { Jetpack_Boost: { site: { myJetpack: false } } } );
-		window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
-		render( <Stage /> );
+	] )(
+		'titles the %s page "Boost", with no breadcrumbs, when My Jetpack is available',
+		( _page, query ) => {
+			window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
+			render( <Stage /> );
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Boost' );
-		expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
-		expect( screen.queryByRole( 'navigation', { name: 'Breadcrumbs' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders the Jetpack › Boost trail with one h1', () => {
-		render( <Stage /> );
-		expect( screen.getByRole( 'link', { name: 'Jetpack' } ) ).toHaveAttribute(
-			'href',
-			'admin.php?page=my-jetpack'
-		);
-		expect(
-			screen.getByText( 'Boost', { selector: '[aria-current="page"]' } )
-		).toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Boost' } ) ).not.toBeInTheDocument();
-		expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
-	} );
+			expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Boost' );
+			expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
+			expect( screen.queryByRole( 'navigation', { name: 'Breadcrumbs' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it.each( [ '', SETTINGS_ARG, '&tab=settings', '&p=%2F%3Ftab%3Doverview' ] )(
 		'renders one page for %s and scrolls to its destination',
