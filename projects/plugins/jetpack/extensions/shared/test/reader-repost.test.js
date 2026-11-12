@@ -939,7 +939,7 @@ describe( 'reader-repost with the block-editor provider', () => {
 			delayed: false,
 			replacement: 'allowed',
 			expectedName: 'core/embed',
-			expectedWarning: undefined,
+			expectedWarning: embedFailureExplanation,
 		},
 		...failedEmbedCases.map( expected => ( { delayed: true, ...expected } ) ),
 	] )( 'handles cloned IDs and replacement permissions: %j', async ( { delayed, ...expected } ) => {

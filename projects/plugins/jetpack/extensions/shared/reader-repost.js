@@ -304,21 +304,22 @@ if ( safeUrl ) {
 					blockEditor.getBlockParentsByBlockName( clientId, 'core/query' ).length === 0
 				);
 			} );
-			if ( candidates.length !== 1 ) {
+			if ( candidates.length > 1 ) {
 				return;
 			}
-			currentBlock = blockEditor.getBlock( candidates[ 0 ] );
+			currentBlock = candidates.length === 1 ? blockEditor.getBlock( candidates[ 0 ] ) : null;
 		}
 
 		if (
-			currentBlock.name !== 'core/embed' ||
-			! previewUrls.includes( currentBlock.attributes.url )
+			currentBlock &&
+			( currentBlock.name !== 'core/embed' ||
+				! previewUrls.includes( currentBlock.attributes.url ) )
 		) {
 			return;
 		}
 
 		let linkAdded = false;
-		if ( blockEditor.canRemoveBlock( currentBlock.clientId ) ) {
+		if ( currentBlock && blockEditor.canRemoveBlock( currentBlock.clientId ) ) {
 			const paragraph = createBlock( 'core/paragraph', {
 				content: `<a href="${ escapeAttribute( safeUrl ) }">${ escapeHTML( safeUrl ) }</a>`,
 			} );
