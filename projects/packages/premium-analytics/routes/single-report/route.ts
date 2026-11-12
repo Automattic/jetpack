@@ -98,7 +98,7 @@ export const route = {
 					};
 				},
 				needsSeed: needsScopeSeed || needsSectionSeed,
-				// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
+				// An arrival opens on a window the reader picked elsewhere, not here, so it gets no notice.
 				requested: needsScopeSeed ? undefined : currentSearch,
 			}
 		);
