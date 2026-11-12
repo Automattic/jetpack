@@ -2034,9 +2034,9 @@
 			var parent = el.parentElement;
 			var grandparent = parent ? parent.parentElement : null;
 
-			// If Gallery is made up of individual Image blocks check for custom link before
-			// loading carousel. The custom link may be the parent or could be a descendant
-			// of the parent if the image has rounded corners.
+			// If Gallery is made up of individual Image blocks, or is a Tiled Gallery, check for a
+			// custom link before loading carousel. An Image block's link may be the parent or a
+			// descendant of the parent if the image has rounded corners.
 			var parentHref = null;
 			if ( grandparent && grandparent.classList.contains( 'wp-block-image' ) ) {
 				parentHref = parent.getAttribute( 'href' );
@@ -2046,6 +2046,12 @@
 				parent.querySelector( ':scope > a' )
 			) {
 				parentHref = parent.querySelector( ':scope > a' ).getAttribute( 'href' );
+			} else if (
+				grandparent &&
+				grandparent.classList.contains( 'tiled-gallery__item' ) &&
+				parent.tagName === 'A'
+			) {
+				parentHref = parent.getAttribute( 'href' );
 			}
 
 			// If the link does not point to the attachment or media file then assume Image has
@@ -2054,8 +2060,16 @@
 				var cleanHref = normalizeUrl( parentHref );
 				var cleanOrig = normalizeUrl( el.getAttribute( 'data-orig-file' ) );
 				var cleanPerm = normalizeUrl( el.getAttribute( 'data-permalink' ) );
+				// Tiled Gallery saves its media file and attachment page URLs in data-url and data-link.
+				var cleanUrl = normalizeUrl( el.getAttribute( 'data-url' ) );
+				var cleanLink = normalizeUrl( el.getAttribute( 'data-link' ) );
 
-				if ( cleanHref !== cleanOrig && cleanHref !== cleanPerm ) {
+				if (
+					cleanHref !== cleanOrig &&
+					cleanHref !== cleanPerm &&
+					cleanHref !== cleanUrl &&
+					cleanHref !== cleanLink
+				) {
 					return false;
 				}
 			}
