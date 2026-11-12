@@ -21,9 +21,14 @@ jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 	} ),
 } ) );
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getJetpackAdminPageUrl: () => 'https://example.org/wp-admin/admin.php?page=jetpack',
+	getMyJetpackUrl: () => 'https://example.org/wp-admin/admin.php?page=my-jetpack',
+} ) );
+
 let mockRunFreeCheckout: jest.Mock;
 jest.mock( '@automattic/jetpack-connection', () => ( {
-	getUserConnectionUrl: () => 'https://example.org/connect',
+	...jest.requireActual( '@automattic/jetpack-connection' ),
 	useProductCheckoutWorkflow: () => ( { run: mockRunFreeCheckout } ),
 } ) );
 
@@ -148,6 +153,23 @@ describe( 'usePricingData activation routing', () => {
 		const { result } = renderHook( () => usePricingData( 'search' ) );
 
 		expect( result.current.isActivating ).toBe( true );
+	} );
+} );
+
+describe( 'usePricingData connect link', () => {
+	test( 'a recommendation sends its own name and returns to the current page', () => {
+		mockUseProduct.mockReturnValue(
+			productState(
+				featureDetail( { slug: 'stats', status: PRODUCT_STATUSES.USER_CONNECTION_ERROR } )
+			)
+		);
+
+		const { result } = renderHook( () => usePricingData( 'stats' ) );
+		const { href } = result.current.primaryAction as { href: string };
+		const params = new URL( href ).searchParams;
+
+		expect( params.get( 'from' ) ).toBe( 'my_jetpack_recommendations_stats' );
+		expect( params.get( 'redirect_after_auth' ) ).toBe( window.location.href );
 	} );
 } );
 

@@ -17,7 +17,11 @@ jest.mock( 'react-router', () => ( {
 jest.mock( '../../../data/products/use-activate-plugins', () => () => ( {} ) );
 jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../hooks/use-go-back', () => ( { useGoBack: () => ( {} ) } ) );
-jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( {} ) );
+const mockUseMyJetpackConnection = jest.fn( () => ( {} ) );
+jest.mock(
+	'../../../hooks/use-my-jetpack-connection',
+	() => options => mockUseMyJetpackConnection( options )
+);
 jest.mock( '../../../hooks/use-my-jetpack-navigate', () => () => jest.fn() );
 jest.mock( '../../go-back-link', () => () => null );
 jest.mock( '../../my-jetpack-tab-panel/utils', () => ( {
@@ -153,3 +157,13 @@ it.each( [
 		);
 	}
 );
+
+it( 'registers the site with the product name', () => {
+	useProduct.mockImplementation( slug => ( {
+		detail: { title: slug, isUpgradableByBundle: [], pricingForUi: { available: true } },
+	} ) );
+	render( <ProductInterstitial slug="scan" bundle="security" /> );
+	expect( mockUseMyJetpackConnection ).toHaveBeenLastCalledWith(
+		expect.objectContaining( { from: 'my_jetpack_products_scan' } )
+	);
+} );
