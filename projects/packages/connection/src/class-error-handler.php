@@ -424,15 +424,16 @@ class Error_Handler {
 							} else {
 								$next = __( 'If you connect your account instead, you can become the new connection owner.', 'jetpack-connection' );
 							}
-							$message = $lead . ' ' . $next;
+							$message = self::join_owner_error_sentences( $lead, $next );
 							$action  = 'connect_user';
 						} elseif ( $viewer_can_take_slot ) {
 							// Restore relinks this admin. The copy promises only the ownership change, never the disconnects a full reconnect adds.
-							$message = $lead
-								. ' '
-								. ( $owner_deleted
+							$message = self::join_owner_error_sentences(
+								$lead,
+								$owner_deleted
 									? __( 'If you reconnect, you can become the new connection owner.', 'jetpack-connection' )
-									: __( 'If you reconnect instead, you can become the new connection owner.', 'jetpack-connection' ) );
+									: __( 'If you reconnect instead, you can become the new connection owner.', 'jetpack-connection' )
+							);
 						} else {
 							// Reconnecting would only link this admin, so only the owner can fix it.
 							$message = $lead;
@@ -923,6 +924,26 @@ class Error_Handler {
 				$owner_name
 			)
 			: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
+	}
+
+	/**
+	 * Joins the owner-error lead with the sentence saying what the viewer can do.
+	 *
+	 * Translatable, since not every language separates sentences with a space.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $lead What is wrong with the owner's connection.
+	 * @param string $next What the viewer can do about it.
+	 * @return string
+	 */
+	private static function join_owner_error_sentences( $lead, $next ) {
+		return sprintf(
+			/* translators: Joins two sentences of a connection error notice. 1: What is wrong with the connection owner's connection. 2: What the viewer can do about it. */
+			__( '%1$s %2$s', 'jetpack-connection' ),
+			$lead,
+			$next
+		);
 	}
 
 	/**

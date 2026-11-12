@@ -4868,6 +4868,8 @@ endif;
 
 		// A change of owner on a set-up site needs no module reset, which costs a blocking Tracks request per module.
 		if ( $had_connected_owner && ! $activate_sso && Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
+			// Still cleared, as handle_post_authorization_actions() would.
+			Identity_Crisis::clear_all_idc_options();
 			self::state( 'message', 'authorized' );
 			return;
 		}

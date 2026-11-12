@@ -101,6 +101,7 @@ class Initial_State_Test extends TestCase {
 			'connectionErrors'           => Error_Handler::get_instance()->get_displayable_errors(),
 			'isOfflineMode'              => ( new Status() )->is_offline_mode(),
 			'calypsoEnv'                 => 'wpcalypso',
+			'isOwnershipTransferable'    => ( new Manager() )->is_ownership_transferable(),
 			'canTakeOwnerSlot'           => ( new Manager() )->can_take_owner_slot(),
 			'connectionOwner'            => null,
 			'hasProtectedOwner'          => null,
