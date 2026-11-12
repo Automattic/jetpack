@@ -26,8 +26,6 @@
 		var(--wpds-border-width-focus);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-xs);
-	// Not inherited from `WidgetRoot`.
-	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: var(--wpds-typography-line-height-xs);
 	text-transform: uppercase;
 }

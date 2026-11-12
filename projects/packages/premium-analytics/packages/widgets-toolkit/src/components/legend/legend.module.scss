@@ -15,8 +15,6 @@
 }
 
 .label {
-	// Not inherited from `WidgetRoot`.
-	font-weight: var(--wpds-typography-font-weight-default);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;

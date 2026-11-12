@@ -146,11 +146,10 @@ $hover-reserve: var(--wpds-dimension-gap-2xl);
 	justify-items: end;
 }
 
-// A host can raise the row text weight; it defaults to the design system's.
 .label,
 .value,
 .deltaValue {
-	font-weight: var(--a8c-charts-font-weight-leaderboard, var(--wpds-typography-font-weight-default));
+	font-weight: var(--a8c-charts-font-weight-leaderboard);
 }
 
 .deltaValue {

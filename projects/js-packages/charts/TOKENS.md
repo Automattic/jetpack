@@ -155,6 +155,7 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-dimension-leaderboard-label-inset` | `--wpds-dimension-padding-sm` | `8px` |
 | `--a8c-charts-dimension-legend-column-gap` | `--wpds-dimension-gap-lg` | `16px` |
 | `--a8c-charts-dimension-legend-row-gap` | `--wpds-dimension-gap-sm` | `8px` |
+| `--a8c-charts-font-weight-leaderboard` | `--wpds-typography-font-weight-default` | `400` |
 | `--a8c-charts-elevation-xs` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003` |
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
 

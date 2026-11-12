@@ -1,14 +1,10 @@
 @use "../../styles/widget-container" as *;
-@use "../../styles/widget-text" as *;
 
 .root {
 
 	@extend %widget-container;
 
-	// Classic Stats weight. Plain text inherits it; design system text opts in
-	// with `widget-text-weight`, and the charts leaderboard with its variable.
-	--jetpack-premium-analytics-widget-font-weight: 500;
-	--a8c-charts-font-weight-leaderboard: var(--jetpack-premium-analytics-widget-font-weight);
-
-	@include widget-text-weight;
+	// Not inherited: only text that opts in with `widget-text-weight` reads it.
+	--jpa-widget-font-weight: 500;
+	--a8c-charts-font-weight-leaderboard: var(--jpa-widget-font-weight);
 }

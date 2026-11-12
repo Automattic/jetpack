@@ -14,7 +14,7 @@ Dashboard widgets are ES Modules loaded asynchronously via lazy-load. This means
 - **ChartsProvider** - Chart theme, site formatting and light tooltips
 - **Report params resolution** - From widget attributes or URL fallback
 - **Context provider** - Child widgets access resolved params via `useWidgetRootContext()`
-- **Text weight** - Widget text reads at 500 through `--jetpack-premium-analytics-widget-font-weight`. Plain text inherits it; design system text, which reads its own token, opts in with the `widget-text-weight` mixin. Column headers and legends set the design system weight to stay regular
+- **Text weight** - Sets `--jpa-widget-font-weight` (500) without applying it. Text opts in with the `widget-text-weight` mixin, and the charts leaderboard through `--a8c-charts-font-weight-leaderboard`; everything else keeps the design system weight
 
 ## Usage
 
