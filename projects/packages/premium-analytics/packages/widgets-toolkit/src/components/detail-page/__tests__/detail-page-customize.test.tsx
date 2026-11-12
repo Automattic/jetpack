@@ -2,7 +2,12 @@ import analytics from '@automattic/jetpack-analytics';
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { act, render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { DetailPageActions, useDetailPageCustomize } from '../detail-page-customize';
+import { useViewportMatch } from '@wordpress/compose';
+import {
+	CustomizingBadge,
+	DetailPageActions,
+	useDetailPageCustomize,
+} from '../detail-page-customize';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 jest.mock(
@@ -15,6 +20,10 @@ jest.mock(
 		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useViewportMatch: jest.fn( () => false ),
+} ) );
 
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 
@@ -27,6 +36,7 @@ describe( 'detail-page-customize', () => {
 		jest.clearAllMocks();
 		jest.mocked( getScriptData ).mockReturnValue( {} as ReturnType< typeof getScriptData > );
 		jest.mocked( currentUserCan ).mockReturnValue( false );
+		jest.mocked( useViewportMatch ).mockReturnValue( false );
 	} );
 
 	describe( 'useDetailPageCustomize', () => {
@@ -136,6 +146,16 @@ describe( 'detail-page-customize', () => {
 			expect( result.current.canCustomize ).toBe( false );
 			act( () => result.current.startCustomizing() );
 			expect( result.current.isCustomizing ).toBe( false );
+		} );
+	} );
+
+	describe( 'CustomizingBadge', () => {
+		it( 'leaves the Customizing badge out on a phone', () => {
+			jest.mocked( useViewportMatch ).mockReturnValue( true );
+
+			render( <CustomizingBadge /> );
+
+			expect( screen.queryByText( 'Customizing' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

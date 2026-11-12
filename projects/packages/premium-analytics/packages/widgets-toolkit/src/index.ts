@@ -128,6 +128,7 @@ export {
 	type SubscriberListSkeletonProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	CustomizingBadge,
 	DetailPageActions,
 	useDetailPageCustomize,
 	type DetailPageActionsProps,
