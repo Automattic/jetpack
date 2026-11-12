@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-unresolved -- Core's script module, mocked below.
 import { speak } from '@wordpress/a11y';
-import { announcePage } from '../../../src/admin-shell/chrome';
+import { announcePage, menuLabel } from '../../../src/admin-shell/chrome';
 
 jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ), { virtual: true } );
 
@@ -14,5 +14,14 @@ describe( 'announcePage', () => {
 			[ 'Jetpack Forms ‹ Site — WordPress', 'polite' ],
 			[ 'My Jetpack ‹ Site — WordPress', 'polite' ],
 		] );
+	} );
+} );
+
+describe( 'menuLabel', () => {
+	it( 'reads the sidebar label without its count badge', () => {
+		document.body.innerHTML =
+			'<ul id="adminmenu"><li><ul class="wp-submenu"><li><a href="admin.php?page=forms">Forms <span class="menu-counter"><span class="count">3</span></span></a></li></ul></li></ul>';
+
+		expect( menuLabel( 'forms' ) ).toBe( 'Forms' );
 	} );
 } );

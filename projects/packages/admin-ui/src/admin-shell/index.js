@@ -11,7 +11,7 @@ import {
 	transitionSettled,
 } from './adapter';
 import { createApp, whenRendered } from './app';
-import { announcePage, pageOf, updateChrome } from './chrome';
+import { announcePage, menuLabel, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
 import { applyGuestAssets } from './guest-assets';
 import { configureHeaders, rememberHeader, removeHeader, showHeader } from './header';
@@ -122,6 +122,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		app.to( 'ready' );
 		app.place( visible === app.slug );
 		rememberHeader( app.slug, app.el );
+		// Tab bars and actions often render just after the heading.
+		setTimeout( () => visible === app.slug && rememberHeader( app.slug, app.el ), 1000 );
 	};
 
 	const bootGuest = async slug => {
@@ -136,7 +138,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			apps.delete( slug );
 			el.remove();
 		};
-		const removeStandIn = showHeader( slug, el );
+		const removeStandIn = showHeader( slug, el, menuLabel( slug ) ?? members[ slug ].title );
 
 		try {
 			const waited = stopwatch();
@@ -313,7 +315,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	trackOverlays( () => visible );
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
-	const removeHostHeader = showHeader( host, hostEl );
+	const removeHostHeader = showHeader( host, hostEl, menuLabel( host ) ?? members[ host ].title );
 	gate.mount( host );
 	log( 'host', `${ host } boots from the page load` );
 	whenRendered( hostEl, 30000 )

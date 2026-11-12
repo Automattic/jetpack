@@ -1,13 +1,14 @@
 /*
- * A stand-in for a page's header, drawn the moment the page is opened and removed once its app
- * renders the real one. Each page's header, and the CSS it uses, is saved whenever it is on
- * screen: the dashboards add most of their CSS from JavaScript, which hasn't run yet.
+ * A stand-in for a page, drawn the moment the page is opened and removed once its app renders:
+ * its saved header and tabs, or another page's header with its title. Each page's header, and
+ * the CSS it uses, is saved whenever it is on screen: the dashboards add most of their CSS from
+ * JavaScript, which hasn't run yet.
  */
 import { log } from './debug';
 
 const KEY_ROOT = 'jetpack-admin-shell-header:';
 // The longest a stand-in stays up: an app showing no page heading would otherwise stay hidden.
-const STAND_IN_TIMEOUT = 3000;
+const STAND_IN_TIMEOUT = 8000;
 
 let keyPrefix = KEY_ROOT;
 const storageKey = slug => keyPrefix + slug;
@@ -33,6 +34,10 @@ export function configureHeaders( prefix ) {
 		// Blocked storage: nothing was saved either.
 	}
 }
+
+// `JetpackLogo` from `@automattic/jetpack-components`, as dashboard headers render it.
+const JETPACK_LOGO =
+	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" height="20" class="jetpack-logo" aria-hidden="true"><path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"/></svg>';
 
 // Stand-ins on screen, by page.
 const standIns = new Map();
@@ -62,15 +67,30 @@ export function removeHeader( slug ) {
 	}
 }
 
-// The app's page wrappers, empty, around a copy of its header.
+// A copy of the parts of `node` that hold one of `keep`, and of each kept element whole.
+const pruned = ( node, keep ) => {
+	const copy = node.cloneNode( false );
+	for ( const child of node.children ) {
+		if ( keep.includes( child ) ) {
+			copy.append( child.cloneNode( true ) );
+		} else if ( keep.some( kept => child.contains( kept ) ) ) {
+			copy.append( pruned( child, keep ) );
+		}
+	}
+	return copy;
+};
+
+// The app's page wrappers, empty, around a copy of its header and tab bar.
 const frameOf = el => {
 	const h1 = el.querySelector( 'h1' );
 	const page = h1?.closest( '.admin-ui-navigable-region' );
 	if ( ! page || ! el.contains( page ) ) {
 		return null;
 	}
-	let frame = [ ...page.children ].find( child => child.contains( h1 ) ).cloneNode( true );
-	for ( let node = page; node !== el; node = node.parentElement ) {
+	const header = [ ...page.children ].find( child => child.contains( h1 ) );
+	const keep = [ header, page.querySelector( '[role="tablist"]' ) ].filter( Boolean );
+	let frame = pruned( page, keep );
+	for ( let node = page.parentElement; node !== el; node = node.parentElement ) {
 		const wrapper = node.cloneNode( false );
 		wrapper.append( frame );
 		frame = wrapper;
@@ -174,16 +194,60 @@ export function rememberHeader( slug, el ) {
 	} );
 }
 
+// Never opened in this browser: another page's saved frame, stripped to a header with this title.
+const borrowed = ( slug, title ) => {
+	let saved;
+	try {
+		// Only a standard page header: a custom one's styles don't survive having its parts taken out.
+		saved = Object.keys( localStorage )
+			.filter( key => key.startsWith( keyPrefix ) )
+			.map( key => ( {
+				...JSON.parse( localStorage.getItem( key ) ),
+				from: key.slice( keyPrefix.length ),
+			} ) )
+			.find( entry => entry.html?.includes( '__header-title' ) );
+	} catch {
+		return null;
+	}
+	if ( ! saved?.html || ! title ) {
+		return null;
+	}
+	const template = document.createElement( 'template' );
+	template.innerHTML = saved.html;
+	const h1 = template.content.querySelector( 'h1' );
+	if ( ! h1 ) {
+		return null;
+	}
+	template.content
+		.querySelectorAll(
+			'[role="tablist"], [class*="__header-actions"], [class*="__header-subtitle"]'
+		)
+		.forEach( node => node.remove() );
+	h1.textContent = title;
+	// Every Jetpack page header shows the Jetpack logo, whatever icon the borrowed page had.
+	let visual = template.content.querySelector( '[class*="__header-visual"]' );
+	if ( ! visual ) {
+		visual = document.createElement( 'div' );
+		visual.style.cssText = 'display:grid;flex-shrink:0;width:24px;height:24px;place-items:center';
+		h1.before( visual );
+	}
+	visual.innerHTML = JETPACK_LOGO;
+	// Dashboards scope their page layout to WordPress's per-page body class, which is now this page's.
+	const css = saved.css?.replaceAll( `jetpack_page_${ saved.from }`, `jetpack_page_${ slug }` );
+	return { html: template.innerHTML, css };
+};
+
 /**
- * Show a page's saved header in front of its app until the app renders.
+ * Show a stand-in for a page in front of its app until the app renders.
  *
- * @param {string}      slug - Page being opened.
- * @param {HTMLElement} el   - Its mount element; the stand-in goes right before it.
+ * @param {string}      slug  - Page being opened.
+ * @param {HTMLElement} el    - Its mount element; the stand-in goes right before it.
+ * @param {string}      title - Page heading, for a page whose header has never been saved.
  * @return {Function} Removes the stand-in.
  */
-export function showHeader( slug, el ) {
-	const { html, css } = readSaved( slug ) ?? {};
-	// No borrowing another page's header: its title and layout differ, so the real one would jump.
+export function showHeader( slug, el, title ) {
+	const saved = readSaved( slug );
+	const { html, css } = saved ?? borrowed( slug, title ) ?? {};
 	if ( ! html ) {
 		log( 'header', `no saved header for ${ slug }` );
 		return () => {};
@@ -204,7 +268,7 @@ export function showHeader( slug, el ) {
 	el.before( standIn );
 	// The empty mount can be styled as a blank page that would cover the stand-in.
 	el.style.visibility = 'hidden';
-	log( 'header', `showing the saved header for ${ slug }` );
+	log( 'header', `showing ${ saved ? 'its saved' : 'a borrowed' } header for ${ slug }` );
 
 	removeHeader( slug );
 	const entry = { standIn, el, timer: 0 };

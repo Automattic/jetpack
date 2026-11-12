@@ -38,6 +38,36 @@ describe( 'header stand-in', () => {
 		expect( standIn.querySelector( 'iframe, script' ) ).toBeNull();
 	} );
 
+	it( 'borrows another page’s header, with this page’s title, the Jetpack logo and none of its tabs or actions', () => {
+		save(
+			'forms',
+			'<div class="admin-ui-navigable-region"><header><h1 class="x__header-title">Forms</h1><div class="x__header-actions">New</div></header><div role="tablist">Tabs</div></div>'
+		);
+
+		showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter' );
+
+		const standIn = document.querySelector( '[data-shell-header="newsletter"]' );
+		expect( standIn.querySelector( 'h1' ) ).toHaveTextContent( 'Newsletter' );
+		expect( standIn ).not.toHaveTextContent( /New\b|Tabs/ );
+		expect( standIn.querySelector( 'svg.jetpack-logo' ) ).not.toBeNull();
+	} );
+
+	it( 'moves a borrowed header’s page-scoped styles to the page being opened', () => {
+		localStorage.setItem(
+			PREFIX + 'forms',
+			JSON.stringify( {
+				html: '<div class="admin-ui-navigable-region"><header><h1 class="x__header-title">Forms</h1></header></div>',
+				css: 'body.jetpack_page_forms .jp-admin-page{margin:0}',
+			} )
+		);
+
+		showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter' );
+
+		expect( document.querySelector( '[data-shell-header="newsletter"] style' ) ).toHaveTextContent(
+			'body.jetpack_page_newsletter .jp-admin-page{margin:0}'
+		);
+	} );
+
 	it( 'gives the app back after a few seconds, even if it never shows a heading', () => {
 		jest.useFakeTimers();
 		save( 'forms', '<div><h1>Forms</h1></div>' );
@@ -45,7 +75,7 @@ describe( 'header stand-in', () => {
 
 		showHeader( 'forms', app );
 		expect( app ).toHaveStyle( { visibility: 'hidden' } );
-		jest.advanceTimersByTime( 3000 );
+		jest.advanceTimersByTime( 8000 );
 
 		expect( document.querySelector( '[data-shell-header]' ) ).toBeNull();
 		expect( app ).not.toHaveStyle( { visibility: 'hidden' } );
