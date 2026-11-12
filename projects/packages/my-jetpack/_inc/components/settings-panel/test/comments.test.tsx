@@ -39,12 +39,6 @@ const build = ( overrides: Partial< MyJetpackModule > = {} ) =>
 		...overrides,
 	} ) as unknown as MyJetpackModule;
 
-const setBlocksAvailable = ( isCommentBlocksAvailable?: boolean ) => {
-	window.JetpackScriptData = {
-		jetpack: { isCommentBlocksAvailable },
-	} as unknown as typeof window.JetpackScriptData;
-};
-
 const blocksSwitch = () => screen.queryByRole( 'switch', { name: 'Enable blocks in comments' } );
 const introField = () => screen.getByRole( 'textbox', { name: 'Comment form introduction' } );
 const posts = () => mockFetch.mock.calls.map( ( [ options ] ) => options.data );
@@ -52,21 +46,25 @@ const posts = () => mockFetch.mock.calls.map( ( [ options ] ) => options.data );
 beforeEach( () => {
 	jest.clearAllMocks();
 	mockFetch.mockResolvedValue( {} );
-	setBlocksAvailable( true );
-} );
-
-afterEach( () => {
-	delete window.JetpackScriptData;
 } );
 
 describe( 'CommentsSettings', () => {
 	it.each( [
-		[ 'offers', 'the plugin says they work', true, true ],
-		[ 'hides', 'the plugin says they do not', false, false ],
-		[ 'hides', 'an older plugin says nothing', undefined, false ],
-	] )( '%s the blocks option when %s', ( _verb, _when, available, shown ) => {
-		setBlocksAvailable( available );
-		render( <CommentsSettings module={ build() } disabled={ false } /> );
+		[ 'offers', 'Jetpack sends it', {}, true ],
+		[
+			'hides',
+			'an older Jetpack leaves it out',
+			{ options: { highlander_comment_form_prompt: { current_value: '' } } },
+			false,
+		],
+		[ 'hides', 'Jetpack sends no options', { options: [] }, false ],
+	] )( '%s the blocks option when %s', ( _verb, _when, overrides, shown ) => {
+		render(
+			<CommentsSettings
+				module={ build( overrides as Partial< MyJetpackModule > ) }
+				disabled={ false }
+			/>
+		);
 
 		expect( blocksSwitch() !== null ).toBe( shown );
 	} );
