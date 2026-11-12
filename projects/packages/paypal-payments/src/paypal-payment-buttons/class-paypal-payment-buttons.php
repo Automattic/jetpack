@@ -800,8 +800,8 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Side-load the sibling style.css and register it under STYLE_HANDLE.
 	 *
-	 * Not passed as the block's `style` arg: classic themes enqueue every block's style
-	 * on every page. render_block() and load_editor_styles() enqueue it instead.
+	 * Not the block's `style` arg: sites that opt out of on-demand block assets load every
+	 * block's style on every page. Only the BUTTON and QR formats enqueue it, as they render.
 	 *
 	 * @since 0.9.0
 	 * @return void
@@ -846,16 +846,15 @@ class PayPal_Payment_Buttons {
 	 * @return string|void The rendered block HTML.
 	 */
 	public static function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// V2 renders API-managed buttons; V1 renders legacy paste-code buttons.
-		$html = ! empty( $attributes['isApiManaged'] )
-			? self::render_api_managed_button( $attributes )
-			: self::render_legacy_button( $attributes );
+		$api_managed = ! empty( $attributes['isApiManaged'] );
 
-		if ( ! empty( $html ) ) {
-			wp_enqueue_style( self::STYLE_HANDLE );
+		// ─── V2: API-managed button ───
+		if ( $api_managed ) {
+			return self::render_api_managed_button( $attributes );
 		}
 
-		return $html;
+		// ─── V1: Legacy paste-code button ───
+		return self::render_legacy_button( $attributes );
 	}
 
 	/**
@@ -1105,6 +1104,8 @@ class PayPal_Payment_Buttons {
 				)
 				: '';
 
+			wp_enqueue_style( self::STYLE_HANDLE );
+
 			// No attribution line: the `Show "Powered by PayPal"` checkbox is
 			// the button's alone, so the QR draws the code and its caption and
 			// nothing else.
@@ -1256,6 +1257,8 @@ class PayPal_Payment_Buttons {
 		$button_class = 'jetpack-paypal-button__checkout-link wp-element-button'
 			. ( self::is_outline_button( $attributes ) ? ' is-style-outline' : '' );
 		$button_style = self::style_attr( self::get_button_style( $attributes ) );
+
+		wp_enqueue_style( self::STYLE_HANDLE );
 
 		return sprintf(
 			'<div %6$s>

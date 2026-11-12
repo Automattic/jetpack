@@ -274,9 +274,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		wp_deregister_script( PayPal_Payment_Buttons::STYLE_HANDLE );
 	}
 
-	/**
-	 * Classic themes enqueue every registered block style handle on every page.
-	 */
 	public function test_register_block_attaches_no_style_handle() {
 		PayPal_Payment_Buttons::register_block();
 		$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( PayPal_Payment_Buttons::BLOCK_NAME );
@@ -286,15 +283,44 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertSame( array(), $block_type->style_handles );
 	}
 
-	public function test_render_block_enqueues_the_front_end_style() {
+	public function test_load_editor_styles_enqueues_the_front_end_style() {
+		wp_register_style( PayPal_Payment_Buttons::STYLE_HANDLE, 'https://example.org/style.css', array(), '1' );
+
+		PayPal_Payment_Buttons::load_editor_styles();
+
+		$this->assertTrue( wp_style_is( PayPal_Payment_Buttons::STYLE_HANDLE, 'enqueued' ) );
+	}
+
+	/**
+	 * Test that only the formats drawing `.jetpack-paypal-button` markup load the stylesheet.
+	 *
+	 * @dataProvider provide_formats_and_whether_they_load_the_style
+	 * @param string $format    The display format to render.
+	 * @param bool   $loads_css Whether the format should enqueue the stylesheet.
+	 */
+	#[DataProvider( 'provide_formats_and_whether_they_load_the_style' )]
+	public function test_render_block_enqueues_the_front_end_style_only_for_styled_formats( $format, $loads_css ) {
 		// register_block_style() needs a built dist/, so register the handle directly.
 		wp_register_style( PayPal_Payment_Buttons::STYLE_HANDLE, 'https://example.org/style.css', array(), '1' );
-		$attributes = $this->stacked_attributes();
+		$attributes = $this->stacked_attributes( array( 'format' => $format ) );
 		$this->set_up_block_render_context( $attributes );
 
-		$this->assertFalse( wp_style_is( PayPal_Payment_Buttons::STYLE_HANDLE, 'enqueued' ) );
 		$this->assertNotEmpty( PayPal_Payment_Buttons::render_block( $attributes, '' ) );
-		$this->assertTrue( wp_style_is( PayPal_Payment_Buttons::STYLE_HANDLE, 'enqueued' ) );
+		$this->assertSame( $loads_css, wp_style_is( PayPal_Payment_Buttons::STYLE_HANDLE, 'enqueued' ) );
+	}
+
+	/**
+	 * Each API-managed format, and whether it uses style.scss.
+	 *
+	 * @return array<string, array{0: string, 1: bool}>
+	 */
+	public static function provide_formats_and_whether_they_load_the_style() {
+		return array(
+			'BUTTON'  => array( 'BUTTON', true ),
+			'QR'      => array( 'QR', true ),
+			'STACKED' => array( 'STACKED', false ),
+			'LINK'    => array( 'LINK', false ),
+		);
 	}
 
 	public function test_init_admin_registers_nothing_while_the_flag_is_off() {
