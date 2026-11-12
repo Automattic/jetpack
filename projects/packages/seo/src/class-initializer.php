@@ -12,6 +12,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
@@ -178,6 +179,10 @@ class Initializer {
 		// before `add_menu_item()` runs at the default priority and needs it.
 		add_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ), 10 );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+		}
 
 		// Read-only REST routes the dashboard hydrates its initial state from. Preloaded
 		// into the page (see Admin_Page::inject_script_data) so a normal load resolves
