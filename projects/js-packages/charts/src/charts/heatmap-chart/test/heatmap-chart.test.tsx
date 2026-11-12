@@ -683,6 +683,27 @@ describe( 'HeatmapChart value text contrast', () => {
 		expect( screen.getByText( '1' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 
+	test( 'gives a hatched value the pick the hatch tone gets as the lowest step', () => {
+		injectedStyle = document.createElement( 'style' );
+		injectedStyle.textContent =
+			'.swapped-heatmap { --a8c-charts-color-label: #f0f0f0; --a8c-charts-color-label-inverse: #1e1e1e; }';
+		document.head.appendChild( injectedStyle );
+
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					className="swapped-heatmap"
+					primaryColor="#3858e9"
+					data={ [ ...scale, { label: 'Nov', data: [ { value: 7, partial: true } ] } ] }
+				/>
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getByText( '7' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+	} );
+
 	test( "keeps one color when both label roles are set to it on the chart's own class", () => {
 		injectedStyle = document.createElement( 'style' );
 		injectedStyle.textContent =
