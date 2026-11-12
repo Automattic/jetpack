@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Open state: Save and return the open, minimized, and router history state that apps other than WordPress.com keep under their own keys, so it is restored after a page reload.
