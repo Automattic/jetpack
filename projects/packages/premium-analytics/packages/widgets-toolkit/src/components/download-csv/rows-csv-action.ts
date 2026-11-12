@@ -24,16 +24,6 @@ export type RowsCsvActionOptions< TRow > = {
 	filenamePrefix: string;
 
 	/**
-	 * Whether the filename carries the report window's dates.
-	 */
-	hasDateRange: boolean;
-
-	/**
-	 * Dates the file by the widget's own window instead of the report window.
-	 */
-	range?: CsvDateRange;
-
-	/**
 	 * The primary request's state, its error not hidden by rows kept on screen.
 	 */
 	status: ReportCsvExportStatus & {
@@ -46,7 +36,22 @@ export type RowsCsvActionOptions< TRow > = {
 	exporter?: never;
 	report?: never;
 	rowCount?: never;
-};
+} & (
+	| {
+			/**
+			 * Whether the filename carries the report window's dates.
+			 */
+			hasDateRange: boolean;
+			range?: never;
+	  }
+	| {
+			/**
+			 * Dates the file by the widget's own window instead of the report window.
+			 */
+			range: CsvDateRange;
+			hasDateRange?: never;
+	  }
+);
 
 /** A download of the widget's loaded rows, or null until they settle. */
 export function useRowsCsvAction< TRow >(
@@ -59,10 +64,12 @@ export function useRowsCsvAction< TRow >(
 			! options.status.isPlaceholderData &&
 			isReportCsvReady( options.status, options.rows.length )
 			? async () => {
+					const { filenamePrefix, hasDateRange = false, range } = options;
+
 					saveCsv(
-						options.range
-							? buildCsvDateRangeFilename( options.filenamePrefix, options.range )
-							: getReportCsvFilename( options, reportParams ),
+						range
+							? buildCsvDateRangeFilename( filenamePrefix, range )
+							: getReportCsvFilename( { filenamePrefix, hasDateRange }, reportParams ),
 						buildCsv( options.columns, options.rows )
 					);
 				}

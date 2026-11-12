@@ -378,7 +378,8 @@ describe( 'SubscribersChartWidget', () => {
 					{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: paid / 2 },
 					{ date_start: '2026-07-05T00:00:00', subscribers: 6, subscribers_paid: paid },
 				] ),
-				timezone: 'America/Los_Angeles',
+				// Fourteen hours ahead of UTC: a bucket written in any other zone lands on the day before.
+				timezone: 'Pacific/Kiritimati',
 			} );
 
 			const { findDeclaredAction } = renderWidget();
