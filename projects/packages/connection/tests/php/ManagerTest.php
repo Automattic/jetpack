@@ -2248,7 +2248,7 @@ class ManagerTest extends TestCase {
 		// A static that would otherwise skip the unlink for a user ID an earlier test disconnected.
 		( new \ReflectionProperty( Manager::class, 'disconnected_users' ) )->setValue( null, array() );
 		// A fresh instance re-adds the `jetpack_unlinked_user` cleanup that earlier tests may have unhooked.
-		Error_Handler::$instance = null;
+		( new \ReflectionProperty( Error_Handler::class, 'instance' ) )->setValue( null, null );
 		Error_Handler::get_instance();
 
 		$sent_claim = array();
@@ -2304,7 +2304,13 @@ class ManagerTest extends TestCase {
 			\Jetpack_Options::delete_option( array( 'master_user', 'id', 'user_tokens' ) );
 		}
 
-		$this->assertSame( $expected_unusable, $sent_claim['local_owner_unusable'] );
+		$this->assertSame(
+			array(
+				'owner_claim'          => 1,
+				'local_owner_unusable' => $expected_unusable,
+			),
+			$sent_claim
+		);
 		$this->assertSame( '', $remembered, 'A successful token write should clear the record.' );
 	}
 
