@@ -34,7 +34,6 @@ const DATA: AdsSettingsData = {
 	hasWordAds: true,
 	hasConnectedOwner: true,
 	upgradeUrl: 'https://jetpack.com/redirect/?source=jetpack-creator-cta&site=1',
-	earningsUrl: 'https://jetpack.com/redirect/?source=calypso-stats-ads-day&site=1',
 	isSubdirectorySite: false,
 	moduleOverride: false,
 	tracks: true,
@@ -86,17 +85,19 @@ function renderTab(
 	} );
 	render(
 		<QueryClientProvider client={ new QueryClient() }>
-			<AdsSettings />
+			<AdsSettings openTab={ openTab } />
 		</QueryClientProvider>
 	);
 }
 
 const SWITCH = 'Enable ads and display an ad below each post';
 const acceptTerms = jest.fn();
+const openTab = jest.fn();
 
 describe( 'AdsSettings', () => {
 	beforeEach( () => {
 		mockedApiFetch.mockReset();
+		openTab.mockReset();
 		acceptTerms.mockReset().mockResolvedValue( {} );
 		( usePayout as jest.Mock ).mockReturnValue( { data: { paypal: '', tosSigned: false } } );
 		( useSavePayout as jest.Mock ).mockReturnValue( {
@@ -200,5 +201,14 @@ describe( 'AdsSettings', () => {
 		expect(
 			screen.getByRole( 'switch', { name: 'Enable GDPR Consent Banner' } )
 		).toBeInTheDocument();
+	} );
+
+	it( 'opens the Ads tab in place for earnings', async () => {
+		renderTab();
+		const link = screen.getByRole( 'link', { name: 'View your earnings' } );
+
+		expect( link ).toHaveAttribute( 'href', 'admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads' );
+		await userEvent.click( link );
+		expect( openTab ).toHaveBeenCalledWith( 'ads' );
 	} );
 } );

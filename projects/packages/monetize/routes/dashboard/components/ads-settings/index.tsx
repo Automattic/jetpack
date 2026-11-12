@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Card, Fieldset, Link, Notice, Spinner, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { getAdsSettingsData } from '../../data/ads-settings-data';
+import { getTabHref } from '../../data/tabs';
 import { trackClick } from '../../data/tracking';
 import { useAdsSettings } from '../../data/use-ads-settings';
 import { useHasWordAds } from '../../data/use-has-wordads';
@@ -17,7 +18,11 @@ import { AdsPrompt } from './prompt';
 import { TextOption } from './text-option';
 import type { Help } from './option-switch';
 import type { AdsSettingsData } from '../../data/ads-settings-data';
+import type { TabValue } from '../../data/tabs';
 import type { AdsOption } from '../../data/use-ads-settings';
+import type { MouseEvent } from 'react';
+
+type OpenTab = ( tab: TabValue ) => void;
 
 const trackTermsClick = () => trackClick( 'place_ad_widget' );
 const trackEarningsClick = () => trackClick( 'view-earnings' );
@@ -25,11 +30,12 @@ const trackEarningsClick = () => trackClick( 'view-earnings' );
 /**
  * The Ads switch and options, saved as they change.
  *
- * @param props      - Component props.
- * @param props.data - The Settings tab's server data.
+ * @param props         - Component props.
+ * @param props.data    - The Settings tab's server data.
+ * @param props.openTab - Opens another of the page's tabs.
  * @return The options.
  */
-function AdsOptions( { data }: { data: AdsSettingsData } ) {
+function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTab } ) {
 	const { canUseWpcom } = useWpcomConnection();
 	const requestSync = useWpcomAdsSync( canUseWpcom );
 	const { values, loadError, saveError, saving, setOption, setModuleActive } =
@@ -52,6 +58,25 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 			await setModuleActive( active );
 		},
 		[ canUseWpcom, tosSigned, signTerms, setModuleActive ]
+	);
+
+	const openEarnings = useCallback(
+		( event: MouseEvent ) => {
+			trackEarningsClick();
+			// Let modified clicks open the tab's URL in a new browser tab.
+			if (
+				event.button !== 0 ||
+				event.metaKey ||
+				event.ctrlKey ||
+				event.shiftKey ||
+				event.altKey
+			) {
+				return;
+			}
+			event.preventDefault();
+			openTab( 'ads' );
+		},
+		[ openTab ]
 	);
 
 	if ( loadError ) {
@@ -189,7 +214,7 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 							</Stack>
 						</Fieldset.Root>
 						{ isActive && (
-							<Link href={ data.earningsUrl } onClick={ trackEarningsClick }>
+							<Link href={ getTabHref( 'ads' ) } onClick={ openEarnings }>
 								{ __( 'View your earnings', 'jetpack-monetize' ) }
 							</Link>
 						) }
@@ -351,27 +376,34 @@ function Loading() {
 /**
  * The Ads options with a plan that includes WordAds, or the prompt to get one.
  *
- * @param props      - Component props.
- * @param props.data - The Settings tab's server data.
+ * @param props         - Component props.
+ * @param props.data    - The Settings tab's server data.
+ * @param props.openTab - Opens another of the page's tabs.
  * @return The options or the prompt.
  */
-function AdsCard( { data }: { data: AdsSettingsData } ) {
+function AdsCard( { data, openTab }: { data: AdsSettingsData; openTab: OpenTab } ) {
 	const hasWordAds = useHasWordAds( data.hasWordAds );
 
 	if ( hasWordAds === undefined ) {
 		return <Loading />;
 	}
 
-	return hasWordAds ? <AdsOptions data={ data } /> : <AdsPrompt data={ data } />;
+	return hasWordAds ? (
+		<AdsOptions data={ data } openTab={ openTab } />
+	) : (
+		<AdsPrompt data={ data } />
+	);
 }
 
 /**
  * Monetize › Settings: the Ads settings that left Jetpack › Settings.
  *
+ * @param props         - Component props.
+ * @param props.openTab - Opens another of the page's tabs.
  * @return The Ads card, or nothing where the Jetpack plugin sent no data for it.
  */
-export function AdsSettings() {
+export function AdsSettings( { openTab }: { openTab: OpenTab } ) {
 	const data = getAdsSettingsData();
 
-	return data ? <AdsCard data={ data } /> : null;
+	return data ? <AdsCard data={ data } openTab={ openTab } /> : null;
 }
