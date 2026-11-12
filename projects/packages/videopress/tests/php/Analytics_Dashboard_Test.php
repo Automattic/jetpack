@@ -58,6 +58,8 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		remove_filter( REGISTRABLE_WIDGET_TYPES_FILTER, 'jetpack_videopress_test_widget_manifest' );
 		remove_filter( 'jetpack_premium_analytics_videopress_available', '__return_true' );
+		remove_all_filters( 'doing_it_wrong_trigger_error' );
+		remove_all_actions( 'doing_it_wrong_run' );
 
 		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class, Single_Report_Page_Registry::class ) as $class ) {
 			$instance = new \ReflectionProperty( $class, 'instance' );
@@ -126,6 +128,28 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 			array( 'jpa/video-detail-views-performance', Analytics_Dashboard::VIDEO_PLAYER_TYPE, 'jpa/video-detail-embeds' ),
 			array_column( $record['default_layout'], 'type' )
 		);
+	}
+
+	/**
+	 * An older dashboard registers the video page itself: its record keeps the path, and no notice fires.
+	 */
+	public function test_leaves_the_video_path_to_the_dashboard_that_still_registers_it() {
+		$registry = new Single_Report_Page_Registry();
+		$registry->register( DASHBOARD_NAME, 'analytics/video' );
+
+		$notices = array();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) use ( &$notices ) {
+				$notices[] = $function_name;
+			}
+		);
+
+		Analytics_Dashboard::register_single_report_pages( $registry );
+
+		$this->assertSame( array(), $notices );
+		$this->assertSame( 'analytics/video', $registry->get_registered_by_path( DASHBOARD_NAME, 'video' )->id );
 	}
 
 	/**

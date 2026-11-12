@@ -51,7 +51,8 @@ class Analytics_Dashboard {
 	/**
 	 * The video single-report page, served by the dashboard at `/report/video/{id}`.
 	 */
-	const VIDEO_PAGE_ID = 'videopress/video';
+	const VIDEO_PAGE_ID   = 'videopress/video';
+	const VIDEO_PAGE_PATH = 'video';
 
 	/**
 	 * Registry actions and default-layout filter of the dashboard package.
@@ -112,11 +113,16 @@ class Analytics_Dashboard {
 			return;
 		}
 
+		// An older dashboard still registers the video page itself, on this path.
+		if ( $registry->get_registered_by_path( DASHBOARD_NAME, self::VIDEO_PAGE_PATH ) ) {
+			return;
+		}
+
 		$registry->register(
 			DASHBOARD_NAME,
 			self::VIDEO_PAGE_ID,
 			array(
-				'path'              => 'video',
+				'path'              => self::VIDEO_PAGE_PATH,
 				'label'             => __( 'Video', 'jetpack-videopress-pkg' ),
 				'dashboard_section' => 'traffic',
 				'feature'           => 'videos',
