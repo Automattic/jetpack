@@ -68,8 +68,12 @@ function ratePercent( numerator: number, denominator: number ): number | null {
 function StatCard( { label, value }: { label: string; value: string } ): JSX.Element {
 	return (
 		<Card.Root className="jetpack-newsletter__detail-stat">
-			<Card.Content className="jetpack-newsletter__detail-stat-content">
-				<Text variant="heading-sm" className="jetpack-newsletter__detail-stat-label">
+			<Card.Content>
+				<Text
+					variant="heading-sm"
+					className="jetpack-newsletter__detail-stat-label"
+					style={ { overflowWrap: 'anywhere' } }
+				>
 					{ label }
 				</Text>
 				<Text
