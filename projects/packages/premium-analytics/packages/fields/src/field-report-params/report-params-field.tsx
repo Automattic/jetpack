@@ -12,6 +12,7 @@ import {
 	intervalMenuOptions,
 	normalizeReportParams,
 	useScopeLockedIntervals,
+	useSiteDay,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -248,6 +249,8 @@ function ReportParamsControl( {
 
 	const defaultPreset = getDefaultPreset();
 	const lockedIntervals = useScopeLockedIntervals();
+	// Not memoized below, so subscribing alone re-reads the window when the day changes.
+	useSiteDay();
 
 	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset, {
 		lockedIntervals,

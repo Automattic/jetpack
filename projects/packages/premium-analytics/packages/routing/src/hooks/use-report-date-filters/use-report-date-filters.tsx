@@ -6,6 +6,7 @@ import {
 	normalizeReportParams,
 	useReportScope,
 	useScopeLockedIntervals,
+	useSiteDay,
 	type DateLimits,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
@@ -186,13 +187,14 @@ export function useReportDateFilters< TFrom extends string >(
 	const { earliestDate } = filterOptions.dateLimits ?? scopedDateLimits ?? {};
 
 	const timeZone = reportingTimeZone();
+	const siteDay = useSiteDay();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	// The window being edited; the comparison it names is what applying it would compare.
-	const draft = useMemo(
-		() => resolveWindow( effective, timeZone, lockedIntervals ),
-		[ effective, timeZone, lockedIntervals ]
-	);
+	const draft = useMemo( () => {
+		void siteDay;
+		return resolveWindow( effective, timeZone, lockedIntervals );
+	}, [ effective, timeZone, lockedIntervals, siteDay ] );
 	const { range, interval, comparisonPresetId } = draft;
 
 	const appliedPresetId = useMemo( () => committed.preset ?? undefined, [ committed.preset ] );
@@ -200,10 +202,10 @@ export function useReportDateFilters< TFrom extends string >(
 	 * Applied, not staged: a comparison commits on its own but can ride
 	 * uncommitted alongside a staged primary edit, so this can't read `effective`.
 	 */
-	const applied = useMemo(
-		() => resolveWindow( committed, timeZone, lockedIntervals ),
-		[ committed, timeZone, lockedIntervals ]
-	);
+	const applied = useMemo( () => {
+		void siteDay;
+		return resolveWindow( committed, timeZone, lockedIntervals );
+	}, [ committed, timeZone, lockedIntervals, siteDay ] );
 	const {
 		range: appliedRange,
 		comparisonPresetId: appliedComparisonPresetId,

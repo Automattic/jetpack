@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type ReportParams } from '@jetpack-premium-analytics/data';
+import { type ReportParams, useSiteDay } from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
 	computePrimaryRange,
@@ -58,7 +58,10 @@ export function useEmailTabScope(
 	allTimeStart: Date | undefined,
 	timeZone: string
 ): EmailTabScope | undefined {
+	const siteDay = useSiteDay();
+
 	return useMemo( () => {
+		void siteDay;
 		if ( ! allTimeStart || ! ( postId > 0 ) ) {
 			return undefined;
 		}
@@ -93,5 +96,5 @@ export function useEmailTabScope(
 				interval: 'day',
 			},
 		};
-	}, [ postId, allTimeStart, timeZone ] );
+	}, [ postId, allTimeStart, timeZone, siteDay ] );
 }
