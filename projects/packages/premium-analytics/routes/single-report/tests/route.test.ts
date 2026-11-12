@@ -4,6 +4,8 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { dispatch } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 import { isPremiumAnalyticsSiteConnected } from '../../site-readiness';
 import { route } from '../route';
 
@@ -112,6 +114,7 @@ describe( 'single-report route.beforeLoad', () => {
 
 	afterEach( () => {
 		jest.clearAllMocks();
+		dispatch( preferencesStore ).set( POST_PAGE.preferences_scope, 'sectionOrder', undefined );
 	} );
 
 	afterAll( () => {
@@ -243,10 +246,19 @@ describe( 'single-report route.beforeLoad', () => {
 		} );
 	} );
 
-	it( 'replaces a section the page does not have with its first one', async () => {
+	it.each( [
+		{ name: 'its first one', order: undefined, section: 'traffic' },
+		{
+			name: "the first one in the reader's order",
+			order: [ 'emails', 'traffic' ],
+			section: 'emails',
+		},
+	] )( 'replaces a section the page does not have with $name', async ( { order, section } ) => {
+		dispatch( preferencesStore ).set( POST_PAGE.preferences_scope, 'sectionOrder', order );
+
 		await expect(
 			beforeLoad( { kind: 'post', id: '42' }, { ...settledSearch, section: 'bogus' } )
-		).rejects.toMatchObject( { search: expect.objectContaining( { section: 'traffic' } ) } );
+		).rejects.toMatchObject( { search: expect.objectContaining( { section } ) } );
 	} );
 
 	it.each( [ { section: 'emails' }, {} ] )(

@@ -1,6 +1,9 @@
 import { useReportScope, useStatsEmailClicksBreakdown } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
-import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	DetailPageActions,
+	useStoredDetailLayout,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from '@wordpress/element';
@@ -28,6 +31,8 @@ const mockApplyDateRange = jest.fn();
 type AnySummary = EntitySummary & Record< string, unknown >;
 const mockUseSummary = jest.fn< AnySummary, [ string ] >();
 let mockAdapters: Record< string, SingleReportAdapter > = {};
+// What the stage's only `useSelect` reads: the reader's order of the page's sections.
+let mockSectionOrder: string[] = [];
 
 const VIDEO_PAGE = {
 	id: 'analytics/video',
@@ -193,7 +198,7 @@ jest.mock(
 	'@wordpress/data',
 	() =>
 		new Proxy(
-			{ useSelect: () => [] },
+			{ useSelect: () => mockSectionOrder },
 			{
 				get: ( overrides, prop ) =>
 					prop in overrides
@@ -250,9 +255,12 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	return { WidgetDashboard, DEFAULT_GRID: {}, ROW_HEIGHT_PRESETS: { small: 200 } };
 } );
 
-// The stored arrangement is the toolkit's; the rest of the toolkit stays real.
+// The stored arrangement is the toolkit's and the actions slot is spied on; the rest stays real.
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	DetailPageActions: jest.fn(
+		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).DetailPageActions
+	),
 	useStoredDetailLayout: jest.fn( ( scope: string, layoutId: string, fixed: unknown ) => ( {
 		layout: fixed,
 		setLayout: () => {},
@@ -374,6 +382,7 @@ describe( 'single-report stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockDashboardLayouts.length = 0;
+		mockSectionOrder = [];
 		mockDateFilterOverrides = {};
 		mockPeriodHost = undefined;
 		mockParams = { kind: 'video', id: '42' };
@@ -776,6 +785,37 @@ describe( 'single-report stage', () => {
 				},
 			};
 			mockSends( 3 );
+		} );
+
+		it( 'shows the sections in the order the reader arranged, and opens on the first', () => {
+			mockSectionOrder = [ 'email-clicks', 'post-traffic' ];
+			mockSummary( { title: 'Hello world', type: 'post', allTimeStart: '2026-06-22 10:00:00' } );
+
+			render( stage() );
+
+			expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
+				'Email clicks',
+				'Post traffic',
+				'Email opens',
+			] );
+			expect( screen.getByRole( 'tab', { selected: true } ) ).toHaveTextContent( 'Email clicks' );
+		} );
+
+		it( 'hands the tabs on show to the page options menu, for the reader to arrange', () => {
+			mockSummary( { title: 'Hello world', type: 'post', allTimeStart: '2026-06-22 10:00:00' } );
+
+			render( stage() );
+
+			expect( jest.mocked( DetailPageActions ).mock.lastCall?.[ 0 ].tabs ).toEqual(
+				expect.objectContaining( {
+					scope: POST_PAGE.preferences_scope,
+					items: [
+						expect.objectContaining( { slug: 'post-traffic', label: 'Post traffic' } ),
+						expect.objectContaining( { slug: 'email-opens', label: 'Email opens' } ),
+						expect.objectContaining( { slug: 'email-clicks', label: 'Email clicks' } ),
+					],
+				} )
+			);
 		} );
 
 		it( 'shows the three sections, the date filter and the View post action for a sent post', () => {
