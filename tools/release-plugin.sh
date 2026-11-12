@@ -115,7 +115,6 @@ function verify_on_branch {
 #  - 16.4-a.x: trunk
 #
 # Uses FROM_RELEASE_BRANCH, PLUGIN, and VERSION, and sets BASE_BRANCH.
-# @todo: Consider if it's easy or even worth supporting semver.
 function find_base_branch {
 	local prefix stable suffix potential_base_branch branch_ver
 	if ! $FROM_RELEASE_BRANCH; then
@@ -573,6 +572,10 @@ if $LIST_STEPS; then
 fi
 
 [[ -n $PLUGIN ]] || usage
+
+if $FROM_RELEASE_BRANCH && [[ $(jq -r '.extra.changelogger.versioning // "semver"' "$BASE/projects/$PLUGIN/composer.json") != wordpress ]]; then
+	die "-R is only supported for plugins using WordPress versioning. Release $PLUGIN from trunk instead."
+fi
 
 if [[ -z $VERSION ]]; then
 	cd "$BASE/projects/$PLUGIN"
