@@ -323,7 +323,7 @@ jobs:
           # Already compressed.
           compression-level: 0
 
-  # Runs even when the build fails, so the reminder is still created or cleared.
+  # Runs even when the build fails after detecting changed projects, so the reminder is still created or cleared.
   reminder_comment:
     name: Check WordPress.com test reminder
     runs-on: ubuntu-latest
