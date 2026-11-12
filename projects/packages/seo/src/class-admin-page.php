@@ -136,6 +136,7 @@ class Admin_Page {
 			return;
 		}
 
+		wp_enqueue_media();
 		self::load_wp_build_with_screen_alias();
 		self::register_page_data();
 	}

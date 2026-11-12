@@ -207,6 +207,7 @@ class Initializer {
 			// stripping the schema its pages already carry would hurt SEO it has today.
 			// (Finer per-type gating — e.g. sitewide LocalBusiness to paid plans on
 			// self-hosted — is a separate follow-up, tracked in the schema project.)
+			Share_Image::init();
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 
