@@ -60,7 +60,8 @@ type FeaturesTrackingContextType = {
 	trackConnectionStart: (
 		state: FeatureState,
 		origin: FeatureActionOrigin,
-		action: ConnectionStartAction
+		action: ConnectionStartAction,
+		from: string
 	) => void;
 	trackPlanClick: ( state: FeatureState, plan: string ) => void;
 	trackFeatureAction: ( params: FeatureActionParams ) => void;
@@ -214,10 +215,16 @@ export function FeaturesTrackingProvider( {
 	// Recorded as the page leaves to connect an account: it says a connection started, not that
 	// the feature is now on.
 	const trackConnectionStart = useCallback(
-		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
+		(
+			state: FeatureState,
+			origin: FeatureActionOrigin,
+			action: ConnectionStartAction,
+			from: string
+		) => {
 			recordEvent( 'jetpack_myjetpack_feature_connection_start', {
 				action,
 				origin,
+				from,
 				...when( 'product', state.feature.product || '' ),
 				...featureProps( state ),
 				...context,

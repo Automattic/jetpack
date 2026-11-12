@@ -1,8 +1,8 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, ButtonLink, Switch } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { featuresFrom, getConnectUrl } from '../../../utils/connect-url';
 import { getProtectPageUrl } from '../../../utils/protect-page';
 import { leavePageFor } from '../../../utils/reload-page';
 import { ModuleToggle } from '../../module-toggle';
@@ -32,7 +32,8 @@ export function useAccountConnection() {
 
 	return useCallback(
 		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
-			tracking?.trackConnectionStart( state, origin, action );
+			const from = featuresFrom( state.feature.slug );
+			tracking?.trackConnectionStart( state, origin, action, from );
 			// Installing or activating Jetpack from a module's card is the first step of turning that
 			// module on, so the return finishes it. Another plugin's Install has already turned it on.
 			const remembers = action === 'connect' || state.control.kind === 'install-jetpack';
@@ -41,7 +42,7 @@ export function useAccountConnection() {
 				undefined,
 				intent ? { [ CONNECT_INTENT_PARAM ]: intent } : {}
 			);
-			leavePageFor( getUserConnectionUrl( { redirect_url: returnUrl } ) );
+			leavePageFor( getConnectUrl( from, returnUrl ) );
 		},
 		[ tracking ]
 	);
