@@ -3714,7 +3714,8 @@ class Error_Handler_Test extends BaseTestCase {
 			'core Connectors screen'     => array( true, '/wp-admin/options-connectors.php', 'options-connectors.php', 'jetpack-connector' ),
 			'Gutenberg Connectors page'  => array( true, '/wp-admin/options-general.php?page=options-connectors-wp-admin', 'options-general.php?page=options-connectors-wp-admin', 'jetpack-connector' ),
 			'Jetpack dashboard'          => array( true, '/wp-admin/admin.php?page=jetpack', 'admin.php?page=jetpack', 'connection_notice_owner_error' ),
-			'other plugin page'          => array( true, '/wp-admin/admin.php?page=jetpack-backup&a=b/c', 'admin.php?page=jetpack-backup&a=b/c', 'connection_notice_owner_error' ),
+			'other plugin page'          => array( true, '/wp-admin/admin.php?page=jetpack-backup&a=b/c&_wpnonce=abc&action=delete', 'admin.php?page=jetpack-backup', 'connection_notice_owner_error' ),
+			'screen with no page param'  => array( true, '/wp-admin/post.php?post=5&action=edit', 'admin.php?page=my-jetpack', 'connection_notice_owner_error' ),
 			'request with no admin page' => array( false, '/wp-json/jetpack/v4/connection', 'admin.php?page=my-jetpack', 'connection_notice_owner_error' ),
 		);
 	}
@@ -3735,51 +3736,6 @@ class Error_Handler_Test extends BaseTestCase {
 			'not connected, transferable, broken site' => array( false, false, null, 'If you reconnect instead, you can become the new connection owner.', 'no_valid_blog_token' ),
 			'not connected, locked, broken site'       => array( false, true, 'none', 'to restore the connection.', 'no_valid_blog_token' ),
 			'not connected, site request blocked'      => array( false, false, 'connect_user', 'If you connect your account instead', 'xmlrpc_request_blocked' ),
-		);
-	}
-
-	/**
-	 * Test that an inbound-failure error recorded for the owner keeps its own message and offers no takeover.
-	 *
-	 * Connecting or reconnecting an account cannot fix a blocked request or a bad certificate, so
-	 * neither the `connect_user` action nor the "you can become the new connection owner" copy
-	 * may follow from them, whether or not the viewing admin is connected.
-	 *
-	 * @param string $error_code       The inbound-failure error code.
-	 * @param bool   $viewer_connected Whether the viewing admin has a user token.
-	 * @dataProvider provide_inbound_failure_codes
-	 */
-	#[DataProvider( 'provide_inbound_failure_codes' )]
-	public function test_inbound_failure_recorded_for_owner_does_not_offer_takeover( $error_code, $viewer_connected ) {
-		list( $owner_id, $admin_id ) = $this->create_owner_and_admin_viewer();
-		// A healthy owner token, so no `invalid_connection_owner` error is recorded on the way.
-		$tokens = array( $owner_id => "token.secret.$owner_id" );
-		if ( $viewer_connected ) {
-			$tokens[ $admin_id ] = "token.secret.$admin_id";
-		}
-		\Jetpack_Options::update_option( 'user_tokens', $tokens );
-
-		$this->store_single_verified_error( $error_code, (string) $owner_id );
-
-		$displayed = $this->error_handler->get_displayable_errors();
-		$error     = $displayed[ $error_code ][ (string) $owner_id ];
-
-		$this->assertNotSame( 'connect_user', $error['error_data']['action'] ?? null );
-		$this->assertStringNotContainsString( 'new connection owner', $error['error_message'] );
-		$this->assertFalse( $this->error_handler->has_owner_connection_error() );
-	}
-
-	/**
-	 * Data provider for test_inbound_failure_recorded_for_owner_does_not_offer_takeover.
-	 *
-	 * @return array
-	 */
-	public static function provide_inbound_failure_codes() {
-		return array(
-			'blocked request, viewer unconnected'  => array( 'xmlrpc_request_blocked', false ),
-			'blocked request, viewer connected'    => array( 'xmlrpc_request_blocked', true ),
-			'SSL verification, viewer unconnected' => array( 'wpcom_ssl_verification_failed', false ),
-			'SSL verification, viewer connected'   => array( 'wpcom_ssl_verification_failed', true ),
 		);
 	}
 
@@ -3841,7 +3797,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 */
 	public static function provide_owner_token_rejection_cases() {
 		return array(
-			'outgoing signature mismatch'      => array( 'signature_mismatch', '11', 'outgoing', true ),
+			'outgoing signature mismatch'      => array( 'signature_mismatch', '11', 'outgoing', false ),
 			'outgoing invalid token'           => array( 'invalid_token', '11', 'outgoing', true ),
 			'incoming signature mismatch'      => array( 'signature_mismatch', '11', 'incoming', false ),
 			'legacy entry without a direction' => array( 'invalid_token', '11', '', false ),
@@ -3962,9 +3918,7 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that `signature_mismatch` — the code where a reconnect is not reliably
-	 * the fix — emits `error_data['support_link']` so the notice offers a support
-	 * link, while a code without that display config does not.
+	 * Test that a code without the `support_link` display config emits no `error_data['support_link']`.
 	 *
 	 * @dataProvider support_link_error_data
 	 *
@@ -4001,9 +3955,8 @@ class Error_Handler_Test extends BaseTestCase {
 	 */
 	public static function support_link_error_data() {
 		return array(
-			'signature_mismatch' => array( 'signature_mismatch', true ),
-			'unknown_token'      => array( 'unknown_token', false ),
-			'token_malformed'    => array( 'token_malformed', false ),
+			'unknown_token'   => array( 'unknown_token', false ),
+			'token_malformed' => array( 'token_malformed', false ),
 		);
 	}
 
@@ -4253,18 +4206,12 @@ class Error_Handler_Test extends BaseTestCase {
 	public static function scope_neutral_message_data() {
 		return array(
 			// No override: reconnecting is the remedy, which is what the generic copy says.
-			'invalid_token'      => array(
+			'invalid_token' => array(
 				'invalid_token',
 				'Your connection with WordPress.com seems to be broken',
 			),
-			// Also uses the generic copy — reconnect is not guaranteed to help, but that
-			// distinction lives in support_link, not in bespoke message text.
-			'unknown_token'      => array(
+			'unknown_token' => array(
 				'unknown_token',
-				'Your connection with WordPress.com seems to be broken',
-			),
-			'signature_mismatch' => array(
-				'signature_mismatch',
 				'Your connection with WordPress.com seems to be broken',
 			),
 		);

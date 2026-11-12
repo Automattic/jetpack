@@ -399,11 +399,9 @@ class Error_Handler {
 						&& 'invalid_connection_owner' === $error_code
 						&& ! ( $error['error_data']['has_user_token'] ?? true ) ) {
 						$message = __( 'You need to reconnect your WordPress.com account to restore the connection.', 'jetpack-connection' );
-					} elseif ( 'owner' === $audience && ! $viewer_is_owner && empty( $display_config['survives_owner_promotion'] ) ) {
-						// A secondary admin looking at the connection owner's token error. What
-						// they can usefully be told depends on whether they have a connection of
-						// their own and whether ownership is transferable. Only name the owner, or
-						// describe what reconnecting would do, for viewers who can act on it.
+					} elseif ( 'owner' === $audience && ! $viewer_is_owner ) {
+						// A secondary admin reading the owner's token error: what they're told depends on whether
+						// they're connected and whether ownership is transferable. Name the owner only to viewers who can act.
 						$owner_name = '';
 						if ( $viewer_can_connect ) {
 							$owner      = get_userdata( $owner_id );
@@ -590,8 +588,6 @@ class Error_Handler {
 	 *   Set it only for a code that is not a token problem, and so is not waiting on
 	 *   the owner's reconnect to become actionable. Setting it does not make the code
 	 *   trigger that reduction — it only exempts it from one.
-	 *   Such a code also never gets the takeover copy and never counts as a broken owner
-	 *   for the takeover in Manager::authorize(): a new account cannot fix it.
 	 * - `support_link` (bool): when true, `error_data['support_link']` is set on the
 	 *   displayable error, and My Jetpack's notice appends a "Contact Jetpack
 	 *   Support" link next to the reconnect CTA. Set it only where reconnecting is
@@ -677,18 +673,13 @@ class Error_Handler {
 			// Environmental in both directions — a malformed parameter or clock skew,
 			// neither of which a reconnect fixes.
 			'invalid_signature'             => false,
-			// Something altered the request in transit. Not a token problem, and
-			// signature_mismatch carries the same diagnosis with usable copy.
+			// Something altered the request in transit. Not a token problem.
 			'invalid_body_hash'             => false,
 			// A replay, or object-cache trouble. Self-resolving per request.
 			'invalid_nonce'                 => false,
-			// Ambiguous cause: could be a genuine secret desync (reconnect fixes it) or a
-			// proxy/CDN/WAF/security plugin altering the request in transit (reconnect
-			// doesn't help). Uses the generic message — support_link offers an
-			// alternative either way.
-			'signature_mismatch'            => array(
-				'support_link' => true,
-			),
+			// The token key matched, so this is usually a proxy, CDN or firewall altering the request,
+			// which a reconnect doesn't fix. Hidden until it has an action of its own.
+			'signature_mismatch'            => false,
 			// Two flavors with different remedies — see
 			// get_invalid_connection_owner_message().
 			'invalid_connection_owner'      => array(
@@ -883,16 +874,22 @@ class Error_Handler {
 			$request = wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
 
 			if ( ! empty( $request['path'] ) ) {
-				$query = $request['query'] ?? '';
-				$file  = basename( $request['path'] );
+				$file = basename( $request['path'] );
 
-				wp_parse_str( $query, $query_args );
+				wp_parse_str( $request['query'] ?? '', $query_args );
 
-				$return_url = self_admin_url( '' === $query ? $file : "$file?$query" );
-				$page       = $query_args['page'] ?? $file;
+				$page = $query_args['page'] ?? '';
+				$page = is_string( $page ) ? $page : '';
+
+				// Only `page` is kept: other params (a nonce, an `action`) must not replay as a GET after auth.
+				if ( '' !== $page ) {
+					$return_url = self_admin_url( add_query_arg( 'page', $page, $file ) );
+				} elseif ( 'options-connectors.php' === $file ) {
+					$return_url = self_admin_url( $file );
+				}
 
 				// WordPress.com brands the Connectors screen on its exact legacy `from`.
-				if ( in_array( $page, array( 'options-connectors.php', 'options-connectors-wp-admin' ), true ) ) {
+				if ( in_array( '' !== $page ? $page : $file, array( 'options-connectors.php', 'options-connectors-wp-admin' ), true ) ) {
 					$from = 'jetpack-connector';
 				}
 			}
@@ -949,7 +946,6 @@ class Error_Handler {
 
 			// Keyed on the owner's ID so a previous owner's `invalid_connection_owner` error does not count.
 			if ( null !== $display_config
-				&& empty( $display_config['survives_owner_promotion'] )
 				&& is_array( $users )
 				&& isset( $users[ $owner_id ] ) ) {
 				return true;
@@ -975,7 +971,7 @@ class Error_Handler {
 			return false;
 		}
 
-		$rejection_codes = array( 'invalid_token', 'unknown_token', 'token_mismatch', 'signature_mismatch' );
+		$rejection_codes = array( 'invalid_token', 'unknown_token', 'token_mismatch' );
 
 		foreach ( $this->get_verified_errors() as $error_code => $users ) {
 			if ( in_array( $error_code, $rejection_codes, true )

@@ -3161,10 +3161,8 @@ class Manager {
 	/**
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
-	 * Branches on the current user's tokens, not the owner's. A user with no token of their own is sent
-	 * to authorize(), where WordPress.com may make an admin the owner in place of a broken one.
-	 * When both the blog token and the user's token are healthy but the owner has a recorded error,
-	 * only the current user is relinked, the same way, rather than reconnecting the whole site.
+	 * Branches on the current user's tokens, not the owner's: a user with no token goes to authorize().
+	 * If both tokens are healthy but the owner has an error, only the current user is relinked.
 	 *
 	 * @since $$next-version$$ Relink only the current user when the owner's connection is broken and both tokens are healthy.
 	 * @since 9.8.1 When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
@@ -3440,12 +3438,12 @@ class Manager {
 	 * Authorizes the user by obtaining and storing the user token.
 	 *
 	 * When ownership is transferable, the token request claims the owner slot, and a `connection_owner`
-	 * answer from WordPress.com decides the owner. Without an answer, a user with `jetpack_connect` takes a vacant slot, unless a lock protects a recorded owner
-	 * (see can_fill_unconnected_owner_slot()). Anyone else is linked as a secondary user.
+	 * answer from WordPress.com decides the owner. Without an answer, a user with `jetpack_connect`
+	 * takes a vacant slot, unless a lock protects a recorded owner (see can_fill_unconnected_owner_slot()).
+	 * Anyone else is linked as a secondary user.
 	 *
 	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
-	 * @since $$next-version$$ Claim the owner slot, and let WordPress.com's answer decide the owner.
-	 * @since $$next-version$$ A locked owner with an unusable token is no longer replaced.
+	 * @since $$next-version$$ Claim the owner slot, let WordPress.com's answer decide the owner, and stop replacing a locked owner with an unusable token.
 	 *
 	 * @param array $data The request data.
 	 * @return string|\WP_Error 'authorized' when the user is now the connection owner, 'linked'
@@ -3530,13 +3528,13 @@ class Manager {
 			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
 		}
 
-		// WordPress.com answers only a claim it doesn't block; without an answer, keep trunk's vacant-slot rule.
+		// WordPress.com answers only a claim it doesn't block; without an answer, fall back to the vacant-slot rule.
 		$wpcom_answer        = $send_owner_claim && is_array( $token_details ) && isset( $token_details['connection_owner'] ) ? (bool) $token_details['connection_owner'] : null;
 		$wpcom_decided       = null !== $wpcom_answer;
 		$is_connection_owner = $wpcom_decided
 			? $wpcom_answer
 			: $can_manage_connection && ! $this->has_connected_owner() && $this->can_fill_unconnected_owner_slot( $current_user_id );
-		$switched_by_wpcom   = $wpcom_decided && $is_connection_owner && $recorded_owner_id && $recorded_owner_id !== $current_user_id;
+		$owner_changed       = $is_connection_owner && $recorded_owner_id && $recorded_owner_id !== $current_user_id;
 		$had_connected_owner = $this->has_connected_owner();
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
@@ -3544,10 +3542,9 @@ class Manager {
 		// Kept until the token request succeeds, so a failed one can retry with it. update_user_token() returns no usable result.
 		delete_user_meta( $current_user_id, self::RELINK_OWNER_UNUSABLE_META );
 
-		if ( $switched_by_wpcom ) {
+		if ( $owner_changed ) {
 			// The owner changed under the memoized ID.
 			$this->reset_connection_status();
-			( new Tracking() )->record_user_event( 'set_connection_owner_success', array( 'source' => 'authorize' ) );
 		}
 
 		// Delete cached connected user data, so a cached failure from the
