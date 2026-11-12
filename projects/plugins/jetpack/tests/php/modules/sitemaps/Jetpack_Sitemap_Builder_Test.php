@@ -539,4 +539,38 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 		remove_filter( 'jetpack_sitemap_suspend_cache_addition', '__return_true' );
 	}
+
+	/**
+	 * The news sitemap uses a rolling 48-hour GMT cutoff and expires its cache with the oldest entry.
+	 */
+	public function test_news_sitemap_uses_rolling_cutoff_and_caps_cache_expiry() {
+		update_option( 'timezone_string', 'Europe/Rome' );
+		delete_transient( 'jetpack_news_sitemap_xml' );
+
+		$old    = self::factory()->post->create(
+			array(
+				'post_status'   => 'publish',
+				'post_date_gmt' => gmdate( 'Y-m-d H:i:s', time() - 63 * HOUR_IN_SECONDS ),
+			)
+		);
+		$recent = self::factory()->post->create(
+			array(
+				'post_status'   => 'publish',
+				'post_date_gmt' => gmdate( 'Y-m-d H:i:s', time() - 40 * HOUR_IN_SECONDS ),
+			)
+		);
+
+		$xml = $this->builder->news_sitemap_xml();
+
+		$this->assertStringNotContainsString( get_permalink( $old ), $xml );
+		$this->assertStringContainsString( get_permalink( $recent ), $xml );
+
+		$timeout   = (int) get_option( '_transient_timeout_jetpack_news_sitemap_xml' );
+		$remaining = $timeout - time();
+		$this->assertGreaterThan( 0, $remaining );
+		$this->assertLessThanOrEqual( 8 * HOUR_IN_SECONDS + 5, $remaining );
+
+		delete_transient( 'jetpack_news_sitemap_xml' );
+		delete_option( 'timezone_string' );
+	}
 }
