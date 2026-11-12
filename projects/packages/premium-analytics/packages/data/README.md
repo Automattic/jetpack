@@ -279,9 +279,9 @@ Timezone-aware date helpers live in `@jetpack-premium-analytics/datetime`.
 
 ### `ensureCoreSettingsReady()`
 
-Starts loading the WordPress core `site` and `general settings` records.
+Starts loading the WordPress core `site` record.
 Route guards call it without awaiting, so a page never waits on the settings
-request; components reading the records (e.g. `useSiteHomeUrl`) must handle
+request; components reading the record (e.g. `useSiteHomeUrl`) must handle
 `undefined` while they load.
 
 ```typescript
@@ -289,7 +289,7 @@ request; components reading the records (e.g. `useSiteHomeUrl`) must handle
 ensureCoreSettingsReady().catch( () => {} );
 ```
 
-**Returns:** `Promise<void>` - Resolves when settings are loaded, rejects on failure (a later call retries)
+**Returns:** `Promise<void>` - Resolves when settings are loaded, rejects on failure
 
 **Features:**
 
