@@ -109,12 +109,8 @@ const SettingsNavTabs = props => {
 		if ( hasSecurityFeature && ! hasProtectPage ) {
 			visibleTabs.push( '/security' );
 		}
-		// Once settings move out, only the image CDN fills this tab outside a search.
-		if (
-			isSettingsConsolidationEnabled()
-				? hasModules( [ 'photon', 'photon-cdn' ] )
-				: hasPerformanceFeature
-		) {
+		// Empty once settings move out; see Performance.
+		if ( ! isSettingsConsolidationEnabled() && hasPerformanceFeature ) {
 			visibleTabs.push( '/performance' );
 		}
 		// A module Features switches no longer fills this tab.
