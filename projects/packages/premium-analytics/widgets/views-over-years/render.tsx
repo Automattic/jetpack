@@ -12,7 +12,9 @@ import {
 	describeError,
 	monthRange,
 	monthlyHeatmapLabels,
+	monthlyHeatmapToCsv,
 	resolveMonthlyHeatmapMetric,
+	useReportActions,
 	useWidgetRootContext,
 	yearRange,
 	type MonthlyHeatmapMetric,
@@ -20,7 +22,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -71,6 +73,23 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 		},
 		[ authorScoped, lifeStartsAt, timeZone, openPeriod, openSectionRange ]
 	);
+
+	const csv = useMemo(
+		() =>
+			monthlyHeatmapToCsv(
+				rows.some( row => row.months.some( value => ( value ?? 0 ) > 0 ) ) ? rows : []
+			),
+		[ rows ]
+	);
+	const metricPrefix = metric === 'average' ? 'daily-average-views-over-years' : 'views-over-years';
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: authorId ? `author-${ authorId }-${ metricPrefix }` : metricPrefix,
+			hasDateRange: false,
+			status: { isLoading, isFetching, isError },
+		},
+	} );
 
 	// Without an author on the page, the author-scoped table has nothing to read.
 	if ( authorId !== undefined && authorId <= 0 ) {

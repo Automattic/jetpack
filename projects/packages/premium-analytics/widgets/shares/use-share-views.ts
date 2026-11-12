@@ -30,6 +30,8 @@ interface ShareViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	/** The summary request's own error, even while earlier rows stay on screen. */
+	csvIsError: boolean;
 	refetch: () => void;
 }
 
@@ -136,6 +138,7 @@ export default function useShareViews( { max }: UseShareViewsArgs ): ShareViewsS
 		// keep showing prior rows on a transient refetch failure and only surface the
 		// error when there's nothing to show.
 		isError: items.length === 0 && isError,
+		csvIsError: isError,
 		refetch,
 	};
 }

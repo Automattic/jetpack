@@ -9,10 +9,13 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	useReportActions,
+	type CsvColumn,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { postContent } from '@wordpress/icons';
+import { eachDayOfInterval, format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -39,6 +42,13 @@ const NO_POSTS_BY_DAY: Record< string, number | null > = {};
 // The endpoint keeps the newest 1095 posts unless told otherwise, which a busy
 // site outruns inside 12 months.
 const STREAK_MAX_POSTS = 3000;
+
+type PostsOnDay = { day: string; posts: number };
+
+const CSV_COLUMNS: CsvColumn< PostsOnDay >[] = [
+	{ label: __( 'Date', 'jetpack-premium-analytics-pkg' ), getValue: row => row.day },
+	{ label: __( 'Posts', 'jetpack-premium-analytics-pkg' ), getValue: row => row.posts },
+];
 
 const formatPostCount = ( count: number ) =>
 	sprintf(
@@ -67,6 +77,29 @@ function PostingActivityInner() {
 
 	// The endpoint returns only days with posts.
 	const postsByDay = data ?? NO_POSTS_BY_DAY;
+
+	const csvRows = useMemo(
+		() =>
+			Object.values( postsByDay ).some( count => ( count ?? 0 ) > 0 )
+				? eachDayOfInterval( { start: parseISO( range.start ), end: parseISO( range.end ) } ).map(
+						date => {
+							const day = format( date, 'yyyy-MM-dd' );
+							return { day, posts: postsByDay[ day ] ?? 0 };
+						}
+					)
+				: [],
+		[ postsByDay, range ]
+	);
+	useReportActions( {
+		csv: {
+			rows: csvRows,
+			columns: CSV_COLUMNS,
+			filenamePrefix: 'posting-activity',
+			hasDateRange: true,
+			range: { from: range.start, to: range.end },
+			status: { isLoading, isFetching, isError },
+		},
+	} );
 
 	return (
 		<WidgetState

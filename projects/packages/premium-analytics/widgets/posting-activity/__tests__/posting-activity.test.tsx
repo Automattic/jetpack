@@ -2,12 +2,14 @@
  * External dependencies
  */
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import PostingActivityRender from '../render';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
@@ -53,11 +55,14 @@ function streakResult( overrides: Record< string, unknown > = {} ) {
 }
 
 function renderWidget() {
-	return render( <PostingActivityRender attributes={ { reportParams: HOST_REPORT_PARAMS } } /> );
+	return renderWithActionsHost(
+		<PostingActivityRender attributes={ { reportParams: HOST_REPORT_PARAMS } } />
+	);
 }
 
 describe( 'PostingActivityWidget', () => {
 	let defaultSettings: ReturnType< typeof getSettings >;
+	let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
 
 	beforeEach( () => {
 		mockUseStatsStreak.mockReset();
@@ -69,6 +74,8 @@ describe( 'PostingActivityWidget', () => {
 	} );
 
 	afterEach( () => {
+		downloads?.restore();
+		downloads = undefined;
 		jest.useRealTimers();
 		setSettings( defaultSettings );
 	} );
@@ -148,5 +155,36 @@ describe( 'PostingActivityWidget', () => {
 
 		expect( screen.getByText( "You don't have access to this data." ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+	it( 'saves every day of its own window, whatever range the host injects', async () => {
+		downloads = captureCsvDownloads();
+		const { findDeclaredAction } = renderWidget();
+
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+		const lines = await downloads.lines();
+
+		expect( downloads.files[ 0 ].filename ).toBe( 'posting-activity-2025-10-01_2026-09-15.csv' );
+		expect( lines ).toHaveLength( 351 );
+		expect( lines.slice( 0, 4 ) ).toEqual( [
+			'"Date","Posts"',
+			'"2025-10-01","0"',
+			'"2025-10-02","0"',
+			'"2025-10-03","2"',
+		] );
+		expect( lines.at( -1 ) ).toBe( '"2026-09-15","1"' );
+	} );
+
+	it.each( [
+		[ 'no post was published in the window', streakResult( { data: {} } ) ],
+		[
+			'a refetch failed behind the calendar on screen',
+			streakResult( { isError: true, error: new Error( 'boom' ) } ),
+		],
+	] )( 'offers no download when %s', ( _, result ) => {
+		mockUseStatsStreak.mockReturnValue( result );
+
+		const { declaredAction } = renderWidget();
+
+		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 } );

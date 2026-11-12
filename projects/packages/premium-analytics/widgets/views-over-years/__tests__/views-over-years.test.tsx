@@ -12,6 +12,8 @@ import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import ViewsOverYearsRender from '../render';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
@@ -19,6 +21,7 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 // A picked month lands in the section navigation, so a recorder stands in for it.
 const mockOpenSectionRange = jest.fn();
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useOpenSectionRange: () => mockOpenSectionRange,
 } ) );
 
@@ -90,7 +93,7 @@ function renderWidget(
 	attributes: Record< string, unknown > = {},
 	scope: Record< string, unknown > = {}
 ) {
-	return render(
+	return renderWithActionsHost(
 		<ViewsOverYearsRender
 			attributes={ {
 				...attributes,
@@ -106,6 +109,8 @@ function renderWidget(
 }
 
 describe( 'ViewsOverYears widget', () => {
+	let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
 	beforeAll( () => {
 		( globalThis as { ResizeObserver?: unknown } ).ResizeObserver = ResizeObserverStub;
 	} );
@@ -127,6 +132,8 @@ describe( 'ViewsOverYears widget', () => {
 	} );
 
 	afterEach( () => {
+		downloads?.restore();
+		downloads = undefined;
 		jest.useRealTimers();
 	} );
 
@@ -285,5 +292,55 @@ describe( 'ViewsOverYears widget', () => {
 		).toBeInTheDocument();
 		await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+	it( 'saves every year with views as the table draws it, newest first', async () => {
+		downloads = captureCsvDownloads();
+		const { findDeclaredAction } = renderWidget();
+
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+		expect( downloads.files[ 0 ].filename ).toBe( 'views-over-years.csv' );
+		await expect( downloads.lines() ).resolves.toEqual( [
+			'"Year","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Totals"',
+			'"2026","155","0","450","","","","","","","","","","605"',
+			'"2025","","","","","","","","","","","300","620","920"',
+		] );
+	} );
+
+	it.each( [
+		[ 'daily averages', { metric: 'average' }, {}, 'daily-average-views-over-years.csv' ],
+		[ 'one author', { authorScoped: true }, { author_id: '7' }, 'author-7-views-over-years.csv' ],
+	] )( 'names the file after %s', async ( _, attributes, scope, filename ) => {
+		mockUseStatsAuthorAllTime.mockReturnValue( {
+			data: {
+				startDate: '2025-11-01',
+				data: ROWS.map( ( [ period, views ] ) => ( { period, views } ) ),
+			},
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			error: null,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsAuthorAllTime > );
+		downloads = captureCsvDownloads();
+		const { findDeclaredAction } = renderWidget( attributes, scope );
+
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+		expect( downloads.files[ 0 ].filename ).toBe( filename );
+	} );
+
+	it.each( [
+		[ 'the site has no views', visitsResult( [ [ '2026-03-01', 0 ] ] ) ],
+		[
+			'a refetch failed behind the rows on screen',
+			visitsResult( ROWS, { isError: true, error: new Error( 'boom' ) } ),
+		],
+	] )( 'offers no download when %s', ( _, months ) => {
+		mockVisits( months );
+
+		const { declaredAction } = renderWidget();
+
+		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 } );
