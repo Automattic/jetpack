@@ -39,6 +39,7 @@ export const CONNECTION_FROM = {
 	jetpackPremiumAnalyticsOnboarding: 'jetpack_premium_analytics_onboarding',
 	jetpackPremiumAnalyticsUpsell: 'jetpack_premium_analytics_upsell',
 	jetpackMonetizeConnectionGate: 'jetpack_monetize_connection_gate',
+	jetpackMonetizeSettings: 'jetpack_monetize_settings',
 	// Sent by this package's PHP notice to a user about to delete the connection owner.
 	deleteConnectionOwnerNotice: 'delete_connection_owner_notice',
 } as const;

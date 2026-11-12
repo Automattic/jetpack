@@ -1,6 +1,8 @@
 /*
- * The wp-admin chrome around the app: sidebar highlight, body class and document title.
+ * The wp-admin chrome around the app: sidebar highlight, body class, document title and the
+ * screen reader announcement of a switch.
  */
+import { log } from './debug';
 
 export const pageOf = url => new URL( url, location.href ).searchParams.get( 'page' );
 
@@ -54,4 +56,20 @@ export function updateChrome( slug, members ) {
 	if ( focused?.closest?.( '#adminmenu' ) && focused.href && pageOf( focused.href ) !== slug ) {
 		focused.blur();
 	}
+}
+
+let a11y;
+
+/**
+ * Announce the page now on screen, as a screen reader reads the title of a loaded page.
+ *
+ * @param {string} title - Document title of the page.
+ */
+export function announcePage( title ) {
+	// Core prints its live regions on pages that depend on this module; see class-admin-shell.php.
+	// eslint-disable-next-line import/no-unresolved -- Core's script module, from the import map.
+	a11y ??= import( /* webpackIgnore: true */ '@wordpress/a11y' );
+	a11y
+		.then( ( { speak } ) => speak( title, 'polite' ) )
+		.catch( error => log( 'shell', 'could not announce the page', error ) );
 }

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type ReportParams } from '@jetpack-premium-analytics/data';
+import { type ReportParams, useSiteDay } from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
 	computePrimaryRange,
@@ -138,7 +138,10 @@ export function useEmailTabScope(
 	timeZone: string,
 	window: EmailSendWindow = DEFAULT_EMAIL_SEND_WINDOW
 ): EmailTabScope | undefined {
+	const siteDay = useSiteDay();
+
 	return useMemo( () => {
+		void siteDay;
 		if ( ! allTimeStart || ! ( postId > 0 ) ) {
 			return undefined;
 		}
@@ -173,5 +176,5 @@ export function useEmailTabScope(
 			// Only the lifetime is cut short by the cap; the other windows end by design.
 			isCapped: window === 'all-time' && endsEarly,
 		};
-	}, [ postId, allTimeStart, timeZone, window ] );
+	}, [ postId, allTimeStart, timeZone, window, siteDay ] );
 }

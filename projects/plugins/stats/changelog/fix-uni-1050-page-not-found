@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Open the dashboard for old Stats links on WordPress 7.2 instead of a page-not-found error.

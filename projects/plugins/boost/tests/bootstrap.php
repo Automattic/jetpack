@@ -5,19 +5,6 @@
  * @package automattic/jetpack-boost
  */
 
-// Suppress PHP 8.6 deprecation warnings from Patchwork.
-// @todo: Remove this after the next patchwork release, which will include https://github.com/antecedent/patchwork/pull/227.
-if ( PHP_VERSION_ID >= 80500 ) {
-	set_error_handler(
-		function ( $errno, $errstr, $errfile = '' ) {
-			return E_DEPRECATED === $errno
-				&& str_starts_with( $errstr, 'Calling ReflectionMethod::invokeArgs() for static method ' )
-				&& str_ends_with( $errfile, 'vendor/antecedent/patchwork/src/CallRerouting.php' );
-		},
-		E_ALL
-	);
-}
-
 // Load Patchwork for mocking built-in functions (must be loaded before autoloader).
 require_once __DIR__ . '/../vendor/antecedent/patchwork/Patchwork.php';
 
