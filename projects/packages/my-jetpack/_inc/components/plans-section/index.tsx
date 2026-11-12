@@ -235,10 +235,14 @@ const COMPLETE_FOR_PRO: Record< string, string > = {
  * The Complete plan a site with Pro upgrades to.
  *
  * @param purchases - The site's purchases.
- * @return The Complete product slug, or undefined when the site has no Pro.
+ * @return The Complete product slug, or undefined when the site has no unexpired Pro.
  */
 export function getCompleteUpgradeSlug( purchases?: Purchase[] | null ): string | undefined {
-	return purchases?.map( ( { product_slug } ) => COMPLETE_FOR_PRO[ product_slug ] ).find( Boolean );
+	// An expired Pro leaves nothing to credit, so its owner gets the pricing page instead.
+	return purchases
+		?.filter( ( { expiry_status } ) => PRODUCT_STATUSES.EXPIRED !== expiry_status )
+		.map( ( { product_slug } ) => COMPLETE_FOR_PRO[ product_slug ] )
+		.find( Boolean );
 }
 
 export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {

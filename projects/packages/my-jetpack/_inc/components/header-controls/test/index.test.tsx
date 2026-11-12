@@ -390,7 +390,27 @@ describe( 'HeaderControls', () => {
 		expect( screen.queryAllByRole( 'link', { name: /Purchase a plan/ } ) ).toHaveLength( links );
 	} );
 
-	it( 'sends a site with Pro to Complete checkout in the same term', async () => {
+	it.each( [
+		[
+			'jetpack_pro_yearly',
+			'active',
+			'Upgrade to Complete',
+			'wordpress.com/checkout/123/jetpack_complete?',
+		],
+		[
+			'jetpack_pro_bi_yearly',
+			'active',
+			'Upgrade to Complete',
+			'wordpress.com/checkout/123/jetpack_complete_bi_yearly?',
+		],
+		[
+			'jetpack_pro_monthly',
+			'active',
+			'Upgrade to Complete',
+			'wordpress.com/checkout/123/jetpack_complete_monthly?',
+		],
+		[ 'jetpack_pro_yearly', 'expired', 'Purchase a plan', 'jetpack.com/redirect/' ],
+	] )( 'links a site with %s (%s) to "%s"', async ( productSlug, expiryStatus, linkName, href ) => {
 		window.myJetpackInitialState = {
 			userIsAdmin: true,
 			blogID: '123',
@@ -401,9 +421,9 @@ describe( 'HeaderControls', () => {
 			{
 				ID: 1,
 				product_name: 'Jetpack Pro',
-				product_slug: 'jetpack_pro_bi_yearly',
+				product_slug: productSlug,
 				expiry_date: null,
-				expiry_status: 'active',
+				expiry_status: expiryStatus,
 				subscribed_date: '2025-11-05T00:00:00+00:00',
 				domain: 'example.com',
 			},
@@ -411,14 +431,11 @@ describe( 'HeaderControls', () => {
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
 		await openControl();
-		const link = await screen.findByRole( 'link', { name: /Upgrade to Complete/ } );
-		expect( link ).toHaveAttribute(
-			'href',
-			expect.stringMatching(
-				/^https:\/\/wordpress\.com\/checkout\/123\/jetpack_complete_bi_yearly\?/
-			)
-		);
-		expect( screen.queryByRole( 'link', { name: /Purchase a plan/ } ) ).not.toBeInTheDocument();
+		const link = await screen.findByRole( 'link', { name: new RegExp( linkName ) } );
+		expect( link ).toHaveAttribute( 'href', expect.stringContaining( href ) );
+		expect(
+			screen.getAllByRole( 'link', { name: /Purchase a plan|Upgrade to Complete/ } )
+		).toHaveLength( 1 );
 	} );
 } );
 
