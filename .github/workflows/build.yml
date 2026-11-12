@@ -24,6 +24,7 @@ env:
   XZ_OPT: -3 -T0
 
 jobs:
+  # Trunk pushes build everything, split into 'wpcom' and 'nonwpcom' jobs so the 'wpcom' job can push certain plugins to mirrors. Everything else gets the single 'all' job.
   # Have to manually matrix with yaml anchors, because `update_wpcom_mirrors` needs to depend on only `build_wpcom` and that's not possible with normal matrixing.
   build_all:
     name: Build all projects
@@ -55,29 +56,24 @@ jobs:
       - name: Pnpm install
         run: pnpm install
 
-      # For trunk merges, we build everything but split into two jobs: 'wpcom' and 'non-wpcom'. The 'wpcom' job pushes certain plugins to mirrors.
-      # For everything else, we do a single build job.
       - name: Detect changed projects
         id: changed
         run: |
           if [[ "$BUILD_SET" == all ]]; then
             CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
           else
-            # Written outside the checkout so the build doesn't see them.
-            pnpm jetpack dependencies list --extra=build --ignore-root --add-dependencies plugins/jetpack plugins/mu-wpcom-plugin | sort > "$RUNNER_TEMP/wpcom.txt"
+            LIST=$( pnpm jetpack dependencies list --extra=build --ignore-root --add-dependencies plugins/jetpack plugins/mu-wpcom-plugin | sort )
             if [[ "$BUILD_SET" == nonwpcom ]]; then
-              pnpm jetpack dependencies list --extra=build --ignore-root | sort > "$RUNNER_TEMP/all.txt"
-              comm -23 "$RUNNER_TEMP/all.txt" "$RUNNER_TEMP/wpcom.txt" > "$RUNNER_TEMP/nonwpcom.txt"
+              LIST=$( pnpm jetpack dependencies list --extra=build --ignore-root | sort | comm -23 - <(echo "$LIST") )
             fi
-            CHANGED=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' "$RUNNER_TEMP/$BUILD_SET.txt" )
+            CHANGED=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' <<<"$LIST" )
           fi
+          echo "CHANGED=${CHANGED}" >> "$GITHUB_ENV"
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
 
       # We need the tree (but not the blob) for packages that will have -alpha version numbers so the timestamp appending works right.
       # We also need the tree for js-packages/social-logos/src/svg so the font build will work right.
       - name: Deepen tree for packages
-        env:
-          CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           mapfile -t PROJECTS < <(jq -r 'to_entries[] | select( .value ) | .key' <<<"$CHANGED")
           if [[ ${#PROJECTS[@]} -gt 0 ]]; then
@@ -109,8 +105,6 @@ jobs:
           fi
 
       - name: Build changed projects
-        env:
-          CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           mapfile -t PROJECTS < <(jq -r 'to_entries[] | select( .value ) | .key' <<<"$CHANGED")
           if [[ ${#PROJECTS[@]} -eq 0 ]]; then
@@ -135,7 +129,7 @@ jobs:
   build_wpcom:
     name: Build wpcom projects
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' }}
+    if: &trunk_push ${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' }}
     env:
       FILENAME: partial-build-wpcom.tar.xz
       BUILD_SET: wpcom
@@ -147,7 +141,7 @@ jobs:
   build_nonwpcom:
     name: Build non-wpcom projects
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' }}
+    if: *trunk_push
     env:
       FILENAME: partial-build-nonwpcom.tar.xz
       BUILD_SET: nonwpcom
@@ -548,7 +542,7 @@ jobs:
           mkdir build
           tar --xz -k -xvvf jetpack-build.tar.xz build
       - name: Filter mirrors.txt
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' }}
+        if: *trunk_push
         run: |
           # Skip the plugins pushed by update_wpcom_mirrors, if it was supposed to have run.
           grep -vFx -e 'Automattic/jetpack-production' -e 'Automattic/jetpack-mu-wpcom-plugin' build/mirrors.txt > build/mirrors.txt.tmp || true
