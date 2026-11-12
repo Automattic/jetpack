@@ -318,6 +318,7 @@ class Jetpack_Memberships {
 			'publicly_queryable'  => false,
 			'rewrite'             => false,
 			'capabilities'        => $capabilities,
+			'map_meta_cap'        => true,
 			'show_in_rest'        => false,
 		);
 		register_post_type( self::$post_type_plan, $order_args );
@@ -337,6 +338,7 @@ class Jetpack_Memberships {
 			'publicly_queryable'  => false,
 			'rewrite'             => false,
 			'capabilities'        => $capabilities,
+			'map_meta_cap'        => true,
 			'show_in_rest'        => false,
 		);
 		register_post_type( self::$post_type_coupon, $coupon_args );
