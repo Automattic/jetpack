@@ -50,6 +50,8 @@ trustPolicyExclude:
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
 verifyDepsBeforeRun: install
+# Link agent skills only from the Gutenberg design system packages, not other dependencies (e.g. tsdown).
+# https://pnpm.io/agent-skills
 permissions:
   # Tries to download/install stuff if optional deps weren't installed.
   esbuild:
@@ -69,6 +71,14 @@ permissions:
   # Unaudited.
   tsdown:
     skills: false
+  '@wordpress/theme':
+    skills: true
+  '@wordpress/theme@git+https://github.com/WordPress/gutenberg.git':
+    skills: true
+  '@wordpress/ui':
+    skills: true
+  '@wordpress/ui@git+https://github.com/WordPress/gutenberg.git':
+    skills: true
 
 # Package compromise avoidance: Block odd protocols in subdeps
 blockExoticSubdeps: true
