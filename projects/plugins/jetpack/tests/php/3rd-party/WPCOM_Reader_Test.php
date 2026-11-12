@@ -39,6 +39,17 @@ class WPCOM_Reader_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Capture what the feed item action prints.
+	 *
+	 * @return string
+	 */
+	private function render_item() {
+		ob_start();
+		do_action( 'rss2_item' );
+		return (string) ob_get_clean();
+	}
+
+	/**
 	 * Test that a feed loop prints each item's own post ID, even after a nested loop in its content.
 	 */
 	public function test_feed_loop_prints_each_post_id() {
@@ -62,7 +73,7 @@ class WPCOM_Reader_Test extends WP_UnitTestCase {
 			}
 			wp_reset_postdata();
 
-			$output .= get_echo( 'do_action', array( 'rss2_item' ) );
+			$output .= $this->render_item();
 		}
 
 		$this->assertSame( $this->post_id_tag( $post_ids[0] ) . $this->post_id_tag( $post_ids[1] ), $output );
@@ -74,7 +85,7 @@ class WPCOM_Reader_Test extends WP_UnitTestCase {
 	public function test_items_without_set_up_post_print_no_post_id() {
 		$GLOBALS['post'] = self::factory()->post->create_and_get();
 
-		$output = get_echo( 'do_action', array( 'rss2_item' ) ) . get_echo( 'do_action', array( 'rss2_item' ) );
+		$output = $this->render_item() . $this->render_item();
 
 		$this->assertSame( '', $output );
 	}
@@ -87,7 +98,7 @@ class WPCOM_Reader_Test extends WP_UnitTestCase {
 		$post_id         = $GLOBALS['post']->ID;
 		setup_postdata( $GLOBALS['post'] );
 
-		$output = get_echo( 'do_action', array( 'rss2_item' ) ) . get_echo( 'do_action', array( 'rss2_item' ) );
+		$output = $this->render_item() . $this->render_item();
 		wp_reset_postdata();
 
 		$this->assertSame( $this->post_id_tag( $post_id ), $output );
