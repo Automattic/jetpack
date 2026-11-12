@@ -1,6 +1,7 @@
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useViewportMatch } from '@wordpress/compose';
 import { useState } from 'react';
 import { CustomizeActions } from '../customize-actions';
 
@@ -14,6 +15,10 @@ jest.mock(
 		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useViewportMatch: jest.fn( () => false ),
+} ) );
 
 const editingActions = <div data-testid="dashboard-actions" />;
 
@@ -23,6 +28,7 @@ beforeEach( () => {
 	jest.useFakeTimers();
 	jest.mocked( getScriptData ).mockReturnValue( {} as ReturnType< typeof getScriptData > );
 	jest.mocked( currentUserCan ).mockReturnValue( false );
+	jest.mocked( useViewportMatch ).mockReturnValue( false );
 } );
 
 afterEach( () => {
@@ -55,6 +61,28 @@ describe( 'CustomizeActions', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
 		expect( onCustomize ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'offers Customize from the menu on a narrow screen', async () => {
+		jest.mocked( useViewportMatch ).mockReturnValue( true );
+		const user = setupUser();
+		const onCustomize = jest.fn();
+		render(
+			<CustomizeActions
+				isCustomizing={ false }
+				onCustomize={ onCustomize }
+				editingActions={ editingActions }
+			/>
+		);
+
+		expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+
+		expect( onCustomize ).toHaveBeenCalledTimes( 1 );
+		// Closing hands focus back to the trigger, whose tooltip opens on a timer.
+		await act( () => jest.runOnlyPendingTimersAsync() );
 	} );
 
 	it( "swaps Customize for Reset to default beside the dashboard's own actions, keeping the menu", () => {

@@ -4,7 +4,7 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { Icon, IconButton, Menu } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { cancelCircleFilled, comment, moreVertical } from '@wordpress/icons';
+import { cancelCircleFilled, comment, moreVertical, pencil } from '@wordpress/icons';
 import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
@@ -16,16 +16,25 @@ import { FeedbackModal } from './feedback-modal';
 import { SwitchOffDialog } from './switch-off-dialog';
 import type { Ref } from 'react';
 
+export type PageOptionsMenuProps = {
+	/** Enters customize mode; Customize is on offer only when given. */
+	onCustomize?: () => void;
+	/** The menu's trigger button. */
+	triggerRef?: Ref< HTMLButtonElement >;
+};
+
 /**
- * The page options menu of a Premium Analytics page: feedback and the way back to classic Stats.
+ * The page options menu of a Premium Analytics page: feedback, the way back to classic Stats,
+ * and Customize where the header has no room for its own button.
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2098).
  *
- * @param props            - Component props.
- * @param props.triggerRef - The menu's trigger button.
+ * @param props             - Component props.
+ * @param props.onCustomize - Enters customize mode; Customize is on offer only when given.
+ * @param props.triggerRef  - The menu's trigger button.
  * @return The menu, and whichever of its dialogs is open.
  */
-export function PageOptionsMenu( { triggerRef }: { triggerRef?: Ref< HTMLButtonElement > } ) {
+export function PageOptionsMenu( { onCustomize, triggerRef }: PageOptionsMenuProps ) {
 	const trackEvent = useTrackEvent();
 	const [ isFeedbackOpen, setIsFeedbackOpen ] = useState( false );
 	const [ isSwitchOffOpen, setIsSwitchOffOpen ] = useState( false );
@@ -44,7 +53,7 @@ export function PageOptionsMenu( { triggerRef }: { triggerRef?: Ref< HTMLButtonE
 	const openSwitchOff = useCallback( () => setIsSwitchOffOpen( true ), [] );
 	const closeSwitchOff = useCallback( () => setIsSwitchOffOpen( false ), [] );
 
-	if ( ! canGiveFeedback && ! canSwitchOff ) {
+	if ( ! onCustomize && ! canGiveFeedback && ! canSwitchOff ) {
 		return null;
 	}
 
@@ -64,6 +73,16 @@ export function PageOptionsMenu( { triggerRef }: { triggerRef?: Ref< HTMLButtonE
 					}
 				/>
 				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
+					{ onCustomize && (
+						<>
+							<Menu.Item prefix={ <Icon icon={ pencil } /> } onClick={ onCustomize }>
+								<Menu.ItemLabel>
+									{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }
+								</Menu.ItemLabel>
+							</Menu.Item>
+							{ ( canGiveFeedback || canSwitchOff ) && <Menu.Separator /> }
+						</>
+					) }
 					{ canGiveFeedback && (
 						<Menu.Item prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
 							<Menu.ItemLabel>
