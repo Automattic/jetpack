@@ -139,7 +139,10 @@ class Google_Analytics_Settings_Test extends BaseTestCase {
 	public function test_script_data_tells_the_settings_page_whether_the_panel_is_available() {
 		$_GET['page'] = 'jetpack';
 		try {
-			$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack']['googleAnalyticsPanel'] );
+			$this->assertSame(
+				Initializer::get_settings_panel_url( 'google-analytics' ),
+				Initializer::add_admin_script_data( array() )['myJetpack']['googleAnalyticsPanel']
+			);
 
 			$GLOBALS['my_jetpack_test_site_features'] = array();
 			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['googleAnalyticsPanel'] );

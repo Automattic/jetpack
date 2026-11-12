@@ -72,7 +72,7 @@ export interface MyJetpackScriptData {
 	/** Whether settings move to My Jetpack: the settings consolidation flag is on and My Jetpack is available. */
 	settingsConsolidation?: boolean;
 	/** Whether the settings panel holds Google Analytics for this user. Only on the Jetpack, Settings and My Jetpack pages. */
-	googleAnalyticsPanel?: boolean;
+	googleAnalyticsPanel?: string | false;
 }
 
 export interface JetpackScriptData {

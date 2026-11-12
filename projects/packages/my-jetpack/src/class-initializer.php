@@ -1331,7 +1331,9 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which navigation data to seed.
 		if ( in_array( $_GET['page'] ?? '', array( 'my-jetpack', 'jetpack-settings', 'jetpack' ), true ) ) {
 			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
-			$data['myJetpack']['googleAnalyticsPanel'] = Google_Analytics_Settings::is_available();
+			$data['myJetpack']['googleAnalyticsPanel'] = Google_Analytics_Settings::is_available()
+				? self::get_settings_panel_url( Google_Analytics_Settings::SLUG )
+				: false;
 		}
 
 		// Only administrators can open the pages this points at, so spare everyone else the lookup.
@@ -1696,10 +1698,22 @@ class Initializer {
 			return $fallback;
 		}
 
+		return self::get_settings_panel_url( $module );
+	}
+
+	/**
+	 * The URL that opens a settings panel in Features.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $slug The module or settings entry slug.
+	 * @return string
+	 */
+	public static function get_settings_panel_url( $slug ) {
 		return add_query_arg(
 			array(
 				'page' => 'my-jetpack',
-				'p'    => rawurlencode( '/features?configure=' . $module ),
+				'p'    => rawurlencode( '/features?configure=' . $slug ),
 			),
 			admin_url( 'admin.php' )
 		);

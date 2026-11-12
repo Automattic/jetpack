@@ -5,7 +5,10 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
 import { FeaturesPointer } from 'components/pointer-card';
-import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
+import {
+	isSettingsConsolidationEnabled,
+	searchFindsGoogleAnalytics,
+} from 'lib/settings-consolidation';
 import {
 	isSiteConnected,
 	isOfflineMode,
@@ -28,18 +31,6 @@ import Shortlinks from './shortlinks';
 import { SiteStats } from './site-stats';
 import Sitemaps from './sitemaps';
 import { VerificationServices } from './verification-services';
-
-/**
- * Whether a search names Google Analytics, in English or the site's language.
- *
- * @param {string} searchTerm - The search term.
- * @return {boolean} True on a match.
- */
-const searchFindsGoogleAnalytics = searchTerm =>
-	!! searchTerm &&
-	`google analytics ${ _x( 'Google Analytics', 'Settings header', 'jetpack' ) }`
-		.toLowerCase()
-		.includes( searchTerm.toLowerCase() );
 
 export class Traffic extends Component {
 	static displayName = 'TrafficSettings';
@@ -72,9 +63,9 @@ export class Traffic extends Component {
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
 			// Once the panel holds GA, the pointer shows only in a search that names it.
-			gaInPanel =
-				isSettingsConsolidationEnabled() &&
-				getScriptData()?.myJetpack?.googleAnalyticsPanel === true,
+			gaPanelUrl =
+				isSettingsConsolidationEnabled() && getScriptData()?.myJetpack?.googleAnalyticsPanel,
+			gaInPanel = !! gaPanelUrl,
 			foundAnalytics =
 				isWoASite() && ( ! gaInPanel || searchFindsGoogleAnalytics( this.props.searchTerm ) ),
 			foundBlaze = this.props.isModuleFound( 'blaze' );
@@ -129,7 +120,7 @@ export class Traffic extends Component {
 				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics &&
 					( gaInPanel ? (
-						<GoogleAnalyticsMoved />
+						<GoogleAnalyticsMoved href={ gaPanelUrl } />
 					) : (
 						<GoogleAnalytics
 							{ ...commonProps }

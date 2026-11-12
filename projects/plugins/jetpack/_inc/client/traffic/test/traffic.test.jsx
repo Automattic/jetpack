@@ -8,7 +8,7 @@ jest.mock( 'components/pointer-card', () => ( {
 jest.mock( '../blaze', () => () => 'blaze card' );
 jest.mock( '../google-analytics', () => ( { GoogleAnalytics: () => 'ga card' } ) );
 jest.mock( '../google-analytics-moved', () => ( {
-	GoogleAnalyticsMoved: () => 'ga pointer',
+	GoogleAnalyticsMoved: ( { href } ) => <a href={ href }>ga pointer</a>,
 } ) );
 jest.mock( '../related-posts', () => ( { RelatedPosts: () => 'related-posts card' } ) );
 jest.mock( '../related-posts-moved', () => ( {
@@ -29,6 +29,8 @@ const findsOnly = {
 	shortlinks: module => module === 'shortlinks',
 	ga: () => false,
 };
+
+const PANEL_URL = 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dgoogle-analytics';
 
 describe( 'Traffic settings', () => {
 	it( 'renders the SEO opt-in banner when a search finds only the sitemaps section', () => {
@@ -69,7 +71,7 @@ describe( 'Traffic settings', () => {
 		[ 'ga', 'on without the panel', true, '', [ 'ga card' ], 'woa', false ],
 	] )(
 		'shows %s with the settings flag %s',
-		( module, _when, flag, searchTerm, expected, host, gaPanel = true ) => {
+		( module, _when, flag, searchTerm, expected, host, gaPanel = PANEL_URL ) => {
 			window.JetpackScriptData = {
 				myJetpack: { settingsConsolidation: flag, googleAnalyticsPanel: gaPanel },
 				site: { host },
@@ -88,4 +90,21 @@ describe( 'Traffic settings', () => {
 			}
 		}
 	);
+} );
+
+it( 'links the Google Analytics pointer to the panel URL from My Jetpack', () => {
+	window.JetpackScriptData = {
+		myJetpack: { settingsConsolidation: true, googleAnalyticsPanel: PANEL_URL },
+		site: { host: 'woa' },
+	};
+	try {
+		render( <Traffic active searchTerm="google" isModuleFound={ findsOnly.ga } /> );
+
+		expect( screen.getByRole( 'link', { name: 'ga pointer' } ) ).toHaveAttribute(
+			'href',
+			PANEL_URL
+		);
+	} finally {
+		delete window.JetpackScriptData;
+	}
 } );

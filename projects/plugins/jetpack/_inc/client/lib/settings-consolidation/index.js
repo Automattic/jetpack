@@ -1,4 +1,5 @@
 import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
+import { _x } from '@wordpress/i18n';
 import { currentThemeIsBlockTheme, userCanManageModules } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
 
@@ -98,3 +99,15 @@ export function isSwitchedInFeatures( state, module ) {
 export function isDeprecatedInFeatures( state, module ) {
 	return currentThemeIsBlockTheme( state ) && WIDGET_MODULES.includes( module );
 }
+
+/**
+ * Whether a search names Google Analytics, in English or the site's language.
+ *
+ * @param {string} searchTerm - The search term.
+ * @return {boolean} True on a match.
+ */
+export const searchFindsGoogleAnalytics = searchTerm =>
+	!! searchTerm &&
+	`google analytics ${ _x( 'Google Analytics', 'Settings header', 'jetpack' ) }`
+		.toLowerCase()
+		.includes( searchTerm.toLowerCase() );
