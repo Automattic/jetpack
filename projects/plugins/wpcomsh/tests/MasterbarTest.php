@@ -62,13 +62,7 @@ class MasterbarTest extends WP_UnitTestCase {
 	public function test_plugin_install_with_query_stays_in_wp_admin() {
 		$this->use_admin_interface( 'calypso', true );
 
-		$query_args = array(
-			'tab'       => 'plugin-information',
-			'plugin'    => 'gutentools',
-			'TB_iframe' => 'true',
-		);
-
-		$this->assertNull( wpcomsh_get_plugin_install_calypso_url( $query_args ) );
+		$this->assertNull( wpcomsh_get_plugin_install_calypso_url( true ) );
 	}
 
 	public function test_bare_plugin_install_goes_to_calypso() {
@@ -76,20 +70,20 @@ class MasterbarTest extends WP_UnitTestCase {
 
 		$this->assertSame(
 			'https://wordpress.com/plugins/' . ( new Automattic\Jetpack\Status() )->get_site_suffix(),
-			wpcomsh_get_plugin_install_calypso_url( array() )
+			wpcomsh_get_plugin_install_calypso_url( false )
 		);
 	}
 
 	public function test_bare_plugin_install_stays_in_wp_admin_on_classic_interface() {
 		$this->use_admin_interface( 'wp-admin', true );
 
-		$this->assertNull( wpcomsh_get_plugin_install_calypso_url( array() ) );
+		$this->assertNull( wpcomsh_get_plugin_install_calypso_url( false ) );
 	}
 
 	public function test_bare_plugin_install_stays_in_wp_admin_without_sso() {
 		$this->use_admin_interface( 'calypso', false );
 
-		$this->assertNull( wpcomsh_get_plugin_install_calypso_url( array() ) );
+		$this->assertNull( wpcomsh_get_plugin_install_calypso_url( false ) );
 	}
 
 	/**

@@ -173,12 +173,12 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
  *
  * Only the bare page moves: themes open plugin-install.php?tab=plugin-information in a popup, which Calypso cannot load.
  *
- * @param array $query_args The request's query arguments.
+ * @param bool $has_query Whether the request has a query string.
  *
  * @return string|null The Calypso URL, or null to stay in wp-admin.
  */
-function wpcomsh_get_plugin_install_calypso_url( $query_args ) {
-	if ( ! empty( $query_args ) ) {
+function wpcomsh_get_plugin_install_calypso_url( $has_query ) {
+	if ( $has_query ) {
 		return null;
 	}
 
@@ -200,7 +200,7 @@ function wpcomsh_get_plugin_install_calypso_url( $query_args ) {
  */
 function wpcomsh_maybe_redirect_plugin_install_to_calypso() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checks whether the request has a query.
-	$calypso_url = wpcomsh_get_plugin_install_calypso_url( $_GET );
+	$calypso_url = wpcomsh_get_plugin_install_calypso_url( ! empty( $_GET ) );
 
 	if ( null === $calypso_url ) {
 		return;
