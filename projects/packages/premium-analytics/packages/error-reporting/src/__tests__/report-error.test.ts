@@ -259,6 +259,7 @@ describe( 'reportError', () => {
 			'HTTPS://other.example/a.js?token=s3cret',
 			'HTTPS://other.example/a.js',
 		],
+		[ 'a file with no path in front of it', 'admin.php?page=x&_wpnonce=abc', 'admin.php' ],
 	] )( 'redacts the query of %s in the message', ( _label, url, kept ) => {
 		reportError( dashboardError( `save failed for ${ url }` ), 'error' );
 
@@ -271,6 +272,14 @@ describe( 'reportError', () => {
 		reportError( dashboardError(), 'error' );
 
 		expect( sentPayload().properties.query ).toBe( 'from=[email]' );
+	} );
+
+	it( 'redacts an email address a query value carries percent-encoded', () => {
+		window.history.replaceState( {}, '', '/wp-admin/admin.php?ref=jane%40example.com' );
+
+		reportError( dashboardError(), 'error' );
+
+		expect( sentPayload().properties.query ).toBe( 'ref=[email]' );
 	} );
 
 	it( 'sanitizes and caps properties.error_name, which code can set to anything', () => {
@@ -479,6 +488,22 @@ describe( 'reportError', () => {
 
 		expect( fetchMock ).not.toHaveBeenCalled();
 		expect( reloadPage ).not.toHaveBeenCalled();
+	} );
+
+	it( 'reports a module import failure the resolver vouches for, with no frame of ours', () => {
+		const error = new TypeError(
+			'Failed to fetch dynamically imported module: https://cdn.example/widgets/a/render.js'
+		);
+		error.stack = undefined;
+
+		reportError( error, 'module', { module: 'jetpack-wordads/widgets/chart-tabs/render' } );
+
+		expect( sentPayload().properties ).toMatchObject( {
+			source: 'module',
+			module: 'jetpack-wordads/widgets/chart-tabs/render',
+		} );
+		expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
+		expect( reloadPage ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'reports a failed module load and then reloads to pick up the deployed build', () => {

@@ -2,10 +2,11 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { isChunkLoadError, recoverFromChunkLoad } from './chunk-recovery';
 import { findDashboardFrame, namesDashboardOrigin } from './dashboard-frame';
 import { detectDomInterference } from './dom-interference';
+import { maskEmails } from './mask-emails';
 import { redactQuery, routePathname, stripUrlCredentials } from './redact-query';
 import type { DashboardFrame } from './dashboard-frame';
 
-export type ReportSource = 'boundary' | 'error' | 'unhandledrejection';
+export type ReportSource = 'boundary' | 'error' | 'module' | 'unhandledrejection';
 
 interface ThrownDetails {
 	message: string;
@@ -27,11 +28,10 @@ const ABSOLUTE_URL = /https?:\/\/[^\s'")]+/gi;
 // protocol-relative one. Without this only the page's own live query would be caught.
 const PATH_QUERY = /\/[^\s'"()?#]*[?#][^\s'")]*/g;
 
-// Broader than an RFC address on purpose, but the domain must carry a dot, so a Firefox stack
-// frame such as `render@https://host/x.js:1:1` is not mistaken for one and erased. The local part
-// stops at the delimiters of a query string as well, so one in a parameter value loses the value
-// and not the name beside it.
-const EMAIL = /[^\s<>()[\]{}",;:@&=]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+// A file with a query and no path in front of it, which the pattern above cannot match because it
+// requires the leading slash: `admin.php?page=x&_wpnonce=y` as code or a person writes it. The
+// extension is what separates one from a sentence that happens to end in a question mark.
+const FILE_QUERY = /[A-Za-z0-9_-]+\.[A-Za-z0-9]{1,8}[?#][^\s'")]*/g;
 
 interface ErrorProperties {
 	source: ReportSource;
@@ -131,12 +131,13 @@ function sanitizeText( text: string, limit: number ): string {
 		clean = clean.split( hash ).join( '#[redacted]' );
 	}
 
-	// Truncation comes last, so it cannot cut a redaction in half.
-	return clean
+	const redacted = clean
 		.replace( ABSOLUTE_URL, redactUrl )
 		.replace( PATH_QUERY, redactUrl )
-		.replace( EMAIL, '[email]' )
-		.slice( 0, limit );
+		.replace( FILE_QUERY, redactUrl );
+
+	// Truncation comes last, so it cannot cut a redaction in half.
+	return maskEmails( redacted ).slice( 0, limit );
 }
 
 /**
@@ -259,6 +260,7 @@ function handleResponse( response: Response, hour: number ): void {
  * @param frame                - The first dashboard frame of the stack, if any.
  * @param extra                - Extra context from the caller.
  * @param extra.componentStack - The React component stack of a boundary catch.
+ * @param extra.module         - The module id a failed import was asked for.
  * @return The payload object.
  */
 function buildPayload(
@@ -266,7 +268,7 @@ function buildPayload(
 	message: string,
 	source: ReportSource,
 	frame: DashboardFrame | null,
-	extra?: { componentStack?: string }
+	extra?: { componentStack?: string; module?: string }
 ): ErrorPayload {
 	const { name, stack } = details;
 	const data = getScriptData();
@@ -292,7 +294,7 @@ function buildPayload(
 			// Not the top-level `jetpack_version`, which conventionally carries the plugin version.
 			version: data?.premium_analytics?.error_reporting?.version,
 			route: routePathname( new URLSearchParams( search ).get( 'p' ) ?? '/' ),
-			module: frame?.path,
+			module: extra?.module ?? frame?.path,
 			widget: frame?.widget,
 			error_name: name === undefined ? undefined : sanitizeText( name, NAME_LIMIT ),
 			dom_interference: domInterference,
@@ -300,8 +302,7 @@ function buildPayload(
 				source === 'boundary' && typeof extra?.componentStack === 'string'
 					? sanitizeText( extra.componentStack, TRACE_LIMIT )
 					: undefined,
-			// The allowlist keeps a value whole, and a link someone shares decides what is in it.
-			query: redactQuery( search ).replace( EMAIL, '[email]' ),
+			query: redactQuery( search ),
 		} ),
 		extra: definedMembers( { line: frame?.line, column: frame?.column } ),
 	} satisfies ErrorPayload;
@@ -315,12 +316,13 @@ function buildPayload(
  * @param frame                - The first dashboard frame of the stack, if any.
  * @param extra                - Extra context from the caller.
  * @param extra.componentStack - The React component stack of a boundary catch.
+ * @param extra.module         - The module id a failed import was asked for.
  */
 function send(
 	details: ThrownDetails,
 	source: ReportSource,
 	frame: DashboardFrame | null,
-	extra?: { componentStack?: string }
+	extra?: { componentStack?: string; module?: string }
 ): void {
 	// The raw message can embed the page query string, which changes on every date-range change.
 	const message = sanitizeText( details.message, MESSAGE_LIMIT );
@@ -354,11 +356,12 @@ function send(
  * @param source               - Where the error was caught.
  * @param extra                - Extra context from the caller.
  * @param extra.componentStack - The React component stack of a boundary catch.
+ * @param extra.module         - The module id a failed import was asked for.
  */
 export function reportError(
 	error: unknown,
 	source: ReportSource,
-	extra?: { componentStack?: string }
+	extra?: { componentStack?: string; module?: string }
 ): void {
 	try {
 		const config = getScriptData()?.premium_analytics?.error_reporting;
@@ -377,7 +380,11 @@ export function reportError(
 			frame !== null ||
 			( chunkLoad && namesDashboardOrigin( details.message, config.script_origins ) );
 
-		if ( source !== 'boundary' && ! ours ) {
+		// A boundary catch and a failed module import are raised by our own code about our own
+		// code, so neither needs a stack frame to prove it belongs to the dashboard.
+		const attributed = source === 'boundary' || source === 'module';
+
+		if ( ! attributed && ! ours ) {
 			return;
 		}
 
