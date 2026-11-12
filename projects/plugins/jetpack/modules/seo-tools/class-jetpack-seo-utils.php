@@ -5,8 +5,13 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\SEO\Seo_Tools;
+
 /**
  * Class containing utility static methods that other SEO tools are relying on.
+ *
+ * Methods the SEO package owns forward to it. Each keeps its old body as a fallback,
+ * because an older copy of the package can win the autoloader.
  */
 class Jetpack_SEO_Utils {
 	/**
@@ -26,6 +31,10 @@ class Jetpack_SEO_Utils {
 	 * @return bool True if SEO tools are enabled, false otherwise.
 	 */
 	public static function is_enabled_jetpack_seo() {
+		if ( method_exists( Seo_Tools::class, 'is_enabled' ) ) {
+			return Seo_Tools::is_enabled();
+		}
+
 		/**
 		 * Can be used by SEO plugin authors to disable the conflicting output of SEO Tools.
 		 *
@@ -52,6 +61,10 @@ class Jetpack_SEO_Utils {
 	 * @return bool True if we should enable legacy usage, false otherwise.
 	 */
 	public static function has_legacy_front_page_meta() {
+		if ( method_exists( Seo_Tools::class, 'has_legacy_front_page_meta' ) ) {
+			return Seo_Tools::has_legacy_front_page_meta();
+		}
+
 		return ! self::is_enabled_jetpack_seo() && get_option( self::LEGACY_META_OPTION );
 	}
 
@@ -81,6 +94,10 @@ class Jetpack_SEO_Utils {
 	 * @return string Front page meta description string or empty string.
 	 */
 	public static function get_front_page_meta_description() {
+		if ( method_exists( Seo_Tools::class, 'get_front_page_meta_description' ) ) {
+			return Seo_Tools::get_front_page_meta_description();
+		}
+
 		if ( self::is_enabled_jetpack_seo() ) {
 			$front_page_meta = get_option( self::FRONT_PAGE_META_OPTION );
 			return $front_page_meta ? $front_page_meta : get_option( self::LEGACY_META_OPTION, '' );
