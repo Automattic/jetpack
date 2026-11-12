@@ -4,9 +4,10 @@ import {
 	useBlockProps,
 	InspectorAdvancedControls,
 } from '@wordpress/block-editor';
-import { Button, TextControl } from '@wordpress/components';
-import './editor.scss';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { InputControl } from '@wordpress/ui';
+import './editor.scss';
 
 function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 	const { icon, name, description, feed_url } = attributes;
@@ -15,18 +16,16 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorAdvancedControls>
-				<TextControl
+				<InputControl
 					type="url"
 					label={ __( 'Feed URL', 'jetpack' ) }
-					help={ __(
+					description={ __(
 						'The RSS or Atom feed for this site, for use in a future OPML export.',
 						'jetpack'
 					) }
 					value={ feed_url ?? '' }
-					onChange={ value => setAttributes( { feed_url: value || undefined } ) }
+					onValueChange={ value => setAttributes( { feed_url: value || undefined } ) }
 					placeholder={ __( 'https://example.com/feed/', 'jetpack' ) }
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize={ true }
 				/>
 			</InspectorAdvancedControls>
 			<hr className="wp-block-separator jetpack-blogroll-item-divider" />

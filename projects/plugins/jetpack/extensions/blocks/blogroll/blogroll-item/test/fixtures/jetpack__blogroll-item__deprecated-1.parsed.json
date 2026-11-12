@@ -18,10 +18,6 @@
 			}
 		],
 		"innerHTML": "\n<div class=\"wp-block-jetpack-blogroll\"></div>\n",
-		"innerContent": [
-			"\n<div class=\"wp-block-jetpack-blogroll\">",
-			null,
-			"</div>\n"
-		]
+		"innerContent": [ "\n<div class=\"wp-block-jetpack-blogroll\">", null, "</div>\n" ]
 	}
 ]
