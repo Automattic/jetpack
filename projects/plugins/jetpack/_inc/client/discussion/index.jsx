@@ -3,7 +3,7 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
 import { FeaturesPointer } from 'components/pointer-card';
-import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
+import { isInSettingsPanel } from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -14,7 +14,6 @@ import {
 	isOdysseyStatsEnabled,
 	getSiteAdminUrl,
 	isCommentBlocksAvailable,
-	userCanManageModules,
 } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -94,8 +93,7 @@ export default connect( state => {
 		isOfflineMode: isOfflineMode( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
-		// The panel and Features need manage_options, so users who cannot manage modules keep the card.
-		isMovedToFeatures: isSettingsConsolidationEnabled() && userCanManageModules( state ),
+		isMovedToFeatures: isInSettingsPanel( state ),
 		connectUrl: getConnectUrl( state ),
 		isLinked: isCurrentUserLinked( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
