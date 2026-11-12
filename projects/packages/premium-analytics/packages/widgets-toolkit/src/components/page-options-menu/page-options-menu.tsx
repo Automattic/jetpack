@@ -36,7 +36,7 @@ function SettingsMenuItem() {
 	);
 }
 
-export type PageOptionsMenuProps = {
+type PageOptionsMenuProps = {
 	/** Enters customize mode; Customize is on offer only when given. */
 	onCustomize?: () => void;
 };

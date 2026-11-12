@@ -152,7 +152,6 @@ export {
 	PageNotice,
 	type PageNoticeProps,
 	PageOptionsMenu,
-	type PageOptionsMenuProps,
 	ResetLayoutAction,
 	type ResetLayoutActionProps,
 	UtmUrlBuilderButton,
