@@ -303,34 +303,42 @@ export default function ProtectProductPage() {
 							<h2 className={ styles[ 'product-interstitial__section-heading' ] }>
 								{ __( 'Want comprehensive protection?', 'jetpack-my-jetpack' ) }
 							</h2>
-							<p className={ styles[ 'product-interstitial__section-sub-heading' ] }>
-								{ securityIsRetired
-									? sprintf(
-											/* translators: %s is the name of an available Jetpack bundle. */
-											__(
-												'%s includes real-time backups, malware scanning, and spam protection.',
+							{ isLoadingProduct ? (
+								<LoadingBlock height="48px" width="100%" spaceBelow />
+							) : (
+								<p className={ styles[ 'product-interstitial__section-sub-heading' ] }>
+									{ securityIsRetired
+										? sprintf(
+												/* translators: %s is the name of an available Jetpack bundle. */
+												__(
+													'%s includes real-time backups, malware scanning, and spam protection.',
+													'jetpack-my-jetpack'
+												),
+												replacement.title
+											)
+										: __(
+												'Jetpack Security provides easy-to-use, comprehensive WordPress site security, including real-time backups, a web application firewall, malware scanning, and spam protection.',
 												'jetpack-my-jetpack'
-											),
-											replacement.title
-										)
-									: __(
-											'Jetpack Security provides easy-to-use, comprehensive WordPress site security, including real-time backups, a web application firewall, malware scanning, and spam protection.',
-											'jetpack-my-jetpack'
-										) }
-							</p>
+											) }
+								</p>
+							) }
 							<div className={ styles[ 'product-interstitial__cta-buttons' ] }>
 								<Button variant="primary" onClick={ handleUpgradeClick }>
 									{ __( 'Secure your site', 'jetpack-my-jetpack' ) }
 								</Button>
-								<Link openInNewTab href={ securityFeaturesUrl }>
-									{ securityIsRetired
-										? sprintf(
-												/* translators: %s is the name of an available Jetpack bundle. */
-												__( 'Learn more about %s', 'jetpack-my-jetpack' ),
-												replacement.title
-											)
-										: __( 'Learn more about Jetpack Security', 'jetpack-my-jetpack' ) }
-								</Link>
+								{ isLoadingProduct ? (
+									<LoadingBlock height="24px" width="240px" />
+								) : (
+									<Link openInNewTab href={ securityFeaturesUrl }>
+										{ securityIsRetired
+											? sprintf(
+													/* translators: %s is the name of an available Jetpack bundle. */
+													__( 'Learn more about %s', 'jetpack-my-jetpack' ),
+													replacement.title
+												)
+											: __( 'Learn more about Jetpack Security', 'jetpack-my-jetpack' ) }
+									</Link>
+								) }
 							</div>
 						</div>
 					</Col>

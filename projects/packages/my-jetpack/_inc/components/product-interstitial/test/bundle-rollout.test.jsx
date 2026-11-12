@@ -84,22 +84,24 @@ it( 'keeps the Pro page mounted but hidden while its availability is refreshing'
 } );
 
 it.each( [
-	[ false, false, 'security' ],
-	[ true, true, 'pro' ],
-	[ true, false, 'complete' ],
-	[ undefined, true, 'security' ],
-	[ 'yes', true, 'security' ],
+	[ false, false, false, 'security' ],
+	[ true, true, false, 'pro' ],
+	[ true, false, false, 'complete' ],
+	[ undefined, true, false, 'security' ],
+	[ 'yes', true, false, 'security' ],
+	[ false, false, true, null ],
 ] )(
-	'selects %s/%s from the shared gate and customer eligibility',
-	( catalogAvailable, available, expected ) => {
+	'selects %s/%s (loading %s) from the shared gate and customer eligibility',
+	( catalogAvailable, available, isLoading, expected ) => {
 		useProduct.mockImplementation( slug => ( {
 			detail:
 				slug === 'pro'
 					? { pricingForUi: { catalogAvailable, available } }
 					: { title: slug, isUpgradableByBundle: [], pricingForUi: { available: true } },
+			isLoading,
 		} ) );
 		render( <ProductInterstitial slug="scan" bundle="security" /> );
-		expect( screen.getByTestId( 'bundle' ) ).toHaveTextContent( expected );
+		expect( screen.queryByTestId( 'bundle' )?.textContent ?? null ).toBe( expected );
 	}
 );
 

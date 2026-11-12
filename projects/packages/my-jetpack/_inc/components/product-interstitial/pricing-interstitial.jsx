@@ -23,6 +23,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
+import useBundleOffer from '../../data/products/use-bundle-offer';
 import useProduct from '../../data/products/use-product';
 import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
@@ -32,6 +33,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import GoBackLink from '../go-back-link';
+import LoadingBlock from '../loading-block';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
 import { getProductConfigs } from './config';
@@ -49,20 +51,11 @@ import styles from './style.module.scss';
 export default function PricingInterstitial( { slug } ) {
 	const config = getProductConfigs()[ slug ];
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
-	const { detail: proDetail } = useProduct( 'pro' );
-	const { detail: legacyBundleDetail } = useProduct( config?.bundle );
-	const proIsOnSale = proDetail?.pricingForUi?.catalogAvailable === true;
-	const legacyIsRetired = legacyBundleDetail?.pricingForUi?.available === false;
-	const useNewBundleOffer = proIsOnSale || legacyIsRetired;
-	const preferredBundle =
-		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
-			? 'pro'
-			: 'complete';
-	const fallbackBundle =
-		legacyIsRetired && ! legacyBundleDetail?.hasPaidPlanForProduct
-			? legacyBundleDetail?.purchaseReplacement?.slug
-			: config?.bundle;
-	const bundleSlug = proIsOnSale ? preferredBundle : fallbackBundle;
+	const {
+		bundleSlug,
+		isNewBundleOffer,
+		isResolving: isBundleOfferResolving,
+	} = useBundleOffer( config?.bundle );
 	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( bundleSlug );
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack, backTo } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
@@ -535,7 +528,7 @@ export default function PricingInterstitial( { slug } ) {
 								/>
 							) ) }
 						</PricingTableColumn>
-						{ ! useNewBundleOffer && (
+						{ ! isBundleOfferResolving && ! isNewBundleOffer && (
 							<PricingTableColumn className={ styles[ 'pricing-column' ] }>
 								<PricingTableHeader title={ config.tiers.bundle.name }>
 									{ bundlePricing ? (
@@ -571,7 +564,13 @@ export default function PricingInterstitial( { slug } ) {
 						) }
 					</PricingTable>
 				</Col>
-				{ useNewBundleOffer &&
+				{ isBundleOfferResolving && (
+					<Col>
+						<LoadingBlock width="100%" height="500px" />
+					</Col>
+				) }
+				{ ! isBundleOfferResolving &&
+					isNewBundleOffer &&
 					( bundleDetail?.pricingForUi?.available === true ||
 						bundleDetail?.hasPaidPlanForProduct ) && (
 						<Col>

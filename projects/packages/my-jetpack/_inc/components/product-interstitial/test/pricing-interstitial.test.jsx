@@ -185,11 +185,18 @@ it.each( [ 'security', 'growth', 'complete' ] )(
 			[ legacyBundle ]: legacy,
 			pro,
 		};
+		let isLoading = true;
 		useProduct.mockImplementation( slug => ( {
 			detail: products[ slug ] || searchDetail,
-			isLoading: false,
+			isLoading,
 		} ) );
 		const { rerender } = render( <PricingInterstitial slug="search" /> );
+		expect(
+			screen.queryByRole( 'button', { name: `Get ${ legacyBundle }` } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
+		isLoading = false;
+		rerender( <PricingInterstitial slug="search" /> );
 		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeEnabled();
 		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
 		pro.pricingForUi = { catalogAvailable: true, available: true };

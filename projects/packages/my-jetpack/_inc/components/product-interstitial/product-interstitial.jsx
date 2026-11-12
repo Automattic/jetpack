@@ -12,6 +12,7 @@ import { useCallback, useEffect } from 'react';
  */
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
+import useBundleOffer from '../../data/products/use-bundle-offer';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
@@ -19,6 +20,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import GoBackLink from '../go-back-link';
+import LoadingBlock from '../loading-block';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -63,20 +65,12 @@ export default function ProductInterstitial( {
 	feature = null,
 } ) {
 	const { detail } = useProduct( slug );
-	const { detail: proDetail } = useProduct( 'pro' );
-	const { detail: legacyBundleDetail } = useProduct( bundle );
-	const proIsOnSale = proDetail?.pricingForUi?.catalogAvailable === true;
-	const legacyIsRetired = legacyBundleDetail?.pricingForUi?.available === false;
-	const preferredBundle =
-		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
-			? 'pro'
-			: 'complete';
-	const fallbackBundle =
-		legacyIsRetired && ! legacyBundleDetail?.hasPaidPlanForProduct
-			? legacyBundleDetail?.purchaseReplacement?.slug
-			: bundle;
-	const offeredBundle = bundle && proIsOnSale ? preferredBundle : fallbackBundle;
-	const showSidebar = ! bundle || Boolean( offeredBundle || children );
+	const {
+		bundleSlug: offeredBundle,
+		isNewBundleOffer,
+		isResolving: isBundleOfferResolving,
+	} = useBundleOffer( bundle );
+	const showSidebar = ! bundle || isBundleOfferResolving || Boolean( offeredBundle || children );
 	const { detail: bundleDetail } = useProduct( offeredBundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
@@ -98,7 +92,8 @@ export default function ProductInterstitial( {
 	const showBundledTOS =
 		! hideTOS &&
 		!! bundle &&
-		( ! ( proIsOnSale || legacyIsRetired ) || bundleDetail?.pricingForUi?.available === true );
+		! isBundleOfferResolving &&
+		( ! isNewBundleOffer || bundleDetail?.pricingForUi?.available === true );
 	const productName = detail?.title;
 	const bundleName = bundleDetail?.title;
 	const bundledTosLabels = [
@@ -247,7 +242,7 @@ export default function ProductInterstitial( {
 								supportingInfo={ supportingInfo }
 								preferProductName={ preferProductName }
 								ctaButtonLabel={ ctaButtonLabel }
-								hideTOS={ hideTOS || showBundledTOS }
+								hideTOS={ hideTOS || showBundledTOS || isBundleOfferResolving }
 								quantity={ quantity }
 								highlightLastFeature={ highlightLastFeature }
 								isFetching={ isActivating || siteIsRegistering }
@@ -261,7 +256,8 @@ export default function ProductInterstitial( {
 								lg={ 5 }
 								className={ clsx( styles.imageContainer, imageContainerClassName ) }
 							>
-								{ bundle && offeredBundle && (
+								{ isBundleOfferResolving && <LoadingBlock width="100%" height="500px" /> }
+								{ ! isBundleOfferResolving && bundle && offeredBundle && (
 									<ProductDetailCard
 										slug={ offeredBundle }
 										trackButtonClick={ trackProductOrBundleClick }
@@ -275,7 +271,7 @@ export default function ProductInterstitial( {
 										isUpsell={ true }
 									/>
 								) }
-								{ ! offeredBundle && children }
+								{ ! isBundleOfferResolving && ! offeredBundle && children }
 							</Col>
 						) }
 					</Container>
