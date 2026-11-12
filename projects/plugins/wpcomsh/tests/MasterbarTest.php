@@ -54,4 +54,65 @@ class MasterbarTest extends WP_UnitTestCase {
 
 		$this->assertSame( $expected, get_option( 'wpcom_admin_interface', $passed_default ) );
 	}
+
+	/**
+	 * Tests that a plugin details link, which themes open in a popup, stays in wp-admin.
+	 */
+	public function test_plugin_install_with_query_stays_in_wp_admin() {
+		$this->use_admin_interface_with_sso( 'calypso' );
+
+		$query_args = array(
+			'tab'       => 'plugin-information',
+			'plugin'    => 'gutentools',
+			'TB_iframe' => 'true',
+		);
+
+		$this->assertNull( wpcomsh_get_plugin_install_calypso_url( $query_args ) );
+	}
+
+	/**
+	 * Tests that the bare plugin installer goes to Calypso on the Default admin interface.
+	 */
+	public function test_bare_plugin_install_goes_to_calypso() {
+		$this->use_admin_interface_with_sso( 'calypso' );
+
+		$this->assertSame(
+			'https://wordpress.com/plugins/' . ( new Automattic\Jetpack\Status() )->get_site_suffix(),
+			wpcomsh_get_plugin_install_calypso_url( array() )
+		);
+	}
+
+	/**
+	 * Tests that the bare plugin installer stays in wp-admin on the Classic admin interface.
+	 */
+	public function test_bare_plugin_install_stays_in_wp_admin_on_classic_interface() {
+		$this->use_admin_interface_with_sso( 'wp-admin' );
+
+		$this->assertNull( wpcomsh_get_plugin_install_calypso_url( array() ) );
+	}
+
+	/**
+	 * Sets the site's admin interface style and turns on Jetpack SSO.
+	 *
+	 * @param string $admin_interface The admin interface style: 'calypso' (Default) or 'wp-admin' (Classic).
+	 */
+	private function use_admin_interface_with_sso( $admin_interface ) {
+		if ( ! class_exists( 'Jetpack' ) ) {
+			$this->markTestSkipped( 'Needs the Jetpack plugin for its SSO module.' );
+		}
+
+		add_filter(
+			'pre_option_wpcom_admin_interface',
+			static function () use ( $admin_interface ) {
+				return $admin_interface;
+			},
+			PHP_INT_MAX
+		);
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) {
+				return array_merge( (array) $modules, array( 'sso' ) );
+			}
+		);
+	}
 }
