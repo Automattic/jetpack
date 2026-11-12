@@ -99,6 +99,7 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 							</Menu.ItemLabel>
 						</Menu.Item>
 					) }
+					{ onCustomize && hasSettings && <Menu.Separator /> }
 					{ hasSettings && <SettingsMenuItem /> }
 					{ ( onCustomize || hasSettings ) && ( canGiveFeedback || canSwitchOff ) && (
 						<Menu.Separator />

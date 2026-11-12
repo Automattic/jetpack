@@ -62,6 +62,27 @@ describe( 'page-options-menu Settings entry', () => {
 		expect( url.searchParams.has( 'section' ) ).toBe( false );
 	} );
 
+	it.each( [
+		{ name: 'sits apart from the entries above it', onCustomize: () => {}, above: 1 },
+		{ name: 'has no separator above it as the first entry', onCustomize: undefined, above: 0 },
+	] )( '$name', async ( { onCustomize, above } ) => {
+		jest.mocked( getScriptData ).mockReturnValue( WITH_SETTINGS );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+
+		render( <PageOptionsMenu onCustomize={ onCustomize } /> );
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		const settings = await screen.findByRole( 'menuitem', { name: 'Settings' } );
+		const separatorsAbove = screen
+			.queryAllByRole( 'separator' )
+			.filter(
+				separator =>
+					separator.compareDocumentPosition( settings ) === Node.DOCUMENT_POSITION_FOLLOWING
+			);
+
+		expect( separatorsAbove ).toHaveLength( above );
+	} );
+
 	it( 'is absent where the site hands the user no Stats settings', async () => {
 		jest.mocked( getScriptData ).mockReturnValue( {} as ReturnType< typeof getScriptData > );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
