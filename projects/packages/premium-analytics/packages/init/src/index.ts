@@ -76,4 +76,18 @@ export async function init(): Promise< void > {
 
 	// After the catalogs: the entity labels are built with `__()` at call time.
 	ensureDashboardEntities();
+
+	showWhatsNew();
+}
+
+/**
+ * Show the What's new surface with the dashboard's announcements.
+ *
+ * Imported on demand and never awaited, so the surface stays out of the dashboard's first
+ * render. A load that fails leaves the dashboard without it.
+ */
+function showWhatsNew(): void {
+	import( '@automattic/jetpack-announcements' )
+		.then( ( { mountWhatsNew } ) => mountWhatsNew( { contexts: [ 'premium-analytics' ] } ) )
+		.catch( () => undefined );
 }
