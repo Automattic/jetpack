@@ -469,7 +469,7 @@ describe( 'useTrafficChart', () => {
 			}
 		} );
 
-		it( 'keeps the hourly Views chart when the daily totals request fails', async () => {
+		it( 'keeps the hourly Views chart and its CSV when the daily totals request fails', async () => {
 			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 				path.includes( 'unit=day' )
 					? Promise.reject( { error: 'unauthorized', status: 403 } )
@@ -481,6 +481,7 @@ describe( 'useTrafficChart', () => {
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
 			expect( result.current.isError ).toBe( false );
+			expect( result.current.csvIsError ).toBe( false );
 			const [ views, visitors, comments, likes ] = result.current.metrics;
 			expect( views.current ).toHaveLength( 2 );
 			for ( const metric of [ visitors, comments, likes ] ) {

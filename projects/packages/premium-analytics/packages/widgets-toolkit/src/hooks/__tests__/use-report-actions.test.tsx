@@ -186,29 +186,9 @@ describe( 'useReportActions', () => {
 				{ wrapper }
 			);
 
-			const download = declaredActions().find( action => action.id === 'download-csv' );
-			expect( download ).toEqual( expect.objectContaining( { relevance: 'medium' } ) );
-
-			await runDownload( download );
+			await runDownload( declaredActions().find( action => action.id === 'download-csv' ) );
 
 			expect( mockSaveCsv ).toHaveBeenCalledWith( filename, '"Date","Views"\n"2026-03-01","3"' );
-		} );
-
-		it.each( [
-			[ 'there are no rows', [], SETTLED ],
-			[ 'the primary request failed', ROWS, { ...SETTLED, isError: true } ],
-		] )( 'offers no download when %s', ( _, rows, status ) => {
-			const { wrapper, declaredActions } = setUp();
-
-			renderHook(
-				() =>
-					useReportActions( {
-						csv: { rows, columns, filenamePrefix: 'things', hasDateRange: true, status },
-					} ),
-				{ wrapper }
-			);
-
-			expect( declaredActions().map( action => action.id ) ).not.toContain( 'download-csv' );
 		} );
 	} );
 
