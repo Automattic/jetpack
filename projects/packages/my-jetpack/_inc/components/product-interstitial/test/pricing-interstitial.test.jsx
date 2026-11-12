@@ -84,6 +84,12 @@ jest.mock( '@wordpress/ui', () => ( {
 		</button>
 	),
 	ButtonLink: ( { children } ) => <a href="https://example.org">{ children }</a>,
+	Link: ( { children, href } ) => <a href={ href }>{ children }</a>,
+	Notice: {
+		Root: ( { children } ) => <div role="status">{ children }</div>,
+		Description: ( { children } ) => <div>{ children }</div>,
+	},
+	Text: ( { render } ) => render,
 } ) );
 
 jest.mock( '@wordpress/components', () => ( { Spinner: () => <div /> } ) );
@@ -253,3 +259,30 @@ it.each( [
 	expect( container ).not.toHaveTextContent( 'NaN' );
 	expect( screen.queryAllByText( /^\$\d+$/ ).map( price => price.textContent ) ).toEqual( prices );
 } );
+
+it.each( [
+	[ 'no', 'plugin_absent', true ],
+	[ 'yes', 'plugin_absent', false ],
+	[ 'no', 'plugin_active', false ],
+] )(
+	'with write access %s and status %s, blocks the install CTAs: %s',
+	( writeAccess, status, blocked ) => {
+		window.myJetpackInitialState = { fileSystemWriteAccess: writeAccess };
+		useProduct.mockReturnValue( {
+			detail: { ...searchDetail, status, pluginSlug: 'jetpack-search' },
+			isLoading: false,
+		} );
+		render( <PricingInterstitial slug="search" /> );
+		delete window.myJetpackInitialState;
+
+		const getPlugin = screen.queryByRole( 'link', { name: 'Get plugin' } );
+		expect( getPlugin?.getAttribute( 'href' ) ?? null ).toBe(
+			blocked ? 'https://wordpress.org/plugins/jetpack-search' : null
+		);
+		const installCtas = [ 'Start for free', 'Get Search' ].map( name =>
+			screen.getByRole( 'button', { name } )
+		);
+		expect( installCtas.map( button => button.disabled ) ).toEqual( [ blocked, blocked ] );
+		expect( screen.getByRole( 'button', { name: 'Get complete' } ) ).toBeEnabled();
+	}
+);

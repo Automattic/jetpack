@@ -14,8 +14,8 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { Button, ButtonLink } from '@wordpress/ui';
+import { __, sprintf } from '@wordpress/i18n';
+import { Button, ButtonLink, Link, Notice, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -24,6 +24,7 @@ import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
 import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
@@ -135,6 +136,9 @@ export default function PricingInterstitial( { slug } ) {
 
 	// Disable all buttons when any action is in progress or data is loading.
 	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading || isActivatingSearchFree;
+	const cantInstallPlugin =
+		detail?.status === 'plugin_absent' &&
+		getMyJetpackWindowInitialState( 'fileSystemWriteAccess' ) === 'no';
 
 	// Handle tiered pricing like trunk does - check for tiers.upgraded first
 	const productPricing = useMemo( () => {
@@ -465,6 +469,37 @@ export default function PricingInterstitial( { slug } ) {
 				horizontalSpacing={ 3 }
 				horizontalGap={ 2 }
 			>
+				{ cantInstallPlugin && (
+					<Col>
+						<Notice.Root intent="warning" role="status">
+							<Notice.Description render={ <div /> }>
+								<Text
+									variant="body-lg"
+									style={ { margin: 0 } }
+									render={
+										<p>
+											{ sprintf(
+												// translators: %s is the plugin name.
+												__(
+													"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
+													'jetpack-my-jetpack'
+												),
+												detail.title
+											) }
+											&nbsp;
+											<Link
+												openInNewTab
+												href={ `https://wordpress.org/plugins/${ detail.pluginSlug }` }
+											>
+												{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
+											</Link>
+										</p>
+									}
+								></Text>
+							</Notice.Description>
+						</Notice.Root>
+					</Col>
+				) }
 				<Col>
 					<PricingTable
 						title={ config.title }
@@ -488,7 +523,7 @@ export default function PricingInterstitial( { slug } ) {
 										variant="outline"
 										onClick={ handleFreeActivation }
 										loading={ loadingButton === 'free' }
-										disabled={ buttonsDisabled }
+										disabled={ buttonsDisabled || cantInstallPlugin }
 									>
 										{ config.tiers.free.cta }
 									</Button>
@@ -524,7 +559,7 @@ export default function PricingInterstitial( { slug } ) {
 									className={ styles[ 'tier-cta' ] }
 									onClick={ handleGetProduct }
 									loading={ loadingButton === 'paid' }
-									disabled={ buttonsDisabled }
+									disabled={ buttonsDisabled || cantInstallPlugin }
 								>
 									{ config.tiers.paid.cta }
 								</Button>
