@@ -1,6 +1,9 @@
+@use "../../styles/widget-text" as *;
+
 .delta {
+
+	@include widget-text-weight;
 	font-size: var(--wpds-typography-font-size-md);
-	font-weight: 400;
 	line-height: var(--wpds-typography-font-size-lg);
 
 	&.invalid,
