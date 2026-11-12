@@ -21,18 +21,18 @@ This page covers sections only. Widget types have their own page, [Dashboard wid
 
 ## Files
 
-| File                                               | Role                                                                                                                                                                      |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `get_insertable_widget_types()`, `to_array()`.                                                   |
-| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                    |
-| `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the section script data, the REST routes and their schema.                                                    |
-| `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout and insertable-types filter names, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts. |
+| File                                               | Role                                                                                                                                                                                                                  |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `get_insertable_widget_types()`, `to_array()`.                                                                                               |
+| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                                                                |
+| `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the section script data, the REST routes and their schema.                                                                                                |
+| `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout and insertable-types filter names, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts.                       |
 | `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, their gates and their default layouts, registered through the action like any plugin's. The WooCommerce tab registers from the WooCommerce stats package. |
-| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                         |
-| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                       |
-| `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                 |
-| `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                 |
-| `packages/data/src/utils/dashboard-sections.ts`   | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data, and `isPostDetailAvailable()`, which post links read before linking to `/post/:id`. |
+| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                                                                     |
+| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                                                                   |
+| `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                                                             |
+| `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                                                             |
+| `packages/data/src/utils/dashboard-sections.ts`    | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data, and `isPostDetailAvailable()`, which post links read before linking to `/post/:id`.                                          |
 
 ## When the section files load
 
@@ -122,6 +122,20 @@ A second, smaller channel carries only slugs. `inject_dashboard_sections_script_
 `isDashboardSectionAvailable()` reads it, and `getReportDefinition()` treats a report behind a hidden section as unknown, so the report and detail routes can redirect in `beforeLoad`, before any request. `PostTitleLink` reads the same gate, so a reader who cannot open a post's details gets its public page instead. `getSectionDatePolicy()` reads the second list, so a route applies the plan's date limits there too.
 
 The slug list exists because the report registry lives in the client today. Once reports register on the server, it goes away.
+
+## The order the reader arranges
+
+The server's order is the default. A reader rearranges the tabs in the Arrange tabs dialog of the page options menu, and the result is stored as `sectionOrder`, a list of slugs, in their preferences under the dashboard scope.
+
+`orderSections()` applies it. The slugs the list names come first, in its order, and every other available section follows in the server's order, so a section registered later lands after the ones the reader arranged. A slug with no available section is skipped and kept, so the section returns to its place once it is available again.
+
+The first tab is the one a URL without `?section=` opens, so both channels above apply the order: `useDashboardSections()` on the records the navigation is built from, and `dashboardSectionOf()` on the slug list a route reads in `beforeLoad` to pick its date policy. Both go through `orderSections()`, which keeps them on the same first tab.
+
+When the order changes under a URL that names no section, `useActiveSection()` keeps the section on screen and writes it to the URL, so rearranging the tabs never moves the reader.
+
+While the dialog is open, the tab bar previews the order the reader is trying: the dialog reports each move through `onPreview`, and the stage applies it to the sections it hands the tab bar and to nothing else. Nothing is stored until the reader saves, and the preview is gone with the dialog, however it closes.
+
+Another screen with tabs offers the dialog by handing `PageOptionsMenu` its `tabs`: the screen's preferences scope, its `{ slug, label }` items and, for the preview, an `onPreview` callback.
 
 ## Default layouts
 
@@ -257,6 +271,7 @@ The widget it seeds is the registrant's story, in [Dashboard widget types](dashb
 | The VideoPress package's layout seed, with and without the widget contract loaded, and its WordPress.com registrant | `projects/packages/videopress/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/videopress/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`, `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Videopress_Widgets_Test.php` |
 | The REST entry point WordPress.com calls                                                                            | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                                                                                                                                            |
 | Navigation, active section, stored layouts, section heading                                                         | `routes/dashboard/**/*.test.ts(x)`                                                                                                                                                                                                                                       |
+| The order the reader arranges, and the dialog that stores it                                                        | `packages/data/src/defaults/__tests__/section-order.test.ts`, `routes/stats-date-window.test.ts`, `packages/widgets-toolkit/src/components/page-options-menu/__tests__/arrange-tabs-dialog.test.tsx`                                                                     |
 | Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `packages/data/src/utils/__tests__/dashboard-sections.test.ts`                                                                                                                                                                        |
 
 ## Not covered here

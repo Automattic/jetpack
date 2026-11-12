@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useStagedSearch } from '@jetpack-premium-analytics/routing';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -32,6 +32,9 @@ type SwitchSearch = (
  * `?section=` is validated against the available sections. A miss resolves to
  * the first section by order and the URL is rewritten to it.
  *
+ * A URL that names no section shows the first one as of its arrival: when the
+ * reader rearranges the tabs, the section on screen stays and the URL names it.
+ *
  * @param sections     - The available sections, in order.
  * @param switchSearch - Other search params a switch to a section commits with it.
  * @return The active section slug, a setter to change it, and whether the URL has committed it.
@@ -47,22 +50,31 @@ export function useActiveSection(
 		from: ROUTE_FROM,
 	} );
 
-	const activeSection = resolveSectionId( effective.section, sections );
-	const isCommitted = activeSection === resolveSectionId( committed.section, sections );
+	const firstSection = sections[ 0 ]?.slug;
+	const [ arrivalSection, setArrivalSection ] = useState< DashboardSectionId >();
+	const landingSection =
+		committed.section === undefined ? ( arrivalSection ?? firstSection ) : undefined;
+	if ( landingSection !== arrivalSection ) {
+		setArrivalSection( landingSection );
+	}
 
-	// Rewrite an unresolvable `?section=` to the slug actually rendered, so the
-	// URL never advertises a section that isn't shown. Replace instead of push:
-	// the invalid URL should not survive as a history entry.
+	const activeSection = resolveSectionId( effective.section ?? landingSection, sections );
+	const isCommitted =
+		activeSection === resolveSectionId( committed.section ?? landingSection, sections );
+
+	// Rewrite a `?section=` that is unresolvable, or absent once the first tab is another, to
+	// the slug actually rendered. Replace instead of push: no history entry for the stale URL.
 	useEffect( () => {
-		if ( sections.length === 0 || effective.section === undefined ) {
+		if ( sections.length === 0 ) {
 			return;
 		}
 
-		if ( effective.section !== activeSection ) {
+		const shown = effective.section ?? firstSection;
+		if ( shown !== activeSection ) {
 			stage( { section: activeSection } );
 			commit( { replace: true } );
 		}
-	}, [ sections.length, effective.section, activeSection, stage, commit ] );
+	}, [ sections.length, firstSection, effective.section, activeSection, stage, commit ] );
 
 	const setActiveSection = useCallback(
 		( id: DashboardSectionId ) => {
