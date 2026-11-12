@@ -23,7 +23,9 @@ if ( ! $jetpack_patchwork_cache && function_exists( 'Patchwork\Config\setCachePa
 		putenv( "JETPACK_MASTERBAR_PATCHWORK_CACHE=$jetpack_patchwork_cache" );
 		register_shutdown_function(
 			static function () use ( $jetpack_patchwork_cache ) {
-				array_map( 'unlink', glob( $jetpack_patchwork_cache . '/*' ) );
+				foreach ( glob( $jetpack_patchwork_cache . '/*' ) as $file ) {
+					unlink( $file );
+				}
 				rmdir( $jetpack_patchwork_cache );
 			}
 		);
