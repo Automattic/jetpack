@@ -36,8 +36,20 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 			'<table><thead><tr><th>Guard reason</th></tr></thead><tbody><tr><td>' . self::UNBREAKABLE_WORD . '</td></tr></tbody></table>'
 		);
 
-		$this->assertStringContainsString( '<th style="word-break: break-word;">', $html );
-		$this->assertStringContainsString( '<td style="word-break: break-word;">', $html );
+		$this->assertStringContainsString( '<th style="word-break: break-word; min-width: 4em;">', $html );
+		$this->assertStringContainsString( '<td style="word-break: break-word; min-width: 4em;">', $html );
+	}
+
+	/**
+	 * Test a short label column keeps a readable width beside a long one, instead of being
+	 * squeezed to the single character that word-break allows.
+	 */
+	public function test_narrow_cells_keep_a_floor() {
+		$html = Automattic\Jetpack\Extensions\Markdown\make_content_email_safe(
+			'<table><thead><tr><th>Code</th><th>Value</th></tr></thead><tbody><tr><td>GR-1</td><td>' . self::UNBREAKABLE_WORD . '</td></tr></tbody></table>'
+		);
+
+		$this->assertSame( 4, substr_count( $html, 'min-width: 4em;' ) );
 	}
 
 	/**
@@ -58,7 +70,7 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 	public function test_existing_style_is_kept() {
 		$html = Automattic\Jetpack\Extensions\Markdown\make_content_email_safe( '<table><tr><td style="text-align: right">Total</td></tr></table>' );
 
-		$this->assertStringContainsString( 'text-align: right; word-break: break-word;', $html );
+		$this->assertStringContainsString( 'text-align: right; word-break: break-word; min-width: 4em;', $html );
 	}
 
 	/**
@@ -82,7 +94,7 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 			new stdClass()
 		);
 
-		$this->assertStringContainsString( '<td style="word-break: break-word;">' . self::UNBREAKABLE_WORD . '</td>', (string) $rendered );
+		$this->assertStringContainsString( '<td style="word-break: break-word; min-width: 4em;">' . self::UNBREAKABLE_WORD . '</td>', (string) $rendered );
 	}
 
 	/**
