@@ -169,53 +169,47 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
 }
 
 /**
- * Forces the Add New (plugin install) link to be Calypso.
+ * Gets the Calypso Plugins marketplace URL to send a plugin-install.php request to.
  *
- * @param string $url  The complete URL including scheme and path.
- * @param string $path Path relative to the URL. Blank string if no path is specified.
+ * Only the bare page moves: themes open plugin-install.php?tab=plugin-information in a popup, which Calypso cannot load.
  *
- * @return string
+ * @param array $query_args The request's query arguments.
+ *
+ * @return string|null The Calypso URL, or null to stay in wp-admin.
  */
-function wpcomsh_update_plugin_link_destination( $url, $path ) {
-	// Run only for plugin-install.php links.
-	if ( ! strpos( $url, '/plugin-install.php' ) ) {
-		return $url;
+function wpcomsh_get_plugin_install_calypso_url( $query_args ) {
+	if ( ! empty( $query_args ) ) {
+		return null;
 	}
 
-	// If Jetpack doesn't exist, stay in wp-admin
-	if ( ! class_exists( 'Jetpack' ) ) {
-		return $url;
+	if ( ! class_exists( 'Automattic\Jetpack\Status' ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		return null;
 	}
 
-	// Run only if SSO is active
-	if ( ! Jetpack::is_module_active( 'sso' ) ) {
-		return $url;
-	}
-
-	// Return WP Admin url for example: plugin-install.php?tab=plugin-information&plugin=classic-editor&TB_iframe=true&width=600&height=550
-	if ( strpos( $path, '?' ) ) {
-		return $url;
+	if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_module_active( 'sso' ) ) {
+		return null;
 	}
 
 	return 'https://wordpress.com/plugins/' . ( new Automattic\Jetpack\Status() )->get_site_suffix();
 }
 
 /**
- * Adds filters so that Add New menu & button
- * redirect to Calypso.
+ * Redirects the Add New plugin screen to the Calypso Plugins marketplace.
  *
  * @return void
  */
-function wpcomsh_update_plugin_add_filter() {
-	// If site is not connected or nav redesign is enabled, return early.
-	if ( ! class_exists( 'Automattic\Jetpack\Status' ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+function wpcomsh_maybe_redirect_plugin_install_to_calypso() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checks whether the request has a query.
+	$calypso_url = wpcomsh_get_plugin_install_calypso_url( $_GET );
+
+	if ( null === $calypso_url ) {
 		return;
 	}
 
-	// Update any plugin-install.php links appearing in /wp-admin/plugins.php or elsewhere.
-	add_filter( 'self_admin_url', 'wpcomsh_update_plugin_link_destination', 10, 2 );
+	wp_safe_redirect( $calypso_url );
+	exit( 0 );
 }
-add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
+add_action( 'load-plugin-install.php', 'wpcomsh_maybe_redirect_plugin_install_to_calypso' );
 
 /**
  * Enable the mailbox in WPCOMSH sites.
