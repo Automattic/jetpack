@@ -125,7 +125,7 @@ The slug list exists because the report registry lives in the client today. Once
 
 ## The order the reader arranges
 
-The server's order is the default. A reader rearranges the tabs in the Arrange tabs dialog of the page options menu, and the result is stored as `sectionOrder`, a list of slugs, in their preferences under the dashboard scope.
+The server's order is the default. A reader rearranges the tabs in the Arrange tabs dialog of the Stats options menu, and the result is stored as `sectionOrder`, a list of slugs, in their preferences under the dashboard scope.
 
 `orderSections()` applies it. The slugs the list names come first, in its order, and every other available section follows in the server's order, so a section registered later lands after the ones the reader arranged. A slug with no available section is skipped and kept, so the section returns to its place once it is available again.
 
@@ -135,7 +135,7 @@ When the order changes under a URL that names no section, `useActiveSection()` k
 
 While the dialog is open, the tab bar previews the order the reader is trying: the dialog reports each move through `onPreview`, and the stage applies it to the sections it hands the tab bar and to nothing else. Nothing is stored until the reader saves, and the preview is gone with the dialog, however it closes.
 
-Another screen with tabs offers the dialog by handing `PageOptionsMenu` its `tabs`: the screen's preferences scope, its `{ slug, label }` items and, for the preview, an `onPreview` callback.
+Another screen with tabs offers the dialog by handing `StatsOptionsMenu` its `tabs`: the screen's preferences scope, its `{ slug, label }` items and, for the preview, an `onPreview` callback.
 
 ## Default layouts
 
@@ -271,7 +271,7 @@ The widget it seeds is the registrant's story, in [Dashboard widget types](dashb
 | The VideoPress package's layout seed, with and without the widget contract loaded, and its WordPress.com registrant | `projects/packages/videopress/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/videopress/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`, `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Videopress_Widgets_Test.php` |
 | The REST entry point WordPress.com calls                                                                            | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                                                                                                                                            |
 | Navigation, active section, stored layouts, section heading                                                         | `routes/dashboard/**/*.test.ts(x)`                                                                                                                                                                                                                                       |
-| The order the reader arranges, and the dialog that stores it                                                        | `packages/data/src/defaults/__tests__/section-order.test.ts`, `routes/stats-date-window.test.ts`, `packages/widgets-toolkit/src/components/page-options-menu/__tests__/arrange-tabs-dialog.test.tsx`                                                                     |
+| The order the reader arranges, and the dialog that stores it                                                        | `packages/data/src/defaults/__tests__/section-order.test.ts`, `routes/stats-date-window.test.ts`, `packages/widgets-toolkit/src/components/stats-options-menu/__tests__/arrange-tabs-dialog.test.tsx`                                                                    |
 | Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `packages/data/src/utils/__tests__/dashboard-sections.test.ts`                                                                                                                                                                        |
 
 ## Not covered here

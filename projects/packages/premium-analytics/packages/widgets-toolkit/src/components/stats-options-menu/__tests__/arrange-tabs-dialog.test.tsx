@@ -11,7 +11,7 @@ import '@wordpress/preferences';
  * Internal dependencies
  */
 import { ArrangeTabsDialog } from '../arrange-tabs-dialog';
-import { PageOptionsMenu } from '../page-options-menu';
+import { StatsOptionsMenu } from '../stats-options-menu';
 
 jest.mock(
 	'@automattic/jetpack-analytics',
@@ -169,12 +169,12 @@ describe( 'ArrangeTabsDialog', () => {
 	} );
 } );
 
-describe( 'page-options-menu Arrange tabs entry', () => {
+describe( 'stats-options-menu Arrange tabs entry', () => {
 	it( 'opens the dialog for a page with two or more tabs', async () => {
 		const user = setupUser();
 
-		render( <PageOptionsMenu tabs={ { scope: SCOPE, items: TABS } } /> );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		render( <StatsOptionsMenu tabs={ { scope: SCOPE, items: TABS } } /> );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Arrange tabs' } ) );
 
 		await expect(
@@ -185,8 +185,8 @@ describe( 'page-options-menu Arrange tabs entry', () => {
 	it( 'is disabled for a page with a single tab', async () => {
 		const user = setupUser();
 
-		render( <PageOptionsMenu tabs={ { scope: SCOPE, items: TABS.slice( 0, 1 ) } } /> );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		render( <StatsOptionsMenu tabs={ { scope: SCOPE, items: TABS.slice( 0, 1 ) } } /> );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 		await expect(
 			screen.findByRole( 'menuitem', { name: 'Arrange tabs' } )

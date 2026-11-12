@@ -122,7 +122,7 @@ export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps
 								</Notice.Title>
 								<Notice.Description>
 									{ __(
-										"It'll help us decide what to fix before the new Stats replaces the old one. You can send more any time from the page options menu.",
+										"It'll help us decide what to fix before the new Stats replaces the old one. You can send more any time from the Stats options menu.",
 										'jetpack-premium-analytics-pkg'
 									) }
 								</Notice.Description>

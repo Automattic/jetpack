@@ -151,7 +151,7 @@ export {
 	LockedWidget,
 	PageNotice,
 	type PageNoticeProps,
-	PageOptionsMenu,
+	StatsOptionsMenu,
 	ResetLayoutAction,
 	type ResetLayoutActionProps,
 	UtmUrlBuilderButton,

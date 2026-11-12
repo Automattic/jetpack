@@ -22,7 +22,7 @@ import {
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useDashboardLink } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsTierSlider } from '@jetpack-premium-analytics/ui';
-import { PageOptionsMenu, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import { StatsOptionsMenu, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { speak } from '@wordpress/a11y';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -228,7 +228,7 @@ export function UpgradePage(): JSX.Element {
 					items={ [ { label: __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
-			actions={ <PageOptionsMenu /> }
+			actions={ <StatsOptionsMenu /> }
 			className={ styles.page }
 		>
 			<div className={ styles.layout }>

@@ -6,7 +6,7 @@ import { jetpack } from '@jetpack-premium-analytics/icons';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	DashboardSectionProvider,
-	PageOptionsMenu,
+	StatsOptionsMenu,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
@@ -34,7 +34,7 @@ export function stage(): JSX.Element {
 					items={ [ { label: __( 'Settings', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
-			actions={ <PageOptionsMenu /> }
+			actions={ <StatsOptionsMenu /> }
 			className={ styles.page }
 		>
 			<Stack direction="column" justify="space-between" className={ styles.scroll }>

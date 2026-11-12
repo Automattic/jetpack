@@ -360,7 +360,7 @@ describe( 'single-report stage', () => {
 	beforeAll( () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
 			configurable: true,
-			// The Videos crumb reads VideoPress off it; the page options menu the reader's capabilities.
+			// The Videos crumb reads VideoPress off it; the Stats options menu the reader's capabilities.
 			value: {
 				premium_analytics: {
 					has_videopress: true,
@@ -639,7 +639,7 @@ describe( 'single-report stage', () => {
 		expect( screen.getByText( 'Page widgets' ) ).toBeInTheDocument();
 	} );
 
-	it( 'offers Customize in a page options menu once the summary resolves', async () => {
+	it( 'offers Customize in a Stats options menu once the summary resolves', async () => {
 		const user = userEvent.setup();
 		mockSummary( { title: 'Launch recap' } );
 
@@ -647,7 +647,7 @@ describe( 'single-report stage', () => {
 
 		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
 
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 
 		// The dashboard's own Cancel and Done take the actions slot while editing.
@@ -657,7 +657,7 @@ describe( 'single-report stage', () => {
 
 		act( () => mockDashboardProps.onEditChange?.( false ) );
 		expect( mockDashboardProps.editMode ).toBe( false );
-		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Stats options' } ) ).toBeInTheDocument();
 	} );
 
 	it.each( [
@@ -665,14 +665,14 @@ describe( 'single-report stage', () => {
 		{ summary: { isError: true }, state: 'errored' },
 		{ summary: { isNotFound: true }, state: 'not found' },
 	] )(
-		'offers the page options menu with Customize disabled while the summary is $state',
+		'offers the Stats options menu with Customize disabled while the summary is $state',
 		async ( { summary } ) => {
 			const user = userEvent.setup();
 			mockSummary( summary );
 
 			render( stage() );
 
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 			await expect(
 				screen.findByRole( 'menuitem', { name: 'Customize' } )
@@ -686,7 +686,7 @@ describe( 'single-report stage', () => {
 
 		const { rerender } = render( stage() );
 
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 		expect( mockDashboardProps.editMode ).toBe( true );
 
@@ -699,7 +699,7 @@ describe( 'single-report stage', () => {
 		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'resets the layout from the page options menu and leaves customize mode', async () => {
+	it( 'resets the layout from the Stats options menu and leaves customize mode', async () => {
 		const user = userEvent.setup();
 		const resetLayout = jest.fn();
 		mockUseStoredLayout.mockReturnValue( {
@@ -712,7 +712,7 @@ describe( 'single-report stage', () => {
 
 		render( stage() );
 
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 		expect( mockDashboardProps.editMode ).toBe( true );
 

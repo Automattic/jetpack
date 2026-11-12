@@ -177,7 +177,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
 	useTrackCustomize: () => mockTrackCustomize,
 	canSendFeedback: () => mockCanSendFeedback,
-	PageOptionsMenu: ( {
+	StatsOptionsMenu: ( {
 		onCustomize,
 		tabs,
 	}: {
@@ -187,7 +187,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		mockMenuTabs = tabs;
 
 		return (
-			<div data-testid="page-options-menu">
+			<div data-testid="stats-options-menu">
 				{ onCustomize && (
 					<button type="button" onClick={ onCustomize }>
 						Customize
@@ -327,7 +327,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	/**
 	 * The real dashboard hands `editMode` and `onEditChange` to `Actions` through its
 	 * context; the stand-in does the same so Done and Cancel round-trip. Customize is
-	 * the page options menu's, and the stage mounts this while customizing only.
+	 * the Stats options menu's, and the stage mounts this while customizing only.
 	 *
 	 * @return The stand-in edit toolbar.
 	 */
@@ -930,7 +930,7 @@ describe( 'Dashboard options menu', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
+		const menu = screen.getByTestId( 'stats-options-menu' );
 
 		expect( screen.queryByTestId( 'widget-dashboard-actions' ) ).not.toBeInTheDocument();
 
@@ -950,7 +950,7 @@ describe( 'Dashboard options menu', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
+		const menu = screen.getByTestId( 'stats-options-menu' );
 
 		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
@@ -969,7 +969,7 @@ describe( 'Dashboard options menu', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
+		const menu = screen.getByTestId( 'stats-options-menu' );
 
 		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
@@ -1459,9 +1459,9 @@ describe( 'Dashboard customizing', () => {
 		expect( screen.queryByText( 'interval control' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers Customize from the page options menu, and withdraws it while customizing', async () => {
+	it( 'offers Customize from the Stats options menu, and withdraws it while customizing', async () => {
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
+		const menu = screen.getByTestId( 'stats-options-menu' );
 
 		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
 
@@ -1475,7 +1475,7 @@ describe( 'Dashboard customizing', () => {
 
 	it( "offers Reset to default beside the dashboard's own actions while customizing", async () => {
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
+		const menu = screen.getByTestId( 'stats-options-menu' );
 		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) ).not.toBeInTheDocument();
 
 		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
@@ -1604,7 +1604,7 @@ describe( 'Dashboard locked section', () => {
 		render( <Dashboard /> );
 
 		expect(
-			within( screen.getByTestId( 'page-options-menu' ) ).queryByRole( 'button', {
+			within( screen.getByTestId( 'stats-options-menu' ) ).queryByRole( 'button', {
 				name: 'Customize',
 			} )
 		).not.toBeInTheDocument();

@@ -5,7 +5,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
-import { PageOptionsMenu } from '../page-options-menu';
+import { StatsOptionsMenu } from '../stats-options-menu';
 import type { ReactNode } from 'react';
 
 type ReportPageActionsProps = {
@@ -14,7 +14,7 @@ type ReportPageActionsProps = {
 };
 
 /**
- * The actions slot of a report page: the report's own actions, then the page options menu.
+ * The actions slot of a report page: the report's own actions, then the Stats options menu.
  *
  * @param {ReportPageActionsProps} props - The component props.
  * @return The slot content.
@@ -24,7 +24,7 @@ export function ReportPageActions( { children }: ReportPageActionsProps ) {
 		<Stack direction="row" align="center" gap="sm">
 			{ children }
 
-			<PageOptionsMenu />
+			<StatsOptionsMenu />
 		</Stack>
 	);
 }

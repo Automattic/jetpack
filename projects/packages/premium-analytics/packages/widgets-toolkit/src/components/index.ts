@@ -189,9 +189,9 @@ export { PageNotice, type PageNoticeProps } from './page-notice';
 export {
 	canSendFeedback,
 	FeedbackModal,
-	PageOptionsMenu,
+	StatsOptionsMenu,
 	type FeedbackSource,
-} from './page-options-menu';
+} from './stats-options-menu';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
 	ReportCsvDownloadButton,
