@@ -66,7 +66,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 */
 		public function get( $option_name ) {
 			if ( null === $this->persistent_data ) {
-				$this->persistent_data = new Atomic_Persistent_Data();
+				$this->persistent_data = wpcomsh_get_atomic_persistent_data();
 			}
 			$persistent_data = $this->persistent_data;
 
