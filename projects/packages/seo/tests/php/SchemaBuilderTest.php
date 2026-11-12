@@ -403,6 +403,25 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
+	 * Text decoded to real markup stays escaped, so it can't end the script block.
+	 */
+	public function test_decoded_text_cannot_close_the_json_ld_script() {
+		$title   = '</script><script>alert(1)</script>';
+		$post_id = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => esc_html( $title ),
+			)
+		);
+
+		$html = $this->capture_woo_schema_lifecycle( get_post( $post_id ), false );
+		wp_delete_post( $post_id, true );
+
+		$this->assertSame( 1, preg_match( '#^<script type="application/ld\+json">[^<>]+</script>$#', $html ), 'Expected one script block with no raw angle brackets.' );
+		$this->assertSame( $title, $this->schema_nodes_of_type_from_html( $html, 'Article' )[0]['headline'] );
+	}
+
+	/**
 	 * A "faq" override emits a `@graph` document containing a FAQPage node.
 	 */
 	public function test_emits_graph_with_faqpage_for_faq_override() {
@@ -473,6 +492,18 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertSame( 'Acme Co', $website['name'] );
 		$this->assertSame( $organization['@id'], $website['publisher']['@id'] );
 		$this->assertSame( 'SearchAction', $website['potentialAction']['@type'] );
+	}
+
+	/**
+	 * WordPress stores the Site Title with entities, but JSON-LD is plain text.
+	 */
+	public function test_site_level_names_decode_html_entities() {
+		$this->set_site_name( 'Tom &amp; Jerry' );
+
+		$doc = $this->emit_front_page_document();
+
+		$this->assertSame( 'Tom & Jerry', $this->node_of_type( $doc, 'Organization' )['name'] );
+		$this->assertSame( 'Tom & Jerry', $this->node_of_type( $doc, 'WebSite' )['name'] );
 	}
 
 	/**

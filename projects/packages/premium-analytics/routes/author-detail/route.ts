@@ -62,14 +62,10 @@ export const route = {
 		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsAuthorSeed = currentSearch.author_id !== authorId;
 
-		// The seed mirrors post-detail/route.ts, which explains each step; this
-		// page carries no report origin, since its breadcrumb is fixed.
+		// This page carries no report origin, since its breadcrumb is fixed.
 		if ( needsDateSeed || needsAuthorSeed ) {
-			try {
-				await ensureCoreSettingsReady();
-			} catch {
-				// Proceed with the default seed below.
-			}
+			// Not awaited, as in `dateWindowRedirect()`: the seed doesn't read the settings.
+			ensureCoreSettingsReady().catch( () => {} );
 
 			const reportParams = normalizeReportParams(
 				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]

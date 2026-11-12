@@ -242,6 +242,23 @@ class Dashboard {
 	}
 
 	/**
+	 * The admin URL that opens one of the dashboard's tabs.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $tab The tab's `?tab=` value; 'overview' opens the bare page.
+	 * @return string
+	 */
+	public static function get_tab_url( $tab ) {
+		$path = 'admin.php?page=' . self::MENU_SLUG;
+		if ( 'overview' !== $tab ) {
+			// wp-build's router reads a route's search params from `p`.
+			$path .= '&p=' . rawurlencode( '/?tab=' . $tab );
+		}
+		return admin_url( $path );
+	}
+
+	/**
 	 * Load a wp-build index and, if it can render the page, its scripts and polyfills.
 	 *
 	 * @param string $build_index Path to the generated build.php.

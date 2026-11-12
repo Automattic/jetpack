@@ -126,6 +126,17 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Assert a reader's result validates against the output schema it declares, as execute() checks it.
+	 *
+	 * @param string $slug   Ability slug.
+	 * @param mixed  $result Result of the ability's execute callback.
+	 */
+	private function assert_matches_output_schema( string $slug, $result ): void {
+		$schema = Stats_Abilities::get_abilities()[ $slug ]['output_schema'];
+		$this->assertTrue( rest_validate_value_from_schema( $result, $schema, 'result' ) );
+	}
+
+	/**
 	 * Run a callable while the given Abilities API lifecycle action appears to be firing.
 	 *
 	 * The Registrar guards its register_* methods with `doing_action()`. Pushing onto
@@ -402,6 +413,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$requests = $this->filter_wpcom_stats( $responses );
 
 		$result = Stats_Abilities::get_site_overview();
+		$this->assert_matches_output_schema( 'jetpack-stats/get-site-overview', $result );
 
 		$this->assertIsArray( $result );
 		$this->assertSame(
@@ -509,6 +521,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->filter_wpcom_stats( array( $method => $response ) + self::overview_responses() );
 
 		$result = Stats_Abilities::get_site_overview();
+		$this->assert_matches_output_schema( 'jetpack-stats/get-site-overview', $result );
 
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['partial'] );
@@ -561,6 +574,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				'max'  => 5,
 			)
 		);
+		$this->assert_matches_output_schema( 'jetpack-stats/get-top-content', $result );
 
 		$this->assertSame( 'posts', $result['type'] );
 		$this->assertSame( 'day', $result['period'] );
@@ -802,6 +816,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 
 		$result = Stats_Abilities::get_top_content( array( 'type' => 'tags' ) );
+		$this->assert_matches_output_schema( 'jetpack-stats/get-top-content', $result );
 
 		$this->assertSame(
 			array(
@@ -1154,6 +1169,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				'date'    => '2026-10-08',
 			)
 		);
+		$this->assert_matches_output_schema( 'jetpack-stats/get-post-views', $result );
 
 		$this->assertSame( $expected, $result['series'] );
 	}
@@ -1168,6 +1184,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				'num'     => 3,
 			)
 		);
+		$this->assert_matches_output_schema( 'jetpack-stats/get-post-views', $result );
 
 		$this->assertNull( $result['total_views'] );
 		$this->assertSame( array( null, null, null ), array_column( $result['series'], 'views' ) );
@@ -1268,6 +1285,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 
 		$result = Stats_Abilities::get_visits( array( 'fields' => array( 'views', 'likes', 'comments' ) ) );
+		$this->assert_matches_output_schema( 'jetpack-stats/get-visits', $result );
 
 		$this->assertSame( array( 'views', 'likes', 'comments' ), $result['fields'] );
 		$this->assertSame( 100, $result['series'][0]['views'] );
@@ -1324,6 +1342,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 
 		$result = Stats_Abilities::get_followers();
+		$this->assert_matches_output_schema( 'jetpack-stats/get-followers', $result );
 
 		$this->assertSame( 10, $result['email'] );
 		$this->assertSame( 25, $result['wpcom'] );
@@ -1374,6 +1393,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 
 		$result = Stats_Abilities::get_followers();
+		$this->assert_matches_output_schema( 'jetpack-stats/get-followers', $result );
 
 		$this->assertTrue( $result['partial'] );
 		$this->assertSame( array( 'comment_followers' ), $result['errors'] );

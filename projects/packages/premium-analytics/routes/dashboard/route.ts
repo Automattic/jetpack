@@ -26,7 +26,7 @@ export const route = {
 		const policy = getSectionDatePolicy( dashboardSectionOf( current.section ) );
 		const params = withoutCarriedYearWindow( current, policy );
 
-		const limited = await dateWindowRedirect( params, policy, {
+		const limited = dateWindowRedirect( params, policy, {
 			seed: next => seedDashboardDateSearch( next, policy ),
 			requested: params,
 		} );

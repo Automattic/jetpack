@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use each post's SEO description for its llms.txt link summary when one is set.
