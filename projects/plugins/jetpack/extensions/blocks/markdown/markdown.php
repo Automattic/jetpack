@@ -62,9 +62,12 @@ function make_content_email_safe( $html ) {
 	// min-width on cells: word-break drops a cell's minimum width to one character, and auto
 	// table layout then squeezes a short column sharing a row with a long one until its label
 	// reads one letter per line. A code fence has no such neighbour, so it needs no floor.
+	//
+	// 3em, not more: every cell carries the floor, so a wider value pushes a table of short
+	// columns that fitted before past the email's width and back into a sideways scroll.
 	$styles = array(
-		'TD'  => 'word-break: break-word; min-width: 4em;',
-		'TH'  => 'word-break: break-word; min-width: 4em;',
+		'TD'  => 'word-break: break-word; min-width: 3em;',
+		'TH'  => 'word-break: break-word; min-width: 3em;',
 		'PRE' => 'white-space: pre-wrap; word-break: break-word;',
 	);
 

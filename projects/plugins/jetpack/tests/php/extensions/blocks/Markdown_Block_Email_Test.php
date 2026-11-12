@@ -36,8 +36,8 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 			'<table><thead><tr><th>Guard reason</th></tr></thead><tbody><tr><td>' . self::UNBREAKABLE_WORD . '</td></tr></tbody></table>'
 		);
 
-		$this->assertStringContainsString( '<th style="word-break: break-word; min-width: 4em;">', $html );
-		$this->assertStringContainsString( '<td style="word-break: break-word; min-width: 4em;">', $html );
+		$this->assertStringContainsString( '<th style="word-break: break-word; min-width: 3em;">', $html );
+		$this->assertStringContainsString( '<td style="word-break: break-word; min-width: 3em;">', $html );
 	}
 
 	/**
@@ -49,7 +49,24 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 			'<table><thead><tr><th>Code</th><th>Value</th></tr></thead><tbody><tr><td>GR-1</td><td>' . self::UNBREAKABLE_WORD . '</td></tr></tbody></table>'
 		);
 
-		$this->assertSame( 4, substr_count( $html, 'min-width: 4em;' ) );
+		$this->assertSame( 4, substr_count( $html, 'min-width: 3em;' ) );
+	}
+
+	/**
+	 * Test the floor every cell carries stays small enough that a table of short columns,
+	 * which fitted before the floor existed, still fits the email.
+	 */
+	public function test_the_cell_floor_leaves_room_for_several_columns() {
+		$html = Automattic\Jetpack\Extensions\Markdown\make_content_email_safe(
+			'<table><thead><tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead>'
+			. '<tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr></tbody></table>'
+		);
+
+		preg_match_all( '/min-width: (\\d+)em;/', $html, $matches );
+		$this->assertCount( 10, $matches[1], 'Every cell should carry the floor.' );
+
+		// Five columns, each with 8px of padding either side, against the 612px content width.
+		$this->assertLessThanOrEqual( 612, 5 * ( (int) $matches[1][0] * 16 + 16 ) );
 	}
 
 	/**
@@ -70,7 +87,7 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 	public function test_existing_style_is_kept() {
 		$html = Automattic\Jetpack\Extensions\Markdown\make_content_email_safe( '<table><tr><td style="text-align: right">Total</td></tr></table>' );
 
-		$this->assertStringContainsString( 'text-align: right; word-break: break-word; min-width: 4em;', $html );
+		$this->assertStringContainsString( 'text-align: right; word-break: break-word; min-width: 3em;', $html );
 	}
 
 	/**
@@ -94,7 +111,7 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 			new stdClass()
 		);
 
-		$this->assertStringContainsString( '<td style="word-break: break-word; min-width: 4em;">' . self::UNBREAKABLE_WORD . '</td>', (string) $rendered );
+		$this->assertStringContainsString( '<td style="word-break: break-word; min-width: 3em;">' . self::UNBREAKABLE_WORD . '</td>', (string) $rendered );
 	}
 
 	/**
