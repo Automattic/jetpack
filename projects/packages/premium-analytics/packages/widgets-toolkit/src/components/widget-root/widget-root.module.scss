@@ -4,7 +4,7 @@
 
 	@extend %widget-container;
 
-	// Not inherited: only text that opts in with `widget-text-weight` reads it.
+	// Declared, not applied: text opts in with `widget-text-weight`.
 	--jpa-widget-font-weight: 500;
 	--a8c-charts-font-weight-leaderboard: var(--jpa-widget-font-weight);
 }
