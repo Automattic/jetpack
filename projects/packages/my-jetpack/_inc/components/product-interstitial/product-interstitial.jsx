@@ -20,9 +20,9 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import GoBackLink from '../go-back-link';
-import LoadingBlock from '../loading-block';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
+import ProductDetailCardSkeleton from '../product-detail-card/skeleton';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
 import styles from './style.module.scss';
 
@@ -256,7 +256,11 @@ export default function ProductInterstitial( {
 								lg={ 5 }
 								className={ clsx( styles.imageContainer, imageContainerClassName ) }
 							>
-								{ isBundleOfferResolving && <LoadingBlock width="100%" height="500px" /> }
+								{ isBundleOfferResolving && (
+									<ProductDetailCardSkeleton
+										className={ isUpgradableByBundle ? styles.container : null }
+									/>
+								) }
 								{ ! isBundleOfferResolving && bundle && offeredBundle && (
 									<ProductDetailCard
 										slug={ offeredBundle }

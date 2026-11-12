@@ -33,9 +33,9 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import GoBackLink from '../go-back-link';
-import LoadingBlock from '../loading-block';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
+import ProductDetailCardSkeleton from '../product-detail-card/skeleton';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -566,7 +566,7 @@ export default function PricingInterstitial( { slug } ) {
 				</Col>
 				{ isBundleOfferResolving && (
 					<Col>
-						<LoadingBlock width="100%" height="500px" />
+						<ProductDetailCardSkeleton />
 					</Col>
 				) }
 				{ ! isBundleOfferResolving &&

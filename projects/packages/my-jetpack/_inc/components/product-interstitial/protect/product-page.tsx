@@ -304,7 +304,11 @@ export default function ProtectProductPage() {
 								{ __( 'Want comprehensive protection?', 'jetpack-my-jetpack' ) }
 							</h2>
 							{ isLoadingProduct ? (
-								<LoadingBlock height="48px" width="100%" spaceBelow />
+								<div
+									className={ styles[ 'product-interstitial__section-sub-heading-placeholder' ] }
+								>
+									<LoadingBlock height="48px" width="100%" />
+								</div>
 							) : (
 								<p className={ styles[ 'product-interstitial__section-sub-heading' ] }>
 									{ securityIsRetired
