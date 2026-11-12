@@ -22,9 +22,11 @@ require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\add_error_reporting_script_data
  * @covers ::Automattic\Jetpack\PremiumAnalytics\sanitize_error_reporting_origins
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\delegate_wp_admin_error_reporting
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\add_error_reporting_script_data' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\sanitize_error_reporting_origins' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\delegate_wp_admin_error_reporting' )]
 class Error_Reporting_Test extends BaseTestCase {
 	use Widget_Manifest_Fixture_Trait;
 
@@ -68,6 +70,18 @@ class Error_Reporting_Test extends BaseTestCase {
 
 		$this->assertFalse( $config['enabled'] );
 		$this->assert_version_and_build_origin( $config );
+	}
+
+	public function test_wp_admin_error_reporting_stands_down_where_the_dashboard_reports() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertTrue( delegate_wp_admin_error_reporting( false ) );
+	}
+
+	public function test_wp_admin_error_reporting_is_left_alone_where_the_dashboard_is_silent() {
+		$this->assertFalse( delegate_wp_admin_error_reporting( false ) );
+		// Another screen owner's answer survives: ours is the only reason this filter adds.
+		$this->assertTrue( delegate_wp_admin_error_reporting( true ) );
 	}
 
 	public function test_script_origins_filterable() {
