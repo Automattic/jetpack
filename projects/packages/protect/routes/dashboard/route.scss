@@ -13,7 +13,8 @@ body.toplevel_page_jetpack-protect {
 	--wp-ui-dialog-z-index: 100000;
 }
 
-// The width is what the trail collapses into on narrow screens.
+// Matches Boost's "Jetpack / Boost" trail. The width is what
+// the trail collapses into on narrow screens.
 .jp-protect-breadcrumbs {
 	flex: 1;
 }
