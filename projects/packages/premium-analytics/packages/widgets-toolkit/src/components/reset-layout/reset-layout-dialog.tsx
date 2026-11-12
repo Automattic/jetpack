@@ -18,7 +18,7 @@ type ResetLayoutDialogProps = {
  * @param {ResetLayoutDialogProps} props            - Component props.
  * @param {Function}               props.onConfirm  - Called once the reader confirms.
  * @param {Function}               props.onClose    - Called once the dialog closes, confirmed or not.
- * @param {Function}               props.finalFocus - Whether to return focus on close, as `AlertDialog.Popup` takes it.
+ * @param {Function}               props.finalFocus - Returns whether focus goes back on close; passed to `AlertDialog.Popup`.
  * @return The dialog.
  */
 export function ResetLayoutDialog( { onConfirm, onClose, finalFocus }: ResetLayoutDialogProps ) {

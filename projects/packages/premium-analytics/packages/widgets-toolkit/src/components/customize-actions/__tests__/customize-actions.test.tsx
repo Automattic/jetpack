@@ -17,14 +17,21 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const editingActions = <div data-testid="dashboard-actions" />;
 
+const setupUser = () => userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+
 beforeEach( () => {
+	jest.useFakeTimers();
 	jest.mocked( getScriptData ).mockReturnValue( {} as ReturnType< typeof getScriptData > );
 	jest.mocked( currentUserCan ).mockReturnValue( false );
 } );
 
+afterEach( () => {
+	jest.useRealTimers();
+} );
+
 describe( 'CustomizeActions', () => {
 	it( 'offers Customize as a button outside the menu', async () => {
-		const user = userEvent.setup();
+		const user = setupUser();
 		const onCustomize = jest.fn();
 		render(
 			<CustomizeActions
@@ -75,7 +82,7 @@ describe( 'CustomizeActions', () => {
 	] )(
 		'moves focus onto %s when leaving unmounts the focused control',
 		async ( target, onCustomize ) => {
-			const user = userEvent.setup();
+			const user = setupUser();
 			const dashboardActions = (
 				<>
 					<button>Cancel</button>
@@ -146,7 +153,7 @@ describe( 'CustomizeActions', () => {
 	} );
 
 	it( 'moves focus onto the first editing action when entering unmounts Customize', async () => {
-		const user = userEvent.setup();
+		const user = setupUser();
 		const dashboardActions = (
 			<>
 				<button>Cancel</button>
@@ -173,7 +180,7 @@ describe( 'CustomizeActions', () => {
 	} );
 
 	it( 'moves focus onto Customize after Reset to default, even once another popup has closed', async () => {
-		const user = userEvent.setup();
+		const user = setupUser();
 		function Page() {
 			const [ isCustomizing, setIsCustomizing ] = useState( false );
 			return (
