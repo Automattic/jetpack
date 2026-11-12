@@ -38,6 +38,15 @@ describe( 'getValueBuckets', () => {
 		expect( getBucketedValue( 9, buckets ) ).toBe( 1 );
 	} );
 
+	test( 'keeps the values above a dominant tie on steps of their own', () => {
+		const buckets = bucketsOf( [ ...Array( 10 ).fill( 1 ), 2, 3, 4, 5 ], 5 );
+
+		expect( buckets ).toEqual( { thresholds: [ 2, 3, 4, 5 ], steps: 5 } );
+		expect( [ 1, 2, 3, 4, 5 ].map( value => getBucketedValue( value, buckets ) ) ).toEqual( [
+			0, 0.25, 0.5, 0.75, 1,
+		] );
+	} );
+
 	test( 'gives each distinct value its own step when there are fewer than the steps', () => {
 		const buckets = bucketsOf( [ 5, 5, 10, 10, 20, 20 ], 5 );
 

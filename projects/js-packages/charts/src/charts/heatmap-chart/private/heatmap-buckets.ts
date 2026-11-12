@@ -34,19 +34,18 @@ export const getValueBuckets = (
 
 	for ( let step = 1; step < steps; step++ ) {
 		const index = Math.min( eligible.length - 1, Math.floor( ( eligible.length * step ) / steps ) );
-		if ( eligible[ index ] > last() ) {
-			thresholds.push( eligible[ index ] );
-		}
-	}
-	// A value repeated often enough to span several quantiles leaves the scale
-	// short of steps, so spend what is left on the distinct values above it.
-	for ( const value of eligible ) {
-		if ( thresholds.length >= steps - 1 ) {
+		// A value repeated often enough to span several quantiles would leave the
+		// scale short of steps, so the quantile gives way to the next value above
+		// the last cut point. Waiting until the quantiles are done instead pins the
+		// high cut points first, and the values below them can no longer be split.
+		const cut =
+			eligible[ index ] > last() ? eligible[ index ] : eligible.find( value => value > last() );
+
+		if ( cut === undefined ) {
 			break;
 		}
-		if ( value > last() ) {
-			thresholds.push( value );
-		}
+
+		thresholds.push( cut );
 	}
 
 	return { thresholds, steps };

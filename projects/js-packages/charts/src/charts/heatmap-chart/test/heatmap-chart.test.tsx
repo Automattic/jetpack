@@ -1422,6 +1422,26 @@ describe( 'HeatmapChart partial cells', () => {
 		);
 	} );
 
+	test( 'ignores a partial flag on a summary cell', async () => {
+		const renderTooltip = jest.fn( () => <span>custom</span> );
+		renderChart( {
+			data: [
+				{ label: 'Oct', data: [ { value: 10, label: 'October' } ] },
+				{ label: 'Total', summary: true, data: [ { value: 10, label: 'Totals', partial: true } ] },
+			],
+			withTooltips: true,
+			renderTooltip,
+		} );
+
+		const summary = screen.getByTestId( 'heatmap-cell-summary' );
+		expect( summary ).toHaveAccessibleName( 'Totals: 10' );
+
+		await userEvent.setup().hover( summary );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+
+		expect( renderTooltip ).toHaveBeenCalledWith( expect.objectContaining( { partial: false } ) );
+	} );
+
 	test( 'renders a series of nothing but partial cells', () => {
 		const onlyPartial: HeatmapColumn[] = [
 			{ data: [ { value: 5, partial: true } ] },
