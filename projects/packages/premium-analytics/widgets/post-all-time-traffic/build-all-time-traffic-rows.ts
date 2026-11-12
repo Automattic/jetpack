@@ -4,8 +4,10 @@
 import type { StatsPostResponse, StatsPostYear } from '@jetpack-premium-analytics/data';
 import {
 	MONTHS_IN_YEAR,
+	isMonthIncomplete,
 	monthOrder,
-	type MonthKey,
+	toMonthKey,
+	type DayKey,
 	type MonthlyHeatmapMetric,
 	type MonthlyHeatmapTarget,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -42,18 +44,18 @@ function reportedMonths( years: Record< string, StatsPostYear > ): number[] {
  * leaves out inside the post's life is a zero, so the grid stays complete, the
  * way the daily heatmap draws every day of its range.
  *
- * @param response  - The sanitized `stats/post` response.
- * @param metric    - Which number each cell reports.
- * @param today     - The site's current month, which closes the last row.
- * @param published - The month the post was published; defaults to the first
- *                  reported month.
- * @return One row per year of the post's life, newest first, and the months a total cannot compare with a full month. That is the current month alone, within the post's life and never under the average, since a publish month carries no day to measure. Both empty without stats.
+ * @param response    - The sanitized `stats/post` response.
+ * @param metric      - Which number each cell reports.
+ * @param today       - The site's current day, which closes the last row.
+ * @param publishedOn - The day the post was published; defaults to the first
+ *                    reported month.
+ * @return One row per year of the post's life, newest first, and the months a total cannot compare with a full month: the publish month when the post went out after the 1st, and the current month until its last day. Both empty without stats.
  */
 export function buildAllTimeTrafficRows(
 	response: StatsPostResponse | undefined,
 	metric: MonthlyHeatmapMetric,
-	today: MonthKey,
-	published?: MonthKey
+	today: Date,
+	publishedOn?: DayKey
 ): { rows: AllTimeTrafficRow[]; partialMonths: MonthlyHeatmapTarget[] } {
 	const years = response?.years ?? {};
 	const reported = reportedMonths( years );
@@ -67,18 +69,24 @@ export function buildAllTimeTrafficRows(
 	const source = metric === 'average' ? response.averages : years;
 	// A post can carry stats from before its publish date (a rescheduled one),
 	// so its life starts at whichever comes first.
-	const firstOrder = Math.min( ...reported, published ? monthOrder( published ) : Infinity );
-	const lastOrder = Math.max( monthOrder( today ), ...reported );
+	const firstOrder = Math.min( ...reported, publishedOn ? monthOrder( publishedOn ) : Infinity );
+	const lastOrder = Math.max( monthOrder( toMonthKey( today ) ), ...reported );
 	const firstYear = Math.floor( firstOrder / MONTHS_IN_YEAR );
 	const lastYear = Math.floor( lastOrder / MONTHS_IN_YEAR );
+	// A publish day outside the first month with stats leaves that month whole,
+	// as `monthlyHeatmapLifeStart` does for the Traffic range.
+	const firstDay =
+		publishedOn && monthOrder( publishedOn ) === firstOrder ? publishedOn : undefined;
 	const rows: AllTimeTrafficRow[] = [];
+	const partialMonths: MonthlyHeatmapTarget[] = [];
 
 	for ( let year = lastYear; year >= firstYear; year-- ) {
 		const stats = source[ String( year ) ];
 		const months = Array.from(
 			{ length: MONTHS_IN_YEAR },
 			( _month, month ): AllTimeTrafficMonth => {
-				const order = monthOrder( { year, month } );
+				const key = { year, month };
+				const order = monthOrder( key );
 
 				if ( order < firstOrder ) {
 					return 'before';
@@ -86,6 +94,10 @@ export function buildAllTimeTrafficRows(
 
 				if ( order > lastOrder ) {
 					return 'after';
+				}
+
+				if ( isMonthIncomplete( key, metric, today, firstDay ) ) {
+					partialMonths.push( key );
 				}
 
 				return stats?.months[ String( month + 1 ) ] ?? 0;
@@ -96,9 +108,6 @@ export function buildAllTimeTrafficRows(
 
 		rows.push( { year, months, total } );
 	}
-
-	const isCurrentMonthInLife = monthOrder( today ) >= firstOrder;
-	const partialMonths = metric !== 'average' && isCurrentMonthInLife ? [ today ] : [];
 
 	return { rows, partialMonths };
 }
