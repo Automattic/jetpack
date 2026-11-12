@@ -610,10 +610,11 @@ class ManagerTest extends TestCase {
 	 * @param string    $recorded_owner  Who `master_user` names: `none`, `other`, `self`, or `deleted`. Their token is missing either way.
 	 * @param bool      $locked          Whether connection ownership is locked.
 	 * @param bool|null $wpcom_owner  The response's `connection_owner`; null leaves the field out.
+	 * @param bool      $sends_claim     Whether the token request should carry an owner claim.
 	 * @dataProvider provide_authorize_vacant_owner_slot
 	 */
 	#[DataProvider( 'provide_authorize_vacant_owner_slot' )]
-	public function test_authorize_vacant_owner_slot( $role, $expected_master, $expected_result, $disconnect_cap = array( 'manage_options' ), $recorded_owner = 'none', $locked = false, $wpcom_owner = true ) {
+	public function test_authorize_vacant_owner_slot( $role, $expected_master, $expected_result, $disconnect_cap = array( 'manage_options' ), $recorded_owner = 'none', $locked = false, $wpcom_owner = true, $sends_claim = true ) {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => "test_authorize_vacant_owner_slot_$role",
@@ -675,6 +676,10 @@ class ManagerTest extends TestCase {
 		};
 		add_action( 'jetpack_authorize_ending_authorized', $record, 10, 2 );
 
+		$memo = new \ReflectionProperty( Manager::class, 'connection_owner_id' );
+		$memo->setAccessible( true );
+		$memo->setValue( null, 999 );
+
 		try {
 			$result = $manager->authorize(
 				array(
@@ -689,13 +694,22 @@ class ManagerTest extends TestCase {
 			\Jetpack_Options::delete_option( 'master_user' );
 		}
 
+		$memo_after = $memo->getValue();
+		$memo->setValue( null, null );
+
 		$this->assertSame( $expected_result, $result );
+		// Whoever decided it, a replaced recorded owner must not linger in the memoized owner ID.
+		$this->assertSame( $expected_master && in_array( $recorded_owner, array( 'other', 'deleted' ), true ) ? null : 999, $memo_after );
 		// An empty slot is a new connection, so the plugin's module setup still runs.
 		$this->assertSame( 'authorized' === $result ? false : null, $had_owner );
 		// No connected owner, so any claim must tell WordPress.com the slot is unusable.
-		if ( ! empty( $sent_claim ) ) {
-			$this->assertSame( 1, $sent_claim['local_owner_unusable'] );
-		}
+		$this->assertSame(
+			$sends_claim ? array(
+				'owner_claim'          => 1,
+				'local_owner_unusable' => 1,
+			) : array(),
+			$sent_claim
+		);
 	}
 
 	/**
@@ -706,18 +720,15 @@ class ManagerTest extends TestCase {
 	public static function provide_authorize_vacant_owner_slot() {
 		return array(
 			'administrator takes the slot'                => array( 'administrator', true, 'authorized' ),
-			'editor links as secondary'                   => array( 'editor', false, 'linked' ),
+			'editor links as secondary'                   => array( 'editor', false, 'linked', array( 'manage_options' ), 'none', false, true, false ),
 			'editor granted connection rights takes the slot' => array( 'editor', true, 'authorized', array( 'edit_others_posts' ) ),
-			'locked empty slot is taken'                  => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', true ),
-			'locked tokenless owner stays'                => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', true ),
+			'locked empty slot is taken'                  => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', true, true, false ),
+			'locked tokenless owner stays'                => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', true, true, false ),
 			'transferable tokenless owner is replaced'    => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'other' ),
-			'locked tokenless owner reconnects'           => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'self', true ),
-			'locked deleted owner is replaced'            => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'deleted', true ),
-			'fresh site without the field takes the slot' => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', false, null ),
-			'wpcom no on an empty slot links'             => array( 'administrator', false, 'linked', array( 'manage_options' ), 'none', false, false ),
-			'locked site ignores a wpcom no'              => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', true, false ),
+			'locked tokenless owner reconnects'           => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'self', true, true, false ),
+			'locked deleted owner is replaced'            => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'deleted', true, true, false ),
+			'locked site ignores a wpcom no'              => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', true, false, false ),
 			'blocked claim falls back to the vacant slot' => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'other', false, null ),
-			'wpcom saying no leaves a recorded owner'     => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', false, false ),
 		);
 	}
 
@@ -759,9 +770,9 @@ class ManagerTest extends TestCase {
 			update_option(
 				Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
 				array(
-					'signature_mismatch' => array(
+					'invalid_token' => array(
 						(string) $owner_id => array(
-							'error_code'      => 'signature_mismatch',
+							'error_code'      => 'invalid_token',
 							'user_id'         => (string) $owner_id,
 							'error_message'   => 'Test message',
 							'error_data'      => array(),
@@ -836,7 +847,7 @@ class ManagerTest extends TestCase {
 
 		$this->assertSame(
 			$expected_claim,
-			array_intersect_key( $sent_body, array_flip( array( 'owner_claim', 'local_owner_unusable', 'owner_transferable' ) ) )
+			array_intersect_key( $sent_body, array_flip( array( 'owner_claim', 'local_owner_unusable' ) ) )
 		);
 		$this->assertSame( $expected_master ? 'authorized' : 'linked', $result );
 		// A stored owner token means an owner change, which skips the plugin's module reset.
@@ -859,13 +870,13 @@ class ManagerTest extends TestCase {
 		);
 
 		return array(
-			'wpcom makes the admin the owner'    => array( 'administrator', false, true, true, $broken, true ),
-			'wpcom keeps the owner'              => array( 'administrator', false, true, false, $broken, false ),
-			'unanswered claim links like trunk'  => array( 'administrator', false, true, null, $broken, false ),
-			'healthy owner still claims'         => array( 'administrator', false, false, false, $healthy, false ),
-			'locked ownership sends no claim'    => array( 'administrator', true, true, true, array(), false ),
-			'editor sends no claim'              => array( 'editor', false, true, true, array(), false ),
-			'owner reconnecting stays the owner' => array( 'administrator', false, true, true, $broken, true, true ),
+			'wpcom makes the admin the owner'     => array( 'administrator', false, true, true, $broken, true ),
+			'wpcom keeps the owner'               => array( 'administrator', false, true, false, $broken, false ),
+			'unanswered claim links as secondary' => array( 'administrator', false, true, null, $broken, false ),
+			'healthy owner still claims'          => array( 'administrator', false, false, false, $healthy, false ),
+			'locked ownership sends no claim'     => array( 'administrator', true, true, true, array(), false ),
+			'editor sends no claim'               => array( 'editor', false, true, true, array(), false ),
+			'owner reconnecting stays the owner'  => array( 'administrator', false, true, true, $broken, true, true ),
 		);
 	}
 
@@ -2021,9 +2032,9 @@ class ManagerTest extends TestCase {
 		update_option(
 			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
 			array(
-				'signature_mismatch' => array(
+				'invalid_token' => array(
 					(string) $owner_id => array(
-						'error_code'      => 'signature_mismatch',
+						'error_code'      => 'invalid_token',
 						'user_id'         => (string) $owner_id,
 						'error_message'   => 'Test message',
 						'error_data'      => array(),
@@ -2118,9 +2129,9 @@ class ManagerTest extends TestCase {
 			update_option(
 				Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
 				array(
-					'signature_mismatch' => array(
+					'invalid_token' => array(
 						(string) $owner_id => array(
-							'error_code'      => 'signature_mismatch',
+							'error_code'      => 'invalid_token',
 							'user_id'         => (string) $owner_id,
 							'timestamp'       => time(),
 							'error_direction' => 'rejected' === $owner_state ? 'outgoing' : 'incoming',
@@ -2220,9 +2231,9 @@ class ManagerTest extends TestCase {
 		update_option(
 			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
 			array(
-				'signature_mismatch' => array(
+				'invalid_token' => array(
 					(string) $owner_id => array(
-						'error_code'      => 'signature_mismatch',
+						'error_code'      => 'invalid_token',
 						'user_id'         => (string) $owner_id,
 						'error_message'   => 'Test message',
 						'error_data'      => array(),

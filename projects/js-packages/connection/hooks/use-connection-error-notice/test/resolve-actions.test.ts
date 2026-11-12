@@ -169,12 +169,15 @@ describe( 'resolveConnectionErrorActions', () => {
 		expect( actions[ 0 ].label ).toBe( 'Take Action' );
 	} );
 
-	it( 'resolves a URL action and navigates via the supplied navigate handler', () => {
+	it.each( [
+		[ 'a URL action', {} ],
+		[ 'an action with no handler, as the server sends connect_user', { action: 'connect_user' } ],
+	] )( 'resolves %s and navigates via the supplied navigate handler', ( _name, extra ) => {
 		const navigate = jest.fn();
 		const actions = resolveConnectionErrorActions(
 			{
 				error_message: 'Custom',
-				error_data: { action_url: 'https://example.com/fix', action_label: 'Fix' },
+				error_data: { ...extra, action_url: 'https://example.com/fix', action_label: 'Fix' },
 			},
 			{ ...baseOptions, navigate }
 		);
@@ -182,25 +185,6 @@ describe( 'resolveConnectionErrorActions', () => {
 		expect( actions[ 0 ].label ).toBe( 'Fix' );
 		actions[ 0 ].onClick();
 		expect( navigate ).toHaveBeenCalledWith( 'https://example.com/fix' );
-	} );
-
-	it( 'renders a link for an action with no handler, as the server sends connect_user', () => {
-		const navigate = jest.fn();
-		const actions = resolveConnectionErrorActions(
-			{
-				error_message: 'Owner broken',
-				error_data: {
-					action: 'connect_user',
-					action_url: 'https://example.com/connect',
-					action_label: 'Connect your account',
-				},
-			},
-			{ ...baseOptions, navigate }
-		);
-
-		expect( actions[ 0 ].label ).toBe( 'Connect your account' );
-		actions[ 0 ].onClick();
-		expect( navigate ).toHaveBeenCalledWith( 'https://example.com/connect' );
 	} );
 
 	it( 'adds a secondary handler action', () => {
