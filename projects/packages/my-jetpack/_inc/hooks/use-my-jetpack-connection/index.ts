@@ -33,7 +33,8 @@ const useMyJetpackConnection = ( {
 }: MyJetpackConnectionOptions = {} ): MyJetpackConnection => {
 	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
 	const { topJetpackMenuItemUrl, blogID } = getMyJetpackWindowInitialState();
-	const { registrationNonce } = getMyJetpackWindowConnectionState();
+	// The offline Features page does not print the connection state.
+	const registrationNonce = getMyJetpackWindowConnectionState()?.registrationNonce;
 	const connectionData = useConnection( {
 		apiRoot,
 		apiNonce,
