@@ -288,6 +288,32 @@ EXPECTED;
 		remove_action( 'jetpack_activate_module_stats', array( __CLASS__, 'track_activated_modules' ) );
 		remove_action( 'jetpack_deactivate_module_stats', array( __CLASS__, 'track_deactivated_modules' ) );
 	}
+
+	/**
+	 * Test that a change of owner on a set-up site skips the post-authorization module reset.
+	 */
+	public function test_authorize_ending_authorized_skips_module_reset_on_owner_change() {
+		Jetpack::update_active_modules( array( 'stats' ) );
+		Jetpack_Options::update_option( 'active_modules_initialized', true );
+		self::reset_tracking_of_module_activation();
+		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
+
+		try {
+			Jetpack::authorize_ending_authorized(
+				array(
+					'redirect_uri' => 'https://example.org/wp-admin/admin.php?page=jetpack',
+					'auth_type'    => 'calypso',
+				),
+				true
+			);
+		} finally {
+			remove_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
+			Jetpack_Options::delete_option( 'active_modules_initialized' );
+		}
+
+		$this->assertSame( array(), self::$deactivated_modules );
+		$this->assertSame( array( 'stats' ), Jetpack_Options::get_option( 'active_modules' ) );
+	}
 	/**
 	 * Test Jetpack::update_active_modules with pre_update_option_jetpack_active_modules filter.
 	 *

@@ -129,7 +129,7 @@ Recognized config keys, all optional:
 * `default_admin_notice` — opts the code into the plain wp-admin notice by default (see [Enabling the error message](#enabling-the-error-message)); leave unset unless the error needs that broader, non-React reach.
 * `notice_link` — a presentational `label`/`url` link appended to that same default admin notice.
 * `support_link` — flags `error_data['support_link']` on the displayable error, for a code where reconnecting isn't reliably the fix and the viewer needs another way out (e.g. `signature_mismatch`, which could equally be a genuine secret desync or a proxy/CDN/WAF altering the request in transit).
-* `survives_owner_promotion` — exempts the code from the [owner-promotion reduction](#owner-promotion-reduction) and from the [secondary-admin copy](#special-cased-error-codes) and from the `local_owner_unusable` flag `Manager::authorize()` sends with its owner claim. Reserve it for a code that isn't a token problem and so isn't waiting on the owner's reconnect to become actionable.
+* `survives_owner_promotion` — exempts the code from the [owner-promotion reduction](#owner-promotion-reduction) and from the [secondary-admin copy](#special-cased-error-codes). Reserve it for a code that isn't a token problem and so isn't waiting on the owner's reconnect to become actionable.
 
 ### Special-cased error codes
 

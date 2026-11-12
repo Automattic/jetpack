@@ -750,7 +750,7 @@ class Jetpack {
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
 		add_action( 'jetpack_authorize_ending_linked', array( $this, 'authorize_ending_linked' ) );
-		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'authorize_ending_authorized' ) );
+		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'authorize_ending_authorized' ), 10, 2 );
 
 		Jetpack_Client_Server::init();
 		add_action( 'jetpack_client_authorize_error', array( Jetpack_Client_Server::class, 'client_authorize_error' ) );
@@ -4848,9 +4848,12 @@ endif;
 	 * This action fires at the end of the Manager::authorize method when the master user is
 	 * authorized.
 	 *
-	 * @param array $data The request data.
+	 * @since $$next-version$$ Added the `$had_connected_owner` parameter.
+	 *
+	 * @param array $data                The request data.
+	 * @param bool  $had_connected_owner Whether the site already had a connected owner. Older Connection packages don't pass it.
 	 */
-	public static function authorize_ending_authorized( $data ) {
+	public static function authorize_ending_authorized( $data, $had_connected_owner = false ) {
 		// If redirect_uri is SSO, ensure SSO module is enabled.
 		parse_str( wp_parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
 
@@ -4862,6 +4865,12 @@ endif;
 			'jetpack-sso' === $redirect_options['action'] &&
 			$jetpack_start_enable_sso
 		);
+
+		// A change of owner on a set-up site needs no module reset, which costs a blocking Tracks request per module.
+		if ( $had_connected_owner && ! $activate_sso && Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
+			self::state( 'message', 'authorized' );
+			return;
+		}
 
 		$do_redirect_on_error = ( 'client' === $data['auth_type'] );
 
