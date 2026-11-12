@@ -1535,6 +1535,11 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+
+		// Without the Jetpack plugin, nothing else registers the shell flag on requests that build no admin menu (CLI, REST, AJAX).
+		if ( method_exists( Admin_Shell::class, 'register_feature_flag' ) ) {
+			Admin_Shell::register_feature_flag();
+		}
 	}
 
 	/**

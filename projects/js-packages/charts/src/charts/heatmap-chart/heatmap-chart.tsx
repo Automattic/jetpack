@@ -778,7 +778,9 @@ const HeatmapChartResponsiveInner: FC< HeatmapChartProps > = props => (
 HeatmapChartResponsiveInner.displayName = 'HeatmapChart';
 
 const HeatmapChartResponsive = attachSubComponents(
-	withResponsive< HeatmapChartProps >( HeatmapChartResponsiveInner ),
+	withResponsive< HeatmapChartProps >( HeatmapChartResponsiveInner, {
+		waitForSize: false,
+	} ),
 	{ Legend: HeatmapLegend }
 ) as FC< HeatmapChartProps & ResponsiveConfig > & HeatmapChartSubComponents;
 

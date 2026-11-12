@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status\Host;
@@ -66,6 +67,11 @@ class Admin_UI {
 	const CHAPTERS_EDITOR_ROUTE_PATHS = array( '/video/$id/editor' );
 
 	/**
+	 * Carries the initial state when the dashboard loads as an admin shell guest.
+	 */
+	const GUEST_DATA_HANDLE = 'jetpack-videopress-dashboard-data';
+
+	/**
 	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
 	 *
 	 * @var string|null
@@ -89,6 +95,10 @@ class Admin_UI {
 		// (wpcom-admin-menu.php, admin_menu:999999). maybe_load_wp_build() self-gates
 		// to the VideoPress admin request, so it's inert on every other page.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
 
 		// On WordPress.com Simple the standalone menu system (Admin_Menu) is not used:
 		// the Jetpack parent menu is created late (admin_menu priority 999999) by
@@ -129,13 +139,6 @@ class Admin_UI {
 		}
 
 		self::load_wp_build_with_screen_alias();
-
-		// wp-build registers standalone modules (e.g. the init module) on
-		// wp_default_scripts, which has already fired by admin_menu. Register them
-		// directly so the init module makes it into the import map.
-		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
-			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
 	}
 
 	/**
@@ -341,6 +344,67 @@ class Admin_UI {
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+	}
+
+	/**
+	 * Register VideoPress with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		// The same gates enable_dashboard_menu() applies, since admin-ajax never builds the menu.
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| ! self::is_modernized()
+			|| ! VideoPress_Status::is_active()
+			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
+		) {
+			return $members;
+		}
+
+		$members[ self::ADMIN_PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_videopress',
+			'build_page'   => 'jetpack-videopress-dashboard',
+			'init_modules' => array( '@jetpack-videopress/init' ),
+			// "VideoPress" is a product name, do not translate.
+			'title'        => 'Jetpack VideoPress',
+			'capability'   => 'manage_options',
+			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			'media'        => true,
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the VideoPress routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		// The page init action that runs this never fires for a guest, and the shell reads the routes first.
+		self::maybe_strip_chapters_editor_routes();
+		self::admin_init();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
+	}
+
+	/**
+	 * Attach the initial state to a script of its own: the prerequisites script only exists on the VideoPress page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_guest_initial_state() {
+		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), false, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- No source, so nothing to cache.
+		wp_enqueue_script( self::GUEST_DATA_HANDLE );
+		Initial_State::attach_to( self::GUEST_DATA_HANDLE );
 	}
 
 	/**
@@ -651,6 +715,13 @@ class Admin_UI {
 		}
 
 		require_once $build_index;
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
+			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		// Defer the chapters-editor route stripping to the page init actions, at a
 		// priority ahead of the `build/routes.php` readers (default 10). Those

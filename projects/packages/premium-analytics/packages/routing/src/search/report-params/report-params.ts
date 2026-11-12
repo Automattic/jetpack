@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { hasComparisonEnabled, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	deriveComparisonRange,
+	hasComparisonEnabled,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
 	isComparisonPresetId,
@@ -11,7 +15,6 @@ import {
 /**
  * Internal dependencies
  */
-import { deriveComparisonRange } from '../comparison';
 import { DASHBOARD_ORIGIN_PARAM, pickDashboardOriginParams } from '../dashboard-origin';
 
 type NormalizeInput = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;

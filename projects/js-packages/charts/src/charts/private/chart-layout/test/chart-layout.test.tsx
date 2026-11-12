@@ -91,6 +91,42 @@ describe( 'ChartLayout', () => {
 		}
 	} );
 
+	it( 'calls render-prop children with the measured content height, not zero', () => {
+		// Mounting an XY chart at its fallback height and resizing it leaves visx painting
+		// a frame with the scales of the taller size, over the legend.
+		const childFn = jest.fn().mockReturnValue( <div>Chart</div> );
+		render(
+			<ChartLayout legendPosition="bottom" legendChildren={ [] }>
+				{ childFn }
+			</ChartLayout>
+		);
+
+		expect( childFn ).toHaveBeenCalled();
+		expect( childFn.mock.calls.every( ( [ { contentHeight } ] ) => contentHeight > 0 ) ).toBe(
+			true
+		);
+	} );
+
+	it( 'still renders render-prop children when the content area measures zero', () => {
+		// No definite height above the chart: the measurement will never arrive, and the
+		// chart has to fall back to the height it was given rather than never render.
+		const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+		Element.prototype.getBoundingClientRect = function () {
+			return { width: 0, height: 0, top: 0, left: 0, bottom: 0, right: 0, x: 0, y: 0 } as DOMRect;
+		};
+
+		try {
+			render(
+				<ChartLayout legendPosition="bottom" legendChildren={ [] }>
+					{ () => <div data-testid="chart-content">Chart</div> }
+				</ChartLayout>
+			);
+			expect( screen.getByTestId( 'chart-content' ) ).toBeInTheDocument();
+		} finally {
+			Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+		}
+	} );
+
 	it( 'does not hide layout when using plain ReactNode children', () => {
 		render(
 			<ChartLayout legendPosition="bottom" legendChildren={ [] } data-testid="layout">
