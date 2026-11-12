@@ -34,7 +34,7 @@ jest.mock( 'components/jetpack-notices', () => ( { __esModule: true, default: ()
 jest.mock( 'components/settings-nav-tabs', () => ( { __esModule: true, default: () => null } ) );
 jest.mock( 'components/tracker', () => ( { __esModule: true, default: () => null } ) );
 
-const renderAt = ( pathname, hasProtectPage ) =>
+const renderAt = ( pathname, hasProtectPage, extraProps = {} ) =>
 	render(
 		<Main
 			location={ { pathname, search: '' } }
@@ -46,6 +46,7 @@ const renderAt = ( pathname, hasProtectPage ) =>
 			userCanManageModules
 			hasProtectPage={ hasProtectPage }
 			siteAdminUrl="https://example.com/wp-admin/"
+			{ ...extraProps }
 		/>
 	);
 
@@ -73,22 +74,34 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		jest.clearAllMocks();
 	} );
 
-	it.each( [ [ '/performance', 'admin.php?page=my-jetpack#/features?search=cdn' ] ] )(
-		'sends %s to %s with the settings flag on',
-		( route, destination ) => {
-			isSettingsConsolidationEnabled.mockReturnValue( true );
+	it.each( [
+		[ '/performance', 'admin.php?page=my-jetpack#/features?search=cdn' ],
+		[ '/sharing', 'admin.php?page=my-jetpack#/features?search=sharing' ],
+	] )( 'sends %s to %s with the settings flag on', ( route, destination ) => {
+		isSettingsConsolidationEnabled.mockReturnValue( true );
+		renderAt( route, false );
+
+		expect( getAdminUrl ).toHaveBeenCalledWith( destination );
+		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
+		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [ '/performance', '/sharing' ] )(
+		'keeps %s on Settings with the settings flag off',
+		route => {
 			renderAt( route, false );
 
-			expect( getAdminUrl ).toHaveBeenCalledWith( destination );
-			expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
-			expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'searchable-settings' ) ).toBeInTheDocument();
 		}
 	);
 
-	it.each( [ '/performance' ] )( 'keeps %s on Settings with the settings flag off', route => {
-		renderAt( route, false );
+	it( 'sends #/sharing to the Social page when it is registered', () => {
+		isSettingsConsolidationEnabled.mockReturnValue( true );
+		renderAt( '/sharing', false, { hasSocialPage: true } );
 
-		expect( screen.getByTestId( 'searchable-settings' ) ).toBeInTheDocument();
+		expect( getAdminUrl ).toHaveBeenCalledWith( 'admin.php?page=jetpack-social' );
+		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
+		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps #/security on Settings with the settings flag on and no Protect page', () => {

@@ -90,12 +90,15 @@ describe( 'SettingsNavTabs', () => {
 	it.each( [
 		[ 'shows', 'Sharing', 'Social', 'publicize', false, 1 ],
 		[ 'hides', 'Sharing', 'Social', 'publicize', true, 0 ],
+		[ 'shows', 'Sharing', 'Sharing buttons', 'sharedaddy', false, 1 ],
+		[ 'hides', 'Sharing', 'Sharing buttons', 'sharedaddy', true, 0 ],
+		[ 'shows', 'Sharing', 'Like buttons', 'likes', false, 1 ],
 		[ 'shows', 'Writing', 'Copy Post', 'copy-post', false, 1 ],
 		[ 'hides', 'Writing', 'Copy Post', 'copy-post', true, 0 ],
 		[ 'shows', 'Writing', 'custom content types', null, false, 1 ],
 		[ 'hides', 'Writing', 'custom content types', null, true, 0 ],
 	] )(
-		'%s a %s tab only %s would fill with the settings flag %s',
+		'%s a %s tab only %s (%s) would fill with the settings flag %s',
 		( _verb, tab, _name, module, flag, tabs ) => {
 			window.JetpackScriptData = { site: {}, myJetpack: { settingsConsolidation: flag } };
 			// A null module stands for custom content types, which the tab reads from CUSTOM_CONTENT_TYPE__INITIAL_STATE.
