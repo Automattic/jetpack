@@ -43,6 +43,7 @@ interface DeviceViewsState {
 	isFetching: boolean;
 	isError: boolean;
 	csvIsError: boolean;
+	csvIsPlaceholderData: boolean;
 	error: unknown;
 	refetch: () => void;
 }
@@ -107,6 +108,7 @@ export default function useDeviceViews( {
 		isFetching,
 		isError: showError,
 		csvIsError: primary.isError,
+		csvIsPlaceholderData: primary.isPlaceholderData,
 		error: showError ? error : null,
 		refetch,
 	};

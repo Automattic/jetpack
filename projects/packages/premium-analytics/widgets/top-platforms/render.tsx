@@ -49,12 +49,21 @@ type TopPlatformsInnerProps = {
 function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, hasComparison, isLoading, isFetching, isError, csvIsError, error, refetch } =
-		usePlatformViews( {
-			reportParams,
-			max: WIDGET_ROW_LIMIT,
-			deviceProperty: platformDimension,
-		} );
+	const {
+		data,
+		hasComparison,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError,
+		csvIsPlaceholderData,
+		error,
+		refetch,
+	} = usePlatformViews( {
+		reportParams,
+		max: WIDGET_ROW_LIMIT,
+		deviceProperty: platformDimension,
+	} );
 
 	const emptyState = useNoViewsEmptyState(
 		{ isLoading, isError, isEmpty: data.length === 0 },
@@ -80,7 +89,12 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 			columns,
 			filenamePrefix: isOs ? 'top-operating-systems' : 'top-browsers',
 			hasDateRange: true,
-			status: { isLoading, isFetching, isError: csvIsError },
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
 		},
 	} );
 

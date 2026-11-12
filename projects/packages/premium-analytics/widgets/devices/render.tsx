@@ -49,12 +49,21 @@ function toRatio( percentage: number ) {
 
 function DevicesInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { data, hasComparison, isLoading, isFetching, isError, csvIsError, error, refetch } =
-		useDeviceViews( {
-			reportParams,
-			max: WIDGET_ROW_LIMIT,
-			deviceProperty: 'screensize',
-		} );
+	const {
+		data,
+		hasComparison,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError,
+		csvIsPlaceholderData,
+		error,
+		refetch,
+	} = useDeviceViews( {
+		reportParams,
+		max: WIDGET_ROW_LIMIT,
+		deviceProperty: 'screensize',
+	} );
 
 	const segments = useMemo< DonutSegmentInput[] >(
 		() =>
@@ -78,7 +87,12 @@ function DevicesInner() {
 			columns: DEVICE_COLUMNS,
 			filenamePrefix: 'devices',
 			hasDateRange: true,
-			status: { isLoading, isFetching, isError: csvIsError },
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
 		},
 	} );
 

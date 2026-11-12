@@ -28,7 +28,7 @@ const REPORT_PARAMS = {
 
 function platformsResult( rows: unknown[], overrides: Record< string, unknown > = {} ) {
 	return {
-		primary: { data: {}, isError: false },
+		primary: { data: {}, isError: false, isPlaceholderData: false },
 		comparisonRows: { rows, hasComparison: false },
 		hasComparison: false,
 		isLoading: false,
@@ -103,11 +103,27 @@ describe( 'TopPlatformsWidget CSV download', () => {
 				primary: { data: {}, isError: true },
 			} ),
 		],
+		[
+			'the rows on screen are the previous range’s',
+			platformsResult( [ { label: 'chrome', value: 1200 } ], {
+				primary: { data: {}, isError: false, isPlaceholderData: true },
+			} ),
+		],
 	] )( 'offers no download when %s', ( _, result ) => {
 		mockUseStatsDevices.mockReturnValue( result );
 
 		const { declaredAction } = renderWidget();
 
 		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+	} );
+
+	it( 'still offers the download when only the comparison period failed', async () => {
+		mockUseStatsDevices.mockReturnValue(
+			platformsResult( [ { label: 'chrome', value: 1200 } ], { isError: true } )
+		);
+
+		const { findDeclaredAction } = renderWidget();
+
+		await expect( findDeclaredAction( 'download-csv' ) ).resolves.toBeDefined();
 	} );
 } );

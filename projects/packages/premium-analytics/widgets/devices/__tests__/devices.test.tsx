@@ -36,7 +36,7 @@ const ROWS = [
 
 function devicesResult( rows: unknown[], overrides: Record< string, unknown > = {} ) {
 	return {
-		primary: { data: {}, isError: false },
+		primary: { data: {}, isError: false, isPlaceholderData: false },
 		comparisonRows: { rows, hasComparison: true },
 		hasComparison: true,
 		isLoading: false,
@@ -92,11 +92,23 @@ describe( 'DevicesWidget CSV download', () => {
 			'a refetch failed behind the segments on screen',
 			devicesResult( ROWS, { isError: true, primary: { data: {}, isError: true } } ),
 		],
+		[
+			'the segments on screen are the previous range’s',
+			devicesResult( ROWS, { primary: { data: {}, isError: false, isPlaceholderData: true } } ),
+		],
 	] )( 'offers no download when %s', ( _, result ) => {
 		mockUseStatsDevices.mockReturnValue( result );
 
 		const { declaredAction } = renderWidget();
 
 		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+	} );
+
+	it( 'still offers the download when only the comparison period failed', async () => {
+		mockUseStatsDevices.mockReturnValue( devicesResult( ROWS, { isError: true } ) );
+
+		const { findDeclaredAction } = renderWidget();
+
+		await expect( findDeclaredAction( 'download-csv' ) ).resolves.toBeDefined();
 	} );
 } );
