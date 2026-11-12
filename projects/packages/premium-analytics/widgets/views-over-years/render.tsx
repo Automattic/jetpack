@@ -63,10 +63,12 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 				return;
 			}
 
+			// The cell's own unit, so the running month or year steps whole.
+			const step = month === undefined ? 'P1Y' : 'P1M';
 			if ( authorScoped ) {
-				openPeriod?.( range );
+				openPeriod?.( range, { step } );
 			} else {
-				openSectionRange( TRAFFIC_SECTION, { from: range.from, to: range.to } );
+				openSectionRange( TRAFFIC_SECTION, { from: range.from, to: range.to }, { step } );
 			}
 		},
 		[ authorScoped, lifeStartsAt, timeZone, openPeriod, openSectionRange ]

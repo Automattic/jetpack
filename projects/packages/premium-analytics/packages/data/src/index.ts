@@ -5,6 +5,7 @@ export {
 	useScopeLockedIntervals,
 	type DateLimits,
 	type DateLimitUpsellCopy,
+	type OpenPeriodOptions,
 	type ReportScope,
 } from './providers/report-scope';
 export {
