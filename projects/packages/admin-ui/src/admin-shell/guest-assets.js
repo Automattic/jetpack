@@ -83,24 +83,14 @@ const runInline = async node => {
 	return kept;
 };
 
-const addStylesheet = ( node, added ) =>
-	new Promise( resolve => {
-		const link = node.cloneNode( true );
-		link.onload = link.onerror = resolve;
-		document.head.append( link );
-		added.push( link );
-	} );
-
 /**
- * Fetch a guest's page data and add what the document doesn't already have.
- *
- * Resolves after the guest's stylesheets load, so the app never renders unstyled.
+ * Fetch the styles and scripts a guest prints on its own page, without adding them.
  *
  * @param {string} endpoint - Guest endpoint URL, nonce included.
  * @param {string} slug     - Guest page slug.
- * @return {Promise<object>} How many scripts and styles were added, how many the page already had, and the style nodes added.
+ * @return {Promise<string>} The HTML.
  */
-export async function applyGuestAssets( endpoint, slug ) {
+export async function fetchGuestAssets( endpoint, slug ) {
 	const url = new URL( endpoint, location.href );
 	url.searchParams.set( 'member', slug );
 	const response = await fetch( url, { credentials: 'same-origin' } );
@@ -108,9 +98,20 @@ export async function applyGuestAssets( endpoint, slug ) {
 	if ( ! response.ok || ! body?.success ) {
 		throw new Error( `Admin shell: no page data for ${ slug } (HTTP ${ response.status })` );
 	}
+	return body.data.html;
+}
 
+/**
+ * Add what a guest's page data has and the document doesn't.
+ *
+ * Resolves after the guest's stylesheets load, so the app never renders unstyled.
+ *
+ * @param {string} html - From fetchGuestAssets().
+ * @return {Promise<object>} How many scripts and styles were added, how many the page already had, and the style nodes added.
+ */
+export async function addGuestAssets( html ) {
 	const template = document.createElement( 'template' );
-	template.innerHTML = body.data.html;
+	template.innerHTML = html;
 	// Script modules are already in the host's import map; a second map would be ignored.
 	const nodes = template.content.querySelectorAll(
 		'link[rel="stylesheet"], style, script:not([type="importmap"]):not([type="module"])'
@@ -131,13 +132,12 @@ export async function applyGuestAssets( endpoint, slug ) {
 				continue;
 			}
 			added.styles++;
-			if ( node.tagName === 'LINK' ) {
-				stylesheets.push( addStylesheet( node, added.styleNodes ) );
-			} else {
-				const style = node.cloneNode( true );
-				document.head.append( style );
-				added.styleNodes.push( style );
+			const style = node.cloneNode( true );
+			if ( style.tagName === 'LINK' ) {
+				stylesheets.push( new Promise( resolve => ( style.onload = style.onerror = resolve ) ) );
 			}
+			document.head.append( style );
+			added.styleNodes.push( style );
 			continue;
 		}
 		if ( node.src ? existing : inlineTexts.has( node.textContent ) ) {
@@ -157,4 +157,15 @@ export async function applyGuestAssets( endpoint, slug ) {
 	await Promise.all( loading );
 	await Promise.all( stylesheets );
 	return added;
+}
+
+/**
+ * Fetch a guest's page data and add what the document doesn't already have.
+ *
+ * @param {string} endpoint - Guest endpoint URL, nonce included.
+ * @param {string} slug     - Guest page slug.
+ * @return {Promise<object>} See addGuestAssets().
+ */
+export async function applyGuestAssets( endpoint, slug ) {
+	return addGuestAssets( await fetchGuestAssets( endpoint, slug ) );
 }

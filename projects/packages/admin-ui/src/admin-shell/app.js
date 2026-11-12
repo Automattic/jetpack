@@ -21,6 +21,12 @@ export function createApp( slug, el ) {
 	el.dataset.shellPage = slug;
 	el.dataset.shellState = 'loading';
 
+	const setOnScreen = onScreen => {
+		el.style.display = onScreen ? '' : 'none';
+		el.inert = ! onScreen;
+		app.styles.forEach( node => ( node.disabled = ! onScreen ) );
+	};
+
 	const app = {
 		slug,
 		el,
@@ -38,16 +44,12 @@ export function createApp( slug, el ) {
 			}
 			el.dataset.shellState = next;
 			// A loading app stays on screen so it fills in where it will be shown.
-			el.style.display = next === 'hidden' ? 'none' : '';
-			el.inert = next === 'hidden';
-			app.styles.forEach( node => ( node.disabled = next === 'hidden' ) );
+			setOnScreen( next !== 'hidden' );
 		},
 		// Before it is ready, an app can only be put on or off screen, not change state.
 		place( onScreen ) {
 			if ( app.state === 'loading' ) {
-				el.style.display = onScreen ? '' : 'none';
-				el.inert = ! onScreen;
-				app.styles.forEach( node => ( node.disabled = ! onScreen ) );
+				setOnScreen( onScreen );
 				return;
 			}
 			app.to( onScreen ? 'visible' : 'hidden' );

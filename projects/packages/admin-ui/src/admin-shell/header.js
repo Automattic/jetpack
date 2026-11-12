@@ -82,6 +82,25 @@ const pruned = ( node, keep ) => {
 	return copy;
 };
 
+/**
+ * Wrap a node in empty copies of an element and its ancestors, up to but not including `until`.
+ *
+ * @param {Node}        inner - Goes inside the innermost copy.
+ * @param {HTMLElement} from  - The first element to copy.
+ * @param {HTMLElement} until - Where copying stops.
+ * @return {Node} The outermost copy.
+ */
+export function wrapInCopies( inner, from, until ) {
+	let frame = inner;
+	for ( let node = from; node && node !== until; node = node.parentElement ) {
+		const wrapper = node.cloneNode( false );
+		wrapper.removeAttribute( 'id' );
+		wrapper.append( frame );
+		frame = wrapper;
+	}
+	return frame;
+}
+
 // The app's page wrappers, empty, around a copy of its header and tab bar.
 const frameOf = el => {
 	const h1 = el.querySelector( 'h1' );
@@ -91,13 +110,7 @@ const frameOf = el => {
 	}
 	const header = [ ...page.children ].find( child => child.contains( h1 ) );
 	const keep = [ header, page.querySelector( '[role="tablist"]' ) ].filter( Boolean );
-	let frame = pruned( page, keep );
-	for ( let node = page.parentElement; node !== el; node = node.parentElement ) {
-		const wrapper = node.cloneNode( false );
-		wrapper.append( frame );
-		frame = wrapper;
-	}
-	return frame;
+	return wrapInCopies( pruned( page, keep ), page.parentElement, el );
 };
 
 // The copy is for looking at only: no ids to collide with the real app's, nothing that runs.

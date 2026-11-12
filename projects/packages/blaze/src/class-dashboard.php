@@ -64,7 +64,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const STAGE_CSS = '@media (min-width: 782px) { .wp-admin [class*="__stage"] .promote-post-i2__page { min-height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 8px); } }';
+	const STAGE_CSS = '@media (min-width: 782px) { .wp-admin .jetpack-admin-shell__stage .promote-post-i2__page { min-height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 8px); } }';
 
 	/**
 	 * Blaze dashboard admin page. Default is admin.php.
@@ -88,13 +88,6 @@ class Dashboard {
 	private $css_prefix;
 
 	/**
-	 * Whether render() draws the page inside the rounded frame of the Jetpack dashboards.
-	 *
-	 * @var bool
-	 */
-	private $framed = false;
-
-	/**
 	 * Dashboard constructor.
 	 *
 	 * @param string $admin_page Dashboard admin page. Default is admin.php.
@@ -113,7 +106,7 @@ class Dashboard {
 	 * @return void
 	 */
 	public function render() {
-		if ( $this->framed ) {
+		if ( $this->is_framed( $GLOBALS['hook_suffix'] ?? '' ) ) {
 			$this->render_framed();
 			return;
 		}
@@ -150,7 +143,7 @@ class Dashboard {
 					}
 				} )( document.currentScript.parentNode, document.getElementById( 'adminmenuback' ) );
 			</script>
-			<div class="<?php echo esc_attr( $prefix ); ?>-frame__stage">
+			<div class="<?php echo esc_attr( $prefix ); ?>-frame__stage jetpack-admin-shell__stage">
 				<div id="wpcom" class="<?php echo esc_attr( $prefix ); ?>-dashboard">
 					<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Blaze dashboard requires JavaScript to function properly.', 'jetpack-blaze' ); ?></div>
 				</div>
@@ -160,13 +153,27 @@ class Dashboard {
 	}
 
 	/**
-	 * Whether the Jetpack admin shell is on, which draws the Jetpack dashboards in a rounded frame.
+	 * Whether the loaded admin-ui can take a page that isn't built with wp-build into the admin shell.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
-	private static function is_admin_shell_enabled() {
-		// An older admin-ui can't take Blaze into the shell, so the page keeps its old look there.
-		return defined( Admin_Shell::class . '::KIND_SCRIPT' ) && Admin_Shell::is_enabled();
+	public static function supports_admin_shell() {
+		return defined( Admin_Shell::class . '::KIND_SCRIPT' );
+	}
+
+	/**
+	 * Whether the page draws in the rounded frame of the Jetpack dashboards: under the Jetpack menu, with the admin shell on.
+	 *
+	 * @param string $hook The current admin page.
+	 * @return bool
+	 */
+	private function is_framed( $hook ) {
+		return ! wp_doing_ajax()
+			&& str_starts_with( $hook, 'jetpack_page_' )
+			&& self::supports_admin_shell()
+			&& Admin_Shell::is_enabled();
 	}
 
 	/**
@@ -244,17 +251,6 @@ JS;
 	}
 
 	/**
-	 * Ready the dashboard's scripts while another Jetpack page is open in the admin shell.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return void
-	 */
-	public function load_as_admin_shell_guest() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
-	}
-
-	/**
 	 * Initialize the admin resources.
 	 */
 	public function admin_init() {
@@ -274,9 +270,7 @@ JS;
 		$asset_handle = self::SCRIPT_HANDLE;
 		$asset_name   = 'build.min';
 
-		// Only under the Jetpack menu: that is where the shell's other dashboards are.
-		if ( str_starts_with( $hook, 'jetpack_page_' ) && self::is_admin_shell_enabled() ) {
-			$this->framed = true;
+		if ( $this->is_framed( $hook ) ) {
 			$this->enqueue_frame_style( $hook );
 		}
 
@@ -284,10 +278,10 @@ JS;
 
 		$config_data = $dashboard_config->get_data();
 
-		$style_handle = $asset_handle . '-style';
-		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
-			// Assets registers the local build's stylesheet under the script's handle.
-			$style_handle = $asset_handle;
+		$is_local = file_exists( __DIR__ . "/../dist/{$asset_name}.js" );
+		// Assets registers the local build's stylesheet under the script's handle.
+		$style_handle = $is_local ? $asset_handle : $asset_handle . '-style';
+		if ( $is_local ) {
 			// Load local assets for the convenience of development.
 			Assets::register_script(
 				$asset_handle,
@@ -300,21 +294,21 @@ JS;
 				)
 			);
 		} else {
-			$css_url    = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
-			$css_handle = $style_handle;
+			$css_url      = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
+			$cache_buster = $this->get_cdn_asset_cache_buster();
 
 			wp_enqueue_script(
 				$asset_handle,
 				sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, "{$asset_name}.js" ),
 				self::JS_DEPENDENCIES,
-				$this->get_cdn_asset_cache_buster(),
+				$cache_buster,
 				true
 			);
 			wp_enqueue_style(
-				$css_handle,
+				$style_handle,
 				sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, $css_url ),
 				array(),
-				$this->get_cdn_asset_cache_buster()
+				$cache_buster
 			);
 		}
 
