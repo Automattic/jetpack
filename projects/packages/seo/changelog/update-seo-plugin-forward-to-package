@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Document the jetpack_disable_seo_tools filter where it is now applied.
+
+
