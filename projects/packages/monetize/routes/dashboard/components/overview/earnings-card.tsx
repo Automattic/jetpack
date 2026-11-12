@@ -13,7 +13,7 @@ import { getOverviewState } from './state';
  * @return The note.
  */
 export function CommissionFees( { commission }: { commission: number } ) {
-	const { upgradeUrl } = getOverviewState();
+	const { upgradeUrl, upgradeCommission } = getOverviewState();
 
 	return (
 		<Text variant="body-sm">
@@ -28,7 +28,7 @@ export function CommissionFees( { commission }: { commission: number } ) {
 				),
 				{ link: <Link href="https://stripe.com/pricing" openInNewTab /> }
 			) }
-			{ commission > 0 && upgradeUrl && (
+			{ commission > upgradeCommission && upgradeUrl && (
 				<>
 					{ ' ' }
 					<Link href={ upgradeUrl }>{ __( 'Upgrade to lower it.', 'jetpack-monetize' ) }</Link>

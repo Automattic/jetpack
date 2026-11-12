@@ -13,6 +13,7 @@ use Automattic\Jetpack\Monetize\Dashboard;
 use Automattic\Jetpack\Monetize\Dashboard_Section;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -52,6 +53,8 @@ class Overview implements Dashboard_Section {
 			'isWordAdsActive'   => ( new Modules() )->is_active( 'wordads' ),
 			'hasSimplePayments' => Current_Plan::supports( 'simple-payments' ),
 			'upgradeUrl'        => self::get_upgrade_url(),
+			// The payments fee the upgrade brings: Jetpack Creator's 2%, or 0% on WordPress.com's top plans.
+			'upgradeCommission' => ( new Host() )->is_wpcom_platform() ? 0 : 0.02,
 		);
 	}
 

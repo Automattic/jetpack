@@ -17,6 +17,7 @@ const base: OverviewState = {
 	isWordAdsActive: false,
 	hasSimplePayments: true,
 	upgradeUrl: 'https://example.com/upgrade',
+	upgradeCommission: 0.02,
 };
 
 describe( 'PromoCards', () => {

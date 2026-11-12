@@ -8,6 +8,8 @@ export interface OverviewState {
 	isWordAdsActive: boolean;
 	hasSimplePayments: boolean;
 	upgradeUrl: string;
+	/** The payments fee, as a fraction, the upgrade brings. */
+	upgradeCommission: number;
 }
 
 const NONE: OverviewState = {
@@ -15,6 +17,7 @@ const NONE: OverviewState = {
 	isWordAdsActive: false,
 	hasSimplePayments: false,
 	upgradeUrl: '',
+	upgradeCommission: 0,
 };
 
 /**
