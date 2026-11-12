@@ -156,6 +156,23 @@ class Admin_Shell_Test extends TestCase {
 				),
 			),
 			'every key set'      => array( $set + self::valid_member(), $set ),
+			'script member'      => array(
+				array(
+					'kind'   => Admin_Shell::KIND_SCRIPT,
+					'title'  => 'Forms',
+					'load'   => '__return_null',
+					'render' => '__return_null',
+				),
+				array(
+					'build_prefix' => '',
+					'build_page'   => '',
+					'init_modules' => array(),
+					'default_path' => null,
+					'capability'   => 'manage_options',
+					'handles'      => array(),
+					'media'        => false,
+				),
+			),
 		);
 	}
 
@@ -172,7 +189,10 @@ class Admin_Shell_Test extends TestCase {
 	public function test_get_members_fills_in_only_missing_keys( $member, $optional ) {
 		$this->add_members( array( 'jetpack-forms-admin' => $member ) );
 
-		$expected = $optional + self::valid_member();
+		$expected = $optional + $member + array(
+			'kind'   => 'wp-build',
+			'render' => null,
+		);
 		$actual   = Admin_Shell::get_members()['jetpack-forms-admin'] ?? array();
 		ksort( $expected );
 		ksort( $actual );

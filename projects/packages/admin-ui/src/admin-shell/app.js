@@ -24,6 +24,8 @@ export function createApp( slug, el ) {
 	const app = {
 		slug,
 		el,
+		// Stylesheets that apply only while the app is on screen.
+		styles: [],
 		get state() {
 			return el.dataset.shellState;
 		},
@@ -38,12 +40,14 @@ export function createApp( slug, el ) {
 			// A loading app stays on screen so it fills in where it will be shown.
 			el.style.display = next === 'hidden' ? 'none' : '';
 			el.inert = next === 'hidden';
+			app.styles.forEach( node => ( node.disabled = next === 'hidden' ) );
 		},
 		// Before it is ready, an app can only be put on or off screen, not change state.
 		place( onScreen ) {
 			if ( app.state === 'loading' ) {
 				el.style.display = onScreen ? '' : 'none';
 				el.inert = ! onScreen;
+				app.styles.forEach( node => ( node.disabled = ! onScreen ) );
 				return;
 			}
 			app.to( onScreen ? 'visible' : 'hidden' );
