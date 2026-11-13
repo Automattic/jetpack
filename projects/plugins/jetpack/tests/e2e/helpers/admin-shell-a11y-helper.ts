@@ -13,17 +13,10 @@ export interface PlaceholderSighting {
 	ariaHidden: boolean;
 }
 
-/** A live-region change or `#wpwrap` `aria-hidden` change, in ms since the document started. */
-export interface A11yEvent {
-	at: number;
-	what: string;
-}
-
 /** What the accessibility probe exposes on `window.__jpShellA11y`. */
 interface A11yProbe {
 	announcements: Announcement[];
 	placeholders: PlaceholderSighting[];
-	timeline: A11yEvent[];
 }
 type ProbeWindow = {
 	__jpShellA11y: A11yProbe;
@@ -41,7 +34,6 @@ function a11yProbe() {
 	const LIVE = '[aria-live], [role="status"], [role="alert"], [role="log"]';
 	const said: Announcement[] = [];
 	const placeholders: PlaceholderSighting[] = [];
-	const timeline: A11yEvent[] = [];
 	const seen = new WeakSet< Element >();
 
 	const politeness = ( el: Element ) =>
@@ -51,21 +43,6 @@ function a11yProbe() {
 	const observer = new MutationObserver( records => {
 		const touched = new Set< Element >();
 		for ( const record of records ) {
-			if ( record.attributeName === 'aria-hidden' ) {
-				if ( ( record.target as Element ).id === 'wpwrap' ) {
-					const value = ( record.target as Element ).getAttribute( 'aria-hidden' );
-					timeline.push( {
-						at: Math.round( performance.now() ),
-						what: `#wpwrap aria-hidden=${ value }`,
-					} );
-				}
-				continue;
-			}
-			record.removedNodes.forEach( node => {
-				if ( node instanceof Element && node.querySelector( '[role="dialog"]' ) ) {
-					timeline.push( { at: Math.round( performance.now() ), what: 'dialog removed' } );
-				}
-			} );
 			const target = record.target instanceof Element ? record.target : record.target.parentElement;
 			const live = target?.closest( LIVE );
 			if ( live ) {
@@ -84,14 +61,8 @@ function a11yProbe() {
 			const text = live.textContent?.trim();
 			// Screen readers don't speak regions in hidden apps or the inert header stand-in.
 			const silent = !! live.closest( '[aria-hidden="true"], [inert]' ) || ! live.checkVisibility();
-			if ( text && politeness( live ) !== 'off' ) {
-				timeline.push( {
-					at: Math.round( performance.now() ),
-					what: `${ silent ? 'unheard' : 'heard' }: ${ text }`,
-				} );
-				if ( ! silent ) {
-					said.push( { politeness: politeness( live ), text } );
-				}
+			if ( text && ! silent && politeness( live ) !== 'off' ) {
+				said.push( { politeness: politeness( live ), text } );
 			}
 		}
 		for ( const el of document.querySelectorAll< HTMLElement >( '[data-shell-header]' ) ) {
@@ -109,13 +80,12 @@ function a11yProbe() {
 		childList: true,
 		characterData: true,
 		attributes: true,
-		attributeFilter: [ 'style', 'class', 'hidden', 'aria-hidden' ],
+		attributeFilter: [ 'style', 'class', 'hidden' ],
 	} );
 
 	( window as unknown as Record< string, unknown > ).__jpShellA11y = {
 		announcements: said,
 		placeholders,
-		timeline,
 	};
 }
 
@@ -138,7 +108,6 @@ export async function resetA11yProbe( page: Page ): Promise< void > {
 		const probe = ( window as unknown as ProbeWindow ).__jpShellA11y;
 		probe.announcements.length = 0;
 		probe.placeholders.length = 0;
-		probe.timeline.length = 0;
 	} );
 }
 
@@ -244,31 +213,6 @@ export function focusOwner( page: Page ): Promise< string > {
 		const app = el.closest( '[data-shell-page]' )?.getAttribute( 'data-shell-page' );
 		return app ?? ( el.closest( '#adminmenu' ) ? 'menu' : 'other' );
 	} );
-}
-
-/**
- * Live-region changes, heard or not, and `#wpwrap` `aria-hidden` changes since the last reset.
- *
- * @param page - Page under test.
- * @return Events in order.
- */
-export function a11yTimeline( page: Page ): Promise< A11yEvent[] > {
-	return page.evaluate( () => [ ...( window as unknown as ProbeWindow ).__jpShellA11y.timeline ] );
-}
-
-/**
- * Add a step of the test to the probe's timeline.
- *
- * @param page - Page under test.
- * @param what - The step.
- */
-export async function markA11yTimeline( page: Page, what: string ): Promise< void > {
-	await page.evaluate( w => {
-		( window as unknown as ProbeWindow ).__jpShellA11y.timeline.push( {
-			at: Math.round( performance.now() ),
-			what: w,
-		} );
-	}, what );
 }
 
 /**
