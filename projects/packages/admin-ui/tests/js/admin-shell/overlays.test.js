@@ -11,6 +11,7 @@ beforeEach( () => {
 	visible = 'my-jetpack';
 	document.body.innerHTML = '';
 } );
+afterEach( () => jest.useRealTimers() );
 
 // The observer tags on the next microtask.
 const addToBody = async html => {
@@ -96,6 +97,26 @@ describe( 'overlays', () => {
 		expect( escapes ).toEqual( [ dialog ] );
 		expect( dialog ).not.toBeInTheDocument();
 		expect( otherModal ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ '@wordpress/components', dialog => dialog.parentElement.classList.add( 'is-animating-out' ) ],
+		[ '@wordpress/ui', dialog => dialog.setAttribute( 'data-ending-style', '' ) ],
+	] )( 'waits out a slow exit of a %s dialog', async ( _, startClosing ) => {
+		const modal = await addToBody( '<div><div role="dialog"></div></div>' );
+		modal.addEventListener( 'keydown', event => {
+			startClosing( event.target );
+			setTimeout( () => modal.remove(), 800 );
+		} );
+		jest.useFakeTimers();
+
+		const gone = jest.fn();
+		closeDialogsOf( 'my-jetpack' ).then( gone );
+		await jest.advanceTimersByTimeAsync( 700 );
+		expect( gone ).not.toHaveBeenCalled();
+		await jest.advanceTimersByTimeAsync( 200 );
+
+		expect( gone ).toHaveBeenCalled();
 	} );
 
 	it( 'does not press Escape again on a dialog a link already closed', async () => {
