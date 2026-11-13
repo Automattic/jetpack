@@ -1,0 +1,6 @@
+{
+	"name": "automattic/jp-a",
+	"require-dev": {
+		"automattic/jp-x": "*"
+	}
+}
