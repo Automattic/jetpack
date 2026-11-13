@@ -1,4 +1,4 @@
-import { getValueExtent, getNormalizedValue, isEmptyValue } from '../private/use-heatmap-colors';
+import { getValueExtent, isEmptyValue, scaleValues } from '../private/use-heatmap-colors';
 import type { HeatmapColumn } from '../types';
 
 const data: HeatmapColumn[] = [
@@ -29,20 +29,16 @@ describe( 'getValueExtent', () => {
 	} );
 } );
 
-describe( 'getNormalizedValue', () => {
-	test( 'returns 0 at min and 1 at max', () => {
-		expect( getNormalizedValue( 0, [ 0, 20 ] ) ).toBe( 0 );
-		expect( getNormalizedValue( 20, [ 0, 20 ] ) ).toBe( 1 );
-	} );
+describe( 'scaleValues', () => {
+	test( 'skips summary columns, partial cells and absent values, ascending', () => {
+		const mixed: HeatmapColumn[] = [
+			{ label: 'A', data: [ { value: 20 }, { value: null }, { value: 0 } ] },
+			{ label: 'B', data: [ { value: 10 }, { value: 999, partial: true } ] },
+			{ label: 'Total', summary: true, data: [ { value: 500 } ] },
+			{ label: 'C', data: [ { value: 5 } ] },
+		];
 
-	test( 'returns a clamped value for points inside and outside the extent', () => {
-		expect( getNormalizedValue( 10, [ 0, 20 ] ) ).toBe( 0.5 );
-		expect( getNormalizedValue( 30, [ 0, 20 ] ) ).toBe( 1 );
-		expect( getNormalizedValue( -5, [ 0, 20 ] ) ).toBe( 0 );
-	} );
-
-	test( 'returns 1 when min === max', () => {
-		expect( getNormalizedValue( 7, [ 7, 7 ] ) ).toBe( 1 );
+		expect( scaleValues( mixed ) ).toEqual( [ 0, 5, 10, 20 ] );
 	} );
 } );
 

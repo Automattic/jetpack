@@ -14,7 +14,7 @@ import { useCallback, useMemo, type KeyboardEvent, type MouseEvent } from 'react
 /**
  * Internal dependencies
  */
-import { MONTHS_IN_YEAR } from '../../helpers/month-key';
+import { MONTHS_IN_YEAR, monthOrder } from '../../helpers/month-key';
 import { useChartName } from '../../hooks/use-chart-name';
 import { CalendarHeatmapTooltip } from '../calendar-heatmap';
 import styles from './monthly-heatmap.module.scss';
@@ -50,6 +50,8 @@ export type MonthlyHeatmapProps = {
 	onSelect?: ( target: MonthlyHeatmapTarget ) => void;
 	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
+	/** Months whose period the data does not fill, hatched and left out of the scale; a target without a `month` is ignored. */
+	partialMonths?: MonthlyHeatmapTarget[];
 };
 
 // Below the floors the grid scrolls rather than crushing its cells; the cap
@@ -73,20 +75,33 @@ export function MonthlyHeatmap( {
 	moreLabel,
 	onSelect,
 	chartTitle,
+	partialMonths,
 }: MonthlyHeatmapProps ) {
 	const chartName = useChartName( chartTitle );
 	const rows = useMemo( () => [ ...givenRows ].sort( ( a, b ) => b.year - a.year ), [ givenRows ] );
 
 	// No per-cell label: the chart names a cell from its column and row.
-	const columns = useMemo< HeatmapColumn[] >(
-		() => [
+	const columns = useMemo< HeatmapColumn[] >( () => {
+		const partialOrders = new Set(
+			( partialMonths ?? [] ).flatMap( ( { year, month } ) =>
+				month === undefined ? [] : [ monthOrder( { year, month } ) ]
+			)
+		);
+
+		return [
 			...Array.from( { length: MONTHS_IN_YEAR }, ( _column, month ) => ( {
 				label: formatMonth( month, { short: true } ),
 				data: rows.map( row => {
 					const value = row.months[ month ];
 
 					// Anything but a number is filler, a missing entry included.
-					return typeof value === 'number' ? { value } : { value: null, placeholder: true };
+					if ( typeof value !== 'number' ) {
+						return { value: null, placeholder: true };
+					}
+
+					return partialOrders.has( monthOrder( { year: row.year, month } ) )
+						? { value, partial: true }
+						: { value };
 				} ),
 			} ) ),
 			{
@@ -94,9 +109,8 @@ export function MonthlyHeatmap( {
 				summary: true,
 				data: rows.map( row => ( { value: row.total } ) ),
 			},
-		],
-		[ rows ]
-	);
+		];
+	}, [ rows, partialMonths ] );
 
 	const select = useCallback(
 		( cell: Element ) => {
@@ -151,28 +165,43 @@ export function MonthlyHeatmap( {
 
 	const rowLabels = useMemo( () => rows.map( row => String( row.year ) ), [ rows ] );
 
+	// Named the way the chart names a cell to a screen reader: "Aug 2026", or the
+	// year alone for its roll-up.
+	const cellLabelFor = useCallback(
+		( { columnLabel, rowLabel, column, partial }: HeatmapTooltipData ) => {
+			if ( columns[ column ]?.summary ) {
+				return rowLabel ?? '';
+			}
+
+			const month = sprintf(
+				/* translators: 1: abbreviated month name, e.g. "Aug"; 2: year, e.g. "2026". */
+				_x( '%1$s %2$s', 'month and year', 'jetpack-premium-analytics-pkg' ),
+				columnLabel ?? '',
+				rowLabel ?? ''
+			).trim();
+
+			return partial
+				? sprintf(
+						/* translators: %s: a month and year the data does not yet fill, e.g. "Aug 2026". */
+						__( '%s (incomplete month)', 'jetpack-premium-analytics-pkg' ),
+						month
+					)
+				: month;
+		},
+		[ columns ]
+	);
+
 	const renderTooltip = useCallback(
-		( { value, columnLabel, rowLabel, column }: HeatmapTooltipData ) => (
+		( info: HeatmapTooltipData ) => (
 			<CalendarHeatmapTooltip
-				value={ value }
-				// Named the way the chart names a cell to a screen reader: "Aug 2026",
-				// or the year alone for its roll-up.
-				cellLabel={
-					columns[ column ]?.summary
-						? ( rowLabel ?? '' )
-						: sprintf(
-								/* translators: 1: abbreviated month name, e.g. "Aug"; 2: year, e.g. "2026". */
-								_x( '%1$s %2$s', 'month and year', 'jetpack-premium-analytics-pkg' ),
-								columnLabel ?? '',
-								rowLabel ?? ''
-							).trim()
-				}
+				value={ info.value }
+				cellLabel={ cellLabelFor( info ) }
 				emptyLabel={ emptyLabel }
 				formatValue={ formatValue }
 				inline
 			/>
 		),
-		[ columns, emptyLabel, formatValue ]
+		[ cellLabelFor, emptyLabel, formatValue ]
 	);
 
 	return (
@@ -191,6 +220,10 @@ export function MonthlyHeatmap( {
 				minCellWidth={ MIN_CELL_WIDTH }
 				minCellHeight={ MIN_CELL_HEIGHT }
 				maxCellHeight={ MAX_CELL_HEIGHT }
+				// A post can run from single digits to five figures over its life, which
+				// distance flattens into one pale tone. In log space a tenfold jump is
+				// one step wherever it falls.
+				scale="log"
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
 				renderTooltip={ renderTooltip }

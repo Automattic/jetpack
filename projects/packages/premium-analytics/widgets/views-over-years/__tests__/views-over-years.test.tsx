@@ -155,7 +155,25 @@ describe( 'ViewsOverYears widget', () => {
 		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 24' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 30' } ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'heatmap-cell-partial' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hatches the launch month and the current month under the total metric', () => {
+		mockVisits(
+			visitsResult( ROWS ),
+			visitsResult( [
+				[ '2025-11-23', 0 ],
+				[ '2025-11-24', 5 ],
+			] )
+		);
+		renderWidget();
+
+		const partials = screen.getAllByTestId( 'heatmap-cell-partial' );
+		expect( partials ).toHaveLength( 2 );
+		expect( partials.map( cell => cell.getAttribute( 'aria-label' ) ) ).toEqual(
+			expect.arrayContaining( [ 'Nov 2025: 300 (incomplete)', 'Mar 2026: 450 (incomplete)' ] )
+		);
 	} );
 
 	it( 'opens the Traffic tab over the first month from its first day with views', async () => {
@@ -169,7 +187,7 @@ describe( 'ViewsOverYears widget', () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: /^Nov 2025: 300/ } ) );
 		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 920' } ) );
 
 		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith( 1, 'traffic', {
@@ -260,7 +278,7 @@ describe( 'ViewsOverYears widget', () => {
 		mockVisits( visitsResult( [ [ '2026-03-01', 0 ] ] ) );
 		renderWidget();
 
-		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 0' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: /^Mar 2026: 0/ } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'gridcell', { name: 'Totals 2026: 0' } ) ).toBeInTheDocument();
 	} );
 

@@ -21,6 +21,13 @@ export type HeatmapCell = {
 	 * which were never measured.
 	 */
 	placeholder?: boolean;
+	/**
+	 * The cell covers a period the data does not fill — a launch month, or a
+	 * month still running. It is left out of the color scale and painted as a
+	 * hatch, so it is not read as a quiet period, while keeping its value,
+	 * tooltip, accessible name and place in keyboard navigation.
+	 */
+	partial?: boolean;
 };
 
 /** A heatmap column (rendered left→right); its cells render top→bottom. */
@@ -50,6 +57,8 @@ export type HeatmapTooltipData = {
 	/** Label of the column group the cell falls in, if any. */
 	groupLabel?: string;
 	cellLabel?: string;
+	/** The cell's period is unfinished; the default tooltip says so after the name. */
+	partial?: boolean;
 	row: number;
 	column: number;
 };
@@ -102,11 +111,27 @@ export interface HeatmapChartProps extends Omit<
 	/** Floor a cell's height (px) in non-compact mode; see `minCellWidth`. */
 	minCellHeight?: number;
 	/**
-	 * Color the cell scale is built from, deepened at the highest value toward 6:1
+	 * Color the cell scale is built from, deepened at the highest value toward 9:1
 	 * against the background. Defaults to the first series palette slot,
 	 * `--a8c-charts-color-series-1`.
 	 */
 	primaryColor?: string;
+	/**
+	 * How a value picks its color. `linear` places it by distance between the
+	 * lowest and highest value, which keeps one outlier looking like an outlier
+	 * at the cost of flattening everything below it. `log` places it by
+	 * distance in log space, on five fixed steps, so each step is a jump of the
+	 * same factor and both ends of a series spanning orders of magnitude keep
+	 * their spread; it needs every value above zero and falls back to `linear`
+	 * with a warning otherwise. `buckets` ranks a value against the series on
+	 * those same five steps, so each step holds about a fifth of the cells
+	 * whatever the distribution, at the cost of the distances between them: the
+	 * top step covers everything above the 80th percentile, however far above
+	 * it the largest value sits. Default `linear`; prefer `log` or `buckets`
+	 * for a series read to compare its periods against each other, such as
+	 * months of a year, and `buckets` where most of the series shares one band.
+	 */
+	scale?: 'buckets' | 'linear' | 'log';
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
 	/** @deprecated Every tooltip draws on the package tooltip surface; this prop has no effect. */
 	tooltipVariant?: 'light' | 'dark';

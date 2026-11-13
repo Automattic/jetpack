@@ -200,6 +200,7 @@ function PostTrafficActivityInner() {
 									data={ heatmapData }
 									rowLabels={ rowLabels }
 									ariaLabel={ chartName }
+									scale="log"
 									primaryColor="var(--wp-admin-theme-color, #3858e9)"
 									withTooltips
 									// The page span is already sized to the card, so width tracks

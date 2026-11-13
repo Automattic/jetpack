@@ -8,16 +8,20 @@ import {
 	HEATMAP_POSTS_RANGE,
 	heatmapActivityMatrix,
 	heatmapActivityMatrixWithTotals,
-	heatmapCalendarSeries,
+	heatmapCalendarDatasets,
 	heatmapLargeValueMatrix,
 	heatmapPartialMonthCalendarSeries,
+	heatmapPostHistory,
 	heatmapPostsByDay,
+	heatmapScaleComparison,
+	heatmapViewsOverYears,
 } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { HeatmapChart, useCalendarHeatmapData, useMonthCalendarHeatmapData } from '../index';
 import type { DataPointDate } from '../../../types';
 import type { CalendarHeatmapOptions } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
+import type { CSSProperties, ReactNode } from 'react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
 
@@ -32,6 +36,13 @@ const meta: Meta< StoryArgs > = {
 		...themeArgTypes,
 		compact: { control: 'boolean', table: { category: 'Visual Style' } },
 		showValues: { control: 'boolean', table: { category: 'Visual Style' } },
+		scale: {
+			control: { type: 'inline-radio' },
+			options: [ 'linear', 'log', 'buckets' ],
+			description:
+				'Whether a value picks its color by distance, by distance in log space, or by its rank in the series.',
+			table: { category: 'Visual Style' },
+		},
 		maxCellWidth: {
 			control: { type: 'number', min: 1 },
 			description: 'Maximum cell width in pixels in non-compact mode',
@@ -105,6 +116,111 @@ export const MinimumCellSize: Story = {
 	},
 };
 
+/**
+ * The "Views over years" shape, from a site that has run for sixteen years: a launch month of
+ * 195 views, a first year in the tens of thousands, a peak of 800,000 in April 2020, and
+ * thirteen years that all sit between 200,000 and 600,000. The hardest distribution the scales
+ * meet, because almost every month belongs to that middle band. Switch **scale** to compare
+ * them. The launch month (Feb 2011) and the current month (Nov 2026) cover part of a month, so
+ * they are hatched instead of shaded: they are not read as quiet months, and they sit outside
+ * the scale. Months before launch and after the current month are faded slots.
+ */
+export const LongSiteHistory: Story = {
+	render: args => (
+		// Flush square cells, so sixteen years read as one surface and the bands in it are not
+		// broken up by the grid. Both are catalog properties; the chart has no prop for either.
+		<div
+			style={
+				{
+					height: '100%',
+					'--a8c-charts-dimension-heatmap-cell-gap': '0px',
+					'--a8c-charts-border-radius-cell': '0',
+				} as CSSProperties
+			}
+		>
+			<HeatmapChart { ...args } chartId="long-site-history-heatmap">
+				<HeatmapChart.Legend variant="bar" lessLabel="Fewer views" moreLabel="More views" />
+			</HeatmapChart>
+		</div>
+	),
+	args: {
+		...sharedThemeArgs,
+		...heatmapViewsOverYears,
+		scale: 'log',
+		withTooltips: true,
+		ariaLabel: 'Views over years',
+		containerWidth: '1000px',
+		containerHeight: '620px',
+	},
+};
+
+/**
+ * A post's all-time traffic: fourteen months from the month it was published. One spike sits
+ * two orders of magnitude above the rest, yet the quieter months still tell apart. The
+ * publish month (Oct 2024) and the current month (Nov 2025) are hatched; the months before
+ * publication and after the current month are faded slots.
+ */
+export const SinglePostHistory: Story = {
+	render: args => (
+		<HeatmapChart { ...args } chartId="single-post-history-heatmap">
+			<HeatmapChart.Legend variant="bar" lessLabel="Fewer views" moreLabel="More views" />
+		</HeatmapChart>
+	),
+	args: {
+		...sharedThemeArgs,
+		...heatmapPostHistory,
+		scale: 'log',
+		withTooltips: true,
+		ariaLabel: 'Post views by month',
+		containerWidth: '960px',
+		containerHeight: '280px',
+	},
+};
+
+const SCALE_CAPTIONS: Record< 'buckets' | 'linear' | 'log', string > = {
+	linear:
+		'linear places a value by its distance from the largest. The recent months are unmistakable, and eight years of real differences share the lightest tone.',
+	log: 'log places a value by its distance in log space. Each step is a jump of the same factor, so the quiet years and the busy ones both keep their spread.',
+	buckets:
+		'buckets places a value by its rank. Every step holds about a fifth of the months whatever the shape of the series, and the distances between them are gone: the busiest month and one a tenth its size can share the darkest step.',
+};
+
+/**
+ * The same ten years of a post's traffic on all three scales, so they can be read against each
+ * other. Values are above zero throughout, which the log scale requires.
+ */
+export const ScaleComparison: Story = {
+	render: args => (
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '28px' } }>
+			{ ( [ 'linear', 'log', 'buckets' ] as const ).map( scale => (
+				<div key={ scale }>
+					<p style={ { margin: '0 0 8px', maxWidth: '62em', fontSize: '13px', lineHeight: 1.5 } }>
+						{ SCALE_CAPTIONS[ scale ] }
+					</p>
+					<HeatmapChart
+						{ ...args }
+						scale={ scale }
+						height={ 260 }
+						chartId={ `scale-comparison-${ scale }` }
+					>
+						<HeatmapChart.Legend variant="bar" lessLabel="Fewer views" moreLabel="More views" />
+					</HeatmapChart>
+				</div>
+			) ) }
+		</div>
+	),
+	args: {
+		...sharedThemeArgs,
+		...heatmapScaleComparison,
+		withTooltips: true,
+		ariaLabel: 'Post views by month',
+		containerWidth: '1000px',
+		containerHeight: 'auto',
+	},
+	// This story sets the scale on each chart it draws, so the control would move nothing.
+	argTypes: { scale: { control: false, table: { disable: true } } },
+};
+
 type CalendarStoryArgs = StoryArgs & CalendarHeatmapOptions;
 
 const CalendarGrid = ( {
@@ -113,15 +229,20 @@ const CalendarGrid = ( {
 	hideOutOfRangeDays,
 	locale,
 	timeZone,
+	children,
 	...args
-}: CalendarStoryArgs & { series: DataPointDate[] } ) => {
+}: CalendarStoryArgs & { series: DataPointDate[]; children?: ReactNode } ) => {
 	const { data, rowLabels } = useCalendarHeatmapData( series, {
 		weekStartsOn,
 		hideOutOfRangeDays,
 		locale: locale || undefined,
 		timeZone: timeZone || undefined,
 	} );
-	return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
+	return (
+		<HeatmapChart { ...args } data={ data } rowLabels={ rowLabels }>
+			{ children }
+		</HeatmapChart>
+	);
 };
 
 const calendarArgTypes = {
@@ -143,12 +264,15 @@ const calendarArgTypes = {
 	},
 };
 
-// A mid-week span (Wed to Wed) so both calendar edges are ragged. Sliced once, not per
-// render, since `useCalendarHeatmapData` holds the series by reference.
-const raggedCalendarSeries = heatmapCalendarSeries.slice( 2, 115 );
+type CalendarDatasetStoryArgs = CalendarStoryArgs & { dataset: string };
 
-export const Calendar: StoryObj< CalendarStoryArgs > = {
-	render: args => <CalendarGrid { ...args } series={ raggedCalendarSeries } />,
+export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
+	render: ( { dataset, ...args } ) => (
+		// Seven swatches hold under `linear` and snap back to the five the cells paint under `log`.
+		<CalendarGrid { ...args } series={ heatmapCalendarDatasets[ dataset ] }>
+			<HeatmapChart.Legend steps={ 7 } />
+		</CalendarGrid>
+	),
 	args: {
 		...sharedThemeArgs,
 		withTooltips: true,
@@ -156,8 +280,21 @@ export const Calendar: StoryObj< CalendarStoryArgs > = {
 		hideOutOfRangeDays: true,
 		locale: '',
 		timeZone: '',
+		dataset: 'Steady traffic',
+		scale: 'log',
 	},
-	argTypes: calendarArgTypes,
+	argTypes: {
+		...calendarArgTypes,
+		dataset: {
+			// Radio, not select: the select control carries an empty "Choose option" entry, and this
+			// arg indexes the series the calendar draws, so there is no series for it to pick.
+			control: 'radio' as const,
+			options: Object.keys( heatmapCalendarDatasets ),
+			description:
+				'Traffic shape the calendar draws, for comparing how the color scale reads on each.',
+			table: { category: 'Calendar' },
+		},
+	},
 };
 
 // Regression story for a one-column first month label in compact mode.
