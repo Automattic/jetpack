@@ -45,7 +45,7 @@ describe( 'useEmailTabScope', () => {
 		const scope = result.current;
 		expect( scope ).toBeDefined();
 		expect( scope?.window ).toBe( 'first-30-days' );
-		expect( scope?.isCapped ).toBe( false );
+		expect( scope?.isLifetimeCapped ).toBe( false );
 		expect( scope?.range.from ).toEqual( PUBLISHED );
 		// Day 30 counted from the send day, at the end of that day.
 		expect( scope?.range.to.toISOString() ).toBe( '2026-07-21T23:59:59.999Z' );
@@ -67,7 +67,7 @@ describe( 'useEmailTabScope', () => {
 		expect( scope?.range.from ).toEqual( PUBLISHED );
 		expect( scope?.range.to.toISOString() ).toBe( '2026-06-22T23:59:59.999Z' );
 		expect( scope?.reportParams ).toMatchObject( { post_id: POST_ID, interval: 'hour' } );
-		expect( scope?.isCapped ).toBe( false );
+		expect( scope?.isLifetimeCapped ).toBe( false );
 	} );
 
 	it( 'pins the first week by the day', () => {
@@ -89,7 +89,7 @@ describe( 'useEmailTabScope', () => {
 		expect( scope?.range.from ).toEqual( PUBLISHED );
 		expect( scope?.range.to.toISOString() ).toBe( '2026-08-28T23:59:59.999Z' );
 		expect( scope?.reportParams ).toMatchObject( { interval: 'month' } );
-		expect( scope?.isCapped ).toBe( false );
+		expect( scope?.isLifetimeCapped ).toBe( false );
 	} );
 
 	it( 'cuts a lifetime longer than 30 months at the end of the 30th, and says so', () => {
@@ -100,7 +100,7 @@ describe( 'useEmailTabScope', () => {
 		expect( scope?.range.from ).toEqual( old );
 		// June 2023 is the first of the 30 months, so November 2025 is the last.
 		expect( scope?.range.to.toISOString() ).toBe( '2025-11-30T23:59:59.999Z' );
-		expect( scope?.isCapped ).toBe( true );
+		expect( scope?.isLifetimeCapped ).toBe( true );
 	} );
 
 	it( 'ends the send day in the site timezone', () => {

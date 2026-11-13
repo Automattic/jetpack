@@ -9,7 +9,7 @@ import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { ButtonLink } from '@jetpack-premium-analytics/externals';
 import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -17,6 +17,7 @@ import { EMAIL_WINDOW_PARAM, TRAFFIC_SECTION_SLUG, isEmailSection } from './conf
 import {
 	DEFAULT_EMAIL_SEND_WINDOW,
 	EMAIL_SEND_WINDOWS,
+	EMAIL_SEND_WINDOW_MONTHS,
 	isEmailSendWindow,
 	useEmailTabScope,
 	type EmailSendWindow,
@@ -66,10 +67,19 @@ function notSentEmptyState(): PageEmptyStateProps {
 /**
  * How the send-window control names each window.
  *
- * @param window - The window.
+ * @param window           - The window.
+ * @param isLifetimeCapped - Whether the send is older than the all-time window reaches.
  * @return Its label.
  */
-function emailSendWindowLabel( window: EmailSendWindow ): string {
+function emailSendWindowLabel( window: EmailSendWindow, isLifetimeCapped: boolean ): string {
+	if ( window === 'all-time' && isLifetimeCapped ) {
+		return sprintf(
+			/* translators: %d: number of months. */
+			__( 'First %d months', 'jetpack-premium-analytics-pkg' ),
+			EMAIL_SEND_WINDOW_MONTHS
+		);
+	}
+
 	switch ( window ) {
 		case 'send-day':
 			return __( 'Send day, by hour', 'jetpack-premium-analytics-pkg' );
@@ -145,6 +155,7 @@ export function usePostSections(
 		},
 		[ emailWindow, setSearch ]
 	);
+	const isLifetimeCapped = emailScope?.isLifetimeCapped ?? false;
 	const emailWindowControl = useMemo< SectionScopeControl >(
 		() => ( {
 			field: {
@@ -153,13 +164,13 @@ export function usePostSections(
 				label: __( 'Time since send', 'jetpack-premium-analytics-pkg' ),
 				elements: EMAIL_SEND_WINDOWS.map( value => ( {
 					value,
-					label: emailSendWindowLabel( value ),
+					label: emailSendWindowLabel( value, isLifetimeCapped ),
 				} ) ),
 			},
 			value: emailWindow,
 			onChange: setEmailWindow,
 		} ),
-		[ emailWindow, setEmailWindow ]
+		[ emailWindow, setEmailWindow, isLifetimeCapped ]
 	);
 	// A failed or missing post never brings a publish day, so the section stops waiting for it.
 	const hasNoPost = summary.isError || summary.isNotFound;

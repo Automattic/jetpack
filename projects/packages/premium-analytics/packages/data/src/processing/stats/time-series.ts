@@ -432,6 +432,11 @@ export function sanitizeStatsEmailTimeSeriesResponse(
 	const timeline = coerceStatsRecord( coerceStatsRecord( payload ).timeline );
 	const fields = coerceStatsArray< string >( timeline.fields );
 
+	// A backend that ignores `period` answers in its own unit, which would draw on the wrong axis.
+	if ( timeline.unit && query?.period && timeline.unit !== query.period ) {
+		throw new Error( `Email timeline came back by ${ timeline.unit }, not by ${ query.period }.` );
+	}
+
 	// Names an unlabeled trailing hour column so older/alternate payloads still
 	// resolve into per-hour buckets (matching Calypso's parseEmailChartData).
 	const normalizedTimeline =

@@ -68,8 +68,8 @@ export type EmailTabScope = {
 	range: Required< DateRange >;
 	/** The same window as widget report params, replacing the URL's. */
 	reportParams: ReportParams;
-	/** Whether the all-time window stops short of today, at the endpoint's bucket cap. */
-	isCapped: boolean;
+	/** Whether the send is older than the all-time window can reach, whichever window is chosen. */
+	isLifetimeCapped: boolean;
 };
 
 /**
@@ -120,7 +120,7 @@ function resolveWindowEnd(
  *
  * Every window fits the timeline endpoint's cap of 30 buckets per request:
  * the send day is 24 hourly buckets, the daily windows at most 30, and the
- * lifetime stops at 30 months, `isCapped` then flagging the cut. The counts,
+ * lifetime stops at 30 months, `isLifetimeCapped` then flagging the cut. The counts,
  * rates and breakdowns on the same tabs are all-time regardless.
  *
  * Undefined until the publish date is known: the timeline query needs a start
@@ -173,8 +173,8 @@ export function useEmailTabScope(
 			window,
 			range,
 			reportParams: { post_id: postId, from, to, interval: isSendDay ? 'hour' : interval },
-			// Only the lifetime is cut short by the cap; the other windows end by design.
-			isCapped: window === 'all-time' && endsEarly,
+			isLifetimeCapped:
+				resolveWindowEnd( 'all-time', lifetime.from, timeZone ).windowEnd < lifetime.to,
 		};
 	}, [ postId, allTimeStart, timeZone, window, siteDay ] );
 }

@@ -116,6 +116,15 @@ describe( 'usePostSections', () => {
 		] );
 	} );
 
+	it( 'names the all-time window by its cap for a send older than it reaches', () => {
+		const old = { ...SUMMARY, allTimeStart: '2023-06-15 00:00:00' };
+		const labelOf = ( summary: PostSummary ) =>
+			pinnedScope( sectionsFor( summary )[ 1 ] ).control?.field.elements?.at( -1 )?.label;
+
+		expect( labelOf( SUMMARY ) ).toBe( 'All time, by month' );
+		expect( labelOf( old ) ).toBe( 'First 30 months' );
+	} );
+
 	it( 'pins the window the URL names, and falls back to the default for one it does not know', () => {
 		const sendDay = pinnedScope(
 			sectionsFor( SUMMARY, 'email-opens', { email_window: 'send-day' } )[ 1 ]

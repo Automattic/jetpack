@@ -286,6 +286,12 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.summary ).not.toHaveProperty( 'hour' );
 	} );
 
+	it( 'rejects an email timeline bucketed in another unit than the one asked for', () => {
+		expect( () =>
+			sanitizeStatsEmailTimeSeriesResponse( emailOpensHourlyTimeSeriesFixture, { period: 'month' } )
+		).toThrow( 'by hour, not by month' );
+	} );
+
 	it( 'trims buckets outside a window_start/window_end window and sums only the rest', () => {
 		// The last-24-hours shape: hourly buckets are anchored on the start day's
 		// midnight, so leading pre-09:00 buckets arrive and must not be summed.
