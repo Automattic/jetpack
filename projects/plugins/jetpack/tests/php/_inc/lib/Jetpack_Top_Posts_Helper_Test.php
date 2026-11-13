@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-top-posts-helper.php';
 
@@ -202,5 +203,78 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 
 		$this->assertSame( array(), Jetpack_Top_Posts_Helper::get_top_posts( '7', 3, 'post' ) );
 		$this->assertSame( self::REQUESTED_MAX, $this->processed_count(), 'Did per-post work for the whole response.' );
+	}
+
+	/**
+	 * Data provider for test_get_top_posts_skips_excluded_terms.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_excluded_terms() {
+		return array(
+			'category by ID' => array( 'category', 'jetpack_top_posts_excluded_categories', true ),
+			'tag by slug'    => array( 'post_tag', 'jetpack_top_posts_excluded_tags', false ),
+		);
+	}
+
+	/**
+	 * Excluded posts must be skipped without shrinking the list below the requested count.
+	 *
+	 * @dataProvider provide_excluded_terms
+	 *
+	 * @param string $taxonomy Taxonomy of the excluded term.
+	 * @param string $filter   Exclusion filter name.
+	 * @param bool   $by_id    Whether to exclude by term ID rather than slug.
+	 */
+	#[DataProvider( 'provide_excluded_terms' )]
+	public function test_get_top_posts_skips_excluded_terms( $taxonomy, $filter, $by_id ) {
+		$this->fake_stats_response( array( 'post' => 10 ) );
+
+		$term = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => $taxonomy,
+				'slug'     => 'sponsored',
+			)
+		);
+		wp_set_object_terms( $this->post_ids[0], $term->term_id, $taxonomy );
+		wp_set_object_terms( $this->post_ids[2], $term->term_id, $taxonomy );
+
+		add_filter(
+			$filter,
+			function () use ( $term, $by_id ) {
+				return array( $by_id ? $term->term_id : $term->slug );
+			}
+		);
+
+		$top_posts = Jetpack_Top_Posts_Helper::get_top_posts( '7', 3, 'post' );
+
+		$this->assertSame(
+			array( $this->post_ids[1], $this->post_ids[3], $this->post_ids[4] ),
+			array_column( $top_posts, 'id' )
+		);
+	}
+
+	/**
+	 * Posts removed by the posts filter must be backfilled up to the requested count.
+	 */
+	public function test_get_top_posts_filter_runs_before_trimming() {
+		$this->fake_stats_response( array( 'post' => 10 ) );
+		$removed = $this->post_ids[0];
+
+		add_filter(
+			'jetpack_top_posts_block_posts',
+			function ( $posts ) use ( $removed ) {
+				return array_filter(
+					$posts,
+					function ( $post ) use ( $removed ) {
+						return $post['id'] !== $removed;
+					}
+				);
+			}
+		);
+
+		$top_posts = Jetpack_Top_Posts_Helper::get_top_posts( '7', 3, 'post' );
+
+		$this->assertSame( array_slice( $this->post_ids, 1, 3 ), array_column( $top_posts, 'id' ) );
 	}
 }

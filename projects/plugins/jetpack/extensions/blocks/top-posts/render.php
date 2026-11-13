@@ -70,7 +70,34 @@ function load_assets_implementation( $attributes ) {
 	);
 
 	foreach ( $data as $item ) {
+		/**
+		 * Filters the permalink of each item in the Top Posts block.
+		 *
+		 * @module stats
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $permalink Post permalink.
+		 * @param array  $item      Information about the post.
+		 */
+		$item['href'] = apply_filters( 'jetpack_top_posts_block_permalink', $item['href'], $item );
+
 		$output .= '<div class="jetpack-top-posts-item">';
+
+		ob_start();
+		/**
+		 * Fires before each item's markup in the Top Posts block. Anything echoed is rendered inside the item.
+		 *
+		 * @module stats
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int   $post_id    Post ID.
+		 * @param array $item       Information about the post.
+		 * @param array $attributes Block attributes.
+		 */
+		do_action( 'jetpack_top_posts_block_before_post', $item['id'], $item, $attributes );
+		$output .= ob_get_clean();
 
 		if ( $attributes['displayThumbnail'] ) {
 			$output .= '<a class="jetpack-top-posts-thumbnail-link" href="' . esc_url( $item['href'] ) . '">';
@@ -98,6 +125,21 @@ function load_assets_implementation( $attributes ) {
 			$context = reset( $item['context'] );
 			$output .= '<span class="jetpack-top-posts-context has-small-font-size"><a href="' . esc_url( get_category_link( $context->term_id ) ) . '">' . esc_html( $context->name ) . '</a></span>';
 		}
+
+		ob_start();
+		/**
+		 * Fires after each item's markup in the Top Posts block. Anything echoed is rendered inside the item.
+		 *
+		 * @module stats
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int   $post_id    Post ID.
+		 * @param array $item       Information about the post.
+		 * @param array $attributes Block attributes.
+		 */
+		do_action( 'jetpack_top_posts_block_after_post', $item['id'], $item, $attributes );
+		$output .= ob_get_clean();
 
 		$output .= '</div>';
 	}
