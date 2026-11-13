@@ -79,7 +79,6 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`ariaLabel`**: accessible name of the grid. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - **`primaryColor`**: color the scale is built from; see [Theming](#theming). Defaults to the first series palette color, `--a8c-charts-color-series-1`
 - **`scale`** (default: `'linear'`): whether a value picks its color by distance or by rank. See [Color Scale](#color-scale).
-- **`scaleSteps`** (default: `5`): how many color steps the cells and the legend share under `buckets`, a whole number from 2 to 10. See [Color Scale](#color-scale).
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
@@ -95,7 +94,7 @@ By default a shade reports a value's distance between the lowest and the highest
 
 ### Ranking versus distance
 
-Set `scale="buckets"` for those, and a shade reports the value's rank instead. The values are split into at most `scaleSteps` buckets that each hold about the same share of the series, so neighbors stay apart. In a history whose years overlap, as in the story below, every year keeps its own busy and quiet months. The scale ranks a value against the whole series, not against its own year, so a steeply growing series puts its early years in the lowest step. The largest value is always the darkest step. With two or more distinct values the smallest is the lightest; a series with fewer than two paints every cell in the darkest step.
+Set `scale="buckets"` for those, and a shade reports the value's rank instead. The values are split into at most five buckets that each hold about the same share of the series, so neighbors stay apart. In a history whose years overlap, as in the story below, every year keeps its own busy and quiet months. The scale ranks a value against the whole series, not against its own year, so a steeply growing series puts its early years in the lowest step. The largest value is always the darkest step. With two or more distinct values the smallest is the lightest; a series with fewer than two paints every cell in the darkest step.
 
 <Source
 	code={ `<HeatmapChart data={ columns } rowLabels={ rowLabels } scale="buckets" />` }
@@ -104,20 +103,11 @@ Set `scale="buckets"` for those, and a shade reports the value's rank instead. T
 
 <Canvas of={ HeatmapStories.LongSiteHistory } />
 
-Under `buckets` a cell's shade is always one of `scaleSteps` fixed steps, so every cell matches a legend swatch. A series with little variety, such as one holding only three distinct values, yields fewer buckets than `scaleSteps`: it uses fewer colors and leaves some legend swatches unused. Under `linear` the scale is continuous, so cells paint shades between the swatches rather than on them and `scaleSteps` does not apply to them.
+Under `buckets` a cell's shade is always one of those five fixed steps, so every cell matches a legend swatch, and the legend keeps that count: a legend `steps` that differs would show shades the cells never paint, so it is ignored with a warning. A series with little variety, such as one holding only three distinct values, yields fewer than five buckets: it uses fewer colors and leaves some legend swatches unused. Under `linear` the scale is continuous, so cells paint shades between the swatches rather than on them, and the legend's `steps` is free.
 
 <Canvas of={ HeatmapStories.FewDistinctValues } />
 
 The `Calendar` story switches between traffic shapes and between the two scales, so they can be compared on each shape.
-
-`scaleSteps` must be a whole number from 2 to 10. Any other value warns once and falls back to `5`. Change it, rather than the legend's `steps`, when a host wants a different number of steps: under `buckets` the legend draws exactly the steps the cells paint, so a legend `steps` that differs is ignored with a warning. The stories above use the default of `5`; this chart asks for seven:
-
-<Source
-	language="tsx"
-	code={ `<HeatmapChart data={ columns } rowLabels={ rowLabels } scale="buckets" scaleSteps={ 7 }>
-		<HeatmapChart.Legend variant="bar" />
-	</HeatmapChart>` }
-/>
 
 ### Incomplete periods
 
@@ -362,7 +352,7 @@ Add a legend by placing `<HeatmapChart.Legend />` as a child. Between its Less a
 
 <Canvas of={ HeatmapStories.WithBarLegend } />
 
-The legend draws as many swatches as the chart's `scaleSteps`. Under `scale="buckets"` that count is fixed: cell shades are always `k / ( scaleSteps - 1 )` for a whole number `k`, so a legend `steps` that differs would show shades the cells never paint, and it is ignored with a warning. Set `scaleSteps` on the chart to change the count. Under the default `linear` scale the shades are continuous, so `steps` there is only how many samples of them the legend shows.
+The legend draws five swatches by default. Under `scale="buckets"` that count is fixed: a cell's shade is always `k / 4` for a whole number `k`, so a `steps` that differs would show shades the cells never paint, and it is ignored with a warning. Under the default `linear` scale the shades are continuous, so `steps` there is only how many samples of them the legend shows.
 
 ## Error / Empty State
 

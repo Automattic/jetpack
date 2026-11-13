@@ -130,7 +130,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	ariaLabel,
 	primaryColor,
 	scale: valueScale = 'linear',
-	scaleSteps = HEATMAP_SCALE_STEPS,
 	gap = 'md',
 	withTooltips = false,
 	renderTooltip,
@@ -211,17 +210,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const values = useMemo( () => scaleValues( data ), [ data ] );
 	const extent = useMemo( () => getExtentOf( values ), [ values ] );
-	const usableSteps = Number.isInteger( scaleSteps ) && scaleSteps >= 2 && scaleSteps <= 10;
-	if ( ! usableSteps ) {
-		warnOnce(
-			'heatmap:scaleSteps',
-			`scaleSteps must be a whole number from 2 to 10, so the scale keeps its ${ HEATMAP_SCALE_STEPS } steps.`
-		);
-	}
-	const steps = usableSteps ? scaleSteps : HEATMAP_SCALE_STEPS;
 	const buckets = useMemo(
-		() => getValueBuckets( values, extent, steps ),
-		[ values, extent, steps ]
+		() => getValueBuckets( values, extent, HEATMAP_SCALE_STEPS ),
+		[ values, extent ]
 	);
 	const placeOnScale = useCallback(
 		( value: number ) =>
@@ -231,8 +222,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		[ valueScale, extent, buckets ]
 	);
 	const heatmapContext = useMemo< HeatmapContextValue >(
-		() => ( { extent, buckets, scale: valueScale, steps, fillVars } ),
-		[ extent, buckets, valueScale, steps, fillVars ]
+		() => ( { extent, buckets, scale: valueScale, fillVars } ),
+		[ extent, buckets, valueScale, fillVars ]
 	);
 
 	const columns = data.length;

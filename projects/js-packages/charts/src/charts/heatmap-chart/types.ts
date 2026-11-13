@@ -121,17 +121,11 @@ export interface HeatmapChartProps extends Omit<
 	 * lowest and highest value, which keeps one outlier looking like an outlier
 	 * at the cost of flattening the rest. `buckets` ranks it against the series
 	 * instead, so every step holds about the same share of the cells and
-	 * neighbors stay apart. Default `linear`; prefer `buckets` for a series read
-	 * to compare its periods against each other, such as months of a year.
+	 * neighbors stay apart on five fixed steps. Default `linear`; prefer
+	 * `buckets` for a series read to compare its periods against each other,
+	 * such as months of a year.
 	 */
 	scale?: 'buckets' | 'linear';
-	/**
-	 * How many color steps the cells and the legend share under the `buckets`
-	 * scale. Values fall into that many buckets, each holding about the same
-	 * share of the series, and the legend draws the same count. Default 5.
-	 * Ignored under the `linear` scale, which is continuous.
-	 */
-	scaleSteps?: number;
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
 	/** @deprecated Every tooltip draws on the package tooltip surface; this prop has no effect. */
 	tooltipVariant?: 'light' | 'dark';
