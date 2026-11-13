@@ -3162,6 +3162,110 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertSame( 'IMAGE_NOT_FOUND', $rows[1]['error']['name'] );
 	}
 
+	/**
+	 * An attachment whose file is not on this server's disk, as on a site that keeps media on a CDN.
+	 *
+	 * @param array $meta Its metadata.
+	 * @return int The attachment id.
+	 */
+	private function create_cdn_attachment( array $meta = array() ) {
+		$attachment_id = wp_insert_attachment(
+			array(
+				'post_mime_type' => 'image/png',
+				'post_title'     => 'photo',
+				'post_status'    => 'inherit',
+			),
+			'cdn/photo-cdn.png'
+		);
+		wp_update_attachment_metadata( $attachment_id, $meta );
+
+		return $attachment_id;
+	}
+
+	public function test_upload_images_fetches_a_file_that_is_not_on_disk() {
+		$this->set_up_connected_admin_state();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'photo-cdn.png'                    => array(
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'body'     => 'cdn-bytes',
+				),
+				PayPal_API_Client::IMAGES_ENDPOINT => $this->upload_response( array( array( 'asset_id' => 'ASSET-3' ) ) ),
+			),
+			$requests
+		);
+
+		$rows = PayPal_REST_Controller::handle_upload_images( $this->upload_request( array( $this->create_cdn_attachment() ) ) )->get_data()['images'];
+
+		$this->assertSame( 'ASSET-3', $rows[0]['asset_id'] );
+		$this->assertStringContainsString( "filename=\"photo-cdn.png\"\r\nContent-Type: image/png\r\n\r\ncdn-bytes\r\n", $requests[1]['args']['body'] );
+	}
+
+	/**
+	 * @param array  $meta       The attachment's metadata.
+	 * @param string $error_name The error its row carries.
+	 * @param string $message    Part of the message for the merchant.
+	 * @dataProvider unsendable_files_provider
+	 */
+	#[DataProvider( 'unsendable_files_provider' )]
+	public function test_upload_images_refuses_a_file_it_cannot_send( array $meta, $error_name, $message ) {
+		$this->set_up_connected_admin_state();
+		$requests = array();
+		$this->mock_http_routes( array( 'photo-cdn.png' => $this->http_response( 404, array() ) ), $requests );
+
+		$rows = PayPal_REST_Controller::handle_upload_images( $this->upload_request( array( $this->create_cdn_attachment( $meta ) ) ) )->get_data()['images'];
+
+		$this->assertSame( $error_name, $rows[0]['error']['name'] );
+		$this->assertStringContainsString( $message, $rows[0]['error']['message'] );
+		foreach ( $requests as $request ) {
+			$this->assertStringNotContainsString( PayPal_API_Client::IMAGES_ENDPOINT, $request['url'] );
+		}
+	}
+
+	public static function unsendable_files_provider() {
+		return array(
+			'over 12 MB'     => array( array( 'filesize' => PayPal_API_Client::MAX_IMAGE_BYTES + 1 ), 'FILE_TOO_LARGE', 'photo-cdn.png is over 12 MB' ),
+			'nowhere to get' => array( array(), 'IMAGE_UNREADABLE', 'photo-cdn.png could not be read' ),
+		);
+	}
+
+	/**
+	 * A file PayPal says nothing usable about is reported, not left looking uploaded.
+	 */
+	public function test_upload_images_reports_a_file_paypal_did_not_answer_for() {
+		$this->set_up_connected_admin_state();
+		$first  = $this->create_image_attachment();
+		$second = $this->create_image_attachment();
+		$this->mock_http_routes(
+			array(
+				PayPal_API_Client::IMAGES_ENDPOINT => $this->upload_response(
+					array(
+						array(
+							'error'       => array( 'name' => 'SOMETHING_NEW' ),
+							'input_index' => 0,
+						),
+						'not a row',
+						array(
+							'asset_id'    => 'ASSET-FOR-NO-FILE',
+							'input_index' => 9,
+						),
+					)
+				),
+			)
+		);
+
+		$rows = PayPal_REST_Controller::handle_upload_images( $this->upload_request( array( $first, $second ) ) )->get_data()['images'];
+
+		$this->assertSame( 'SOMETHING_NEW', $rows[0]['error']['name'] );
+		$this->assertStringContainsString( 'PayPal did not accept', $rows[0]['error']['message'] );
+		$this->assertSame( 'NO_RESPONSE', $rows[1]['error']['name'] );
+		$this->assertStringContainsString( 'Please try again', $rows[1]['error']['message'] );
+	}
+
 	public function test_upload_images_converts_a_failed_call_to_a_rest_error() {
 		$this->set_up_connected_admin_state();
 		$png = $this->create_image_attachment();
@@ -3225,7 +3329,8 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$store = array();
 		$this->mock_paypal_store( $store );
 
-		$images = array();
+		// An image that never got an asset id is left out, and does not count toward the five.
+		$images = array( array( 'asset_id' => '' ) );
 		foreach ( range( 1, 6 ) as $i ) {
 			$images[] = array( 'asset_id' => "ASSET-$i" ) + ( 2 === $i ? array( 'is_primary' => true ) : array() );
 		}
