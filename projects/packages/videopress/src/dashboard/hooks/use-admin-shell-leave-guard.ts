@@ -7,19 +7,24 @@ const PAGE = 'jetpack-videopress';
 
 /*
  * Mounted screens keep their own popstate listeners while the shell hides VideoPress. Until the
- * shell reports the page shown, a popstate belongs to another page, or is VideoPress arriving.
+ * task that shows it again ends, a popstate belongs to another page, or is VideoPress arriving.
  */
 let hiddenByShell = false;
-for ( const [ type, hidden ] of [
-	[ 'page-hidden', true ],
-	[ 'page-shown', false ],
-] as const ) {
-	window.addEventListener( `jetpack-admin-shell:${ type }`, event => {
-		if ( ( event as CustomEvent< { page?: string } | null > ).detail?.page === PAGE ) {
-			hiddenByShell = hidden;
-		}
-	} );
-}
+let showing: ReturnType< typeof setTimeout > | undefined;
+const isVideoPress = ( event: Event ) =>
+	( event as CustomEvent< { page?: string } | null > ).detail?.page === PAGE;
+window.addEventListener( 'jetpack-admin-shell:page-hidden', event => {
+	if ( isVideoPress( event ) ) {
+		clearTimeout( showing );
+		hiddenByShell = true;
+	}
+} );
+// The shell reports a Back's page shown in a microtask, before later popstate listeners run.
+window.addEventListener( 'jetpack-admin-shell:page-shown', event => {
+	if ( isVideoPress( event ) ) {
+		showing = setTimeout( () => ( hiddenByShell = false ) );
+	}
+} );
 
 /**
  * Whether the admin shell has VideoPress off screen, so a popstate guard should stay out of it.

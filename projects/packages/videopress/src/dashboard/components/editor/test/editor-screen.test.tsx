@@ -536,21 +536,35 @@ it( 'answers the admin shell for a dirty draft and asks once per shell navigatio
 	);
 } );
 
-it.each( [
-	[ 'stays silent while the admin shell hides VideoPress', 'page-hidden', 0 ],
-	[ 'asks again once the admin shell shows VideoPress', 'page-shown', 1 ],
-] )( '%s', async ( _, type, asks ) => {
+it( 'stays quiet while the admin shell hides VideoPress and as it comes back, then asks again', async () => {
 	const { user } = renderEditor();
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
-	act( () => {
+	const shell = ( type: string, page = 'jetpack-videopress' ) =>
 		window.dispatchEvent(
-			new CustomEvent( `jetpack-admin-shell:${ type }`, { detail: { page: 'jetpack-videopress' } } )
+			new CustomEvent( `jetpack-admin-shell:${ type }`, { detail: { page } } )
 		);
-		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
-	} );
+	const back = () => act( () => window.dispatchEvent( new PopStateEvent( 'popstate' ) ) );
 
-	expect( confirmNavigation ).toHaveBeenCalledTimes( asks );
-	expect( navigate ).toHaveBeenCalledTimes( asks );
+	try {
+		shell( 'page-hidden' );
+		shell( 'page-shown', 'jetpack-newsletter' );
+		back();
+		// On a real Back the shell reports VideoPress shown before the editor hears that popstate.
+		shell( 'page-shown' );
+		back();
+		expect( confirmNavigation ).not.toHaveBeenCalled();
+		expect( navigate ).not.toHaveBeenCalled();
+
+		await act( () => new Promise( resolve => setTimeout( resolve ) ) );
+		back();
+		expect( confirmNavigation ).toHaveBeenCalledWith(
+			'You have unsaved edits. Leave the editor and discard them?'
+		);
+		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/editor' } );
+	} finally {
+		shell( 'page-shown' );
+		await act( () => new Promise( resolve => setTimeout( resolve ) ) );
+	}
 } );
 
 it( 'suspends editor shortcuts until the save dialog is dismissed', async () => {
