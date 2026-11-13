@@ -205,7 +205,8 @@ function wpcomsh_search_prefers_wporg(): bool {
 function wpcomsh_feature_filter_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Pre-requisites checks.
 	$tags = $args->tag ?? array();
-	if ( 'query_themes' !== $action || ! $tags ) {
+	// Core's Feature Filter sends no `browse`; the Marketplace tab does, and filters its own catalog.
+	if ( 'query_themes' !== $action || ! $tags || isset( $args->browse ) ) {
 		return $res;
 	}
 

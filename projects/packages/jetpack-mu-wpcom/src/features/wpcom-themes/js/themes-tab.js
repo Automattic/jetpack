@@ -315,10 +315,33 @@
 	pricing.appendChild( select );
 	list.insertAdjacentElement( 'afterend', pricing );
 
+	let onTab = false;
+	let tabFiltered = false;
+	let applyingFilters = false;
+
+	// Core's Feature Filter sends its tags without `browse`, which would leave the tab for WordPress.org.
+	const Installer = views.Installer;
+	if ( Installer && Installer.prototype.applyFilters ) {
+		const applyFilters = Installer.prototype.applyFilters;
+		Installer.prototype.applyFilters = function () {
+			applyingFilters = true;
+			try {
+				return applyFilters.apply( this, arguments );
+			} finally {
+				applyingFilters = false;
+			}
+		};
+	}
+
 	// Every view's request passes through here, so the filter shows only while the tab is listed.
 	const query = Collection.prototype.query;
 	Collection.prototype.query = function ( request ) {
-		const onTab = !! request && request.browse === config.sort;
+		if ( applyingFilters && onTab && request && request.tag ) {
+			request = { ...request, browse: config.sort };
+		}
+
+		onTab = !! request && request.browse === config.sort;
+		tabFiltered = onTab && !! request.tag;
 		pricing.hidden = ! onTab;
 
 		if ( onTab && select.value === config.included ) {
@@ -328,7 +351,12 @@
 		return query.call( this, request );
 	};
 
-	select.addEventListener( 'change', () =>
-		window.wp.themes.RunInstaller?.view?.browse( config.sort )
-	);
+	select.addEventListener( 'change', () => {
+		const installer = window.wp.themes.RunInstaller?.view;
+		if ( tabFiltered ) {
+			installer?.applyFilters();
+		} else {
+			installer?.browse( config.sort );
+		}
+	} );
 } )();
