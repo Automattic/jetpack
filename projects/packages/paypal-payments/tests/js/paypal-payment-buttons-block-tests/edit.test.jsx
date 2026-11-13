@@ -133,6 +133,7 @@ jest.mock( '@wordpress/icons', () => {
 		pencil: icon( 'pencil' ),
 		replace: icon( 'replace' ),
 		trash: icon( 'trash' ),
+		update: icon( 'update' ),
 	};
 } );
 
@@ -144,6 +145,8 @@ jest.mock( 'qrcode', () => ( {
 const mockMarkNotPersistent = jest.fn();
 // What the save sync writes onto a block, by clientId.
 const mockUpdateBlockAttributes = jest.fn();
+// Which sidebar the block asks the editor to open.
+const mockEnableComplementaryArea = jest.fn();
 /**
  * Run editor.savePost, as core/editor does once the post has saved.
  *
@@ -155,7 +158,10 @@ const postSaved = ( options = {} ) =>
 // Whether the block renders in an inserter or pattern preview. Set per test.
 let mockIsPreviewMode = false;
 jest.mock( '@wordpress/data', () => ( {
-	dispatch: () => ( { updateBlockAttributes: mockUpdateBlockAttributes } ),
+	dispatch: store =>
+		store === 'core/interface'
+			? { enableComplementaryArea: mockEnableComplementaryArea }
+			: { updateBlockAttributes: mockUpdateBlockAttributes },
 	useDispatch: () => ( {
 		__unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent,
 	} ),
@@ -605,8 +611,8 @@ jest.mock( '@wordpress/components', () => ( {
 			{ help && <span className="components-base-control__help">{ help }</span> }
 		</div>
 	),
-	ToolbarButton: ( { label, onClick } ) => (
-		<button data-testid={ `toolbar-${ label }` } onClick={ onClick }>
+	ToolbarButton: ( { label, onClick, disabled } ) => (
+		<button data-testid={ `toolbar-${ label }` } onClick={ onClick } disabled={ disabled }>
 			{ label }
 		</button>
 	),
@@ -832,10 +838,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	const openSavedForm = async () => {
 		await waitFor( () => {
 			if ( ! screen.queryByLabelText( 'Product Name' ) ) {
-				expect( screen.getByRole( 'button', { name: 'Edit' } ) ).toBeInTheDocument();
+				expect(
+					within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', {
+						name: 'Edit',
+					} )
+				).toBeInTheDocument();
 			}
 		} );
-		const edit = screen.queryByRole( 'button', { name: 'Edit' } );
+		// Look in the sidebar: the toolbar has an Edit too.
+		const edit = within( screen.getByTestId( 'inspector-controls' ) ).queryByRole( 'button', {
+			name: 'Edit',
+		} );
 		if ( edit ) {
 			await userEvent.setup().click( edit );
 		}
@@ -8188,7 +8201,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				);
 				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
-				await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+				await user.click(
+					within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', {
+						name: 'Edit',
+					} )
+				);
 
 				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 				expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
@@ -9001,7 +9018,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
 
-			await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+			await user.click(
+				within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', { name: 'Edit' } )
+			);
 
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
@@ -9246,7 +9265,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
 			expect( panel( 'PayPal Connection' ) ).toBeUndefined();
-			await userEvent.setup().click( screen.getByRole( 'button', { name: 'Edit' } ) );
+			await userEvent.setup().click(
+				within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', {
+					name: 'Edit',
+				} )
+			);
 
 			expect( panel( 'Details' ) ).toBeInTheDocument();
 			expect( panel( 'Product Options' ) ).toBeInTheDocument();
@@ -9264,7 +9287,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
-			await userEvent.setup().click( screen.getByRole( 'button', { name: 'Edit' } ) );
+			await userEvent.setup().click(
+				within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', {
+					name: 'Edit',
+				} )
+			);
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 
 			rerender(
@@ -9297,7 +9324,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					<Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" />
 				);
 				await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
-				await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+				await user.click(
+					within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', {
+						name: 'Edit',
+					} )
+				);
 				view.rerender(
 					<Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" />
 				);
@@ -9658,7 +9689,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-		const changeItem = () => screen.getByRole( 'button', { name: 'Change item' } );
+		const changeItem = () =>
+			within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', {
+				name: 'Change item',
+			} );
 
 		it( 'is greyed out while the account has no other link', async () => {
 			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
@@ -9667,7 +9701,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
 			await waitFor( () => expect( changeItem() ).toBeDisabled() );
-			expect( screen.getByRole( 'button', { name: 'Edit' } ) ).toBeEnabled();
+			expect(
+				within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', { name: 'Edit' } )
+			).toBeEnabled();
 		} );
 
 		it( 'is greyed out while PayPal is disconnected', async () => {
@@ -9716,7 +9752,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// The current button stays on the canvas while another link is picked.
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
 
-			await user.click( screen.getByRole( 'button', { name: 'Change item' } ) );
+			await user.click( changeItem() );
 
 			expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
 			expect( setAttributes ).not.toHaveBeenCalled();
