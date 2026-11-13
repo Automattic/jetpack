@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: Hide decorative overlay icons from screen readers so accessibility checkers no longer report them as missing alternative text.
