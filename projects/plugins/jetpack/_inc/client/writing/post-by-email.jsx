@@ -1,18 +1,22 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
-import ClipboardButtonInput from 'components/clipboard-button-input';
-import { FormFieldset } from 'components/forms';
+import ClipboardIconButton from 'components/clipboard-icon-button';
+import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { FEATURE_POST_BY_EMAIL } from '../lib/plans/constants';
+
+import './post-by-email.scss';
 
 class PostByEmail extends Component {
 	regeneratePostByEmailAddress = event => {
@@ -90,11 +94,24 @@ class PostByEmail extends Component {
 					) }
 					<FormFieldset>
 						{ ( this.props.userCanManageModules || emailAddress ) && (
-							<ClipboardButtonInput
-								label={ __( 'Send your new posts to this email address:', 'jetpack' ) }
-								value={ emailAddress }
-								disabled={ ! isPbeActive || disabledControls }
-							/>
+							<Stack className="jp-pbe-address" direction="row" align="end" gap="sm">
+								<FormLabel className="jp-pbe-address__field">
+									<FormLegend>
+										{ __( 'Send your new posts to this email address:', 'jetpack' ) }
+									</FormLegend>
+									<TextInput
+										value={ emailAddress }
+										disabled={ ! isPbeActive || disabledControls }
+										type="text"
+										selectOnFocus
+										readOnly
+									/>
+								</FormLabel>
+								<ClipboardIconButton
+									text={ emailAddress }
+									disabled={ ! isPbeActive || disabledControls }
+								/>
+							</Stack>
 						) }
 						<Button
 							rna

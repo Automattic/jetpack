@@ -1,11 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Stack } from '@wordpress/ui';
+import { InputControl, InputLayout, Link, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import ClipboardButtonInput from 'components/clipboard-button-input';
+import ClipboardIconButton from 'components/clipboard-icon-button';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -18,7 +18,18 @@ export class Sitemaps extends Component {
 		const trackSitemapUrl = () => analytics.tracks.recordJetpackClick( sitemapTrack );
 		return (
 			<Stack className="jp-sitemap-row" direction="row" align="end" gap="sm">
-				<ClipboardButtonInput className="jp-sitemap-row__input" label={ label } value={ sitemap } />
+				<InputControl
+					className="jp-sitemap-row__input"
+					label={ label }
+					value={ sitemap }
+					readOnly
+					dir="ltr"
+					suffix={
+						<InputLayout.Slot padding="minimal">
+							<ClipboardIconButton text={ sitemap } size="small" />
+						</InputLayout.Slot>
+					}
+				/>
 				<Link
 					openInNewTab
 					// eslint-disable-next-line react/jsx-no-bind
