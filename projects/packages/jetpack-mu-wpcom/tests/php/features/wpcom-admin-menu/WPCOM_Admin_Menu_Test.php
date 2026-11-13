@@ -441,7 +441,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Simple sites show the native page instead of the Calypso link.
+	 * Simple sites show the native page instead of the Calypso link by default.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -460,15 +460,34 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Jetpack deploys separately, so the bundled package can predate Simple support.
+	 * Cases where a Simple site keeps the Calypso Activity Log link.
 	 *
+	 * @return array
+	 */
+	public static function provide_calypso_activity_log_fallback_cases() {
+		return array(
+			// Jetpack deploys separately, so the bundled package can predate Simple support.
+			'package predates Simple support' => array( false, true ),
+			'flag switched off'               => array( true, false ),
+		);
+	}
+
+	/**
+	 * Simple sites fall back to the Calypso link when the native page cannot or should not register.
+	 *
+	 * @dataProvider provide_calypso_activity_log_fallback_cases
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
+	 *
+	 * @param bool $package_supports_simple Whether the bundled package can register the page on Simple.
+	 * @param bool $flag_enabled            Whether the native Activity Log flag is on.
 	 */
+	#[DataProvider( 'provide_calypso_activity_log_fallback_cases' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_falls_back_to_calypso_activity_log_when_the_package_cannot_register() {
-		$domain = $this->set_up_simple_site_with_native_activity_log( false );
+	public function test_jetpack_submenu_falls_back_to_calypso_activity_log( $package_supports_simple, $flag_enabled ) {
+		$domain = $this->set_up_simple_site_with_native_activity_log( $package_supports_simple );
+		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_NATIVE_ACTIVITY_LOG_FLAG, $flag_enabled ? '__return_true' : '__return_false' );
 
 		wpcom_add_jetpack_submenu();
 

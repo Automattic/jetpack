@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
@@ -16,6 +17,30 @@ use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
+
+/**
+ * Feature flag gating the native Activity Log page on Simple sites.
+ */
+const WPCOM_NATIVE_ACTIVITY_LOG_FLAG = 'wpcom-native-activity-log';
+
+/**
+ * Registers the feature flag.
+ *
+ * Runs as this file loads, so the flag is listed wherever flags are read or toggled.
+ *
+ * @return void
+ */
+function wpcom_register_native_activity_log_flag() {
+	Feature_Flags::register(
+		WPCOM_NATIVE_ACTIVITY_LOG_FLAG,
+		array(
+			'default'     => true,
+			'description' => 'Show the native wp-admin Activity Log page on Simple sites instead of linking to Calypso.',
+			'owner'       => 'jetpack-mu-wpcom',
+		)
+	);
+}
+wpcom_register_native_activity_log_flag();
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -501,7 +526,7 @@ function wpcom_add_jetpack_submenu() {
 	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
 	// interface the site uses, and behave like a self-hosted site when that page is
 	// not available: the Calypso Activity Log screen is being retired. Simple sites
-	// get the native page too, and link to wordpress.com/activity-log when it cannot register.
+	// get the native page too unless its flag is off, and link to wordpress.com/activity-log otherwise.
 	if ( $is_simple_site && ! wpcom_add_native_activity_log_submenu() ) {
 		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
 		add_submenu_page(
@@ -590,6 +615,10 @@ function wpcom_sort_jetpack_submenu() {
  * @return bool Whether the page was registered.
  */
 function wpcom_add_native_activity_log_submenu() {
+	if ( ! Feature_Flags::is_enabled( WPCOM_NATIVE_ACTIVITY_LOG_FLAG ) ) {
+		return false;
+	}
+
 	// The package ships with Jetpack, which deploys separately from this one.
 	if ( ! class_exists( '\Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log' ) ) {
 		return false;
