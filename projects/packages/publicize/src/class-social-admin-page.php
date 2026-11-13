@@ -196,8 +196,8 @@ class Social_Admin_Page {
 	 * @return string
 	 */
 	private static function landing_subtitle() {
-		// Settings opens while Social is off and the user can turn it on.
-		if ( ! ( new Host() )->is_wpcom_platform() && current_user_can( 'jetpack_manage_modules' ) && ! Utils::is_publicize_active() ) {
+		// Settings opens while Social is off and the user can turn it on: canToggleSocialModule() in _inc/utils/misc.ts.
+		if ( 'wpcom' !== ( new Host() )->get_known_host_guess() && current_user_can( 'jetpack_manage_modules' ) && ! Utils::is_publicize_active() ) {
 			return __( 'Customize how your posts are shared to social media.', 'jetpack-publicize-pkg' );
 		}
 		return __( 'Connect your social accounts and see what drives traffic.', 'jetpack-publicize-pkg' );

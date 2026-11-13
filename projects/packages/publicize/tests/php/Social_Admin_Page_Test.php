@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -294,6 +295,56 @@ class Social_Admin_Page_Test extends BaseTestCase {
 
 		$this->assertTrue( wp_script_is( Social_Admin_Page::GUEST_DATA_HANDLE, 'enqueued' ) );
 		$this->assertNotEmpty( wp_scripts()->get_data( Social_Admin_Page::GUEST_DATA_HANDLE, 'before' ) );
+	}
+
+	/**
+	 * Data provider for test_admin_shell_header_opens_settings_while_social_is_off.
+	 *
+	 * @return array[] Whether the site is WoA.
+	 */
+	public static function provide_hosts_that_can_turn_social_on() {
+		return array(
+			'self-hosted' => array( false ),
+			'WoA'         => array( true ),
+		);
+	}
+
+	/**
+	 * Like the dashboard's canToggleSocialModule(), only Simple keeps an admin off Settings while Social is off.
+	 *
+	 * @dataProvider provide_hosts_that_can_turn_social_on
+	 *
+	 * @param bool $woa Whether the site is WoA.
+	 */
+	#[DataProvider( 'provide_hosts_that_can_turn_social_on' )]
+	public function test_admin_shell_header_opens_settings_while_social_is_off( $woa ) {
+		$this->set_wp_build_index( __DIR__ . '/files/build-entry/build.php' );
+		( new Tokens() )->update_blog_token( 'blog.token' );
+		( new Connection_Manager() )->reset_connection_status();
+		if ( $woa ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', __FILE__ );
+		}
+		$can_manage_modules = static function ( $caps ) {
+			return array( 'jetpack_manage_modules' => true ) + $caps;
+		};
+		add_filter( 'user_has_cap', $can_manage_modules );
+		add_filter( 'jetpack_active_modules', '__return_empty_array' );
+		Cache::clear();
+
+		try {
+			$members = Social_Admin_Page::init()->add_admin_shell_member( array() );
+		} finally {
+			remove_filter( 'user_has_cap', $can_manage_modules );
+			remove_filter( 'jetpack_active_modules', '__return_empty_array' );
+			Jetpack_Options::delete_option( 'blog_token' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_constants();
+			Cache::clear();
+		}
+
+		$this->assertSame( 'Customize how your posts are shared to social media.', $members['jetpack-social']['header']['subtitle'] );
 	}
 
 	/**
