@@ -98,11 +98,6 @@ class PostByEmail extends Component {
 									value={ emailAddress }
 									disabled={ ! isPbeActive || disabledControls }
 									copy={ _x( 'Copy', 'verb', 'jetpack' ) }
-									copied={ __( 'Copied!', 'jetpack' ) }
-									prompt={ __(
-										'Highlight and copy the following text to your clipboard:',
-										'jetpack'
-									) }
 									rna
 								/>
 							</FormLabel>

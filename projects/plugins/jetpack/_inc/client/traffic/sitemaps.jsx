@@ -21,8 +21,6 @@ export class Sitemaps extends Component {
 				<ClipboardButtonInput
 					value={ sitemap }
 					copy={ _x( 'Copy', 'verb', 'jetpack' ) }
-					copied={ __( 'Copied!', 'jetpack' ) }
-					prompt={ __( 'Highlight and copy the following text to your clipboard:', 'jetpack' ) }
 				/>
 				<Link
 					openInNewTab
