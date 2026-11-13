@@ -210,7 +210,7 @@ export const LongSiteHistory: Story = {
 		...sharedThemeArgs,
 		data: longHistoryData,
 		rowLabels: LONG_HISTORY_YEARS.map( String ),
-		scale: 'buckets',
+		scale: 'log',
 		withTooltips: true,
 		ariaLabel: 'Views over years',
 		containerWidth: '960px',
@@ -265,7 +265,7 @@ export const SinglePostHistory: Story = {
 		...sharedThemeArgs,
 		data: monthColumns( SINGLE_POST_HISTORY_YEARS, singlePostCell ),
 		rowLabels: SINGLE_POST_HISTORY_YEARS.map( String ),
-		scale: 'buckets',
+		scale: 'log',
 		withTooltips: true,
 		ariaLabel: 'Post views by month',
 		containerWidth: '960px',
@@ -298,22 +298,20 @@ const scaleComparisonCell = ( year: number, month: number ): HeatmapCell | null 
 	return { value: SCALE_COMPARISON_VIEWS[ key ], partial: key === '2026-10' };
 };
 
-const SCALE_CAPTIONS: Record< 'linear' | 'buckets' | 'log', string > = {
+const SCALE_CAPTIONS: Record< 'linear' | 'log', string > = {
 	linear:
 		'linear places a value by its distance from the largest. The recent months are unmistakable, and eight years of real differences share the lightest tone.',
-	buckets:
-		'buckets ranks a value against the series. The quiet years separate, and the darkest step now runs from the low hundreds all the way to the maximum.',
 	log: 'log places a value by its distance in log space. Each step is a jump of the same factor, so the quiet years and the busy ones both keep their spread.',
 };
 
 /**
- * The same ten years of a post's traffic on each scale, so the three can be read against each
+ * The same ten years of a post's traffic on both scales, so they can be read against each
  * other. Values are above zero throughout, which the log scale requires.
  */
 export const ScaleComparison: Story = {
 	render: args => (
 		<div style={ { display: 'flex', flexDirection: 'column', gap: '28px' } }>
-			{ ( [ 'linear', 'buckets', 'log' ] as const ).map( scale => (
+			{ ( [ 'linear', 'log' ] as const ).map( scale => (
 				<div key={ scale }>
 					<p style={ { margin: '0 0 8px', maxWidth: '62em', fontSize: '13px', lineHeight: 1.5 } }>
 						{ SCALE_CAPTIONS[ scale ] }
@@ -347,8 +345,8 @@ const FEW_DISTINCT_VALUES = [
 ];
 
 /**
- * Twenty-four months holding three distinct values. Each value takes its own step, so the
- * scale uses three of its five colors and leaves two legend swatches unused. The largest
+ * Twenty-four months holding three distinct values, each a fourfold step above the last.
+ * They land on three of the five colors and leave two legend swatches unused. The largest
  * value is still the darkest cell, and the smallest the lightest.
  */
 export const FewDistinctValues: Story = {
@@ -363,7 +361,7 @@ export const FewDistinctValues: Story = {
 			value: FEW_DISTINCT_VALUES[ ( year - 2024 ) * 12 + month ],
 		} ) ),
 		rowLabels: [ '2024', '2025' ],
-		scale: 'buckets',
+		scale: 'log',
 		withTooltips: true,
 		ariaLabel: 'Views by month',
 		containerWidth: '960px',
@@ -398,9 +396,8 @@ const CalendarGrid = ( {
 const calendarArgTypes = {
 	scale: {
 		control: { type: 'inline-radio' as const },
-		options: [ 'buckets', 'linear', 'log' ],
-		description:
-			'Whether a value picks its color by rank among its peers, by distance, or by distance in log space.',
+		options: [ 'linear', 'log' ],
+		description: 'Whether a value picks its color by distance, or by distance in log space.',
 		table: { category: 'Calendar' },
 	},
 	weekStartsOn: {
@@ -461,7 +458,7 @@ type CalendarDatasetStoryArgs = CalendarStoryArgs & { dataset: keyof typeof CALE
 
 export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
 	render: ( { dataset, ...args } ) => (
-		// Seven swatches hold under `linear` and snap back to the five the cells paint under `buckets`.
+		// Seven swatches hold under `linear` and snap back to the five the cells paint under `log`.
 		<CalendarGrid { ...args } series={ CALENDAR_DATASETS[ dataset ] }>
 			<HeatmapChart.Legend steps={ 7 } />
 		</CalendarGrid>
@@ -474,7 +471,7 @@ export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
 		locale: '',
 		timeZone: '',
 		dataset: 'Steady traffic',
-		scale: 'linear',
+		scale: 'log',
 	},
 	argTypes: {
 		...calendarArgTypes,

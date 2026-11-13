@@ -35,12 +35,10 @@ import styles from './heatmap-chart.module.scss';
 import {
 	canPlaceOnLogScale,
 	fitCompactCells,
-	getBucketedValue,
 	getExtentOf,
 	getLogValue,
 	getNormalizedValue,
 	getHeatmapScale,
-	getValueBuckets,
 	HEATMAP_SCALE_STEPS,
 	HeatmapContext,
 	HeatmapLegend,
@@ -212,10 +210,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const values = useMemo( () => scaleValues( data ), [ data ] );
 	const extent = useMemo( () => getExtentOf( values ), [ values ] );
-	const buckets = useMemo(
-		() => getValueBuckets( values, extent, HEATMAP_SCALE_STEPS ),
-		[ values, extent ]
-	);
 	const logUnusable = valueScale === 'log' && ! canPlaceOnLogScale( extent );
 	if ( logUnusable ) {
 		warnOnce(
@@ -225,20 +219,15 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	}
 	const effectiveScale = logUnusable ? 'linear' : valueScale;
 	const placeOnScale = useCallback(
-		( value: number ) => {
-			if ( effectiveScale === 'buckets' ) {
-				return getBucketedValue( value, buckets );
-			}
-			if ( effectiveScale === 'log' ) {
-				return getLogValue( value, extent, HEATMAP_SCALE_STEPS );
-			}
-			return getNormalizedValue( value, extent );
-		},
-		[ effectiveScale, extent, buckets ]
+		( value: number ) =>
+			effectiveScale === 'log'
+				? getLogValue( value, extent, HEATMAP_SCALE_STEPS )
+				: getNormalizedValue( value, extent ),
+		[ effectiveScale, extent ]
 	);
 	const heatmapContext = useMemo< HeatmapContextValue >(
-		() => ( { extent, buckets, scale: effectiveScale, fillVars } ),
-		[ extent, buckets, effectiveScale, fillVars ]
+		() => ( { extent, scale: effectiveScale, fillVars } ),
+		[ extent, effectiveScale, fillVars ]
 	);
 
 	const columns = data.length;

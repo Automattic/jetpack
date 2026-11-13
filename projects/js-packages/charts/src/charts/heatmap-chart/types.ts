@@ -119,17 +119,14 @@ export interface HeatmapChartProps extends Omit<
 	/**
 	 * How a value picks its color. `linear` places it by distance between the
 	 * lowest and highest value, which keeps one outlier looking like an outlier
-	 * at the cost of flattening the rest. `buckets` ranks it against the series
-	 * instead, so every step holds about the same share of the cells and
-	 * neighbors stay apart on five fixed steps, at the cost of flattening the
-	 * top where the largest values are. `log` places it by distance in log
-	 * space, on the same five steps, so each step is a jump of the same factor
-	 * and both ends of a wide series stay apart; it needs every value above
-	 * zero and falls back to `linear` with a warning otherwise. Default
-	 * `linear`; prefer `log` or `buckets` for a series read to compare its
-	 * periods against each other, such as months of a year.
+	 * at the cost of flattening everything below it. `log` places it by
+	 * distance in log space, on five fixed steps, so each step is a jump of the
+	 * same factor and both ends of a series spanning orders of magnitude keep
+	 * their spread; it needs every value above zero and falls back to `linear`
+	 * with a warning otherwise. Default `linear`; prefer `log` for a series
+	 * read to compare its periods against each other, such as months of a year.
 	 */
-	scale?: 'buckets' | 'linear' | 'log';
+	scale?: 'linear' | 'log';
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
 	/** @deprecated Every tooltip draws on the package tooltip surface; this prop has no effect. */
 	tooltipVariant?: 'light' | 'dark';
