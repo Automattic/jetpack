@@ -2073,9 +2073,9 @@ importers:
       jest:
         specifier: 30.5.2
         version: 30.5.2
-      md5-es:
-        specifier: 1.8.2
-        version: 1.8.2
+      md5:
+        specifier: 2.3.0
+        version: 2.3.0
       webpack:
         specifier: 5.112.2
         version: 5.112.2(webpack-cli@7.2.1)
@@ -15268,9 +15268,6 @@ packages:
 
   mathml-tag-names@4.0.0:
     resolution: {integrity: sha512-aa6AU2Pcx0VP/XWnh8IGL0SYSgQHDT6Ucror2j2mXeFAlN3ahaNs8EZtG1YiticMkSLj3Gt6VPFfZogt7G5iFQ==}
-
-  md5-es@1.8.2:
-    resolution: {integrity: sha512-LKq5jmKMhJYhsBFUh2w+J3C4bMiC5uQie/UYJ429UATmMnFr6iANO2uQq5HXAZSIupGp0WO2mH3sNfxR4XO40Q==}
 
   md5@2.3.0:
     resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}
@@ -29903,8 +29900,6 @@ snapshots:
   math-intrinsics@1.1.0: {}
 
   mathml-tag-names@4.0.0: {}
-
-  md5-es@1.8.2: {}
 
   md5@2.3.0:
     dependencies:
