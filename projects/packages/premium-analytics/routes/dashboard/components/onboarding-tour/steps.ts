@@ -84,7 +84,8 @@ export function onboardingTourSteps(
 		side: 'top',
 	};
 	const arrangeStep: OnboardingTourStep = {
-		anchor: anchors.customize,
+		// A narrow header has no Customize button: the options menu offers it instead.
+		anchor: anchors.customize ?? anchors.optionsMenu,
 		title: __( 'Rearrange it your way', 'jetpack-premium-analytics-pkg' ),
 		description: __(
 			'Select Customize to move and resize widgets. Your layout is saved to your profile.',

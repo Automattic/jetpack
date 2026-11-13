@@ -83,6 +83,22 @@ describe( 'onboardingTourSteps', () => {
 		}
 	);
 
+	it( 'points the arranging step at the options menu where Customize has no button', () => {
+		const optionsMenu = document.createElement( 'button' );
+
+		const steps = onboardingTourSteps( {
+			firstWidget: null,
+			dateControls: null,
+			customize: null,
+			optionsMenu,
+			sectionTabs: null,
+		} );
+
+		expect( steps.find( step => step.title === 'Rearrange it your way' )?.anchor ).toBe(
+			optionsMenu
+		);
+	} );
+
 	it( 'keeps the steps whose anchors are not mounted yet', () => {
 		const steps = onboardingTourSteps( {
 			firstWidget: null,
