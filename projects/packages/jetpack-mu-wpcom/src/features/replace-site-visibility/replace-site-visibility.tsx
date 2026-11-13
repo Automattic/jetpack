@@ -23,6 +23,7 @@ declare global {
 			siteDomain: string;
 			sitePlan?: { product_slug: string; product_name?: string };
 			hasCustomDomain: boolean;
+			usePublishCopy: boolean;
 		};
 	}
 }

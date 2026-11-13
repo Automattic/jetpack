@@ -19,6 +19,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/../../common/wp-build-script-translations.php';
 require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
+require_once __DIR__ . '/../../common/site-launch-publish-copy.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
 require_once __DIR__ . '/class-ai-launchpad-difm-offer.php';
