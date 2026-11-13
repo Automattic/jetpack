@@ -55,16 +55,18 @@ export default function SelectionBanner( {
 	onRemoveAll,
 	onClear,
 }: Props ): JSX.Element | null {
-	// Clearing removes this banner, so focus moves to the table's select-all checkbox.
+	// Clearing can recreate the select-all checkbox, so wait for it before moving focus.
 	const handleClear = useCallback(
 		( event: MouseEvent< HTMLElement > ) => {
-			const checkbox = event.currentTarget
-				.closest( '.dataviews-wrapper' )
-				?.querySelector< HTMLElement >(
-					'thead .dataviews-view-table__checkbox-column [role="checkbox"]'
-				);
+			const table = event.currentTarget.closest( '.dataviews-wrapper' );
 			onClear();
-			checkbox?.focus();
+			requestAnimationFrame( () => {
+				table
+					?.querySelector< HTMLElement >(
+						'thead .dataviews-view-table__checkbox-column [role="checkbox"]'
+					)
+					?.focus();
+			} );
 		},
 		[ onClear ]
 	);

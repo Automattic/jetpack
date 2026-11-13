@@ -120,6 +120,19 @@ it( 'keeps the table bulk action for a selection spanning multiple rows', async 
 	expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
 } );
 
+it( 'focuses the recreated checkbox after clearing a one-row whole-list selection', async () => {
+	render( <SubscribersDataViews { ...props } /> );
+	fireEvent.click( screen.getByRole( 'checkbox', { name: 'Select all', exact: true } ) );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Select all 21 subscribers' } ) );
+	const clear = screen.getByRole( 'button', { name: 'Clear selection' } );
+	clear.focus();
+	fireEvent.click( clear );
+
+	await waitFor( () =>
+		expect( screen.getByRole( 'checkbox', { name: 'Select all', exact: true } ) ).toHaveFocus()
+	);
+} );
+
 it( 'clears the previous count and examples while a new search is loading', async () => {
 	const { rerender } = render( <SubscribersDataViews { ...props } /> );
 	expect( props.onListChange ).toHaveBeenLastCalledWith( {

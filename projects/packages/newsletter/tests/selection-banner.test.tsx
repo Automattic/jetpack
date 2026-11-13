@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event -- user-event is not a dependency of this package. */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { speak } from '@wordpress/a11y';
 import SelectionBanner from '../_inc/subscribers/components/selection-banner';
 
@@ -70,7 +70,7 @@ describe( 'SelectionBanner', () => {
 		expect( baseProps.onClear ).toHaveBeenCalled();
 	} );
 
-	it( 'moves focus to the select-all checkbox when the selection is cleared', () => {
+	it( 'moves focus to the select-all checkbox when the selection is cleared', async () => {
 		render(
 			<div className="dataviews-wrapper">
 				<table>
@@ -89,7 +89,7 @@ describe( 'SelectionBanner', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: 'Clear selection' } ) );
 
 		expect( baseProps.onClear ).toHaveBeenCalled();
-		expect( screen.getByRole( 'checkbox' ) ).toHaveFocus();
+		await waitFor( () => expect( screen.getByRole( 'checkbox' ) ).toHaveFocus() );
 	} );
 
 	it( 'skips "select all" when everyone already fits on the page', () => {
