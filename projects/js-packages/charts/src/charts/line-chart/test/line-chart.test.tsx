@@ -158,7 +158,7 @@ describe( 'LineChart', () => {
 		screen.getByRole( 'application', { name: /line chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
-		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'black' } );
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'rgb(0, 0, 0)' } );
 		expect( screen.getByTestId( 'line-chart-tooltip-content' ) ).not.toHaveAttribute( 'style' );
 	} );
 

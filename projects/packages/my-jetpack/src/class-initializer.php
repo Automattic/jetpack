@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
@@ -226,6 +227,14 @@ class Initializer {
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+			// Standalone plugins reach admin-ui only through the admin menu, which admin-ajax never builds.
+			if ( method_exists( Admin_Shell::class, 'init' ) ) {
+				Admin_Shell::init();
+			}
+		}
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 
@@ -858,6 +867,56 @@ class Initializer {
 	}
 
 	/**
+	 * Register My Jetpack with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		// A site that still needs onboarding is redirected to the takeover, which isn't a wp-build page.
+		if ( ! self::current_user_can_access_page() || ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) || null !== self::get_onboarding_redirect_args_for_step( '' ) ) {
+			return $members;
+		}
+
+		$members['my-jetpack'] = array(
+			'build_prefix' => 'jetpack_my_jetpack',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-my-jetpack/init' ),
+			'title'        => 'My Jetpack',
+			'capability'   => 'edit_posts',
+			'handles'      => array( 'my_jetpack_main_app', 'my_jetpack_ai_app', 'jetpack-script-data', 'jetpack-connection', 'my-jetpack-header-controls', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready My Jetpack's routes and page data while another dashboard's page is open.
+	 *
+	 * Skips the screen ID alias: on another page it would make the generated enqueue boot a second app.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		require_once dirname( __DIR__ ) . '/build/build.php';
+
+		if ( function_exists( 'jetpack_my_jetpack_register_script_modules' ) ) {
+			jetpack_my_jetpack_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+		WP_Build_Polyfills::register(
+			'my-jetpack',
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+		);
+
+		// On the host page the shell removes this again; the guest endpoint runs it.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+	}
+
+	/**
 	 * Require the generated build file with the screen ID aliased across its enqueue check.
 	 *
 	 * @see WP_Build_Screen_Id::load_with_alias()
@@ -1476,6 +1535,11 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+
+		// Without the Jetpack plugin, nothing else registers the shell flag on requests that build no admin menu (CLI, REST, AJAX).
+		if ( method_exists( Admin_Shell::class, 'register_feature_flag' ) ) {
+			Admin_Shell::register_feature_flag();
+		}
 	}
 
 	/**
@@ -1725,6 +1789,7 @@ class Initializer {
 
 		( new REST_Onboarding() )->register_rest_routes();
 		( new REST_Main_Features() )->register_rest_routes();
+		Google_Analytics_Settings::register_rest_routes();
 
 		Products::register_product_endpoints();
 		Historically_Active_Modules::register_rest_endpoints();

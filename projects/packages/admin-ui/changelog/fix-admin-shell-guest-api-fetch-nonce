@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Stop REST requests from retrying without end after the nonce expires on a page that loaded another dashboard.

@@ -33,13 +33,18 @@ export const Legend = forwardRef< HTMLDivElement, LegendProps >(
 
 		const contextItems = chartData?.legendItems;
 
-		// Derive the default legend shape from the chart type when no explicit shape is provided
-		const resolvedShape =
-			shape ??
-			( chartData?.chartType ? defaultShapeByChartType[ chartData.chartType ] : undefined );
+		// The chart around this legend, when the legend is its own. It has the items already,
+		// where the registry fills from an effect a frame later, too late for a chart whose
+		// plot is sized from the room this legend leaves it.
+		const instance =
+			chartInstanceContext?.chartId === contextChartId ? chartInstanceContext : undefined;
 
-		// Provided items take precedence over context items
-		const legendItems = ( items || contextItems ) as typeof items;
+		// Derive the default legend shape from the chart type when no explicit shape is provided
+		const chartType = instance?.chartType ?? chartData?.chartType;
+		const resolvedShape = shape ?? ( chartType ? defaultShapeByChartType[ chartType ] : undefined );
+
+		// Provided items take precedence over the chart's, then the registry's
+		const legendItems = ( items || instance?.legendItems || contextItems ) as typeof items;
 
 		if ( ! legendItems ) {
 			return null;

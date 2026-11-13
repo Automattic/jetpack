@@ -162,6 +162,7 @@ function DashboardSectionsGridStory() {
 const meta: Meta< typeof DashboardSectionsGridStory > = {
 	title: 'Packages/Premium Analytics/Routes/Dashboard/SectionsGrid',
 	component: DashboardSectionsGridStory,
+	tags: [ 'widget-dashboard' ],
 	decorators: [
 		Story => (
 			<div
