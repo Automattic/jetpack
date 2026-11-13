@@ -16,8 +16,11 @@ function wpcom_hide_non_breaking_space_markers() {
 
 	// Opt-in accommodation overriding the marker in Gutenberg's rich-text/content.scss (a dot from 24.3,
 	// an outline before); drop it once Gutenberg ships its own preference to hide the markers.
-	wp_register_style( 'wpcom-hide-non-breaking-space-markers', false, array( 'wp-block-editor-content' ), '1.0' );
+	// The hook fires again for each editor iframe, which shares this registration.
+	if ( ! wp_style_is( 'wpcom-hide-non-breaking-space-markers', 'registered' ) ) {
+		wp_register_style( 'wpcom-hide-non-breaking-space-markers', false, array( 'wp-block-editor-content' ), '1.0' );
+		wp_add_inline_style( 'wpcom-hide-non-breaking-space-markers', '.is-selected .non-breaking-space{background:none;outline:none;opacity:1}' );
+	}
 	wp_enqueue_style( 'wpcom-hide-non-breaking-space-markers' );
-	wp_add_inline_style( 'wpcom-hide-non-breaking-space-markers', '.is-selected .non-breaking-space{background:none;outline:none;opacity:1}' );
 }
 add_action( 'enqueue_block_assets', 'wpcom_hide_non_breaking_space_markers' );
