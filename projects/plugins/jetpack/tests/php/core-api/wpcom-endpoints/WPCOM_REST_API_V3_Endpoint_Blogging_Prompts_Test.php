@@ -320,6 +320,8 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts_Test extends Jetpack_REST_Test
 	 * @param int    $force_year Forced year.
 	 * @param string $after      Yearless `after` date.
 	 * @param int    $expected   Expected SQL day of the year.
+	 *
+	 * @dataProvider provide_force_year_day_of_year
 	 */
 	#[DataProvider( 'provide_force_year_day_of_year' )]
 	public function test_map_date_query_uses_force_year_for_day_of_year( $force_year, $after, $expected ) {
