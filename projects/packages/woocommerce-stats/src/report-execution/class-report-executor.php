@@ -102,7 +102,15 @@ class Report_Executor {
 				return $covered;
 			}
 
+			$supported = $handler instanceof Report_Support ? $handler->supports( $request ) : true;
+			if ( is_wp_error( $supported ) ) {
+				return $supported;
+			}
+
 			$ready = $this->registry->get_provider( $name )->check_ready();
+			if ( true === $ready && $handler instanceof Report_Readiness ) {
+				$ready = $handler->check_ready();
+			}
 			if ( is_wp_error( $ready ) ) {
 				return $ready;
 			}
