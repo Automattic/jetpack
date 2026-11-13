@@ -32,6 +32,8 @@ npm-debug.log
 phpcs.xml
 .phpunit.cache
 .phpunit.result.cache
+# Build-cache manifests written by `jetpack build`.
+**/.cache/jetpack-cli-build/
 
 ## Things for Docker compose
 /tools/docker/data/*

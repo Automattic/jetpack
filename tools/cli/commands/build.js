@@ -12,6 +12,12 @@ import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
 import pLimit from 'p-limit';
+import {
+	computeFingerprints,
+	canSkip,
+	invalidateManifest,
+	writeManifest,
+} from '../helpers/build-cache.js';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import formatDuration from '../helpers/format-duration.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
@@ -82,6 +88,11 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",
 		} )
+		.option( 'ignore-cache', {
+			type: 'boolean',
+			description:
+				'Rebuild every project, even those whose inputs are unchanged since their last successful build.',
+		} )
 		.option( 'timing-output', {
 			type: 'string',
 			normalize: true,
@@ -113,6 +124,19 @@ export async function handler( argv ) {
 	}
 
 	let dependencies = await getDependencies( process.cwd(), 'build' );
+
+	// Fingerprint before `filterDeps` narrows the graph; see `computeFingerprints`.
+	// No persistent cache between CI runs, and mirror builds do extra work a skip would break.
+	let cacheFingerprints = null;
+	if ( ! argv.forMirrors && ! process.env.CI ) {
+		try {
+			cacheFingerprints = await computeFingerprints( dependencies, argv );
+		} catch ( e ) {
+			console.warn(
+				chalk.yellow( `Building without the cache, fingerprinting failed: ${ e.message }` )
+			);
+		}
+	}
 	const listr = new Listr( [], {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
 		concurrent: argv.concurrency > 1,
@@ -239,6 +263,7 @@ export async function handler( argv ) {
 		promises: {},
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
+		cache: cacheFingerprints ? { fingerprints: cacheFingerprints, cached: 0, built: 0 } : null,
 		// When `--timing-summary` is set, collect a flat list of phase timings to summarize at the end.
 		timings: argv.timingSummary ? { overallStart: Date.now(), entries: [], buildOrder } : null,
 	};
@@ -251,6 +276,12 @@ export async function handler( argv ) {
 				for ( const project of missing ) {
 					console.error( wrap( `Project ${ project } was ignored as it does not exist.` ) );
 				}
+			}
+
+			if ( ctx.cache ) {
+				console.log(
+					chalkJetpackGreen( `Cache: ${ ctx.cache.cached } skipped, ${ ctx.cache.built } built.` )
+				);
 			}
 
 			// Print the timing summary (and optionally dump JSON) on both success and failure.
@@ -477,7 +508,8 @@ function createBuildTask( project, argv, title, build ) {
 								ok: taskOk,
 							} );
 						}
-						await t.setStatus( argv.timing ? formatDuration( dur ) + 's' : 'complete' );
+						const timedStatus = argv.timing ? formatDuration( dur ) + 's' : 'complete';
+						await t.setStatus( t.cached ? 'cached' : timedStatus );
 					}
 				} );
 			} )().then(
@@ -702,6 +734,19 @@ async function checkCollisions( basedir ) {
  * @param {object} t - Task object.
  */
 async function buildProject( t ) {
+	// Skip the whole project (install + build) when its inputs are unchanged and the outputs it
+	// produced last time are still present. `--ignore-cache` rebuilds but still refreshes the manifest.
+	if ( t.ctx.cache && ! t.argv.ignoreCache ) {
+		const fp = t.ctx.cache.fingerprints.get( t.project );
+		if ( fp && ( await canSkip( t.project, fp ) ) ) {
+			t.ctx.cache.cached++;
+			t.cached = true;
+			return;
+		}
+	}
+	// Even when the cache is off: this build rewrites outputs a previous cached run recorded.
+	await invalidateManifest( t.project );
+
 	await t.setStatus( 'installing' );
 
 	let composerJson = JSON.parse(
@@ -898,6 +943,15 @@ async function buildProject( t ) {
 
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
 	if ( ! t.argv.forMirrors ) {
+		if ( t.ctx.cache ) {
+			t.ctx.cache.built++;
+			const fp = t.ctx.cache.fingerprints.get( t.project );
+			if ( fp ) {
+				await writeManifest( t.project, fp ).catch( e =>
+					t.output( `\nCould not write the build-cache manifest: ${ e.message }\n` )
+				);
+			}
+		}
 		return;
 	}
 
