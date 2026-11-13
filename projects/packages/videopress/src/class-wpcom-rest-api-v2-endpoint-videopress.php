@@ -1165,12 +1165,25 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					'data'    => 200,
 				)
 			);
-		} else {
+		} elseif ( is_object( $response_body ) && ! empty( $response_body->code ) && is_string( $response_body->code ) ) {
+			// WP_REST_Server reads the status only from an array; wpcom sends `{ status }` or a bare status code.
+			$error_data = $response_body->data ?? null;
+			if ( is_object( $error_data ) ) {
+				$error_data = (array) $error_data;
+			} elseif ( is_int( $error_data ) ) {
+				$error_data = array( 'status' => $error_data );
+			}
 			return rest_ensure_response(
-				new WP_Error(
-					$response_body->code,
-					$response_body->message,
-					$response_body->data
+				new WP_Error( $response_body->code, $response_body->message ?? '', $error_data )
+			);
+		} else {
+			// An HTML or empty body would otherwise build a WP_Error with no code.
+			return new WP_Error(
+				'videopress_meta_update_failed',
+				__( 'WordPress.com did not confirm the video update.', 'jetpack-videopress-pkg' ),
+				array(
+					'status'          => 502,
+					'upstream_status' => wp_remote_retrieve_response_code( $result ),
 				)
 			);
 		}
