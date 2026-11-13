@@ -3,6 +3,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { Link, Notice, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { getMyJetpackWindowConnectionState } from '../../../data/utils/get-my-jetpack-window-state';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { BulkBar } from './bulk-bar';
 import { ConnectResume, useConnectResume } from './connect-resume';
@@ -39,6 +40,41 @@ import type { FeatureFilter } from './use-feature-filter';
 // every prefix they typed on the way to it. Matches the Products tab.
 const SEARCH_TRACKING_DELAY = 500;
 
+const getViewStorageKey = () => {
+	const userId = getMyJetpackWindowConnectionState( 'userConnectionData' )?.currentUser?.id;
+	return `jetpack-my-jetpack-features-view-${ userId ?? 0 }`;
+};
+
+const readStoredView = (): FeaturesView => {
+	try {
+		return window.localStorage.getItem( getViewStorageKey() ) === 'list' ? 'list' : 'grid';
+	} catch {
+		return 'grid';
+	}
+};
+
+const storeView = ( view: FeaturesView ) => {
+	try {
+		window.localStorage.setItem( getViewStorageKey(), view );
+	} catch {
+		// Without storage the choice lasts as long as the URL keeps it.
+	}
+};
+
+/**
+ * Picks the layout: the URL's when it names one, otherwise the last one this user chose.
+ *
+ * @param viewParam - The route's `view` parameter.
+ * @return The layout to show.
+ */
+function resolveView( viewParam: string | null ): FeaturesView {
+	if ( viewParam === 'list' || viewParam === 'grid' ) {
+		return viewParam;
+	}
+
+	return readStoredView();
+}
+
 /**
  * Reads the grid's state out of the URL.
  *
@@ -59,7 +95,7 @@ function useFeaturesParams(): {
 		moduleTag: searchParams.get( 'module_tag' ) || '',
 		filter: isFeatureFilter( filterParam ) ? filterParam : 'all',
 		openSlug: searchParams.get( 'feature' ),
-		view: searchParams.get( 'view' ) === 'list' ? 'list' : 'grid',
+		view: resolveView( searchParams.get( 'view' ) ),
 	};
 }
 
@@ -353,6 +389,7 @@ function FeaturesTabContent() {
 				tracking?.trackViewChange( next );
 			}
 
+			storeView( next );
 			updateParams( { view: next === 'grid' ? null : next } );
 		},
 		[ tracking, updateParams, view ]
