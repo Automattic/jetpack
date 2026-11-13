@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import {
+	a11yTimeline,
 	announcements,
 	ariaHiddenAncestors,
 	axeViolations,
@@ -8,6 +9,7 @@ import {
 	hiddenApps,
 	installA11yProbe,
 	keyboardSwitchTo,
+	markA11yTimeline,
 	mainHeading,
 	newViolations,
 	placeholderSightings,
@@ -147,6 +149,7 @@ async function keyboardPass(
 	await expectSwitched( page, FORMS, MJ );
 	await afterSwitch?.();
 	const dialog = await openCreateForm( page );
+	await markA11yTimeline( page, 'Back' );
 	await back( page, MJ );
 	await expectSwitched( page, MJ, FORMS );
 	await expect( dialog ).toBeHidden();
@@ -281,21 +284,30 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 	test( 'going Back with a modal open leaves the shown page in the accessibility tree', async ( {
 		page,
 	} ) => {
-		await keyboardPass( page, {
-			afterBack: async () => {
-				// The modal gives the document back once its closing animation ends.
-				await expect
-					.poll( () => ariaHiddenAncestors( page, MJ ), 'aria-hidden around the shown app' )
-					.toEqual( [] );
-				// The probe skips live regions that are aria-hidden when they change.
-				await expect
-					.poll( () => announcements( page ), 'announcement for the page Back showed' )
-					.toContainEqual(
-						expect.objectContaining( { text: expect.stringContaining( member( MJ ).title ) } )
-					);
-				await expect( mainHeading( page, MJ ) ).toBeFocused();
-				await expect( mainHeading( page, MJ ) ).toBeVisible();
-			},
-		} );
+		try {
+			await keyboardPass( page, {
+				afterBack: async () => {
+					// The modal gives the document back once its closing animation ends.
+					await expect
+						.poll( () => ariaHiddenAncestors( page, MJ ), 'aria-hidden around the shown app' )
+						.toEqual( [] );
+					// The probe skips live regions that are aria-hidden when they change.
+					await expect
+						.poll( () => announcements( page ), 'announcement for the page Back showed' )
+						.toContainEqual(
+							expect.objectContaining( { text: expect.stringContaining( member( MJ ).title ) } )
+						);
+					await expect( mainHeading( page, MJ ) ).toBeFocused();
+					await expect( mainHeading( page, MJ ) ).toBeVisible();
+				},
+			} );
+		} catch ( error ) {
+			// Shows whether the title was spoken while #wpwrap was still aria-hidden.
+			await test.info().attach( 'a11y timeline', {
+				body: JSON.stringify( await a11yTimeline( page ).catch( () => [] ), null, '\t' ),
+				contentType: 'application/json',
+			} );
+			throw error;
+		}
 	} );
 } );
