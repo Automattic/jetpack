@@ -63,9 +63,9 @@ export function postHeaderSlots(
 					);
 	}
 
-	// An email tab names no window: its totals are all-time and its chart picks its own.
-	const windowSentence = variant === 'email' ? undefined : performanceSentence( performanceRange );
-	const subtitle = [ publishedSentence, windowSentence ].filter( Boolean ).join( ' ' );
+	const subtitle = [ publishedSentence, performanceSentence( performanceRange ) ]
+		.filter( Boolean )
+		.join( ' ' );
 
 	// Email variant always shows the envelope tile, even with a featured
 	// image, so email tabs read as the newsletter send, not the post.

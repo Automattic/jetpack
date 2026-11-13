@@ -87,4 +87,18 @@ describe( 'useEmailTabScope', () => {
 
 		expect( result.current ).toBe( first );
 	} );
+
+	it.each( [
+		[ 'hour', '2026-06-22T23:59:59.999Z' ],
+		[ 'month', '2026-08-28T23:59:59.999Z' ],
+		[ undefined, undefined ],
+	] )( 'states the window the chart draws by the %s for the header', ( chartInterval, end ) => {
+		const { result } = renderHook( () => useEmailTabScope( POST_ID, PUBLISHED, TIME_ZONE ) );
+		const range = result.current?.headerRange( [
+			{ type: 'jpa/email-top-row', attributes: { metric: 'opens' } },
+			{ type: 'jpa/email-time-series--total-opens', attributes: { chartInterval } },
+		] );
+
+		expect( range?.to?.toISOString() ).toBe( end );
+	} );
 } );

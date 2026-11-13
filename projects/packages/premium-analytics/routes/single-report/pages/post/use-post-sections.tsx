@@ -130,7 +130,7 @@ export function usePostSections(
 				} else if ( isEmailSendPending || ! emailScope ) {
 					state.scope = ! isEmailSendPending && emailScopeBlocked ? 'blocked' : 'pending';
 				} else {
-					state.scope = { reportParams: emailScope.reportParams, range: emailScope.range };
+					state.scope = emailScope;
 				}
 
 				return state;

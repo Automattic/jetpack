@@ -3,6 +3,7 @@
  */
 import {
 	bucketStatsTimeSeries,
+	emailSendWindowParams,
 	toPostId,
 	useStatsEmailClicksTimeSeries,
 	useSiteDay,
@@ -30,7 +31,6 @@ import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { emailSendWindowParams } from './send-window';
 import styles from './style.module.css';
 import type {
 	EmailTimeSeriesAttributes,

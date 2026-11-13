@@ -59,7 +59,17 @@ export type SingleReportHeaderSlots = {
  * `pending` while the window resolves, `blocked` when it never will and the widgets mount anyway.
  */
 export type SectionScope =
-	{ reportParams: Record< string, unknown >; range: DateRange } | 'pending' | 'blocked';
+	| {
+			reportParams: Record< string, unknown >;
+			range: DateRange;
+			/** The window the header states when a widget in the layout picks its own, else `range`. */
+			headerRange?: ( layout: readonly SectionWidget[] ) => DateRange | undefined;
+	  }
+	| 'pending'
+	| 'blocked';
+
+/** What a section reads of a widget in its layout. */
+export type SectionWidget = { type: string; attributes?: unknown };
 
 /**
  * What an adapter says about one of the record's sections for the current entity.

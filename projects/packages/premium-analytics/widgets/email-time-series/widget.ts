@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import type { EmailSendWindowInterval } from '@jetpack-premium-analytics/data';
 import type { ChartDisplayChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -19,7 +20,7 @@ export type EmailTimeSeriesChartType = ChartDisplayChartType;
  * The buckets the chart's own control offers: hours of the send day, days of the
  * first 30, months of the first 30.
  */
-export type EmailTimeSeriesInterval = 'hour' | 'day' | 'month';
+export type EmailTimeSeriesInterval = EmailSendWindowInterval;
 
 /** The bucket drawn when none is saved: the legacy email page's 30 daily ones. */
 export const DEFAULT_EMAIL_TIME_SERIES_INTERVAL: EmailTimeSeriesInterval = 'day';

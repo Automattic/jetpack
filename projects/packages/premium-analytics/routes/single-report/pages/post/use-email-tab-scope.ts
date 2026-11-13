@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { type ReportParams, useSiteDay } from '@jetpack-premium-analytics/data';
+import {
+	emailSendWindowRange,
+	type ReportParams,
+	useSiteDay,
+} from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
 	computePrimaryRange,
@@ -11,6 +15,7 @@ import {
 import { encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
 import { useMemo } from '@wordpress/element';
 import { addDays } from 'date-fns';
+import type { SectionWidget } from '../adapter';
 
 /**
  * How many days after the send the email tabs' timeline covers, the send day
@@ -28,7 +33,32 @@ export type EmailTabScope = {
 	range: Required< DateRange >;
 	/** The same window as widget report params, replacing the URL's. */
 	reportParams: ReportParams;
+	/** The window the email chart in a layout draws, once its own interval switch is set. */
+	headerRange: ( layout: readonly SectionWidget[] ) => DateRange | undefined;
 };
+
+const EMAIL_CHART_TYPE = 'jpa/email-time-series';
+
+/**
+ * The window the layout's email chart reaches over, from the interval its switch saved.
+ *
+ * @param layout   - The section's widgets.
+ * @param sentAt   - The start of the send day.
+ * @param timeZone - The site timezone.
+ * @return The chart's window, or undefined when no interval is saved.
+ */
+function emailChartRange(
+	layout: readonly SectionWidget[],
+	sentAt: Date,
+	timeZone: string
+): DateRange | undefined {
+	const chart = layout.find( widget => widget.type.startsWith( EMAIL_CHART_TYPE ) );
+	const interval = ( chart?.attributes as { chartInterval?: unknown } | undefined )?.chartInterval;
+
+	return interval === 'hour' || interval === 'day' || interval === 'month'
+		? emailSendWindowRange( interval, sentAt, timeZone )
+		: undefined;
+}
 
 /**
  * Pin the email tabs to the first 30 days after the send.
@@ -87,6 +117,7 @@ export function useEmailTabScope(
 
 		return {
 			range,
+			headerRange: layout => emailChartRange( layout, range.from, timeZone ),
 			reportParams: {
 				post_id: postId,
 				from,

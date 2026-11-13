@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { emailSendWindowParams } from '../send-window';
+import { emailSendWindowParams } from '../email-send-window';
 
 const NOW = new Date( '2030-01-01T12:00:00Z' );
 

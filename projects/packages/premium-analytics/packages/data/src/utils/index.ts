@@ -8,6 +8,11 @@ export {
 	shouldRetryApiError,
 	StatsResponseShapeError,
 } from './api-error';
+export {
+	emailSendWindowParams,
+	emailSendWindowRange,
+	type EmailSendWindowInterval,
+} from './email-send-window';
 export { ensureCoreSettingsReady } from './ensure-core-settings';
 export { getDefaultIntervalForPeriod } from './interval';
 export { safeParseInt, safeParseFloat } from './parsing';
