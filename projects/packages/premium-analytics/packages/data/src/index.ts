@@ -81,7 +81,6 @@ export {
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
-	StatsResponseShapeError,
 	toAuthorId,
 	toPostId,
 	useSiteHomeUrl,
