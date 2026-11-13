@@ -207,6 +207,28 @@ describe( 'CustomizeActions', () => {
 		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
 	} );
 
+	it( 'moves focus onto the first editing action when entering from the menu on a narrow screen', async () => {
+		jest.mocked( useViewportMatch ).mockReturnValue( true );
+		const user = setupUser();
+		function Page() {
+			const [ isCustomizing, setIsCustomizing ] = useState( false );
+			return (
+				<CustomizeActions
+					isCustomizing={ isCustomizing }
+					onCustomize={ () => setIsCustomizing( true ) }
+					editingActions={ <button>Cancel</button> }
+				/>
+			);
+		}
+		render( <Page /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		await act( () => jest.runOnlyPendingTimersAsync() );
+
+		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
+	} );
+
 	it( 'moves focus onto Customize after Reset to default, even once another popup has closed', async () => {
 		const user = setupUser();
 		function Page() {

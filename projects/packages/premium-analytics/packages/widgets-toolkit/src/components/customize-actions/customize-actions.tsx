@@ -54,8 +54,15 @@ function useCustomizeFocus( isCustomizing: boolean, onCustomize?: () => void ) {
 		isEnteringFromButton.current = false;
 		const frame = frameRef.current;
 
+		if ( ! frame ) {
+			return;
+		}
+		const { activeElement, body } = frame.ownerDocument;
+		// The menu hands focus back to its trigger, so entering from it counts as dropped too.
+		const isEnteringFromMenu = fromButton && activeElement === menuTriggerRef.current;
+
 		// Only where the swap dropped focus: a tab switch or the command palette keeps its own.
-		if ( ! frame || frame.ownerDocument.activeElement !== frame.ownerDocument.body ) {
+		if ( activeElement !== body && ! isEnteringFromMenu ) {
 			return;
 		}
 
