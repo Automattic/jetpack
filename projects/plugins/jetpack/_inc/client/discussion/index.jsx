@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -12,6 +13,7 @@ import {
 	isOdysseyStatsEnabled,
 	getSiteAdminUrl,
 	isCommentBlocksAvailable,
+	userCanManageModules,
 } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -68,7 +70,13 @@ export default connect( state => {
 		settings: getSettings( state ),
 		isOfflineMode: isOfflineMode( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
-		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		// Markdown's settings live in its My Jetpack panel, as in the Writing tab.
+		isModuleFound: module_name =>
+			! (
+				'markdown' === module_name &&
+				isSettingsConsolidationEnabled() &&
+				userCanManageModules( state )
+			) && _isModuleFound( state, module_name ),
 		connectUrl: getConnectUrl( state ),
 		isLinked: isCurrentUserLinked( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
