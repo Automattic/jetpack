@@ -100,6 +100,18 @@ class Contact_Form_Plugin_Global_Styles_Label_Test extends BaseTestCase {
 		$this->assertSame( 2, substr_count( $css, 'margin-bottom:40px' ), 'margin-bottom belongs in both rules' );
 	}
 
+	public function test_unresolved_ref_margin_is_dropped_quietly() {
+		$css = $this->build(
+			array(
+				'spacing' => array( 'margin' => array( 'bottom' => array( 'ref' => 'styles.spacing.blockGap' ) ) ),
+				'color'   => array( 'text' => '#1d4ed8' ),
+			)
+		);
+
+		$this->assertStringContainsString( '#1d4ed8', $css );
+		$this->assertStringNotContainsString( 'margin', $css );
+	}
+
 	public function test_uncontested_properties_are_mirrored_but_not_reasserted() {
 		$css = $this->build( array( 'color' => array( 'text' => '#1d4ed8' ) ) );
 

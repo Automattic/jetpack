@@ -487,7 +487,8 @@ class Contact_Form_Plugin {
 		$contested = array( 'font-weight', 'margin', 'margin-bottom' );
 		$reassert  = array();
 		foreach ( $contested as $property ) {
-			if ( isset( $declarations[ $property ] ) ) {
+			// An unresolved `ref` stays an array; drop it as core's own CSS output does.
+			if ( isset( $declarations[ $property ] ) && is_scalar( $declarations[ $property ] ) ) {
 				/*
 				 * `declarations` is unfiltered theme.json, and safecss_filter_attr() keeps HTML, so
 				 * strip tags first or `600</style>` closes the inline style element early.
