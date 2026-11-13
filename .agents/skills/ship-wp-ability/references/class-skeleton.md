@@ -11,7 +11,7 @@ Canonical reference for the base class: `projects/packages/wp-abilities/src/clas
 Do not re-implement any of this in the subclass:
 
 - **Top-level feature gate** — reads `apply_filters( 'jetpack_wp_abilities_enabled', false )`. Default false: abilities roll out gradually, not on every site the moment the package loads.
-- **Lifecycle hooks** — wires `wp_abilities_api_categories_init` and `wp_abilities_api_init`. Call `init()` before WordPress fires them. Inside one of them, `init()` registers right away. WordPress rejects registrations made after them, so a later call registers nothing, and no notice says so.
+- **Lifecycle hooks** — wires `wp_abilities_api_categories_init` and `wp_abilities_api_init`. Call `init()` before WordPress fires them. Inside `wp_abilities_api_categories_init`, `init()` registers right away. WordPress rejects registrations made after them, so a later call registers nothing, and no notice says so.
 - **Per-category / per-ability allow-listing** — every registration passes through `apply_filters( 'jetpack_wp_abilities_should_register', true, $type, $slug )` so site owners can gate individual slugs.
 - **WP < 6.9 compatibility** — guards every call to `wp_register_ability_category()` and `wp_register_ability()` with `function_exists()`.
 - **Category auto-injection** — if a spec in `get_abilities()` omits the `category` key, the base class injects `get_category_slug()`. Don't set `category` manually.
