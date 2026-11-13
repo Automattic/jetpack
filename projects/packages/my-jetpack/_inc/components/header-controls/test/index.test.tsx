@@ -495,6 +495,54 @@ describe( 'HeaderControls', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.queryAllByRole( 'link', { name: /Purchase a plan/ } ) ).toHaveLength( links );
 	} );
+
+	it.each( [
+		[
+			'jetpack_pro_yearly',
+			'active',
+			'Upgrade to Complete',
+			'wordpress.com/checkout/123/jetpack_complete?',
+		],
+		[
+			'jetpack_pro_bi_yearly',
+			'active',
+			'Upgrade to Complete',
+			'wordpress.com/checkout/123/jetpack_complete_bi_yearly?',
+		],
+		[
+			'jetpack_pro_monthly',
+			'active',
+			'Upgrade to Complete',
+			'wordpress.com/checkout/123/jetpack_complete_monthly?',
+		],
+		[ 'jetpack_pro_yearly', 'expired', 'Purchase a plan', 'jetpack.com/redirect/' ],
+	] )( 'links a site with %s (%s) to "%s"', async ( productSlug, expiryStatus, linkName, href ) => {
+		window.myJetpackInitialState = {
+			userIsAdmin: true,
+			blogID: '123',
+			myJetpackFlags: {},
+			lifecycleStats: { isSiteConnected: true, isUserConnected: true },
+		} as unknown as typeof window.myJetpackInitialState;
+		mockApiFetch.mockResolvedValue( [
+			{
+				ID: 1,
+				product_name: 'Jetpack Pro',
+				product_slug: productSlug,
+				expiry_date: null,
+				expiry_status: expiryStatus,
+				subscribed_date: '2025-11-05T00:00:00+00:00',
+				domain: 'example.com',
+			},
+		] );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		await openControl();
+		const link = await screen.findByRole( 'link', { name: new RegExp( linkName ) } );
+		expect( link ).toHaveAttribute( 'href', expect.stringContaining( href ) );
+		expect(
+			screen.getAllByRole( 'link', { name: /Purchase a plan|Upgrade to Complete/ } )
+		).toHaveLength( 1 );
+	} );
 } );
 
 describe( 'header controls script', () => {
