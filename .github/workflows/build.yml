@@ -24,17 +24,60 @@ env:
   XZ_OPT: -3 -T0
 
 jobs:
+  # Runs alongside the builds so the pending reminder appears early. merge_artifacts adds the testing instructions.
+  reminder_comment:
+    name: Check WordPress.com test reminder
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2026-04-07: Should take about a minute.
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+    permissions:
+      # actions/checkout
+      contents: read
+      # Comment posting
+      pull-requests: write
+    outputs:
+      comment_id: ${{ steps.check-test-reminder-comment.outputs.result }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      # list-changed-projects.sh needs the merge base, but it doesn't have to be checked out.
+      - name: Deepen to merge base
+        uses: $/.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
+
+      - name: Setup tools
+        uses: $/.github/actions/tool-setup
+        with:
+          php: false
+
+      - name: Pnpm install
+        run: pnpm install
+
+      - name: Detect changed projects
+        id: changed
+        run: echo "projects=$(EXTRA=build .github/files/list-changed-projects.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Check if a WordPress.com test reminder comment is needed.
+        id: check-test-reminder-comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
+        with:
+          script: |
+            const { checkTestPendingComment } = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
+            const data = await checkTestPendingComment( github, context, core );
+            return data;
+
   # Trunk pushes build everything, split into 'wpcom' and 'nonwpcom' jobs so the 'wpcom' job can push certain plugins to mirrors. Everything else gets the single 'all' job.
   # Have to manually matrix with yaml anchors, because `update_wpcom_mirrors` needs to depend on only `build_wpcom` and that's not possible with normal matrixing.
   build_all:
     name: Build all projects
     runs-on: ubuntu-latest
     if: ${{ ! ( github.event_name == 'push' && github.ref == 'refs/heads/trunk' ) }}
-    outputs:
-      changed_projects: ${{ steps.changed.outputs.projects }}
     env:
       FILENAME: partial-build-all.tar.xz
-      BUILD_SET: all
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
     timeout-minutes: 30  # 2026-08-18: Successful runs take ~18 minutes.
@@ -57,20 +100,21 @@ jobs:
         run: pnpm install
 
       - name: Detect changed projects
-        id: changed
         shell: bash
         run: |
-          if [[ "$BUILD_SET" == all ]]; then
+          if [[ "$GITHUB_JOB" == build_all ]]; then
             CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
           else
-            LIST=$( pnpm jetpack dependencies list --extra=build --ignore-root --add-dependencies plugins/jetpack plugins/mu-wpcom-plugin | sort )
-            if [[ "$BUILD_SET" == nonwpcom ]]; then
-              LIST=$( pnpm jetpack dependencies list --extra=build --ignore-root | sort | comm -23 - <(echo "$LIST") )
+            pnpm jetpack dependencies list --extra=build --ignore-root --add-dependencies plugins/jetpack plugins/mu-wpcom-plugin | sort > "$RUNNER_TEMP/wpcom.txt"
+            if [[ "$GITHUB_JOB" == build_nonwpcom ]]; then
+              pnpm jetpack dependencies list --extra=build --ignore-root | sort > "$RUNNER_TEMP/all.txt"
+              LIST=$( comm -23 "$RUNNER_TEMP/all.txt" "$RUNNER_TEMP/wpcom.txt" )
+            else
+              LIST=$(< "$RUNNER_TEMP/wpcom.txt" )
             fi
-            CHANGED=$( printf '%s' "$LIST" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' )
+            CHANGED=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' <<<"$LIST" )
           fi
           echo "CHANGED=${CHANGED}" >> "$GITHUB_ENV"
-          echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
 
       # We need the tree (but not the blob) for packages that will have -alpha version numbers so the timestamp appending works right.
       # We also need the tree for js-packages/social-logos/src/svg so the font build will work right.
@@ -133,7 +177,6 @@ jobs:
     if: &trunk_push ${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' }}
     env:
       FILENAME: partial-build-wpcom.tar.xz
-      BUILD_SET: wpcom
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
     timeout-minutes: 25  # 2026-08-18: Successful runs take ~13 minutes.
@@ -145,7 +188,6 @@ jobs:
     if: *trunk_push
     env:
       FILENAME: partial-build-nonwpcom.tar.xz
-      BUILD_SET: nonwpcom
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
     timeout-minutes: 25  # 2026-08-18: Successful runs seem to take ~13 minutes.
@@ -155,7 +197,12 @@ jobs:
     name: Merge build artifacts
     runs-on: ubuntu-latest
     timeout-minutes: 10  # 2026-04-07: Should take a minute or two.
-    needs: [ build_all, build_wpcom, build_nonwpcom ]
+    needs: [ reminder_comment, build_all, build_wpcom, build_nonwpcom ]
+    permissions:
+      # actions/checkout, actions/upload-artifact, actions/download-artifact
+      contents: read
+      # Comment posting
+      pull-requests: write
     env:
       BUILD_BASE: ${{ github.workspace }}/build
 
@@ -323,50 +370,16 @@ jobs:
           # Already compressed.
           compression-level: 0
 
-  # Runs even when the build fails after detecting changed projects, so the reminder is still created or cleared.
-  reminder_comment:
-    name: Check WordPress.com test reminder
-    runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2026-11-10: Takes about 10 seconds.
-    needs: build_all
-    if: >
-      ! cancelled() &&
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name &&
-      needs.build_all.outputs.changed_projects != ''
-    permissions:
-      # actions/checkout
-      contents: read
-      # Comment posting
-      pull-requests: write
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          sparse-checkout: .github/files/build-reminder-comment
-
-      - name: Check if a WordPress.com test reminder comment is needed.
-        id: check-test-reminder-comment
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        env:
-          CHANGED: ${{ needs.build_all.outputs.changed_projects }}
-        with:
-          script: |
-            const { checkTestPendingComment } = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
-            const data = await checkTestPendingComment( github, context, core );
-            return data;
-
-      # The testing instructions are only useful once there is a build to test.
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        if: ${{ needs.build_all.result == 'success' && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
+        if: ${{ needs.reminder_comment.result == 'success' && fromJSON(needs.reminder_comment.outputs.comment_id)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
-          DATA: ${{ steps.check-test-reminder-comment.outputs.result }}
+          DATA: ${{ needs.reminder_comment.outputs.comment_id }}
         with:
           script: |
-            const { checkTestReminderComment } = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
+            const { checkTestReminderComment } = require('./monorepo/.github/files/build-reminder-comment/check-test-reminder-comment.js')
             await checkTestReminderComment( github, context, core );
 
   # GitHub provides no way to make sure the `update_wpcom_mirrors` jobs run in merge order.
