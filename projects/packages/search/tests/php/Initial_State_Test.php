@@ -71,6 +71,24 @@ class Initial_State_Test extends Search_TestCase {
 	}
 
 	/**
+	 * The admin shell loads the page over admin-ajax, which never builds the menu; the link follows Gutenberg's registrar.
+	 */
+	public function test_reader_chat_guidelines_url_without_a_built_menu() {
+		require_once __DIR__ . '/fixtures/gutenberg-guidelines.php';
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'wp_doing_ajax', '__return_true' );
+
+		$without = ( new Initial_State() )->get_initial_state();
+		add_action( 'admin_menu', 'gutenberg_register_guidelines_settings_submenu' );
+		$with = ( new Initial_State() )->get_initial_state();
+
+		remove_action( 'admin_menu', 'gutenberg_register_guidelines_settings_submenu' );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		$this->assertSame( '', $without['siteData']['readerChatGuidelinesUrl'] );
+		$this->assertSame( admin_url( 'options-general.php?page=guidelines-wp-admin' ), $with['siteData']['readerChatGuidelinesUrl'] );
+	}
+
+	/**
 	 * Assert that a guidelines URL is included when the page is available.
 	 *
 	 * @param string $state_key Site data key to assert.
