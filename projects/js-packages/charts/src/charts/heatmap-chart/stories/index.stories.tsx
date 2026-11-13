@@ -18,6 +18,7 @@ import { HeatmapChart, useCalendarHeatmapData, useMonthCalendarHeatmapData } fro
 import type { DataPointDate } from '../../../types';
 import type { CalendarHeatmapOptions, HeatmapCell, HeatmapColumn } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
+import type { ReactNode } from 'react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
 
@@ -307,15 +308,20 @@ const CalendarGrid = ( {
 	hideOutOfRangeDays,
 	locale,
 	timeZone,
+	children,
 	...args
-}: CalendarStoryArgs & { series: DataPointDate[] } ) => {
+}: CalendarStoryArgs & { series: DataPointDate[]; children?: ReactNode } ) => {
 	const { data, rowLabels } = useCalendarHeatmapData( series, {
 		weekStartsOn,
 		hideOutOfRangeDays,
 		locale: locale || undefined,
 		timeZone: timeZone || undefined,
 	} );
-	return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
+	return (
+		<HeatmapChart { ...args } data={ data } rowLabels={ rowLabels }>
+			{ children }
+		</HeatmapChart>
+	);
 };
 
 const calendarArgTypes = {
@@ -383,7 +389,10 @@ type CalendarDatasetStoryArgs = CalendarStoryArgs & { dataset: keyof typeof CALE
 
 export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
 	render: ( { dataset, ...args } ) => (
-		<CalendarGrid { ...args } series={ CALENDAR_DATASETS[ dataset ] } />
+		// Seven swatches hold under `linear` and snap back to the five the cells paint under `buckets`.
+		<CalendarGrid { ...args } series={ CALENDAR_DATASETS[ dataset ] }>
+			<HeatmapChart.Legend steps={ 7 } />
+		</CalendarGrid>
 	),
 	args: {
 		...sharedThemeArgs,
