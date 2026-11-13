@@ -12,14 +12,15 @@ async function fetchActiveFeatures(): Promise< string[] > {
 }
 
 /**
- * Whether the site's plan includes WordAds, asking WordPress.com when Jetpack's cached plan says no.
+ * Whether the site's plan includes a feature, asking WordPress.com when Jetpack's cached plan says no.
  *
  * The cache refreshes daily or on a My Jetpack visit, so it can miss a purchase made since.
  *
- * @param cached - What Jetpack's cached plan says.
+ * @param feature - The plan feature, e.g. `wordads`.
+ * @param cached  - What Jetpack's cached plan says.
  * @return The answer, or undefined while WordPress.com is asked.
  */
-export function useHasWordAds( cached: boolean ): boolean | undefined {
+export function useSiteHasFeature( feature: string, cached: boolean ): boolean | undefined {
 	const { data, isError } = useQuery( {
 		queryKey: [ 'monetize', 'site-features' ],
 		queryFn: fetchActiveFeatures,
@@ -31,5 +32,5 @@ export function useHasWordAds( cached: boolean ): boolean | undefined {
 	if ( cached || isError ) {
 		return cached;
 	}
-	return data?.includes( 'wordads' );
+	return data?.includes( feature );
 }

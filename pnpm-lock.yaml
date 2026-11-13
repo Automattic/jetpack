@@ -3462,6 +3462,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@jetpack-monetize/init':
         specifier: link:packages/init
         version: link:packages/init
@@ -3477,6 +3480,9 @@ importers:
       '@wordpress/i18n':
         specifier: 7.1.0
         version: 7.1.0
+      '@wordpress/icons':
+        specifier: 20.0.0
+        version: 20.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/route':
         specifier: 0.25.0
         version: 0.25.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

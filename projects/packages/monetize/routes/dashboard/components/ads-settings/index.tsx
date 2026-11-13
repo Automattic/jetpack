@@ -8,7 +8,7 @@ import { getAdsSettingsData } from '../../data/ads-settings-data';
 import { getTabHref } from '../../data/tabs';
 import { trackClick } from '../../data/tracking';
 import { useAdsSettings } from '../../data/use-ads-settings';
-import { useHasWordAds } from '../../data/use-has-wordads';
+import { useSiteHasFeature } from '../../data/use-site-feature';
 import { usePayout, useSavePayout, useWpcomAdsSync } from '../../data/use-wpcom-ads-settings';
 import useWpcomConnection from '../../data/use-wpcom-connection';
 import ConnectionGate from '../connection-gate';
@@ -382,7 +382,7 @@ function Loading() {
  * @return The options or the prompt.
  */
 function AdsCard( { data, openTab }: { data: AdsSettingsData; openTab: OpenTab } ) {
-	const hasWordAds = useHasWordAds( data.hasWordAds );
+	const hasWordAds = useSiteHasFeature( 'wordads', data.hasWordAds );
 
 	if ( hasWordAds === undefined ) {
 		return <Loading />;
