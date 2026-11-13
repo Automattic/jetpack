@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
+import { Link, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -14,14 +14,11 @@ import analytics from 'lib/analytics';
 import { getSiteAdminUrl, isSiteVisibleToSearchEngines } from 'state/initial-state';
 
 export class Sitemaps extends Component {
-	renderSitemapRow = ( sitemap, sitemapTrack ) => {
+	renderSitemapRow = ( sitemap, sitemapTrack, label ) => {
 		const trackSitemapUrl = () => analytics.tracks.recordJetpackClick( sitemapTrack );
 		return (
-			<span className="jp-sitemap-row">
-				<ClipboardButtonInput
-					value={ sitemap }
-					copy={ _x( 'Copy', 'verb', 'jetpack' ) }
-				/>
+			<Stack className="jp-sitemap-row" direction="row" align="end" gap="sm">
+				<ClipboardButtonInput className="jp-sitemap-row__input" label={ label } value={ sitemap } />
 				<Link
 					openInNewTab
 					// eslint-disable-next-line react/jsx-no-bind
@@ -29,7 +26,7 @@ export class Sitemaps extends Component {
 					rel="noopener noreferrer"
 					href={ sitemap }
 				/>
-			</span>
+			</Stack>
 		);
 	};
 
@@ -73,14 +70,22 @@ export class Sitemaps extends Component {
 					</ModuleToggle>
 					{ this.props.isSiteVisibleToSearchEngines ? (
 						this.props.getOptionValue( 'sitemaps' ) && (
-							<p className="jp-form-setting-explanation">
+							<div className="jp-form-setting-explanation">
 								{ __(
 									'Good news: Jetpack is sending your sitemap automatically to all major search engines for indexing.',
 									'jetpack'
 								) }
-								{ this.renderSitemapRow( sitemap_url, 'sitemap-url-link' ) }
-								{ this.renderSitemapRow( news_sitemap_url, 'sitemap-news-url-link' ) }
-							</p>
+								{ this.renderSitemapRow(
+									sitemap_url,
+									'sitemap-url-link',
+									__( 'Sitemap', 'jetpack' )
+								) }
+								{ this.renderSitemapRow(
+									news_sitemap_url,
+									'sitemap-news-url-link',
+									__( 'News sitemap', 'jetpack' )
+								) }
+							</div>
 						)
 					) : (
 						<p className={ searchEngineVisibilityClasses }>
