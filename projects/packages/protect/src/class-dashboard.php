@@ -385,6 +385,11 @@ class Dashboard {
 			'init_modules' => array( '@jetpack-protect/init' ),
 			// "Protect" is a product name and is not translated.
 			'title'        => 'Protect',
+			// As the header in routes/dashboard/stage.tsx renders it.
+			'header'       => array(
+				'title'    => 'Protect',
+				'subtitle' => '',
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),

@@ -117,6 +117,11 @@ class Jetpack_AI_Page {
 			'init_modules' => array( '@jetpack-plugin/init' ),
 			// "Jetpack AI" is a product name and should not be translated.
 			'title'        => 'Jetpack AI',
+			// As the header in _inc/client/ai/main.jsx renders it.
+			'header'       => array(
+				'title'    => 'Jetpack AI',
+				'subtitle' => __( 'Create, connect, and automate with Jetpack AI.', 'jetpack' ),
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( 'jetpack-ai-admin', 'jetpack-script-data', 'jp-tracks-functions', 'wp-jp-i18n-loader' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),

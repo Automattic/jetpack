@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Show each page's own title and subtitle while it opens, on a first visit too.

@@ -151,12 +151,35 @@ class Dashboard {
 			'init_modules' => array( '@jetpack-forms/init' ),
 			/** "Jetpack Forms" is a product name, do not translate. */
 			'title'        => 'Jetpack Forms',
+			'header'       => array(
+				/** "Forms" is a product name, do not translate. */
+				'title'    => 'Forms',
+				'subtitle' => self::landing_subtitle(),
+			),
 			'capability'   => 'edit_pages',
 			// The connection initial state and REST preload are inline scripts on wp-api-fetch.
 			'handles'      => array( 'jetpack-forms-layout', 'jetpack-script-data', 'wp-api-fetch', 'wp-jp-i18n-loader', 'jp-tracks-functions' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
+	}
+
+	/**
+	 * The subtitle of the tab a bare dashboard URL opens, as use-page-header-details.tsx renders it.
+	 *
+	 * @return string
+	 */
+	private static function landing_subtitle() {
+		// The root route opens the remembered tab, and `/forms` falls back to the inbox without Central Form Management.
+		$tab = sanitize_key( wp_unslash( $_COOKIE[ self::LAST_TAB_COOKIE ] ?? '' ) );
+		if ( 'responses' === $tab || ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
+			return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
+		}
+		// Read, not detected: get_classic_forms_state() can write an option.
+		if ( self::CLASSIC_FORMS_STATE_CLASSIC === get_option( self::CLASSIC_FORMS_OPTION ) ) {
+			return __( 'View and manage all your forms.', 'jetpack-forms' );
+		}
+		return __( 'View and manage all your forms in one place.', 'jetpack-forms' );
 	}
 
 	/**

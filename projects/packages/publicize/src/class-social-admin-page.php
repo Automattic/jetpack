@@ -178,6 +178,13 @@ class Social_Admin_Page {
 			'init_modules' => array( '@jetpack-social/init' ),
 			/** "Jetpack Social" is a product name, do not translate. */
 			'title'        => 'Jetpack Social',
+			'header'       => array(
+				'title'    => 'Social',
+				// As _inc/components/social-page.tsx renders it: the Settings tab opens while Social is off and can be turned on.
+				'subtitle' => ! $host->is_wpcom_platform() && current_user_can( 'jetpack_manage_modules' ) && ! Utils::is_publicize_active()
+					? __( 'Customize how your posts are shared to social media.', 'jetpack-publicize-pkg' )
+					: __( 'Connect your social accounts and see what drives traffic.', 'jetpack-publicize-pkg' ),
+			),
 			'capability'   => 'publish_posts',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
 			'media'        => true,

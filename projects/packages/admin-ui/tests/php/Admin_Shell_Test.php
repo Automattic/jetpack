@@ -136,6 +136,10 @@ class Admin_Shell_Test extends TestCase {
 			'capability'   => 'edit_posts',
 			'handles'      => array( 'jetpack-forms-dashboard' ),
 			'media'        => true,
+			'header'       => array(
+				'title'    => 'Forms',
+				'subtitle' => '',
+			),
 		);
 
 		return array(
@@ -147,6 +151,7 @@ class Admin_Shell_Test extends TestCase {
 					'capability'   => 'manage_options',
 					'handles'      => array(),
 					'media'        => false,
+					'header'       => null,
 				),
 			),
 			'every key set'      => array( $set + self::valid_member(), $set ),
@@ -199,6 +204,16 @@ class Admin_Shell_Test extends TestCase {
 			'empty capability'       => array( 'jetpack-forms', array( 'capability' => '' ) + $valid ),
 			'default_path not text'  => array( 'jetpack-forms', array( 'default_path' => 1 ) + $valid ),
 			'media not a boolean'    => array( 'jetpack-forms', array( 'media' => 'yes' ) + $valid ),
+			'header has no subtitle' => array( 'jetpack-forms', array( 'header' => array( 'title' => 'Forms' ) ) + $valid ),
+			'header has empty title' => array(
+				'jetpack-forms',
+				array(
+					'header' => array(
+						'title'    => '',
+						'subtitle' => 'Sub',
+					),
+				) + $valid,
+			),
 		);
 	}
 

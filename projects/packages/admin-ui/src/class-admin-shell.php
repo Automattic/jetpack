@@ -119,7 +119,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, default_path: string|null, load: callable, capability: string, handles: string[], media: bool}>
+	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool}>
 	 */
 	public static function get_members() {
 		/**
@@ -130,6 +130,7 @@ class Admin_Shell {
 		 * - build_page (string)     The wp-build page name.
 		 * - init_modules (string[]) Script modules to import before the app boots.
 		 * - title (string)          Document title while the page is shown.
+		 * - header (array)          Optional. The heading (`title`) and the line under it (`subtitle`, '' for none) the page shows where a bare menu link opens it, translated as the dashboard renders them. Shown while the page opens.
 		 * - default_path (string)   Optional. The `p` a bare menu link opens.
 		 * - load (callable)         Registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
@@ -370,6 +371,7 @@ class Admin_Shell {
 				'initModules' => $member['init_modules'],
 				'defaultPath' => $member['default_path'],
 				'title'       => $member['title'],
+				'header'      => $member['header'],
 				'adminTitle'  => self::admin_title( $slug, $member['title'] ),
 				'bodyClass'   => self::screen_id( $slug ),
 			);
@@ -579,6 +581,7 @@ class Admin_Shell {
 		$member = array_merge(
 			array(
 				'init_modules' => array(),
+				'header'       => null,
 				'default_path' => null,
 				'capability'   => 'manage_options',
 				'handles'      => array(),
@@ -593,11 +596,24 @@ class Admin_Shell {
 			|| ! is_string( $member['capability'] ) || '' === $member['capability']
 			|| ( null !== $member['default_path'] && ! is_string( $member['default_path'] ) )
 			|| ! is_bool( $member['media'] )
+			|| ( null !== $member['header'] && ! self::is_header( $member['header'] ) )
 		) {
 			return null;
 		}
 
 		return $member;
+	}
+
+	/**
+	 * Whether a value is a page header: a non-empty `title` and a `subtitle` string.
+	 *
+	 * @param mixed $value Value to check.
+	 * @return bool
+	 */
+	private static function is_header( $value ) {
+		return is_array( $value )
+			&& isset( $value['title'] ) && is_string( $value['title'] ) && '' !== $value['title']
+			&& isset( $value['subtitle'] ) && is_string( $value['subtitle'] );
 	}
 
 	/**
