@@ -1,7 +1,7 @@
 import { Badge } from '@jetpack-premium-analytics/externals';
-import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
+import { useIsNarrowHeader } from '../../hooks/use-is-narrow-header';
 import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
 import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
 
@@ -140,7 +140,7 @@ export function useDetailPageCustomize(
  * @return The badge, or nothing on a phone.
  */
 export function CustomizingBadge() {
-	const isNarrow = useViewportMatch( 'small', '<' );
+	const isNarrow = useIsNarrowHeader();
 
 	if ( isNarrow ) {
 		return null;

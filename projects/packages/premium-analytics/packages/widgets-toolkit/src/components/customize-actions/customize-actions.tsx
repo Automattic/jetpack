@@ -2,13 +2,14 @@
  * External dependencies
  */
 import { Button, Stack } from '@jetpack-premium-analytics/externals';
-import { useMergeRefs, useViewportMatch } from '@wordpress/compose';
+import { useMergeRefs } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
 import { forwardRef, useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
+import { useIsNarrowHeader } from '../../hooks/use-is-narrow-header';
 import { PageOptionsMenu } from '../page-options-menu';
 import { ResetLayoutAction } from '../reset-layout';
 import type { ArrangeableTabs } from '../page-options-menu/arrange-tabs-dialog';
@@ -132,8 +133,7 @@ export function CustomizeActions( {
 	const focus = useCustomizeFocus( isCustomizing, onCustomize );
 	const customizeButtonRef = useMergeRefs( [ focus.customizeRef, customizeRef ] );
 	const menuTriggerRef = useMergeRefs( [ focus.menuTriggerRef, optionsMenuRef ] );
-	// On a phone the button squeezes the breadcrumb trail under the actions.
-	const isNarrow = useViewportMatch( 'small', '<' );
+	const isNarrow = useIsNarrowHeader();
 	const offersCustomize = ! isCustomizing && focus.onCustomize;
 
 	return (
