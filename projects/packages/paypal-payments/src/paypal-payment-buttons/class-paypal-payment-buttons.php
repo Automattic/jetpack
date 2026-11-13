@@ -800,9 +800,8 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Side-load the sibling style.css and register it under STYLE_HANDLE.
 	 *
-	 * A `file:` style in block.json would also make core register the editor bundle a
-	 * second time, so the block takes this handle as its `style` arg. Both bootstraps
-	 * call it.
+	 * Not the block's `style` arg: sites that opt out of on-demand block assets load every
+	 * block's style on every page. Only the BUTTON and QR formats enqueue it, as they render.
 	 *
 	 * @since 0.9.0
 	 * @return void
@@ -831,7 +830,6 @@ class PayPal_Payment_Buttons {
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
 				'plan_check'      => true,
-				'style'           => self::STYLE_HANDLE,
 			)
 		);
 	}
@@ -1106,6 +1104,8 @@ class PayPal_Payment_Buttons {
 				)
 				: '';
 
+			wp_enqueue_style( self::STYLE_HANDLE );
+
 			// No attribution line: the `Show "Powered by PayPal"` checkbox is
 			// the button's alone, so the QR draws the code and its caption and
 			// nothing else.
@@ -1257,6 +1257,8 @@ class PayPal_Payment_Buttons {
 		$button_class = 'jetpack-paypal-button__checkout-link wp-element-button'
 			. ( self::is_outline_button( $attributes ) ? ' is-style-outline' : '' );
 		$button_style = self::style_attr( self::get_button_style( $attributes ) );
+
+		wp_enqueue_style( self::STYLE_HANDLE );
 
 		return sprintf(
 			'<div %6$s>
@@ -1551,6 +1553,8 @@ class PayPal_Payment_Buttons {
 			)
 		);
 		wp_enqueue_style( $handle );
+		// The canvas previews the block with its front-end styles.
+		wp_enqueue_style( self::STYLE_HANDLE );
 	}
 
 	/**
