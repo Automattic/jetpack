@@ -1834,7 +1834,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	 */
 	public function test_subscriber_auth_silent_without_token_redirects_back() {
 		$this->load_rest_endpoints_direct();
-		$this->mock_subscriber_token( null );
+		$this->mock_subscriber_token();
 
 		$redirect_url = home_url( '/?p=123&jp_sub_check=1' );
 		$request      = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
@@ -1854,7 +1854,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	 */
 	public function test_subscriber_auth_silent_without_token_rejects_external_redirect() {
 		$this->load_rest_endpoints_direct();
-		$this->mock_subscriber_token( null );
+		$this->mock_subscriber_token();
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
 		$request->set_param( 'redirect_url', 'https://attacker.example/phishing' );
@@ -1872,7 +1872,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	 */
 	public function test_subscriber_auth_without_token_or_silent_is_rejected() {
 		$this->load_rest_endpoints_direct();
-		$this->mock_subscriber_token( null );
+		$this->mock_subscriber_token();
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
 		$request->set_param( 'redirect_url', home_url( '/?p=123' ) );
