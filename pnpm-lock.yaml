@@ -2073,9 +2073,9 @@ importers:
       jest:
         specifier: 30.5.2
         version: 30.5.2
-      md5-es:
-        specifier: 1.8.2
-        version: 1.8.2
+      md5:
+        specifier: 2.3.0
+        version: 2.3.0
       webpack:
         specifier: 5.112.2
         version: 5.112.2(webpack-cli@7.2.1)
@@ -5037,9 +5037,6 @@ importers:
       refx:
         specifier: 3.1.1
         version: 3.1.1
-      strip:
-        specifier: 3.0.0
-        version: 3.0.0
       tiny-lru:
         specifier: 7.0.6
         version: 7.0.6
@@ -7213,9 +7210,6 @@ importers:
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
-      shell-escape:
-        specifier: 0.2.0
-        version: 0.2.0
       winston:
         specifier: 3.17.0
         version: 3.17.0
@@ -15275,9 +15269,6 @@ packages:
   mathml-tag-names@4.0.0:
     resolution: {integrity: sha512-aa6AU2Pcx0VP/XWnh8IGL0SYSgQHDT6Ucror2j2mXeFAlN3ahaNs8EZtG1YiticMkSLj3Gt6VPFfZogt7G5iFQ==}
 
-  md5-es@1.8.2:
-    resolution: {integrity: sha512-LKq5jmKMhJYhsBFUh2w+J3C4bMiC5uQie/UYJ429UATmMnFr6iANO2uQq5HXAZSIupGp0WO2mH3sNfxR4XO40Q==}
-
   md5@2.3.0:
     resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}
 
@@ -17125,9 +17116,6 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  shell-escape@0.2.0:
-    resolution: {integrity: sha512-uRRBT2MfEOyxuECseCZd28jC1AJ8hmqqneWQ4VWUTgCAFvb3wKU1jLqj6egC4Exrr88ogg3dp+zroH4wJuaXzw==}
-
   shell-quote@1.12.0:
     resolution: {integrity: sha512-PcByqNyT/38F2kDNi006HAMRJaULuBzq/FOsw3qdZvX/GA9W/jamDaRskgHjubHiftXK5sIFxLNkvrXUwcof6Q==}
     engines: {node: '>= 0.4'}
@@ -17405,9 +17393,6 @@ packages:
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
-
-  strip@3.0.0:
-    resolution: {integrity: sha512-kIPiqRSsGCwWItPLDhuZPQlwX16WjQggT5QS1f5Aam0DSbtPQh8SsIkbBxLm+835qb1Q0OoQnvrhJ0oplIup8Q==}
 
   stubborn-fs@2.0.0:
     resolution: {integrity: sha512-Y0AvSwDw8y+nlSNFXMm2g6L51rBGdAQT20J3YSOqxC53Lo3bjWRtr2BKcfYoAf352WYpsZSTURrA0tqhfgudPA==}
@@ -29916,8 +29901,6 @@ snapshots:
 
   mathml-tag-names@4.0.0: {}
 
-  md5-es@1.8.2: {}
-
   md5@2.3.0:
     dependencies:
       charenc: 0.0.2
@@ -31988,8 +31971,6 @@ snapshots:
 
   shebang-regex@3.0.0: {}
 
-  shell-escape@0.2.0: {}
-
   shell-quote@1.12.0: {}
 
   side-channel-list@1.0.1:
@@ -32347,8 +32328,6 @@ snapshots:
   strip-indent@4.1.1: {}
 
   strip-json-comments@3.1.1: {}
-
-  strip@3.0.0: {}
 
   stubborn-fs@2.0.0:
     dependencies:

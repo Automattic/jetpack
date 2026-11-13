@@ -1,5 +1,5 @@
 const i18n = require( '@wordpress/i18n' );
-const { default: md5 } = require( 'md5-es' );
+const md5 = require( 'md5' );
 
 const locationMap = {
 	plugin: 'plugins/',
@@ -46,10 +46,10 @@ module.exports = {
 		let hash, query;
 		const i = path.indexOf( '?' );
 		if ( i >= 0 ) {
-			hash = md5.hash( pathPrefix + path.substring( 0, i ) );
+			hash = md5( pathPrefix + path.substring( 0, i ) );
 			query = path.substring( i );
 		} else {
-			hash = md5.hash( pathPrefix + path );
+			hash = md5( pathPrefix + path );
 			query = '';
 		}
 

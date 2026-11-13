@@ -1,8 +1,8 @@
 /*
  * A stand-in for a page, drawn the moment the page is opened and removed once its app renders:
- * its saved header and tabs, or another page's header with its title. Each page's header, and
- * the CSS it uses, is saved whenever it is on screen: the dashboards add most of their CSS from
- * JavaScript, which hasn't run yet.
+ * its saved header and tabs, or another page's header with its title and subtitle. Each page's
+ * header, and the CSS it uses, is saved whenever it is on screen: the dashboards add most of their
+ * CSS from JavaScript, which hasn't run yet.
  */
 import { log } from './debug';
 
@@ -207,36 +207,99 @@ const donor = () => {
 		const entries = Object.keys( localStorage )
 			.filter( key => key.startsWith( keyPrefix ) )
 			.sort()
-			.map( key => [ key, localStorage.getItem( key ) ] )
-			.filter( ( [ , value ] ) => value.includes( '__header-title' ) );
-		// Prefer one with `JetpackLogo` as it last rendered, so this file needs no copy of the logo.
+			// The markup only: the saved CSS names classes the markup may not use.
+			.map( key => [ key, String( readSaved( key.slice( keyPrefix.length ) )?.html ?? '' ) ] )
+			.filter( ( [ , html ] ) => html.includes( '__header-title' ) );
+		const has = ( ...marks ) =>
+			entries.find( ( [ , html ] ) => marks.every( mark => html.includes( mark ) ) );
+		// `JetpackLogo` as it last rendered, so this file needs no copy of it, best with a subtitle row.
 		const [ key ] =
-			entries.find( ( [ , value ] ) => value.includes( 'jetpack-logo' ) ) ?? entries[ 0 ] ?? [];
+			has( 'jetpack-logo', '__header-subtitle' ) ?? has( 'jetpack-logo' ) ?? entries[ 0 ] ?? [];
 		return key ? readSaved( key.slice( keyPrefix.length ) ) : null;
 	} catch {
 		return null;
 	}
 };
 
-// Turn another page's header copy into this one's: its title and its icon, nothing else.
-const borrow = ( copy, title ) => {
-	copy
-		.querySelectorAll(
-			'[role="tablist"], [class*="__header-actions"], [class*="__header-subtitle"]'
-		)
-		.forEach( node => node.remove() );
+// CSS modules hash only a class name's prefix; these are found by their `__<name>` ending.
+const ROW_CLASSES = [ 'header-subtitle', 'body-md' ];
+let rowClasses = null;
+
+// The classes of a subtitle row, from the styles on the page: one walk, then remembered.
+const findRowClasses = () => {
+	const pattern = new RegExp( `\\.([\\w-]+__(${ ROW_CLASSES.join( '|' ) }))(?![\\w-])`, 'g' );
+	const found = {};
+	const search = rules => {
+		for ( const rule of rules ) {
+			for ( const [ , name, suffix ] of rule.selectorText?.matchAll( pattern ) ?? [] ) {
+				found[ suffix ] ??= name;
+			}
+			if ( rule.cssRules ) {
+				search( rule.cssRules );
+			}
+		}
+	};
+	for ( const sheet of document.styleSheets ) {
+		try {
+			search( sheet.cssRules );
+		} catch {
+			// A cross-origin stylesheet can't be read.
+		}
+	}
+	// Not remembered when missing: the styles may still be on their way.
+	const all = ROW_CLASSES.map( suffix => found[ suffix ] );
+	return all.includes( undefined ) ? null : all;
+};
+
+/*
+ * A subtitle row as admin-ui's Page renders it, for a copy saved without one. Any page header on
+ * screen has added its styles, with or without a subtitle; before that, there is no row.
+ */
+const subtitleRow = copy => {
+	const content = copy.querySelector( '[class*="__header-content"]' );
+	rowClasses ??= content && findRowClasses();
+	if ( ! content || ! rowClasses ) {
+		return null;
+	}
+	// The heading's text and element-reset classes, without its size and role.
+	const shared = [ ...copy.querySelector( 'h1' ).classList ].filter(
+		name => ! /__(heading-\w+|header-title)$/.test( name )
+	);
+	const row = document.createElement( 'p' );
+	row.className = [ ...shared, ...rowClasses ].join( ' ' );
+	content.after( row );
+	return row;
+};
+
+// Give a header copy this page's title, and its subtitle or none.
+const retitle = ( copy, { title, subtitle }, own ) => {
 	copy.querySelector( 'h1' ).textContent = title;
+	const row = copy.querySelector( '[class*="__header-subtitle"]' );
+	if ( ! subtitle ) {
+		row?.remove();
+		return;
+	}
+	// The page's own row may follow the subtitle with more, such as Forms' help link: keep it.
+	if ( own && row?.textContent.startsWith( subtitle ) ) {
+		return;
+	}
+	const target = row ?? subtitleRow( copy );
+	if ( target ) {
+		target.textContent = subtitle;
+	}
 };
 
 /**
  * Show a stand-in for a page in front of its app until the app renders.
  *
- * @param {string}      slug  - Page being opened.
- * @param {HTMLElement} el    - Its mount element; the stand-in goes right before it.
- * @param {string}      title - Page heading, for a page whose header has never been saved.
+ * @param {string}      slug     - Page being opened.
+ * @param {HTMLElement} el       - Its mount element; the stand-in goes right before it.
+ * @param {string}      title    - Page heading, for a borrowed header.
+ * @param {object|null} declared - `title` and `subtitle` of the view being opened, when the page
+ *                               declares them: they replace those of any header shown.
  * @return {Function} Removes the stand-in.
  */
-export function showHeader( slug, el, title ) {
+export function showHeader( slug, el, title, declared = null ) {
 	const own = readSaved( slug );
 	const saved = own ?? ( title ? donor() : null );
 	if ( ! saved?.html ) {
@@ -245,7 +308,13 @@ export function showHeader( slug, el, title ) {
 	}
 	const copy = inertCopy( saved.html );
 	if ( ! own ) {
-		borrow( copy, title );
+		// Another page's: only its icon and layout are this page's too.
+		copy
+			.querySelectorAll( '[role="tablist"], [class*="__header-actions"]' )
+			.forEach( node => node.remove() );
+	}
+	if ( ! own || declared ) {
+		retitle( copy, declared ?? { title }, !! own );
 	}
 	const css = saved.css?.replaceAll( PAGE_CLASS, bodyClassOf( slug ) ?? PAGE_CLASS );
 

@@ -146,6 +146,10 @@ class Dashboard {
 			'init_modules' => array( '@jetpack-search/init' ),
 			// "Search" is a product name, do not translate.
 			'title'        => 'Search',
+			'header'       => array(
+				'title'    => 'Search',
+				'subtitle' => __( 'Help your visitors find exactly what they are looking for.', 'jetpack-search-pkg' ),
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( self::DATA_SCRIPT_HANDLE, 'jetpack-script-data', 'jp-tracks-functions', 'wp-jp-i18n-loader' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),

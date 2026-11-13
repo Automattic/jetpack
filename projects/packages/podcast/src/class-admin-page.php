@@ -145,6 +145,10 @@ class Admin_Page {
 			'init_modules' => array( '@jetpack-podcast/init' ),
 			/** "Podcast" is a product name, do not translate. */
 			'title'        => 'Podcast',
+			'header'       => array(
+				'title'    => 'Podcast',
+				'subtitle' => __( 'Publish a podcast and reach your fans, anywhere they listen.', 'jetpack-podcast' ),
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
 			'media'        => true,

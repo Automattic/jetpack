@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -355,5 +356,43 @@ class Admin_UI_Test extends BaseTestCase {
 
 		Admin_UI::enable_menu();
 		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-videopress' ) );
+	}
+
+	/**
+	 * Data provider for test_shell_header_subtitle_drops_the_learn_more_link.
+	 *
+	 * @return array[] Translated dashboard string, expected subtitle.
+	 */
+	public static function provide_subtitle_translations() {
+		return array(
+			'English'  => array( 'Host and track your videos. <link>Learn more</link>.', 'Host and track your videos.' ),
+			'Japanese' => array( '動画をホストして追跡します。<link>詳細</link>。', '動画をホストして追跡します。' ),
+		);
+	}
+
+	/**
+	 * The shell header's subtitle is the dashboard's, translated, without its link and the stop after it.
+	 *
+	 * @dataProvider provide_subtitle_translations
+	 *
+	 * @param string $translated Translated dashboard string.
+	 * @param string $expected   Expected subtitle.
+	 */
+	#[DataProvider( 'provide_subtitle_translations' )]
+	public function test_shell_header_subtitle_drops_the_learn_more_link( $translated, $expected ) {
+		$translate = static function ( $translation, $text, $domain ) use ( $translated ) {
+			return 'jetpack-videopress-pkg' === $domain && str_contains( $text, '<link>' ) ? $translated : $translation;
+		};
+		add_filter( 'gettext', $translate, 10, 3 );
+		$method = new \ReflectionMethod( Admin_UI::class, 'shell_header_subtitle' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		try {
+			$this->assertSame( $expected, $method->invoke( null ) );
+		} finally {
+			remove_filter( 'gettext', $translate, 10 );
+		}
 	}
 }
