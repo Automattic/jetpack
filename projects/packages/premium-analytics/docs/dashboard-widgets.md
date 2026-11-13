@@ -273,6 +273,7 @@ The major changes when a widget built against the previous contract stops workin
 | 2.1.0 | `Button`, `ButtonLink`, `Progress`, `Text` and `VisuallyHidden`, the `@wordpress/ui` primitives a widget renders, shared so it bundles no copy of its own. |
 | 2.2.0 | `jpa/report-params`, a date range over the presets in `elements`, All time anchored on the item's `allTimeStart`                                           |
 | 2.3.0 | A chart without `chartTitle` is named after its widget's title, so `chartTitle` is needed only when the chart shows something else.                         |
+| 2.4.0 | `useOpenChartBucket`: a `MetricTabsChart` click opens the clicked bucket as the dashboard period.                                                         |
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 

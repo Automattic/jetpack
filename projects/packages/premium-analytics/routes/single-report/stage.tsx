@@ -7,7 +7,7 @@ import {
 	ReportScopeProvider,
 	isPlanDateLimitedSection,
 } from '@jetpack-premium-analytics/data';
-import { Badge, Icon } from '@jetpack-premium-analytics/externals';
+import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
@@ -19,6 +19,7 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { PeriodChangeStatus, SectionTabs, StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
+	CustomizingBadge,
 	DetailPageActions,
 	PageEmptyState,
 	PageNotice,
@@ -400,13 +401,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 								className={ styles.page }
 								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-								badges={
-									isCustomizing ? (
-										<Badge intent="informational">
-											{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }
-										</Badge>
-									) : undefined
-								}
+								badges={ isCustomizing ? <CustomizingBadge /> : undefined }
 								actions={
 									<DetailPageActions
 										isCustomizing={ isCustomizing }

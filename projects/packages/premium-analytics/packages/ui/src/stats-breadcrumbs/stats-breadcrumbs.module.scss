@@ -11,3 +11,26 @@
 .trail li {
 	margin-block-end: 0;
 }
+
+/* admin-ui shrinks only the last crumb, so the ones before it painted under
+ * the actions; as one line of text, the trail ellipsizes from its end.
+ * Matches admin-ui's `ul` only, so a self-collapsing list is left alone.
+ * Drop with https://github.com/WordPress/gutenberg/issues/77628. */
+.trail nav > ul {
+	display: block;
+	overflow: clip;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	// Room for the links' focus rings inside the clip.
+	padding: var(--wpds-dimension-padding-xs);
+	margin: calc(-1 * var(--wpds-dimension-padding-xs));
+}
+
+.trail nav > ul > li,
+.trail nav > ul > li > * {
+	display: inline;
+
+	// Not inherited: the crumbs' `text-wrap: pretty` turns wrapping back on.
+	white-space: nowrap;
+}
