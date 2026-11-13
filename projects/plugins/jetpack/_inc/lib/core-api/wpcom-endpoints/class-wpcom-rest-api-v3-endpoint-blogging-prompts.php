@@ -188,7 +188,9 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			// If using a "year-less" date, e.g. `--03-16`, override the date_query, and prepare to modify sql manually.
 			// `after` should be a date string when making API requests, rather than an array.
 			if ( is_string( $date_query['after'] ) && str_starts_with( $date_query['after'], '-' ) ) {
-				$date = date_create_from_format( '--m-d', $date_query['after'] );
+				// Use the same year as filter_sql(), or leap years shift the day by one after Feb 28th.
+				$year = $this->force_year ? (int) $this->force_year : (int) wp_date( 'Y' );
+				$date = date_create_from_format( 'Y--m-d', sprintf( '%04d', $year ) . $date_query['after'] );
 
 				if ( false !== $date ) {
 					// PHP day of the year starts with 0; normalize to match SQL DAYOFTHEYEAR which starts with 1.
