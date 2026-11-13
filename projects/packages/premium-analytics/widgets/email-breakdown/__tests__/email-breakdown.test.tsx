@@ -3,6 +3,7 @@
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
+import { onlineManager } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
@@ -419,6 +420,31 @@ describe( 'EmailBreakdown widget type', () => {
 
 			await waitFor( () => expect( declaredAction( 'download-csv' ) ).toBeUndefined() );
 			expect( screen.getByText( 'United States' ) ).toBeInTheDocument();
+		} );
+
+		it( 'offers no download while the rows are the previous view kept offline', async () => {
+			mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
+
+			const { findDeclaredAction, declaredAction, rerender } = renderWithHost( {
+				view: 'countries',
+			} );
+			await findDeclaredAction( 'download-csv' );
+
+			try {
+				act( () => onlineManager.setOnline( false ) );
+				rerender(
+					<EmailBreakdownWidget
+						attributes={ {
+							reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+							view: 'devices',
+						} }
+					/>
+				);
+
+				await waitFor( () => expect( declaredAction( 'download-csv' ) ).toBeUndefined() );
+			} finally {
+				onlineManager.setOnline( true );
+			}
 		} );
 	} );
 } );
