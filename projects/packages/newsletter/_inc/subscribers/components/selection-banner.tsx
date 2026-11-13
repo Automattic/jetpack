@@ -32,14 +32,12 @@ type Props = {
  * @param props.narrowed      - Whether a search or filter is on.
  * @param props.isAllSelected - Whether "Select all N" was clicked.
  * @param props.disabled      - True while a removal runs.
- * @param props.canSelectAll  - Whether to offer "Select all N". Selecting across pages starts the
- *                            background job, so this is off until WP.com turns removal on for the
- *                            site; the banner then offers only this page's rows.
+ * @param props.canSelectAll  - Whether bulk removal is enabled for the site; hides the banner when off.
  * @param props.onSelectAll   - Select every matching subscriber.
  * @param props.onRemovePage  - Remove the rows on this page, the existing way.
  * @param props.onRemoveAll   - Open the bulk confirm for every matching subscriber.
  * @param props.onClear       - Clear the selection.
- * @return Banner, or null when the page is not fully selected.
+ * @return Banner, or null when the feature is off or the page is not fully selected.
  */
 export default function SelectionBanner( {
 	pageCount,
@@ -103,7 +101,7 @@ export default function SelectionBanner( {
 		);
 	}, [ onSelectAll, narrowed, matchingCount, totalPages ] );
 
-	if ( pageCount === 0 || selectedCount < pageCount ) {
+	if ( ! canSelectAll || pageCount === 0 || selectedCount < pageCount ) {
 		return null;
 	}
 
