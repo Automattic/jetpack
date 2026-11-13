@@ -42,13 +42,7 @@ const projects = [
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testScript: 'test:admin-shell:ci',
 		testArgs: [],
-		targets: [
-			'packages/admin-ui',
-			'packages/my-jetpack',
-			'packages/forms',
-			'packages/podcast',
-			'plugins/jetpack',
-		],
+		targets: [ 'plugins/jetpack' ],
 		buildGroup: 'jetpack-core',
 	},
 	{
