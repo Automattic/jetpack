@@ -197,6 +197,15 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 		$this->assertSame( 'My Sender', $result['from_name'] );
 	}
 
+	public function test_get_settings_defaults_subscribe_post_end_to_false_when_unset() {
+		// stb_enabled is the comment-form option; it must not leak into the end-of-post field.
+		delete_option( 'jetpack_subscriptions_subscribe_post_end_enabled' );
+		update_option( 'stb_enabled', 1 );
+
+		$result = Newsletter_Abilities::get_settings();
+		$this->assertFalse( $result['subscribe_post_end_enabled'] );
+	}
+
 	public function test_update_settings_with_empty_input_is_noop() {
 		$result = Newsletter_Abilities::update_settings( array() );
 		$this->assertIsArray( $result );
