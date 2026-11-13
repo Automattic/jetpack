@@ -2,7 +2,7 @@ import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useViewportMatch } from '@wordpress/compose';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { CustomizeActions } from '../customize-actions';
 
 jest.mock(
@@ -15,12 +15,18 @@ jest.mock(
 		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
-jest.mock( '@wordpress/compose', () => ( {
-	...jest.requireActual( '@wordpress/compose' ),
-	useViewportMatch: jest.fn( () => false ),
-} ) );
 
 const editingActions = <div data-testid="dashboard-actions" />;
+
+const ViewportWidth = useViewportMatch.__experimentalWidthProvider;
+// Either side of the small breakpoint. Not 600: the provider treats it as wide, a real query as narrow.
+const WIDE = 601;
+const NARROW = 599;
+const at = ( width: number ) => ( {
+	wrapper: ( { children }: { children: ReactNode } ) => (
+		<ViewportWidth value={ width }>{ children }</ViewportWidth>
+	),
+} );
 
 const setupUser = () => userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
@@ -28,7 +34,6 @@ beforeEach( () => {
 	jest.useFakeTimers();
 	jest.mocked( getScriptData ).mockReturnValue( {} as ReturnType< typeof getScriptData > );
 	jest.mocked( currentUserCan ).mockReturnValue( false );
-	jest.mocked( useViewportMatch ).mockReturnValue( false );
 } );
 
 afterEach( () => {
@@ -47,7 +52,8 @@ describe( 'CustomizeActions', () => {
 				editingActions={ editingActions }
 			>
 				<a href="https://example.com/">View post</a>
-			</CustomizeActions>
+			</CustomizeActions>,
+			at( WIDE )
 		);
 
 		expect( screen.getByRole( 'link', { name: 'View post' } ) ).toBeInTheDocument();
@@ -64,7 +70,6 @@ describe( 'CustomizeActions', () => {
 	} );
 
 	it( 'offers Customize from the menu on a narrow screen', async () => {
-		jest.mocked( useViewportMatch ).mockReturnValue( true );
 		const user = setupUser();
 		const onCustomize = jest.fn();
 		render(
@@ -72,7 +77,8 @@ describe( 'CustomizeActions', () => {
 				isCustomizing={ false }
 				onCustomize={ onCustomize }
 				editingActions={ editingActions }
-			/>
+			/>,
+			at( NARROW )
 		);
 
 		expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
@@ -105,11 +111,12 @@ describe( 'CustomizeActions', () => {
 	} );
 
 	it.each( [
-		[ 'Customize', () => {} ],
-		[ 'Page options', undefined ],
+		[ 'Customize', () => {}, WIDE ],
+		[ 'Page options', undefined, WIDE ],
+		[ 'Page options', () => {}, NARROW ],
 	] )(
 		'moves focus onto %s when leaving unmounts the focused control',
-		async ( target, onCustomize ) => {
+		async ( target, onCustomize, width ) => {
 			const user = setupUser();
 			const dashboardActions = (
 				<>
@@ -122,7 +129,8 @@ describe( 'CustomizeActions', () => {
 					isCustomizing
 					onCustomize={ onCustomize }
 					editingActions={ dashboardActions }
-				/>
+				/>,
+				at( width )
 			);
 
 			await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
@@ -208,7 +216,6 @@ describe( 'CustomizeActions', () => {
 	} );
 
 	it( 'moves focus onto the first editing action when entering from the menu on a narrow screen', async () => {
-		jest.mocked( useViewportMatch ).mockReturnValue( true );
 		const user = setupUser();
 		function Page() {
 			const [ isCustomizing, setIsCustomizing ] = useState( false );
@@ -220,7 +227,7 @@ describe( 'CustomizeActions', () => {
 				/>
 			);
 		}
-		render( <Page /> );
+		render( <Page />, at( NARROW ) );
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
