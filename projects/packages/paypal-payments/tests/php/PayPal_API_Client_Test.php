@@ -362,6 +362,118 @@ class PayPal_API_Client_Test extends TestCase {
 		$this->assertTrue( $result );
 	}
 
+	// --- Images ---
+
+	/**
+	 * Capture every request to PayPal and answer it with one response.
+	 *
+	 * @param int          $status_code HTTP status code.
+	 * @param array|string $body        Response body.
+	 * @param array        $requests    Collected by reference as [ url, args ] pairs.
+	 */
+	private function capture_requests( $status_code, $body, &$requests ) {
+		$requests = array();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $status_code, $body, &$requests ) {
+				if ( strpos( $url, '/v1/oauth2/token' ) !== false ) {
+					return $preempt;
+				}
+				$requests[] = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+				return array(
+					'response' => array(
+						'code'    => $status_code,
+						'message' => '',
+					),
+					'body'     => is_array( $body ) ? wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) : $body,
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * The upload is the one call PayPal takes as multipart/form-data, one part named `files` per file.
+	 */
+	public function test_upload_images_sends_multipart_and_returns_the_rows() {
+		$this->set_up_connected_state();
+		$rows     = array(
+			array(
+				'asset_id' => 'ASSET-1',
+				'status'   => 'APPROVED',
+			),
+		);
+		$requests = array();
+		$this->capture_requests( 207, array( 'images' => $rows ), $requests );
+
+		$result = PayPal_API_Client::upload_images(
+			array(
+				array(
+					'name'    => 'hero "shot".jpg',
+					'type'    => 'image/jpeg',
+					'content' => 'JPEGBYTES',
+				),
+			)
+		);
+
+		$this->assertSame( array( 'images' => $rows ), $result );
+		$this->assertCount( 1, $requests );
+		$this->assertStringEndsWith( PayPal_API_Client::IMAGES_ENDPOINT, $requests[0]['url'] );
+		$this->assertSame( 'POST', $requests[0]['args']['method'] );
+
+		$content_type = $requests[0]['args']['headers']['Content-Type'];
+		$this->assertSame( 1, preg_match( '/^multipart\/form-data; boundary=(\S+)$/', $content_type, $matches ) );
+		$boundary = $matches[1];
+		$this->assertSame(
+			"--{$boundary}\r\n"
+			. "Content-Disposition: form-data; name=\"files\"; filename=\"hero shot.jpg\"\r\n"
+			. "Content-Type: image/jpeg\r\n\r\n"
+			. "JPEGBYTES\r\n"
+			. "--{$boundary}--\r\n",
+			$requests[0]['args']['body']
+		);
+	}
+
+	public function test_upload_images_rejects_an_empty_list_without_calling_paypal() {
+		$this->set_up_connected_state();
+		$requests = array();
+		$this->capture_requests( 207, array( 'images' => array() ), $requests );
+
+		$result = PayPal_API_Client::upload_images( array() );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_no_images', $result->get_error_code() );
+		$this->assertSame( array(), $requests );
+	}
+
+	/**
+	 * An asset id is opaque and can hold "=" and "/".
+	 */
+	public function test_delete_image_encodes_the_asset_id_in_the_path() {
+		$this->set_up_connected_state();
+		$requests = array();
+		$this->capture_requests( 204, '', $requests );
+
+		$result = PayPal_API_Client::delete_image( 'LzAw/aW1=' );
+
+		$this->assertTrue( $result );
+		$this->assertSame( 'DELETE', $requests[0]['args']['method'] );
+		$this->assertStringEndsWith( PayPal_API_Client::IMAGES_ENDPOINT . '/LzAw%2FaW1%3D', $requests[0]['url'] );
+	}
+
+	public function test_delete_image_rejects_an_empty_id() {
+		$this->set_up_connected_state();
+
+		$result = PayPal_API_Client::delete_image( ' ' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_invalid_asset_id', $result->get_error_code() );
+	}
+
 	// --- Caching ---
 
 	/**

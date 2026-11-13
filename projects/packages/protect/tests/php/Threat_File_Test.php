@@ -16,6 +16,7 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Threat_File::class )]
 class Threat_File_Test extends BaseTestCase {
+	use Plugin_Cache;
 
 	/**
 	 * Files written by a test, removed afterwards.
@@ -25,12 +26,21 @@ class Threat_File_Test extends BaseTestCase {
 	private $files = array();
 
 	/**
-	 * Remove the test's files and cached checksums.
+	 * Start each test with no plugins installed.
+	 */
+	public function set_up() {
+		parent::set_up();
+		self::seed_plugin_cache();
+	}
+
+	/**
+	 * Remove the test's files, plugins, and cached checksums.
 	 */
 	public function tear_down() {
 		foreach ( $this->files as $file ) {
 			wp_delete_file( $file );
 		}
+		self::clear_plugin_cache();
 		delete_transient( Threat_File::CHECKSUMS_CACHE );
 		remove_all_filters( 'map_meta_cap' );
 		remove_all_filters( 'pre_http_request' );
@@ -111,8 +121,14 @@ class Threat_File_Test extends BaseTestCase {
 			'drop-in'           => WP_CONTENT_DIR . '/db-error.php',
 		);
 		if ( 'plugin' === $where ) {
-			$this->write( WP_PLUGIN_DIR . '/protect-test-plugin/protect-test-plugin.php', "<?php\n/**\n * Plugin Name: Protect Test Plugin\n */\n" );
-			wp_clean_plugins_cache( false );
+			self::seed_plugin_cache(
+				array(
+					'protect-test-plugin/protect-test-plugin.php' => array(
+						'Name'    => 'Protect Test Plugin',
+						'Version' => '1.0',
+					),
+				)
+			);
 		}
 		if ( 'registered-theme' === $where ) {
 			$this->write( WP_CONTENT_DIR . '/protect-test-themes/protect-test-theme/style.css', "/*\nTheme Name: Protect Test Theme\n*/\n" );

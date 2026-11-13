@@ -1,12 +1,14 @@
 /**
  * Internal dependencies
  */
+import { authorAdapter } from './author';
 import { postAdapter } from './post';
 import { videoAdapter } from './video';
 import type { SingleReportAdapter } from './adapter';
 
 // The adapters by record `path`; a record without one renders from the record alone.
 const ADAPTERS: Record< string, SingleReportAdapter > = {
+	author: authorAdapter,
 	post: postAdapter,
 	video: videoAdapter,
 };

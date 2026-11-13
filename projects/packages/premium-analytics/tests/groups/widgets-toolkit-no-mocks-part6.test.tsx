@@ -8,4 +8,3 @@ import '../../packages/widgets-toolkit/src/components/reset-layout/__tests__/res
 import '../../packages/widgets-toolkit/src/components/widget-back-link/__tests__/widget-back-link.test';
 import '../../packages/widgets-toolkit/src/components/wordads-earnings-history/__tests__/earnings-history-list.test';
 import '../../packages/widgets-toolkit/src/helpers/__tests__/compare-optional-numbers.test';
-import '../../packages/widgets-toolkit/src/helpers/__tests__/format-view-count.test';

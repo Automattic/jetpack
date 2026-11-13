@@ -444,7 +444,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	);
 
 	return (
-		<ChartInstanceContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId, legendItems, chartType: 'leaderboard' } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -532,7 +532,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												[ styles.overlayLabel ]: withOverlayLabel,
 											} ) }
 										>
-											{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
+											{ isPrimaryVisible && (
+												<Text className={ styles.value }>
+													{ valueFormatter( entry.currentValue ) }
+												</Text>
+											) }
 
 											{ showComparisonValue && (
 												<Text className={ clsx( styles.deltaValue, deltaTrendClass ) }>
@@ -654,7 +658,9 @@ const LeaderboardChart = attachSubComponents( LeaderboardChartWithProvider, {
 
 // Create responsive LeaderboardChart with composition API
 const LeaderboardChartResponsive = attachSubComponents(
-	withResponsive< LeaderboardChartProps >( LeaderboardChartWithProvider ),
+	withResponsive< LeaderboardChartProps >( LeaderboardChartWithProvider, {
+		waitForSize: false,
+	} ),
 	{
 		Legend: Legend,
 	}

@@ -511,10 +511,10 @@ describe( 'ComparativeBarChart', () => {
 		expect( tickFormat( 18432 ) ).toBe( '18.4K' );
 	} );
 
-	it( 'draws zero-value bars so a quiet day reads as zero, not missing data', () => {
+	it( 'leaves zero-value buckets empty so an hour without views does not look like one', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( recordedProps().showZeroValues ).toBe( true );
+		expect( recordedProps().showZeroValues ).toBeFalsy();
 	} );
 
 	describe( 'pinned y-axis domains', () => {

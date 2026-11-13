@@ -65,6 +65,7 @@ class Dashboard {
 	 */
 	const SECTIONS = array(
 		Sections\Payments::class,
+		Sections\Ads::class,
 	);
 
 	/**
@@ -239,6 +240,23 @@ class Dashboard {
 	public static function is_dashboard_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
 		return isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+	}
+
+	/**
+	 * The admin URL that opens one of the dashboard's tabs.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $tab The tab's `?tab=` value; 'overview' opens the bare page.
+	 * @return string
+	 */
+	public static function get_tab_url( $tab ) {
+		$path = 'admin.php?page=' . self::MENU_SLUG;
+		if ( 'overview' !== $tab ) {
+			// wp-build's router reads a route's search params from `p`.
+			$path .= '&p=' . rawurlencode( '/?tab=' . $tab );
+		}
+		return admin_url( $path );
 	}
 
 	/**

@@ -156,4 +156,34 @@ class Speed_Score_Test extends Base_TestCase {
 
 		$this->assertSame( 10, $response['progress']['elapsed'] );
 	}
+
+	public function test_progress_passes_on_the_cloud_stage_score_and_estimate() {
+		$boosted = Speed_Score_Request::jsonUnserialize(
+			array(
+				'url'            => self::URL,
+				'active_modules' => array( 'critical_css' ),
+				'created'        => microtime( true ) - 10,
+				'status'         => 'pending',
+				'error'          => null,
+				'client'         => null,
+				'cloud_progress' => array(
+					'stage'            => 'desktop',
+					'scores'           => array( 'mobile' => 71 ),
+					'estimatedSeconds' => 42,
+				),
+			)
+		);
+
+		$response = $this->prepare_response( $boosted, new Speed_Score_Request( self::URL_NO_BOOST, array(), null, 'pending' ) );
+
+		$this->assertSame(
+			array(
+				'elapsed'  => 10,
+				'expected' => 42,
+				'stage'    => 'desktop',
+				'scores'   => array( 'mobile' => 71 ),
+			),
+			$response['progress']
+		);
+	}
 }

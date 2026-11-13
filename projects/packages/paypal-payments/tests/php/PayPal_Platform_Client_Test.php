@@ -400,4 +400,45 @@ class PayPal_Platform_Client_Test extends TestCase {
 		$this->assertCount( 1, $requests );
 		$this->assertStringContainsString( 'sandbox.paypal.com', $requests[0]['url'] );
 	}
+
+	/**
+	 * WordPress.com rebuilds the multipart upload from the files, so they travel as base64 in the JSON body.
+	 */
+	public function test_request_sends_upload_files_as_base64_for_wpcom_to_forward() {
+		$this->set_up_referred_merchant();
+		$requests = array();
+		$this->mock_http_routes(
+			array( PayPal_Platform_Client::WPCOM_REQUEST_ROUTE => $this->platform_response( 207, array( 'images' => array() ) ) ),
+			$requests
+		);
+
+		$response = PayPal_Platform_Client::request(
+			'POST',
+			PayPal_API_Client::IMAGES_ENDPOINT,
+			null,
+			'request-7',
+			array(
+				array(
+					'name'    => 'hero.png',
+					'type'    => 'image/png',
+					'content' => "\x89PNG",
+				),
+			)
+		);
+
+		$body = (array) json_decode( $requests[0]['args']['body'], true );
+		$this->assertSame( PayPal_API_Client::IMAGES_ENDPOINT, $body['path'] );
+		$this->assertNull( $body['body'] );
+		$this->assertSame(
+			array(
+				array(
+					'name'    => 'hero.png',
+					'type'    => 'image/png',
+					'content' => base64_encode( "\x89PNG" ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				),
+			),
+			$body['files']
+		);
+		$this->assertSame( 207, wp_remote_retrieve_response_code( $response ) );
+	}
 }

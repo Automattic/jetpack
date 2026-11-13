@@ -585,52 +585,76 @@ describe( 'FeatureItem', () => {
 	);
 
 	it.each( [
-		[ 'a switch', false, 'Manage Firewall in Protect', false, 'active' ],
-		[ 'a switch, flag on, while on,', false, 'Manage Firewall in Protect', true, 'active' ],
-		[ 'a switch, flag on, while off,', false, 'Manage Firewall in Protect', true, 'inactive' ],
+		[ 'a switch', false, 'Manage Firewall in Protect', false, 'active', false ],
+		[ 'a switch, flag on, while on,', false, 'Manage Firewall in Protect', true, 'active', false ],
+		[
+			'a switch, flag on, while off,',
+			false,
+			'Manage Firewall in Protect',
+			true,
+			'inactive',
+			false,
+		],
+		[ 'a switch, panel on, while on,', false, 'Manage Firewall in Protect', false, 'active', true ],
+		[
+			'a switch, panel on, while off,',
+			false,
+			'Set up Firewall in Protect',
+			false,
+			'inactive',
+			true,
+		],
 		[
 			'nothing, for a module a host forced on,',
 			'active' as const,
 			'Configure Firewall',
 			false,
 			'active',
+			false,
 		],
-	] )( 'links to the Protect page in place of %s', ( _, override, linkName, flag, status ) => {
-		const previousInitial = window.myJetpackInitialState;
-		window.myJetpackInitialState = {
-			protectPageModuleUrls: { waf: 'admin.php?page=jetpack-protect&p=firewall' },
-			myJetpackFlags: { accountConnect: flag },
-		} as unknown as typeof previousInitial;
-		const waf = {
-			module: 'waf',
-			available: true,
-			activated: status === 'active',
-			override,
-			configure_url: 'admin.php?page=jetpack-protect&p=firewall',
-		} as MyJetpackModule;
+	] )(
+		'links to the Protect page in place of %s',
+		( _, override, linkName, flag, status, panel ) => {
+			const previousInitial = window.myJetpackInitialState;
+			const previousData = window.JetpackScriptData;
+			window.myJetpackInitialState = {
+				protectPageModuleUrls: { waf: 'admin.php?page=jetpack-protect&p=firewall' },
+				myJetpackFlags: { accountConnect: flag },
+			} as unknown as typeof previousInitial;
+			window.JetpackScriptData = {
+				myJetpack: { settingsConsolidation: panel },
+			} as unknown as typeof previousData;
+			const waf = {
+				module: 'waf',
+				available: true,
+				activated: status === 'active',
+				override,
+				configure_url: 'admin.php?page=jetpack-protect&p=firewall',
+			} as MyJetpackModule;
 
-		try {
-			render(
-				<FeatureItem
-					state={ buildState(
-						{ kind: 'module', module: waf },
-						{ status, feature: buildFeature( { slug: 'waf', name: 'Firewall' } ) }
-					) }
-				/>
-			);
-		} finally {
-			window.myJetpackInitialState = previousInitial;
+			try {
+				render(
+					<FeatureItem
+						state={ buildState(
+							{ kind: 'module', module: waf },
+							{ status, feature: buildFeature( { slug: 'waf', name: 'Firewall' } ) }
+						) }
+					/>
+				);
+			} finally {
+				window.myJetpackInitialState = previousInitial;
+				window.JetpackScriptData = previousData;
+			}
+
+			const link = screen.getByRole( 'link', { name: linkName } );
+			expect( link ).toHaveAttribute( 'href', 'admin.php?page=jetpack-protect&p=firewall' );
+			expect( link ).toHaveTextContent( linkName.replace( ' Firewall', '' ) );
+			expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
+			// The link cannot say whether the module is on, so the badge does.
+			expect( screen.getByText( status === 'active' ? 'Active' : 'Inactive' ) ).toBeInTheDocument();
 		}
-
-		expect( screen.getByRole( 'link', { name: linkName } ) ).toHaveAttribute(
-			'href',
-			'admin.php?page=jetpack-protect&p=firewall'
-		);
-		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
-		expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
-		// The link cannot say whether the module is on, so the badge does.
-		expect( screen.getByText( status === 'active' ? 'Active' : 'Inactive' ) ).toBeInTheDocument();
-	} );
+	);
 
 	const forcedOn = buildState( { kind: 'module', module: forcedModule }, { status: 'active' } );
 	const forcedOff = buildState( { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' } );

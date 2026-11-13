@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Single-report pages: Let the VideoPress package register the video page instead of registering it here.

@@ -2,15 +2,16 @@ import { test, expect, type Page, type Locator, type Request } from '@playwright
 
 export const STATE_ON = 'output/admin-shell/state-on.json';
 export const STATE_OFF = 'output/admin-shell/state-off.json';
+export const STATE_STANDALONE = 'output/admin-shell/state-standalone.json';
 
 export type ShellAppState = 'loading' | 'ready' | 'visible' | 'hidden';
 
 export interface ShellSnapshot {
-	/** Slug of the app on screen, or null while none is (switching, or the placeholder is up). */
+	/** Slug of the app on screen, or null while none is (switching, or a stand-in header is up). */
 	visible: string | null;
 	apps: Record< string, ShellAppState >;
-	/** `hooks`: the contract. `page`: a document without the shell. `spike`: the spike's DOM. */
-	source: 'hooks' | 'page' | 'spike';
+	/** `hooks`: the contract. `page`: a document without the shell. */
+	source: 'hooks' | 'page';
 }
 
 export interface Member {
@@ -23,6 +24,8 @@ export interface Member {
 	heading: string;
 	/** `search + hash` a fresh load lands on with the shell off. */
 	landing: RegExp;
+	/** Needs site setup; tests that use it skip on a site whose admin menu lacks it. */
+	optional?: true;
 }
 
 /* Members registered on the test site. Titles and landings are from shell-off full loads. */
@@ -31,15 +34,8 @@ export const MEMBERS: Member[] = [
 		slug: 'my-jetpack',
 		mountId: 'my-jetpack-dashboard-wp-admin-app',
 		title: 'My Jetpack',
-		heading: 'My Jetpack',
-		landing: /^\?page=my-jetpack(#\/overview)?$/,
-	},
-	{
-		slug: 'jetpack-activity-log',
-		mountId: 'jetpack-activity-log-dashboard-wp-admin-app',
-		title: 'Activity Log',
-		heading: 'Activity Log',
-		landing: /^\?page=jetpack-activity-log$/,
+		heading: 'Jetpack',
+		landing: /^\?page=my-jetpack(&p=%2Foverview)?$/,
 	},
 	{
 		slug: 'jetpack-forms-responses-wp-admin',
@@ -49,32 +45,13 @@ export const MEMBERS: Member[] = [
 		landing: /^\?page=jetpack-forms-responses-wp-admin&p=%2Fforms$/,
 	},
 	{
-		slug: 'jetpack-ai',
-		mountId: 'jetpack-ai-hub-wp-admin-app',
-		title: 'Jetpack AI',
-		heading: 'Jetpack AI',
-		landing: /^\?page=jetpack-ai$/,
-	},
-	{
-		slug: 'jetpack-newsletter',
-		mountId: 'jetpack-newsletter-dashboard-wp-admin-app',
-		title: 'Newsletter',
-		heading: 'Newsletter',
-		landing: /^\?page=jetpack-newsletter$/,
-	},
-	{
-		slug: 'jetpack-podcast',
-		mountId: 'jetpack-podcast-dashboard-wp-admin-app',
-		title: 'Podcast',
-		heading: 'Podcast',
-		landing: /^\?page=jetpack-podcast$/,
-	},
-	{
-		slug: 'jetpack-settings',
-		mountId: 'jetpack-settings-dashboard-wp-admin-app',
-		title: 'Settings',
-		heading: 'Jetpack Performance Settings',
-		landing: /^\?page=jetpack-settings(#\/performance)?$/,
+		slug: 'jetpack-seo',
+		mountId: 'jetpack-seo-dashboard-wp-admin-app',
+		title: 'SEO',
+		heading: 'SEO',
+		landing: /^\?page=jetpack-seo$/,
+		// Needs the `seo-admin-ui` plan feature or the `rsm_jetpack_seo` filter, and the seo-tools module on.
+		optional: true,
 	},
 ];
 
@@ -86,6 +63,64 @@ export const member = ( slug: string ): Member => {
 	return found;
 };
 
+const menuSlugs = new Map< string, Promise< Set< string > > >();
+
+/**
+ * The page slugs the Jetpack submenu links to, read in a page of its own so the test's page stays put.
+ *
+ * @param page - Page under test, for its session.
+ * @return Submenu page slugs.
+ */
+async function readMenuSlugs( page: Page ): Promise< Set< string > > {
+	const probe = await page.context().newPage();
+	try {
+		await probe.goto( '/wp-admin/admin.php?page=my-jetpack&jetpack_admin_shell=0' );
+		const hrefs = await probe
+			.locator( '#adminmenu .wp-submenu a' )
+			.evaluateAll( links => links.map( a => a.getAttribute( 'href' ) ?? '' ) );
+		return new Set( hrefs.map( href => /[?&]page=([^&]+)/.exec( href )?.[ 1 ] ?? '' ) );
+	} finally {
+		await probe.close();
+	}
+}
+
+/**
+ * Whether a member's page is on this site, read once per site from the admin menu.
+ *
+ * @param page - Page under test.
+ * @param slug - Member slug.
+ * @return False only for an optional member the site doesn't show.
+ */
+export async function onSite( page: Page, slug: string ): Promise< boolean > {
+	if ( ! member( slug ).optional ) {
+		return true;
+	}
+	const base = String( test.info().project.use.baseURL ?? '' );
+	if ( ! menuSlugs.has( base ) ) {
+		menuSlugs.set(
+			base,
+			readMenuSlugs( page ).catch( error => {
+				// Forget a failed probe, so the next test reads the menu again.
+				menuSlugs.delete( base );
+				throw error;
+			} )
+		);
+	}
+	return ( await menuSlugs.get( base )! ).has( slug );
+}
+
+/**
+ * Skip the test when any of the members isn't on this site.
+ *
+ * @param page  - Page under test.
+ * @param slugs - Member slugs the test uses.
+ */
+export async function skipUnlessOnSite( page: Page, ...slugs: string[] ): Promise< void > {
+	for ( const slug of slugs ) {
+		test.skip( ! ( await onSite( page, slug ) ), `${ slug } is not on this site` );
+	}
+}
+
 /** What the probe exposes on `window.__jpShell`. */
 interface ShellProbe {
 	read: () => ShellSnapshot;
@@ -96,19 +131,13 @@ interface ShellProbe {
 }
 type ProbeWindow = { __jpShell: ShellProbe };
 
-export const FORMS_LEAK =
-	'Spike bug: Forms leaves p=/forms in the next member’s URL, which renders "Route not found".';
-
-export const SETTINGS_BLANK =
-	'Spike bug: Settings sometimes renders blank when opened from My Jetpack.';
-
 export const VIEW_EVENT = /(_page_view|_tab_view|_viewed)$/;
 
 export interface Frame {
 	t: number;
 	href: string;
 	visible: string | null;
-	/** Owner of the header on screen: an app slug, `placeholder`, or null. */
+	/** Owner of the header on screen: an app slug, `placeholder` (the shell's stand-in), or null. */
 	owner: string | null;
 	left: number | null;
 	notFound: string | null;
@@ -145,27 +174,8 @@ function shellProbe( mountIds: Record< string, string > ) {
 			return { visible, apps, source: 'hooks' };
 		}
 
-		// SPIKE_DOM_FALLBACK: spike shell without hooks. Remove once the rewrite ships them.
-		const spike = w.jetpackAdminShell as { navigate?: unknown } | undefined;
-		if ( typeof spike?.navigate === 'function' ) {
-			const apps: Record< string, string > = {};
-			for ( const slug of Object.keys( mountIds ) ) {
-				const state = mountState( slug );
-				if ( state ) {
-					apps[ slug ] = state;
-				}
-			}
-			const placeholderUp = [
-				...document.querySelectorAll( '.jetpack-admin-shell-placeholder' ),
-			].some( shown );
-			const visible = placeholderUp
-				? null
-				: ( Object.keys( apps ).find( slug => apps[ slug ] === 'visible' ) ?? null );
-			return { visible, apps, source: 'spike' };
-		}
-
 		/* No shell (shell off, or ?jetpack_admin_shell=0): the body class names the page and its
-		 * mount is the app. Keep this after the rewrite. A poll can land before <body> exists. */
+		 * mount is the app. A poll can land before <body> exists. */
 		const slug = /(?:^|\s)jetpack_page_(\S+)/.exec( document.body?.className ?? '' )?.[ 1 ];
 		const state = slug && slug in mountIds ? mountState( slug ) : null;
 		const apps: Record< string, string > = state ? { [ slug! ]: state } : {};
@@ -220,7 +230,7 @@ function shellProbe( mountIds: Record< string, string > ) {
 		const header = containers.map( el => el.querySelector( 'h1' ) ).find( Boolean );
 		const box = header?.closest( '.boot-layout-container, [data-shell-page]' );
 		let owner: string | null = null;
-		if ( box?.classList.contains( 'jetpack-admin-shell-placeholder' ) ) {
+		if ( box?.hasAttribute( 'data-shell-header' ) ) {
 			owner = 'placeholder';
 		} else if ( box ) {
 			owner =
@@ -294,7 +304,8 @@ export async function isShellActive( page: Page ): Promise< boolean > {
  */
 export async function waitForShown( page: Page, slug: string ): Promise< void > {
 	await expect
-		.poll( async () => ( await readShell( page ) ).visible, {
+		// A fallback page load destroys the document mid-poll; read again on the next one.
+		.poll( async () => ( await readShell( page ).catch( () => null ) )?.visible ?? null, {
 			message: `${ slug } becomes the visible app`,
 			timeout: 45000,
 		} )

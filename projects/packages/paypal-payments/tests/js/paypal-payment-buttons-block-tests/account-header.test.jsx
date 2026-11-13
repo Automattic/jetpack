@@ -108,7 +108,7 @@ const item = name => screen.getByRole( 'menuitem', { name } );
  * @param {string} label - The label.
  * @return {HTMLElement} The item.
  */
-const newTabItem = label => item( `${ label }(opens in a new tab)` );
+const newTabItem = label => item( `${ label } (opens in a new tab)` );
 
 describe( 'PayPalAccountHeader', () => {
 	// Cleared on the way in, so the header is unmounted before its card goes.

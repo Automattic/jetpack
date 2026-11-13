@@ -213,17 +213,10 @@
 }
 
 .jetpack-boost-overview .jetpack-boost-overview__progress {
-	inline-size: 100%;
 
 	@media ( max-width: wpbreakpoints.$break-medium ) {
 		flex: 0 0 50%;
 	}
-}
-
-.jetpack-boost-overview .jetpack-boost-overview__progress-track {
-	border-radius: var(--wpds-border-radius-md);
-	block-size: var(--wpds-dimension-size-5xs);
-	background-color: transparent;
 }
 
 .jetpack-boost-overview__progress--good {
@@ -254,6 +247,11 @@
 
 .jetpack-boost-overview__tier--poor {
 	color: var(--wpds-color-foreground-content-error-weak);
+}
+
+.jetpack-boost-overview__early-score {
+	margin-inline-start: var(--wpds-dimension-gap-sm);
+	white-space: nowrap;
 }
 
 

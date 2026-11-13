@@ -52,6 +52,7 @@ class SchemaBuilderTest extends TestCase {
 	protected function tearDown(): void {
 		remove_all_filters( 'pre_option_blogname' );
 		remove_all_filters( 'pre_option_show_on_front' );
+		remove_all_filters( 'pre_option_page_on_front' );
 		remove_all_filters( 'home_url' );
 		\WooCommerce::$is_template = false;
 		$this->remove_schema_builder_hooks();
@@ -403,6 +404,25 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
+	 * Text decoded to real markup stays escaped, so it can't end the script block.
+	 */
+	public function test_decoded_text_cannot_close_the_json_ld_script() {
+		$title   = '</script><script>alert(1)</script>';
+		$post_id = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => esc_html( $title ),
+			)
+		);
+
+		$html = $this->capture_woo_schema_lifecycle( get_post( $post_id ), false );
+		wp_delete_post( $post_id, true );
+
+		$this->assertSame( 1, preg_match( '#^<script type="application/ld\+json">[^<>]+</script>$#', $html ), 'Expected one script block with no raw angle brackets.' );
+		$this->assertSame( $title, $this->schema_nodes_of_type_from_html( $html, 'Article' )[0]['headline'] );
+	}
+
+	/**
 	 * A "faq" override emits a `@graph` document containing a FAQPage node.
 	 */
 	public function test_emits_graph_with_faqpage_for_faq_override() {
@@ -473,6 +493,18 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertSame( 'Acme Co', $website['name'] );
 		$this->assertSame( $organization['@id'], $website['publisher']['@id'] );
 		$this->assertSame( 'SearchAction', $website['potentialAction']['@type'] );
+	}
+
+	/**
+	 * WordPress stores the Site Title with entities, but JSON-LD is plain text.
+	 */
+	public function test_site_level_names_decode_html_entities() {
+		$this->set_site_name( 'Tom &amp; Jerry' );
+
+		$doc = $this->emit_front_page_document();
+
+		$this->assertSame( 'Tom & Jerry', $this->node_of_type( $doc, 'Organization' )['name'] );
+		$this->assertSame( 'Tom & Jerry', $this->node_of_type( $doc, 'WebSite' )['name'] );
 	}
 
 	/**
@@ -740,6 +772,183 @@ class SchemaBuilderTest extends TestCase {
 
 		$this->assertIsArray( $this->node_of_type( $doc, 'Article' ) );
 		$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
+	}
+
+	/**
+	 * When the site represents a Person, the home page emits the site-level Person
+	 * node as the main entity — no Organization or WebSite publisher pointing at one —
+	 * and the WebSite references the Person as its `publisher`.
+	 */
+	public function test_emits_person_as_site_entity_on_front_page_when_selected() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
+
+		$doc = $this->emit_front_page_document();
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected the site-level Person node on the home page.' );
+		$this->assertSame( Schema_Node_Ids::site_person(), $person['@id'] );
+		$this->assertSame( 'Jane Rivera', $person['name'] );
+
+		// The Organization is not the site entity here, so it is not emitted.
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A person-site emits no Organization node.' );
+
+		$website = $this->node_of_type( $doc, 'WebSite' );
+		$this->assertIsArray( $website, 'Expected a WebSite node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::site_person(), $website['publisher']['@id'] );
+	}
+
+	/**
+	 * A static Article front page defines its site publisher only once.
+	 */
+	public function test_static_article_front_page_defines_person_publisher_once() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
+		$author                          = $this->make_user();
+		$post                            = $this->make_post(
+			array(
+				'ID'          => 71,
+				'post_type'   => 'page',
+				'post_author' => $author->ID,
+			)
+		);
+		\Jetpack_SEO_Posts::$schema_type = 'article';
+		add_filter(
+			'pre_option_show_on_front',
+			static function () {
+				return 'page';
+			}
+		);
+		add_filter(
+			'pre_option_page_on_front',
+			static function () use ( $post ) {
+				return $post->ID;
+			}
+		);
+
+		global $wp_query;
+		$wp_query                    = new \WP_Query();
+		$wp_query->is_page           = true;
+		$wp_query->is_singular       = true;
+		$wp_query->queried_object    = $post;
+		$wp_query->queried_object_id = $post->ID;
+		$this->assertTrue( is_front_page() );
+		$doc       = $this->capture_emitted_document();
+		$publisher = array_values(
+			array_filter(
+				$doc['@graph'],
+				static function ( $node ) {
+					return Schema_Node_Ids::site_person() === ( $node['@id'] ?? '' );
+				}
+			)
+		);
+
+		$this->assertCount( 1, $publisher );
+		$this->assertSame( 'Person', $publisher[0]['@type'] );
+		$this->assertSame( 'Jane Rivera', $publisher[0]['name'] );
+		$article = $this->node_of_type( $doc, 'Article' );
+		$website = $this->node_of_type( $doc, 'WebSite' );
+		$this->assertSame( array( '@id' => $publisher[0]['@id'] ), $article['publisher'] );
+		$this->assertSame( $article['publisher'], $website['publisher'] );
+		$this->assertNotSame( $article['publisher']['@id'], $article['author']['@id'] );
+	}
+
+	/**
+	 * Resolve the site's Person publisher within the post graph, separately from its author.
+	 */
+	public function test_post_references_person_publisher_when_site_represents_person() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update(
+			array(
+				'siteRepresents' => 'person',
+				'person'         => array(
+					'name'        => 'Jane Rivera',
+					'description' => 'An independent publisher.',
+					'sameAs'      => array( 'https://example.com/jane' ),
+				),
+			)
+		);
+		$author = $this->make_user( array( 'display_name' => 'Guest Author' ) );
+		$doc    = $this->emit_document( $this->make_post( array( 'post_author' => $author->ID ) ) );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::site_person(), $article['publisher']['@id'] );
+
+		$nodes     = array_column( $doc['@graph'], null, '@id' );
+		$publisher = $nodes[ $article['publisher']['@id'] ];
+		$this->assertSame( 'Person', $publisher['@type'] );
+		$this->assertSame( 'Jane Rivera', $publisher['name'] );
+		$this->assertSame( 'An independent publisher.', $publisher['description'] );
+		$this->assertSame( array( 'https://example.com/jane' ), $publisher['sameAs'] );
+		$this->assertNotSame( $article['publisher']['@id'], $article['author']['@id'] );
+		$this->assertSame( 'Guest Author', $nodes[ $article['author']['@id'] ]['name'] );
+		$this->assertArrayNotHasKey( 'worksFor', $nodes[ $article['author']['@id'] ] );
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A person-site emits no Organization node.' );
+	}
+
+	/**
+	 * On a person-site the author-archive Person carries no `worksFor` — there is no
+	 * Organization for the author to belong to, even though the site has a name.
+	 */
+	public function test_person_site_author_archive_person_has_no_works_for() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
+		$user = $this->make_user();
+
+		$doc = $this->emit_author_document( $user );
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected the author Person node in the graph.' );
+		$this->assertArrayNotHasKey( 'worksFor', $person, 'A person-site has no Organization to work for.' );
+	}
+
+	/**
+	 * Saved Person settings reach the emitted JSON-LD: a configured `name` override
+	 * and `sameAs` flow through Schema_Settings → Person_Schema_Node → the home page.
+	 */
+	public function test_front_page_person_reflects_saved_settings() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update(
+			array(
+				'siteRepresents' => 'person',
+				'person'         => array(
+					'name'   => 'Jane A. Rivera',
+					'sameAs' => array( 'https://linkedin.com/in/jane' ),
+				),
+			)
+		);
+
+		$doc = $this->emit_front_page_document();
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected the site-level Person node on the home page.' );
+		$this->assertSame( 'Jane A. Rivera', $person['name'] );
+		$this->assertSame( array( 'https://linkedin.com/in/jane' ), $person['sameAs'] );
+	}
+
+	/**
+	 * LocalBusiness is a refinement of the Organization entity, so a person-site
+	 * emits no LocalBusiness node even when local-business details were configured
+	 * (e.g. before the admin switched the site to represent a person).
+	 */
+	public function test_person_site_drops_local_business_details() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update(
+			array(
+				'siteRepresents' => 'person',
+				'localBusiness'  => array(
+					'enabled' => true,
+					'address' => array( 'streetAddress' => '123 Main St' ),
+				),
+			)
+		);
+
+		$doc = $this->emit_front_page_document();
+
+		$this->assertIsArray( $this->node_of_type( $doc, 'Person' ), 'Expected the site-level Person node.' );
+		$this->assertNull( $this->node_of_type( $doc, 'LocalBusiness' ), 'A person-site emits no LocalBusiness node.' );
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A person-site emits no Organization node.' );
 	}
 
 	/**

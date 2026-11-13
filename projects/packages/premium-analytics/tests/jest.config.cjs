@@ -1,5 +1,6 @@
 const path = require( 'path' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
+const visxResponsiveModuleMapper = require( 'jetpack-js-tools/jest/visx-responsive-module-mapper.cjs' );
 // Shared with the guard test in `js/test-groups.test.ts`, so the two can never
 // disagree about which suites a group claims.
 const { GROUPS_DIR, groupedMemberFiles } = require( './group-members.cjs' );
@@ -54,6 +55,7 @@ module.exports = {
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
 		...singleCopyModuleMapper( rootDir ),
+		...visxResponsiveModuleMapper( rootDir ),
 		// Reached only through `@wordpress/core-data`'s editor features, and costly to load.
 		'^@wordpress/block-editor$': path.join( __dirname, 'block-editor-mock.cjs' ),
 		// Stub CSS imports (e.g. `@automattic/charts/style.css` pulled in via
