@@ -476,7 +476,9 @@ export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
 	argTypes: {
 		...calendarArgTypes,
 		dataset: {
-			control: 'select' as const,
+			// Radio, not select: the select control carries an empty "Choose option" entry, and this
+			// arg indexes the series the calendar draws, so there is no series for it to pick.
+			control: 'radio' as const,
 			options: Object.keys( CALENDAR_DATASETS ),
 			description:
 				'Traffic shape the calendar draws, for comparing how the color scale reads on each.',
