@@ -78,6 +78,10 @@ class Admin {
 			'build_page'   => 'jetpack-boost-dashboard',
 			'init_modules' => array( '@jetpack-boost/init' ),
 			'title'        => 'Boost', // "Boost" is a product name, do not translate.
+			'header'       => array(
+				'title'    => 'Boost',
+				'subtitle' => __( 'Improve your site speed and performance.', 'jetpack-boost' ),
+			),
 			'capability'   => 'manage_options',
 			// The webpack bundle renders the dashboard's content into the wp-build page; it carries the Boost and DataSync data.
 			'handles'      => array( 'jetpack-boost-admin', 'wp-jp-i18n-loader' ),
