@@ -207,10 +207,11 @@ const donor = () => {
 		const entries = Object.keys( localStorage )
 			.filter( key => key.startsWith( keyPrefix ) )
 			.sort()
-			.map( key => [ key, localStorage.getItem( key ) ] )
-			.filter( ( [ , value ] ) => value.includes( '__header-title' ) );
+			// The markup only: the saved CSS names classes the markup may not use.
+			.map( key => [ key, String( readSaved( key.slice( keyPrefix.length ) )?.html ?? '' ) ] )
+			.filter( ( [ , html ] ) => html.includes( '__header-title' ) );
 		const has = ( ...marks ) =>
-			entries.find( ( [ , value ] ) => marks.every( mark => value.includes( mark ) ) );
+			entries.find( ( [ , html ] ) => marks.every( mark => html.includes( mark ) ) );
 		// `JetpackLogo` as it last rendered, so this file needs no copy of it, best with a subtitle row.
 		const [ key ] =
 			has( 'jetpack-logo', '__header-subtitle' ) ?? has( 'jetpack-logo' ) ?? entries[ 0 ] ?? [];

@@ -131,6 +131,24 @@ describe( 'header stand-in', () => {
 		}
 	);
 
+	it( 'prefers a donor whose saved markup, not just its CSS, has a subtitle row', () => {
+		save(
+			'a-logo',
+			'<div><header><svg class="jetpack-logo"></svg><h1 class="x__header-title">A</h1></header></div>',
+			'.x__header.y__has-navigation .x__header-subtitle{margin:0}'
+		);
+		save( 'z-donor', withSubtitle( 'Old title', 'Old subtitle' ) );
+
+		showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter', {
+			title: 'Newsletter',
+			subtitle: 'Shiny new subtitle',
+		} );
+
+		expect(
+			document.querySelector( '[data-shell-header="newsletter"] .x__header-subtitle' )
+		).toHaveTextContent( 'Shiny new subtitle' );
+	} );
+
 	it( 'adds a subtitle row styled as the page header’s when no saved header has one', () => {
 		document.head.innerHTML =
 			'<style>.b__header-subtitle{color:gray}@media screen{.t__body-md{font-size:13px}}</style>';
