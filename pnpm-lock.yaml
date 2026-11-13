@@ -24177,7 +24177,7 @@ snapshots:
   '@wordpress/dependency-extraction-webpack-plugin@7.1.0(webpack@5.112.2)':
     dependencies:
       json2php: 0.0.9
-      webpack: 5.112.2(cssnano@7.1.9(postcss@8.5.23))(postcss@8.5.23)(webpack-cli@7.2.1)
+      webpack: 5.112.2(webpack-cli@7.2.1)
 
   '@wordpress/deprecated@5.1.0':
     dependencies:
@@ -31808,7 +31808,7 @@ snapshots:
       ajv-formats: 3.0.1(ajv@8.20.0)
       ajv-keywords: 5.1.0(ajv@8.20.0)
     optionalDependencies:
-      webpack: 5.112.2(cssnano@7.1.9(postcss@8.5.23))(postcss@8.5.23)(webpack-cli@7.2.1)
+      webpack: 5.112.2(webpack-cli@7.2.1)
 
   seed-random@2.2.0: {}
 
