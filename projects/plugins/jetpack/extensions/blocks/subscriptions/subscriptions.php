@@ -1395,10 +1395,10 @@ function print_silent_subscriber_check() {
 		return;
 	}
 
-	$home_url  = home_url( '/' );
-	$home_host = wp_parse_url( $home_url, PHP_URL_HOST );
+	$home      = wp_parse_url( home_url( '/' ) );
+	$home_host = $home['host'] ?? '';
 	// WordPress.com only issues a silent token over https.
-	if ( ! $home_host || 'https' !== wp_parse_url( $home_url, PHP_URL_SCHEME ) ) {
+	if ( ! $home_host || 'https' !== ( $home['scheme'] ?? '' ) ) {
 		return;
 	}
 
@@ -1415,7 +1415,7 @@ function print_silent_subscriber_check() {
 		if ( $status->is_offline_mode() || $status->in_safe_mode() || Status::is_development_site() ) {
 			return;
 		}
-		if ( class_exists( Identity_Crisis::class ) && Identity_Crisis::has_identity_crisis() ) {
+		if ( Identity_Crisis::has_identity_crisis() ) {
 			return;
 		}
 		$site_id = (int) \Jetpack_Options::get_option( 'id' );
@@ -1428,12 +1428,14 @@ function print_silent_subscriber_check() {
 	$config = array(
 		'host'        => $home_host,
 		'tokenCookie' => Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME,
+		'pauseCookie' => Jetpack_Memberships::SILENT_SUBSCRIBER_CHECK_COOKIE,
+		'cookiePath'  => Jetpack_Memberships::get_silent_subscriber_check_cookie_path(),
 		'jwtBase'     => add_query_arg(
 			array(
 				'site_id' => $site_id,
 				'silent'  => '1',
 			),
-			'https://subscribe.wordpress.com/memberships/jwt/'
+			Abstract_Token_Subscription_Service::REST_URL_ORIGIN . 'memberships/jwt/'
 		),
 		'authBase'    => $auth_base,
 	);
@@ -1453,20 +1455,20 @@ function print_silent_subscriber_check() {
 		var hasCookie = function ( name ) {
 			return new RegExp( '(^|; )' + name + '=' ).test( document.cookie );
 		};
-		if ( hasCookie( c.tokenCookie ) || hasCookie( 'jp-sub-check' ) ) {
+		if ( hasCookie( c.tokenCookie ) || hasCookie( c.pauseCookie ) ) {
 			return;
 		}
-		document.cookie = 'jp-sub-check=1; max-age=86400; path=/; SameSite=Lax; secure';
-		if ( ! hasCookie( 'jp-sub-check' ) ) {
+		document.cookie = c.pauseCookie + '=1; max-age=86400; path=' + c.cookiePath + '; SameSite=Lax; secure';
+		if ( ! hasCookie( c.pauseCookie ) ) {
 			return;
 		}
-		var target = new URL( location.href );
-		target.searchParams.set( 'jp_sub_check', '1' );
-		target = target.toString();
-		if ( c.authBase ) {
-			target = c.authBase + '&redirect_url=' + encodeURIComponent( target );
-		}
-		location.replace( c.jwtBase + '&redirect_url=' + encodeURIComponent( target ) );
+		var via = function ( base, url ) {
+			return base + '&redirect_url=' + encodeURIComponent( url );
+		};
+		var back = new URL( location.href );
+		back.searchParams.set( 'jp_sub_check', '1' );
+		back = back.toString();
+		location.replace( via( c.jwtBase, c.authBase ? via( c.authBase, back ) : back ) );
 	} catch ( e ) {}
 } )( %s );
 JS;
@@ -1485,9 +1487,18 @@ function print_silent_subscriber_check_cleanup() {
 		return;
 	}
 
-	wp_print_inline_script_tag(
-		"( function () { try { var u = new URL( location.href ); u.searchParams.delete( 'jp_sub_check' ); u.searchParams.delete( 'token' ); history.replaceState( history.state, '', u.toString() ); } catch ( e ) {} } )();"
-	);
+	$script = <<<'JS'
+( function () {
+	try {
+		var u = new URL( location.href );
+		u.searchParams.delete( 'jp_sub_check' );
+		u.searchParams.delete( 'token' );
+		history.replaceState( history.state, '', u.toString() );
+	} catch ( e ) {}
+} )();
+JS;
+
+	wp_print_inline_script_tag( $script );
 }
 
 /**
