@@ -36,6 +36,12 @@ const meta: Meta< StoryArgs > = {
 		...themeArgTypes,
 		compact: { control: 'boolean', table: { category: 'Visual Style' } },
 		showValues: { control: 'boolean', table: { category: 'Visual Style' } },
+		scale: {
+			control: { type: 'inline-radio' },
+			options: [ 'linear', 'log' ],
+			description: 'Whether a value picks its color by distance, or by distance in log space.',
+			table: { category: 'Visual Style' },
+		},
 		maxCellWidth: {
 			control: { type: 'number', min: 1 },
 			description: 'Maximum cell width in pixels in non-compact mode',
@@ -195,6 +201,8 @@ export const ScaleComparison: Story = {
 		containerWidth: '1000px',
 		containerHeight: 'auto',
 	},
+	// This story sets the scale on each chart it draws, so the control would move nothing.
+	argTypes: { scale: { control: false, table: { disable: true } } },
 };
 
 type CalendarStoryArgs = StoryArgs & CalendarHeatmapOptions;
@@ -222,12 +230,6 @@ const CalendarGrid = ( {
 };
 
 const calendarArgTypes = {
-	scale: {
-		control: { type: 'inline-radio' as const },
-		options: [ 'linear', 'log' ],
-		description: 'Whether a value picks its color by distance, or by distance in log space.',
-		table: { category: 'Calendar' },
-	},
 	weekStartsOn: {
 		control: { type: 'inline-radio' as const, labels: { 0: 'Sunday', 1: 'Monday' } },
 		options: [ 1, 0 ],
