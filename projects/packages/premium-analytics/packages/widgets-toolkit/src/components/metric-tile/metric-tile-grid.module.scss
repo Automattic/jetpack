@@ -1,5 +1,6 @@
 @use "../../styles/widget-container" as *;
 @use "./metric-tile-layouts";
+@use "../../styles/widget-text" as *;
 
 // Metrics are separated by a hairline rather than boxed: each tile draws the
 // rule on the edge it shares with the tile before it, and the outer edges stay
@@ -126,6 +127,8 @@ $metric-tile-list-header-min: 7rem;
 }
 
 .label {
+
+	@include widget-text-weight;
 	min-inline-size: 0;
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);

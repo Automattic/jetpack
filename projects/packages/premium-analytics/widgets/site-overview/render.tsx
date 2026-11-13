@@ -94,7 +94,7 @@ function SiteOverviewReport( {
 		return (
 			<div className={ styles.root }>
 				<div className={ styles.state }>
-					<Text>
+					<Text className={ styles.message }>
 						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' ) }
 					</Text>
 				</div>

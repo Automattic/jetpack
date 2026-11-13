@@ -16,3 +16,7 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-align: center;
 }
+
+.message {
+	font-weight: var(--jpa-widget-font-weight, var(--wpds-typography-font-weight-default));
+}

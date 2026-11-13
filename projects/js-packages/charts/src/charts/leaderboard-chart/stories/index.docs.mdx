@@ -441,7 +441,7 @@ Combine overlay labels with custom styling, transparent colors and clamped negat
 
 ### CSS Custom Properties
 
-The component supports CSS custom properties for advanced styling:
+The component supports CSS custom properties for advanced styling. `--a8c-charts-font-weight-leaderboard` sets the weight of each row's label, value and change, and defaults to the design system weight:
 
 <Source
 	language="tsx"
@@ -449,6 +449,7 @@ The component supports CSS custom properties for advanced styling:
 		data={data}
 		style={{
 			'--a8c-charts-border-radius-leaderboard-bar': '8px',
+			'--a8c-charts-font-weight-leaderboard': '500',
 		}}
 		className="myCustomChart"
 	/>` }
@@ -458,6 +459,7 @@ The component supports CSS custom properties for advanced styling:
 	language="css"
 	code={ `.myCustomChart {
 		--a8c-charts-border-radius-leaderboard-bar: 8px;
+		--a8c-charts-font-weight-leaderboard: 500;
 	}` }
 />
 
