@@ -444,6 +444,7 @@ class Analytics_Test extends TestCase {
 		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ) ), 'Hooks scoped to the dashboard at init are on.' );
 		call_user_func( $member['load'] );
 		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ), 'The dashboard surface loaded.' );
+		$this->assertNotFalse( get_option( DASHBOARD_FIRST_VISIT_OPTION ), 'The work the dashboard hooks to admin_init ran.' );
 	}
 
 	/**

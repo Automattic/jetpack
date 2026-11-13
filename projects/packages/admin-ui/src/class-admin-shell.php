@@ -458,6 +458,7 @@ class Admin_Shell {
 		}
 
 		call_user_func( $members[ $slug ]['load'] );
+		self::register_admin_menu_pages();
 		$hook_suffix = self::screen_id( $slug );
 		set_current_screen( $hook_suffix );
 		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- One script tag per handle, so the client can skip what the host already has.
@@ -485,6 +486,25 @@ class Admin_Shell {
 			wp_print_media_templates();
 		}
 		return ob_get_clean();
+	}
+
+	/**
+	 * Register the admin menu's pages, which admin-ajax never does, so page data built from menu_page_url() matches a page load.
+	 *
+	 * Runs `admin_menu` alone: core's wp-admin/menu.php would also run its page access check, which dies on admin-ajax.
+	 *
+	 * @return void
+	 */
+	private static function register_admin_menu_pages() {
+		global $menu, $submenu;
+		if ( did_action( 'admin_menu' ) ) {
+			return;
+		}
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited -- Menu callbacks expect the arrays core's menu.php would have set up.
+		$menu    = is_array( $menu ) ? $menu : array();
+		$submenu = is_array( $submenu ) ? $submenu : array();
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
+		do_action( 'admin_menu', '' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
 	}
 
 	/**

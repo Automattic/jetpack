@@ -457,6 +457,8 @@ class Analytics {
 	/**
 	 * Register the wp-build polyfills the dashboard needs on WordPress before 7.0.
 	 *
+	 * They force-replace core handles (wp-private-apis), so only the dashboard and the admin shell's wp-build pages that load it as a guest call this; never another admin page, such as the block editor.
+	 *
 	 * @return void
 	 */
 	private static function register_polyfills() {
@@ -514,8 +516,6 @@ class Analytics {
 	 * @return void
 	 */
 	private static function register_admin_page() {
-		// Polyfills force-replace core handles (wp-private-apis) on wp_default_scripts;
-		// scope to the dashboard page so no other admin page (e.g. block editor) is hit.
 		if ( self::is_dashboard_request() ) {
 			self::register_polyfills();
 
@@ -582,6 +582,10 @@ class Analytics {
 		// The guest endpoint runs on admin-ajax, where load_dashboard_surface() loads nothing.
 		if ( wp_doing_ajax() ) {
 			self::load_dashboard();
+			// The dashboard hooks these to admin_init, which the endpoint is already past.
+			record_dashboard_first_visit();
+			maybe_refresh_jetpack_plan();
+			maybe_invalidate_stats_caches();
 		} else {
 			self::register_polyfills();
 		}

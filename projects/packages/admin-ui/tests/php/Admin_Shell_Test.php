@@ -59,7 +59,7 @@ class Admin_Shell_Test extends TestCase {
 		remove_all_filters( 'host-page-wp-admin_boot_dependencies' );
 		remove_all_filters( 'guest-page-wp-admin_boot_dependencies' );
 		remove_all_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE );
-		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ], $_GET['page'], $_REQUEST['nonce'], $_REQUEST['action'], $_GET['member'], $GLOBALS['jetpack_shell_test_guest_page_routes_data'], $GLOBALS['hook_suffix'], $GLOBALS['admin_page_hooks'] );
+		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ], $_GET['page'], $_REQUEST['nonce'], $_REQUEST['action'], $_GET['member'], $GLOBALS['jetpack_shell_test_guest_page_routes_data'], $GLOBALS['hook_suffix'], $GLOBALS['admin_page_hooks'], $GLOBALS['_parent_pages'], $GLOBALS['_registered_pages'], $GLOBALS['menu'], $GLOBALS['submenu'], $GLOBALS['wp_actions']['admin_menu'] );
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
 		foreach ( $this->added_actions as list( $hook, $callback ) ) {
@@ -500,6 +500,39 @@ class Admin_Shell_Test extends TestCase {
 		$this->assertStringContainsString( 'guest.js', $html );
 		$this->assertStringContainsString( 'dep.js', $html, 'dependencies of a member handle come along' );
 		$this->assertStringNotContainsString( 'other.js', $html );
+	}
+
+	/**
+	 * Guests can read the admin menu for their page data, and a top-level guest gets its own screen.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_registers_admin_menu_pages() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		unset( $GLOBALS['wp_actions']['admin_menu'] );
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$seen                      = array();
+		$this->start_host_page(
+			function () use ( &$seen ) {
+				$this->add_action(
+					'admin_menu',
+					static function () {
+						add_menu_page( 'Guest', 'Guest', 'manage_options', 'guest-page', '__return_null' );
+					}
+				);
+				$this->add_action(
+					'admin_enqueue_scripts',
+					static function ( $hook_suffix ) use ( &$seen ) {
+						$seen = array( menu_page_url( 'guest-page', false ), $hook_suffix );
+					}
+				);
+			}
+		);
+
+		Admin_Shell::guest_assets( 'guest-page' );
+
+		$this->assertStringContainsString( 'page=guest-page', $seen[0] ?? '' );
+		$this->assertSame( 'toplevel_page_guest-page', $seen[1] ?? null );
 	}
 
 	/**
