@@ -1,4 +1,9 @@
-import { createBlockFromSubscription, getWpcomFeedUrl } from '../utils';
+import {
+	createBlockFromSubscription,
+	discoverFeedUrl,
+	getValidFeedUrl,
+	getWpcomFeedUrl,
+} from '../utils';
 
 jest.mock( '@wordpress/blocks', () => ( {
 	createBlock: ( name, attributes ) => ( { name, attributes } ),
@@ -44,9 +49,28 @@ describe( 'createBlockFromSubscription', () => {
 	} );
 
 	it( 'falls back to /feed/ for a WordPress.com-hosted site without a feed URL', () => {
-		const block = createBlockFromSubscription( subscription );
+		const block = createBlockFromSubscription( { ...subscription, jetpack: false } );
 
 		expect( block.attributes.feed_url ).toBe( 'https://example.wordpress.com/feed/' );
+	} );
+
+	it( 'does not guess the feed of a Jetpack site', () => {
+		const block = createBlockFromSubscription( {
+			...subscription,
+			URL: 'https://example.com',
+			jetpack: true,
+		} );
+
+		expect( block.attributes.feed_url ).toBeUndefined();
+	} );
+
+	it( 'ignores a feed URL that is not http(s)', () => {
+		const block = createBlockFromSubscription( {
+			...subscription,
+			feed_URL: 'javascript:void(0)',
+		} );
+
+		expect( block.attributes.feed_url ).toBeUndefined();
 	} );
 
 	it( 'leaves the feed URL empty for a site WordPress.com does not host', () => {
@@ -57,5 +81,54 @@ describe( 'createBlockFromSubscription', () => {
 		} );
 
 		expect( block.attributes.feed_url ).toBeUndefined();
+	} );
+} );
+
+describe( 'getValidFeedUrl', () => {
+	it.each( [
+		[ '  https://example.com/feed/  ', 'https://example.com/feed/' ],
+		[ 'http://example.com/rss.xml', 'http://example.com/rss.xml' ],
+		[ '   ', undefined ],
+		[ 'not a url', undefined ],
+		[ 'javascript:void(0)', undefined ],
+		[ undefined, undefined ],
+	] )( '%p becomes %p', ( value, expected ) => {
+		expect( getValidFeedUrl( value ) ).toBe( expected );
+	} );
+} );
+
+describe( 'discoverFeedUrl', () => {
+	afterEach( () => {
+		delete global.fetch;
+	} );
+
+	it( 'returns the first feed the Reader finds', async () => {
+		jest
+			.spyOn( global, 'fetch' )
+			.mockImplementation()
+			.mockResolvedValue( {
+				ok: true,
+				json: () =>
+					Promise.resolve( {
+						feeds: [
+							{ subscribe_URL: 'https://example.com/feed/' },
+							{ subscribe_URL: 'https://example.com/feed/podcast' },
+						],
+					} ),
+			} );
+
+		await expect( discoverFeedUrl( 'example.com' ) ).resolves.toBe( 'https://example.com/feed/' );
+		expect( global.fetch ).toHaveBeenCalledWith(
+			'https://public-api.wordpress.com/rest/v1.1/read/feed/?url=example.com'
+		);
+	} );
+
+	it.each( [
+		[ 'no feed is found', () => Promise.resolve( { ok: false } ) ],
+		[ 'the request fails', () => Promise.reject( new Error( 'offline' ) ) ],
+	] )( 'returns undefined when %s', async ( _, response ) => {
+		jest.spyOn( global, 'fetch' ).mockImplementation( response );
+
+		await expect( discoverFeedUrl( 'example.com' ) ).resolves.toBeUndefined();
 	} );
 } );

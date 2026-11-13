@@ -1,10 +1,10 @@
 import { Button, Popover, Spinner } from '@wordpress/components';
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
 import useGetSiteDetails from '../../use-get-site-details';
-import { createBlockFromSubscription } from '../../utils';
+import { createBlockFromSubscription, discoverFeedUrl } from '../../utils';
 import BlogrollAppenderResults from '../blogroll-appender-results';
 import BlogrollAppenderSearch from '../blogroll-appender-search';
 
@@ -13,7 +13,7 @@ export default function BlogrollAppender( { isLoading, subscriptions, clientId }
 	const [ isVisible, setIsVisible ] = useState( false );
 	const [ popoverAnchor, setPopoverAnchor ] = useState();
 	const [ searchInput, setSearchInput ] = useState( '' );
-	const { insertBlock } = dispatch( 'core/block-editor' );
+	const { insertBlock, updateBlockAttributes } = dispatch( 'core/block-editor' );
 	const { siteDetails, isLoading: isLoadingSiteDetails } = useGetSiteDetails( {
 		siteURL: searchInput,
 		subscriptions,
@@ -25,8 +25,21 @@ export default function BlogrollAppender( { isLoading, subscriptions, clientId }
 	};
 
 	const onSelect = subscription => {
-		insertBlock( createBlockFromSubscription( subscription ), undefined, clientId );
+		const block = createBlockFromSubscription( subscription );
+		insertBlock( block, undefined, clientId );
 		setIsVisible( false );
+
+		if ( block.attributes.feed_url || ! block.attributes.url ) {
+			return;
+		}
+
+		// Discovery can take a few seconds, so only fill the field if it is still empty.
+		discoverFeedUrl( block.attributes.url ).then( feedUrl => {
+			const attributes = select( 'core/block-editor' ).getBlockAttributes( block.clientId );
+			if ( feedUrl && attributes && ! attributes.feed_url ) {
+				updateBlockAttributes( block.clientId, { feed_url: feedUrl } );
+			}
+		} );
 	};
 
 	if ( isLoading ) {
