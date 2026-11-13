@@ -259,7 +259,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	public $allow_cross_origin_request = false;
 
 	/**
-	 * Set to true if the endpoint can recieve unauthorized POST requests.
+	 * Set to true if the endpoint can receive unauthorized POST requests.
 	 *
 	 * @var bool
 	 */
