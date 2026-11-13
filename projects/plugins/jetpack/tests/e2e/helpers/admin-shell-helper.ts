@@ -75,8 +75,8 @@ export const MEMBERS: Member[] = [
 		// Needs the `seo-admin-ui` plan feature or the `rsm_jetpack_seo` filter, and the seo-tools module on.
 		optional: true,
 	},
-	/* Activity Log, Newsletter, Protect and VideoPress are members too, but each needs a WordPress.com
-	 * connection (their modules don't load in offline mode), and the test site has none. */
+	/* Activity Log, Newsletter, Protect and VideoPress are members too, but CI leaves their modules off,
+	 * and its stubbed WordPress.com connection can't fetch the data their pages show. */
 ];
 
 export const member = ( slug: string ): Member => {
