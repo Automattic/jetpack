@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats abilities: Describe the site overview without calling it a zero-argument call, since MCP servers may add a site argument.
