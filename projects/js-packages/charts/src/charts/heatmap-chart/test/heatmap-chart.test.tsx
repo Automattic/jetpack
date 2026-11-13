@@ -1295,19 +1295,10 @@ describe( 'HeatmapChart naming and focus', () => {
 } );
 
 describe( 'HeatmapChart bucket scale', () => {
-	// Twenty-four ascending values, so every bucket is populated whatever the step count.
+	// Twenty-four ascending values, so every one of the five buckets is populated.
 	const ascending: HeatmapColumn[] = Array.from( { length: 24 }, ( _column, index ) => ( {
 		data: [ { value: ( index + 1 ) * 10 } ],
 	} ) );
-
-	const renderAscending = ( props = {} ) =>
-		render(
-			<GlobalChartsProvider>
-				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } scale="buckets" { ...props }>
-					<HeatmapChart.Legend />
-				</HeatmapChart>
-			</GlobalChartsProvider>
-		);
 
 	const intensitiesOf = ( testId: string ) =>
 		screen
@@ -1315,7 +1306,13 @@ describe( 'HeatmapChart bucket scale', () => {
 			.map( element => element.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) );
 
 	test( 'paints cells on the five legend steps rather than a continuous blend', () => {
-		renderAscending();
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } scale="buckets">
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
 
 		expect( [ ...new Set( intensitiesOf( 'heatmap-cell' ) ) ].sort() ).toEqual( [
 			'0',
@@ -1351,32 +1348,6 @@ describe( 'HeatmapChart bucket scale', () => {
 		] );
 	} );
 
-	test( 'warns once and falls back to five steps for an unusable scaleSteps', () => {
-		for ( const scaleSteps of [ 1, 2.5, 400 ] ) {
-			const { unmount } = renderAscending( { scaleSteps } );
-			expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toHaveLength( 5 );
-			unmount();
-		}
-
-		expect( console ).toHaveWarnedWith(
-			'[Charts] scaleSteps must be a whole number from 2 to 10, so the scale keeps its 5 steps.'
-		);
-		// One stable key for every bad value, so a render loop cannot flood the console.
-		// eslint-disable-next-line no-console -- `toHaveWarned` passes on any count; only the spy carries one.
-		expect( console.warn ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	test( 'follows scaleSteps in both the cells and the legend', () => {
-		renderAscending( { scaleSteps: 3 } );
-
-		expect( [ ...new Set( intensitiesOf( 'heatmap-cell' ) ) ].sort() ).toEqual( [
-			'0',
-			'0.5',
-			'1',
-		] );
-		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [ '0', '0.5', '1' ] );
-	} );
-
 	test( 'places by distance rather than rank without a scale prop', () => {
 		render(
 			<GlobalChartsProvider>
@@ -1391,22 +1362,34 @@ describe( 'HeatmapChart bucket scale', () => {
 	test( "holds the legend to the cells' steps under the buckets scale", () => {
 		render(
 			<GlobalChartsProvider>
-				<HeatmapChart
-					width={ 500 }
-					height={ 300 }
-					data={ ascending }
-					scale="buckets"
-					scaleSteps={ 3 }
-				>
+				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } scale="buckets">
 					<HeatmapChart.Legend steps={ 7 } />
 				</HeatmapChart>
 			</GlobalChartsProvider>
 		);
 
-		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [ '0', '0.5', '1' ] );
+		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [
+			'0',
+			'0.25',
+			'0.5',
+			'0.75',
+			'1',
+		] );
 		expect( console ).toHaveWarnedWith(
-			"[Charts] steps follows the chart's scaleSteps under the buckets scale, where a cell paints on exactly those 3 steps, so the legend keeps them. Set scaleSteps on the chart instead."
+			'[Charts] steps is fixed under the buckets scale, where a cell paints on exactly 5 steps, so the legend keeps them.'
 		);
+	} );
+
+	test( 'lets the legend hold its own step count under the linear scale', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ ascending }>
+					<HeatmapChart.Legend steps={ 3 } />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+
+		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [ '0', '0.5', '1' ] );
 	} );
 } );
 
