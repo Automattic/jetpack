@@ -11,7 +11,7 @@
 	"attributes": [
 		{
 			"id": "metric",
-			"type": "jpa/select",
+			"type": "jpa/toggle-group",
 			"label": "View by",
 			"relevance": "high",
 			"elements": [
@@ -24,6 +24,14 @@
 					"label": "Clicked"
 				}
 			]
+		}
+	],
+	"actions": [
+		{
+			"id": "view-all",
+			"label": "View all",
+			"relevance": "high",
+			"href": "admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Femails"
 		}
 	]
 }

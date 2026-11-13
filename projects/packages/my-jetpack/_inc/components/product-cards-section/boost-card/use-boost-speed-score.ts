@@ -25,7 +25,7 @@ const useBoostSpeedScore = () => {
 	const [ previousSpeedScore, setPreviousSpeedScore ] = useState< number | null >( null );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 
-	const { siteUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
+	const { homeUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
 	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 	const slug = 'boost';
 	const { detail } = useProduct( slug );
@@ -74,8 +74,9 @@ const useBoostSpeedScore = () => {
 			return;
 		}
 
+		setIsSpeedScoreError( false );
 		setIsLoading( true );
-		requestSpeedScores( true, apiRoot, siteUrl, apiNonce )
+		requestSpeedScores( true, apiRoot, homeUrl, apiNonce )
 			.then( scores => {
 				const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 				setSpeedLetterGrade( scoreLetter );
@@ -142,10 +143,12 @@ const useBoostSpeedScore = () => {
 
 	return {
 		isLoading,
+		isSiteConnected,
 		speedLetterGrade,
 		currentSpeedScore,
 		boostScoreIncrease,
 		isSpeedScoreError,
+		retry: getSpeedScores,
 	};
 };
 

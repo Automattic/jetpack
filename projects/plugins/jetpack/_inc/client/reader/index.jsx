@@ -1,7 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
@@ -9,9 +8,11 @@ import QuerySite from 'components/data/query-site';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SimpleNotice from 'components/notice';
+import { FeaturesPointer } from 'components/pointer-card';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
+import { isMovedOut, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
 import './style.scss';
@@ -27,7 +28,6 @@ function Reader( props ) {
 		active,
 		isModuleFound,
 		searchTerm,
-		blogID,
 		isSavingAnyOption,
 		isReaderModuleActive,
 		readerModule,
@@ -65,9 +65,11 @@ function Reader( props ) {
 		return null;
 	}
 
+	const consolidated = isSettingsConsolidationEnabled();
 	const foundReader = isModuleFound( moduleName );
 
-	if ( ! foundReader ) {
+	// Once settings move out, only a search shows the Reader, as a pointer to its switch in Features.
+	if ( ! foundReader || isMovedOut( moduleName ) || ( consolidated && ! searchTerm ) ) {
 		return null;
 	}
 
@@ -119,10 +121,7 @@ function Reader( props ) {
 		</SettingsGroup>
 	);
 
-	const readerUrl = addQueryArgs(
-		'https://wordpress.com/reader/',
-		blogID ? { origin_site_id: blogID } : {}
-	);
+	const readerUrl = 'https://wordpress.com/reader/';
 	const visitReaderLink = (
 		<Card
 			compact
@@ -143,16 +142,25 @@ function Reader( props ) {
 			{ searchTerm && (
 				<h2 className="jp-settings__section-title">{ __( 'Reader', 'jetpack' ) }</h2>
 			) }
-			<SettingsCard
-				{ ...props }
-				header={ __( 'Reader Visibility', 'jetpack' ) }
-				hideButton
-				module={ moduleName }
-			>
-				{ woaNotice && <div className="jp-settings-card__notice">{ woaNotice }</div> }
-				{ readerToggle }
-				{ visitReaderLink }
-			</SettingsCard>
+			{ consolidated ? (
+				<FeaturesPointer
+					header={ readerModule.name }
+					name={ readerModule.name }
+					search="reader"
+					linksToSettings={ false }
+				/>
+			) : (
+				<SettingsCard
+					{ ...props }
+					header={ __( 'Reader Visibility', 'jetpack' ) }
+					hideButton
+					module={ moduleName }
+				>
+					{ woaNotice && <div className="jp-settings-card__notice">{ woaNotice }</div> }
+					{ readerToggle }
+					{ visitReaderLink }
+				</SettingsCard>
+			) }
 		</div>
 	);
 }

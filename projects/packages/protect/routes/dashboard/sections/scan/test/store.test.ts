@@ -122,6 +122,24 @@ describe( 'scan store reads', () => {
 		expect( getScan() ).toMatchObject( { lastChecked: 'older', error: false } );
 	} );
 
+	it( 'shows the new count in the menu badge and admin bar after the last threat is ignored', async () => {
+		window.jetpackProtectDashboard = { scan: { hasPlan: true, threats: [ threat( 5 ) ] } };
+		const setCount = jest.fn();
+		window.jetpackMenuBadges = { setCount };
+		const listener = jest.fn();
+		document.addEventListener( 'jetpack-protect-threat-count', listener );
+		mockApiFetch.mockResolvedValue( {} );
+
+		await ignoreThreat( threat( 5 ) );
+		document.removeEventListener( 'jetpack-protect-threat-count', listener );
+		delete window.jetpackMenuBadges;
+
+		expect( setCount ).toHaveBeenCalledWith( 'jetpack-protect', 0 );
+		expect( listener ).toHaveBeenCalledTimes( 1 );
+		expect( listener.mock.calls[ 0 ][ 0 ].detail ).toEqual( { count: 0 } );
+		expect( window.jetpackProtectThreatCount ).toBe( 0 );
+	} );
+
 	it( 'keeps an ignore made while a fix runs', async () => {
 		window.jetpackProtectDashboard = {
 			scan: { hasPlan: true, threats: [ threat( 5 ), threat( 7 ) ] },

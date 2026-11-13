@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 import useAnalytics from '../../../../hooks/use-analytics';
 import { FeatureItem, getModuleSettingsUrl } from '../feature-item';
 import { resolveFeatureState } from '../feature-state';
@@ -111,7 +112,7 @@ describe( 'MoreFeatures', () => {
 			const { rerender } = render( tree( 'all' ) );
 			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
 			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
-			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 			rerender( tree( 'available' ) );
@@ -121,10 +122,17 @@ describe( 'MoreFeatures', () => {
 		}
 	);
 
-	it.each( [ 'waf', 'backup' ] as const )(
-		'explains the multisite-blocked %s and leaves it out of Available',
-		module => {
+	it.each( [
+		[ 'waf', false ],
+		[ 'backup', false ],
+		[ 'waf', true ],
+	] as const )(
+		'explains the multisite-blocked %s once and leaves it out of Available (account connect: %s)',
+		( module, accountConnect ) => {
 			setSiteEditor( { isBlockTheme: false } );
+			window.myJetpackInitialState.myJetpackFlags = {
+				accountConnect,
+			} as typeof window.myJetpackInitialState.myJetpackFlags;
 			window.JetpackScriptData.site.is_multisite = true;
 			try {
 				const blockedModule = { ...sharing, module, activated: true };
@@ -154,7 +162,7 @@ describe( 'MoreFeatures', () => {
 				);
 				expect( screen.getByText( 'Not available on multisite' ) ).toBeVisible();
 				expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
-				expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+				expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 				expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 				expect( filterMoreFeatures( groups, 'available', '' ) ).toEqual( [] );
 			} finally {
@@ -205,7 +213,7 @@ describe( 'MoreFeatures', () => {
 			expect( screen.queryByText( 'Inactive' ) !== null ).toBe( ! override );
 			expect( screen.queryByText( 'Unavailable' ) !== null ).toBe( !! override );
 			expect( screen.queryByText( 'Unavailable in Offline mode' ) !== null ).toBe( !! override );
-			expect( screen.queryByRole( 'checkbox', { name: 'Activate VideoPress' } ) !== null ).toBe(
+			expect( screen.queryByRole( 'switch', { name: 'Activate VideoPress' } ) !== null ).toBe(
 				! override
 			);
 			expect( screen.queryByRole( 'checkbox', { name: 'Select VideoPress' } ) !== null ).toBe(
@@ -214,17 +222,16 @@ describe( 'MoreFeatures', () => {
 		}
 	);
 
-	it( 'says what to do in the Site Editor, and drops the status badge, where the block replaces the module', () => {
+	it( 'says what to do in Settings › Sharing, and drops the status badge, where the block replaces the module', () => {
 		setSiteEditor( {
 			isBlockTheme: true,
 			isSharingBlockAvailable: true,
-			activeThemeStylesheet: 'twentytwentyfour',
 		} );
 
 		renderSection();
 
 		expect(
-			screen.getByText( 'Add the Sharing Buttons block to your theme’s template.' )
+			screen.getByText( 'Choose where the Sharing Buttons block goes on your posts and pages.' )
 		).toBeInTheDocument();
 		expect( screen.queryByText( 'Inactive' ) ).not.toBeInTheDocument();
 	} );
@@ -271,11 +278,13 @@ describe( 'MoreFeatures', () => {
 
 	it( 'links to an active module\u2019s settings, and to nothing while it is off or switching', () => {
 		setSiteEditor( { isBlockTheme: false } );
-		const configured = { ...sharing, configure_url: 'https://example.com/settings' };
+		// A page the settings panel flag would name, so this also keeps "Configure" when the flag is off.
+		const url = 'https://example.com/wp-admin/admin.php?page=jetpack-seo';
+		const configured = { ...sharing, configure_url: url };
 		const link = () => screen.queryByRole( 'link', { name: 'Configure Sharing Buttons' } );
 
 		const { rerender } = renderSection( { ...configured, activated: true } );
-		expect( link() ).toHaveAttribute( 'href', 'https://example.com/settings' );
+		expect( link() ).toHaveAttribute( 'href', url );
 
 		rerender( section( configured ) );
 		expect( link() ).not.toBeInTheDocument();
@@ -283,6 +292,92 @@ describe( 'MoreFeatures', () => {
 		rerender( section( configured, { 'module:sharedaddy': true } ) );
 		expect( link() ).not.toBeInTheDocument();
 	} );
+
+	const panel = '/features?view=list&configure=sharedaddy';
+	const admin = 'https://example.com/wp-admin/';
+
+	it.each( [
+		[
+			'the settings-search default',
+			`${ admin }admin.php?page=jetpack-settings#/settings?term=sharedaddy`,
+			panel,
+			'Configure',
+			'Configure Sharing Buttons',
+		],
+		[
+			'the panel URL',
+			`${ admin }admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dsharedaddy`,
+			panel,
+			'Configure',
+			'Configure Sharing Buttons',
+		],
+		[
+			'the SEO page',
+			`${ admin }admin.php?page=jetpack-seo`,
+			null,
+			'Manage in SEO',
+			'Manage Sharing Buttons in SEO',
+		],
+		[
+			'a WordPress Settings screen',
+			`${ admin }options-general.php?page=sharing`,
+			null,
+			'Manage in Settings',
+			'Manage Sharing Buttons in Settings',
+		],
+		[
+			'the Monetize page',
+			`${ admin }admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dsettings`,
+			null,
+			'Manage in Monetize',
+			'Manage Sharing Buttons in Monetize',
+		],
+		[
+			'the Customizer',
+			`${ admin }customize.php?autofocus[panel]=widgets`,
+			null,
+			'Manage in Customizer',
+			'Manage Sharing Buttons in Customizer',
+		],
+		[
+			'the Protect page',
+			`${ admin }admin.php?page=jetpack-protect&p=firewall`,
+			null,
+			'Manage in Protect',
+			'Manage Sharing Buttons in Protect',
+		],
+		[
+			'a page it cannot name',
+			`${ admin }admin.php?page=vaultpress`,
+			null,
+			'Configure',
+			'Configure Sharing Buttons',
+		],
+	] )(
+		'with settings consolidation on, labels the link to %s',
+		( _name, configureUrl, panelHref, text, name ) => {
+			setSiteEditor( { isBlockTheme: false } );
+			window.JetpackScriptData = {
+				...window.JetpackScriptData,
+				myJetpack: { settingsConsolidation: true },
+			} as Window[ 'JetpackScriptData' ];
+
+			render(
+				<MemoryRouter initialEntries={ [ '/features?view=list' ] }>
+					{ section( {
+						...sharing,
+						activated: true,
+						options: { show_headline: true },
+						configure_url: configureUrl,
+					} ) }
+				</MemoryRouter>
+			);
+
+			const link = screen.getByRole( 'link', { name } );
+			expect( link ).toHaveAttribute( 'href', panelHref ?? configureUrl );
+			expect( link ).toHaveTextContent( text );
+		}
+	);
 
 	it( 'links to no settings for a module still waiting for an account', () => {
 		setSiteEditor( { isBlockTheme: false } );
@@ -296,15 +391,14 @@ describe( 'MoreFeatures', () => {
 
 		render( <FeatureItem state={ getModuleFeatureState( waiting, {}, true ) } /> );
 
-		expect( screen.getByText( 'Needs user account' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /^Connect account for / } ) ).toBeVisible();
 		expect( screen.queryByRole( 'link', { name: /^Configure / } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'links to no settings where the Site Editor block replaces the module', () => {
+	it( 'links to no settings where the block replaces the module', () => {
 		setSiteEditor( {
 			isBlockTheme: true,
 			isSharingBlockAvailable: true,
-			activeThemeStylesheet: 'twentytwentyfour',
 		} );
 
 		renderSection( { ...sharing, activated: true, configure_url: 'https://example.com/settings' } );

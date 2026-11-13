@@ -26,8 +26,11 @@ export type OnboardingTourOptions = {
 	/** The journey the tour belongs to. Defaults to the new Stats alone. */
 	flow?: OnboardingWelcomeVariant;
 
-	/** Whether the reader can arrange the section; a plan-locked one offers no Customize. Defaults to true. */
+	/** Whether the reader can arrange the section, which a plan can rule out. Defaults to true. */
 	withCustomize?: boolean;
+
+	/** Whether the date controls offer a comparison; a free site's last 7 days do not. Defaults to true. */
+	withComparison?: boolean;
 };
 
 /**
@@ -35,16 +38,22 @@ export type OnboardingTourOptions = {
  * stage hands in. The WooCommerce tab adds a step on the tab bar, which is all
  * a reader who already knows the new Stats is shown.
  *
- * @param anchors               - The elements each step highlights, or null while unmounted.
- * @param options               - Tour options.
- * @param options.withFeedback  - Whether to include the feedback step.
- * @param options.flow          - The journey the tour belongs to.
- * @param options.withCustomize - Whether to include the steps about arranging widgets.
+ * @param anchors                - The elements each step highlights, or null while unmounted.
+ * @param options                - Tour options.
+ * @param options.withFeedback   - Whether to include the feedback step.
+ * @param options.flow           - The journey the tour belongs to.
+ * @param options.withCustomize  - Whether to include the steps about arranging widgets.
+ * @param options.withComparison - Whether the date step mentions comparing periods.
  * @return The tour steps.
  */
 export function onboardingTourSteps(
 	anchors: OnboardingTourAnchors,
-	{ withFeedback, flow = 'stats', withCustomize = true }: OnboardingTourOptions = {
+	{
+		withFeedback,
+		flow = 'stats',
+		withCustomize = true,
+		withComparison = true,
+	}: OnboardingTourOptions = {
 		withFeedback: true,
 	}
 ): OnboardingTourStep[] {
@@ -87,10 +96,15 @@ export function onboardingTourSteps(
 		{
 			anchor: anchors.dateControls,
 			title: __( 'A better date picker', 'jetpack-premium-analytics-pkg' ),
-			description: __(
-				'Pick any period and compare it with the one before it.',
-				'jetpack-premium-analytics-pkg'
-			),
+			description: withComparison
+				? __(
+						'Pick any period and compare it with the one before it.',
+						'jetpack-premium-analytics-pkg'
+					)
+				: __(
+						'See how your site did on any day of the last 7 days.',
+						'jetpack-premium-analytics-pkg'
+					),
 			side: 'bottom',
 		},
 		...( withCustomize ? [ arrangeStep ] : [] ),

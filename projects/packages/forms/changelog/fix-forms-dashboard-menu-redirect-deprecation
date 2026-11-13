@@ -1,4 +1,0 @@
-Significance: patch
-Type: deprecated
-
-Dashboard: Deprecate Dashboard::get_default_tab(), as the dashboard now picks its opening tab client-side.

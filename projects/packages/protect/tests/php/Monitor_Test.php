@@ -35,6 +35,13 @@ class Monitor_Test extends BaseTestCase {
 	private $status_response;
 
 	/**
+	 * What WordPress.com answers for the connected user's data.
+	 *
+	 * @var array|WP_Error
+	 */
+	private $user_data_response;
+
+	/**
 	 * URLs requested from WordPress.com.
 	 *
 	 * @var string[]
@@ -63,9 +70,10 @@ class Monitor_Test extends BaseTestCase {
 		Jetpack_Options::update_option( 'active_modules', array( 'monitor' ) );
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'make_monitor_available' ) );
 
-		$this->requests        = array();
-		$this->uptime_response = self::json_response( array( '2026-10-01' => array( 'status' => 'up' ) ) );
-		$this->status_response = self::json_response( array( 'status' => true ) );
+		$this->requests           = array();
+		$this->uptime_response    = self::json_response( array( '2026-10-01' => array( 'status' => 'up' ) ) );
+		$this->status_response    = self::json_response( array( 'status' => true ) );
+		$this->user_data_response = new WP_Error( 'unexpected_request', 'No user data in this test.' );
 		add_filter( 'pre_http_request', array( $this, 'answer_as_wpcom' ), 10, 3 );
 	}
 
@@ -77,6 +85,7 @@ class Monitor_Test extends BaseTestCase {
 		$wp_rest_server = null;
 
 		delete_transient( Monitor::UPTIME_TRANSIENT );
+		delete_transient( 'jetpack_connected_user_data_' . get_current_user_id() );
 		Constants::clear_constants();
 		remove_filter( 'pre_http_request', array( $this, 'answer_as_wpcom' ) );
 		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'make_monitor_available' ) );
@@ -112,6 +121,9 @@ class Monitor_Test extends BaseTestCase {
 		}
 		if ( false !== strpos( $url, '/wpcom/v2/sites/123/jetpack-monitor-uptime?period=90+days' ) ) {
 			return $this->uptime_response;
+		}
+		if ( false !== strpos( $url, '/wpcom/v2/sites/123/jetpack-wpcom-user-data' ) ) {
+			return $this->user_data_response;
 		}
 		return new WP_Error( 'unexpected_request', $url );
 	}
@@ -326,12 +338,43 @@ class Monitor_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->requests );
 	}
 
-	public function test_get_state_says_whether_the_user_can_reach_wpcom() {
-		$monitor = new Monitor();
+	/**
+	 * WordPress.com user data answers, and the alert address the state should carry.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_user_data() {
+		return array(
+			'an account email'  => array( self::json_response( array( 'email' => 'owner@example.com' ) ), 'owner@example.com' ),
+			'no email'          => array( self::json_response( array( 'ID' => 1 ) ), null ),
+			'a malformed email' => array( self::json_response( array( 'email' => 'not-an-email' ) ), null ),
+			'a failed lookup'   => array( new WP_Error( 'http_request_failed', 'Timed out' ), null ),
+		);
+	}
 
-		$this->assertTrue( $monitor->get_state()['userConnected'] );
+	/**
+	 * @dataProvider provide_user_data
+	 * @param array|WP_Error $user_data_response What WordPress.com answers for the user's data.
+	 * @param string|null    $alert_email        The expected alert address.
+	 */
+	#[DataProvider( 'provide_user_data' )]
+	public function test_get_state_carries_the_wpcom_account_email_alerts_go_to( $user_data_response, $alert_email ) {
+		$this->user_data_response = $user_data_response;
+
+		$state = ( new Monitor() )->get_state();
+
+		$this->assertTrue( $state['userConnected'] );
+		$this->assertSame( $alert_email, $state['alertEmail'] );
+	}
+
+	public function test_get_state_asks_wpcom_nothing_for_a_disconnected_user() {
 		Jetpack_Options::delete_option( 'user_tokens' );
-		$this->assertFalse( $monitor->get_state()['userConnected'] );
+
+		$state = ( new Monitor() )->get_state();
+
+		$this->assertFalse( $state['userConnected'] );
+		$this->assertNull( $state['alertEmail'] );
+		$this->assertSame( array(), $this->requests );
 	}
 
 	/**

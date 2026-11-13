@@ -44,10 +44,17 @@ describe( 'dashboard boot', () => {
 		expect( mockCreateRoot ).toHaveBeenCalledWith( legacyRoot );
 	} );
 
-	it( 'mounts nothing when neither root is present', async () => {
+	it( 'waits for the chassis when the admin shell runs the bundle before mounting it', async () => {
 		await boot();
-
 		expect( mockCreateRoot ).not.toHaveBeenCalled();
+
+		addRoot( MODERN_ROOT_ID );
+		const settingsSlot = addRoot( SETTINGS_SLOT_ID );
+		addRoot( SUBPAGE_SLOT_ID );
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+		expect( mockCreateRoot ).toHaveBeenCalledTimes( 1 );
+		expect( mockCreateRoot ).toHaveBeenCalledWith( settingsSlot );
 	} );
 
 	it( 'mounts one root, in the Settings slot', async () => {

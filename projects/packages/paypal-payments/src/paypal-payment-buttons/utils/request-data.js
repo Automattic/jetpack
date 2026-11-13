@@ -4,8 +4,33 @@
  * @package
  */
 
-import { withCurrency } from './resource-sync';
+import { getImageGroupIndex, toApiImage } from './images';
+import { withCurrency, withPrimaryDimension } from './resource-sync';
 import { SHIPPING_MODES_WITH_FEE } from './validation';
+
+/**
+ * Variants as PayPal reads them: an option image on the primary group only, cut
+ * down to its asset id. PayPal rejects an image on any other group.
+ *
+ * @param {object} variants - Variants with one primary group.
+ * @return {object} The variants.
+ */
+function withApiImages( variants ) {
+	const imageGroup = getImageGroupIndex( variants );
+
+	return {
+		...variants,
+		dimensions: variants.dimensions.map( ( dim, i ) => ( {
+			...dim,
+			options: ( dim.options || [] ).map( opt => {
+				const { images, ...rest } = opt;
+				const [ first ] =
+					i === imageGroup && Array.isArray( images ) ? images.filter( img => img?.assetId ) : [];
+				return first ? { ...rest, images: [ toApiImage( first ) ] } : rest;
+			} ),
+		} ) ),
+	};
+}
 
 /**
  * Whether a shipping mode has everything it needs to go out.
@@ -62,6 +87,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 		currencyCode,
 		productDescription,
 		productId,
+		images,
 		returnUrl,
 		variantsEnabled,
 		variants,
@@ -90,6 +116,11 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 	// FLAT is the default the editor and the validator both fall back to.
 	const activeShippingMode = shippingMode || 'FLAT';
 
+	// The first image is the primary one. Leaving the key out of a PUT detaches them all.
+	const apiImages = ( Array.isArray( images ) ? images : [] )
+		.filter( image => image?.assetId )
+		.map( ( image, i ) => toApiImage( image, i === 0 ) );
+
 	return {
 		type: 'BUY_NOW',
 		// Stacked needs BUTTON mode — that is what makes PayPal return code_snippets. Other
@@ -117,8 +148,13 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 						} ),
 				...( productDescription ? { description: productDescription } : {} ),
 				...( productId?.trim() ? { product_id: productId.trim() } : {} ),
+				...( apiImages.length ? { images: apiImages } : {} ),
 				...( variantsEnabled && variants
-					? { variants: withCurrency( variants, currencyCode || 'USD' ) }
+					? {
+							variants: withApiImages(
+								withPrimaryDimension( withCurrency( variants, currencyCode || 'USD' ) )
+							),
+						}
 					: {} ),
 				...( adjustableQuantity && maxQuantity > 1
 					? { adjustable_quantity: { maximum: parseInt( maxQuantity, 10 ) } }

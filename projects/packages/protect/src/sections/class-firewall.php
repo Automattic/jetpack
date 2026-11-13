@@ -7,10 +7,10 @@
 
 namespace Automattic\Jetpack\Protect\Sections;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
-use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Request;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 use Automattic\Jetpack\Waf\Waf_Runner;
@@ -62,9 +62,12 @@ class Firewall implements Dashboard_Section {
 			self::get_blocks(),
 			array(
 				'hasScan'        => Dashboard::has_scan_plan(),
-				'currentIp'      => self::get_current_ip(),
+				'upgradeUrl'     => Dashboard::get_scan_upgrade_url(),
+				// Don't suggest the fallback address when the configured trusted header can't be resolved.
+				'currentIp'      => method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ? '' : self::get_current_ip(),
 				'ipRules'        => self::get_ip_rules(),
 				'rulesUpdatedAt' => self::get_rules_updated_at(),
+				'providedByHost' => method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host(),
 			)
 		);
 	}
@@ -128,18 +131,87 @@ class Firewall implements Dashboard_Section {
 	/**
 	 * The recent blocks and the block counts, refreshed after a test.
 	 *
-	 * Today and the last 30 days are UTC days, as the firewall records them.
+	 * The last 30 days are UTC days, as the firewall records them.
 	 *
 	 * @return array
 	 */
 	public static function get_blocks() {
-		$counts = class_exists( Waf_Stats::class ) ? Waf_Stats::get_blocked_requests() : array();
+		$daily = self::get_daily_blocks();
+		$all   = method_exists( Waf_Blocklog_Manager::class, 'get_all_time_block_count' ) ? Waf_Blocklog_Manager::get_all_time_block_count() : null;
+
+		return array_merge(
+			array(
+				'recentBlocks'      => self::get_recent_blocks(),
+				'blockedCount'      => $all,
+				// Not `Waf_Stats`' `thirty_days`, which spans 31 dates.
+				'blockedLast30Days' => $daily ? array_sum( array_column( $daily, 'count' ) ) : null,
+			),
+			self::get_test_summary()
+		);
+	}
+
+	/**
+	 * Blocked requests on each of the last 30 UTC days, oldest first, with 0 for a day without any.
+	 *
+	 * @return array<int, array{date: string, count: int}> Empty when the WAF package isn't loaded.
+	 */
+	private static function get_daily_blocks() {
+		if ( ! class_exists( Waf_Blocklog_Manager::class ) ) {
+			return array();
+		}
+
+		if ( method_exists( Waf_Blocklog_Manager::class, 'get_daily_block_counts' ) ) {
+			$counts = Waf_Blocklog_Manager::get_daily_block_counts();
+		} else {
+			// An older WAF package: read it uncached, as `Waf_Blocklog_Manager::get_stored_option()` does.
+			global $wpdb;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$stored = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->base_prefix}options WHERE option_name = %s", Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY ) );
+			$counts = null === $stored ? array() : maybe_unserialize( $stored );
+			$counts = is_array( $counts ) ? $counts : array();
+		}
+
+		$days = array();
+		for ( $ago = 29; $ago >= 0; $ago-- ) {
+			$date   = gmdate( 'Y-m-d', strtotime( "-$ago days" ) );
+			$days[] = array(
+				'date'  => $date,
+				'count' => isset( $counts[ $date ] ) ? (int) $counts[ $date ] : 0,
+			);
+		}
+
+		return $days;
+	}
+
+	/**
+	 * Whether the firewall has blocked anything besides its own tests, and when it was last tested.
+	 *
+	 * The log covers blocks from before the firewall recorded whether any weren't tests, until they're pruned.
+	 *
+	 * @return array{hasBlocked: bool, lastTestAt: string|null}
+	 */
+	private static function get_test_summary() {
+		global $wpdb;
+
+		// An older WAF package doesn't define the class.
+		$test_rule = class_exists( Waf_Self_Check::class ) ? Waf_Self_Check::RULE_ID : -2;
+
+		// The table doesn't exist until the firewall is first turned on.
+		$suppress = $wpdb->suppress_errors();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table.
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT COUNT(*) AS total, SUM(rule_id = %d) AS tests, MAX(CASE WHEN rule_id = %d THEN timestamp END) AS last_test FROM {$wpdb->base_prefix}jetpack_waf_blocklog", $test_rule, $test_rule ) );
+		$wpdb->suppress_errors( $suppress );
+
+		$total    = $row ? (int) $row->total : 0;
+		$tests    = $row ? (int) $row->tests : 0;
+		$recorded = method_exists( Waf_Blocklog_Manager::class, 'has_blocked_requests' ) && Waf_Blocklog_Manager::has_blocked_requests();
+
+		// Silent mode logs requests without blocking them, so its log rows aren't blocks.
+		$is_silent = class_exists( Waf_Runner::class ) && 'silent' === get_option( Waf_Runner::MODE_OPTION_NAME );
 
 		return array(
-			'recentBlocks'      => self::get_recent_blocks(),
-			'blockedCount'      => isset( $counts['all_time'] ) ? (int) $counts['all_time'] : null,
-			'blockedToday'      => isset( $counts['current_day'] ) ? (int) $counts['current_day'] : null,
-			'blockedLast30Days' => isset( $counts['thirty_days'] ) ? (int) $counts['thirty_days'] : null,
+			'hasBlocked' => $recorded || ( ! $is_silent && $total > $tests ),
+			'lastTestAt' => $row && $row->last_test ? gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $row->last_test . ' UTC' ) ) : null,
 		);
 	}
 
@@ -159,7 +231,7 @@ class Firewall implements Dashboard_Section {
 	}
 
 	/**
-	 * The visitor's IP address as the firewall sees it, for "Add it to the list" on the always-allowed list.
+	 * The visitor's IP address as the firewall sees it, to offer on the allow list and keep off the block list.
 	 *
 	 * Empty when it may be a proxy's: allowing that address would let every visitor behind the proxy past the rules.
 	 *
@@ -190,6 +262,73 @@ class Firewall implements Dashboard_Section {
 	}
 
 	/**
+	 * Refuse a block list that covers the visitor's own address, which would lock them out of the site.
+	 *
+	 * A list is allowed when the address is unknown, so a wrong guess can't stop a legitimate save.
+	 *
+	 * @param string $list The block list being saved: addresses, ranges or CIDR blocks.
+	 * @return true|WP_Error
+	 */
+	public static function validate_ip_block_list( $list ) {
+		$ip = self::get_current_ip();
+		if ( '' === $ip ) {
+			return true;
+		}
+
+		if ( ! self::ip_list_covers( $list, $ip ) ) {
+			return true;
+		}
+
+		// The firewall checks the allow list first, so this address would never actually be blocked.
+		if (
+			class_exists( Waf_Rules_Manager::class )
+			&& Waf_Rules_Manager::ip_allow_list_enabled()
+			&& self::ip_list_covers( (string) get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '' ), $ip )
+		) {
+			return new WP_Error(
+				'ip_block_list_includes_allowed_ip',
+				sprintf(
+					/* translators: %s is the visitor's IP address. */
+					__( 'Your IP address (%s) is on your allow list, so it can\'t be added to the block list. Remove it, or the range that includes it, from the block list and try again.', 'jetpack-protect-pkg' ),
+					$ip
+				)
+			);
+		}
+
+		return new WP_Error(
+			'ip_block_list_includes_current_ip',
+			sprintf(
+				/* translators: %s is the visitor's IP address. */
+				__( 'Your IP address (%s) is on the block list, so saving it would block you from your own site. Remove it, or the range that includes it, and try again.', 'jetpack-protect-pkg' ),
+				$ip
+			)
+		);
+	}
+
+	/**
+	 * Whether an IP list includes an address, through the address itself, a range or a CIDR block.
+	 *
+	 * @param string $list Addresses, ranges or CIDR blocks.
+	 * @param string $ip   The address to look for.
+	 * @return bool
+	 */
+	private static function ip_list_covers( $list, $ip ) {
+		foreach ( IP_Utils::get_ip_addresses_from_string( $list ) as $entry ) {
+			// Split as the firewall does: a CIDR block, a hyphenated range or a single address.
+			$range    = strpos( $entry, '/' ) !== false ? array( $entry, null ) : explode( '-', $entry );
+			$is_match = count( $range ) === 2
+				? IP_Utils::ip_address_is_in_range( $ip, $range[0], $range[1] )
+				: inet_pton( $entry ) === inet_pton( $ip );
+
+			if ( $is_match ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * The firewall's IP lists, keyed like the Jetpack settings that hold them.
 	 *
 	 * @return array<string, string|bool>|object An empty object when the WAF package isn't loaded, so it's `{}` in JSON.
@@ -208,16 +347,21 @@ class Firewall implements Dashboard_Section {
 	}
 
 	/**
-	 * Whether the firewall keeps its request log, the "Share basic data" setting.
+	 * Returns the blocks unchanged, since the card no longer reads the request log.
 	 *
-	 * @return bool
+	 * @deprecated 0.6.0
+	 *
+	 * @param array $blocks  Blocks from the blocklog table, newest first.
+	 * @param array $entries Decoded request log entries, oldest first.
+	 * @return array The blocks, unchanged.
 	 */
-	private static function shares_data() {
-		return class_exists( Waf_Runner::class ) && (bool) get_option( Waf_Runner::SHARE_DATA_OPTION_NAME );
+	public static function add_request_details( array $blocks, array $entries ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Kept for callers.
+		_deprecated_function( __METHOD__, 'package-0.6.0' );
+		return $blocks;
 	}
 
 	/**
-	 * The last 10 blocked requests, newest first, with their request details when the request log has them.
+	 * The last 10 blocked requests, newest first.
 	 *
 	 * @return array
 	 */
@@ -226,110 +370,6 @@ class Firewall implements Dashboard_Section {
 			return array();
 		}
 
-		$blocks = Waf_Blocklog_Manager::get_recent_blocks( 10 );
-
-		if ( ! $blocks || ! self::shares_data() ) {
-			return $blocks;
-		}
-
-		$oldest = end( $blocks )['timestamp'];
-
-		return self::add_request_details( $blocks, self::read_request_log( $oldest ) );
-	}
-
-	/**
-	 * Match each block to its entry in the request log, by second and rule.
-	 *
-	 * @param array $blocks  Blocks from the blocklog table, newest first.
-	 * @param array $entries Decoded request log entries, oldest first.
-	 * @return array The blocks, with `uri` and `userAgent` where an entry matched.
-	 */
-	public static function add_request_details( array $blocks, array $entries ) {
-		$by_key = array();
-		foreach ( $entries as $entry ) {
-			if ( isset( $entry['rule_id'] ) && is_string( $entry['timestamp'] ?? null ) ) {
-				$by_key[ str_replace( ' ', 'T', $entry['timestamp'] ) . 'Z|' . (int) $entry['rule_id'] ][] = $entry;
-			}
-		}
-
-		foreach ( $blocks as &$block ) {
-			$key = $block['timestamp'] . '|' . $block['ruleId'];
-			// Several blocks in one second: the newest block takes the newest entry.
-			$entry = empty( $by_key[ $key ] ) ? null : array_pop( $by_key[ $key ] );
-			if ( ! $entry ) {
-				continue;
-			}
-			if ( ! empty( $entry['request_uri'] ) && is_string( $entry['request_uri'] ) ) {
-				$block['uri'] = self::truncate( $entry['request_uri'], 2048 );
-			}
-			if ( ! empty( $entry['user_agent'] ) && is_string( $entry['user_agent'] ) ) {
-				$block['userAgent'] = self::truncate( $entry['user_agent'], 512 );
-			}
-		}
-		unset( $block );
-
-		return $blocks;
-	}
-
-	/**
-	 * A string cut to a byte length, without splitting a multibyte character.
-	 *
-	 * @param string $value  The string.
-	 * @param int    $length The most bytes to keep.
-	 * @return string
-	 */
-	private static function truncate( $value, $length ) {
-		return function_exists( 'mb_strcut' ) ? mb_strcut( $value, 0, $length, 'UTF-8' ) : substr( $value, 0, $length );
-	}
-
-	/**
-	 * The firewall's request log entries since a block, oldest first.
-	 *
-	 * @param string $since The oldest block's timestamp, as `get_recent_blocks()` formats it.
-	 * @return array
-	 */
-	private static function read_request_log( $since ) {
-		if ( ! class_exists( Waf_Constants::class ) ) {
-			return array();
-		}
-		Waf_Constants::define_waf_directory();
-
-		$path = Waf_Blocklog_Manager::get_blocklog_file_path();
-		$size = is_readable( $path ) ? filesize( $path ) : 0;
-		if ( ! $size ) {
-			return array();
-		}
-
-		// The log can grow to 100 MB; its tail holds the last 10 blocks.
-		$tail_size = 256 * 1024;
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Read-only, from an offset.
-		$handle = fopen( $path, 'rb' );
-		if ( ! $handle ) {
-			return array();
-		}
-		fseek( $handle, max( 0, $size - $tail_size ) );
-		$tail = (string) fread( $handle, $tail_size ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread
-		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
-
-		$lines = explode( "\n", $tail );
-		if ( $size > $tail_size ) {
-			array_shift( $lines ); // Starts mid-entry.
-		}
-
-		// The log's timestamps are `Y-m-d H:i:s`, which sort as text.
-		$since   = str_replace( array( 'T', 'Z' ), array( ' ', '' ), $since );
-		$entries = array();
-		foreach ( array_reverse( $lines ) as $line ) {
-			$entry = json_decode( $line, true );
-			if ( ! is_array( $entry ) ) {
-				continue;
-			}
-			if ( is_string( $entry['timestamp'] ?? null ) && $entry['timestamp'] < $since ) {
-				break;
-			}
-			$entries[] = $entry;
-		}
-
-		return array_reverse( $entries );
+		return Waf_Blocklog_Manager::get_recent_blocks( 10 );
 	}
 }

@@ -43,6 +43,15 @@ class Wpcom_Products {
 	 */
 	const MY_JETPACK_PURCHASES_CACHE_DURATION = 5;
 
+	const MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY = 'my-jetpack-plan-refreshed';
+
+	/**
+	 * How long, in seconds, a plan refresh from WPCOM is reused before a reload asks again
+	 *
+	 * @var int
+	 */
+	const MY_JETPACK_PLAN_REFRESH_CACHE_DURATION = 15;
+
 	/**
 	 * How long, in seconds, a failed WPCOM request answers later callers before it is retried
 	 *
@@ -414,8 +423,13 @@ class Wpcom_Products {
 	public static function get_site_current_plan( $reload = false ) {
 		static $reloaded_already = false;
 
+		// The page render and the REST requests it fires all reload, so share one refresh between them.
 		if ( $reload && ! $reloaded_already ) {
-			Current_Plan::refresh_from_wpcom();
+			// Without a site ID nothing can refresh, so don't start the window until one exists.
+			if ( ! get_transient( self::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY ) && Connection_Manager::get_site_id( true ) ) {
+				Current_Plan::refresh_from_wpcom();
+				set_transient( self::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY, 1, self::MY_JETPACK_PLAN_REFRESH_CACHE_DURATION );
+			}
 			$reloaded_already = true;
 		}
 

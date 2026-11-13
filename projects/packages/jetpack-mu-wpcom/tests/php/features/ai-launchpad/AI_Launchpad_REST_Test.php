@@ -60,6 +60,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		\Brain\Monkey\setUp();
 		\Brain\Monkey\Functions\when( 'wpcom_ai_launchpad_is_eligible' )->justReturn( true );
 
+		// A new site starts coming soon. Without the option it reads as launched at creation.
+		update_option( 'launch-status', 'unlaunched' );
+
 		$admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_admin',
@@ -322,6 +325,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'first_post_published' => true ), $data['checklist_statuses'] );
 		$this->assertFalse( $data['dismissed'] );
 		$this->assertTrue( $data['is_eligible'] );
+		$this->assertFalse( $data['ai_built'] );
 		$this->assertSame( home_url(), $data['site']['url'] );
 		$this->assertSame( get_bloginfo( 'name' ), $data['site']['title'] );
 		$this->assertSame( get_bloginfo( 'description' ), $data['site']['description'] );
@@ -332,6 +336,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// Not a Simple site, so no DIFM offer. AI_Launchpad_Difm_Offer_Test covers the rules.
 		$this->assertArrayHasKey( 'difm_offer', $data );
 		$this->assertNull( $data['difm_offer'] );
+		// wpcom's connections helper isn't loaded here, so the page can't detect a new AI connection.
+		$this->assertFalse( $data['mcp_detection'] );
+		// Nor is its access-level setter, so the page can't allow full access in place.
+		$this->assertFalse( $data['mcp_allow_full'] );
 
 		$this->assertCount( 6, $data['tasks'] );
 
@@ -349,6 +357,62 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $last_task['completed'] );
 		$this->assertFalse( $last_task['in_progress'] );
 		$this->assertNull( $last_task['calypso_path'] );
+	}
+
+	/**
+	 * A site created public past the no-guidance cutoff has no launch to do, so its launch task renders completed.
+	 * Runs in a separate process so IS_ATOMIC and the cutoff constant do not leak.
+	 *
+	 * @param string      $launch_task_id The persisted launch task id.
+	 * @param string|null $launch_status  The `launch-status` option, or null to leave it unset.
+	 * @param string      $blog_public    The `blog_public` option.
+	 * @param int         $coming_soon    The `wpcom_public_coming_soon` option.
+	 * @param int|null    $cutoff         WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID, or null to leave it undefined.
+	 * @param bool        $expected       Whether the launch task renders completed.
+	 * @dataProvider provide_launched_at_creation_states
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[DataProvider( 'provide_launched_at_creation_states' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_launch_task_on_a_site_launched_at_creation( $launch_task_id, $launch_status, $blog_public, $coming_soon, $cutoff, $expected ) {
+		define( 'IS_ATOMIC', true );
+		if ( null !== $cutoff ) {
+			define( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID', $cutoff );
+		}
+		update_option( 'jetpack_options', array( 'id' => 200 ) );
+		update_option( 'blog_public', $blog_public );
+		update_option( 'wpcom_public_coming_soon', $coming_soon );
+		if ( null === $launch_status ) {
+			delete_option( 'launch-status' );
+		} else {
+			update_option( 'launch-status', $launch_status );
+		}
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', $launch_task_id ) );
+
+		$completed = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'completed', 'id' );
+
+		$this->assertSame( $expected, $completed[ $launch_task_id ] );
+		$this->assertFalse( $completed['first_post_published'] );
+	}
+
+	/**
+	 * Data provider for test_launch_task_on_a_site_launched_at_creation.
+	 *
+	 * @return array
+	 */
+	public static function provide_launched_at_creation_states() {
+		return array(
+			'site_launched, created public' => array( 'site_launched', null, '1', 0, 200, true ),
+			'blog_launched, created public' => array( 'blog_launched', null, '1', 0, 200, true ),
+			'empty launch-status'           => array( 'site_launched', '', '1', 0, 200, true ),
+			'created unlaunched'            => array( 'site_launched', 'unlaunched', '1', 0, 200, false ),
+			'private'                       => array( 'site_launched', null, '-1', 0, 200, false ),
+			'coming soon'                   => array( 'site_launched', null, '0', 1, 200, false ),
+			'created before the cutoff'     => array( 'site_launched', null, '1', 0, 201, false ),
+			'no cutoff defined'             => array( 'site_launched', null, '1', 0, null, false ),
+		);
 	}
 
 	/**
@@ -676,6 +740,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame(
 			array(
 				'source'   => 'ai',
+				'ai_built' => false,
 				'inferred' => array(
 					'goal'  => 'write',
 					'niche' => 'hiking',
@@ -1457,6 +1522,170 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Records on the seeded list that it was tailored for an AI-built site.
+	 */
+	private function mark_list_ai_built() {
+		$envelope             = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$envelope['ai_built'] = true;
+		update_option( 'wpcom_ai_launchpad_ai_output', $envelope, false );
+	}
+
+	/**
+	 * A list tailored for an AI-built site never renders the builder's tasks, not even through the sell
+	 * goal's theme guarantee or the short-list backfill; a list tailored before the site was AI-built keeps them.
+	 *
+	 * @dataProvider provide_ai_built_lists
+	 *
+	 * @param string[] $seeded  The seeded task ids.
+	 * @param string   $goal    The goal.
+	 * @param bool     $flagged Whether the list was tailored for an AI-built site.
+	 * @param bool     $hidden  Whether every builder task stays hidden.
+	 */
+	#[DataProvider( 'provide_ai_built_lists' )]
+	public function test_get_hides_the_builders_tasks_on_an_ai_built_list( $seeded, $goal, $flagged, $hidden ) {
+		$this->seed_ai_output_with_tasks( $seeded, $goal );
+		if ( $flagged ) {
+			$this->mark_list_ai_built();
+		} else {
+			$this->seed_builder_spec();
+		}
+
+		$ids = $this->rendered_ids();
+
+		$this->assertSame( $hidden, array() === array_values( array_intersect( $ids, AI_Launchpad_REST::AI_BUILT_EXCLUDED_TASK_IDS ) ) );
+	}
+
+	/**
+	 * Data provider for test_get_hides_the_builders_tasks_on_an_ai_built_list.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_built_lists() {
+		return array(
+			'a short write list'                     => array( array( 'complete_profile', 'site_launched' ), 'write', true, true ),
+			'a sell list without a theme task'       => array( array( 'woo_products', 'site_launched' ), 'sell', true, true ),
+			'sell list, live spec only, not flagged' => array( array( 'woo_products', 'site_launched' ), 'sell', false, false ),
+		);
+	}
+
+	/**
+	 * Seeds a builder spec so the site counts as AI-built, with a site title for the inferred input.
+	 */
+	private function seed_builder_spec() {
+		update_option( 'blogname', 'Sunrise Bakery' );
+		update_option(
+			'big_sky_site_metadata',
+			wp_json_encode(
+				array(
+					'siteType'        => 'business',
+					'siteDescription' => 'A bakery.',
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+	}
+
+	/**
+	 * A site without a list gets the builder's input to tailor with, recorded as the wizard's answers.
+	 */
+	public function test_get_serves_the_builder_input() {
+		$this->seed_builder_spec();
+
+		$data = $this->call_api( 'GET' )->get_data();
+
+		$this->assertSame(
+			array(
+				'goal'        => 'build',
+				'site_name'   => 'Sunrise Bakery',
+				'description' => 'A bakery.',
+			),
+			$data['inferred_input']
+		);
+		$this->assertSame( 'build', $data['wizard']['goal'] );
+	}
+
+	/**
+	 * A wizard the user already finished keeps its answers, and its goal is the one tailored for.
+	 */
+	public function test_get_keeps_a_finished_wizards_goal() {
+		$this->seed_builder_spec();
+		$wizard = array(
+			'version'     => 1,
+			'goal'        => 'sell',
+			'site_name'   => 'My Shop',
+			'description' => 'Shoes.',
+		);
+		update_option( AI_Launchpad_REST::OPTION_WIZARD, $wizard, false );
+
+		$data = $this->call_api( 'GET' )->get_data();
+
+		$this->assertSame( 'sell', $data['inferred_input']['goal'] );
+		$this->assertSame( $wizard, get_option( AI_Launchpad_REST::OPTION_WIZARD ) );
+	}
+
+	/**
+	 * Only a site admin's load without a list gets the builder's input.
+	 *
+	 * @dataProvider provide_loads_without_input
+	 *
+	 * @param string $setup The setup to apply.
+	 */
+	#[DataProvider( 'provide_loads_without_input' )]
+	public function test_get_withholds_the_builder_input( $setup ) {
+		$this->seed_builder_spec();
+		if ( 'editor' === $setup ) {
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'dummy_editor',
+						'user_pass'  => 'dummy_pass',
+						'role'       => 'editor',
+					)
+				)
+			);
+		} elseif ( 'tailored' === $setup ) {
+			$this->seed_tailored_site();
+		} else {
+			delete_option( 'big_sky_site_metadata' );
+		}
+
+		$this->assertNull( $this->call_api( 'GET' )->get_data()['inferred_input'] );
+	}
+
+	/**
+	 * Data provider for test_get_withholds_the_builder_input.
+	 *
+	 * @return array
+	 */
+	public static function provide_loads_without_input() {
+		return array(
+			'an editor'        => array( 'editor' ),
+			'an existing list' => array( 'tailored' ),
+			'no builder spec'  => array( 'no_spec' ),
+		);
+	}
+
+	/**
+	 * A saved list records that the site was AI-built when it was tailored.
+	 */
+	public function test_put_tailored_records_whether_the_site_is_ai_built() {
+		update_option( 'big_sky_site_metadata', wp_json_encode( array( 'siteType' => 'business' ), JSON_UNESCAPED_SLASHES ) );
+		$payload          = self::valid_payload();
+		$payload['tasks'] = array_map(
+			function ( $id ) {
+				return array(
+					'id'       => $id,
+					'subtitle' => 'Subtitle for ' . $id . '.',
+				);
+			},
+			array( 'complete_profile', 'connect_social_media', 'add_site_icon', 'verify_email', 'domain_upsell', 'site_launched' )
+		);
+
+		$this->assertSame( 200, $this->call_api( 'PUT', '/tailored', $payload, array( 'source' => 'ai' ) )->get_status() );
+		$this->assertTrue( get_option( 'wpcom_ai_launchpad_ai_output' )['ai_built'] );
+	}
+
+	/**
 	 * A payload that breaks the output contract is rejected whole, with the code naming the broken rule, and
 	 * nothing is persisted.
 	 *
@@ -1480,7 +1709,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_invalid_payloads() {
 		return array(
-			'a seventh task'                         => array(
+			'a seventh task'                        => array(
 				static function ( $payload ) {
 					$payload['tasks'][] = array(
 						'id'       => 'drive_traffic',
@@ -1490,65 +1719,56 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'a missing required field'               => array(
+			'a missing required field'              => array(
 				static function ( $payload ) {
 					unset( $payload['first_post_draft'] );
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'an inferred_goal outside its enum'      => array(
+			'an inferred_goal outside its enum'     => array(
 				static function ( $payload ) {
 					$payload['inferred']['inferred_goal'] = 'cook';
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'a theme_category outside its enum'      => array(
+			'a theme_category outside its enum'     => array(
 				static function ( $payload ) {
 					$payload['inferred']['theme_category'] = 'hiking';
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'a page intro for an unknown page task'  => array(
+			'a page intro for an unknown page task' => array(
 				static function ( $payload ) {
 					$payload['page_intros'] = array( 'add_faq_page' => 'Answers to what people ask most.' );
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'fewer than four catalog-valid task ids' => array(
-				static function ( $payload ) {
-					$payload['tasks'][1]['id'] = 'made_up_task_one';
-					$payload['tasks'][2]['id'] = 'made_up_task_two';
-					$payload['tasks'][3]['id'] = 'made_up_task_three';
-					return $payload;
-				},
-				'ai_launchpad_unknown_tasks',
-			),
-			'a last task that is not a launch task'  => array(
+			'a last task that is not a launch task' => array(
 				static function ( $payload ) {
 					$payload['tasks'][5]['id'] = 'drive_traffic';
 					return $payload;
 				},
 				'ai_launchpad_missing_launch_task',
 			),
-			'a subtitle that is only a script tag'   => array(
+			'a subtitle that is only a script tag'  => array(
 				static function ( $payload ) {
 					$payload['tasks'][0]['subtitle'] = '<script>alert(1)</script>';
 					return $payload;
 				},
 				'ai_launchpad_invalid_subtitle',
 			),
-			'a subtitle containing a URL'            => array(
+			'a subtitle containing a URL'           => array(
 				static function ( $payload ) {
 					$payload['tasks'][0]['subtitle'] = 'Visit https://example.com for tips.';
 					return $payload;
 				},
 				'ai_launchpad_subtitle_contains_url',
 			),
-			'a subtitle containing template syntax'  => array(
+			'a subtitle containing template syntax' => array(
 				static function ( $payload ) {
 					$payload['tasks'][0]['subtitle'] = 'Write about {{brand_name}} today.';
 					return $payload;
@@ -1574,19 +1794,20 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that PUT /tailored drops unknown task IDs but persists when enough survive.
+	 * Test that PUT /tailored drops unknown task IDs and still persists when only the launch task survives.
 	 */
 	public function test_put_tailored_drops_unknown_task_ids() {
-		$payload                   = self::valid_payload();
-		$payload['tasks'][1]['id'] = 'made_up_task';
+		$payload = self::valid_payload();
+		for ( $i = 0; $i < 5; $i++ ) {
+			$payload['tasks'][ $i ]['id'] = 'made_up_task_' . $i;
+		}
 
 		$result = $this->call_api( 'PUT', '/tailored', $payload );
 
 		$this->assertSame( 200, $result->get_status() );
 
 		$persisted_tasks = get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'];
-		$this->assertCount( 5, $persisted_tasks );
-		$this->assertNotContains( 'made_up_task', array_column( $persisted_tasks, 'id' ) );
+		$this->assertSame( array( end( $payload['tasks'] )['id'] ), array_column( $persisted_tasks, 'id' ) );
 	}
 
 	/**
@@ -1616,6 +1837,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 403, $result->get_status() );
 
 		$result = $this->call_api( Requests::DELETE );
+		$this->assertSame( 403, $result->get_status() );
+
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
 		$this->assertSame( 403, $result->get_status() );
 
 		$result = $this->call_api( Requests::GET );
@@ -1961,5 +2185,184 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_dismissed' ) );
 		$this->assertSame( array( 'first_post_published' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
+	}
+
+	/**
+	 * GET /mcp-connections returns the current user's ChatGPT and Claude connections from wpcom, and nothing else, with
+	 * the account's access level.
+	 *
+	 * In its own process, since Brain Monkey's stubs of wpcom's functions would otherwise outlive the test that made them.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_mcp_connections_returns_the_ai_tool_connections() {
+		$user_id = get_current_user_id();
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_get_user_connections' )
+			->once()
+			->with( $user_id )
+			->andReturn(
+				array(
+					array(
+						'integration'  => 'claude',
+						'connected_at' => 1762430000,
+					),
+					array(
+						'integration'  => 'cursor',
+						'connected_at' => 1762430100,
+					),
+					array(
+						'integration'  => 'chatgpt',
+						'connected_at' => 1762430200,
+					),
+				)
+			);
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_get_user_access_level' )
+			->once()
+			->with( $user_id )
+			->andReturn( 'read_only' );
+
+		$result = $this->call_api( Requests::GET, '/mcp-connections' );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			array(
+				'connections'  => array( 'claude', 'chatgpt' ),
+				'access_level' => 'read_only',
+			),
+			$result->get_data()
+		);
+	}
+
+	/**
+	 * GET /mcp-connections returns an empty list where wpcom's connections function is not defined.
+	 *
+	 * In its own process, since Brain Monkey's stub of the function would otherwise outlive the test that made it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_mcp_connections_is_empty_without_wpcom() {
+		$this->assertFalse( function_exists( 'wpcom_mcp_get_user_connections' ) );
+
+		$result = $this->call_api( Requests::GET, '/mcp-connections' );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			array(
+				'connections'  => array(),
+				'access_level' => null,
+			),
+			$result->get_data()
+		);
+	}
+
+	/**
+	 * POST /mcp-access sets the current user's MCP access level to full through wpcom, and ignores a user ID in the
+	 * request, so it can't change anyone else's.
+	 *
+	 * In its own process, since Brain Monkey's stub of wpcom's function would otherwise outlive the test that made it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_post_mcp_access_allows_full_access_for_the_current_user() {
+		$user_id = get_current_user_id();
+		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_access_level' )->justReturn( 'read_only' );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )
+			->once()
+			->with( $user_id, 'full' )
+			->andReturn( true );
+
+		$result = $this->call_api(
+			Requests::POST,
+			'/mcp-access',
+			array( 'user_id' => $this->subscriber_id )
+		);
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array( 'access_level' => 'full' ), $result->get_data() );
+	}
+
+	/**
+	 * POST /mcp-access passes on wpcom's failure as a server error.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_post_mcp_access_reports_a_failed_write() {
+		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_access_level' )->justReturn( 'read_only' );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )
+			->once()
+			->andReturn( new WP_Error( 'mcp_settings_unavailable', 'MCP settings are not available in this request.' ) );
+
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
+
+		$this->assertSame( 500, $result->get_status() );
+		$this->assertSame( 'mcp_settings_unavailable', $result->as_error()->get_error_code() );
+	}
+
+	/**
+	 * POST /mcp-access changes only a read-only account, so it never clears a tuned account's per-tool settings.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_post_mcp_access_leaves_an_account_that_is_not_read_only() {
+		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_access_level' )->justReturn( null );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )->never();
+
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
+
+		$this->assertSame( 409, $result->get_status() );
+		$this->assertSame( 'mcp_access_not_read_only', $result->as_error()->get_error_code() );
+	}
+
+	/**
+	 * POST /mcp-access needs a site admin, so an editor, who can read the wizard, can't change the account's access.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_post_mcp_access_is_denied_without_manage_options() {
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )->never();
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'dummy_editor',
+					'user_pass'  => 'dummy_pass',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
+
+		$this->assertSame( 403, $result->get_status() );
+		$this->assertFalse( $this->call_api( Requests::GET )->get_data()['mcp_allow_full'] );
+	}
+
+	/**
+	 * POST /mcp-access returns 501 where wpcom's setter is not defined, so the wizard falls back to the settings link.
+	 */
+	public function test_post_mcp_access_is_unavailable_without_wpcom() {
+		$this->assertFalse( function_exists( 'wpcom_mcp_set_user_access_level' ) );
+
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
+
+		$this->assertSame( 501, $result->get_status() );
+		$this->assertSame( 'mcp_access_unavailable', $result->as_error()->get_error_code() );
 	}
 }

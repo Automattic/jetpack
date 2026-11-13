@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
@@ -125,6 +126,54 @@ class Dashboard {
 		self::load_wp_build();
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
+	}
+
+	/**
+	 * Register Forms with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! file_exists( self::wp_build_index_path() ) ) {
+			return $members;
+		}
+
+		$members[ self::FORMS_WPBUILD_ADMIN_SLUG ] = array(
+			'build_prefix' => 'jetpack_forms',
+			'build_page'   => 'jetpack-forms-responses',
+			'init_modules' => array( '@jetpack-forms/init' ),
+			/** "Jetpack Forms" is a product name, do not translate. */
+			'title'        => 'Jetpack Forms',
+			'capability'   => 'edit_pages',
+			// The connection initial state and REST preload are inline scripts on wp-api-fetch.
+			'handles'      => array( 'jetpack-forms-layout', 'jetpack-script-data', 'wp-api-fetch', 'wp-jp-i18n-loader', 'jp-tracks-functions' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Forms routes while another dashboard's page is open.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		$wp_build_index = self::wp_build_index_path();
+		require_once $wp_build_index;
+
+		// The generated registration runs on wp_default_scripts, which has already fired.
+		if ( function_exists( 'jetpack_forms_register_script_modules' ) ) {
+			jetpack_forms_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined in the generated build/modules.php.
+		}
 	}
 
 	/**
@@ -566,12 +615,12 @@ class Dashboard {
 	/**
 	 * The tab the standalone Forms page opens on when the URL names no route.
 	 *
-	 * @deprecated $$next-version$$ The dashboard's root route picks the tab client-side now.
+	 * @deprecated 8.3.5 The dashboard's root route picks the tab client-side now.
 	 *
 	 * @return string Tab slug understood by get_forms_admin_url().
 	 */
 	public static function get_default_tab() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-8.3.5' );
 
 		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
 			// The Forms tab is not rendered at all here, so honouring a stored 'forms'

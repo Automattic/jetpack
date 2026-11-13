@@ -5,7 +5,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
 import { useEffect, useState } from 'react';
-import AIAgentAccessControl from 'components/ai-agent-access-control';
 import AiAnswersTab from 'components/ai-answers-tab';
 import ExperienceSelector from 'components/experience-selector';
 import NoticesList from 'components/global-notices';
@@ -97,11 +96,16 @@ export default function DashboardPage( { isLoading = false } ) {
 	}, [] );
 
 	// Keep the active tab in sync with external hash changes (back/forward button, manual edit).
+	// `popstate` covers the admin shell, which switches back to this page with pushState and a synthetic popstate.
 	useEffect( () => {
 		if ( typeof window === 'undefined' ) {
 			return;
 		}
 		const onHashChange = () => {
+			// While the admin shell shows another dashboard, the URL is that dashboard's.
+			if ( new URLSearchParams( window.location.search ).get( 'page' ) !== 'jetpack-search' ) {
+				return;
+			}
 			const resolved = resolveTabFromLocation();
 			// Skip the state update when the resolved tab already matches —
 			// otherwise user-initiated clicks would `setActiveTab` twice (once
@@ -111,7 +115,11 @@ export default function DashboardPage( { isLoading = false } ) {
 			normalizeUrlToHash( resolved );
 		};
 		window.addEventListener( 'hashchange', onHashChange );
-		return () => window.removeEventListener( 'hashchange', onHashChange );
+		window.addEventListener( 'popstate', onHashChange );
+		return () => {
+			window.removeEventListener( 'hashchange', onHashChange );
+			window.removeEventListener( 'popstate', onHashChange );
+		};
 	}, [] );
 
 	const handleTabChange = tab => {
@@ -136,12 +144,6 @@ export default function DashboardPage( { isLoading = false } ) {
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const readerChatGuidelinesUrl = useSelect( select =>
 		select( STORE_ID ).getReaderChatGuidelinesUrl()
-	);
-	const aiAgentAccessGuidelinesUrl = useSelect( select =>
-		select( STORE_ID ).getAIAgentAccessGuidelinesUrl()
-	);
-	const isAIAgentAccessAvailable = useSelect( select =>
-		select( STORE_ID ).isAIAgentAccessAvailable()
 	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
@@ -269,15 +271,9 @@ export default function DashboardPage( { isLoading = false } ) {
 			errorMessage: __( 'Could not restore the product search template.', 'jetpack-search-pkg' ),
 		};
 	}
-	const showAIAgentAccessGuidelinesLink =
-		! isReaderChatAvailable ||
-		! supportsSearch ||
-		! isReaderChatEnabled ||
-		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
 	const isReaderChatControlAvailable = isReaderChatAvailable && supportsSearch;
 	const hasAdditionalSettings =
 		isReaderChatControlAvailable ||
-		isAIAgentAccessAvailable ||
 		( supportsInstantSearch && isInstantSearchEnabled ) ||
 		showWooCommerceProductSearchControl;
 
@@ -400,12 +396,6 @@ export default function DashboardPage( { isLoading = false } ) {
 															/>
 														</div>
 													) }
-													<AIAgentAccessControl
-														className="jp-search-ai-agent-access-card"
-														guidelinesUrl={ aiAgentAccessGuidelinesUrl }
-														isAvailable={ isAIAgentAccessAvailable }
-														showGuidelinesLink={ showAIAgentAccessGuidelinesLink }
-													/>
 													{ supportsInstantSearch && isInstantSearchEnabled && (
 														<div className="jp-search-settings-card">
 															<SearchSuggestionsControl
@@ -443,7 +433,6 @@ export default function DashboardPage( { isLoading = false } ) {
 											domain={ domain }
 											isDisabledFromOverLimit={ isOverLimit }
 											isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-											isAIAgentAccessAvailable={ isAIAgentAccessAvailable }
 											isReaderChatAvailable={ isReaderChatAvailable }
 											isReaderChatEnabled={ isReaderChatEnabled }
 											supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
@@ -454,7 +443,6 @@ export default function DashboardPage( { isLoading = false } ) {
 											isSavingEitherOption={ isSavingEitherOption }
 											isTogglingModule={ isTogglingModule }
 											isTogglingInstantSearch={ isTogglingInstantSearch }
-											aiAgentAccessGuidelinesUrl={ aiAgentAccessGuidelinesUrl }
 											readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
 											isSearchSuggestionsEnabled={ isSearchSuggestionsEnabled }
 										/>

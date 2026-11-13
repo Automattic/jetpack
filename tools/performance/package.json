@@ -1,6 +1,5 @@
 {
 	"name": "@automattic/jetpack-performance-testing",
-	"version": "1.0.0",
 	"private": true,
 	"description": "Performance baseline testing for Jetpack using Playwright LCP measurements and CodeVitals",
 	"type": "module",

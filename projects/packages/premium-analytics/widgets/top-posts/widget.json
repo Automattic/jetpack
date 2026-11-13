@@ -17,7 +17,7 @@
 	"attributes": [
 		{
 			"id": "contentView",
-			"type": "jpa/select",
+			"type": "jpa/toggle-group",
 			"label": "View",
 			"relevance": "high",
 			"elements": [

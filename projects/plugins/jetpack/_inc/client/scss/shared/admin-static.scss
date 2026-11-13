@@ -139,6 +139,30 @@
 				border-inline-start-color: var(--jp-red);
 			}
 
+			&.notice-success {
+				border-inline-start-color: var(--jp-green);
+
+				.notice-icon-wrapper svg {
+					fill: var(--jp-green);
+				}
+
+				.notice-main-content .notice-title {
+					margin: 0;
+				}
+
+				// One-line notice: keep the icon inline on small screens.
+				@media screen and ( max-width: 600px ) {
+
+					& {
+						padding-top: 24px;
+					}
+
+					.notice-icon-wrapper {
+						position: static;
+					}
+				}
+			}
+
 			.notice-icon-wrapper {
 				margin-inline-end: 20px;
 				width: calc(var(--spacing-base) * 3);

@@ -238,7 +238,7 @@ function installApi( api: ApiState ) {
 					jetpack_videopress: { ...media.jetpack_videopress, description: patch.description },
 				};
 			}
-			return {};
+			return { code: 'success' };
 		}
 		return {};
 	} );
@@ -668,6 +668,7 @@ describe( 'video-editor stage', () => {
 		expect( mockSyncChapters ).not.toHaveBeenCalled();
 		expect( screen.getByLabelText( 'Chapter 1 title' ) ).toHaveValue( 'Renamed' );
 		expect( isButtonDisabled( 'Save' ) ).toBe( false );
+		expect( console ).toHaveErrored();
 	} );
 
 	it( 'discards unsaved chapter changes through the confirm dialog', async () => {

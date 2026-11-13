@@ -6,17 +6,14 @@ import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	describeError,
-	sharePercentage,
-	ExporterCsvDownloadButton,
 	commentsPostsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -47,8 +44,6 @@ function MostCommentedPostsInner() {
 	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...rows.map( row => row.value ), 0 );
-
 		return rows.map( row => ( {
 			id: row.id,
 			label: (
@@ -60,9 +55,16 @@ function MostCommentedPostsInner() {
 				/>
 			),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxValue ),
 		} ) );
 	}, [ rows ] );
+
+	useReportActions( {
+		csv: {
+			exporter: commentsPostsCsvExporter,
+			status: { isLoading, isFetching, isError },
+			rowCount: rows.length,
+		},
+	} );
 
 	return (
 		<Stack className={ styles.root }>
@@ -88,7 +90,6 @@ function MostCommentedPostsInner() {
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
-						chartTitle={ __( 'All-time most commented posts', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withOverlayLabel
 						showLegend={ false }
@@ -100,18 +101,6 @@ function MostCommentedPostsInner() {
 					/>
 				</WidgetState>
 			</div>
-			<WidgetFooter>
-				<ReportLink
-					report="comments"
-					section="posts"
-					ariaLabel={ __( 'See the commented posts report', 'jetpack-premium-analytics-pkg' ) }
-				/>
-				<ExporterCsvDownloadButton
-					exporter={ commentsPostsCsvExporter }
-					status={ { isLoading, isFetching, isError } }
-					rowCount={ rows.length }
-				/>
-			</WidgetFooter>
 		</Stack>
 	);
 }

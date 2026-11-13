@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Protect\Dashboard as Protect_Dashboard;
@@ -80,6 +81,11 @@ class Jetpack_Admin {
 		add_action( 'jetpack_admin_menu', array( $jetpack_about, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_ai, 'add_actions' ) );
 
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( $jetpack_settings, 'add_admin_shell_member' ) );
+			add_filter( 'jetpack_admin_shell_members', array( $jetpack_ai, 'add_admin_shell_member' ) );
+		}
+
 		// Add redirect to current page for activation/deactivation of modules.
 		add_action( 'jetpack_pre_activate_module', array( $this, 'fix_redirect' ), 10, 2 );
 		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ), 10, 2 );
@@ -88,21 +94,8 @@ class Jetpack_Admin {
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
 		if ( class_exists( 'Akismet_Admin' ) ) {
-			// If the site has Jetpack Anti-spam, change the Akismet menu label and logo accordingly.
-			$site_products         = array_column( Jetpack_Plan::get_products(), 'product_slug' );
-			$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $site_products ) ) > 0;
-
-			if ( Jetpack_Plan::supports( 'akismet' ) || Jetpack_Plan::supports( 'antispam' ) || $has_anti_spam_product ) {
-				// Prevent Akismet from adding a menu item.
-				add_action(
-					'admin_menu',
-					function () {
-						remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
-					},
-					4
-				);
-
-				// Add an Anti-spam menu item for Jetpack. This is handled automatically by the Admin_Menu as long as it has been initialized.
+			// Network Admin never fires admin_menu, so starting Admin_Menu there would only add its upgrade item.
+			if ( ! is_network_admin() ) {
 				Admin_Menu::init();
 			}
 
@@ -468,7 +461,7 @@ class Jetpack_Admin {
 		 */
 		if ( ( new Status() )->is_offline_mode() ) {
 			if ( $module['requires_connection'] || $module['requires_user_connection'] ) {
-				return __( 'Unavailable in Offline mode', 'jetpack' );
+				return __( 'Unavailable in Offline Mode', 'jetpack' );
 			}
 		}
 
@@ -499,7 +492,7 @@ class Jetpack_Admin {
 	/**
 	 * Where each security module's settings live while the Protect page owns them, keyed by module slug.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @return array<string, string> Empty while the Protect page is off.
 	 */

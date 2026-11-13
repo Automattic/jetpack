@@ -3,6 +3,7 @@ import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { withCrawlerBlocked, withGroupBlocked } from './blocked-crawlers';
 import { geoStore } from './geo-store';
 import { recordSeoEvent } from './record-seo-event';
 import type { AiCrawler, GeoState } from './geo-types';
@@ -130,24 +131,16 @@ export function useGeoForm(): GeoForm {
 			if ( ! crawlers ) {
 				return;
 			}
-			// The default policy for this bot: training crawlers blocked, answer-engine
-			// crawlers allowed. An override that matches the default is dropped so the
-			// stored map stays sparse (and new training bots stay covered).
-			const bot = crawlers.catalog.find( entry => entry.slug === slug );
-			const defaultBlocked = bot ? bot.type === 'training' : false;
-
-			const nextOverrides = { ...crawlers.overrides };
-			if ( blocked === defaultBlocked ) {
-				delete nextOverrides[ slug ];
-			} else {
-				nextOverrides[ slug ] = blocked;
+			const nextBlocked = withCrawlerBlocked( crawlers.blocked, crawlers.catalog, slug, blocked );
+			if ( nextBlocked === crawlers.blocked ) {
+				return;
 			}
 
 			const prevCrawlers = crawlers;
-			const nextCrawlers = { ...crawlers, overrides: nextOverrides };
+			const nextCrawlers = { ...crawlers, blocked: nextBlocked };
 			setCrawlers( nextCrawlers );
 			runSave(
-				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
+				{ jetpack_seo_blocked_crawlers: nextBlocked },
 				() => {
 					persistCrawlers( nextCrawlers );
 					recordSeoEvent( 'jetpack_seo_bot_toggle_changed', 'geo', { bot: slug, blocked } );
@@ -163,26 +156,13 @@ export function useGeoForm(): GeoForm {
 			if ( ! crawlers ) {
 				return;
 			}
-			// Every bot in a group shares one default policy (training → blocked,
-			// otherwise allowed), so an override matching that default is dropped to
-			// keep the stored map sparse — same rule as the single-crawler setter.
-			const defaultBlocked = type === 'training';
-			const nextOverrides = { ...crawlers.overrides };
-			crawlers.catalog
-				.filter( bot => bot.type === type )
-				.forEach( bot => {
-					if ( blocked === defaultBlocked ) {
-						delete nextOverrides[ bot.slug ];
-					} else {
-						nextOverrides[ bot.slug ] = blocked;
-					}
-				} );
+			const nextBlocked = withGroupBlocked( crawlers.blocked, type, blocked );
 
 			const prevCrawlers = crawlers;
-			const nextCrawlers = { ...crawlers, overrides: nextOverrides };
+			const nextCrawlers = { ...crawlers, blocked: nextBlocked };
 			setCrawlers( nextCrawlers );
 			runSave(
-				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
+				{ jetpack_seo_blocked_crawlers: nextBlocked },
 				() => {
 					persistCrawlers( nextCrawlers );
 					recordSeoEvent( 'jetpack_seo_bot_toggle_changed', 'geo', {

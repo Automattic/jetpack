@@ -8,6 +8,7 @@ import {
 	PRESET_LAST_24_HOURS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_365_DAYS,
+	PRESET_LAST_3_YEARS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_90_DAYS,
 	PRESET_LAST_MONTH,
@@ -23,8 +24,15 @@ import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 
 export type { IntervalType };
 
-/** A bucket a plan can lock; days stay open so a range always has one. */
-export type LockableInterval = Extract< IntervalType, 'week' | 'month' | 'year' >;
+/** The buckets a plan can lock; days stay open so a range always has one. */
+export const LOCKABLE_INTERVALS = [
+	'week',
+	'month',
+	'quarter',
+	'year',
+] as const satisfies readonly IntervalType[];
+
+export type LockableInterval = ( typeof LOCKABLE_INTERVALS )[ number ];
 
 /** The locks of a surface whose plan sets no interval limits. */
 export const NO_LOCKED_INTERVALS: readonly LockableInterval[] = [];
@@ -50,6 +58,13 @@ export function getDaysBetweenInclusive( from: string, to: string ): number {
 	return days + 1;
 }
 
+function getCalendarYearSpan( from: string, to: string ): number {
+	const fromYear = Number( getDatePart( from ).slice( 0, 4 ) );
+	const toYear = Number( getDatePart( to ).slice( 0, 4 ) );
+
+	return toYear - fromYear + 1;
+}
+
 function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] {
 	// Hours, not days, so a range one second short of a full year (8759 hours)
 	// still rounds to 365 and categorizes as yearly.
@@ -63,14 +78,16 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		return [ 'day' ];
 	}
 
-	// No bucket between month and year: Stats has no quarterly one.
-	if ( daysDiff >= 1095 ) {
-		return [ 'month', 'year' ];
+	// Three calendar years is three yearly bars, the shortest window that reads
+	// as a series. A day count cannot say that: a range covers three years well
+	// before it holds three years of days.
+	if ( getCalendarYearSpan( from, to ) >= 3 ) {
+		return [ 'month', 'quarter', 'year' ];
 	} else if ( daysDiff > 366 ) {
-		return [ 'month' ];
+		return [ 'month', 'quarter' ];
 	} else if ( daysDiff >= 365 ) {
 		// Months by default; weeks stay on offer for a single year, leap or not.
-		return [ 'month', 'week' ];
+		return [ 'month', 'week', 'quarter' ];
 	} else if ( daysDiff >= 90 ) {
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
@@ -168,7 +185,11 @@ function allowedIntervalsForPreset(
 		case PRESET_LAST_12_MONTHS:
 		case PRESET_LAST_365_DAYS:
 		case PRESET_LAST_YEAR:
-			return [ 'month', 'week' ];
+			return [ 'month', 'week', 'quarter' ];
+		// Named for the order, not the options: the range offers this window
+		// years too, but behind months, and this preset is read in years.
+		case PRESET_LAST_3_YEARS:
+			return [ 'year', 'month', 'quarter' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}

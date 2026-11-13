@@ -553,6 +553,17 @@
 	}
 }
 
+// The form's own save, under its last panel. Padded like a panel, so it does
+// not read as the footer of the one above it.
+.jetpack-paypal-payment-buttons__form-footer {
+	padding: 16px;
+
+	.components-button {
+		inline-size: 100%;
+		justify-content: center;
+	}
+}
+
 // ---------------------------------------------------------------
 // PayPal Button Preview Component
 // ---------------------------------------------------------------
@@ -630,6 +641,112 @@
 	p {
 		margin: 4px 0;
 	}
+}
+
+// Product images: the list under Details, and the one image a variant
+// option carries.
+.jetpack-paypal-images {
+	margin-bottom: 16px;
+}
+
+.jetpack-paypal-images--option {
+	margin-bottom: 0;
+}
+
+.jetpack-paypal-images__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 24px;
+	margin-bottom: 8px;
+
+	.components-base-control__label {
+		margin-bottom: 0;
+	}
+}
+
+.jetpack-paypal-images__errors {
+	margin: 0 0 8px;
+}
+
+.jetpack-paypal-images__list {
+	list-style: none;
+	margin: 0 0 8px;
+	padding: 0;
+	border: 1px solid rgba(0, 0, 0, 0.16);
+	border-radius: 2px;
+}
+
+.jetpack-paypal-images__row {
+	margin: 0;
+	padding: 8px;
+	border-block-end: 1px solid rgba(0, 0, 0, 0.16);
+
+	&:last-child {
+		border-block-end: 0;
+	}
+}
+
+.jetpack-paypal-images__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+
+.jetpack-paypal-images__thumb {
+	flex-shrink: 0;
+	width: 44px;
+	height: 44px;
+	object-fit: cover;
+	border-radius: 2px;
+	background: #f0f0f0;
+}
+
+.jetpack-paypal-images__thumb--empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #757575;
+}
+
+.jetpack-paypal-images__name {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.jetpack-paypal-images__badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-block-start: 8px;
+}
+
+.jetpack-paypal-images__badge {
+	display: inline-flex;
+	align-items: center;
+	min-height: 24px;
+	padding-inline: 8px;
+	border-radius: 2px;
+	background: #f0f0f0;
+	font-size: 12px;
+	line-height: 16px;
+}
+
+.jetpack-paypal-images__add.components-button {
+	width: 100%;
+	justify-content: center;
+}
+
+.jetpack-paypal-images__help {
+	margin: 8px 0 0;
+	font-size: 12px;
+	color: #757575;
 }
 
 // Variant builder.
@@ -857,8 +974,8 @@
 	}
 }
 
-// The link details view, a plain section. It ends at the list's bottom rule.
-// The format section below has its own top padding.
+// The link's name and price, a plain section. The format section below has its
+// own top padding.
 .jetpack-paypal-payment-buttons__details {
 	padding: variables.$grid-unit-10 variables.$grid-unit-15 0;
 }
@@ -889,19 +1006,15 @@
 	line-height: variables.$font-line-height-x-small;
 }
 
-// The rows step one unit further in than the title. The rules above and below
-// them are this list's own borders, since core styles every `hr` inside
-// `.interface-complementary-area` and that outranks a single class.
+// The rows are in a title-less panel, which adds the padding and the divider
+// above.
 .jetpack-paypal-payment-buttons__details-list {
 	display: grid;
 	// A fixed label column, so the values line up down the panel.
 	grid-template-columns: (variables.$grid-unit * 12) 1fr;
 	column-gap: variables.$grid-unit-10;
 	row-gap: 0;
-	margin-block: variables.$grid-unit-20 0;
-	margin-inline: variables.$grid-unit-15;
-	border-block: variables.$border-width solid colors.$gray-200;
-	padding-block: variables.$grid-unit-20;
+	margin: 0;
 	font-size: variables.$font-size-medium;
 	line-height: variables.$font-line-height-small;
 

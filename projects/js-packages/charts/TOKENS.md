@@ -20,7 +20,7 @@ Catalog entries normally map to WPDS tokens. Source writes these mappings bare; 
 }
 ```
 
-Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. For anything that *is* a catalog role, `chart-scope.scss` is the only place its `--wpds-*` mapping is named, so design-system churn lands in one file. One kind of `--wpds-*` reference lives outside it, deliberately: **values that are not chart roles** — incidental typography, padding, gap and interaction motion read their design-system token directly at the call site, as interface chrome that should track the host's theme rather than charts-level theming.
+Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. For anything that *is* a catalog role, `chart-scope.scss` is the only place its `--wpds-*` mapping is named, so design-system churn lands in one file. One kind of `--wpds-*` reference lives outside it, deliberately: **values that are not chart roles** — incidental typography, padding, gap and interaction motion read their design-system token directly at the call site, as interface chrome that should track the host's theme rather than charts-level theming. Text that carries the chart's data is a role, not chrome: leaderboard rows read `--a8c-charts-font-weight-leaderboard`.
 
 ### Precedence
 
@@ -152,14 +152,18 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `9999px` |
 | `--a8c-charts-dimension-leaderboard-row-gap` | `--wpds-dimension-gap-md` | `12px` |
 | `--a8c-charts-dimension-leaderboard-column-gap` | `--wpds-dimension-gap-xs` | `4px` |
+| `--a8c-charts-dimension-leaderboard-label-inset` | `--wpds-dimension-padding-sm` | `8px` |
 | `--a8c-charts-dimension-legend-column-gap` | `--wpds-dimension-gap-lg` | `16px` |
 | `--a8c-charts-dimension-legend-row-gap` | `--wpds-dimension-gap-sm` | `8px` |
+| `--a8c-charts-font-weight-leaderboard` | `--wpds-typography-font-weight-default` | `400` |
 | `--a8c-charts-elevation-xs` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003` |
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
 
 The motion pair carries the one-shot reveal a data mark plays on first paint, across all six charts that animate in. It deliberately does **not** cover interaction motion: hover and transition timings read `--wpds-motion-*` directly, as interface chrome rather than a chart role.
 
-`--a8c-charts-border-radius-bar` rounds the conversion funnel's bars. `--a8c-charts-border-radius-bar-chart` rounds the bars of the bar chart and bar list chart; set it to a radius such as `var(--wpds-border-radius-sm)` to opt in. Bar charts apply it as the CSS `rx` property, so it rounds all four corners of a bar. It resolves in CSS at the bar, so an override set anywhere inside the provider tree applies, the chart's own class included; see [Precedence](#precedence) for overrides above the provider.
+`--a8c-charts-border-radius-bar` rounds the conversion funnel's bars. `--a8c-charts-border-radius-bar-chart` rounds the bars of the bar chart and bar list chart; set it to a radius such as `var(--wpds-border-radius-sm)` to opt in. Bar charts apply it as the CSS `rx` property, so it rounds all four corners of a bar; a stacked bar instead clips only the outer end of each stack to it. It resolves in CSS at the bar, so an override set anywhere inside the provider tree applies, the chart's own class included; see [Precedence](#precedence) for overrides above the provider.
+
+`--a8c-charts-dimension-leaderboard-label-inset` pads an overlay label at its inline start, inside the `--wpds-border-width-focus` every row reserves for its focus ring. Read both to line up content outside the chart, such as a column header, with the row text.
 
 The legend pair spaces the items of a horizontal legend: the column gap between items on one line, and the smaller row gap between lines once the legend wraps.
 

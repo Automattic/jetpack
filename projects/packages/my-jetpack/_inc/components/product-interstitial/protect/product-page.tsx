@@ -10,6 +10,7 @@ import { Icon, check, shield, login } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
+import { generatePath, useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -20,7 +21,6 @@ import useSimpleQuery from '../../../data/use-simple-query';
 import useAnalytics from '../../../hooks/use-analytics';
 import { useGoBack } from '../../../hooks/use-go-back';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
 import LoadingBlock from '../../loading-block';
 import styles from './style.module.scss';
@@ -35,12 +35,15 @@ import styles from './style.module.scss';
  * @return {object} React component for the product page
  */
 export default function ProtectProductPage() {
-	const { onClickGoBack } = useGoBack( { slug: 'protect', fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( {
+		slug: 'protect',
+		fallback: MyJetpackRoutes.Features,
+	} );
 	const { detail, isLoading: isLoadingProduct } = useProduct( 'protect' );
 	const { detail: securityDetail } = useProduct( 'security' );
 	const { isSiteConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
-	const navigateToUpgrade = useMyJetpackNavigate( MyJetpackRoutes.AddProtect );
+	const navigate = useNavigate();
 
 	const { data: protectData, isLoading: isLoadingProtectData } = useSimpleQuery< ProtectData >( {
 		name: QUERY_GET_PROTECT_DATA_KEY,
@@ -74,8 +77,8 @@ export default function ProtectProductPage() {
 			placement: 'product-page',
 			context: 'my-jetpack',
 		} );
-		navigateToUpgrade();
-	}, [ recordEvent, navigateToUpgrade ] );
+		navigate( generatePath( MyJetpackRoutes.AddProtect ) );
+	}, [ recordEvent, navigate ] );
 
 	const hasProtectPage = !! detail?.hasProtectPage;
 	const scanResultsUrl = detail?.scanResultsUrl || getRedirectUrl( 'my-jetpack-manage-scan' );
@@ -87,6 +90,26 @@ export default function ProtectProductPage() {
 	const securityFeaturesUrl = securityIsRetired
 		? getMyJetpackUrl( `#/add-${ replacement?.slug }` )
 		: getRedirectUrl( 'jetpack-security' );
+	const upsellDescription = securityIsRetired
+		? sprintf(
+				/* translators: %s is the name of an available Jetpack bundle. */
+				__(
+					'%s includes real-time backups, malware scanning, and spam protection.',
+					'jetpack-my-jetpack'
+				),
+				replacement?.title
+			)
+		: __(
+				'Jetpack Security provides easy-to-use, comprehensive WordPress site security, including real-time backups, a web application firewall, malware scanning, and spam protection.',
+				'jetpack-my-jetpack'
+			);
+	const upsellLinkLabel = securityIsRetired
+		? sprintf(
+				/* translators: %s is the name of an available Jetpack bundle. */
+				__( 'Learn more about %s', 'jetpack-my-jetpack' ),
+				replacement?.title
+			)
+		: __( 'Learn more about Jetpack Security', 'jetpack-my-jetpack' );
 
 	return (
 		<AdminPage
@@ -94,7 +117,7 @@ export default function ProtectProductPage() {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -158,7 +181,7 @@ export default function ProtectProductPage() {
 									<Icon icon={ login } className={ styles[ 'stats-card-icon-check' ] } />
 									<div>
 										<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
-											{ __( 'Logins blocked', 'jetpack-my-jetpack' ) }
+											{ __( 'Blocked login attempts', 'jetpack-my-jetpack' ) }
 										</div>
 										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
 											{ formatNumberCompact( blockedLogins ) }
@@ -200,7 +223,7 @@ export default function ProtectProductPage() {
 							<div className={ styles[ 'product-interstitial__feature-item' ] }>
 								<Icon icon={ check } className={ styles[ 'feature-icon' ] } />
 								<div>
-									<strong>{ __( 'Brute force protection', 'jetpack-my-jetpack' ) }</strong>
+									<strong>{ __( 'Login protection', 'jetpack-my-jetpack' ) }</strong>
 									<p>
 										{ __(
 											'Automatic blocking of malicious login attempts to keep hackers out of your site.',
@@ -222,7 +245,7 @@ export default function ProtectProductPage() {
 							<div className={ styles[ 'product-interstitial__feature-item' ] }>
 								<Icon icon={ check } className={ styles[ 'feature-icon' ] } />
 								<div>
-									<strong>{ __( 'Web Application Firewall', 'jetpack-my-jetpack' ) }</strong>
+									<strong>{ __( 'Firewall', 'jetpack-my-jetpack' ) }</strong>
 									<p>
 										{ __(
 											'Basic firewall protection with manual rules to filter malicious traffic.',
@@ -300,34 +323,28 @@ export default function ProtectProductPage() {
 							<h2 className={ styles[ 'product-interstitial__section-heading' ] }>
 								{ __( 'Want comprehensive protection?', 'jetpack-my-jetpack' ) }
 							</h2>
-							<p className={ styles[ 'product-interstitial__section-sub-heading' ] }>
-								{ securityIsRetired
-									? sprintf(
-											/* translators: %s is the name of an available Jetpack bundle. */
-											__(
-												'%s includes real-time backups, malware scanning, and spam protection.',
-												'jetpack-my-jetpack'
-											),
-											replacement.title
-										)
-									: __(
-											'Jetpack Security provides easy-to-use, comprehensive WordPress site security, including real-time backups, a web application firewall, malware scanning, and spam protection.',
-											'jetpack-my-jetpack'
-										) }
-							</p>
+							{ isLoadingProduct ? (
+								<div
+									className={ styles[ 'product-interstitial__section-sub-heading-placeholder' ] }
+								>
+									<LoadingBlock height="24px" width="100%" />
+								</div>
+							) : (
+								<p className={ styles[ 'product-interstitial__section-sub-heading' ] }>
+									{ upsellDescription }
+								</p>
+							) }
 							<div className={ styles[ 'product-interstitial__cta-buttons' ] }>
 								<Button variant="primary" onClick={ handleUpgradeClick }>
 									{ __( 'Secure your site', 'jetpack-my-jetpack' ) }
 								</Button>
-								<Link openInNewTab href={ securityFeaturesUrl }>
-									{ securityIsRetired
-										? sprintf(
-												/* translators: %s is the name of an available Jetpack bundle. */
-												__( 'Learn more about %s', 'jetpack-my-jetpack' ),
-												replacement.title
-											)
-										: __( 'Learn more about Jetpack Security', 'jetpack-my-jetpack' ) }
-								</Link>
+								{ isLoadingProduct ? (
+									<LoadingBlock height="24px" width="240px" />
+								) : (
+									<Link openInNewTab href={ securityFeaturesUrl }>
+										{ upsellLinkLabel }
+									</Link>
+								) }
 							</div>
 						</div>
 					</Col>

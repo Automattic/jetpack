@@ -11,6 +11,7 @@ import {
 } from '../free-site-upgrade-notice';
 import { PlanLimitNotice } from '../plan-limit-notice';
 import { hasPurchaseSuccess, PurchaseSuccessNotice } from '../purchase-success-notice';
+import { useVisitorConsentNoticeVisibility, VisitorConsentNotice } from '../visitor-consent-notice';
 import type { JSX } from 'react';
 
 /**
@@ -20,11 +21,20 @@ import type { JSX } from 'react';
  * @return The notice, or nothing.
  */
 function ConnectedNotices(): JSX.Element | null {
+	const showVisitorConsent = useVisitorConsentNoticeVisibility();
 	const showFreeSiteUpgrade = useFreeSiteUpgradeNoticeVisibility();
 
 	// A checkout return holds the other notices back for the whole load, even once dismissed.
 	if ( hasPurchaseSuccess() ) {
 		return <PurchaseSuccessNotice />;
+	}
+
+	if ( showVisitorConsent === undefined ) {
+		return null;
+	}
+
+	if ( showVisitorConsent ) {
+		return <VisitorConsentNotice />;
 	}
 
 	if ( showFreeSiteUpgrade === undefined ) {

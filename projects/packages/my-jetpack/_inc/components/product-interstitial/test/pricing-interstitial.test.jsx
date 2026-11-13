@@ -8,9 +8,13 @@ import userEvent from '@testing-library/user-event';
 import useActivatePlugins from '../../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../../data/products/use-activate-search-free-product';
 import useProduct from '../../../data/products/use-product';
+import { prepareProductData } from '../../../data/utils/prepare-product-data';
 import PricingInterstitial from '../pricing-interstitial';
 
 jest.mock( '../../../data/products/use-activate-plugins' );
+jest.mock( '../../product-detail-card/skeleton', () => () => (
+	<span data-testid="offer-skeleton" />
+) );
 jest.mock( '../../../data/products/use-activate-search-free-product' );
 jest.mock( '../../../data/products/use-product' );
 jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
@@ -28,12 +32,17 @@ jest.mock( '../../../hooks/use-interstitials-state', () => ( {
 	useInterstitialsState: () => ( { update: mockUpdateInterstitialsState } ),
 } ) );
 
-jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( {
+const mockUseMyJetpackConnection = jest.fn( () => ( {
 	siteIsRegistering: false,
 	handleRegisterSite: () => Promise.resolve( null ),
 } ) );
+jest.mock(
+	'../../../hooks/use-my-jetpack-connection',
+	() => options => mockUseMyJetpackConnection( options )
+);
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
+	CONNECTION_FROM: jest.requireActual( '@automattic/jetpack-connection' ).CONNECTION_FROM,
 	useProductCheckoutWorkflow: jest.fn(),
 } ) );
 
@@ -68,7 +77,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	PricingTableColumn: ( { children } ) => <div>{ children }</div>,
 	PricingTableHeader: ( { children } ) => <div>{ children }</div>,
 	PricingTableItem: () => <div />,
-	ProductPrice: () => <div />,
+	ProductPrice: jest.requireActual( '@automattic/jetpack-components/product-price' ).default,
 } ) );
 
 jest.mock( '@wordpress/ui', () => ( {
@@ -159,6 +168,14 @@ describe( 'PricingInterstitial free tier for Search', () => {
 		);
 	} );
 
+	test( 'registers the site with the product name', () => {
+		render( <PricingInterstitial slug="search" /> );
+
+		expect( mockUseMyJetpackConnection ).toHaveBeenCalledWith(
+			expect.objectContaining( { from: 'my_jetpack_products_search' } )
+		);
+	} );
+
 	test( 'keeps every tier button disabled while the grant is still in flight', () => {
 		searchFreeIsPending = true;
 
@@ -184,11 +201,20 @@ it.each( [ 'security', 'growth', 'complete' ] )(
 			[ legacyBundle ]: legacy,
 			pro,
 		};
+		let isLoading = true;
 		useProduct.mockImplementation( slug => ( {
 			detail: products[ slug ] || searchDetail,
-			isLoading: false,
+			isLoading,
 		} ) );
 		const { rerender } = render( <PricingInterstitial slug="search" /> );
+		expect(
+			screen.queryByRole( 'button', { name: `Get ${ legacyBundle }` } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'offer-skeleton' ) ).toBeInTheDocument();
+		isLoading = false;
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.queryByTestId( 'offer-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeEnabled();
 		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
 		pro.pricingForUi = { catalogAvailable: true, available: true };
@@ -214,3 +240,28 @@ it.each( [ 'security', 'growth', 'complete' ] )(
 		expect( screen.getByTestId( 'bundle-offer' ) ).toHaveTextContent( legacyBundle );
 	}
 );
+
+it.each( [
+	// Only the mapper input matters here; Search's own server-side fallback price is not modelled.
+	[ 'not loaded', {}, [ '$0' ] ],
+	[
+		'loaded',
+		{ product_term: 'year', currency_code: 'USD', full_price: 120, discount_price: 60 },
+		[ '$0', '$5', '$10', '$5', '$10' ],
+	],
+	[ 'not loaded for a tier-priced product', { tiers: { upgraded: {} } }, [ '$0' ] ],
+	[
+		'loaded for a tier-priced product',
+		{ tiers: { upgraded: { currency_code: 'USD', full_price: 120, discount_price: 60 } } },
+		[ '$0', '$5', '$10' ],
+	],
+] )( 'shows only real paid prices when the catalog is %s', ( _state, pricing, prices ) => {
+	const detail = prepareProductData( {
+		slug: 'search',
+		pricing_for_ui: { available: true, wpcom_product_slug: 'jetpack_search', ...pricing },
+	} );
+	useProduct.mockReturnValue( { detail, isLoading: false } );
+	const { container } = render( <PricingInterstitial slug="search" /> );
+	expect( container ).not.toHaveTextContent( 'NaN' );
+	expect( screen.queryAllByText( /^\$\d+$/ ).map( price => price.textContent ) ).toEqual( prices );
+} );

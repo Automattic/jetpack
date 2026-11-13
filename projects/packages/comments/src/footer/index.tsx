@@ -19,6 +19,10 @@ export const Footer = () => {
 	const { submit } = formSettings;
 	// The textarea's maxLength holds back typing, not the editor. Counted as PHP counts, in UTF-8 bytes.
 	const isTooLong = utf8.encode( commentValue.value ).length > maxLength;
+	const isDisabled =
+		( mustLogIn && commenter.value.kind === 'unknown' && ! identity.canSignIn ) ||
+		isEmptyComment.value ||
+		isTooLong;
 
 	return (
 		<div className="jetpack-comments__actions">
@@ -27,17 +31,18 @@ export const Footer = () => {
 					{ strings.tooLong }
 				</p>
 			) }
-			<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>
+			<span
+				className={ clsx( 'jetpack-comments__submit', submit.wrapClass, {
+					'is-disabled': isDisabled,
+					'is-busy': isPosting.value,
+				} ) }
+			>
 				<input
 					id={ submit.id }
 					name={ submit.name }
 					type="submit"
 					className={ clsx( submit.class, { 'is-busy': isPosting.value } ) }
-					disabled={
-						( mustLogIn && commenter.value.kind === 'unknown' && ! identity.canSignIn ) ||
-						isEmptyComment.value ||
-						isTooLong
-					}
+					disabled={ isDisabled }
 					aria-disabled={ isPosting.value || undefined }
 					value={ commentParent.value ? strings.reply : submit.label }
 				/>

@@ -1,6 +1,6 @@
 /**
  * MCP and Connectors hub — main view shown at wp-admin/admin.php?page=jetpack-ai.
- * Shows the enable/disable toggle and navigation to Read, Write, and Setup sub-views.
+ * Shows the connect card, the enable/disable toggle, and navigation to Read, Write, and Setup sub-views.
  */
 
 import {
@@ -8,28 +8,22 @@ import {
 	ToggleControl,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useCallback, useId } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import {
-	seen,
-	pencil,
-	connection,
-	chevronRight,
-	info,
-	published,
-	caution,
-	list,
-} from '@wordpress/icons';
+import { seen, pencil, chevronRight, info, published, caution, list } from '@wordpress/icons';
 import { Badge, Button, Card, Stack } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import { isWriteTool } from './categories';
-import McpHowItWorks from './how-it-works';
+import McpConnectCard from './connect-card';
 import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
+	getRemoteAbilityCategory,
 	getSiteContextToolIds,
 	getSiteLevelEnabled,
 	getSiteMcpAbilities,
+	getSiteRemoteGroups,
+	isRemoteAbilityEnabled,
 	mergeSiteMcpAbilities,
 } from './utils';
 
@@ -129,54 +123,6 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 }
 
 /**
- * A card row for the "Connect external AI agent" action — shows title + description.
- *
- * @param {object}   props             - Component props.
- * @param {string}   props.title       - Row title.
- * @param {string}   props.description - Row description.
- * @param {Function} props.onClick     - Click handler.
- * @return {object} Component markup.
- */
-function ConnectRow( { title, description, onClick } ) {
-	// Name the row with the title alone. Left to name-from-content, the button
-	// pulls the whole description into its name too — needlessly long, and a
-	// fuzzier target for voice control. aria-labelledby points at the visible
-	// title (matching NavRow), and aria-describedby keeps the description
-	// available, announced after the name instead of as part of it.
-	const titleId = useId();
-	const descriptionId = useId();
-	return (
-		<button
-			className="jetpack-ai-mcp__connect-row"
-			onClick={ onClick }
-			type="button"
-			aria-labelledby={ titleId }
-			aria-describedby={ descriptionId }
-		>
-			<span className="jetpack-ai-mcp__connect-row-icon">
-				<Icon icon={ connection } size={ 24 } />
-			</span>
-			<span className="jetpack-ai-mcp__connect-row-text">
-				<Text as="p" id={ titleId } className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
-					{ title }
-				</Text>
-				<Text
-					as="p"
-					id={ descriptionId }
-					className="jetpack-ai-mcp__connect-row-description"
-					variant="muted"
-				>
-					{ description }
-				</Text>
-			</span>
-			<span className="jetpack-ai-mcp__connect-row-chevron">
-				<Icon icon={ chevronRight } size={ 24 } />
-			</span>
-		</button>
-	);
-}
-
-/**
  * MCP hub component.
  *
  * @param {object}   props                       - Component props.
@@ -187,6 +133,7 @@ function ConnectRow( { title, description, onClick } ) {
  * @param {Set}      props.savingToolIds         - Set of toolIds currently being saved.
  * @param {Function} props.onNavigate            - Called with 'read' | 'write' | 'setup'.
  * @param {Function} props.onUpdate              - Called with partial mcp_abilities update.
+ * @param {object}   [props.remoteAbilities]     - Published-abilities state; counted in the badges when set.
  * @param {boolean}  [props.showActivityLog]     - Whether this view owns the activity log row
  *                                               (false when the Overview tab renders it instead).
  * @return {object} Component markup.
@@ -200,6 +147,7 @@ export default function McpHub( {
 	onNavigate,
 	onUpdate,
 	showActivityLog = true,
+	remoteAbilities = null,
 } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
@@ -222,16 +170,39 @@ export default function McpHub( {
 	const defaultBadge = defaultToolEnabled
 		? { text: __( 'All enabled', 'jetpack' ), intent: 'success' }
 		: { text: __( 'Disabled', 'jetpack' ) };
-	const readBadge = hasSiteAbilityOverrides
-		? computeBadge( readTools, defaultToolEnabled )
-		: defaultBadge;
-	const writeBadge = hasSiteAbilityOverrides
-		? computeBadge( writeTools, defaultToolEnabled )
-		: defaultBadge;
+	// Published abilities count toward the badges, so they do not say
+	// "All enabled" while a site group is off.
+	const savedRemoteGroups = getSiteRemoteGroups( mcpAbilities ?? {}, blogId );
+	const remoteTools = { read: [], write: [] };
+	const allEnabledIn = tools => tools.length > 0 && tools.every( ( [ , t ] ) => t.enabled );
+	const remoteDefaults = { read: allEnabledIn( readTools ), write: allEnabledIn( writeTools ) };
+	for ( const ability of remoteAbilities?.abilities ?? [] ) {
+		const annotations = ability.meta?.annotations;
+		const category = getRemoteAbilityCategory( ability.name, annotations );
+		remoteTools[ category ].push( [
+			ability.name,
+			{
+				enabled: isRemoteAbilityEnabled(
+					savedRemoteGroups,
+					ability.name,
+					annotations,
+					remoteDefaults[ category ]
+				),
+			},
+		] );
+	}
+	const readBadge =
+		hasSiteAbilityOverrides || remoteTools.read.length
+			? computeBadge( [ ...readTools, ...remoteTools.read ], defaultToolEnabled )
+			: defaultBadge;
+	const writeBadge =
+		hasSiteAbilityOverrides || remoteTools.write.length
+			? computeBadge( [ ...writeTools, ...remoteTools.write ], defaultToolEnabled )
+			: defaultBadge;
 
 	const handleMcpToggle = useCallback(
-		enabled => {
-			recordMcpTracksEvent( 'jetpack_mcp_enabled_toggled', { enabled } );
+		( enabled, source = 'toggle' ) => {
+			recordMcpTracksEvent( 'jetpack_mcp_enabled_toggled', { enabled, source } );
 			const abilities = {};
 			if ( enabled ) {
 				// Enable all tools (read + write) by default, matching the backend's
@@ -253,13 +224,22 @@ export default function McpHub( {
 		[ blogId, onUpdate, availableTools ]
 	);
 
+	const handleTurnOn = useCallback(
+		() => handleMcpToggle( true, 'connect_notice' ),
+		[ handleMcpToggle ]
+	);
+
 	const navigateToRead = useCallback( () => onNavigate( 'read' ), [ onNavigate ] );
 	const navigateToWrite = useCallback( () => onNavigate( 'write' ), [ onNavigate ] );
-	const navigateToSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );
 
 	return (
 		<>
-			<McpHowItWorks />
+			<McpConnectCard
+				mcpEnabled={ isMcpEnabled }
+				onTurnOn={ handleTurnOn }
+				isTurningOn={ savingToolIds.has( '__site_level__' ) }
+				onNavigate={ onNavigate }
+			/>
 			<Card.Root className="jetpack-ai-mcp__access-card">
 				<Card.Header>
 					<Card.Title render={ <h2 /> }>{ __( 'External AI agent access', 'jetpack' ) }</Card.Title>
@@ -295,19 +275,6 @@ export default function McpHub( {
 					) }
 				</Card.Content>
 			</Card.Root>
-
-			{ isMcpEnabled && (
-				<Card.Root className="jetpack-ai-mcp__action-card">
-					<ConnectRow
-						title={ __( 'Connect external AI agent', 'jetpack' ) }
-						description={ __(
-							'Get instructions for connecting your external AI agent.',
-							'jetpack'
-						) }
-						onClick={ navigateToSetup }
-					/>
-				</Card.Root>
-			) }
 
 			{ showActivityLog && isMcpEnabled && activityLogUrl && (
 				<Card.Root className="jetpack-ai-mcp__action-card">

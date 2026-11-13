@@ -1,0 +1,26 @@
+{
+	"7.0": [
+		"es.array-buffer.detached",
+		"es.array-buffer.transfer",
+		"es.array-buffer.transfer-to-fixed-length",
+		"es.map.group-by",
+		"es.object.group-by",
+		"es.promise.try",
+		"es.promise.with-resolvers",
+		"web.dom-exception.stack",
+		"web.structured-clone",
+		"web.url-search-params.delete",
+		"web.url-search-params.has",
+		"web.url-search-params.size",
+		"web.url.can-parse",
+		"web.url.parse"
+	],
+	"7.1": [
+		"es.promise.try",
+		"es.promise.with-resolvers",
+		"web.dom-exception.stack",
+		"web.structured-clone",
+		"web.url.can-parse",
+		"web.url.parse"
+	]
+}

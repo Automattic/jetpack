@@ -1,7 +1,21 @@
 const path = require( 'path' );
+const wpPolyfillModules = require( './babel/wp-polyfill-modules.json' ).modules;
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isDevelopment = ! isProduction;
+
+/**
+ * Normalize a polyfill's name.
+ *
+ * @param {string} name - The polyfill name to normalize.
+ *
+ * @return {string} The normalized name.
+ */
+function normalizePolyfillName( name ) {
+	return name.replace( /^esnext\./, 'es.' );
+}
+
+const normalizedPolyfillModules = wpPolyfillModules.map( normalizePolyfillName );
 
 module.exports = ( api, opts = {} ) => {
 	const ret = {
@@ -10,6 +24,31 @@ module.exports = ( api, opts = {} ) => {
 		plugins: [],
 		overrides: [],
 	};
+
+	/**
+	 * Decide whether a polyfill should be injected, based on exclusions and support.
+	 *
+	 * @param {string}  name                - The polyfill name.
+	 * @param {boolean} defaultShouldInject - Babel's decision on whether the polyfill should be injected, based on browser support alone.
+	 *
+	 * @return {boolean} Whether the polyfill should be injected.
+	 */
+	function shouldInjectPolyfill( name, defaultShouldInject ) {
+		if ( ! defaultShouldInject ) {
+			return false;
+		}
+
+		// The `exclude` option isn't compatible with `shouldInjectPolyfill`, so we need
+		// to check for exclusions ourselves.
+		// `include` isn't compatible either, but that's not an option on this preset.
+		const exclusions = ( opts.autoWpPolyfill?.exclude ?? [] ).map( normalizePolyfillName );
+		if ( exclusions.includes( normalizePolyfillName( name ) ) ) {
+			return false;
+		}
+
+		// Only inject if the polyfill is supported by `wp-polyfill`.
+		return normalizedPolyfillModules.includes( normalizePolyfillName( name ) );
+	}
 
 	if ( opts.autoWpPolyfill !== false ) {
 		if ( opts.presetEnv?.useBuiltIns ) {
@@ -27,17 +66,8 @@ module.exports = ( api, opts = {} ) => {
 					method: 'usage-global',
 					version: require( 'core-js/package.json' ).version,
 					absoluteImports: importDir,
-					exclude: opts.autoWpPolyfill?.exclude ?? [
-						// Ignore excessively strict polyfilling of `Array.prototype.push` to work
-						// around an obscure bug involving non-writable arrays.
-						// See https://issues.chromium.org/issues/42202623 for the details of the
-						// bug that leads to the polyfilling, and which we are choosing to ignore.
-						'es.array.push',
-
-						// This is an IE-only feature which we don't use, and don't want to polyfill.
-						// @see https://github.com/WordPress/gutenberg/pull/49234
-						'web.immediate',
-					],
+					isDevelopment,
+					shouldInjectPolyfill,
 				},
 			],
 			[

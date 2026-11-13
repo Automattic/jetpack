@@ -124,9 +124,15 @@ export function recordEvent( eventNameSuffix: string, properties: TrackingProper
 /**
  * Record an identity-free aggregate stat via g.gif.
  *
+ * Gated on `features.tracks` too: it still sends the site's hostname to Automattic.
+ *
  * @param statName Stat name suffix.
  */
 export function recordCookielessStat( statName: string ): void {
+	if ( ! isFeatureEnabled( 'tracks' ) ) {
+		return;
+	}
+
 	const statKey = `${ COOKIELESS_STAT_PREFIX }-${ statName }`;
 	const statValue = `total,${ window.location.hostname }`;
 	const cacheBuster = `${ Date.now() }-${ Math.random().toString( 36 ).slice( 2 ) }`;

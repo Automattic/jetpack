@@ -370,13 +370,15 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a connected uploader clears the permission callback and the
-	 * handler then reports the endpoint unavailable off-WPCOM: promotion is
-	 * in-process on WordPress.com Simple only (self-hosted promotes walk
-	 * videopress/v1/upload/{id} instead), and IS_WPCOM can't be simulated
-	 * in this environment.
+	 * Invalid sources must be rejected before the host-specific handler runs.
+	 *
+	 * @dataProvider promotion_dispatch_sources
+	 * @param mixed  $source Request source, or null to omit it.
+	 * @param int    $status Expected response status.
+	 * @param string $code Expected error code.
 	 */
-	public function test_promote_dispatch_reports_not_available_off_wpcom() {
+	#[DataProvider( 'promotion_dispatch_sources' )]
+	public function test_promote_dispatch_validates_source_before_host_check( $source, $status, $code ) {
 		$user_id = $this->login_as( 'author' );
 		$this->mock_connection( $user_id );
 
@@ -391,11 +393,29 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 			)
 		);
 
-		$request  = new \WP_REST_Request( 'POST', "/wpcom/v2/videopress/promote/{$attachment_id}" );
+		$request = new \WP_REST_Request( 'POST', "/wpcom/v2/videopress/promote/{$attachment_id}" );
+		if ( null !== $source ) {
+			$request->set_param( 'source', $source );
+		}
 		$response = rest_get_server()->dispatch( $request );
 
-		$this->assertSame( 404, $response->get_status() );
-		$this->assertSame( 'videopress_promote_not_available', $response->get_data()['code'] );
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertSame( $code, $response->get_data()['code'] );
+	}
+
+	/**
+	 * Promotion source requests accepted or rejected by the REST schema.
+	 *
+	 * @return array
+	 */
+	public static function promotion_dispatch_sources() {
+		return array(
+			'omitted'   => array( null, 404, 'videopress_promote_not_available' ),
+			'dashboard' => array( 'dashboard_promote', 404, 'videopress_promote_not_available' ),
+			'editor'    => array( 'block_editor', 404, 'videopress_promote_not_available' ),
+			'unknown'   => array( 'unknown', 400, 'rest_invalid_param' ),
+			'array'     => array( array( 'block_editor' ), 400, 'rest_invalid_param' ),
+		);
 	}
 
 	/**
@@ -518,11 +538,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	/**
 	 * Test that an attachment already on VideoPress reports success
 	 * idempotently without invoking the primitive.
+	 *
+	 * @dataProvider existing_promotion_timing
+	 * @param bool $created_while_waiting Whether the video appeared after the first read.
 	 */
-	public function test_promote_orchestration_is_idempotent_for_live_videos() {
+	#[DataProvider( 'existing_promotion_timing' )]
+	public function test_promote_orchestration_is_idempotent_for_live_videos( $created_while_waiting ) {
+		$actions_before        = did_action( 'jetpack_videopress_attachment_promoted' );
 		$endpoint              = $this->make_promote_double();
 		$endpoint->video_infos = array( (object) array( 'guid' => 'AbCd1234' ) );
-		$attachment_id         = $this->make_attachment();
+		if ( $created_while_waiting ) {
+			array_unshift( $endpoint->video_infos, false );
+		}
+		$attachment_id = $this->make_attachment();
 
 		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
 
@@ -536,6 +564,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 			$result->get_data()
 		);
 		$this->assertSame( array(), $endpoint->transcoded );
+		$this->assertSame( $actions_before, did_action( 'jetpack_videopress_attachment_promoted' ) );
+		$this->assertFalse( wp_cache_get( $endpoint->lock_key( get_current_blog_id(), $attachment_id ), 'video-info' ) );
+	}
+
+	/**
+	 * A competing promotion can finish before this request acquires the lock.
+	 *
+	 * @return array
+	 */
+	public static function existing_promotion_timing() {
+		return array(
+			'already present'        => array( false ),
+			'appeared while waiting' => array( true ),
+		);
 	}
 
 	/**
@@ -595,14 +637,36 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	/**
 	 * Test the fresh-promote happy path: the primitive runs once, the
 	 * verification read supplies the new guid, and the lock is released.
+	 *
+	 * @dataProvider promotion_sources
+	 * @param string|null $source Entry surface, or null when omitted.
 	 */
-	public function test_promote_orchestration_promotes_and_releases_the_lock() {
+	#[DataProvider( 'promotion_sources' )]
+	public function test_promote_orchestration_promotes_and_releases_the_lock( $source ) {
 		$endpoint              = $this->make_promote_double();
-		$endpoint->video_infos = array( false, (object) array( 'guid' => 'Ne3w1234' ) );
 		$attachment_id         = $this->make_attachment();
+		$info                  = (object) array(
+			'guid'    => 'Ne3w1234',
+			'blog_id' => get_current_blog_id(),
+			'post_id' => $attachment_id,
+		);
+		$endpoint->video_infos = array( false, false, $info );
 		$lock                  = $endpoint->lock_key( get_current_blog_id(), $attachment_id );
+		$request               = $this->promote_request( $attachment_id );
+		if ( null !== $source ) {
+			$request->set_param( 'source', $source );
+		}
+		$promotions = array();
+		$record     = static function ( ...$args ) use ( &$promotions ) {
+			$promotions[] = $args;
+		};
+		add_action( 'jetpack_videopress_attachment_promoted', $record, 10, 3 );
 
-		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
+		try {
+			$result = $endpoint->videopress_promote_attachment( $request );
+		} finally {
+			remove_action( 'jetpack_videopress_attachment_promoted', $record );
+		}
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $result );
 		$this->assertSame(
@@ -614,6 +678,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		);
 		$this->assertSame( array( $attachment_id ), $endpoint->transcoded );
 		$this->assertFalse( wp_cache_get( $lock, 'video-info' ), 'The promote lock should be released after success.' );
+		$this->assertSame( array( array( $info, get_current_blog_id(), $source ) ), $promotions );
+	}
+
+	/**
+	 * Known and omitted entry surfaces for successful promotions.
+	 *
+	 * @return array
+	 */
+	public static function promotion_sources() {
+		return array( array( null ), array( 'dashboard_promote' ), array( 'block_editor' ) );
 	}
 
 	/**
@@ -622,9 +696,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	 * releases the lock.
 	 */
 	public function test_promote_orchestration_reports_failure_and_releases_the_lock() {
-		$endpoint      = $this->make_promote_double();
-		$attachment_id = $this->make_attachment();
-		$lock          = $endpoint->lock_key( get_current_blog_id(), $attachment_id );
+		$actions_before = did_action( 'jetpack_videopress_attachment_promoted' );
+		$endpoint       = $this->make_promote_double();
+		$attachment_id  = $this->make_attachment();
+		$lock           = $endpoint->lock_key( get_current_blog_id(), $attachment_id );
 
 		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
 
@@ -632,6 +707,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertSame( 500, $result->get_error_data()['status'] );
 		$this->assertSame( array( $attachment_id ), $endpoint->transcoded );
 		$this->assertFalse( wp_cache_get( $lock, 'video-info' ), 'The promote lock should be released after failure.' );
+		$this->assertSame( $actions_before, did_action( 'jetpack_videopress_attachment_promoted' ) );
 	}
 
 	/**
@@ -825,6 +901,57 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 			$response->get_status(),
 			'The owner must clear the permission check for their own video.'
 		);
+	}
+
+	/**
+	 * Data provider for test_meta_update_reports_unconfirmed_upstream_replies.
+	 *
+	 * @return array<string, array{int, string, string, int}>
+	 */
+	public static function provide_unconfirmed_upstream_replies() {
+		return array(
+			'HTML error page' => array( 503, '<html>Service Unavailable</html>', 'videopress_meta_update_failed', 502 ),
+			'false body'      => array( 200, 'false', 'videopress_meta_update_failed', 502 ),
+			'REST error'      => array( 400, '{"code":"invalid_guid","message":"Bad guid","data":{"status":400}}', 'invalid_guid', 400 ),
+			'bare status'     => array( 500, '{"code":"unknown_media","message":"Not found","data":404}', 'unknown_media', 404 ),
+		);
+	}
+
+	/**
+	 * An upstream reply that does not confirm the update must reach the dashboard as an error with a code.
+	 *
+	 * @param int    $upstream_status HTTP status WordPress.com answers with.
+	 * @param string $upstream_body   Body WordPress.com answers with.
+	 * @param string $code            Expected REST error code.
+	 * @param int    $status          Expected HTTP status.
+	 * @dataProvider provide_unconfirmed_upstream_replies
+	 */
+	#[DataProvider( 'provide_unconfirmed_upstream_replies' )]
+	public function test_meta_update_reports_unconfirmed_upstream_replies( $upstream_status, $upstream_body, $code, $status ) {
+		$user_id = $this->login_as( 'administrator' );
+		$this->mock_connection( $user_id );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		$attachment_id = $this->create_attachment_owned_by( $user_id );
+		update_post_meta( $attachment_id, 'videopress_guid', 'aBcDeFgH' );
+
+		$reply = function () use ( $upstream_status, $upstream_body ) {
+			return array(
+				'headers'  => array(),
+				'body'     => $upstream_body,
+				'response' => array(
+					'code'    => $upstream_status,
+					'message' => '',
+				),
+				'cookies'  => array(),
+			);
+		};
+		add_filter( 'pre_http_request', $reply );
+		$response = $this->dispatch_meta_update( $attachment_id );
+		remove_filter( 'pre_http_request', $reply );
+		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertSame( $code, $response->get_data()['code'] );
 	}
 
 	/**

@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
-import { PROCESSING_POLL_MAX_MS } from '../use-library';
+import { PROCESSING_POLL_MAX_MS } from '../../utils/processing-poll';
 import { useVideoEdits, EDITS_QUERY_KEY, EDITS_POLL_INTERVAL_MS } from '../use-video-edits';
 import type { VideoEdits } from '../../types/edits';
 
