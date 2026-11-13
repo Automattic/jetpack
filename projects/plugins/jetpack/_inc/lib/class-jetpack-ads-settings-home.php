@@ -9,7 +9,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Monetize\Dashboard;
 use Automattic\Jetpack\My_Jetpack\Initializer;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -145,13 +144,10 @@ class Jetpack_Ads_Settings_Home {
 	private static function get_dashboard_data() {
 		$connection = new Connection_Manager();
 		$suffix     = ( new Status() )->get_site_suffix();
-		$blog_id    = Jetpack_Options::get_option( 'id' );
-		$site       = $blog_id ? (string) $blog_id : $suffix;
 
 		return array(
 			'hasWordAds'         => Current_Plan::supports( 'wordads' ),
 			'hasConnectedOwner'  => $connection->has_connected_owner(),
-			'earningsUrl'        => Redirect::get_url( 'calypso-stats-ads-day', array( 'site' => $site ) ),
 			'isSubdirectorySite' => str_contains( $suffix, '::' ),
 			'moduleOverride'     => Jetpack_Modules_Overrides::instance()->get_module_override( 'wordads' ),
 		);

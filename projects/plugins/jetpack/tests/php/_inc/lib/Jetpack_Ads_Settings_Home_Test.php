@@ -114,8 +114,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 
 		$_GET['page'] = 'jetpack-monetize';
 		$payload      = Jetpack_Ads_Settings_Home::add_script_data( array() )['monetize']['adsSettings'];
-		$this->assertSame( array( 'hasWordAds', 'hasConnectedOwner', 'earningsUrl', 'isSubdirectorySite', 'moduleOverride' ), array_keys( $payload ) );
-		$this->assertStringContainsString( 'source=calypso-stats-ads-day', $payload['earningsUrl'] );
+		$this->assertSame( array( 'hasWordAds', 'hasConnectedOwner', 'isSubdirectorySite', 'moduleOverride' ), array_keys( $payload ) );
 	}
 
 	/**
