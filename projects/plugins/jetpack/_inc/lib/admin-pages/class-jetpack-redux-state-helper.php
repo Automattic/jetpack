@@ -199,6 +199,7 @@ class Jetpack_Redux_State_Helper {
 				'isMultisite'                => is_multisite(),
 				// Set when Jetpack or the standalone plugin registered the Backup page on this request.
 				'hasBackupPage'              => (bool) did_action( 'jetpack_backup_initialized' ),
+				'hasSocialPage'              => self::has_social_page(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
 					&& $block_availability['sharing-buttons']['available'],
@@ -399,6 +400,21 @@ class Jetpack_Redux_State_Helper {
 		// Get the dynamic image generated for the Open Graph Meta tags.
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 		return jetpack_og_get_fallback_social_image( 200, 200 )['src'];
+	}
+
+	/**
+	 * Whether the Jetpack Social page is in the Jetpack menu for this user.
+	 *
+	 * Publicize skips it when `jetpack_publicize_should_load` is false, even on a connected site, so this reads the built menu.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function has_social_page() {
+		global $submenu;
+
+		return in_array( 'jetpack-social', array_column( $submenu['jetpack'] ?? array(), 2 ), true );
 	}
 }
 

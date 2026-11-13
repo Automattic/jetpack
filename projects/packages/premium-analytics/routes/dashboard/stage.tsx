@@ -1,6 +1,8 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import {
+	DASHBOARD_PREFERENCES_SCOPE,
 	isPlanDateLimitedSection,
+	orderSections,
 	PeriodChangeSignalProvider,
 	queryClient,
 	ReportScopeProvider,
@@ -114,6 +116,20 @@ function Dashboard(): JSX.Element {
 		widgetTypeRenames
 	);
 	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+	// The order the reader is trying in the Arrange tabs dialog: the tab bar alone follows it.
+	const [ previewOrder, setPreviewOrder ] = useState< string[] >();
+	const tabBarSections = useMemo(
+		() => orderSections( sections, previewOrder ?? [] ),
+		[ sections, previewOrder ]
+	);
+	const arrangeableTabs = useMemo(
+		() => ( {
+			scope: DASHBOARD_PREFERENCES_SCOPE,
+			items: sections.map( ( { slug, label } ) => ( { slug, label } ) ),
+			onPreview: setPreviewOrder,
+		} ),
+		[ sections ]
+	);
 
 	// The inserter offers the active section's default layout types plus those it declares insertable.
 	const insertableWidgetTypes = useMemo(
@@ -290,11 +306,11 @@ function Dashboard(): JSX.Element {
 	// the section shows the period control, it draws attention to the new period.
 	const showsPeriodControl =
 		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
-	const { openPeriod, attentionId } = usePeriodHost(
+	const { openPeriod, attention } = usePeriodHost(
 		activeSection,
 		dateFilters.appliedRange,
 		showsPeriodControl,
-		lockedIntervals
+		dateLimits
 	);
 
 	const {
@@ -451,18 +467,14 @@ function Dashboard(): JSX.Element {
 					onApply={ onDateApply }
 					stepping={ dateStepping }
 					withIntervalControl={ showHeaderIntervalControl }
-					attentionId={ attentionId }
+					attentionId={ attention?.id }
 				/>
 			);
 	}
 
 	return (
 		<>
-			<PeriodChangeStatus
-				attentionId={ attentionId }
-				appliedPresetId={ dateFilters.appliedPresetId }
-				appliedRange={ dateFilters.appliedRange }
-			/>
+			<PeriodChangeStatus periodChange={ attention } />
 			{ /*
 			 * Declared once for widgets below: hiding the control doesn't strip the params,
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
@@ -505,6 +517,7 @@ function Dashboard(): JSX.Element {
 													onCustomize={
 														editMode || ! canCustomizeSection ? undefined : startCustomizing
 													}
+													tabs={ arrangeableTabs }
 												/>
 											</DashboardSectionProvider>
 										</Stack>
@@ -513,7 +526,7 @@ function Dashboard(): JSX.Element {
 								className={ styles.dashboard }
 							>
 								<DashboardSections
-									sections={ sections }
+									sections={ tabBarSections }
 									value={ activeSection }
 									onChange={ setActiveSection }
 									tabListRef={ setTabListFrame }

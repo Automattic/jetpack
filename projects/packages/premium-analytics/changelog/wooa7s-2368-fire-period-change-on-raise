@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Date controls: Simplify how a period a widget sets is signalled to the date control.

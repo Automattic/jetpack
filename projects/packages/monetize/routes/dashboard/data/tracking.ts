@@ -90,3 +90,11 @@ export function trackBannerClick( type: 'upgrade' | 'connect' ) {
 		origin: ORIGIN,
 	} );
 }
+
+/**
+ * Record a saved PayPal address.
+ * @param signedTos - Whether the terms were signed with this save.
+ */
+export function trackPayoutSave( signedTos: boolean ) {
+	record( 'jetpack_monetize_ads_payout_save', { signed_tos: signedTos, origin: ORIGIN } );
+}

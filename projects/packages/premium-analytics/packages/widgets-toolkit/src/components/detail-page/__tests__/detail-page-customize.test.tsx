@@ -2,9 +2,10 @@ import analytics from '@automattic/jetpack-analytics';
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { act, render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useViewportMatch } from '@wordpress/compose';
 import {
+	CustomizingBadge,
 	DetailPageActions,
-	DetailPageBreadcrumbs,
 	useDetailPageCustomize,
 } from '../detail-page-customize';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
@@ -20,6 +21,7 @@ jest.mock(
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
+const ViewportWidth = useViewportMatch.__experimentalWidthProvider;
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 
 const layout = [ { uuid: 'card', type: 'jpa/card' } ] as DashboardWidget[];
@@ -143,24 +145,19 @@ describe( 'detail-page-customize', () => {
 		} );
 	} );
 
-	describe( 'DetailPageBreadcrumbs', () => {
-		it( 'adds the Customizing badge only while customizing', () => {
-			const { rerender } = render(
-				<DetailPageBreadcrumbs isCustomizing={ false }>
-					<nav>Trail</nav>
-				</DetailPageBreadcrumbs>
+	describe( 'CustomizingBadge', () => {
+		// Not 600: the width provider treats it as wide, a real `max-width: 600px` query as narrow.
+		it.each( [
+			[ 'leaves the badge out below the small breakpoint', 599, false ],
+			[ 'keeps the badge above the small breakpoint', 601, true ],
+		] )( '%s', ( _name, width, hasBadge ) => {
+			render(
+				<ViewportWidth value={ width }>
+					<CustomizingBadge />
+				</ViewportWidth>
 			);
 
-			expect( screen.getByText( 'Trail' ) ).toBeInTheDocument();
-			expect( screen.queryByText( 'Customizing' ) ).not.toBeInTheDocument();
-
-			rerender(
-				<DetailPageBreadcrumbs isCustomizing>
-					<nav>Trail</nav>
-				</DetailPageBreadcrumbs>
-			);
-
-			expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Customizing' ) !== null ).toBe( hasBadge );
 		} );
 	} );
 

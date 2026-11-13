@@ -217,6 +217,20 @@ export function getPolicyDefaultPreset(
 }
 
 /**
+ * Whether a window starting at `from` begins before the first day the policy shows.
+ *
+ * @param from   - The window's start, or undefined when it cannot be read.
+ * @param policy - The policy.
+ * @return Whether the policy would move the window.
+ */
+export function startsBeforePolicy(
+	from: Date | undefined,
+	policy: Pick< StatsDatePolicy, 'earliestDate' >
+): boolean {
+	return !! policy.earliestDate && ( ! from || from < policy.earliestDate );
+}
+
+/**
  * Report params the policy allows, and what it had to change.
  *
  * @param params          - Normalized report params.
@@ -236,8 +250,7 @@ export function applyStatsDatePolicy(
 	let next = params;
 	let isWindowAdjusted = false;
 
-	const from = parseSiteDateTime( params.from );
-	const startsTooEarly = !! policy.earliestDate && ( ! from || from < policy.earliestDate );
+	const startsTooEarly = startsBeforePolicy( parseSiteDateTime( params.from ), policy );
 
 	if ( policy.feature && ( startsTooEarly || isPresetLockedByPolicy( params.preset, policy ) ) ) {
 		const landing = landingPresetId

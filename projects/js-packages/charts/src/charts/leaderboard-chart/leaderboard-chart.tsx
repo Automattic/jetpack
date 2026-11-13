@@ -532,7 +532,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												[ styles.overlayLabel ]: withOverlayLabel,
 											} ) }
 										>
-											{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
+											{ isPrimaryVisible && (
+												<Text className={ styles.value }>
+													{ valueFormatter( entry.currentValue ) }
+												</Text>
+											) }
 
 											{ showComparisonValue && (
 												<Text className={ clsx( styles.deltaValue, deltaTrendClass ) }>

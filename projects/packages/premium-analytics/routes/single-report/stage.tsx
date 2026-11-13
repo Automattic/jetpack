@@ -7,7 +7,7 @@ import {
 	ReportScopeProvider,
 	isPlanDateLimitedSection,
 } from '@jetpack-premium-analytics/data';
-import { Badge, Icon } from '@jetpack-premium-analytics/externals';
+import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
@@ -19,6 +19,7 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { PeriodChangeStatus, SectionTabs, StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
+	CustomizingBadge,
 	DetailPageActions,
 	PageEmptyState,
 	PageNotice,
@@ -40,14 +41,12 @@ import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboa
 import { useDateWindowNotice } from '../date-window-notice';
 import { DETAIL_GRID } from '../grid';
 import { getReportDefinition } from '../reports/registry';
-import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
-import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { SinglePageLayout } from './components';
 import { buildControlFields, type ControlsItem } from './controls';
-import { useActiveSection } from './hooks';
+import { useActiveSection, useDetailBreadcrumbs, useDetailDateControls } from './hooks';
 import { route } from './package.json';
 import {
 	getSingleReportAdapter,
@@ -140,10 +139,11 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 
+	useDateWindowNotice();
+
 	const { dateLimits } = useStatsDateLimits(
 		isPlanDateLimitedSection( page.dashboard_section ?? undefined )
 	);
-	useDateWindowNotice();
 	const lockedIntervals = dateLimits?.lockedIntervals;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM, { dateLimits } );
@@ -156,6 +156,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		activeSlug: urlSection,
 		timeZone: dateFilters.timeZone,
 	} );
+
 	const visibleStates = useMemo(
 		() => sectionStates.filter( state => ! state.hidden ),
 		[ sectionStates ]
@@ -234,6 +235,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		() => ( isPinned ? [] : buildControlFields( controls ) ),
 		[ isPinned, controls ]
 	);
+
 	const controlsData = useMemo< ControlsItem >(
 		() => ( {
 			reportParams: pickReportDateParams( search ),
@@ -243,6 +245,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 	);
 
 	const { onChange: changeDateRange, onApply: applyDateRange, timeZone } = dateFilters;
+
 	// Through the date controller, so a new named preset starts from its own default bucket: there
 	// is no bucket control here to fix one carried over.
 	const applyReportParams = useCallback(
@@ -268,11 +271,11 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	// A card can set the period (the All-time traffic card opens a month): the change is read
 	// out and the page returns to the top, where the re-scoped cards are.
-	const { openPeriod, attentionId } = usePeriodHost(
+	const { openPeriod, attention } = usePeriodHost(
 		`${ page.path }:${ entityId }`,
 		dateFilters.appliedRange,
 		! isPinned,
-		lockedIntervals
+		dateLimits
 	);
 
 	const reportSearch = pickReportNavigationParams( search );
@@ -283,6 +286,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		sectionLayout
 	);
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
+
 	// A URL-scoped section waits for All time to anchor; a pinned one for its window.
 	const showWidgets =
 		canRenderWidgets &&
@@ -370,14 +374,10 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	return (
 		<>
-			<PeriodChangeStatus
-				attentionId={ attentionId }
-				appliedPresetId={ dateFilters.appliedPresetId }
-				appliedRange={ dateFilters.appliedRange }
-			/>
+			<PeriodChangeStatus periodChange={ attention } />
 			<ReportScopeProvider
 				openPeriod={ openPeriod }
-				attentionId={ attentionId }
+				attentionId={ attention?.id }
 				dateLimits={ dateLimits }
 			>
 				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
@@ -397,13 +397,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 								className={ styles.page }
 								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-								badges={
-									isCustomizing ? (
-										<Badge intent="informational">
-											{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }
-										</Badge>
-									) : undefined
-								}
+								badges={ isCustomizing ? <CustomizingBadge /> : undefined }
 								actions={
 									<DetailPageActions
 										isCustomizing={ isCustomizing }
@@ -428,7 +422,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 									controls={ controlFields as never }
 									data={ controlsData }
 									onChange={ applyReportParams }
-									returnToTopKey={ attentionId }
+									returnToTopKey={ attention?.id }
 								>
 									{ emptyState ? <PageEmptyState { ...emptyState } /> : null }
 									{ /* Keyed by section: each is its own layout, so the grid mounts fresh. */ }

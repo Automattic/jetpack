@@ -4,7 +4,6 @@ import {
 	getApiRetryDelay,
 	isUserRetryableError,
 	shouldRetryApiError,
-	StatsResponseShapeError,
 } from '../api-error';
 
 // The WooCommerce report proxy passes the WordPress.com `WP_Error` body on with its status.
@@ -95,12 +94,6 @@ describe( 'shouldRetryApiError', () => {
 		expect( shouldRetryApiError( 0, { status: 500 } ) ).toBe( true );
 		expect( shouldRetryApiError( 2, { status: 500 } ) ).toBe( true );
 		expect( shouldRetryApiError( 3, { status: 500 } ) ).toBe( false );
-	} );
-
-	it( 'does not auto-retry a sanitizer parse failure', () => {
-		// Retrying verbatim reproduces the same unparsable response; only a
-		// manual Retry (e.g. after a redeploy) can actually change the outcome.
-		expect( shouldRetryApiError( 0, new StatsResponseShapeError( 'bad shape' ) ) ).toBe( false );
 	} );
 
 	it( 'still retries an ordinary transient failure', () => {

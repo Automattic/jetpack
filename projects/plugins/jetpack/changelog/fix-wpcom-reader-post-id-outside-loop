@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+WordPress.com Reader: Stop marking every item of a custom feed template with the same post ID.

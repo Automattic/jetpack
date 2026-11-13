@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Block editor: Add a per-site option to hide the markers on non-breaking spaces in the editor.

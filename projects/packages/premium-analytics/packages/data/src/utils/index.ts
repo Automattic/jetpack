@@ -6,7 +6,6 @@ export {
 	isAnalyticsTablesNotReady,
 	isUserRetryableError,
 	shouldRetryApiError,
-	StatsResponseShapeError,
 } from './api-error';
 export { ensureCoreSettingsReady } from './ensure-core-settings';
 export { getDefaultIntervalForPeriod } from './interval';

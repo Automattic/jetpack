@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Leaderboard chart: Add the --a8c-charts-font-weight-leaderboard custom property for the row text weight.
