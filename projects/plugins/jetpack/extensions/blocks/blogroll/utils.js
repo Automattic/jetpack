@@ -119,8 +119,14 @@ export async function discoverFeedUrl( siteURL ) {
 			return undefined;
 		}
 
+		// The Reader can return a homepage as the feed (kottke.org), so skip bare site roots.
 		const { feeds } = await response.json();
-		return getValidFeedUrl( feeds?.[ 0 ]?.subscribe_URL );
+		return ( feeds ?? [] )
+			.map( feed => getValidFeedUrl( feed?.subscribe_URL ) )
+			.find( feedUrl => {
+				const url = feedUrl && new URL( feedUrl );
+				return url && ( '/' !== url.pathname || url.search );
+			} );
 	} catch {
 		return undefined;
 	}

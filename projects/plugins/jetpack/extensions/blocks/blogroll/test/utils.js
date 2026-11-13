@@ -143,6 +143,27 @@ describe( 'discoverFeedUrl', () => {
 	} );
 
 	it.each( [
+		[ 'only a homepage', [ 'http://example.com' ], undefined ],
+		[
+			'a homepage first',
+			[ 'http://example.com', 'https://example.com/rss' ],
+			'https://example.com/rss',
+		],
+		[
+			'a plain permalink feed',
+			[ 'https://example.com/?feed=rss2' ],
+			'https://example.com/?feed=rss2',
+		],
+	] )( 'skips homepages when the Reader returns %s', async ( _, urls, expected ) => {
+		mockFetch(
+			undefined,
+			urls.map( url => ( { subscribe_URL: url } ) )
+		);
+
+		await expect( discoverFeedUrl( 'example.com' ) ).resolves.toBe( expected );
+	} );
+
+	it.each( [
 		[ 'no feed is found', () => mockFetch( undefined, undefined ) ],
 		[
 			'the request fails',
