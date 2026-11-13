@@ -46,6 +46,8 @@ export interface SiteData {
 	edit_url?: string | null;
 	// The site language (WordPress locale), which the AI output is written in.
 	language?: string;
+	// The site_intent option, which preselects the wizard goal when it matches one.
+	site_intent?: string;
 	// Copy written into the site's posts and pages, translated into the site language.
 	copy?: SiteCopy;
 }

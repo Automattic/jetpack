@@ -127,7 +127,7 @@ The slug list exists because the report registry lives in the client today. Once
 
 The server's order is the default. A reader rearranges the tabs in the Arrange tabs dialog of the page options menu, and the result is stored as `sectionOrder`, a list of slugs, in their preferences under the dashboard scope.
 
-`orderSections()` applies it. The slugs the list names come first, in its order, and every other available section follows in the server's order, so a section registered later lands after the ones the reader arranged. A slug with no available section is skipped and kept, so the section returns to its place once it is available again.
+`orderSections()` applies it. The slugs the list names come first, in its order, and every other available section follows in the server's order, so a section registered later lands after the ones the reader arranged. A slug with no available section is skipped and kept, also when the reader saves a new order, so the section returns to its place once it is available again.
 
 The first tab is the one a URL without `?section=` opens, so both channels above apply the order: `useDashboardSections()` on the records the navigation is built from, and `dashboardSectionOf()` on the slug list a route reads in `beforeLoad` to pick its date policy. Both go through `orderSections()`, which keeps them on the same first tab.
 

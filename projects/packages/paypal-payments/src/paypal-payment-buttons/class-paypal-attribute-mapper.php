@@ -81,6 +81,15 @@ class PayPal_Attribute_Mapper {
 	const MAX_VARIANT_OPTIONS = 10;
 
 	/**
+	 * Line-item images PayPal shows on one payment. Mirrored in `utils/images.js`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var int
+	 */
+	const MAX_PRODUCT_IMAGES = 5;
+
+	/**
 	 * Maximum product name length.
 	 *
 	 * @var int
@@ -168,6 +177,7 @@ class PayPal_Attribute_Mapper {
 		'unit_amount',
 		'description',
 		'product_id',
+		'images',
 		'variants',
 		'adjustable_quantity',
 		'customer_notes',
@@ -324,6 +334,10 @@ class PayPal_Attribute_Mapper {
 				$attributes['productId'] = sanitize_text_field( $line_item['product_id'] );
 			}
 
+			if ( ! empty( $line_item['images'] ) && is_array( $line_item['images'] ) ) {
+				$attributes['images'] = self::images_to_attributes( $line_item['images'] );
+			}
+
 			if ( ! empty( $line_item['variants']['dimensions'] ) ) {
 				$attributes['variantsEnabled'] = true;
 				$attributes['variants']        = $line_item['variants'];
@@ -439,6 +453,43 @@ class PayPal_Attribute_Mapper {
 		$attributes['scriptSrc'] = self::extract_script_src( $response );
 
 		return $attributes;
+	}
+
+	/**
+	 * A payment's line-item images as the block stores them, the primary one first.
+	 *
+	 * An image still in review has no URLs yet; the block keeps the media library's
+	 * own thumbnail for it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $images Images as PayPal returns them.
+	 * @return array Each with assetId, status, url and thumbnailUrl.
+	 */
+	public static function images_to_attributes( array $images ) {
+		$mapped = array();
+
+		foreach ( $images as $image ) {
+			$asset_id = is_array( $image ) ? trim( (string) ( $image['asset_id'] ?? '' ) ) : '';
+			if ( '' === $asset_id ) {
+				continue;
+			}
+
+			$row = array(
+				'assetId'      => sanitize_text_field( $asset_id ),
+				'status'       => 'IN_REVIEW' === ( $image['status'] ?? '' ) ? 'IN_REVIEW' : 'APPROVED',
+				'url'          => esc_url_raw( (string) ( $image['url'] ?? '' ) ),
+				'thumbnailUrl' => esc_url_raw( (string) ( $image['thumbnail_url'] ?? '' ) ),
+			);
+
+			if ( ! empty( $image['is_primary'] ) ) {
+				array_unshift( $mapped, $row );
+			} else {
+				$mapped[] = $row;
+			}
+		}
+
+		return $mapped;
 	}
 
 	/**

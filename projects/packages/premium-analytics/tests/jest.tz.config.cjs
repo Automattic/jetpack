@@ -29,7 +29,6 @@ const TZ_SUITES = [
 	'routes/single-report/detail-header.test.ts',
 	'routes/single-report/pages/post/post-header-slots.test.tsx',
 	'routes/single-report/pages/video/video-header-slots.test.tsx',
-	'widgets/popular-days/__tests__/bucket-views-by-weekday.test.ts',
 	'widgets/video-detail-views-performance/__tests__/video-detail-views-performance.test.tsx',
 	'widgets/views-over-years/__tests__/build-views-over-years.test.ts',
 	'widgets/views-over-years/__tests__/use-views-over-years.test.tsx',

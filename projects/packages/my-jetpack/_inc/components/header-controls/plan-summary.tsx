@@ -7,7 +7,12 @@ import { useCallback, useMemo, useState } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
-import { PlanLogo, PlanSectionFooter, getPurchaseExpiry } from '../plans-section';
+import {
+	PlanLogo,
+	PlanSectionFooter,
+	getCompleteUpgradeSlug,
+	getPurchaseExpiry,
+} from '../plans-section';
 import styles from './style.module.scss';
 import type { Purchase } from '../../data/types';
 import type { PurchaseExpiryState } from '../plans-section';
@@ -202,6 +207,7 @@ const PlanSummary: FC< { purchases: Purchase[] | null; hasFailed?: boolean } > =
 					<PlanSectionFooter
 						numberOfPurchases={ purchases.length }
 						hasComplete={ hasComplete }
+						completeUpgradeSlug={ getCompleteUpgradeSlug( purchases ) }
 						from={ CONNECTION_FROM?.myJetpackHeaderPlans }
 						tracksProperties={ HEADER_TRACKS_PROPERTIES }
 					/>

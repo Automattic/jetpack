@@ -11,10 +11,14 @@ import { ModuleToggle } from 'components/module-toggle';
 import { FeaturesPointer } from 'components/pointer-card';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { isSwitchedInFeatures as _isSwitchedInFeatures } from 'lib/settings-consolidation';
-import { showMyJetpack } from 'state/initial-state';
+import {
+	isSettingsConsolidationEnabled,
+	isSwitchedInFeatures as _isSwitchedInFeatures,
+} from 'lib/settings-consolidation';
+import { showMyJetpack, userCanManageModules } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound, getSearchTerm } from 'state/search';
+import { MarkdownMoved } from './markdown-moved';
 
 // Card order.
 const COMPOSING_MODULES = [ 'copy-post', 'markdown', 'latex', 'shortcodes', 'blocks' ];
@@ -49,11 +53,12 @@ export class Composing extends Component {
 	};
 
 	render() {
-		const { isModuleFound, isSwitchedInFeatures } = this.props,
+		const { isMarkdownMoved, isModuleFound, isSwitchedInFeatures } = this.props,
 			isFound = module => ! isSwitchedInFeatures( module ) && isModuleFound( module ),
 			foundCopyPost = isFound( 'copy-post' ),
 			foundLatex = isFound( 'latex' ),
-			foundMarkdown = isFound( 'markdown' ),
+			foundMarkdown = ! isMarkdownMoved && isFound( 'markdown' ),
+			pointsToMarkdown = isMarkdownMoved && !! this.props.searchTerm && isModuleFound( 'markdown' ),
 			foundShortcodes = isFound( 'shortcodes' ),
 			foundBlocks = isFound( 'blocks' ),
 			foundMyJetpack = this.props.isMyJetpackReachable,
@@ -64,7 +69,7 @@ export class Composing extends Component {
 					)
 				: [];
 
-		if ( ! foundCard && ! pointedModules.length ) {
+		if ( ! foundCard && ! pointedModules.length && ! pointsToMarkdown ) {
 			return null;
 		}
 
@@ -262,6 +267,7 @@ export class Composing extends Component {
 						/>
 					);
 				} ) }
+				{ pointsToMarkdown && <MarkdownMoved getModule={ this.props.module } /> }
 			</>
 		);
 	}
@@ -272,6 +278,8 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		isSwitchedInFeatures: module_name => _isSwitchedInFeatures( state, module_name ),
+		// The panel needs Features, which users who cannot manage modules lack.
+		isMarkdownMoved: isSettingsConsolidationEnabled() && userCanManageModules( state ),
 		isMyJetpackReachable: showMyJetpack( state ),
 		searchTerm: getSearchTerm( state ),
 	};

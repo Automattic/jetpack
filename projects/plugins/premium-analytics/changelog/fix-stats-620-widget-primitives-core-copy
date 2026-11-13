@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the dashboard failing to load on WordPress 7.2.
