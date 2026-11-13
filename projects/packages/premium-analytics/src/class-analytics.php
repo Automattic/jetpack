@@ -58,13 +58,6 @@ class Analytics {
 	private static $replaces_pre_connection_stats_page = false;
 
 	/**
-	 * Whether this request is the admin shell's guest endpoint loading the dashboard into another page.
-	 *
-	 * @var bool
-	 */
-	private static $serving_shell_guest = false;
-
-	/**
 	 * Path to the wp-build entry point. Null uses the generated build.
 	 *
 	 * A test seam: `build/` is gitignored and test-php runs no build step, so tests redirect this
@@ -144,6 +137,15 @@ class Analytics {
 			return;
 		}
 
+		self::load_dashboard();
+	}
+
+	/**
+	 * Load what the dashboard page renders with.
+	 *
+	 * @return void
+	 */
+	private static function load_dashboard() {
 		self::load_dashboard_components();
 		self::load_build();
 		self::remove_full_page_interceptor();
@@ -426,11 +428,42 @@ class Analytics {
 	 * @return void
 	 */
 	private static function load_build() {
-		$build_entry = self::$build_entry ?? __DIR__ . '/../build/build.php';
+		$build_entry = self::build_entry_path();
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
 			require_once __DIR__ . '/sdk-module.php';
 		}
+	}
+
+	/**
+	 * Path to the wp-build entry point.
+	 *
+	 * @return string
+	 */
+	private static function build_entry_path() {
+		return self::$build_entry ?? __DIR__ . '/../build/build.php';
+	}
+
+	/**
+	 * Load the dashboard sections, which the dashboard capability depends on, without the build.
+	 *
+	 * @return void
+	 */
+	private static function load_section_registry() {
+		require_once __DIR__ . '/dashboard-layout.php';
+		require_once __DIR__ . '/default-dashboard-sections.php';
+	}
+
+	/**
+	 * Register the wp-build polyfills the dashboard needs on WordPress before 7.0.
+	 *
+	 * @return void
+	 */
+	private static function register_polyfills() {
+		WP_Build_Polyfills::register(
+			'jetpack-premium-analytics',
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+		);
 	}
 
 	/**
@@ -484,13 +517,7 @@ class Analytics {
 		// Polyfills force-replace core handles (wp-private-apis) on wp_default_scripts;
 		// scope to the dashboard page so no other admin page (e.g. block editor) is hit.
 		if ( self::is_dashboard_request() ) {
-			WP_Build_Polyfills::register(
-				'jetpack-premium-analytics',
-				array_merge(
-					WP_Build_Polyfills::SCRIPT_HANDLES,
-					WP_Build_Polyfills::MODULE_IDS
-				)
-			);
+			self::register_polyfills();
 
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_tracks_transport' ) );
@@ -507,7 +534,7 @@ class Analytics {
 	 * @return void
 	 */
 	private static function register_admin_shell_member() {
-		if ( ! class_exists( Admin_Shell::class ) ) {
+		if ( ! is_admin() || ! class_exists( Admin_Shell::class ) ) {
 			return;
 		}
 		add_filter( 'jetpack_admin_shell_members', array( static::class, 'add_admin_shell_member' ) );
@@ -526,13 +553,12 @@ class Analytics {
 	 * @return array
 	 */
 	public static function add_admin_shell_member( $members ) {
-		if ( ! file_exists( self::$build_entry ?? __DIR__ . '/../build/build.php' ) ) {
+		if ( ! file_exists( self::build_entry_path() ) ) {
 			return $members;
 		}
 
-		// The guest endpoint checks the capability before it loads anything, and the capability depends on the sections.
-		require_once __DIR__ . '/dashboard-layout.php';
-		require_once __DIR__ . '/default-dashboard-sections.php';
+		// The guest endpoint checks the capability before it loads anything.
+		self::load_section_registry();
 
 		$members[ self::MENU_PAGE_SLUG ] = array(
 			'build_prefix' => 'jpa',
@@ -555,19 +581,10 @@ class Analytics {
 	 */
 	public static function load_as_admin_shell_guest() {
 		// The guest endpoint runs on admin-ajax, where load_dashboard_surface() loads nothing.
-		if ( wp_doing_ajax() && ! self::$serving_shell_guest ) {
-			self::$serving_shell_guest = true;
-			self::load_dashboard_components();
-			self::load_build();
-			self::remove_full_page_interceptor();
-			self::register_admin_page();
-			// configure() decided this at init, before this request was known to be the dashboard's.
-			add_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ), 20 );
+		if ( wp_doing_ajax() ) {
+			self::load_dashboard();
 		} else {
-			WP_Build_Polyfills::register(
-				'jetpack-premium-analytics',
-				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
-			);
+			self::register_polyfills();
 		}
 
 		// The generated registration runs on wp_default_scripts, which may already have fired.
@@ -615,7 +632,8 @@ class Analytics {
 			return false;
 		}
 
-		if ( self::$serving_shell_guest ) {
+		// The admin shell's guest endpoint loading this dashboard into another page counts too.
+		if ( method_exists( Admin_Shell::class, 'requested_guest' ) && self::MENU_PAGE_SLUG === Admin_Shell::requested_guest() ) {
 			return true;
 		}
 
@@ -680,8 +698,7 @@ class Analytics {
 	 * @return void
 	 */
 	public static function register_replayed_admin_menu() {
-		require_once __DIR__ . '/dashboard-layout.php';
-		require_once __DIR__ . '/default-dashboard-sections.php';
+		self::load_section_registry();
 
 		self::add_dashboard_menu_entry( '__return_null' );
 	}

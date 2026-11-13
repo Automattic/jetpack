@@ -59,7 +59,7 @@ class Admin_Shell_Test extends TestCase {
 		remove_all_filters( 'host-page-wp-admin_boot_dependencies' );
 		remove_all_filters( 'guest-page-wp-admin_boot_dependencies' );
 		remove_all_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE );
-		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ], $_GET['page'], $_REQUEST['nonce'], $GLOBALS['jetpack_shell_test_guest_page_routes_data'], $GLOBALS['hook_suffix'], $GLOBALS['admin_page_hooks'] );
+		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ], $_GET['page'], $_REQUEST['nonce'], $_REQUEST['action'], $_GET['member'], $GLOBALS['jetpack_shell_test_guest_page_routes_data'], $GLOBALS['hook_suffix'], $GLOBALS['admin_page_hooks'] );
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
 		foreach ( $this->added_actions as list( $hook, $callback ) ) {
@@ -282,6 +282,40 @@ class Admin_Shell_Test extends TestCase {
 		$GLOBALS['hook_suffix'] = $screen ?? ( is_string( $page ) ? Admin_Shell::screen_id( $page ) : 'index.php' );
 
 		$this->assertSame( $expected, Admin_Shell::get_host() );
+	}
+
+	/**
+	 * Data provider for test_requested_guest.
+	 *
+	 * @return array[] Whether the request is admin-ajax, `action`, `member`, expected slug.
+	 */
+	public static function provide_guest_requests() {
+		return array(
+			'guest endpoint'      => array( true, Admin_Shell::GUEST_ACTION, 'jetpack-forms', 'jetpack-forms' ),
+			'another ajax action' => array( true, 'heartbeat', 'jetpack-forms', null ),
+			'not admin-ajax'      => array( false, Admin_Shell::GUEST_ACTION, 'jetpack-forms', null ),
+			'member is not text'  => array( true, Admin_Shell::GUEST_ACTION, array( 'jetpack-forms' ), null ),
+		);
+	}
+
+	/**
+	 * Members can tell, from `init` on, that the guest endpoint is loading them.
+	 *
+	 * @dataProvider provide_guest_requests
+	 *
+	 * @param bool        $ajax     Whether the request is admin-ajax.
+	 * @param string      $action   Value of `action`.
+	 * @param mixed       $member   Value of `member`.
+	 * @param string|null $expected Expected slug.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_guest_requests' )]
+	public function test_requested_guest( $ajax, $action, $member, $expected ) {
+		add_filter( 'wp_doing_ajax', $ajax ? '__return_true' : '__return_false' );
+		$_REQUEST['action'] = $action;
+		$_GET['member']     = $member;
+
+		$this->assertSame( $expected, Admin_Shell::requested_guest() );
 	}
 
 	/**

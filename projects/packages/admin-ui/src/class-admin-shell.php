@@ -161,6 +161,25 @@ class Admin_Shell {
 	}
 
 	/**
+	 * The member the guest endpoint is loading in this request, readable from `init` on so members can scope their hooks to it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null Member slug, or null on any other request.
+	 */
+	public static function requested_guest() {
+		// phpcs:disable WordPress.Security.NonceVerification -- Only scopes hooks; the endpoint verifies the nonce before it prints anything.
+		// Not `page`: products treat a `page` naming them as a visit to their own screen.
+		$action = isset( $_REQUEST['action'] ) && is_string( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : '';
+		$member = isset( $_GET['member'] ) && is_string( $_GET['member'] ) ? sanitize_key( wp_unslash( $_GET['member'] ) ) : '';
+		if ( ! wp_doing_ajax() || self::GUEST_ACTION !== $action || '' === $member ) {
+			return null;
+		}
+		return $member;
+		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
 	 * The member page this request is for, when the shell runs on it.
 	 *
 	 * @return string|null
@@ -334,9 +353,7 @@ class Admin_Shell {
 			}
 			// Modules a guest adds to its own page's import map, such as Stats' widgets, which it imports on demand.
 			$own_deps = apply_filters( $members[ $slug ]['build_page'] . '-wp-admin_boot_dependencies', array() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.ValidHookName.UseUnderscores -- The guest's generated wp-build hook.
-			foreach ( is_array( $own_deps ) ? $own_deps : array() as $dep ) {
-				$ids[] = is_array( $dep ) && isset( $dep['id'] ) && is_string( $dep['id'] ) ? $dep['id'] : null;
-			}
+			$ids      = array_merge( $ids, array_column( (array) $own_deps, 'id' ) );
 			foreach ( array_unique( array_filter( $ids ) ) as $id ) {
 				$deps[] = array(
 					'import' => 'dynamic',
@@ -416,8 +433,7 @@ class Admin_Shell {
 	 */
 	public static function ajax_guest_assets() {
 		check_ajax_referer( self::GUEST_ACTION, 'nonce' );
-		// Not `page`: products treat a `page` naming them as a visit to their own screen.
-		$slug = isset( $_GET['member'] ) && is_string( $_GET['member'] ) ? sanitize_key( wp_unslash( $_GET['member'] ) ) : '';
+		$slug = self::requested_guest() ?? '';
 
 		$html = self::guest_assets( $slug );
 		if ( is_int( $html ) ) {

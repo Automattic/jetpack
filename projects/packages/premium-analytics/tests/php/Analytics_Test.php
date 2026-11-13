@@ -433,15 +433,17 @@ class Analytics_Test extends TestCase {
 		$this->login_as( 'administrator' );
 		set_current_screen( 'admin-ajax' );
 		define( 'DOING_AJAX', true );
+		$_REQUEST['action'] = \Automattic\Jetpack\Admin_UI\Admin_Shell::GUEST_ACTION;
+		$_GET['member']     = self::MENU_SLUG;
 
 		Analytics::init();
 		do_action( 'init' );
 		$member = apply_filters( 'jetpack_admin_shell_members', array() )[ self::MENU_SLUG ] ?? array();
 
 		$this->assertTrue( current_user_can( $member['capability'] ?? 'do_not_allow' ), 'The endpoint checks the capability before it loads the guest.' );
+		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ) ), 'Hooks scoped to the dashboard at init are on.' );
 		call_user_func( $member['load'] );
-		$this->assertTrue( Analytics::is_dashboard_request() );
-		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ) ) );
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ), 'The dashboard surface loaded.' );
 	}
 
 	/**
