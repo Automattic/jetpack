@@ -1,0 +1,11 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-error-reporting",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"module": "build-module/index.mjs",
+	"wpScriptModuleExports": "./build-module/index.mjs",
+	"types": "src/index.ts",
+	"sideEffects": true
+}

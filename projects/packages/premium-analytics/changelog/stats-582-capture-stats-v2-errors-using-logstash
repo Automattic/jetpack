@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Report uncaught dashboard JavaScript errors to WordPress.com on WordPress.com Simple and Atomic sites.

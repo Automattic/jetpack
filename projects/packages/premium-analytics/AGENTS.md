@@ -83,8 +83,8 @@ English until the next `pnpm run build`.
 
 Storybook's Vite config maps bare `@jetpack-premium-analytics/*` imports to `src/`, but that only
 takes effect for packages whose `package.json` declares no `module` field (`datetime`,
-`formatters`, `icons`, `routing`). The rest — `data`, `externals`, `fields`, `init`, `sdk`,
-`site-sync`, `ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook
+`formatters`, `icons`, `routing`). The rest — `data`, `error-reporting`, `externals`, `fields`,
+`init`, `sdk`, `site-sync`, `ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook
 loads that artifact instead, so an edit to their source is invisible there until it is rebuilt. A
 newly added export surfaces as `The requested module '…/build-module/index.mjs' does not provide an
 export named 'X'`, and a changed one silently renders the old behaviour. Run `pnpm run build` (or

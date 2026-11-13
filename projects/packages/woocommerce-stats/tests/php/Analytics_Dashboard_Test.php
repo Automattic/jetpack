@@ -37,6 +37,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ), 20 );
 		remove_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ), 20 );
+		remove_filter( 'jetpack_premium_analytics_error_reporting_script_origins', array( Analytics_Dashboard::class, 'add_error_reporting_origin' ) );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		remove_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 		remove_action( Sync_Status_Tracker::MILESTONE_ACTION, array( Api_Proxy_Controller::class, 'clear_cache' ) );
@@ -343,6 +344,38 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::register_widget_types( $registry );
 
 		$this->assertSame( array(), $registry->get_all_registered() );
+	}
+
+	/**
+	 * The dashboard reports errors thrown by scripts under the package's build.
+	 */
+	public function test_publishes_its_build_url_as_an_error_reporting_origin() {
+		$this->enable_store();
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
+
+		$this->assertCount( 1, $origins );
+		$this->assertStringStartsWith( $origins[0], $registry->get_registered( Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE )->i18n_manifest );
+	}
+
+	/**
+	 * On WordPress.com Simple the registrant is called directly, so the origin must reach the
+	 * dashboard even on the run where the registrant registers nothing.
+	 */
+	public function test_publishes_the_error_reporting_origin_without_woocommerce() {
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_false' );
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
+
+		$this->assertSame( array(), $registry->get_all_registered() );
+		$this->assertCount( 1, $origins );
+		$this->assertStringEndsWith( '/', $origins[0] );
 	}
 
 	/**

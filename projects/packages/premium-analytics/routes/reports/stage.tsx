@@ -7,6 +7,7 @@ import {
 	isStatsFeatureLocked,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
+import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
 import { ChartsProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useParams } from '@wordpress/route';
 /**
@@ -90,8 +91,10 @@ function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
  */
 export function stage(): JSX.Element {
 	return (
-		<ReportProviders>
-			<ReportDispatcher />
-		</ReportProviders>
+		<StatsErrorBoundary>
+			<ReportProviders>
+				<ReportDispatcher />
+			</ReportProviders>
+		</StatsErrorBoundary>
 	);
 }

@@ -5,6 +5,7 @@ import {
 	AnalyticsQueryClientProvider,
 	useStatsYearlyProduct,
 } from '@jetpack-premium-analytics/data';
+import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
 import { Button, Icon, JetpackFooter, Notice } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
@@ -106,7 +107,9 @@ function PlanChoice() {
  * @return The connect stage.
  */
 export const stage = () => (
-	<AnalyticsQueryClientProvider>
-		<PlanChoice />
-	</AnalyticsQueryClientProvider>
+	<StatsErrorBoundary>
+		<AnalyticsQueryClientProvider>
+			<PlanChoice />
+		</AnalyticsQueryClientProvider>
+	</StatsErrorBoundary>
 );

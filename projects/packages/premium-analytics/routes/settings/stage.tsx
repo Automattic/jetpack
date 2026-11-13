@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
 import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
@@ -27,25 +28,27 @@ const SETTINGS_ORIGIN = 'settings';
  */
 export function stage(): JSX.Element {
 	return (
-		<Page
-			visual={ <Icon icon={ jetpack } /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Settings', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
-			actions={ <PageOptionsMenu /> }
-			className={ styles.page }
-		>
-			<Stack direction="column" justify="space-between" className={ styles.scroll }>
-				<DashboardSectionProvider section={ SETTINGS_ORIGIN }>
-					<div className={ styles.body }>
-						<StatsSettingsPanel />
-					</div>
-				</DashboardSectionProvider>
+		<StatsErrorBoundary>
+			<Page
+				visual={ <Icon icon={ jetpack } /> }
+				breadcrumbs={
+					<StatsBreadcrumbs
+						items={ [ { label: __( 'Settings', 'jetpack-premium-analytics-pkg' ) } ] }
+					/>
+				}
+				actions={ <PageOptionsMenu /> }
+				className={ styles.page }
+			>
+				<Stack direction="column" justify="space-between" className={ styles.scroll }>
+					<DashboardSectionProvider section={ SETTINGS_ORIGIN }>
+						<div className={ styles.body }>
+							<StatsSettingsPanel />
+						</div>
+					</DashboardSectionProvider>
 
-				<JetpackFooter />
-			</Stack>
-		</Page>
+					<JetpackFooter />
+				</Stack>
+			</Page>
+		</StatsErrorBoundary>
 	);
 }
