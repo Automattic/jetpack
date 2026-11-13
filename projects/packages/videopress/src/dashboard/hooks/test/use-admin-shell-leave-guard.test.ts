@@ -22,4 +22,16 @@ describe( 'useAdminShellLeaveGuard', () => {
 		unmount();
 		expect( leave( page ).defaultPrevented ).toBe( false );
 	} );
+
+	it( 'follows the latest answer, and reports the ask only until the task ends', async () => {
+		const { result, rerender } = renderHook( ( { ok } ) => useAdminShellLeaveGuard( () => ok ), {
+			initialProps: { ok: true },
+		} );
+		rerender( { ok: false } );
+
+		expect( leave( 'jetpack-videopress' ).defaultPrevented ).toBe( true );
+		expect( result.current() ).toBe( true );
+		await new Promise( resolve => setTimeout( resolve ) );
+		expect( result.current() ).toBe( false );
+	} );
 } );

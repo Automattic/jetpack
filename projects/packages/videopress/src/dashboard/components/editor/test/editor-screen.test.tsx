@@ -508,6 +508,25 @@ it( 'protects dirty drafts on breadcrumb and browser navigation and removes guar
 	expect( confirmNavigation ).not.toHaveBeenCalled();
 } );
 
+it( 'answers the admin shell for a dirty draft and asks once per shell navigation', async () => {
+	const { user } = renderEditor();
+	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+	const leave = new CustomEvent( 'jetpack-admin-shell:before-leave', {
+		detail: { page: 'jetpack-videopress' },
+		cancelable: true,
+	} );
+
+	// The shell asks first, then the router hears the navigation in the same task.
+	act( () => {
+		window.dispatchEvent( leave );
+		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+	} );
+
+	expect( leave.defaultPrevented ).toBe( true );
+	expect( confirmNavigation ).toHaveBeenCalledTimes( 1 );
+	expect( navigate ).not.toHaveBeenCalled();
+} );
+
 it( 'suspends editor shortcuts until the save dialog is dismissed', async () => {
 	const { user } = renderEditor();
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );

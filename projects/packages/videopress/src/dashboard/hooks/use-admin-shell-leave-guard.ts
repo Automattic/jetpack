@@ -1,26 +1,34 @@
-import { useEffect, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
+
+type BeforeLeaveDetail = { page?: string; url?: string };
 
 /**
- * Let the Jetpack admin shell ask before it opens this page at another route.
- *
- * The shell dispatches a cancelable `jetpack-admin-shell:before-leave` event; without the shell, nothing does.
+ * Answer the admin shell's `jetpack-admin-shell:before-leave` event; see the admin-ui README.
  *
  * @param confirmLeave - Returns false to stay, after asking the user if there are unsaved changes.
+ * @return Whether the shell asked during this task, so a popstate guard that follows can skip asking again.
  */
-export function useAdminShellLeaveGuard( confirmLeave: () => boolean ): void {
+export function useAdminShellLeaveGuard( confirmLeave: () => boolean ): () => boolean {
 	const confirmRef = useRef( confirmLeave );
 	confirmRef.current = confirmLeave;
+	const askedRef = useRef( false );
 
 	useEffect( () => {
 		const onBeforeLeave = ( event: Event ) => {
-			if (
-				( event as CustomEvent ).detail?.page === 'jetpack-videopress' &&
-				! confirmRef.current()
-			) {
+			const detail = ( event as CustomEvent< BeforeLeaveDetail | null > ).detail;
+			if ( detail?.page !== 'jetpack-videopress' ) {
+				return;
+			}
+			askedRef.current = true;
+			// The shell's navigation, and the popstate it causes, finish within this task.
+			setTimeout( () => ( askedRef.current = false ) );
+			if ( ! confirmRef.current() ) {
 				event.preventDefault();
 			}
 		};
 		window.addEventListener( 'jetpack-admin-shell:before-leave', onBeforeLeave );
 		return () => window.removeEventListener( 'jetpack-admin-shell:before-leave', onBeforeLeave );
 	}, [] );
+
+	return useCallback( () => askedRef.current, [] );
 }

@@ -385,7 +385,7 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 			)
 		);
 	}, [] );
-	useAdminShellLeaveGuard( confirmNavigation );
+	const askedByShell = useAdminShellLeaveGuard( confirmNavigation );
 
 	// Dirty guard, half three: in-app links (the "VideoPress" breadcrumb and
 	// anything else rendered inside this screen's chrome). Router links can't
@@ -430,13 +430,13 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 			return;
 		}
 		const onPopState = () => {
-			if ( ! confirmNavigation() ) {
+			if ( ! askedByShell() && ! confirmNavigation() ) {
 				navigate( { href: videoTabPath( video.id, 'editor' ) } );
 			}
 		};
 		window.addEventListener( 'popstate', onPopState );
 		return () => window.removeEventListener( 'popstate', onPopState );
-	}, [ effectiveDirty, confirmNavigation, navigate, video.id ] );
+	}, [ effectiveDirty, askedByShell, confirmNavigation, navigate, video.id ] );
 
 	// Save: rewrite the description's chapter lines (byte-preserving the
 	// prose) and POST the meta update. Only after that succeeds does the VTT

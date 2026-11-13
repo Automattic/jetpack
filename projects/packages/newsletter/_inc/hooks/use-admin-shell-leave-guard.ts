@@ -1,22 +1,20 @@
 import { useEffect, useRef } from '@wordpress/element';
 
+type BeforeLeaveDetail = { page?: string; url?: string };
+
 /**
- * Let the Jetpack admin shell ask before it opens this page at another route.
- *
- * The shell dispatches a cancelable `jetpack-admin-shell:before-leave` event; without the shell, nothing does.
+ * Answer the admin shell's `jetpack-admin-shell:before-leave` event; see the admin-ui README.
  *
  * @param confirmLeave - Returns false to stay, after asking the user if there are unsaved changes.
  */
-export default function useAdminShellLeaveGuard( confirmLeave: () => boolean ): void {
+export function useAdminShellLeaveGuard( confirmLeave: () => boolean ): void {
 	const confirmRef = useRef( confirmLeave );
 	confirmRef.current = confirmLeave;
 
 	useEffect( () => {
 		const onBeforeLeave = ( event: Event ) => {
-			if (
-				( event as CustomEvent ).detail?.page === 'jetpack-newsletter' &&
-				! confirmRef.current()
-			) {
+			const detail = ( event as CustomEvent< BeforeLeaveDetail | null > ).detail;
+			if ( detail?.page === 'jetpack-newsletter' && ! confirmRef.current() ) {
 				event.preventDefault();
 			}
 		};

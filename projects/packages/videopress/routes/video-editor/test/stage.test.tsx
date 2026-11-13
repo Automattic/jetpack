@@ -816,6 +816,26 @@ describe( 'video-editor stage', () => {
 
 		confirmSpy.mockRestore();
 	} );
+	it( 'asks once when the admin shell retargets dirty chapters', async () => {
+		installApi( { media: makeRawMedia(), metaPosts: [] } );
+		const user = userEvent.setup();
+		const confirmSpy = jest.spyOn( window, 'confirm' ).mockReturnValue( true );
+		await renderReadyChapters();
+		await renameFirstChapter( user );
+
+		// The shell asks first, then the router hears the navigation in the same task.
+		const leave = new CustomEvent( 'jetpack-admin-shell:before-leave', {
+			detail: { page: 'jetpack-videopress' },
+			cancelable: true,
+		} );
+		window.dispatchEvent( leave );
+		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+
+		expect( leave.defaultPrevented ).toBe( false );
+		expect( confirmSpy ).toHaveBeenCalledTimes( 1 );
+		confirmSpy.mockRestore();
+	} );
+
 	it( 'mounts trim and its status query even when a copy has no attachment duration yet', async () => {
 		setFeatures( { trimCut: true } );
 		installApi( { media: makeRawMedia( { media_details: {} } ), metaPosts: [] } );

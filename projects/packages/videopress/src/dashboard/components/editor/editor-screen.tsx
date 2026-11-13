@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import EditorOperationsPanel from '../../../../routes/video-editor/operations-panel';
 import { usePreviewTransport } from '../../../client/components/chapters-editor/preview/use-preview-transport';
 import { canRedo, canUndo } from '../../../client/components/chapters-editor/state/history';
+import { useAdminShellLeaveGuard } from '../../hooks/use-admin-shell-leave-guard';
 import useFilmstrip from '../../hooks/use-filmstrip';
 import { useVideo } from '../../hooks/use-video';
 import VideoLayout from '../video-layout';
@@ -66,6 +67,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 			),
 		[]
 	);
+	const askedByShell = useAdminShellLeaveGuard( confirmNavigation );
 
 	useEffect( () => {
 		if ( ! hasUnsavedChanges ) {
@@ -76,7 +78,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 			event.returnValue = '';
 		};
 		const popState = () => {
-			if ( ! confirmNavigation() ) {
+			if ( ! askedByShell() && ! confirmNavigation() ) {
 				navigate( { href: videoTabPath( video.id, 'editor' ) } );
 			}
 		};
@@ -86,7 +88,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 			window.removeEventListener( 'beforeunload', beforeUnload );
 			window.removeEventListener( 'popstate', popState );
 		};
-	}, [ hasUnsavedChanges, confirmNavigation, navigate, video.id ] );
+	}, [ hasUnsavedChanges, askedByShell, confirmNavigation, navigate, video.id ] );
 
 	const guardLink = ( event: MouseEvent< HTMLDivElement > ) => {
 		if (

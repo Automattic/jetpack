@@ -187,6 +187,36 @@ describe( 'NewsletterPage tab navigation', () => {
 		}
 	} );
 
+	it( "follows the latest unsaved state in the admin shell's leave check, and stops on unmount", () => {
+		const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+		const leave = () => {
+			const event = new CustomEvent( 'jetpack-admin-shell:before-leave', {
+				detail: { page: 'jetpack-newsletter' },
+				cancelable: true,
+			} );
+			window.dispatchEvent( event );
+			return event.defaultPrevented;
+		};
+		try {
+			const { rerender, unmount } = render(
+				<NewsletterPage activeTab="settings">
+					<div>panel body</div>
+				</NewsletterPage>
+			);
+			expect( leave() ).toBe( false );
+			rerender(
+				<NewsletterPage activeTab="settings" hasUnsavedChanges>
+					<div>panel body</div>
+				</NewsletterPage>
+			);
+			expect( leave() ).toBe( true );
+			unmount();
+			expect( leave() ).toBe( false );
+		} finally {
+			confirm.mockRestore();
+		}
+	} );
+
 	it( 'navigates to ?tab=settings and clears subscriber-detail params on switch', () => {
 		render(
 			<NewsletterPage activeTab="subscribers">

@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
-import useAdminShellLeaveGuard from '../hooks/use-admin-shell-leave-guard';
+import { useAdminShellLeaveGuard } from '../hooks/use-admin-shell-leave-guard';
 import './newsletter-page.scss';
 import type { JSX, ReactNode } from 'react';
 
