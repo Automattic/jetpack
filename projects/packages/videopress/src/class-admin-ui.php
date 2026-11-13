@@ -373,7 +373,8 @@ class Admin_UI {
 			'title'        => 'Jetpack VideoPress',
 			'header'       => array(
 				'title'    => 'VideoPress',
-				'subtitle' => wp_strip_all_tags( __( 'Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.', 'jetpack-videopress-pkg' ) ),
+				// The dashboard's string, without its "Learn more" link.
+				'subtitle' => wp_strip_all_tags( preg_replace( '#\s*<link>.*?</link>\.?#', '', __( 'Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.', 'jetpack-videopress-pkg' ) ) ),
 			),
 			'capability'   => 'manage_options',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
