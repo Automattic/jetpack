@@ -314,20 +314,24 @@ describe( 'PostViewsWidget', () => {
 			] );
 		} );
 
-		it( 'dates an All time file from the publish day, not as all-time', async () => {
+		it( 'names an All time file from its start to today, not all-time', async () => {
+			jest.useFakeTimers( { advanceTimers: true } );
+			jest.setSystemTime( new Date( '2026-07-20T05:00:00Z' ) );
 			downloads = captureCsvDownloads();
 			mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 
-			const { findDeclaredAction } = renderWithActionsHost(
-				<PostViewsWidget
-					attributes={ { reportParams: { ...WINDOW_PARAMS, preset: 'all-time' } } }
-				/>
-			);
-			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+			try {
+				const { findDeclaredAction } = renderWithActionsHost(
+					<PostViewsWidget
+						attributes={ { reportParams: { ...WINDOW_PARAMS, preset: 'all-time' } } }
+					/>
+				);
+				await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 
-			expect( downloads.files[ 0 ].filename ).toMatch(
-				/^post-779-views-2026-07-01_\d{4}-\d{2}-\d{2}\.csv$/
-			);
+				expect( downloads.files[ 0 ].filename ).toBe( 'post-779-views-2026-07-01_2026-07-20.csv' );
+			} finally {
+				jest.useRealTimers();
+			}
 		} );
 
 		it( 'offers no download for a window without views', async () => {
