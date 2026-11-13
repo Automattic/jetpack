@@ -420,6 +420,31 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The admin shell's guest endpoint is admin-ajax, where the dashboard surface never loaded.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_shell_guest_endpoint_loads_the_dashboard() {
+		$this->use_fixture_build();
+		$this->connect_site();
+		$this->login_as( 'administrator' );
+		set_current_screen( 'admin-ajax' );
+		define( 'DOING_AJAX', true );
+
+		Analytics::init();
+		do_action( 'init' );
+		$member = apply_filters( 'jetpack_admin_shell_members', array() )[ self::MENU_SLUG ] ?? array();
+
+		$this->assertTrue( current_user_can( $member['capability'] ?? 'do_not_allow' ), 'The endpoint checks the capability before it loads the guest.' );
+		call_user_func( $member['load'] );
+		$this->assertTrue( Analytics::is_dashboard_request() );
+		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ) ) );
+	}
+
+	/**
 	 * The admin-post.php endpoint sets is_admin() true the way admin-ajax does,
 	 * and renders no dashboard either, so it does not get the build.
 	 *

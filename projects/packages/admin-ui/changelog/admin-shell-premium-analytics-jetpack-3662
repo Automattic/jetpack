@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Support dashboards on a top-level menu page, and load the modules a dashboard adds to its own page.

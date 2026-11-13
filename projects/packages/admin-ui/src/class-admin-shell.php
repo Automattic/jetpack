@@ -177,7 +177,7 @@ class Admin_Shell {
 	private static function resolve_host() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which page this is.
 		$page = isset( $_GET['page'] ) && is_string( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
-		// Members are Jetpack submenu pages; checking the screen first keeps the members filter off other admin pages.
+		// Members are Jetpack admin pages; checking the screen first keeps the members filter off other admin pages.
 		$on_jetpack_screen = isset( $GLOBALS['hook_suffix'] ) && self::screen_id( $page ) === $GLOBALS['hook_suffix'];
 		if ( '' === $page || ! $on_jetpack_screen || ! self::is_enabled() ) {
 			return array( null, array() );
@@ -197,7 +197,9 @@ class Admin_Shell {
 	 * @return string
 	 */
 	public static function screen_id( $slug ) {
-		return 'jetpack_page_' . $slug;
+		global $admin_page_hooks;
+		// Top-level pages, like Stats under the Dashboard, get core's prefix rather than the Jetpack menu's.
+		return isset( $admin_page_hooks[ $slug ] ) ? 'toplevel_page_' . $slug : 'jetpack_page_' . $slug;
 	}
 
 	/**
@@ -330,7 +332,12 @@ class Admin_Shell {
 				$ids[] = $route['route_module'] ?? null;
 				$ids[] = $route['content_module'] ?? null;
 			}
-			foreach ( array_filter( $ids ) as $id ) {
+			// Modules a guest adds to its own page's import map, such as Stats' widgets, which it imports on demand.
+			$own_deps = apply_filters( $members[ $slug ]['build_page'] . '-wp-admin_boot_dependencies', array() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.ValidHookName.UseUnderscores -- The guest's generated wp-build hook.
+			foreach ( is_array( $own_deps ) ? $own_deps : array() as $dep ) {
+				$ids[] = is_array( $dep ) && isset( $dep['id'] ) && is_string( $dep['id'] ) ? $dep['id'] : null;
+			}
+			foreach ( array_unique( array_filter( $ids ) ) as $id ) {
 				$deps[] = array(
 					'import' => 'dynamic',
 					'id'     => $id,

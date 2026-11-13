@@ -57,8 +57,9 @@ class Admin_Shell_Test extends TestCase {
 		remove_all_filters( 'jetpack_admin_shell_members' );
 		remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 		remove_all_filters( 'host-page-wp-admin_boot_dependencies' );
+		remove_all_filters( 'guest-page-wp-admin_boot_dependencies' );
 		remove_all_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE );
-		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ], $_GET['page'], $_REQUEST['nonce'], $GLOBALS['jetpack_shell_test_guest_page_routes_data'], $GLOBALS['hook_suffix'] );
+		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ], $_GET['page'], $_REQUEST['nonce'], $GLOBALS['jetpack_shell_test_guest_page_routes_data'], $GLOBALS['hook_suffix'], $GLOBALS['admin_page_hooks'] );
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
 		foreach ( $this->added_actions as list( $hook, $callback ) ) {
@@ -239,7 +240,7 @@ class Admin_Shell_Test extends TestCase {
 	/**
 	 * Data provider for test_get_host.
 	 *
-	 * @return array[] Flag state, `page` query arg (null for none), member slugs, expected host, screen (null for the page's own).
+	 * @return array[] Flag state, `page` query arg (null for none), member slugs, expected host, screen (null for the page's own), whether the page is a top-level menu.
 	 */
 	public static function provide_hosts() {
 		$both = array( 'my-jetpack', 'jetpack-forms' );
@@ -251,6 +252,7 @@ class Admin_Shell_Test extends TestCase {
 			'flag off'                      => array( false, 'my-jetpack', $both, null ),
 			'page is not a text'            => array( true, array( 'my-jetpack' ), $both, null ),
 			'member slug on another screen' => array( true, 'my-jetpack', $both, null, 'toplevel_page_my-jetpack' ),
+			'top-level member page'         => array( true, 'my-jetpack', $both, 'my-jetpack', 'toplevel_page_my-jetpack', true ),
 		);
 	}
 
@@ -264,10 +266,14 @@ class Admin_Shell_Test extends TestCase {
 	 * @param string[]    $slugs    Registered member slugs.
 	 * @param string|null $expected Expected host.
 	 * @param string|null $screen   Hook suffix of the screen, or null for the page's own.
+	 * @param bool        $top     Whether the page is a top-level menu.
 	 * @return void
 	 */
 	#[DataProvider( 'provide_hosts' )]
-	public function test_get_host( $flag, $page, $slugs, $expected, $screen = null ) {
+	public function test_get_host( $flag, $page, $slugs, $expected, $screen = null, $top = false ) {
+		if ( $top ) {
+			$GLOBALS['admin_page_hooks'] = array( $page => 'my-jetpack' );
+		}
 		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Shell::FLAG, $flag ? '__return_true' : '__return_false' );
 		$this->add_members( array_fill_keys( $slugs, self::valid_member() ) );
 		if ( null !== $page ) {
@@ -287,6 +293,16 @@ class Admin_Shell_Test extends TestCase {
 		$guest_enqueue = static function () {};
 		$host_enqueue  = static function () {};
 		$this->add_action( 'admin_enqueue_scripts', $host_enqueue );
+		add_filter(
+			'guest-page-wp-admin_boot_dependencies', // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- wp-build names this hook.
+			static function ( $deps ) {
+				$deps[] = array(
+					'import' => 'dynamic',
+					'id'     => 'guest/widgets/chart',
+				);
+				return $deps;
+			}
+		);
 		$this->start_host_page(
 			static function () use ( $guest_enqueue ) {
 				add_action( 'admin_enqueue_scripts', $guest_enqueue );
@@ -317,6 +333,10 @@ class Admin_Shell_Test extends TestCase {
 				array(
 					'import' => 'dynamic',
 					'id'     => 'guest/routes/home/content',
+				),
+				array(
+					'import' => 'dynamic',
+					'id'     => 'guest/widgets/chart',
 				),
 			),
 			apply_filters( 'host-page-wp-admin_boot_dependencies', array() ) // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- wp-build names this hook.

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
@@ -55,6 +56,13 @@ class Analytics {
 	 * @var bool
 	 */
 	private static $replaces_pre_connection_stats_page = false;
+
+	/**
+	 * Whether this request is the admin shell's guest endpoint loading the dashboard into another page.
+	 *
+	 * @var bool
+	 */
+	private static $serving_shell_guest = false;
 
 	/**
 	 * Path to the wp-build entry point. Null uses the generated build.
@@ -107,6 +115,7 @@ class Analytics {
 		self::boot_shared_services();
 		self::register_dashboard_support_routes();
 		self::load_dashboard_surface();
+		self::register_admin_shell_member();
 	}
 
 	/**
@@ -493,6 +502,81 @@ class Analytics {
 	}
 
 	/**
+	 * Join the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @return void
+	 */
+	private static function register_admin_shell_member() {
+		if ( ! class_exists( Admin_Shell::class ) ) {
+			return;
+		}
+		add_filter( 'jetpack_admin_shell_members', array( static::class, 'add_admin_shell_member' ) );
+		// The standalone plugin reaches admin-ui only through the admin menu, which admin-ajax never builds.
+		if ( method_exists( Admin_Shell::class, 'init' ) ) {
+			Admin_Shell::init();
+		}
+	}
+
+	/**
+	 * Register the dashboard with the admin shell.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! file_exists( self::$build_entry ?? __DIR__ . '/../build/build.php' ) ) {
+			return $members;
+		}
+
+		// The guest endpoint checks the capability before it loads anything, and the capability depends on the sections.
+		require_once __DIR__ . '/dashboard-layout.php';
+		require_once __DIR__ . '/default-dashboard-sections.php';
+
+		$members[ self::MENU_PAGE_SLUG ] = array(
+			'build_prefix' => 'jpa',
+			'build_page'   => 'jetpack-premium-analytics',
+			'init_modules' => array( '@jetpack-premium-analytics/init' ),
+			'title'        => self::menu_title(),
+			'capability'   => Capabilities::dashboard_page_capability(),
+			'handles'      => array( 'jetpack-script-data', 'wp-api-fetch', 'wp-jp-i18n-loader', 'jp-tracks' ),
+			'load'         => array( static::class, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the dashboard's routes and page data while another dashboard's page is open.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		// The guest endpoint runs on admin-ajax, where load_dashboard_surface() loads nothing.
+		if ( wp_doing_ajax() && ! self::$serving_shell_guest ) {
+			self::$serving_shell_guest = true;
+			self::load_dashboard_components();
+			self::load_build();
+			self::remove_full_page_interceptor();
+			self::register_admin_page();
+			// configure() decided this at init, before this request was known to be the dashboard's.
+			add_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ), 20 );
+		} else {
+			WP_Build_Polyfills::register(
+				'jetpack-premium-analytics',
+				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			);
+		}
+
+		// The generated registration runs on wp_default_scripts, which may already have fired.
+		if ( function_exists( 'jpa_register_script_modules' ) ) {
+			jpa_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined in the generated build/modules.php.
+		}
+	}
+
+	/**
 	 * Sends a reader who lost access, for example because the site was disconnected, to the
 	 * wp-admin Dashboard instead of the "not allowed" screen.
 	 *
@@ -529,6 +613,10 @@ class Analytics {
 	public static function is_dashboard_request() {
 		if ( ! is_admin() ) {
 			return false;
+		}
+
+		if ( self::$serving_shell_guest ) {
+			return true;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the menu page slug to scope asset loading; no state is changed.
