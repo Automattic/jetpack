@@ -6,6 +6,7 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
+import { TZDate } from '@date-fns/tz';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
@@ -18,6 +19,8 @@ import { store as preferencesStore } from '@wordpress/preferences';
 import TrafficChartRender from '../render';
 import useTrafficChart from '../use-traffic-chart';
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import widget, { type TrafficChartAttributes } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { ComponentProps, ComponentType } from 'react';
@@ -116,6 +119,9 @@ beforeEach( () => {
 		isLoading: false,
 		isFetching: false,
 		isError: false,
+		csvIsError: false,
+		csvIsPlaceholderData: false,
+		timezone: 'UTC',
 		refetch: jest.fn(),
 	} );
 } );
@@ -453,6 +459,9 @@ describe( 'TrafficChart previous period', () => {
 				isLoading: false,
 				isFetching: false,
 				isError: false,
+				csvIsError: false,
+				csvIsPlaceholderData: false,
+				timezone: 'UTC',
 				refetch: jest.fn(),
 			} );
 			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
@@ -497,6 +506,9 @@ describe( 'TrafficChart with an idle window', () => {
 			isLoading: false,
 			isFetching: false,
 			isError: false,
+			csvIsError: false,
+			csvIsPlaceholderData: false,
+			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
 		mockApiFetch.mockResolvedValue( posts );
@@ -531,6 +543,9 @@ describe( 'TrafficChart with an idle window', () => {
 			isLoading: false,
 			isFetching: false,
 			isError: false,
+			csvIsError: false,
+			csvIsPlaceholderData: false,
+			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
 		let resolvePosts!: ( value: unknown ) => void;
@@ -559,6 +574,9 @@ describe( 'TrafficChart with an idle window', () => {
 			isLoading: false,
 			isFetching: true,
 			isError: false,
+			csvIsError: false,
+			csvIsPlaceholderData: false,
+			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
 
@@ -583,6 +601,9 @@ describe( 'TrafficChart with an idle window', () => {
 			isLoading: false,
 			isFetching: false,
 			isError: false,
+			csvIsError: false,
+			csvIsPlaceholderData: false,
+			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
 		mockApiFetch.mockRejectedValue( { code: 'rest_forbidden', data: { status: 403 } } );
@@ -600,5 +621,101 @@ describe( 'TrafficChart with an idle window', () => {
 	it( 'does not check posts when Views has traffic', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'TrafficChart CSV download', () => {
+	const ZONE = 'Asia/Taipei';
+	const day = ( date: number ) => new TZDate( 2026, 5, date, ZONE );
+	const series = ( values: number[] ) =>
+		values.map( ( value, index ) => ( { date: day( index + 1 ), value } ) );
+	const tab = ( key: string, label: string, values: number[], previous?: number[] ) => ( {
+		key,
+		label,
+		value: values.reduce( ( sum, value ) => sum + value, 0 ),
+		current: series( values ),
+		...( previous && { previous: series( previous ), previousValue: 1 } ),
+	} );
+	const SETTLED_STATE = {
+		isLoading: false,
+		isFetching: false,
+		isError: false,
+		csvIsError: false,
+		csvIsPlaceholderData: false,
+		timezone: ZONE,
+		refetch: jest.fn(),
+	};
+	let downloads: ReturnType< typeof captureCsvDownloads >;
+
+	afterEach( () => downloads?.restore() );
+
+	async function downloadLines( interval: string ) {
+		downloads = captureCsvDownloads();
+		const { findDeclaredAction } = renderWithActionsHost(
+			<TrafficChartRender attributes={ { reportParams: reportParams( interval ) } } />
+		);
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+		return { filename: downloads.files[ 0 ].filename, lines: await downloads.lines() };
+	}
+
+	it( 'saves every bucket of the four metrics in the report zone', async () => {
+		mockUseTrafficChart.mockReturnValue( {
+			...SETTLED_STATE,
+			metrics: [
+				tab( 'views', 'Views', [ 10, 0 ] ),
+				tab( 'visitors', 'Visitors', [ 4, 0 ] ),
+				tab( 'comments', 'Comments', [ 1, 0 ] ),
+				tab( 'likes', 'Likes', [ 2, 0 ] ),
+			],
+		} );
+
+		const { filename, lines } = await downloadLines( 'day' );
+
+		expect( filename ).toBe( 'traffic-summary-2026-06-01_2026-06-30.csv' );
+		expect( lines ).toEqual( [
+			'"Date","Views","Visitors","Comments","Likes"',
+			'"2026-06-01","10","4","1","2"',
+			'"2026-06-02","0","0","0","0"',
+		] );
+	} );
+
+	it( 'saves Views alone, with the hour, for hourly buckets', async () => {
+		mockUseTrafficChart.mockReturnValue( {
+			...SETTLED_STATE,
+			metrics: [
+				{
+					key: 'views',
+					label: 'Views',
+					value: 3,
+					current: [ { date: new TZDate( 2026, 5, 29, 14, ZONE ), value: 3 } ],
+				},
+				{ ...tab( 'visitors', 'Visitors', [] ), seriesUnavailable: 'Daily only.' },
+			],
+		} );
+
+		const { lines } = await downloadLines( 'hour' );
+
+		expect( requestedBucket() ).toBe( 'hour' );
+		expect( lines ).toEqual( [ '"Date","Views"', '"2026-06-29 14:00","3"' ] );
+	} );
+
+	it.each( [
+		[
+			'the period has no views, though the previous one has',
+			{ metrics: [ tab( 'views', 'Views', [ 0, 0 ], [ 5, 5 ] ) ] },
+		],
+		[
+			'a refetch failed behind the rows on screen',
+			{ metrics: [ tab( 'views', 'Views', [ 10, 0 ] ) ], csvIsError: true },
+		],
+	] )( 'offers no download when %s', ( _, state ) => {
+		mockUseTrafficChart.mockReturnValue( { ...SETTLED_STATE, ...state } );
+
+		const { declaredAction } = renderWithActionsHost(
+			<TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } />
+		);
+
+		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 } );
