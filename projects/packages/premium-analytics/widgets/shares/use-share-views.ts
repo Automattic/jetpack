@@ -31,6 +31,7 @@ interface ShareViewsState {
 	isFetching: boolean;
 	isError: boolean;
 	csvIsError: boolean;
+	csvIsPlaceholderData: boolean;
 	refetch: () => void;
 }
 
@@ -123,7 +124,7 @@ export function buildShareViews( summary: Record< string, unknown >, max: number
  */
 export default function useShareViews( { max }: UseShareViewsArgs ): ShareViewsState {
 	// No `stat_fields`: it takes exact keys, and the site's `shares_<service>` keys are not known up front.
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
+	const { data, isLoading, isFetching, isError, isPlaceholderData, refetch } = useStatsSite();
 
 	const summary = ( data as { stats?: Record< string, unknown > } | undefined )?.stats ?? {};
 
@@ -138,6 +139,7 @@ export default function useShareViews( { max }: UseShareViewsArgs ): ShareViewsS
 		// error when there's nothing to show.
 		isError: items.length === 0 && isError,
 		csvIsError: isError,
+		csvIsPlaceholderData: isPlaceholderData,
 		refetch,
 	};
 }

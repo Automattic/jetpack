@@ -40,9 +40,10 @@ const CSV_COLUMNS: CsvColumn< ShareView >[] = [
  */
 function SharesInner() {
 	// Every network goes into the download; the card lists the top ones.
-	const { data, isLoading, isFetching, isError, csvIsError, refetch } = useShareViews( {
-		max: 0,
-	} );
+	const { data, isLoading, isFetching, isError, csvIsError, csvIsPlaceholderData, refetch } =
+		useShareViews( {
+			max: 0,
+		} );
 
 	useReportActions( {
 		csv: {
@@ -50,7 +51,12 @@ function SharesInner() {
 			columns: CSV_COLUMNS,
 			filenamePrefix: 'shares',
 			hasDateRange: false,
-			status: { isLoading, isFetching, isError: csvIsError },
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
 		},
 	} );
 
