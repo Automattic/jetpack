@@ -40,6 +40,8 @@ export interface ViewsOverYearsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	/** Also a failed first-day request, whose stand-in averages the table still draws. */
+	csvIsError: boolean;
 	isPlaceholderData: boolean;
 	error: unknown;
 	refetch: () => void;
@@ -193,6 +195,7 @@ function useSiteViewsOverYears(
 		isLoading: isLoading || awaitingFirstDay,
 		isFetching: isFetching || firstMonthDays.isFetching,
 		isError,
+		csvIsError: isError || ( metric === 'average' && firstMonthDays.isError ),
 		isPlaceholderData: primary.isPlaceholderData,
 		error,
 		refetch,
@@ -238,6 +241,7 @@ function useAuthorViewsOverYears(
 		isLoading,
 		isFetching,
 		isError,
+		csvIsError: isError,
 		isPlaceholderData,
 		error,
 		refetch,

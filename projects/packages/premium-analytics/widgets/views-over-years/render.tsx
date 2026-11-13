@@ -52,6 +52,7 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 		isLoading,
 		isFetching,
 		isError,
+		csvIsError,
 		isPlaceholderData,
 		error,
 		refetch,
@@ -88,13 +89,25 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 			),
 		[ rows ]
 	);
+	// The table draws whole numbers; only the download keeps an average's decimals.
+	const tableRows = useMemo(
+		() =>
+			rows.map( row => ( {
+				...row,
+				months: row.months.map( value =>
+					typeof value === 'number' ? Math.round( value ) : value
+				),
+				total: typeof row.total === 'number' ? Math.round( row.total ) : row.total,
+			} ) ),
+		[ rows ]
+	);
 	const metricPrefix = metric === 'average' ? 'daily-average-views-over-years' : 'views-over-years';
 	useReportActions( {
 		csv: {
 			...csv,
 			filenamePrefix: authorId ? `author-${ authorId }-${ metricPrefix }` : metricPrefix,
 			hasDateRange: false,
-			status: { isLoading, isFetching, isError, isPlaceholderData },
+			status: { isLoading, isFetching, isError: csvIsError, isPlaceholderData },
 		},
 	} );
 
@@ -139,7 +152,7 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 			renderLoading={ <HeatmapSkeleton /> }
 		>
 			<MonthlyHeatmap
-				rows={ rows }
+				rows={ tableRows }
 				partialMonths={ partialMonths }
 				{ ...monthlyHeatmapLabels( metric ) }
 				// A site's months mostly sit in one band, which both distance and log

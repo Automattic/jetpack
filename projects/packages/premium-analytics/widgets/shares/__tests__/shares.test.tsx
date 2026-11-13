@@ -83,7 +83,7 @@ describe( 'SharesWidget CSV download', () => {
 	} );
 
 	it.each( [
-		[ 'no network recorded a share', siteResult( { shares: 0 } ) ],
+		[ 'no network recorded a share', siteResult( { shares_facebook: 0, shares_twitter: 0 } ) ],
 		[ 'a refetch failed behind the rows on screen', siteResult( STATS, { isError: true } ) ],
 	] )( 'offers no download when %s', ( _, result ) => {
 		mockUseStatsSite.mockReturnValue( result );

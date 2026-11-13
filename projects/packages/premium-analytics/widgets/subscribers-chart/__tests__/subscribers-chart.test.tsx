@@ -413,6 +413,18 @@ describe( 'SubscribersChartWidget', () => {
 					isError: true,
 				},
 			],
+			[
+				"a previous range's points on screen",
+				{
+					...reportWith( [] ),
+					primary: {
+						data: {
+							data: [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 } ],
+						},
+						isPlaceholderData: true,
+					},
+				},
+			],
 		] )( 'offers no download with %s', ( _, report ) => {
 			mockUseStatsSubscribersReport.mockReturnValue( report );
 
