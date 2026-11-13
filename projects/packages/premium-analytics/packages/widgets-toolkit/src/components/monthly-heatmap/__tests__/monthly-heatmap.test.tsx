@@ -81,7 +81,8 @@ describe( 'MonthlyHeatmap', () => {
 		expect( screen.queryByRole( 'gridcell', { name: /Dec 2026/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'marks a listed month as incomplete and keeps its figure', () => {
+	it( 'marks a listed month as incomplete and keeps its figure', async () => {
+		const user = userEvent.setup();
 		render(
 			<MonthlyHeatmap rows={ ROWS } { ...LABELS } partialMonths={ [ { year: 2026, month: 2 } ] } />
 		);
@@ -93,6 +94,20 @@ describe( 'MonthlyHeatmap', () => {
 			'data-testid',
 			'heatmap-cell-partial'
 		);
+
+		await user.hover( partial );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Mar 2026 (incomplete month)' );
+	} );
+
+	it( 'colors a month by its distance in log space', () => {
+		render( <MonthlyHeatmap rows={ ROWS } { ...LABELS } /> );
+
+		// 10 of a 5-to-40 series: a quarter of the way up in log space, a seventh of it by distance.
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'Nov 2025: 10' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '0.25' );
 	} );
 
 	it( 'ignores a target without a month, and a month outside the covered span', () => {
