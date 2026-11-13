@@ -30,6 +30,12 @@ class Admin_Shell {
 	const REQUIRED_STRING_KEYS = array( 'build_prefix', 'build_page', 'title' );
 
 	/**
+	 * Member kind for a page that isn't built with wp-build: its classic scripts boot it when they run.
+	 * Such a page can join as a guest but never hosts the shell.
+	 */
+	const KIND_SCRIPT = 'script';
+
+	/**
 	 * The admin-ajax action that returns a guest's page data.
 	 */
 	const GUEST_ACTION = 'jetpack_admin_shell_guest';
@@ -112,7 +118,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool}>
+	 * @return array<string, array{build_prefix?: string, build_page?: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool, kind: string, container?: array{id: string, class?: string}}>
 	 */
 	public static function get_members() {
 		/**
@@ -129,6 +135,8 @@ class Admin_Shell {
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
 		 * - media (bool)            Optional, default false. Whether the page opens the media library: the endpoint then prints it and its templates too.
+		 * - kind (string)           Optional, `wp-build` (default) or `script`. A `script` member needs no build keys; it sets `container` instead.
+		 * - container (array)       `script` members only. The `id` and optional `class` of the element the page's scripts mount into.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -178,7 +186,7 @@ class Admin_Shell {
 		}
 
 		$members = self::get_members();
-		if ( count( $members ) < 2 || ! isset( $members[ $page ] ) ) {
+		if ( count( $members ) < 2 || ! isset( $members[ $page ] ) || self::KIND_SCRIPT === $members[ $page ]['kind'] ) {
 			return array( null, $members );
 		}
 		return array( $page, $members );
@@ -268,6 +276,11 @@ class Admin_Shell {
 	 * @return array[]|null Routes, or null when the guest's build or its routes aren't there.
 	 */
 	private static function load_guest( $member ) {
+		// Its scripts come from the guest endpoint and boot the page as they run.
+		if ( self::KIND_SCRIPT === $member['kind'] ) {
+			return array();
+		}
+
 		$snapshot = self::hook_snapshot();
 		call_user_func( $member['load'] );
 		$routes = self::run_page_init( $member );
@@ -342,8 +355,10 @@ class Admin_Shell {
 		);
 		foreach ( array( $host => array() ) + $guests as $slug => $routes ) {
 			$member                     = $members[ $slug ];
+			$is_script                  = self::KIND_SCRIPT === $member['kind'];
 			$config['members'][ $slug ] = array(
-				'mountId'     => $member['build_page'] . '-wp-admin-app',
+				'kind'        => $member['kind'],
+				'mountId'     => $is_script ? 'jetpack-admin-shell-' . $slug : $member['build_page'] . '-wp-admin-app',
 				'routes'      => $routes,
 				'initModules' => $member['init_modules'],
 				'defaultPath' => $member['default_path'],
@@ -352,6 +367,12 @@ class Admin_Shell {
 				'adminTitle'  => self::admin_title( $slug, $member['title'] ),
 				'bodyClass'   => self::screen_id( $slug ),
 			);
+			if ( $is_script ) {
+				$config['members'][ $slug ]['container'] = array(
+					'id'        => $member['container']['id'],
+					'className' => $member['container']['class'] ?? '',
+				);
+			}
 		}
 		return $config;
 	}
@@ -546,7 +567,15 @@ class Admin_Shell {
 			return null;
 		}
 
-		foreach ( self::REQUIRED_STRING_KEYS as $key ) {
+		$kind     = $member['kind'] ?? 'wp-build';
+		$required = array(
+			'wp-build'        => self::REQUIRED_STRING_KEYS,
+			self::KIND_SCRIPT => array( 'title' ),
+		)[ $kind ] ?? null;
+		if ( null === $required || ( self::KIND_SCRIPT === $kind && ! self::is_valid_container( $member['container'] ?? null ) ) ) {
+			return null;
+		}
+		foreach ( $required as $key ) {
 			if ( ! isset( $member[ $key ] ) || ! is_string( $member[ $key ] ) || '' === $member[ $key ] ) {
 				return null;
 			}
@@ -563,6 +592,7 @@ class Admin_Shell {
 			'capability'   => 'manage_options',
 			'handles'      => array(),
 			'media'        => false,
+			'kind'         => $kind,
 		);
 
 		if (
@@ -596,6 +626,18 @@ class Admin_Shell {
 		return is_array( $value )
 			&& isset( $value['title'] ) && is_string( $value['title'] ) && '' !== $value['title']
 			&& isset( $value['subtitle'] ) && is_string( $value['subtitle'] );
+	}
+
+	/**
+	 * Whether a value describes a script member's mount element: a non-empty string `id` and, optionally, a string `class`.
+	 *
+	 * @param mixed $container Value to check.
+	 * @return bool
+	 */
+	private static function is_valid_container( $container ) {
+		return is_array( $container )
+			&& isset( $container['id'] ) && is_string( $container['id'] ) && '' !== $container['id']
+			&& ( ! isset( $container['class'] ) || is_string( $container['class'] ) );
 	}
 
 	/**

@@ -29,13 +29,16 @@ jest.mock( '../../../src/admin-shell/app', () => ( {
 	whenRendered: jest.fn( () => Promise.resolve() ),
 } ) );
 jest.mock( '../../../src/admin-shell/guest-assets', () => ( {
+	addGuestAssets: jest.fn( () => Promise.resolve( {} ) ),
 	applyGuestAssets: jest.fn( () => Promise.resolve( {} ) ),
+	fetchGuestAssets: jest.fn( () => Promise.resolve( '' ) ),
 } ) );
 jest.mock( '../../../src/admin-shell/header', () => ( {
 	configureHeaders: jest.fn(),
 	rememberHeader: jest.fn(),
 	removeHeader: jest.fn(),
 	showHeader: mockShowHeader,
+	wrapInCopies: jest.fn( inner => inner ),
 } ) );
 jest.mock( '../../../src/admin-shell/overlays', () => ( {
 	closeDialogsOf: jest.fn( () => Promise.resolve() ),

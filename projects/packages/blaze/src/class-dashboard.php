@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Blaze;
 
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Assets;
 
 /**
@@ -59,6 +60,13 @@ class Dashboard {
 	const BLAZEDASH_CACHE_BUSTER_CACHE_KEY = 'jetpack_blaze_admin_asset_cache_buster';
 
 	/**
+	 * Inside a rounded stage, the app fills the stage instead of the viewport, which also counts the 8px gap below it.
+	 *
+	 * @var string
+	 */
+	const STAGE_CSS = '@media (min-width: 782px) { .wp-admin .jetpack-admin-shell__stage .promote-post-i2__page { min-height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 8px); } }';
+
+	/**
 	 * Blaze dashboard admin page. Default is admin.php.
 	 *
 	 * @var string
@@ -80,6 +88,13 @@ class Dashboard {
 	private $css_prefix;
 
 	/**
+	 * Whether the page draws in the rounded frame, once is_framed() has worked it out.
+	 *
+	 * @var bool|null
+	 */
+	private $framed = null;
+
+	/**
 	 * Dashboard constructor.
 	 *
 	 * @param string $admin_page Dashboard admin page. Default is admin.php.
@@ -98,6 +113,10 @@ class Dashboard {
 	 * @return void
 	 */
 	public function render() {
+		if ( $this->is_framed() ) {
+			$this->render_framed();
+			return;
+		}
 		?>
 		<div id="wpcom" class="<?php echo esc_attr( $this->css_prefix ); ?>-dashboard" style="min-height: calc(100vh - 100px);">
 		<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Blaze dashboard requires JavaScript to function properly.', 'jetpack-blaze' ); ?></div>
@@ -112,26 +131,134 @@ class Dashboard {
 				/>
 			</div>
 		</div>
-		<script>
-			jQuery(document).ready(function($) {
-				// Load SVG sprite.
-				$.get("https://widgets.wp.com/blaze-dashboard/common/gridicons-506499ddac13811fee8e.svg", function(data) {
-					var div = document.createElement("div");
-					div.innerHTML = new XMLSerializer().serializeToString(data.documentElement);
-					div.style = 'display: none';
-					document.body.insertBefore(div, document.body.childNodes[0]);
-				});
-				// we intercept on all anchor tags and change it to hashbang style.
-				$("#wpcom").on('click', 'a', function (e) {
-					const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
-					if (link && link.startsWith( '/<?php echo esc_attr( $this->menu_slug ); ?>' ) ) {
-						location.hash = `#!${link}`;
-						return false;
-					}
-				});
-			});
-		</script>
 		<?php
+	}
+
+	/**
+	 * Print the app inside the frame the admin shell's other dashboards have: an empty stage while it loads, no spinner.
+	 *
+	 * @return void
+	 */
+	private function render_framed() {
+		$prefix = $this->css_prefix;
+		?>
+		<div class="<?php echo esc_attr( $prefix ); ?>-frame">
+			<script>
+				( function ( frame, menu ) {
+					if ( menu ) {
+						frame.style.backgroundColor = getComputedStyle( menu ).backgroundColor;
+					}
+				} )( document.currentScript.parentNode, document.getElementById( 'adminmenuback' ) );
+			</script>
+			<div class="<?php echo esc_attr( $prefix ); ?>-frame__stage jetpack-admin-shell__stage">
+				<div id="wpcom" class="<?php echo esc_attr( $prefix ); ?>-dashboard">
+					<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Blaze dashboard requires JavaScript to function properly.', 'jetpack-blaze' ); ?></div>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Whether the loaded admin-ui can take a page that isn't built with wp-build into the admin shell.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function supports_admin_shell() {
+		return defined( Admin_Shell::class . '::KIND_SCRIPT' );
+	}
+
+	/**
+	 * Whether the page draws in the rounded frame of the Jetpack dashboards: when it is one of the admin shell's pages.
+	 *
+	 * @return bool
+	 */
+	private function is_framed() {
+		$this->framed ??= ! wp_doing_ajax()
+			&& self::supports_admin_shell()
+			&& Admin_Shell::is_enabled()
+			&& isset( Admin_Shell::get_members()[ $this->menu_slug ] );
+		return $this->framed;
+	}
+
+	/**
+	 * Style the frame, matching the rounded stage of the wp-build dashboards.
+	 *
+	 * @param string $hook The current admin page.
+	 * @return void
+	 */
+	private function enqueue_frame_style( $hook ) {
+		$body  = 'body.' . sanitize_html_class( $hook );
+		$frame = '.' . sanitize_html_class( $this->css_prefix ) . '-frame';
+		$css   = <<<CSS
+@media (min-width: 782px) {
+	{$body} #wpcontent { padding-inline-start: 0; }
+	{$body} #wpbody-content { padding-bottom: 0; }
+	{$body} #wpfooter { display: none; }
+	{$frame} {
+		background: #1d2327;
+		padding-block-end: 8px;
+		padding-inline-end: 8px;
+	}
+	{$frame}__stage {
+		background: #fff;
+		border-radius: 12px;
+		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 8px);
+		overflow-y: auto;
+	}
+}
+CSS;
+		wp_register_style( self::SCRIPT_HANDLE . '-frame', false, array(), self::PACKAGE_VERSION );
+		wp_add_inline_style( self::SCRIPT_HANDLE . '-frame', $css );
+		wp_enqueue_style( self::SCRIPT_HANDLE . '-frame' );
+	}
+
+	/**
+	 * The element the app mounts into when the admin shell loads it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{id: string, class: string}
+	 */
+	public function get_admin_shell_container() {
+		return array(
+			'id'    => 'wpcom',
+			'class' => $this->css_prefix . '-dashboard',
+		);
+	}
+
+	/**
+	 * Script that loads the icon sprite and turns the app's links into hashbang links.
+	 *
+	 * Attached to the dashboard script rather than printed by render(), so it also runs when the admin shell loads the page.
+	 *
+	 * @return string
+	 */
+	private function get_inline_script() {
+		$prefix = wp_json_encode( '/' . $this->menu_slug, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+		return <<<JS
+( function () {
+	fetch( 'https://widgets.wp.com/blaze-dashboard/common/gridicons-506499ddac13811fee8e.svg' )
+		.then( function ( response ) { return response.text(); } )
+		.then( function ( svg ) {
+			var div = document.createElement( 'div' );
+			div.innerHTML = svg;
+			div.style.display = 'none';
+			document.body.insertBefore( div, document.body.firstChild );
+		} );
+	var dashboard = document.getElementById( 'wpcom' );
+	dashboard && dashboard.addEventListener( 'click', function ( event ) {
+		var anchor = event.target.closest( 'a[href]' );
+		var link = anchor && anchor.getAttribute( 'href' );
+		if ( link && link.startsWith( {$prefix} ) ) {
+			location.hash = '#!' + link;
+			event.preventDefault();
+		}
+	} );
+} )();
+JS;
 	}
 
 	/**
@@ -154,11 +281,18 @@ class Dashboard {
 		$asset_handle = self::SCRIPT_HANDLE;
 		$asset_name   = 'build.min';
 
+		if ( $this->is_framed() ) {
+			$this->enqueue_frame_style( $hook );
+		}
+
 		$dashboard_config = new Dashboard_Config_Data( $this->admin_page, $this->menu_slug );
 
 		$config_data = $dashboard_config->get_data();
 
-		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
+		$is_local = file_exists( __DIR__ . "/../dist/{$asset_name}.js" );
+		// Assets registers the local build's stylesheet under the script's handle.
+		$style_handle = $is_local ? $asset_handle : $asset_handle . '-style';
+		if ( $is_local ) {
 			// Load local assets for the convenience of development.
 			Assets::register_script(
 				$asset_handle,
@@ -171,21 +305,21 @@ class Dashboard {
 				)
 			);
 		} else {
-			$css_url    = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
-			$css_handle = $asset_handle . '-style';
+			$css_url      = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
+			$cache_buster = $this->get_cdn_asset_cache_buster();
 
 			wp_enqueue_script(
 				$asset_handle,
 				sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, "{$asset_name}.js" ),
 				self::JS_DEPENDENCIES,
-				$this->get_cdn_asset_cache_buster(),
+				$cache_buster,
 				true
 			);
 			wp_enqueue_style(
-				$css_handle,
+				$style_handle,
 				sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, $css_url ),
 				array(),
-				$this->get_cdn_asset_cache_buster()
+				$cache_buster
 			);
 		}
 
@@ -194,6 +328,9 @@ class Dashboard {
 			$dashboard_config->get_js_config_data( $config_data ),
 			'before'
 		);
+		wp_add_inline_script( $asset_handle, $this->get_inline_script() );
+		// On the dashboard's own stylesheet, so it also loads, and switches off, with Blaze in the admin shell.
+		wp_add_inline_style( $style_handle, self::STAGE_CSS );
 	}
 
 	/**

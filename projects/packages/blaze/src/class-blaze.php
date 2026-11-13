@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
 use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_Controller;
 use Automattic\Jetpack\Blaze\REST_Controller;
@@ -83,6 +84,9 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
+		if ( Blaze_Dashboard::supports_admin_shell() ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
 		// Redirect legacy/duplicate advertising URLs (the old tools.php location, or the
 		// admin.php?page=advertising slug when the standalone Blaze Ads plugin owns the
 		// menu). Runs late (after WooCommerce and core register their menus, so
@@ -141,47 +145,14 @@ class Blaze {
 			return;
 		}
 
-		/**
-		 * Filter the menu page slug used for the Blaze dashboard.
-		 *
-		 * @since 0.28.0
-		 *
-		 * @param string $menu_slug The menu page slug. Default 'advertising'.
-		 */
-		$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
-
-		// Avoid a duplicate Blaze Ads menu when the standalone Blaze Ads plugin
-		// (Automattic/blaze-ads) is also active. Releases <= 0.9.0 register their own
-		// menu and leave our slug at the default 'advertising', so we bail to avoid a
-		// second entry; the standalone owns the menu under 'wp-blaze' and
-		// redirect_legacy_advertising_url() forwards 'advertising' links there. When the
-		// standalone instead delegates registration to us by filtering the slug (e.g. to
-		// 'wp-blaze'), we are the only registrant and must register normally -- the
-		// non-default slug is what tells the two cases apart.
-		if ( 'advertising' === $menu_slug && self::is_standalone_blaze_ads_active() ) {
+		$menu_slug = self::get_menu_slug();
+		if ( self::standalone_owns_menu( $menu_slug ) ) {
 			return;
 		}
 
-		/**
-		 * Filter the menu label for the Blaze dashboard menu item.
-		 *
-		 * @since 0.28.0
-		 *
-		 * @param string $menu_label The menu label. Default 'Blaze Ads'.
-		 */
-		$menu_label = apply_filters( 'jetpack_blaze_menu_label', 'Blaze Ads' ); // Product name, do not translate.
-
-		/**
-		 * Filter the CSS class prefix for the Blaze dashboard.
-		 *
-		 * @since 0.28.0
-		 *
-		 * @param string $css_prefix The CSS class prefix. Default 'jp-blaze'.
-		 */
-		$css_prefix = apply_filters( 'jetpack_blaze_dashboard_css_prefix', 'jp-blaze' );
-
+		$menu_label      = self::get_menu_label();
 		$parent_slug     = self::get_menu_parent();
-		$blaze_dashboard = new Blaze_Dashboard( 'admin.php', $menu_slug, $css_prefix );
+		$blaze_dashboard = self::create_dashboard( $menu_slug );
 
 		if ( self::is_dashboard_enabled() || ( new Host() )->is_wpcom_platform() ) {
 			if ( 'jetpack' === $parent_slug ) {
@@ -218,6 +189,101 @@ class Blaze {
 				self::add_migration_notice_menu();
 			}
 		}
+	}
+
+	/**
+	 * Let the admin shell open the dashboard without a page load, when it sits in the Jetpack menu.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Admin shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		$menu_slug = self::get_menu_slug();
+		// Cheapest first: should_initialize() can call WordPress.com.
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| self::standalone_owns_menu( $menu_slug )
+			|| 'jetpack' !== self::get_menu_parent()
+			|| ! self::is_dashboard_enabled()
+			|| ! self::should_initialize()['can_init']
+		) {
+			return $members;
+		}
+
+		$dashboard             = self::create_dashboard( $menu_slug );
+		$members[ $menu_slug ] = array(
+			'kind'      => Admin_Shell::KIND_SCRIPT,
+			'title'     => self::get_menu_label(),
+			'handles'   => array( Blaze_Dashboard::SCRIPT_HANDLE, Blaze_Dashboard::SCRIPT_HANDLE . '-style' ),
+			'load'      => array( $dashboard, 'admin_init' ),
+			'container' => $dashboard->get_admin_shell_container(),
+		);
+		return $members;
+	}
+
+	/**
+	 * The admin page slug of the Blaze dashboard.
+	 *
+	 * @return string
+	 */
+	private static function get_menu_slug() {
+		/**
+		 * Filter the menu page slug used for the Blaze dashboard.
+		 *
+		 * @since 0.28.0
+		 *
+		 * @param string $menu_slug The menu page slug. Default 'advertising'.
+		 */
+		return apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
+	}
+
+	/**
+	 * The label of the Blaze dashboard menu item.
+	 *
+	 * @return string
+	 */
+	private static function get_menu_label() {
+		/**
+		 * Filter the menu label for the Blaze dashboard menu item.
+		 *
+		 * @since 0.28.0
+		 *
+		 * @param string $menu_label The menu label. Default 'Blaze Ads'.
+		 */
+		return apply_filters( 'jetpack_blaze_menu_label', 'Blaze Ads' ); // Product name, do not translate.
+	}
+
+	/**
+	 * The dashboard page object for a menu slug.
+	 *
+	 * @param string $menu_slug Admin page slug.
+	 * @return Blaze_Dashboard
+	 */
+	private static function create_dashboard( $menu_slug ) {
+		/**
+		 * Filter the CSS class prefix for the Blaze dashboard.
+		 *
+		 * @since 0.28.0
+		 *
+		 * @param string $css_prefix The CSS class prefix. Default 'jp-blaze'.
+		 */
+		$css_prefix = apply_filters( 'jetpack_blaze_dashboard_css_prefix', 'jp-blaze' );
+		return new Blaze_Dashboard( 'admin.php', $menu_slug, $css_prefix );
+	}
+
+	/**
+	 * Whether the standalone Blaze Ads plugin registers the dashboard menu itself, so this package must not.
+	 *
+	 * Releases <= 0.9.0 register their own menu (under 'wp-blaze') and leave our slug at the default
+	 * 'advertising'. A standalone that delegates registration to us filters the slug instead.
+	 *
+	 * @param string $menu_slug From get_menu_slug().
+	 * @return bool
+	 */
+	private static function standalone_owns_menu( $menu_slug ) {
+		return 'advertising' === $menu_slug && self::is_standalone_blaze_ads_active();
 	}
 
 	/**
