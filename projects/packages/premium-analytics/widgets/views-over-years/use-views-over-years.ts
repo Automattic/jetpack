@@ -178,6 +178,7 @@ function useSiteViewsOverYears(
 
 	// Only the averages wait for the first day, and only until that request first settles:
 	// a failed one refetches on focus with no data, which would pull the rows back into the skeleton.
+	// The totals paint without it and gain the launch month's hatch when it lands (#52311).
 	const awaitingFirstDay =
 		metric === 'average' &&
 		!! firstMonth &&

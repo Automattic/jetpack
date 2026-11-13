@@ -183,8 +183,13 @@ describe( 'useViewsOverYears', () => {
 	} );
 
 	it( 'draws the totals before the first day is known, and marks them busy', async () => {
+		let resolveDays: ( value: unknown ) => void = () => {};
 		mockApiFetch.mockImplementation( options =>
-			isDayRequest( options ) ? new Promise( () => {} ) : Promise.resolve( VISITS_RESPONSE )
+			isDayRequest( options )
+				? new Promise( resolve => {
+						resolveDays = resolve;
+					} )
+				: Promise.resolve( VISITS_RESPONSE )
 		);
 		const { result } = renderHook( () => useViewsOverYears( 'total' ), { wrapper } );
 
@@ -192,6 +197,16 @@ describe( 'useViewsOverYears', () => {
 
 		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300, 620 ] );
 		expect( result.current.isFetching ).toBe( true );
+		// The launch month's hatch needs that day, so until it lands only the current month carries one.
+		expect( result.current.partialMonths ).toEqual( [ { year: 2026, month: 2 } ] );
+
+		resolveDays( FIRST_MONTH_RESPONSE );
+
+		await waitFor( () =>
+			expect( result.current.partialMonths ).toEqual(
+				expect.arrayContaining( [ { year: 2025, month: 10 } ] )
+			)
+		);
 	} );
 
 	it( 'keeps loading until the first day is known', async () => {

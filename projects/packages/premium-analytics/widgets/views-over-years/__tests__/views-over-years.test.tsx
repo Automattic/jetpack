@@ -159,6 +159,23 @@ describe( 'ViewsOverYears widget', () => {
 		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
 	} );
 
+	it( 'hatches the launch month and the current month under the total metric', () => {
+		mockVisits(
+			visitsResult( ROWS ),
+			visitsResult( [
+				[ '2025-11-23', 0 ],
+				[ '2025-11-24', 5 ],
+			] )
+		);
+		renderWidget();
+
+		const partials = screen.getAllByTestId( 'heatmap-cell-partial' );
+		expect( partials ).toHaveLength( 2 );
+		expect( partials.map( cell => cell.getAttribute( 'aria-label' ) ) ).toEqual(
+			expect.arrayContaining( [ 'Nov 2025: 300 (incomplete)', 'Mar 2026: 450 (incomplete)' ] )
+		);
+	} );
+
 	it( 'opens the Traffic tab over the first month from its first day with views', async () => {
 		mockVisits(
 			visitsResult( ROWS ),
