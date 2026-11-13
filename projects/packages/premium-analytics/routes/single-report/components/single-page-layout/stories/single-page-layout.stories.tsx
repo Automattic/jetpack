@@ -8,7 +8,7 @@ import { useMemo } from '@wordpress/element';
  */
 import { applyFixtureSiteSettings } from '../../../../../packages/widgets-toolkit/src/stories/fixture-site';
 import { buildControlFields } from '../../../controls';
-import { videoHeaderSlots, type VideoSummary } from '../../../pages/video';
+import { videoAdapter, videoHeaderSlots, type VideoSummary } from '../../../pages/video';
 import { SinglePageLayout } from '../single-page-layout';
 import { POSTER, UPLOAD_DATE } from './fixtures';
 import styles from './single-page-layout.stories.module.scss';
@@ -74,7 +74,12 @@ function SinglePageLayoutStory( {
 		preset,
 		allTimeStart: summary.allTimeStart,
 	} );
-	const header = videoHeaderSlots( summary, { label: 'Video', performanceRange: range } );
+	const header = videoHeaderSlots( summary, {
+		label: 'Video',
+		// As the stage resolves it: the video's title, else the adapter's untitled one.
+		title: summary.title?.trim() || videoAdapter.untitledTitle?.( summary ) || 'Video',
+		performanceRange: range,
+	} );
 	const controls = useMemo(
 		() => buildControlFields( withControls ? null : [] ),
 		[ withControls ]

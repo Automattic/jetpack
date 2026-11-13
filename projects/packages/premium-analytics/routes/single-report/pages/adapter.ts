@@ -12,7 +12,7 @@ import type { ReactNode } from 'react';
  */
 export type EntitySummary = {
 	/*
-	 * The entity's title: the last crumb and the document title.
+	 * The entity's title as saved, possibly blank; the page then states the adapter's untitled title.
 	 */
 	title?: string;
 
@@ -123,6 +123,11 @@ export type HeaderContext = {
 	label: string;
 
 	/*
+	 * The title the page states, in the crumb and the header: the entity's, else the untitled one.
+	 */
+	title: string;
+
+	/*
 	 * The active inner section, on a page with sections.
 	 */
 	section?: SectionState;
@@ -142,6 +147,11 @@ export type SingleReportAdapter< Summary extends EntitySummary = EntitySummary >
 	 * The entity's summary request, over the id as the URL carries it.
 	 */
 	useSummary( entityId: string ): Summary;
+
+	/*
+	 * The title of an entity saved without one, such as "Untitled video"; absent, the record's label stands in.
+	 */
+	untitledTitle?( summary: Summary ): string;
 
 	/*
 	 * The header slots for a summary in any state.
