@@ -241,7 +241,7 @@ export function ComparativeLineChart( {
 	// padded baseline pads what the legend leaves visible. Null lets the chart fit
 	// the data above zero.
 	const pinnedYAxis = useMemo( () => {
-		const fixedYAxis = getFixedYAxis( dataFormat.type, isEmptyData );
+		const fixedYAxis = getFixedYAxis( dataFormat.type, isEmptyData, styledSeries );
 		if ( fixedYAxis || baseline !== 'padded' ) {
 			return fixedYAxis;
 		}
