@@ -3,7 +3,7 @@
  */
 import { emailSendWindowParams } from '../email-send-window';
 
-const NOW = new Date( '2030-01-01T12:00:00Z' );
+const NOW = new Date( '2040-01-01T12:00:00Z' );
 const DAY = '2026-06-22T00:00:00Z';
 
 const iso = ( value: string | undefined ) => new Date( value ?? '' ).toISOString();
@@ -12,8 +12,8 @@ describe( 'emailSendWindowParams', () => {
 	it.each( [
 		[ 'first-week', 'day', 'UTC', DAY, '2026-06-28T23:59:59.999Z' ],
 		[ 'first-30-days', 'day', 'UTC', DAY, '2026-07-21T23:59:59.999Z' ],
-		// June 2026 is the first of the 30 calendar months, November 2028 the last.
-		[ 'all-time', 'month', 'UTC', DAY, '2028-11-30T23:59:59.999Z' ],
+		// June 2026 is the first of the 120 calendar months, May 2036 the last.
+		[ 'all-time', 'month', 'UTC', DAY, '2036-05-31T23:59:59.999Z' ],
 		// Day 30 across the end of DST, in a site zone the machine is not in.
 		[
 			'first-30-days',

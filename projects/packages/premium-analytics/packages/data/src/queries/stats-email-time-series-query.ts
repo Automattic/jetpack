@@ -6,6 +6,7 @@ import { getDatePart } from '@jetpack-premium-analytics/datetime';
  * Internal dependencies
  */
 import { toStatsBucketWindowParams, windowEndHour } from '../processing/stats';
+import { EMAIL_TIME_SERIES_MAX_MONTHS } from '../utils/email-send-window';
 import { reportParamsToStatsQueryParams, type StatsQueryParams } from '../utils/stats-params';
 import {
 	statsProxyQuery,
@@ -29,12 +30,6 @@ export type StatsEmailTimeSeriesPeriod = 'hour' | 'day' | 'month';
 
 export type StatsEmailTimeSeriesParams = StatsReportParams;
 
-/**
- * The most buckets the email timeline endpoint returns per request, whatever
- * their size; asked for more, it falls back to its own default count.
- */
-export const EMAIL_TIME_SERIES_MAX_BUCKETS = 30;
-
 const hasValidPostId = ( postId: number ) => Number.isInteger( postId ) && postId > 0;
 
 // The email timeline buckets by hour, day, month or year, never by week
@@ -56,7 +51,7 @@ const monthlyQuantity = ( startDate: string, endDate: string ) => {
 	const [ endYear, endMonth ] = endDate.split( '-' ).map( Number );
 
 	return Math.min(
-		EMAIL_TIME_SERIES_MAX_BUCKETS,
+		EMAIL_TIME_SERIES_MAX_MONTHS,
 		Math.max( 1, ( endYear - startYear ) * 12 + ( endMonth - startMonth ) + 1 )
 	);
 };

@@ -25,9 +25,14 @@ export type EmailSendWindow = ( typeof EMAIL_SEND_WINDOWS )[ number ];
 /** The window read when none is saved: what the legacy Stats email page showed. */
 export const DEFAULT_EMAIL_SEND_WINDOW: EmailSendWindow = 'first-30-days';
 
-// The timeline endpoint answers at most 30 daily or monthly buckets per request.
+// The most daily buckets the timeline endpoint answers per request.
 const EMAIL_SEND_WINDOW_DAYS = 30;
-const EMAIL_SEND_WINDOW_MONTHS = 30;
+
+/**
+ * The most monthly buckets the timeline endpoint answers per request: ten years,
+ * past which it falls back to its own default count.
+ */
+export const EMAIL_TIME_SERIES_MAX_MONTHS = 120;
 
 /** When an email went out: its day, and the instant itself where the host knows it. */
 export type EmailSend = {
@@ -105,7 +110,10 @@ export function emailSendWindowRange(
 			break;
 		case 'all-time': {
 			// Calendar months, as the endpoint buckets them: a mid-month send takes its month as the first.
-			end = endOfDayTZ( endOfMonth( addMonths( day, EMAIL_SEND_WINDOW_MONTHS - 1 ) ), timeZone );
+			end = endOfDayTZ(
+				endOfMonth( addMonths( day, EMAIL_TIME_SERIES_MAX_MONTHS - 1 ) ),
+				timeZone
+			);
 			interval = 'month';
 			break;
 		}

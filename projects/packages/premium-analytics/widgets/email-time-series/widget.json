@@ -4,7 +4,7 @@
 	"title": "Email performance",
 	"description": "A single email's opens or clicks over time since it was sent.",
 	"help": {
-		"content": "How a single email performed since it was sent: opens or clicks by the hour over the first 24 hours, by the day over the first week or the first 30 days, or by the month over all time, up to 30 months."
+		"content": "How a single email performed since it was sent: opens or clicks by the hour over the first 24 hours, by the day over the first week or the first 30 days, or by the month over all time."
 	},
 	"category": "stats",
 	"presentation": "framed",

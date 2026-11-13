@@ -359,14 +359,14 @@ describe( 'Stats query factories', () => {
 		} );
 	} );
 
-	it( 'asks for at most 30 monthly buckets, past which the endpoint would answer its default', () => {
+	it( 'asks for at most 120 monthly buckets, past which the endpoint would answer its default', () => {
 		expect(
 			statsEmailClicksTimeSeriesQuery( 41, {
-				from: '2020-01-15',
+				from: '2010-01-15',
 				to: '2026-08-28',
 				interval: 'month',
 			} ).queryKey[ 5 ]
-		).toMatchObject( { period: 'month', quantity: 30, date: '2020-01-01' } );
+		).toMatchObject( { period: 'month', quantity: 120, date: '2010-01-01' } );
 	} );
 
 	it( 'keeps a same-day pinned window on daily buckets', () => {

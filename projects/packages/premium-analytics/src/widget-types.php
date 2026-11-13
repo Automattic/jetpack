@@ -556,13 +556,13 @@ function get_detail_page_widget_types() {
 		'jpa/email-time-series--total-opens'    => array(
 			'implementation' => 'jpa/email-time-series',
 			'title'          => __( 'Opens over time', 'jetpack-premium-analytics-pkg' ),
-			'help'           => __( 'Opens since this email was sent, over the window chosen on this card: by the hour for the first 24 hours, by the day for the first week or 30 days, by the month for all time, up to 30 months. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
+			'help'           => __( 'Opens since this email was sent, over the window chosen on this card: by the hour for the first 24 hours, by the day for the first week or 30 days, by the month for all time. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
 			'icon'           => 'jpa/seen',
 		),
 		'jpa/email-time-series--total-clicks'   => array(
 			'implementation' => 'jpa/email-time-series',
 			'title'          => __( 'Clicks over time', 'jetpack-premium-analytics-pkg' ),
-			'help'           => __( 'Clicks since this email was sent, over the window chosen on this card: by the hour for the first 24 hours, by the day for the first week or 30 days, by the month for all time, up to 30 months. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
+			'help'           => __( 'Clicks since this email was sent, over the window chosen on this card: by the hour for the first 24 hours, by the day for the first week or 30 days, by the month for all time. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
 			'icon'           => 'jpa/link',
 		),
 		'jpa/email-breakdown--location-opens'   => array(
