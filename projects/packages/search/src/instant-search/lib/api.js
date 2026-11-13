@@ -1,7 +1,6 @@
 import stringify from 'fast-json-stable-stringify';
-import { flatten } from 'q-flat';
-import { encode } from 'qss';
 import lru from 'tiny-lru/lib/tiny-lru.esm';
+import { encode, flatten } from '../external/query-string-encode';
 import {
 	MINUTE_IN_MILLISECONDS,
 	MULTISITE_NO_GROUP_VALUE,

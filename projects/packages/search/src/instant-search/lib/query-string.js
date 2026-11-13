@@ -1,5 +1,5 @@
-import { encode } from 'qss';
 import { decode } from '../external/query-string-decode';
+import { encode } from '../external/query-string-encode';
 import { SERVER_OBJECT_NAME, VALID_RESULT_FORMAT_KEYS } from './constants';
 import { getFilterKeys, getStaticFilterKeys } from './filters';
 

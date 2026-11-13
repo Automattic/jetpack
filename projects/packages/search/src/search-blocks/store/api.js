@@ -1,5 +1,4 @@
-import { flatten } from 'q-flat';
-import { encode } from 'qss';
+import { encode, flatten } from '../../instant-search/external/query-string-encode';
 
 /**
  * Fields to request from the v1.3 search API. Without an explicit `fields[]`

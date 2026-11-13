@@ -2,8 +2,10 @@ import clsx from 'clsx';
 import * as React from 'react';
 import { createRef, Component } from 'react';
 import { connect } from 'react-redux';
-import strip from 'strip';
 import { getCheckedInputNames } from '../lib/dom';
+
+const HTML_TAG_REGEX = /<\/?([a-z][a-z0-9]*)\b[^>]*>?/gi;
+const stripTags = html => ( html || '' ).replace( HTML_TAG_REGEX, '' ).trim();
 
 /**
  * Get date options given an interval.
@@ -113,7 +115,7 @@ class SearchFilter extends Component {
 					htmlFor={ `${ this.idPrefix }-post-types-${ key }` }
 					className="jetpack-instant-search__search-filter-list-label"
 				>
-					{ strip( name ) } ({ count })
+					{ stripTags( name ) } ({ count })
 				</label>
 			</div>
 		);
@@ -137,7 +139,7 @@ class SearchFilter extends Component {
 					htmlFor={ `${ this.idPrefix }-authors-${ slug }` }
 					className="jetpack-instant-search__search-filter-list-label"
 				>
-					{ strip( name ) } ({ count })
+					{ stripTags( name ) } ({ count })
 				</label>
 			</div>
 		);
@@ -164,7 +166,7 @@ class SearchFilter extends Component {
 					htmlFor={ `${ this.idPrefix }-blog-ids-${ strKey }` }
 					className="jetpack-instant-search__search-filter-list-label"
 				>
-					{ strip( name ) } ({ count })
+					{ stripTags( name ) } ({ count })
 				</label>
 			</div>
 		);
@@ -190,7 +192,7 @@ class SearchFilter extends Component {
 					htmlFor={ `${ this.idPrefix }-taxonomies-${ slug }` }
 					className="jetpack-instant-search__search-filter-list-label"
 				>
-					{ strip( name ) } ({ count })
+					{ stripTags( name ) } ({ count })
 				</label>
 			</div>
 		);
@@ -216,7 +218,7 @@ class SearchFilter extends Component {
 					htmlFor={ `${ this.idPrefix }-product-attributes-${ slug }` }
 					className="jetpack-instant-search__search-filter-list-label"
 				>
-					{ strip( name ) } ({ count })
+					{ stripTags( name ) } ({ count })
 				</label>
 			</div>
 		);

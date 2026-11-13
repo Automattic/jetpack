@@ -144,16 +144,7 @@
 		// 🤷
 		{
 			groupName: 'Instant Search Dependency Updates',
-			matchPackageNames: [
-				'cache',
-				'preact',
-				'progress-event',
-				'q-flat',
-				'qss',
-				'strip',
-				'uuid',
-				'@testing-library/preact',
-			],
+			matchPackageNames: [ 'cache', 'preact', 'progress-event', 'uuid', '@testing-library/preact' ],
 			additionalReviewers: [ 'team:jetpack-search' ],
 			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},

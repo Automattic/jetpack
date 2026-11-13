@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove the strip, q-flat and qss dependencies in favor of small built-in helpers.

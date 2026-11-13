@@ -81,14 +81,11 @@
 		"photon": "4.1.1",
 		"preact": "10.28.2",
 		"prop-types": "15.8.1",
-		"q-flat": "1.0.7",
-		"qss": "3.0.0",
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"react-redux": "9.3.0",
 		"redux": "5.0.1",
 		"refx": "3.1.1",
-		"strip": "3.0.0",
 		"tiny-lru": "7.0.6"
 	},
 	"devDependencies": {

@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Replace the bounding-client-rect dependency with the native getBoundingClientRect() in the popover; no user-facing change.
+
+
