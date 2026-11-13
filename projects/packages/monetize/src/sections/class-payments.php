@@ -57,5 +57,8 @@ class Payments implements Dashboard_Section {
 				),
 			)
 		);
+
+		// Totals and next month's forecast, for the Overview.
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/earnings', 'GET' );
 	}
 }

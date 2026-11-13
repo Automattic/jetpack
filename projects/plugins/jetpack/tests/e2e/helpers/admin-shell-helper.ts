@@ -24,6 +24,8 @@ export interface Member {
 	heading: string | RegExp;
 	/** `search + hash` a fresh load lands on with the shell off. */
 	landing: RegExp;
+	/** Needs site setup; tests that use it skip on a site whose admin menu lacks it. */
+	optional?: true;
 }
 
 /* Members registered on the test site. Titles and landings are from shell-off full loads. */
@@ -64,6 +66,15 @@ export const MEMBERS: Member[] = [
 		heading: /Podcast/,
 		landing: /^\?page=jetpack-podcast(&p=%2F[^#&]*)?$/,
 	},
+	{
+		slug: 'jetpack-seo',
+		mountId: 'jetpack-seo-dashboard-wp-admin-app',
+		title: 'SEO',
+		heading: 'SEO',
+		landing: /^\?page=jetpack-seo$/,
+		// Needs the `seo-admin-ui` plan feature or the `rsm_jetpack_seo` filter, and the seo-tools module on.
+		optional: true,
+	},
 	/* Activity Log, Newsletter, Protect and VideoPress are members too, but each needs a WordPress.com
 	 * connection (their modules don't load in offline mode), and the test site has none. */
 ];
@@ -75,6 +86,64 @@ export const member = ( slug: string ): Member => {
 	}
 	return found;
 };
+
+const menuSlugs = new Map< string, Promise< Set< string > > >();
+
+/**
+ * The page slugs the Jetpack submenu links to, read in a page of its own so the test's page stays put.
+ *
+ * @param page - Page under test, for its session.
+ * @return Submenu page slugs.
+ */
+async function readMenuSlugs( page: Page ): Promise< Set< string > > {
+	const probe = await page.context().newPage();
+	try {
+		await probe.goto( '/wp-admin/admin.php?page=my-jetpack&jetpack_admin_shell=0' );
+		const hrefs = await probe
+			.locator( '#adminmenu .wp-submenu a' )
+			.evaluateAll( links => links.map( a => a.getAttribute( 'href' ) ?? '' ) );
+		return new Set( hrefs.map( href => /[?&]page=([^&]+)/.exec( href )?.[ 1 ] ?? '' ) );
+	} finally {
+		await probe.close();
+	}
+}
+
+/**
+ * Whether a member's page is on this site, read once per site from the admin menu.
+ *
+ * @param page - Page under test.
+ * @param slug - Member slug.
+ * @return False only for an optional member the site doesn't show.
+ */
+export async function onSite( page: Page, slug: string ): Promise< boolean > {
+	if ( ! member( slug ).optional ) {
+		return true;
+	}
+	const base = String( test.info().project.use.baseURL ?? '' );
+	if ( ! menuSlugs.has( base ) ) {
+		menuSlugs.set(
+			base,
+			readMenuSlugs( page ).catch( error => {
+				// Forget a failed probe, so the next test reads the menu again.
+				menuSlugs.delete( base );
+				throw error;
+			} )
+		);
+	}
+	return ( await menuSlugs.get( base )! ).has( slug );
+}
+
+/**
+ * Skip the test when any of the members isn't on this site.
+ *
+ * @param page  - Page under test.
+ * @param slugs - Member slugs the test uses.
+ */
+export async function skipUnlessOnSite( page: Page, ...slugs: string[] ): Promise< void > {
+	for ( const slug of slugs ) {
+		test.skip( ! ( await onSite( page, slug ) ), `${ slug } is not on this site` );
+	}
+}
 
 /** What the probe exposes on `window.__jpShell`. */
 interface ShellProbe {

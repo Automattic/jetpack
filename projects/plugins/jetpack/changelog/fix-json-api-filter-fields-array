@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+JSON API: Ignore the `fields` query parameter when it is passed as an array, instead of causing a fatal error.

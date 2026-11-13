@@ -6,6 +6,7 @@ import {
 	member,
 	menuLink,
 	openMember,
+	skipUnlessOnSite,
 	switchTo,
 	where,
 } from '../../helpers/admin-shell-helper';
@@ -24,6 +25,7 @@ test.describe( 'Admin shell: navigation matrix', () => {
 
 	for ( const [ a, b ] of pairs ) {
 		test( `${ a.slug } → ${ b.slug } → ${ a.slug }`, async ( { page } ) => {
+			await skipUnlessOnSite( page, a.slug, b.slug );
 			await openMember( page, a.slug );
 			await expect( menuLink( page, b.slug ), `${ b.slug } is in the menu` ).toBeAttached();
 			await expectShown( page, a.slug );

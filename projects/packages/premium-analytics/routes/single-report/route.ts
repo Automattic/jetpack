@@ -10,14 +10,15 @@ import {
 	pickDashboardOriginParams,
 	pickReportNavigationParams,
 	pickReportOriginParams,
+	pickReportOriginWindowParams,
 } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { dateWindowRedirect } from '../date-window-redirect';
-import { seedDetailDateParams } from '../detail-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { seedDetailDateParams } from './detail-date-seed';
 import { getSingleReportPage, isValidEntityId, resolveSingleReportSection } from './registry';
 
 type SingleReportParams = {
@@ -76,11 +77,14 @@ export const route = {
 		const currentSearch = ( search ?? {} ) as SingleReportSearch;
 		const needsScopeSeed = currentSearch[ page.scope_param ] !== id;
 
+		// A settled URL always carries an origin window, so one without it is seeded again.
+		const needsOriginSeed = ! Object.keys( pickReportOriginWindowParams( currentSearch ) ).length;
+
 		// A page with inner sections keeps a section the URL names only when it exists.
 		const section = resolveSingleReportSection( page, currentSearch.section );
 		const needsSectionSeed = !! currentSearch.section && section?.slug !== currentSearch.section;
 
-		const limited = await dateWindowRedirect(
+		const limited = dateWindowRedirect(
 			currentSearch,
 			getSectionDatePolicy( page.dashboard_section ?? undefined ),
 			{
@@ -97,8 +101,8 @@ export const route = {
 						[ page.scope_param ]: id,
 					};
 				},
-				needsSeed: needsScopeSeed || needsSectionSeed,
-				// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
+				needsSeed: needsScopeSeed || needsSectionSeed || needsOriginSeed,
+				// An arrival opens on a window the reader picked elsewhere, not here, so it gets no notice.
 				requested: needsScopeSeed ? undefined : currentSearch,
 			}
 		);

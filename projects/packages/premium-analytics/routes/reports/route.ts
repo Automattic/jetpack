@@ -72,7 +72,7 @@ export const route = {
 			!! definition.resolveSection &&
 			resolvedSection !== currentSearch.section;
 
-		const limited = await dateWindowRedirect( currentSearch, policy, {
+		const limited = dateWindowRedirect( currentSearch, policy, {
 			seed: () => {
 				// Allowlist the params this page owns rather than spreading `currentSearch`
 				// wholesale, so foreign params a link carried in aren't persisted.

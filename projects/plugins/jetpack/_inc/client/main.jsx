@@ -3,6 +3,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 // The extension is required: esbuild does not complete package `exports` subpaths.
 import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body.tsx';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
@@ -18,7 +19,7 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
-import { getAdsSettingsUrl } from 'lib/settings-consolidation';
+import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import { openProtectSettings } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -45,6 +46,7 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	getPluginBaseUrl,
+	hasSocialPage,
 	userIsSubscriber,
 } from 'state/initial-state';
 import { hasProtectPage } from 'state/modules';
@@ -252,12 +254,52 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
-			case '/settings':
 			case '/performance':
-			case '/writing':
+				// The Performance tab is gone once settings move out.
+				if ( '/performance' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack#/features?search=cdn' )
+					);
+					break;
+				}
+			// Falls through.
 			case '/sharing':
-			case '/discussion':
+				if ( '/sharing' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl(
+							this.props.hasSocialPage
+								? 'admin.php?page=jetpack-social'
+								: 'admin.php?page=my-jetpack#/features?search=sharing'
+						)
+					);
+					break;
+				}
+			// Falls through.
 			case '/reader':
+				// Once settings move out, the Reader's only setting is its switch in Features.
+				if ( '/reader' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack#/features?search=reader' )
+					);
+					break;
+				}
+			// Falls through.
+			case '/writing':
+				// Only admins get here, and they find every Writing setting in Features once settings move out.
+				if ( '/writing' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
+					break;
+				}
+			// Falls through.
+			case '/discussion':
+				if ( '/discussion' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments' )
+					);
+					break;
+				}
+			// Falls through.
+			case '/settings':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (
@@ -421,6 +463,7 @@ export default connect(
 			connectingUserFrom: getConnectingUserFrom( state ),
 			isSubscriber: userIsSubscriber( state ),
 			hasProtectPage: hasProtectPage( state ),
+			hasSocialPage: hasSocialPage( state ),
 		};
 	},
 	dispatch => ( {

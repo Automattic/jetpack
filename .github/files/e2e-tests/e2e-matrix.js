@@ -56,7 +56,7 @@ const projects = [
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync' ],
 		targets: [ 'packages/sync' ],
-		buildGroup: 'jetpack-sync',
+		buildGroup: 'jetpack-core',
 	},
 	{
 		project: 'Jetpack Boost - Base',

@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { search } from '@wordpress/icons';
 import { SnackbarNotices } from '@wordpress/notices';
@@ -8,7 +9,7 @@ import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
 import Discussion from 'discussion';
 import Earn from 'earn';
-import { getMovedOutModules } from 'lib/settings-consolidation';
+import { getMovedOutModules, searchFindsGoogleAnalytics } from 'lib/settings-consolidation';
 import Subscriptions from 'newsletter';
 import Performance from 'performance';
 import Privacy from 'privacy';
@@ -42,7 +43,10 @@ class Settings extends Component {
 			rewindStatus,
 			userCanManageModules,
 		};
-		const showEmptySearchState = !! searchTerm && ! hasAnyMatchingModule;
+		const showEmptySearchState =
+			!! searchTerm &&
+			! hasAnyMatchingModule &&
+			! ( isWoASite() && searchFindsGoogleAnalytics( searchTerm ) );
 
 		return (
 			<ThemeProvider>

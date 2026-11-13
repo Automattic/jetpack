@@ -981,8 +981,10 @@ class Main_Features {
 				'modules' => array( 'monetize', 'wordads' ),
 			),
 			array(
-				'label'   => __( 'Analytics', 'jetpack-my-jetpack' ),
-				'modules' => array( 'woocommerce-analytics' ),
+				'label'    => __( 'Analytics', 'jetpack-my-jetpack' ),
+				'modules'  => array( 'woocommerce-analytics' ),
+				// Settings-only entries listed under this heading when the site has them; see get_settings_entries().
+				'settings' => array( Google_Analytics_Settings::SLUG ),
 			),
 		);
 	}
@@ -1010,16 +1012,28 @@ class Main_Features {
 	 * headings for Jetpack's other modules, and whether the current user may install plugins.
 	 *
 	 * @param bool $local Use the local feature contract documented in get_features().
-	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[]} The state.
+	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[], settings_entries: array} The state.
 	 */
 	public static function get_state( $local = false ) {
 		return array(
-			'jetpack'         => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
-			'features'        => self::get_features( $local ),
-			'module_groups'   => self::get_module_groups(),
-			'plugin_installs' => self::get_install_access(),
-			'hidden_modules'  => self::get_hidden_modules(),
+			'jetpack'          => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
+			'features'         => self::get_features( $local ),
+			'module_groups'    => self::get_module_groups(),
+			'plugin_installs'  => self::get_install_access(),
+			'hidden_modules'   => self::get_hidden_modules(),
+			'settings_entries' => self::get_settings_entries(),
 		);
+	}
+
+	/**
+	 * Settings that have no module but open in the settings panel, for the current user on this site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array[] Entries with `slug`, `name`, `description` and `status` (`active`, `inactive` or `needs-setup`) keys.
+	 */
+	public static function get_settings_entries() {
+		return Google_Analytics_Settings::is_available() ? array( Google_Analytics_Settings::get_entry() ) : array();
 	}
 
 	/**

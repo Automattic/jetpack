@@ -1,3 +1,5 @@
+@use "../../styles/widget-text" as *;
+
 /* The select popup portals to <body>, where it paints behind admin-ui's
  * `z-index: 1` Page unless this consumer opt-in variable is set (globally —
  * the popup is outside this component's subtree). 1000000 matches the
@@ -88,6 +90,8 @@
 }
 
 .tabLabel {
+
+	@include widget-text-weight;
 	display: block;
 	max-width: 100%;
 	overflow: hidden;

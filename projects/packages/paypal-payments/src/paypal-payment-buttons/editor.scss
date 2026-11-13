@@ -643,6 +643,112 @@
 	}
 }
 
+// Product images: the list under Details, and the one image a variant
+// option carries.
+.jetpack-paypal-images {
+	margin-bottom: 16px;
+}
+
+.jetpack-paypal-images--option {
+	margin-bottom: 0;
+}
+
+.jetpack-paypal-images__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 24px;
+	margin-bottom: 8px;
+
+	.components-base-control__label {
+		margin-bottom: 0;
+	}
+}
+
+.jetpack-paypal-images__errors {
+	margin: 0 0 8px;
+}
+
+.jetpack-paypal-images__list {
+	list-style: none;
+	margin: 0 0 8px;
+	padding: 0;
+	border: 1px solid rgba(0, 0, 0, 0.16);
+	border-radius: 2px;
+}
+
+.jetpack-paypal-images__row {
+	margin: 0;
+	padding: 8px;
+	border-block-end: 1px solid rgba(0, 0, 0, 0.16);
+
+	&:last-child {
+		border-block-end: 0;
+	}
+}
+
+.jetpack-paypal-images__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+
+.jetpack-paypal-images__thumb {
+	flex-shrink: 0;
+	width: 44px;
+	height: 44px;
+	object-fit: cover;
+	border-radius: 2px;
+	background: #f0f0f0;
+}
+
+.jetpack-paypal-images__thumb--empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #757575;
+}
+
+.jetpack-paypal-images__name {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.jetpack-paypal-images__badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-block-start: 8px;
+}
+
+.jetpack-paypal-images__badge {
+	display: inline-flex;
+	align-items: center;
+	min-height: 24px;
+	padding-inline: 8px;
+	border-radius: 2px;
+	background: #f0f0f0;
+	font-size: 12px;
+	line-height: 16px;
+}
+
+.jetpack-paypal-images__add.components-button {
+	width: 100%;
+	justify-content: center;
+}
+
+.jetpack-paypal-images__help {
+	margin: 8px 0 0;
+	font-size: 12px;
+	color: #757575;
+}
+
 // Variant builder.
 .jetpack-paypal-variants__empty-help {
 	font-size: 13px;

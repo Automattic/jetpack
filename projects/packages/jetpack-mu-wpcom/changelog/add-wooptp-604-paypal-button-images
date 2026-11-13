@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+PayPal: Send product images through the platform proxy as a multipart upload, and let it delete one.

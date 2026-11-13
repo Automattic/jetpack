@@ -35,7 +35,7 @@ class Widget_Type {
 	const PRESENTATION_VALUES = array( 'framed', 'content-bleed', 'full-bleed' );
 
 	/**
-	 * Widget type key. Namespaced identifier, e.g. `jpa/hello-world`.
+	 * Widget type key. Namespaced identifier, e.g. `jpa/top-posts`.
 	 *
 	 * @var string
 	 */
