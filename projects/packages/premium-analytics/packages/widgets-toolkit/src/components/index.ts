@@ -167,6 +167,7 @@ export {
 	type ReportCsvActionProps,
 } from './report-page';
 export {
+	CustomizingBadge,
 	DetailPageActions,
 	useDetailPageCustomize,
 	type DetailPageActionsProps,
