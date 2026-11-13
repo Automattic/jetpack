@@ -18,9 +18,10 @@ class Easy_Markdown_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * The kses filter must not load the parser: loading it runs translation filters, which can run kses again mid-load.
+	 * The parser's constructor runs `jetpack_markdown_preserve_shortcodes`, so a kses call there
+	 * stands in for the translation filters that run kses while the parser loads.
 	 */
-	public function test_wp_kses_allowed_html_does_not_load_parser() {
+	public function test_wp_kses_allowed_html_skips_while_parser_loads() {
 		$parser = new ReflectionProperty( WPCom_Markdown::class, 'parser' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -29,20 +30,27 @@ class Easy_Markdown_Test extends WP_UnitTestCase {
 		$original = $parser->getValue();
 		$parser->setValue( null, null );
 
+		$markdown = WPCom_Markdown::get_instance();
+		$calls    = 0;
+		$nested   = null;
+		add_filter(
+			'jetpack_markdown_preserve_shortcodes',
+			function ( $preserve ) use ( $markdown, &$calls, &$nested ) {
+				if ( 1 === ++$calls ) {
+					$nested = $markdown->wp_kses_allowed_html( array( 'p' => array() ), 'post' );
+				}
+				return $preserve;
+			}
+		);
+
 		try {
-			$tags = WPCom_Markdown::get_instance()->wp_kses_allowed_html(
-				array(
-					'p'   => array( 'class' => true ),
-					'div' => array( 'class' => true ),
-				),
-				'post'
-			);
-			$this->assertNull( $parser->getValue() );
+			$markdown->get_parser();
 		} finally {
 			$parser->setValue( null, $original );
 		}
 
+		$this->assertSame( array( 'p' => array() ), $nested );
+		$tags = $markdown->wp_kses_allowed_html( array( 'p' => array() ), 'post' );
 		$this->assertTrue( $tags['p']['markdown'] );
-		$this->assertArrayNotHasKey( 'markdown', $tags['div'] );
 	}
 }

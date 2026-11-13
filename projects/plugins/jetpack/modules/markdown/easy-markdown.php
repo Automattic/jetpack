@@ -48,17 +48,19 @@ class WPCom_Markdown {
 	const IS_MD_META        = '_wpcom_is_markdown';
 
 	/**
-	 * Same as MarkdownExtra_Parser::$contain_span_tags_re. Copied so the kses filter doesn't load
-	 * the parser, whose load calls translation filters that can run kses again mid-load.
-	 */
-	const CONTAIN_SPAN_TAGS_RE = 'p|h[1-6]|li|dd|dt|td|th|legend|address';
-
-	/**
 	 * Our markdown parser.
 	 *
 	 * @var WPCom_GHF_Markdown_Parser
 	 */
 	private static $parser;
+
+	/**
+	 * Whether the parser is loading. Loading it translates strings, which can run kses, and so our
+	 * kses filter, before the parser exists.
+	 *
+	 * @var bool
+	 */
+	private static $is_loading_parser = false;
 
 	/**
 	 * An instance of the markdown class.
@@ -407,8 +409,10 @@ class WPCom_Markdown {
 	public function get_parser() {
 
 		if ( ! self::$parser ) {
+			self::$is_loading_parser = true;
 			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/markdown.php';
-			self::$parser = new WPCom_GHF_Markdown_Parser();
+			self::$parser            = new WPCom_GHF_Markdown_Parser();
+			self::$is_loading_parser = false;
 		}
 
 		return self::$parser;
@@ -492,11 +496,11 @@ class WPCom_Markdown {
 	 * @return array           The tags that KSES allows, with our extra 'markdown' parameter where necessary.
 	 */
 	public function wp_kses_allowed_html( $tags, $context ) {
-		if ( 'post' !== $context ) {
+		if ( 'post' !== $context || self::$is_loading_parser ) {
 			return $tags;
 		}
 
-		$re = '/' . self::CONTAIN_SPAN_TAGS_RE . '/';
+		$re = '/' . $this->get_parser()->contain_span_tags_re . '/';
 		foreach ( $tags as $tag => $attributes ) {
 
 			// In case other filters have changed the value to a non-array, we skip it.
