@@ -1,4 +1,4 @@
-Significance: patch
-Type: changed
+Significance: minor
+Type: added
 
-Admin shell: Support dashboards on a top-level menu page, and load the modules a dashboard adds to its own page.
+Admin shell: Support dashboards on a top-level menu page, load the modules a dashboard adds to its own page, and add `Admin_Shell::requested_guest()` so a dashboard can tell the guest endpoint is loading it.

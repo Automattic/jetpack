@@ -534,14 +534,13 @@ class Analytics {
 	 * @return void
 	 */
 	private static function register_admin_shell_member() {
-		if ( ! is_admin() || ! class_exists( Admin_Shell::class ) ) {
+		// An older admin-ui, loaded first by another plugin, can't host a top-level page or its widget modules.
+		if ( ! is_admin() || ! method_exists( Admin_Shell::class, 'requested_guest' ) ) {
 			return;
 		}
 		add_filter( 'jetpack_admin_shell_members', array( static::class, 'add_admin_shell_member' ) );
 		// The standalone plugin reaches admin-ui only through the admin menu, which admin-ajax never builds.
-		if ( method_exists( Admin_Shell::class, 'init' ) ) {
-			Admin_Shell::init();
-		}
+		Admin_Shell::init();
 	}
 
 	/**
