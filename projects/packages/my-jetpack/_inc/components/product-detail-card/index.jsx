@@ -211,25 +211,17 @@ const ProductDetailCard = ( {
 	// Suppported products icons.
 	const icons = isBundleUpsell
 		? supportedProducts
-				.join( '_plus_' )
-				.split( '_' )
-				.map( ( iconSlug, i ) => {
-					if ( iconSlug === 'plus' ) {
-						return (
-							<Icon
-								className={ styles[ 'plus-icon' ] }
-								key={ `icon-plugs${ i }` }
-								icon={ plus }
-								size={ 14 }
-							/>
-						);
-					}
-
-					const SupportedProductIcon = getIconBySlug( iconSlug === 'jetpack-ai' ? 'ai' : iconSlug );
-					return SupportedProductIcon ? (
-						<SupportedProductIcon key={ iconSlug } size={ 24 } />
-					) : null;
-				} )
+				.map( iconSlug => [
+					iconSlug,
+					getIconBySlug( iconSlug === 'jetpack-ai' ? 'ai' : iconSlug ),
+				] )
+				.filter( ( [ , SupportedProductIcon ] ) => SupportedProductIcon )
+				.map( ( [ iconSlug, SupportedProductIcon ], i ) => (
+					<span key={ iconSlug } className={ styles[ 'product-bundle-icon-item' ] }>
+						{ i > 0 && <Icon className={ styles[ 'plus-icon' ] } icon={ plus } size={ 14 } /> }
+						<SupportedProductIcon size={ 24 } />
+					</span>
+				) )
 		: null;
 
 	let priceDescription;
