@@ -1166,13 +1166,15 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				)
 			);
 		} elseif ( is_object( $response_body ) && ! empty( $response_body->code ) && is_string( $response_body->code ) ) {
+			// WP_REST_Server reads the status only from an array; wpcom sends `{ status }` or a bare status code.
+			$error_data = $response_body->data ?? null;
+			if ( is_object( $error_data ) ) {
+				$error_data = (array) $error_data;
+			} elseif ( is_int( $error_data ) ) {
+				$error_data = array( 'status' => $error_data );
+			}
 			return rest_ensure_response(
-				new WP_Error(
-					$response_body->code,
-					$response_body->message ?? '',
-					// As an array, so WP_REST_Server keeps the upstream `status`.
-					is_object( $response_body->data ?? null ) ? (array) $response_body->data : ( $response_body->data ?? null )
-				)
+				new WP_Error( $response_body->code, $response_body->message ?? '', $error_data )
 			);
 		} else {
 			// An HTML or empty body would otherwise build a WP_Error with no code.

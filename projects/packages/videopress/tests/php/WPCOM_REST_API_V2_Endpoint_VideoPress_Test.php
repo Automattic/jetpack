@@ -913,6 +913,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 			'HTML error page' => array( 503, '<html>Service Unavailable</html>', 'videopress_meta_update_failed', 502 ),
 			'false body'      => array( 200, 'false', 'videopress_meta_update_failed', 502 ),
 			'REST error'      => array( 400, '{"code":"invalid_guid","message":"Bad guid","data":{"status":400}}', 'invalid_guid', 400 ),
+			'bare status'     => array( 500, '{"code":"unknown_media","message":"Not found","data":404}', 'unknown_media', 404 ),
 		);
 	}
 
