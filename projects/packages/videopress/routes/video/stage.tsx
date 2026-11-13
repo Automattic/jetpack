@@ -223,7 +223,7 @@ const Editor = ( {
 			)
 		);
 	}, [ isDirty ] );
-	useAdminShellLeaveGuard( confirmNavigation );
+	useAdminShellLeaveGuard( () => isDirty );
 
 	let progressStatus: UploadProgressStatus = 'pending';
 	let onRetry: ( () => void ) | undefined;

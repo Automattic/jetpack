@@ -523,7 +523,9 @@ it( 'answers the admin shell for a dirty draft and asks once per shell navigatio
 	} );
 
 	expect( leave.defaultPrevented ).toBe( true );
-	expect( confirmNavigation ).toHaveBeenCalledTimes( 1 );
+	expect( confirmNavigation.mock.calls ).toEqual( [
+		[ 'You have unsaved changes in VideoPress. Discard them?' ],
+	] );
 	expect( navigate ).not.toHaveBeenCalled();
 } );
 

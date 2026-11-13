@@ -97,7 +97,7 @@ export default function NewsletterPage( {
 			),
 		[ activeTab, hasUnsavedChanges ]
 	);
-	useAdminShellLeaveGuard( confirmLeave );
+	useAdminShellLeaveGuard( () => activeTab === 'settings' && hasUnsavedChanges );
 
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.

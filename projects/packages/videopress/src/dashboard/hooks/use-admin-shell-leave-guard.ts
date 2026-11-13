@@ -1,16 +1,17 @@
 import { useCallback, useEffect, useRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 type BeforeLeaveDetail = { page?: string; url?: string };
 
 /**
  * Answer the admin shell's `jetpack-admin-shell:before-leave` event; see the admin-ui README.
  *
- * @param confirmLeave - Returns false to stay, after asking the user if there are unsaved changes.
+ * @param hasUnsavedChanges - Whether leaving would discard edits.
  * @return Whether the shell asked during this task, so a popstate guard that follows can skip asking again.
  */
-export function useAdminShellLeaveGuard( confirmLeave: () => boolean ): () => boolean {
-	const confirmRef = useRef( confirmLeave );
-	confirmRef.current = confirmLeave;
+export function useAdminShellLeaveGuard( hasUnsavedChanges: () => boolean ): () => boolean {
+	const dirtyRef = useRef( hasUnsavedChanges );
+	dirtyRef.current = hasUnsavedChanges;
 	const askedRef = useRef( false );
 
 	useEffect( () => {
@@ -22,7 +23,13 @@ export function useAdminShellLeaveGuard( confirmLeave: () => boolean ): () => bo
 			askedRef.current = true;
 			// The shell's navigation, and the popstate it causes, finish within this task.
 			setTimeout( () => ( askedRef.current = false ) );
-			if ( ! confirmRef.current() ) {
+			if (
+				dirtyRef.current() &&
+				// eslint-disable-next-line no-alert -- The shell needs the answer before it navigates.
+				! window.confirm(
+					__( 'You have unsaved changes in VideoPress. Discard them?', 'jetpack-videopress-pkg' )
+				)
+			) {
 				event.preventDefault();
 			}
 		};

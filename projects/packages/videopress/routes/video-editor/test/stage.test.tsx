@@ -806,6 +806,9 @@ describe( 'video-editor stage', () => {
 		// Dirty + declined: re-navigate to the tab to cancel the traversal.
 		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
 		expect( confirmSpy ).toHaveBeenCalledTimes( 1 );
+		expect( confirmSpy ).toHaveBeenCalledWith(
+			'You have unsaved chapter changes. Leave this page and discard them?'
+		);
 		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/editor' } );
 
 		// Dirty + confirmed: let the router's own navigation stand.
@@ -832,7 +835,9 @@ describe( 'video-editor stage', () => {
 		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
 
 		expect( leave.defaultPrevented ).toBe( false );
-		expect( confirmSpy ).toHaveBeenCalledTimes( 1 );
+		expect( confirmSpy.mock.calls ).toEqual( [
+			[ 'You have unsaved changes in VideoPress. Discard them?' ],
+		] );
 		confirmSpy.mockRestore();
 	} );
 

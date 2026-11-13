@@ -10,24 +10,39 @@ const leave = ( page: string ) => {
 	return event;
 };
 
+const MESSAGE = 'You have unsaved changes in VideoPress. Discard them?';
+
 describe( 'useAdminShellLeaveGuard', () => {
+	let confirm: jest.SpyInstance;
+	beforeEach( () => {
+		confirm = jest.spyOn( window, 'confirm' );
+	} );
+	afterEach( () => {
+		confirm.mockRestore();
+	} );
+
 	it.each( [
-		[ 'stays when the user cancels', 'jetpack-videopress', false, true ],
-		[ 'goes on when the user confirms', 'jetpack-videopress', true, false ],
-		[ 'ignores another page', 'jetpack-newsletter', false, false ],
-	] )( '%s', ( _, page, ok, stays ) => {
-		const { unmount } = renderHook( () => useAdminShellLeaveGuard( () => ok ) );
+		[ 'stays when the user cancels', 'jetpack-videopress', true, false, true ],
+		[ 'goes on when the user confirms', 'jetpack-videopress', true, true, false ],
+		[ 'goes on without asking when nothing is unsaved', 'jetpack-videopress', false, false, false ],
+		[ 'ignores another page', 'jetpack-newsletter', true, false, false ],
+	] )( '%s', ( _, page, dirty, ok, stays ) => {
+		confirm.mockReturnValue( ok );
+		const { unmount } = renderHook( () => useAdminShellLeaveGuard( () => dirty ) );
 
 		expect( leave( page ).defaultPrevented ).toBe( stays );
+		expect( confirm.mock.calls ).toEqual( stays || ok ? [ [ MESSAGE ] ] : [] );
 		unmount();
 		expect( leave( page ).defaultPrevented ).toBe( false );
 	} );
 
-	it( 'follows the latest answer, and reports the ask only until the task ends', async () => {
-		const { result, rerender } = renderHook( ( { ok } ) => useAdminShellLeaveGuard( () => ok ), {
-			initialProps: { ok: true },
-		} );
-		rerender( { ok: false } );
+	it( 'follows the latest unsaved state, and reports the ask only until the task ends', async () => {
+		confirm.mockReturnValue( false );
+		const { result, rerender } = renderHook(
+			( { dirty } ) => useAdminShellLeaveGuard( () => dirty ),
+			{ initialProps: { dirty: false } }
+		);
+		rerender( { dirty: true } );
 
 		expect( leave( 'jetpack-videopress' ).defaultPrevented ).toBe( true );
 		expect( result.current() ).toBe( true );

@@ -272,7 +272,7 @@ const Editor = ( { playlist }: { playlist: PlaylistItem } ) => {
 		window.confirm(
 			__( 'You have unsaved changes. Leave this page and discard them?', 'jetpack-videopress-pkg' )
 		);
-	useAdminShellLeaveGuard( confirmLeave );
+	useAdminShellLeaveGuard( () => isDirty );
 
 	return (
 		<AdminPage

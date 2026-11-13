@@ -137,6 +137,9 @@ describe( 'NewsletterPage tab navigation', () => {
 
 				expect( mockNavigate ).not.toHaveBeenCalled();
 				expect( confirm ).toHaveBeenCalledTimes( 1 );
+				expect( confirm ).toHaveBeenCalledWith(
+					'You have unsaved changes. Are you sure you want to leave this tab?'
+				);
 
 				confirm.mockReturnValue( true );
 				destination.click();
@@ -182,6 +185,11 @@ describe( 'NewsletterPage tab navigation', () => {
 			window.dispatchEvent( event );
 
 			expect( event.defaultPrevented ).toBe( stays );
+			expect( confirm.mock.calls ).toEqual(
+				page === 'jetpack-newsletter'
+					? [ [ 'You have unsaved changes in Newsletter. Discard them?' ] ]
+					: []
+			);
 		} finally {
 			confirm.mockRestore();
 		}

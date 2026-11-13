@@ -67,7 +67,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 			),
 		[]
 	);
-	const askedByShell = useAdminShellLeaveGuard( confirmNavigation );
+	const askedByShell = useAdminShellLeaveGuard( () => dirtyRef.current );
 
 	useEffect( () => {
 		if ( ! hasUnsavedChanges ) {

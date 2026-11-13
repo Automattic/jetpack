@@ -385,7 +385,7 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 			)
 		);
 	}, [] );
-	const askedByShell = useAdminShellLeaveGuard( confirmNavigation );
+	const askedByShell = useAdminShellLeaveGuard( () => effectiveDirtyRef.current );
 
 	// Dirty guard, half three: in-app links (the "VideoPress" breadcrumb and
 	// anything else rendered inside this screen's chrome). Router links can't
