@@ -20,6 +20,15 @@
 }
 
 /*
+ * Keep the widget title unclipped beside the toggle, so the header folds the
+ * toggle into its popover at the same width whichever way it is resized.
+ * TODO: remove once @wordpress/widget-dashboard reserves the full title width.
+ */
+:global([class*="__widget-header"]):has(.control[role="radiogroup"]) > :global([class*="__identity"]) {
+	flex-shrink: 0;
+}
+
+/*
  * The selection indicator, which core positions and animates over the active
  * segment. Filling it and inverting the glyph reads at a glance; core's own
  * pale fill barely separates the two segments.
