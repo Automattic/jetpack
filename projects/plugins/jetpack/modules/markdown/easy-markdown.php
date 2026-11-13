@@ -48,6 +48,12 @@ class WPCom_Markdown {
 	const IS_MD_META        = '_wpcom_is_markdown';
 
 	/**
+	 * Same as MarkdownExtra_Parser::$contain_span_tags_re. Copied so the kses filter doesn't load
+	 * the parser, whose load calls translation filters that can run kses again mid-load.
+	 */
+	const CONTAIN_SPAN_TAGS_RE = 'p|h[1-6]|li|dd|dt|td|th|legend|address';
+
+	/**
 	 * Our markdown parser.
 	 *
 	 * @var WPCom_GHF_Markdown_Parser
@@ -490,7 +496,7 @@ class WPCom_Markdown {
 			return $tags;
 		}
 
-		$re = '/' . $this->get_parser()->contain_span_tags_re . '/';
+		$re = '/' . self::CONTAIN_SPAN_TAGS_RE . '/';
 		foreach ( $tags as $tag => $attributes ) {
 
 			// In case other filters have changed the value to a non-array, we skip it.
