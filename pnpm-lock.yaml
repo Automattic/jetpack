@@ -6356,9 +6356,6 @@ importers:
       '@wordpress/wordcount':
         specifier: 5.1.0
         version: 5.1.0
-      bounding-client-rect:
-        specifier: 1.0.5
-        version: 1.0.5
       clipboard:
         specifier: 2.0.11
         version: 2.0.11
@@ -12525,9 +12522,6 @@ packages:
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
 
-  bounding-client-rect@1.0.5:
-    resolution: {integrity: sha512-3OVNM56TuMbHZYjbIbAkHZ7VHYVK9RPLr3s2nZucuJm1HgDBFEY6twJce4dCNwF0MO3ySOyA9KUZ+pObCd4mow==}
-
   brace-expansion@1.1.21:
     resolution: {integrity: sha512-9zeA+KLZNNzglF2TPKRQEDyx6Yby7daAkuy8MiPzpXPsYDWi/DRM8jmwUDxokQjYqBpv5DgPiwD4h4ZZSy1Ujw==}
 
@@ -14074,9 +14068,6 @@ packages:
   get-caller-file@2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
     engines: {node: 6.* || 8.* || >= 10.*}
-
-  get-document@1.0.0:
-    resolution: {integrity: sha512-8E7H2Xxibav+/rQTTtm6gFlSQwDoAQg667yheA+vWQr/amxEuswChzGo4MIbOJJoR0SMpDyhbUqWp3FpIfwD9A==}
 
   get-east-asian-width@1.7.0:
     resolution: {integrity: sha512-XjH1AECxf0giL2V1aU8vKyRR2ppRUb5c0EvT7zuJTokQ74bNo52zOtghqdWIqrhUD79fo3x0WfKZdOqxF6LG1Q==}
@@ -26739,10 +26730,6 @@ snapshots:
 
   boolbase@1.0.0: {}
 
-  bounding-client-rect@1.0.5:
-    dependencies:
-      get-document: 1.0.0
-
   brace-expansion@1.1.21:
     dependencies:
       balanced-match: 1.0.2
@@ -28483,8 +28470,6 @@ snapshots:
   geojson-vt@3.2.1: {}
 
   get-caller-file@2.0.5: {}
-
-  get-document@1.0.0: {}
 
   get-east-asian-width@1.7.0: {}
 

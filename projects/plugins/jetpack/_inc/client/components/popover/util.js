@@ -1,4 +1,3 @@
-import getBoundingClientRect from 'bounding-client-rect';
 import debugFactory from 'debug';
 
 /**
@@ -79,7 +78,7 @@ const unbindWindowListeners = () => {
 };
 
 const suggested = ( pos, el, target ) => {
-	const targetPosition = getBoundingClientRect( target );
+	const targetPosition = target.getBoundingClientRect();
 	const h = el.clientHeight;
 	const w = el.clientWidth;
 
@@ -207,20 +206,10 @@ function chooseSecondary( primary, prefered, el, target, w, h ) {
  */
 function offset( pos, el, target ) {
 	const pad = 15;
-	const tipRect = getBoundingClientRect( el );
-
-	if ( ! tipRect ) {
-		throw new Error( 'could not get bounding client rect of Tip element' );
-	}
-
+	const tipRect = el.getBoundingClientRect();
 	const ew = tipRect.width;
 	const eh = tipRect.height;
-	const targetRect = getBoundingClientRect( target );
-
-	if ( ! targetRect ) {
-		throw new Error( 'could not get bounding client rect of `target`' );
-	}
-
+	const targetRect = target.getBoundingClientRect();
 	const tw = targetRect.width;
 	const th = targetRect.height;
 	const to = _offset( targetRect, document );
@@ -353,7 +342,7 @@ function _offset( box, doc ) {
  * @return {Number}    the best width
  */
 const constrainLeft = function ( off, el ) {
-	const ew = getBoundingClientRect( el ).width;
+	const ew = el.getBoundingClientRect().width;
 	off.left = Math.max( 0, Math.min( off.left, viewport.width - ew ) );
 
 	return off;
