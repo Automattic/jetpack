@@ -125,9 +125,13 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
 
 		// The platforms a test may have stood this site up as.
-		foreach ( array( 'IS_WPCOM', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $name ) {
+		foreach ( array( 'IS_WPCOM', 'IS_ATOMIC', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $name ) {
 			Constants::clear_single_constant( $name );
 		}
+
+		// The registered default is read from those constants, so a test that stood this site up
+		// as another platform would otherwise leave that platform's default behind it.
+		Jetpack_Email_Design_Editor::register_feature_flags();
 
 		// Held for the request, so a test that turned offline mode off would otherwise answer for
 		// the next one. {@see self::allow_tracking()}
@@ -249,15 +253,68 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_the_flag_is_registered_and_defaults_to_off() {
-		$this->assertNotNull( Feature_Flags::get( Jetpack_Email_Design_Editor::FEATURE_FLAG ) );
-		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
+	/**
+	 * The default the flag is registered with right now.
+	 *
+	 * @return bool
+	 */
+	private function registered_default() {
+		$definition = Feature_Flags::get( Jetpack_Email_Design_Editor::FEATURE_FLAG );
+
+		$this->assertNotNull( $definition, 'The flag must be registered, or there is no default to read.' );
+
+		return (bool) $definition['default'];
 	}
 
-	public function test_the_flag_can_be_turned_on_by_filter() {
-		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+	/**
+	 * The release carrying this is the whole rollout for a self-hosted site (NL-1120), so the
+	 * screen has to be there with nothing turned on and nothing filtered.
+	 */
+	public function test_a_self_hosted_site_gets_the_screen_without_anyone_turning_it_on() {
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			$this->markTestSkipped( 'This process runs as Atomic, so it has no self-hosted default to read.' );
+		}
 
+		Jetpack_Email_Design_Editor::init();
+
+		$this->assertTrue( $this->registered_default() );
 		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * Both WordPress.com platforms keep the switch they have, because a default cannot be rolled
+	 * back: removing the sticker is the rollback, and a default would outlive it.
+	 *
+	 * @param array $constants What the platform defines.
+	 *
+	 * @dataProvider provide_wordpress_com_platforms
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_wordpress_com_platforms' )]
+	public function test_no_wordpress_com_platform_gets_the_screen_by_default( $constants ) {
+		foreach ( $constants as $name => $value ) {
+			Constants::set_constant( $name, $value );
+		}
+
+		Jetpack_Email_Design_Editor::register_feature_flags();
+
+		$this->assertFalse( $this->registered_default() );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_wordpress_com_platforms() {
+		return array(
+			'Simple'                 => array( array( 'IS_WPCOM' => true ) ),
+			'WoA'                    => array(
+				array(
+					'ATOMIC_SITE_ID'       => 123,
+					'ATOMIC_CLIENT_ID'     => 456,
+					'WPCOMSH__PLUGIN_FILE' => '/wpcomsh.php',
+				),
+			),
+			'Atomic without wpcomsh' => array( array( 'IS_ATOMIC' => true ) ),
+		);
 	}
 
 	/**
@@ -355,13 +412,17 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 * Simple or a self-hosted site, where there is no sticker to roll the a12 group back with.
 	 */
 	public function test_the_proxy_does_not_decide_the_flag_off_atomic() {
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			$this->markTestSkipped( 'This process runs as Atomic, which is what this test is about not being.' );
 		}
 
 		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
 
 		Jetpack_Email_Design_Editor::init();
+
+		// At the default priority, so the Atomic filter sees this as the incoming value and the
+		// assertion is that its proxy clause cannot widen it.
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_false' );
 
 		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
 	}
@@ -398,14 +459,19 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		Jetpack_Email_Design_Editor::init();
 
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_false' );
+
 		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
 
+		remove_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_false' );
 		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
 
 		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
 	}
 
 	public function test_no_appearance_page_while_the_flag_is_off() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_false' );
+
 		Jetpack_Email_Design_Editor::add_admin_page();
 
 		$this->assertSame( array(), $this->appearance_entries_for_screen() );
@@ -583,6 +649,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 * screen has to be told so rather than left to link at a page that will refuse it.
 	 */
 	public function test_the_script_data_withholds_the_link_while_the_flag_is_off() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_false' );
+
 		Jetpack_Email_Design_Editor::add_admin_page();
 
 		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
