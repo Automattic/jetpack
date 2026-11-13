@@ -144,6 +144,16 @@ describe( 'admin shell leave guard', () => {
 	const A = '/wp-admin/admin.php?page=guest-a';
 	const B = '/wp-admin/admin.php?page=guest-b';
 
+	// Back/Forward to `url`, as the browser reports it to the shell.
+	const popTo = url => {
+		const { isolateRouters } = require( '../../../src/admin-shell/adapter' );
+		const onPopState = isolateRouters.mock.results[ 0 ].value.listen.mock.calls.find(
+			( [ type ] ) => type === 'popstate'
+		)[ 1 ];
+		globalThis.history.replaceState( null, '', url );
+		onPopState( { isTrusted: true } );
+	};
+
 	beforeEach( async () => {
 		click( `${ A }&p=%2Fone` );
 		await settle();
@@ -193,14 +203,6 @@ describe( 'admin shell leave guard', () => {
 	} );
 
 	it( 'reopens a member with unsaved changes where it was left when Back would retarget it', async () => {
-		const { isolateRouters } = require( '../../../src/admin-shell/adapter' );
-		const onPopState = isolateRouters.mock.results[ 0 ].value.listen.mock.calls.find(
-			( [ type ] ) => type === 'popstate'
-		)[ 1 ];
-		const popTo = url => {
-			globalThis.history.replaceState( null, '', url );
-			onPopState( { isTrusted: true } );
-		};
 		click( B );
 		await settle();
 		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
@@ -210,6 +212,47 @@ describe( 'admin shell leave guard', () => {
 		expect( mockStay ).toHaveBeenCalled();
 		expect( where() ).toBe( '?page=guest-a&p=%2Fone' );
 		expect( stateOf( 'guest-a' ) ).toBe( 'visible' );
+	} );
+
+	it.each( [
+		[ 'inside the member', async () => popTo( `${ A }&p=%2Fzero` ) ],
+		[
+			'into it from another member',
+			async () => {
+				click( B );
+				await settle();
+				popTo( `${ A }&p=%2Fzero` );
+			},
+		],
+	] )(
+		'reopens a member from the menu where Back/Forward %s left it, without asking',
+		async ( _, goBack ) => {
+			await goBack();
+			await settle();
+			window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+			click( B );
+			await settle();
+			click( A );
+			await settle();
+
+			expect( mockStay ).not.toHaveBeenCalled();
+			expect( where() ).toBe( '?page=guest-a&p=%2Fzero' );
+		}
+	);
+
+	it( 'keeps a declined Back on the route the member shows after an earlier Back into it', async () => {
+		click( B );
+		await settle();
+		popTo( `${ A }&p=%2Fzero` );
+		await settle();
+		click( B );
+		await settle();
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		popTo( `${ A }&p=%2Ftwo` );
+		await settle();
+
+		expect( mockStay ).toHaveBeenCalled();
+		expect( where() ).toBe( '?page=guest-a&p=%2Fzero' );
 	} );
 } );
 

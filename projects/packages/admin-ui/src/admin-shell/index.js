@@ -34,10 +34,7 @@ const emit = ( type, detail ) => {
 	window.dispatchEvent( new CustomEvent( `jetpack-admin-shell:${ type }`, { detail } ) );
 };
 
-/*
- * Ask a member whether it can be opened at another route. One with unsaved changes asks the user in
- * its own words and cancels the event to stay. Members on an older shell never get it.
- */
+// Ask a member whether it can be opened at another route: the contract is in the README.
 const mayLeave = ( page, url ) => {
 	const proceed = window.dispatchEvent(
 		new CustomEvent( 'jetpack-admin-shell:before-leave', {
@@ -253,6 +250,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		}
 		// Hide the outgoing app before the URL changes, so its router never sees the new URL.
 		visible = slug;
+		// Back/Forward wrote nothing, so onWrite never saw where this app now is.
+		if ( ! push ) {
+			lastUrl[ slug ] = url;
+		}
 		if ( apps.get( previous )?.state === 'loading' ) {
 			removeHeader( previous );
 		}
