@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { STATE_OFF, STATE_ON } from './helpers/admin-shell-helper';
+import { STATE_OFF, STATE_ON, STATE_STANDALONE } from './helpers/admin-shell-helper';
 
 /*
  * Admin shell regression suite (JETPACK-3406), standalone so it can target any site.
@@ -7,6 +7,7 @@ import { STATE_OFF, STATE_ON } from './helpers/admin-shell-helper';
  */
 const onUrl = process.env.ADMIN_SHELL_URL ?? 'http://localhost:8889';
 const offUrl = process.env.ADMIN_SHELL_OFF_URL;
+const standaloneUrl = process.env.ADMIN_SHELL_STANDALONE_URL;
 const stateDir = 'output/admin-shell';
 
 const browsers = [
@@ -37,12 +38,20 @@ export default defineConfig( {
 		{
 			name: 'admin shell login',
 			testMatch: 'auth.setup.ts',
+			grepInvert: /standalone-only/,
 			retries: 2,
 			use: { baseURL: onUrl },
 		},
+		// Its own login, so a standalone-only run needs no shell-on site.
+		{
+			name: 'standalone login',
+			testMatch: 'auth.setup.ts',
+			grep: /standalone-only/,
+			retries: 2,
+		},
 		...browsers.map( browser => ( {
 			name: `shell on: ${ browser.name }`,
-			testIgnore: [ 'auth.setup.ts', 'shell-off.test.ts' ],
+			testIgnore: [ 'auth.setup.ts', 'shell-off.test.ts', 'standalone.test.ts' ],
 			dependencies: [ 'admin shell login' ],
 			use: {
 				...browser.use,
@@ -60,6 +69,18 @@ export default defineConfig( {
 				viewport: { width: 1280, height: 1600 },
 				baseURL: offUrl ?? onUrl,
 				storageState: offUrl ? STATE_OFF : STATE_ON,
+			},
+		} ) ),
+		// Only with ADMIN_SHELL_STANDALONE_URL: a site without the Jetpack plugin (JETPACK-3419).
+		...( standaloneUrl ? browsers : [] ).map( browser => ( {
+			name: `standalone: ${ browser.name }`,
+			testMatch: 'standalone.test.ts',
+			dependencies: [ 'standalone login' ],
+			use: {
+				...browser.use,
+				viewport: { width: 1280, height: 1600 },
+				baseURL: standaloneUrl,
+				storageState: STATE_STANDALONE,
 			},
 		} ) ),
 	],

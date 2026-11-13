@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Activity_Log\Initial_State as Activity_Log_Initial_State;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
@@ -33,7 +34,6 @@ use function is_multisite;
 use function sanitize_text_field;
 use function wp_add_inline_script;
 use function wp_enqueue_script;
-use function wp_json_encode;
 use function wp_register_script;
 use function wp_unslash;
 use function wp_verify_nonce;
@@ -136,6 +136,10 @@ class Jetpack_Activity_Log {
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_filter( 'jetpack_package_versions', array( Package_Version::class, 'send_package_version_to_tracker' ) );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
 
 		/**
 		 * Fires once the Jetpack Activity Log package has wired its hooks.
@@ -275,6 +279,44 @@ class Jetpack_Activity_Log {
 		self::opt_out_of_jitms( $page_suffix );
 
 		return $page_suffix;
+	}
+
+	/**
+	 * Register the Activity Log with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! self::is_available() || ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			return $members;
+		}
+
+		$members[ self::PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_activity_log',
+			'build_page'   => self::WP_BUILD_PAGE_SLUG,
+			'init_modules' => array( '@jetpack-activity-log/init' ),
+			/** "Activity Log" is a product name, do not translate. */
+			'title'        => 'Activity Log',
+			'capability'   => 'manage_options',
+			'handles'      => array( self::DATA_SCRIPT_HANDLE, 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Activity Log routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_initial_state' ) );
 	}
 
 	/**
@@ -479,8 +521,6 @@ class Jetpack_Activity_Log {
 		wp_register_script( self::DATA_SCRIPT_HANDLE, false, array(), Package_Version::PACKAGE_VERSION, true );
 		wp_enqueue_script( self::DATA_SCRIPT_HANDLE );
 
-		// wp-build has no `jetpackConfig` external, so @automattic/jetpack-config (via AdminPage) reads this global.
-		wp_add_inline_script( self::DATA_SCRIPT_HANDLE, 'window.jetpackConfig = ' . wp_json_encode( array( 'consumer_slug' => self::PAGE_SLUG ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) . ';', 'before' );
 		wp_add_inline_script( self::DATA_SCRIPT_HANDLE, ( new Activity_Log_Initial_State() )->render(), 'before' );
 
 		// Simple has no Jetpack connection to describe; the app treats a missing state as no connection errors.

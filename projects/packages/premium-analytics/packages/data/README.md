@@ -94,7 +94,7 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 **Validation:** Ensures required fields are present for API calls; a `step` the arrows set is kept with a hand-picked window only, so a link from a widget steps the way the dashboard did
 
-**Presets:** A computable preset is the window it names today, whatever `from`/`to` the URL kept (all time keeps its `from`), and its `compare_preset` is measured again from that window, falling back to the previous period where the window no longer offers it. A hand-picked window is its dates, and so is its comparison.
+**Presets:** A computable preset is the window it names today, whatever `from`/`to` the URL kept (all time keeps its `from`), and its `compare_preset` is measured again from that window, falling back to the previous period where the window no longer offers it. A hand-picked window is its dates, and so is its comparison. The clock is read on each call, so a memoized caller adds `useSiteDay()` to its dependencies to move to the new day at the site's midnight.
 
 ### `getDefaultIntervalForPeriod( preset, from, to )`
 
@@ -167,7 +167,9 @@ bucket lands in one list only.
 ### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
 Returns whether report date params are incomplete or the interval is invalid
-for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
+for the window the report reads (`from` / `to` / `interval` missing, or
+`interval` not allowed). A preset's window is the one it names today, not the
+saved `from` / `to`.
 
 **Parameters:**
 
@@ -279,25 +281,22 @@ Timezone-aware date helpers live in `@jetpack-premium-analytics/datetime`.
 
 ### `ensureCoreSettingsReady()`
 
-Ensures the WordPress core `site` and `general settings` records are
-resolved, so components reading them (e.g. `useSiteHomeUrl`) render with a
-warm cache.
+Starts loading the WordPress core `site` record.
+Route guards call it without awaiting, so a page never waits on the settings
+request; components reading the record (e.g. `useSiteHomeUrl`) must handle
+`undefined` while they load.
 
 ```typescript
-// In route loaders or beforeLoad hooks
-await ensureCoreSettingsReady();
+// In route beforeLoad hooks
+ensureCoreSettingsReady().catch( () => {} );
 ```
 
-**Returns:** `Promise<void>` - Resolves when settings are loaded
+**Returns:** `Promise<void>` - Resolves when settings are loaded, rejects on failure
 
 **Features:**
 
 - Memoizes the promise to avoid duplicate requests
-- Prevents race conditions during navigation
-- Essential for route prefetching and hover preloading
-
-These functions automatically use the WordPress site's timezone settings
-and provide consistent date handling across the analytics interface.
+- Resolves at once for readers without `manage_options`
 
 ## Complete API Exports
 
@@ -312,6 +311,7 @@ This package exports the following public API:
 - `useReport` - Run a report query with comparison support
 - `useStats*` - One hook per Stats endpoint (`useStatsTopPosts`, `useStatsReferrers`, `useStatsVisits`, …)
 - `useScopeLockedIntervals` - The buckets the nearest report scope's plan locks; none where it sets no date limits
+- `useSiteDay` - The start of the site's current day, which changes at the site's midnight; a memo dependency for anything that reads a preset's window
 
 ### Functions
 
@@ -321,7 +321,8 @@ This package exports the following public API:
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
 - `intervalMenuOptions` - The open, withheld and locked buckets an interval menu lists
 - `getDaysBetweenInclusive` - The calendar days a range spans, both ends counted
-- `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
+- `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the window the report reads
+- `deriveComparisonRange` - The comparison window a range offers for a comparison preset, else its previous period
 - `getStatsDatePolicy` - The date limits the site's plan sets
 - `getSectionDatePolicy` - The date limits a dashboard section follows
 - `isPlanDateLimitedSection` - Whether a dashboard section's dates follow the plan

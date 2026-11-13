@@ -283,14 +283,22 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that get_sync_error_idc_option sanitizes out www and the protocol.
+	 * Test that get_sync_error_idc_option normalizes the local URLs.
+	 *
+	 * @param string $home             The home option.
+	 * @param string $siteurl          The siteurl option.
+	 * @param string $expected_home    The expected normalized home.
+	 * @param string $expected_siteurl The expected normalized siteurl.
+	 *
+	 * @dataProvider data_provider_test_get_sync_idc_option_normalizes_urls
 	 */
-	public function test_get_sync_idc_option_sanitizes_out_www_and_protocol() {
+	#[DataProvider( 'data_provider_test_get_sync_idc_option_normalizes_urls' )]
+	public function test_get_sync_idc_option_normalizes_urls( $home, $siteurl, $expected_home, $expected_siteurl ) {
 		$original_home    = get_option( 'home' );
 		$original_siteurl = get_option( 'siteurl' );
 
-		update_option( 'home', 'http://www.coolsite.com' );
-		update_option( 'siteurl', 'http://www.coolsite.com/wp' );
+		update_option( 'home', $home );
+		update_option( 'siteurl', $siteurl );
 
 		$before = time();
 		$result = Identity_Crisis::get_sync_error_idc_option();
@@ -300,37 +308,24 @@ class Identity_Crisis_Test extends BaseTestCase {
 		update_option( 'home', $original_home );
 		update_option( 'siteurl', $original_siteurl );
 
-		$this->assertSame( 'coolsite.com/', $result['home'] );
-		$this->assertSame( 'coolsite.com/wp/', $result['siteurl'] );
+		$this->assertSame( $expected_home, $result['home'] );
+		$this->assertSame( $expected_siteurl, $result['siteurl'] );
 		$this->assertGreaterThanOrEqual( $before, $result['last_checked'] );
 		$this->assertLessThanOrEqual( $after, $result['last_checked'] );
 		$this->assertSame( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $result['next_check_delay'] );
 	}
 
 	/**
-	 * Test that get_sync_error_idc_option santizes out the protocol when there is an ip address
-	 * in the option.
+	 * Data provider for test_get_sync_idc_option_normalizes_urls.
+	 *
+	 * @return array[]
 	 */
-	public function test_get_sync_idc_option_with_ip_address_in_option() {
-		$original_home    = get_option( 'home' );
-		$original_siteurl = get_option( 'siteurl' );
-
-		update_option( 'home', 'http://72.182.131.109/~wordpress' );
-		update_option( 'siteurl', 'http://72.182.131.109/~wordpress/wp' );
-
-		$before = time();
-		$result = Identity_Crisis::get_sync_error_idc_option();
-		$after  = time();
-
-		// Cleanup.
-		update_option( 'home', $original_home );
-		update_option( 'siteurl', $original_siteurl );
-
-		$this->assertSame( '72.182.131.109/~wordpress/', $result['home'] );
-		$this->assertSame( '72.182.131.109/~wordpress/wp/', $result['siteurl'] );
-		$this->assertGreaterThanOrEqual( $before, $result['last_checked'] );
-		$this->assertLessThanOrEqual( $after, $result['last_checked'] );
-		$this->assertSame( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $result['next_check_delay'] );
+	public static function data_provider_test_get_sync_idc_option_normalizes_urls() {
+		return array(
+			'strips www and protocol'      => array( 'http://www.coolsite.com', 'http://www.coolsite.com/wp', 'coolsite.com/', 'coolsite.com/wp/' ),
+			'strips protocol from IP'      => array( 'http://72.182.131.109/~wordpress', 'http://72.182.131.109/~wordpress/wp', '72.182.131.109/~wordpress/', '72.182.131.109/~wordpress/wp/' ),
+			'lowercases host but not path' => array( 'https://WWW.CoolSite.COM/Blog', 'https://WWW.CoolSite.COM/Blog/WP', 'coolsite.com/Blog/', 'coolsite.com/Blog/WP/' ),
+		);
 	}
 
 	/**

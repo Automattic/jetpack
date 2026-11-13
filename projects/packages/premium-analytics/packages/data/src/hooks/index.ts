@@ -71,6 +71,13 @@ export {
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export { useStatsSettings, type StatsSettings } from './use-stats-settings';
 export {
+	requestConsentCardFocus,
+	takeConsentCardFocusRequest,
+	updateConsentStatus,
+	useConsentStatus,
+	type ConsentStatus,
+} from './use-consent-status';
+export {
 	useStatsCommentFollowers,
 	useStatsCommentFollowersAllPages,
 	type StatsCommentFollowersParams,
@@ -222,3 +229,4 @@ export {
 	type RefreshFailure,
 	type RefreshFailureSnapshot,
 } from './use-refresh-failure';
+export { useSiteDay } from './use-site-day';

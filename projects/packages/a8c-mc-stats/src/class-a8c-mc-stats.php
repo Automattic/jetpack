@@ -27,6 +27,13 @@ class A8c_Mc_Stats {
 	public $use_transparent_pixel = true;
 
 	/**
+	 * Whether do_server_side_stat() waits for the response. Only do_server_side_stats() turns it off.
+	 *
+	 * @var bool
+	 */
+	private $wait_for_response = true;
+
+	/**
 	 * Class Constructor
 	 *
 	 * @param boolean $use_transparent_pixel Use the transparent pixel instead of the smiley.
@@ -116,14 +123,21 @@ class A8c_Mc_Stats {
 	}
 
 	/**
-	 * Pings the stats server for the current stats and empty the stored stats from the object
+	 * Pings the stats server for the current stats, without waiting for the responses, and empty the stored stats from the object
 	 *
 	 * @return void
 	 */
 	public function do_server_side_stats() {
 		$urls = $this->get_stats_urls();
-		foreach ( $urls as $url ) {
-			$this->do_server_side_stat( $url );
+
+		// Routed through do_server_side_stat() so subclass overrides of it still run.
+		$this->wait_for_response = false;
+		try {
+			foreach ( $urls as $url ) {
+				$this->do_server_side_stat( $url );
+			}
+		} finally {
+			$this->wait_for_response = true;
 		}
 		$this->stats = array();
 	}
@@ -136,9 +150,46 @@ class A8c_Mc_Stats {
 	 * @return bool If it worked.
 	 */
 	public function do_server_side_stat( $url ) {
-		$response = wp_remote_get( esc_url_raw( $url ) );
+		return $this->request_stat( $url, $this->wait_for_response );
+	}
+
+	/**
+	 * Pings a stats URL server-side without waiting for the response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $url The URL to be pinged.
+	 *
+	 * @return bool Whether the request was sent. Whether the server recorded it is unknown.
+	 */
+	public function do_server_side_stat_without_waiting( $url ) {
+		return $this->request_stat( $url, false );
+	}
+
+	/**
+	 * Sends the stats request.
+	 *
+	 * Kept out of do_server_side_stat() so its signature stays compatible with subclasses that override it, such as WooCommerce's McStats.
+	 *
+	 * @param string $url      The URL to be pinged.
+	 * @param bool   $blocking Whether to wait for the response.
+	 *
+	 * @return bool For a blocking request, whether the server answered with a 200; otherwise, whether the request was sent.
+	 */
+	private function request_stat( $url, $blocking ) {
+		$args = $blocking ? array() : array(
+			'blocking' => false,
+			'timeout'  => 1,
+		);
+
+		$response = wp_remote_get( esc_url_raw( $url ), $args );
 		if ( is_wp_error( $response ) ) {
 			return false;
+		}
+
+		// A non-blocking request returns no status code to check.
+		if ( ! $blocking ) {
+			return true;
 		}
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {

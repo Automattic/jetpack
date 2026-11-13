@@ -178,6 +178,7 @@ function PopularHoursDashboardStory( dashboardArgs: WidgetDashboardWithWidgetCon
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PopularHoursDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

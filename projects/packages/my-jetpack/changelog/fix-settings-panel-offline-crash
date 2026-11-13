@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Settings panel: Fix a crash when opening a panel in offline mode, behind the settings consolidation flag.
+
+

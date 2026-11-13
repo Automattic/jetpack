@@ -524,9 +524,6 @@ export function ComparativeBarChart( {
 				maxWidth={ maxWidth }
 				compactWhenShort={ compactWhenShort }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
-				// A zero-value bar has no height, so a quiet day would otherwise read as
-				// missing data. This draws it as a hairline stub instead; a stack has no stubs.
-				showZeroValues={ layout !== 'stacked' }
 				showLegend={ false }
 				withTooltips={ hasTooltipRows }
 				renderTooltip={ renderTooltip }

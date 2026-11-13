@@ -16,6 +16,8 @@ import {
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -99,10 +101,40 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 		isLoading,
 		isFetching,
 		isError,
+		csvIsError,
+		csvIsPlaceholderData,
+		timezone,
 		refetch,
 	} = useTrafficChart( reportParams, period );
 	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
 	const views = metricTabs.find( metric => metric.key === 'views' );
+
+	// Export only when the current period has views; a previous period's views don't count.
+	const csv = useMemo(
+		() =>
+			views?.current.some( point => ( point.value ?? 0 ) > 0 )
+				? metricTabsToCsv( metricTabs, {
+						zone: timezone,
+						withTime: period === 'hour',
+						dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+					} )
+				: undefined,
+		[ metricTabs, views, timezone, period ]
+	);
+	useReportActions( {
+		csv: csv && {
+			...csv,
+			filenamePrefix: 'traffic-summary',
+			hasDateRange: true,
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
+		},
+	} );
+
 	const viewsAreEmpty =
 		! isLoading &&
 		! isError &&
