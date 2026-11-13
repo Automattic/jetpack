@@ -84,6 +84,16 @@ const awayFrom = ( background: string ): string =>
 const opposite = ( end: string ): string => ( end === '#000000' ? '#ffffff' : '#000000' );
 
 /**
+ * The gray nearest the background that keeps 3:1 against it.
+ *
+ * @param background - The hex chart background.
+ * @return A hex color.
+ */
+export function neutralWithContrast( background: string ): string {
+	return tintWithContrast( awayFrom( background ), background );
+}
+
+/**
  * The tone of a color nearest the background that keeps 3:1 against it.
  *
  * @param color      - A hex color.

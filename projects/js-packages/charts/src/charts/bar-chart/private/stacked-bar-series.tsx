@@ -28,9 +28,10 @@ type Props = Pick<
 };
 
 /**
- * The side a segment rounds when it ends its drawn stack: the far end of the positives or of the negatives.
+ * The side a segment rounds when it ends its drawn stack: the far end of the positives or of the negatives, or both for a comparison total that spans zero.
  *
  * @param stack      - The stack layout.
+ * @param key        - The series the segment is drawn for.
  * @param segment    - The segment.
  * @param category   - A datum at the segment's category.
  * @param horizontal - Whether the bars run horizontally.
@@ -39,16 +40,20 @@ type Props = Pick<
  */
 function getStackEnd(
 	stack: StackLayout,
+	key: string,
 	segment: StackSegment,
 	category: DataPointDate,
 	horizontal: boolean,
 	clamp: ( value: number ) => number
-): 'top' | 'bottom' | 'left' | 'right' | undefined {
+): 'top' | 'bottom' | 'left' | 'right' | 'both' | undefined {
 	const [ start, end ] = [ segment.start, segment.end ].map( clamp );
 	if ( start === end ) {
 		return undefined;
 	}
-	const extent = stack.extentAt( category ).map( clamp );
+	const extent = stack.extentAt( category, key ).map( clamp );
+	if ( segment.start < 0 && segment.end > 0 && start === extent[ 0 ] && end === extent[ 1 ] ) {
+		return 'both';
+	}
 	if ( segment.end > 0 && end === extent[ 1 ] ) {
 		return horizontal ? 'right' : 'top';
 	}
@@ -87,10 +92,10 @@ const StackedBarSeries = ( {
 	// The positive end, or the negative end when nothing is positive; clamped so a caller domain keeps it on the drawn bar.
 	const stackEnd = useCallback(
 		( datum: DataPointDate ) => {
-			const [ low, high ] = stack.extentAt( datum );
+			const [ low, high ] = stack.extentAt( datum, dataKey );
 			return clamp( high > 0 ? high : low );
 		},
-		[ stack, clamp ]
+		[ stack, dataKey, clamp ]
 	);
 	const renderGlyph = useCallback(
 		( { datum, color }: GlyphProps< DataPointDate > ) => {
@@ -110,7 +115,7 @@ const StackedBarSeries = ( {
 				<rect
 					{ ...rect }
 					data-testid="bar-chart-stacked-bar"
-					data-stack-end={ getStackEnd( stack, segment, datum, !! horizontal, clamp ) }
+					data-stack-end={ getStackEnd( stack, dataKey, segment, datum, !! horizontal, clamp ) }
 					className={ clsx( 'visx-bar', barClassName?.( datum ) ) }
 					fill={ color }
 				/>

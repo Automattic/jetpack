@@ -47,6 +47,18 @@ export interface ChartLegendOptions {
 }
 
 /**
+ * Names the comparison: the `comparisonItem` string, or "Comparison period".
+ *
+ * @param comparisonItem - The legend's `comparisonItem` option.
+ * @return The label.
+ */
+export function getComparisonItemLabel( comparisonItem?: boolean | string ): string {
+	return typeof comparisonItem === 'string' && comparisonItem
+		? comparisonItem
+		: __( 'Comparison period', 'jetpack-charts' );
+}
+
+/**
  * Wraps `getElementStyles` so a swatch takes the color given for its series.
  * @param getElementStyles - Function to get element styles
  * @param seriesColors     - Each series' swatch color, by index
@@ -441,9 +453,7 @@ export function useChartLegendItems<
 				? buildComparisonLegendItem(
 						seriesData,
 						items,
-						typeof comparisonItem === 'string'
-							? comparisonItem
-							: __( 'Comparison period', 'jetpack-charts' ),
+						getComparisonItemLabel( comparisonItem ),
 						getElementStyles,
 						legendShape
 					)

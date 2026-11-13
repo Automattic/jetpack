@@ -69,6 +69,10 @@
 		clip-path: inset(0 round 0 0 var(--a8c-charts-border-radius-bar-chart) var(--a8c-charts-border-radius-bar-chart));
 	}
 
+	&--stacked :global(.visx-bar-group) rect[data-stack-end="both"] {
+		clip-path: inset(0 round var(--a8c-charts-border-radius-bar-chart));
+	}
+
 	&--stacked :global(.visx-bar-group) rect[data-stack-end="left"] {
 		clip-path: inset(0 round var(--a8c-charts-border-radius-bar-chart) 0 0 var(--a8c-charts-border-radius-bar-chart));
 	}

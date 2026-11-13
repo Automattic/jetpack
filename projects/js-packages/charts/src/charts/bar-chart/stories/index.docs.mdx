@@ -265,10 +265,13 @@ Set `layout="stacked"` to draw every series of a category as one bar, each serie
 - A series with no reading at a category is skipped there, and the segment above it starts where the one below ends.
 - Hiding a series from the legend closes the stacks up and rescales the axis.
 - The tooltip covers the whole stack: every series, last series first, with a `null` reading as "No data", then the total when there is more than one reading. It sits at the end of the positive values, or of the negative ones when the category has no positive value.
-- Arrow keys step one category at a time, and the selected stack is outlined as a whole. Enter hands `onDatumActivate` the top segment, while pointer callbacks report the segment under the pointer.
+- Arrow keys step one category at a time, and the selected stack is outlined as a whole. Enter hands `onDatumActivate` the top segment, while pointer callbacks report the segment under the pointer. With comparisons, each category has a second stop on the comparison total after its stack; there the callbacks get the total's label as `key` and the summed point as the datum, not a series from `data`.
 - A bar radius (`--a8c-charts-border-radius-bar-chart`) rounds only the outer end of each stack, so the seams between segments stay flush. An outer segment shorter than the radius rounds only as far as its own length.
-- `type: 'comparison'` series are left out of this layout for now, from the bars and the legend alike, and `showZeroValues` has no effect; both warn once in development.
+- `type: 'comparison'` series are summed into one bar beside each stack: the comparison period's total, comparing totals rather than segments. Hiding a series also drops the comparison of its `group` from that total. The bar takes the `options.stroke` of the first comparison that sets one, or else a gray that keeps 3:1 against the background. Its legend item leaves the legend while the first comparison is hidden, so to drop the comparison period, leave the comparison series out of `data`. The tooltip lists it after the total, and the legend names it with one static item when `legend.comparisonItem` is set; both use that string as its name, or "Comparison period".
+- `showZeroValues` has no effect, and warns once in development.
 - Works with `orientation="horizontal"`, where the first series is the left-most segment.
+
+<Canvas of={ BarChartStories.StackedComparison } />
 
 <Canvas of={ BarChartStories.StackedHorizontal } />
 
