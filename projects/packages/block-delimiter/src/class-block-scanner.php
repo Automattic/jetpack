@@ -839,6 +839,91 @@ class Block_Scanner {
 		return new WP_HTML_Span( $this->delimiter_at, $this->delimiter_length );
 	}
 
+	/**
+	 * Returns the document with every block of the given type removed, nested
+	 * blocks and their inner content included.
+	 *
+	 * When a removed block sat on its own line, the line break after it goes too.
+	 * An opener with no matching closer removes everything after it.
+	 *
+	 * Example:
+	 *
+	 *     $html = "Before.\n<!-- wp:query --><div>List</div><!-- /wp:query -->\nAfter.";
+	 *     "Before.\nAfter." === Block_Scanner::remove_blocks( $html, 'query' );
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $source_text Input document potentially containing block content.
+	 * @param string $block_type  Block type name to remove, e.g. "query" or "core/query".
+	 * @return string The document without those blocks.
+	 */
+	public static function remove_blocks( string $source_text, string $block_type ): string {
+		$scanner = self::create( $source_text );
+		if ( null === $scanner ) {
+			return $source_text;
+		}
+
+		$output   = '';
+		$offset   = 0;
+		$depth    = 0;
+		$removing = false;
+		$removed  = false;
+
+		while ( $scanner->next_delimiter() ) {
+			$span = $scanner->get_span();
+			$end  = $span->start + $span->length;
+
+			if ( ! $scanner->is_block_type( $block_type ) ) {
+				if ( ! $removing ) {
+					$output .= substr( $source_text, $offset, $end - $offset );
+					$offset  = $end;
+				}
+				continue;
+			}
+
+			$type = $scanner->get_delimiter_type();
+
+			if ( self::OPENER === $type ) {
+				if ( ! $removing ) {
+					$output  .= substr( $source_text, $offset, $span->start - $offset );
+					$removing = true;
+					$removed  = true;
+				}
+				++$depth;
+				continue;
+			}
+
+			if ( $removing ) {
+				// Inside a removed block, only the closer that balances its opener ends the removal.
+				if ( self::CLOSER !== $type || 0 !== --$depth ) {
+					continue;
+				}
+				$removing = false;
+			} elseif ( self::VOID === $type ) {
+				$output .= substr( $source_text, $offset, $span->start - $offset );
+				$removed = true;
+			} else {
+				// A closer with no opener is not a block; keep it as it is.
+				$output .= substr( $source_text, $offset, $end - $offset );
+				$offset  = $end;
+				continue;
+			}
+
+			$offset = $end;
+
+			// Removing a block that sat on its own line would otherwise leave a blank line behind.
+			if ( "\n" === ( $source_text[ $offset ] ?? '' ) && "\n" === substr( $output, -1 ) ) {
+				++$offset;
+			}
+		}
+
+		if ( ! $removed ) {
+			return $source_text;
+		}
+
+		return $removing ? $output : $output . substr( $source_text, $offset );
+	}
+
 	// Debugging methods not meant for production use.
 
 	/**
