@@ -683,6 +683,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				// The site language, which the AI output and the copy written into pages follow.
 				'language'    => wpcom_ai_launchpad_site_locale(),
 				'copy'        => wpcom_ai_launchpad_site_copy(),
+				// Preselects the wizard goal, e.g. `newsletter` for a site from the newsletter signup flow.
+				'site_intent' => get_option( 'site_intent' ),
 			),
 			// The free DIFM offer banner under the task list, or null when it must not show.
 			'difm_offer'         => $shows_wizard ? null : AI_Launchpad_Difm_Offer::get_offer(),

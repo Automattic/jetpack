@@ -99,6 +99,7 @@ export function App() {
 			<Wizard
 				initialSiteName={ initialData?.site?.title }
 				initialIntent={ initialData?.site?.description }
+				initialGoal={ initialData?.site?.site_intent }
 				locale={ initialData?.site?.language }
 				uiLocale={ initialData?.user_language }
 				copy={ copy }
