@@ -27,6 +27,7 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
+import { dispatch } from '@wordpress/data';
 import {
 	createInterpolateElement,
 	useState,
@@ -37,7 +38,7 @@ import {
 	useSyncExternalStore,
 } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { chevronLeft, chevronRight } from '@wordpress/icons';
+import { chevronLeft, chevronRight, pencil } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import GridiconPlus from 'gridicons/dist/plus-small';
@@ -224,6 +225,16 @@ function linkPayPalUrls( text ) {
 			part
 		)
 	);
+}
+
+/**
+ * Open the block settings sidebar, where the form and the picker render.
+ *
+ * `edit-post/block` is the block inspector in both the post and site editors. The store
+ * is addressed by name to keep `@wordpress/interface` out of the package's dependencies.
+ */
+function openBlockSettings() {
+	dispatch( 'core/interface' )?.enableComplementaryArea( 'core', 'edit-post/block' );
 }
 
 /**
@@ -960,10 +971,22 @@ export default function ApiManagedEdit( {
 		);
 	}
 
-	// Toolbar control to delete the payment button.
+	// Toolbar Edit opens the form from any screen, and leaves an open form as it is.
+	const openForm = () => {
+		openBlockSettings();
+		setIsSwitching( false );
+		setIsEditing( true );
+	};
+
+	// The saved button's Edit and Delete, as in the menu beside its name.
 	const toolbarControls = hasButton ? (
 		<BlockControls>
 			<ToolbarGroup>
+				<ToolbarButton
+					icon={ pencil }
+					label={ __( 'Edit', 'jetpack-paypal-payments' ) }
+					onClick={ openForm }
+				/>
 				<ToolbarButton
 					icon="trash"
 					label={ __( 'Delete payment button', 'jetpack-paypal-payments' ) }

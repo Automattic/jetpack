@@ -8974,7 +8974,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		it( 'offers the delete toolbar button when a button exists', async () => {
+		it( 'offers Edit and Delete in the toolbar when a button exists', async () => {
 			render(
 				<Edit
 					attributes={ {
@@ -8992,7 +8992,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect(
 				screen.findByTestId( 'toolbar-Delete payment button' )
 			).resolves.toBeInTheDocument();
-			expect( screen.queryByTestId( 'toolbar-Edit' ) ).not.toBeInTheDocument();
+			expect(
+				within( screen.getByTestId( 'block-controls' ) )
+					.getAllByRole( 'button' )
+					.map( button => button.textContent )
+			).toEqual( [ 'Edit', 'Delete payment button' ] );
 			expect( screen.queryByTestId( 'toolbar-Preview' ) ).not.toBeInTheDocument();
 		} );
 
@@ -9935,6 +9939,106 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 			expect( setAttributes ).not.toHaveBeenCalled();
 			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeEnabled();
+		} );
+
+		describe( 'from the block toolbar', () => {
+			it( 'opens the product form and the block settings sidebar from Edit', async () => {
+				const user = userEvent.setup();
+				mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+				renderSelected();
+				await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+				expect( mockEnableComplementaryArea ).not.toHaveBeenCalled();
+
+				await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+
+				expect( screen.getByLabelText( 'Product Name' ) ).toHaveValue( 'Croissant' );
+				expect( screen.getByRole( 'button', { name: 'Edit Button' } ) ).toBeInTheDocument();
+				expect( screen.getByRole( 'button', { name: 'Save payment button' } ) ).toBeInTheDocument();
+				expect( screen.queryByText( 'Hosted ID' ) ).not.toBeInTheDocument();
+				expect( mockEnableComplementaryArea ).toHaveBeenCalledWith( 'core', 'edit-post/block' );
+			} );
+
+			// Same as Edit in the menu.
+			it( 'keeps Edit enabled while PayPal is disconnected', async () => {
+				apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
+
+				renderSelected();
+
+				await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+				expect( screen.getByTestId( 'toolbar-Edit' ) ).toBeEnabled();
+			} );
+
+			const createNew = () => screen.findByRole( 'button', { name: 'Create new' } );
+			const productName = () => screen.findByLabelText( 'Product Name' );
+
+			it.each( [
+				[ 'a new block', {}, createNew ],
+				[
+					'an unsaved form',
+					{ isApiManaged: true, productName: 'Croissant', price: '12.00' },
+					productName,
+				],
+				[ 'a block that is not API-managed', { ...saved, isApiManaged: false }, productName ],
+			] )(
+				'leaves Edit, Change item and Delete out of the toolbar on %s',
+				async ( _name, attributes, sidebarShown ) => {
+					mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+
+					render(
+						<Edit
+							attributes={ attributes }
+							setAttributes={ setAttributes }
+							clientId="a"
+							isSelected
+						/>
+					);
+
+					// Check once the sidebar is up, after the block has settled.
+					await expect( sidebarShown() ).resolves.toBeInTheDocument();
+					expect( screen.queryByTestId( 'toolbar-Edit' ) ).not.toBeInTheDocument();
+					expect( screen.queryByTestId( 'toolbar-Change item' ) ).not.toBeInTheDocument();
+					expect( screen.queryByTestId( 'toolbar-Delete payment button' ) ).not.toBeInTheDocument();
+				}
+			);
+
+			it( 'keeps the open form and its edits on Edit', async () => {
+				const user = userEvent.setup();
+				mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+				const view = renderSelected();
+				await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+				await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+				view.rerender(
+					<Edit
+						attributes={ { ...saved, productName: 'Pain au chocolat' } }
+						setAttributes={ setAttributes }
+						clientId="a"
+						isSelected
+					/>
+				);
+
+				await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+
+				expect( screen.getByLabelText( 'Product Name' ) ).toHaveValue( 'Pain au chocolat' );
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( setAttributes ).not.toHaveBeenCalled();
+				// Leaving still asks: the form compares against what it first opened with.
+				await user.click( screen.getByRole( 'button', { name: 'Edit Button' } ) );
+				expect( screen.getByRole( 'dialog', { name: 'Changes made' } ) ).toBeInTheDocument();
+			} );
+
+			it( 'switches from the picker to the product form on Edit', async () => {
+				const user = userEvent.setup();
+				mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+				renderSelected();
+				await waitFor( () => expect( changeItem() ).toBeEnabled() );
+				await user.click( changeItem() );
+				expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+
+				expect( screen.getByLabelText( 'Product Name' ) ).toHaveValue( 'Croissant' );
+				expect( screen.queryByText( 'Choose a button to change' ) ).not.toBeInTheDocument();
+			} );
 		} );
 	} );
 
