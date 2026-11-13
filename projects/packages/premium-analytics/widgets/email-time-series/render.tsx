@@ -156,6 +156,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 				isLoading: active.isLoading,
 				isFetching: active.isFetching,
 				isError: active.isError,
+				isPlaceholderData: active.isPlaceholderData,
 			},
 		},
 	} );

@@ -38,7 +38,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch } =
+	const { rows, lifeStartsAt, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
 		usePostAllTimeTraffic( postId, metric );
 
 	// A month picked here becomes the page's period, read over by the other
@@ -72,7 +72,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 					? `post-${ postId }-daily-average-all-time-traffic`
 					: `post-${ postId }-all-time-traffic`,
 			hasDateRange: false,
-			status: { isLoading, isFetching, isError },
+			status: { isLoading, isFetching, isError, isPlaceholderData },
 		},
 	} );
 

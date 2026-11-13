@@ -64,11 +64,8 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 	const videoId = toPostId( reportParams.post_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { metrics, timezone, isLoading, isFetching, isError, error, refetch } = useVideoMetrics(
-		videoId,
-		reportParams,
-		period
-	);
+	const { metrics, timezone, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
+		useVideoMetrics( videoId, reportParams, period );
 	const csv = useMemo(
 		() =>
 			metricTabsToCsv(
@@ -88,7 +85,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 			...csv,
 			filenamePrefix: `video-${ videoId }-performance`,
 			range: { from: reportParams.from, to: reportParams.to },
-			status: { isLoading, isFetching, isError },
+			status: { isLoading, isFetching, isError, isPlaceholderData },
 		},
 	} );
 	const groupLabel = __( 'Video metric', 'jetpack-premium-analytics-pkg' );

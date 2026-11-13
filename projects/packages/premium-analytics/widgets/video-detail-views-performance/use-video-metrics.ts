@@ -48,6 +48,7 @@ export interface VideoMetricsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	isPlaceholderData: boolean;
 	/** The raw request error, for `describeError()` to classify. */
 	error: unknown;
 	/** The zone the bucket dates are in. */
@@ -212,11 +213,12 @@ export default function useVideoMetrics(
 		() => toDayWindow( reportParams.from, reportParams.to ),
 		[ reportParams.from, reportParams.to ]
 	);
-	const { data, timezone, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
-		videoId,
-		{ from: reportParams.from, to: reportParams.to, period: 'day', statType: 'all' },
-		{ enabled: !! primaryWindow }
-	);
+	const { data, timezone, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
+		useStatsSingleVideo(
+			videoId,
+			{ from: reportParams.from, to: reportParams.to, period: 'day', statType: 'all' },
+			{ enabled: !! primaryWindow }
+		);
 
 	const metrics = useMemo< MetricTab[] >( () => {
 		const buckets = primaryWindow ? calendarBucketWindows( primaryWindow, period ) : [];
@@ -316,6 +318,7 @@ export default function useVideoMetrics(
 		isLoading,
 		isFetching,
 		isError,
+		isPlaceholderData,
 		error,
 		timezone,
 		hasData: !! data,

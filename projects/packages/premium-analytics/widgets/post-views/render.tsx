@@ -46,11 +46,8 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 	const postId = toPostId( reportParams.post_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, postType, isLoading, isFetching, isError, refetch } = usePostViews(
-		postId,
-		reportParams,
-		period
-	);
+	const { current, postType, isLoading, isFetching, isError, isPlaceholderData, refetch } =
+		usePostViews( postId, reportParams, period );
 
 	// The post detail page has no comparison control, so there is no previous
 	// series, and the headline is just the sum of the window's buckets.
@@ -82,7 +79,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 			...csv,
 			filenamePrefix: `post-${ postId }-views`,
 			range: { from: reportParams.from, to: reportParams.to },
-			status: { isLoading, isFetching, isError },
+			status: { isLoading, isFetching, isError, isPlaceholderData },
 		},
 	} );
 
