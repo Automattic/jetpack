@@ -84,14 +84,8 @@ export function changelogDefine( yargs ) {
 								type: 'boolean',
 							} )
 							.option( 'base-ref', {
-								describe: 'Git ref to compare to.',
+								describe: 'Git ref to compare to. Defaults to origin/trunk.',
 								type: 'string',
-								default: 'origin/trunk',
-							} )
-							.option( 'release-branch', {
-								alias: 'R',
-								describe: 'Check for needed changelogs even on a release branch.',
-								type: 'boolean',
 							} );
 					},
 					async argv => {
@@ -337,7 +331,7 @@ async function changelogAdd( argv ) {
 
 	// If we weren't passed a project, check if any projects need changelogs.
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
-		changelogInfo = await checkChangelogFiles( argv.baseRef, argv.releaseBranch );
+		changelogInfo = await checkChangelogFiles( argv.baseRef );
 		needChangelog = changelogInfo.need;
 	}
 	if ( needChangelog.length === 0 ) {
@@ -352,7 +346,7 @@ async function changelogAdd( argv ) {
 	}
 
 	if ( argv.checkIndirectPlugins ?? needChangelog.length > 0 ) {
-		changelogInfo ??= await checkChangelogFiles( argv.baseRef, argv.releaseBranch );
+		changelogInfo ??= await checkChangelogFiles( argv.baseRef );
 		await addIndirectPlugins(
 			argv,
 			argv.checkIndirectPlugins ? changelogInfo.touched : needChangelog,
@@ -549,9 +543,6 @@ async function changelogArgs( argv ) {
 		'--no-check-indirect-plugins',
 		'--base-ref',
 		'--base-ref=' + argv.baseRef,
-		'--release-branch',
-		'--no-release-branch',
-		'-R',
 	];
 	let file;
 
@@ -703,18 +694,17 @@ async function gitAdd( argv ) {
 /**
  * Checks if changelog files are required.
  *
- * @param {string}  baseRef       - Git reference to compare with.
- * @param {boolean} releaseBranch - Whether to check even on a release branch.
+ * @param {string|undefined} baseRef - Git reference to compare with.
  * @return {object} as follows:
  * - {string[]}             touched - Touched projects.
  * - {Map<string,string[]>} files   - Change files by project.
  * - {string[]}             need    - Projects needing changelogs.
  */
-async function checkChangelogFiles( baseRef, releaseBranch ) {
+async function checkChangelogFiles( baseRef ) {
 	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
-	// Bail if we're pushing to a release branch, like boost/branch-1.3.0, without explictly stating so.
-	if ( ! releaseBranch ) {
+	// Bail if we're pushing to a release branch, like boost/branch-1.3.0, unless a base ref was given.
+	if ( ! baseRef ) {
 		let currentBranch = child_process.spawnSync( 'git', [ 'branch', '--show-current' ] );
 		currentBranch = currentBranch.stdout.toString().trim();
 		const branchReg = /\/branch-/; // match example: jetpack/branch-1.2.3
@@ -726,6 +716,7 @@ async function checkChangelogFiles( baseRef, releaseBranch ) {
 				need: [],
 			};
 		}
+		baseRef = 'origin/trunk';
 	}
 
 	const re1 = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
