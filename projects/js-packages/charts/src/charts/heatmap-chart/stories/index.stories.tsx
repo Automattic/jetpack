@@ -339,36 +339,6 @@ export const ScaleComparison: Story = {
 	},
 };
 
-const FEW_DISTINCT_VALUES = [
-	120, 120, 480, 120, 2400, 120, 480, 480, 120, 120, 480, 120, 480, 120, 120, 2400, 480, 120, 480,
-	120, 120, 480, 2400, 120,
-];
-
-/**
- * Twenty-four months holding three distinct values, each a fourfold step above the last.
- * They land on three of the five colors and leave two legend swatches unused. The largest
- * value is still the darkest cell, and the smallest the lightest.
- */
-export const FewDistinctValues: Story = {
-	render: args => (
-		<HeatmapChart { ...args } chartId="few-distinct-values-heatmap">
-			<HeatmapChart.Legend variant="bar" lessLabel="Fewer views" moreLabel="More views" />
-		</HeatmapChart>
-	),
-	args: {
-		...sharedThemeArgs,
-		data: monthColumns( [ 2024, 2025 ], ( year, month ) => ( {
-			value: FEW_DISTINCT_VALUES[ ( year - 2024 ) * 12 + month ],
-		} ) ),
-		rowLabels: [ '2024', '2025' ],
-		scale: 'log',
-		withTooltips: true,
-		ariaLabel: 'Views by month',
-		containerWidth: '960px',
-		containerHeight: '280px',
-	},
-};
-
 type CalendarStoryArgs = StoryArgs & CalendarHeatmapOptions;
 
 const CalendarGrid = ( {
