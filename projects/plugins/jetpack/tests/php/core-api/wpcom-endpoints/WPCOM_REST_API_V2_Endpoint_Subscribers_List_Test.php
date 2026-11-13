@@ -643,13 +643,14 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	/**
 	 * Without a Jetpack connection there is no blog id, so neither route calls WP.com.
 	 *
-	 * @param string $method HTTP method.
-	 * @param string $route  Route under test.
-	 * @param array  $params Body params.
+	 * @param string $method   HTTP method.
+	 * @param string $route    Route under test.
+	 * @param array  $params   Body params.
+	 * @param string $expected Fallback message, unused here: the shared provider passes it.
 	 * @dataProvider provider_bulk_remove_routes
 	 */
 	#[DataProvider( 'provider_bulk_remove_routes' )]
-	public function test_bulk_remove_needs_a_site_id( $method, $route, $params ) {
+	public function test_bulk_remove_needs_a_site_id( $method, $route, $params, $expected ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- The shared data provider passes four arguments.
 		$called = false;
 		$filter = function () use ( &$called ) {
 			$called = true;
