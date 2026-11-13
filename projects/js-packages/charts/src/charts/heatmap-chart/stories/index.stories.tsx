@@ -38,8 +38,9 @@ const meta: Meta< StoryArgs > = {
 		showValues: { control: 'boolean', table: { category: 'Visual Style' } },
 		scale: {
 			control: { type: 'inline-radio' },
-			options: [ 'linear', 'log' ],
-			description: 'Whether a value picks its color by distance, or by distance in log space.',
+			options: [ 'linear', 'log', 'buckets' ],
+			description:
+				'Whether a value picks its color by distance, by distance in log space, or by its rank in the series.',
 			table: { category: 'Visual Style' },
 		},
 		maxCellWidth: {
@@ -176,20 +177,22 @@ export const SinglePostHistory: Story = {
 	},
 };
 
-const SCALE_CAPTIONS: Record< 'linear' | 'log', string > = {
+const SCALE_CAPTIONS: Record< 'buckets' | 'linear' | 'log', string > = {
 	linear:
 		'linear places a value by its distance from the largest. The recent months are unmistakable, and eight years of real differences share the lightest tone.',
 	log: 'log places a value by its distance in log space. Each step is a jump of the same factor, so the quiet years and the busy ones both keep their spread.',
+	buckets:
+		'buckets places a value by its rank. Every step holds about a fifth of the months whatever the shape of the series, and the distances between them are gone: the busiest month and one a tenth its size can share the darkest step.',
 };
 
 /**
- * The same ten years of a post's traffic on both scales, so they can be read against each
+ * The same ten years of a post's traffic on all three scales, so they can be read against each
  * other. Values are above zero throughout, which the log scale requires.
  */
 export const ScaleComparison: Story = {
 	render: args => (
 		<div style={ { display: 'flex', flexDirection: 'column', gap: '28px' } }>
-			{ ( [ 'linear', 'log' ] as const ).map( scale => (
+			{ ( [ 'linear', 'log', 'buckets' ] as const ).map( scale => (
 				<div key={ scale }>
 					<p style={ { margin: '0 0 8px', maxWidth: '62em', fontSize: '13px', lineHeight: 1.5 } }>
 						{ SCALE_CAPTIONS[ scale ] }

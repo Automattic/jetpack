@@ -123,10 +123,15 @@ export interface HeatmapChartProps extends Omit<
 	 * distance in log space, on five fixed steps, so each step is a jump of the
 	 * same factor and both ends of a series spanning orders of magnitude keep
 	 * their spread; it needs every value above zero and falls back to `linear`
-	 * with a warning otherwise. Default `linear`; prefer `log` for a series
-	 * read to compare its periods against each other, such as months of a year.
+	 * with a warning otherwise. `buckets` ranks a value against the series on
+	 * those same five steps, so each step holds about a fifth of the cells
+	 * whatever the distribution, at the cost of the distances between them: the
+	 * top step covers everything above the 80th percentile, however far above
+	 * it the largest value sits. Default `linear`; prefer `log` or `buckets`
+	 * for a series read to compare its periods against each other, such as
+	 * months of a year, and `buckets` where most of the series shares one band.
 	 */
-	scale?: 'linear' | 'log';
+	scale?: 'buckets' | 'linear' | 'log';
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
 	/** @deprecated Every tooltip draws on the package tooltip surface; this prop has no effect. */
 	tooltipVariant?: 'light' | 'dark';
