@@ -1393,6 +1393,52 @@ describe( 'HeatmapChart bucket scale', () => {
 	} );
 } );
 
+describe( 'HeatmapChart log scale', () => {
+	const intensitiesOf = ( testId: string ) =>
+		screen
+			.getAllByTestId( testId )
+			.map( element => element.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) );
+
+	const renderLog = ( values: number[] ) =>
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					data={ values.map( value => ( { data: [ { value } ] } ) ) }
+					scale="log"
+				/>
+			</GlobalChartsProvider>
+		);
+
+	test( 'gives each tenfold jump the same step', () => {
+		renderLog( [ 1, 10, 100, 1000, 10000 ] );
+
+		expect( intensitiesOf( 'heatmap-cell' ) ).toEqual( [ '0', '0.25', '0.5', '0.75', '1' ] );
+	} );
+
+	test( 'keeps the low hundreds off the darkest step where ranking would not', () => {
+		// The shape a post's all-time traffic takes: years of single digits, then a jump.
+		renderLog( [ 5, 18, 234, 812, 12100 ] );
+
+		const [ , , lowHundreds, , largest ] = intensitiesOf( 'heatmap-cell' );
+		expect( lowHundreds ).toBe( '0.5' );
+		expect( largest ).toBe( '1' );
+	} );
+
+	test( 'falls back to distance and warns once where a value has no logarithm', () => {
+		renderLog( [ -5, 10, 100 ] );
+
+		// Snapping would leave at most five distinct values; distance leaves three here.
+		expect( new Set( intensitiesOf( 'heatmap-cell' ) ) ).toEqual(
+			new Set( [ '0', '0.14285714285714285', '1' ] )
+		);
+		expect( console ).toHaveWarnedWith(
+			'[Charts] The log scale needs every value above zero, so the cells keep their placement by distance.'
+		);
+	} );
+} );
+
 describe( 'HeatmapChart partial cells', () => {
 	const withPartial: HeatmapColumn[] = [
 		{ label: 'Oct', data: [ { value: 10, label: 'October' } ] },

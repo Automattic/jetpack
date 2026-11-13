@@ -33,9 +33,11 @@ import { pickLabelTextColorForFill, resolveLabelRoles } from '../private/label-t
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
+	canPlaceOnLogScale,
 	fitCompactCells,
 	getBucketedValue,
 	getExtentOf,
+	getLogValue,
 	getNormalizedValue,
 	getHeatmapScale,
 	getValueBuckets,
@@ -214,16 +216,29 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		() => getValueBuckets( values, extent, HEATMAP_SCALE_STEPS ),
 		[ values, extent ]
 	);
+	const logUnusable = valueScale === 'log' && ! canPlaceOnLogScale( extent );
+	if ( logUnusable ) {
+		warnOnce(
+			'heatmap:logScale',
+			'The log scale needs every value above zero, so the cells keep their placement by distance.'
+		);
+	}
+	const effectiveScale = logUnusable ? 'linear' : valueScale;
 	const placeOnScale = useCallback(
-		( value: number ) =>
-			valueScale === 'linear'
-				? getNormalizedValue( value, extent )
-				: getBucketedValue( value, buckets ),
-		[ valueScale, extent, buckets ]
+		( value: number ) => {
+			if ( effectiveScale === 'buckets' ) {
+				return getBucketedValue( value, buckets );
+			}
+			if ( effectiveScale === 'log' ) {
+				return getLogValue( value, extent, HEATMAP_SCALE_STEPS );
+			}
+			return getNormalizedValue( value, extent );
+		},
+		[ effectiveScale, extent, buckets ]
 	);
 	const heatmapContext = useMemo< HeatmapContextValue >(
-		() => ( { extent, buckets, scale: valueScale, fillVars } ),
-		[ extent, buckets, valueScale, fillVars ]
+		() => ( { extent, buckets, scale: effectiveScale, fillVars } ),
+		[ extent, buckets, effectiveScale, fillVars ]
 	);
 
 	const columns = data.length;
