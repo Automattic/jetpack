@@ -44,6 +44,13 @@
 
 		@include mixins.section-sub-heading;
 	}
+
+	// Matches the browser's default top margin on the paragraph it stands in for.
+	.product-interstitial__section-sub-heading-placeholder {
+
+		@include mixins.section-sub-heading;
+		margin-block-start: 1em;
+	}
 }
 
 /* Features List */

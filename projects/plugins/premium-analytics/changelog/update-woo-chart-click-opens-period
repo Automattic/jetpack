@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: Let a click on a point or bar in the WooCommerce tab charts set the dashboard to that period, and open the previous period for a click on a previous-period point or bar in any chart.
