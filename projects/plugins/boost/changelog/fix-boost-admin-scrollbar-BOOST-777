@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Fix the page scrollbar being hidden under the browser's scrollbar when the admin menu is taller than the window.
