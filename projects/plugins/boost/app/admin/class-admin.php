@@ -15,6 +15,7 @@ use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Debug;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
@@ -78,15 +79,18 @@ class Admin {
 			'build_page'   => 'jetpack-boost-dashboard',
 			'init_modules' => array( '@jetpack-boost/init' ),
 			'title'        => 'Boost', // "Boost" is a product name, do not translate.
-			'header'       => array(
-				'title'    => 'Boost',
-				'subtitle' => __( 'Improve your site speed and performance.', 'jetpack-boost' ),
-			),
 			'capability'   => 'manage_options',
 			// The webpack bundle renders the dashboard's content into the wp-build page; it carries the Boost and DataSync data.
 			'handles'      => array( 'jetpack-boost-admin', 'wp-jp-i18n-loader' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
+		// The Getting Started screen, which a bare menu link opens until it's done, has no page header.
+		if ( ! ( new Getting_Started_Entry() )->get() ) {
+			$members[ JETPACK_BOOST_SLUG ]['header'] = array(
+				'title'    => 'Boost',
+				'subtitle' => __( 'Improve your site speed and performance.', 'jetpack-boost' ),
+			);
+		}
 		return $members;
 	}
 
