@@ -57,13 +57,6 @@ class Admin_Shell {
 	private static $initialized = false;
 
 	/**
-	 * Routes of the guest being loaded, or null outside load_guest().
-	 *
-	 * @var array[]|null
-	 */
-	private static $collected = null;
-
-	/**
 	 * Register the feature flag.
 	 *
 	 * @return void
@@ -276,43 +269,25 @@ class Admin_Shell {
 	private static function load_guest( $member ) {
 		$snapshot = self::hook_snapshot();
 		call_user_func( $member['load'] );
+		$routes = self::run_page_init( $member );
 		self::remove_added_callbacks( $snapshot );
-
-		$register_page_routes = $member['build_prefix'] . '_register_page_routes';
-		$routes_global        = $member['build_prefix'] . '_' . str_replace( '-', '_', $member['build_page'] ) . '_routes_data';
-		if ( ! function_exists( $register_page_routes ) || ! isset( $GLOBALS[ $routes_global ] ) ) {
-			return null;
-		}
-
-		self::$collected = array();
-		// The generated helper only calls a registrar that function_exists() accepts.
-		call_user_func( $register_page_routes, $GLOBALS[ $routes_global ], __NAMESPACE__ . '\admin_shell_collect_route' );
-		$routes          = self::$collected;
-		self::$collected = null;
 
 		return $routes;
 	}
 
 	/**
-	 * Receive one route from a guest's generated route registration.
+	 * Fire a loaded member's wp-build page init action, which its enqueue check skips off its own screen.
 	 *
-	 * @param string      $path           Route path.
-	 * @param string|null $content_module Content script module ID.
-	 * @param string|null $route_module   Route script module ID.
-	 * @return void
+	 * @param array $member Normalized member.
+	 * @return array[]|null The page's routes, which its listeners can add to, or null when the guest's build isn't there.
 	 */
-	public static function collect_route( $path, $content_module = null, $route_module = null ) {
-		if ( null === self::$collected ) {
-			return;
+	private static function run_page_init( $member ) {
+		$get_routes = $member['build_prefix'] . '_get_' . str_replace( '-', '_', $member['build_page'] ) . '_wp_admin_routes';
+		if ( ! function_exists( $get_routes ) ) {
+			return null;
 		}
-		$route = array( 'path' => $path );
-		if ( $content_module ) {
-			$route['content_module'] = $content_module;
-		}
-		if ( $route_module ) {
-			$route['route_module'] = $route_module;
-		}
-		self::$collected[] = $route;
+		do_action( $member['build_page'] . '-wp-admin_init' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- wp-build names this hook.
+		return $get_routes();
 	}
 
 	/**
@@ -435,6 +410,7 @@ class Admin_Shell {
 		}
 
 		call_user_func( $members[ $slug ]['load'] );
+		self::run_page_init( $members[ $slug ] );
 		$hook_suffix = self::screen_id( $slug );
 		set_current_screen( $hook_suffix );
 		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- One script tag per handle, so the client can skip what the host already has.
@@ -617,16 +593,4 @@ class Admin_Shell {
 		}
 		return true;
 	}
-}
-
-/**
- * Plain-function registrar for wp-build's generated route helpers, which only accept a function name.
- *
- * @param string      $path           Route path.
- * @param string|null $content_module Content script module ID.
- * @param string|null $route_module   Route script module ID.
- * @return void
- */
-function admin_shell_collect_route( $path, $content_module = null, $route_module = null ) { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed -- Must load with the class; wp-build route helpers only take a function name.
-	Admin_Shell::collect_route( $path, $content_module, $route_module );
 }

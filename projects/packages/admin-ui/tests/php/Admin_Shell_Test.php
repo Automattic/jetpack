@@ -58,7 +58,8 @@ class Admin_Shell_Test extends TestCase {
 		remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 		remove_all_filters( 'host-page-wp-admin_boot_dependencies' );
 		remove_all_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE );
-		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ], $_GET['page'], $_REQUEST['nonce'], $GLOBALS['jetpack_shell_test_guest_page_routes_data'], $GLOBALS['hook_suffix'] );
+		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ], $_GET['page'], $_REQUEST['nonce'], $GLOBALS['jetpack_shell_test_guest_page_routes_data'], $GLOBALS['jetpack_shell_test_guest_page_wp_admin_routes'], $GLOBALS['hook_suffix'] );
+		remove_all_actions( 'guest-page-wp-admin_init' );
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
 		foreach ( $this->added_actions as list( $hook, $callback ) ) {
@@ -285,11 +286,18 @@ class Admin_Shell_Test extends TestCase {
 	 */
 	public function test_setup_loads_guest_and_defers_its_hooks() {
 		$guest_enqueue = static function () {};
+		$init_enqueue  = static function () {};
 		$host_enqueue  = static function () {};
 		$this->add_action( 'admin_enqueue_scripts', $host_enqueue );
 		$this->start_host_page(
-			static function () use ( $guest_enqueue ) {
+			static function () use ( $guest_enqueue, $init_enqueue ) {
 				add_action( 'admin_enqueue_scripts', $guest_enqueue );
+				add_action(
+					'guest-page-wp-admin_init',
+					static function () use ( $init_enqueue ) {
+						add_action( 'admin_enqueue_scripts', $init_enqueue );
+					}
+				);
 				$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array(
 					array(
 						'path'    => '/',
@@ -303,6 +311,7 @@ class Admin_Shell_Test extends TestCase {
 		Admin_Shell::setup();
 
 		$this->assertFalse( has_action( 'admin_enqueue_scripts', $guest_enqueue ), 'the guest page hook was removed' );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', $init_enqueue ), 'the hook its page init action added was removed' );
 		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', $host_enqueue ), 'hooks from before the guest loaded stay' );
 		$this->assertSame(
 			array(
@@ -334,6 +343,57 @@ class Admin_Shell_Test extends TestCase {
 			),
 			$config['members']['guest-page']['routes'] ?? null
 		);
+	}
+
+	/**
+	 * Data provider for test_setup_runs_guest_page_init.
+	 *
+	 * @return array[] Page init listener, expected guest routes.
+	 */
+	public static function provide_page_init_listeners() {
+		return array(
+			'registers a route'                => array(
+				static function () {
+					jetpack_shell_test_register_guest_page_wp_admin_route( '/extra', 'extra/content' );
+				},
+				array(
+					array(
+						'path'           => '/extra',
+						'content_module' => 'extra/content',
+					),
+					array( 'path' => '/' ),
+				),
+			),
+			'edits the routes before wp-build' => array(
+				static function () {
+					$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array();
+				},
+				array(),
+			),
+		);
+	}
+
+	/**
+	 * A guest gets the routes its page init action leaves, as on its own page.
+	 *
+	 * @dataProvider provide_page_init_listeners
+	 * @param callable $listener Page init listener the guest loader hooks, ahead of wp-build's own for priority 5.
+	 * @param array[]  $expected Guest routes.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_page_init_listeners' )]
+	public function test_setup_runs_guest_page_init( $listener, $expected ) {
+		$this->start_host_page(
+			static function () use ( $listener ) {
+				$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array( array( 'path' => '/' ) );
+				add_action( 'guest-page-wp-admin_init', $listener, 5 );
+			}
+		);
+
+		Admin_Shell::setup();
+
+		$config = apply_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE, array() );
+		$this->assertSame( $expected, $config['members']['guest-page']['routes'] ?? null );
 	}
 
 	/**
@@ -435,9 +495,15 @@ class Admin_Shell_Test extends TestCase {
 						wp_enqueue_script( 'shell-test-guest' );
 					}
 				);
+				$this->add_action(
+					'guest-page-wp-admin_init',
+					static function () {
+						wp_register_script( 'shell-test-init', 'https://example.com/init.js', array(), '1', true );
+					}
+				);
 			},
 			'manage_options',
-			array( 'shell-test-guest' )
+			array( 'shell-test-guest', 'shell-test-init' )
 		);
 
 		$html = Admin_Shell::guest_assets( 'guest-page' );
@@ -445,6 +511,7 @@ class Admin_Shell_Test extends TestCase {
 		$this->assertIsString( $html );
 		$this->assertStringContainsString( 'guest.js', $html );
 		$this->assertStringContainsString( 'dep.js', $html, 'dependencies of a member handle come along' );
+		$this->assertStringContainsString( 'init.js', $html, 'what its page init action registers comes along' );
 		$this->assertStringNotContainsString( 'other.js', $html );
 	}
 
@@ -547,7 +614,10 @@ class Admin_Shell_Test extends TestCase {
 					'capability'   => $capability,
 					'handles'      => $handles,
 					'media'        => $media,
-					'load'         => $load,
+					'load'         => static function () use ( $load ) {
+						jetpack_shell_test_load_build();
+						$load();
+					},
 				) + self::valid_member(),
 			)
 		);
