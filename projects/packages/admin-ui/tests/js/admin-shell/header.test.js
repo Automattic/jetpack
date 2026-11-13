@@ -84,27 +84,52 @@ describe( 'header stand-in', () => {
 	const withSubtitle = ( title, subtitle ) =>
 		`<div><header><div class="x__header-visual"><svg class="jetpack-logo"></svg></div><h1 class="x__header-title">${ title }</h1><p class="x__header-subtitle">${ subtitle }</p></header></div>`;
 
+	const extended = 'Short. <button>More?</button>';
+
 	it.each( [
-		[ 'a borrowed header', 'z-donor', 'Shiny new subtitle', 'Shiny new subtitle' ],
-		[ 'its own outdated header', 'newsletter', 'Shiny new subtitle', 'Shiny new subtitle' ],
-		[ 'a borrowed header, for a page without a subtitle', 'z-donor', '', null ],
-	] )( 'gives %s the declared title and subtitle', ( _, savedAs, subtitle, shown ) => {
-		// Sorts first, but has no subtitle row to fill.
-		save(
-			'a-logo',
-			'<div><header><svg class="jetpack-logo"></svg><h1 class="x__header-title">A</h1></header></div>'
-		);
-		save( savedAs, withSubtitle( 'Old title', 'Old subtitle' ) );
+		[ 'a borrowed header', 'z-donor', 'Old subtitle', 'Shiny new subtitle', 'Shiny new subtitle' ],
+		[
+			'its own outdated header',
+			'newsletter',
+			'Old subtitle',
+			'Shiny new subtitle',
+			'Shiny new subtitle',
+		],
+		[ 'a borrowed header, for a page without a subtitle', 'z-donor', 'Old subtitle', '', null ],
+		[
+			'its own header that extends the declared subtitle',
+			'newsletter',
+			extended,
+			'Short.',
+			'Short. More?',
+		],
+		[
+			'a borrowed header that extends the declared subtitle',
+			'z-donor',
+			extended,
+			'Short.',
+			'Short.',
+		],
+	] )(
+		'gives %s the declared title and subtitle',
+		( _, savedAs, savedSubtitle, subtitle, shown ) => {
+			// Sorts first, but has no subtitle row to fill.
+			save(
+				'a-logo',
+				'<div><header><svg class="jetpack-logo"></svg><h1 class="x__header-title">A</h1></header></div>'
+			);
+			save( savedAs, withSubtitle( 'Old title', savedSubtitle ) );
 
-		showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter', {
-			title: 'Newsletter',
-			subtitle,
-		} );
+			showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter', {
+				title: 'Newsletter',
+				subtitle,
+			} );
 
-		const standIn = document.querySelector( '[data-shell-header="newsletter"]' );
-		expect( standIn.querySelector( 'h1' ) ).toHaveTextContent( 'Newsletter' );
-		expect( standIn.querySelector( '.x__header-subtitle' )?.textContent ?? null ).toBe( shown );
-	} );
+			const standIn = document.querySelector( '[data-shell-header="newsletter"]' );
+			expect( standIn.querySelector( 'h1' ) ).toHaveTextContent( 'Newsletter' );
+			expect( standIn.querySelector( '.x__header-subtitle' )?.textContent ?? null ).toBe( shown );
+		}
+	);
 
 	it( 'adds a subtitle row styled as the page header’s when no saved header has one', () => {
 		document.head.innerHTML =

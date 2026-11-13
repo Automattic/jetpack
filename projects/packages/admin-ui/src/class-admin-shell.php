@@ -130,7 +130,7 @@ class Admin_Shell {
 		 * - build_page (string)     The wp-build page name.
 		 * - init_modules (string[]) Script modules to import before the app boots.
 		 * - title (string)          Document title while the page is shown.
-		 * - header (array)          Optional. `title` and `subtitle` ('' for none) of the view a bare menu link opens, as the dashboard renders them. Shown while it opens.
+		 * - header (array)          Optional. `title` and `subtitle` ('' for none) of the view a bare menu link opens, as the dashboard renders them. Shown while it opens. A malformed one is dropped, not the member.
 		 * - default_path (string)   Optional. The `p` a bare menu link opens.
 		 * - load (callable)         Registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
@@ -593,9 +593,16 @@ class Admin_Shell {
 			|| ! is_string( $member['capability'] ) || '' === $member['capability']
 			|| ( null !== $member['default_path'] && ! is_string( $member['default_path'] ) )
 			|| ! is_bool( $member['media'] )
-			|| ( null !== $member['header'] && ! self::is_header( $member['header'] ) )
 		) {
 			return null;
+		}
+
+		// Only cosmetic, so a malformed header is dropped and the member kept.
+		if ( null !== $member['header'] && ! self::is_header( $member['header'] ) ) {
+			$member['header'] = null;
+			$message          = sprintf( 'Admin shell member "%s" has a header without a title and subtitle, so the header was skipped.', $slug );
+			// Keep on one line: the release tooling only replaces the version in a single-line call.
+			_doing_it_wrong( __CLASS__ . '::get_members', esc_html( $message ), '$$next-version$$' );
 		}
 
 		return $member;

@@ -271,11 +271,15 @@ const subtitleRow = copy => {
 };
 
 // Give a header copy this page's title, and its subtitle or none.
-const retitle = ( copy, { title, subtitle } ) => {
+const retitle = ( copy, { title, subtitle }, own ) => {
 	copy.querySelector( 'h1' ).textContent = title;
 	const row = copy.querySelector( '[class*="__header-subtitle"]' );
 	if ( ! subtitle ) {
 		row?.remove();
+		return;
+	}
+	// The page's own row may follow the subtitle with more, such as Forms' help link: keep it.
+	if ( own && row?.textContent.startsWith( subtitle ) ) {
 		return;
 	}
 	const target = row ?? subtitleRow( copy );
@@ -309,7 +313,7 @@ export function showHeader( slug, el, title, declared = null ) {
 			.forEach( node => node.remove() );
 	}
 	if ( ! own || declared ) {
-		retitle( copy, declared ?? { title } );
+		retitle( copy, declared ?? { title }, !! own );
 	}
 	const css = saved.css?.replaceAll( PAGE_CLASS, bodyClassOf( slug ) ?? PAGE_CLASS );
 

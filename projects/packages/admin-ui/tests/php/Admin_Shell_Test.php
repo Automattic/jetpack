@@ -204,16 +204,6 @@ class Admin_Shell_Test extends TestCase {
 			'empty capability'       => array( 'jetpack-forms', array( 'capability' => '' ) + $valid ),
 			'default_path not text'  => array( 'jetpack-forms', array( 'default_path' => 1 ) + $valid ),
 			'media not a boolean'    => array( 'jetpack-forms', array( 'media' => 'yes' ) + $valid ),
-			'header has no subtitle' => array( 'jetpack-forms', array( 'header' => array( 'title' => 'Forms' ) ) + $valid ),
-			'header has empty title' => array(
-				'jetpack-forms',
-				array(
-					'header' => array(
-						'title'    => '',
-						'subtitle' => 'Sub',
-					),
-				) + $valid,
-			),
 		);
 	}
 
@@ -237,6 +227,50 @@ class Admin_Shell_Test extends TestCase {
 		$notices = did_action( 'doing_it_wrong_run' );
 
 		$this->assertSame( array( 'my-jetpack' ), array_keys( Admin_Shell::get_members() ) );
+		$this->assertSame( $notices + 1, did_action( 'doing_it_wrong_run' ) );
+	}
+
+	/**
+	 * Data provider for test_get_members_drops_only_an_invalid_header.
+	 *
+	 * @return array[] Header.
+	 */
+	public static function provide_invalid_headers() {
+		return array(
+			'not an array'      => array( 'Forms' ),
+			'no subtitle'       => array( array( 'title' => 'Forms' ) ),
+			'subtitle not text' => array(
+				array(
+					'title'    => 'Forms',
+					'subtitle' => 1,
+				),
+			),
+			'empty title'       => array(
+				array(
+					'title'    => '',
+					'subtitle' => 'Sub',
+				),
+			),
+		);
+	}
+
+	/**
+	 * The header is cosmetic: a malformed one is dropped with a notice, and the member is kept.
+	 *
+	 * @dataProvider provide_invalid_headers
+	 *
+	 * @param mixed $header Header definition.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_invalid_headers' )]
+	public function test_get_members_drops_only_an_invalid_header( $header ) {
+		$this->add_members( array( 'jetpack-forms' => array( 'header' => $header ) + self::valid_member() ) );
+		$notices = did_action( 'doing_it_wrong_run' );
+
+		$members = Admin_Shell::get_members();
+
+		$this->assertArrayHasKey( 'jetpack-forms', $members );
+		$this->assertNull( $members['jetpack-forms']['header'] );
 		$this->assertSame( $notices + 1, did_action( 'doing_it_wrong_run' ) );
 	}
 
