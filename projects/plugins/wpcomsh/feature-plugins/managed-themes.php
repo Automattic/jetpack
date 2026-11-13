@@ -249,3 +249,100 @@ function wpcomsh_admin_bar_hide_default_site_icon( $show ) {
 	return $show;
 }
 add_filter( 'wp_admin_bar_show_site_icons', 'wpcomsh_admin_bar_hide_default_site_icon' );
+
+/**
+ * Whether a path is a working symlink whose target starts with one of the given directories.
+ *
+ * The link target is compared as written, without resolving it. On WP Cloud the links are
+ * relative (THEMES_SYMLINK_BASE is ../../../wordpress/themes), and resolving them with realpath()
+ * would also follow any symlink or mount inside the managed tree.
+ *
+ * @param string   $path  The path to check, e.g. wp-content/themes/twentytwentyfive.
+ * @param string[] $bases The directories the link may point into, as written in link targets.
+ * @return bool
+ */
+function wpcomsh_is_symlinked_into( string $path, array $bases ): bool {
+	if ( ! is_link( $path ) || ! file_exists( $path ) ) {
+		return false;
+	}
+
+	$target = wp_normalize_path( (string) readlink( $path ) );
+	foreach ( $bases as $base ) {
+		if ( str_starts_with( $target, trailingslashit( wp_normalize_path( $base ) ) ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Get the stylesheets of the themes WP Cloud manages, i.e. whose folder is a symlink into the managed themes tree.
+ *
+ * Broken themes (for example a child theme whose parent is missing) are included.
+ *
+ * @param string[]|null $bases Optional. The managed themes tree, as written in link targets.
+ *                             Default THEMES_SYMLINK_BASE and THEMES_PATH_BASE.
+ * @return string[] Sorted stylesheets.
+ */
+function wpcomsh_get_managed_themes( ?array $bases = null ): array {
+	$bases ??= array_unique( array( THEMES_SYMLINK_BASE, THEMES_PATH_BASE ) );
+
+	// Rescan, because the theme folders may have changed earlier in this request.
+	search_theme_directories( true );
+
+	$managed_themes = array();
+	foreach ( wp_get_themes( array( 'errors' => null ) ) as $stylesheet => $theme ) {
+		if ( wpcomsh_is_symlinked_into( $theme->get_stylesheet_directory(), $bases ) ) {
+			$managed_themes[] = (string) $stylesheet;
+		}
+	}
+	sort( $managed_themes );
+
+	return $managed_themes;
+}
+
+/**
+ * Save the list of managed (symlinked) themes to an option, so it is synced to WordPress.com
+ * the same way as wpcomsh_at_managed_plugins. update_option() only writes when the list changed.
+ *
+ * @return void
+ */
+function wpcomsh_update_managed_themes(): void {
+	update_option( 'wpcomsh_at_managed_themes', wpcomsh_get_managed_themes(), false );
+}
+// WordPress.com themes are installed and deleted by symlink, which skips core's hooks.
+add_action( 'wpcomsh_wpcom_theme_installed', 'wpcomsh_update_managed_themes' );
+add_action( 'wpcomsh_symlinked_theme_deleted', 'wpcomsh_update_managed_themes' );
+// Themes deleted through core (wp-admin, WP-CLI).
+add_action( 'deleted_theme', 'wpcomsh_update_managed_themes', 100 );
+// Daily self-repair, for symlinks the platform adds or removes without going through WordPress.
+add_action( 'wpcomsh_refresh_managed_themes', 'wpcomsh_update_managed_themes' );
+
+/**
+ * Update the list of managed themes after core's upgrader installs or updates a theme.
+ *
+ * An update can turn a symlinked folder into a regular one: core moves the link to a backup and unpacks the new version in its place.
+ *
+ * @param WP_Upgrader $upgrader   The upgrader object.
+ * @param array       $hook_extra Extra arguments passed to hooked filters.
+ * @return void
+ */
+function wpcomsh_handle_update_managed_themes_list( $upgrader, $hook_extra ): void {
+	if ( 'theme' === ( $hook_extra['type'] ?? '' ) ) {
+		wpcomsh_update_managed_themes();
+	}
+}
+add_action( 'upgrader_process_complete', 'wpcomsh_handle_update_managed_themes_list', 50, 2 );
+
+/**
+ * Schedule the daily refresh of the managed themes list. The first run fills the list on existing sites.
+ *
+ * @return void
+ */
+function wpcomsh_schedule_managed_themes_refresh(): void {
+	if ( false === wp_next_scheduled( 'wpcomsh_refresh_managed_themes' ) ) {
+		wp_schedule_event( time(), 'daily', 'wpcomsh_refresh_managed_themes' );
+	}
+}
+add_action( 'init', 'wpcomsh_schedule_managed_themes_refresh' );
