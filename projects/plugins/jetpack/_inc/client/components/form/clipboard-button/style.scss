@@ -1,0 +1,10 @@
+.dops-clipboard-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+
+	svg {
+		fill: currentColor;
+		flex-shrink: 0;
+	}
+}

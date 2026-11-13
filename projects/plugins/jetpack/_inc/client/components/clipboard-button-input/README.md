@@ -1,7 +1,7 @@
 Clipboard Button Input
 ======================
 
-Clipboard Button Input is a React component used to display a text input field containing a button for copying the value of the input to a user's clipboard. It makes use of the [Clipboard Button component](../form/clipboard-button), which leverages [Clipboard.js](https://github.com/zenorocha/clipboard.js) for non-Flash based copy behavior.
+Clipboard Button Input is a React component used to display a text input field containing a button for copying the value of the input to a user's clipboard. It makes use of the [Clipboard Button component](../form/clipboard-button), which uses `useCopyToClipboard` from `@wordpress/compose`.
 
 ## Usage
 
@@ -15,8 +15,6 @@ export default function MyComponent() {
 		<ClipboardButtonInput
 			value="https://example.wordpress.com/"
 			copy="Copy"
-			copied="Copied!"
-			prompt="Highlight and copy the following text to your clipboard:"
 		/>
 	);
 };
@@ -44,27 +42,7 @@ The value of the `<input />` element, and the text to be copied when clicking th
 	<tr><td>Default</td><td><code>""</code></td></tr>
 </table>
 
-The label of the button that user can click to copy the input text to clipboard.
-
-### `copied`
-
-<table>
-	<tr><td>Type</td><td>String</td></tr>
-	<tr><td>Required</td><td>No</td></tr>
-	<tr><td>Default</td><td><code>""</code></td></tr>
-</table>
-
-The label of the button after user clicked it.
-
-### `prompt`
-
-<table>
-	<tr><td>Type</td><td>String</td></tr>
-	<tr><td>Required</td><td>No</td></tr>
-	<tr><td>Default</td><td><code>""</code></td></tr>
-</table>
-
-If copying to clipboard fails, a browser prompt is displayed with this message.
+The label of the button that user can click to copy the input text to clipboard. It stays the same after copying; a check or error icon and a screen reader announcement show the result.
 
 ### `disabled`
 
