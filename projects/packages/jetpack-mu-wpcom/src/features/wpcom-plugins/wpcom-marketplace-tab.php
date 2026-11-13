@@ -109,7 +109,7 @@ function wpcom_marketplace_serve_plugins_api( $result, $action, $args ) {
 				'pages'   => 1,
 				'results' => count( $products ),
 			),
-			'plugins' => array_values( $products ),
+			'plugins' => array_map( 'wpcom_marketplace_for_core', array_values( $products ) ),
 		);
 	}
 
@@ -177,7 +177,67 @@ function wpcom_marketplace_on_plugin_install_screen() {
  * @return bool
  */
 function wpcom_marketplace_is_installed( array $plugin ) {
-	return function_exists( 'install_plugin_install_status' ) && 'install' !== install_plugin_install_status( $plugin )['status'];
+	if ( ! function_exists( 'install_plugin_install_status' ) ) {
+		return false;
+	}
+
+	$slug = (string) ( $plugin['slug'] ?? '' );
+
+	return wpcom_marketplace_has_update( $slug ) || '' !== wpcom_marketplace_installed_version( $slug );
+}
+
+/**
+ * The version of the plugin installed in a slug's directory, as core finds it.
+ *
+ * @param string $slug Plugin slug.
+ * @return string Installed version, or an empty string when nothing is installed there.
+ */
+function wpcom_marketplace_installed_version( $slug ) {
+	if ( '' === $slug || ! function_exists( 'get_plugins' ) || ! is_dir( WP_PLUGIN_DIR . '/' . $slug ) ) {
+		return '';
+	}
+
+	$installed = get_plugins( '/' . $slug );
+
+	return $installed ? (string) ( reset( $installed )['Version'] ?? '' ) : '';
+}
+
+/**
+ * Whether the update_plugins transient has an update waiting for a slug.
+ *
+ * @param string $slug Plugin slug.
+ * @return bool
+ */
+function wpcom_marketplace_has_update( $slug ) {
+	$updates = get_site_transient( 'update_plugins' );
+
+	foreach ( (array) ( $updates->response ?? array() ) as $update ) {
+		if ( is_object( $update ) && isset( $update->slug ) && $update->slug === $slug ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * A card as core's install status should see it: no newer than what this site can update to.
+ *
+ * Core takes an older installed copy with no update entry as stale update data and reruns
+ * wp_update_plugins() on every call, once per card; products updated from elsewhere never get one.
+ *
+ * @param array $card Normalized product data.
+ * @return array
+ */
+function wpcom_marketplace_for_core( array $card ) {
+	$slug      = (string) ( $card['slug'] ?? '' );
+	$installed = wpcom_marketplace_installed_version( $slug );
+
+	if ( '' !== $installed && version_compare( (string) ( $card['version'] ?? '' ), $installed, '>' ) && ! wpcom_marketplace_has_update( $slug ) ) {
+		$card['version'] = $installed;
+	}
+
+	return $card;
 }
 
 /**
