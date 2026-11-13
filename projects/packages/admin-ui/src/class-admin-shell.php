@@ -161,6 +161,25 @@ class Admin_Shell {
 	}
 
 	/**
+	 * The member the guest endpoint is loading in this request, readable from `init` on so members can scope their hooks to it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null Member slug, or null on any other request.
+	 */
+	public static function requested_guest() {
+		// phpcs:disable WordPress.Security.NonceVerification -- Only scopes hooks; the endpoint verifies the nonce before it prints anything.
+		// Not `page`: products treat a `page` naming them as a visit to their own screen.
+		$action = isset( $_REQUEST['action'] ) && is_string( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : '';
+		$member = isset( $_GET['member'] ) && is_string( $_GET['member'] ) ? sanitize_key( wp_unslash( $_GET['member'] ) ) : '';
+		if ( ! wp_doing_ajax() || self::GUEST_ACTION !== $action || '' === $member ) {
+			return null;
+		}
+		return $member;
+		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
 	 * The member page this request is for, when the shell runs on it.
 	 *
 	 * @return string|null
@@ -177,7 +196,7 @@ class Admin_Shell {
 	private static function resolve_host() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which page this is.
 		$page = isset( $_GET['page'] ) && is_string( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
-		// Members are Jetpack submenu pages; checking the screen first keeps the members filter off other admin pages.
+		// Members are Jetpack admin pages; checking the screen first keeps the members filter off other admin pages.
 		$on_jetpack_screen = isset( $GLOBALS['hook_suffix'] ) && self::screen_id( $page ) === $GLOBALS['hook_suffix'];
 		if ( '' === $page || ! $on_jetpack_screen || ! self::is_enabled() ) {
 			return array( null, array() );
@@ -197,7 +216,9 @@ class Admin_Shell {
 	 * @return string
 	 */
 	public static function screen_id( $slug ) {
-		return 'jetpack_page_' . $slug;
+		global $admin_page_hooks;
+		// Top-level pages, like Stats under the Dashboard, get core's prefix rather than the Jetpack menu's.
+		return isset( $admin_page_hooks[ $slug ] ) ? 'toplevel_page_' . $slug : 'jetpack_page_' . $slug;
 	}
 
 	/**
@@ -330,7 +351,10 @@ class Admin_Shell {
 				$ids[] = $route['route_module'] ?? null;
 				$ids[] = $route['content_module'] ?? null;
 			}
-			foreach ( array_filter( $ids ) as $id ) {
+			// Modules a guest adds to its own page's import map, such as Stats' widgets, which it imports on demand.
+			$own_deps = apply_filters( $members[ $slug ]['build_page'] . '-wp-admin_boot_dependencies', array() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.ValidHookName.UseUnderscores -- The guest's generated wp-build hook.
+			$ids      = array_merge( $ids, array_column( (array) $own_deps, 'id' ) );
+			foreach ( array_unique( array_filter( $ids ) ) as $id ) {
 				$deps[] = array(
 					'import' => 'dynamic',
 					'id'     => $id,
@@ -409,8 +433,7 @@ class Admin_Shell {
 	 */
 	public static function ajax_guest_assets() {
 		check_ajax_referer( self::GUEST_ACTION, 'nonce' );
-		// Not `page`: products treat a `page` naming them as a visit to their own screen.
-		$slug = isset( $_GET['member'] ) && is_string( $_GET['member'] ) ? sanitize_key( wp_unslash( $_GET['member'] ) ) : '';
+		$slug = self::requested_guest() ?? '';
 
 		$html = self::guest_assets( $slug );
 		if ( is_int( $html ) ) {
@@ -435,6 +458,7 @@ class Admin_Shell {
 		}
 
 		call_user_func( $members[ $slug ]['load'] );
+		self::register_admin_menu_pages();
 		$hook_suffix = self::screen_id( $slug );
 		set_current_screen( $hook_suffix );
 		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- One script tag per handle, so the client can skip what the host already has.
@@ -462,6 +486,25 @@ class Admin_Shell {
 			wp_print_media_templates();
 		}
 		return ob_get_clean();
+	}
+
+	/**
+	 * Register the admin menu's pages, which admin-ajax never does, so page data built from menu_page_url() matches a page load.
+	 *
+	 * Runs `admin_menu` alone: core's wp-admin/menu.php would also run its page access check, which dies on admin-ajax.
+	 *
+	 * @return void
+	 */
+	private static function register_admin_menu_pages() {
+		global $menu, $submenu;
+		if ( did_action( 'admin_menu' ) ) {
+			return;
+		}
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited -- Menu callbacks expect the arrays core's menu.php would have set up.
+		$menu    = is_array( $menu ) ? $menu : array();
+		$submenu = is_array( $submenu ) ? $submenu : array();
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
+		do_action( 'admin_menu', '' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
 	}
 
 	/**
