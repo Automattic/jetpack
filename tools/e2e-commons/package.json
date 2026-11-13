@@ -43,7 +43,6 @@
 		"localtunnel": "2.0.2",
 		"lodash-es": "4.18.1",
 		"playwright-ctrf-json-reporter": "^0.0.26",
-		"shell-escape": "0.2.0",
 		"winston": "3.17.0",
 		"yargs": "18.0.0"
 	}
