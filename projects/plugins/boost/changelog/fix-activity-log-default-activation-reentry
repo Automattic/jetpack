@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Activity Log: Fix a loop that could flood the database with writes when the Activity Log is first switched on.

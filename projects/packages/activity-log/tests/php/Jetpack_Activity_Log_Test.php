@@ -44,6 +44,13 @@ class Jetpack_Activity_Log_Test extends TestCase {
 		remove_filter( 'jetpack_get_available_standalone_modules', array( Jetpack_Activity_Log::class, 'add_standalone_module' ) );
 		remove_action( 'plugins_loaded', array( Jetpack_Activity_Log::class, 'activate_standalone_default' ) );
 		unset( $GLOBALS['wp_actions']['jetpack_activity_log_initialized'] );
+
+		$attempted = new \ReflectionProperty( Jetpack_Activity_Log::class, 'standalone_default_attempted' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			// Required to access non-public members before PHP 8.1; deprecated no-op since PHP 8.5.
+			$attempted->setAccessible( true );
+		}
+		$attempted->setValue( null, false );
 	}
 
 	/**
@@ -189,6 +196,39 @@ class Jetpack_Activity_Log_Test extends TestCase {
 		$this->assertFalse( (bool) Jetpack_Options::get_option( Jetpack_Activity_Log::DEFAULT_ACTIVATED_OPTION ) );
 		$this->assertFalse( Jetpack_Activity_Log::is_module_active() );
 		$this->assertFalse( $this->is_bootstrapped() );
+	}
+
+	/**
+	 * If the recorded flag does not read back, the initialize() cycle must still stop after one write.
+	 */
+	public function test_the_standalone_default_writes_once_when_the_flag_does_not_read_back() {
+		$hide_flag   = static function ( $options ) {
+			if ( is_array( $options ) ) {
+				unset( $options[ Jetpack_Activity_Log::DEFAULT_ACTIVATED_OPTION ] );
+			}
+			return $options;
+		};
+		$writes      = 0;
+		$count_write = static function () use ( &$writes ) {
+			if ( ++$writes > 10 ) {
+				throw new \RuntimeException( 'activate_standalone_default() kept rewriting jetpack_options' );
+			}
+		};
+		add_filter( 'option_jetpack_options', $hide_flag );
+		add_action( 'update_option_jetpack_options', $count_write );
+		add_action( 'add_option_jetpack_options', $count_write );
+
+		try {
+			Jetpack_Activity_Log::initialize();
+		} finally {
+			remove_filter( 'option_jetpack_options', $hide_flag );
+			remove_action( 'update_option_jetpack_options', $count_write );
+			remove_action( 'add_option_jetpack_options', $count_write );
+		}
+
+		$this->assertSame( 1, $writes );
+		$this->assertTrue( Jetpack_Activity_Log::is_module_active() );
+		$this->assertTrue( $this->is_bootstrapped() );
 	}
 
 	/**
