@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import { parseSiteDateTime, type DateRange } from '@jetpack-premium-analytics/datetime';
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { formatDate } from '@jetpack-premium-analytics/formatters';
 import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope as envelopeIcon } from '@wordpress/icons';
@@ -18,6 +20,39 @@ import { isEmailSection } from './config';
 import styles from './post-header-slots.module.scss';
 import type { PostSummary } from './use-post-summary';
 import type { HeaderContext, SingleReportHeaderSlots } from '../adapter';
+
+/**
+ * States the window an email tab's chart draws, apart from the all-time figures around it.
+ *
+ * @param range - The window the chart covers.
+ * @return The sentence, or undefined when either bound is missing or unparseable.
+ */
+function emailChartSentence( range: DateRange | undefined ): string | undefined {
+	const from = parseSiteDateTime( range?.from );
+	const to = parseSiteDateTime( range?.to );
+	if ( ! from || ! to ) {
+		return undefined;
+	}
+
+	const first = formatDate( from, 'compact' );
+	const last = formatDate( to, 'compact' );
+
+	return first === last
+		? sprintf(
+				/* translators: %s: the one day the chart covers, e.g. "Jul 9, 2026". */
+				__( 'The chart covers %s; the totals are all-time.', 'jetpack-premium-analytics-pkg' ),
+				first
+			)
+		: sprintf(
+				/* translators: %1$s and %2$s: the first and last day the chart covers, e.g. "Jul 9, 2026". */
+				__(
+					'The chart covers %1$s to %2$s; the totals are all-time.',
+					'jetpack-premium-analytics-pkg'
+				),
+				first,
+				last
+			);
+}
 
 /**
  * The post/page identity for the page header: featured-image thumbnail (or a
@@ -63,9 +98,11 @@ export function postHeaderSlots(
 					);
 	}
 
-	const subtitle = [ publishedSentence, performanceSentence( performanceRange ) ]
-		.filter( Boolean )
-		.join( ' ' );
+	const windowSentence =
+		variant === 'email'
+			? emailChartSentence( performanceRange )
+			: performanceSentence( performanceRange );
+	const subtitle = [ publishedSentence, windowSentence ].filter( Boolean ).join( ' ' );
 
 	// Email variant always shows the envelope tile, even with a featured
 	// image, so email tabs read as the newsletter send, not the post.

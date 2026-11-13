@@ -1,4 +1,5 @@
 import { sanitizeStatsEmailTimeSeriesResponse, sanitizeStatsTimeSeriesResponse } from '..';
+import { StatsResponseShapeError } from '../../../utils/api-error';
 import {
 	emailClicksTimeSeriesFixture,
 	emailOpensHourlyTimeSeriesFixture,
@@ -284,6 +285,12 @@ describe( 'Stats time-series normalizer', () => {
 		// The hour dimension must not be summed into the metric summary.
 		expect( result.summary ).toEqual( expect.objectContaining( { opens_count: 8 } ) );
 		expect( result.summary ).not.toHaveProperty( 'hour' );
+	} );
+
+	it( 'rejects an email timeline bucketed in another unit than the one asked for', () => {
+		expect( () =>
+			sanitizeStatsEmailTimeSeriesResponse( emailOpensHourlyTimeSeriesFixture, { period: 'month' } )
+		).toThrow( new StatsResponseShapeError( 'Email timeline came back by hour, not by month.' ) );
 	} );
 
 	it( 'trims buckets outside a window_start/window_end window and sums only the rest', () => {

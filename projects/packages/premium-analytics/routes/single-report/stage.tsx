@@ -319,7 +319,8 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 	const header = adapter.headerSlots( summary, {
 		label: page.label,
 		section: activeState,
-		performanceRange: pinnedWindow?.range ?? dateFilters.appliedRange,
+		performanceRange:
+			pinnedWindow?.headerRange?.( layout ) ?? pinnedWindow?.range ?? dateFilters.appliedRange,
 	} );
 	const recordIcon = ( page.icon && lookupWidgetIcon( page.icon ) ) || jetpack;
 	const reportsPage = page.reports_page ? getReportDefinition( page.reports_page ) : undefined;

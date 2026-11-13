@@ -69,6 +69,25 @@ describe( 'postHeaderSlots', () => {
 		).toBeInTheDocument();
 	} );
 
+	it.each( [
+		[
+			PERFORMANCE_RANGE,
+			/The chart covers Jul 9, 2026 to Jul 15, 2026; the totals are all-time\./,
+		],
+		[
+			{ from: PERFORMANCE_RANGE.from, to: PERFORMANCE_RANGE.from },
+			/The chart covers Jul 9, 2026; the totals are all-time\./,
+		],
+	] )(
+		'says on an email tab that the window is the chart’s alone',
+		( performanceRange, sentence ) => {
+			renderHeader( SUMMARY, { ...EMAIL_SECTION, performanceRange } );
+
+			expect( screen.getByText( sentence ) ).toBeInTheDocument();
+			expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'shows the email identity on the email variant: envelope tile and sent wording', () => {
 		renderHeader( SUMMARY, EMAIL_SECTION );
 

@@ -20,6 +20,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		tickResolution,
 		empty,
 		hideSingleMetricLabel,
 	}: {
@@ -31,6 +32,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
+		tickResolution?: string;
 		empty?: ReactNode;
 		hideSingleMetricLabel?: boolean;
 	} ) => (
@@ -43,6 +45,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-dates={ metrics[ 0 ]?.current.map( point => point.date.toISOString() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
+			data-tick-resolution={ String( tickResolution ) }
 			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 		>
 			{ empty }
@@ -205,6 +208,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( values ).toHaveLength( 24 );
 		expect( values[ 0 ] ).toBe( '9' );
 		expect( values[ 23 ] ).toBe( '8' );
+		expect( chart ).toHaveAttribute( 'data-tick-resolution', 'hour' );
 		// Hours 9–23 of day one plus 0–8 of day two.
 		expect( chart ).toHaveAttribute( 'data-metric-total', '276' );
 
@@ -274,15 +278,14 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '15,7' );
 	} );
 
-	it( 'aggregates the daily buckets into calendar months when the page interval is monthly', async () => {
+	it( 'asks for monthly buckets when the page interval is monthly, and draws them as returned', async () => {
 		mockApiFetch.mockResolvedValue( {
 			timeline: {
-				unit: 'day',
+				unit: 'month',
 				fields: [ 'date', 'opens_count' ],
 				data: [
-					[ '2026-06-28', 4 ],
-					[ '2026-07-04', 10 ],
-					[ '2026-07-06', 5 ],
+					[ '2026-06-01', 4 ],
+					[ '2026-07-01', 15 ],
 				],
 			},
 		} );
@@ -308,7 +311,59 @@ describe( 'EmailTimeSeriesWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
+		expect( chart ).toHaveAttribute( 'data-tick-resolution', 'month' );
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'period=month' );
+		expect( requestedPath ).toContain( 'quantity=4' );
+		expect( requestedPath ).toContain( 'date=2026-05-01' );
 	} );
+
+	it.each( [
+		// Hours 14 to 23 of the send day and 0 to 13 of the next, asked for from midnight.
+		[ 'first-24-hours', 'hour', '38' ],
+		[ 'first-week', 'day', '7' ],
+		[ 'first-30-days', 'day', '30' ],
+		[ 'all-time', 'month', '3' ],
+	] as const )(
+		'reads the %s after the send by the %s, whatever range the host hands it',
+		async ( sendWindow, period, quantity ) => {
+			jest.useFakeTimers( { now: new Date( '2026-08-28T12:00:00Z' ), doNotFake: [ 'nextTick' ] } );
+			mockApiFetch.mockResolvedValue( {
+				timeline: { unit: period, fields: [ 'date', 'opens_count' ], data: [] },
+			} );
+
+			try {
+				render(
+					<EmailTimeSeriesWidget
+						attributes={ {
+							// The post page hands every window the same first 30 days.
+							reportParams: {
+								...getDefaultQueryParams( false ),
+								preset: undefined,
+								from: '2026-06-22T00:00:00.000+00:00',
+								to: '2026-07-21T23:59:59.999+00:00',
+								interval: 'day',
+								post_id: 1234,
+								sent_at: '2026-06-22T14:16:17.000+00:00',
+							},
+							metric: 'opens',
+							sendWindow,
+						} }
+					/>
+				);
+
+				const chart = await screen.findByTestId( 'metric-tabs-chart' );
+				expect( chart ).toHaveAttribute( 'data-tick-resolution', period );
+				const requested = new URLSearchParams(
+					String( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).split( '?' )[ 1 ]
+				);
+				expect( requested.get( 'period' ) ).toBe( period );
+				expect( requested.get( 'quantity' ) ).toBe( quantity );
+			} finally {
+				jest.useRealTimers();
+			}
+		}
+	);
 
 	it( 'answers a timeline with no buckets inside the chart, not with a widget-level empty state', async () => {
 		mockApiFetch.mockResolvedValue( {
