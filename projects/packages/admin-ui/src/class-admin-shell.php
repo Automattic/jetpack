@@ -578,16 +578,13 @@ class Admin_Shell {
 			return null;
 		}
 
-		$member = array_merge(
-			array(
-				'init_modules' => array(),
-				'header'       => null,
-				'default_path' => null,
-				'capability'   => 'manage_options',
-				'handles'      => array(),
-				'media'        => false,
-			),
-			$member
+		$member += array(
+			'init_modules' => array(),
+			'header'       => null,
+			'default_path' => null,
+			'capability'   => 'manage_options',
+			'handles'      => array(),
+			'media'        => false,
 		);
 
 		if (
