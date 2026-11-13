@@ -32,13 +32,14 @@ class AI_Launchpad_Dev_Enable {
 	/**
 	 * Options cleared by a reset.
 	 *
-	 * The first three reference the REST controller's constants so a rename there can't leave a stale option name here.
+	 * They reference the REST controller's constants so a rename there can't leave a stale option name here.
 	 */
 	const RESET_OPTIONS = array(
 		AI_Launchpad_REST::OPTION_WIZARD,
 		AI_Launchpad_REST::OPTION_AI_OUTPUT,
 		AI_Launchpad_REST::OPTION_DISMISSED,
 		AI_Launchpad_REST::OPTION_SKIPPED,
+		AI_Launchpad_REST::OPTION_STARTED,
 		AI_Launchpad_REST::OPTION_COMPLETED,
 		'launchpad_checklist_tasks_statuses', // Shared completion option; no dedicated constant.
 	);
