@@ -116,12 +116,13 @@ export const MinimumCellSize: Story = {
 };
 
 /**
- * The "Views over years" shape: eight years of months, skewed the way a real site's are.
- * Look for two things. Every year shows its own busy and quiet months, even beside a viral
- * September 2021 near 800,000 views. And each filled cell matches one swatch of the legend.
- * The launch month (Mar 2018) and the current month (Nov 2025) cover part of a month, so
- * they are hatched instead of shaded: they are not read as quiet months, and they sit
- * outside the scale. Months before launch and after the current month are faded slots.
+ * The "Views over years" shape, from a site that has run for sixteen years: a launch month of
+ * 195 views, a first year in the tens of thousands, a peak of 800,000 in April 2020, and
+ * thirteen years that all sit between 200,000 and 600,000. The hardest distribution the scales
+ * meet, because almost every month belongs to that middle band. Switch **scale** to compare
+ * them. The launch month (Feb 2011) and the current month (Nov 2026) cover part of a month, so
+ * they are hatched instead of shaded: they are not read as quiet months, and they sit outside
+ * the scale. Months before launch and after the current month are faded slots.
  */
 export const LongSiteHistory: Story = {
 	render: args => (
@@ -135,8 +136,8 @@ export const LongSiteHistory: Story = {
 		scale: 'log',
 		withTooltips: true,
 		ariaLabel: 'Views over years',
-		containerWidth: '960px',
-		containerHeight: '460px',
+		containerWidth: '1000px',
+		containerHeight: '620px',
 	},
 };
 

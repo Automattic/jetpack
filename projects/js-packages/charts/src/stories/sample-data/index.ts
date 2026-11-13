@@ -1209,54 +1209,152 @@ const monthColumns = (
 		} ) ),
 	} ) );
 
-const monthValues = ( year: number, values: number[] ): Record< string, number > =>
-	Object.fromEntries( values.map( ( value, month ) => [ `${ year }-${ month }`, value ] ) );
+const monthValues = ( year: number, values: number[], firstMonth = 0 ): Record< string, number > =>
+	Object.fromEntries(
+		values.map( ( value, index ) => [ `${ year }-${ firstMonth + index }`, value ] )
+	);
 
 const hashFraction = ( seed: number ) => Math.abs( Math.sin( seed * 12.9898 ) * 43758.5453 ) % 1;
 
 const jitter = ( seed: number ) => 0.85 + 0.3 * hashFraction( seed );
 
-const LONG_HISTORY_YEARS = [ 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 ];
-const LONG_HISTORY_YEARLY_BASE = [ 18000, 28000, 34000, 30000, 25000, 21000, 18000, 16000 ];
-const LONG_HISTORY_SEASONALITY = [ 1, 0.95, 1.05, 1, 0.9, 0.8, 0.75, 0.8, 1.1, 1.15, 1.05, 0.85 ];
+// Newest first, as the Views over years widget draws them.
+const LONG_HISTORY_YEARS = [
+	2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011,
+];
 
-// Launched late March 2018, one viral September 2021, and November 2025 still running.
-const longHistoryCell = ( year: number, month: number ): HeatmapCell | null => {
-	if ( year === 2018 && month < 2 ) {
-		return null;
-	}
-	if ( year === 2018 && month === 2 ) {
-		return { value: 200, partial: true };
-	}
-	if ( year === 2025 && month === 10 ) {
-		return { value: 14200, partial: true };
-	}
-	if ( year === 2025 && month === 11 ) {
-		return null;
-	}
-	if ( year === 2021 && month === 8 ) {
-		return { value: 800000 };
-	}
-	const yearIndex = LONG_HISTORY_YEARS.indexOf( year );
-	return {
-		value: Math.round(
-			LONG_HISTORY_YEARLY_BASE[ yearIndex ] *
-				LONG_HISTORY_SEASONALITY[ month ] *
-				jitter( yearIndex * 12 + month )
-		),
-	};
+// Launched in February 2011 and grown over sixteen years: a climb through 2018, a peak in April
+// 2020, a long decline, and November 2026 still running.
+const LONG_HISTORY_VIEWS: Record< string, number > = {
+	...monthValues(
+		2011,
+		[ 195, 118_400, 36_800, 19_100, 29_400, 40_600, 50_200, 56_900, 46_800, 59_300, 50_800 ],
+		1
+	),
+	...monthValues(
+		2012,
+		[
+			62_100, 58_200, 68_600, 72_400, 71_500, 80_700, 113_800, 122_900, 93_100, 111_200, 179_400,
+			148_600,
+		]
+	),
+	...monthValues(
+		2013,
+		[
+			224_300, 205_700, 225_200, 226_100, 215_300, 204_800, 211_400, 218_500, 234_200, 233_900,
+			225_300, 223_700,
+		]
+	),
+	...monthValues(
+		2014,
+		[
+			253_700, 259_100, 279_600, 305_300, 278_000, 257_500, 269_800, 350_700, 400_200, 383_400,
+			328_000, 312_200,
+		]
+	),
+	...monthValues(
+		2015,
+		[
+			352_300, 319_600, 374_500, 389_600, 380_800, 330_400, 333_400, 311_600, 326_600, 368_800,
+			441_100, 375_000,
+		]
+	),
+	...monthValues(
+		2016,
+		[
+			385_300, 367_500, 358_700, 352_300, 343_400, 289_900, 264_200, 286_200, 369_200, 371_100,
+			352_800, 319_700,
+		]
+	),
+	...monthValues(
+		2017,
+		[
+			439_400, 402_400, 456_200, 506_500, 481_200, 479_100, 442_000, 470_300, 460_500, 512_600,
+			513_300, 469_900,
+		]
+	),
+	...monthValues(
+		2018,
+		[
+			573_000, 566_700, 591_900, 538_900, 620_500, 518_900, 547_000, 567_300, 513_300, 508_500,
+			529_500, 484_900,
+		]
+	),
+	...monthValues(
+		2019,
+		[
+			563_300, 501_200, 569_700, 502_100, 516_600, 447_100, 442_800, 436_500, 426_800, 428_300,
+			451_000, 408_900,
+		]
+	),
+	...monthValues(
+		2020,
+		[
+			443_500, 461_700, 550_100, 801_700, 712_400, 656_100, 570_400, 774_400, 470_600, 401_400,
+			384_400, 360_500,
+		]
+	),
+	...monthValues(
+		2021,
+		[
+			370_400, 344_500, 398_900, 373_200, 335_400, 314_500, 320_100, 332_500, 319_400, 296_100,
+			293_300, 274_600,
+		]
+	),
+	...monthValues(
+		2022,
+		[
+			356_400, 306_000, 310_600, 319_700, 388_500, 359_800, 328_100, 373_800, 334_700, 315_700,
+			367_500, 376_600,
+		]
+	),
+	...monthValues(
+		2023,
+		[
+			562_300, 477_000, 498_400, 435_700, 416_800, 357_900, 355_500, 347_500, 314_200, 388_200,
+			355_200, 341_800,
+		]
+	),
+	...monthValues(
+		2024,
+		[
+			398_200, 366_700, 366_700, 357_300, 366_800, 302_400, 344_400, 375_900, 367_700, 338_300,
+			317_600, 256_800,
+		]
+	),
+	...monthValues(
+		2025,
+		[
+			252_100, 209_600, 230_200, 218_900, 226_700, 224_400, 205_600, 192_300, 247_000, 253_800,
+			442_500, 338_900,
+		]
+	),
+	...monthValues(
+		2026,
+		[
+			209_100, 175_800, 613_400, 218_800, 175_700, 183_200, 214_600, 209_700, 217_000, 302_100,
+			104_800,
+		]
+	),
 };
 
-const longHistoryMonths = monthColumns( LONG_HISTORY_YEARS, longHistoryCell );
+const longHistoryMonths = monthColumns( LONG_HISTORY_YEARS, ( year, month ) => {
+	const key = `${ year }-${ month }`;
+	if ( ! ( key in LONG_HISTORY_VIEWS ) ) {
+		return null;
+	}
+	return { value: LONG_HISTORY_VIEWS[ key ], partial: key === '2011-1' || key === '2026-10' };
+} );
 
 /**
- * A site's views by month over eight years, with a trailing yearly total.
+ * A site's views by month over sixteen years, with a trailing yearly total.
  *
- * The "Views over years" shape: every year carries its own busy and quiet months beside a
- * viral September 2021 near 800,000. The launch month and the current month are partial.
+ * The "Views over years" shape at its hardest: a launch month of 195 views four orders of
+ * magnitude below the peak, a first year in the tens of thousands, and thirteen years that
+ * all sit between 200,000 and 600,000. The launch month and the current month are partial.
  * - Category: matrix
- * - Data points: 96 months over 8 rows, plus a summary column
- * - Suitable for: HeatmapChart (log scale)
+ * - Data points: 190 months over 16 rows, plus a summary column
+ * - Suitable for: HeatmapChart (comparing color scales on a real distribution)
  */
 export const heatmapViewsOverYears: { rowLabels: string[]; data: HeatmapColumn[] } = {
 	rowLabels: LONG_HISTORY_YEARS.map( String ),
