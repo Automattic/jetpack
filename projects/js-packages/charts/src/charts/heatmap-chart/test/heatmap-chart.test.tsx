@@ -1345,6 +1345,56 @@ describe( 'HeatmapChart linear scale', () => {
 	} );
 } );
 
+describe( 'HeatmapChart bucket scale', () => {
+	// Twenty-four ascending values, so every one of the five buckets is populated.
+	const ascending: HeatmapColumn[] = Array.from( { length: 24 }, ( _column, index ) => ( {
+		data: [ { value: ( index + 1 ) * 10 } ],
+	} ) );
+
+	const intensitiesOf = ( testId: string ) =>
+		screen
+			.getAllByTestId( testId )
+			.map( element => element.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) );
+
+	test( 'gives each step about a fifth of the cells', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } scale="buckets">
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+
+		const counts = intensitiesOf( 'heatmap-cell' ).reduce< Record< string, number > >(
+			( tally, intensity ) => ( { ...tally, [ intensity ]: ( tally[ intensity ] ?? 0 ) + 1 } ),
+			{}
+		);
+		expect( counts ).toEqual( { '0': 4, '0.25': 5, '0.5': 5, '0.75': 5, '1': 5 } );
+		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [
+			'0',
+			'0.25',
+			'0.5',
+			'0.75',
+			'1',
+		] );
+	} );
+
+	test( 'hands the top step to everything in it, however far apart', () => {
+		const spike: HeatmapColumn[] = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 500 ].map( value => ( {
+			data: [ { value } ],
+		} ) );
+
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ spike } scale="buckets" />
+			</GlobalChartsProvider>
+		);
+
+		// The cost of ranking: 9, 10 and 500 share the darkest step, where distance keeps 500 alone.
+		expect( intensitiesOf( 'heatmap-cell' ).slice( -3 ) ).toEqual( [ '1', '1', '1' ] );
+	} );
+} );
+
 describe( 'HeatmapChart log scale', () => {
 	const intensitiesOf = ( testId: string ) =>
 		screen

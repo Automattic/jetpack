@@ -107,15 +107,28 @@ The log scale needs every value above zero. A series that reaches zero or below 
 
 The largest value is always the darkest step and the smallest the lightest; a series with fewer than two distinct values paints every cell in the darkest step. A series whose values sit close together, such as one holding only three, lands on fewer than five steps: it uses fewer colors and leaves some legend swatches unused. The [`Calendar` story](?path=/story/js-packages-charts-library-charts-heatmap-chart--calendar) holds one of those shapes under its **dataset** control.
 
+### Rank
+
+Set `scale="buckets"` and a shade reports the value's rank in the series instead of its size: the values are split into five groups of roughly equal population, so every step is used whatever the shape of the distribution. That is the one scale that still separates a series where almost every value shares a band, which neither of the others can: both of them measure a value against the ends of the series, so a wide middle paints as one tone however it is measured.
+
+<Source
+	code={ `<HeatmapChart data={ columns } rowLabels={ rowLabels } scale="buckets" />` }
+	language="tsx"
+/>
+
+It pays for that with the distances. The top step covers everything above the 80th percentile, so a month ten times busier than the next one shares its shade, and a cell's color no longer says how big the value is, only where it sits in the order. Ties can also leave a step unused, since a value repeated across several quantiles cannot be split.
+
 ### Choosing one
 
-Under `log` a cell's shade is always one of five fixed steps, so every cell matches a legend swatch, and the legend keeps that count: a legend `steps` that differs would show shades the cells never paint, so it is ignored with a warning. Under `linear` the scale is continuous, so cells paint shades between the swatches rather than on them, and the legend's `steps` is free.
+Under `log` and `buckets` a cell's shade is always one of five fixed steps, so every cell matches a legend swatch, and the legend keeps that count: a legend `steps` that differs would show shades the cells never paint, so it is ignored with a warning. Under `linear` the scale is continuous, so cells paint shades between the swatches rather than on them, and the legend's `steps` is free.
 
-The `ScaleComparison` story draws one post's ten years on both, which is the quickest way to see what each one gives up.
+Start from what the reader is being asked to do. Comparing sizes across a series that runs over orders of magnitude is `log`. Telling neighbors apart in a series that sits in one band is `buckets`. Spotting one spike is `linear`.
+
+The `ScaleComparison` story draws one post's ten years on all three, which is the quickest way to see what each one gives up.
 
 <Canvas of={ HeatmapStories.ScaleComparison } />
 
-The `Calendar` story switches between traffic shapes and between the two scales, so they can be compared on each shape.
+The `Calendar` story switches between traffic shapes and between the three scales, so they can be compared on each shape.
 
 ### Incomplete periods
 
