@@ -58,7 +58,7 @@ class Admin_Shell_Test extends TestCase {
 		remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 		remove_all_filters( 'host-page-wp-admin_boot_dependencies' );
 		remove_all_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE );
-		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ], $_GET['page'], $_REQUEST['nonce'], $GLOBALS['jetpack_shell_test_guest_page_routes_data'], $GLOBALS['jetpack_shell_test_guest_page_wp_admin_routes'], $GLOBALS['hook_suffix'] );
+		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ], $_GET['page'], $_REQUEST['nonce'], $GLOBALS['jetpack_shell_test_guest_page_routes_data'], $GLOBALS['jetpack_shell_test_missing_page_routes_data'], $GLOBALS['jetpack_shell_test_guest_page_wp_admin_routes'], $GLOBALS['hook_suffix'] );
 		remove_all_actions( 'guest-page-wp-admin_init' );
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
@@ -397,6 +397,53 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
+	 * Data provider for test_guest_without_built_routes_is_skipped.
+	 *
+	 * @return array[] Guest build page, whether its load sets the routes data global.
+	 */
+	public static function provide_guests_without_built_routes() {
+		return array(
+			'no generated page'  => array( 'missing-page', true ),
+			'no routes registry' => array( 'guest-page', false ),
+		);
+	}
+
+	/**
+	 * A guest whose build has no route getter or no routes data is left out, without firing its page init.
+	 *
+	 * @dataProvider provide_guests_without_built_routes
+	 * @param string $build_page  Guest wp-build page name.
+	 * @param bool   $routes_data Whether its load sets the routes data global.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_guests_without_built_routes' )]
+	public function test_guest_without_built_routes_is_skipped( $build_page, $routes_data ) {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$this->start_host_page(
+			static function () use ( $build_page, $routes_data ) {
+				if ( $routes_data ) {
+					$GLOBALS[ 'jetpack_shell_test_' . str_replace( '-', '_', $build_page ) . '_routes_data' ] = array( array( 'path' => '/' ) );
+				}
+			}
+		);
+		add_filter(
+			'jetpack_admin_shell_members',
+			static function ( $members ) use ( $build_page ) {
+				$members['guest-page']['build_page'] = $build_page;
+				return $members;
+			},
+			11
+		);
+		$init_runs = did_action( $build_page . '-wp-admin_init' );
+
+		Admin_Shell::setup();
+
+		$this->assertFalse( has_filter( 'script_module_data_' . Admin_Shell::CLIENT_MODULE ), 'with its only guest left out, the shell stays off' );
+		$this->assertIsString( Admin_Shell::guest_assets( 'guest-page' ) );
+		$this->assertSame( $init_runs, did_action( $build_page . '-wp-admin_init' ) );
+	}
+
+	/**
 	 * A guest the user can't open is left out, and with no guest left the shell stays off.
 	 *
 	 * @return void
@@ -489,6 +536,7 @@ class Admin_Shell_Test extends TestCase {
 		);
 		$this->start_host_page(
 			function () {
+				$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array( array( 'path' => '/' ) );
 				$this->add_action(
 					'admin_enqueue_scripts',
 					static function () {

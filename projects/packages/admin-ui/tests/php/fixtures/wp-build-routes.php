@@ -7,10 +7,14 @@
 
 /**
  * Do what loading the generated build does: reset the page's routes and hook their registration on its init action.
+ * Like wp-build's require_once, only the first load in a request (a test) resets them.
  *
  * @return void
  */
 function jetpack_shell_test_load_build() {
+	if ( isset( $GLOBALS['jetpack_shell_test_guest_page_wp_admin_routes'] ) ) {
+		return;
+	}
 	$GLOBALS['jetpack_shell_test_guest_page_wp_admin_routes'] = array();
 	add_action( 'guest-page-wp-admin_init', 'jetpack_shell_test_register_guest_page_wp_admin_page_routes' );
 }

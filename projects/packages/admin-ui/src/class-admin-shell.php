@@ -124,7 +124,7 @@ class Admin_Shell {
 		 * - init_modules (string[]) Script modules to import before the app boots.
 		 * - title (string)          Document title while the page is shown.
 		 * - default_path (string)   Optional. The `p` a bare menu link opens.
-		 * - load (callable)         Registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options.
+		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
 		 * - media (bool)            Optional, default false. Whether the page opens the media library: the endpoint then prints it and its templates too.
@@ -261,10 +261,10 @@ class Admin_Shell {
 	}
 
 	/**
-	 * Run a guest's loader on the host page and collect its routes.
+	 * Run a guest's loader and page init action on the host page, then drop the page hooks they added.
 	 *
 	 * @param array $member Normalized member.
-	 * @return array[]|null Routes, or null when the guest's build isn't there.
+	 * @return array[]|null Routes, or null when the guest's build or its routes aren't there.
 	 */
 	private static function load_guest( $member ) {
 		$snapshot = self::hook_snapshot();
@@ -279,11 +279,13 @@ class Admin_Shell {
 	 * Fire a loaded member's wp-build page init action, which its enqueue check skips off its own screen.
 	 *
 	 * @param array $member Normalized member.
-	 * @return array[]|null The page's routes, which its listeners can add to, or null when the guest's build isn't there.
+	 * @return array[]|null The page's routes, which its listeners can add to, or null when the guest's build or its routes aren't there.
 	 */
 	private static function run_page_init( $member ) {
-		$get_routes = $member['build_prefix'] . '_get_' . str_replace( '-', '_', $member['build_page'] ) . '_wp_admin_routes';
-		if ( ! function_exists( $get_routes ) ) {
+		$page       = str_replace( '-', '_', $member['build_page'] );
+		$get_routes = $member['build_prefix'] . '_get_' . $page . '_wp_admin_routes';
+		// A build without its route registry still defines the getter, but would open a blank page.
+		if ( ! function_exists( $get_routes ) || ! isset( $GLOBALS[ $member['build_prefix'] . '_' . $page . '_routes_data' ] ) ) {
 			return null;
 		}
 		do_action( $member['build_page'] . '-wp-admin_init' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- wp-build names this hook.
