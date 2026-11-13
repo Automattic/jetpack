@@ -45,12 +45,7 @@ import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { SinglePageLayout } from './components';
 import { buildControlFields, type ControlsItem } from './controls';
-import {
-	useActiveSection,
-	useDetailBreadcrumbs,
-	useDetailDateControls,
-	useSetSearch,
-} from './hooks';
+import { useActiveSection, useDetailBreadcrumbs, useDetailDateControls } from './hooks';
 import { route } from './package.json';
 import {
 	getSingleReportAdapter,
@@ -76,8 +71,6 @@ const ROUTE_FROM = route.path;
 const ICON_SIZE = 28;
 
 const NO_WIDGETS: DashboardWidget[] = [];
-
-const EMPTY_SEARCH: Record< string, unknown > = {};
 
 const READY_SUMMARY: EntitySummary = {
 	isLoading: false,
@@ -156,14 +149,11 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	// The adapter's view of the record's sections; the URL picks among the ones shown.
 	const [ urlSection, setActiveSection ] = useActiveSection();
-	const setSearch = useSetSearch();
 	const useSections = adapter.useSections ?? useRecordSections;
 	const sectionStates = useSections( summary, page.sections, {
 		entityId,
 		activeSlug: urlSection,
 		timeZone: dateFilters.timeZone,
-		search: search ?? EMPTY_SEARCH,
-		setSearch,
 	} );
 
 	const visibleStates = useMemo(
@@ -238,25 +228,19 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		{ surface, offersComparison: false, lockedIntervals }
 	);
 
-	// A pinned section offers no window to choose, only the control its scope brings, if any.
+	// A pinned section offers no window to choose.
 	const controls = resolveSingleReportControls( page, section );
-	const pinnedControl = pinnedWindow?.control;
-	const pinnedField = pinnedControl?.field;
-	const controlFields = useMemo( () => {
-		if ( ! isPinned ) {
-			return buildControlFields( controls );
-		}
-
-		return pinnedField ? buildControlFields( [ pinnedField ] ) : [];
-	}, [ isPinned, controls, pinnedField ] );
+	const controlFields = useMemo(
+		() => ( isPinned ? [] : buildControlFields( controls ) ),
+		[ isPinned, controls ]
+	);
 
 	const controlsData = useMemo< ControlsItem >(
 		() => ( {
 			reportParams: pickReportDateParams( search ),
 			allTimeStart: summary.allTimeStart,
-			...( pinnedControl ? { [ pinnedControl.field.id ]: pinnedControl.value } : {} ),
 		} ),
-		[ search, summary.allTimeStart, pinnedControl ]
+		[ search, summary.allTimeStart ]
 	);
 
 	const { onChange: changeDateRange, onApply: applyDateRange, timeZone } = dateFilters;
@@ -282,16 +266,6 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 			trackedOnApply();
 		},
 		[ changeDateRange, applyDateRange, timeZone, trackedOnChange, trackedOnApply ]
-	);
-	const applyControls = useCallback(
-		( edits: Record< string, unknown > ) => {
-			if ( pinnedControl && pinnedControl.field.id in edits ) {
-				pinnedControl.onChange( String( edits[ pinnedControl.field.id ] ) );
-				return;
-			}
-			applyReportParams( edits );
-		},
-		[ pinnedControl, applyReportParams ]
 	);
 
 	// A card can set the period (the All-time traffic card opens a month): the change is read
@@ -456,7 +430,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 									}
 									controls={ controlFields as never }
 									data={ controlsData }
-									onChange={ applyControls }
+									onChange={ applyReportParams }
 									returnToTopKey={ attentionId }
 								>
 									{ emptyState ? <PageEmptyState { ...emptyState } /> : null }

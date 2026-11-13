@@ -18,9 +18,3 @@ export const EMAIL_SECTION_SLUGS: readonly string[] = [ 'email-opens', 'email-cl
 export function isEmailSection( slug: string | undefined ): boolean {
 	return slug !== undefined && EMAIL_SECTION_SLUGS.includes( slug );
 }
-
-/**
- * The search param naming the window the email sections report over, one of the
- * `EMAIL_SEND_WINDOWS`; absent, the first 30 days.
- */
-export const EMAIL_WINDOW_PARAM = 'email_window';

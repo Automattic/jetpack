@@ -5,12 +5,13 @@ import {
 	bucketStatsTimeSeries,
 	toPostId,
 	useStatsEmailClicksTimeSeries,
+	useSiteDay,
 	useStatsEmailOpensTimeSeries,
 	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
-import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
+import { reportingTimeZone, resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import {
 	HEADLINE_COUNT_FORMAT,
 	ChartEmptyState,
@@ -29,10 +30,12 @@ import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { emailSendWindowParams } from './send-window';
 import styles from './style.module.css';
 import type {
 	EmailTimeSeriesAttributes,
 	EmailTimeSeriesChartType,
+	EmailTimeSeriesInterval,
 	EmailTimeSeriesMetric,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -77,25 +80,38 @@ type EmailTimeSeriesReportProps = {
 	/** How the timeline is drawn. `MetricTabsChart` owns the default. */
 	chartType?: EmailTimeSeriesChartType;
 	/**
-	 * The bucket a host pinning the window asks for, ahead of the one the
-	 * range would pick: a lifetime of two months fits the endpoint's 30 buckets
-	 * only by the month, which the range rules keep for 90 days and up.
+	 * The bucket the chart's own control picked. It sets the window too, counted
+	 * from the host's `from`; unset, the host's range and interval stand.
 	 */
-	interval?: string;
+	chartInterval?: EmailTimeSeriesInterval;
 };
 
 /**
  * Draws the selected email's opens or clicks timeline. Comparison report
  * params are ignored: there is no period-over-period view here.
  */
-function EmailTimeSeriesReport( { metric, chartType, interval }: EmailTimeSeriesReportProps ) {
+function EmailTimeSeriesReport( { metric, chartType, chartInterval }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
-	const period = defaultPeriodForInterval( interval ?? reportParams.interval, EMAIL_PERIODS );
+	const siteDay = useSiteDay();
+	const sendWindow = useMemo( () => {
+		// Read again when the site's day turns: a young send's window ends today.
+		void siteDay;
+
+		return chartInterval
+			? emailSendWindowParams( chartInterval, reportParams.from, reportingTimeZone() )
+			: undefined;
+	}, [ chartInterval, reportParams.from, siteDay ] );
+	const period = sendWindow
+		? sendWindow.interval
+		: defaultPeriodForInterval( reportParams.interval, EMAIL_PERIODS );
 	const queryParams = useMemo(
-		() => ( { ...reportParams, interval: period } ),
-		[ reportParams, period ]
+		() =>
+			sendWindow
+				? { ...reportParams, preset: undefined, ...sendWindow }
+				: { ...reportParams, interval: period },
+		[ reportParams, sendWindow, period ]
 	);
 
 	// Both hooks are called every render (hooks rule); only the active
@@ -199,16 +215,13 @@ export default function EmailTimeSeries( { attributes = {} }: EmailTimeSeriesWid
 	const metric = attributes.metric ?? 'opens';
 	// Coerce unknown persisted values to the default.
 	const chartType = attributes.chartType === 'bar' ? 'bar' : 'line';
-	// As the host wrote it: `WidgetRoot` fits the interval to the range, which
-	// a pinned window has already settled.
-	const pinnedInterval = attributes.reportParams?.interval;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<EmailTimeSeriesReport
 				metric={ metric }
 				chartType={ chartType }
-				interval={ pinnedInterval }
+				chartInterval={ attributes.chartInterval }
 			/>
 		</WidgetRoot>
 	);

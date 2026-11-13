@@ -12,13 +12,11 @@ import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * The item the page's controls edit: `reportParams` is the key the `jpa/report-params` field
- * reads and writes, `allTimeStart` the All time anchor it reads, and a pinned section's own
- * control reads and writes the key its field names.
+ * reads and writes, `allTimeStart` the All time anchor it reads.
  */
 export type ControlsItem = {
 	reportParams: Record< string, unknown >;
 	allTimeStart?: string;
-	[ key: string ]: unknown;
 };
 
 /**

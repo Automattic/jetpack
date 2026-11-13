@@ -2,7 +2,6 @@ import { useStatsEmailClicksBreakdown } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
 import { usePostSections } from './use-post-sections';
 import type { PostSummary } from './use-post-summary';
-import type { SectionScopeControl } from '../adapter';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -47,41 +46,21 @@ function mockSends( totalSends?: number, state: 'loading' | 'error' = 'loading' 
 	} as never );
 }
 
-const setSearch = jest.fn();
-
 /**
  * The section states the hook answers for a summary.
  *
  * @param summary    - The summary.
  * @param activeSlug - The section the URL names.
- * @param search     - The URL's other search params.
  * @return The section states.
  */
-function sectionsFor(
-	summary: PostSummary = SUMMARY,
-	activeSlug?: string,
-	search: Record< string, unknown > = {}
-) {
+function sectionsFor( summary: PostSummary = SUMMARY, activeSlug?: string ) {
 	return renderHook( () =>
 		usePostSections( summary, SECTIONS, {
 			entityId: String( POST_ID ),
 			activeSlug,
 			timeZone: 'UTC',
-			search,
-			setSearch,
 		} )
 	).result.current;
-}
-
-/**
- * The pinned window and its control, as an email section carries them.
- *
- * @param state       - The section state.
- * @param state.scope - Its scope, pinned.
- * @return The scope.
- */
-function pinnedScope( state: { scope?: unknown } ) {
-	return state.scope as { reportParams: Record< string, unknown >; control?: SectionScopeControl };
 }
 
 describe( 'usePostSections', () => {
@@ -100,56 +79,10 @@ describe( 'usePostSections', () => {
 
 		expect( states.map( state => state.hidden ?? false ) ).toEqual( [ false, false, false ] );
 		expect( states[ 0 ].scope ).toBeUndefined();
-		const scope = pinnedScope( states[ 1 ] );
+		const scope = states[ 1 ].scope as { reportParams: Record< string, unknown > };
 		expect( scope.reportParams ).toMatchObject( { post_id: POST_ID, interval: 'day' } );
 		expect( String( scope.reportParams.from ) ).toMatch( /^2026-06-22/ );
 		expect( String( scope.reportParams.to ) ).toMatch( /^2026-07-21/ );
-		expect( scope.control ).toMatchObject( {
-			field: { id: 'email_window', type: 'jpa/select' },
-			value: 'first-30-days',
-		} );
-		expect( scope.control?.field.elements?.map( element => element.value ) ).toEqual( [
-			'send-day',
-			'first-week',
-			'first-30-days',
-			'all-time',
-		] );
-	} );
-
-	it( 'names the all-time window by its cap for a send older than it reaches', () => {
-		const old = { ...SUMMARY, allTimeStart: '2023-06-15 00:00:00' };
-		const labelOf = ( summary: PostSummary ) =>
-			pinnedScope( sectionsFor( summary )[ 1 ] ).control?.field.elements?.at( -1 )?.label;
-
-		expect( labelOf( SUMMARY ) ).toBe( 'All time, by month' );
-		expect( labelOf( old ) ).toBe( 'First 30 months' );
-	} );
-
-	it( 'pins the window the URL names, and falls back to the default for one it does not know', () => {
-		const sendDay = pinnedScope(
-			sectionsFor( SUMMARY, 'email-opens', { email_window: 'send-day' } )[ 1 ]
-		);
-		expect( sendDay.reportParams ).toMatchObject( { interval: 'hour' } );
-		expect( String( sendDay.reportParams.to ) ).toMatch( /^2026-06-22/ );
-		expect( sendDay.control?.value ).toBe( 'send-day' );
-
-		const unknown = pinnedScope(
-			sectionsFor( SUMMARY, 'email-opens', { email_window: 'first-24-hours' } )[ 1 ]
-		);
-		expect( unknown.reportParams ).toMatchObject( { interval: 'day' } );
-		expect( unknown.control?.value ).toBe( 'first-30-days' );
-	} );
-
-	it( 'writes a chosen window to the URL, and ignores the current one or an unknown one', () => {
-		const { control } = pinnedScope( sectionsFor()[ 1 ] );
-
-		control?.onChange( 'all-time' );
-		expect( setSearch ).toHaveBeenCalledWith( { email_window: 'all-time' } );
-
-		setSearch.mockClear();
-		control?.onChange( 'first-30-days' );
-		control?.onChange( 'yesterday' );
-		expect( setSearch ).not.toHaveBeenCalled();
 	} );
 
 	it.each( [ 'page', 'jetpack-portfolio' ] )(

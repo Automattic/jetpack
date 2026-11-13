@@ -318,42 +318,47 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'date=2026-05-01' );
 	} );
 
-	it( 'draws the bucket a pinned window names ahead of the one its range would pick', async () => {
-		mockApiFetch.mockResolvedValue( {
-			timeline: {
-				unit: 'month',
-				fields: [ 'date', 'opens_count' ],
-				data: [
-					[ '2026-06-01', 4 ],
-					[ '2026-07-01', 15 ],
-				],
-			},
-		} );
+	it.each( [
+		[ 'hour', 'period=hour', 'quantity=24' ],
+		[ 'day', 'period=day', 'quantity=30' ],
+		[ 'month', 'period=month', 'quantity=3' ],
+	] as const )(
+		'reaches as far past the send as its %s interval does, whatever range the host hands it',
+		async ( chartInterval, period, quantity ) => {
+			jest.useFakeTimers( { now: new Date( '2026-08-28T12:00:00Z' ), doNotFake: [ 'nextTick' ] } );
+			mockApiFetch.mockResolvedValue( {
+				timeline: { unit: chartInterval, fields: [ 'date', 'opens_count' ], data: [] },
+			} );
 
-		render(
-			<EmailTimeSeriesWidget
-				attributes={ {
-					// Two months after the send: the range rules would read this by the
-					// day, which is more buckets than the endpoint answers.
-					reportParams: {
-						...getDefaultQueryParams( false ),
-						preset: undefined,
-						from: '2026-06-22T00:00:00.000+08:00',
-						to: '2026-07-28T23:59:59.999+08:00',
-						interval: 'month',
-						post_id: 1234,
-					},
-					metric: 'opens',
-				} }
-			/>
-		);
+			try {
+				render(
+					<EmailTimeSeriesWidget
+						attributes={ {
+							// The post page hands every interval the same first 30 days.
+							reportParams: {
+								...getDefaultQueryParams( false ),
+								preset: undefined,
+								from: '2026-06-22T00:00:00.000+00:00',
+								to: '2026-07-21T23:59:59.999+00:00',
+								interval: 'day',
+								post_id: 1234,
+							},
+							metric: 'opens',
+							chartInterval,
+						} }
+					/>
+				);
 
-		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'period=month' );
-		expect( requestedPath ).toContain( 'quantity=2' );
-	} );
+				const chart = await screen.findByTestId( 'metric-tabs-chart' );
+				expect( chart ).toHaveAttribute( 'data-tick-resolution', chartInterval );
+				const requestedPath = String( mockApiFetch.mock.calls[ 0 ][ 0 ].path );
+				expect( requestedPath ).toContain( period );
+				expect( requestedPath ).toContain( quantity );
+			} finally {
+				jest.useRealTimers();
+			}
+		}
+	);
 
 	it( 'answers a timeline with no buckets inside the chart, not with a widget-level empty state', async () => {
 		mockApiFetch.mockResolvedValue( {

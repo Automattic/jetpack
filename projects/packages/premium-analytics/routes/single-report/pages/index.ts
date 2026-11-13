@@ -27,7 +27,6 @@ export type {
 	EntitySummary,
 	HeaderContext,
 	SectionScope,
-	SectionScopeControl,
 	SectionState,
 	SectionsContext,
 	SingleReportAdapter,

@@ -1,7 +1,7 @@
 import { useReportScope, useStatsEmailClicksBreakdown } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from '@wordpress/element';
 import { getNoticeAnnouncement, getNoticeText } from '../../../tests/js/notice-test-utils';
@@ -9,7 +9,7 @@ import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../../widget-mo
 import { stage } from '../stage';
 import type { EntitySummary, SingleReportAdapter } from '../pages';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
-import type { ChangeEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
 let mockParams: Record< string, string > = {};
@@ -178,43 +178,11 @@ function MockDateControl( { data, onChange }: DataFormControlProps< ControlItem 
 	);
 }
 
-type SelectItem = Record< string, unknown >;
-
-/**
- * Stands in for a `jpa/select` control a pinned section brings, such as the email send window.
- *
- * @param {DataFormControlProps< SelectItem >} props - The props.
- * @return The control.
- */
-function MockSelectControl( { data, field, onChange }: DataFormControlProps< SelectItem > ) {
-	const onSelect = useCallback(
-		( event: ChangeEvent< HTMLSelectElement > ) => onChange( { [ field.id ]: event.target.value } ),
-		[ field.id, onChange ]
-	);
-
-	return (
-		<select
-			aria-label={ field.label }
-			value={ String( data[ field.id ] ?? '' ) }
-			onChange={ onSelect }
-		>
-			{ ( field.elements ?? [] ).map( element => (
-				<option key={ String( element.value ) } value={ String( element.value ) }>
-					{ element.label }
-				</option>
-			) ) }
-		</select>
-	);
-}
-
 // The field type registry is the dashboard's; the test attaches the control itself.
 jest.mock( '@jetpack-premium-analytics/fields', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/fields' ),
 	resolveFieldTypes: ( fields: Array< Record< string, unknown > > ) =>
-		fields.map( field => ( {
-			...field,
-			Edit: field.type === 'jpa/select' ? MockSelectControl : MockDateControl,
-		} ) ),
+		fields.map( field => ( { ...field, Edit: MockDateControl } ) ),
 } ) );
 
 jest.mock( '@wordpress/core-data', () => ( {
@@ -869,7 +837,7 @@ describe( 'single-report stage', () => {
 			expect( screen.getByRole( 'tab', { name: 'Loading…' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'pins an email section to the send window, with the email identity and the window control in place of the date filter', () => {
+		it( 'pins an email section to the send window, with the email identity and no date filter', () => {
 			mockSearch = { ...mockSearch, section: 'email-opens' };
 			mockSummary( {
 				title: 'Hello world',
@@ -882,8 +850,6 @@ describe( 'single-report stage', () => {
 
 			expect( screen.getByText( /Email sent on Jun 22, 2026\./ ) ).toBeInTheDocument();
 			expect( screen.queryByText( 'Date filters' ) ).not.toBeInTheDocument();
-			const windowControl = screen.getByRole( 'combobox', { name: 'Time since send' } );
-			expect( windowControl ).toHaveValue( 'first-30-days' );
 			const [ , layoutId, layout ] = mockUseStoredLayout.mock.calls.at( -1 ) as [
 				string,
 				string,
@@ -895,40 +861,6 @@ describe( 'single-report stage', () => {
 				reportParams: expect.objectContaining( { post_id: 42, interval: 'day' } ),
 			} );
 			expect( String( layout[ 0 ].attributes?.reportParams ) ).toBeDefined();
-
-			// Synchronous on purpose: awaiting a user event lets the section tabs' scheduled
-			// panel check fire, and this page's tabs have no panels.
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( windowControl, { target: { value: 'all-time' } } );
-
-			expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
-			const { search, replace } = mockNavigate.mock.calls[ 0 ][ 0 ] as {
-				search: ( prev: Record< string, unknown > ) => Record< string, unknown >;
-				replace: boolean;
-			};
-			expect( replace ).toBe( false );
-			expect( search( mockSearch ) ).toEqual( { ...mockSearch, email_window: 'all-time' } );
-			expect( mockChangeDateRange ).not.toHaveBeenCalled();
-		} );
-
-		it( 'pins an email section to the window the URL names', () => {
-			mockSearch = { ...mockSearch, section: 'email-opens', email_window: 'send-day' };
-			mockSummary( { title: 'Hello world', type: 'post', allTimeStart: '2026-06-22 10:00:00' } );
-
-			render( stage() );
-
-			expect( screen.getByRole( 'combobox', { name: 'Time since send' } ) ).toHaveValue(
-				'send-day'
-			);
-			const [ , , layout ] = mockUseStoredLayout.mock.calls.at( -1 ) as [
-				string,
-				string,
-				Array< { attributes?: Record< string, unknown > } >,
-			];
-			expect( layout[ 0 ].attributes?.reportParams ).toMatchObject( {
-				post_id: 42,
-				interval: 'hour',
-			} );
 		} );
 
 		it( 'replaces the header and the widgets of an email section with the never-sent state', () => {

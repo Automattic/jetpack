@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Premium Analytics: Add a time-since-send control to the post page's email tabs: the send day by the hour, the first 7 or 30 days by the day, or all time by the month.
+Premium Analytics: Add an Hours, Days and Months switch to the opens and clicks charts on the post page's email tabs.

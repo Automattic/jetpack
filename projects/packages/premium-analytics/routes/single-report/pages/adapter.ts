@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { SingleReportControlField, SingleReportPageSection } from '../registry';
+import type { SingleReportPageSection } from '../registry';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
 import type { PageEmptyStateProps } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetType } from '@wordpress/widget-primitives';
@@ -55,23 +55,11 @@ export type SingleReportHeaderSlots = {
 };
 
 /**
- * The one control a pinned section offers in place of the date controls: a field declaration
- * the stage resolves, its current value, and what to do with a new one.
- */
-export type SectionScopeControl = {
-	field: SingleReportControlField;
-	value: string;
-	onChange: ( value: string ) => void;
-};
-
-/**
  * The window a section pins its widgets to in place of the URL's, or why it has none yet:
  * `pending` while the window resolves, `blocked` when it never will and the widgets mount anyway.
  */
 export type SectionScope =
-	| { reportParams: Record< string, unknown >; range: DateRange; control?: SectionScopeControl }
-	| 'pending'
-	| 'blocked';
+	{ reportParams: Record< string, unknown >; range: DateRange } | 'pending' | 'blocked';
 
 /**
  * What an adapter says about one of the record's sections for the current entity.
@@ -123,16 +111,6 @@ export type SectionsContext = {
 	 * The site timezone, for a window computed from a date.
 	 */
 	timeZone: string;
-
-	/*
-	 * The URL's search params, for a section with state of its own.
-	 */
-	search: Record< string, unknown >;
-
-	/*
-	 * Writes search params, keeping the rest; `replace` for a change that is not a step back.
-	 */
-	setSearch: ( patch: Record< string, unknown >, options?: { replace?: boolean } ) => void;
 };
 
 /**
