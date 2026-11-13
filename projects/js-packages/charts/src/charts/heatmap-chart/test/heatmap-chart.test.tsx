@@ -1426,6 +1426,13 @@ describe( 'HeatmapChart log scale', () => {
 		expect( largest ).toBe( '1' );
 	} );
 
+	test( 'stays quiet for a series with nothing on the scale', () => {
+		// A site with no views yet: every cell is a zero, which paints as empty either way.
+		renderLog( [ 0, 0, 0 ] );
+
+		expect( console ).not.toHaveWarned();
+	} );
+
 	test( 'falls back to distance and warns once where a value has no logarithm', () => {
 		renderLog( [ -5, 10, 100 ] );
 

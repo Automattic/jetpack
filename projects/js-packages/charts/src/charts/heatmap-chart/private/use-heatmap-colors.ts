@@ -104,10 +104,13 @@ export const getLogValue = ( value: number, extent: [ number, number ], steps: n
 };
 
 /**
- * Whether a series can take the log scale. A zero or a negative has no
- * logarithm, and `getExtentOf` keeps the lowest of either in the extent.
+ * Whether a series can take the log scale. A negative has no logarithm, and
+ * `getExtentOf` strips the zeros that paint as empty cells, so a floor at or
+ * below zero means the series holds a negative. A flat extent places at 1 on
+ * either scale, which covers a series with nothing on the scale at all.
  *
  * @param extent - The extent from `getExtentOf`
- * @return True when every value on the scale is above zero
+ * @return True when the log scale can place every value the extent spans
  */
-export const canPlaceOnLogScale = ( extent: [ number, number ] ): boolean => extent[ 0 ] > 0;
+export const canPlaceOnLogScale = ( extent: [ number, number ] ): boolean =>
+	extent[ 0 ] === extent[ 1 ] || extent[ 0 ] > 0;

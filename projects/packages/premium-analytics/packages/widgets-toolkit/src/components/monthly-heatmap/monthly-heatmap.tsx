@@ -220,9 +220,10 @@ export function MonthlyHeatmap( {
 				minCellWidth={ MIN_CELL_WIDTH }
 				minCellHeight={ MIN_CELL_HEIGHT }
 				maxCellHeight={ MAX_CELL_HEIGHT }
-				// A grid of months is read by comparing them against each other, which
-				// distance flattens: one viral month leaves the rest the same pale shade.
-				scale="buckets"
+				// A post can run from single digits to five figures over its life, which
+				// distance flattens at the bottom and rank flattens at the top. In log
+				// space a tenfold jump is one step wherever it falls.
+				scale="log"
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
 				renderTooltip={ renderTooltip }
