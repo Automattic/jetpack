@@ -20,6 +20,25 @@
 }
 
 /*
+ * A text segment keeps its own label's width. Core shares out the sum of the
+ * labels' widths equally instead, which leaves the longest one no padding.
+ */
+.text[role="radiogroup"] > * {
+	flex: 1 0 auto;
+}
+
+/*
+ * Segments of different widths: the indicator resizes as it slides, or it
+ * would take the new width at once and overshoot the control's edge.
+ */
+@media not (prefers-reduced-motion) {
+
+	.text[role="radiogroup"][data-indicator-animated]::before {
+		transition-property: transform, width, border-radius;
+	}
+}
+
+/*
  * Keep the widget title unclipped beside the toggle, so the header folds the
  * toggle into its popover at the same width whichever way it is resized.
  * TODO: remove once @wordpress/widget-dashboard reserves the full title width.
