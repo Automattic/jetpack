@@ -1283,6 +1283,38 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A site in offline mode gets no script, since WordPress.com can't reach it to check the visitor.
+	 */
+	public function test_silent_subscriber_check_skips_offline_site() {
+		$this->set_up_silent_check_site();
+		add_filter( 'jetpack_offline_mode', '__return_true', 99 );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * A site with a mismatched address gets no script, even when safe mode is filtered off.
+	 * Catches visitors being sent to a WordPress.com site ID that belongs to another copy of the site.
+	 */
+	public function test_silent_subscriber_check_skips_identity_crisis() {
+		$this->set_up_silent_check_site();
+		// The identity crisis check only applies to a site with a blog token.
+		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
+		Jetpack_Options::update_option( 'sync_error_idc', array( 'home' => 'https://other.example/' ) );
+		add_filter( 'jetpack_sync_error_idc_validation', '__return_true', 99 );
+		add_filter( 'jetpack_is_in_safe_mode', '__return_false', 99 );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
 	 * A site that isn't connected has no site ID to send, so it gets no script.
 	 */
 	public function test_silent_subscriber_check_skips_unconnected_site() {
