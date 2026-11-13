@@ -12,12 +12,12 @@ Depend on the package, `workspace:*` inside the Jetpack monorepo:
 "@automattic/jetpack-announcements": "workspace:*"
 ```
 
-Mount the surface from the host's own JavaScript, with the contexts it shows:
+Mount the surface from the host's own JavaScript, with the channels it subscribes to:
 
 ```ts
 const { mountWhatsNew } = await import( '@automattic/jetpack-announcements' );
 
-mountWhatsNew( { contexts: [ 'my-plugin' ] } );
+mountWhatsNew( { channels: [ 'my-plugin' ] } );
 ```
 
 A dynamic import keeps the surface out of the host's critical path.

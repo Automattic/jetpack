@@ -23,7 +23,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 	const VALID_ARGS = array(
 		'date'     => '2026-11-20',
 		'title'    => 'Arrange your tabs',
-		'contexts' => array( 'premium-analytics' ),
+		'channels' => array( 'premium-analytics' ),
 	);
 
 	/**
@@ -78,7 +78,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 					'alt'  => 'The <i>tabs</i> menu',
 				),
 				'link'       => 'https://example.com/whats-new/tabs',
-				'contexts'   => array( 'Premium-Analytics', 'premium-analytics', 'my jetpack' ),
+				'channels'   => array( 'Premium-Analytics', 'premium-analytics', 'my jetpack' ),
 				'capability' => 'manage_options',
 			)
 		);
@@ -96,7 +96,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 					'alt'  => 'The tabs menu',
 				),
 				'link'       => 'https://example.com/whats-new/tabs',
-				'contexts'   => array( 'premium-analytics', 'myjetpack' ),
+				'channels'   => array( 'premium-analytics', 'myjetpack' ),
 				'capability' => 'manage_options',
 			),
 			$announcement
@@ -127,7 +127,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 			'no date'                => array( 'a/b', array_diff_key( self::VALID_ARGS, array( 'date' => 1 ) ) ),
 			'date that is no date'   => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => 'tomorrow' ) ) ),
 			'no title'               => array( 'a/b', array_merge( self::VALID_ARGS, array( 'title' => ' ' ) ) ),
-			'no contexts'            => array( 'a/b', array_merge( self::VALID_ARGS, array( 'contexts' => array() ) ) ),
+			'no channels'            => array( 'a/b', array_merge( self::VALID_ARGS, array( 'channels' => array() ) ) ),
 			'args that are no array' => array( 'a/b', 'Arrange your tabs' ),
 		);
 	}

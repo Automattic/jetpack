@@ -7,15 +7,15 @@ import type { Announcement } from '../../types';
  * Keeps the announcements a host shows, newest first.
  *
  * @param records  - Every announcement the user may see.
- * @param contexts - The contexts the host shows.
- * @return The announcements that name one of the contexts.
+ * @param channels - The channels the host subscribes to.
+ * @return The announcements published to one of the channels.
  */
-export function getAnnouncementsForContexts(
+export function getAnnouncementsForChannels(
 	records: Announcement[],
-	contexts: string[]
+	channels: string[]
 ): Announcement[] {
 	return records
-		.filter( announcement => announcement.contexts.some( context => contexts.includes( context ) ) )
+		.filter( announcement => announcement.channels.some( channel => channels.includes( channel ) ) )
 		.sort( ( a, b ) => b.date.localeCompare( a.date ) );
 }
 

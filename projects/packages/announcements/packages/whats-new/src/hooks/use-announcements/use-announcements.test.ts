@@ -18,7 +18,7 @@ jest.mock( '@wordpress/data', () => ( {
 	useDispatch: jest.fn(),
 } ) );
 
-const CONTEXTS = [ 'my-plugin' ];
+const CHANNELS = [ 'my-plugin' ];
 
 const unseen: Announcement = {
 	id: 'my-plugin/newest',
@@ -28,7 +28,7 @@ const unseen: Announcement = {
 	content: '',
 	media: null,
 	link: '',
-	contexts: CONTEXTS,
+	channels: CHANNELS,
 	seen: false,
 };
 
@@ -39,7 +39,7 @@ describe( 'useAnnouncements', () => {
 		// The record stays unseen, as it does while the write is pending or when it fails.
 		jest.mocked( useEntityRecords ).mockReturnValue( { records: [ unseen ] } as never );
 
-		const { result } = renderHook( () => useAnnouncements( CONTEXTS ) );
+		const { result } = renderHook( () => useAnnouncements( CHANNELS ) );
 		expect( result.current.teaser ).toBe( unseen );
 
 		act( () => result.current.markSeen( unseen.id ) );

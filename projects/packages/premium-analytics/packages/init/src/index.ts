@@ -88,6 +88,6 @@ export async function init(): Promise< void > {
  */
 function showWhatsNew(): void {
 	import( '@automattic/jetpack-announcements' )
-		.then( ( { mountWhatsNew } ) => mountWhatsNew( { contexts: [ 'premium-analytics' ] } ) )
+		.then( ( { mountWhatsNew } ) => mountWhatsNew( { channels: [ 'premium-analytics' ] } ) )
 		.catch( () => undefined );
 }

@@ -103,7 +103,7 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Retrieves the announcements the current user may see, of every context.
+	 * Retrieves the announcements the current user may see, of every channel.
 	 *
 	 * @param WP_REST_Request $request Unused.
 	 * @return WP_REST_Response
@@ -220,8 +220,8 @@ class REST_Controller extends WP_REST_Controller {
 					'type'        => 'string',
 					'readonly'    => true,
 				),
-				'contexts' => array(
-					'description' => __( 'The hosts that may show the announcement.', 'jetpack-announcements' ),
+				'channels' => array(
+					'description' => __( 'The channels the announcement is published to.', 'jetpack-announcements' ),
 					'type'        => 'array',
 					'items'       => array( 'type' => 'string' ),
 					'readonly'    => true,

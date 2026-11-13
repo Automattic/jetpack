@@ -8,7 +8,7 @@ import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { getAnnouncementsForContexts, selectTeaser } from './select-announcements';
+import { getAnnouncementsForChannels, selectTeaser } from './select-announcements';
 import type { Announcement } from '../../types';
 
 const ENTITY_KIND = 'jetpack';
@@ -19,7 +19,7 @@ const ALL_ANNOUNCEMENTS = { per_page: -1 };
 
 export type UseAnnouncementsResult = {
 	/*
-	 * The announcements of the given contexts, newest first. Empty until the request resolves.
+	 * The announcements of the given channels, newest first. Empty until the request resolves.
 	 */
 	announcements: Announcement[];
 
@@ -58,14 +58,14 @@ export function ensureAnnouncementEntity(): void {
 }
 
 /**
- * Reads the announcements of the given contexts and writes their seen state.
+ * Reads the announcements of the given channels and writes their seen state.
  *
  * The only module that knows the data layer: components receive values and callbacks.
  *
- * @param contexts - The contexts the host shows.
+ * @param channels - The channels the host subscribes to.
  * @return The announcements, the one to tease and the callback that marks one as seen.
  */
-export function useAnnouncements( contexts: string[] ): UseAnnouncementsResult {
+export function useAnnouncements( channels: string[] ): UseAnnouncementsResult {
 	const { records } = useEntityRecords< Announcement >(
 		ENTITY_KIND,
 		ENTITY_NAME,
@@ -77,8 +77,8 @@ export function useAnnouncements( contexts: string[] ): UseAnnouncementsResult {
 	const [ markedIds, setMarkedIds ] = useState< ReadonlySet< string > >( () => new Set() );
 
 	const announcements = useMemo(
-		() => getAnnouncementsForContexts( records ?? [], contexts ),
-		[ records, contexts ]
+		() => getAnnouncementsForChannels( records ?? [], channels ),
+		[ records, channels ]
 	);
 
 	const markSeen = useCallback(

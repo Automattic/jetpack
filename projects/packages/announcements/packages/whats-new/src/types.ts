@@ -55,9 +55,9 @@ export type Announcement = {
 	link: string;
 
 	/*
-	 * The hosts that may show it.
+	 * The channels it is published to.
 	 */
-	contexts: string[];
+	channels: string[];
 
 	/*
 	 * Whether the current user has seen it. The only writable field.

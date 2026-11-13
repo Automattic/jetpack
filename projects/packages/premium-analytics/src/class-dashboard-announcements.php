@@ -15,9 +15,9 @@ use function Automattic\Jetpack\Announcements\register_announcement;
 class Dashboard_Announcements {
 
 	/**
-	 * Context of the dashboard: the label its announcements carry and its surface asks for.
+	 * Channel of the dashboard: its announcements are published to it and its surface subscribes to it.
 	 */
-	const CONTEXT = 'premium-analytics';
+	const CHANNEL = 'premium-analytics';
 
 	/**
 	 * Hook the registrant on the action the announcement registry fires as it hydrates.
@@ -46,7 +46,7 @@ class Dashboard_Announcements {
 				'title'    => __( 'Arrange your tabs', 'jetpack-premium-analytics-pkg' ),
 				'excerpt'  => __( 'Reorder the dashboard tabs and choose the one that opens first.', 'jetpack-premium-analytics-pkg' ),
 				'content'  => '<p>' . esc_html__( 'Open the page options menu and choose Arrange tabs to reorder the tabs and to choose the one that opens first.', 'jetpack-premium-analytics-pkg' ) . '</p>',
-				'contexts' => array( self::CONTEXT ),
+				'channels' => array( self::CHANNEL ),
 			)
 		);
 	}

@@ -28,7 +28,7 @@ function render(): void {
 		root = createRoot( container );
 	}
 
-	root.render( createElement( WhatsNew, { contexts: latestOptions.contexts } ) );
+	root.render( createElement( WhatsNew, { channels: latestOptions.channels } ) );
 }
 
 /**

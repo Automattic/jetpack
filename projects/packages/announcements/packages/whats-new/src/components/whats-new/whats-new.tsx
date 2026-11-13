@@ -13,9 +13,9 @@ import styles from './whats-new.module.css';
 
 export type WhatsNewProps = {
 	/*
-	 * The contexts the host shows.
+	 * The channels the host subscribes to.
 	 */
-	contexts: string[];
+	channels: string[];
 };
 
 /**
@@ -24,11 +24,11 @@ export type WhatsNewProps = {
  * @param {WhatsNewProps} props - The props.
  * @return The surface.
  */
-export function WhatsNew( { contexts }: WhatsNewProps ) {
+export function WhatsNew( { channels }: WhatsNewProps ) {
 	// The surface is a root of its own, so it opts in for its dialog to stack above wp-admin.
 	useEnableWpCompatOverlaySlot();
 
-	const { announcements, teaser, markSeen } = useAnnouncements( contexts );
+	const { announcements, teaser, markSeen } = useAnnouncements( channels );
 
 	// The id stays after the dialog closes, so the announcement is rendered while it animates out.
 	const [ readerId, setReaderId ] = useState< string | null >( null );

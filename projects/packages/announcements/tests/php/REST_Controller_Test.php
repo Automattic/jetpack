@@ -55,7 +55,7 @@ class REST_Controller_Test extends BaseTestCase {
 						'title'    => 'For everyone',
 						'excerpt'  => 'A summary.',
 						'content'  => '<p>A body.</p>',
-						'contexts' => array( 'my-plugin' ),
+						'channels' => array( 'my-plugin' ),
 					)
 				);
 				register_announcement(
@@ -63,7 +63,7 @@ class REST_Controller_Test extends BaseTestCase {
 					array(
 						'date'       => '2026-11-21',
 						'title'      => 'For administrators',
-						'contexts'   => array( 'my-plugin' ),
+						'channels'   => array( 'my-plugin' ),
 						'capability' => 'manage_options',
 					)
 				);
@@ -145,7 +145,7 @@ class REST_Controller_Test extends BaseTestCase {
 					'content'  => '<p>A body.</p>',
 					'media'    => null,
 					'link'     => '',
-					'contexts' => array( 'my-plugin' ),
+					'channels' => array( 'my-plugin' ),
 					'seen'     => false,
 				),
 			),

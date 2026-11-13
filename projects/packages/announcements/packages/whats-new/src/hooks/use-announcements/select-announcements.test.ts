@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getAnnouncementsForContexts, selectTeaser } from './select-announcements';
+import { getAnnouncementsForChannels, selectTeaser } from './select-announcements';
 import type { Announcement } from '../../types';
 
 const announcement = ( overrides: Partial< Announcement > ): Announcement => ( {
@@ -12,27 +12,27 @@ const announcement = ( overrides: Partial< Announcement > ): Announcement => ( {
 	content: '',
 	media: null,
 	link: '',
-	contexts: [ 'my-plugin' ],
+	channels: [ 'my-plugin' ],
 	seen: false,
 	...overrides,
 } );
 
 const older = announcement( { id: 'my-plugin/older', date: '2026-11-01T00:00:00+00:00' } );
 
-describe( 'getAnnouncementsForContexts', () => {
+describe( 'getAnnouncementsForChannels', () => {
 	it( 'keeps the announcements of the host, newest first', () => {
 		const records = [
 			older,
 			announcement( {
 				id: 'another-plugin/newer-still',
 				date: '2026-11-30T00:00:00+00:00',
-				contexts: [ 'another-plugin' ],
+				channels: [ 'another-plugin' ],
 			} ),
-			announcement( { contexts: [ 'another-plugin', 'my-plugin' ] } ),
+			announcement( { channels: [ 'another-plugin', 'my-plugin' ] } ),
 		];
 
 		expect(
-			getAnnouncementsForContexts( records, [ 'my-plugin' ] ).map( ( { id } ) => id )
+			getAnnouncementsForChannels( records, [ 'my-plugin' ] ).map( ( { id } ) => id )
 		).toEqual( [ 'my-plugin/newest', 'my-plugin/older' ] );
 		expect( records[ 0 ] ).toBe( older );
 	} );

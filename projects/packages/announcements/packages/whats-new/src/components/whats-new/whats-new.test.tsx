@@ -14,7 +14,7 @@ jest.mock( '../../hooks', () => ( {
 	useAnnouncements: jest.fn(),
 } ) );
 
-const CONTEXTS = [ 'my-plugin' ];
+const CHANNELS = [ 'my-plugin' ];
 
 const unseen: Announcement = {
 	id: 'my-plugin/newest',
@@ -24,7 +24,7 @@ const unseen: Announcement = {
 	content: '<p>Open Settings to reorder or hide tabs.</p>',
 	media: null,
 	link: '',
-	contexts: CONTEXTS,
+	channels: CHANNELS,
 	seen: false,
 };
 
@@ -42,7 +42,7 @@ describe( 'WhatsNew', () => {
 			.mocked( useAnnouncements )
 			.mockReturnValue( { announcements: [], teaser: null, markSeen: jest.fn() } );
 
-		render( <WhatsNew contexts={ CONTEXTS } /> );
+		render( <WhatsNew channels={ CHANNELS } /> );
 
 		expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
@@ -55,7 +55,7 @@ describe( 'WhatsNew', () => {
 			.mocked( useAnnouncements )
 			.mockReturnValue( { announcements: [ unseen ], teaser: unseen, markSeen } );
 
-		render( <WhatsNew contexts={ CONTEXTS } /> );
+		render( <WhatsNew channels={ CHANNELS } /> );
 		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
 		expect( markSeen ).toHaveBeenCalledWith( unseen.id );
@@ -69,7 +69,7 @@ describe( 'WhatsNew', () => {
 			.mocked( useAnnouncements )
 			.mockReturnValue( { announcements: [ unseen ], teaser: unseen, markSeen } );
 
-		const { rerender } = render( <WhatsNew contexts={ CONTEXTS } /> );
+		const { rerender } = render( <WhatsNew channels={ CHANNELS } /> );
 		expect( screen.getByRole( 'region', { name: 'What’s new' } ) ).toHaveTextContent(
 			unseen.title
 		);
@@ -86,7 +86,7 @@ describe( 'WhatsNew', () => {
 			teaser: null,
 			markSeen,
 		} );
-		rerender( <WhatsNew contexts={ CONTEXTS } /> );
+		rerender( <WhatsNew channels={ CHANNELS } /> );
 
 		expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'dialog', { name: unseen.title } ) ).toBeInTheDocument();

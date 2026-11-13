@@ -23,16 +23,16 @@ add_action(
 				'title'    => __( 'New reports', 'my-plugin' ),
 				'excerpt'  => __( 'Three new reports are available.', 'my-plugin' ),
 				'content'  => '<p>' . esc_html__( 'Open Reports to see them.', 'my-plugin' ) . '</p>',
-				'contexts' => array( 'my-plugin' ),
+				'channels' => array( 'my-plugin' ),
 			)
 		);
 	}
 );
 ```
 
-`date`, `title` and `contexts` are required. `excerpt`, `content`, `media`, `link` and `capability` are optional.
+`date`, `title` and `channels` are required. `excerpt`, `content`, `media`, `link` and `capability` are optional.
 
-A context is a label that links announcements to hosts. A host shows the announcements of the contexts it names.
+A channel is a label. An announcement is published to channels, and a host shows the announcements of the channels it subscribes to.
 
 The registrant translates its own strings. Every value is sanitized at registration, and a duplicate id is refused.
 
@@ -42,12 +42,12 @@ Do no I/O in the action: the read that fires it may be a REST request.
 
 The surface is "What's new": a teaser of the newest announcement the user has not seen, and a dialog that shows it in full. It ships as one script module, `packages/whats-new`, registered as `@automattic/jetpack-announcements`.
 
-A host mounts it from its own JavaScript, with the contexts it shows. The [`@automattic/jetpack-announcements` js-package](../../js-packages/announcements/README.md) holds the contract and explains the build setup.
+A host mounts it from its own JavaScript, with the channels it subscribes to. The [`@automattic/jetpack-announcements` js-package](../../js-packages/announcements/README.md) holds the contract and explains the build setup.
 
 ```ts
 const { mountWhatsNew } = await import( '@automattic/jetpack-announcements' );
 
-mountWhatsNew( { contexts: [ 'my-plugin' ] } );
+mountWhatsNew( { channels: [ 'my-plugin' ] } );
 ```
 
 The module reads WordPress scripts from their globals, core-data among them, and does not enqueue them. A wp-build page provides them all.

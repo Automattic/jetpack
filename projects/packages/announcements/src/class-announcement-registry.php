@@ -71,7 +71,7 @@ final class Announcement_Registry {
 		$announcement = self::sanitize( $id, is_array( $args ) ? $args : array() );
 		if ( null === $announcement ) {
 			/* translators: %s: Announcement id. */
-			return self::refuse( sprintf( __( 'Announcement "%s" needs a date, a title and at least one context.', 'jetpack-announcements' ), $id ) );
+			return self::refuse( sprintf( __( 'Announcement "%s" needs a date, a title and at least one channel.', 'jetpack-announcements' ), $id ) );
 		}
 
 		$this->announcements[ $id ] = $announcement;
@@ -169,9 +169,9 @@ final class Announcement_Registry {
 		$utc      = new \DateTimeZone( 'UTC' );
 		$date     = is_string( $args['date'] ?? null ) && preg_match( '/^\d{4}-\d{2}-\d{2}/', $args['date'] ) ? date_create( $args['date'], $utc ) : false;
 		$title    = self::sanitize_text( $args['title'] ?? '' );
-		$contexts = array_values( array_unique( array_filter( array_map( 'sanitize_key', (array) ( $args['contexts'] ?? array() ) ) ) ) );
+		$channels = array_values( array_unique( array_filter( array_map( 'sanitize_key', (array) ( $args['channels'] ?? array() ) ) ) ) );
 
-		if ( ! $date || '' === $title || ! $contexts ) {
+		if ( ! $date || '' === $title || ! $channels ) {
 			return null;
 		}
 
@@ -183,7 +183,7 @@ final class Announcement_Registry {
 			'content'    => is_string( $args['content'] ?? null ) ? wp_kses_post( $args['content'] ) : '',
 			'media'      => self::sanitize_media( $args['media'] ?? null ),
 			'link'       => is_string( $args['link'] ?? null ) ? esc_url_raw( $args['link'] ) : '',
-			'contexts'   => $contexts,
+			'channels'   => $channels,
 			'capability' => is_string( $args['capability'] ?? null ) ? $args['capability'] : '',
 		);
 	}

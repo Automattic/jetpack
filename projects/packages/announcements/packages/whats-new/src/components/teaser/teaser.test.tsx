@@ -16,7 +16,7 @@ const announcement = ( media: AnnouncementMedia | null ): Announcement => ( {
 	content: '',
 	media,
 	link: '',
-	contexts: [ 'my-plugin' ],
+	channels: [ 'my-plugin' ],
 	seen: false,
 } );
 

@@ -8,9 +8,9 @@
 
 export type WhatsNewOptions = {
 	/*
-	 * The contexts the host shows. An announcement is shown when it names one of them.
+	 * The channels the host subscribes to. An announcement is shown when it is published to one of them.
 	 */
-	contexts: string[];
+	channels: string[];
 };
 
 /**
