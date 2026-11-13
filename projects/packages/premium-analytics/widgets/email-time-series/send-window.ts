@@ -39,7 +39,10 @@ function sendWindowEnd( interval: EmailTimeSeriesInterval, from: Date, timeZone:
 		}
 		case 'day':
 		default:
-			return endOfDayTZ( addDays( from, EMAIL_SEND_WINDOW_DAYS - 1 ), timeZone );
+			return endOfDayTZ(
+				addDays( toLocalTZ( from, timeZone ), EMAIL_SEND_WINDOW_DAYS - 1 ),
+				timeZone
+			);
 	}
 }
 

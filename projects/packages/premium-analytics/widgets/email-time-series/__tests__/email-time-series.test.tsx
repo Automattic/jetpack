@@ -319,12 +319,12 @@ describe( 'EmailTimeSeriesWidget', () => {
 	} );
 
 	it.each( [
-		[ 'hour', 'period=hour', 'quantity=24' ],
-		[ 'day', 'period=day', 'quantity=30' ],
-		[ 'month', 'period=month', 'quantity=3' ],
+		[ 'hour', '24' ],
+		[ 'day', '30' ],
+		[ 'month', '3' ],
 	] as const )(
 		'reaches as far past the send as its %s interval does, whatever range the host hands it',
-		async ( chartInterval, period, quantity ) => {
+		async ( chartInterval, quantity ) => {
 			jest.useFakeTimers( { now: new Date( '2026-08-28T12:00:00Z' ), doNotFake: [ 'nextTick' ] } );
 			mockApiFetch.mockResolvedValue( {
 				timeline: { unit: chartInterval, fields: [ 'date', 'opens_count' ], data: [] },
@@ -351,9 +351,11 @@ describe( 'EmailTimeSeriesWidget', () => {
 
 				const chart = await screen.findByTestId( 'metric-tabs-chart' );
 				expect( chart ).toHaveAttribute( 'data-tick-resolution', chartInterval );
-				const requestedPath = String( mockApiFetch.mock.calls[ 0 ][ 0 ].path );
-				expect( requestedPath ).toContain( period );
-				expect( requestedPath ).toContain( quantity );
+				const requested = new URLSearchParams(
+					String( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).split( '?' )[ 1 ]
+				);
+				expect( requested.get( 'period' ) ).toBe( chartInterval );
+				expect( requested.get( 'quantity' ) ).toBe( quantity );
 			} finally {
 				jest.useRealTimers();
 			}

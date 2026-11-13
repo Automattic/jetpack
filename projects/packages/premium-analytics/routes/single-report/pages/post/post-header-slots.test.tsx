@@ -69,10 +69,11 @@ describe( 'postHeaderSlots', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'shows the email identity on the email variant: envelope tile and sent wording', () => {
-		renderHeader( SUMMARY, EMAIL_SECTION );
+	it( 'shows the email identity on the email variant: envelope tile, sent wording and no window', () => {
+		renderHeader( SUMMARY, { ...EMAIL_SECTION, performanceRange: PERFORMANCE_RANGE } );
 
 		expect( screen.getByText( /Email sent on Jan 10, 2026\./ ) ).toBeInTheDocument();
+		expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
 		// The envelope tile replaces the featured image even when one exists.
 		expect( screen.getByTestId( 'post-summary-email-tile' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'post-summary-image' ) ).not.toBeInTheDocument();
