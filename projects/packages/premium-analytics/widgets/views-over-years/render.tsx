@@ -12,7 +12,9 @@ import {
 	describeError,
 	monthRange,
 	monthlyHeatmapLabels,
+	monthlyHeatmapToCsv,
 	resolveMonthlyHeatmapMetric,
+	useReportActions,
 	useWidgetRootContext,
 	yearRange,
 	type MonthlyHeatmapMetric,
@@ -20,7 +22,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -43,10 +45,17 @@ type ViewsOverYearsInnerProps = {
 function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : undefined;
-	const { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch } = useViewsOverYears(
-		metric,
-		authorId
-	);
+	const {
+		rows,
+		lifeStartsAt,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError,
+		isPlaceholderData,
+		error,
+		refetch,
+	} = useViewsOverYears( metric, authorId );
 	const openSectionRange = useOpenSectionRange();
 	const { openPeriod } = useReportScope();
 	const timeZone = reportingTimeZone();
@@ -71,6 +80,35 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 		},
 		[ authorScoped, lifeStartsAt, timeZone, openPeriod, openSectionRange ]
 	);
+
+	const csv = useMemo(
+		() =>
+			monthlyHeatmapToCsv(
+				rows.some( row => row.months.some( value => ( value ?? 0 ) > 0 ) ) ? rows : []
+			),
+		[ rows ]
+	);
+	// The table draws whole numbers; only the download keeps an average's decimals.
+	const tableRows = useMemo(
+		() =>
+			rows.map( row => ( {
+				...row,
+				months: row.months.map( value =>
+					typeof value === 'number' ? Math.round( value ) : value
+				),
+				total: typeof row.total === 'number' ? Math.round( row.total ) : row.total,
+			} ) ),
+		[ rows ]
+	);
+	const metricPrefix = metric === 'average' ? 'daily-average-views-over-years' : 'views-over-years';
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: authorId ? `author-${ authorId }-${ metricPrefix }` : metricPrefix,
+			hasDateRange: false,
+			status: { isLoading, isFetching, isError: csvIsError, isPlaceholderData },
+		},
+	} );
 
 	// Without an author on the page, the author-scoped table has nothing to read.
 	if ( authorId !== undefined && authorId <= 0 ) {
@@ -112,7 +150,11 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 			}
 			renderLoading={ <HeatmapSkeleton /> }
 		>
-			<MonthlyHeatmap rows={ rows } { ...monthlyHeatmapLabels( metric ) } onSelect={ openMonth } />
+			<MonthlyHeatmap
+				rows={ tableRows }
+				{ ...monthlyHeatmapLabels( metric ) }
+				onSelect={ openMonth }
+			/>
 		</WidgetState>
 	);
 }

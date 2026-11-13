@@ -70,16 +70,16 @@ describe( 'buildViewsOverYearsRows', () => {
 		expect( rows[ 0 ].months.slice( 0, 3 ) ).toEqual( [ 5, 0, 30 ] );
 		// The roll-up divides the year's views by the days it covers, not the
 		// mean of its months: 920 / 61 and 605 / (31 + 28 + 15).
-		expect( rows.map( row => row.total ) ).toEqual( [ 8, 15 ] );
+		expect( rows.map( row => row.total ) ).toEqual( [ 605 / 74, 920 / 61 ] );
 	} );
 
 	it( 'opens the first month on its first day under the average metric', () => {
 		// First views on Nov 24: November covers 7 days, so 300 / 7 rather than 300 / 30.
 		const rows = buildViewsOverYearsRows( BUCKETS, 'average', TODAY, NOV_24 );
 
-		expect( rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
+		expect( rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300 / 7, 20 ] );
 		// The first year's roll-up covers 7 + 31 days; later years are untouched.
-		expect( rows.map( row => row.total ) ).toEqual( [ 8, 24 ] );
+		expect( rows.map( row => row.total ) ).toEqual( [ 605 / 74, 920 / 38 ] );
 	} );
 
 	it( 'divides the first month whole when the first day falls outside it', () => {

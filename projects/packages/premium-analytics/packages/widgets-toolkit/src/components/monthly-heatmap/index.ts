@@ -4,3 +4,4 @@ export {
 	type MonthlyHeatmapRow,
 	type MonthlyHeatmapTarget,
 } from './monthly-heatmap';
+export { monthlyHeatmapToCsv } from './monthly-heatmap-csv';

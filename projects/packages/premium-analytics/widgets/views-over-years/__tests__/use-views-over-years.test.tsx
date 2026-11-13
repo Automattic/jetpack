@@ -90,7 +90,7 @@ describe( 'useViewsOverYears', () => {
 		expect( path ).toMatch( /date=2025-11-30/ );
 
 		// Nov 24 through Nov 30: 300 / 7.
-		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
+		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300 / 7, 20 ] );
 		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-24T00:00:00.000Z' );
 	} );
 
@@ -106,7 +106,7 @@ describe( 'useViewsOverYears', () => {
 
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
-			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
+			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300 / 7, 20 ] );
 			expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-23T15:00:00.000Z' );
 		} finally {
 			setSettings( settings );
@@ -178,7 +178,7 @@ describe( 'useViewsOverYears', () => {
 		resolveRetry( FIRST_MONTH_RESPONSE );
 
 		await waitFor( () =>
-			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] )
+			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300 / 7, 20 ] )
 		);
 	} );
 
@@ -211,7 +211,7 @@ describe( 'useViewsOverYears', () => {
 		resolveDays( FIRST_MONTH_RESPONSE );
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
-		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
+		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300 / 7, 20 ] );
 	} );
 
 	it( 'has no rows before the response arrives, so a failed first load is not drawn as a site without views', () => {
