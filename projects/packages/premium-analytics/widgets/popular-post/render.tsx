@@ -3,7 +3,6 @@
  */
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { toAuthorId } from '@jetpack-premium-analytics/data';
-import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -12,7 +11,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
-	useDashboardOriginSearch,
+	useWidgetNavigationSearch,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -80,8 +79,7 @@ function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 
 function PopularPostCard( { authorId }: { authorId: number } ) {
 	const { reportParams } = useWidgetRootContext();
-	const dashboardOrigin = useDashboardOriginSearch();
-	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
+	const { post, isLoading, isFetching, isError, error, refetch } = usePopularPost(
 		authorId ? { authorId, reportParams } : undefined
 	);
 	const { noPublishedPosts, isChecking } = useNoPublishedPosts(
@@ -108,15 +106,10 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 			]
 		: [];
 
-	// Ranked over this card's window, not the host's.
-	const detailSearch = {
-		...range,
-		...dashboardOrigin,
-		...createReportOriginSearch(
-			authorId ? 'authors' : 'posts',
-			authorId ? undefined : 'posts-pages'
-		),
-	};
+	// The host's window, like its siblings: the tiles are all-time totals, not the ranking window's.
+	const detailSearch = useWidgetNavigationSearch( {
+		origin: authorId ? { report: 'authors' } : { report: 'posts', section: 'posts-pages' },
+	} );
 
 	return (
 		<WidgetState

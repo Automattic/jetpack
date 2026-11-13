@@ -9,6 +9,10 @@ import { useWidgetActions } from '@wordpress/widget-primitives';
  */
 import { useExporterCsvAction } from '../components/download-csv/csv-download-action';
 import {
+	useRowsCsvAction,
+	type RowsCsvActionOptions,
+} from '../components/download-csv/rows-csv-action';
+import {
 	eraseExporterRowTypes,
 	reportCsvExporters,
 	type ExportableReport,
@@ -38,6 +42,10 @@ export type ReportCsvActionOptions< TItem, TRow > = {
 	 * How many rows the widget shows; an empty widget offers no download.
 	 */
 	rowCount: number;
+
+	// Never alongside the loaded rows' options, so one call cannot mix the two.
+	rows?: never;
+	columns?: never;
 };
 
 export type ReportActionsOptions< TItem, TRow > = {
@@ -67,9 +75,10 @@ export type ReportActionsOptions< TItem, TRow > = {
 	relevance?: WidgetRelevance;
 
 	/**
-	 * The linked report's CSV download, offered once the widget's rows settle.
+	 * The CSV download, offered once the widget's rows settle: the linked report's, or for a
+	 * widget without a report, the rows it loaded.
 	 */
-	csv?: ReportCsvActionOptions< TItem, TRow >;
+	csv?: ReportCsvActionOptions< TItem, TRow > | RowsCsvActionOptions< TRow >;
 
 	/**
 	 * The widget's own actions, placed after the link and before the download.
@@ -83,11 +92,17 @@ const SETTLED_EMPTY: ReportCsvExportStatus = {
 	isError: false,
 };
 
+function isRowsCsv< TItem, TRow >(
+	csv: ReportActionsOptions< TItem, TRow >[ 'csv' ]
+): csv is RowsCsvActionOptions< TRow > {
+	return csv?.rows !== undefined;
+}
+
 /**
  * Declare a widget's report actions to its host: "View all", which opens the full report with
- * the shared dashboard date and comparison parameters, and the report's CSV download. The host
- * places them by relevance, the link as the card footer's text action and the download as its
- * compact one.
+ * the shared dashboard date and comparison parameters, and the CSV download: the linked report's,
+ * or the rows the widget loaded. The host places them by relevance, the link as the card footer's
+ * text action and the download as its compact one.
  *
  * @param options           - The actions to declare.
  * @param options.id        - Action id of the link.
@@ -109,13 +124,17 @@ export function useReportActions< TItem, TRow >( {
 	actions: widgetActions = [],
 }: ReportActionsOptions< TItem, TRow > ): boolean {
 	const search = useWidgetNavigationSearch( { section } );
-	const download = useExporterCsvAction( {
-		exporter: csv?.exporter
-			? eraseExporterRowTypes( csv.exporter )
-			: csv?.report && reportCsvExporters[ csv.report ],
-		status: csv?.status ?? SETTLED_EMPTY,
-		rowCount: csv?.rowCount ?? 0,
+	const rowsCsv = isRowsCsv( csv ) ? csv : undefined;
+	const reportCsv = isRowsCsv( csv ) ? undefined : csv;
+	const reportDownload = useExporterCsvAction( {
+		exporter: reportCsv?.exporter
+			? eraseExporterRowTypes( reportCsv.exporter )
+			: reportCsv?.report && reportCsvExporters[ reportCsv.report ],
+		status: reportCsv?.status ?? SETTLED_EMPTY,
+		rowCount: reportCsv?.rowCount ?? 0,
 	} );
+	const rowsDownload = useRowsCsvAction( rowsCsv );
+	const download = reportDownload ?? rowsDownload;
 
 	const actions: WidgetRuntimeAction[] = [];
 

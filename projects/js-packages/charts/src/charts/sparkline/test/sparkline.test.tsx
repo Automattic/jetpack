@@ -4,6 +4,11 @@ import { render, screen } from '@testing-library/react';
 import { Sparkline, SparklineUnresponsive } from '../';
 import { GlobalChartsProvider } from '../../../providers';
 
+// jsdom runs no layout, so the real useParentSize never reports and the chart waits for good.
+jest.mock( '@visx/responsive', () => ( {
+	useParentSize: () => ( { parentRef: () => {}, width: 300, height: 100 } ),
+} ) );
+
 describe( 'Sparkline', () => {
 	const defaultData = [ 10, 25, 15, 30, 22, 35 ];
 

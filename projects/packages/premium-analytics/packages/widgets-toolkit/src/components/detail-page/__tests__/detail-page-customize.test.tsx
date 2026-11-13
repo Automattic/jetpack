@@ -1,7 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
-import { act, render, renderHook, screen } from '@testing-library/react';
-import { DetailPageBreadcrumbs, useDetailPageCustomize } from '../detail-page-customize';
+import { act, renderHook } from '@testing-library/react';
+import { useDetailPageCustomize } from '../detail-page-customize';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 jest.mock(
@@ -132,27 +132,6 @@ describe( 'detail-page-customize', () => {
 			expect( result.current.canCustomize ).toBe( false );
 			act( () => result.current.startCustomizing() );
 			expect( result.current.isCustomizing ).toBe( false );
-		} );
-	} );
-
-	describe( 'DetailPageBreadcrumbs', () => {
-		it( 'adds the Customizing badge only while customizing', () => {
-			const { rerender } = render(
-				<DetailPageBreadcrumbs isCustomizing={ false }>
-					<nav>Trail</nav>
-				</DetailPageBreadcrumbs>
-			);
-
-			expect( screen.getByText( 'Trail' ) ).toBeInTheDocument();
-			expect( screen.queryByText( 'Customizing' ) ).not.toBeInTheDocument();
-
-			rerender(
-				<DetailPageBreadcrumbs isCustomizing>
-					<nav>Trail</nav>
-				</DetailPageBreadcrumbs>
-			);
-
-			expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
 		} );
 	} );
 } );

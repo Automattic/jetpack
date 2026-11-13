@@ -52,6 +52,7 @@ let mockIsSyncFinished: boolean;
 let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
 let mockIsAdmin: boolean;
 let mockCanSendFeedback: boolean;
+let mockMenuTabs: { onPreview?: ( order?: string[] ) => void } | undefined;
 const mockResetLayout = jest.fn();
 const mockChangeComparison = jest.fn();
 const mockStepDateRange = jest.fn();
@@ -191,13 +192,23 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 jest.mock( '../../packages/widgets-toolkit/src/components/page-options-menu', () => ( {
-	PageOptionsMenu: ( { triggerRef }: { triggerRef?: Ref< HTMLButtonElement > } ) => (
-		<div data-testid="page-options-menu">
-			<button ref={ triggerRef } type="button">
-				Page options
-			</button>
-		</div>
-	),
+	PageOptionsMenu: ( {
+		tabs,
+		triggerRef,
+	}: {
+		tabs?: typeof mockMenuTabs;
+		triggerRef?: Ref< HTMLButtonElement >;
+	} ) => {
+		mockMenuTabs = tabs;
+
+		return (
+			<div data-testid="page-options-menu">
+				<button ref={ triggerRef } type="button">
+					Page options
+				</button>
+			</div>
+		);
+	},
 } ) );
 
 jest.mock( '../../packages/widgets-toolkit/src/components/reset-layout', () => ( {
@@ -389,23 +400,18 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 jest.mock( './components', () => ( {
 	DashboardSections: ( {
 		children,
-		withSettingsTab,
-		isSettingsTabDisabled,
+		sections,
 	}: {
 		children: ReactNode;
-		withSettingsTab?: boolean;
-		isSettingsTabDisabled?: boolean;
+		sections: { slug: string }[];
 	} ) => (
 		<div
 			data-testid="dashboard-sections"
-			data-settings-tab={
-				withSettingsTab ? ( isSettingsTabDisabled && 'disabled' ) || 'enabled' : 'none'
-			}
+			data-order={ sections.map( section => section.slug ).join( ' ' ) }
 		>
 			{ children }
 		</div>
 	),
-	StatsSettingsPanel: () => null,
 	// A marker, not the real banner, which owns its own preference. Covered
 	// here: which section the stage offers it on, and when.
 	FeedbackBanner: ( { enabled }: { enabled: boolean } ) =>
@@ -986,6 +992,33 @@ describe( 'Dashboard options menu', () => {
 			mockTrackCustomize.exit.mock.invocationCallOrder[ 0 ]
 		);
 	} );
+
+	it( 'shows the tab bar, and nothing else, an order the reader is trying', () => {
+		const sections = [
+			{ slug: 'traffic', label: 'Traffic', date_filter: DATE_FILTER_RANGE },
+			{ slug: 'insights', label: 'Insights', date_filter: DATE_FILTER_YEAR },
+		];
+		useDashboardSectionsMock.mockReturnValue( {
+			sections,
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+
+		render( <Dashboard /> );
+		act( () => mockMenuTabs?.onPreview?.( [ 'insights', 'traffic' ] ) );
+
+		expect( screen.getByTestId( 'dashboard-sections' ) ).toHaveAttribute(
+			'data-order',
+			'insights traffic'
+		);
+		expect( useActiveSectionMock ).toHaveBeenLastCalledWith( sections, expect.any( Function ) );
+
+		act( () => mockMenuTabs?.onPreview?.() );
+
+		expect( screen.getByTestId( 'dashboard-sections' ) ).toHaveAttribute(
+			'data-order',
+			'traffic insights'
+		);
+	} );
 } );
 
 describe( 'Dashboard onboarding', () => {
@@ -1487,52 +1520,6 @@ describe( 'Dashboard customizing', () => {
 	} );
 } );
 
-describe( 'Dashboard Settings tab', () => {
-	beforeEach( () => {
-		jest.clearAllMocks();
-		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
-		mockActiveSectionSlug = 'traffic';
-		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
-		window.JetpackScriptData = {
-			premium_analytics: { stats_settings: { roles: [], features_url: null } },
-		} as typeof window.JetpackScriptData;
-	} );
-
-	afterEach( () => {
-		delete window.JetpackScriptData;
-	} );
-
-	it( 'keeps the Settings tab in view but out of reach while the reader arranges the layout', async () => {
-		render( <Dashboard /> );
-		const sectionsBar = screen.getByTestId( 'dashboard-sections' );
-		expect( sectionsBar ).toHaveAttribute( 'data-settings-tab', 'enabled' );
-
-		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
-
-		expect( sectionsBar ).toHaveAttribute( 'data-settings-tab', 'disabled' );
-		// Without the slug, an edit mode entered on the Settings tab resolves to a widget section.
-		expect( useActiveSectionMock ).toHaveBeenLastCalledWith(
-			expect.anything(),
-			[],
-			expect.anything()
-		);
-	} );
-
-	it( 'does not open Customize over an empty first section behind the Settings tab', () => {
-		useActiveSectionMock.mockReturnValue( [ 'settings', jest.fn(), true ] );
-		mockActiveSectionSlug = 'settings';
-
-		render( <Dashboard /> );
-
-		expect( screen.getByTestId( 'dashboard-policy' ) ).toHaveAttribute(
-			'data-can-customize',
-			'false'
-		);
-		expect( screen.queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
-	} );
-} );
-
 describe( 'Dashboard locked section', () => {
 	const visibleLayout = [ { uuid: 'chart', type: 'jpa/traffic-chart' as const } ];
 	const onVisibleLayoutChange = jest.fn();
@@ -1671,21 +1658,5 @@ describe( 'Dashboard locked section', () => {
 		expect( screen.queryByTestId( 'locked-section' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'no-widgets-state' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'locks the layout behind the Settings tab by the section it belongs to', () => {
-		window.JetpackScriptData = {
-			premium_analytics: { stats_settings: { roles: [], features_url: null } },
-		} as typeof window.JetpackScriptData;
-		useActiveSectionMock.mockReturnValue( [ 'settings', jest.fn(), true ] );
-		mockActiveSectionSlug = 'settings';
-
-		render( <Dashboard /> );
-
-		expect( useLockedSectionLayoutMock ).toHaveBeenCalledWith(
-			'insights',
-			expect.anything(),
-			expect.anything()
-		);
 	} );
 } );

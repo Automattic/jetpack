@@ -50,7 +50,7 @@ function wpcomsh_is_marketplace_plugin( $plugin_file ) {
 		return false;
 	}
 
-	$persistent_data     = new Atomic_Persistent_Data();
+	$persistent_data     = wpcomsh_get_atomic_persistent_data();
 	$marketplace_plugins = array();
 
 	if ( ! empty( $persistent_data->WPCOM_MARKETPLACE ) ) { // phpcs:ignore WordPress.NamingConventions

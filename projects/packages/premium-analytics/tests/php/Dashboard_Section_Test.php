@@ -670,7 +670,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The dashboard stage draws its own Settings tab at the `settings` slug.
+	 * The dashboard redirects `?section=settings` to the Settings page.
 	 */
 	public function test_register_rejects_the_settings_slug() {
 		$this->capture_doing_it_wrong();

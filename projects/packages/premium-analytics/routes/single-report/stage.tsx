@@ -40,14 +40,12 @@ import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboa
 import { useDateWindowNotice } from '../date-window-notice';
 import { DETAIL_GRID } from '../grid';
 import { getReportDefinition } from '../reports/registry';
-import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
-import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { SinglePageLayout } from './components';
 import { buildControlFields, type ControlsItem } from './controls';
-import { useActiveSection } from './hooks';
+import { useActiveSection, useDetailBreadcrumbs, useDetailDateControls } from './hooks';
 import { route } from './package.json';
 import {
 	getSingleReportAdapter,
@@ -140,10 +138,11 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 
+	useDateWindowNotice();
+
 	const { dateLimits } = useStatsDateLimits(
 		isPlanDateLimitedSection( page.dashboard_section ?? undefined )
 	);
-	useDateWindowNotice();
 	const lockedIntervals = dateLimits?.lockedIntervals;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM, { dateLimits } );
@@ -156,6 +155,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		activeSlug: urlSection,
 		timeZone: dateFilters.timeZone,
 	} );
+
 	const visibleStates = useMemo(
 		() => sectionStates.filter( state => ! state.hidden ),
 		[ sectionStates ]
@@ -234,6 +234,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		() => ( isPinned ? [] : buildControlFields( controls ) ),
 		[ isPinned, controls ]
 	);
+
 	const controlsData = useMemo< ControlsItem >(
 		() => ( {
 			reportParams: pickReportDateParams( search ),
@@ -243,6 +244,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 	);
 
 	const { onChange: changeDateRange, onApply: applyDateRange, timeZone } = dateFilters;
+
 	// Through the date controller, so a new named preset starts from its own default bucket: there
 	// is no bucket control here to fix one carried over.
 	const applyReportParams = useCallback(
@@ -283,6 +285,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		sectionLayout
 	);
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
+
 	// A URL-scoped section waits for All time to anchor; a pinned one for its window.
 	const showWidgets =
 		canRenderWidgets &&

@@ -11,6 +11,7 @@ import { forwardRef, useEffect, useRef } from 'react';
  */
 import { PageOptionsMenu } from '../page-options-menu';
 import { ResetLayoutAction } from '../reset-layout';
+import type { ArrangeableTabs } from '../page-options-menu/arrange-tabs-dialog';
 import type { ReactNode, Ref } from 'react';
 
 const CustomizeButton = forwardRef< HTMLButtonElement, { onCustomize: () => void } >(
@@ -95,6 +96,8 @@ export type CustomizeActionsProps = {
 	editingActions: ReactNode;
 	/** The page's own actions, shown ahead of Customize while not customizing. */
 	children?: ReactNode;
+	/** The page's tabs, for the page options menu to arrange. */
+	tabs?: ArrangeableTabs;
 	/** The Customize button, for a caller that anchors on it. */
 	customizeRef?: Ref< HTMLButtonElement >;
 	/** The page options menu trigger, for a caller that anchors on it. */
@@ -111,6 +114,7 @@ export type CustomizeActionsProps = {
  * @param props.onReset        - Called when the reader confirms Reset to default.
  * @param props.editingActions - The dashboard's own actions, shown while customizing.
  * @param props.children       - The page's own actions.
+ * @param props.tabs           - The page's tabs, for the page options menu to arrange.
  * @param props.customizeRef   - The Customize button.
  * @param props.optionsMenuRef - The page options menu trigger.
  * @return The actions.
@@ -121,6 +125,7 @@ export function CustomizeActions( {
 	onReset,
 	editingActions,
 	children,
+	tabs,
 	customizeRef,
 	optionsMenuRef,
 }: CustomizeActionsProps ) {
@@ -141,6 +146,7 @@ export function CustomizeActions( {
 			<PageOptionsMenu
 				triggerRef={ menuTriggerRef }
 				onCustomize={ offersCustomize && isNarrow ? focus.onCustomize : undefined }
+				tabs={ tabs }
 			/>
 		</Stack>
 	);

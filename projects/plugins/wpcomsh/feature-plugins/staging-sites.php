@@ -13,7 +13,7 @@
  * @return string The value of WPCOM_IS_STAGING_SITE if set, otherwise the option value.
  */
 function wpcomsh_is_staging_site_get_atomic_persistent_data( $wpcom_is_staging_site ) {
-	$persistent_data                       = new Atomic_Persistent_Data();
+	$persistent_data                       = wpcomsh_get_atomic_persistent_data();
 	$persistent_data_is_staging_site_value = $persistent_data->WPCOM_IS_STAGING_SITE; // phpcs:ignore WordPress.NamingConventions.ValidVariableName
 
 	if ( $persistent_data_is_staging_site_value !== null ) {

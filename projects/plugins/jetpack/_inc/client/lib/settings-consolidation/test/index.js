@@ -1,7 +1,10 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
-import { isSettingsConsolidationEnabled } from '../index';
+import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
+import { getMovedOutModules, isSettingsConsolidationEnabled } from '../index';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: jest.fn() } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: jest.fn(),
+	isWoASite: jest.fn(),
+} ) );
 
 describe( 'isSettingsConsolidationEnabled', () => {
 	it.each( [
@@ -13,5 +16,17 @@ describe( 'isSettingsConsolidationEnabled', () => {
 		getScriptData.mockReturnValue( data );
 
 		expect( isSettingsConsolidationEnabled() ).toBe( expected );
+	} );
+} );
+
+describe( 'getMovedOutModules', () => {
+	it.each( [
+		[ 'adds', 'on WoA', true, [ 'earn', 'wpcom-reader' ] ],
+		[ 'leaves out', 'elsewhere', false, [ 'earn' ] ],
+	] )( '%s the Reader %s', ( _verb, _where, woa, expected ) => {
+		getScriptData.mockReturnValue( { myJetpack: { settingsConsolidation: true } } );
+		isWoASite.mockReturnValue( woa );
+
+		expect( getMovedOutModules() ).toEqual( expected );
 	} );
 } );

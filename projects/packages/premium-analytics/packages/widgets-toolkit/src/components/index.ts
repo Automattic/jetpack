@@ -166,24 +166,16 @@ export {
 	type ReportRecordsTableProps,
 	type ReportCsvActionProps,
 } from './report-page';
-export {
-	DetailPageBreadcrumbs,
-	DETAIL_HEADER_GLYPH_SIZE,
-	DetailPageLayout,
-	DetailPageSection,
-	DetailPageShell,
-	useDetailPageCustomize,
-	type DetailPageBreadcrumbsProps,
-	type DetailPageCustomize,
-	type DetailPageHeaderSlots,
-	type DetailPageLayoutProps,
-	type DetailPageSectionProps,
-	type DetailPageShellProps,
-} from './detail-page';
+export { useDetailPageCustomize, type DetailPageCustomize } from './detail-page';
 export { PageEmptyState, type PageEmptyStateProps } from './page-empty-state';
 export { LockedPage, LockedWidget } from './locked-widget';
 export { PageNotice, type PageNoticeProps } from './page-notice';
-export { canSendFeedback, FeedbackModal, type FeedbackSource } from './page-options-menu';
+export {
+	canSendFeedback,
+	FeedbackModal,
+	PageOptionsMenu,
+	type FeedbackSource,
+} from './page-options-menu';
 export { CustomizeActions } from './customize-actions';
 export {
 	ReportCsvDownloadButton,

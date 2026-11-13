@@ -1,16 +1,25 @@
 /**
  * External dependencies
  */
+import {
+	DASHBOARD_PREFERENCES_SCOPE,
+	getSectionOrder,
+	orderSections,
+} from '@jetpack-premium-analytics/data';
 import { useEntityRecords } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import type { DashboardSection } from '../../config';
 
+const NO_SECTIONS: DashboardSection[] = [];
+
 /**
- * Get the ordered list of dashboard sections. Reads the `dashboardSection`
- * core-data entity (registered at app boot in `packages/init`), which resolves
- * from `GET /sections`.
+ * Get the list of dashboard sections, in the order the reader arranged them or,
+ * failing that, the server's. Reads the `dashboardSection` core-data entity
+ * (registered at app boot in `packages/init`), which resolves from `GET /sections`.
  *
  * `hasResolved` distinguishes "still fetching" (empty `sections`) from a
  * resolved query, so callers can hold layout-dependent UI until the sections
@@ -27,6 +36,11 @@ export function useDashboardSections(): {
 		'dashboardSection',
 		{ per_page: -1 }
 	);
+	const order = useSelect( select => getSectionOrder( DASHBOARD_PREFERENCES_SCOPE, select ), [] );
+	const sections = useMemo(
+		() => orderSections( records ?? NO_SECTIONS, order ),
+		[ records, order ]
+	);
 
-	return { sections: records ?? [], hasResolved };
+	return { sections, hasResolved };
 }
