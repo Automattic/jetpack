@@ -21,7 +21,7 @@ import { HeatmapChart, useCalendarHeatmapData, useMonthCalendarHeatmapData } fro
 import type { DataPointDate } from '../../../types';
 import type { CalendarHeatmapOptions } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
 
@@ -126,9 +126,21 @@ export const MinimumCellSize: Story = {
  */
 export const LongSiteHistory: Story = {
 	render: args => (
-		<HeatmapChart { ...args } chartId="long-site-history-heatmap">
-			<HeatmapChart.Legend variant="bar" lessLabel="Fewer views" moreLabel="More views" />
-		</HeatmapChart>
+		// Flush square cells, so sixteen years read as one surface and the bands in it are not
+		// broken up by the grid. Both are catalog properties; the chart has no prop for either.
+		<div
+			style={
+				{
+					height: '100%',
+					'--a8c-charts-dimension-heatmap-cell-gap': '0px',
+					'--a8c-charts-border-radius-cell': '0',
+				} as CSSProperties
+			}
+		>
+			<HeatmapChart { ...args } chartId="long-site-history-heatmap">
+				<HeatmapChart.Legend variant="bar" lessLabel="Fewer views" moreLabel="More views" />
+			</HeatmapChart>
+		</div>
 	),
 	args: {
 		...sharedThemeArgs,
