@@ -5,7 +5,9 @@ import {
 	AnalyticsQueryClientProvider,
 	PeriodChangeSignalProvider,
 	ReportScopeProvider,
+	getSectionOrder,
 	isPlanDateLimitedSection,
+	orderSections,
 } from '@jetpack-premium-analytics/data';
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
@@ -31,7 +33,8 @@ import {
 	type PageNoticeProps,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
@@ -148,10 +151,20 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM, { dateLimits } );
 
-	// The adapter's view of the record's sections; the URL picks among the ones shown.
+	// The record's sections in the reader's order: the adapter, the tabs and the default one follow it.
+	const sectionOrder = useSelect(
+		select => getSectionOrder( page.preferences_scope, select ),
+		[ page.preferences_scope ]
+	);
+	const orderedSections = useMemo(
+		() => orderSections( page.sections, sectionOrder ),
+		[ page.sections, sectionOrder ]
+	);
+
+	// The adapter's view of those sections; the URL picks among the ones shown.
 	const [ urlSection, setActiveSection ] = useActiveSection();
 	const useSections = adapter.useSections ?? useRecordSections;
-	const sectionStates = useSections( summary, page.sections, {
+	const sectionStates = useSections( summary, orderedSections, {
 		entityId,
 		activeSlug: urlSection,
 		timeZone: dateFilters.timeZone,
@@ -163,6 +176,32 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 	);
 	const activeState =
 		visibleStates.find( state => state.section.slug === urlSection ) ?? visibleStates[ 0 ];
+
+	const sectionTabs = useMemo(
+		() =>
+			visibleStates.map( state => ( {
+				slug: state.section.slug,
+				label: state.label ?? state.section.label,
+				isPending: state.isPending,
+			} ) ),
+		[ visibleStates ]
+	);
+
+	// The order the reader is trying in the Arrange tabs dialog: the tab bar alone follows it.
+	const [ previewOrder, setPreviewOrder ] = useState< string[] >();
+	const tabBarTabs = useMemo(
+		() => orderSections( sectionTabs, previewOrder ?? [] ),
+		[ sectionTabs, previewOrder ]
+	);
+
+	// A tab still waiting for its name is not offered for arranging.
+	const arrangeableTabs = useMemo(
+		() =>
+			sectionTabs.some( tab => tab.isPending )
+				? undefined
+				: { scope: page.preferences_scope, items: sectionTabs, onPreview: setPreviewOrder },
+		[ page.preferences_scope, sectionTabs ]
+	);
 	const section = activeState?.section;
 	const activeSlug = section?.slug;
 
@@ -362,10 +401,10 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	const tabs = page.sections.length ? (
 		<SectionTabs
-			tabs={ visibleStates.map( state => ( {
-				id: state.section.slug,
-				label: state.label ?? state.section.label,
-				isPending: state.isPending,
+			tabs={ tabBarTabs.map( ( { slug, label, isPending } ) => ( {
+				id: slug,
+				label,
+				isPending,
 			} ) ) }
 			value={ activeSlug ?? '' }
 			onChange={ setActiveSection }
@@ -403,6 +442,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 										isCustomizing={ isCustomizing }
 										onCustomize={ canCustomize ? startCustomizing : undefined }
 										onReset={ resetToDefault }
+										tabs={ arrangeableTabs }
 										editingActions={ <WidgetDashboard.Actions /> }
 									>
 										{ adapter.headerActions?.( summary ) }

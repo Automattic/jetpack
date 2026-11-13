@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { isDashboardSectionAvailable } from '@jetpack-premium-analytics/data';
+import {
+	getSectionOrder,
+	isDashboardSectionAvailable,
+	orderSections,
+} from '@jetpack-premium-analytics/data';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
@@ -171,9 +175,9 @@ export function isValidEntityId(
 }
 
 /**
- * The inner section a raw `?section=` value names, falling back to the first one, so a
- * shared URL never persists a section the page cannot render. Undefined for a page
- * with one layout.
+ * The inner section a raw `?section=` value names, falling back to the first one in the
+ * reader's order, so a shared URL never persists a section the page cannot render.
+ * Undefined for a page with one layout.
  *
  * @param page  - The page.
  * @param value - The raw search value.
@@ -188,7 +192,10 @@ export function resolveSingleReportSection(
 		return undefined;
 	}
 
-	return sections.find( section => section.slug === value ) ?? sections[ 0 ];
+	return (
+		sections.find( section => section.slug === value ) ??
+		orderSections( sections, getSectionOrder( page.preferences_scope ) )[ 0 ]
+	);
 }
 
 /**
