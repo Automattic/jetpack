@@ -28,7 +28,7 @@ less than 2:1 against the background or the highest step.
 | `minCellWidth` | `number` | `0` | Minimum cell width in pixels in non-compact mode. The grid overflows horizontally instead of shrinking cells below this width. |
 | `minCellHeight` | `number` | `0` | Minimum cell height in pixels in non-compact mode. The grid overflows vertically instead of shrinking cells below this height. |
 | `primaryColor` | `string` | palette | Color the scale is built from, deepened at the highest value toward 9:1 against the background. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
-| `scale` | `'buckets' \| 'linear' \| 'log'` | `'linear'` | How a value picks its color. `linear` places it by distance between the lowest and highest value, keeping one outlier apart at the cost of flattening the rest; cells paint shades between the swatches rather than on them. `log` places it by distance in log space on five fixed steps, so each step is a jump of the same factor and a series spanning orders of magnitude keeps its spread at both ends; it needs every value above zero and falls back to `linear` with a warning otherwise. `buckets` ranks it against the series instead, splitting the values into at most five buckets that each hold about the same share of the cells; neighbors stay apart whatever the distances between them, at the cost of flattening the top, where the largest values share the darkest step. A series with little variety uses fewer colors and leaves some swatches unused. Prefer `log` where the periods are read against each other, as in months of a year. |
+| `scale` | `'linear' \| 'log'` | `'linear'` | How a value picks its color. `linear` places it by distance between the lowest and highest value, keeping one outlier apart at the cost of flattening everything below it; cells paint shades between the swatches rather than on them. `log` places it by distance in log space on five fixed steps, so each step is a jump of the same factor and a series spanning orders of magnitude keeps its spread at both ends; a cell's shade is then always one of the five legend steps, and a series whose values sit close together uses fewer colors and leaves some swatches unused. `log` needs every value above zero and falls back to `linear` with a warning otherwise. Prefer `log` where the periods are read against each other, as in months of a year. |
 | `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
 | `tooltipVariant` | `'light' \| 'dark'` | - | **Deprecated.** Every tooltip draws on the package tooltip surface; this prop has no effect. |
 | `tooltipStyle` | `CSSProperties` | - | Inline styles merged onto the tooltip box, over the surface's own; tighten the padding of a one-line tooltip, for example. |
@@ -55,7 +55,7 @@ Sub-component that renders the scale as one swatch per step, from the lightest t
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `steps` | `number` | `5` | Number of color swatches in the scale, not counting the empty-cell swatch. Under `scale="buckets"` and `scale="log"` a cell paints on exactly those five steps, so a different count here would draw shades it never paints: the legend keeps the five and warns once. Under the default `linear` scale the shades are continuous, so this is how many samples of them the legend shows. |
+| `steps` | `number` | `5` | Number of color swatches in the scale, not counting the empty-cell swatch. Under `scale="log"` a cell paints on exactly those five steps, so a different count here would draw shades it never paints: the legend keeps the five and warns once. Under the default `linear` scale the shades are continuous, so this is how many samples of them the legend shows. |
 | `variant` | `'swatches' \| 'bar'` | `'swatches'` | `swatches` spaces the steps out as cell-sized squares; `bar` joins them into one continuous band with rounded ends. |
 | `lessLabel` | `string` | `'Less'` | Label shown to the left of the swatches. |
 | `moreLabel` | `string` | `'More'` | Label shown to the right of the swatches. |
@@ -116,8 +116,8 @@ type HeatmapCell = {
 	placeholder?: boolean;
 	/**
 	 * The cell covers a period the data does not fill, such as a launch month
-	 * or a month still running. It is left out of the extent and the bucket
-	 * thresholds and painted as a diagonal hatch, so it is not read as a quiet
+	 * or a month still running. It is left out of the extent the shades are
+	 * drawn from and painted as a diagonal hatch, so it is not read as a quiet
 	 * period, while keeping its value, tooltip, accessible name (which ends
 	 * with "(incomplete)") and place in keyboard navigation. Ignored in a
 	 * `summary` column.

@@ -584,10 +584,10 @@ const mockRects = () =>
 	} );
 
 describe( 'HeatmapChart value text contrast', () => {
-	// Three values on the bucket scale, which lands them on the low end, the
+	// Three powers of ten on the log scale, which lands them on the low end, the
 	// mid-tone and the high end exactly.
 	const scale: HeatmapColumn[] = [
-		{ label: 'W1', data: [ { value: 1 }, { value: 60 }, { value: 100 } ] },
+		{ label: 'W1', data: [ { value: 1 }, { value: 10 }, { value: 100 } ] },
 	];
 
 	let injectedStyle: HTMLStyleElement | null = null;
@@ -604,7 +604,7 @@ describe( 'HeatmapChart value text contrast', () => {
 					width={ 500 }
 					height={ 300 }
 					data={ scale }
-					scale="buckets"
+					scale="log"
 					primaryColor="#3858e9"
 					className={ className }
 				/>
@@ -621,7 +621,7 @@ describe( 'HeatmapChart value text contrast', () => {
 	test( 'falls back to white on a mid-tone cell where neither role reaches AA', () => {
 		renderScale();
 
-		expect( screen.getByText( '60' ) ).toHaveClass( 'heatmap-chart__cell-value--white' );
+		expect( screen.getByText( '10' ) ).toHaveClass( 'heatmap-chart__cell-value--white' );
 	} );
 
 	test( 'reads the label roles once data arrives after an empty first render', () => {
@@ -714,7 +714,7 @@ describe( 'HeatmapChart value text contrast', () => {
 
 		renderScale( 'pinned-heatmap' );
 
-		[ '1', '60', '100' ].forEach( value =>
+		[ '1', '10', '100' ].forEach( value =>
 			expect( screen.getByText( value ) ).toHaveClass( 'heatmap-chart__cell-value', {
 				exact: true,
 			} )
@@ -1294,8 +1294,7 @@ describe( 'HeatmapChart naming and focus', () => {
 	} );
 } );
 
-describe( 'HeatmapChart bucket scale', () => {
-	// Twenty-four ascending values, so every one of the five buckets is populated.
+describe( 'HeatmapChart linear scale', () => {
 	const ascending: HeatmapColumn[] = Array.from( { length: 24 }, ( _column, index ) => ( {
 		data: [ { value: ( index + 1 ) * 10 } ],
 	} ) );
@@ -1305,32 +1304,7 @@ describe( 'HeatmapChart bucket scale', () => {
 			.getAllByTestId( testId )
 			.map( element => element.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) );
 
-	test( 'paints cells on the five legend steps rather than a continuous blend', () => {
-		render(
-			<GlobalChartsProvider>
-				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } scale="buckets">
-					<HeatmapChart.Legend />
-				</HeatmapChart>
-			</GlobalChartsProvider>
-		);
-
-		expect( [ ...new Set( intensitiesOf( 'heatmap-cell' ) ) ].sort() ).toEqual( [
-			'0',
-			'0.25',
-			'0.5',
-			'0.75',
-			'1',
-		] );
-		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [
-			'0',
-			'0.25',
-			'0.5',
-			'0.75',
-			'1',
-		] );
-	} );
-
-	test( 'keeps an outlier apart from the rest under the linear scale', () => {
+	test( 'keeps an outlier apart from the rest', () => {
 		const spike: HeatmapColumn[] = [ 1, 2, 3, 500 ].map( value => ( { data: [ { value } ] } ) );
 
 		render(
@@ -1339,7 +1313,6 @@ describe( 'HeatmapChart bucket scale', () => {
 			</GlobalChartsProvider>
 		);
 
-		// Ranking would hand 3 and 500 the same darkest step; distance does not.
 		expect( intensitiesOf( 'heatmap-cell' ) ).toEqual( [
 			'0',
 			'0.002004008016032064',
@@ -1348,39 +1321,18 @@ describe( 'HeatmapChart bucket scale', () => {
 		] );
 	} );
 
-	test( 'places by distance rather than rank without a scale prop', () => {
+	test( 'paints a continuous blend without a scale prop', () => {
 		render(
 			<GlobalChartsProvider>
 				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } />
 			</GlobalChartsProvider>
 		);
 
-		// Ranking would collapse the twenty-four values onto five steps.
+		// A stepped scale would collapse the twenty-four values onto five steps.
 		expect( new Set( intensitiesOf( 'heatmap-cell' ) ).size ).toBe( 24 );
 	} );
 
-	test( "holds the legend to the cells' steps under the buckets scale", () => {
-		render(
-			<GlobalChartsProvider>
-				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } scale="buckets">
-					<HeatmapChart.Legend steps={ 7 } />
-				</HeatmapChart>
-			</GlobalChartsProvider>
-		);
-
-		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [
-			'0',
-			'0.25',
-			'0.5',
-			'0.75',
-			'1',
-		] );
-		expect( console ).toHaveWarnedWith(
-			'[Charts] steps is fixed under the buckets scale, where a cell paints on exactly 5 steps, so the legend keeps them.'
-		);
-	} );
-
-	test( 'lets the legend hold its own step count under the linear scale', () => {
+	test( 'lets the legend hold its own step count', () => {
 		render(
 			<GlobalChartsProvider>
 				<HeatmapChart width={ 500 } height={ 300 } data={ ascending }>
@@ -1417,13 +1369,38 @@ describe( 'HeatmapChart log scale', () => {
 		expect( intensitiesOf( 'heatmap-cell' ) ).toEqual( [ '0', '0.25', '0.5', '0.75', '1' ] );
 	} );
 
-	test( 'keeps the low hundreds off the darkest step where ranking would not', () => {
+	test( 'spreads a series that runs over orders of magnitude', () => {
 		// The shape a post's all-time traffic takes: years of single digits, then a jump.
 		renderLog( [ 5, 18, 234, 812, 12100 ] );
 
-		const [ , , lowHundreds, , largest ] = intensitiesOf( 'heatmap-cell' );
-		expect( lowHundreds ).toBe( '0.5' );
-		expect( largest ).toBe( '1' );
+		// Distance would leave everything below the largest on the lightest tone.
+		expect( intensitiesOf( 'heatmap-cell' ) ).toEqual( [ '0', '0.25', '0.5', '0.75', '1' ] );
+	} );
+
+	test( "holds the legend to the cells' steps", () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					data={ [ 1, 10, 100 ].map( value => ( { data: [ { value } ] } ) ) }
+					scale="log"
+				>
+					<HeatmapChart.Legend steps={ 7 } />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+
+		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [
+			'0',
+			'0.25',
+			'0.5',
+			'0.75',
+			'1',
+		] );
+		expect( console ).toHaveWarnedWith(
+			'[Charts] steps is fixed under the log scale, where a cell paints on exactly 5 steps, so the legend keeps them.'
+		);
 	} );
 
 	test( 'stays quiet for a series with nothing on the scale', () => {

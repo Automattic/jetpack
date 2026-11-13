@@ -5,7 +5,7 @@ import * as HeatmapStories from './index.stories';
 
 # Heatmap Chart
 
-Visualize values across a two-dimensional matrix of cells on a sequential color scale. Cells run from a tint of the primary color to a deeper shade of it by how a value ranks among the others. `null` cells, and zeros in data with no negative values, take the neutral empty-cell color.
+Visualize values across a two-dimensional matrix of cells on a sequential color scale. Cells run from a tint of the primary color to a deeper shade of it by how large a value is against the others. `null` cells, and zeros in data with no negative values, take the neutral empty-cell color.
 
 <Canvas of={ HeatmapStories.Default } />
 
@@ -78,7 +78,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`columnGroups`**: consecutive runs of columns sharing a label beneath the grid, one group gap apart. See [Column Groups](#column-groups).
 - **`ariaLabel`**: accessible name of the grid. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - **`primaryColor`**: color the scale is built from; see [Theming](#theming). Defaults to the first series palette color, `--a8c-charts-color-series-1`
-- **`scale`** (default: `'linear'`): whether a value picks its color by distance, by distance in log space, or by rank. See [Color Scale](#color-scale).
+- **`scale`** (default: `'linear'`): whether a value picks its color by distance, or by distance in log space. See [Color Scale](#color-scale).
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
@@ -94,38 +94,34 @@ By default a shade reports a value's distance between the lowest and the highest
 
 ### Log space
 
-Set `scale="log"` for those, and a shade reports the value's distance in log space, on five fixed steps. Each step is a jump of the same factor, so a series running from single digits to five figures keeps its spread at both ends: the quiet months separate from each other, and the busiest month still stands clear of a month a tenth its size. That is what the yearly heatmaps use.
+Set `scale="log"` for those, and a shade reports the value's distance in log space, on five fixed steps. Each step is a jump of the same factor, so a series running from single digits to five figures keeps its spread at both ends: the quiet months separate from each other, and the busiest month still stands clear of a month a tenth its size. That is what every heatmap in Premium Analytics uses.
 
 <Source
 	code={ `<HeatmapChart data={ columns } rowLabels={ rowLabels } scale="log" />` }
 	language="tsx"
 />
 
-The log scale needs every value above zero. A series that reaches zero or below falls back to `linear` and warns once. Zeros are safe, because a zero paints as an empty cell and stays off the scale either way.
-
-### Ranking
-
-`scale="buckets"` reports the value's rank instead. The values are split into at most five buckets that each hold about the same share of the series, so neighbors stay apart whatever the distances between them. In a history whose years overlap, as in the story below, every year keeps its own busy and quiet months.
-
 <Canvas of={ HeatmapStories.LongSiteHistory } />
 
-The cost is the top of the scale. Rank is blind to how far above the rest a value sits, so on a series whose last year dwarfs the eight before it, a month in the low tens and the busiest month on record can share the darkest step. Prefer `log` where the series spans orders of magnitude, and `buckets` where the distances carry no meaning and only the ordering does. The scale ranks a value against the whole series, not against its own year or column. The largest value is always the darkest step. With two or more distinct values the smallest is the lightest; a series with fewer than two paints every cell in the darkest step. A series with little variety, such as one holding only three distinct values, yields fewer than five buckets: it uses fewer colors and leaves some legend swatches unused.
+The log scale needs every value above zero. A series that reaches zero or below falls back to `linear` and warns once. Zeros are safe, because a zero paints as an empty cell and stays off the scale either way.
+
+The largest value is always the darkest step and the smallest the lightest; a series with fewer than two distinct values paints every cell in the darkest step. A series whose values sit close together, such as one holding only three, lands on fewer than five steps: it uses fewer colors and leaves some legend swatches unused.
 
 <Canvas of={ HeatmapStories.FewDistinctValues } />
 
 ### Choosing one
 
-Under `buckets` and `log` a cell's shade is always one of five fixed steps, so every cell matches a legend swatch, and the legend keeps that count: a legend `steps` that differs would show shades the cells never paint, so it is ignored with a warning. Under `linear` the scale is continuous, so cells paint shades between the swatches rather than on them, and the legend's `steps` is free.
+Under `log` a cell's shade is always one of five fixed steps, so every cell matches a legend swatch, and the legend keeps that count: a legend `steps` that differs would show shades the cells never paint, so it is ignored with a warning. Under `linear` the scale is continuous, so cells paint shades between the swatches rather than on them, and the legend's `steps` is free.
 
-The `ScaleComparison` story draws one post's ten years on all three, which is the quickest way to see what each one gives up.
+The `ScaleComparison` story draws one post's ten years on both, which is the quickest way to see what each one gives up.
 
 <Canvas of={ HeatmapStories.ScaleComparison } />
 
-The `Calendar` story switches between traffic shapes and between the three scales, so they can be compared on each shape.
+The `Calendar` story switches between traffic shapes and between the two scales, so they can be compared on each shape.
 
 ### Incomplete periods
 
-Flag a cell `partial: true` when it covers a period the data does not fill, such as a launch month or a month still running. The cell stays off the scale entirely, out of the extent and the bucket thresholds alike, and is painted as a diagonal hatch rather than a shade, so it reads as neither a quiet period nor the lowest step. It keeps its value, tooltip and place in keyboard navigation, and its accessible name ends with `(incomplete)`. A `partial` flag on a cell in a `summary` column is ignored: the summary column stays unfilled.
+Flag a cell `partial: true` when it covers a period the data does not fill, such as a launch month or a month still running. The cell stays off the scale entirely, out of the extent the shades are drawn from, and is painted as a diagonal hatch rather than a shade, so it reads as neither a quiet period nor the lowest step. It keeps its value, tooltip and place in keyboard navigation, and its accessible name ends with `(incomplete)`. A `partial` flag on a cell in a `summary` column is ignored: the summary column stays unfilled.
 
 <Canvas of={ HeatmapStories.SinglePostHistory } />
 
@@ -366,7 +362,7 @@ Add a legend by placing `<HeatmapChart.Legend />` as a child. Between its Less a
 
 <Canvas of={ HeatmapStories.WithBarLegend } />
 
-The legend draws five swatches by default. Under `scale="buckets"` and `scale="log"` that count is fixed: a cell's shade is always `k / 4` for a whole number `k`, so a `steps` that differs would show shades the cells never paint, and it is ignored with a warning. Under the default `linear` scale the shades are continuous, so `steps` there is only how many samples of them the legend shows. The `Calendar` story asks for seven: switch its **scale** control away from `linear` and the legend drops back to the five the cells paint.
+The legend draws five swatches by default. Under `scale="log"` that count is fixed: a cell's shade is always `k / 4` for a whole number `k`, so a `steps` that differs would show shades the cells never paint, and it is ignored with a warning. Under the default `linear` scale the shades are continuous, so `steps` there is only how many samples of them the legend shows. The `Calendar` story asks for seven: switch its **scale** control to `linear` and the legend takes all seven, because there the shades between the swatches exist.
 
 ## Error / Empty State
 

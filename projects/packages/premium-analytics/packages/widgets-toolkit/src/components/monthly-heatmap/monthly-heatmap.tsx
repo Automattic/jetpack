@@ -221,8 +221,8 @@ export function MonthlyHeatmap( {
 				minCellHeight={ MIN_CELL_HEIGHT }
 				maxCellHeight={ MAX_CELL_HEIGHT }
 				// A post can run from single digits to five figures over its life, which
-				// distance flattens at the bottom and rank flattens at the top. In log
-				// space a tenfold jump is one step wherever it falls.
+				// distance flattens into one pale tone. In log space a tenfold jump is
+				// one step wherever it falls.
 				scale="log"
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips

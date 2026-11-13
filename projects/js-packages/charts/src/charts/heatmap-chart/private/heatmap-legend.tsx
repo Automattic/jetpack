@@ -5,18 +5,17 @@ import { useContext } from 'react';
 import { useGlobalChartsTheme } from '../../../providers';
 import { warnOnce } from '../../../utils/warn-once';
 import styles from '../heatmap-chart.module.scss';
-import { HEATMAP_SCALE_STEPS } from './heatmap-buckets';
 import { HeatmapContext } from './heatmap-context';
-import { isEmptyValue } from './use-heatmap-colors';
+import { HEATMAP_SCALE_STEPS, isEmptyValue } from './use-heatmap-colors';
 import type { CSSProperties, FC } from 'react';
 
 export interface HeatmapLegendProps {
 	/**
 	 * Number of color swatches in the scale, not counting the empty-cell swatch.
-	 * Default 5. Under the `buckets` and `log` scales a cell paints on exactly
-	 * those five steps, so the legend keeps them and a different count here is
-	 * ignored with a warning. The `linear` scale is continuous, so there the
-	 * count is free.
+	 * Default 5. Under the `log` scale a cell paints on exactly those five
+	 * steps, so the legend keeps them and a different count here is ignored
+	 * with a warning. The `linear` scale is continuous, so there the count is
+	 * free.
 	 */
 	steps?: number;
 	/**
@@ -41,13 +40,13 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 	}
 	const { extent, fillVars } = context;
 	const ownStepsIgnored =
-		context.scale !== 'linear' &&
+		context.scale === 'log' &&
 		requestedSteps !== undefined &&
 		requestedSteps !== HEATMAP_SCALE_STEPS;
 	if ( ownStepsIgnored ) {
 		warnOnce(
 			'heatmap:legendSteps',
-			`steps is fixed under the ${ context.scale } scale, where a cell paints on exactly ${ HEATMAP_SCALE_STEPS } steps, so the legend keeps them.`
+			`steps is fixed under the log scale, where a cell paints on exactly ${ HEATMAP_SCALE_STEPS } steps, so the legend keeps them.`
 		);
 	}
 	const steps = ownStepsIgnored ? HEATMAP_SCALE_STEPS : ( requestedSteps ?? HEATMAP_SCALE_STEPS );

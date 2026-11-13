@@ -109,6 +109,7 @@ export function MonthCalendarHeatmap( {
 				fitCells
 				keyboardNavigation="calendar"
 				ariaLabel={ chartName }
+				scale="log"
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
 				renderTooltip={ renderTooltip }

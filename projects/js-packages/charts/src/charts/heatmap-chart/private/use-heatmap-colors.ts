@@ -1,5 +1,8 @@
 import type { HeatmapColumn } from '../types';
 
+/** How many color steps a stepped scale paints on, and the legend draws. */
+export const HEATMAP_SCALE_STEPS = 5;
+
 export const isPresent = ( value: number | null | undefined ): value is number =>
 	value !== null && value !== undefined && ! isNaN( value );
 
