@@ -41,7 +41,7 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 		$wp_rest_server = new WP_REST_Server();
 		$register       = static function () {
 			WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupons', 'GET', array( 'type' => array( 'sanitize_callback' => 'sanitize_key' ) ) );
-			WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupon/(?P<id>\d+)', 'DELETE' );
+			WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupon/(?P<id>\d+)', 'DELETE', array( 'cancel_subscriptions' => array( 'type' => 'boolean' ) ) );
 			WPCOM_Proxy::register_route( 'rest/v1.1', 'wordads/settings', 'POST', array( 'paypal' => array( 'sanitize_callback' => 'sanitize_email' ) ) );
 		};
 		add_action( 'rest_api_init', $register );
@@ -88,6 +88,7 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 				null,
 			),
 			'v2 with an ID'    => array( 'DELETE', '/jetpack/v4/monetize/wpcom/v2/memberships/coupon/7', array( 'force' => 1 ), null, 'DELETE', '/wpcom/v2/sites/999/memberships/coupon/7', null ),
+			'v2 DELETE body'   => array( 'DELETE', '/jetpack/v4/monetize/wpcom/v2/memberships/coupon/7', array(), '{"cancel_subscriptions":true}', 'DELETE', '/wpcom/v2/sites/999/memberships/coupon/7?cancel_subscriptions=1', null ),
 			'v1.1 with a body' => array( 'POST', '/jetpack/v4/monetize/rest/v1.1/wordads/settings', array(), '{"paypal":"a@example.com<>","tos":"signed"}', 'POST', '/rest/v1.1/sites/999/wordads/settings', '{"paypal":"a@example.com"}' ),
 		);
 	}
