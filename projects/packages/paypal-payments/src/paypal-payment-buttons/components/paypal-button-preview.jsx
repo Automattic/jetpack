@@ -29,12 +29,12 @@ import {
 } from '../utils/block-styles';
 import { formatPrice } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
-import { linkPrice } from '../utils/link-price';
+import { discountedPrice, discountLabel, linkPrice } from '../utils/link-price';
 import { withPartnerAttribution } from '../utils/partner-attribution';
 import { getCardRevision } from '../utils/sync-on-save';
 import QrCodePreview from './qr-code-preview';
 import StackedButtonsPreview, { getStackedSdkSrc } from './stacked-buttons-preview';
-import { hasVariantPricing } from './variant-builder';
+import { getComparisonPrice, hasVariantPricing } from './variant-builder';
 
 /**
  * Build the variant summary the way render_api_managed_button() builds it.
@@ -62,6 +62,29 @@ function getVariantGroups( variants, productPrice ) {
 				} ),
 		} ) )
 		.filter( group => group.options.length > 0 );
+}
+
+/**
+ * A price, struck through with the discounted price after it when a discount applies.
+ *
+ * @param {object} props          - Component props.
+ * @param {string} props.value    - The price before the discount.
+ * @param {string} props.code     - ISO currency code.
+ * @param {object} props.discount - The discount fields and currency, for discountedPrice().
+ * @return {Element|string} The price or the two prices.
+ */
+function DiscountedPrice( { value, code, discount } ) {
+	const discounted = discountedPrice( value, discount );
+	if ( discounted === '' ) {
+		return formatPrice( value, code );
+	}
+
+	return (
+		<>
+			<s className="jetpack-paypal-button__original-price">{ formatPrice( value, code ) }</s>{ ' ' }
+			{ discounted }
+		</>
+	);
 }
 
 /**
@@ -148,7 +171,7 @@ function QrPreview( {
  * @param {object}  props.variants           - Variants data with dimensions.
  * @param {string}  props.imageUrl           - Optional product image URL.
  * @param {string}  props.buttonText         - Label on the checkout button.
- * @param {object}  props.attributes         - The block attributes, for the style mapping.
+ * @param {object}  props.attributes         - The block attributes, for the style mapping and the discount.
  * @param {boolean} props.isDisabled         - Whether to gray the button. True until the block has a link.
  * @return {Element} Button preview element.
  */
@@ -170,10 +193,28 @@ function ButtonPreview( {
 	// Mirrors render_api_managed_button(): PayPal drops the product-level amount
 	// once the options have their own prices, but the block keeps what was typed.
 	// Prices stay strings, because PayPal accepts 0 and the empty test is ''.
-	const productPrice = hasVariantPricing( variantsEnabled, variants )
-		? ''
-		: `${ price ?? '' }`.trim();
+	const variantPricing = hasVariantPricing( variantsEnabled, variants );
+	const productPrice = variantPricing ? '' : `${ price ?? '' }`.trim();
 	const headlinePrice = linkPrice( { price, currencyCode: code, variantsEnabled, variants } );
+	const { discountEnabled, discountType, discountValue } = attributes;
+	const discount = { currencyCode: code, discountEnabled, discountType, discountValue };
+	// With priced options the discount comes off the cheapest, the price the From headline shows.
+	const headlineValue = getComparisonPrice( variantPricing, variants, productPrice ) ?? '';
+	const headlineDiscounted = discountedPrice( headlineValue, discount );
+	let headline = headlinePrice;
+	if ( headlineDiscounted !== '' ) {
+		const prices = <DiscountedPrice value={ headlineValue } code={ code } discount={ discount } />;
+		headline = variantPricing
+			? createInterpolateElement(
+					sprintf(
+						/* translators: %s: formatted price, e.g. "$29.99" */
+						__( 'From %s', 'jetpack-paypal-payments' ),
+						'<price />'
+					),
+					{ price: prices }
+				)
+			: prices;
+	}
 	// Trimmed, as render_api_managed_button() does. The card needs a name,
 	// description or price. The image is outside it.
 	const name = `${ productName ?? '' }`.trim();
@@ -206,7 +247,10 @@ function ButtonPreview( {
 						) }
 					</div>
 					{ headlinePrice !== '' && (
-						<span className="jetpack-paypal-button__product-price">{ headlinePrice }</span>
+						<span className="jetpack-paypal-button__product-price">{ headline }</span>
+					) }
+					{ headlineDiscounted !== '' && (
+						<span className="jetpack-paypal-button__discount">{ discountLabel( discount ) }</span>
 					) }
 				</div>
 			) }
@@ -227,7 +271,11 @@ function ButtonPreview( {
 										<>
 											{ ' ' }
 											<span className="jetpack-paypal-button__variant-price">
-												{ formatPrice( option.price, code ) }
+												<DiscountedPrice
+													value={ option.price }
+													code={ code }
+													discount={ discount }
+												/>
 											</span>
 										</>
 									) }
