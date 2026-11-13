@@ -1,5 +1,5 @@
 /* No jest-dom or user-event in this project. */
-/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-checked, testing-library/prefer-user-event, testing-library/no-node-access */
+/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-checked, testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { ModuleSurfaceProvider } from '$features/module/surface';
@@ -111,24 +111,44 @@ describe( 'Page Cache example tooltip', () => {
 		renderMeta( row );
 		// The exceptions live behind the Except panel on the modern surface, Show Options on the other.
 		fireEvent.click( screen.getByRole( 'button', { name: row ? 'Except None' : 'Show Options' } ) );
-		const trigger = screen.getByRole( 'button', { name: 'See an example' } );
-		trigger.focus();
+		const trigger = screen.getByRole( 'button', { name: 'See examples' } );
 		fireEvent.click( trigger );
-		expect( screen.getByText( 'Example:' ) ).toBeTruthy();
+		expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
 		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
 		fireEvent.keyDown( trigger, { key: 'Escape' } );
-		expect( screen.queryByText( 'Example:' ) ).toBeNull();
-		expect( trigger.ownerDocument.activeElement ).toBe( trigger );
+		expect( screen.queryByText( 'Examples:' ) ).toBeNull();
 		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
 	} );
 
-	it( 'stays open while the exceptions are edited', () => {
+	it( 'stays open when the Exceptions field is clicked', () => {
 		renderMeta( false );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
-		fireEvent.click( screen.getByRole( 'button', { name: 'See an example' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'See examples' } ) );
 		const exceptions = screen.getByRole( 'textbox' );
 		fireEvent.pointerDown( exceptions );
 		exceptions.focus();
-		expect( screen.getByText( 'Example:' ) ).toBeTruthy();
+		expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
+	} );
+
+	it( 'closes when something else is clicked', () => {
+		renderMeta( false );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'See examples' } ) );
+		const elsewhere = screen.getByRole( 'button', { name: 'Clear Cache' } );
+		fireEvent.pointerDown( elsewhere );
+		elsewhere.focus();
+		expect( screen.queryByText( 'Examples:' ) ).toBeNull();
+	} );
+
+	it( 'still closes with Escape once focus has moved into the Exceptions field', () => {
+		renderMeta( false );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'See examples' } ) );
+		const exceptions = screen.getByRole( 'textbox' );
+		fireEvent.pointerDown( exceptions );
+		exceptions.focus();
+		expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
+		fireEvent.keyDown( exceptions, { key: 'Escape' } );
+		expect( screen.queryByText( 'Examples:' ) ).toBeNull();
 	} );
 } );

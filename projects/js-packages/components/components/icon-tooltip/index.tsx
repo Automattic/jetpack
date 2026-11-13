@@ -53,6 +53,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	trigger,
 	onTriggerClick,
 	closeOnClickOutside = true,
+	closeOnClickOutsideExceptRef,
 	forceShow = false,
 	hoverShow = false,
 	wide = false,
@@ -182,7 +183,12 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		},
 		onFocusOutside: ( event: FocusEvent ) => {
 			// A pointer press on our own trigger dismisses through that trigger instead.
-			if ( closeOnClickOutside && ! wrapperRef.current?.contains( event.relatedTarget as Node ) ) {
+			const related = event.relatedTarget as Node;
+			if (
+				closeOnClickOutside &&
+				! wrapperRef.current?.contains( related ) &&
+				! closeOnClickOutsideExceptRef?.current?.contains( related )
+			) {
 				hideTooltip();
 			}
 		},
@@ -208,17 +214,29 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		const doc = wrapperRef.current?.ownerDocument;
 		const handlePointerDown = ( event: PointerEvent ) => {
 			const target = event.target as Node;
-			if ( ! wrapperRef.current?.contains( target ) && ! popoverRef.current?.contains( target ) ) {
+			if (
+				! wrapperRef.current?.contains( target ) &&
+				! popoverRef.current?.contains( target ) &&
+				! closeOnClickOutsideExceptRef?.current?.contains( target )
+			) {
 				hideTooltip();
 			}
 		};
 		doc?.addEventListener( 'pointerdown', handlePointerDown );
 		return () => doc?.removeEventListener( 'pointerdown', handlePointerDown );
-	}, [ isVisible, isForcedToShow, closeOnClickOutside, hideTooltip ] );
+	}, [
+		isVisible,
+		isForcedToShow,
+		closeOnClickOutside,
+		closeOnClickOutsideExceptRef,
+		hideTooltip,
+	] );
 
-	// Hover leaves focus elsewhere, so Escape is watched directly to keep the content dismissible.
+	// Focus may have moved away from the trigger, e.g. into a caller's own field that
+	// closeOnClickOutside={false} or closeOnClickOutsideExceptRef lets the visitor use while the
+	// tooltip stays open, so Escape is watched directly here too.
 	useEffect( () => {
-		if ( ! isVisible || ! openedByHover.current ) {
+		if ( ! isVisible ) {
 			return;
 		}
 		const doc = wrapperRef.current?.ownerDocument;

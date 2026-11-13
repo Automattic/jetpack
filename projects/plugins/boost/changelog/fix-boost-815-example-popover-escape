@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: Close the Exceptions "See examples" popover with Escape or a click elsewhere, keep it open while editing the Exceptions field, and reword "See an example"/"Example:" to "See examples"/"Examples:" to match the three examples shown.

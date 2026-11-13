@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add an optional closeOnClickOutsideExceptRef prop to IconTooltip, for a caller's own field whose clicks shouldn't close the tooltip.

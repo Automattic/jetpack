@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Escape key not closing a tooltip once focus has moved elsewhere, such as into a field next to it.
