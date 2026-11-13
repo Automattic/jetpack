@@ -151,58 +151,59 @@ class Contact_Form_Plugin_Global_Styles_Label_Test extends BaseTestCase {
 	 * Core's resolver drops `label` before WP 7.1, so stand in for the Gutenberg one, which is preferred.
 	 */
 	public function test_enqueue_attaches_the_mirror_when_the_site_has_label_styles() {
-		if ( ! class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
-			$stub = new class() {
-				/**
-				 * Raw merged theme.json data to return.
-				 *
-				 * @var array
-				 */
-				public static $raw = array();
-
-				/**
-				 * Mimic the resolver's merged data object.
-				 *
-				 * @return object
-				 */
-				public static function get_merged_data() {
-					return new class( self::$raw ) {
-						/**
-						 * Raw data.
-						 *
-						 * @var array
-						 */
-						private $raw;
-
-						/**
-						 * Constructor.
-						 *
-						 * @param array $raw Raw data.
-						 */
-						public function __construct( $raw ) {
-							$this->raw = $raw;
-						}
-
-						/**
-						 * Raw data accessor.
-						 *
-						 * @return array
-						 */
-						public function get_raw_data() {
-							return $this->raw;
-						}
-					};
-				}
-			};
-			class_alias( get_class( $stub ), 'WP_Theme_JSON_Resolver_Gutenberg' );
+		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
+			$this->markTestSkipped( 'Needs the stub resolver, but Gutenberg\'s is loaded.' );
 		}
-		\WP_Theme_JSON_Resolver_Gutenberg::$raw = array( 'styles' => array( 'elements' => array( 'label' => array( 'typography' => array( 'fontWeight' => '900' ) ) ) ) );
+		$stub = new class() {
+			/**
+			 * Raw merged theme.json data to return.
+			 *
+			 * @var array
+			 */
+			public static $raw = array();
+
+			/**
+			 * Mimic the resolver's merged data object.
+			 *
+			 * @return object
+			 */
+			public static function get_merged_data() {
+				return new class( self::$raw ) {
+					/**
+					 * Raw data.
+					 *
+					 * @var array
+					 */
+					private $raw;
+
+					/**
+					 * Constructor.
+					 *
+					 * @param array $raw Raw data.
+					 */
+					public function __construct( $raw ) {
+						$this->raw = $raw;
+					}
+
+					/**
+					 * Raw data accessor.
+					 *
+					 * @return array
+					 */
+					public function get_raw_data() {
+						return $this->raw;
+					}
+				};
+			}
+		};
+		class_alias( get_class( $stub ), 'WP_Theme_JSON_Resolver_Gutenberg' );
+		$stub::$raw = array( 'styles' => array( 'elements' => array( 'label' => array( 'typography' => array( 'fontWeight' => '900' ) ) ) ) );
 		wp_register_style( 'grunion.css', 'https://example.org/grunion.css', array(), '1.0' );
 
 		try {
 			Contact_Form_Plugin::add_global_styles_label_css();
 		} finally {
-			\WP_Theme_JSON_Resolver_Gutenberg::$raw = array();
+			$stub::$raw = array();
 		}
 
 		$after = implode( '', (array) wp_styles()->get_data( 'grunion.css', 'after' ) );
