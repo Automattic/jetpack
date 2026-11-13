@@ -33,6 +33,8 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 	const COMPOSITE = 'http://cv.iptc.org/newscodes/digitalsourcetype/compositeWithTrainedAlgorithmicMedia';
 
+	const SYNTHETIC = 'http://cv.iptc.org/newscodes/digitalsourcetype/compositeSynthetic';
+
 	/**
 	 * An image whose active manifest has an AI ingredient, signed with c2patool's test certificate.
 	 */
@@ -117,6 +119,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		return array(
 			'ai'           => array( self::AI_MARKER ),
 			'ai composite' => array( self::COMPOSITE ),
+			'synthetic'    => array( self::SYNTHETIC ),
 		);
 	}
 
@@ -177,15 +180,6 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( array( $source ), $this->read_paths() );
 		$this->assertSame( array( self::AI_MARKER, self::AI_MARKER ), $this->written_types() );
-	}
-
-	public function test_a_type_with_shell_metacharacters_stays_one_argument() {
-		$type = 'x\';touch${IFS}CANARY;echo$(id)`id`"q"\\&end/trainedAlgorithmicMedia';
-		$this->fake_exiftool( $type );
-
-		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
-
-		$this->assertSame( array( $type ), $this->written_types() );
 	}
 
 	/**
@@ -363,6 +357,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		return array(
 			'XMP wins over the manifest' => array( self::COMPOSITE, true, array( self::COMPOSITE ) ),
 			'camera photo'               => array( self::CAMERA, false, array() ),
+			'not an IPTC type'           => array( 'x;id/trainedAlgorithmicMedia', false, array() ),
 			// Most uploads have no manifest.
 			'no manifest'                => array( '', false, array() ),
 		);

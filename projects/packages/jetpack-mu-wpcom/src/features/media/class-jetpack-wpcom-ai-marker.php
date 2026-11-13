@@ -11,9 +11,20 @@
 class Jetpack_WPCOM_AI_Marker {
 
 	/**
-	 * Most bytes of tool output to read.
+	 * Limits the bytes of tool output to read to avoid exhausting PHP's memory on a huge manifest.
 	 */
 	const MAX_OUTPUT = 262144;
+
+	/**
+	 * The IPTC DigitalSourceTypes for AI or synthetic media to keep.
+	 *
+	 * @see https://cv.iptc.org/newscodes/digitalsourcetype/
+	 */
+	const SYNTHETIC_TYPES = array(
+		'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia',
+		'http://cv.iptc.org/newscodes/digitalsourcetype/compositeWithTrainedAlgorithmicMedia',
+		'http://cv.iptc.org/newscodes/digitalsourcetype/compositeSynthetic',
+	);
 
 	/**
 	 * The jetpack_bump_stats_extras group for this caller.
@@ -79,7 +90,7 @@ class Jetpack_WPCOM_AI_Marker {
 		$output = (string) $this->run_tool( array( $exiftool, '-config', '', '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $file ) );
 		if ( preg_match( '/^DigitalSourceType: (.*)$/m', $output, $match ) ) {
 			$digital_source_type = trim( $match[1] );
-			return self::is_ai( $digital_source_type ) ? $digital_source_type : '';
+			return self::is_synthetic( $digital_source_type ) ? $digital_source_type : '';
 		}
 
 		return str_contains( $output, 'JUMDLabel: ' ) ? $this->read_c2pa( $file ) : '';
@@ -134,7 +145,7 @@ class Jetpack_WPCOM_AI_Marker {
 			foreach ( (array) ( $manifest['assertions'] ?? array() ) as $assertion ) {
 				foreach ( (array) ( $assertion['data']['actions'] ?? array() ) as $action ) {
 					$digital_source_type = $action['digitalSourceType'] ?? '';
-					if ( self::is_ai( $digital_source_type ) ) {
+					if ( self::is_synthetic( $digital_source_type ) ) {
 						$this->bump_stat( 'from-c2pa' );
 						return $digital_source_type;
 					}
@@ -217,15 +228,13 @@ class Jetpack_WPCOM_AI_Marker {
 	}
 
 	/**
-	 * Whether a type is an IPTC URI for AI media. A null byte would make proc_open() throw.
+	 * Whether a type is in SYNTHETIC_TYPES.
 	 *
 	 * @param mixed $digital_source_type The type a tool reported.
 	 * @return bool
 	 */
-	private static function is_ai( $digital_source_type ) {
-		return is_string( $digital_source_type )
-			&& 1 === preg_match( '/^[\x21-\x7e]{1,255}$/D', $digital_source_type )
-			&& false !== stripos( $digital_source_type, 'trainedAlgorithmicMedia' );
+	private static function is_synthetic( $digital_source_type ) {
+		return in_array( $digital_source_type, self::SYNTHETIC_TYPES, true );
 	}
 
 	/**
