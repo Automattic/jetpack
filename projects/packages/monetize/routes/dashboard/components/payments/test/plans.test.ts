@@ -5,6 +5,7 @@ const product = ( overrides: Partial< MembershipProduct > ): MembershipProduct =
 	id: 1,
 	title: 'Plan',
 	description: '',
+	descriptionHtml: '',
 	price: 5,
 	currency: 'USD',
 	interval: '1 month',

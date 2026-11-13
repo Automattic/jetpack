@@ -22,9 +22,9 @@ export default function StripeCard() {
 
 	const onConnectClick = useCallback( () => trackPaymentsEvent( 'stripe_connect_click' ), [] );
 	const onConfirmDisconnect = useCallback( async () => {
-		trackPaymentsEvent( 'stripe_disconnect' );
 		try {
 			await disconnect.mutateAsync();
+			trackPaymentsEvent( 'stripe_disconnect' );
 		} catch ( disconnectError ) {
 			return {
 				close: false,

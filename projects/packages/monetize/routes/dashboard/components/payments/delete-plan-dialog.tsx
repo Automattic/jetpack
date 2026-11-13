@@ -1,7 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { AlertDialog, CheckboxControl } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
-import { useDeleteProducts } from '../../data/memberships';
+import { DeleteProductsError, useDeleteProducts } from '../../data/memberships';
 import { trackPaymentsEvent } from '../../data/tracking';
 import type { Plan } from './plans';
 
@@ -15,6 +15,10 @@ import type { Plan } from './plans';
  */
 export default function DeletePlanDialog( { plan, onClose }: { plan: Plan; onClose: () => void } ) {
 	const [ cancelSubscriptions, setCancelSubscriptions ] = useState( false );
+	const [ remainingIds, setRemainingIds ] = useState( () => [
+		plan.product.id,
+		...( plan.annual ? [ plan.annual.id ] : [] ),
+	] );
 	const deleteProducts = useDeleteProducts();
 
 	const onOpenChange = useCallback(
@@ -27,13 +31,13 @@ export default function DeletePlanDialog( { plan, onClose }: { plan: Plan; onClo
 	);
 
 	const onConfirm = useCallback( async () => {
-		trackPaymentsEvent( 'plan_delete', { cancel_subscriptions: cancelSubscriptions } );
 		try {
-			await deleteProducts.mutateAsync( {
-				ids: [ plan.product.id, ...( plan.annual ? [ plan.annual.id ] : [] ) ],
-				cancelSubscriptions,
-			} );
+			await deleteProducts.mutateAsync( { ids: remainingIds, cancelSubscriptions } );
+			trackPaymentsEvent( 'plan_delete', { cancel_subscriptions: cancelSubscriptions } );
 		} catch ( error ) {
+			if ( error instanceof DeleteProductsError ) {
+				setRemainingIds( error.failedIds );
+			}
 			return {
 				close: false,
 				error:
@@ -41,7 +45,7 @@ export default function DeletePlanDialog( { plan, onClose }: { plan: Plan; onClo
 					__( 'The plan could not be deleted. Please try again.', 'jetpack-monetize' ),
 			};
 		}
-	}, [ cancelSubscriptions, deleteProducts, plan ] );
+	}, [ cancelSubscriptions, deleteProducts, remainingIds ] );
 
 	return (
 		<AlertDialog.Root open onOpenChange={ onOpenChange } onConfirm={ onConfirm }>

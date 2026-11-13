@@ -104,6 +104,8 @@ export interface MembershipProduct {
 	id: number;
 	title: string;
 	description: string;
+	/** The description as WordPress.com renders its Markdown, when it sends it. */
+	descriptionHtml: string;
 	price: number;
 	currency: string;
 	/** `1 month`, `1 year` or `one-time`. */
@@ -119,6 +121,7 @@ interface ProductResponse {
 	connected_account_product_id?: number | string;
 	title?: string;
 	description?: string | null;
+	description_rendered?: string | null;
 	price?: number | string;
 	currency?: string;
 	interval?: string;
@@ -138,6 +141,7 @@ export function toMembershipProduct( product: ProductResponse ): MembershipProdu
 		id: Number( product.id || product.connected_account_product_id ),
 		title: product.title ?? '',
 		description: product.description ?? '',
+		descriptionHtml: product.description_rendered ?? '',
 		price: Number( product.price ) || 0,
 		currency: product.currency ?? 'USD',
 		interval: product.interval ?? 'one-time',
@@ -165,16 +169,34 @@ export function useMembershipProducts() {
 	} );
 }
 
+export class DeleteProductsError extends Error {
+	/** The products that are still there, to retry. */
+	failedIds: number[];
+
+	constructor( message: string, failedIds: number[] ) {
+		super( message );
+		this.name = 'DeleteProductsError';
+		this.failedIds = failedIds;
+	}
+}
+
 /**
  * Deletes payment plans, such as a tier's monthly and annual products together.
  *
  * @return The mutation.
+ * @throws {DeleteProductsError} When any product could not be deleted.
  */
 export function useDeleteProducts() {
 	const queryClient = useQueryClient();
 	return useMutation( {
-		mutationFn: ( { ids, cancelSubscriptions }: { ids: number[]; cancelSubscriptions: boolean } ) =>
-			Promise.all(
+		mutationFn: async ( {
+			ids,
+			cancelSubscriptions,
+		}: {
+			ids: number[];
+			cancelSubscriptions: boolean;
+		} ) => {
+			const results = await Promise.allSettled(
 				ids.map( id =>
 					wpcomFetch( {
 						api: 'wpcom/v2',
@@ -183,8 +205,17 @@ export function useDeleteProducts() {
 						data: { cancel_subscriptions: cancelSubscriptions },
 					} )
 				)
-			),
-		// Refetch even after a partial failure, since one of the pair may be gone.
+			);
+			const failed = results.flatMap( ( result, index ) =>
+				result.status === 'rejected' ? [ { id: ids[ index ], reason: result.reason } ] : []
+			);
+			if ( failed.length ) {
+				throw new DeleteProductsError(
+					( failed[ 0 ].reason as Error )?.message ?? '',
+					failed.map( ( { id } ) => id )
+				);
+			}
+		},
 		onSettled: () => queryClient.invalidateQueries( { queryKey: PRODUCTS_KEY } ),
 	} );
 }

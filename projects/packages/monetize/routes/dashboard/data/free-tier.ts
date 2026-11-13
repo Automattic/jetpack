@@ -9,6 +9,8 @@ export const FREE_TIER_DESCRIPTION_MAX = 500;
 
 export interface FreeTier {
 	description: string;
+	/** The rendered description, which only WordPress.com's settings send. */
+	descriptionHtml?: string;
 	hidden: boolean;
 }
 
@@ -26,20 +28,26 @@ export function getSettingsPath(): string {
 /**
  * The free newsletter tier's description and visibility, from the site's `subscription_options`.
  *
+ * @param enabled - Whether to fetch it, since only sites with a paid tier show it.
  * @return The query.
  */
-export function useFreeTier() {
+export function useFreeTier( enabled = true ) {
 	return useQuery( {
 		queryKey: KEY,
+		enabled,
 		queryFn: async (): Promise< FreeTier > => {
 			const response = await apiFetch< {
-				settings?: { subscription_options?: Record< string, unknown > };
+				settings?: {
+					subscription_options?: Record< string, unknown >;
+					free_tier_description_rendered?: string;
+				};
 				subscription_options?: Record< string, unknown >;
 			} >( { path: getSettingsPath() } );
 			// WordPress.com nests the settings under `settings`.
 			const options = ( response.settings ?? response ).subscription_options ?? {};
 			return {
 				description: String( options.free_tier_description ?? '' ),
+				descriptionHtml: response.settings?.free_tier_description_rendered ?? '',
 				hidden: Boolean( options.hide_free_tier ),
 			};
 		},

@@ -15,14 +15,15 @@ const OPTIONS = { subscription_options: { free_tier_description: 'Hi', hide_free
 
 describe( 'useFreeTier', () => {
 	it.each( [
-		[ 'Jetpack’s settings off Simple', false, '/jetpack/v4/settings', OPTIONS ],
+		[ 'Jetpack’s settings off Simple', false, '/jetpack/v4/settings', OPTIONS, '' ],
 		[
 			'WordPress.com’s settings on Simple',
 			true,
 			'/rest/v1.4/sites/42/settings',
-			{ settings: OPTIONS },
+			{ settings: { ...OPTIONS, free_tier_description_rendered: '<p>Hi</p>' } },
+			'<p>Hi</p>',
 		],
-	] )( 'reads %s', async ( _name, simple, path, response ) => {
+	] )( 'reads %s', async ( _name, simple, path, response, descriptionHtml ) => {
 		( isSimpleSite as jest.Mock ).mockReturnValue( simple );
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue( response );
 		const wrapper = ( { children }: { children: ReactNode } ) => (
@@ -32,7 +33,7 @@ describe( 'useFreeTier', () => {
 		const { result } = renderHook( () => useFreeTier(), { wrapper } );
 
 		await waitFor( () =>
-			expect( result.current.data ).toEqual( { description: 'Hi', hidden: true } )
+			expect( result.current.data ).toEqual( { description: 'Hi', descriptionHtml, hidden: true } )
 		);
 		expect( apiFetch ).toHaveBeenCalledWith( { path } );
 	} );

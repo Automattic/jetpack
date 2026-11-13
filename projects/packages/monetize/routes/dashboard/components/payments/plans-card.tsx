@@ -1,3 +1,4 @@
+import { safeHTML } from '@wordpress/dom';
 import { __ } from '@wordpress/i18n';
 import { Badge, Button, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
@@ -14,21 +15,27 @@ import type { ReactNode } from 'react';
 /**
  * One row of the list.
  *
- * @param props          - Component props.
- * @param props.title    - The plan's name.
- * @param props.details  - Its description and price.
- * @param props.badges   - Its badges.
- * @param props.children - Its actions.
+ * @param props                 - Component props.
+ * @param props.title           - The plan's name.
+ * @param props.description     - Its description, as typed.
+ * @param props.descriptionHtml - Its description rendered from Markdown, shown in place of the typed one when present.
+ * @param props.price           - Its price.
+ * @param props.badges          - Its badges.
+ * @param props.children        - Its actions.
  * @return The row.
  */
 function PlanRow( {
 	title,
-	details,
+	description = '',
+	descriptionHtml = '',
+	price,
 	badges,
 	children,
 }: {
 	title: string;
-	details: string[];
+	description?: string;
+	descriptionHtml?: string;
+	price: string;
 	badges: string[];
 	children?: ReactNode;
 } ) {
@@ -44,11 +51,19 @@ function PlanRow( {
 				<Text variant="heading-sm" render={ <h3 /> }>
 					{ title }
 				</Text>
-				{ details.filter( Boolean ).map( detail => (
-					<Text key={ detail } variant="body-sm">
-						{ detail }
+				{ descriptionHtml ? (
+					<Text variant="body-sm" render={ <div /> }>
+						<div
+							className="jp-monetize-payments__description"
+							// WordPress.com renders it with an allowlist of tags; safeHTML is a second pass.
+							// eslint-disable-next-line react/no-danger
+							dangerouslySetInnerHTML={ { __html: safeHTML( descriptionHtml ) } }
+						/>
 					</Text>
-				) ) }
+				) : (
+					description && <Text variant="body-sm">{ description }</Text>
+				) }
+				<Text variant="body-sm">{ price }</Text>
 				{ badges.length > 0 && (
 					<Stack direction="row" gap="xs">
 						{ badges.map( badge => (
@@ -91,7 +106,7 @@ export default function PlansCard() {
 	const { data: products, isError, error } = useMembershipProducts();
 	const plans = products ? groupPlans( products ) : [];
 	const hasTier = plans.some( isTier );
-	const { data: freeTier } = useFreeTier();
+	const { data: freeTier } = useFreeTier( hasTier );
 	const [ deleting, setDeleting ] = useState< Plan | null >( null );
 	const [ editingFreeTier, setEditingFreeTier ] = useState( false );
 
@@ -140,18 +155,26 @@ export default function PlansCard() {
 						<PlanRow
 							key={ plan.product.id }
 							title={ plan.product.title }
-							details={ [ isTier( plan ) ? plan.product.description : '', planPriceLabel( plan ) ] }
+							{ ...( isTier( plan ) && {
+								description: plan.product.description,
+								descriptionHtml: plan.product.descriptionHtml,
+							} ) }
+							price={ planPriceLabel( plan ) }
 							badges={ badges }
 						>
-							{ /* Calypso offers deletion even when the plan no longer allows editing. */ }
-							{ ! isReadOnly && <DeleteButton plan={ plan } onDelete={ setDeleting } /> }
+							{ /* Read-only plans can't be deleted. */ }
+							{ canManagePlans && ! isReadOnly && (
+								<DeleteButton plan={ plan } onDelete={ setDeleting } />
+							) }
 						</PlanRow>
 					);
 				} ) }
 				{ hasTier && freeTier && (
 					<PlanRow
 						title={ __( 'Free', 'jetpack-monetize' ) }
-						details={ [ freeTier.description, __( 'Free', 'jetpack-monetize' ) ] }
+						description={ freeTier.description }
+						descriptionHtml={ freeTier.descriptionHtml }
+						price={ __( 'Free', 'jetpack-monetize' ) }
 						badges={ [
 							__( 'Newsletter tier', 'jetpack-monetize' ),
 							...( freeTier.hidden ? [ __( 'Hidden from subscribers', 'jetpack-monetize' ) ] : [] ),
