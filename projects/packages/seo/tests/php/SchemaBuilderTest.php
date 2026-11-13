@@ -550,6 +550,62 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
+	 * The authors filter can credit several Person nodes; the Article then
+	 * references each by `@id` and the graph carries every node.
+	 */
+	public function test_article_authors_filter_credits_multiple_authors() {
+		$user   = $this->make_user();
+		$guest  = array(
+			'@type' => 'Person',
+			'@id'   => 'https://example.test/author/guest/#person',
+			'name'  => 'Guest Author',
+		);
+		$filter = static function ( $authors ) use ( $guest ) {
+			$authors[] = $guest;
+			return $authors;
+		};
+		add_filter( 'jetpack_seo_schema_article_authors', $filter );
+
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+		remove_filter( 'jetpack_seo_schema_article_authors', $filter );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertSame(
+			array(
+				array( '@id' => Schema_Node_Ids::person( $user->ID, $user->user_nicename ) ),
+				array( '@id' => $guest['@id'] ),
+			),
+			$article['author']
+		);
+		$this->assertContains( $guest, $doc['@graph'], 'The filtered Person node must be in the graph.' );
+	}
+
+	/**
+	 * Filtered entries without an `@id` are dropped, so an empty result leaves
+	 * the Article with no author rather than a broken reference.
+	 */
+	public function test_article_authors_filter_drops_entries_without_id() {
+		$user   = $this->make_user();
+		$filter = static function () {
+			return array(
+				array(
+					'@type' => 'Person',
+					'name'  => 'No Id',
+				),
+				'not-a-node',
+			);
+		};
+		add_filter( 'jetpack_seo_schema_article_authors', $filter );
+
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+		remove_filter( 'jetpack_seo_schema_article_authors', $filter );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertArrayNotHasKey( 'author', $article );
+		$this->assertNull( $this->node_of_type( $doc, 'Person' ) );
+	}
+
+	/**
 	 * Without an Organization, author archives emit ProfilePage and Person nodes
 	 * linked by `mainEntity`, with no `worksFor`.
 	 */

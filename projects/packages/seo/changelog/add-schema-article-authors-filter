@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `jetpack_seo_schema_article_authors` filter so plugins can credit more than one author, or a guest author, in the Article schema.
