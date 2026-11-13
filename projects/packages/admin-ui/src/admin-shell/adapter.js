@@ -13,7 +13,7 @@ import { log } from './debug';
  *
  * @param {Function} getVisible - Returns the slug of the app on screen.
  * @param {Function} onWrite    - Called after every history write reaches the browser.
- * @return {object} `mount( slug )`, `mounted( slug )`, `isMounting()`, `listen( type, listener )` and `pushUrl( url )`.
+ * @return {object} `mount( slug )`, `mounted( slug )`, `isMounting()`, `listen( type, listener )`, `pushUrl( url )` and `replaceUrl( url )`.
  */
 export function isolateRouters( getVisible, onWrite ) {
 	// Apps mounting now, latest last: what subscribes is tagged as the latest one's.
@@ -110,6 +110,12 @@ export function isolateRouters( getVisible, onWrite ) {
 			const index = ( history.state?.__TSR_index ?? 0 ) + 1;
 			native.pushState( { __TSR_index: index, key, __TSR_key: key }, '', url );
 			log( 'router', 'URL pushed by the shell', new URL( url, location.href ).search );
+			onWrite();
+		},
+		// Rewrites the current entry in place, keeping its state, so Back/Forward keep their count.
+		replaceUrl: url => {
+			native.replaceState( history.state, '', url );
+			log( 'router', 'URL replaced by the shell', new URL( url, location.href ).search );
 			onWrite();
 		},
 	};
