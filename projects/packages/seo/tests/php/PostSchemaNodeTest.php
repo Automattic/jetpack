@@ -83,6 +83,27 @@ class PostSchemaNodeTest extends TestCase {
 	}
 
 	/**
+	 * The default-type filter lets a custom post type default to Article, and
+	 * values outside the allowed types fall back to none.
+	 */
+	public function test_default_schema_type_filter() {
+		$filter = static function ( $type, $post ) {
+			if ( 'book' === $post->post_type ) {
+				return 'article';
+			}
+			return 'page' === $post->post_type ? 'not-a-type' : $type;
+		};
+		add_filter( 'jetpack_seo_default_schema_type', $filter, 10, 2 );
+
+		$this->assertSame( 'article', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'book' ) ) ) );
+		$this->assertSame( 'Article', Post_Schema_Node::build( $this->make_post( array( 'post_type' => 'book' ) ) )['@type'] );
+		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'page' ) ) ) );
+		$this->assertSame( 'article', $this->invoke( 'default_schema_for_post', $this->make_post() ) );
+
+		remove_filter( 'jetpack_seo_default_schema_type', $filter, 10 );
+	}
+
+	/**
 	 * No node is built for unpublished content (previews, drafts, private, etc.),
 	 * even when a logged-in user can view it.
 	 */
