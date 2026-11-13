@@ -31,9 +31,7 @@ const manualHelp = __(
 );
 
 /**
- * Google verification: a WordPress.com keyring auto-verify flow on connected sites,
- * with manual meta-tag entry as a fallback (and the only option when disconnected).
- * The other services stay simple code fields in the parent card.
+ * Offer the host's Google verification flow with manual code entry as a fallback.
  *
  * @param props          - Component props.
  * @param props.value    - The manual Google verification code.
@@ -50,7 +48,7 @@ const GoogleVerificationField: FC< Props > = ( {
 	onCommit,
 	disabled,
 } ) => {
-	const { state, isConnected, isOwner, searchConsoleUrl, isVerifying, isConfirming, autoVerify } =
+	const { state, canAutoVerify, isOwner, searchConsoleUrl, isVerifying, isConfirming, autoVerify } =
 		useGoogleVerify( { saveCode } );
 	const [ manualOpen, setManualOpen ] = useState( false );
 	const manualVisible = manualOpen || !! value;
@@ -78,10 +76,8 @@ const GoogleVerificationField: FC< Props > = ( {
 		/>
 	);
 
-	// Manual entry only when there is no keyring auto-verify path: a disconnected
-	// self-hosted site (no popup), or a site where the status check came back
-	// `unavailable` (e.g. a `forbidden` response on an under-construction site).
-	if ( ! isConnected || state === 'unavailable' ) {
+	// Keep manual entry available when the host lacks or forbids automatic verification.
+	if ( ! canAutoVerify || state === 'unavailable' ) {
 		return (
 			<TextControl
 				label={ __( 'Google', 'jetpack-seo' ) }

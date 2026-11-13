@@ -1,20 +1,21 @@
 import { jest } from '@jest/globals';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import type { GoogleVerifyBootstrap } from '../google-verify-types';
 
 type Request = { path: string; method?: string };
 
 const mockApiFetch = jest.fn< ( options: Request ) => Promise< unknown > >();
 const saveCode = jest.fn< ( code: string ) => Promise< void > >();
+const popup =
+	jest.fn< ( url: string, callback: ( result: { keyring_id?: number } ) => void ) => void >();
 
 jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: mockApiFetch } ) );
 jest.unstable_mockModule( '@automattic/request-external-access', () => ( {
-	default: ( _url: string, callback: ( result: { keyring_id: number } ) => void ) =>
-		callback( { keyring_id: 7 } ),
+	default: popup,
 } ) );
+let bootstrap: GoogleVerifyBootstrap;
 jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( {
-		seo: { google_verify: { connect_url: 'https://example.com/connect', is_connected: true } },
-	} ),
+	getScriptData: () => ( { seo: { google_verify: bootstrap } } ),
 } ) );
 jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 const createErrorNotice = jest.fn();
@@ -68,6 +69,8 @@ async function mountHook() {
 describe( 'useGoogleVerify', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		bootstrap = { connect_url: 'https://example.com/connect', is_connected: true };
+		popup.mockImplementation( ( _url, callback ) => callback( { keyring_id: 7 } ) );
 		saveCode.mockResolvedValue( undefined );
 	} );
 
@@ -118,5 +121,68 @@ describe( 'useGoogleVerify', () => {
 		await waitFor( () => expect( result.current.isVerifying ).toBe( false ) );
 		expect( mockApiFetch ).not.toHaveBeenCalledWith( VERIFY_POST );
 		expect( createErrorNotice ).toHaveBeenCalledWith( 'Nope.', expect.anything() );
+	} );
+	it( 'uses a native host transport without a Jetpack user connection', async () => {
+		bootstrap = {
+			connect_url: 'https://example.com/native-connect',
+			is_connected: false,
+			can_auto_verify: true,
+			api_path: '/wpcom/v2/seo/google-verify',
+		};
+		respond();
+		const { result } = await mountHook();
+		expect( result.current.canAutoVerify ).toBe( true );
+		act( () => result.current.autoVerify() );
+		await waitFor( () => expect( result.current.isVerifying ).toBe( false ) );
+		expect(
+			mockApiFetch.mock.calls.map( ( [ request ] ) => [ request.path, request.method ?? 'GET' ] )
+		).toEqual( [
+			[ '/wpcom/v2/seo/google-verify', 'GET' ],
+			[ '/wpcom/v2/seo/google-verify/7', 'GET' ],
+			[ '/wpcom/v2/seo/google-verify', 'POST' ],
+			[ '/wpcom/v2/seo/google-verify/7', 'GET' ],
+		] );
+		expect( saveCode ).toHaveBeenCalledWith( 'tok' );
+		expect( popup ).toHaveBeenCalledWith( bootstrap.connect_url, expect.any( Function ) );
+	} );
+
+	it.each( [
+		[ 'disconnected user', { is_connected: false } ],
+		[ 'missing popup URL', { connect_url: '' } ],
+		[ 'host disables automatic verification', { can_auto_verify: false } ],
+	] )( 'keeps manual entry for %s', async ( _label, overrides ) => {
+		bootstrap = { ...bootstrap, ...overrides };
+		const { result } = await mountHook();
+		expect( result.current.canAutoVerify ).toBe( false );
+		expect( result.current.state ).toBe( 'unavailable' );
+		act( () => result.current.autoVerify() );
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [ 'forbidden', 'rest_forbidden', 'rest_no_route' ] )(
+		'keeps manual entry after %s',
+		async code => {
+			mockApiFetch.mockRejectedValue( { code } );
+			const { result } = await mountHook();
+			expect( result.current.state ).toBe( 'unavailable' );
+			act( () => result.current.autoVerify() );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+			expect( saveCode ).not.toHaveBeenCalled();
+			expect( popup ).not.toHaveBeenCalled();
+		}
+	);
+
+	it( 'allows another attempt after the connection popup is canceled', async () => {
+		popup.mockImplementation( ( _url, callback ) => callback( {} ) );
+		respond();
+		const { result } = await mountHook();
+		act( () => result.current.autoVerify() );
+		expect( result.current.isVerifying ).toBe( false );
+		expect( result.current.isConfirming ).toBe( false );
+		expect( saveCode ).not.toHaveBeenCalled();
+		popup.mockImplementation( ( _url, callback ) => callback( { keyring_id: 7 } ) );
+		act( () => result.current.autoVerify() );
+		await waitFor( () => expect( result.current.isVerifying ).toBe( false ) );
+		expect( saveCode ).toHaveBeenCalledWith( 'tok' );
 	} );
 } );
