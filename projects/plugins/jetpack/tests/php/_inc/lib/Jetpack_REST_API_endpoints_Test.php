@@ -239,7 +239,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	 */
 	public function test_update_verification_service_stores_normalized_code() {
 		$this->load_rest_endpoints_direct();
-		require_once JETPACK__PLUGIN_DIR . 'modules/verification-tools/blog-verification-tools.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/verification-tools.php';
 		jetpack_verification_options_init();
 
 		$user = $this->create_and_get_user( 'administrator' );

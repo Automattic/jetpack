@@ -4,10 +4,18 @@ set -eo pipefail
 
 export PHPUNIT_JETPACK_TESTSUITE_IS_PARALLEL=true
 
+source tests/phpunit-shards.sh
+
+PHPUNIT="php -dpcov.directory=. \"$(command -v phpunit-select-config)\""
+
 declare -A TESTS
-TESTS[normal]="php -dpcov.directory=. \"$(command -v phpunit-select-config)\" phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/backend/php.cov\""
-TESTS[lfs]="LEGACY_FULL_SYNC=1 php -dpcov.directory=. \"$(command -v phpunit-select-config)\" phpunit.#.xml.dist --group=legacy-full-sync --coverage-php \"$COVERAGE_DIR/legacy-sync/php.cov\""
-TESTS[multisite]="WP_MULTISITE=1 php -dpcov.directory=. \"$(command -v phpunit-select-config)\" tests/php.multisite.#.xml --coverage-php \"$COVERAGE_DIR/multisite/php.cov\""
+for shard in "${!SHARDS[@]}"; do
+	TESTS[$shard]="$PHPUNIT phpunit.#.xml.dist --testsuite '$( shard_suites "${SHARDS[$shard]}" )' --coverage-php \"$COVERAGE_DIR/$shard/php.cov\""
+done
+for shard in "${!MULTISITE_SHARDS[@]}"; do
+	TESTS[$shard]="WP_MULTISITE=1 $PHPUNIT tests/php.multisite.#.xml --testsuite '$( shard_suites "${MULTISITE_SHARDS[$shard]}" )' --coverage-php \"$COVERAGE_DIR/$shard/php.cov\""
+done
+TESTS[lfs]="LEGACY_FULL_SYNC=1 $PHPUNIT phpunit.#.xml.dist --group=legacy-full-sync --coverage-php \"$COVERAGE_DIR/lfs/php.cov\""
 
 # To run the PHP tests in parallel, we need to create custom configs for each.
 for test in "${!TESTS[@]}"; do
