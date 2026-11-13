@@ -65,6 +65,7 @@ class Dashboard {
 	 */
 	const SECTIONS = array(
 		Sections\Payments::class,
+		Sections\Ads::class,
 	);
 
 	/**

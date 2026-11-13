@@ -1,7 +1,13 @@
 /**
  * Internal dependencies
  */
-import { withShortMonth, withWeekday, withoutDay, withoutYear } from '../php-format';
+import {
+	isCompleteDate,
+	withShortMonth,
+	withWeekday,
+	withoutDay,
+	withoutYear,
+} from '../php-format';
 
 describe( 'withoutYear', () => {
 	// Real `date_format` defaults taken from the WordPress core language packs,
@@ -154,6 +160,14 @@ describe( 'withoutDay', () => {
 		expect( withoutDay( 'D, d M Y' ) ).toBe( 'M Y' );
 	} );
 
+	it.each( [
+		[ 'ja and zh_CN', 'Y年n月j日', 'Y年n月' ],
+		[ 'ko_KR', 'Y년 n월 j일', 'Y년 n월' ],
+		[ 'hu_HU', 'Y. F j.', 'Y. F' ],
+	] )( 'drops the suffix that trails a final day in %s', ( _, format, expected ) => {
+		expect( withoutDay( format ) ).toBe( expected );
+	} );
+
 	it( 'leaves an escaped day character alone', () => {
 		expect( withoutDay( '\\j F Y' ) ).toBe( '\\j F Y' );
 	} );
@@ -164,5 +178,22 @@ describe( 'withoutDay', () => {
 
 	it( 'returns an empty string when the format is only a day', () => {
 		expect( withoutDay( 'j' ) ).toBe( '' );
+	} );
+} );
+
+describe( 'isCompleteDate', () => {
+	it.each( [
+		[ 'F j, Y', true ],
+		[ 'd.m.Y', true ],
+		[ 'j \\d\\e F \\d\\e Y', true ],
+		[ 'l, F jS, Y', true ],
+		[ 'd/m', false ],
+		[ 'D/M', false ],
+		// `\d` is a literal "d", `S` only a suffix and `o` the ISO week year.
+		[ '\\d F Y', false ],
+		[ 'S F Y', false ],
+		[ 'd/m/o', false ],
+	] )( '%s → %s', ( format, expected ) => {
+		expect( isCompleteDate( format ) ).toBe( expected );
 	} );
 } );

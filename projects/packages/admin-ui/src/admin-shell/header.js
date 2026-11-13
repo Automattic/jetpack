@@ -1,24 +1,31 @@
 /*
- * A stand-in for a page's header, drawn the moment the page is opened and removed once its app
- * renders the real one. Each page's header, and the CSS it uses, is saved whenever it is on
- * screen: the dashboards add most of their CSS from JavaScript, which hasn't run yet.
+ * A stand-in for a page, drawn the moment the page is opened and removed once its app renders:
+ * its saved header and tabs, or another page's header with its title. Each page's header, and
+ * the CSS it uses, is saved whenever it is on screen: the dashboards add most of their CSS from
+ * JavaScript, which hasn't run yet.
  */
 import { log } from './debug';
 
 const KEY_ROOT = 'jetpack-admin-shell-header:';
 // The longest a stand-in stays up: an app showing no page heading would otherwise stay hidden.
-const STAND_IN_TIMEOUT = 3000;
+const STAND_IN_TIMEOUT = 8000;
+
+// Saved CSS names the page by this, not its body class, so another page can borrow it.
+const PAGE_CLASS = 'jetpack-admin-shell-page';
 
 let keyPrefix = KEY_ROOT;
+let bodyClassOf = () => null;
 const storageKey = slug => keyPrefix + slug;
 
 /**
  * Set where headers are saved, and drop the ones an earlier release saved for this site and user.
  *
- * @param {string} prefix - `jetpack-admin-shell-header:<blog>:<user>:<version>:`.
+ * @param {string} prefix  - `jetpack-admin-shell-header:<blog>:<user>:<version>:`.
+ * @param {object} members - Member config keyed by slug, for each page's body class.
  */
-export function configureHeaders( prefix ) {
+export function configureHeaders( prefix, members = {} ) {
 	keyPrefix = prefix;
+	bodyClassOf = slug => members[ slug ]?.bodyClass;
 	const scope = prefix.split( ':' ).slice( 0, 3 ).join( ':' ) + ':';
 	try {
 		for ( const key of Object.keys( localStorage ) ) {
@@ -62,15 +69,30 @@ export function removeHeader( slug ) {
 	}
 }
 
-// The app's page wrappers, empty, around a copy of its header.
+// A copy of the parts of `node` that hold one of `keep`, and of each kept element whole.
+const pruned = ( node, keep ) => {
+	const copy = node.cloneNode( false );
+	for ( const child of node.children ) {
+		if ( keep.includes( child ) ) {
+			copy.append( child.cloneNode( true ) );
+		} else if ( keep.some( kept => child.contains( kept ) ) ) {
+			copy.append( pruned( child, keep ) );
+		}
+	}
+	return copy;
+};
+
+// The app's page wrappers, empty, around a copy of its header and tab bar.
 const frameOf = el => {
 	const h1 = el.querySelector( 'h1' );
 	const page = h1?.closest( '.admin-ui-navigable-region' );
 	if ( ! page || ! el.contains( page ) ) {
 		return null;
 	}
-	let frame = [ ...page.children ].find( child => child.contains( h1 ) ).cloneNode( true );
-	for ( let node = page; node !== el; node = node.parentElement ) {
+	const header = [ ...page.children ].find( child => child.contains( h1 ) );
+	const keep = [ header, page.querySelector( '[role="tablist"]' ) ].filter( Boolean );
+	let frame = pruned( page, keep );
+	for ( let node = page.parentElement; node !== el; node = node.parentElement ) {
 		const wrapper = node.cloneNode( false );
 		wrapper.append( frame );
 		frame = wrapper;
@@ -164,7 +186,12 @@ export function rememberHeader( slug, el ) {
 		const classNames = new Set(
 			[ frame, ...frame.querySelectorAll( '[class]' ) ].flatMap( node => [ ...node.classList ] )
 		);
-		const css = rulesFor( classNames );
+		const bodyClass = bodyClassOf( slug );
+		let css = rulesFor( classNames );
+		if ( bodyClass ) {
+			// Dashboards scope their page layout to WordPress's per-page body class.
+			css = css.replace( new RegExp( `\\b${ bodyClass }(?![\\w-])`, 'g' ), PAGE_CLASS );
+		}
 		log( 'header', `saved ${ slug }'s header with ${ Math.round( css.length / 1024 ) }KB of CSS` );
 		try {
 			localStorage.setItem( storageKey( slug ), JSON.stringify( { html, css } ) );
@@ -174,20 +201,53 @@ export function rememberHeader( slug, el ) {
 	} );
 }
 
+// A saved standard page header: a custom one's styles don't survive having parts taken out.
+const donor = () => {
+	try {
+		const entries = Object.keys( localStorage )
+			.filter( key => key.startsWith( keyPrefix ) )
+			.sort()
+			.map( key => [ key, localStorage.getItem( key ) ] )
+			.filter( ( [ , value ] ) => value.includes( '__header-title' ) );
+		// Prefer one with `JetpackLogo` as it last rendered, so this file needs no copy of the logo.
+		const [ key ] =
+			entries.find( ( [ , value ] ) => value.includes( 'jetpack-logo' ) ) ?? entries[ 0 ] ?? [];
+		return key ? readSaved( key.slice( keyPrefix.length ) ) : null;
+	} catch {
+		return null;
+	}
+};
+
+// Turn another page's header copy into this one's: its title and its icon, nothing else.
+const borrow = ( copy, title ) => {
+	copy
+		.querySelectorAll(
+			'[role="tablist"], [class*="__header-actions"], [class*="__header-subtitle"]'
+		)
+		.forEach( node => node.remove() );
+	copy.querySelector( 'h1' ).textContent = title;
+};
+
 /**
- * Show a page's saved header in front of its app until the app renders.
+ * Show a stand-in for a page in front of its app until the app renders.
  *
- * @param {string}      slug - Page being opened.
- * @param {HTMLElement} el   - Its mount element; the stand-in goes right before it.
+ * @param {string}      slug  - Page being opened.
+ * @param {HTMLElement} el    - Its mount element; the stand-in goes right before it.
+ * @param {string}      title - Page heading, for a page whose header has never been saved.
  * @return {Function} Removes the stand-in.
  */
-export function showHeader( slug, el ) {
-	const { html, css } = readSaved( slug ) ?? {};
-	// No borrowing another page's header: its title and layout differ, so the real one would jump.
-	if ( ! html ) {
+export function showHeader( slug, el, title ) {
+	const own = readSaved( slug );
+	const saved = own ?? ( title ? donor() : null );
+	if ( ! saved?.html ) {
 		log( 'header', `no saved header for ${ slug }` );
 		return () => {};
 	}
+	const copy = inertCopy( saved.html );
+	if ( ! own ) {
+		borrow( copy, title );
+	}
+	const css = saved.css?.replaceAll( PAGE_CLASS, bodyClassOf( slug ) ?? PAGE_CLASS );
 
 	// A section for the same reason the guest containers are one (see bootGuest in index.js).
 	const standIn = document.createElement( 'section' );
@@ -195,7 +255,7 @@ export function showHeader( slug, el ) {
 	standIn.dataset.shellHeader = slug;
 	standIn.inert = true;
 	standIn.setAttribute( 'aria-hidden', 'true' );
-	standIn.append( inertCopy( html ) );
+	standIn.append( copy );
 	if ( css ) {
 		const style = document.createElement( 'style' );
 		style.textContent = css;
@@ -204,7 +264,7 @@ export function showHeader( slug, el ) {
 	el.before( standIn );
 	// The empty mount can be styled as a blank page that would cover the stand-in.
 	el.style.visibility = 'hidden';
-	log( 'header', `showing the saved header for ${ slug }` );
+	log( 'header', `showing ${ own ? 'its saved' : 'a borrowed' } header for ${ slug }` );
 
 	removeHeader( slug );
 	const entry = { standIn, el, timer: 0 };
