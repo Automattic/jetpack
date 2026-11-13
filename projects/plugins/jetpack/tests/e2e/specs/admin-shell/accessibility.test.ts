@@ -19,7 +19,7 @@ import {
 	member,
 	openMember,
 	readShell,
-	settle,
+	waitForQuiet,
 	switchTo,
 	waitForShown,
 	withinDocument,
@@ -29,7 +29,7 @@ import {
 const MJ = 'my-jetpack';
 const FORMS = 'jetpack-forms-responses-wp-admin';
 
-// Widgets such as My Jetpack's stats cards render well after the heading.
+// Widgets such as My Jetpack's stats cards render well after the heading; wait at most this long.
 const AXE_SETTLE_MS = 8000;
 
 const back = ( page: Page, slug: string ) =>
@@ -232,7 +232,7 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		const baseline: Record< string, Record< string, string[] > > = {};
 		for ( const slug of [ FORMS, MJ ] ) {
 			await openMember( page, slug );
-			await settle( page, AXE_SETTLE_MS );
+			await waitForQuiet( page, AXE_SETTLE_MS );
 			baseline[ slug ] = await axeViolations( page );
 			test.info().annotations.push( {
 				type: 'axe on full load',
@@ -240,13 +240,13 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 			} );
 		}
 		await switchTo( page, FORMS );
-		await settle( page, AXE_SETTLE_MS );
+		await waitForQuiet( page, AXE_SETTLE_MS );
 		expect(
 			await newViolations( page, baseline[ FORMS ] ),
 			'new after switching to Forms'
 		).toEqual( {} );
 		await switchTo( page, MJ );
-		await settle( page, AXE_SETTLE_MS );
+		await waitForQuiet( page, AXE_SETTLE_MS );
 		expect( await newViolations( page, baseline[ MJ ] ), 'new after switching back' ).toEqual( {} );
 	} );
 

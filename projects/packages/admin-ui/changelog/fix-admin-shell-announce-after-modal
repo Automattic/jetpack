@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Wait for a closed modal to give the page back before announcing the next page.

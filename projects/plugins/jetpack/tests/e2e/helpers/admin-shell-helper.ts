@@ -20,8 +20,8 @@ export interface Member {
 	mountId: string;
 	/** `document.title` up to ` ‹`, as a full page load sets it. */
 	title: string;
-	/** Visible header text that proves the app rendered. */
-	heading: string;
+	/** Visible header text that proves the app rendered: exact as a string, a match as a RegExp. */
+	heading: string | RegExp;
 	/** `search + hash` a fresh load lands on with the shell off. */
 	landing: RegExp;
 	/** Needs site setup; tests that use it skip on a site whose admin menu lacks it. */
@@ -45,6 +45,28 @@ export const MEMBERS: Member[] = [
 		landing: /^\?page=jetpack-forms-responses-wp-admin&p=%2Fforms$/,
 	},
 	{
+		slug: 'jetpack-ai',
+		mountId: 'jetpack-ai-hub-wp-admin-app',
+		title: 'Jetpack AI',
+		heading: /Jetpack AI/,
+		landing: /^\?page=jetpack-ai(&p=%2F[^#&]*)?$/,
+	},
+	{
+		slug: 'jetpack-settings',
+		mountId: 'jetpack-settings-dashboard-wp-admin-app',
+		title: 'Settings',
+		heading: /Settings/,
+		// Settings routes with a HashRouter.
+		landing: /^\?page=jetpack-settings(#\/[\w-]*)?$/,
+	},
+	{
+		slug: 'jetpack-podcast',
+		mountId: 'jetpack-podcast-dashboard-wp-admin-app',
+		title: 'Podcast',
+		heading: /Podcast/,
+		landing: /^\?page=jetpack-podcast(&p=%2F[^#&]*)?$/,
+	},
+	{
 		slug: 'jetpack-seo',
 		mountId: 'jetpack-seo-dashboard-wp-admin-app',
 		title: 'SEO',
@@ -53,6 +75,8 @@ export const MEMBERS: Member[] = [
 		// Needs the `seo-admin-ui` plan feature or the `rsm_jetpack_seo` filter, and the seo-tools module on.
 		optional: true,
 	},
+	/* Activity Log, Newsletter, Protect and VideoPress are members too, but CI leaves their modules off,
+	 * and its stubbed WordPress.com connection can't fetch the data their pages show. */
 ];
 
 export const member = ( slug: string ): Member => {
@@ -265,15 +289,66 @@ function shellProbe( mountIds: Record< string, string > ) {
 }
 
 /**
+ * Log in through the wp-login.php of `page`'s base URL.
+ *
+ * @param page     - Page to log in with.
+ * @param user     - Username.
+ * @param password - Password.
+ */
+export async function submitLogin( page: Page, user: string, password: string ): Promise< void > {
+	await page.goto( '/wp-login.php' );
+	// Jetpack SSO can put the WordPress.com button first.
+	const toggle = page.getByText( 'Log in with username and password' );
+	if ( await toggle.isVisible().catch( () => false ) ) {
+		await toggle.click();
+	}
+	/* wp-login.php focuses a field 200 ms after load, and empties the password first when the username
+	 * comes prefilled, as it does for a context that is already logged in. Fill only after that runs. */
+	await page
+		.waitForFunction(
+			() => !! document.querySelector( '#user_login:focus, #user_pass:focus' ),
+			null,
+			{ timeout: 5000 }
+		)
+		.catch( () => undefined );
+	await expect( async () => {
+		await page.locator( '#user_login' ).fill( user );
+		await page.locator( '#user_pass' ).fill( password );
+		await expect( page.locator( '#user_login' ) ).toHaveValue( user, { timeout: 1000 } );
+		await expect( page.locator( '#user_pass' ) ).toHaveValue( password, { timeout: 1000 } );
+	} ).toPass( { timeout: 15000 } );
+	await page.locator( '#wp-submit' ).click();
+	await expect( page.locator( '#wpadminbar' ) ).toBeVisible( { timeout: 60000 } );
+}
+
+const pageErrors = new WeakMap< Page, string[] >();
+
+/**
  * Install the shell probe. Call before the first navigation.
  *
  * @param page - Page under test.
  */
 export async function installShellProbe( page: Page ): Promise< void > {
+	const errors: string[] = [];
+	pageErrors.set( page, errors );
+	page.on( 'pageerror', error => errors.push( error.message ) );
+	page.on( 'console', message => {
+		if ( message.type() === 'error' ) {
+			errors.push( message.text() );
+		}
+	} );
 	await page.addInitScript(
 		shellProbe,
 		Object.fromEntries( MEMBERS.map( m => [ m.slug, m.mountId ] ) )
 	);
+	// Admin bar hover menus can open over the Jetpack submenu and swallow sidebar clicks; they aren't under test.
+	await page.addInitScript( () => {
+		document.addEventListener( 'DOMContentLoaded', () => {
+			const style = document.createElement( 'style' );
+			style.textContent = '#wpadminbar .ab-sub-wrapper { display: none !important; }';
+			document.head.append( style );
+		} );
+	} );
 }
 
 /**
@@ -322,7 +397,28 @@ export async function waitForShown( page: Page, slug: string ): Promise< void > 
 export async function openMember( page: Page, slug: string, suffix = '' ): Promise< void > {
 	await page.goto( `/wp-admin/admin.php?page=${ slug }${ suffix }` );
 	await waitForShown( page, slug );
-	await expect.poll( () => isShellActive( page ), 'the shell runs on this document' ).toBe( true );
+	const active = await expect
+		.poll( () => isShellActive( page ) )
+		.toBe( true )
+		.then(
+			() => true,
+			() => false
+		);
+	if ( ! active ) {
+		// Say why, since every shell-on test fails here alike.
+		const assets = await page.evaluate( () => ( {
+			config: !! document.getElementById( 'wp-script-module-data-@automattic/jetpack-admin-shell' ),
+			client:
+				document.querySelector< HTMLScriptElement >( 'script[type="module"][src*="admin-shell"]' )
+					?.src ?? null,
+		} ) );
+		throw new Error(
+			`The shell doesn't run on ${ slug }: ${ JSON.stringify( {
+				...assets,
+				errors: pageErrors.get( page ) ?? [],
+			} ) }`
+		);
+	}
 }
 
 /**
@@ -441,6 +537,56 @@ export async function settle( page: Page, ms: number ): Promise< void > {
 }
 
 /**
+ * Wait until the page has gone `quietMs` with no DOM change and no request in flight, or `maxMs` passes.
+ *
+ * @param page    - Page under test.
+ * @param maxMs   - Longest wait, as a fixed settle would use.
+ * @param quietMs - Quiet time that counts as settled.
+ */
+export async function waitForQuiet( page: Page, maxMs: number, quietMs = 1000 ): Promise< void > {
+	const inFlight = new Set< Request >();
+	let lastNetwork = Date.now();
+	const started = ( request: Request ) => {
+		inFlight.add( request );
+		lastNetwork = Date.now();
+	};
+	const ended = ( request: Request ) => {
+		inFlight.delete( request );
+		lastNetwork = Date.now();
+	};
+	page.on( 'request', started );
+	page.on( 'requestfinished', ended );
+	page.on( 'requestfailed', ended );
+	try {
+		await page.evaluate( () => {
+			const w = window as unknown as { __jpLastMutation?: number };
+			w.__jpLastMutation = Date.now();
+			new MutationObserver( () => ( w.__jpLastMutation = Date.now() ) ).observe( document, {
+				subtree: true,
+				childList: true,
+				attributes: true,
+				characterData: true,
+			} );
+		} );
+		const deadline = Date.now() + maxMs;
+		while ( Date.now() < deadline ) {
+			const lastMutation = await page.evaluate(
+				() => ( window as unknown as { __jpLastMutation: number } ).__jpLastMutation
+			);
+			const now = Date.now();
+			if ( ! inFlight.size && now - lastNetwork >= quietMs && now - lastMutation >= quietMs ) {
+				return;
+			}
+			await settle( page, 250 );
+		}
+	} finally {
+		page.off( 'request', started );
+		page.off( 'requestfinished', ended );
+		page.off( 'requestfailed', ended );
+	}
+}
+
+/**
  * `search + hash` of the current URL.
  *
  * @param page - Page under test.
@@ -474,7 +620,7 @@ export async function expectShown(
 	expect( new URL( page.url() ).searchParams.get( 'page' ) ).toBe( slug );
 	await expect(
 		page
-			.getByRole( 'heading', { name: m.heading, exact: true } )
+			.getByRole( 'heading', { name: m.heading, exact: typeof m.heading === 'string' } )
 			.filter( { visible: true } )
 			.first()
 	).toBeVisible();

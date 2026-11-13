@@ -267,9 +267,12 @@ jobs:
         working-directory: ${{ matrix.path }}
         env:
           JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
+          TEST_SCRIPT: ${{ matrix.testScript || 'test:run' }}
+          # Admin shell suite: Chromium on pull requests, every browser after merge and on manual runs.
+          ADMIN_SHELL_BROWSERS: ${{ case( github.event_name == 'repository_dispatch' || github.event_name == 'workflow_dispatch', 'chromium,firefox,webkit', 'chromium' ) }}
         run: |
           mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-          pnpm run test:run "${TEST_ARGS[@]}"
+          pnpm run "$TEST_SCRIPT" "${TEST_ARGS[@]}"
 
       - name: Test environment tear-down
         if: ${{ always() }}

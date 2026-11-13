@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Run the admin shell e2e suite in CI.
+
+

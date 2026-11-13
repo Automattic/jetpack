@@ -3,6 +3,7 @@ import {
 	MEMBERS,
 	expectShown,
 	installShellProbe,
+	member,
 	menuLink,
 	openMember,
 	skipUnlessOnSite,
@@ -10,8 +11,12 @@ import {
 	where,
 } from '../../helpers/admin-shell-helper';
 
-/* Every ordered pair, so each member is tested as the host and as a guest. */
-const pairs = MEMBERS.flatMap( a => MEMBERS.filter( b => b !== a ).map( b => [ a, b ] as const ) );
+/* Each member against My Jetpack, as the host and as a guest; every pair would grow quadratically. */
+const hub = member( 'my-jetpack' );
+const pairs = MEMBERS.filter( m => m !== hub ).flatMap( m => [
+	[ hub, m ] as const,
+	[ m, hub ] as const,
+] );
 
 test.describe( 'Admin shell: navigation matrix', () => {
 	test.beforeEach( async ( { page } ) => {

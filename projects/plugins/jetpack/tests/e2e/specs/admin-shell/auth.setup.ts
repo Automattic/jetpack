@@ -1,6 +1,11 @@
 import fs from 'fs';
 import { test as setup, expect, type Browser } from '@playwright/test';
-import { STATE_OFF, STATE_ON, STATE_STANDALONE } from '../../helpers/admin-shell-helper';
+import {
+	STATE_OFF,
+	STATE_ON,
+	STATE_STANDALONE,
+	submitLogin,
+} from '../../helpers/admin-shell-helper';
 
 /**
  * Log in through wp-login.php and save the session.
@@ -18,23 +23,8 @@ async function logIn(
 	password: string,
 	path: string
 ) {
-	const context = await browser.newContext( { ignoreHTTPSErrors: true } );
-	const page = await context.newPage();
-	await page.goto( new URL( '/wp-login.php', url ).href );
-	// Jetpack SSO can put the WordPress.com button first.
-	const toggle = page.getByText( 'Log in with username and password' );
-	if ( await toggle.isVisible().catch( () => false ) ) {
-		await toggle.click();
-	}
-	// wp-login.php focuses and selects the username field on a timer, which can clobber the fill.
-	await expect( async () => {
-		await page.locator( '#user_login' ).fill( user );
-		await page.locator( '#user_pass' ).fill( password );
-		await expect( page.locator( '#user_login' ) ).toHaveValue( user, { timeout: 1000 } );
-		await expect( page.locator( '#user_pass' ) ).toHaveValue( password, { timeout: 1000 } );
-	} ).toPass( { timeout: 15000 } );
-	await page.locator( '#wp-submit' ).click();
-	await expect( page.locator( '#wpadminbar' ) ).toBeVisible( { timeout: 60000 } );
+	const context = await browser.newContext( { ignoreHTTPSErrors: true, baseURL: url } );
+	await submitLogin( await context.newPage(), user, password );
 	await context.storageState( { path } );
 	await context.close();
 }

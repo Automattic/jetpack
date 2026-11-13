@@ -98,6 +98,22 @@ describe( 'overlays', () => {
 		expect( otherModal ).toBeInTheDocument();
 	} );
 
+	it( 'waits for a closed modal to give the document back', async () => {
+		const wrap = await addToBody( '' );
+		wrap.id = 'wpwrap';
+		wrap.setAttribute( 'aria-hidden', 'true' );
+		const modal = await addToBody( '<div role="dialog"></div>' );
+		modal.addEventListener( 'keydown', () => {
+			setTimeout( () => modal.remove(), 50 );
+			// unmodalize() runs in an effect cleanup, after React has removed the modal.
+			setTimeout( () => wrap.removeAttribute( 'aria-hidden' ), 120 );
+		} );
+
+		await closeDialogsOf( 'my-jetpack' );
+
+		expect( wrap ).not.toHaveAttribute( 'aria-hidden' );
+	} );
+
 	it( 'does not press Escape again on a dialog a link already closed', async () => {
 		const modal = await addToBody( '<div role="dialog"><a href="#">Open</a></div>' );
 		// Still in the document while it animates out, as when the switch reaches it.
