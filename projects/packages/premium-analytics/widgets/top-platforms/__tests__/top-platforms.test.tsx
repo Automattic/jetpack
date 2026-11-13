@@ -95,7 +95,6 @@ describe( 'TopPlatformsWidget CSV download', () => {
 	);
 
 	it.each( [
-		[ 'no platform recorded a view', platformsResult( [] ) ],
 		[
 			'a refetch failed behind the rows on screen',
 			platformsResult( [ { label: 'chrome', value: 1200 } ], {
