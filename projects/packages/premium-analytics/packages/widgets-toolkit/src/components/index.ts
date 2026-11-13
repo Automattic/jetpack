@@ -183,14 +183,8 @@ export {
 export { PageEmptyState, type PageEmptyStateProps } from './page-empty-state';
 export { LockedPage, LockedWidget } from './locked-widget';
 export { PageNotice, type PageNoticeProps } from './page-notice';
-export {
-	canSendFeedback,
-	FeedbackModal,
-	PageOptionsMenu,
-	type FeedbackSource,
-} from './page-options-menu';
-export { CustomizeActions, type CustomizeActionsProps } from './customize-actions';
-export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
+export { canSendFeedback, FeedbackModal, type FeedbackSource } from './page-options-menu';
+export { CustomizeActions } from './customize-actions';
 export {
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,

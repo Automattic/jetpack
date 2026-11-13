@@ -129,6 +129,21 @@ describe( 'page-options-menu', () => {
 			).not.toBeInTheDocument();
 		} );
 
+		it( 'puts Customize first, apart from the rest, where it is offered', async () => {
+			const user = setupUser();
+			render( <PageOptionsMenu onCustomize={ jest.fn() } /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			const items = await screen.findAllByRole( 'menuitem' );
+
+			expect( items.map( item => item.textContent ) ).toEqual( [
+				'Customize',
+				'Any feedback?',
+				'Switch off the preview',
+			] );
+			expect( screen.getByRole( 'separator' ) ).toBeInTheDocument();
+		} );
+
 		it.each( [
 			[ 'from those who may not read Stats, where it is sent', { can_view_stats: false } ],
 			[ 'once classic Stats is retired', { can_view_stats: true, classic_stats_retired: true } ],
