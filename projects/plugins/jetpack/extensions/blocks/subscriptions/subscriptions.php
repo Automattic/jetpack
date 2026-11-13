@@ -1461,7 +1461,6 @@ function print_silent_subscriber_check() {
 			return;
 		}
 		var target = new URL( location.href );
-		target.hash = '';
 		target.searchParams.set( 'jp_sub_check', '1' );
 		target = target.toString();
 		if ( c.authBase ) {
