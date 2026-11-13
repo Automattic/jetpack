@@ -193,7 +193,6 @@ function pollPackagist( name, version ) {
 								try {
 									const data = JSON.parse( chunks.join( '' ) );
 									for ( const ver of data.packages[ name ] ) {
-										// ver.version_normalized removes the 'v', but always uses four-point notation. Easier to just strip the 'v' for comparison.
 										if ( ver.version.replace( /^v/, '' ) === version ) {
 											task.title = `${ name } ${ ver.version }`;
 											return resolve( ver.version );
