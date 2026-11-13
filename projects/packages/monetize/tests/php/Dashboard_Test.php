@@ -309,6 +309,57 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'source=jetpack-creator-cta', Dashboard::get_upgrade_url() );
 	}
 
+	/**
+	 * A connection state, and whether the upgrade link should say the user is unlinked and carry a purchase token.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_connections() {
+		return array(
+			'not connected'   => array( 'none', true, false ),
+			'site connection' => array( 'site', true, true ),
+			'connected user'  => array( 'user', false, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_connections
+	 *
+	 * @param string $connection     'none', 'site' or 'user'.
+	 * @param bool   $unlinked       Whether the link should say the user is unlinked.
+	 * @param bool   $purchase_token Whether the link should carry a purchase token.
+	 */
+	#[DataProvider( 'provide_connections' )]
+	public function test_upgrade_url_carries_the_checkout_arguments_for_the_connection( $connection, $unlinked, $purchase_token ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		if ( 'none' !== $connection ) {
+			\Jetpack_Options::update_option( 'id', 1234 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog.secret' );
+		}
+		if ( 'user' === $connection ) {
+			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+
+		$query = array();
+		wp_parse_str( (string) wp_parse_url( Dashboard::get_upgrade_url(), PHP_URL_QUERY ), $query );
+		wp_parse_str( $query['query'] ?? '', $checkout );
+
+		$this->assertSame( $unlinked, isset( $checkout['unlinked'] ) );
+		$this->assertSame( $purchase_token, ! empty( $checkout['purchasetoken'] ) );
+		if ( $purchase_token ) {
+			$this->assertSame( \Jetpack_Options::get_option( 'purchase_token' ), $checkout['purchasetoken'] );
+		}
+	}
+
 	public function test_upgrade_url_follows_a_host_that_sells_its_own_plans() {
 		add_filter(
 			'jetpack_feature_upgrade',
