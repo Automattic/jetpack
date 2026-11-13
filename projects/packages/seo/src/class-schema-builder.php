@@ -101,10 +101,39 @@ class Schema_Builder {
 							$graph->add( $site_entity );
 						}
 					}
-					$person = self::build_person_node( (int) $post->post_author, null !== $organization );
-					if ( null !== $person ) {
-						$post_node['author'] = array( '@id' => $person['@id'] );
-						$graph->add( $person );
+					$person  = self::build_person_node( (int) $post->post_author, null !== $organization );
+					$authors = null !== $person ? array( $person ) : array();
+
+					/**
+					 * Filters the Person nodes credited as the Article's authors, e.g. to add
+					 * co-authors or guest authors that aren't the post's WordPress user.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param array[] $authors Person nodes, each with an `@id`. Defaults to the post author.
+					 * @param \WP_Post $post    The post the Article describes.
+					 */
+					$authors = (array) apply_filters( 'jetpack_seo_schema_article_authors', $authors, $post );
+					$authors = array_values(
+						array_filter(
+							$authors,
+							static function ( $author ) {
+								return is_array( $author ) && ! empty( $author['@id'] );
+							}
+						)
+					);
+
+					if ( $authors ) {
+						$author_ids          = array_map(
+							static function ( $author ) {
+								return array( '@id' => $author['@id'] );
+							},
+							$authors
+						);
+						$post_node['author'] = 1 === count( $author_ids ) ? $author_ids[0] : $author_ids;
+						foreach ( $authors as $author ) {
+							$graph->add( $author );
+						}
 					}
 				}
 				$graph->add( $post_node );
