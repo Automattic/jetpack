@@ -333,6 +333,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 		add_filter( 'jetpack_active_modules', '__return_empty_array' );
 		Cache::clear();
 
+		$members = array();
 		try {
 			$members = Social_Admin_Page::init()->add_admin_shell_member( array() );
 		} finally {
@@ -344,7 +345,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 			Cache::clear();
 		}
 
-		$this->assertSame( 'Customize how your posts are shared to social media.', $members['jetpack-social']['header']['subtitle'] );
+		$this->assertSame( 'Customize how your posts are shared to social media.', $members['jetpack-social']['header']['subtitle'] ?? null );
 	}
 
 	/**
