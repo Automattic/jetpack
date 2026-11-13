@@ -12,10 +12,10 @@ import { FeaturesPointer } from 'components/pointer-card';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
-	isSettingsConsolidationEnabled,
+	isInSettingsPanel,
 	isSwitchedInFeatures as _isSwitchedInFeatures,
 } from 'lib/settings-consolidation';
-import { showMyJetpack, userCanManageModules } from 'state/initial-state';
+import { showMyJetpack } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound, getSearchTerm } from 'state/search';
 import { MarkdownMoved } from './markdown-moved';
@@ -278,8 +278,7 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		isSwitchedInFeatures: module_name => _isSwitchedInFeatures( state, module_name ),
-		// The panel needs Features, which users who cannot manage modules lack.
-		isMarkdownMoved: isSettingsConsolidationEnabled() && userCanManageModules( state ),
+		isMarkdownMoved: isInSettingsPanel( state ),
 		isMyJetpackReachable: showMyJetpack( state ),
 		searchTerm: getSearchTerm( state ),
 	};

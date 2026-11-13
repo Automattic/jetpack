@@ -59,6 +59,17 @@ export function getMovedOutModules( state ) {
 export const isMovedOut = ( module, state ) => getMovedOutModules( state ).includes( module );
 
 /**
+ * Whether settings that moved to a My Jetpack settings panel leave only a pointer here.
+ *
+ * The panel lives in Features, which needs manage_options, so users who cannot manage modules keep the card.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True when the card gives way to a pointer.
+ */
+export const isInSettingsPanel = state =>
+	isSettingsConsolidationEnabled() && userCanManageModules( state );
+
+/**
  * Whether a module's Settings toggle gives way to its switch in My Jetpack › Features, leaving only a search result that points there.
  *
  * Users who cannot manage modules have no Features, so they keep the toggle.

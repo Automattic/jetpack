@@ -291,8 +291,15 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
-			case '/settings':
 			case '/discussion':
+				if ( '/discussion' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments' )
+					);
+					break;
+				}
+			// Falls through.
+			case '/settings':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (

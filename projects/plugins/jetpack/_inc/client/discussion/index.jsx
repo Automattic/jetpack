@@ -2,7 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
-import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
+import { FeaturesPointer } from 'components/pointer-card';
+import { isInSettingsPanel } from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -13,12 +14,12 @@ import {
 	isOdysseyStatsEnabled,
 	getSiteAdminUrl,
 	isCommentBlocksAvailable,
-	userCanManageModules,
 } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { Comments } from './comments';
+import { CommentsMoved } from './comments-moved';
 
 export class Discussion extends Component {
 	static displayName = 'DiscussionSettings';
@@ -37,28 +38,49 @@ export class Discussion extends Component {
 			return null;
 		}
 
-		const foundComments = this.props.isModuleFound( 'comments' ),
+		const { isMovedToFeatures, searchTerm } = this.props,
+			foundComments = this.props.isModuleFound( 'comments' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
 			foundCommentLikes = this.props.isModuleFound( 'comment-likes' );
 
-		if ( ! foundComments && ! foundMarkdown && ! foundGravatar && ! foundCommentLikes ) {
+		// Once settings move out, admins find this tab's settings in Features, and only a search points there.
+		// Markdown's pointer is on the Writing tab.
+		const shown = isMovedToFeatures
+			? !! searchTerm && ( foundComments || foundGravatar || foundCommentLikes )
+			: foundComments || foundMarkdown || foundGravatar || foundCommentLikes;
+		if ( ! shown ) {
 			return null;
 		}
+
+		const pointTo = module => {
+			const { name } = this.props.module( module );
+			return (
+				<FeaturesPointer header={ name } name={ name } search={ name } linksToSettings={ false } />
+			);
+		};
 
 		return (
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Discussion Settings', 'jetpack' ) }</h1>
-				{ this.props.searchTerm && (
+				{ searchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Discussion', 'jetpack' ) }</h2>
 				) }
-				<Comments
-					{ ...commonProps }
-					isModuleFound={ this.props.isModuleFound }
-					getModuleOverride={ this.props.getModuleOverride }
-					hasBlockEditor={ this.props.hasBlockEditor }
-				/>
+				{ isMovedToFeatures ? (
+					<>
+						{ foundComments && <CommentsMoved getModule={ this.props.module } /> }
+						{ foundGravatar && pointTo( 'gravatar-hovercards' ) }
+						{ foundCommentLikes && pointTo( 'comment-likes' ) }
+					</>
+				) : (
+					<Comments
+						{ ...commonProps }
+						isModuleFound={ this.props.isModuleFound }
+						getModuleOverride={ this.props.getModuleOverride }
+						hasBlockEditor={ this.props.hasBlockEditor }
+					/>
+				) }
 			</div>
 		);
 	}
@@ -70,13 +92,8 @@ export default connect( state => {
 		settings: getSettings( state ),
 		isOfflineMode: isOfflineMode( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
-		// Markdown's settings live in its My Jetpack panel, as in the Writing tab.
-		isModuleFound: module_name =>
-			! (
-				'markdown' === module_name &&
-				isSettingsConsolidationEnabled() &&
-				userCanManageModules( state )
-			) && _isModuleFound( state, module_name ),
+		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		isMovedToFeatures: isInSettingsPanel( state ),
 		connectUrl: getConnectUrl( state ),
 		isLinked: isCurrentUserLinked( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),

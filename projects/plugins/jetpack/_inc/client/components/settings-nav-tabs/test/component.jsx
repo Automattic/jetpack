@@ -101,6 +101,9 @@ describe( 'SettingsNavTabs', () => {
 		[ 'hides', 'Writing', 'Infinite Scroll', 'infinite-scroll', true, 0 ],
 		[ 'shows', 'Writing', 'custom content types', null, false, 1 ],
 		[ 'hides', 'Writing', 'custom content types', null, true, 0 ],
+		[ 'shows', 'Discussion', 'Comments', 'comments', false, 1 ],
+		[ 'hides', 'Discussion', 'Comments', 'comments', true, 0 ],
+		[ 'hides', 'Discussion', 'Gravatar Hovercards', 'gravatar-hovercards', true, 0 ],
 		[ 'shows', 'Reader', 'the Reader', 'wpcom-reader', false, 1 ],
 		[ 'hides', 'Reader', 'the Reader', 'wpcom-reader', true, 0 ],
 	] )(
