@@ -103,6 +103,9 @@ export function App() {
 				uiLocale={ initialData?.user_language }
 				copy={ copy }
 				aiBuilt={ !! initialData?.ai_built }
+				goalsVariation={ initialData?.goals_variation }
+				mcpDetection={ !! initialData?.mcp_detection }
+				mcpAllowFull={ !! initialData?.mcp_allow_full }
 				onComplete={ ( input, tailoring ) => {
 					setFromWizard( true );
 					setPendingTailor( () => tailoring );

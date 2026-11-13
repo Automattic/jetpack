@@ -74,6 +74,13 @@ class Speed_Score_Request extends Cacheable {
 	private $poll_gap;
 
 	/**
+	 * Progress Boost Cloud reported while the request runs: `stage`, `scores` and `estimatedSeconds`, each when known.
+	 *
+	 * @var array $cloud_progress Sanitized cloud progress.
+	 */
+	private $cloud_progress = array();
+
+	/**
 	 * The error returned
 	 *
 	 * @var array $error Speed Scores error.
@@ -164,6 +171,45 @@ class Speed_Score_Request extends Cacheable {
 	}
 
 	/**
+	 * Progress Boost Cloud last reported for this request.
+	 *
+	 * @return array `stage` (queued, mobile or desktop), `scores` (finished devices) and `estimatedSeconds`, each when known.
+	 */
+	public function get_cloud_progress() {
+		return $this->cloud_progress;
+	}
+
+	/**
+	 * Keep only the progress fields the dashboard understands, in the shapes it expects.
+	 *
+	 * @param mixed $response A WordPress.com response, or stored progress.
+	 *
+	 * @return array
+	 */
+	private static function sanitize_cloud_progress( $response ) {
+		$progress = array();
+		if ( ! is_array( $response ) ) {
+			return $progress;
+		}
+
+		if ( isset( $response['stage'] ) && in_array( $response['stage'], array( 'queued', 'mobile', 'desktop' ), true ) ) {
+			$progress['stage'] = $response['stage'];
+		}
+
+		foreach ( array( 'mobile', 'desktop' ) as $device ) {
+			if ( isset( $response['scores'][ $device ] ) && is_numeric( $response['scores'][ $device ] ) ) {
+				$progress['scores'][ $device ] = max( 0, min( 100, (int) $response['scores'][ $device ] ) );
+			}
+		}
+
+		if ( isset( $response['estimatedSeconds'] ) && is_numeric( $response['estimatedSeconds'] ) && (int) $response['estimatedSeconds'] > 0 ) {
+			$progress['estimatedSeconds'] = (int) $response['estimatedSeconds'];
+		}
+
+		return $progress;
+	}
+
+	/**
 	 * Convert this object to a plain array for JSON serialization.
 	 */
 	#[\ReturnTypeWillChange]
@@ -178,6 +224,7 @@ class Speed_Score_Request extends Cacheable {
 			'client'         => $this->client,
 			'retry_count'    => $this->retry_count,
 			'last_polled'    => $this->last_polled,
+			'cloud_progress' => $this->cloud_progress,
 		);
 	}
 
@@ -208,6 +255,10 @@ class Speed_Score_Request extends Cacheable {
 
 		if ( ! empty( $data['last_polled'] ) ) {
 			$object->last_polled = $data['last_polled'];
+		}
+
+		if ( ! empty( $data['cloud_progress'] ) ) {
+			$object->cloud_progress = self::sanitize_cloud_progress( $data['cloud_progress'] );
 		}
 
 		return $object;
@@ -244,6 +295,12 @@ class Speed_Score_Request extends Cacheable {
 			$this->store();
 
 			return $response;
+		}
+
+		// WordPress.com answers with the queued stage and, when it has one, Boost Cloud's estimate.
+		$this->cloud_progress = self::sanitize_cloud_progress( $response );
+		if ( $this->cloud_progress ) {
+			$this->store( 3600 );
 		}
 
 		return true;
@@ -302,6 +359,7 @@ class Speed_Score_Request extends Cacheable {
 				if ( $this->created <= strtotime( '-15 mins' ) ) {
 					return $this->restart();
 				}
+				$this->cloud_progress = self::sanitize_cloud_progress( $response );
 				// As long as WordPress.com keeps the result; the default would drop a run the user left mid-way.
 				$this->store( 3600 );
 				break;

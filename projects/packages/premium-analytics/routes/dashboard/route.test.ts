@@ -77,6 +77,12 @@ describe( 'dashboard route.beforeLoad', () => {
 		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( { to: '/connect' } );
 	} );
 
+	it( 'sends a link to the former Settings tab to the Settings page, with the rest of its search', async () => {
+		await expect( beforeLoad( { ...settledSearch, section: 'settings' } ) ).rejects.toEqual(
+			expect.objectContaining( { to: '/settings', replace: true, search: settledSearch } )
+		);
+	} );
+
 	// Only the store section's data waits on the analytics sync, so an unfinished
 	// sync must not hold back the site sections.
 	it( 'loads the dashboard before the initial sync finishes', async () => {

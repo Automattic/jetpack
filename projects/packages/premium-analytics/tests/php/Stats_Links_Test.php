@@ -304,7 +304,7 @@ class Stats_Links_Test extends BaseTestCase {
 			'subscribers'          => array( '#!/stats/subscribers/example.org', '%2F%3Fsection%3Dsubscribers' ),
 			'store'                => array( '#!/stats/store/orders/day/example.org', '%2F%3Fsection%3Dwoocommerce' ),
 			'ads'                  => array( '#!/stats/ads/day/example.org', '%2F%3Fsection%3Dads' ),
-			'settings'             => array( '#!/stats/settings', '%2F%3Fsection%3Dsettings' ),
+			'settings'             => array( '#!/stats/settings', '%2Fsettings' ),
 			'post'                 => array( '#!/stats/post/29/123', '%2Fpost%2F29' ),
 			'post without an ID'   => array( '#!/stats/post/0/123', '%2F' ),
 			'email opens'          => array( '#!/stats/email/opens/day/29/123', '%2Fpost%2F29%3Fsection%3Demail-opens' ),

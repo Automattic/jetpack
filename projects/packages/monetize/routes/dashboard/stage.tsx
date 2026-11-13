@@ -54,7 +54,7 @@ const Stage = () => {
 							<Tabs.Panel key={ tab.value } value={ tab.value }>
 								{ /* Settings saves through Jetpack's own endpoints; every other tab so far needs WordPress.com. */ }
 								{ tab.value === 'settings' ? (
-									<AdsSettings />
+									<AdsSettings openTab={ openTab } />
 								) : (
 									<ConnectionGate>
 										<Placeholder />
