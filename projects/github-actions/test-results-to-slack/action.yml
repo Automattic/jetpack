@@ -35,6 +35,9 @@ inputs:
   playwright_output_dir:
     description: "Path to Playwright's output directory"
     required: false
+  xunit_report_path:
+    description: "Path or glob pattern for xUnit XML reports"
+    required: false
 
 runs:
   using: node24

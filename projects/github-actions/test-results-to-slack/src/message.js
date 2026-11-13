@@ -6,6 +6,7 @@ import extras from './extra-context.js';
 import { isWorkflowFailed, getRunUrl } from './github.js';
 import { getPlaywrightBlocks } from './playwright.js';
 import { getMessage, postOrUpdateMessage } from './slack.js';
+import { getXunitBlocks } from './xunit.js';
 const {
 	context: { eventName, sha, payload, runId, actor, serverUrl },
 } = github;
@@ -135,6 +136,7 @@ export async function createMessage( isFailure ) {
 	];
 
 	detailsMsgBlocksChunks.push( ...getPlaywrightBlocks() );
+	detailsMsgBlocksChunks.push( ...( await getXunitBlocks() ) );
 
 	return { text, id: msgId, mainMsgBlocks, detailsMsgBlocksChunks };
 }
