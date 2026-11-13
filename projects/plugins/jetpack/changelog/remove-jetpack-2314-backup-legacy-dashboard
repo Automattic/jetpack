@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Backup: Remove the legacy dashboard. The `rsm_jetpack_ui_modernization_backup` filter no longer restores it.

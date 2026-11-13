@@ -5,7 +5,6 @@
 /build/**/*.map    production-exclude
 types.d.ts         production-exclude
 /src/dashboard/**  production-exclude
-/src/js/**         production-exclude
 packages/**        production-exclude
 routes/**          production-exclude
 

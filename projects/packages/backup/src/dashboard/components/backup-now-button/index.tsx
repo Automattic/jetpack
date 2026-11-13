@@ -40,8 +40,7 @@ function announceFailure( reason: string ) {
 /**
  * The button itself, mounted only for a site that can press it.
  *
- * Ports legacy's label and tooltip cycle (`src/js/components/back-up-now/index.jsx`) with
- * one fix: legacy discards the response, so a WPCOM refusal also shows "Backup enqueued".
+ * Cycles the label and tooltip, and reports a WPCOM refusal instead of showing "Backup enqueued".
  *
  * @return The rendered button.
  */
