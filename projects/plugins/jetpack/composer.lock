@@ -2551,12 +2551,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/monetize",
-                "reference": "b40bb6b0079cb7d61eee8199cf3d0c97504c9a01"
+                "reference": "4fdf6df71bc43e00d72c1160b65b3dbb4b6c6754"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-feature-flags": "@dev",
+                "automattic/jetpack-plans": "@dev",
+                "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.4"

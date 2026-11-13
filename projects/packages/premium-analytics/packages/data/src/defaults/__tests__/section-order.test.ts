@@ -55,6 +55,26 @@ describe( 'getSectionOrder', () => {
 } );
 
 describe( 'setSectionOrder', () => {
+	it.each( [
+		[ 'first', [ 'ads', 'traffic', 'insights' ], [ 'ads', 'insights', 'traffic' ] ],
+		[ 'in the middle', [ 'traffic', 'ads', 'insights' ], [ 'insights', 'ads', 'traffic' ] ],
+		[ 'last', [ 'traffic', 'insights', 'ads' ], [ 'insights', 'traffic', 'ads' ] ],
+		[
+			'with a tab the stored order did not name',
+			[ 'ads', 'traffic' ],
+			[ 'ads', 'insights', 'traffic' ],
+		],
+	] )(
+		'keeps the position of a stored slug the new order leaves out, %s',
+		( _case, stored, expected ) => {
+			setSectionOrder( SCOPE, stored );
+
+			setSectionOrder( SCOPE, [ 'insights', 'traffic' ] );
+
+			expect( getSectionOrder( SCOPE ) ).toEqual( expected );
+		}
+	);
+
 	it( 'forgets the order when given none', () => {
 		setSectionOrder( SCOPE, [ 'insights', 'traffic' ] );
 

@@ -1,6 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { getAdsSettingsData } from './ads-settings-data';
+import { getPageData } from './state';
 
 // Jetpack › Settings' event names, as in my-jetpack's settings-panel/use-settings-panel-tracking.ts.
 const ORIGIN = 'monetize-settings-tab';
@@ -19,7 +19,7 @@ const toggled = ( active: boolean ) => ( active ? 'on' : 'off' );
  * @param properties - Event properties.
  */
 function record( event: string, properties: Record< string, unknown > ) {
-	if ( ! getAdsSettingsData()?.tracks ) {
+	if ( ! getPageData().tracks ) {
 		return;
 	}
 
@@ -89,4 +89,22 @@ export function trackBannerClick( type: 'upgrade' | 'connect' ) {
 		type,
 		origin: ORIGIN,
 	} );
+}
+
+/**
+ * Record a saved PayPal address.
+ * @param signedTos - Whether the terms were signed with this save.
+ */
+export function trackPayoutSave( signedTos: boolean ) {
+	record( 'jetpack_monetize_ads_payout_save', { signed_tos: signedTos, origin: ORIGIN } );
+}
+
+/**
+ * Record a click on one of the Overview's cards, with Calypso's Earn page `feature` names.
+ *
+ * @param feature - The card's feature, e.g. `ads`.
+ * @param target  - What was clicked.
+ */
+export function trackOverviewClick( feature: string, target: 'learn-more' | 'upgrade' | 'open' ) {
+	record( 'jetpack_monetize_overview_click', { feature, target } );
 }
