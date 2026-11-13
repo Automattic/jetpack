@@ -21,18 +21,18 @@ This page covers sections only. Widget types have their own page, [Dashboard wid
 
 ## Files
 
-| File                                               | Role                                                                                                                                                                      |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `get_insertable_widget_types()`, `to_array()`.                                                   |
-| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                    |
-| `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the section script data, the REST routes and their schema.                                                    |
-| `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout and insertable-types filter names, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts. |
+| File                                               | Role                                                                                                                                                                                                                  |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `get_insertable_widget_types()`, `to_array()`.                                                                                               |
+| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                                                                |
+| `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the section script data, the REST routes and their schema.                                                                                                |
+| `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout and insertable-types filter names, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts.                       |
 | `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, their gates and their default layouts, registered through the action like any plugin's. The WooCommerce tab registers from the WooCommerce stats package. |
-| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                         |
-| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                       |
-| `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                 |
-| `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                 |
-| `packages/data/src/utils/dashboard-sections.ts`   | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data, and `isPostDetailAvailable()`, which post links read before linking to `/post/:id`. |
+| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                                                                     |
+| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                                                                   |
+| `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                                                             |
+| `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                                                             |
+| `packages/data/src/utils/dashboard-sections.ts`    | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data, and `isPostDetailAvailable()`, which post links read before linking to `/post/:id`.                                          |
 
 ## When the section files load
 
@@ -43,8 +43,6 @@ The same three files load on three paths, at three moments. In wp-admin `Analyti
 On a connected site's REST request, `Dashboard_Support_Routes::boot_routes()` requires them on `rest_api_init`, after `init`.
 
 On WordPress.com Simple, the public-api process calls `Dashboard_Support_Routes::register()` directly, and the same `boot_routes()` runs.
-
-Each include is guarded by a symbol the file declares, because two copies of the package can be loaded in one request on Simple.
 
 That is why the registration moment is not `init`: a registrant hooked on `init` reaches the navigation in wp-admin and misses the REST response the navigation is built from. The registry hydrates on its first read, whichever path reads it, and fires one action then.
 
@@ -81,7 +79,7 @@ add_action(
 				'is_available'   => array( Capabilities::class, 'current_user_can_view_stats' ),
 				'default_layout' => static function () {
 					return array(
-						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, 2 ),
+						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, DASHBOARD_TILE_LIST ),
 					);
 				},
 			)
@@ -96,7 +94,7 @@ The mechanics behind it:
 - **The contract.** A plugin calls `register_dashboard_section()` from its callback, the way `wp_register_ability()` is called on `wp_abilities_api_init`. The callback also receives the `Dashboard_Section_Registry` being hydrated, for lookups such as `get_registered_by_slug()`; the package's own registrant writes to it directly, the way `wp_default_scripts` callbacks write to `$scripts`. Both forms reach the same registry in production.
 - **Loading.** The files are required by hand on the paths above, not autoloaded. The action fires from the registry those files load, so a callback on it runs only once the API is there and needs no `function_exists()` guard.
 - **Validation in `register()`.** The dashboard name must match `get_dashboard_name_pattern()`, the id must be namespaced (`get_dashboard_section_id_pattern()`), the id must not be registered, and the slug must not be used by another id on the same dashboard. Each failure is a `_doing_it_wrong()` and a `false` return.
-- **Slugs.** Two ids may not share a slug on one dashboard: the client keys sections, `?section=` and stored layouts by slug, so `register()` refuses the second. The `settings` slug is reserved for the Settings tab the dashboard stage draws itself. A registrant that may run beside another owner of the same section, the way Ads has one owner per environment plus an older package during a deploy skew, checks `get_registered_by_slug()` first.
+- **Slugs.** Two ids may not share a slug on one dashboard: the client keys sections, `?section=` and stored layouts by slug, so `register()` refuses the second. The `settings` slug is reserved: the dashboard redirects `?section=settings` to the Settings page at `/settings`, so a section could never be opened under it. A registrant that may run beside another owner of the same section, the way Ads has one owner per environment plus an older package during a deploy skew, checks `get_registered_by_slug()` first.
 - **Arguments.** `label`, `title`, `order`, `date_filter` (`range` or `year`), `date_filter_options` (`with_date_comparison`, `with_header_date_control`, `with_header_interval_control`), `requires_sync`, `follows_plan_date_limits` (whether the plan's Stats date limits apply to the section's window, `false` by default), `notice` (a message or a callable returning one, shown above the widgets once the section is not waiting on the sync), `is_available` (a boolean or a callable receiving the section, `true` by default), `default_layout` (an array of instances or a callable returning one), and `insertable_widget_types` (a list of widget type names the inserter offers on top of the default layout). Unknown keys are ignored, and an unrecognized `date_filter` keeps the default. See `Dashboard_Section::set_props()`.
 - **Hydration.** `Dashboard_Section_Registry` fires the action from `ensure_hydrated()`, which `get_registered()`, `get_registered_by_slug()` and `get_all_registered()` call on their first read after `init`. The latch is set before the action fires, so a callback that reads the registry does not re-enter it. `is_registered()` does not hydrate: `register()` relies on it, and a registrant may run before the action.
 - **Order.** The package's own sections register at priority 10; a plugin that wants to see them registered first, or that checks a slug before registering, hooks later, at priority 20.
@@ -125,11 +123,25 @@ A second, smaller channel carries only slugs. `inject_dashboard_sections_script_
 
 The slug list exists because the report registry lives in the client today. Once reports register on the server, it goes away.
 
+## The order the reader arranges
+
+The server's order is the default. A reader rearranges the tabs in the Arrange tabs dialog of the page options menu, and the result is stored as `sectionOrder`, a list of slugs, in their preferences under the dashboard scope.
+
+`orderSections()` applies it. The slugs the list names come first, in its order, and every other available section follows in the server's order, so a section registered later lands after the ones the reader arranged. A slug with no available section is skipped and kept, so the section returns to its place once it is available again.
+
+The first tab is the one a URL without `?section=` opens, so both channels above apply the order: `useDashboardSections()` on the records the navigation is built from, and `dashboardSectionOf()` on the slug list a route reads in `beforeLoad` to pick its date policy. Both go through `orderSections()`, which keeps them on the same first tab.
+
+When the order changes under a URL that names no section, `useActiveSection()` keeps the section on screen and writes it to the URL, so rearranging the tabs never moves the reader.
+
+While the dialog is open, the tab bar previews the order the reader is trying: the dialog reports each move through `onPreview`, and the stage applies it to the sections it hands the tab bar and to nothing else. Nothing is stored until the reader saves, and the preview is gone with the dialog, however it closes.
+
+Another screen with tabs offers the dialog by handing `PageOptionsMenu` its `tabs`: the screen's preferences scope, its `{ slug, label }` items and, for the preview, an `onPreview` callback.
+
 ## Default layouts
 
 ![A section declares its default layout; get_default_layout() runs it through the default-layout filter, where a plugin adds instances at priority 10 and the package removes unsupported widget types at priority 100, before it reaches the client as the fallback for the stored layout.](diagrams/sections-default-layout.svg)
 
-A section owns its default layout. The registration passes the instances, built with `get_dashboard_default_widget_instance( $uuid, $type, $order, $width, $height, $attributes )`, as an array or as a callable returning one.
+A section owns its default layout. The registration passes the instances, built with `get_dashboard_default_widget_instance( $uuid, $type, $order, $width, $height, $attributes )`, as an array or as a callable returning one. `$height` counts dashboard rows: pass `DASHBOARD_TILE_LIST` for a leaderboard, `DASHBOARD_TILE_CARD` for a chart or a figure, `DASHBOARD_TILE_STRIP` for a one-line strip. These heights reach the default layout only: a stored layout keeps the heights it was saved with, so a reader who rearranged a tab before a default changed does not see the change.
 
 `Dashboard_Section::get_default_layout()` runs the declared array through `jetpack_premium_analytics_dashboard_default_layout` with the section id and the section, and returns whatever comes back as a list.
 
@@ -149,7 +161,7 @@ add_filter(
 			}
 		}
 
-		$layout[] = get_dashboard_default_widget_instance( 'default-videopress-widget-instance', 'videopress/top-videos', 8, 1, 2 );
+		$layout[] = get_dashboard_default_widget_instance( 'default-videopress-widget-instance', 'videopress/top-videos', 8, 1, DASHBOARD_TILE_LIST );
 
 		return $layout;
 	},
@@ -241,7 +253,7 @@ Both register the same layout, `Analytics_Dashboard::get_default_layout()`, of t
 
 ## A second consumer: a widget inside a bundled section
 
-The VideoPress package owns no section. It owns one widget type, `videopress/top-videos`, and a place for it in the Traffic default layout, through the filter above. Who calls its registrants follows the Ads shape: `Initializer::active_initialization()` where VideoPress is active outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the plan includes VideoPress (`src/features/premium-analytics/videopress-widgets.php`).
+The VideoPress package owns no section. It owns two widget types, `videopress/top-videos` and `videopress/video-player`, and a place for Top videos in the Traffic default layout, through the filter above. Who calls its registrants follows the Ads shape: `Initializer::active_initialization()` where VideoPress is active outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the plan includes VideoPress (`src/features/premium-analytics/videopress-widgets.php`).
 
 The seed runs at priority 10 and asks nothing about the contract version. Whether the instance survives is decided here: the rename at 99 maps a former name, the policy at 100 drops a type that never registered. A consumer that seeds a bundled section's default therefore needs no guard of its own, only an idempotent callback.
 
@@ -259,6 +271,7 @@ The widget it seeds is the registrant's story, in [Dashboard widget types](dashb
 | The VideoPress package's layout seed, with and without the widget contract loaded, and its WordPress.com registrant | `projects/packages/videopress/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/videopress/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`, `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Videopress_Widgets_Test.php` |
 | The REST entry point WordPress.com calls                                                                            | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                                                                                                                                            |
 | Navigation, active section, stored layouts, section heading                                                         | `routes/dashboard/**/*.test.ts(x)`                                                                                                                                                                                                                                       |
+| The order the reader arranges, and the dialog that stores it                                                        | `packages/data/src/defaults/__tests__/section-order.test.ts`, `routes/stats-date-window.test.ts`, `packages/widgets-toolkit/src/components/page-options-menu/__tests__/arrange-tabs-dialog.test.tsx`                                                                     |
 | Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `packages/data/src/utils/__tests__/dashboard-sections.test.ts`                                                                                                                                                                        |
 
 ## Not covered here

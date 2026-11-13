@@ -595,23 +595,24 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 	await expect( desktop.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
 	await expect( overall.first().getByText( 'Good', { exact: true } ) ).toBeVisible();
 	await expect( overall.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
-	await expect( overall.getByRole( 'progressbar' ) ).toHaveCount( 0 );
+	await expect( overall.getByRole( 'meter' ) ).toHaveCount( 0 );
 	await expect( mobile.getByText( 'Could improve', { exact: true } ) ).toHaveCSS(
 		'color',
 		'rgb(147, 99, 0)'
 	);
-	for ( const [ card, score, color ] of [
-		[ desktop.first(), 90, 'rgb(0, 128, 48)' ],
-		[ mobile, 60, 'rgb(250, 167, 84)' ],
-		[ desktop.nth( 1 ), 40, 'rgb(204, 24, 24)' ],
+	for ( const [ card, score, tier, color ] of [
+		[ desktop.first(), 90, 'good', 'rgb(0, 128, 48)' ],
+		[ mobile, 60, 'medium', 'rgb(250, 167, 84)' ],
+		[ desktop.nth( 1 ), 40, 'poor', 'rgb(204, 24, 24)' ],
 	] as const ) {
-		await expect( card.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', score );
-		await expect( card.getByRole( 'progressbar' ) ).toHaveAttribute( 'max', '100' );
-		const track = card.locator( '.jetpack-boost-overview__progress' );
-		await expect( track.locator( ':scope > div' ) ).toHaveCSS( 'background-color', color );
-		await expect( track ).toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
-		await expect( track ).toHaveCSS( 'height', '4px' );
-		await expect( track ).toHaveCSS( 'border-radius', '4px' );
+		const meter = card.getByRole( 'meter' );
+		// eslint-disable-next-line jest-dom/prefer-to-have-value -- Playwright's toHaveValue only reads form fields.
+		await expect( meter ).toHaveAttribute( 'aria-valuenow', String( score ) );
+		await expect( meter ).toHaveAttribute( 'aria-valuemax', '100' );
+		await expect( meter.locator( `.jetpack-boost-overview__progress--${ tier }` ) ).toHaveCSS(
+			'background-color',
+			color
+		);
 	}
 	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
 	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
@@ -658,15 +659,11 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 	await expect( desktop.first() ).toHaveCSS( 'padding-left', '20px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-right', '20px' );
 	await expect( desktop.first() ).toHaveCSS( 'gap', '8px' );
-	await expect( page.locator( '.jetpack-boost-overview__scores-header' ).first() ).toHaveCSS(
-		'height',
-		'64px'
-	);
-	const headerDivider = page.locator( '.jetpack-boost-overview__scores-divider' ).first();
-	await expect( headerDivider ).toBeVisible();
-	await expect( headerDivider ).toHaveCSS( 'border-bottom-width', '1px' );
-	await expect( headerDivider ).toHaveCSS( 'border-bottom-style', 'solid' );
-	await expect( headerDivider ).toHaveCSS( 'border-bottom-color', 'rgb(219, 219, 219)' );
+	const header = page.locator( '.jetpack-boost-overview__scores-header' ).first();
+	await expect( header ).toHaveCSS( 'height', '65px' );
+	await expect( header ).toHaveCSS( 'border-bottom-width', '1px' );
+	await expect( header ).toHaveCSS( 'border-bottom-style', 'solid' );
+	await expect( header ).toHaveCSS( 'border-bottom-color', 'rgb(219, 219, 219)' );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-width', '1px' );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-style', 'solid' );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-color', 'rgb(219, 219, 219)' );
@@ -709,16 +706,18 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 		.all();
 	await expect( calculating.getByRole( 'heading', { name: 'Your site speed' } ) ).toBeVisible();
 	const status = calculating.getByRole( 'status' );
-	await expect( status.getByText( 'Calculating…' ) ).toHaveCSS( 'color', 'rgb(112, 112, 112)' );
-	await expect( status ).toHaveText( 'Calculating…' );
+	await expect( status.getByText( 'Checking site speed…' ) ).toHaveCSS(
+		'color',
+		'rgb(112, 112, 112)'
+	);
+	await expect( status ).toHaveText( 'Checking site speed…' );
 	await expect( status.getByRole( 'progressbar' ) ).toHaveCount( 0 );
 	await expect( calculating.locator( '.components-spinner' ) ).toHaveCount( 0 );
 	const progress = calculating.getByRole( 'progressbar', { name: 'Testing site speed' } );
 	await expect( progress ).toHaveCount( 1 );
-	await expect( progress ).not.toHaveAttribute( 'value' );
 	await expect( progress ).not.toHaveAttribute( 'aria-valuenow' );
-	await expect( progress ).toHaveJSProperty( 'position', -1 );
-	const track = ( await progress.locator( '..' ).boundingBox() )!;
+	await expect( progress ).toHaveAttribute( 'data-indeterminate', '' );
+	const track = ( await progress.boundingBox() )!;
 	const label = ( await status.boundingBox() )!;
 	expect( track.width ).toBeGreaterThan( 0 );
 	expect( track.height ).toBeGreaterThan( 0 );
@@ -739,7 +738,8 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 	await expect( failed.getByRole( 'region' ) ).toHaveCount( 0 );
 	const notice = ( await failedRefresh.getByText( 'Failed to load speed scores' ).boundingBox() )!;
 	const desktop = failedRefresh.getByRole( 'region', { name: 'Desktop', exact: true } );
-	await expect( desktop.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', 80 );
+	// eslint-disable-next-line jest-dom/prefer-to-have-value -- Playwright's toHaveValue only reads form fields.
+	await expect( desktop.getByRole( 'meter' ) ).toHaveAttribute( 'aria-valuenow', '80' );
 	expect( ( await desktop.boundingBox() )!.y ).toBeGreaterThan( notice.y + notice.height );
 } );
 

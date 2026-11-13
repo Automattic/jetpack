@@ -32,7 +32,7 @@ const SubpageFrame = ( { title, children }: SubpageFrameProps ) => {
 				<div className={ styles.visual } aria-hidden="true">
 					<JetpackLogo showText={ false } height={ 20 } />
 				</div>
-				<BoostBreadcrumbs subpage={ { title, boostLink } } />
+				<BoostBreadcrumbs title={ title } boostLink={ boostLink } />
 			</Stack>
 			<div className={ styles.content }>
 				<div className={ styles.column }>{ children }</div>

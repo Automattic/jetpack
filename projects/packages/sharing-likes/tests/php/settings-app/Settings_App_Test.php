@@ -73,6 +73,7 @@ class Settings_App_Test extends BaseTestCase {
 		$this->tear_down_site();
 		Constants::clear_constants();
 		Jetpack_Options::delete_option( 'active_modules' );
+		delete_option( 'default_comment_status' );
 
 		remove_all_filters( Settings_App::FILTER );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
@@ -105,15 +106,17 @@ class Settings_App_Test extends BaseTestCase {
 	/**
 	 * The polyfills force-replace core script handles, so loading anywhere else breaks other screens.
 	 *
-	 * @param bool        $filter Whether the site opted in.
+	 * @param bool|null   $filter What the filter returns, or null to leave it unhooked.
 	 * @param string|null $page   The `page` query argument.
 	 * @param bool        $admin  Whether this is a wp-admin request.
 	 * @param bool        $loads  Expected result.
 	 * @dataProvider provide_requests
 	 */
 	#[DataProvider( 'provide_requests' )]
-	public function test_should_load_only_on_the_sharing_page_with_the_filter_on( bool $filter, ?string $page, bool $admin, bool $loads ): void {
-		add_filter( Settings_App::FILTER, $filter ? '__return_true' : '__return_false' );
+	public function test_should_load_only_on_the_sharing_page_unless_filtered_off( ?bool $filter, ?string $page, bool $admin, bool $loads ): void {
+		if ( null !== $filter ) {
+			add_filter( Settings_App::FILTER, $filter ? '__return_true' : '__return_false' );
+		}
 		$_GET = null === $page ? array() : array( 'page' => $page );
 		if ( ! $admin ) {
 			unset( $GLOBALS['current_screen'] );
@@ -125,15 +128,15 @@ class Settings_App_Test extends BaseTestCase {
 	/**
 	 * Requests and whether they load the app.
 	 *
-	 * @return array<string, array{bool, ?string, bool, bool}>
+	 * @return array<string, array{?bool, ?string, bool, bool}>
 	 */
 	public static function provide_requests(): array {
 		return array(
-			'opted in, Sharing page'    => array( true, 'sharing', true, true ),
+			'default, Sharing page'     => array( null, 'sharing', true, true ),
 			'filter off'                => array( false, 'sharing', true, false ),
-			'another settings page'     => array( true, 'jetpack', true, false ),
-			'no page argument'          => array( true, null, true, false ),
-			'not wp-admin (admin-menu)' => array( true, 'sharing', false, false ),
+			'another settings page'     => array( null, 'jetpack', true, false ),
+			'no page argument'          => array( null, null, true, false ),
+			'not wp-admin (admin-menu)' => array( null, 'sharing', false, false ),
 		);
 	}
 
@@ -188,10 +191,9 @@ class Settings_App_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Another settings page with the filter on loads nothing: no polyfills, no build, no script data.
+	 * Another settings page loads nothing: no polyfills, no build, no script data.
 	 */
 	public function test_maybe_load_does_nothing_on_another_page(): void {
-		add_filter( Settings_App::FILTER, '__return_true' );
 		$_GET['page'] = 'general';
 
 		Settings_App::maybe_load();
@@ -294,6 +296,38 @@ class Settings_App_Test extends BaseTestCase {
 		\Automattic\Jetpack\Status\Cache::clear();
 
 		$this->assertTrue( Settings_App::add_script_data( array() )['sharing_likes']['private_site'] );
+	}
+
+	/**
+	 * Comment Likes note when new posts start with comments closed, and link to where that is set.
+	 *
+	 * @dataProvider provide_default_comment_status
+	 *
+	 * @param string|null $status Value saved to `default_comment_status`.
+	 * @param bool        $closed Whether the screen should say comments are closed.
+	 */
+	#[DataProvider( 'provide_default_comment_status' )]
+	public function test_script_data_says_whether_new_posts_close_comments( ?string $status, bool $closed ): void {
+		update_option( 'default_comment_status', $status );
+
+		$data = Settings_App::add_script_data( array() )['sharing_likes'];
+
+		$this->assertSame( $closed, $data['comments_closed_by_default'] );
+		$this->assertSame( admin_url( 'options-discussion.php' ), $data['discussion_settings_url'] );
+	}
+
+	/**
+	 * Values saved to `default_comment_status`.
+	 *
+	 * @return array
+	 */
+	public static function provide_default_comment_status(): array {
+		return array(
+			'open'                 => array( 'open', false ),
+			'closed'               => array( 'closed', true ),
+			// Settings > Discussion passes null for an unticked box, stored as ''. '' itself would be sanitized to 'closed'.
+			'unticked in wp-admin' => array( null, true ),
+		);
 	}
 
 	/**

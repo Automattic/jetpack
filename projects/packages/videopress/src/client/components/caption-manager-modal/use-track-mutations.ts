@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -13,13 +14,18 @@ import {
 	normalizeVideoTextTrackResponse,
 	uploadTrackForGuid,
 } from '../../lib/video-tracks';
-import { deleteCaptionTrack, saveCaptionTrack } from '../../lib/video-tracks/caption-tracks';
+import {
+	CAPTION_TRACK_META,
+	deleteCaptionTrack,
+	saveCaptionTrack,
+} from '../../lib/video-tracks/caption-tracks';
 import {
 	getDownloadFileName,
 	getTrackApiErrorMessage,
 	getTrackKey,
 	getStoredCaptionTrackKey,
 	hasTrackApiError,
+	isSubtitleTrackKind,
 } from './track-helpers';
 /**
  * Types
@@ -29,6 +35,15 @@ import type { UploadTrackDataProps, VideoTextTrack } from '../../lib/video-track
 import type { Dispatch, SetStateAction } from 'react';
 
 const debug = debugFactory( 'videopress:caption-manager-modal:mutations' );
+
+type CaptionSaveAction = 'draft' | 'publish' | 'file_upload';
+
+const recordCaptionSave = ( action: CaptionSaveAction ) =>
+	analytics.tracks.recordEvent( 'jetpack_videopress_captions_saved', {
+		track_count: 1,
+		is_auto: false,
+		action,
+	} );
 
 type UseTrackMutationsArgs = {
 	guid: string;
@@ -47,6 +62,7 @@ type UploadAndReconcileArgs = {
 	trackToUpdate: VideoTextTrack | null;
 	/** Error message used when the API error response carries none. */
 	apiErrorFallback: string;
+	action: Exclude< CaptionSaveAction, 'draft' >;
 };
 
 type UploadAndReconcileResult = { track: VideoTextTrack; cleanupFailed: boolean } | null;
@@ -106,6 +122,7 @@ export function useTrackMutations( {
 			trackToUpload,
 			trackToUpdate,
 			apiErrorFallback,
+			action,
 		}: UploadAndReconcileArgs ): Promise< UploadAndReconcileResult > => {
 			const trackUpdatePayload = {
 				...trackToUpdate,
@@ -125,6 +142,15 @@ export function useTrackMutations( {
 					)
 				);
 				return null;
+			}
+
+			// A filename acknowledges the live track write, even if cleanup or the editable copy fails.
+			if (
+				isSubtitleTrackKind( trackUpdatePayload.kind ) &&
+				typeof response === 'string' &&
+				response.trim().length > 0
+			) {
+				recordCaptionSave( action );
 			}
 
 			/*
@@ -185,9 +211,21 @@ export function useTrackMutations( {
 			{ announce = true }: { announce?: boolean } = {}
 		): Promise< SavedCaptionTrack | null > => {
 			setIsSavingCaptionTrack( true );
+			const isDraftSave =
+				payload.status === 'draft' &&
+				isSubtitleTrackKind( payload.meta[ CAPTION_TRACK_META.kind ] );
 
 			try {
 				const savedCaptionTrack = await saveCaptionTrack( payload );
+				if (
+					isDraftSave &&
+					savedCaptionTrack?.status === 'draft' &&
+					Number.isInteger( savedCaptionTrack.id ) &&
+					savedCaptionTrack.id > 0 &&
+					isSubtitleTrackKind( savedCaptionTrack.meta?.[ CAPTION_TRACK_META.kind ] )
+				) {
+					recordCaptionSave( 'draft' );
+				}
 				setCaptionTracks( current => {
 					const existingIndex = current.findIndex(
 						captionTrack => captionTrack.id === savedCaptionTrack.id
@@ -228,13 +266,14 @@ export function useTrackMutations( {
 	 */
 	const uploadSubtitleFile = useCallback(
 		async (
-			args: Omit< UploadAndReconcileArgs, 'apiErrorFallback' >
+			args: Omit< UploadAndReconcileArgs, 'apiErrorFallback' | 'action' >
 		): Promise< UploadOutcome > => {
 			setIsSavingUpload( true );
 
 			try {
 				const result = await uploadAndReconcileTrack( {
 					...args,
+					action: 'file_upload',
 					apiErrorFallback: __( 'Unable to upload track.', 'jetpack-videopress-pkg' ),
 				} );
 				if ( ! result ) {
@@ -276,7 +315,7 @@ export function useTrackMutations( {
 			trackToUpload,
 			trackToUpdate,
 			captionTrackPayload,
-		}: Omit< UploadAndReconcileArgs, 'apiErrorFallback' > & {
+		}: Omit< UploadAndReconcileArgs, 'apiErrorFallback' | 'action' > & {
 			captionTrackPayload: CaptionTrack;
 		} ): Promise< PublishOutcome > => {
 			setIsPublishing( true );
@@ -285,6 +324,7 @@ export function useTrackMutations( {
 				const result = await uploadAndReconcileTrack( {
 					trackToUpload,
 					trackToUpdate,
+					action: 'publish',
 					apiErrorFallback: __( 'Unable to publish subtitles.', 'jetpack-videopress-pkg' ),
 				} );
 				if ( ! result ) {

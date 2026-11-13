@@ -172,7 +172,9 @@ describe( 'chartInterval', () => {
 		} as const;
 
 		expect( chartInterval( params, DAY_WEEK_MONTH ) ).toBe( 'week' );
-		expect( chartInterval( params, DAY_WEEK_MONTH, [ 'week', 'month', 'year' ] ) ).toBe( 'day' );
+		expect( chartInterval( params, DAY_WEEK_MONTH, [ 'week', 'month', 'quarter', 'year' ] ) ).toBe(
+			'day'
+		);
 	} );
 
 	// A chart with no bucket control (WordAds) passes none: the window alone picks it.
@@ -211,11 +213,17 @@ describe( 'chartInterval', () => {
 describe( 'intervalMenuOptions', () => {
 	const MULTI_YEAR = { preset: undefined, from: '2023-01-01', to: '2026-06-30' };
 	const CUSTOM_200_DAYS = { preset: undefined, from: '2026-01-01', to: '2026-07-19' };
-	const LOCKED = [ 'week', 'month', 'year' ] as const;
+	const LOCKED = [ 'week', 'month', 'quarter', 'year' ] as const;
 
 	it.each( [
 		[ 'a chart that draws no years', MULTI_YEAR, HOUR_DAY_WEEK_MONTH, [ 'day' ], [ 'month' ] ],
-		[ 'a widget that declares no periods', MULTI_YEAR, undefined, [ 'day' ], [ 'month', 'year' ] ],
+		[
+			'a widget that declares no periods',
+			MULTI_YEAR,
+			undefined,
+			[ 'day' ],
+			[ 'month', 'quarter', 'year' ],
+		],
 		[ 'a chart without days', LAST_30_DAYS, [ 'week', 'month' ] as const, [ 'week' ], [] ],
 	] )( 'splits the buckets for %s', ( _, params, periods, options, lockedOptions ) => {
 		expect( intervalMenuOptions( params, LOCKED, periods ) ).toEqual( {

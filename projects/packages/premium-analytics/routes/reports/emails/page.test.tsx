@@ -3,6 +3,7 @@
  */
 import { useStatsEmailSummary } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -51,6 +52,7 @@ const email: StatsEmailSummaryItem = {
 	clicks: 14,
 	opens_rate: 38.1,
 	clicks_rate: 3.81,
+	link: 'https://example.com/hello-world/',
 	unique_opens: 98,
 	unique_clicks: 11,
 	total_sends: 250,
@@ -72,6 +74,14 @@ function mockEmailSummary() {
 }
 
 describe( 'EmailsReportPage', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'renders the summary rows with their 0–100 open rate as a percentage', () => {
 		mockEmailSummary();
 
@@ -79,5 +89,17 @@ describe( 'EmailsReportPage', () => {
 
 		expect( screen.getByText( 'Hello world' ) ).toBeInTheDocument();
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers the live email from the row menu', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		mockEmailSummary();
+
+		render( <EmailsReportPage /> );
+		await user.click( screen.getByRole( 'button', { name: 'Actions' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'View in new tab' } )
+		).resolves.toBeInTheDocument();
 	} );
 } );

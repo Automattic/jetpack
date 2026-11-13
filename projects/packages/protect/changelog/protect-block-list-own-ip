@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Firewall: Refuse to save a block list that includes your own IP address.

@@ -58,6 +58,24 @@ export function trackConnectionEvent(
 }
 
 /**
+ * Where on a page a connection surface sits, sent as `placement`. Closed so Tracks data keeps
+ * one spelling per place: register a new placement here before passing it.
+ */
+export type ConnectionPlacement = 'header' | 'connection_card' | 'page_notice';
+
+/**
+ * The `placement` property for a payload, or nothing when the host gave none.
+ *
+ * @param placement - Where on the page the event happened, e.g. 'header'.
+ * @return The property to spread into the payload.
+ */
+export function placementProps( placement?: ConnectionPlacement ): {
+	placement?: ConnectionPlacement;
+} {
+	return placement ? { placement } : {};
+}
+
+/**
  * Bump an MC stat, for surfaces that cannot bundle `@automattic/jetpack-analytics`.
  *
  * MC stats skip the Tracks script, so the caller must check that the site allows tracking.

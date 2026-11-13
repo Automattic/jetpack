@@ -35,11 +35,9 @@ function jetpack_docker_plugins_url( $url, $path, $plugin ) {
 	$packages = ( new Monorepo() )->get( 'packages' );
 
 	if ( strpos( $url, $packages ) !== false && strpos( $plugin, $packages ) === 0 ) {
-		// The vendor symlink follows the package's composer name, which usually —
-		// but not always — matches the directory name (e.g., packages/scan/ has
-		// composer name automattic/jetpack-scan-page). Read composer.json to find
-		// the actual name; fall back to the directory-name convention when the
-		// composer.json can't be read.
+		// The vendor symlink follows the package's composer name, which need not
+		// match the directory name. Read composer.json to find the actual name;
+		// fall back to the directory-name convention when it can't be read.
 		$relative      = substr( $plugin, strlen( $packages ) );
 		$slash_pos     = strpos( $relative, '/' );
 		$package_dir   = false === $slash_pos ? $relative : substr( $relative, 0, $slash_pos );
@@ -73,7 +71,7 @@ add_filter( 'plugins_url', __NAMESPACE__ . '\jetpack_docker_plugins_url', 1, 3 )
  * for every URL the package generates.
  *
  * @param string $package_dir Absolute path to the package directory.
- * @return string|null The composer name (e.g., "automattic/jetpack-scan-page"),
+ * @return string|null The composer name (e.g., "automattic/jetpack-connection"),
  *                     or null if composer.json is missing/unreadable/malformed.
  */
 function jetpack_docker_resolve_composer_name( $package_dir ) {

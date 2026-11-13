@@ -1,0 +1,105 @@
+// Colors are fixed rather than --jp-* tokens: not every page that shows this
+// banner is wrapped in Jetpack's ThemeProvider.
+.jp-highlight-banner {
+	position: relative;
+	// Keeps the orbs' z-indexes inside the banner, away from sticky page headers.
+	isolation: isolate;
+	display: flex;
+	align-items: flex-start;
+	flex-shrink: 0;
+	box-sizing: border-box;
+	padding: 32px;
+	// overflow: hidden clips the orbs, but also lets a shrinking flex column
+	// squash the banner below its content, hence flex-shrink: 0 above.
+	overflow: hidden;
+	border-radius: 8px;
+	background: #003010;
+}
+
+.jp-highlight-banner__content {
+	position: relative;
+	z-index: 1;
+	// Its own compositor layer, or Chromium lets the glyphs escape the scroll
+	// container's rounded clip and paint over a sticky header.
+	transform: translateZ(0);
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-inline-size: 520px;
+}
+
+// Two classes, to outweigh pages that style every h2 and p.
+.jp-highlight-banner .jp-highlight-banner__title {
+	margin: 0;
+	color: #daffdc;
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 40px;
+}
+
+.jp-highlight-banner .jp-highlight-banner__description {
+	margin: 0;
+	color: #daffdc;
+	font-size: 13px;
+	line-height: 20px;
+}
+
+.jp-highlight-banner__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin-block-start: 16px;
+}
+
+// !important beats the Button component's own variant colors.
+.jp-highlight-banner__cta {
+	border-color: #48ff50 !important;
+	background-color: #48ff50 !important;
+	color: #003010 !important;
+
+	&:hover {
+		border-color: #3de046 !important;
+		background-color: #3de046 !important;
+	}
+}
+
+.jp-highlight-banner__secondary {
+	color: #48ff50 !important;
+
+	&:hover {
+		color: #3de046 !important;
+	}
+}
+
+.jp-highlight-banner__close {
+	position: absolute;
+	z-index: 1;
+	inset-block-start: 8px;
+	inset-inline-end: 8px;
+	color: #fff !important;
+
+	&:hover {
+		color: #daffdc !important;
+	}
+}
+
+.jp-highlight-banner__orb {
+	position: absolute;
+	// Both orbs share a vertical axis, so the glow sits over the sphere.
+	inset-inline-end: 56px;
+	inline-size: 180px;
+	block-size: 180px;
+	border-radius: 50%;
+	background: linear-gradient(to right, #04c, #48ff50);
+	pointer-events: none;
+
+	&--top {
+		inset-block-start: -96px;
+		filter: blur(25px);
+	}
+
+	&--bottom {
+		inset-block-end: -96px;
+	}
+}

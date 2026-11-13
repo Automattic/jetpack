@@ -95,6 +95,7 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 					counts.plugins,
 					counts.themes
 				),
+				next: __( 'Your site is scanned automatically every day.', 'jetpack-protect-pkg' ),
 			}
 		: {
 				title: __( 'No vulnerabilities found', 'jetpack-protect-pkg' ),
@@ -107,6 +108,7 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 					counts.plugins,
 					counts.themes
 				),
+				next: __( 'Vulnerabilities are checked automatically every day.', 'jetpack-protect-pkg' ),
 			};
 
 	return (
@@ -123,6 +125,9 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 				</Text>
 				<Text variant="body-md" className="jp-protect-safe__details">
 					{ copy.details }
+				</Text>
+				<Text variant="body-md" className="jp-protect-safe__details">
+					{ copy.next }
 				</Text>
 			</Stack>
 		</Stack>

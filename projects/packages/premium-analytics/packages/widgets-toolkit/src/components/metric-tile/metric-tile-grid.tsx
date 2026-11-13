@@ -10,7 +10,6 @@ import { MetricNoteTooltip } from '../metric-note-tooltip';
 import { MetricValue } from '../metric-value';
 import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tile-grid.module.scss';
-import { useMetricTileLayout } from './use-metric-tile-layout';
 import type { DataFormat } from '../../types';
 import type { ComponentProps } from 'react';
 
@@ -114,6 +113,7 @@ function MetricTileValue( {
 				<MetricWithComparison
 					value={ tile.value as number }
 					previousValue={ tile.previousValue }
+					wrap="wrap"
 					dataFormat={
 						tileCurrencyCode === undefined
 							? format
@@ -135,8 +135,8 @@ function MetricTileValue( {
 }
 
 /**
- * Lays metric tiles out by widget column span and body height; the four
- * layouts and their thresholds live in `pickMetricTileLayout`.
+ * Lays metric tiles out by the size of its own box; the four layouts and their
+ * thresholds live in `_metric-tile-layouts.scss`.
  *
  * The grid is a size container, so it takes no height of its own: render it
  * inside a definite-height flex column (or a `height: 100%` chain) or it
@@ -151,11 +151,9 @@ export function MetricTileGrid( {
 	dataFormat = { type: 'number' },
 	currencyCode,
 }: MetricTileGridProps ) {
-	const [ containerRef, layout ] = useMetricTileLayout< HTMLDivElement >( tiles.length );
-
 	return (
-		<div ref={ containerRef } className={ clsx( styles.container, className ) }>
-			<div className={ styles.grid } data-layout={ layout } role="list">
+		<div className={ clsx( styles.container, className ) }>
+			<div className={ styles.grid } role="list">
 				{ tiles.map( tile => (
 					<div key={ tile.key } className={ clsx( styles.tile, tile.className ) } role="listitem">
 						<MetricNoteTooltip note={ tile.note } className={ styles.header }>

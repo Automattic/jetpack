@@ -16,7 +16,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '8.3.5';
+	const PACKAGE_VERSION = '8.3.8';
 
 	/**
 	 * Plan feature slug gating field conditional logic.
@@ -51,6 +51,10 @@ class Jetpack_Forms {
 
 		// Initialize abilities registration for WordPress Abilities API (WP 6.9+)
 		\Automattic\Jetpack\Forms\Abilities\Forms_Abilities::init();
+
+		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
+			\WP_CLI::add_command( 'jetpack-forms', CLI::class );
+		}
 	}
 
 	/**

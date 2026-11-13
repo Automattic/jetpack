@@ -3,12 +3,13 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 // The extension is required: esbuild does not complete package `exports` subpaths.
 import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body.tsx';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router';
+import { Navigate, useLocation, useNavigate } from 'react-router';
 import AdminNotices from 'components/admin-notices';
 import Footer from 'components/footer';
 import JetpackNotices from 'components/jetpack-notices';
@@ -18,6 +19,7 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
+import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import { openProtectSettings } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -44,6 +46,7 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	getPluginBaseUrl,
+	hasSocialPage,
 	userIsSubscriber,
 } from 'state/initial-state';
 import { hasProtectPage } from 'state/modules';
@@ -244,13 +247,46 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
-			case '/settings':
-			case '/performance':
-			case '/writing':
-			case '/sharing':
-			case '/discussion':
 			case '/earn':
+				// `/security` falls through here, so check the route.
+				if ( '/earn' === route && getAdsSettingsUrl() ) {
+					window.location.replace( getAdsSettingsUrl() );
+					break;
+				}
+			// Falls through.
+			case '/performance':
+				// The Performance tab is gone once settings move out.
+				if ( '/performance' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack#/features?search=cdn' )
+					);
+					break;
+				}
+			// Falls through.
+			case '/sharing':
+				if ( '/sharing' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl(
+							this.props.hasSocialPage
+								? 'admin.php?page=jetpack-social'
+								: 'admin.php?page=my-jetpack#/features?search=sharing'
+						)
+					);
+					break;
+				}
+			// Falls through.
 			case '/reader':
+				// Once settings move out, the Reader's only setting is its switch in Features.
+				if ( '/reader' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack#/features?search=reader' )
+					);
+					break;
+				}
+			// Falls through.
+			case '/settings':
+			case '/writing':
+			case '/discussion':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (
@@ -264,7 +300,7 @@ export class Main extends Component {
 				);
 				break;
 			default:
-				this.props.navigate( '/settings', { replace: true } );
+				pageComponent = <Navigate to="/settings" replace />;
 				break;
 		}
 
@@ -414,6 +450,7 @@ export default connect(
 			connectingUserFrom: getConnectingUserFrom( state ),
 			isSubscriber: userIsSubscriber( state ),
 			hasProtectPage: hasProtectPage( state ),
+			hasSocialPage: hasSocialPage( state ),
 		};
 	},
 	dispatch => ( {

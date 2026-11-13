@@ -17,8 +17,8 @@ jest.mock( '@wordpress/route', () => {
 } );
 
 describe.each( [
-	{ name: 'PostTitleLink', TitleLink: PostTitleLink, route: '/post' },
-	{ name: 'VideoTitleLink', TitleLink: VideoTitleLink, route: '/video' },
+	{ name: 'PostTitleLink', TitleLink: PostTitleLink, route: '/report/post' },
+	{ name: 'VideoTitleLink', TitleLink: VideoTitleLink, route: '/report/video' },
 ] )( '$name', ( { TitleLink, route } ) => {
 	it( 'routes a row with an ID to the detail page, carrying the report window', () => {
 		render(

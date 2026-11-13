@@ -187,6 +187,8 @@ function register_block() {
 
 	add_action( 'wp_after_insert_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 2 );
 
+	add_filter( 'rest_pre_insert_post', __NAMESPACE__ . '\reject_unknown_access_level', 10, 2 );
+
 	add_filter(
 		'jetpack_options_whitelist',
 		function ( $options ) {
@@ -218,6 +220,65 @@ add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
  */
 function is_wpcom() {
 	return defined( 'IS_WPCOM' ) && IS_WPCOM;
+}
+
+/**
+ * Rejects a REST request that sets an unknown access level, before the post is saved.
+ *
+ * The access check treats an unknown value as "everybody", so a typo like "paid"
+ * would publish a paid post to everyone. This runs here rather than as a schema
+ * enum because core checks meta against the schema only after the post is saved.
+ *
+ * @param \stdClass|\WP_Error $prepared_post Post about to be saved.
+ * @param \WP_REST_Request    $request       Request being handled.
+ * @return \stdClass|\WP_Error
+ */
+function reject_unknown_access_level( $prepared_post, $request ) {
+	// A missing value is left alone, and null deletes the meta, which core handles.
+	if (
+		is_wp_error( $prepared_post )
+		|| ! $request instanceof \WP_REST_Request
+		|| ! isset( $request['meta'][ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] )
+	) {
+		return $prepared_post;
+	}
+
+	// Autosaves never store this meta, and the autosaves controller doesn't check
+	// for an error here, so rejecting would drop the author's autosaved edits.
+	if ( str_ends_with( strtolower( $request->get_route() ), '/autosaves' ) ) {
+		return $prepared_post;
+	}
+
+	// PAID_SUBSCRIBERS_ALL_TIERS is left out: no editor or API client sets it, and
+	// WordPress.com would email such a post to every subscriber.
+	$allowed      = array(
+		Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY,
+		Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS,
+		Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS,
+	);
+	$access_level = $request['meta'][ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ];
+	// REST returns '' for a post with no value set and the editor sends it back on
+	// save; the access check reads '' as "everybody".
+	if ( '' === $access_level || in_array( $access_level, $allowed, true ) ) {
+		return $prepared_post;
+	}
+
+	// The editor sends every meta value back on save, so a post that already holds an
+	// unknown value must still save as long as the request doesn't change it.
+	if ( ! empty( $prepared_post->ID ) && get_post_meta( $prepared_post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) === $access_level ) {
+		return $prepared_post;
+	}
+
+	return new \WP_Error(
+		'rest_invalid_param',
+		sprintf(
+			/* translators: 1: meta key, 2: comma-separated list of allowed values. Both are displayed in English. */
+			__( '%1$s must be one of %2$s.', 'jetpack' ),
+			META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+			'"' . implode( '", "', $allowed ) . '"'
+		),
+		array( 'status' => 400 )
+	);
 }
 
 /**

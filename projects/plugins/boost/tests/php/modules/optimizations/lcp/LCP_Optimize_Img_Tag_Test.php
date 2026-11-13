@@ -371,10 +371,94 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	 * @dataProvider srcset_cases
 	 */
 	#[DataProvider( 'srcset_cases' )]
-	public function test_srcset_keeps_the_image_proportions_at_the_box_density( $attributes, $expected_candidates, $src = 'https://example.com/image.jpg' ) {
+	public function test_srcset_keeps_the_image_proportions_at_the_box_density( $attributes, $expected_candidates, $src = 'https://example.com/image.jpg', $computed_object_fit = null ) {
+		// Boost swaps a WordPress size for its original only if the original is on disk.
+		$original = null;
+		if ( str_contains( $src, '{uploads}' ) ) {
+			$uploads = wp_get_upload_dir();
+			wp_mkdir_p( $uploads['basedir'] );
+			$original = $uploads['basedir'] . '/image.jpg';
+			file_put_contents( $original, '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			$src = str_replace( '{uploads}', $uploads['baseurl'], $src );
+		}
+
+		try {
+			$candidates = $this->get_srcset_candidates( '<img class="wp-post-image" id="test-img" ' . $attributes . ' src="' . $src . '">', $computed_object_fit );
+		} finally {
+			if ( $original ) {
+				wp_delete_file( $original );
+			}
+		}
+
+		$this->assertSame( $expected_candidates, $candidates );
+	}
+
+	/**
+	 * @dataProvider registered_size_cases
+	 */
+	#[DataProvider( 'registered_size_cases' )]
+	public function test_a_registered_size_keeps_its_proportions_without_its_original( $src, $registered_file, $expected_candidates ) {
+		$attachment_id = wp_insert_attachment(
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_title'     => 'image',
+			),
+			'2026/10/image.jpg'
+		);
+		wp_update_attachment_metadata(
+			$attachment_id,
+			array(
+				'width'  => 1200,
+				'height' => 800,
+				'file'   => '2026/10/image.jpg',
+				'sizes'  => array(
+					'medium_large' => array(
+						'file'      => $registered_file,
+						'width'     => 600,
+						'height'    => 400,
+						'mime-type' => 'image/jpeg',
+					),
+				),
+			)
+		);
+
+		$src = str_replace( '{uploads}', wp_get_upload_dir()['baseurl'], $src );
+
+		$this->assertSame(
+			$expected_candidates,
+			$this->get_srcset_candidates( '<img class="wp-image-' . $attachment_id . '" width="300" height="300" src="' . $src . '">' )
+		);
+	}
+
+	/**
+	 * A -600x400 size with 300x300 attributes, its original offloaded or deleted.
+	 *
+	 * @return array[]
+	 */
+	public static function registered_size_cases() {
+		return array(
+			'offloaded: the size wins'                => array( 'https://bucket.s3.amazonaws.com/2026/10/image-600x400.jpg', 'image-600x400.jpg', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
+			'a percent-encoded name: the size wins'   => array( 'https://bucket.s3.amazonaws.com/2026/10/%E5%A4%A9%E7%A9%BA-600x400.jpg', '天空-600x400.jpg', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
+			'original deleted: the size wins'         => array( '{uploads}/2026/10/image-600x400.jpg?ver=2', 'image-600x400.jpg', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
+			'not a size of the image: the attributes' => array( 'https://bucket.s3.amazonaws.com/2026/10/other-600x400.jpg', 'image-600x400.jpg', array( '2100,2100 1236w', '1400,1400 824w', '1225,1225 721w', '700,700 412w' ) ),
+		);
+	}
+
+	/**
+	 * Optimize an LCP image for a 412x700 box and read its srcset.
+	 *
+	 * @param string      $buffer              The image tag.
+	 * @param string|null $computed_object_fit The object-fit the LCP report carries, if any.
+	 * @return string[] Each candidate's resize argument and descriptor.
+	 */
+	private function get_srcset_candidates( $buffer, $computed_object_fit = null ) {
 		add_filter( 'jetpack_photon_development_mode', '__return_false' );
 
-		$data                = $this->create_lcp_data();
+		$data         = $this->create_lcp_data();
+		$data['html'] = $buffer;
+		if ( $computed_object_fit ) {
+			$data['objectFit'] = $computed_object_fit;
+		}
 		$data['breakpoints'] = array(
 			array(
 				'maxWidth'        => 412,
@@ -388,27 +472,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 			),
 		);
 
-		// Boost swaps a WordPress size for its original only if the original is on disk.
-		$original = null;
-		if ( str_contains( $src, '{uploads}' ) ) {
-			$uploads = wp_get_upload_dir();
-			wp_mkdir_p( $uploads['basedir'] );
-			$original = $uploads['basedir'] . '/image.jpg';
-			file_put_contents( $original, '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			$src = str_replace( '{uploads}', $uploads['baseurl'], $src );
-		}
-
-		$buffer = '<img class="wp-post-image" id="test-img" ' . $attributes . ' src="' . $src . '">';
-		$result = '';
-		try {
-			$result = ( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( $buffer );
-		} finally {
-			if ( $original ) {
-				wp_delete_file( $original );
-			}
-		}
-
-		$processor = new WP_HTML_Tag_Processor( $result );
+		$processor = new WP_HTML_Tag_Processor( ( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( $buffer ) );
 		$processor->next_tag( 'img' );
 
 		$candidates = array();
@@ -421,7 +485,8 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 
 		// Each descriptor is the 412px slot times a DPR, whatever size the file is.
 		$this->assertSame( '412px', $processor->get_attribute( 'sizes' ) );
-		$this->assertSame( $expected_candidates, $candidates );
+
+		return $candidates;
 	}
 
 	/**
@@ -435,6 +500,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 			'a 3:2 image with no fit in the markup: widened, not cropped' => array( 'width="1200" height="800"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
 			'object-fit: contain (Featured Image Scale): fits inside the box' => array( 'width="1200" height="800" style="aspect-ratio:3/5;object-fit:contain;"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ) ),
 			'a -600x400 size with 300x300 attributes: the size wins' => array( 'width="300" height="300"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/image-600x400.jpg' ),
+			'a -600x400 size with a query string: the size wins' => array( 'width="300" height="300"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/image-600x400.jpg?ver=2' ),
 			'a -2x1 name with no original to swap in: the attributes' => array( 'width="1200" height="800"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/banner-2x1.jpg' ),
 			'object-fit: contain then cover: the last wins' => array( 'width="1200" height="800" style="object-fit:contain;object-fit:cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'object-fit: contain !important then cover: the !important wins' => array( 'width="1200" height="800" style="object-fit:contain !important;object-fit:cover"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ) ),
@@ -443,6 +509,11 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 			'object-fit: cover (Featured Image Scale): the box' => array( 'width="1200" height="800" style="aspect-ratio:3/5;object-fit:cover;"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'data-object-fit="cover" (Cover block): the box' => array( 'width="1200" height="800" data-object-fit="cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'a square thumbnail of any upload: still 1:1' => array( 'width="300" height="300"', array( '2100,2100 1236w', '1400,1400 824w', '1225,1225 721w', '700,700 412w' ) ),
+			'a computed cover the markup does not show (theme CSS): the box' => array( 'width="1200" height="800"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ), 'https://example.com/image.jpg', 'cover' ),
+			'a computed contain the markup does not show: fits inside the box' => array( 'width="1200" height="800"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ), 'https://example.com/image.jpg', 'contain' ),
+			'a computed cover the markup agrees with: the box' => array( 'width="1200" height="800" data-object-fit="cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ), 'https://example.com/image.jpg', 'cover' ),
+			'a computed cover over inline contain (stale report): widened, not cropped' => array( 'width="1200" height="800" style="object-fit:contain"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), 'https://example.com/image.jpg', 'cover' ),
+			'a computed fill over data-object-fit="cover" (stale report): widened' => array( 'width="1200" height="800" data-object-fit="cover"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), 'https://example.com/image.jpg', 'fill' ),
 		);
 	}
 

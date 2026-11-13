@@ -1038,7 +1038,7 @@ describe( 'HeatmapChart fitCells', () => {
 			} );
 			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 			expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
-				'66px'
+				'63px'
 			);
 		} finally {
 			offsetHeight.mockRestore();

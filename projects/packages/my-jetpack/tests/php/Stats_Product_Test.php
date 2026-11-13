@@ -5,18 +5,21 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\My_Jetpack\Products\Pro;
 use Automattic\Jetpack\My_Jetpack\Products\Stats;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 
+require_once __DIR__ . '/assets/premium-analytics/class-analytics.php';
+
 /**
  * Unit tests for the Stats product's destination URLs.
  *
  * The Premium Analytics dashboard replaces the Stats page, so both URLs this
- * product hands the UI have to follow it. The flag lives on the Jetpack plugin,
- * mocked here through ./assets/jetpack-mock-plugin.txt.
+ * product hands the UI have to follow it. The Jetpack plugin is mocked through
+ * ./assets/jetpack-mock-plugin.txt, the package through ./assets/premium-analytics/class-analytics.php.
  *
  * @package automattic/my-jetpack
  * @see \Automattic\Jetpack\My_Jetpack\Products\Stats
@@ -77,6 +80,7 @@ class Stats_Product_Test extends TestCase {
 	public function tearDown(): void {
 		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- It's declared on the mock from ./assets/jetpack-mock-plugin.txt
 		\Jetpack::$mock_premium_analytics_enabled = false;
+		Analytics::$mock_initialized              = false;
 
 		$this->uninstall_standalone_plugin();
 
@@ -120,6 +124,16 @@ class Stats_Product_Test extends TestCase {
 
 		$this->assertSame( admin_url( 'admin.php?page=' . Stats::PREMIUM_ANALYTICS_PAGE_SLUG ), $manage_url );
 		$this->assertStringNotContainsString( 'page=stats', (string) $manage_url );
+	}
+
+	/**
+	 * The standalone Stats plugin boots the dashboard without the Jetpack plugin.
+	 */
+	public function test_manage_url_follows_premium_analytics_booted_by_another_plugin() {
+		$this->set_premium_analytics_enabled( false );
+		Analytics::$mock_initialized = true;
+
+		$this->assertSame( admin_url( 'admin.php?page=' . Stats::PREMIUM_ANALYTICS_PAGE_SLUG ), Stats::get_manage_url() );
 	}
 
 	public function test_post_activation_url_reports_the_plan_choice_to_the_stats_dashboard() {

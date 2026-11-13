@@ -31,7 +31,6 @@ const authorRow = ( posts: AuthorLeaderboardRow[ 'posts' ] ): AuthorLeaderboardR
 	label: 'Jane Cooper',
 	avatarUrl: null,
 	currentValue: 20,
-	currentShare: 1,
 	posts,
 } );
 
@@ -99,11 +98,11 @@ describe( 'AuthorsWidget', () => {
 			( await screen.findByRole( 'link', { name: 'Jane Cooper' } ) ).getAttribute( 'href' ) ?? '',
 			'https://example.com'
 		);
-		expect( authorUrl.pathname ).toBe( '/author/101' );
+		expect( authorUrl.pathname ).toBe( '/report/author/101' );
 		expect( authorUrl.searchParams.get( 'ref' ) ).toBeNull();
 		expect( screen.getByRole( 'link', { name: 'Guy Hawkins' } ) ).toHaveAttribute(
 			'href',
-			expect.stringContaining( '/author/102' )
+			expect.stringContaining( '/report/author/102' )
 		);
 
 		expect( screen.getByText( 'Authors' ) ).toBeInTheDocument();
@@ -114,7 +113,7 @@ describe( 'AuthorsWidget', () => {
 		const link = screen.getByRole( 'link', { name: 'Quarterly update' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/123' );
+		expect( url.pathname ).toBe( '/report/post/123' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/quarterly-update/' );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'authors' );
 	} );
@@ -134,7 +133,6 @@ describe( 'AuthorsWidget', () => {
 			title: 'Quarterly update',
 			link: 'https://example.com/quarterly-update/',
 			currentValue: 20,
-			currentShare: 1,
 		};
 		const { rerender } = render( leaderboardInWidgetRoot( [ authorRow( [ post ] ) ] ) );
 

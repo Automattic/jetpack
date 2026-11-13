@@ -8,27 +8,28 @@ import {
 	useBarColors,
 	useGlobalChartsContext,
 	type BarChartLayout,
-	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
-import { useResizeObserver } from '@wordpress/compose';
 import clsx from 'clsx';
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	isEmptyChartData,
-	formatChartName,
 	getFixedYAxis,
+	getYTickDecimals,
 	formatBucketTooltipDate,
+	toTickResolution,
+	type BucketResolution,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
+import { useChartName } from '../../hooks/use-chart-name';
 import { useComparativeLegend } from '../../hooks/use-comparative-legend';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
@@ -38,13 +39,6 @@ import type { DataFormat } from '../../types';
 import type { ComparativeDatePointDate, TooltipExtraSeries } from '../chart-comparative-line/types';
 import type { TooltipStyle } from '../chart-tooltip';
 import type { ComponentProps } from 'react';
-
-/**
- * Chart-area height (px) below which `compactWhenShort` degrades the chart to
- * a sparkline (no axes, grid, or legend). Matches the comparative line chart
- * so a metric switching chart type keeps the same breakpoint.
- */
-const COMPACT_CHART_HEIGHT = 140;
 
 type BarChartProps = ComponentProps< typeof BarChart >;
 type RenderTooltipParams = Parameters< NonNullable< BarChartProps[ 'renderTooltip' ] > >[ 0 ];
@@ -62,7 +56,7 @@ export type ComparativeBarChartProps = {
 
 	className?: string;
 
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 
 	/** Format for chart values: y-axis ticks and tooltips. */
@@ -76,11 +70,12 @@ export type ComparativeBarChartProps = {
 	 * from a known granularity instead of measuring the gaps between points, which a
 	 * single-bucket or DST-shortened series gives it no way to read.
 	 */
-	tickResolution?: TickResolution;
+	tickResolution?: BucketResolution;
 
 	/**
-	 * Degrade to a sparkline (no axes, grid, or legend) when the chart area
-	 * is too short for readable axis labels. Defaults to false.
+	 * Drop the axes, grid and legend while the chart is shorter than
+	 * `theme.compactWhenShort.below`.
+	 * Forwarded to `BarChart`. Defaults to false.
 	 */
 	compactWhenShort?: boolean;
 
@@ -126,6 +121,12 @@ export type ComparativeBarChartProps = {
 	/** Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked. */
 	primarySeries?: string;
 
+	/** Overlap layout only. Whether the previous period is drawn; with `onPreviousPeriodShownChange`, its legend item becomes a toggle. See the README. */
+	previousPeriodShown?: boolean;
+
+	/** Called with the new value when the reader presses the previous-period legend item. */
+	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
+
 	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
 	onPointerDown?: BarChartProps[ 'onPointerDown' ];
 
@@ -160,27 +161,23 @@ export function ComparativeBarChart( {
 	tooltipExtras,
 	layout,
 	primarySeries,
+	previousPeriodShown,
+	onPreviousPeriodShownChange,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
-	const { displayResolution } = getBucketInfo( series, tickResolution );
+	const chartName = useChartName( chartTitle );
+	const libraryTickResolution = toTickResolution( tickResolution );
+	const { displayResolution } = getBucketInfo( series, libraryTickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { isSeriesVisible, theme } = useGlobalChartsContext();
+	const { isSeriesVisible } = useGlobalChartsContext();
 	const getBarColors = useBarColors();
 	const overlapLayout = layout === 'overlap' ? layout : undefined;
-
-	// The measured Stack fills its container (flex), so its height is independent
-	// of whether the axis/legend are shown — no measure/hide feedback loop.
-	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
-	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
-		const rect = entries[ 0 ]?.contentRect;
-		if ( rect ) {
-			setChartAreaHeight( rect.height );
-		}
-	} );
-	const isCompact = compactWhenShort && chartAreaHeight < COMPACT_CHART_HEIGHT;
+	const previousPeriodToggle = overlapLayout !== undefined && previousPeriodShown !== undefined;
+	const interactiveLegend =
+		legendInteractive || ( previousPeriodToggle && onPreviousPeriodShownChange !== undefined );
 
 	// Aligning moves comparison dates onto the primary series' band slots; the
 	// originals survive in `realDate` for tooltips.
@@ -211,6 +208,7 @@ export function ComparativeBarChart( {
 			} ),
 		[ dataFormat ]
 	);
+	const yTickDecimals = getYTickDecimals( dataFormat.type, dataFormat.options?.currencyCode );
 
 	// `undefined` hands the axis to the chart's derived formatter; `formatDate`'s
 	// `medium` default would otherwise put full site-format dates on every tick.
@@ -226,12 +224,46 @@ export function ComparativeBarChart( {
 		comparisonLabel: previousPeriodLabel,
 	} = useComparativeLegend(
 		alignedSeries,
-		legendInteractive,
+		interactiveLegend,
 		comparisonLabel,
 		undefined,
 		layout ?? 'grouped',
 		primarySeries
 	);
+
+	const comparisonIndexes = useMemo(
+		() =>
+			alignedSeries.flatMap( ( item, index ) =>
+				item.options?.type === 'comparison' ? [ index ] : []
+			),
+		[ alignedSeries ]
+	);
+	const pickedOrFirstGroup = (
+		alignedSeries.find( item => item.label === primarySeries ) ?? alignedSeries[ 0 ]
+	)?.group;
+	const pickedComparisonIndex =
+		comparisonIndexes.find( index => alignedSeries[ index ].group === pickedOrFirstGroup ) ??
+		comparisonIndexes[ 0 ];
+
+	const drawnSeries = useMemo(
+		() =>
+			previousPeriodToggle && ! previousPeriodShown
+				? alignedSeries.filter( item => item.options?.type !== 'comparison' )
+				: alignedSeries,
+		[ previousPeriodToggle, alignedSeries, previousPeriodShown ]
+	);
+
+	// A metric's previous period is hidden and shown with it, as the line chart does under the same `chartId`.
+	const comparisonLabelsByGroup = useMemo( () => {
+		const labels = new Map< string | undefined, string[] >();
+		for ( const item of alignedSeries ) {
+			if ( item.options?.type === 'comparison' ) {
+				labels.set( item.group, [ ...( labels.get( item.group ) ?? [] ), item.label ] );
+			}
+		}
+		return labels;
+	}, [ alignedSeries ] );
+
 	// Overlap paints the previous period as one slot, so one item names it, in the color of the picked metric's previous bar, or else of its widest shown bar.
 	const legendItems = useMemo( () => {
 		if ( ! overlapLayout ) {
@@ -239,6 +271,38 @@ export function ComparativeBarChart( {
 		}
 
 		const metricItems = comparativeLegendItems.filter( item => ! item.describesSeries );
+
+		if ( previousPeriodToggle ) {
+			const ownSeriesItems = metricItems.map( item => {
+				const group = alignedSeries.find( candidate => candidate.label === item.label )?.group;
+				return {
+					...item,
+					seriesLabels: [ item.label, ...( comparisonLabelsByGroup.get( group ) ?? [] ) ],
+				};
+			} );
+			if ( pickedComparisonIndex === undefined ) {
+				return ownSeriesItems;
+			}
+			const previousPeriodItem = {
+				label: previousPeriodLabel,
+				color: seriesStyles[ pickedComparisonIndex ].stroke,
+				shapeStyle: metricItems[ 0 ]?.shapeStyle,
+			};
+			if ( onPreviousPeriodShownChange ) {
+				return [
+					...ownSeriesItems,
+					{
+						...previousPeriodItem,
+						pressed: previousPeriodShown,
+						onToggle: () => onPreviousPeriodShownChange( ! previousPeriodShown ),
+					},
+				];
+			}
+			return previousPeriodShown
+				? [ ...ownSeriesItems, { ...previousPeriodItem, interactive: false } ]
+				: ownSeriesItems;
+		}
+
 		const pickedGroup = alignedSeries.find( item => item.label === primarySeries )?.group;
 		const shownPrevious = alignedSeries.flatMap( ( item, index ) =>
 			item.options?.type === 'comparison' && isSeriesVisible( chartId, item.label ) ? [ index ] : []
@@ -263,6 +327,11 @@ export function ComparativeBarChart( {
 	}, [
 		overlapLayout,
 		comparativeLegendItems,
+		previousPeriodToggle,
+		pickedComparisonIndex,
+		previousPeriodShown,
+		onPreviousPeriodShownChange,
+		comparisonLabelsByGroup,
 		alignedSeries,
 		primarySeries,
 		isSeriesVisible,
@@ -272,8 +341,9 @@ export function ComparativeBarChart( {
 	] );
 
 	const formatTooltipBucket = useCallback(
-		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),
-		[ displayResolution ]
+		( point: ComparativeDatePointDate ) =>
+			formatBucketTooltipDate( point, displayResolution, tickResolution ),
+		[ displayResolution, tickResolution ]
 	);
 
 	/**
@@ -362,17 +432,15 @@ export function ComparativeBarChart( {
 	);
 
 	const chartOptions = useMemo( () => {
-		const hiddenWhenCompact = isCompact ? { display: false } : {};
 		const baseOptions = {
 			axis: {
 				x: {
 					tickFormat: xTickFormat,
-					tickResolution,
-					...hiddenWhenCompact,
+					tickResolution: libraryTickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
-					...hiddenWhenCompact,
+					tickDecimals: yTickDecimals,
 				},
 			},
 		};
@@ -382,26 +450,22 @@ export function ComparativeBarChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
+	}, [ xTickFormat, libraryTickResolution, yTickFormat, yTickDecimals, fixedYAxis ] );
 
 	return (
-		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
+		<Stack direction="column" className={ clsx( styles.chart, className ) }>
 			<BarChart
 				chartId={ chartId }
-				ariaLabel={ formatChartName( chartTitle ) }
+				ariaLabel={ chartName }
 				className={ styles.chartContent }
-				data={ alignedSeries }
+				data={ drawnSeries }
 				layout={ layout }
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }
 				maxWidth={ maxWidth }
-				gridVisibility={ isCompact ? 'none' : undefined }
-				margin={ isCompact ? theme.sparkline.margin : undefined }
+				compactWhenShort={ compactWhenShort }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
-				// A zero-value bar has no height, so a quiet day would otherwise read as
-				// missing data. This draws it as a hairline stub instead.
-				showZeroValues
 				showLegend={ false }
 				withTooltips={ hasTooltipRows }
 				renderTooltip={ renderTooltip }
@@ -409,23 +473,21 @@ export function ComparativeBarChart( {
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
 			>
-				{ ! isCompact && (
-					<BarChart.Legend
-						items={ legendItems }
-						interactive={ legendInteractive }
-						shape="rect"
-						className={ styles.legend }
-						itemClassName={ styles.legendItem }
-						itemStyles={ { margin: 0 } }
-						labelClassName={ styles.legendLabel }
-						labelStyles={ {
-							maxWidth: '100%',
-							textOverflow: 'ellipsis',
-							margin: 0,
-						} }
-						shapeStyles={ { margin: 0 } }
-					/>
-				) }
+				<BarChart.Legend
+					items={ legendItems }
+					interactive={ interactiveLegend }
+					shape="rect"
+					className={ styles.legend }
+					itemClassName={ styles.legendItem }
+					itemStyles={ { margin: 0 } }
+					labelClassName={ styles.legendLabel }
+					labelStyles={ {
+						maxWidth: '100%',
+						textOverflow: 'ellipsis',
+						margin: 0,
+					} }
+					shapeStyles={ { margin: 0 } }
+				/>
 			</BarChart>
 		</Stack>
 	);

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid repeating shared critical styles from combined stylesheets across pages.

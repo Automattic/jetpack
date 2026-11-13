@@ -1,7 +1,9 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import { FeaturesPointer } from 'components/pointer-card';
+import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -10,7 +12,6 @@ import {
 } from 'state/connection';
 import {
 	currentThemeIsBlockTheme,
-	currentThemeStylesheet,
 	getSiteRawUrl,
 	getSiteAdminUrl,
 	userCanManageModules,
@@ -26,7 +27,7 @@ import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
 
-class Sharing extends Component {
+export class Sharing extends Component {
 	render() {
 		const commonProps = {
 			settings: this.props.settings,
@@ -43,18 +44,22 @@ class Sharing extends Component {
 			hasSharingBlock: this.props.hasSharingBlock,
 			hasLikeBlock: this.props.hasLikeBlock,
 			isBlockTheme: this.props.isBlockTheme,
-			themeStylesheet: this.props.themeStylesheet,
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		const foundPublicize = this.props.isModuleFound( 'publicize' ),
+		// Once settings move out, every card here gives way, for admins, to a Features pointer that only a search shows.
+		const inFeatures = isSettingsConsolidationEnabled() && this.props.userCanManageModules,
+			foundPublicize = this.props.isModuleFound( 'publicize' ),
 			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
 			foundLikes = this.props.isModuleFound( 'likes' );
 
-		if ( ! foundPublicize && ! foundSharing && ! foundLikes ) {
+		if (
+			( inFeatures && ! this.props.searchTerm ) ||
+			( ! foundPublicize && ! foundSharing && ! foundLikes )
+		) {
 			return null;
 		}
 
@@ -65,9 +70,36 @@ class Sharing extends Component {
 				{ this.props.searchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Sharing', 'jetpack' ) }</h2>
 				) }
-				{ foundPublicize && <Publicize { ...commonProps } /> }
-				{ foundSharing && <ShareButtons { ...commonProps } /> }
-				{ foundLikes && <Likes { ...commonProps } /> }
+				{ foundPublicize &&
+					( inFeatures ? (
+						<FeaturesPointer
+							header={ _x( 'Jetpack Social', 'Settings header', 'jetpack' ) }
+							name="Jetpack Social"
+							search="social"
+						/>
+					) : (
+						<Publicize { ...commonProps } />
+					) ) }
+				{ foundSharing &&
+					( inFeatures ? (
+						<FeaturesPointer
+							header={ _x( 'Sharing buttons', 'Settings header', 'jetpack' ) }
+							name={ this.props.module( 'sharedaddy' ).name }
+							search="sharing"
+						/>
+					) : (
+						<ShareButtons { ...commonProps } />
+					) ) }
+				{ foundLikes &&
+					( inFeatures ? (
+						<FeaturesPointer
+							header={ _x( 'Like buttons', 'Settings header', 'jetpack' ) }
+							name={ this.props.module( 'likes' ).name }
+							search="likes"
+						/>
+					) : (
+						<Likes { ...commonProps } />
+					) ) }
 			</div>
 		);
 	}
@@ -90,6 +122,5 @@ export default connect( state => {
 		hasSharingBlock: isSharingBlockAvailable( state ),
 		hasLikeBlock: isLikeBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
-		themeStylesheet: currentThemeStylesheet( state ),
 	};
 } )( Sharing );

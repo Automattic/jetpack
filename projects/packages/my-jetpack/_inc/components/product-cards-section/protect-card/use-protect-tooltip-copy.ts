@@ -13,7 +13,7 @@ type Tooltip = {
 	title: ReactElement | string;
 	text: ReactElement | string;
 };
-export type FirewallState = 'active' | 'inactive' | 'off';
+export type FirewallState = 'active' | 'host' | 'inactive' | 'off';
 export type TooltipContent = {
 	[ key in TooltipType ]: Tooltip;
 } & {
@@ -101,21 +101,21 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		if ( blockedLoginsCount === 0 ) {
 			if ( hasBruteForceProtection ) {
 				return {
-					title: __( 'Brute Force Protection: Active', 'jetpack-my-jetpack' ),
+					title: __( 'Login protection: Active', 'jetpack-my-jetpack' ),
 					text: __(
-						'Brute Force Protection is actively blocking malicious login attempts. The number of blocked login attempts will display here soon!',
+						'Login protection is actively blocking malicious login attempts. The number of blocked login attempts will display here soon!',
 						'jetpack-my-jetpack'
 					),
 				};
 			}
 			return {
-				title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
+				title: __( 'Login protection: Inactive', 'jetpack-my-jetpack' ),
 				text: loginSettingsLink
 					? createInterpolateElement(
 							sprintf(
 								/* translators: %s is the location/page where the settings are located: "Protect settings", "firewall settings" or "Jetpack settings". */
 								__(
-									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
+									'Login protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
 								),
 								loginSettingsName
@@ -128,7 +128,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 							}
 						)
 					: __(
-							'Brute Force Protection is disabled and not actively blocking malicious login attempts.',
+							'Login protection is disabled and not actively blocking malicious login attempts.',
 							'jetpack-my-jetpack'
 						),
 			};
@@ -137,21 +137,21 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		if ( ! hasBruteForceProtection ) {
 			if ( ! isBruteForcePluginsActive ) {
 				return {
-					title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
+					title: __( 'Login protection: Inactive', 'jetpack-my-jetpack' ),
 					text: __(
-						'For Brute Force Protection, activate the Jetpack or Protect plugin and enable it in settings.',
+						'For login protection, activate the Jetpack or Protect plugin and enable it in settings.',
 						'jetpack-my-jetpack'
 					),
 				};
 			}
 			return {
-				title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
+				title: __( 'Login protection: Inactive', 'jetpack-my-jetpack' ),
 				text: loginSettingsLink
 					? createInterpolateElement(
 							sprintf(
 								/* translators: %s is the location/page where the settings are located: "Protect settings", "firewall settings" or "Jetpack settings". */
 								__(
-									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
+									'Login protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
 								),
 								loginSettingsName
@@ -164,7 +164,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 							}
 						)
 					: __(
-							'Brute Force Protection is disabled and not actively blocking malicious login attempts.',
+							'Login protection is disabled and not actively blocking malicious login attempts.',
 							'jetpack-my-jetpack'
 						),
 			};
@@ -213,6 +213,13 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 
 		return {
 			active,
+			host: {
+				title: __( 'Firewall: On', 'jetpack-my-jetpack' ),
+				text: __(
+					'Your hosting provider runs a firewall for your site, so you’re all set.',
+					'jetpack-my-jetpack'
+				),
+			},
 			inactive: {
 				title: __( 'Firewall: Inactive', 'jetpack-my-jetpack' ),
 				text: __(

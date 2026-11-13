@@ -4,8 +4,11 @@ import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Icon, Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
+import { Link as RouterLink, useSearchParams } from 'react-router';
 import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getProtectPageUrl } from '../../../utils/protect-page';
+import { isSettingsConsolidationEnabled } from '../../../utils/settings-consolidation';
+import { getLeavingLinkLabel } from '../../../utils/settings-link-label';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
@@ -47,9 +50,88 @@ export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undef
 
 	const url = $module.configure_url;
 	// Jetpack's fallback: a settings search, which for a module without options finds only its toggle.
-	const isSettingsSearch = url?.includes( 'page=jetpack-settings#/settings?term=' );
+	const isSettingsSearch = url?.includes( SETTINGS_SEARCH );
 
 	return isSettingsSearch && ! Object.keys( $module.options ?? {} ).length ? undefined : url;
+}
+
+const SETTINGS_SEARCH = 'page=jetpack-settings#/settings?term=';
+
+/**
+ * Whether a module's settings open in the panel: its URL is Jetpack's settings-search default or the panel's own.
+ *
+ * Any other URL, such as the SEO page an opted-in site is sent to, is the module's real home and stays a link.
+ *
+ * @param url - The module's `configure_url`.
+ * @return True when the panel replaces the link.
+ */
+export function opensInSettingsPanel( url: string ): boolean {
+	return (
+		url.includes( SETTINGS_SEARCH ) ||
+		( url.includes( 'page=my-jetpack' ) && /configure(=|%3D)/.test( url ) )
+	);
+}
+
+/**
+ * Configure for a module, opening the settings panel over the page instead of leaving it.
+ *
+ * @param props      - Component props.
+ * @param props.slug - The module or settings entry slug.
+ * @param props.name - The feature name.
+ * @return The link.
+ */
+function PanelConfigureLink( { slug, name }: { slug: string; name: string } ) {
+	const [ searchParams ] = useSearchParams();
+	const next = new URLSearchParams( searchParams );
+	next.set( 'configure', slug );
+
+	return (
+		<Link
+			render={ <RouterLink to={ { search: `?${ next }` } } replace /> }
+			aria-label={ sprintf(
+				/* translators: %s is the feature name. */
+				__( 'Configure %s', 'jetpack-my-jetpack' ),
+				name
+			) }
+		>
+			{ __( 'Configure', 'jetpack-my-jetpack' ) }
+		</Link>
+	);
+}
+
+/**
+ * A module's settings link: Configure for the panel, or, with the panel on, the page it leaves for.
+ *
+ * @param props      - Component props.
+ * @param props.url  - The module's settings URL.
+ * @param props.slug - The module slug.
+ * @param props.name - The feature name.
+ * @return The link.
+ */
+function SettingsLink( { url, slug, name }: { url: string; slug: string; name: string } ) {
+	const hasPanel = isSettingsConsolidationEnabled();
+	if ( hasPanel && opensInSettingsPanel( url ) ) {
+		return <PanelConfigureLink slug={ slug } name={ name } />;
+	}
+
+	// Without the panel every link leaves Features, so naming the page would tell people nothing.
+	const leaving = hasPanel ? getLeavingLinkLabel( url, name ) : null;
+
+	return (
+		<Link
+			href={ url }
+			aria-label={
+				leaving?.label ??
+				sprintf(
+					/* translators: %s is the feature name. */
+					__( 'Configure %s', 'jetpack-my-jetpack' ),
+					name
+				)
+			}
+		>
+			{ leaving?.text ?? __( 'Configure', 'jetpack-my-jetpack' ) }
+		</Link>
+	);
 }
 
 type FeatureItemProps = {
@@ -102,7 +184,7 @@ export function FeatureItem( {
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
 	const isSettling = Boolean( state.pending );
-	// On a block theme these modules offer the Site Editor instead of a switch, so the card
+	// On a block theme these modules link to Settings › Sharing instead of a switch, so the card
 	// says what to do there and drops a status badge that would only confuse next to it.
 	const migration =
 		state.control.kind === 'module' ? getBlockThemeMigration( state.control.module ) : null;
@@ -181,7 +263,13 @@ export function FeatureItem( {
 					) }
 
 					{ ! isSettling && statusLabel && (
-						<Badge id={ statusId } intent={ isActive && ! unavailable ? 'stable' : 'none' }>
+						<Badge
+							id={ statusId }
+							intent={
+								( state.needsSetup && 'medium' ) ||
+								( isActive && ! unavailable ? 'stable' : 'none' )
+							}
+						>
 							{ statusLabel }
 						</Badge>
 					) }
@@ -211,17 +299,12 @@ export function FeatureItem( {
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>
+				{ state.settingsEntry && ! onOpen && (
+					// The switch lives in the panel, so Configure shows even while the setting is off.
+					<PanelConfigureLink slug={ feature.slug } name={ feature.name } />
+				) }
 				{ settingsUrl && (
-					<Link
-						href={ settingsUrl }
-						aria-label={ sprintf(
-							/* translators: %s is the feature name. */
-							__( 'Configure %s', 'jetpack-my-jetpack' ),
-							feature.name
-						) }
-					>
-						{ __( 'Configure', 'jetpack-my-jetpack' ) }
-					</Link>
+					<SettingsLink url={ settingsUrl } slug={ feature.slug } name={ feature.name } />
 				) }
 				<FeatureAction
 					state={ state }

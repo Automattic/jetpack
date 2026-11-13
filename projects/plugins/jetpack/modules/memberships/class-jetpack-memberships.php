@@ -773,8 +773,17 @@ class Jetpack_Memberships {
 			self::$user_can_view_post_cache      = array();
 			return;
 		}
-		unset( self::$user_is_paid_subscriber_cache[ $user_id ] );
-		unset( self::$user_can_view_post_cache[ $user_id ] );
+		$prefix = $user_id . '_';
+		foreach ( array_keys( self::$user_is_paid_subscriber_cache ) as $cache_key ) {
+			if ( str_starts_with( $cache_key, $prefix ) ) {
+				unset( self::$user_is_paid_subscriber_cache[ $cache_key ] );
+			}
+		}
+		foreach ( array_keys( self::$user_can_view_post_cache ) as $cache_key ) {
+			if ( str_starts_with( $cache_key, $prefix ) ) {
+				unset( self::$user_can_view_post_cache[ $cache_key ] );
+			}
+		}
 	}
 
 	/**
@@ -1114,7 +1123,7 @@ class Jetpack_Memberships {
 		/**
 		 * Filter the format used for the subscriber count in the join others text.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.4
 		 *
 		 * @param string $format            Subscriber count format: 'short', 'rounded', or 'raw'. Default 'short'.
 		 * @param int    $subscribers_total Total number of subscribers.

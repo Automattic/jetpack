@@ -45,6 +45,7 @@ class Stats_Links_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_all_filters( 'jetpack_stats_url' );
 		remove_all_actions( 'admin_page_access_denied' );
+		remove_all_actions( 'wp_admin_page_not_found' );
 		remove_all_filters( 'wp_redirect' );
 		unset( $_GET['page'], $_GET[ Stats_Links::ROUTE_QUERY_ARG ], $GLOBALS['_parent_pages']['stats'] );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
@@ -67,12 +68,91 @@ class Stats_Links_Test extends BaseTestCase {
 
 		$this->assertSame( 10, has_filter( 'jetpack_stats_url', array( Stats_Links::class, 'filter_url' ) ) );
 		$this->assertSame( 10, has_action( 'admin_page_access_denied', array( Stats_Links::class, 'open_retired_stats_page' ) ) );
+		$this->assertSame( 10, has_action( 'wp_admin_page_not_found', array( Stats_Links::class, 'open_retired_stats_page' ) ) );
 	}
 
 	public function test_dashboard_view_points_at_the_dashboard() {
 		$this->login_as( 'administrator' );
 
 		$this->assertSame( self::DASHBOARD_URL, Stats_Links::filter_url( self::LEGACY_URL, array( 'view' => 'dashboard' ) ) );
+	}
+
+	/**
+	 * @param array  $args The link's `section` and `range`.
+	 * @param string $p    The dashboard route it opens, as encoded in `p`.
+	 * @dataProvider provide_dashboard_links
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_dashboard_links' )]
+	public function test_dashboard_view_opens_the_section_and_days_the_link_names( $args, $p ) {
+		$this->login_as( 'administrator' );
+
+		$this->assertSame(
+			'http://example.org/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=' . $p,
+			Stats_Links::filter_url( self::LEGACY_URL, array( 'view' => 'dashboard' ) + $args )
+		);
+	}
+
+	/**
+	 * Data for test_dashboard_view_opens_the_section_and_days_the_link_names.
+	 *
+	 * @return array
+	 */
+	public static function provide_dashboard_links() {
+		// The site runs on UTC, so a day's ends carry a zero offset.
+		$august = '%2F%3Fsection%3Dtraffic%26from%3D2026-08-01T00%253A00%253A00.000%252B00%253A00%26to%3D2026-08-07T23%253A59%253A59.999%252B00%253A00';
+
+		return array(
+			'section only'             => array( array( 'section' => 'traffic' ), '%2F%3Fsection%3Dtraffic' ),
+			'days in the past'         => array(
+				array(
+					'section' => 'traffic',
+					'range'   => array(
+						'from' => '2026-08-01',
+						'to'   => '2026-08-07',
+					),
+				),
+				$august,
+			),
+			'days ending before start' => array(
+				array(
+					'section' => 'traffic',
+					'range'   => array(
+						'from' => '2026-08-07',
+						'to'   => '2026-08-01',
+					),
+				),
+				'%2F%3Fsection%3Dtraffic',
+			),
+			'days that are not days'   => array(
+				array(
+					'range' => array(
+						'from' => 'yesterday',
+						'to'   => 'today',
+					),
+				),
+				'%2F',
+			),
+		);
+	}
+
+	public function test_dashboard_view_names_the_days_ending_today_as_their_preset() {
+		$this->login_as( 'administrator' );
+		$today = new \DateTimeImmutable( 'now', wp_timezone() );
+
+		$this->assertSame(
+			self::DASHBOARD_URL . '%3Fsection%3Dtraffic%26preset%3Dlast-7-days',
+			Stats_Links::filter_url(
+				self::LEGACY_URL,
+				array(
+					'view'    => 'dashboard',
+					'section' => 'traffic',
+					'range'   => array(
+						'from' => $today->modify( '-6 days' )->format( 'Y-m-d' ),
+						'to'   => $today->format( 'Y-m-d' ),
+					),
+				)
+			)
+		);
 	}
 
 	public function test_post_view_points_at_the_post_detail_page() {
@@ -162,6 +242,22 @@ class Stats_Links_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_retired_stats_page_opens_the_dashboard_despite_simples_index_stats_page() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
+		$this->login_as( 'administrator' );
+		$_GET['page']                      = 'stats';
+		$GLOBALS['_parent_pages']['stats'] = 'index.php';
+
+		try {
+			$this->assertSame(
+				'http://example.org/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=%2F%3Fsection%3Dtraffic',
+				$this->redirect_from_retired_stats_page( '#!/stats/day/123' )
+			);
+		} finally {
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
+		}
+	}
+
 	/**
 	 * The fragment never reaches the server, so the page hands it back under the query arg the redirect reads.
 	 */
@@ -208,7 +304,7 @@ class Stats_Links_Test extends BaseTestCase {
 			'subscribers'          => array( '#!/stats/subscribers/example.org', '%2F%3Fsection%3Dsubscribers' ),
 			'store'                => array( '#!/stats/store/orders/day/example.org', '%2F%3Fsection%3Dwoocommerce' ),
 			'ads'                  => array( '#!/stats/ads/day/example.org', '%2F%3Fsection%3Dads' ),
-			'settings'             => array( '#!/stats/settings', '%2F%3Fsection%3Dsettings' ),
+			'settings'             => array( '#!/stats/settings', '%2Fsettings' ),
 			'post'                 => array( '#!/stats/post/29/123', '%2Fpost%2F29' ),
 			'post without an ID'   => array( '#!/stats/post/0/123', '%2F' ),
 			'email opens'          => array( '#!/stats/email/opens/day/29/123', '%2Fpost%2F29%3Fsection%3Demail-opens' ),

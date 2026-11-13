@@ -1,9 +1,10 @@
-import { renderHook, act } from '@testing-library/react';
+import { render, renderHook, act } from '@testing-library/react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import useActivatePlugins from '../../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../../data/products/use-activate-search-free-product';
 import useInstallPlugins from '../../../data/products/use-install-plugins';
 import useProduct from '../../../data/products/use-product';
+import PriceComponent from '../pricing-component';
 import usePricingData from '../use-pricing-data';
 import type { ProductCamelCase } from '../../../data/types';
 
@@ -20,9 +21,14 @@ jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 	} ),
 } ) );
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getJetpackAdminPageUrl: () => 'https://example.org/wp-admin/admin.php?page=jetpack',
+	getMyJetpackUrl: () => 'https://example.org/wp-admin/admin.php?page=my-jetpack',
+} ) );
+
 let mockRunFreeCheckout: jest.Mock;
 jest.mock( '@automattic/jetpack-connection', () => ( {
-	getUserConnectionUrl: () => 'https://example.org/connect',
+	...jest.requireActual( '@automattic/jetpack-connection' ),
 	useProductCheckoutWorkflow: () => ( { run: mockRunFreeCheckout } ),
 } ) );
 
@@ -147,5 +153,42 @@ describe( 'usePricingData activation routing', () => {
 		const { result } = renderHook( () => usePricingData( 'search' ) );
 
 		expect( result.current.isActivating ).toBe( true );
+	} );
+} );
+
+describe( 'usePricingData connect link', () => {
+	test( 'a recommendation sends its own name and returns to the current page', () => {
+		mockUseProduct.mockReturnValue(
+			productState(
+				featureDetail( { slug: 'stats', status: PRODUCT_STATUSES.USER_CONNECTION_ERROR } )
+			)
+		);
+
+		const { result } = renderHook( () => usePricingData( 'stats' ) );
+		const { href } = result.current.primaryAction as { href: string };
+		const params = new URL( href ).searchParams;
+
+		expect( params.get( 'from' ) ).toBe( 'my_jetpack_recommendations_stats' );
+		expect( params.get( 'redirect_after_auth' ) ).toBe( window.location.href );
+	} );
+} );
+
+describe( 'PriceComponent', () => {
+	const yearly = { currencyCode: 'USD', fullPrice: 120, discountPrice: 120 };
+	const tenDollars = /^\$10\.00\s*\/month, billed yearly$/;
+
+	it.each( [
+		[ 'single-price, catalog failed', false, {}, /^$/ ],
+		[ 'tier-priced, catalog failed', false, { tiers: { upgraded: {} } }, /^$/ ],
+		[ 'single-price, catalog loaded', false, { ...yearly, fullPricePerMonth: 10 }, tenDollars ],
+		[ 'tier-priced, catalog loaded', false, { tiers: { upgraded: yearly } }, tenDollars ],
+		[ 'free feature', true, { isFree: true }, /^Free$/ ],
+		[ 'free non-feature', false, { available: true, isFree: true }, /^Free$/ ],
+	] )( 'shows the right price for a %s product', ( _case, isFeature, pricingForUi, text ) => {
+		mockUseProduct.mockReturnValue( productState( featureDetail( { isFeature, pricingForUi } ) ) );
+
+		const { container } = render( <PriceComponent slug="search" /> );
+
+		expect( container ).toHaveTextContent( text );
 	} );
 } );

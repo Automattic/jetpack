@@ -181,6 +181,31 @@ describe( 'TransferConnectionOwnership', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
+	describe( 'plan ownership note', () => {
+		const noteLink = () =>
+			screen.getByRole( 'link', { name: /how Jetpack plans can be transferred/ } );
+
+		it( 'links to the plan transfer docs on both steps', async () => {
+			const user = userEvent.setup();
+			render( <TransferConnectionOwnership { ...props } /> );
+			await chooseKazz( user );
+			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+			await expect(
+				screen.findByRole( 'button', { name: 'Transfer ownership' } )
+			).resolves.toBeInTheDocument();
+			expect( noteLink() ).toBeInTheDocument();
+
+			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
+			await expect(
+				screen.findAllByText( /is now the connection owner/ )
+			).resolves.not.toHaveLength( 0 );
+
+			const url = new URL( noteLink().getAttribute( 'href' ) as string );
+			expect( url.searchParams.get( 'source' ) ).toBe( 'jetpack-transfer-connection' );
+			expect( url.searchParams.get( 'anchor' ) ).toMatch( /^transfer-a-plan-yourself/ );
+		} );
+	} );
+
 	it( 'leaves the protected owner warning out when it does not apply', async () => {
 		const user = userEvent.setup();
 		render( <TransferConnectionOwnership { ...props } /> );
@@ -248,6 +273,20 @@ describe( 'TransferConnectionOwnership', () => {
 		// Both the handover line and the support notice name the new owner.
 		await expect( screen.findAllByText( '<b>Kazz</b>' ) ).resolves.toHaveLength( 2 );
 		expect( screen.getByText( /will become the connection owner/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'decodes the HTML-encoded display names WordPress stores', async () => {
+		mockFetchCandidates.mockResolvedValue( [
+			{ ...candidates[ 0 ], displayName: 'O&#039;Neil &amp; Sons &lt;3' },
+		] );
+		const user = userEvent.setup();
+		render( <TransferConnectionOwnership { ...props } /> );
+
+		await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
+
+		await expect(
+			screen.findByRole( 'option', { name: "O'Neil & Sons <3 (kazz@example.com)" } )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'says so when the candidates cannot be loaded', async () => {

@@ -98,8 +98,7 @@
 	line-height: var(--wpds-typography-line-height-md);
 }
 
-.jp-search-settings-card,
-.jp-search-ai-agent-access-card {
+.jp-search-settings-card {
 	box-sizing: border-box;
 	width: 100%;
 	margin-block-start: var(--wpds-dimension-padding-3xl);
@@ -113,10 +112,6 @@
 	// that legacy spacing inside cards so the cards own the layout gap.
 	.jp-form-search-settings-group__toggle.is-reader-chat {
 		margin-top: 0;
-	}
-
-	&.jp-form-search-settings-group__toggle.is-ai-agent-access {
-		margin-block-start: var(--wpds-dimension-padding-3xl);
 	}
 
 	// `.jp-search-dashboard-row` carries responsive horizontal margins

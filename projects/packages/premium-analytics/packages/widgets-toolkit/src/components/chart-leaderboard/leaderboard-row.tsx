@@ -20,6 +20,12 @@ type LeaderboardRowLabelLink = Pick< InternalLinkProps, 'to' | 'params' | 'searc
 export type LeaderboardRowAction =
 	| { kind: 'link'; href: string }
 	| {
+			/** A row that stays put: a plain label with a "View in new tab" action beside it. */
+			kind: 'viewLink';
+			/** Public URL the action opens. Pass it through `safeHttpUrl()` first; this action does not check the scheme. */
+			href: string;
+	  }
+	| {
 			/** A post, page, or email with a detail page inside the dashboard. */
 			kind: 'postLink';
 			/** Post or page ID. Links to the internal detail route when the reader can open it. */
@@ -68,22 +74,46 @@ export type LeaderboardRowAction =
 export type LeaderboardRowActionOptions = {
 	/** An external destination used only when the row has no children. */
 	href?: string;
+	/**
+	 * How a childless row offers its `href`: as the row's own outbound link, or as
+	 * a "View in new tab" action beside a plain label.
+	 */
+	hrefAs?: 'link' | 'viewLink';
 	/** Whether selecting the row should take the user to a child leaderboard. */
 	hasChildren: boolean;
 	/** Drill-down behavior supplied by widgets that support child rows. */
 	drillDown?: Omit< Extract< LeaderboardRowAction, { kind: 'drillDown' } >, 'kind' >;
 };
 
+/** The actions whose row keeps its label in place, so a trailing action has somewhere to go. */
+export type LeaderboardRowActionWithTrailing = Extract<
+	LeaderboardRowAction,
+	{ kind: 'viewLink' | 'postLink' | 'videoLink' | 'static' | 'drillDown' }
+>;
+
 export type LeaderboardRowProps = {
 	/** Label text. */
 	label: string;
 	/** Media rendered before the label. */
 	media: LeaderboardRowMedia;
-	/** The mutually exclusive action applied to this chart row. */
-	action: LeaderboardRowAction;
 	/** The look of the chart the row sits in. Only `list` insets the label and sizes the bar. */
 	variant?: LeaderboardVariant;
-};
+} & (
+	| {
+			/** The mutually exclusive action applied to this chart row. */
+			action: LeaderboardRowActionWithTrailing;
+			/**
+			 * A row action rendered after the label, revealed on hover or focus (with the
+			 * "View" action when there is one).
+			 */
+			trailingAction?: ReactElement;
+	  }
+	| {
+			/** Any action; a row that links out as a whole has no room for another. */
+			action: LeaderboardRowAction;
+			trailingAction?: never;
+	  }
+);
 
 type LeaderboardRowButtonProps = {
 	label: ReactElement;
@@ -105,6 +135,12 @@ export type LeaderboardRowChartProps =
  * @return The single action that the leaderboard row should expose.
  */
 export function resolveLeaderboardRowAction(
+	options: LeaderboardRowActionOptions & { hrefAs: 'viewLink' }
+): LeaderboardRowActionWithTrailing;
+export function resolveLeaderboardRowAction(
+	options: LeaderboardRowActionOptions
+): LeaderboardRowAction;
+export function resolveLeaderboardRowAction(
 	options: LeaderboardRowActionOptions
 ): LeaderboardRowAction {
 	if ( options.hasChildren && options.drillDown ) {
@@ -112,7 +148,7 @@ export function resolveLeaderboardRowAction(
 	}
 
 	if ( ! options.hasChildren && options.href ) {
-		return { kind: 'link', href: options.href };
+		return { kind: options.hrefAs ?? 'link', href: options.href };
 	}
 
 	return { kind: 'static' };
@@ -130,10 +166,12 @@ export function LeaderboardRow( {
 	label,
 	media,
 	action,
+	trailingAction,
 	variant = 'list',
 }: LeaderboardRowProps ): ReactElement {
 	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
 	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
+	const trailing = trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span>;
 
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
@@ -154,21 +192,26 @@ export function LeaderboardRow( {
 			title: label,
 		};
 
-		// A row with a "View" action holds two links, so the row chrome goes on a
+		// A row with a trailing action holds two controls, so the row chrome goes on a
 		// wrapper and the title keeps the tooltip.
-		if ( liveUrl !== undefined ) {
+		if ( liveUrl !== undefined || trailing ) {
 			return (
 				<span className={ rowClassName }>
 					<TitleLink
 						{ ...titleLinkProps }
 						classNames={ {
 							internal: clsx( styles.labelLink, styles.titleLink ),
+							external: clsx( styles.labelLink, styles.titleLink ),
+							plain: styles.plainLabel,
 							text: styles.label,
 						} }
 					>
 						{ content }
 					</TitleLink>
-					<ViewLiveLink href={ liveUrl } label={ label } className={ styles.viewAction } />
+					{ liveUrl !== undefined && (
+						<ViewLiveLink href={ liveUrl } label={ label } className={ styles.rowAction } />
+					) }
+					{ trailing }
 				</span>
 			);
 		}
@@ -195,6 +238,7 @@ export function LeaderboardRow( {
 				<InternalLink { ...action.link } className={ styles.labelLink }>
 					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
 				</InternalLink>
+				{ trailing }
 			</span>
 		);
 	}
@@ -202,6 +246,21 @@ export function LeaderboardRow( {
 	const content = (
 		<LeaderboardLabel label={ label } media={ media } decorativeMedia={ action.kind === 'link' } />
 	);
+
+	// The label carries the tooltip itself, so each action keeps only its own.
+	if ( action.kind === 'viewLink' || ( action.kind !== 'link' && trailing ) ) {
+		return (
+			<span className={ rowClassName }>
+				<span className={ styles.plainLabel } title={ label }>
+					{ content }
+				</span>
+				{ action.kind === 'viewLink' && (
+					<ViewLiveLink href={ action.href } label={ label } className={ styles.rowAction } />
+				) }
+				{ trailing }
+			</span>
+		);
+	}
 
 	if ( action.kind === 'link' ) {
 		return (
@@ -229,7 +288,9 @@ export function buildLeaderboardRow( props: LeaderboardRowProps ): LeaderboardRo
 	if ( props.action.kind === 'drillDown' ) {
 		const button = { label, onClick: props.action.onClick, ariaLabel: props.action.ariaLabel };
 
-		return props.action.link ? { ...button, hasInteractiveLabel: true } : button;
+		return props.action.link || props.trailingAction
+			? { ...button, hasInteractiveLabel: true }
+			: button;
 	}
 
 	return { label };

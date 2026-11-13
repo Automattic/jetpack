@@ -42,6 +42,13 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 	 * Called automatically on `rest_api_init()`.
 	 */
 	public function register_routes() {
+		global $publicize;
+
+		// Match the Publicize package controllers, which only register when Publicize is set up.
+		if ( ! $publicize ) {
+			return;
+		}
+
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,

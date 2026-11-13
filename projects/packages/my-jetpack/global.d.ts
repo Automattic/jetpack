@@ -322,6 +322,7 @@ type ProtectHasThreatsAlert = Record< 'protect_has_threats', ProtectHasThreatsAl
 type PluginsNeedingInstallAlertData = {
 	needs_installed?: JetpackModule[];
 	needs_activated_only?: JetpackModule[];
+	is_silent?: true;
 };
 
 type PluginsNeedingInstallAlert = Record<
@@ -422,6 +423,7 @@ type ProtectData = {
 		files: string[];
 		has_unchecked_items?: boolean;
 		last_checked: string;
+		last_scan_failed?: boolean;
 		num_plugins_threats: number;
 		num_themes_threats: number;
 		num_threats: number;
@@ -447,6 +449,7 @@ type ProtectData = {
 		standalone_mode?: boolean;
 		waf_supported: boolean;
 		waf_enabled: boolean;
+		waf_provided_by_host?: boolean;
 	};
 };
 
@@ -490,6 +493,16 @@ type MainFeaturesState = {
 	hidden_modules?: string[];
 	available_admin_pages?: string[];
 	plugin_installs?: MainFeatureInstallAccess;
+	settings_entries?: MainFeatureSettingsEntry[];
+};
+
+// A setting with no module that opens in the settings panel, such as Google Analytics.
+type MainFeatureSettingsEntry = {
+	slug: string;
+	name: string;
+	description: string;
+	// On but missing what it needs to work, such as GA's Measurement ID, is `needs-setup`.
+	status: 'active' | 'inactive' | 'needs-setup';
 };
 
 type OfflineFeaturesSeed = {
@@ -505,7 +518,10 @@ type OfflineFeaturesScriptData = import( '@automattic/jetpack-script-data' ).MyJ
 
 type MainFeatureModuleGroup = {
 	label: string;
+	groups?: string[];
 	modules: string[];
+	// Settings entries listed under this heading when the site has them.
+	settings?: string[];
 };
 
 // Whether the current user may install plugins here: not while file changes are off site-wide, or not with their role.
@@ -541,6 +557,8 @@ type MainFeature = {
 	screenshot: string;
 	// `owned` is per plan: a site on Growth owns that one and can still buy Complete.
 	plans: Array< { slug: string; name: string; owned?: boolean } >;
+	// The Security and Growth filter pills' categories.
+	groups: string[];
 	info_url: string;
 	docs_url: string;
 	product: string;
@@ -561,6 +579,7 @@ interface Window {
 		};
 		siteSuffix: string;
 		siteUrl: string;
+		homeUrl: string;
 		latestBoostSpeedScores: {
 			previousScores: {
 				desktop: number;
@@ -600,6 +619,7 @@ interface Window {
 		purchaseToken: string;
 		lifecycleStats: {
 			historicallyActiveModules: JetpackModule[];
+			historicallyActiveModulesRefreshDue?: boolean;
 			brokenModules: {
 				needs_site_connection: JetpackModule[];
 				needs_user_connection: JetpackModule[];
@@ -663,6 +683,7 @@ interface Window {
 					} | null;
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
+						is_free?: boolean;
 						available: boolean;
 						catalog_available?: boolean;
 						requires_support?: boolean;

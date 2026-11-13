@@ -5,6 +5,7 @@ namespace Automattic\Jetpack_Boost\Tests;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
 use WorDBless\BaseTestCase;
@@ -48,6 +49,30 @@ class Jetpack_Boost_Test extends BaseTestCase {
 		$this->assertContains( home_url( '/contact' ), $updated_pages, 'Other pages should remain in the list' );
 		$this->assertContains( home_url( '/blog' ), $updated_pages, 'Other pages should remain in the list' );
 		$this->assertCount( 3, $updated_pages, 'Should have exactly 3 items after removing empty string' );
+	}
+
+	public function test_version_change_with_new_cache_rules_empties_both_minify_caches_but_daily_cleanup_keeps_fresh_files() {
+		delete_site_option( 'jetpack_boost_minify_cache_rules_applied' );
+		$files = array(
+			Config::get_static_cache_dir_path() . '/0123456789.min.css',
+			Config::get_legacy_cache_dir_path() . '/page-optimize-cache-0123456789',
+		);
+		foreach ( $files as $file ) {
+			if ( ! is_dir( dirname( $file ) ) ) {
+				mkdir( dirname( $file ), 0775, true );
+			}
+			file_put_contents( $file, 'a{color:red}' );
+		}
+
+		jetpack_boost_legacy_minify_cache_cleanup();
+		jetpack_boost_minify_cache_cleanup();
+		$this->assertFileExists( $files[0] );
+		$this->assertFileExists( $files[1] );
+
+		( new Jetpack_Boost() )->handle_version_change();
+
+		$this->assertFileDoesNotExist( $files[0] );
+		$this->assertFileDoesNotExist( $files[1] );
 	}
 
 	/**

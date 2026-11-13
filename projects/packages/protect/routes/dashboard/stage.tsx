@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import Overview from './components/overview';
-import PageBreadcrumbs, { hasJetpackCrumb } from './components/page-breadcrumbs';
+import PageBreadcrumbs from './components/page-breadcrumbs';
 import SettingsTab from './components/settings-tab';
 import { recordPageView } from './data/page-views';
 import useProtectSettings from './data/use-protect-settings';
@@ -14,6 +14,7 @@ import { REPORT_PARAM, parseThreatIds } from './sections/scan/group-threats';
 import HeaderScanButton from './sections/scan/header-scan-button';
 import ScanStartNotice from './sections/scan/scan-start-notice';
 import { useScanPolling } from './sections/scan/store';
+import { ThreatFileViewer } from './sections/scan/threat-file';
 import ThreatReport from './sections/scan/threat-report';
 import './route.scss';
 
@@ -97,17 +98,16 @@ const Stage = () => {
 						openTab={ openTab }
 					/>
 				</div>
+				<ThreatFileViewer />
 			</AdminPage>
 		);
 	}
 
-	const showTrail = hasJetpackCrumb();
 	return (
 		<AdminPage
 			className="jp-protect-dashboard"
-			breadcrumbs={ showTrail ? <PageBreadcrumbs /> : undefined }
 			// "Protect" is a product name and is not translated.
-			title={ showTrail ? undefined : 'Protect' }
+			title="Protect"
 			ariaLabel="Protect"
 			actions={ state.scan ? <HeaderScanButton /> : undefined }
 		>
@@ -140,6 +140,7 @@ const Stage = () => {
 					</Tabs.Panel>
 				</div>
 			</Tabs.Root>
+			<ThreatFileViewer />
 		</AdminPage>
 	);
 };

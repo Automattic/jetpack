@@ -48,7 +48,7 @@ describe( 'LeaderboardPostLabel', () => {
 		const link = screen.getByRole( 'link', { name: 'Hello world' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/12' );
+		expect( url.pathname ).toBe( '/report/post/12' );
 		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
 		expect( url.searchParams.get( 'comp' ) ).toBe( '1' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/hello/' );

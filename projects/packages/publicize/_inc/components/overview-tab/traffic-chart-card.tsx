@@ -1,8 +1,8 @@
 import { LineChart } from '@automattic/charts';
 import '@automattic/charts/style.css';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, PeriodSelector } from '@automattic/jetpack-components';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { Spinner, SelectControl } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -20,11 +20,12 @@ import { buildSeries } from '../../utils/traffic-series';
 import './traffic-chart-card.scss';
 import { buildMockReferrers } from './traffic-mock';
 import type { Connection, TrafficInterval } from '../../social-store/types';
+import type { PeriodPreset } from '@automattic/jetpack-components';
 import type { JSX } from 'react';
 
 const CHART_HEIGHT = 240;
 
-const INTERVAL_OPTIONS: Array< { label: string; value: string } > = [
+const INTERVAL_OPTIONS: PeriodPreset[] = [
 	{ label: __( 'Last 7 days', 'jetpack-publicize-pkg' ), value: '7' },
 	{ label: __( 'Last 30 days', 'jetpack-publicize-pkg' ), value: '30' },
 	{ label: __( 'Last 90 days', 'jetpack-publicize-pkg' ), value: '90' },
@@ -37,9 +38,8 @@ const INTERVAL_OPTIONS: Array< { label: string; value: string } > = [
  * a paid-plan real chart fed by the cached `getTrafficReferrers`
  * resolver, one line per connected service that drove ≥1 visit in the
  * window; a paid-plan-no-data empty state when nothing comes back; and
- * an error notice when the fetch fails. The range Select (7/30/90 days)
- * is always interactive — lets free users feel the control, lets paid
- * users widen the window if 7 was just too narrow.
+ * an error notice when the fetch fails. The range picker (7/30/90 days)
+ * is disabled on the free plan, with a tooltip saying why.
  *
  * @return The chart card element.
  */
@@ -128,6 +128,16 @@ export default function TrafficChartCard(): JSX.Element {
 	const showError = ! needsUpgrade && ! isLoading && hasError && ! hasData;
 	const showEmpty = ! needsUpgrade && ! isLoading && ! hasError && ! hasData && days !== undefined;
 
+	const periodSelector = (
+		<PeriodSelector
+			label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
+			presets={ INTERVAL_OPTIONS }
+			value={ String( interval ) }
+			onChange={ onIntervalChange }
+			disabled={ needsUpgrade }
+		/>
+	);
+
 	return (
 		<Card.Root>
 			<Card.Header className="jetpack-social-overview__chart-header">
@@ -138,37 +148,14 @@ export default function TrafficChartCard(): JSX.Element {
 				<div className="jetpack-social-overview__chart-range">
 					{ needsUpgrade ? (
 						<Tooltip.Root>
-							{ /*
-							 * `disabled` on the native <select> swallows pointer
-							 * events, which would also swallow the tooltip
-							 * trigger. Wrap in a span so hover/focus still
-							 * reach the Tooltip.Root anchor.
-							 */ }
-							<Tooltip.Trigger render={ <span tabIndex={ 0 } /> }>
-								<SelectControl
-									__nextHasNoMarginBottom
-									__next40pxDefaultSize={ false }
-									label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
-									hideLabelFromVision
-									value={ String( interval ) }
-									options={ INTERVAL_OPTIONS }
-									disabled
-								/>
-							</Tooltip.Trigger>
+							{ /* The disabled trigger stays focusable, so its hover and focus reach this span. */ }
+							<Tooltip.Trigger render={ <span /> }>{ periodSelector }</Tooltip.Trigger>
 							<Tooltip.Popup>
 								{ __( 'Available with a paid plan', 'jetpack-publicize-pkg' ) }
 							</Tooltip.Popup>
 						</Tooltip.Root>
 					) : (
-						<SelectControl
-							__nextHasNoMarginBottom
-							__next40pxDefaultSize={ false }
-							label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
-							hideLabelFromVision
-							value={ String( interval ) }
-							options={ INTERVAL_OPTIONS }
-							onChange={ onIntervalChange }
-						/>
+						periodSelector
 					) }
 				</div>
 			</Card.Header>

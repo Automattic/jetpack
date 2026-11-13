@@ -1,7 +1,9 @@
+export { deriveComparisonRange } from './derive-comparison-range';
 export {
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
+	withComparisonPreset,
 	withDefaultComparison,
 } from './reports';
 export {
@@ -9,3 +11,4 @@ export {
 	rememberComparison,
 	rememberPreset,
 } from './remembered-preset';
+export { getSectionOrder, orderSections, setSectionOrder } from './section-order';
