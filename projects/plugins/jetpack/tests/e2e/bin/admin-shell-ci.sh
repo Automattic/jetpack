@@ -14,7 +14,9 @@ export ADMIN_SHELL_USER ADMIN_SHELL_PASSWORD
 # The shell-off run points ADMIN_SHELL_OFF_URL at the same site; this matches the config's default.
 SITE_URL=${ADMIN_SHELL_URL:-http://localhost:8889}
 
-playwright install --with-deps chromium firefox webkit || exit 1
+# Comma-separated; playwright.admin-shell.config.ts runs the same list.
+IFS=, read -ra BROWSERS <<<"${ADMIN_SHELL_BROWSERS:-chromium,firefox,webkit}"
+playwright install --with-deps "${BROWSERS[@]}" || exit 1
 
 # The site is never connected, so default modules (including the Forms and Podcast members) aren't auto-activated.
 # Do this before e2e-admin-shell takes the site out of offline mode, where an unconnected site refuses activation.

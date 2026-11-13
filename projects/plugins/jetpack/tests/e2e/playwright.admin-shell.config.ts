@@ -36,11 +36,13 @@ if ( process.env.CI ) {
 	);
 }
 
+// ADMIN_SHELL_BROWSERS (comma-separated) picks the browsers; bin/admin-shell-ci.sh installs the same list.
+const browserNames = ( process.env.ADMIN_SHELL_BROWSERS || 'chromium,firefox,webkit' ).split( ',' );
 const browsers = [
 	{ name: 'chromium', use: devices[ 'Desktop Chrome' ] },
 	{ name: 'firefox', use: devices[ 'Desktop Firefox' ] },
 	{ name: 'webkit', use: devices[ 'Desktop Safari' ] },
-];
+].filter( browser => browserNames.includes( browser.name ) );
 
 export default defineConfig( {
 	testDir: './specs/admin-shell',
