@@ -125,7 +125,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		}
 
 		$keys_to_render = array_keys( $this->post_object_format );
-		// A non-string `fields` (e.g. `fields[]=ID`) is ignored, as in WPCOM_JSON_API::filter_fields().
+		// See WPCOM_JSON_API::filter_fields().
 		if ( isset( $this->api->query['fields'] ) && is_string( $this->api->query['fields'] ) ) {
 			$limit_to_fields = array_map( 'trim', explode( ',', $this->api->query['fields'] ) );
 			$keys_to_render  = array_intersect( $keys_to_render, $limit_to_fields );

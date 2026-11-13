@@ -167,7 +167,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$response = array();
 
 		$fields = null;
-		// A non-string `fields` (e.g. `fields[]=ID`) is ignored, as in WPCOM_JSON_API::filter_fields().
+		// See WPCOM_JSON_API::filter_fields().
 		if ( 'display' === $context && ! empty( $this->api->query['fields'] ) && is_string( $this->api->query['fields'] ) ) {
 			$fields = array_fill_keys( array_map( 'trim', explode( ',', $this->api->query['fields'] ) ), true );
 		}
