@@ -1,9 +1,9 @@
-import { useState } from '@wordpress/element';
-import { Page } from '@wordpress/admin-ui';
 import { Tabs } from '@jetpack-premium-analytics/externals';
+import { Page } from '@wordpress/admin-ui';
+import { useState } from '@wordpress/element';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
-import { DashboardSections } from '../../../routes/dashboard/components';
-import styles from '../../../routes/dashboard/stage.module.scss';
+import { DashboardSections } from '../..';
+import styles from '../../../stage.module.scss';
 import type { Meta, StoryObj } from '@storybook/react';
 import type {
 	ResolveWidgetModule,
@@ -59,6 +59,13 @@ const initialLayout: DashboardWidget[] = [
 	},
 ];
 
+/**
+ * A placeholder widget that shows its title.
+ *
+ * @param props            - Widget render props.
+ * @param props.attributes - The widget title.
+ * @return The placeholder.
+ */
 function StoryWidget( { attributes }: StoryWidgetProps ) {
 	return (
 		<div
@@ -121,6 +128,8 @@ const storySections = [
 
 /**
  * Story showing the dashboard section panel scroll surface around a widget grid.
+ *
+ * @return The story.
  */
 function DashboardSectionsGridStory() {
 	const sections = storySections;

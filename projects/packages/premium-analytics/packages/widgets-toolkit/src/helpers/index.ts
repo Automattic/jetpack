@@ -37,12 +37,6 @@ export { metricTabsToCsv } from './metric-tabs-csv';
 export { pairComparisonBuckets, type ComparisonPeriodStarts } from './pair-comparison-buckets';
 export { dateFormatForResolution } from './tick-resolution-date-format';
 export type { ChartDisplayChartType } from './chart-display-attribute-fields';
-export {
-	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
-	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
-	fitWeekColumns,
-	type FitWeekColumnsInput,
-} from './calendar-heatmap-layout';
 export { compareOptionalNumbers } from './compare-optional-numbers';
 export {
 	formatEmailRate,
@@ -52,7 +46,6 @@ export {
 	isEmailRateKnown,
 	type EmailRateSignals,
 } from './format-email-rate';
-export { formatViewCount } from './format-view-count';
 export { formatListMetricCount, getListMetricLabel, type ListMetric } from './list-metrics';
 export { HEADLINE_COUNT_FORMAT } from './headline-count-format';
 export { HOURS_DATA_FORMAT } from './hours-data-format';

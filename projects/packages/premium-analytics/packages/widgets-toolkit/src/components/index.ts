@@ -8,7 +8,6 @@ export { MetricList, type MetricListItem, type MetricListProps } from './metric-
 export { AbbreviatedValue, type AbbreviatedValueProps } from './abbreviated-value';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
-export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';
 export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
@@ -84,13 +83,7 @@ export {
 	type LocationsGeoMode,
 	type LocationsGeoRow,
 } from './locations-geo-chart';
-export {
-	CalendarHeatmapPagerOverlay,
-	CalendarHeatmapTooltip,
-	type CalendarHeatmapPager,
-	type CalendarHeatmapPagerOverlayProps,
-	type CalendarHeatmapTooltipProps,
-} from './calendar-heatmap';
+export { CalendarHeatmapTooltip, type CalendarHeatmapTooltipProps } from './calendar-heatmap';
 export { MonthCalendarHeatmap, type MonthCalendarHeatmapProps } from './month-calendar-heatmap';
 export {
 	MonthlyHeatmap,
@@ -210,8 +203,6 @@ export {
 	GenericSkeleton,
 	HeatmapSkeleton,
 	MonthCalendarHeatmapSkeleton,
-	MetricSparklineSkeleton,
-	type MetricSparklineSkeletonProps,
 	SkeletonRoot,
 	type SkeletonRootProps,
 } from './widget-skeleton';
