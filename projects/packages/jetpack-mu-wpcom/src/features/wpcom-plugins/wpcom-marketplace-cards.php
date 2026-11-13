@@ -121,7 +121,7 @@ function wpcom_marketplace_splice_search_results( $result, $action, $args ) {
 		}
 	);
 
-	$result->plugins = array_merge( $matches, array_values( $others ) );
+	$result->plugins = array_merge( array_map( 'wpcom_marketplace_for_core', $matches ), array_values( $others ) );
 
 	return $result;
 }
