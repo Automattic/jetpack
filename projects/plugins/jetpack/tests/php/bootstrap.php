@@ -15,26 +15,25 @@ if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
 \Automattic\RedefineExit::setup();
 
 $jetpack_patchwork_cache = getenv( 'JETPACK_PLUGIN_PATCHWORK_CACHE' );
-if ( ! $jetpack_patchwork_cache && function_exists( 'Patchwork\Config\setCachePath' ) ) {
+if ( ! $jetpack_patchwork_cache ) {
 	$jetpack_patchwork_cache = sys_get_temp_dir() . '/jetpack-plugin-patchwork-' . uniqid( '', true );
-	if ( mkdir( $jetpack_patchwork_cache, 0700 ) ) {
-		$jetpack_patchwork_cache = realpath( $jetpack_patchwork_cache );
-		putenv( "JETPACK_PLUGIN_PATCHWORK_CACHE=$jetpack_patchwork_cache" );
-		register_shutdown_function(
-			static function () use ( $jetpack_patchwork_cache ) {
-				foreach ( glob( $jetpack_patchwork_cache . '/*' ) as $file ) {
-					unlink( $file );
-				}
-				rmdir( $jetpack_patchwork_cache );
-			}
-		);
-	} else {
-		$jetpack_patchwork_cache = false;
+	if ( ! mkdir( $jetpack_patchwork_cache, 0700 ) ) {
+		throw new RuntimeException( "Could not create the Patchwork cache directory $jetpack_patchwork_cache." );
 	}
+	$jetpack_patchwork_cache = realpath( $jetpack_patchwork_cache );
+	putenv( "JETPACK_PLUGIN_PATCHWORK_CACHE=$jetpack_patchwork_cache" );
+	register_shutdown_function(
+		static function () use ( $jetpack_patchwork_cache ) {
+			foreach ( glob( $jetpack_patchwork_cache . '/*' ) as $file ) {
+				unlink( $file );
+			}
+			rmdir( $jetpack_patchwork_cache );
+		}
+	);
+} elseif ( ! is_dir( $jetpack_patchwork_cache ) || ! is_writable( $jetpack_patchwork_cache ) ) {
+	throw new RuntimeException( "The Patchwork cache directory $jetpack_patchwork_cache is missing or not writable." );
 }
-if ( $jetpack_patchwork_cache && is_dir( $jetpack_patchwork_cache ) && is_writable( $jetpack_patchwork_cache ) ) {
-	\Patchwork\Config\setCachePath( $jetpack_patchwork_cache, __DIR__ );
-}
+\Patchwork\Config\setCachePath( $jetpack_patchwork_cache, __DIR__ );
 
 /*
  * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
