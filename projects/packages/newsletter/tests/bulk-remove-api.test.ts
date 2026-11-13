@@ -11,13 +11,13 @@ describe( 'bulk remove API', () => {
 		mockApiFetch.mockResolvedValue( { job: null } );
 	} );
 
-	it( 'POSTs the filters, search and typed count to the proxy route', async () => {
+	it( 'POSTs the scope and both removal confirmations for every platform', async () => {
 		await startBulkRemove( { filters: [ 'free' ], search: 'gmail', expectedCount: 1200 } );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/wpcom/v2/subscribers/bulk-remove',
 			method: 'POST',
-			data: { filters: [ 'free' ], search: 'gmail', expected_count: 1200 },
+			data: { filters: [ 'free' ], search: 'gmail', expected_count: 1200, cancel_paid: true },
 		} );
 	} );
 

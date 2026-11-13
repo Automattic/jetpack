@@ -72,7 +72,7 @@ type Props = {
  * @param props.onQueryChange        - Reports the active filters, search and sort, for the header's CSV download.
  * @param props.onListChange         - Reports the matching total and the first emails on the page, for the bulk remove menu item and dialog.
  * @param props.onRequestBulkRemove  - Open the bulk remove dialog, once every matching subscriber is selected.
- * @param props.isBulkRemoveRunning  - True while a bulk removal runs; the banner's remove buttons are disabled.
+ * @param props.isBulkRemoveRunning  - True while a bulk removal runs; removal actions are disabled.
  * @param props.isBulkRemoveEnabled  - Whether WP.com has removal turned on for the site. Until it
  *                                   does, the banner offers no "Select all N" and removal stays per page.
  * @return The DataViews component bound to the subscribers query.
@@ -334,11 +334,20 @@ export default function SubscribersDataViews( {
 			{
 				id: 'remove',
 				label: __( 'Remove subscriber', 'jetpack-newsletter' ),
-				supportsBulk: true,
+				// A one-item toolbar action is indistinguishable from a row action; the banner
+				// provides the explicit whole-list action on a one-row final page.
+				supportsBulk: ! ( isAllSelected && pageIds.length === 1 ),
+				disabled: isBulkRemoveRunning,
 				callback: ( items: Subscriber[] ) => {
-					// DataViews does not say whether this came from the bulk bar or a row menu, so a
-					// whole-page call while everyone is selected means everyone.
-					if ( isBulkRemoveEnabled && isAllSelected && items.length === pageIds.length ) {
+					if ( isBulkRemoveRunning ) {
+						return;
+					}
+					if (
+						isBulkRemoveEnabled &&
+						isAllSelected &&
+						items.length > 1 &&
+						items.length === pageIds.length
+					) {
 						onRequestBulkRemove( narrowed ? 'matching' : 'all' );
 						return;
 					}
@@ -351,6 +360,7 @@ export default function SubscribersDataViews( {
 			canShowCompAction,
 			sendBounceConfirmation,
 			isBulkRemoveEnabled,
+			isBulkRemoveRunning,
 			isAllSelected,
 			pageIds,
 			narrowed,
@@ -360,7 +370,7 @@ export default function SubscribersDataViews( {
 
 	const handleConfirmRemoval = useCallback( async () => {
 		const targets = pendingRemoval;
-		if ( targets.length === 0 ) {
+		if ( isBulkRemoveRunning || targets.length === 0 ) {
 			return;
 		}
 		try {
@@ -371,7 +381,7 @@ export default function SubscribersDataViews( {
 		} finally {
 			setPendingRemoval( [] );
 		}
-	}, [ pendingRemoval, removeMutation, onSubscribersRemoved ] );
+	}, [ isBulkRemoveRunning, pendingRemoval, removeMutation, onSubscribersRemoved ] );
 
 	const handleCancelRemoval = useCallback( () => {
 		setPendingRemoval( [] );
@@ -430,6 +440,7 @@ export default function SubscribersDataViews( {
 		if ( isBulkRemoveRunning ) {
 			setSelection( [] );
 			setAllSelected( false );
+			setPendingRemoval( [] );
 		}
 	}, [ isBulkRemoveRunning ] );
 
@@ -453,18 +464,20 @@ export default function SubscribersDataViews( {
 
 	// Selecting across pages leads to the background job, so it needs removal turned on for the site.
 	const selectAll = useCallback( () => {
-		if ( isBulkRemoveEnabled ) {
+		if ( isBulkRemoveEnabled && ! isBulkRemoveRunning ) {
 			setAllSelected( true );
 		}
-	}, [ isBulkRemoveEnabled ] );
-	const removeSelectedOnPage = useCallback(
-		() => setPendingRemoval( selectedOnPage ),
-		[ selectedOnPage ]
-	);
-	const requestBulkRemoveOfSelection = useCallback(
-		() => onRequestBulkRemove( narrowed ? 'matching' : 'all' ),
-		[ onRequestBulkRemove, narrowed ]
-	);
+	}, [ isBulkRemoveEnabled, isBulkRemoveRunning ] );
+	const removeSelectedOnPage = useCallback( () => {
+		if ( ! isBulkRemoveRunning ) {
+			setPendingRemoval( selectedOnPage );
+		}
+	}, [ isBulkRemoveRunning, selectedOnPage ] );
+	const requestBulkRemoveOfSelection = useCallback( () => {
+		if ( ! isBulkRemoveRunning ) {
+			onRequestBulkRemove( narrowed ? 'matching' : 'all' );
+		}
+	}, [ isBulkRemoveRunning, onRequestBulkRemove, narrowed ] );
 
 	const settledTotal = settledFilterKey.current === filterKey ? totalItems : null;
 	const examplesKey = subscribers
@@ -473,6 +486,7 @@ export default function SubscribersDataViews( {
 		.join( ',' );
 	useEffect( () => {
 		if ( settledTotal === null ) {
+			onListChange( { total: 0, examples: [] } );
 			return;
 		}
 		onListChange( {
@@ -558,7 +572,7 @@ export default function SubscribersDataViews( {
 				<DataViews.Footer />
 			</DataViews>
 			<UnsubscribeModal
-				subscribers={ pendingRemoval }
+				subscribers={ isBulkRemoveRunning ? [] : pendingRemoval }
 				onConfirm={ handleConfirmRemoval }
 				onCancel={ handleCancelRemoval }
 			/>

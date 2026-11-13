@@ -7,15 +7,21 @@ const mockMutateAsync = jest.fn();
 const mockRefetch = jest.fn();
 const mockRecordTracksEvent = jest.fn();
 const mockCounts: Record< string, { total: number; paid: number } > = {};
+const mockCountStates: Record< string, { fetchStatus?: string; isError?: boolean } > = {};
 
 jest.mock( '../_inc/subscribers/data/use-bulk-remove', () => ( {
 	useBulkRemoveCounts: ( { filters, enabled }: { filters: string[]; enabled: boolean } ) => {
 		const key = filters.filter( filter => filter !== 'all' ).join( ',' ) || 'all';
 		const data = enabled ? mockCounts[ key ] : undefined;
+		const state = mockCountStates[ key ] ?? {};
 		return {
 			data,
 			isLoading: enabled && ! data,
-			isError: false,
+			isSuccess: !! data && ! state.isError,
+			isError: state.isError ?? false,
+			fetchStatus: state.fetchStatus ?? 'idle',
+			isFetching: state.fetchStatus === 'fetching',
+			isPaused: state.fetchStatus === 'paused',
 			refetch: mockRefetch,
 		};
 	},
@@ -38,24 +44,28 @@ const filtered: SubscribersExportQuery = { ...wholeList, filters: [ 'free' ], se
 const renderModal = ( props: Partial< React.ComponentProps< typeof BulkRemoveModal > > = {} ) => {
 	const onClose = jest.fn();
 	const onChangeScope = jest.fn();
-	render(
-		<BulkRemoveModal
-			scope="all"
-			query={ wholeList }
-			examples={ [ 'a@example.com', 'b@example.com', 'c@example.com' ] }
-			blogId={ 123 }
-			onChangeScope={ onChangeScope }
-			onClose={ onClose }
-			{ ...props }
-		/>
-	);
-	return { onClose, onChangeScope };
+	const modalProps: React.ComponentProps< typeof BulkRemoveModal > = {
+		scope: 'all',
+		query: wholeList,
+		examples: [ 'a@example.com', 'b@example.com', 'c@example.com' ],
+		blogId: 123,
+		onChangeScope,
+		onClose,
+		...props,
+	};
+	const view = render( <BulkRemoveModal { ...modalProps } /> );
+	return {
+		onClose,
+		onChangeScope,
+		rerender: () => view.rerender( <BulkRemoveModal { ...modalProps } /> ),
+	};
 };
 
 const confirmButton = () => screen.getByRole( 'button', { name: /^Remove [\d,]+ subscribers?$/ } );
 
 beforeEach( () => {
 	jest.clearAllMocks();
+	Object.keys( mockCountStates ).forEach( key => delete mockCountStates[ key ] );
 	mockCounts.all = { total: 15000, paid: 12 };
 	mockCounts.free = { total: 1200, paid: 0 };
 } );
@@ -118,6 +128,24 @@ describe( 'BulkRemoveModal', () => {
 		);
 	} );
 
+	it.each( [
+		{ fetchStatus: 'fetching' },
+		{ fetchStatus: 'paused' },
+		{ fetchStatus: 'idle', isError: true },
+	] )( 'blocks cached counts when their refresh is $fetchStatus ($isError)', async state => {
+		const { rerender, onClose } = renderModal();
+		fireEvent.change( screen.getByLabelText( 'Type 15000 to confirm' ), {
+			target: { value: '15000' },
+		} );
+		mockCountStates.all = state;
+		rerender();
+		fireEvent.click( confirmButton() );
+
+		await waitFor( () => expect( confirmButton() ).toBeEnabled() );
+		expect( mockMutateAsync ).not.toHaveBeenCalled();
+		expect( onClose ).not.toHaveBeenCalled();
+	} );
+
 	it( 'lists what matches, with examples, when removing the matches', () => {
 		renderModal( { scope: 'matching', query: filtered } );
 
@@ -141,6 +169,29 @@ describe( 'BulkRemoveModal', () => {
 		);
 		expect( onChangeScope ).toHaveBeenCalledWith( 'matching' );
 	} );
+
+	it.each( [ 'fetching', 'paused', 'error', 'missing' ] )(
+		'keeps the whole-list warning when matching counts are %s',
+		state => {
+			mockCountStates.free = {
+				fetchStatus: state === 'error' || state === 'missing' ? 'idle' : state,
+				isError: state === 'error',
+			};
+			if ( state === 'missing' ) {
+				delete mockCounts.free;
+			}
+			renderModal( { scope: 'all', query: filtered } );
+
+			expect(
+				screen.getByText(
+					'This removes everyone on your list, regardless of your current search or filters.'
+				)
+			).toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: /Remove only the .* matching/ } )
+			).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'keeps the CSV button in place after a download, so focus is not lost', () => {
 		const open = jest.spyOn( window, 'open' ).mockImplementation( () => null );

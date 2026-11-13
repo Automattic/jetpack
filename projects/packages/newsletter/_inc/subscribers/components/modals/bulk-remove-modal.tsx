@@ -65,6 +65,8 @@ export default function BulkRemoveModal( {
 		enabled: isOpen && narrowed,
 	} );
 	const counts = isAll ? everyone : matching;
+	const countsReady = counts.isSuccess && counts.fetchStatus === 'idle';
+	const matchingReady = matching.isSuccess && matching.fetchStatus === 'idle';
 	const total = counts.data?.total ?? 0;
 	const paid = counts.data?.paid ?? 0;
 	const listTotal = everyone.data?.total ?? 0;
@@ -111,11 +113,11 @@ export default function BulkRemoveModal( {
 		onChangeScope( 'matching' );
 	}, [ onChangeScope ] );
 	useEffect( () => {
-		if ( focusInput.current && ! isAll && counts.data ) {
+		if ( focusInput.current && ! isAll && countsReady ) {
 			focusInput.current = false;
 			inputRef.current?.focus();
 		}
-	}, [ isAll, counts.data ] );
+	}, [ isAll, countsReady ] );
 
 	const handleOpenChange = useCallback(
 		( nextOpen: boolean ) => {
@@ -130,7 +132,7 @@ export default function BulkRemoveModal( {
 	);
 
 	const handleConfirm = useCallback( async () => {
-		if ( ! counts.data ) {
+		if ( ! counts.data || ! countsReady ) {
 			return { close: false };
 		}
 		if ( total < 1 ) {
@@ -194,7 +196,7 @@ export default function BulkRemoveModal( {
 					error?.message || __( 'Could not start removing subscribers.', 'jetpack-newsletter' ),
 			};
 		}
-	}, [ counts, total, paid, typed, isAll, csvDownloaded, start, query, onClose ] );
+	}, [ counts, countsReady, total, paid, typed, isAll, csvDownloaded, start, query, onClose ] );
 
 	if ( ! isOpen ) {
 		return null;
@@ -269,7 +271,7 @@ export default function BulkRemoveModal( {
 		<AlertDialog.Root open onOpenChange={ handleOpenChange } onConfirm={ handleConfirm }>
 			<AlertDialog.Popup
 				intent="irreversible"
-				title={ counts.isLoading ? __( 'Remove subscribers?', 'jetpack-newsletter' ) : title }
+				title={ countsReady ? title : __( 'Remove subscribers?', 'jetpack-newsletter' ) }
 				confirmButtonText={ sprintf(
 					// translators: %s: number of subscribers.
 					_n( 'Remove %s subscriber', 'Remove %s subscribers', total, 'jetpack-newsletter' ),
@@ -277,7 +279,7 @@ export default function BulkRemoveModal( {
 				) }
 				cancelButtonText={ __( 'Cancel', 'jetpack-newsletter' ) }
 			>
-				{ counts.isLoading ? (
+				{ counts.isLoading || counts.isFetching || counts.isPaused ? (
 					<Text variant="body-md">
 						{ __( 'Counting your subscribers…', 'jetpack-newsletter' ) }
 					</Text>
@@ -292,12 +294,11 @@ export default function BulkRemoveModal( {
 						</Notice.Description>
 					</Notice.Root>
 				) : null }
-				{ counts.data ? (
-					<Stack direction="column" gap="md">
-						{ isAll && narrowed && matching.data ? (
-							<Notice.Root intent="warning">
-								<Notice.Description>
-									{ sprintf(
+				{ isAll && narrowed ? (
+					<Notice.Root intent="warning">
+						<Notice.Description>
+							{ matchingReady
+								? sprintf(
 										// translators: %1$s: number of matching subscribers. %2$s: "search", "filter" or "search and filter".
 										_n(
 											'This removes everyone on your list, not only the %1$s that matches your %2$s.',
@@ -307,27 +308,35 @@ export default function BulkRemoveModal( {
 										),
 										formatNumber( matchingTotal ),
 										describeNarrowing( query.filters, query.search )
+									)
+								: __(
+										'This removes everyone on your list, regardless of your current search or filters.',
+										'jetpack-newsletter'
 									) }{ ' ' }
-									<Button
-										variant="minimal"
-										size="compact"
-										onClick={ switchToMatching }
-										disabled={ start.isPending }
-									>
-										{ sprintf(
-											// translators: %s: number of matching subscribers.
-											_n(
-												'Remove only the %s matching subscriber instead',
-												'Remove only the %s matching subscribers instead',
-												matchingTotal,
-												'jetpack-newsletter'
-											),
-											formatNumber( matchingTotal )
-										) }
-									</Button>
-								</Notice.Description>
-							</Notice.Root>
-						) : null }
+							{ matchingReady ? (
+								<Button
+									variant="minimal"
+									size="compact"
+									onClick={ switchToMatching }
+									disabled={ start.isPending }
+								>
+									{ sprintf(
+										// translators: %s: number of matching subscribers.
+										_n(
+											'Remove only the %s matching subscriber instead',
+											'Remove only the %s matching subscribers instead',
+											matchingTotal,
+											'jetpack-newsletter'
+										),
+										formatNumber( matchingTotal )
+									) }
+								</Button>
+							) : null }
+						</Notice.Description>
+					</Notice.Root>
+				) : null }
+				{ counts.data && countsReady ? (
+					<Stack direction="column" gap="md">
 						{ scopeLines.length ? (
 							<div className="jetpack-newsletter__bulk-remove-scope">
 								<Text variant="body-md">

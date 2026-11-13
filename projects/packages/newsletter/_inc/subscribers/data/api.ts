@@ -126,6 +126,7 @@ export function startBulkRemove( {
 			filters: filters.length ? filters : [ 'all' ],
 			search,
 			expected_count: expectedCount,
+			cancel_paid: true,
 		},
 	} );
 }
