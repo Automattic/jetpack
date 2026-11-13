@@ -1,7 +1,11 @@
 /**
  * Internal dependencies
  */
-import type { EmailSendWindowInterval } from '@jetpack-premium-analytics/data';
+import {
+	DEFAULT_EMAIL_SEND_WINDOW,
+	isEmailSendWindow,
+	type EmailSendWindow,
+} from '@jetpack-premium-analytics/data';
 import type { ChartDisplayChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -17,15 +21,6 @@ export type EmailTimeSeriesMetric = 'opens' | 'clicks';
 export type EmailTimeSeriesChartType = ChartDisplayChartType;
 
 /**
- * The buckets the chart's own control offers: hours of the send day, days of the
- * first 30, months of the first 30.
- */
-export type EmailTimeSeriesInterval = EmailSendWindowInterval;
-
-/** The bucket drawn when none is saved: the legacy email page's 30 daily ones. */
-export const DEFAULT_EMAIL_TIME_SERIES_INTERVAL: EmailTimeSeriesInterval = 'day';
-
-/**
  * Configurable attributes for the Email performance widget.
  */
 export type EmailTimeSeriesAttributes = {
@@ -35,22 +30,22 @@ export type EmailTimeSeriesAttributes = {
 	 */
 	metric?: EmailTimeSeriesMetric;
 	chartType?: EmailTimeSeriesChartType;
-	/** The bucket the chart draws, and with it how far past the send it reaches. */
-	chartInterval?: EmailTimeSeriesInterval;
+	/** How far past the send the chart reaches, which also settles the bucket it draws. */
+	sendWindow?: EmailSendWindow;
 };
 
 /**
  * Ported from the legacy email detail page's opens/clicks-over-time chart
  * (`stats-email-chart-tabs`). The host scopes the email through
  * `reportParams.post_id` and starts the report range at the send; the chart's
- * own interval control decides how far past it the timeline reaches.
+ * own window control decides how far past it the timeline reaches.
  */
 export default {
 	attributes: [
 		{
-			id: 'chartInterval',
+			id: 'sendWindow',
 			getValue: ( { item }: { item: EmailTimeSeriesAttributes } ) =>
-				item.chartInterval ?? DEFAULT_EMAIL_TIME_SERIES_INTERVAL,
+				isEmailSendWindow( item.sendWindow ) ? item.sendWindow : DEFAULT_EMAIL_SEND_WINDOW,
 		},
 	] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
 	example: {

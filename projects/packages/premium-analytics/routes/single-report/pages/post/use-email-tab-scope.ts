@@ -3,6 +3,7 @@
  */
 import {
 	emailSendWindowRange,
+	isEmailSendWindow,
 	type ReportParams,
 	useSiteDay,
 } from '@jetpack-premium-analytics/data';
@@ -31,32 +32,34 @@ export const EMAIL_SEND_WINDOW_DAYS = 30;
 export type EmailTabScope = {
 	/** The send window: the publish day through day 30, or today if sooner. */
 	range: Required< DateRange >;
-	/** The same window as widget report params, replacing the URL's. */
-	reportParams: ReportParams;
-	/** The window the email chart in a layout draws, once its own interval switch is set. */
+	/** The same window as widget report params, replacing the URL's, plus the send instant. */
+	reportParams: ReportParams & { sent_at?: string };
+	/** The window the email chart in a layout draws, once its own control has saved one. */
 	headerRange: ( layout: readonly SectionWidget[] ) => DateRange | undefined;
 };
 
 const EMAIL_CHART_TYPE = 'jpa/email-time-series';
 
 /**
- * The window the layout's email chart reaches over, from the interval its switch saved.
+ * The window the layout's email chart reaches over, from the one its own control saved.
  *
  * @param layout   - The section's widgets.
- * @param sentAt   - The start of the send day.
+ * @param day      - The start of the send day.
+ * @param sentAt   - The send instant.
  * @param timeZone - The site timezone.
- * @return The chart's window, or undefined when no interval is saved.
+ * @return The chart's window, or undefined when none is saved.
  */
 function emailChartRange(
 	layout: readonly SectionWidget[],
+	day: Date,
 	sentAt: Date,
 	timeZone: string
 ): DateRange | undefined {
 	const chart = layout.find( widget => widget.type.startsWith( EMAIL_CHART_TYPE ) );
-	const interval = ( chart?.attributes as { chartInterval?: unknown } | undefined )?.chartInterval;
+	const window = ( chart?.attributes as { sendWindow?: unknown } | undefined )?.sendWindow;
 
-	return interval === 'hour' || interval === 'day' || interval === 'month'
-		? emailSendWindowRange( interval, sentAt, timeZone )
+	return isEmailSendWindow( window )
+		? emailSendWindowRange( window, { day, sentAt }, timeZone )
 		: undefined;
 }
 
@@ -117,11 +120,13 @@ export function useEmailTabScope(
 
 		return {
 			range,
-			headerRange: layout => emailChartRange( layout, range.from, timeZone ),
+			headerRange: layout => emailChartRange( layout, range.from, allTimeStart, timeZone ),
 			reportParams: {
 				post_id: postId,
 				from,
 				to,
+				// The email chart counts its first 24 hours from here.
+				sent_at: encodeDateToSearchParam( allTimeStart ),
 				// One bucket per day: the window is at most 30 days, and the
 				// endpoint only offers hourly or daily buckets.
 				interval: 'day',

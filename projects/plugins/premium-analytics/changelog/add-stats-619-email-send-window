@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add an Hours, Days and Months switch to the opens and clicks charts on the post page's email tabs.
+Add a time-since-send control to the opens and clicks charts on the post page's email tabs: the first 24 hours by the hour, the first week or 30 days by the day, or all time by the month.

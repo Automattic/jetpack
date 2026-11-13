@@ -4,6 +4,8 @@
 import {
 	bucketStatsTimeSeries,
 	emailSendWindowParams,
+	isEmailSendWindow,
+	type EmailSendWindow,
 	toPostId,
 	useStatsEmailClicksTimeSeries,
 	useSiteDay,
@@ -35,13 +37,14 @@ import styles from './style.module.css';
 import type {
 	EmailTimeSeriesAttributes,
 	EmailTimeSeriesChartType,
-	EmailTimeSeriesInterval,
 	EmailTimeSeriesMetric,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-type EmailTimeSeriesRenderAttributes = EmailTimeSeriesAttributes &
-	Partial< ReportParamsFieldAttributes >;
+// The post page states the send instant beside the report params it pins.
+type EmailTimeSeriesRenderAttributes = EmailTimeSeriesAttributes & {
+	reportParams?: ReportParamsFieldAttributes[ 'reportParams' ] & { sent_at?: string };
+};
 type EmailTimeSeriesWidgetProps = WidgetRenderProps< EmailTimeSeriesRenderAttributes >;
 
 /**
@@ -80,17 +83,24 @@ type EmailTimeSeriesReportProps = {
 	/** How the timeline is drawn. `MetricTabsChart` owns the default. */
 	chartType?: EmailTimeSeriesChartType;
 	/**
-	 * The bucket the chart's own control picked. It sets the window too, counted
-	 * from the host's `from`; unset, the host's range and interval stand.
+	 * The window the chart's own control picked, counted from the host's `from`;
+	 * unset, the host's range and interval stand.
 	 */
-	chartInterval?: EmailTimeSeriesInterval;
+	sendWindow?: EmailSendWindow;
+	/** The send instant, where the host states it: the first 24 hours start there. */
+	sentAt?: unknown;
 };
 
 /**
  * Draws the selected email's opens or clicks timeline. Comparison report
  * params are ignored: there is no period-over-period view here.
  */
-function EmailTimeSeriesReport( { metric, chartType, chartInterval }: EmailTimeSeriesReportProps ) {
+function EmailTimeSeriesReport( {
+	metric,
+	chartType,
+	sendWindow: chosenWindow,
+	sentAt,
+}: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
@@ -99,10 +109,14 @@ function EmailTimeSeriesReport( { metric, chartType, chartInterval }: EmailTimeS
 		// Read again when the site's day turns: a young send's window ends today.
 		void siteDay;
 
-		return chartInterval
-			? emailSendWindowParams( chartInterval, reportParams.from, reportingTimeZone() )
+		return chosenWindow
+			? emailSendWindowParams(
+					chosenWindow,
+					{ day: reportParams.from, sentAt },
+					reportingTimeZone()
+				)
 			: undefined;
-	}, [ chartInterval, reportParams.from, siteDay ] );
+	}, [ chosenWindow, reportParams.from, sentAt, siteDay ] );
 	const period = sendWindow
 		? sendWindow.interval
 		: defaultPeriodForInterval( reportParams.interval, EMAIL_PERIODS );
@@ -221,7 +235,11 @@ export default function EmailTimeSeries( { attributes = {} }: EmailTimeSeriesWid
 			<EmailTimeSeriesReport
 				metric={ metric }
 				chartType={ chartType }
-				chartInterval={ attributes.chartInterval }
+				sendWindow={
+					isEmailSendWindow( attributes.sendWindow ) ? attributes.sendWindow : undefined
+				}
+				// Read as the host wrote it: `WidgetRoot` keeps only the params every report shares.
+				sentAt={ attributes.reportParams?.sent_at }
 			/>
 		</WidgetRoot>
 	);

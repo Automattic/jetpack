@@ -319,22 +319,24 @@ describe( 'EmailTimeSeriesWidget', () => {
 	} );
 
 	it.each( [
-		[ 'hour', '24' ],
-		[ 'day', '30' ],
-		[ 'month', '3' ],
+		// Hours 14 to 23 of the send day and 0 to 13 of the next, asked for from midnight.
+		[ 'first-24-hours', 'hour', '38' ],
+		[ 'first-week', 'day', '7' ],
+		[ 'first-30-days', 'day', '30' ],
+		[ 'all-time', 'month', '3' ],
 	] as const )(
-		'reaches as far past the send as its %s interval does, whatever range the host hands it',
-		async ( chartInterval, quantity ) => {
+		'reads the %s after the send by the %s, whatever range the host hands it',
+		async ( sendWindow, period, quantity ) => {
 			jest.useFakeTimers( { now: new Date( '2026-08-28T12:00:00Z' ), doNotFake: [ 'nextTick' ] } );
 			mockApiFetch.mockResolvedValue( {
-				timeline: { unit: chartInterval, fields: [ 'date', 'opens_count' ], data: [] },
+				timeline: { unit: period, fields: [ 'date', 'opens_count' ], data: [] },
 			} );
 
 			try {
 				render(
 					<EmailTimeSeriesWidget
 						attributes={ {
-							// The post page hands every interval the same first 30 days.
+							// The post page hands every window the same first 30 days.
 							reportParams: {
 								...getDefaultQueryParams( false ),
 								preset: undefined,
@@ -342,19 +344,20 @@ describe( 'EmailTimeSeriesWidget', () => {
 								to: '2026-07-21T23:59:59.999+00:00',
 								interval: 'day',
 								post_id: 1234,
+								sent_at: '2026-06-22T14:16:17.000+00:00',
 							},
 							metric: 'opens',
-							chartInterval,
+							sendWindow,
 						} }
 					/>
 				);
 
 				const chart = await screen.findByTestId( 'metric-tabs-chart' );
-				expect( chart ).toHaveAttribute( 'data-tick-resolution', chartInterval );
+				expect( chart ).toHaveAttribute( 'data-tick-resolution', period );
 				const requested = new URLSearchParams(
 					String( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).split( '?' )[ 1 ]
 				);
-				expect( requested.get( 'period' ) ).toBe( chartInterval );
+				expect( requested.get( 'period' ) ).toBe( period );
 				expect( requested.get( 'quantity' ) ).toBe( quantity );
 			} finally {
 				jest.useRealTimers();
