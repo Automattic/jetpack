@@ -30,6 +30,7 @@ const unseen: Announcement = {
 	link: '',
 	channels: CHANNELS,
 	seen: false,
+	seen_at: null,
 };
 
 describe( 'useAnnouncements', () => {

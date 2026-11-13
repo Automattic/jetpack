@@ -63,7 +63,7 @@ The teaser shows one announcement at a time, and never an older one once the new
 
 Both routes require a logged-in user. An announcement that names a `capability` is left out for users without it.
 
-`seen` is computed for the current user. Where it is stored is private to the package.
+`seen` and `seen_at`, the date the user saw the announcement, are computed for the current user. Where they are stored is private to the package.
 
 ## Using this package in your WordPress plugin
 

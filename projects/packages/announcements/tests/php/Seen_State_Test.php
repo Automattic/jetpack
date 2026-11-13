@@ -49,22 +49,50 @@ class Seen_State_Test extends BaseTestCase {
 		Seen_State::set( $this->user_id, 'a/second', true );
 		Seen_State::set( $this->user_id, 'a/first', false );
 
-		$this->assertSame( array( 'a/second' ), Seen_State::get_ids( $this->user_id ) );
+		$this->assertSame( array( 'a/second' ), array_keys( Seen_State::get_dates( $this->user_id ) ) );
+	}
+
+	public function test_stores_when_an_announcement_was_seen() {
+		$before = time();
+		Seen_State::set( $this->user_id, 'a/first', true );
+
+		$date = Seen_State::get_dates( $this->user_id )['a/first'];
+
+		$this->assertGreaterThanOrEqual( $before, $date );
+		$this->assertLessThanOrEqual( time(), $date );
+	}
+
+	public function test_marking_again_keeps_the_date_it_was_first_seen() {
+		update_user_meta( $this->user_id, Seen_State::META_KEY, array( 'a/first' => 1000 ) );
+
+		Seen_State::set( $this->user_id, 'a/first', true );
+
+		$this->assertSame( array( 'a/first' => 1000 ), Seen_State::get_dates( $this->user_id ) );
+	}
+
+	public function test_ignores_stored_entries_that_are_no_date_by_id() {
+		update_user_meta(
+			$this->user_id,
+			Seen_State::META_KEY,
+			array(
+				'a/no-key',
+				'a/no-date' => 'yesterday',
+				'a/first'   => 1000,
+			)
+		);
+
+		$this->assertSame( array( 'a/first' => 1000 ), Seen_State::get_dates( $this->user_id ) );
 	}
 
 	public function test_past_the_cap_drops_the_ids_seen_longest_ago() {
 		for ( $i = 0; $i <= Seen_State::MAX_IDS; $i++ ) {
 			Seen_State::set( $this->user_id, 'a/' . $i, true );
 		}
-		// Seen again, so it is the most recent one when the next id arrives.
-		Seen_State::set( $this->user_id, 'a/1', true );
-		Seen_State::set( $this->user_id, 'a/last', true );
 
-		$ids = Seen_State::get_ids( $this->user_id );
+		$ids = array_keys( Seen_State::get_dates( $this->user_id ) );
 
 		$this->assertCount( Seen_State::MAX_IDS, $ids );
 		$this->assertNotContains( 'a/0', $ids );
-		$this->assertNotContains( 'a/2', $ids );
-		$this->assertSame( array( 'a/1', 'a/last' ), array_slice( $ids, -2 ) );
+		$this->assertSame( 'a/' . Seen_State::MAX_IDS, end( $ids ) );
 	}
 }

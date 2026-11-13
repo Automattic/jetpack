@@ -63,4 +63,9 @@ export type Announcement = {
 	 * Whether the current user has seen it. The only writable field.
 	 */
 	seen: boolean;
+
+	/*
+	 * When the current user saw it: ISO 8601, GMT. Null while unseen.
+	 */
+	seen_at: string | null;
 };

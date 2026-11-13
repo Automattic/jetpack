@@ -147,6 +147,7 @@ class REST_Controller_Test extends BaseTestCase {
 					'link'     => '',
 					'channels' => array( 'my-plugin' ),
 					'seen'     => false,
+					'seen_at'  => null,
 				),
 			),
 			$for_subscriber
@@ -171,11 +172,22 @@ class REST_Controller_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'my-plugin/for-everyone', $response->get_data()['id'] );
 		$this->assertTrue( $response->get_data()['seen'] );
+		$this->assertNotNull( $response->get_data()['seen_at'] );
 		$this->assertSame( 'For everyone', $response->get_data()['title'] );
 		$this->assertSame( array( true, false ), array_column( $this->request( 'GET' )->get_data(), 'seen' ) );
 
 		wp_set_current_user( $this->subscriber_id );
 		$this->assertFalse( $this->request( 'GET', 'my-plugin/for-everyone' )->get_data()['seen'] );
+	}
+
+	public function test_serves_the_date_an_announcement_was_seen_as_gmt() {
+		update_user_meta( $this->admin_id, Seen_State::META_KEY, array( 'my-plugin/for-everyone' => 1700000000 ) );
+		wp_set_current_user( $this->admin_id );
+
+		$record = $this->request( 'GET', 'my-plugin/for-everyone' )->get_data();
+
+		$this->assertTrue( $record['seen'] );
+		$this->assertSame( '2023-11-14T22:13:20+00:00', $record['seen_at'] );
 	}
 
 	/**
@@ -190,7 +202,7 @@ class REST_Controller_Test extends BaseTestCase {
 		wp_set_current_user( $this->subscriber_id );
 
 		$this->assertSame( $status, $this->request( 'PUT', $id, $body )->get_status() );
-		$this->assertSame( array(), Seen_State::get_ids( $this->subscriber_id ) );
+		$this->assertSame( array(), Seen_State::get_dates( $this->subscriber_id ) );
 	}
 
 	public static function provide_refused_writes() {

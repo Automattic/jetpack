@@ -18,6 +18,7 @@ const announcement = ( media: AnnouncementMedia | null ): Announcement => ( {
 	link: '',
 	channels: [ 'my-plugin' ],
 	seen: false,
+	seen_at: null,
 } );
 
 describe( 'Teaser', () => {

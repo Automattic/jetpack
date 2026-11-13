@@ -111,12 +111,12 @@ class REST_Controller extends WP_REST_Controller {
 	public function get_items( $request ) {
 		unset( $request );
 
-		$seen_ids = Seen_State::get_ids( get_current_user_id() );
-		$records  = array();
+		$seen_dates = Seen_State::get_dates( get_current_user_id() );
+		$records    = array();
 
 		foreach ( Announcement_Registry::get_instance()->get_all_registered() as $announcement ) {
 			if ( self::is_visible( $announcement ) ) {
-				$records[] = self::to_record( $announcement, $seen_ids );
+				$records[] = self::to_record( $announcement, $seen_dates );
 			}
 		}
 
@@ -135,7 +135,7 @@ class REST_Controller extends WP_REST_Controller {
 			return $announcement;
 		}
 
-		return rest_ensure_response( self::to_record( $announcement, Seen_State::get_ids( get_current_user_id() ) ) );
+		return rest_ensure_response( self::to_record( $announcement, Seen_State::get_dates( get_current_user_id() ) ) );
 	}
 
 	/**
@@ -153,7 +153,7 @@ class REST_Controller extends WP_REST_Controller {
 		$user_id = get_current_user_id();
 		Seen_State::set( $user_id, $announcement['id'], (bool) $request['seen'] );
 
-		return rest_ensure_response( self::to_record( $announcement, Seen_State::get_ids( $user_id ) ) );
+		return rest_ensure_response( self::to_record( $announcement, Seen_State::get_dates( $user_id ) ) );
 	}
 
 	/**
@@ -230,6 +230,12 @@ class REST_Controller extends WP_REST_Controller {
 					'description' => __( 'Whether the current user has seen the announcement.', 'jetpack-announcements' ),
 					'type'        => 'boolean',
 				),
+				'seen_at'  => array(
+					'description' => __( 'The date the current user saw the announcement, as GMT, or null.', 'jetpack-announcements' ),
+					'type'        => array( 'string', 'null' ),
+					'format'      => 'date-time',
+					'readonly'    => true,
+				),
 			),
 		);
 
@@ -269,15 +275,18 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Builds the record a client receives: the announcement minus its capability, plus `seen`.
+	 * Builds the record a client receives: the announcement minus its capability, plus `seen` and `seen_at`.
 	 *
-	 * @param array    $announcement A registered announcement.
-	 * @param string[] $seen_ids     Ids the current user has seen.
+	 * @param array             $announcement A registered announcement.
+	 * @param array<string,int> $seen_dates   When the current user saw each announcement, by id.
 	 * @return array
 	 */
-	private static function to_record( array $announcement, array $seen_ids ) {
+	private static function to_record( array $announcement, array $seen_dates ) {
 		unset( $announcement['capability'] );
-		$announcement['seen'] = in_array( $announcement['id'], $seen_ids, true );
+
+		$seen_at                 = $seen_dates[ $announcement['id'] ] ?? null;
+		$announcement['seen']    = null !== $seen_at;
+		$announcement['seen_at'] = null === $seen_at ? null : gmdate( DATE_ATOM, $seen_at );
 
 		return $announcement;
 	}

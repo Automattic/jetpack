@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Announcements;
 
 /**
- * Stores which announcements a user has seen.
+ * Stores which announcements a user has seen, and when.
  *
  * Nothing else knows the storage: one user meta whose key has no blog prefix, so the value
  * belongs to the user across the sites of a network.
@@ -23,19 +23,26 @@ class Seen_State {
 	const MAX_IDS = 100;
 
 	/**
-	 * Retrieves the ids of the announcements a user has seen.
+	 * Retrieves when a user saw each announcement.
 	 *
 	 * @param int $user_id User id.
-	 * @return string[] Ids, the one seen last at the end.
+	 * @return array<string,int> Unix timestamps by announcement id, the one seen last at the end.
 	 */
-	public static function get_ids( $user_id ) {
-		$ids = get_user_meta( $user_id, self::META_KEY, true );
+	public static function get_dates( $user_id ) {
+		$stored = get_user_meta( $user_id, self::META_KEY, true );
+		$dates  = array();
 
-		return is_array( $ids ) ? array_values( array_filter( $ids, 'is_string' ) ) : array();
+		foreach ( is_array( $stored ) ? $stored : array() as $id => $date ) {
+			if ( is_string( $id ) && is_int( $date ) ) {
+				$dates[ $id ] = $date;
+			}
+		}
+
+		return $dates;
 	}
 
 	/**
-	 * Marks an announcement as seen or unseen by a user.
+	 * Marks an announcement as seen or unseen by a user. One already seen keeps its date.
 	 *
 	 * @param int    $user_id User id.
 	 * @param string $id      Announcement id.
@@ -43,11 +50,14 @@ class Seen_State {
 	 * @return void
 	 */
 	public static function set( $user_id, $id, $seen ) {
-		$ids = array_values( array_diff( self::get_ids( $user_id ), array( $id ) ) );
-		if ( $seen ) {
-			$ids[] = $id;
+		$dates = self::get_dates( $user_id );
+
+		if ( ! $seen ) {
+			unset( $dates[ $id ] );
+		} elseif ( ! isset( $dates[ $id ] ) ) {
+			$dates[ $id ] = time();
 		}
 
-		update_user_meta( $user_id, self::META_KEY, array_slice( $ids, -self::MAX_IDS ) );
+		update_user_meta( $user_id, self::META_KEY, array_slice( $dates, -self::MAX_IDS ) );
 	}
 }

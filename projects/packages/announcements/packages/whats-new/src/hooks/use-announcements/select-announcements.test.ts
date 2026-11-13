@@ -14,6 +14,7 @@ const announcement = ( overrides: Partial< Announcement > ): Announcement => ( {
 	link: '',
 	channels: [ 'my-plugin' ],
 	seen: false,
+	seen_at: null,
 	...overrides,
 } );
 
@@ -43,7 +44,7 @@ describe( 'selectTeaser', () => {
 		[ 'the newest one while it is unseen', [ announcement( {} ), older ], [], 'my-plugin/newest' ],
 		[
 			'nothing once the newest is seen, whatever is older',
-			[ announcement( { seen: true } ), older ],
+			[ announcement( { seen: true, seen_at: '2026-11-21T09:00:00+00:00' } ), older ],
 			[],
 			null,
 		],
