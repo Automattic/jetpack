@@ -218,6 +218,9 @@ export const LongSiteHistory: Story = {
 	},
 };
 
+const monthValues = ( year: number, values: number[] ): Record< string, number > =>
+	Object.fromEntries( values.map( ( value, month ) => [ `${ year }-${ month }`, value ] ) );
+
 const SINGLE_POST_HISTORY_YEARS = [ 2024, 2025 ];
 
 // Published in October 2024, one spike in January 2025, November 2025 still running.
@@ -267,6 +270,74 @@ export const SinglePostHistory: Story = {
 		ariaLabel: 'Post views by month',
 		containerWidth: '960px',
 		containerHeight: '280px',
+	},
+};
+
+const SCALE_COMPARISON_YEARS = [ 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026 ];
+
+// A post that sat in single digits for eight years, then caught on: the shape a rank scale
+// flattens at the top and a distance scale flattens everywhere else.
+const SCALE_COMPARISON_VIEWS: Record< string, number > = {
+	...monthValues( 2017, [ 4, 21, 33, 19, 7, 12, 11, 15, 8, 3, 16, 22 ] ),
+	...monthValues( 2018, [ 7, 5, 14, 9, 11, 6, 15, 8, 4, 6, 2, 5 ] ),
+	...monthValues( 2019, [ 9, 7, 4, 15, 18, 13, 6, 5, 2, 28, 9, 11 ] ),
+	...monthValues( 2020, [ 6, 9, 8, 3, 12, 640, 11, 2900, 8, 18, 14, 12 ] ),
+	...monthValues( 2021, [ 21, 11, 16, 5, 7, 4, 11, 9, 2, 3, 5, 6 ] ),
+	...monthValues( 2022, [ 12, 10, 9, 8, 6, 5, 7, 910, 205, 9, 4, 7 ] ),
+	...monthValues( 2023, [ 8, 13, 5, 4, 7, 6, 3, 5, 9, 3, 2, 27 ] ),
+	...monthValues( 2024, [ 16, 6, 5, 58, 230, 7, 14, 2, 1, 3, 9, 19 ] ),
+	...monthValues( 2025, [ 0, 6, 3, 2, 19, 5, 275, 221, 1700, 2300, 11400, 10600 ] ),
+	...monthValues( 2026, [ 9800, 7100, 1500, 4200, 2800, 2400, 3100, 1900, 1400, 2600, 820 ] ),
+};
+
+const scaleComparisonCell = ( year: number, month: number ): HeatmapCell | null => {
+	const key = `${ year }-${ month }`;
+	if ( ! ( key in SCALE_COMPARISON_VIEWS ) ) {
+		return null;
+	}
+	return { value: SCALE_COMPARISON_VIEWS[ key ], partial: key === '2026-10' };
+};
+
+const SCALE_CAPTIONS: Record< 'linear' | 'buckets' | 'log', string > = {
+	linear:
+		'linear places a value by its distance from the largest. The recent months are unmistakable, and eight years of real differences share the lightest tone.',
+	buckets:
+		'buckets ranks a value against the series. The quiet years separate, and the darkest step now runs from the low hundreds all the way to the maximum.',
+	log: 'log places a value by its distance in log space. Each step is a jump of the same factor, so the quiet years and the busy ones both keep their spread.',
+};
+
+/**
+ * The same ten years of a post's traffic on each scale, so the three can be read against each
+ * other. Values are above zero throughout, which the log scale requires.
+ */
+export const ScaleComparison: Story = {
+	render: args => (
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '28px' } }>
+			{ ( [ 'linear', 'buckets', 'log' ] as const ).map( scale => (
+				<div key={ scale }>
+					<p style={ { margin: '0 0 8px', maxWidth: '62em', fontSize: '13px', lineHeight: 1.5 } }>
+						{ SCALE_CAPTIONS[ scale ] }
+					</p>
+					<HeatmapChart
+						{ ...args }
+						scale={ scale }
+						height={ 260 }
+						chartId={ `scale-comparison-${ scale }` }
+					>
+						<HeatmapChart.Legend variant="bar" lessLabel="Fewer views" moreLabel="More views" />
+					</HeatmapChart>
+				</div>
+			) ) }
+		</div>
+	),
+	args: {
+		...sharedThemeArgs,
+		data: monthColumns( SCALE_COMPARISON_YEARS, scaleComparisonCell ),
+		rowLabels: SCALE_COMPARISON_YEARS.map( String ),
+		withTooltips: true,
+		ariaLabel: 'Post views by month',
+		containerWidth: '1000px',
+		containerHeight: 'auto',
 	},
 };
 
@@ -327,8 +398,9 @@ const CalendarGrid = ( {
 const calendarArgTypes = {
 	scale: {
 		control: { type: 'inline-radio' as const },
-		options: [ 'buckets', 'linear' ],
-		description: 'Whether a value picks its color by rank among its peers or by distance.',
+		options: [ 'buckets', 'linear', 'log' ],
+		description:
+			'Whether a value picks its color by rank among its peers, by distance, or by distance in log space.',
 		table: { category: 'Calendar' },
 	},
 	weekStartsOn: {

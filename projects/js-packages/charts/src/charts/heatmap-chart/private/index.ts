@@ -1,5 +1,7 @@
 export {
+	canPlaceOnLogScale,
 	getExtentOf,
+	getLogValue,
 	getNormalizedValue,
 	getValueExtent,
 	isEmptyValue,

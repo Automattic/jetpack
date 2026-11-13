@@ -81,3 +81,33 @@ export const getNormalizedValue = ( value: number, extent: [ number, number ] ):
 	}
 	return Math.min( 1, Math.max( 0, ( value - min ) / ( max - min ) ) );
 };
+
+/**
+ * Place a value by its distance in log space and snap it to `steps`, so a
+ * tenfold jump moves the color by the same amount wherever it falls in the
+ * series and a cell always matches a legend swatch. Undefined at or below zero,
+ * so the caller checks `canPlaceOnLogScale` first.
+ *
+ * @param value  - The value to place
+ * @param extent - Tuple of [min, max] from `getExtentOf`
+ * @param steps  - How many color steps the cells share with the legend
+ * @return The swatch position between 0 and 1
+ */
+export const getLogValue = ( value: number, extent: [ number, number ], steps: number ): number => {
+	const [ min, max ] = extent;
+	if ( min === max ) {
+		return 1;
+	}
+	const position = ( Math.log( value ) - Math.log( min ) ) / ( Math.log( max ) - Math.log( min ) );
+	const bounded = Math.min( 1, Math.max( 0, position ) );
+	return Math.round( bounded * ( steps - 1 ) ) / ( steps - 1 );
+};
+
+/**
+ * Whether a series can take the log scale. A zero or a negative has no
+ * logarithm, and `getExtentOf` keeps the lowest of either in the extent.
+ *
+ * @param extent - The extent from `getExtentOf`
+ * @return True when every value on the scale is above zero
+ */
+export const canPlaceOnLogScale = ( extent: [ number, number ] ): boolean => extent[ 0 ] > 0;
