@@ -105,9 +105,7 @@ Set `scale="log"` for those, and a shade reports the value's distance in log spa
 
 The log scale needs every value above zero. A series that reaches zero or below falls back to `linear` and warns once. Zeros are safe, because a zero paints as an empty cell and stays off the scale either way.
 
-The largest value is always the darkest step and the smallest the lightest; a series with fewer than two distinct values paints every cell in the darkest step. A series whose values sit close together, such as one holding only three, lands on fewer than five steps: it uses fewer colors and leaves some legend swatches unused.
-
-<Canvas of={ HeatmapStories.FewDistinctValues } />
+The largest value is always the darkest step and the smallest the lightest; a series with fewer than two distinct values paints every cell in the darkest step. A series whose values sit close together, such as one holding only three, lands on fewer than five steps: it uses fewer colors and leaves some legend swatches unused. The `Calendar` story's **dataset** control holds one of those shapes.
 
 ### Choosing one
 
