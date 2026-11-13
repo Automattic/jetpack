@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\My_Jetpack\Products\Anti_Spam;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
@@ -90,11 +91,13 @@ class Backup_Product_Test extends TestCase {
 	 * @param bool  $missed    Whether a refresh missed the plan moments ago.
 	 * @param bool  $in_admin  Whether Manage should open wp-admin.
 	 * @param bool  $holds_off Whether a refresh is held off afterwards.
+	 * @param bool  $shared    Whether another request refreshed the plan moments ago.
+	 * @param bool  $after     Whether another product reloaded the plan earlier in this request.
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	#[DataProvider( 'provide_manage_urls' )]
-	public function test_manage_url_follows_the_plan( $stored, $wpcom, $refreshed, $dashboard, $missed, $in_admin, $holds_off ) {
+	public function test_manage_url_follows_the_plan( $stored, $wpcom, $refreshed, $dashboard, $missed, $in_admin, $holds_off, $shared = false, $after = false ) {
 		( new Tokens() )->update_blog_token( 'key.secret' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -106,7 +109,8 @@ class Backup_Product_Test extends TestCase {
 			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
 			array(
 				'active'    => $wpcom,
-				'available' => array(),
+				// Anti-Spam reaches the plan reload only when some bundle offers its feature.
+				'available' => $after ? array( 'antispam' => array( 'jetpack_complete' ) ) : array(),
 			),
 			HOUR_IN_SECONDS
 		);
@@ -124,6 +128,8 @@ class Backup_Product_Test extends TestCase {
 		);
 		$dashboard || add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
 		$missed && set_transient( Backup::PLAN_REFRESH_MISS_TRANSIENT_KEY, true, MINUTE_IN_SECONDS );
+		$shared && set_transient( Wpcom_Products::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY, 1, MINUTE_IN_SECONDS );
+		$after && Anti_Spam::has_paid_plan_for_product();
 
 		$this->assertSame( $in_admin, admin_url( 'admin.php?page=jetpack-backup' ) === Backup::get_manage_url() );
 		$this->assertSame( $holds_off, (bool) get_transient( Backup::PLAN_REFRESH_MISS_TRANSIENT_KEY ) );
@@ -138,6 +144,8 @@ class Backup_Product_Test extends TestCase {
 		return array(
 			'a stored Backup plan'                   => array( array( 'backups' ), array(), array(), true, false, true, false ),
 			'a purchase the stored plan catches up'  => array( array(), array( 'backups' ), array( 'backups' ), true, false, true, false ),
+			'a catch-up after a shared refresh'      => array( array(), array( 'backups' ), array( 'backups' ), true, false, true, false, true ),
+			'a catch-up after Anti-Spam reloaded'    => array( array(), array( 'backups' ), array( 'backups' ), true, false, true, false, true, true ),
 			'a purchase the stored plan lacks still' => array( array(), array( 'backups' ), array(), true, false, false, true ),
 			'a recent miss holds off the refresh'    => array( array(), array( 'backups' ), array( 'backups' ), true, true, false, true ),
 			'no plan'                                => array( array(), array(), array(), true, false, false, false ),
@@ -206,6 +214,8 @@ class Backup_Product_Test extends TestCase {
 			'an expired Security bundle'  => array( self::expired_bundle( 'jetpack_security_t1_yearly' ), array(), true ),
 			'an expired Starter bundle'   => array( self::expired_bundle( 'jetpack_starter_yearly' ), array(), true ),
 			'an expired t0 Security plan' => array( self::expired_bundle( 'jetpack_security_t0_yearly' ), array(), true ),
+			'an expired yearly Pro'       => array( self::expired_bundle( 'jetpack_pro_yearly' ), array(), true ),
+			'an expired two-year Pro'     => array( self::expired_bundle( 'jetpack_pro_bi_yearly' ), array(), true ),
 			'an expired legacy plan'      => array( self::expired_bundle( 'jetpack_business_monthly' ), array(), true ),
 			'an expired Growth bundle'    => array( self::expired_bundle( 'jetpack_growth_yearly' ), array(), false ),
 			'another product'             => array( $free, array( array( 'product_slug' => 'jetpack_scan' ) ), false ),

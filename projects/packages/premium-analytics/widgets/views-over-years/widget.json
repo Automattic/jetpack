@@ -11,7 +11,7 @@
 	"attributes": [
 		{
 			"id": "metric",
-			"type": "jpa/select",
+			"type": "jpa/toggle-group",
 			"label": "Metric",
 			"relevance": "high",
 			"elements": [

@@ -1,8 +1,8 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .message-box-control {
 
 	textarea:disabled {
-		background-color: gb.$gray-100;
+		background-color: colors.$gray-100;
 	}
 }

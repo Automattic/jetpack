@@ -3,10 +3,12 @@
  */
 
 import { Button } from '@wordpress/components';
-import { Fragment, useCallback, useState } from '@wordpress/element';
+import { Fragment, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
 import { Card, Stack, SwitchControl, Text } from '@wordpress/ui';
+import AnchorCopyButton from './anchor-copy-button';
+import { getToolDomId } from './anchors';
 import { groupToolsBySubCategory } from './groups';
 
 const LABEL_SHOW_OPERATIONS = __( 'Show operations', 'jetpack' );
@@ -18,21 +20,25 @@ const LABEL_HIDE_OPERATIONS = __( 'Hide operations', 'jetpack' );
  * @param {object}   props               - Component props.
  * @param {string}   props.toolId        - Tool identifier.
  * @param {object}   props.tool          - Tool descriptor from the API.
+ * @param {string}   props.view          - View path for the copy link, e.g. `mcp/read`.
  * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
  * @param {Function} props.onToggle      - Called with (toolId, enabled).
  * @return {object} Component markup.
  */
-function ToolToggle( { toolId, tool, savingToolIds, onToggle } ) {
+export function ToolToggle( { toolId, tool, view, savingToolIds, onToggle } ) {
 	const handleChange = useCallback( checked => onToggle( toolId, checked ), [ toolId, onToggle ] );
 	return (
-		<SwitchControl
-			className="jetpack-ai-mcp__tool-switch"
-			checked={ tool.enabled }
-			disabled={ savingToolIds.has( toolId ) }
-			label={ tool.title }
-			description={ tool.description }
-			onCheckedChange={ handleChange }
-		/>
+		<div id={ getToolDomId( toolId ) } className="jetpack-ai-mcp__tool-row">
+			<SwitchControl
+				className="jetpack-ai-mcp__tool-switch"
+				checked={ tool.enabled }
+				disabled={ savingToolIds.has( toolId ) }
+				label={ tool.title }
+				description={ tool.description }
+				onCheckedChange={ handleChange }
+			/>
+			<AnchorCopyButton view={ view } anchor={ toolId } />
+		</div>
 	);
 }
 
@@ -41,11 +47,12 @@ function ToolToggle( { toolId, tool, savingToolIds, onToggle } ) {
  *
  * @param {object}   props               - Component props.
  * @param {Array}    props.tools         - Tool entries, each as [toolId, ability].
+ * @param {string}   props.view          - View path for copy links, e.g. `mcp/read`.
  * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
  * @param {Function} props.onToolChange  - Called with (toolId, enabled).
  * @return {object} Component markup.
  */
-export function McpToolSections( { tools, savingToolIds, onToolChange } ) {
+export function McpToolSections( { tools, view, savingToolIds, onToolChange } ) {
 	return groupToolsBySubCategory( tools ).map( ( { subCategory, tools: subTools }, subIndex ) => (
 		<Fragment key={ subCategory ?? '__ungrouped__' }>
 			{ subIndex > 0 && <div className="jetpack-ai-mcp__sub-divider" /> }
@@ -60,6 +67,7 @@ export function McpToolSections( { tools, savingToolIds, onToolChange } ) {
 							key={ toolId }
 							toolId={ toolId }
 							tool={ tool }
+							view={ view }
 							savingToolIds={ savingToolIds }
 							onToggle={ onToolChange }
 						/>
@@ -73,16 +81,17 @@ export function McpToolSections( { tools, savingToolIds, onToolChange } ) {
 /**
  * Collapsible card with a group-wide "Enable all" toggle.
  *
- * @param {object}   props               - Component props.
- * @param {string}   [props.id]          - DOM id for the card.
- * @param {string}   props.label         - Group title.
- * @param {string}   [props.description] - Muted text under the title.
- * @param {boolean}  props.allEnabled    - Whether every tool in the group is on.
- * @param {boolean}  props.isSaving      - Disables the toggle while a save is in flight.
- * @param {boolean}  [props.forceOpen]   - Keep the card open regardless of the chevron.
- * @param {*}        [props.group]       - Opaque value handed back to onEnableAll.
- * @param {Function} props.onEnableAll   - Called with (enabled, group).
- * @param {object}   props.children      - Card body, rendered while open.
+ * @param {object}   props                - Component props.
+ * @param {string}   [props.id]           - DOM id for the card.
+ * @param {string}   props.label          - Group title.
+ * @param {string}   [props.description]  - Muted text under the title.
+ * @param {boolean}  props.allEnabled     - Whether every tool in the group is on.
+ * @param {boolean}  props.isSaving       - Disables the toggle while a save is in flight.
+ * @param {boolean}  [props.forceOpen]    - Keep the card open regardless of the chevron.
+ * @param {string}   [props.anchorToolId] - Tool in this card to open and scroll to.
+ * @param {*}        [props.group]        - Opaque value handed back to onEnableAll.
+ * @param {Function} props.onEnableAll    - Called with (enabled, group).
+ * @param {object}   props.children       - Card body, rendered while open.
  * @return {object} Component markup.
  */
 export default function McpGroupCard( {
@@ -92,12 +101,30 @@ export default function McpGroupCard( {
 	allEnabled,
 	isSaving,
 	forceOpen = false,
+	anchorToolId = null,
 	group,
 	onEnableAll,
 	children,
 } ) {
 	const [ isToggledOpen, setIsToggledOpen ] = useState( false );
 	const isOpen = forceOpen || isToggledOpen;
+	const scrolledTo = useRef( null );
+
+	useEffect( () => {
+		if ( anchorToolId ) {
+			setIsToggledOpen( true );
+		}
+	}, [ anchorToolId ] );
+
+	useEffect( () => {
+		if ( anchorToolId && isOpen && scrolledTo.current !== anchorToolId ) {
+			scrolledTo.current = anchorToolId;
+			document
+				.getElementById( getToolDomId( anchorToolId ) )
+				?.scrollIntoView?.( { block: 'center' } );
+		}
+	}, [ anchorToolId, isOpen ] );
+
 	const handleEnableAll = useCallback(
 		enabled => onEnableAll( enabled, group ),
 		[ onEnableAll, group ]

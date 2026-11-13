@@ -6,12 +6,16 @@ jest.mock( 'components/data/query-site', () => ( {
 	__esModule: true,
 	default: () => 'query-site',
 } ) );
+jest.mock( 'components/pointer-card', () => ( {
+	FeaturesPointer: ( { name, search } ) => (
+		<div>{ `Features pointer: ${ name }, ${ search }` }</div>
+	),
+} ) );
 
 describe( 'Reader', () => {
 	const defaultProps = {
 		active: true,
 		searchTerm: '',
-		blogID: 12345,
 	};
 
 	const initialState = {
@@ -47,8 +51,9 @@ describe( 'Reader', () => {
 			},
 			modules: {
 				items: {
-					reader: {
+					'wpcom-reader': {
 						module: 'wpcom-reader',
+						name: 'WordPress.com Reader',
 						activated: true,
 					},
 				},
@@ -127,10 +132,7 @@ describe( 'Reader', () => {
 		it( 'renders the "Visit the Reader" link with correct href and target', () => {
 			render( <Reader { ...defaultProps } />, { initialState } );
 			const link = screen.getByRole( 'link', { name: /Visit the Reader/i } );
-			expect( link ).toHaveAttribute(
-				'href',
-				'https://wordpress.com/reader/?origin_site_id=12345'
-			);
+			expect( link ).toHaveAttribute( 'href', 'https://wordpress.com/reader/' );
 			expect( link ).toHaveAttribute( 'target', '_blank' );
 		} );
 	} );
@@ -139,6 +141,34 @@ describe( 'Reader', () => {
 		it( 'renders "Reader" as the section title when searchTerm is provided', () => {
 			render( <Reader { ...defaultProps } searchTerm="reader" />, { initialState } );
 			expect( screen.getByRole( 'heading', { name: 'Reader' } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'With the settings flag on', () => {
+		afterEach( () => {
+			delete window.JetpackScriptData;
+		} );
+
+		it.each( [
+			[ 'in the tab', '', '' ],
+			[ 'in a search on WoA', 'reader', 'woa' ],
+		] )( 'renders nothing %s', ( _when, searchTerm, host ) => {
+			window.JetpackScriptData = { myJetpack: { settingsConsolidation: true }, site: { host } };
+			const { container } = render( <Reader { ...defaultProps } searchTerm={ searchTerm } />, {
+				initialState,
+			} );
+			expect( container ).toBeEmptyDOMElement();
+		} );
+
+		it( 'points a search to the switch in Features instead of the card', () => {
+			window.JetpackScriptData = { myJetpack: { settingsConsolidation: true }, site: {} };
+			render( <Reader { ...defaultProps } searchTerm="reader" />, { initialState } );
+			expect(
+				screen.getByText( 'Features pointer: WordPress.com Reader, reader' )
+			).toBeInTheDocument();
+			expect(
+				screen.queryByText( 'Add a link to the Reader in the top navigation bar' )
+			).not.toBeInTheDocument();
 		} );
 	} );
 

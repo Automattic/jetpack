@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import analytics from 'lib/analytics';
+import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
@@ -103,19 +104,30 @@ const SettingsNavTabs = props => {
 		if ( hasSecurityFeature && ! hasProtectPage ) {
 			visibleTabs.push( '/security' );
 		}
-		if ( hasPerformanceFeature ) {
+		// Empty once settings move out; see Performance.
+		if ( ! isSettingsConsolidationEnabled() && hasPerformanceFeature ) {
 			visibleTabs.push( '/performance' );
 		}
+		// Once settings move out, every Writing card has a new home and leaves only a search pointer here.
 		if (
-			hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
-			window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active
+			! isSettingsConsolidationEnabled() &&
+			( hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
+				window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active )
 		) {
 			visibleTabs.push( '/writing' );
 		}
-		if ( hasModules( [ 'publicize', 'sharedaddy', 'likes' ] ) ) {
+		// Once settings move out, admins find Social, Sharing and Likes in Features, so nothing fills this tab.
+		if (
+			! isSettingsConsolidationEnabled() &&
+			hasModules( [ 'publicize', 'sharedaddy', 'likes' ] )
+		) {
 			visibleTabs.push( '/sharing' );
 		}
-		if ( hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] ) ) {
+		// Once settings move out, admins find every Discussion setting in Features.
+		if (
+			! isSettingsConsolidationEnabled() &&
+			hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] )
+		) {
 			visibleTabs.push( '/discussion' );
 		}
 		if (
@@ -130,10 +142,12 @@ const SettingsNavTabs = props => {
 		) {
 			visibleTabs.push( '/traffic' );
 		}
-		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite ) {
+		// The Reader card is the tab's only one, and it leaves once settings move out.
+		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite && ! isSettingsConsolidationEnabled() ) {
 			visibleTabs.push( '/reader' );
 		}
-		if ( hasModules( [ 'wordads' ] ) ) {
+		// Ads is the tab's last card, so the tab goes once the Ads settings have a new home.
+		if ( hasModules( [ 'wordads' ] ) && ! getAdsSettingsUrl() ) {
 			visibleTabs.push( '/earn' );
 		}
 	} else if ( ! isSubscriber ) {

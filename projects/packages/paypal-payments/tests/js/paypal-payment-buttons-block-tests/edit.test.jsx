@@ -80,6 +80,16 @@ jest.mock( '@wordpress/ui', () => ( {
 			</div>
 		),
 		Description: ( { children } ) => <span>{ children }</span>,
+		CloseIconButton: ( { onClick } ) => (
+			<button type="button" onClick={ onClick }>
+				Dismiss
+			</button>
+		),
+	},
+	Field: {
+		VisualLabel: ( { children } ) => (
+			<span className="components-base-control__label">{ children }</span>
+		),
 	},
 	Link: ( { href, children, openInNewTab } ) => (
 		<a
@@ -116,7 +126,10 @@ jest.mock( '@wordpress/icons', () => {
 		chevronLeft: icon( 'chevron-left' ),
 		chevronRight: icon( 'chevron-right' ),
 		copy: icon( 'copy' ),
+		image: icon( 'image' ),
+		lineSolid: icon( 'line-solid' ),
 		moreVertical: icon( 'more-vertical' ),
+		plus: icon( 'plus' ),
 		pencil: icon( 'pencil' ),
 		replace: icon( 'replace' ),
 		trash: icon( 'trash' ),
@@ -129,6 +142,8 @@ jest.mock( 'qrcode', () => ( {
 } ) );
 
 const mockMarkNotPersistent = jest.fn();
+// What the save sync writes onto a block, by clientId.
+const mockUpdateBlockAttributes = jest.fn();
 /**
  * Run editor.savePost, as core/editor does once the post has saved.
  *
@@ -137,20 +152,15 @@ const mockMarkNotPersistent = jest.fn();
  */
 const postSaved = ( options = {} ) =>
 	doActionAsync( 'editor.savePost', { id: 1, type: 'post' }, options );
-// A post save that succeeds. Resolving without postSaved() makes one fail.
-const mockSavePost = jest.fn( () => postSaved() );
-// Whether core/editor is saving. Set per test.
-let mockIsSavingPost = false;
 // Whether the block renders in an inserter or pattern preview. Set per test.
 let mockIsPreviewMode = false;
 jest.mock( '@wordpress/data', () => ( {
+	dispatch: () => ( { updateBlockAttributes: mockUpdateBlockAttributes } ),
 	useDispatch: () => ( {
 		__unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent,
-		savePost: mockSavePost,
 	} ),
 	useSelect: mapSelect =>
 		mapSelect( () => ( {
-			isSavingPost: () => mockIsSavingPost,
 			getSettings: () => ( { isPreviewMode: mockIsPreviewMode } ),
 		} ) ),
 } ) );
@@ -168,6 +178,9 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	store: { name: 'core/block-editor' },
 	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
 	BlockControls: ( { children } ) => <div data-testid="block-controls">{ children }</div>,
+	// The media modal is the browser's business; the button that opens it is enough here.
+	MediaUploadCheck: ( { children } ) => children,
+	MediaUpload: ( { render: renderButton } ) => renderButton( { open: () => {} } ),
 	InspectorControls: ( { children, group } ) => (
 		<div data-testid={ group ? `inspector-controls-${ group }` : 'inspector-controls' }>
 			{ children }
@@ -499,6 +512,7 @@ jest.mock( '@wordpress/components', () => ( {
 		);
 	},
 	Spinner: () => <div data-testid="spinner">Loading...</div>,
+	Icon: ( { icon } ) => <span data-testid="icon">{ icon }</span>,
 	SearchControl: ( { label, value, onChange, placeholder } ) => (
 		<input
 			type="search"
@@ -832,7 +846,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		forgetPostSaves();
-		mockIsSavingPost = false;
 		mockIsPreviewMode = false;
 		// One test runs on fake timers; leaving them on hangs every test after it.
 		jest.useRealTimers();
@@ -2746,6 +2759,72 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 		} );
 
+		it( 'enables Create payment button once the required fields are filled', async () => {
+			const view = render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Create payment button' } )
+			).resolves.toBeDisabled();
+
+			view.rerender(
+				<Edit
+					attributes={ { productName: 'Test Widget', price: '29.99', currencyCode: 'USD' } }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			expect( screen.getByRole( 'button', { name: 'Create payment button' } ) ).toBeEnabled();
+		} );
+
+		it( 'creates the payment from Create payment button without a post save', async () => {
+			const user = userEvent.setup();
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( 'POST' === method && path.endsWith( '/buttons' ) ) {
+					return Promise.resolve( {
+						id: 'PLB-NEW1',
+						attributes: { paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1' },
+					} );
+				}
+				return Promise.resolve( {} );
+			} );
+			render(
+				<Edit
+					attributes={ { productName: 'Test Widget', price: '29.99', currencyCode: 'USD' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+
+			await user.click( await screen.findByRole( 'button', { name: 'Create payment button' } ) );
+
+			await waitFor( () =>
+				expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith(
+					'a',
+					expect.objectContaining( {
+						isApiManaged: true,
+						resourceId: 'PLB-NEW1',
+						paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+					} )
+				)
+			);
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					method: 'POST',
+					data: expect.objectContaining( {
+						line_items: [ expect.objectContaining( { name: 'Test Widget' } ) ],
+					} ),
+				} )
+			);
+			expect( mockToast ).toHaveBeenCalledWith(
+				'success',
+				'Payment button successfully created.',
+				'jetpack-paypal-saved'
+			);
+		} );
+
 		it( 'creates the payment on save once the required fields are filled', async () => {
 			render(
 				<Edit
@@ -4035,7 +4114,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			await expect(
-				screen.findByText( 'Prices are set on variant 2.' )
+				screen.findByText( 'Images and prices are set on variant 2.' )
 			).resolves.toBeInTheDocument();
 			expect( screen.getByLabelText( 'Add price per variant' ) ).toBeChecked();
 
@@ -7962,17 +8041,49 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 
 			// One fill, so the panels show in source order.
-			it( 'puts the style controls under the link details', async () => {
+			it.each( [ 'BUTTON', 'STACKED', 'LINK', 'QR' ] )(
+				'shows the details rows below the style controls in %s',
+				async format => {
+					render(
+						<Edit attributes={ { ...qrAttributes, format } } setAttributes={ setAttributes } />
+					);
+
+					const embedAs = await screen.findByLabelText( 'Embed as' );
+					expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
+					const fill = screen.getByTestId( 'inspector-controls' );
+					const sidebar = within( fill );
+					expect( embedAs ).toAppearBefore( sidebar.getByText( 'Used on' ) );
+					/* eslint-disable testing-library/no-node-access -- The rows' panel has to
+					   be the fill's last child, so only core's Advanced follows it. */
+					expect( fill.lastElementChild ).toBe(
+						sidebar.getByText( 'Used on' ).closest( '[data-testid="panel-body"]' )
+					);
+					/* eslint-enable testing-library/no-node-access */
+					// The name and price show above Embed as.
+					expect( sidebar.getByRole( 'heading', { name: 'Test Widget' } ) ).toAppearBefore(
+						embedAs
+					);
+					expect( sidebar.getByText( '$29.99' ) ).toAppearBefore( embedAs );
+				}
+			);
+
+			it( 'shows Max quantity after Used on, below the style controls', async () => {
 				render(
 					<Edit
-						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						attributes={ { ...qrAttributes, adjustableQuantity: true, maxQuantity: 5 } }
 						setAttributes={ setAttributes }
 					/>
 				);
 
-				const embedAs = await screen.findByLabelText( 'Embed as' );
-				expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
-				expect( screen.getByText( 'Used on' ) ).toAppearBefore( embedAs );
+				const maxQuantity = await screen.findByText( 'Max quantity' );
+				const fill = screen.getByTestId( 'inspector-controls' );
+				const sidebar = within( fill );
+				expect( sidebar.getByText( 'Used on' ) ).toAppearBefore( maxQuantity );
+				expect( sidebar.getByLabelText( 'Embed as' ) ).toAppearBefore( maxQuantity );
+				/* eslint-disable testing-library/no-node-access -- The rows' panel has to be the
+				   fill's last child. */
+				expect( fill.lastElementChild ).toBe( maxQuantity.closest( '[data-testid="panel-body"]' ) );
+				/* eslint-enable testing-library/no-node-access */
 			} );
 
 			it( 'offers the four formats in order', async () => {
@@ -8066,7 +8177,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				).toBeInTheDocument();
 			} );
 
-			// The form edits the link itself, so the style controls stay with the details.
+			// The form edits the link itself, so the style controls show in the details view only.
 			it( 'hides the style controls while editing the link and shows them again on return', async () => {
 				const user = userEvent.setup();
 				render(
@@ -9195,9 +9306,30 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			const back = () => screen.getByRole( 'button', { name: 'Edit Button' } );
 
-			beforeEach( () => {
-				mockSavePost.mockClear();
-			} );
+			// The sync skips a body it already sent, and that memo outlives a test.
+			beforeEach( forgetSyncedRequests );
+
+			/**
+			 * Like mockResource(), with the link's PUT answered separately.
+			 *
+			 * @param {Promise} put - What the PUT settles with.
+			 * @return {Function} The apiFetch mock.
+			 */
+			const mockSave = put =>
+				apiFetch.mockImplementation( ( { path, method } ) => {
+					if ( path.endsWith( '/connection' ) ) {
+						return Promise.resolve( { connected: true, environment: 'sandbox' } );
+					}
+					if ( path === resourcePath ) {
+						return 'PUT' === method
+							? put
+							: Promise.resolve( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+					}
+					return Promise.resolve( {} );
+				} );
+
+			const putRequests = () =>
+				apiFetch.mock.calls.filter( ( [ { method } ] ) => 'PUT' === method );
 
 			it( 'goes straight back when nothing changed', async () => {
 				const user = userEvent.setup();
@@ -9237,22 +9369,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				);
 				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
-				expect( mockSavePost ).not.toHaveBeenCalled();
+				expect( putRequests() ).toHaveLength( 0 );
 			} );
 
-			it( 'saves the post on Save, and shows the details once it is saved', async () => {
+			it( 'sends the changes to PayPal on Save, and shows the details once it has them', async () => {
 				const user = userEvent.setup();
-				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
 				let finishSave;
-				mockSavePost.mockImplementationOnce( () =>
-					new Promise( resolve => ( finishSave = resolve ) ).then( () => postSaved() )
-				);
+				mockSave( new Promise( resolve => ( finishSave = resolve ) ) );
 				await editForm( user );
 
 				await user.click( back() );
 				await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
-				expect( mockSavePost ).toHaveBeenCalledTimes( 1 );
+				expect( putRequests() ).toHaveLength( 1 );
+				expect( putRequests()[ 0 ][ 0 ].data.line_items[ 0 ].name ).toBe( 'Pain au chocolat' );
 				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
 				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
 				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeDisabled();
@@ -9260,11 +9390,28 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await user.click( screen.getByTestId( 'modal-close' ) );
 				expect( screen.getByRole( 'dialog', { name: 'Changes made' } ) ).toBeInTheDocument();
 
-				finishSave();
+				finishSave( { id: 'PLB-DETAIL1' } );
 
 				await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( mockToast ).toHaveBeenCalledWith(
+					'success',
+					'Payment button changes saved.',
+					'jetpack-paypal-saved'
+				);
 				expect( setAttributes ).not.toHaveBeenCalled();
+			} );
+
+			it( 'saves from the form’s own button and shows the details, with no dialog', async () => {
+				const user = userEvent.setup();
+				mockSave( Promise.resolve( { id: 'PLB-DETAIL1' } ) );
+				await editForm( user );
+
+				await user.click( screen.getByRole( 'button', { name: 'Save payment button' } ) );
+
+				await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( putRequests() ).toHaveLength( 1 );
 			} );
 
 			// A form with an error still leaves, but only by discarding.
@@ -9295,7 +9442,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 				expect( setAttributes ).not.toHaveBeenCalled();
-				expect( mockSavePost ).not.toHaveBeenCalled();
+				expect( putRequests() ).toHaveLength( 0 );
 			} );
 
 			it( 'goes straight back once the post is saved from the toolbar', async () => {
@@ -9332,7 +9479,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				);
 				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
-				expect( mockSavePost ).not.toHaveBeenCalled();
+				expect( putRequests() ).toHaveLength( 0 );
 			} );
 
 			it( 'asks after an autosave, and Don’t save puts back what the form opened with', async () => {
@@ -9350,34 +9497,28 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				);
 				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
-				expect( mockSavePost ).not.toHaveBeenCalled();
+				expect( putRequests() ).toHaveLength( 0 );
 			} );
 
-			it( 'keeps the form open when the post fails to save', async () => {
+			it( 'keeps the form and the dialog when PayPal refuses the changes', async () => {
 				const user = userEvent.setup();
-				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
-				mockSavePost.mockImplementationOnce( () => Promise.resolve() );
+				mockSave( Promise.reject( { code: 'paypal_error', message: 'Price too low.' } ) );
 				await editForm( user );
 
 				await user.click( back() );
 				await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
-				expect( mockSavePost ).toHaveBeenCalledTimes( 1 );
-				await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
-				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
-			} );
-
-			it( 'disables Save and Don’t save while the editor is already saving', async () => {
-				const user = userEvent.setup();
-				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
-				mockIsSavingPost = true;
-				await editForm( user );
-
-				await user.click( back() );
-
+				await waitFor( () =>
+					expect( mockToast ).toHaveBeenCalledWith(
+						'error',
+						expect.stringContaining( 'Price too low.' ),
+						'jetpack-paypal-sync-a'
+					)
+				);
 				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
-				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
-				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeDisabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeEnabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeEnabled();
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 			} );
 
 			it( 'closes the dialog and shows the details when the post saves', async () => {
@@ -9391,7 +9532,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
 				expect( setAttributes ).not.toHaveBeenCalled();
-				expect( mockSavePost ).not.toHaveBeenCalled();
+				expect( putRequests() ).toHaveLength( 0 );
 			} );
 
 			it( 'keeps the dialog open through an autosave', async () => {
@@ -9422,7 +9563,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
-				expect( mockSavePost ).not.toHaveBeenCalled();
+				expect( putRequests() ).toHaveLength( 0 );
 			} );
 
 			it( 'keeps PayPal’s link, SDK URL and mode on Don’t save', async () => {
@@ -9439,7 +9580,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				Object.keys( fromPayPal ).forEach( key => expect( putBack ).not.toHaveProperty( key ) );
 				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
-				expect( mockSavePost ).not.toHaveBeenCalled();
+				expect( putRequests() ).toHaveLength( 0 );
 			} );
 		} );
 	} );

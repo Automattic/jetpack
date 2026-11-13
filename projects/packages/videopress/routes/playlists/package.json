@@ -1,0 +1,7 @@
+{
+	"private": true,
+	"route": {
+		"path": "/playlists",
+		"page": "jetpack-videopress-dashboard"
+	}
+}

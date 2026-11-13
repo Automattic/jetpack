@@ -38,10 +38,10 @@ async function renderModern() {
 }
 
 function render() {
-	if ( detectMode() === 'modern' ) {
-		renderModern();
-	} else {
+	if ( detectMode() === 'legacy' ) {
 		renderLegacy();
+	} else {
+		renderModern();
 	}
 }
 

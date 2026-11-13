@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import TopPostsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -80,7 +81,7 @@ describe( 'TopPostsWidget', () => {
 		const href = titleLink.getAttribute( 'href' ) ?? '';
 		const search = new URL( href, 'https://example.com' ).searchParams;
 
-		expect( href ).toContain( '/post/1' );
+		expect( href ).toContain( '/report/post/1' );
 		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
 		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
 		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
@@ -108,13 +109,10 @@ describe( 'TopPostsWidget', () => {
 		expect( topPostsPath ).toContain( 'skip_archives=1' );
 	} );
 
-	it( 'links to the Posts & Pages report', () => {
-		render( <TopPostsWidget attributes={ {} } /> );
+	it( 'declares View all to the Posts & Pages report', () => {
+		const { declaredLink } = renderWithActionsHost( <TopPostsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/posts' )
-		);
+		expect( declaredLink( 'view-all' )?.href ).toContain( '%2Freports%2Fposts%3F' );
 	} );
 
 	it( 'does not render deltas when the comparison period has no overlapping posts', async () => {
@@ -173,7 +171,7 @@ describe( 'TopPostsWidget', () => {
 			path.includes( 'start_date=2026-05-01' ) ? secondFetch : Promise.resolve( TOP_POSTS_RESPONSE )
 		);
 
-		const { rerender } = render(
+		const { rerender, declaredAction, findDeclaredAction } = renderWithActionsHost(
 			<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
 		);
 
@@ -181,20 +179,14 @@ describe( 'TopPostsWidget', () => {
 		await expect(
 			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
 		).resolves.toBeInTheDocument();
-		const downloadButton = screen.getByRole( 'button', { name: /Download CSV/ } );
-		const reportLink = screen.getByRole( 'link', { name: 'View all' } );
-		// The shared parent is the footer layout contract under test.
-		// eslint-disable-next-line testing-library/no-node-access
-		expect( downloadButton.parentElement ).toBe( reportLink.parentElement );
+		expect( declaredAction( 'download-csv' ) ).toBeDefined();
 
 		// Switch date range on the same tree; the new fetch is still pending.
 		rerender(
 			<TopPostsWidget attributes={ { reportParams: { from: '2026-05-01', to: '2026-05-10' } } } />
 		);
 
-		await waitFor( () =>
-			expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument()
-		);
+		await waitFor( () => expect( declaredAction( 'download-csv' ) ).toBeUndefined() );
 		// March's rows do not answer a question about May, so they give way to the
 		// skeleton.
 		await expect( screen.findByTestId( 'widget-skeleton' ) ).resolves.toBeInTheDocument();
@@ -202,9 +194,7 @@ describe( 'TopPostsWidget', () => {
 
 		// Once the new range settles, the export returns.
 		resolveSecond( TOP_POSTS_RESPONSE );
-		await expect(
-			screen.findByRole( 'button', { name: /Download CSV/ } )
-		).resolves.toBeInTheDocument();
+		await findDeclaredAction( 'download-csv' );
 	} );
 
 	it( 'renders an unavailable delta when an overlapping comparison row has zero views', async () => {

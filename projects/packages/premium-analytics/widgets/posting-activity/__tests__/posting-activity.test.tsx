@@ -13,18 +13,9 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-// Keep visx out of jsdom and make the series the widget passes assertable.
-jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
-	Sparkline: ( { data }: { data: number[] } ) => (
-		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
-	),
-} ) );
-
 // Spread the real module: `WidgetRoot` and the toolkit helpers import from it too.
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	useStatsHourOfDay: jest.fn(),
 	useStatsStreak: jest.fn(),
 	useStatsVisits: jest.fn(),
 } ) );
@@ -95,9 +86,7 @@ describe( 'PostingActivityWidget', () => {
 	it( 'draws those months as one calendar grid, current month last, weeks from Monday', () => {
 		renderWidget();
 
-		expect(
-			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'grid' ) ).toBeInTheDocument();
 		const months = screen.getAllByTestId( 'heatmap-group-label' ).map( el => el.textContent );
 		expect( months ).toHaveLength( 12 );
 		expect( months[ 0 ] ).toBe( 'Oct' );
@@ -125,9 +114,7 @@ describe( 'PostingActivityWidget', () => {
 		mockUseStatsStreak.mockReturnValue( streakResult( { data: {} } ) );
 		renderWidget();
 
-		expect(
-			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'grid' ) ).toBeInTheDocument();
 		expect(
 			screen.getByRole( 'gridcell', { name: 'Fri, Oct 3, 2025: No data' } )
 		).toBeInTheDocument();
@@ -139,9 +126,7 @@ describe( 'PostingActivityWidget', () => {
 		);
 		renderWidget();
 
-		expect(
-			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'grid' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the month blocks while loading', () => {

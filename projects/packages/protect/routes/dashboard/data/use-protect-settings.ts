@@ -3,6 +3,7 @@ import { dispatch } from '@wordpress/data';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordSettingEvents } from './setting-events';
 
 // One id, so a burst of saves shows one snackbar.
 const SAVED_NOTICE_ID = 'jetpack-protect-settings-saved';
@@ -32,7 +33,35 @@ function getWafErrorMessage( code: unknown ): string | undefined {
 	}
 }
 
-/** Flat Jetpack settings, keyed by option or module slug, as `jetpack/v4/settings` returns them. */
+/**
+ * Why the server refused a setting's value, which WordPress puts under `data.params` for `rest_invalid_param`.
+ *
+ * @param data - The REST error's data.
+ * @return The first reason, or undefined when there is none.
+ */
+function getInvalidParamMessage( data: unknown ): string | undefined {
+	const params = ( data as { params?: unknown } | undefined )?.params;
+	if ( ! params || typeof params !== 'object' ) {
+		return undefined;
+	}
+	return Object.values( params ).find( ( reason ): reason is string => typeof reason === 'string' );
+}
+
+/**
+ * A request to reload for `rest_no_route`, which a tab left open gets once the site disconnects and the routes go away.
+ *
+ * @param code - The REST error code.
+ * @return The message, or undefined for any other code.
+ */
+function getStalePageMessage( code: unknown ): string | undefined {
+	return code === 'rest_no_route'
+		? __( 'This page is out of date. Reload it to continue.', 'jetpack-protect-pkg' )
+		: undefined;
+}
+
+const SETTINGS_PATH = '/jetpack/v4/protect-dashboard/settings';
+
+/** Flat settings, keyed by option or module slug, as the package's settings route returns them. */
 export type ProtectSettings = Record< string, unknown >;
 
 export type WafConfig = {
@@ -57,7 +86,7 @@ export type ProtectSettingsData = {
 	isSaving: ( key: string ) => boolean;
 	/** Fetches the settings once; later calls do nothing unless the fetch failed. */
 	load: () => void;
-	/** Saves to `path` (default `/jetpack/v4/settings`) and merges the patch into `settings`; resolves to whether it saved. */
+	/** Saves to `path` (default the package's settings route) and merges the patch into `settings`; resolves to whether it saved. */
 	save: ( patch: ProtectSettings, path?: string ) => Promise< boolean >;
 	/** Re-reads the given keys, for settings the server changes as a side effect of another save. */
 	refresh: ( keys: string[] ) => Promise< void >;
@@ -95,7 +124,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 		setFailure( null );
 
 		Promise.all( [
-			apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } ),
+			apiFetch< ProtectSettings >( { path: SETTINGS_PATH } ),
 			apiFetch< WafConfig >( { path: '/jetpack/v4/waf' } ).catch( () => null ),
 		] )
 			.then( ( [ nextSettings, nextWaf ] ) => {
@@ -107,10 +136,12 @@ export default function useProtectSettings(): ProtectSettingsData {
 				setWaf( nextWaf );
 				setIsLoaded( true );
 			} )
-			.catch( () => {
+			.catch( ( e: { code?: unknown } | undefined ) => {
 				loadStarted.current = false;
 				setFailure( {
-					message: __( 'Your settings couldn’t be loaded.', 'jetpack-protect-pkg' ),
+					message:
+						getStalePageMessage( e?.code ) ||
+						__( 'Your settings couldn’t be loaded.', 'jetpack-protect-pkg' ),
 					keys: NO_KEYS,
 				} );
 			} );
@@ -119,7 +150,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 	const refresh = useCallback(
 		async ( keys: string[] ) => {
 			try {
-				const latest = await apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } );
+				const latest = await apiFetch< ProtectSettings >( { path: SETTINGS_PATH } );
 				const fresh = keys.filter( key => key in latest ).map( key => [ key, latest[ key ] ] );
 				setSettings( { ...settingsRef.current, ...Object.fromEntries( fresh ) } );
 			} catch {
@@ -130,7 +161,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 	);
 
 	const save = useCallback(
-		async ( patch: ProtectSettings, path = '/jetpack/v4/settings' ) => {
+		async ( patch: ProtectSettings, path = SETTINGS_PATH ) => {
 			const keys = Object.keys( patch );
 			const before = settingsRef.current;
 			const previous = Object.fromEntries(
@@ -150,11 +181,17 @@ export default function useProtectSettings(): ProtectSettingsData {
 					{ type: 'snackbar', id: SAVED_NOTICE_ID }
 				);
 			} catch ( e ) {
-				const { code, message } = ( e ?? {} ) as { code?: unknown; message?: string };
+				const { code, message, data } = ( e ?? {} ) as {
+					code?: unknown;
+					message?: string;
+					data?: unknown;
+				};
 				const wafMessage = getWafErrorMessage( code );
 				setFailure( {
 					message:
+						getStalePageMessage( code ) ||
 						wafMessage ||
+						( code === 'rest_invalid_param' ? getInvalidParamMessage( data ) : undefined ) ||
 						message ||
 						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' ),
 					keys,
@@ -186,6 +223,9 @@ export default function useProtectSettings(): ProtectSettingsData {
 					keys.forEach( key => next.splice( next.indexOf( key ), 1 ) );
 					return next;
 				} );
+			}
+			if ( saved ) {
+				recordSettingEvents( patch, before );
 			}
 			return saved;
 		},

@@ -26,6 +26,7 @@ import { useVideoDetailsForm } from '../../src/dashboard/components/video-detail
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
 import VideoInfoCard from '../../src/dashboard/components/video-details/video-info-card';
 import VideoNav from '../../src/dashboard/components/video-nav';
+import { useAdminShellLeaveGuard } from '../../src/dashboard/hooks/use-admin-shell-leave-guard';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useSettings } from '../../src/dashboard/hooks/use-settings';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
@@ -111,7 +112,8 @@ type EditorProps = UploadEditorProps & {
 	video: LibraryItem;
 	onSave: (
 		values: ReturnType< typeof useVideoDetailsForm >[ 'values' ],
-		reset: ReturnType< typeof useVideoDetailsForm >[ 'reset' ]
+		reset: ReturnType< typeof useVideoDetailsForm >[ 'reset' ],
+		previousPrivacy: ReturnType< typeof useVideoDetailsForm >[ 'previousPrivacy' ]
 	) => void;
 	isSaving: boolean;
 	onDelete: () => void;
@@ -149,7 +151,7 @@ const Editor = ( {
 	hasVideoError,
 	onRetryVideo,
 }: EditorProps ) => {
-	const { values, update, isDirty, reset } = useVideoDetailsForm( video, {
+	const { values, update, isDirty, reset, previousPrivacy } = useVideoDetailsForm( video, {
 		uploadId,
 		draft: upload?.details,
 	} );
@@ -197,7 +199,7 @@ const Editor = ( {
 			);
 			return;
 		}
-		onSave( values, reset );
+		onSave( values, reset, previousPrivacy );
 	}, [
 		isPendingUpload,
 		upload,
@@ -207,6 +209,7 @@ const Editor = ( {
 		onSave,
 		values,
 		reset,
+		previousPrivacy,
 	] );
 	const confirmNavigation = useCallback( () => {
 		return (
@@ -220,6 +223,7 @@ const Editor = ( {
 			)
 		);
 	}, [ isDirty ] );
+	useAdminShellLeaveGuard( () => isDirty );
 
 	let progressStatus: UploadProgressStatus = 'pending';
 	let onRetry: ( () => void ) | undefined;
@@ -361,7 +365,7 @@ const StageReady = ( { video, ...uploadProps }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const invalidateVideo = useInvalidateVideo();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
-	const { syncChapters } = useUpdateChapters();
+	const { syncChapters } = useUpdateChapters( 'dashboard_details' );
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useDispatch( noticesStore );
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
@@ -409,7 +413,7 @@ const StageReady = ( { video, ...uploadProps }: StageReadyProps ) => {
 		// Promise chain rather than mutate-level callbacks: those are
 		// dropped when the component unmounts mid-flight, which would
 		// orphan the explicitDismiss notice above forever.
-		deleteVideo( Number( video.id ) )
+		deleteVideo( [ { id: video.id, type: video.type } ] )
 			.then( () => {
 				createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ), {
 					id: deletingNoticeId( video.id ),
@@ -436,9 +440,13 @@ const StageReady = ( { video, ...uploadProps }: StageReadyProps ) => {
 				// disabled so a slow delete can't be raced by a meta update
 				// against the attachment being removed.
 				isSaving={ isSaving || isDeleting }
-				onSave={ ( values, reset ) => {
+				onSave={ ( values, reset, previousPrivacy ) => {
 					updateMeta(
-						{ id: video.id, patch: values },
+						{
+							id: video.id,
+							patch: values,
+							previousPrivacy: video.type === 'videopress' ? previousPrivacy : undefined,
+						},
 						{
 							onSuccess: () => {
 								// The description is the single source of truth for the
@@ -556,7 +564,7 @@ const StageInner = () => {
 };
 
 const Stage = () => (
-	<QueryClientWrapper>
+	<QueryClientWrapper route="video">
 		<StageInner />
 	</QueryClientWrapper>
 );

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { scaleLinear } from '@jetpack-premium-analytics/externals';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { formatMetricValue, getStoreDecimals } from '@jetpack-premium-analytics/formatters';
 /**
  * Internal dependencies
  */
@@ -34,17 +34,24 @@ export type FixedYAxis = {
 
 /**
  * Resolve the y-axis domain a comparative chart should pin, if any: a percentage
- * metric always reads 0–100%, and an all-zero period gets a real axis instead of
- * a flat baseline.
+ * metric reads 0–100% while its values fit there, and an all-zero period gets a
+ * real axis instead of a flat baseline.
  *
  * @param metricType  - The data format type (currency, number, percentage).
  * @param isEmptyData - Whether every value in the chart is 0 or null.
+ * @param series      - The series the chart is drawing.
  * @return The domain, or null to let the chart scale to the data.
  */
-export function getFixedYAxis( metricType: string, isEmptyData: boolean ): FixedYAxis | null {
+export function getFixedYAxis(
+	metricType: string,
+	isEmptyData: boolean,
+	series: SeriesWithData[] = []
+): FixedYAxis | null {
 	let domain: [ number, number ] | null = null;
+	// A rate can pass 100% (a replayed video's retention), and pinned there it would draw off the plot.
+	const exceedsWhole = series.some( s => s.data.some( point => ( point.value ?? 0 ) > 1 ) );
 
-	if ( metricType === 'percentage' ) {
+	if ( metricType === 'percentage' && ! exceedsWhole ) {
 		domain = [ 0, 1.0 ];
 	} else if ( isEmptyData ) {
 		domain = getEmptyChartDomain( metricType );
@@ -122,4 +129,18 @@ export function getYTickFormat(
 		return compact;
 	}
 	return ( value: number ) => formatMetricValue( value, metricType, { currencyCode } );
+}
+
+/**
+ * The y-axis `tickDecimals`: store money is held to the store's decimals, so rounded labels never repeat.
+ *
+ * @param metricType   - The data format type (currency, number, percentage).
+ * @param currencyCode - Explicit currency, which keeps its own decimals as `formatMetricValue` does.
+ * @return The decimals, or undefined to keep the chart's own ticks.
+ */
+export function getYTickDecimals(
+	metricType: Parameters< typeof formatMetricValue >[ 1 ],
+	currencyCode?: string
+): number | undefined {
+	return metricType === 'currency' && currencyCode === undefined ? getStoreDecimals() : undefined;
 }

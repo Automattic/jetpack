@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Give a dashboard opened inside another the same routes it has on its own page, including any added on its page init action.

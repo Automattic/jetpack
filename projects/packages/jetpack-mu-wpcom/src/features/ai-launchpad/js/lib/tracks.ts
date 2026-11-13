@@ -18,7 +18,7 @@ declare global {
 }
 
 /** The screens the Site Setup page can open on. */
-export type ViewedStep = 'goal' | 'site_details' | 'launchpad';
+export type ViewedStep = 'setup_choice' | 'goal' | 'site_details' | 'launchpad';
 
 /** How far a tailoring run had got: waiting on the AI call, or saving the result. */
 export type TailoringStage = 'ai' | 'saving';
@@ -200,11 +200,128 @@ export function trackViewed( props: { step: ViewedStep } ): void {
 /**
  * Records a goal-card click (fires on every click, including reselection).
  *
- * @param props              - The event properties.
- * @param props.goal_clicked - The goal card the user clicked.
+ * @param props                 - The event properties.
+ * @param props.goal_clicked    - The goal card the user clicked.
+ * @param props.goals_variation - The goals step's experiment variation, or null when not assigned.
  */
-export function trackWizardGoalClicked( props: { goal_clicked: GoalSlug } ): void {
+export function trackWizardGoalClicked( props: {
+	goal_clicked: GoalSlug;
+	goals_variation?: string | null;
+} ): void {
 	record( 'jetpack_ai_launchpad_wizard_goal_clicked', props );
+}
+
+/**
+ * Records Continue on the "How would you like to get set up?" choice.
+ *
+ * @param props                 - The event properties.
+ * @param props.choice          - `guide` for Guide me, `ai` for Build with AI.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardSetupChoiceSelected( props: {
+	choice: 'guide' | 'ai';
+	goals_variation: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_wizard_setup_choice_selected', props );
+}
+
+/**
+ * Records a click on an AI tool's Set up link in the "Which AI do you use?" view.
+ *
+ * @param tool                  - The agent whose link was clicked.
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardMcpLinkClicked(
+	tool: 'chatgpt' | 'claude',
+	props: { goals_variation: string }
+): void {
+	record( `jetpack_ai_launchpad_wizard_mcp_${ tool }_clicked`, props );
+}
+
+/**
+ * Records the "Which AI do you use?" view being shown.
+ *
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardMcpScreenViewed( props: { goals_variation: string } ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_screen_viewed', props );
+}
+
+/**
+ * Records the "Which AI do you use?" view waiting for a connection after a Set up click.
+ *
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ * @param props.integration     - The AI tool it waits for.
+ */
+export function trackWizardMcpWaitingViewed( props: {
+	goals_variation: string;
+	integration: 'chatgpt' | 'claude';
+} ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_waiting_viewed', props );
+}
+
+/**
+ * Records a click on Copy prompt, for an AI tool without a Set up link.
+ *
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardMcpPromptCopied( props: { goals_variation: string } ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_prompt_copied', props );
+}
+
+/** The props every event about a connected AI tool carries. */
+interface McpConnectedProps extends TrackEventProps {
+	goals_variation: string;
+	// The AI tool that connected, the latest one when both did, or `other` after copying the prompt for another tool.
+	integration: 'chatgpt' | 'claude' | 'other';
+}
+
+/**
+ * Records an AI tool showing as connected, once the wizard sees the new connection.
+ * `already_connected` is true for a tool that was connected before the AI tool view opened.
+ *
+ * @param props - The event properties.
+ */
+export function trackWizardMcpConnectedViewed(
+	props: McpConnectedProps & { already_connected: boolean }
+): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_connected_viewed', props );
+}
+
+/**
+ * Records a connected AI tool showing as read only.
+ *
+ * @param props - The event properties.
+ */
+export function trackWizardMcpReadOnlyViewed( props: McpConnectedProps ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_read_only_viewed', props );
+}
+
+/**
+ * Records a click on "Allow full access" while a connected AI tool is read only, with how it ended: full access
+ * allowed in place, the attempt failed and the MCP settings opened instead, or the MCP settings opened because the
+ * wizard can't allow it in place. Not `outcome`: that is a standard prop with its own meaning.
+ *
+ * @param props        - The event properties.
+ * @param props.result - How the click ended.
+ */
+export function trackWizardMcpAllowFullAccessClicked(
+	props: McpConnectedProps & { result: 'success' | 'error' | 'settings_link' }
+): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_allow_full_access_clicked', props );
+}
+
+/**
+ * Records a click on "Go to my dashboard" once an AI tool is connected.
+ *
+ * @param props - The event properties.
+ */
+export function trackWizardMcpGoToDashboardClicked( props: McpConnectedProps ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_go_to_dashboard_clicked', props );
 }
 
 /**
@@ -247,6 +364,16 @@ export function trackWizardBackClicked( props: { step: WizardStepName } ): void 
  */
 export function trackWizardSiteDetailsChanged( props: { field: 'title' | 'description' } ): void {
 	record( 'jetpack_ai_launchpad_wizard_site_details_changed', props );
+}
+
+/**
+ * The wizard was skipped because the AI Website Builder already learned what it asks.
+ *
+ * @param props        - Event props.
+ * @param props.reason - Why the wizard was skipped.
+ */
+export function trackWizardBypassed( props: { reason: 'ai_builder' } ): void {
+	record( 'jetpack_ai_launchpad_wizard_bypassed', props );
 }
 
 /**

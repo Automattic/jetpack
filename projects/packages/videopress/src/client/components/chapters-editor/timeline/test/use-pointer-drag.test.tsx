@@ -14,6 +14,7 @@ afterEach( () => jest.useRealTimers() );
 it.each( [
 	[ 399, 1, 'pointerUp' ],
 	[ 1, -1, 'pointerCancel' ],
+	[ 399, 1, 'lostPointerCapture' ],
 ] as const )(
 	'follows a stationary pointer at %i (direction %i) and stops on %s',
 	( clientX, direction, end ) => {

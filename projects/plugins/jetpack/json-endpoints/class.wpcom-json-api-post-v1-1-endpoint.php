@@ -61,7 +61,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		'categories'       => '(object:category) Hash of categories (keyed by category name) applied to the post.',
 		'attachments'      => '(object:attachment) Hash of post attachments (keyed by attachment ID). Returns the most recent 20 attachments. Use the `/sites/$site/media` endpoint to query the attachments beyond the default of 20 that are returned here.',
 		'attachment_count' => '(int) The total number of attachments for this post. Use the `/sites/$site/media` endpoint to query the attachments beyond the default of 20 that are returned here.',
-		'metadata'         => '(array) Array of post metadata keys and values. All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
+		'metadata'         => '(array) Array of post metadata keys and values. Users who can edit the post get its unprotected meta keys. Protected meta keys (those starting with an underscore) are returned only when the user can edit that key, which requires an <code>auth_callback</code> registered with <code>register_meta()</code> or an <code>auth_post_meta_{$meta_key}</code> filter. Keys allowed by the <code>rest_api_allowed_public_metadata</code> filter, plus <code>_thumbnail_id</code> and keys starting with <code>geo_</code> or <code>_wpas_</code>, are returned to anyone who can read the post. Most keys starting with <code>_jetpack_</code>, and all keys starting with <code>_elasticsearch_</code>, are never returned.',
 		'meta'             => '(object) API result meta data',
 		'capabilities'     => '(object) List of post-specific permissions for the user; publish_post, edit_post, delete_post',
 		'revisions'        => '(array) List of post revision IDs. Only available for posts retrieved with context=edit.',
@@ -125,7 +125,8 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		}
 
 		$keys_to_render = array_keys( $this->post_object_format );
-		if ( isset( $this->api->query['fields'] ) ) {
+		// See WPCOM_JSON_API::filter_fields().
+		if ( isset( $this->api->query['fields'] ) && is_string( $this->api->query['fields'] ) ) {
 			$limit_to_fields = array_map( 'trim', explode( ',', $this->api->query['fields'] ) );
 			$keys_to_render  = array_intersect( $keys_to_render, $limit_to_fields );
 		}

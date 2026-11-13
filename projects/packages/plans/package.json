@@ -1,6 +1,5 @@
 {
 	"name": "@automattic/jetpack-plans",
-	"version": "0.15.0",
 	"private": true,
 	"description": "Fetch information about Jetpack Plans from wpcom",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/plans/#readme",

@@ -293,4 +293,13 @@ class Jetpack_Activity_Log_Test extends TestCase {
 		$this->assertIsString( $page_suffix );
 		$this->assertContains( Jetpack_Activity_Log::PAGE_SLUG, array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 ) );
 	}
+
+	public function test_initial_state_reaches_the_data_script() {
+		Jetpack_Activity_Log::enqueue_initial_state();
+
+		$before = implode( "\n", (array) wp_scripts()->get_data( Jetpack_Activity_Log::DATA_SCRIPT_HANDLE, 'before' ) );
+		wp_deregister_script( Jetpack_Activity_Log::DATA_SCRIPT_HANDLE );
+
+		$this->assertStringContainsString( 'var JPACTIVITYLOG_INITIAL_STATE=', $before );
+	}
 }

@@ -268,6 +268,7 @@ class Jetpack_Memberships {
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
+		add_filter( 'map_meta_cap', array( $this, 'map_plan_meta_cap' ), 10, 4 );
 		$this->setup_cpts();
 
 		if ( Jetpack::is_module_active( 'subscriptions' ) && Request::is_frontend() ) {
@@ -284,6 +285,46 @@ class Jetpack_Memberships {
 		}
 
 		Abstract_Token_Subscription_Service::clear_token_cookie();
+	}
+
+	/**
+	 * Require ownership before editing or deleting a plan or coupon.
+	 *
+	 * These post types register with `map_meta_cap => false`, so core maps `edit_post`/`delete_post`
+	 * to the flat `edit_posts`/`delete_posts` primitives with no author comparison, letting any
+	 * `edit_posts` role edit another author's plan (e.g. reprice an admin-owned tier). We can't flip
+	 * to `map_meta_cap => true` because code checks these types' meta caps without a post ID, which
+	 * trips core's 6.1 meta-cap `_doing_it_wrong` notice. Core rewrites the meta cap to its primitive
+	 * before this filter runs, so match the primitive and add the `_others_posts` cap for non-owners.
+	 *
+	 * @param string[] $caps    Primitive capabilities required of the user.
+	 * @param string   $cap     Capability being checked, already mapped to the post type's primitive.
+	 * @param int      $user_id User ID.
+	 * @param array    $args    Arguments; $args[0] is the post ID when checking a post capability.
+	 * @return string[]
+	 */
+	public function map_plan_meta_cap( $caps, $cap, $user_id, $args ) {
+		if ( empty( $args[0] ) ) {
+			return $caps;
+		}
+
+		$post = get_post( $args[0] );
+		if ( ! $post instanceof WP_Post || ! in_array( $post->post_type, array( self::$post_type_plan, self::$post_type_coupon ), true ) ) {
+			return $caps;
+		}
+
+		if ( (int) $post->post_author === (int) $user_id ) {
+			return $caps;
+		}
+
+		$post_type = get_post_type_object( $post->post_type );
+		if ( $cap === $post_type->cap->edit_post ) {
+			$caps[] = 'edit_others_posts';
+		} elseif ( $cap === $post_type->cap->delete_post ) {
+			$caps[] = 'delete_others_posts';
+		}
+
+		return $caps;
 	}
 
 	/**
@@ -773,8 +814,17 @@ class Jetpack_Memberships {
 			self::$user_can_view_post_cache      = array();
 			return;
 		}
-		unset( self::$user_is_paid_subscriber_cache[ $user_id ] );
-		unset( self::$user_can_view_post_cache[ $user_id ] );
+		$prefix = $user_id . '_';
+		foreach ( array_keys( self::$user_is_paid_subscriber_cache ) as $cache_key ) {
+			if ( str_starts_with( $cache_key, $prefix ) ) {
+				unset( self::$user_is_paid_subscriber_cache[ $cache_key ] );
+			}
+		}
+		foreach ( array_keys( self::$user_can_view_post_cache ) as $cache_key ) {
+			if ( str_starts_with( $cache_key, $prefix ) ) {
+				unset( self::$user_can_view_post_cache[ $cache_key ] );
+			}
+		}
 	}
 
 	/**
@@ -1099,24 +1149,63 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Transforms a number into it's short human-readable version.
+	 * Transforms a number into a human-readable join text string.
 	 *
-	 * @param int $subscribers_total The extrapolated excerpt string.
+	 * Supports short form (e.g. 45.8K), longer rounded format (e.g. 45,800), and raw count (e.g. 45,806)
+	 * via the `jetpack_memberships_subscriber_count_format` filter.
 	 *
-	 * @return string Human-readable version of the number. ie. 1.9 M.
+	 * @param int $subscribers_total Total number of subscribers.
+	 *
+	 * @return string Human-readable version of the number in context.
 	 */
 	public static function get_join_others_text( $subscribers_total ) {
-		if ( $subscribers_total >= 1000000 ) {
-			/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
-		}
-		if ( $subscribers_total >= 10000 ) {
-			/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
+		$subscribers_total = absint( $subscribers_total );
+
+		/**
+		 * Filter the format used for the subscriber count in the join others text.
+		 *
+		 * @since 16.4
+		 *
+		 * @param string $format            Subscriber count format: 'short', 'rounded', or 'raw'. Default 'short'.
+		 * @param int    $subscribers_total Total number of subscribers.
+		 */
+		$format = apply_filters( 'jetpack_memberships_subscriber_count_format', 'short', $subscribers_total );
+
+		switch ( strtolower( (string) $format ) ) {
+			case 'raw':
+				/* translators: %s: number of folks following the blog */
+				$text = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+				break;
+
+			case 'rounded':
+				if ( $subscribers_total >= 1000000 ) {
+					$rounded_total = (int) round( round( $subscribers_total / 1000000, 1 ) * 1000000 );
+				} elseif ( $subscribers_total >= 10000 ) {
+					$rounded_total = (int) round( round( $subscribers_total / 1000, 1 ) * 1000 );
+				} else {
+					$rounded_total = $subscribers_total;
+				}
+
+				/* translators: %s: number of folks following the blog */
+				$text = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $rounded_total, 'jetpack' ), number_format_i18n( $rounded_total ) );
+				break;
+
+			case 'short':
+			default:
+				if ( $subscribers_total >= 1000000 ) {
+					/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
+					$text = sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
+				} elseif ( $subscribers_total >= 10000 ) {
+					/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
+					$text = sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
+				} else {
+					/* translators: %s: number of folks following the blog */
+					$text = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+				}
+				break;
 		}
 
-		/* translators: %s: number of folks following the blog */
-		return sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+		return $text;
 	}
 
 	/**

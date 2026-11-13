@@ -8,11 +8,20 @@ import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
+import { FeaturesPointer } from 'components/pointer-card';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import {
+	isInSettingsPanel,
+	isSwitchedInFeatures as _isSwitchedInFeatures,
+} from 'lib/settings-consolidation';
 import { showMyJetpack } from 'state/initial-state';
 import { getModule } from 'state/modules';
-import { isModuleFound as _isModuleFound } from 'state/search';
+import { isModuleFound as _isModuleFound, getSearchTerm } from 'state/search';
+import { MarkdownMoved } from './markdown-moved';
+
+// Card order.
+const COMPOSING_MODULES = [ 'copy-post', 'markdown', 'latex', 'shortcodes', 'blocks' ];
 
 export class Composing extends Component {
 	/**
@@ -44,20 +53,23 @@ export class Composing extends Component {
 	};
 
 	render() {
-		const foundCopyPost = this.props.isModuleFound( 'copy-post' ),
-			foundLatex = this.props.isModuleFound( 'latex' ),
-			foundMarkdown = this.props.isModuleFound( 'markdown' ),
-			foundShortcodes = this.props.isModuleFound( 'shortcodes' ),
-			foundBlocks = this.props.isModuleFound( 'blocks' ),
-			foundMyJetpack = this.props.isMyJetpackReachable;
+		const { isMarkdownMoved, isModuleFound, isSwitchedInFeatures } = this.props,
+			isFound = module => ! isSwitchedInFeatures( module ) && isModuleFound( module ),
+			foundCopyPost = isFound( 'copy-post' ),
+			foundLatex = isFound( 'latex' ),
+			foundMarkdown = ! isMarkdownMoved && isFound( 'markdown' ),
+			pointsToMarkdown = isMarkdownMoved && !! this.props.searchTerm && isModuleFound( 'markdown' ),
+			foundShortcodes = isFound( 'shortcodes' ),
+			foundBlocks = isFound( 'blocks' ),
+			foundMyJetpack = this.props.isMyJetpackReachable,
+			foundCard = foundCopyPost || foundLatex || foundMarkdown || foundShortcodes || foundBlocks,
+			pointedModules = this.props.searchTerm
+				? COMPOSING_MODULES.filter(
+						module => isSwitchedInFeatures( module ) && isModuleFound( module )
+					)
+				: [];
 
-		if (
-			! foundCopyPost &&
-			! foundLatex &&
-			! foundMarkdown &&
-			! foundShortcodes &&
-			! foundBlocks
-		) {
+		if ( ! foundCard && ! pointedModules.length && ! pointsToMarkdown ) {
 			return null;
 		}
 
@@ -225,21 +237,38 @@ export class Composing extends Component {
 			);
 
 		return (
-			<SettingsCard
-				{ ...this.props }
-				header={ _x( 'Composing', 'Settings header', 'jetpack' ) }
-				module="composing"
-				saveDisabled={ this.props.isSavingAnyOption( 'ignored_phrases' ) }
-			>
-				{ foundCopyPost && copyPostSettings }
-				{ foundMarkdown && markdownSettings }
-				{ foundLatex && latexSettings }
-				{ foundShortcodes && shortcodeSettings }
-				{ foundBlocks && blocksSettings }
-				{ foundMyJetpack &&
-					! this.props.getOptionValue( 'jetpack_blocks_disabled' ) &&
-					aiAssistantLink }
-			</SettingsCard>
+			<>
+				{ foundCard && (
+					<SettingsCard
+						{ ...this.props }
+						header={ _x( 'Composing', 'Settings header', 'jetpack' ) }
+						module="composing"
+						saveDisabled={ this.props.isSavingAnyOption( 'ignored_phrases' ) }
+					>
+						{ foundCopyPost && copyPostSettings }
+						{ foundMarkdown && markdownSettings }
+						{ foundLatex && latexSettings }
+						{ foundShortcodes && shortcodeSettings }
+						{ foundBlocks && blocksSettings }
+						{ foundMyJetpack &&
+							! this.props.getOptionValue( 'jetpack_blocks_disabled' ) &&
+							aiAssistantLink }
+					</SettingsCard>
+				) }
+				{ pointedModules.map( module => {
+					const { name } = this.props.module( module );
+					return (
+						<FeaturesPointer
+							key={ module }
+							header={ name }
+							name={ name }
+							search={ name }
+							linksToSettings={ false }
+						/>
+					);
+				} ) }
+				{ pointsToMarkdown && <MarkdownMoved getModule={ this.props.module } /> }
+			</>
 		);
 	}
 }
@@ -248,6 +277,9 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		isSwitchedInFeatures: module_name => _isSwitchedInFeatures( state, module_name ),
+		isMarkdownMoved: isInSettingsPanel( state ),
 		isMyJetpackReachable: showMyJetpack( state ),
+		searchTerm: getSearchTerm( state ),
 	};
 } )( withModuleSettingsFormHelpers( Composing ) );

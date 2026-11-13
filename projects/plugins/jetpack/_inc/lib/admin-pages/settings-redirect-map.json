@@ -1,0 +1,477 @@
+{
+	"description": "Where each Jetpack Settings hash route and ?term= search goes once the Settings screen retires. Nothing reads it yet: the redirect document that page=jetpack-settings and the page=jetpack forwarder (Jetpack_React_Page) will print resolves these rules in PHP, since the server never sees the hash. It applies only while Initializer::is_settings_consolidation_enabled() is true. The Network Admin jetpack-settings page is out of scope. It is production-excluded in .gitattributes; the PR that first reads it must remove that exclusion.",
+	"matching": "`everySource` runs before any route or term rule. A term matches its decoded value, case-insensitively, before its route; an unmatched term falls back to its route. On page=jetpack-settings, an empty hash (the bare menu link) or an unknown route gets the /settings rules, as main.jsx does. On page=jetpack, an unknown route never reaches these rules: the forwarder (Jetpack_React_Page::get_legacy_route_redirects()) sends it to My Jetpack for admins and to Settings for everyone else, as it does today, so #/my-plan, #/dashboard and #/stats keep landing on My Jetpack. In each list, the first rule whose `when` all hold wins, and a rule without `when` is the default. A rule with `pending` keeps the source on Settings until each marker clears: `D<n>` is an open decision, `JETPACK-<n>` an issue that must land, `flag:<name>` a feature flag that must retire, `error-notice-home` a new home for the Jetpack::state( 'error' ) notice, which only Settings shows today, and `monetize-page` a Monetize page that shows the Ads settings (its flag on and the `monetize` module active), without which the Ads settings stay on Settings. A `destination` next to `pending` is where the source goes once it clears. A settings panel destination (`configure=`) waits on the issue that gives the panel that module's settings, since until then the panel's fallback links back here through configure_url. Destinations are relative to wp-admin. My Jetpack `#/` links work on every My Jetpack version, since its router rewrites them to `?p=`.",
+	"decisions": {
+		"D7": "Where Google Analytics settings go on Atomic sites where the settings panel does not offer them (googleAnalyticsPanel is false).",
+		"D9": "Where users who cannot manage modules find Post by Email, Publicize and their own account connection, since Features needs manage_options.",
+		"D10": "What happens to the legacy SEO block on self-hosted sites that have not opted in to the SEO page.",
+		"D11": "Where the per-user usage tracking (Privacy) setting lives."
+	},
+	"conditions": {
+		"partnerCoupon": "Jetpack_React_Page::get_partner_coupon_redirect() returns a URL; that screen takes every route.",
+		"error": "Jetpack::state( 'error' ) is set. Settings is the only screen that shows it, so Jetpack_React_Page::should_redirect_legacy_routes() keeps the user there.",
+		"canManageModules": "The user has jetpack_manage_modules. Users without it reach Settings only for Publicize and Post by Email.",
+		"capability": "The user has this capability.",
+		"host": "\"atomic\" for a WoA site.",
+		"moduleActive": "This Jetpack module is active.",
+		"socialPage": "Publicize registered admin.php?page=jetpack-social for this user (siteData.hasSocialPage), which its host, connection and jetpack_publicize_should_load filter decide.",
+		"adsSettingsHome": "Jetpack_Ads_Settings_Home::is_moved_off_settings(): settings consolidation is on and the Monetize page shows the Ads settings.",
+		"seoSurfaceVisible": "Automattic\\Jetpack\\SEO\\Initializer::is_seo_surface_visible().",
+		"odysseyStats": "Stats_Options::get_option( 'enable_odyssey_stats' ).",
+		"googleAnalyticsPanel": "Automattic\\Jetpack\\My_Jetpack\\Google_Analytics_Settings::is_available()."
+	},
+	"everySource": [
+		{
+			"when": { "partnerCoupon": true },
+			"destinationFrom": "Jetpack_React_Page::get_partner_coupon_redirect()"
+		},
+		{ "when": { "error": true }, "pending": [ "error-notice-home" ] }
+	],
+	"moduleTerms": "Every module slug below is also linked by Jetpack::module_configuration_url(), the Configure link in Features and the classic Modules list, unless the module filters that URL.",
+	"protectTerms": "The waf, protect, account-protection, sso and monitor destinations copy Automattic\\Jetpack\\Protect\\Dashboard::get_module_settings_urls(); call it rather than hard-coding them.",
+	"routes": [
+		{
+			"source": "/settings",
+			"rules": [
+				{
+					"when": {
+						"canManageModules": false,
+						"moduleActive": "publicize",
+						"capability": "publish_posts"
+					},
+					"destination": "admin.php?page=jetpack-social"
+				},
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{
+					"when": { "moduleActive": "protect-dashboard" },
+					"destination": "admin.php?page=my-jetpack#/features"
+				},
+				{ "pending": [ "JETPACK-3035" ], "destination": "admin.php?page=my-jetpack#/features" }
+			],
+			"note": "Without the Protect page, /settings shows admins the Security tab, so it waits on /security.",
+			"linkedFrom": [
+				"plugins/jetpack Jetpack_Settings_React_Page::get_page_hook(): the Jetpack > Settings menu item, with no hash",
+				"plugins/jetpack Jetpack::plugin_action_links(): the Plugins screen's Settings link",
+				"plugins/jetpack Jetpack_Admin_Page::wrap_ui(): the header's Settings button",
+				"plugins/jetpack _inc/client masthead: the logo",
+				"packages/jetpack-mu-wpcom wpcom-admin-menu.php: hides and orders the Settings submenu item by this URL",
+				"packages/my-jetpack use-protect-tooltip-copy.ts: login and firewall settings without the Protect page; wants /security",
+				"packages/publicize Keyring_Helper: the 'Jetpack is not connected' message; wants /setup"
+			],
+			"outsideRepo": [
+				"wpcom: Jetpack onboarding emails, 'Configure Jetpack' button",
+				"wpcom: a one-off plugin's Settings link",
+				"Calypso apps/odyssey-stats get-explore-more-url.ts: an admin menu selector, not a link"
+			]
+		},
+		{
+			"source": "/security",
+			"rules": [
+				{
+					"when": { "moduleActive": "protect-dashboard" },
+					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings",
+					"alreadyRedirects": true
+				},
+				{ "pending": [ "JETPACK-3035" ] }
+			],
+			"outsideRepo": [ "wpcom: Jetpack onboarding emails", "wpcom: help search key" ]
+		},
+		{
+			"source": "/performance",
+			"rules": [
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{
+					"destination": "admin.php?page=my-jetpack#/features?search=cdn",
+					"alreadyRedirects": true
+				}
+			],
+			"linkedFrom": [
+				"packages/search src/instant-search/README.md: setup docs; wants admin.php?page=jetpack-search#/settings"
+			],
+			"outsideRepo": [
+				"wpcom: Jetpack Redirect jitm-asset_cdn",
+				"Calypso get-jetpack-search-dashboard-url.js and my-sites/jetpack-search/main.tsx: the Search dashboard; want admin.php?page=jetpack-search",
+				"wpcom: help search key"
+			]
+		},
+		{
+			"source": "/writing",
+			"rules": [
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{ "destination": "admin.php?page=my-jetpack#/features", "alreadyRedirects": true }
+			],
+			"linkedFrom": [
+				"plugins/jetpack Unavailable_Blocks::get_editor_data(): fixUrl for blocks the Blocks module turned off; wants admin.php?page=my-jetpack#/features?search=blocks",
+				"plugins/wpcomsh feature-moved-to-jetpack-notices.php: the notice on Settings > Writing"
+			]
+		},
+		{
+			"source": "/sharing",
+			"rules": [
+				{
+					"when": {
+						"canManageModules": false,
+						"moduleActive": "publicize",
+						"capability": "publish_posts"
+					},
+					"destination": "admin.php?page=jetpack-social"
+				},
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{
+					"when": { "socialPage": true },
+					"destination": "admin.php?page=jetpack-social",
+					"alreadyRedirects": true
+				},
+				{
+					"destination": "admin.php?page=my-jetpack#/features?search=sharing",
+					"alreadyRedirects": true
+				}
+			],
+			"linkedFrom": [
+				"packages/publicize Publicize_Base::publicize_connections_url() without the Social plugin: the classic and block editor Social links; wants admin.php?page=jetpack-social"
+			],
+			"outsideRepo": [ "wpcom: Jetpack onboarding emails", "wpcom: help search key" ]
+		},
+		{
+			"source": "/discussion",
+			"rules": [
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{
+					"destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments",
+					"alreadyRedirects": true
+				}
+			],
+			"outsideRepo": [ "wpcom: help search key" ]
+		},
+		{
+			"source": "/earn",
+			"rules": [
+				{
+					"when": { "adsSettingsHome": true },
+					"destinationFrom": "Jetpack_Ads_Settings_Home::get_url()",
+					"alreadyRedirects": true
+				},
+				{ "pending": [ "monetize-page" ] }
+			],
+			"outsideRepo": [ "wpcom: help search key" ]
+		},
+		{
+			"source": "/reader",
+			"rules": [
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{
+					"destination": "admin.php?page=my-jetpack#/features?search=reader",
+					"alreadyRedirects": true
+				}
+			],
+			"linkedFrom": []
+		},
+		{
+			"source": "/traffic",
+			"rules": [
+				{ "when": { "host": "atomic", "googleAnalyticsPanel": false }, "pending": [ "D7" ] },
+				{ "when": { "seoSurfaceVisible": false }, "pending": [ "D10" ] },
+				{ "destination": "admin.php?page=my-jetpack#/features" }
+			],
+			"linkedFrom": [
+				"plugins/jetpack Jetpack_AI_Page: the SEO settings link while the SEO page is off",
+				"plugins/jetpack _inc/client related-posts.jsx: the Customizer's return URL",
+				"plugins/jetpack _inc/client settings-card: the SEO upgrade's redirect_to",
+				"packages/my-jetpack Related_Posts::get_manage_url(), with ?term=related%20posts, with the flag off"
+			],
+			"outsideRepo": [
+				"wpcom: Jetpack onboarding emails",
+				"wpcom: help search key",
+				"Calypso apps/blaze-dashboard blaze-disabled.jsx: Blaze setup; wants admin.php?page=my-jetpack#/features?search=blaze"
+			]
+		},
+		{ "source": "/privacy", "rules": [ { "pending": [ "D11" ] } ], "linkedFrom": [] },
+		{
+			"source": "/newsletter",
+			"rules": [ { "destination": "admin.php?page=jetpack-newsletter", "alreadyRedirects": true } ],
+			"outsideRepo": [ "wpcom: help search key" ]
+		},
+		{
+			"source": "/plans",
+			"rules": [ { "redirectSource": "jetpack-plans", "alreadyRedirects": true } ],
+			"linkedFrom": []
+		},
+		{
+			"source": "/plans-prompt",
+			"rules": [ { "redirectSource": "jetpack-plans", "alreadyRedirects": true } ],
+			"linkedFrom": []
+		},
+		{
+			"source": "/setup",
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/connection" } ],
+			"linkedFrom": []
+		},
+		{
+			"source": "/connect-user",
+			"rules": [
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{ "destination": "admin.php?page=my-jetpack#/connection?skip_pricing=true" }
+			],
+			"linkedFrom": [
+				"plugins/jetpack Jetpack_AI_Page: userConnectionUrl without My Jetpack",
+				"plugins/jetpack Jetpack_Instagram_Widget::form(): the connect-your-account link"
+			]
+		},
+		{
+			"source": "/connect-user-setup",
+			"rules": [
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{ "destination": "admin.php?page=my-jetpack#/connection?skip_pricing=true" }
+			],
+			"linkedFrom": []
+		}
+	],
+	"terms": [
+		{
+			"source": "videopress",
+			"rules": [
+				{
+					"when": { "moduleActive": "videopress" },
+					"destination": "admin.php?page=jetpack-videopress"
+				},
+				{ "destination": "admin.php?page=my-jetpack#/features?search=videopress" }
+			],
+			"linkedFrom": [
+				"packages/videopress Block_Editor_Extensions: the Activate VideoPress button, with the flag off",
+				"packages/my-jetpack Videopress::get_manage_url() without the VideoPress admin UI"
+			]
+		},
+		{
+			"source": "creator",
+			"rules": [ { "destination": "admin.php?page=jetpack-newsletter" } ],
+			"linkedFrom": [ "packages/my-jetpack Creator::get_manage_url()" ]
+		},
+		{
+			"source": "site accelerator",
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/features?search=cdn" } ],
+			"linkedFrom": [ "packages/my-jetpack Site_Accelerator::get_manage_url(), with the flag off" ]
+		},
+		{
+			"source": "related posts",
+			"rules": [
+				{ "destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Drelated-posts" }
+			],
+			"note": "Automattic\\Jetpack\\My_Jetpack\\Initializer::resolve_settings_url( 'related-posts', $fallback ) returns this; call it so the panel URL has one owner.",
+			"linkedFrom": [
+				"packages/my-jetpack Related_Posts::get_manage_url(), on /traffic, with the flag off"
+			]
+		},
+		{
+			"source": "related-posts",
+			"rules": [
+				{ "destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Drelated-posts" }
+			]
+		},
+		{
+			"source": "google analytics",
+			"rules": [
+				{
+					"when": { "googleAnalyticsPanel": true },
+					"destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dgoogle-analytics"
+				},
+				{ "when": { "host": "atomic" }, "pending": [ "D7" ] },
+				{ "destination": "admin.php?page=my-jetpack#/features" }
+			],
+			"note": "Only Atomic shows the Google Analytics card on /traffic. Google_Analytics_Settings::SLUG is the panel slug."
+		},
+		{
+			"source": "google-analytics",
+			"rules": [
+				{
+					"when": { "googleAnalyticsPanel": true },
+					"destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dgoogle-analytics"
+				},
+				{ "when": { "host": "atomic" }, "pending": [ "D7" ] },
+				{ "destination": "admin.php?page=my-jetpack#/features" }
+			]
+		},
+		{
+			"source": "jetpack stats",
+			"rules": [
+				{
+					"when": { "odysseyStats": false },
+					"pending": [ "flag:jetpack-stats-classic-page-retired" ]
+				},
+				{ "destination": "admin.php?page=stats#!/stats/settings" }
+			],
+			"note": "Matches only in English: the classic Stats page builds this term from the translated module name. Switch that link to term=stats before retiring Settings, rather than relying on this entry.",
+			"linkedFrom": [ "plugins/jetpack modules/stats.php: the classic Stats page's Configure link" ]
+		},
+		{
+			"source": "stats",
+			"rules": [
+				{
+					"when": { "odysseyStats": false },
+					"pending": [ "flag:jetpack-stats-classic-page-retired" ]
+				},
+				{ "destination": "admin.php?page=stats#!/stats/settings" }
+			],
+			"linkedFrom": [ "plugins/jetpack stats_admin_path()" ]
+		},
+		{
+			"source": "carousel",
+			"rules": [
+				{ "destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcarousel" }
+			]
+		},
+		{
+			"source": "infinite-scroll",
+			"rules": [
+				{ "destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dinfinite-scroll" }
+			]
+		},
+		{
+			"source": "post-by-email",
+			"rules": [
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{ "destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dpost-by-email" }
+			]
+		},
+		{
+			"source": "comments",
+			"rules": [
+				{ "destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments" }
+			]
+		},
+		{
+			"source": "markdown",
+			"rules": [
+				{ "destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dmarkdown" }
+			]
+		},
+		{
+			"source": "gravatar-hovercards",
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/features?search=gravatar" } ]
+		},
+		{
+			"source": "comment-likes",
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/features?search=comment%20likes" } ]
+		},
+		{
+			"source": "custom-content-types",
+			"rules": [ { "destination": "options-writing.php#cpt-options" } ]
+		},
+		{
+			"source": "sharedaddy",
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/features?search=sharing" } ]
+		},
+		{
+			"source": "likes",
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/features?search=likes" } ]
+		},
+		{
+			"source": "tiled-gallery",
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/features?search=tiled" } ]
+		},
+		{
+			"source": "wordads",
+			"rules": [
+				{
+					"when": { "adsSettingsHome": true },
+					"destinationFrom": "Jetpack_Ads_Settings_Home::get_url()"
+				},
+				{ "pending": [ "monetize-page" ] }
+			]
+		},
+		{
+			"source": "publicize",
+			"rules": [
+				{
+					"when": {
+						"canManageModules": false,
+						"moduleActive": "publicize",
+						"capability": "publish_posts"
+					},
+					"destination": "admin.php?page=jetpack-social"
+				},
+				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{ "destination": "admin.php?page=jetpack-social" }
+			]
+		},
+		{
+			"source": "search",
+			"rules": [ { "destination": "admin.php?page=jetpack-search#/settings" } ]
+		},
+		{
+			"source": "widgets",
+			"rules": [ { "destination": "admin.php?page=my-jetpack#/features?search=widgets" } ],
+			"linkedFrom": []
+		},
+		{
+			"source": "seo-tools",
+			"rules": [
+				{ "when": { "seoSurfaceVisible": false }, "pending": [ "D10" ] },
+				{ "destination": "admin.php?page=jetpack-seo" }
+			]
+		},
+		{
+			"source": "verification-tools",
+			"rules": [
+				{ "when": { "seoSurfaceVisible": false }, "pending": [ "D10" ] },
+				{ "destination": "admin.php?page=jetpack-seo" }
+			]
+		},
+		{
+			"source": "waf",
+			"rules": [
+				{
+					"when": { "moduleActive": "protect-dashboard" },
+					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3Dfirewall"
+				},
+				{ "pending": [ "JETPACK-3035" ] }
+			]
+		},
+		{
+			"source": "protect",
+			"rules": [
+				{
+					"when": { "moduleActive": "protect-dashboard" },
+					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3DloginProtection"
+				},
+				{ "pending": [ "JETPACK-3035" ] }
+			],
+			"outsideRepo": [ "wpcom: Jetpack report emails, 'Start blocking attacks' button" ]
+		},
+		{
+			"source": "account-protection",
+			"rules": [
+				{
+					"when": { "moduleActive": "protect-dashboard" },
+					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3DloginProtection"
+				},
+				{ "pending": [ "JETPACK-3035" ] }
+			]
+		},
+		{
+			"source": "sso",
+			"rules": [
+				{
+					"when": { "moduleActive": "protect-dashboard" },
+					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3DloginProtection"
+				},
+				{ "pending": [ "JETPACK-3035" ] }
+			]
+		},
+		{
+			"source": "monitor",
+			"rules": [
+				{
+					"when": { "moduleActive": "protect-dashboard" },
+					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3Dmonitor"
+				},
+				{ "pending": [ "JETPACK-3035" ] }
+			],
+			"outsideRepo": [ "wpcom: Jetpack report emails, 'Enable Monitor' button" ]
+		}
+	],
+	"retirementNotes": [
+		"packages/jitm jetpack-jitm.js rewrites the jetpack_page_jetpack-settings: message path to toplevel_page_jetpack plus the hash, so JITM rules keyed on Settings routes stop matching once the page goes.",
+		"Jetpack_React_Page::add_page_actions() redirects page=jetpack/<section> slugs server-side to page=jetpack#/<section>; that redirect can map them to their destinations directly.",
+		"packages/publicize Publicize_Utils::is_jetpack_settings_page() loads Social's assets on the jetpack_page_jetpack-settings screen."
+	]
+}

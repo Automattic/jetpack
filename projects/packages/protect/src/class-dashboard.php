@@ -8,8 +8,16 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
@@ -27,7 +35,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.6.0';
 
 	/**
 	 * Sidebar menu slug, shared with the Jetpack Protect plugin so the page address never changes.
@@ -52,9 +60,19 @@ class Dashboard {
 	const RENDER_FUNCTION = 'jetpack_protect_jetpack_protect_dashboard_wp_admin_render_page';
 
 	/**
+	 * Carries what render() prints in the page body when the dashboard loads as an admin shell guest.
+	 */
+	const GUEST_DATA_HANDLE = 'jetpack-protect-dashboard-data';
+
+	/**
+	 * Sets the flag the page's Tracks client records under.
+	 */
+	const TRACKS_STATE_SCRIPT = 'window.jetpackProtectTracks = true;';
+
+	/**
 	 * The settings section that owns each Jetpack security module, for links from other screens.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @var array<string, string>
 	 */
@@ -108,7 +126,13 @@ class Dashboard {
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
 		Threat_Count::init();
+		Settings::init();
+		add_action( 'add_option_' . Scan_Status::OPTION_NAME, array( Dashboard_Threats::class, 'prune_on_stored_scan' ), 10, 2 );
+		add_action( 'update_option_' . Scan_Status::OPTION_NAME, array( Dashboard_Threats::class, 'prune_on_stored_scan' ), 10, 2 );
 
 		foreach ( array_keys( self::MODULE_SECTIONS ) as $module ) {
 			add_filter( self::CONFIGURATION_URL_FILTER . $module, array( __CLASS__, 'filter_module_configuration_url' ) );
@@ -176,7 +200,7 @@ class Dashboard {
 		$key = $section->get_key();
 		if ( isset( self::$sections[ $key ] ) ) {
 			/* translators: %s is a dashboard section key. */
-			$message = sprintf( __( 'A Protect dashboard section with the key "%s" is already registered.', 'jetpack-protect-pkg' ), $key );
+			$message = sprintf( __( 'A Protect page section with the key "%s" is already registered.', 'jetpack-protect-pkg' ), $key );
 			_doing_it_wrong( __METHOD__, esc_html( $message ), '0.1.0' );
 			return;
 		}
@@ -213,8 +237,17 @@ class Dashboard {
 	 * @return void
 	 */
 	public static function print_initial_state() {
+		wp_print_inline_script_tag( self::get_initial_state_script() );
+	}
+
+	/**
+	 * The script that sets `window.jetpackProtectDashboard`.
+	 *
+	 * @return string
+	 */
+	private static function get_initial_state_script() {
 		$state = wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		wp_print_inline_script_tag( 'window.jetpackProtectDashboard = ' . ( false === $state ? '{}' : $state ) . ';' );
+		return 'window.jetpackProtectDashboard = ' . ( false === $state ? '{}' : $state ) . ';';
 	}
 
 	/**
@@ -229,7 +262,7 @@ class Dashboard {
 	/**
 	 * The Settings tab's URL, scrolled to a section's card.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param string $section Section key, such as `firewall`; empty for the top of the tab.
 	 * @return string
@@ -246,7 +279,7 @@ class Dashboard {
 	/**
 	 * Each security module's card on the Settings tab, for screens that link here instead of offering the setting.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @return array<string, string> Settings URLs keyed by module slug.
 	 */
@@ -257,7 +290,7 @@ class Dashboard {
 	/**
 	 * Point a security module's Configure link at its card on the Settings tab.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param string $url The URL Jetpack would use.
 	 * @return string
@@ -276,6 +309,29 @@ class Dashboard {
 	 */
 	public static function has_scan_plan() {
 		return Plan::has_required_plan();
+	}
+
+	/**
+	 * Where a site without Scan can buy it.
+	 *
+	 * @return string
+	 */
+	public static function get_scan_upgrade_url() {
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-scan',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
+			),
+			'protect-dashboard',
+			false
+		);
+
+		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
+
+		return $url ? $url : admin_url( 'admin.php?page=my-jetpack#/add-scan' );
 	}
 
 	/**
@@ -306,6 +362,111 @@ class Dashboard {
 		}
 
 		self::load_wp_build( dirname( __DIR__ ) . '/build/build.php' );
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_tracks_identity' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+	}
+
+	/**
+	 * Register Protect with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ( new Host() )->is_wpcom_simple() || ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			return $members;
+		}
+
+		$members[ self::MENU_SLUG ] = array(
+			'build_prefix' => 'jetpack_protect',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-protect/init' ),
+			// "Protect" is a product name and is not translated.
+			'title'        => 'Protect',
+			'header'       => array(
+				'title'    => 'Protect',
+				'subtitle' => '',
+			),
+			'capability'   => 'manage_options',
+			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Protect routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		if ( ! self::load_wp_build( dirname( __DIR__ ) . '/build/build.php', false ) ) {
+			return;
+		}
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_tracks_identity' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
+	}
+
+	/**
+	 * Attach what render() prints in the page body to a script, since the guest endpoint prints no body.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_guest_initial_state() {
+		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), self::PACKAGE_VERSION, true );
+		wp_enqueue_script( self::GUEST_DATA_HANDLE );
+		wp_add_inline_script( self::GUEST_DATA_HANDLE, self::get_initial_state_script(), 'before' );
+		if ( self::can_use_analytics() ) {
+			wp_add_inline_script( self::GUEST_DATA_HANDLE, self::TRACKS_STATE_SCRIPT, 'before' );
+		}
+	}
+
+	/**
+	 * Load the Tracks script that sends queued events; other packages only load it for some plans.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tracks_transport() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		if ( ! self::can_use_analytics() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
+
+	/**
+	 * Add the connected WordPress.com user to the script data, for Tracks, unless another package already did.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function add_tracks_identity( $data ) {
+		if ( ! empty( $data['user']['current_user']['wpcom']['ID'] ) ) {
+			return $data;
+		}
+		$connected = ( new Connection_Manager() )->get_connected_user_data();
+		if ( empty( $connected['ID'] ) || empty( $connected['login'] ) ) {
+			return $data;
+		}
+		$data['user']['current_user']['wpcom'] = array_merge(
+			$data['user']['current_user']['wpcom'] ?? array(),
+			array(
+				'ID'    => $connected['ID'],
+				'login' => $connected['login'],
+			)
+		);
+		return $data;
 	}
 
 	/**
@@ -314,8 +475,7 @@ class Dashboard {
 	 * @return bool
 	 */
 	public static function is_dashboard_request() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
-		return isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+		return Protect_Status::is_protect_page();
 	}
 
 	/**
@@ -337,7 +497,7 @@ class Dashboard {
 	 *
 	 * The wp-build router reads search params only from inside `p`, so links name the ids at the top level instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param array $query The request's query args.
 	 * @return string|null The URL, or null when the request needs no redirect.
@@ -363,10 +523,13 @@ class Dashboard {
 	/**
 	 * Load a wp-build index and, if it can render the page, its scripts and polyfills.
 	 *
+	 * @since $$next-version$$ Added the `$alias` parameter.
+	 *
 	 * @param string $build_index Path to the generated build.php.
+	 * @param bool   $alias       Whether to alias the screen ID. Pass false to ready the routes on another page, which must not boot it.
 	 * @return bool Whether the build can render the page.
 	 */
-	public static function load_wp_build( $build_index ) {
+	public static function load_wp_build( $build_index, $alias = true ) {
 		if ( ! file_exists( $build_index ) ) {
 			return false;
 		}
@@ -375,14 +538,16 @@ class Dashboard {
 			require_once $build_index;
 		};
 
-		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
-		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+		if ( ! $alias ) {
+			$load_wp_build();
+		} elseif ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
 			WP_Build_Screen_Id::load_with_alias(
 				array( __CLASS__, 'alias_screen_id' ),
 				array( __CLASS__, 'restore_screen_id' ),
 				$load_wp_build
 			);
 		} else {
+			// An older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
 			$load_wp_build();
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
@@ -451,6 +616,32 @@ class Dashboard {
 	}
 
 	/**
+	 * Whether the site and user allow Tracks, as on Jetpack's other admin pages.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @return bool
+	 */
+	public static function can_use_analytics() {
+		$tracking = new Tracking( 'jetpack', new Connection_Manager( 'jetpack' ) );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
+	}
+
+	/**
+	 * Print the flag the page's Tracks client records under, only when Tracks is allowed.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @return void
+	 */
+	public static function print_tracks_state() {
+		if ( self::can_use_analytics() ) {
+			wp_print_inline_script_tag( self::TRACKS_STATE_SCRIPT );
+		}
+	}
+
+	/**
 	 * Add the "Protect" item to the Jetpack sidebar, in place of the Jetpack Protect plugin's.
 	 *
 	 * @return void
@@ -487,6 +678,7 @@ class Dashboard {
 		$render_fn = self::RENDER_FUNCTION;
 		if ( function_exists( $render_fn ) ) {
 			self::print_initial_state();
+			self::print_tracks_state();
 			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Checked with function_exists(); defined in the generated build/, which Phan excludes.
 			$render_fn();
 			return;
@@ -494,7 +686,7 @@ class Dashboard {
 
 		printf(
 			'<div class="wrap"><h1>Protect</h1><div class="notice notice-error"><p>%s</p></div></div>',
-			esc_html__( 'The Protect dashboard could not be loaded because its assets are missing.', 'jetpack-protect-pkg' )
+			esc_html__( 'The Protect page could not be loaded because its assets are missing.', 'jetpack-protect-pkg' )
 		);
 	}
 }

@@ -22,6 +22,7 @@ import {
 	createRoot,
 	useCallback,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useReducer,
 	useRef,
@@ -77,19 +78,24 @@ class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 }
 
 // A draft from the editor is block markup; anything else is plain text for one paragraph.
-const toBlocks = ( content: string, placeholder: string ) =>
-	content.includes( '<!-- wp:' )
-		? parse( content )
-		: [
-				createBlock( 'core/paragraph', {
-					placeholder,
-					content: content
-						.trim()
-						.replace( /&/g, '&amp;' )
-						.replace( /</g, '&lt;' )
-						.replace( /\n/g, '<br>' ),
-				} ),
-			];
+// Markup can parse to nothing, as when its only block is no longer registered, and that gets
+// an empty paragraph: the editor reports itself ready only once it has a block to draw.
+const toBlocks = ( content: string ) => {
+	const parsed = content.includes( '<!-- wp:' ) ? parse( content ) : null;
+	if ( parsed ) {
+		return parsed.length ? parsed : [ createBlock( 'core/paragraph' ) ];
+	}
+
+	return [
+		createBlock( 'core/paragraph', {
+			content: content
+				.trim()
+				.replace( /&/g, '&amp;' )
+				.replace( /</g, '&lt;' )
+				.replace( /\n/g, '<br>' ),
+		} ),
+	];
+};
 
 // The reader reached into the textarea to get here, so the caret goes where they put it.
 const FocusOnMount = ( { offset }: { offset: () => number } ) => {
@@ -109,6 +115,19 @@ const FocusOnMount = ( { offset }: { offset: () => number } ) => {
 			}
 		}
 	}, [ last, offset, selectBlock, selectionChange ] );
+
+	return null;
+};
+
+// Before paint, once the provider has handed its blocks to the store and they are drawn.
+const ReadyWhenDrawn = ( { onReady }: { onReady: () => void } ) => {
+	const drawn = useSelect( select => select( blockEditorStore ).getBlockCount() > 0, [] );
+
+	useLayoutEffect( () => {
+		if ( drawn ) {
+			onReady();
+		}
+	}, [ drawn, onReady ] );
 
 	return null;
 };
@@ -136,11 +155,11 @@ const Editor = ( {
 	initialContent,
 	labels,
 	focus,
-	placeholder,
 	onChange,
-}: Omit< EditorProps, 'onError' > ) => {
+	onReady,
+}: Omit< EditorProps, 'onError' | 'placeholder' > ) => {
 	const [ { present }, dispatch ] = useReducer( history, null, () => {
-		const blocks = toBlocks( initialContent, placeholder );
+		const blocks = toBlocks( initialContent );
 
 		return {
 			past: [],
@@ -212,6 +231,7 @@ const Editor = ( {
 				settings={ editorSettings }
 				useSubRegistry
 			>
+				{ onReady && <ReadyWhenDrawn onReady={ onReady } /> }
 				{ focus && <FocusOnMount offset={ offset } /> }
 				<WritingArea undo={ undo } redo={ redo }>
 					<div className="jetpack-comments__toolbar">
@@ -237,13 +257,24 @@ const Editor = ( {
  *
  * @param container - Where the editor renders.
  * @param props     - Editor props.
+ * @return A function that unmounts the editor, for a host whose form comes and goes.
  */
 export const mountEditor = ( container: HTMLElement, props: EditorProps ) => {
-	registerEmbedBlock( props.labels, props.previewEmbeds ?? true );
+	registerEmbedBlock( props.labels, props.previewEmbeds ?? true, props.fetchEmbed );
 	registerImageBlock( props.labels, props.previewEmbeds ?? true );
-	createRoot( container ).render(
+	// For the stylesheet rather than a block attribute, which a split copies and the draft keeps.
+	if ( props.placeholder ) {
+		container.style.setProperty(
+			'--jetpack-comments-placeholder',
+			JSON.stringify( props.placeholder )
+		);
+	}
+	const root = createRoot( container );
+	root.render(
 		<Boundary onError={ props.onError }>
 			<Editor { ...props } />
 		</Boundary>
 	);
+
+	return () => root.unmount();
 };

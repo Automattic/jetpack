@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Connection: Keep the progress indicator on screen after clicking Restore Connection until the redirect to WordPress.com.

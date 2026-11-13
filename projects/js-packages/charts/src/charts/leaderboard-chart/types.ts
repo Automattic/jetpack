@@ -31,6 +31,12 @@ export interface LeaderboardChartProps extends Pick<
 	withOverlayLabel?: boolean;
 
 	/**
+	 * How a negative value draws: `diverge` puts every row on a shared zero point, `clamp` draws it as an empty bar.
+	 * @default 'diverge'
+	 */
+	negativeBars?: 'diverge' | 'clamp';
+
+	/**
 	 * Primary color for current period bars
 	 */
 	primaryColor?: string;
@@ -70,6 +76,7 @@ export interface LeaderboardChartProps extends Pick<
 	 */
 	style?: React.CSSProperties & {
 		'--a8c-charts-border-radius-leaderboard-bar'?: string;
+		'--a8c-charts-font-weight-leaderboard'?: string;
 	};
 
 	/**

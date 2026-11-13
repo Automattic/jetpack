@@ -12,6 +12,7 @@ import {
 	createRouter,
 	RouterProvider,
 } from '@tanstack/react-router';
+import { useHostLinkSearch } from '@jetpack-premium-analytics/widgets-toolkit';
 import { createContext, useContext } from 'react';
 import type { Decorator } from '@storybook/react';
 import type { ReactNode } from 'react';
@@ -37,12 +38,12 @@ const reportRoute = createRoute( {
 	getParentRoute: () => rootRoute,
 	path: '/reports/$report',
 } );
-const postDetailRoute = createRoute( {
+const singleReportRoute = createRoute( {
 	getParentRoute: () => rootRoute,
-	path: '/post/$postId',
+	path: '/report/$kind/$id',
 } );
 const storyRouter = createRouter( {
-	routeTree: rootRoute.addChildren( [ dashboardRoute, reportRoute, postDetailRoute ] ),
+	routeTree: rootRoute.addChildren( [ dashboardRoute, reportRoute, singleReportRoute ] ),
 	history: createMemoryHistory( { initialEntries: [ '/' ] } ),
 	// TanStack's options type requires strictNullChecks, which this package does not enable.
 } as never );
@@ -52,14 +53,14 @@ const STORY_DOCUMENT_URL = `https://example.com/wp-admin/admin.php?page=${ DASHB
 
 /**
  * Provides the router context that widget links need in Storybook. The report
- * and post-detail routes let `ReportLink` and `PostTitleLink` build the same
- * real href shapes as the app, and the widget host mounts the router link for
- * an action href that targets one of them.
+ * and single-report routes let the detail links build the same real href shapes
+ * as the app, and the widget host mounts the router link for an action href
+ * that targets one of them.
  */
 export function StoryRouterProvider( { children }: { children: ReactNode } ) {
 	return (
 		<storyChildren.Provider value={ children }>
-			<DashboardWidgetHostProvider base={ STORY_DOCUMENT_URL }>
+			<DashboardWidgetHostProvider base={ STORY_DOCUMENT_URL } useLinkSearch={ useHostLinkSearch }>
 				<RouterProvider router={ storyRouter } />
 			</DashboardWidgetHostProvider>
 		</storyChildren.Provider>

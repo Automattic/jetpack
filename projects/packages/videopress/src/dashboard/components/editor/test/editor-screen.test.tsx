@@ -448,7 +448,7 @@ it( 'disables edits after a source error but still permits discarding the draft'
 it( 'shows indeterminate server progress and does not offer edits during processing', () => {
 	setEdits( { can_restore_original: true, job: processingJob } );
 	renderEditor();
-	expect( screen.getByRole( 'progressbar' ) ).not.toHaveAttribute( 'value' );
+	expect( screen.getByRole( 'progressbar' ) ).not.toHaveAttribute( 'aria-valuenow' );
 	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'
@@ -506,6 +506,65 @@ it( 'protects dirty drafts on breadcrumb and browser navigation and removes guar
 	window.dispatchEvent( new PopStateEvent( 'popstate' ) );
 	expect( unloaded.defaultPrevented ).toBe( false );
 	expect( confirmNavigation ).not.toHaveBeenCalled();
+} );
+
+it( 'answers the admin shell for a dirty draft and asks once per shell navigation', async () => {
+	const { user } = renderEditor();
+	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+	const leave = new CustomEvent( 'jetpack-admin-shell:before-leave', {
+		detail: { page: 'jetpack-videopress' },
+		cancelable: true,
+	} );
+
+	// The shell asks first, then the router hears the navigation in the same task.
+	act( () => {
+		window.dispatchEvent( leave );
+		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+	} );
+
+	expect( leave.defaultPrevented ).toBe( true );
+	expect( confirmNavigation.mock.calls ).toEqual( [
+		[ 'You have unsaved changes in VideoPress. Discard them?' ],
+	] );
+	expect( navigate ).not.toHaveBeenCalled();
+
+	// A later Back is the user's own, so the editor asks again.
+	await act( () => new Promise( resolve => setTimeout( resolve ) ) );
+	act( () => window.dispatchEvent( new PopStateEvent( 'popstate' ) ) );
+	expect( confirmNavigation ).toHaveBeenLastCalledWith(
+		'You have unsaved edits. Leave the editor and discard them?'
+	);
+} );
+
+it( 'stays quiet while the admin shell hides VideoPress and as it comes back, then asks again', async () => {
+	const { user } = renderEditor();
+	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+	const shell = ( type: string, page = 'jetpack-videopress' ) =>
+		window.dispatchEvent(
+			new CustomEvent( `jetpack-admin-shell:${ type }`, { detail: { page } } )
+		);
+	const back = () => act( () => window.dispatchEvent( new PopStateEvent( 'popstate' ) ) );
+
+	try {
+		shell( 'page-hidden' );
+		shell( 'page-shown', 'jetpack-newsletter' );
+		back();
+		// On a real Back the shell reports VideoPress shown before the editor hears that popstate.
+		shell( 'page-shown' );
+		back();
+		expect( confirmNavigation ).not.toHaveBeenCalled();
+		expect( navigate ).not.toHaveBeenCalled();
+
+		await act( () => new Promise( resolve => setTimeout( resolve ) ) );
+		back();
+		expect( confirmNavigation ).toHaveBeenCalledWith(
+			'You have unsaved edits. Leave the editor and discard them?'
+		);
+		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/editor' } );
+	} finally {
+		shell( 'page-shown' );
+		await act( () => new Promise( resolve => setTimeout( resolve ) ) );
+	}
 } );
 
 it( 'suspends editor shortcuts until the save dialog is dismissed', async () => {

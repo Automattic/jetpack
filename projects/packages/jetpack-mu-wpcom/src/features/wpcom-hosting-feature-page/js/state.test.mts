@@ -32,6 +32,7 @@ describe( 'getInitialState', () => {
 			supportUrl: 'https://wordpress.com/help/contact',
 			hasRevertedTransfer: false,
 			transferFailed: true,
+			checkoutPending: false,
 		};
 
 		localize( state );

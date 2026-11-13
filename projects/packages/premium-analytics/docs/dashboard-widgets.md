@@ -72,7 +72,7 @@ add_action(
 			return;
 		}
 		$version = \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION;
-		if ( version_compare( $version, '1.3.0', '<' ) || version_compare( $version, '2', '>=' ) ) {
+		if ( version_compare( $version, '2.0.0', '<' ) || version_compare( $version, '3', '>=' ) ) {
 			return;
 		}
 
@@ -165,7 +165,7 @@ A widget that shows nothing but a paid Stats feature declares that feature in `p
 
 The dashboard points a locked type at `LockedWidget` instead of its render module, which it never imports, so the widget requests nothing. A feature locked inside a widget that stays open, like the Regions and Cities of **Top locations**, is the widget's to check: it reads `isStatsFeatureLocked()`, renders `LockedWidget` for that part and skips its request.
 
-A plan can also lock a whole section. `locked_sections` maps each one (on the free WordPress.com tier, `traffic` and `insights`) to the copy of the prompt that replaces it, its `upgrade_url`, and `open_widget_types`, the only widget types the section still shows. The stage hands `WidgetDashboard` just those widgets, offers no Customize there, and saves an inline edit back into the stored layout with the hidden widgets kept, so they return after an upgrade (`useLockedSectionLayout()`).
+A plan can also lock a whole section. `locked_sections` maps each one (on the free WordPress.com tier, `traffic` and `insights`) to the copy of the prompt that replaces it (`description`, or `description_with_price` when there is a price), its `upgrade_url`, its `open_widget_types` (the only widget types the section still shows) and its `plan_price` (the Personal plan's yearly price, which the prompt quotes per month; null when WordPress.com has none, so the prompt drops the price). The stage hands `WidgetDashboard` just those widgets and saves an edit back into the stored layout with the hidden widgets kept, so they return after an upgrade (`useLockedSectionLayout()`). `useDashboardPolicy()` offers Customize there only while the section shows an open widget, and denies adding or removing one, so Customize only arranges the open widgets. Reset to default there resets only the open widgets, keeping the hidden ones as stored; when those match the default's, it deletes the entry as any reset does.
 
 ### Script modules
 
@@ -245,7 +245,7 @@ It reads the package's fixed list and, once the registry can answer, the registr
 
 `WIDGET_API_VERSION` names the contract a widget is built against: the `@automattic/jetpack-premium-analytics-sdk` module and the exports it declares, the dashboard modules the facade re-exports from (`@jetpack-premium-analytics/widgets-toolkit`, `data`, `fields`, `datetime`, `externals`), and the `Widget_Type` fields the client reads.
 
-The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. The field types the dashboard registers are part of the contract: `jpa/select`, `jpa/toggle-group` and `jpa/array-checkbox` since 1.0.0, so a new name is a minor. A widget declares its chart type attribute itself; the SDK exports no helper for it.
+The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. The field types the dashboard registers are part of the contract: `jpa/select`, `jpa/toggle-group` and `jpa/array-checkbox` since 1.0.0, `jpa/report-params` since 2.2.0, so a new name is a minor. A widget declares its chart type attribute itself; the SDK exports no helper for it.
 
 | Minor  | Added                                                                                                                                                                        |
 | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -264,6 +264,16 @@ The major changes when a widget built against the previous contract stops workin
 | 1.13.0 | `chartTitle` on `Columns`, `Donut`, `Funnel`, `Leaderboard`, `Locations` and `MetricTabsChart`: "Chart: <title>" for screen readers, "Map: <title>" for the `Locations` map. |
 | 1.14.0 | `attributes` on the record, which lead the module's by `id`.                                                                                                                 |
 | 1.15.0 | A `jpa/toggle-group` option names its `icon` by reference, the form a `widget.json` can carry.                                                                               |
+| 1.16.0 | `useReportActions`: a widget declares its View all link and CSV download, and the dashboard renders them in the card footer.                                                 |
+
+2.0.0 removes `WidgetFooter`, `ReportLink` and `ExporterCsvDownloadButton` from the SDK, and the `footer` prop from `Leaderboard`: a widget declares its footer with `useReportActions`.
+
+| Minor | Added                                                                                                                                                      |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.1.0 | `Button`, `ButtonLink`, `Progress`, `Text` and `VisuallyHidden`, the `@wordpress/ui` primitives a widget renders, shared so it bundles no copy of its own. |
+| 2.2.0 | `jpa/report-params`, a date range over the presets in `elements`, All time anchored on the item's `allTimeStart`                                           |
+| 2.3.0 | A chart without `chartTitle` is named after its widget's title, so `chartTitle` is needed only when the chart shows something else.                         |
+| 2.4.0 | `useOpenChartBucket`: a `MetricTabsChart` click opens the clicked bucket as the dashboard period.                                                         |
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
@@ -311,7 +321,7 @@ Top videos moved with `jpa/videopress` declared as a former name. A stored layou
 
 ### What leaves this package
 
-The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WIDGET_TYPES`, and the row helpers only it used. `src/videopress-availability.php` stays: the Videos report and the video detail route still gate on it, and whether the widget appears is the VideoPress package's call now.
+The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WIDGET_TYPES`, and the row helpers only it used. `src/videopress-availability.php` stays: the Videos report and the video detail widgets still gate on it, and whether the widget appears is the VideoPress package's call now.
 
 ## Where the tests are
 

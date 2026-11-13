@@ -93,7 +93,7 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 
 **Standard + thorough**: Review the PR description against `.github/PULL_REQUEST_TEMPLATE.md`:
 - **Proposed changes**: Filled in and accurate? Flag if vague or missing.
-- **Testing instructions**: Present and specific? Flag if missing or "N/A" for non-trivial changes.
+- **Testing instructions**: Present and specific? Flag if missing or "N/A" for non-trivial changes. For a user-facing change, check its `<!-- rehearsal v1 -->` blocks with the `jetpack-rehearsal` skill (or suggest rehearsals when there are none).
 - **Data/privacy**: If the diff introduces tracking, analytics, or data collection, flag if the PR description doesn't acknowledge it. Check if `[Status] Needs Privacy Updates` label is needed.
 - **Confidentiality**: No private WordPress.com URLs. P2 shorthand required.
 

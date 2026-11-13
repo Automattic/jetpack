@@ -2,7 +2,7 @@
 
 Shared utilities for registering a category and its abilities with the [WordPress Abilities API](https://make.wordpress.org/core/) from Jetpack packages and plugins.
 
-The `Registrar` base class owns the boilerplate every consumer would otherwise hand-roll: hooking into `wp_abilities_api_categories_init` / `wp_abilities_api_init` (or dispatching immediately when those actions have already fired), and guarding the Abilities API function calls so the class is safe on WordPress versions older than 6.9.
+The `Registrar` base class owns the boilerplate every consumer would otherwise hand-roll: hooking into `wp_abilities_api_categories_init` / `wp_abilities_api_init` (or registering right away when `init()` runs inside one of them; WordPress rejects registrations at any other time), and guarding the Abilities API function calls so the class is safe on WordPress versions older than 6.9.
 
 ## Usage
 

@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .preview-wrapper {
 	position: relative;
@@ -6,7 +6,10 @@
 }
 
 .preview-image {
+	display: block;
 	width: auto;
+	max-width: 100%;
+	margin-inline: auto;
 }
 
 .container {
@@ -56,7 +59,7 @@
 }
 
 .subtitle {
-	color: gb.$gray-700;
+	color: colors.$gray-700;
 	font-size: 12px;
 	font-weight: 400;
 	line-height: 16px;
@@ -98,7 +101,7 @@
 	transition: 0.1s ease-in-out background;
 
 	svg {
-		fill: var(--jp-white);
+		color: var(--jp-white);
 	}
 
 	&:hover {

@@ -25,7 +25,7 @@ export type CsvDownloadAction = {
 	callback: () => Promise< void >;
 };
 
-function useCsvDownloadAction(
+export function useCsvDownloadAction(
 	startDownload: ( () => Promise< unknown > ) | null
 ): CsvDownloadAction | null {
 	const callback = useDownloadWithErrorNotice( () => startDownload?.() );

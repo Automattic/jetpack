@@ -73,13 +73,17 @@ $default_matrix_vars = array(
 	'split-exclude'       => array(),
 );
 
+// There's little point in running coverage in CI on a fork. The reporting depends on our server
+// that only handles Automattic/jetpack PRs.
+$run_coverage = getenv( 'GITHUB_REPOSITORY' ) === 'Automattic/jetpack';
+
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
 // Entries in `$to_split` are split into several jobs first, see "Split jobs" below.
 $matrix   = array();
 $to_split = array();
 
 // Add PHP tests.
-foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
+foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6' ) as $php ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP $php WP latest",
 		'script'  => 'test-php',
@@ -121,17 +125,19 @@ $matrix[] = array(
 );
 
 // Add PHP coverage as a split job.
-$to_split[] = array(
-	'name'         => 'Code coverage (PHP, %s)',
-	'script'       => 'test-php-coverage',
-	'wp'           => 'latest',
-	'timeout'      => 30, // 2026-09-14: Runs are at around 15 minutes each.
-	'coverage'     => true,
-	'split_config' => array(
-		'groups'  => array( 'jetpack' => 'plugins/jetpack' ),
-		'generic' => 1,
-	),
-);
+if ( $run_coverage ) {
+	$to_split[] = array(
+		'name'         => 'Code coverage (PHP, %s)',
+		'script'       => 'test-php-coverage',
+		'wp'           => 'latest',
+		'timeout'      => 30, // 2026-09-14: Runs are at around 15 minutes each.
+		'coverage'     => true,
+		'split_config' => array(
+			'groups'  => array( 'jetpack' => 'plugins/jetpack' ),
+			'generic' => 1,
+		),
+	);
+}
 
 // Add JS tests and coverage
 $js_split_config = array(
@@ -141,7 +147,10 @@ $js_split_config = array(
 	'generic' => 2,
 );
 foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
-	$is_cov     = $script === 'test-js-coverage';
+	$is_cov = $script === 'test-js-coverage';
+	if ( $is_cov && ! $run_coverage ) {
+		continue;
+	}
 	$to_split[] = array(
 		'name'         => $is_cov ? 'Code coverage (JS, %s)' : 'JS tests (%s)',
 		'script'       => $script,

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Labels: Remove project labels the action added once a PR no longer touches that project.

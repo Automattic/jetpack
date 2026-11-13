@@ -4,7 +4,8 @@
 import {
 	getApiErrorCode,
 	isAccessDenied,
-	StatsResponseShapeError,
+	isAnalyticsSchemaOutdated,
+	isAnalyticsTablesNotReady,
 } from '@jetpack-premium-analytics/data';
 /**
  * WordPress dependencies
@@ -35,12 +36,6 @@ export function describeError(
 	error: unknown,
 	{ retryDescription, onRetry }: DescribeErrorOptions
 ): WidgetStateError {
-	if ( error instanceof StatsResponseShapeError ) {
-		return {
-			description: __( 'This data is unavailable right now.', 'jetpack-premium-analytics-pkg' ),
-		};
-	}
-
 	// `stats/author/<id>` refuses an author past its post limit; a retry gets the same answer.
 	if ( getApiErrorCode( error ) === 'too_many_posts' ) {
 		return {
@@ -57,8 +52,22 @@ export function describeError(
 		};
 	}
 
+	if ( isAnalyticsSchemaOutdated( error ) ) {
+		return {
+			description: __(
+				"This report will be available after your store's next order or product update.",
+				'jetpack-premium-analytics-pkg'
+			),
+		};
+	}
+
 	return {
-		description: retryDescription,
+		description: isAnalyticsTablesNotReady( error )
+			? __(
+					'Your store data is still being prepared. Please try again in a minute.',
+					'jetpack-premium-analytics-pkg'
+				)
+			: retryDescription,
 		actions: [
 			{
 				label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),

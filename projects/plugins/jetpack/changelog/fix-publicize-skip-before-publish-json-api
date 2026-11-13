@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Social: Keep posts published through Post by Email or the WordPress.com API with sharing turned off from being shared.

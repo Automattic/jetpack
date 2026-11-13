@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Register the off-by-default admin shell feature flag.
+
+

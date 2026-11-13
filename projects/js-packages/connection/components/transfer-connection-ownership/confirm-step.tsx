@@ -9,6 +9,7 @@ import { Link, Notice, Stack, Text } from '@wordpress/ui';
  * Internal dependencies
  */
 import { AvatarBadge } from './candidate-identity';
+import PlanOwnershipNote from './plan-ownership-note';
 import './style.scss';
 import type { ConnectionOwnerCandidate } from './use-ownership-transfer';
 import type { ConnectionOwner } from '../../types';
@@ -122,6 +123,8 @@ const TransferConfirmStep = ( {
 					) }
 				</Notice.Description>
 			</Notice.Root>
+
+			<PlanOwnershipNote />
 
 			{ /* A Notice rather than styled text: it arrives after an async failure, and
 			     Notice announces itself so the user is not left waiting on nothing. */ }

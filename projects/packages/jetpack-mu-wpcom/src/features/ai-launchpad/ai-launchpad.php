@@ -22,6 +22,7 @@ require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
 require_once __DIR__ . '/class-ai-launchpad-difm-offer.php';
+require_once __DIR__ . '/class-ai-launchpad-bring-your-ai-tool.php';
 require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
@@ -58,11 +59,14 @@ class AI_Launchpad {
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		add_action( 'load-index.php', array( __CLASS__, 'maybe_redirect_dashboard_to_site_setup' ) );
 
 		if ( ! self::is_ai_launchpad_request() ) {
 			return;
 		}
 
+		// WordPress 7.2 answers an unregistered page on wp_admin_page_not_found and never reaches admin_page_access_denied.
+		add_action( 'wp_admin_page_not_found', array( __CLASS__, 'redirect_to_dashboard' ) );
 		add_action( 'admin_page_access_denied', array( __CLASS__, 'redirect_to_dashboard' ) );
 
 		self::load_wp_build();
@@ -80,6 +84,36 @@ class AI_Launchpad {
 	public static function redirect_to_dashboard() {
 		wp_safe_redirect( admin_url( 'index.php' ) );
 		exit;
+	}
+
+	/**
+	 * Sends an AI-built site's first Dashboard visit to Site Setup, e.g. from the builder's "Return to WP Admin".
+	 *
+	 * @return void
+	 */
+	public static function maybe_redirect_dashboard_to_site_setup() {
+		if ( ! self::should_redirect_dashboard_to_site_setup() ) {
+			return;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::MENU_SLUG ) );
+		exit;
+	}
+
+	/**
+	 * Whether this Dashboard visit goes to Site Setup: for an admin of an AI-built site where Site Setup never opened.
+	 *
+	 * Site Setup's first load records the builder's answers as the wizard option, so the redirect happens only once.
+	 *
+	 * @return bool
+	 */
+	public static function should_redirect_dashboard_to_site_setup() {
+		return ! get_option( \AI_Launchpad_REST::OPTION_WIZARD )
+			// A list without wizard answers never gets them, and a finished one hides Site Setup: both would loop.
+			&& ! get_option( \AI_Launchpad_REST::OPTION_AI_OUTPUT )
+			&& current_user_can( 'manage_options' )
+			&& self::is_eligible()
+			&& wpcom_ai_launchpad_is_ai_built();
 	}
 
 	/**

@@ -37,7 +37,6 @@ use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Podcast\Podcast;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Scan_Page\Jetpack_Scan as Scan_Page_Init;
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -84,7 +83,7 @@ class Jetpack {
 	/**
 	 * Marks a Jetpack plugin whose Backup dashboard follows the site's plan, not the backup module.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @var bool
 	 */
@@ -853,7 +852,7 @@ class Jetpack {
 	/**
 	 * What switching a module off leaves unchanged, for interfaces that still offer it; empty when nothing.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param string $module Module slug.
 	 * @return string
@@ -919,13 +918,8 @@ class Jetpack {
 	/**
 	 * Whether the bundled Stats v2 dashboard is enabled.
 	 *
-	 * Stats v2 (formerly "Premium Analytics") ships with the plugin behind this
-	 * flag while it rolls out (WOOA7S-1595). When enabled it adds its own admin
-	 * menu alongside the existing Stats UI; it never replaces or hides the
-	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
-	 * widget. The Stats module's tracking is unaffected either way, and Stats v2
-	 * reads what that module collects, so while the module is off the plugin
-	 * answers false here before even reading the flag.
+	 * Resolves `Enablement::is_enabled()` once per request (WOOA7S-1595). The classic Stats menu
+	 * stays beside Stats v2 until `jetpack-stats-classic-page-retired` retires it.
 	 *
 	 * The package has to be loadable for this to be true, so a site with the
 	 * flag on but a missing package answers false here and never adds the
@@ -940,24 +934,19 @@ class Jetpack {
 			return self::$premium_analytics_enabled;
 		}
 
-		if ( ! self::is_module_active( 'stats' ) ) {
-			self::$premium_analytics_enabled = false;
-			return false;
+		// The fallback covers an older package, loaded ahead of ours, that predates the shared rule and the retirement flag.
+		$enablement = 'Automattic\Jetpack\PremiumAnalytics\Enablement';
+		if ( method_exists( $enablement, 'is_enabled' ) ) {
+			$flag = $enablement::is_enabled();
+		} elseif ( ! self::is_module_active( 'stats' ) ) {
+			$flag = false;
+		} else {
+			/** This filter is documented in projects/packages/premium-analytics/src/class-enablement.php */
+			$flag = (bool) apply_filters(
+				'jetpack_premium_analytics_enabled',
+				(bool) get_option( 'jetpack_premium_analytics_enabled' )
+			);
 		}
-
-		/**
-		 * Filters whether the bundled Premium Analytics dashboard is enabled.
-		 *
-		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`, and only
-		 * while the Stats module is active. Register this from a mu-plugin or a
-		 * plugin's main file — a callback added on `plugins_loaded` or later runs
-		 * too late to be seen.
-		 *
-		 * @since 16.1
-		 *
-		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false).
-		 */
-		$flag = (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
 
 		self::$premium_analytics_enabled = $flag && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' );
 
@@ -1099,7 +1088,7 @@ class Jetpack {
 		}
 
 		// Stats v2 (WOOA7S-1595). Unlike Stats above it cannot be deferred when enabled — see
-		// Analytics::init() for why, and for why it takes no menu_title here.
+		// Analytics::init() for why.
 		if ( self::is_premium_analytics_enabled() ) {
 			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
 			if ( class_exists( 'Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard' ) ) {
@@ -1219,7 +1208,6 @@ class Jetpack {
 			add_action( 'rest_api_init', array( My_Jetpack_Initializer::class, 'init' ), 0 );
 		}
 
-		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
 
 		if ( ( new Modules() )->is_active( 'podcast' ) ) {
@@ -5052,7 +5040,7 @@ endif;
 				)
 			) {
 				$jp_user = get_user_by( 'email', $jpo_user );
-				if ( is_a( $jp_user, 'WP_User' ) ) {
+				if ( $jp_user instanceof \WP_User ) {
 					wp_set_current_user( $jp_user->ID );
 					$user_can = is_multisite()
 						? current_user_can_for_site( get_current_blog_id(), 'manage_options' )
@@ -6706,7 +6694,8 @@ endif;
 			return;
 		}
 
-		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) || static::is_connection_ready() ) {
+		// Check the site first to avoid resolving the current user during plugins_loaded.
+		if ( static::is_connection_ready() || ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
 			( new Plugin_Tracking() )->init();
 		}
 	}

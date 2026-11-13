@@ -34,6 +34,17 @@ wp-build also generates an ungated full-page route at `?page=jetpack-premium-ana
 `Analytics::remove_full_page_interceptor()` disables it. Use only the `-wp-admin` page hooks and
 filters.
 
+On Jetpack sites the Jetpack plugin boots the package, or the Jetpack Stats plugin when Jetpack is
+absent; both ask `Enablement::is_enabled()`. `Classic_Stats` owns the flag that retires the classic
+Stats page.
+
+Every section the site qualifies for is shown as a tab; see `docs/dashboard-sections.md`. The
+WooCommerce tab and its sync opt-in register from the woocommerce-stats package. The same list the
+tab bar gets over REST also reaches the client as `premium_analytics.sections` in the script data,
+which is what keeps `/reports/…` behind a hidden tab out of reach: each report declares the tab it
+belongs to, and `getReportDefinition()` treats one behind a hidden tab as unknown. The detail routes
+follow their own report (`posts`, `videos`, `authors`) rather than declaring a tab.
+
 ## Structure
 
 ```text
@@ -45,9 +56,11 @@ src/widget-types.php                    # widget type API: registry helpers, met
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
-src/Sync/                               # PA glue for the shared woocommerce_analytics sync module
+src/Reports/Export/                     # /reports/csv-export route
+src/Sync/                               # milestone tracker for the analytics full syncs
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
 packages/externals/                     # passthrough module for shared third-party libraries
+packages/sdk/                           # facade other plugins' widgets import the dashboard through
 routes/                                 # lazy-loaded SPA pages; build/ is generated
 ```
 
@@ -70,11 +83,11 @@ English until the next `pnpm run build`.
 
 Storybook's Vite config maps bare `@jetpack-premium-analytics/*` imports to `src/`, but that only
 takes effect for packages whose `package.json` declares no `module` field (`datetime`,
-`formatters`, `icons`, `routing`). The rest — `data`, `externals`, `fields`, `init`, `site-sync`,
-`ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook loads that
-artifact instead, so an edit to their source is invisible there until it is rebuilt. A newly added
-export surfaces as `The requested module '…/build-module/index.mjs' does not provide an export
-named 'X'`, and a changed one silently renders the old behaviour. Run `pnpm run build` (or
+`formatters`, `icons`, `routing`). The rest — `data`, `externals`, `fields`, `init`, `sdk`,
+`site-sync`, `ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook
+loads that artifact instead, so an edit to their source is invisible there until it is rebuilt. A
+newly added export surfaces as `The requested module '…/build-module/index.mjs' does not provide an
+export named 'X'`, and a changed one silently renders the old behaviour. Run `pnpm run build` (or
 `jetpack build --deps packages/premium-analytics`) before trusting what Storybook shows for those
 packages.
 
@@ -83,23 +96,15 @@ Add a route: create `routes/<name>/package.json` (with `route.path` + `route.pag
 
 Add a dashboard section, from this package or from another plugin: hook
 `jetpack_premium_analytics_register_dashboard_sections` and call `register_dashboard_section()`
-there; the callback receives the registry being hydrated, for lookups such as
-`get_registered_by_slug()`. The section registry hydrates on its first read, from wp-admin or from
-REST, and fires that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
-way. A section declares its default layout in the registration; the
-`jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
-any section by id. The inserter offers the default layout's types plus the section's
-`insertable_widget_types`, which the `jetpack_premium_analytics_dashboard_insertable_widget_types`
-filter extends the same way. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+there; `src/default-dashboard-sections.php` registers the package's own sections the same way.
+Another plugin extends a section through the `jetpack_premium_analytics_dashboard_default_layout`
+and `jetpack_premium_analytics_dashboard_insertable_widget_types` filters.
+`docs/dashboard-sections.md` walks through the whole path.
 
 Add widget types from another plugin: hook `jetpack_premium_analytics_register_widget_types`,
-compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
-that plugin's wp-build generates (`register_widget_type()` registers a single type). The widget type
-registry hydrates on its first read, from the page boot dependencies or from REST, and fires that
-action once; `src/widget-types.php` registers the package's own build manifest the same way. A type
-that changes its name declares `former_names`, so layouts saved under the old one keep rendering it.
-A widget that shows only a paid Stats feature declares `plan_feature`, so a plan without it locks it.
-`docs/dashboard-widgets.md` walks through the path.
+compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the
+manifest that plugin's wp-build generates. A renamed type declares `former_names`, and one that
+shows a paid Stats feature declares `plan_feature`; `docs/dashboard-widgets.md` covers both.
 
 ### Timing-dependent JS tests use fake timers
 
@@ -120,7 +125,9 @@ See `widgets/posting-activity/__tests__/posting-activity.test.tsx`.
 
 ## API
 
-Two local REST surfaces; almost all data comes from WordPress.com via one agnostic proxy.
+Almost all data comes from WordPress.com via one agnostic proxy. Beside it, the namespace serves
+`/notices` and `/reports/csv-export`; the dashboard support routes (sections, widget modules) live
+under `wpcom/v2` (see "Choosing a REST namespace" below).
 
 ### Data proxy
 
@@ -129,28 +136,32 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 (no cross-origin or user-authed call).
 
 - `<version>` is the WPCOM version (`1.1`, `1.2`, `2`); base derives from it (`v2`→`wpcom/`,
-  `v1.x`→`rest/`). Use the version the old call used — the proxy does not normalise.
+  `v1.x`→`rest/`). Use the version the old call used — the proxy does not normalise, and a wrong
+  version silently hits a different endpoint.
 - `<blog-id>` is injected server-side — never put it in the path.
-- `<prefix>` must be allowlisted in `PREFIX_CONFIG` or the route 404s. This is the security
-  boundary — the blog token is only forwarded for these.
+- `<prefix>` must be allowlisted in `PREFIX_CONFIG` or the route 404s, so a proxy 404 usually means
+  a missing prefix, not a missing WPCOM endpoint. This is the security boundary — the blog token is
+  only forwarded for these.
 
-| Prefix                                           | Capability                 | Writes (POST)                   |
-| ------------------------------------------------ | -------------------------- | ------------------------------- |
-| `analytics` (Woo store reports)                  | `view_woocommerce_reports` | —                               |
-| `stats`                                          | `view_stats`               | `stats/referrers/spam/`         |
-| `wordads`                                        | `activate_wordads`         | —                               |
-| `subscribers` / `site-has-never-published-post`  | `view_stats`               | —                               |
-| `jetpack-stats`                                  | `view_stats`               | `jetpack-stats/user-feedback`   |
-| `jetpack-stats-dashboard`                        | `view_stats`               | whole prefix (busts read cache) |
-| `commercial-classification`                      | `view_stats`               | exact path                      |
-| `upgrades` (not under `/sites/`)                 | `view_stats`               | —                               |
-| `posts` (pattern-constrained: only `<id>/likes`) | `view_stats`               | —                               |
+| Prefix                                                   | Capability                                  | Writes (POST)                   |
+| -------------------------------------------------------- | ------------------------------------------- | ------------------------------- |
+| `analytics` (Woo store reports)                          | `view_woocommerce_reports`                  | —                               |
+| `stats`                                                  | `view_stats`                                | `stats/referrers/spam/`         |
+| `wordads`                                                | `activate_wordads` (no role has it: admins) | —                               |
+| `subscribers` / `site-has-never-published-post`          | `view_stats`                                | —                               |
+| `jetpack-stats`                                          | `view_stats`                                | `jetpack-stats/user-feedback`   |
+| `jetpack-stats-dashboard`                                | `view_stats`                                | whole prefix (busts read cache) |
+| `commercial-classification`                              | `view_stats`                                | exact path                      |
+| `upgrades` (not under `/sites/`)                         | `view_stats`                                | —                               |
+| `products` (fixed: `products?type=jetpack`)              | `view_stats`                                | —                               |
+| `posts` (only `<id>/likes` and `<id>/replies`, unsigned) | `view_stats`                                | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
 `force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params+generation);
-add `force_refresh` to bypass. A dashboard load returning from a Stats checkout (`statsPurchaseSuccess`)
-also drops every cached read and the cached notices, at most once a minute. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
+add `force_refresh` to bypass, e.g. when a screen looks stale. A dashboard load returning from a
+Stats checkout (`statsPurchaseSuccess`) also drops every cached read and the cached notices, at most
+once a minute. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 `403 no_connection`, `500`/`502 api_error`, `405 rest_read_only`, `401`/`403` on a failed cap.
 
 The `jetpack-stats` write is the one body the proxy rewrites: it gains the submitting user's
@@ -165,32 +176,18 @@ gets its own route outside `proxy/`, like this.
 
 ### Adding a proxied endpoint
 
-To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` / `invalidates` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
-
-### Migrating from Stats / Woo Analytics
-
-Re-point a screen's data layer at the proxy instead of re-implementing old routes: `stats-admin`
-routes (`jetpack/v4/stats-app/*`) → `stats` / `jetpack-stats` / `subscribers` / `wordads`
-prefixes; Woo `analytics/reports/*` → `proxy/v2/analytics/reports/*`. The dashboard UI lives in
-`routes/` here, not in Calypso. Frontend helpers go under `packages/data/src/api/`.
+To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; the docblock
+above it describes the optional keys) and cover it in `data_endpoint_matrix()`. Frontend helpers go
+under `packages/data/src/api/`.
 
 ## WordPress.com Simple
 
 Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM serves the dashboard
-and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the package via
+and reaches `public-api.wordpress.com` directly. The `wpcom` repo's
+`wp-content/mu-plugins/jetpack/wpcom-premium-analytics.php` boots the package via
 `Analytics::init_wpcom_simple()`, behind the site's own `jetpack_premium_analytics_enabled`
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
-
-Every section the site qualifies for is shown as a tab, whichever one says yes; see
-`docs/dashboard-sections.md`. The WooCommerce tab registers from the WooCommerce stats package.
-
-The same list the tab bar gets over REST also reaches the client as
-`premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
-tab out of reach: each report declares the tab it belongs to, and `getReportDefinition()` treats one
-behind a hidden tab as unknown. The detail routes follow their own report (`posts`, `videos`,
-`authors`) rather than declaring a tab.
 
 ### Route guards must use the shared site-readiness helpers
 
@@ -209,9 +206,7 @@ on synchronized data declares `requires_sync` in its server-provided configurati
 that dependency from the section slug in the SPA.
 
 Monitor and start the sync from the dashboard stage whenever any available section requires it,
-independent of the active section. Do not start it when no available section requires it. Use
-`isPremiumAnalyticsInitialSyncFinished()` for readiness checks so WordPress.com Simple remains
-supported.
+independent of the active section. Do not start it when no available section requires it.
 
 ### Choosing a REST namespace for new endpoints
 
@@ -226,23 +221,21 @@ connected-site-only (e.g. the local data proxy, notices) can stay under
 (`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
 (widget modules, sections) standalone. The WPCOM-side caller is
 `wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
-repo — it `require_once`s this exact file and calls `::register()` by name.
+repo — it calls `::register()` by class name, never by path.
 
 **Renaming, moving, or changing this method's signature requires a matching WPCOM-side update.**
 See Automattic/jetpack#50266 for the PR that established this contract.
 
 ## Pitfalls
 
-- Never put the blog ID in a proxy path — it's injected server-side.
-- A proxy 404 usually means the prefix isn't in `PREFIX_CONFIG`, not a missing WPCOM endpoint.
-- Reads are cached 5 min; add `force_refresh` if a screen looks stale.
-- `v2` vs `v1.x` changes the WPCOM base — a wrong version silently hits a different endpoint.
-- The `woocommerce_analytics` sync module lives in the jetpack-sync package
-  (`Sync\Configuration::register()` is the opt-in); `src/Sync/` holds only
-  PA-specific glue (Config bootstrap, bookings meta whitelist, milestone tracker).
-- Don't edit dashboard React in Calypso — it lives here now.
-- Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
-  never `@automattic/jetpack-premium-analytics-*`.
+- Jetpack and Jetpack Stats both bundle this package, so load its function files only with
+  `require_once __DIR__` from a file in the package, never by path from outside it.
+- The `woocommerce_analytics` sync module lives in the jetpack-sync package, and the
+  woocommerce-stats package opts in to it (`Sync_Configuration`) and backfills its lookup data
+  (`Lookup_Data_Backfill`); `src/Sync/` here holds only the milestone tracker both read.
+- Inside this package, import internal packages through the `@jetpack-premium-analytics/*`
+  aliases, never `@automattic/jetpack-premium-analytics-*`. The `@automattic/` name is for other
+  plugins, whose widgets import the dashboard as `@automattic/jetpack-premium-analytics-sdk`.
 - Never import `@wordpress/ui` or `@wordpress/dataviews` directly from anything under
   `packages/`, `widgets/`, or `routes/` — go through `@jetpack-premium-analytics/externals`. A
   direct import compiles the whole library into that bundle again; ESLint enforces this.
@@ -253,7 +246,7 @@ See Automattic/jetpack#50266 for the PR that established this contract.
   names re-exported from a sub-barrel, whether by `export *` (`data` → `./hooks`) or by name
   (`widgets-toolkit` → `useElementSize` from `./hooks`). Add a name there only when something
   outside the package imports it — types included; `git grep` outside the package to check. A
-  sub-barrel name the root does not re-export, like `reportBookingsQuery` in
+  sub-barrel name the root does not re-export, like `statsStreakQuery` in
   `data/src/queries/index.ts`, is internal and may serve the package's own imports.
 
 ## Comments and documentation
@@ -265,16 +258,15 @@ URL needs _no_ guard), import-boundary notes (WOOA7S-1836), and the WPCOM Simple
 ### What lint requires you to keep
 
 Deleting a whole JSDoc block is only safe where `eslint.config.mjs` softens the jsdoc rules,
-and the softening is uneven. Those overrides are temporary scaffolding that let the ports land
-with their upstream JSDoc style; they are meant to come off as the ported code is cleaned up,
-so treat the table as "what lint tolerates today", not as the standard to write new code to:
+and the softening is uneven. Those overrides are temporary scaffolding for the ports, so treat
+the table as "what lint tolerates today", not as the standard to write new code to:
 
-| Path                                                                    | Whole block deletable?                         |
-| ----------------------------------------------------------------------- | ---------------------------------------------- |
-| `widgets/**`, `packages/{data,ui,fields,widgets-toolkit}/**`            | Yes                                            |
-| `packages/routing/**`                                                   | Yes, but a surviving block needs a description |
-| `packages/{datetime,formatters}/**`                                     | No — `require-jsdoc` is on; shorten instead    |
-| `routes/**`, `packages/{icons,externals,init,site-sync}/**`, `types/**` | No — base rules apply; shorten instead         |
+| Path                                                                        | Whole block deletable?                         |
+| --------------------------------------------------------------------------- | ---------------------------------------------- |
+| `widgets/**`, `packages/{data,ui,fields,widgets-toolkit}/**`                | Yes                                            |
+| `packages/routing/**`                                                       | Yes, but a surviving block needs a description |
+| `packages/{datetime,formatters}/**`                                         | No — `require-jsdoc` is on; shorten instead    |
+| `routes/**`, `packages/{icons,externals,init,sdk,site-sync}/**`, `types/**` | No — base rules apply; shorten instead         |
 
 Two constraints hold everywhere:
 
@@ -285,164 +277,61 @@ Two constraints hold everywhere:
   (`jsdoc/check-param-names`). Dropping the `@param props.X` list means dropping the root
   `@param props` line with it.
 
-Not commentary, so not candidates for trimming: `// translators:` comments (the build reads
-them), `eslint-disable` / `@ts-expect-error` justifications, and JSDoc on exported Storybook
-stories or `docs.description.component` — Storybook renders those as user-visible docs.
+JSDoc on exported Storybook stories and `docs.description.component` is not commentary either:
+Storybook renders it as user-visible docs.
 
 ## Widgets
 
-New widgets live at the top of the package in `widgets/<widget-name>/` and are composed from
-primitives in `packages/widgets-toolkit/` — chart, metric, and layout components built on
-`@automattic/charts`. Each widget is its own pnpm workspace package so its render bundle can be
-lazy-loaded by the dashboard at runtime.
+A registered widget is a folder under `widgets/<widget-name>/`, its own pnpm workspace package so
+its render bundle can be lazy-loaded. **The widget contract — which file carries what, the render
+component, attribute types, import rules — is in `.agents/rules/widgets.md`** (loaded by
+`widgets/AGENTS.md`); this section adds what that file does not cover.
 
-> `packages/widgets-toolkit/` is an interim layer while the dashboard is in development and is
-> expected to shrink over time (much of it folding into `@automattic/charts`), so treat its
-> module paths as provisional rather than a long-term API.
+Widgets are composed from primitives in `packages/widgets-toolkit/` — chart, metric, and layout
+components built on `@automattic/charts`. The toolkit is an interim layer expected to shrink (much
+of it folding into `@automattic/charts`), so treat its module paths as provisional.
 
-These rules apply to registered dashboard widgets: folders with `package.json`,
-`widget.json`, and `render.tsx` that the dashboard can lazy-load, plus `widget.ts` when some of
-its metadata cannot live in JSON.
-Presentational-only component folders under `widgets/` are out of scope unless they
-are being converted into registered widgets.
-
-### REQUIRED: widget folder structure
-
-Each new widget MUST ship as a self-contained folder with these files:
-
-```text
-widgets/<widget-name>/
-├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # everything JSON can carry: name, icon, title, description, help, category, presentation, static attributes
-├── widget.ts                               # optional: only what JSON cannot (getElements/getValue/setValue, helper-built fields, example)
-├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
-└── stories/<widget-name>-widget.stories.tsx
-```
-
-Notes:
-
-- `name` lives in `widget.json` and MUST use the `jpa/` prefix
-  (e.g. `jpa/<widget-name>`); a widget another plugin ships uses that plugin's namespace.
-  `widget.ts` no longer declares it.
-- `icon` lives in `widget.json` too, as a `jpa/<name>` reference the dashboard resolves against
-  the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case
-  name (`jpa/chart-bar`) plus the dashboard's own illustrations. A name outside that list
-  resolves to nothing, so add it to the map before naming it.
-- An attribute is declared in `widget.json` whenever its field is static: `type`, `label`,
-  fixed `elements` (option icons as `jpa/<name>`), `relevance`. `widget.ts` carries only what
-  JSON cannot express: `getElements`, `getValue`/`setValue`, a field a helper builds
-  (`reportParamsAttributeField()`, `chartIntervalField`), plus `example`, which the build does
-  not read from `widget.json` yet. Record and module entries merge by `id`, the record's first;
-  a module-only control keeps its position by listing `{ "id" }` in `widget.json` (see
-  `docs/dashboard-widgets.md`). A widget with none of that ships no `widget.ts`; its attribute
-  type lives in `render.tsx`.
-- Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
-  `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
-  theming.
-- Per-widget React/`@wordpress/*` dependencies go in the widget's own `package.json` using
+- `name` in `widget.json` uses the `jpa/` prefix (`jpa/<widget-name>`); a widget another plugin
+  ships uses that plugin's namespace.
+- Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`, `Leaderboard`, etc.) rather
+  than reimplementing data fetching, chart wiring, or theming.
+- Per-widget React/`@wordpress/*` dependencies go in the widget's own `package.json`, using
   `link:` for internal packages (e.g.
   `"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit"`).
 
-### REQUIRED: render component contract
-
-The render component receives only widget host props. Type it with
-`WidgetRenderProps<T>` from `@wordpress/widget-primitives`, default `attributes`, and pass
-host-provided attributes into `<WidgetRoot>`. This is how Storybook and the dashboard inject
-`reportParams` for date range and comparison state.
-
-```tsx
-import {
-	WidgetRoot,
-	type ReportParamsFieldAttributes,
-} from '@jetpack-premium-analytics/widgets-toolkit';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-
-// A widget with a `widget.ts` imports this from './widget' instead.
-export type MyWidgetAttributes = {
-	view?: 'posts' | 'archives';
-};
-
-type MyWidgetRenderAttributes = MyWidgetAttributes & Partial< ReportParamsFieldAttributes >;
-
-export default function MyWidget( {
-	attributes = {},
-}: WidgetRenderProps< MyWidgetRenderAttributes > ) {
-	return (
-		<WidgetRoot attributes={ attributes }>
-			<MyWidgetInner view={ attributes.view } />
-		</WidgetRoot>
-	);
-}
-```
-
-The widget's own attribute shape is declared once: in `widget.ts` when the widget has one,
-alongside the `attributes`/`example` schema it describes, exported for `render.tsx` to import;
-otherwise in `render.tsx` itself. `render.tsx` may compose a
-render-only type with host fields like `Partial<ReportParamsFieldAttributes>`, but it must not
-re-declare the widget's own attributes. A widget with no own attributes
-must type its shape as `Record< never, never >`, not `Record< string, never >` — the
-latter's `[key: string]: never` index signature collapses composed host fields such as
-`reportParams` to `never`, while `Record< never, never >` composes cleanly.
-
-Dashboard state is read inside the component wrapped by `<WidgetRoot>`:
-
-```tsx
-function MyWidgetInner( { view }: { view?: string } ) {
-	const { reportParams } = useWidgetRootContext();
-	// Fetch data with hooks that accept reportParams.
-}
-```
-
-Do not call `useWidgetRootContext()` in the outer render component before `<WidgetRoot>`
-exists, and do not read the dashboard date range directly from `attributes` in the inner
-component.
-
 ### REQUIRED: Storybook story for every widget
 
-Every widget MUST have a Storybook story alongside it. New widgets without a story should
-not be merged.
+Every widget MUST have a story at `widgets/<widget-name>/stories/<widget-name>-widget.stories.tsx`;
+new widgets without one should not be merged.
 
-1. **Location**: `widgets/<widget-name>/stories/<widget-name>-widget.stories.tsx`.
-2. **Dashboard story**: Include a `WidgetDashboardWithWidget` story that renders through the
-   shared `WidgetDashboardWithWidget` helper from `widgets/stories/widget-dashboard-with-widget.tsx`.
-   It mounts the real `WidgetDashboard` with this single widget and exposes the standard
-   dashboard controls (size, edit mode, host environment, etc.), so it shows how the widget
-   actually renders in product. The `Default` and, when applicable, `WithComparison` close-up
-   stories use the shared `withWidgetCanvas` decorator from the template below — but never ship
-   _only_ a close-up story.
-3. **Mocks**: Call `registerReportMocks()` at module-level for any widget that fetches
-   report data. Without this the widget renders an error state in Storybook.
-   - **Woo analytics widgets** (`/proxy/v2/analytics/reports/*`) are covered out of the box.
-   - **Stats widgets** (`/proxy/v1.1/stats/*`) are NOT covered by default. For each new Stats
-     endpoint, add fixture data under `packages/widgets-toolkit/src/stories/mocks/data/` and
-     wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
-     `data/search-terms.ts` for a reference implementation.
-4. **Title**: `Packages/Premium Analytics/Widgets/<WidgetName>` (note: no "Widgets Toolkit"
-   in the path — that path is reserved for the legacy widgets).
-5. **Tags**: Include `tags: [ 'autodocs' ]` so the widget shows up in auto-generated docs.
+1. **Stories**: a `Default` close-up (current period only) and a `WidgetDashboardWithWidget`
+   story that mounts the real `WidgetDashboard` through the shared helper in
+   `widgets/stories/widget-dashboard-with-widget.tsx`, with its size / edit-mode /
+   host-environment controls. Never ship only a close-up. The dashboard story passes comparison
+   params unconditionally, so the widget is covered against crashing or inventing deltas when the
+   host supplies comparison dates.
+2. **`WithComparison`** close-up only when the widget's data hook populates `comparisonRows` — in
+   practice, when it passes `mergeComparisonRows` to `useStatsReport` (see
+   `packages/data/src/hooks/use-stats-clicks.ts`; `rg -l mergeComparisonRows packages/data/src/hooks`
+   lists them). `hasComparison` alone does not qualify — `useReport` returns it for any params
+   carrying `compare_*`, whether or not the module has comparison data to show. A widget that
+   hosts its own date control passes `reportParams` without comparison, because it scopes itself
+   with `offersComparison={ false }`.
+3. **Mocks**: call `registerReportMocks()` at module level for any widget that fetches report
+   data, or it renders an error state. It covers the Stats and WordAds endpoints the existing
+   widgets read; for a new endpoint, add fixture data under
+   `packages/widgets-toolkit/src/stories/mocks/data/` and wire a handler in `routeStatsReport()`
+   inside `register-report-mocks.ts` (`data/search-terms.ts` is the reference).
+4. **Title**: `Packages/Premium Analytics/Widgets/<WidgetName>`.
+   (`Packages/Premium Analytics/Widgets Toolkit/…` is the toolkit's component stories.)
+5. **Tags**: `tags: [ 'autodocs' ]`.
 
 ### Story template
 
-Every widget ships a **Default** close-up and a **WidgetDashboardWithWidget** story that mounts
-the real dashboard. Add a **WithComparison** close-up only when the widget's data hook populates
-`comparisonRows` — in practice, when it passes `mergeComparisonRows` to `useStatsReport` (see
-`packages/data/src/hooks/use-stats-clicks.ts`). `rg -l mergeComparisonRows packages/data/src/hooks`
-lists the comparison-capable hooks; a widget whose hook is not in that list omits the story.
-`hasComparison` alone does not qualify — `useReport` returns it for any params carrying `compare_*`,
-whether or not the module has comparison data to show. This template is self-contained — copy it as
-the base rather than an existing widget's story file, which may have drifted. `meta.component` is
-the widget's render component; widget-specific args (view selectors, metric toggles, …) are wired
-as Storybook controls.
-
-`WithComparison` tests the date range picker's comparison parameters and the visible comparison
-UI. Widgets without mapped comparison rows omit the story and the `withComparison` control. Their
-`WidgetDashboardWithWidget` story should still pass comparison report params by default, so the
-widget is covered against crashing or inventing deltas when the host supplies comparison dates.
-A widget that hosts its own date control still injects `reportParams` — its stories start
-where the header control would — but passes them without comparison, because the widget
-scopes itself with `offersComparison={ false }`. See `.agents/rules/widgets.md`.
-
-The shared imports, helpers, and `meta`:
+The template is self-contained — copy it rather than an existing widget's story file, which may
+have drifted. `meta.component` is the widget's render component; widget-specific args (view
+selectors, metric toggles, …) are wired as Storybook controls. The shared imports, helpers, and
+`meta`:
 
 ```tsx
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
@@ -470,10 +359,6 @@ function renderMyWidget() {
 	return <MyWidgetRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
-// Close-up canvas: `withWidgetCanvas` from `widgets/stories/with-widget-canvas` frames the
-// story in a white, widget-sized card so each state reads as a real dashboard widget. Import
-// the shared decorator — do not redefine a local bare-div canvas.
-
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/MyWidget',
 	component: MyWidgetRender,
@@ -494,7 +379,7 @@ export default meta;
 type Story = StoryObj< typeof meta >;
 ```
 
-**1. `Default`** — the widget on its own, current period only:
+**1. `Default`** — framed by the shared `withWidgetCanvas` decorator; do not redefine a local canvas:
 
 ```tsx
 export const Default: Story = {
@@ -503,10 +388,13 @@ export const Default: Story = {
 };
 ```
 
-**2. `WidgetDashboardWithWidget`** — mounts the real `WidgetDashboard` so the widget renders
-exactly as it does in product, inheriting the size / edit-mode / host-environment controls. It
-passes comparison params unconditionally, so the widget stays covered against crashing or
-inventing deltas when the host supplies comparison dates:
+That canvas follows the **Widget sizes** control, which the Storybook toolbar shows on these
+close-up stories only: the usual card, a matrix of six boxes, or a card to resize, each
+captioned with the box the widget gets. Use it to see how a widget adapts to the size it is
+handed before writing a story for one size. A story that mounts the real dashboard instead
+carries `tags: [ 'widget-dashboard' ]`, which hides the control there.
+
+**2. `WidgetDashboardWithWidget`**:
 
 ```tsx
 function MyWidgetDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
@@ -522,6 +410,7 @@ function MyWidgetDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControl
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <MyWidgetDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -535,9 +424,8 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 A widget without `widget.ts` drops the `widgetDefinition` import and passes the manifest
 alone: `createStoryWidgetType( widgetManifest )`.
 
-**3. `WithComparison` — only when the widget's hook populates `comparisonRows`** (see the
-criterion above). Add a `withComparison` control, thread it through the render helper, and add
-the second close-up. It should show the period-over-period values the render path consumes:
+**3. `WithComparison`** — only when the widget qualifies (see above). Add a `withComparison`
+control, thread it through the render helper, and add the second close-up:
 
 ```tsx
 interface MyWidgetStoryControls {
@@ -589,10 +477,9 @@ comparison as a parameter — `getMyWidgetAttributes( controls, withComparison =
 dashboard story can call them with `true` instead of rebuilding the params and duplicating the
 scoping rule.
 
-If a story exposes `withComparison`, both the close-up story and the dashboard story must pass
-`reportParams: getDefaultQueryParams( withComparison )` into the render component, and the render
-component must pass those attributes into `<WidgetRoot>`. A visible Storybook control that is not
-wired into the render/data flow gives reviewers a false comparison test.
+A visible `withComparison` control must reach the render component as
+`reportParams: getDefaultQueryParams( withComparison )`, in both the close-up and the dashboard
+story; one that is not wired into the render/data flow gives reviewers a false comparison test.
 
 Report mocks should exercise the shapes reviewers need to validate, not only the happy path:
 populated primary data for every widget; comparison data when the widget maps comparison rows;
@@ -618,23 +505,8 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
 
 ### Widget pitfalls
 
-- Putting new widgets under `packages/widgets-toolkit/src/widgets/*` — that path is for the
-  legacy widgets that haven't been migrated yet.
-- Using the legacy `withWidgetRoot()` decorator for new stories — new widgets render via the
-  real `WidgetDashboard` through the shared story helper instead.
-- Declaring in `widget.ts` what `widget.json` can carry — `name`, `title`, `help`,
-  `description`, `category`, `presentation`, `icon`, or an attribute whose field is static.
-  `widget.json` is the source of truth; the `widget.ts` default export carries only the
-  attribute behavior JSON cannot express, and `example`. Stories read the declarative fields
-  from `widget.json` via `createStoryWidgetType()`, which resolves the icon the way the host does.
-- Declaring the attribute type twice — a widget with a `widget.ts` declares the shape there and
-  `render.tsx` imports it; one without declares it in `render.tsx`. Render-only types may compose
-  that shape with host fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate it.
-- Typing a zero-attribute widget as `Record< string, never >` — its `[key: string]: never`
-  index signature collapses composed host fields like `reportParams` to `never` and breaks the
-  typecheck. Use `Record< never, never >` instead.
-- Dropping `attributes` at the `<WidgetRoot>` boundary — this discards host-provided
-  `reportParams` and makes date/comparison Storybook controls misleading.
+- Using the `withWidgetRoot()` decorator for a widget story — it frames the toolkit's component
+  stories; widgets render via the real `WidgetDashboard` through the shared story helper.
 - Setting the period of the surface a widget sits on by writing the URL (`useReportDateFilters`,
   `useStagedSearch`) — call `useReportScope().openPeriod` instead. The host owns the period: it
   commits the range and draws the date control's attention to it. A host that offers none leaves
@@ -647,13 +519,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   sizing when the style is not part of the shipped widget UI.
 - Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
   `packages/widgets-toolkit/src/helpers/` before writing a new one.
-- Passing a URL from report data straight to `href` — it must go through `safeHttpUrl` first.
-  See "Remote URLs in links" below; nothing upstream validates the scheme.
-- Importing `@automattic/charts` directly from a widget — chart components must come through
-  `@jetpack-premium-analytics/widgets-toolkit` (a shared script module). A direct import
-  bundles the entire charting stack into that widget's render bundle; add a re-export to the
-  toolkit's "Charts passthrough" section instead. The toolkit in turn takes charts from
-  `@jetpack-premium-analytics/externals`, so a passthrough export costs nothing.
+- Leaving widget text at the design system weight — `WidgetRoot` only declares the widget
+  weight, so labels, values and captions opt in with `@include widget-text-weight`, or in a plain
+  `.css` module `var(--jpa-widget-font-weight, var(--wpds-typography-font-weight-default))`.
 
 ### Stats widgets
 
@@ -681,9 +549,7 @@ the query factory — do not do it in the widget or the view hook.
 
 Stats list widgets request `WIDGET_ROW_LIMIT` from
 `@jetpack-premium-analytics/widgets-toolkit`. Do not add per-widget defaults or
-user-editable row counts; report pages handle larger result sets with pagination.
-This rule covers Stats widgets only — the store widgets under
-`packages/widgets-toolkit/src/widgets/` predate it and set their own limits.
+user-editable row counts; report pages list the full result set.
 
 In helpers that cap rows after fetching, `max = 0` means "all rows". Use
 `slice( 0, max > 0 ? max : undefined )`, not `slice( 0, max )`. Endpoint request
@@ -692,7 +558,7 @@ parameters treat `max` as a page size, so `0` does not mean "all rows" there.
 **Loading / error / empty state**
 
 A ranked-rows widget renders `<Leaderboard>` and passes its rows and the hook's status; the
-component owns the states, the skeleton, the shares and deltas, and the detail-link window
+component owns the states, the skeleton, and the detail-link window
 (`widgets/search-terms/render.tsx` is the reference). A breakdown widget renders `<Donut>` with its
 segments and the hook's status; it owns the states, the total, the legend and the deltas
 (the WooCommerce Stats package's widgets render it; `components/donut/stories/` shows the shape).
@@ -706,10 +572,12 @@ it owns the list with flags, the map and the states. Everything else renders its
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
-shared `describeError()` mapper so 403 access failures have neutral copy and no retry action,
-while other failures — including the proxy's `no_connection` 403, which can heal after
-reconnecting — offer Retry. Pass the retryable copy as a full sentence (not a fragment
-interpolated into a shared frame) so translators see the whole sentence:
+shared `describeError()` mapper so failures a retry cannot fix (403 access failures, the
+author post limit and an outdated WooCommerce analytics schema) get
+their own copy and no retry action, while other failures — including the proxy's
+`no_connection` 403, which can heal after reconnecting — offer Retry. Pass the retryable copy
+as a full sentence (not a fragment interpolated into a shared frame) so translators see the whole
+sentence:
 
 ```tsx
 <WidgetState
@@ -780,21 +648,19 @@ at least one primary row has a matching comparison row.
 Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`; do not call
 `mergeStats*ComparisonRows()` or duplicate the row-overlap guard from render/view code.
 Widget-level mapping may still add presentation-only fields such as labels, icons, links,
-shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
-`undefined` so charts show the missing-data placeholder, instead of coercing them to `0` and
-implying a real zero previous period.
+or chart colors. Leave a missing `previousValue` as `undefined` so charts show the missing-data
+placeholder, instead of coercing it to `0` and implying a real zero previous period.
 
-For comparison leaderboards, calculate one denominator from the largest value represented in
-either period with `getCombinedPeriodMax()`. Use that denominator for both `currentShare` and
-`previousShare`; separate per-period maxima make equal-width bars represent different values and
-can contradict the displayed delta. Only include visible primary rows and their matched comparison
-values in the denominator. Missing comparison values remain `undefined` and are ignored.
+Comparison leaderboard entries pass `currentValue` and `previousValue` only. `LeaderboardChart`
+derives the shares and deltas, so do not compute `currentShare`, `previousShare`, or `delta` in a
+widget.
 
 **Remote URLs in links**
 
-Pass every URL from report data through `safeHttpUrl` from `@jetpack-premium-analytics/ui`
-(re-exported by `widgets-toolkit` for widgets) before using it as an `href`. It allows http(s)
-only; render a plain-text fallback when it returns `null`:
+Nothing upstream validates the scheme of a URL in report data. Pass every one through
+`safeHttpUrl` from `@jetpack-premium-analytics/ui` (re-exported by `widgets-toolkit` for widgets)
+before using it as an `href`. It allows http(s) only; render a plain-text fallback when it returns
+`null`:
 
 ```tsx
 const href = safeHttpUrl( item.link );
@@ -813,7 +679,10 @@ URLs do not need the guard.
 
 Rows with children may be interactive and drill into a second-level leaderboard. Rows without
 children must not look like drill-down rows. If a row has an external `href` and no children,
-render it as a normal external link even when sibling rows drill down.
+render it as a normal external link even when sibling rows drill down, unless the widget passes
+`hrefAs: 'viewLink'` on purpose: then the label stays plain text and the URL is offered from the
+"View in new tab" action beside it (the Top referrers widget does this, see STATS-565). A widget
+adds further row actions, such as "Mark as spam", through `trailingAction`, never by linking the row.
 
 When a leaderboard drills down, use `WidgetBackLink` from `widgets-toolkit` in the widget body
 to navigate back to the parent list. Keep the static widget title/icon in the framed widget host
@@ -831,16 +700,16 @@ above the leaderboard or chart content.
 - View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true } } }`.
   Compact output picks its own precision (1.2K, 54.3K, 234K), and `MetricValue` / `LeaderboardChart`
   restore the exact figure in a tooltip and for assistive tech; wrap a hand-rendered figure in
-  `<AbbreviatedValue>` to get the same.
-  `widgets/tags` is the one exception — it passes `useMultipliers: false` because compacting
-  ("1,240" → "1K") was reported as a data mismatch against the Jetpack Stats module it is read
-  beside (WOOA7S-2018). Report tables already print in full, so the widgets are the outliers;
-  whether the rest follow is a product call to raise, not a refactor to do. It is not free: the
-  leaderboard grid is `minmax(0, 1fr) auto`, so the wider value permanently takes width from the
-  label — at the 370px tile a long name ellipsizes where the compact form left it room.
-- Leaderboard widgets: render `<Leaderboard>` with domain rows; it applies the combined-period
-  denominator, the deltas and the row builder for you. The notes below are for the few widgets
-  that must drive `LeaderboardChart` themselves.
+  `<AbbreviatedValue>` to get the same. A widget whose job is one figure — a metric tile, a metric
+  card, a headline, the figure above a chart — uses `HEADLINE_COUNT_FORMAT` from the toolkit
+  instead, which shows the exact figure and falls back to the compact one only where it would be
+  clipped (STATS-549); `git grep HEADLINE_COUNT_FORMAT widgets/` lists them. Breakdown widgets
+  (leaderboards, tables, chart axes) stay compact, exact on hover and in the report: the
+  leaderboard grid is `minmax(0, 1fr) auto`, so a wider value permanently takes width from the
+  label. `widgets/tags` is the one breakdown widget printing full figures, to match the Jetpack
+  Stats module it is read beside (WOOA7S-2018).
+- Leaderboard widgets: render `<Leaderboard>` with domain rows; it applies the row builder for
+  you. The notes below are for the few widgets that must drive `LeaderboardChart` themselves.
 - Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
   drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
   `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in

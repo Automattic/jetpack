@@ -1,7 +1,9 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "../../app/assets/src/css/main/mixins";
 
-body:has(.jetpack-boost-page) {
+// Not `:has(.jetpack-boost-page)`: the admin shell keeps Boost's page in the
+// document behind other dashboards, so the layout would apply to them too.
+body:is(.jetpack_page_jetpack-boost, .toplevel_page_jetpack-boost) {
 
 	@include jetpack-admin-page-layout-wp-build;
 

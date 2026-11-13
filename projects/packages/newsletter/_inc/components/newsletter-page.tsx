@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
+import { useAdminShellLeaveGuard } from '../hooks/use-admin-shell-leave-guard';
 import './newsletter-page.scss';
 import type { JSX, ReactNode } from 'react';
 
@@ -14,6 +15,7 @@ export type NewsletterTab = 'overview' | 'subscribers' | 'settings';
 type Props = {
 	activeTab: NewsletterTab;
 	actions?: ReactNode;
+	hasUnsavedChanges?: boolean;
 	/**
 	 * Whether the active tab's CONTENT should sit inside a horizontally-padded
 	 * container. The tab nav itself is always padded the same way regardless
@@ -63,6 +65,7 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
  * @param props                   - Component props.
  * @param props.activeTab         - Which tab the current route represents.
  * @param props.actions           - Optional actions slot (top-right of the Page header).
+ * @param props.hasUnsavedChanges - Whether Settings has unsaved changes or pending autosaves.
  * @param props.contentHasPadding - Whether the active tab's content gets the page's horizontal padding (defaults to true).
  * @param props.hideFooter        - When true, suppresses the `JetpackFooter` rendered beneath the body slot.
  * @param props.children          - Tab content.
@@ -71,6 +74,7 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
 export default function NewsletterPage( {
 	activeTab,
 	actions,
+	hasUnsavedChanges = false,
 	contentHasPadding = true,
 	hideFooter = false,
 	children,
@@ -79,6 +83,21 @@ export default function NewsletterPage( {
 	const newsletterData = getNewsletterScriptData();
 	const subscribersEnabled = newsletterData?.subscriberManagementEnabled !== false;
 	const overviewEnabled = newsletterData?.overviewEnabled === true;
+
+	const confirmLeave = useCallback(
+		() =>
+			activeTab !== 'settings' ||
+			! hasUnsavedChanges ||
+			// eslint-disable-next-line no-alert
+			window.confirm(
+				__(
+					'You have unsaved changes. Are you sure you want to leave this tab?',
+					'jetpack-newsletter'
+				)
+			),
+		[ activeTab, hasUnsavedChanges ]
+	);
+	useAdminShellLeaveGuard( () => activeTab === 'settings' && hasUnsavedChanges );
 
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
@@ -94,6 +113,9 @@ export default function NewsletterPage( {
 			) {
 				return;
 			}
+			if ( next !== activeTab && ! confirmLeave() ) {
+				return;
+			}
 			// SAFETY: This is the dashboard's complete search state, but generated route types are unavailable.
 			navigate( {
 				search: {
@@ -103,7 +125,7 @@ export default function NewsletterPage( {
 				},
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate, overviewEnabled ]
+		[ activeTab, confirmLeave, navigate, overviewEnabled ]
 	);
 
 	const contentClass = contentHasPadding

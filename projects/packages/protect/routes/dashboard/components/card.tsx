@@ -9,6 +9,7 @@ type CardProps = {
 	icon: ReactElement;
 	title: string;
 	description?: string;
+	titleAside?: ReactNode;
 	status?: CardStatus;
 	actions?: ReactNode;
 	children: ReactNode;
@@ -21,12 +22,24 @@ type CardProps = {
  * @param props.icon        - The feature's icon.
  * @param props.title       - The feature's name.
  * @param props.description - Optional line under the title.
+ * @param props.titleAside  - Optional details beside the title, such as a badge saying when it last ran.
  * @param props.status      - Optional status badge.
  * @param props.actions     - Optional controls beside the badge.
  * @param props.children    - The card's rows.
  * @return The card.
  */
-export function ProtectCard( { icon, title, description, status, actions, children }: CardProps ) {
+export function ProtectCard( {
+	icon,
+	title,
+	description,
+	titleAside,
+	status,
+	actions,
+	children,
+}: CardProps ) {
+	const cardTitle = (
+		<Card.Title render={ <h2 className="jp-protect-card__title" /> }>{ title }</Card.Title>
+	);
 	return (
 		<Card.Root render={ <section /> } className="jp-protect-card" aria-label={ title }>
 			<Card.Header
@@ -35,7 +48,14 @@ export function ProtectCard( { icon, title, description, status, actions, childr
 				<Stack direction="row" gap="sm" align={ description ? 'start' : 'center' }>
 					<Icon icon={ icon } size={ 24 } />
 					<Stack direction="column" gap="xs">
-						<Card.Title render={ <h2 className="jp-protect-card__title" /> }>{ title }</Card.Title>
+						{ titleAside ? (
+							<Stack direction="row" gap="sm" align="center" wrap="wrap">
+								{ cardTitle }
+								{ titleAside }
+							</Stack>
+						) : (
+							cardTitle
+						) }
 						{ description && (
 							<Text variant="body-sm" className="jp-protect-card__muted">
 								{ description }

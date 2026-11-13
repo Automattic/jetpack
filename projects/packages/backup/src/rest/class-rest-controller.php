@@ -99,6 +99,11 @@ class Rest_Controller {
 			return false;
 		}
 
+		$offline_mode_error = Jetpack_Backup::get_offline_mode_error();
+		if ( $offline_mode_error ) {
+			return $offline_mode_error;
+		}
+
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
 			return new WP_Error(
 				'user_not_connected',

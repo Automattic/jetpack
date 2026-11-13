@@ -4,11 +4,14 @@ import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
+import { leavePageFor } from '../../../utils/reload-page';
 import ConnectionStatusCard from '../index';
 import type { StateProducts, MyJetpackInitialState } from '../../../data/types';
 import type { ConnectionErrorObject } from '@automattic/jetpack-connection';
 
 let mockDetailsMissing = false;
+let mockConnectionFromMissing = false;
+const mockUseConnectionErrorNotice = jest.fn();
 jest.mock( '@automattic/jetpack-connection', () => {
 	const actual = jest.requireActual( '@automattic/jetpack-connection' );
 
@@ -16,6 +19,14 @@ jest.mock( '@automattic/jetpack-connection', () => {
 		...actual,
 		get ConnectionErrorDetails() {
 			return mockDetailsMissing ? undefined : actual.ConnectionErrorDetails;
+		},
+		get CONNECTION_FROM() {
+			return mockConnectionFromMissing ? undefined : actual.CONNECTION_FROM;
+		},
+		// Records the options the card passes; the real hook still runs so the diagnosis renders.
+		useConnectionErrorNotice: ( ...args: unknown[] ) => {
+			mockUseConnectionErrorNotice( ...args );
+			return actual.useConnectionErrorNotice( ...args );
 		},
 	};
 } );
@@ -36,6 +47,8 @@ jest.mock( '../../../data/products/use-all-products', () => {
 		} ),
 	};
 } );
+
+jest.mock( '../../../utils/reload-page', () => ( { leavePageFor: jest.fn() } ) );
 
 const mockRecordEvent = jest.fn();
 jest.mock( '../../../hooks/use-analytics', () => ( {
@@ -153,11 +166,14 @@ beforeAll( () => {
 		},
 		site: {
 			host: 'standard',
+			admin_url: 'https://example.org/wp-admin/',
 		},
 	};
 } );
 beforeEach( () => {
 	mockRecordEvent.mockClear();
+	mockUseConnectionErrorNotice.mockClear();
+	jest.mocked( leavePageFor ).mockClear();
 	resetInitialState();
 	setConnectionStore();
 	global.JetpackScriptData.user.current_user.capabilities = {};
@@ -287,6 +303,48 @@ describe( 'ConnectionStatusCard', () => {
 				}
 			);
 
+			const clickConnect = async () => {
+				asAdmin();
+				setConnectionStore( { isRegistered: true, hasConnectedOwner: true } );
+				needAnAccount();
+				render(
+					<Providers>
+						<ConnectionStatusCard { ...testProps } />
+					</Providers>
+				);
+				await userEvent.click( screen.getByRole( 'button', { name: 'Connect my account' } ) );
+
+				expect( leavePageFor ).toHaveBeenCalledTimes( 1 );
+				return new URL( jest.mocked( leavePageFor ).mock.calls[ 0 ][ 0 ] ).searchParams;
+			};
+
+			it( 'connects the account under the card’s own name, returning to this page', async () => {
+				const query = await clickConnect();
+
+				expect( query.get( 'from' ) ).toBe( 'my_jetpack_connection_card' );
+				expect( query.get( 'redirect_after_auth' ) ).toBe( window.location.href );
+				expect( mockRecordEvent ).toHaveBeenCalledWith(
+					'jetpack_myjetpack_connection_connect_user_click',
+					expect.objectContaining( { from: 'my_jetpack_connection_card' } )
+				);
+			} );
+
+			it( 'falls back to the legacy names when the shared script predates CONNECTION_FROM', async () => {
+				mockConnectionFromMissing = true;
+				try {
+					const query = await clickConnect();
+
+					expect( query.get( 'from' ) ).toBe( 'my-jetpack' );
+					expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
+						expect.objectContaining( { reconnectFrom: undefined } )
+					);
+					// The link builder warns about a legacy name in development.
+					expect( console ).toHaveWarned();
+				} finally {
+					mockConnectionFromMissing = false;
+				}
+			} );
+
 			it( 'renders the correct user connection line item', () => {
 				setup();
 				setTimeout( () => {
@@ -351,7 +409,7 @@ describe( 'ConnectionStatusCard', () => {
 			);
 
 			expect( screen.getByText( 'Site and account connected' ) ).toBeInTheDocument();
-			expect( screen.queryByText( 'Offline mode' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Offline Mode' ) ).not.toBeInTheDocument();
 		} );
 
 		// Matched as a direct child of the heading: the manage-connection button holds its own chevron.
@@ -476,6 +534,16 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByRole( 'button', { name: 'Restore Connection' } ) ).toBeInTheDocument();
 		} );
 
+		it( 'repairs under the card’s own reconnect name and returns to My Jetpack', () => {
+			setupWithError();
+			expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					reconnectFrom: 'my_jetpack_connection_card_reconnect',
+					reconnectRedirectUrl: 'https://example.org/wp-admin/admin.php?page=my-jetpack',
+				} )
+			);
+		} );
+
 		it( 'renders a link the error declared', () => {
 			setupWithError( {
 				error: {
@@ -514,7 +582,7 @@ describe( 'ConnectionStatusCard', () => {
 
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
 				'jetpack_connection_error_notice_link_click',
-				expect.objectContaining( { context: 'my-jetpack-connection-card' } )
+				expect.objectContaining( { context: 'my-jetpack', placement: 'connection_card' } )
 			);
 		} );
 

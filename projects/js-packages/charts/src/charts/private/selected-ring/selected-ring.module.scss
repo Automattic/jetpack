@@ -1,0 +1,21 @@
+// The clip removes one half of each stroke, so widths are doubled.
+.selected-ring__far,
+.selected-ring__edge {
+	fill: none;
+}
+
+.selected-ring__far {
+	stroke-width: calc(4 * var(--wpds-border-width-focus));
+}
+
+.selected-ring__edge {
+	stroke-width: calc(2 * var(--wpds-border-width-focus));
+}
+
+.selected-ring__contrast {
+	stroke: var(--a8c-charts-color-background, #fff);
+}
+
+.selected-ring__focus {
+	stroke: var(--wpds-color-stroke-focus);
+}

@@ -9,6 +9,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_Reader_Chat;
 use Automattic\Jetpack\Search\Plan;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/reader-chat/class-jetpack-reader-chat.php';
 
@@ -63,7 +64,11 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_reader_chat_enabled' );
 		remove_all_filters( 'jetpack_reader_chat_enqueue_enabled' );
 		remove_all_filters( 'jetpack_reader_chat_has_ai_features' );
+		remove_all_filters( 'jetpack_site_chat_query_filter' );
+		delete_option( 'reader_chat_query_filter' );
 		remove_all_filters( 'jetpack_reader_chat_has_search_plan_access' );
+		remove_all_filters( 'jetpack_reader_chat_load_strategy' );
+		remove_filter( 'wp_resource_hints', array( Jetpack_Reader_Chat::class, 'add_resource_hints' ) );
 		remove_all_filters( 'jetpack_sync_options_whitelist' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		remove_all_filters( 'jetpack_is_coming_soon' );
@@ -243,6 +248,69 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The Site Chat content filter is stored for wpcom to read.
+	 */
+	public function test_sync_query_filter_option_stores_filter() {
+		$query_filter = array( 'bool' => array( 'must_not' => array( array( 'range' => array( 'date' => array( 'lt' => '2020-01-01' ) ) ) ) ) );
+		add_filter(
+			'jetpack_site_chat_query_filter',
+			function () use ( $query_filter ) {
+				return $query_filter;
+			}
+		);
+
+		Jetpack_Reader_Chat::sync_query_filter_option();
+
+		$this->assertSame( $query_filter, get_option( 'reader_chat_query_filter' ) );
+	}
+
+	/**
+	 * Removing the filter stores an empty array, so old exclusions do not linger.
+	 */
+	public function test_sync_query_filter_option_clears_stored_value_when_filter_is_removed() {
+		update_option( 'reader_chat_query_filter', array( 'term' => array( 'post_type' => 'page' ) ) );
+
+		Jetpack_Reader_Chat::sync_query_filter_option();
+
+		$this->assertSame( array(), get_option( 'reader_chat_query_filter', false ) );
+	}
+
+	/**
+	 * A broken filter must not widen what Site Chat can see, so the last good value stays.
+	 *
+	 * @param mixed $value Value returned by the filter.
+	 * @dataProvider provide_unusable_query_filters
+	 */
+	#[DataProvider( 'provide_unusable_query_filters' )]
+	public function test_sync_query_filter_option_keeps_stored_value_when_filter_is_unusable( $value ) {
+		$stored = array( 'term' => array( 'post_type' => 'page' ) );
+		update_option( 'reader_chat_query_filter', $stored );
+		add_filter(
+			'jetpack_site_chat_query_filter',
+			function () use ( $value ) {
+				return $value;
+			}
+		);
+		$this->setExpectedIncorrectUsage( 'jetpack_site_chat_query_filter' );
+
+		Jetpack_Reader_Chat::sync_query_filter_option();
+
+		$this->assertSame( $stored, get_option( 'reader_chat_query_filter' ) );
+	}
+
+	/**
+	 * Values the filter may return that must not be stored.
+	 *
+	 * @return array
+	 */
+	public static function provide_unusable_query_filters() {
+		return array(
+			'not an array' => array( 'term' ),
+			'oversized'    => array( array( 'terms' => array( 'post_id' => range( 1, 20000 ) ) ) ),
+		);
+	}
+
+	/**
 	 * Test that the enqueue filter remains a force-off override.
 	 */
 	public function test_init_does_not_hook_when_enqueue_filter_is_false() {
@@ -406,10 +474,6 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertTrue(
 			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
 			'Script should be enqueued on a non-singular public frontend page.'
-		);
-		$this->assertTrue(
-			wp_style_is( 'jetpack-reader-chat', 'enqueued' ),
-			'Style should be enqueued on a non-singular public frontend page.'
 		);
 	}
 
@@ -670,6 +734,92 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			$inline,
 			'Inline config should set window.JetpackReaderChatConfig.'
 		);
+	}
+
+	/**
+	 * Enqueue reader chat with a load strategy and print its script tags the way wp_footer would.
+	 *
+	 * @param string|null $strategy Filter value, or null to leave the filter unset.
+	 * @return string Printed HTML.
+	 */
+	private function enqueue_with_strategy( ?string $strategy ): string {
+		if ( null !== $strategy ) {
+			add_filter(
+				'jetpack_reader_chat_load_strategy',
+				function () use ( $strategy ) {
+					return $strategy;
+				}
+			);
+		}
+		$this->override_ai_features( true );
+		$this->cache_asset_data( array( 'version' => 'abc123' ) );
+		// SCRIPT_DEBUG bypasses the cached version, so serve the same version from the manifest too.
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"version":"abc123"}',
+				);
+			}
+		);
+
+		Jetpack_Reader_Chat::enqueue_scripts();
+		$this->assertTrue( wp_script_is( 'jetpack-reader-chat', 'enqueued' ) );
+
+		ob_start();
+		$GLOBALS['wp_scripts']->do_items( array( 'jetpack-reader-chat' ) );
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Deferred strategies, keyed by the filter value under test.
+	 *
+	 * @return array
+	 */
+	public static function provide_deferred_strategies() {
+		return array(
+			'default'       => array( null, false ),
+			'idle'          => array( 'idle', true ),
+			'unknown value' => array( 'on-click', false ),
+		);
+	}
+
+	/**
+	 * Test that deferred strategies print the config and loader, but not the bundle or stylesheet.
+	 *
+	 * @dataProvider provide_deferred_strategies
+	 *
+	 * @param string|null $strategy      Filter value, or null to leave the filter unset.
+	 * @param bool        $expected_idle Whether the loader should also load on idle.
+	 */
+	#[DataProvider( 'provide_deferred_strategies' )]
+	public function test_enqueue_scripts_defers_bundle( $strategy, bool $expected_idle ) {
+		$html = $this->enqueue_with_strategy( $strategy );
+
+		$this->assertFalse( wp_style_is( 'jetpack-reader-chat', 'enqueued' ), 'Stylesheet should not block render.' );
+		$this->assertStringNotContainsString( 'src="' . AiAssistantPlugin\READER_CHAT_JS_URL, $html, 'Bundle should not be printed as a script tag.' );
+		$this->assertStringContainsString( 'window.JetpackReaderChatConfig', $html );
+		$this->assertStringContainsString( '"js":"' . AiAssistantPlugin\READER_CHAT_JS_URL . '?ver=abc123"', $html );
+		$this->assertStringContainsString( '"css":"' . AiAssistantPlugin\READER_CHAT_CSS_URL . '?ver=abc123"', $html );
+		$this->assertStringContainsString( '"idle":' . ( $expected_idle ? 'true' : 'false' ), $html );
+		$this->assertLessThan(
+			strpos( $html, 'document.createElement' ),
+			strpos( $html, 'window.JetpackReaderChatConfig' ),
+			'Config should print before the loader.'
+		);
+		$this->assertContains( '//widgets.wp.com', apply_filters( 'wp_resource_hints', array(), 'dns-prefetch' ) );
+	}
+
+	/**
+	 * Test that the eager strategy prints the bundle and stylesheet with the page.
+	 */
+	public function test_enqueue_scripts_eager_strategy_loads_bundle_with_page() {
+		$html = $this->enqueue_with_strategy( 'eager' );
+
+		$this->assertTrue( wp_style_is( 'jetpack-reader-chat', 'enqueued' ) );
+		$this->assertStringContainsString( 'src="' . AiAssistantPlugin\READER_CHAT_JS_URL . '?ver=abc123"', $html );
+		$this->assertStringNotContainsString( 'document.createElement', $html, 'Eager mode should not print the loader.' );
 	}
 
 	// ──────────────────────────────────────────────────

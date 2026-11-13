@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Forms: Show a progress indicator and a notice while exporting responses.

@@ -7,6 +7,8 @@ interface RawConfig {
 	apiSource?: string;
 	wpcomUpgradeUrl?: string;
 	tracksUserData?: TracksUserData | null;
+	knownThreatsAvailable?: boolean;
+	hiddenGroups?: string[];
 }
 
 export interface TracksUserData {
@@ -28,4 +30,8 @@ export const config = {
 	wpcomUpgradeUrl: raw.wpcomUpgradeUrl || '',
 	/** Set when the Jetpack connection can't identify the user, as on Simple. */
 	tracksUserData: raw.tracksUserData ?? null,
+	/** Whether backups are checked for known threats; only WoA sites are, for now. */
+	knownThreatsAvailable: raw.knownThreatsAvailable === true,
+	/** Activity groups sent as `not_group`, e.g. backup events on a Simple site without backups. */
+	hiddenGroups: Array.isArray( raw.hiddenGroups ) ? raw.hiddenGroups : [],
 };

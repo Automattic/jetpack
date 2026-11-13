@@ -126,7 +126,6 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 				'agents_manager_docked'            => true,
 				'agents_manager_minimized'         => true,
 				'agents_manager_floating_position' => 'left',
-				'agents_manager_router_history'    => array( 'entries' => array() ),
 			)
 		);
 

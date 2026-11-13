@@ -1,11 +1,12 @@
 @use "sass:list";
 @use "sass:string";
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 // The Jetpack brand icon palette.
 $feature-icon-background: #003010;
 $feature-icon-foreground: #0ced57;
-$banner-foreground: #daffdc;
 $band-ground: #f8f8f8;
 
 .content {
@@ -16,79 +17,23 @@ $band-ground: #f8f8f8;
 	padding-block-end: var(--wpds-dimension-padding-3xl);
 }
 
-// The AI Hub's dark-green banner, rebuilt: a package cannot import the
-// Jetpack plugin's shell.
+// Jetpack components' HighlightBanner, larger for this page's only heading.
 .banner {
-	align-items: flex-start;
-	background: $feature-icon-background;
-	border-radius: var(--wpds-border-radius-lg);
-	box-sizing: border-box;
-	display: flex;
-	// Keeps the orbs' stacking inside the banner, away from the sticky toolbar.
-	isolation: isolate;
 	margin-block-end: var(--wpds-dimension-gap-sm);
-	overflow: hidden;
-	padding: var(--wpds-dimension-padding-3xl);
-	position: relative;
-}
 
-.banner__content {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-sm);
-	max-inline-size: 32.5rem;
-	position: relative;
-	z-index: 1;
-}
-
-// Two classes, to outweigh the tab wrapper's rule for every h2.
-.banner .banner__title {
-	color: $banner-foreground;
-	font-size: 32px;
-	font-weight: 500;
-	line-height: 40px;
-	margin: 0;
-}
-
-.banner__description {
-	color: $banner-foreground;
-	font-size: 13px;
-	line-height: 20px;
-	margin: 0;
-}
-
-// Two classes, to outweigh the Button's own colour rules.
-.banner .banner__close {
-	color: #fff;
-	inset-block-start: var(--wpds-dimension-padding-sm);
-	inset-inline-end: var(--wpds-dimension-padding-sm);
-	position: absolute;
-	z-index: 1;
-
-	&:hover:not(:disabled) {
-		color: $banner-foreground;
+	:global(.jp-highlight-banner__content) {
+		gap: var(--wpds-dimension-gap-sm);
 	}
-}
 
-.banner__orb {
-	background: linear-gradient(to right, #04c, #48ff50);
-	block-size: 180px;
-	border-radius: 50%;
-	inline-size: 180px;
-	// Shared by both orbs, so the glow and the sphere share a vertical axis.
-	inset-inline-end: 56px;
-	pointer-events: none;
-	position: absolute;
-}
+	// Three classes, to beat the shared rule whatever the load order.
+	&:global(.jp-highlight-banner) :global(.jp-highlight-banner__title) {
+		font-size: 32px;
+	}
 
-.banner__orb--top {
-	filter: blur(25px);
-	inset-block-start: -96px;
-}
-
-// Deep enough that this short banner shows a glow, not the sphere's hard edge.
-.banner__orb--bottom {
-	inset-block-end: -140px;
+	// Deep enough that this short banner shows a glow, not the sphere's hard edge.
+	:global(.jp-highlight-banner__orb--bottom) {
+		inset-block-end: -140px;
+	}
 }
 
 .feature-grid {
@@ -123,10 +68,9 @@ $band-ground: #f8f8f8;
 		border-color: var(--wpds-color-stroke-surface-neutral);
 	}
 
-	// wp-admin draws focus as a box-shadow outside the element, which this card's
-	// radius clips. Draw it on the card instead, from whichever control inside has
-	// focus, so a keyboard user can see where they are.
-	&:focus-within {
+	// The title button stretches over the card, so the card draws the title's
+	// keyboard focus ring. Other controls draw their own, so only one ring shows.
+	&:has(.feature-item__open:focus-visible) {
 		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 		outline-offset: calc(var(--wpds-border-width-focus) * -1);
 	}
@@ -136,6 +80,7 @@ $band-ground: #f8f8f8;
 // padding, so its switch lines up with the cards that have one.
 .feature-item--static {
 	padding-inline-end: calc(var(--wpds-dimension-padding-xl) + 36px);
+	flex-wrap: wrap;
 
 	&:hover {
 		background: var(--wpds-color-background-surface-neutral-strong);
@@ -145,7 +90,7 @@ $band-ground: #f8f8f8;
 
 // Connect is wider than a switch, so on phones it moves under the text
 // rather than squeezing it.
-@media (max-width: #{gb.$break-small - 1px}) {
+@media (max-width: #{breakpoints.$break-small - 1px}) {
 
 	.feature-item--connect {
 		flex-wrap: wrap;
@@ -187,7 +132,7 @@ $band-ground: #f8f8f8;
 	flex: 1;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-xs);
-	min-inline-size: 0;
+	min-inline-size: 50%;
 }
 
 .feature-item__heading {
@@ -203,7 +148,7 @@ $band-ground: #f8f8f8;
 }
 
 // The title is the row's control, so it takes a button's behaviour and none of
-// its chrome. The card draws its focus ring, which is not clipped.
+// its chrome, including its focus ring.
 .feature-item__open {
 	background: none;
 	border: 0;
@@ -350,6 +295,12 @@ $band-ground: #f8f8f8;
 	text-decoration: underline;
 }
 
+// Marks where the list starts, for scrolling back to it. The negative margin
+// cancels the extra row gap the empty element would add.
+.list-start {
+	margin-block-end: calc(-1 * var(--wpds-dimension-gap-sm));
+}
+
 // The toolbar's own bottom margin already spaces this row from it.
 .modules-navigation {
 	margin-block-end: var(--wpds-dimension-gap-md);
@@ -398,7 +349,7 @@ $band-ground: #f8f8f8;
 }
 
 // Sticky so the filters stay reachable while scrolling a long grid. The
-// offset clears the wp-admin bar, which is fixed.
+// offset clears the tabs when they are pinned too.
 .toolbar {
 	background: var(--wpds-color-background-surface-neutral-strong);
 	border-color: var(--wpds-color-stroke-surface-neutral-weak);
@@ -406,7 +357,7 @@ $band-ground: #f8f8f8;
 	border-style: solid;
 	border-width: var(--wpds-border-width-xs);
 	container: features-toolbar / inline-size;
-	inset-block-start: 0;
+	inset-block-start: var(--my-jetpack-pinned-tabs-block-size, 0);
 	margin-block: var(--wpds-dimension-gap-md);
 	padding: var(--wpds-dimension-padding-md);
 	position: sticky;
@@ -489,6 +440,13 @@ $band-ground: #f8f8f8;
 	overflow: hidden;
 }
 
+// List rows have more inner padding than the toolbar card, so the select-all
+// checkbox moves in by the difference to line up with the row checkboxes. The
+// negative end margin takes that space back, so only the checkbox moves.
+.bulk-bar > :global(.components-checkbox-control) {
+	margin-inline: calc(var(--wpds-dimension-padding-xl) - var(--wpds-dimension-padding-md)) calc(var(--wpds-dimension-padding-md) - var(--wpds-dimension-padding-xl));
+}
+
 .bulk-bar {
 	align-items: center;
 	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
@@ -497,6 +455,31 @@ $band-ground: #f8f8f8;
 	gap: var(--wpds-dimension-gap-md);
 	margin-block-start: var(--wpds-dimension-gap-md);
 	padding-block-start: var(--wpds-dimension-padding-md);
+}
+
+// Checked and partly checked boxes take the selected pill's fill and text color
+// and, like the pills, show a focus ring for keyboard focus, not after a click.
+.bulk-bar,
+.feature-leading-slot {
+
+	:global(.components-checkbox-control__input[type="checkbox"]) {
+
+		&:not(:disabled):is(:checked, :indeterminate) {
+			background: var(--wpds-color-background-interactive-neutral-strong);
+			border-color: var(--wpds-color-background-interactive-neutral-strong);
+		}
+
+		// Some versions of the WordPress components stylesheet draw this ring
+		// as a box-shadow and others as an outline, so clear both.
+		&:focus:not(:focus-visible) {
+			box-shadow: none;
+			outline-color: transparent;
+		}
+	}
+
+	:global(.components-checkbox-control:not(:has(:disabled))) :global(svg:is(.components-checkbox-control__checked, .components-checkbox-control__indeterminate)) {
+		color: var(--wpds-color-foreground-interactive-neutral-strong);
+	}
 }
 
 .bulk-bar__count {
@@ -927,10 +910,10 @@ $band-props: (
 
 // Styled as core's Tooltip, which cannot anchor to a sidebar item.
 .menu-pointer :global(.components-popover__content) {
-	background: gb.$gray-900;
-	border-radius: gb.$radius-small;
+	background: colors.$gray-900;
+	border-radius: variables.$radius-small;
 	box-shadow: none;
-	color: gb.$white;
+	color: colors.$white;
 	font-size: 12px;
 	line-height: 1.4;
 	padding-block: 4px;

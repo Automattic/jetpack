@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `wp jetpack-forms export` command that exports form responses to CSV.
