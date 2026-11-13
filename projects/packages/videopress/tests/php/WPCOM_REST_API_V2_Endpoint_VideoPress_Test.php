@@ -904,6 +904,56 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Data provider for test_meta_update_reports_unconfirmed_upstream_replies.
+	 *
+	 * @return array<string, array{int, string, string, int}>
+	 */
+	public static function provide_unconfirmed_upstream_replies() {
+		return array(
+			'HTML error page' => array( 503, '<html>Service Unavailable</html>', 'videopress_meta_update_failed', 502 ),
+			'false body'      => array( 200, 'false', 'videopress_meta_update_failed', 502 ),
+			'REST error'      => array( 400, '{"code":"invalid_guid","message":"Bad guid","data":{"status":400}}', 'invalid_guid', 400 ),
+		);
+	}
+
+	/**
+	 * An upstream reply that does not confirm the update must reach the dashboard as an error with a code.
+	 *
+	 * @param int    $upstream_status HTTP status WordPress.com answers with.
+	 * @param string $upstream_body   Body WordPress.com answers with.
+	 * @param string $code            Expected REST error code.
+	 * @param int    $status          Expected HTTP status.
+	 * @dataProvider provide_unconfirmed_upstream_replies
+	 */
+	#[DataProvider( 'provide_unconfirmed_upstream_replies' )]
+	public function test_meta_update_reports_unconfirmed_upstream_replies( $upstream_status, $upstream_body, $code, $status ) {
+		$user_id = $this->login_as( 'administrator' );
+		$this->mock_connection( $user_id );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		$attachment_id = $this->create_attachment_owned_by( $user_id );
+		update_post_meta( $attachment_id, 'videopress_guid', 'aBcDeFgH' );
+
+		$reply = function () use ( $upstream_status, $upstream_body ) {
+			return array(
+				'headers'  => array(),
+				'body'     => $upstream_body,
+				'response' => array(
+					'code'    => $upstream_status,
+					'message' => '',
+				),
+				'cookies'  => array(),
+			);
+		};
+		add_filter( 'pre_http_request', $reply );
+		$response = $this->dispatch_meta_update( $attachment_id );
+		remove_filter( 'pre_http_request', $reply );
+		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertSame( $code, $response->get_data()['code'] );
+	}
+
+	/**
 	 * The poster read must stay closed to logged-out visitors.
 	 *
 	 * Per-video authorization alone does not close this route to anonymous
