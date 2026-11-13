@@ -1,7 +1,7 @@
 import { useEffect, useRef } from '@wordpress/element';
 
 /**
- * Let the Jetpack admin shell ask before it hides this page or opens it at another route.
+ * Let the Jetpack admin shell ask before it opens this page at another route.
  *
  * The shell dispatches a cancelable `jetpack-admin-shell:before-leave` event; without the shell, nothing does.
  *

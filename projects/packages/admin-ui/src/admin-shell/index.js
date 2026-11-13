@@ -35,8 +35,8 @@ const emit = ( type, detail ) => {
 };
 
 /*
- * Ask a member whether it can be left or retargeted. One with unsaved changes asks the user in its
- * own words and cancels the event to stay. Members on an older shell never get it.
+ * Ask a member whether it can be opened at another route. One with unsaved changes asks the user in
+ * its own words and cancels the event to stay. Members on an older shell never get it.
  */
 const mayLeave = ( page, url ) => {
 	const proceed = window.dispatchEvent(
@@ -235,14 +235,11 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		// A booted app opened at another route unmounts the view it was left on, edits and all.
 		const retargets =
 			apps.has( slug ) && lastUrl[ slug ] && routeOf( url ) !== routeOf( lastUrl[ slug ] );
-		if ( push ) {
-			if ( apps.get( previous )?.state === 'visible' && ! mayLeave( previous, url ) ) {
+		// Hiding the visible app keeps its edits, so only a retarget asks.
+		if ( retargets && ! mayLeave( slug, url ) ) {
+			if ( push ) {
 				return;
 			}
-			if ( retargets && ! mayLeave( slug, url ) ) {
-				return;
-			}
-		} else if ( retargets && ! mayLeave( slug, url ) ) {
 			// Back/Forward can't be called off: reopen the app where it was left, in this same entry.
 			url = lastUrl[ slug ];
 			gate.replaceUrl( url );

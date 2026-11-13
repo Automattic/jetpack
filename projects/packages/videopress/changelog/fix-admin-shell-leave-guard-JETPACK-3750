@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Dashboard: Ask before the Jetpack admin shell leaves an unsaved video, chapter or playlist edit.
+Dashboard: Ask before the Jetpack admin shell opens VideoPress at another screen while a video, chapter or playlist edit is unsaved.

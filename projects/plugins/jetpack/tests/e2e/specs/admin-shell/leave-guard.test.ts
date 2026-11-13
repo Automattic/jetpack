@@ -47,16 +47,16 @@ test.describe( 'Admin shell: unsaved changes', () => {
 		await installShellProbe( page );
 	} );
 
-	test( 'a menu click away from unsaved Newsletter Settings asks, and the edit survives', async ( {
+	test( 'a menu click away from unsaved Newsletter Settings keeps the edit without asking', async ( {
 		page,
 	} ) => {
 		const dialogs = answerDialogs( page );
 		const sender = await editNewsletterSettings( page );
 
 		await switchTo( page, 'my-jetpack' );
-		expect( dialogs.seen ).toEqual( [ 'confirm' ] );
 		await switchTo( page, NEWSLETTER );
 		await expect( sender ).toHaveValue( EDIT );
+		expect( dialogs.seen ).toEqual( [] );
 	} );
 
 	test( 'a link to another Newsletter tab asks before dropping unsaved Settings', async ( {
@@ -65,7 +65,6 @@ test.describe( 'Admin shell: unsaved changes', () => {
 		const dialogs = answerDialogs( page );
 		const sender = await editNewsletterSettings( page );
 		await switchTo( page, 'my-jetpack' );
-		dialogs.seen.length = 0;
 		dialogs.accept = false;
 
 		// No Jetpack link targets another Newsletter tab yet; a future one would take this path.

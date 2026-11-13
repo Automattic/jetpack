@@ -168,24 +168,18 @@ describe( 'admin shell leave guard', () => {
 		}
 	);
 
-	it( 'reopens a hidden member without asking at the route it was left on', async () => {
+	it( 'switches away from a member with unsaved changes without asking, and back to the same route', async () => {
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
 		click( B );
 		await settle();
-		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+
+		expect( where() ).toBe( '?page=guest-b' );
+		expect( stateOf( 'guest-a' ) ).toBe( 'hidden' );
+
 		click( A );
 		await settle();
 
-		expect( where() ).toBe( '?page=guest-a&p=%2Fone' );
-		expect( mockStay.mock.calls.map( ( [ event ] ) => event.detail.page ) ).not.toContain(
-			'guest-a'
-		);
-	} );
-
-	it( 'keeps a member with unsaved changes on screen when its user stays on a menu click', async () => {
-		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
-		click( B );
-		await settle();
-
+		expect( mockStay ).not.toHaveBeenCalled();
 		expect( where() ).toBe( '?page=guest-a&p=%2Fone' );
 		expect( stateOf( 'guest-a' ) ).toBe( 'visible' );
 	} );
