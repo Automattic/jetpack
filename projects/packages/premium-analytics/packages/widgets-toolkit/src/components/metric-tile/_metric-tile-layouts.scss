@@ -1,11 +1,20 @@
 @use "sass:math";
+@use "sass:meta";
 
-// The arrangement a grid takes follows the size of its own box alone, read by
-// container queries on the size container around it. Shared by the loaded grid
-// and its skeleton so the two land in the same place.
+// The arrangement a grid takes follows the size of its own box and the number
+// of tiles it holds, read by container queries on the size container around
+// it. Shared by the loaded grid and its skeleton so the two land in the same
+// place.
 
-// Inline size from which the tiles sit side by side instead of in a list.
+// Inline size from which the tiles can sit side by side instead of in a list.
 $wide-min-inline-size: 560px;
+
+// A row tile at its narrowest: room for a six-digit figure at font-size-2xl
+// inside padding-lg on both sides. A row with less falls back to the list.
+$row-min-tile-inline-size: 160px;
+
+// gap-md, between tiles side by side and between grid rows.
+$wide-gap: 12px;
 
 // The list stretches only when each row gets at least this much height.
 $stacked-min-row-block-size: 68px;
@@ -14,21 +23,52 @@ $stacked-min-row-block-size: 68px;
 // line-height-sm, gap-sm, and the value's font-size-2xl at line-height 1.
 $grid-min-row-block-size: 16px * 2 + 20px + 8px + 32px;
 
-// gap-md, between grid rows.
-$grid-row-gap: 12px;
-
 // Tile counts with rules of their own; a longer grid takes the last one's.
 $max-tile-count: 8;
 
 // Keeps a `max-` bound just under the `min-` bound on the other side of it.
 $bound-step: 0.02px;
 
-$list-query: "(max-inline-size: #{$wide-min-inline-size - $bound-step})";
-$wide-query: "(min-inline-size: #{$wide-min-inline-size})";
+@function grid-min-block-size($count) {
+	$rows: math.ceil(math.div($count, 2));
 
-@function grid-min-block-size($rows) {
+	@return $grid-min-row-block-size * $rows + $wide-gap * ($rows - 1);
+}
 
-	@return $grid-min-row-block-size * $rows + $grid-row-gap * ($rows - 1);
+@function row-min-inline-size($count) {
+
+	@return math.max($wide-min-inline-size, $row-min-tile-inline-size * $count + $wide-gap * ($count - 1));
+}
+
+// Too short for the two-column grid.
+@function short-query($count) {
+
+	@return "(max-block-size: #{grid-min-block-size($count) - $bound-step})";
+}
+
+// Narrower than the wide threshold, or too short for the grid and too narrow
+// for every tile of the row to get its minimum width.
+@function list-query($count) {
+	$narrow: "(max-inline-size: #{$wide-min-inline-size - $bound-step})";
+
+	@if row-min-inline-size($count) == $wide-min-inline-size {
+
+		@return $narrow;
+	}
+
+	$squeezed: "(min-inline-size: #{$wide-min-inline-size}) and (max-inline-size: #{row-min-inline-size($count) - $bound-step}) and #{short-query($count)}";
+
+	@return "(#{$narrow} or (#{$squeezed}))";
+}
+
+@function row-query($count) {
+
+	@return "(min-inline-size: #{row-min-inline-size($count)}) and #{short-query($count)}";
+}
+
+@function grid-query($count) {
+
+	@return "(min-inline-size: #{$wide-min-inline-size}) and (min-block-size: #{grid-min-block-size($count)})";
 }
 
 // Selects a grid by the tiles it holds, so nothing outside the stylesheet has
@@ -44,18 +84,31 @@ $wide-query: "(min-inline-size: #{$wide-min-inline-size})";
 	@return ":has(> :nth-child(n + #{$max-tile-count}):last-child)";
 }
 
-// Narrower than the wide threshold: a list, compact or stacked.
+@mixin for-each-count($query-function) {
+
+	@for $count from 1 through $max-tile-count {
+
+		@container #{meta.call($query-function, $count)} {
+
+			&#{holding($count)} {
+				@content;
+			}
+		}
+	}
+}
+
+// A list, compact or stacked.
 @mixin list {
 
-	@container #{$list-query} {
+	@include for-each-count(meta.get-function("list-query")) {
 		@content;
 	}
 }
 
-// From the wide threshold up: tiles side by side, as a row or a grid.
+// Tiles side by side, as a row or a grid.
 @mixin wide {
 
-	@container #{$wide-query} {
+	@include for-each-count(meta.get-function("wide-query")) {
 		@content;
 	}
 }
@@ -63,61 +116,48 @@ $wide-query: "(min-inline-size: #{$wide-min-inline-size})";
 // A list too short for every row to get its share of the height.
 @mixin compact {
 
-	@for $count from 1 through $max-tile-count {
-		$stacked-min-block-size: $stacked-min-row-block-size * $count;
-
-		@container #{$list-query} and (max-block-size: #{$stacked-min-block-size - $bound-step}) {
-
-			&#{holding($count)} {
-				@content;
-			}
-		}
+	@include for-each-count(meta.get-function("compact-query")) {
+		@content;
 	}
 }
 
 // A list tall enough for every row to get its share of the height.
 @mixin stacked {
 
-	@for $count from 1 through $max-tile-count {
-		$stacked-min-block-size: $stacked-min-row-block-size * $count;
-
-		@container #{$list-query} and (min-block-size: #{$stacked-min-block-size}) {
-
-			&#{holding($count)} {
-				@content;
-			}
-		}
+	@include for-each-count(meta.get-function("stacked-query")) {
+		@content;
 	}
 }
 
-// Side by side, too short for two columns: both counts of a pair share rows.
+// Side by side in one row: too short for the grid, wide enough for every tile.
 @mixin row {
 
-	@for $rows from 1 through math.ceil(math.div($max-tile-count, 2)) {
-
-		@container #{$wide-query} and (max-block-size: #{grid-min-block-size($rows) - $bound-step}) {
-
-			&#{holding($rows * 2 - 1)},
-			&#{holding($rows * 2)} {
-				@content;
-			}
-		}
+	@include for-each-count(meta.get-function("row-query")) {
+		@content;
 	}
 }
 
 // Side by side, tall enough for every row of a two-column grid.
 @mixin grid {
 
-	@for $rows from 1 through math.ceil(math.div($max-tile-count, 2)) {
-
-		@container #{$wide-query} and (min-block-size: #{grid-min-block-size($rows)}) {
-
-			&#{holding($rows * 2 - 1)},
-			&#{holding($rows * 2)} {
-				@content;
-			}
-		}
+	@include for-each-count(meta.get-function("grid-query")) {
+		@content;
 	}
+}
+
+@function wide-query($count) {
+
+	@return "((#{row-query($count)}) or (#{grid-query($count)}))";
+}
+
+@function compact-query($count) {
+
+	@return "(#{list-query($count)}) and (max-block-size: #{$stacked-min-row-block-size * $count - $bound-step})";
+}
+
+@function stacked-query($count) {
+
+	@return "(#{list-query($count)}) and (min-block-size: #{$stacked-min-row-block-size * $count})";
 }
 
 // The four arrangements. The including file adds its own dressing through the
