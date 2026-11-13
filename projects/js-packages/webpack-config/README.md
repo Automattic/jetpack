@@ -113,7 +113,7 @@ Note if you're setting `output.library.name`, you may want to also set `output.u
 `optimization` is an object suitable for spreading some defaults into Webpack's `optimization` setting. It sets the following:
 
 * `minimize` is set based on the mode.
-* `minimizer` is an array with with an instance of `MinimizerPlugin`, configured as described below.
+* `minimizer` is an array with an instance of `MinimizerPlugin`, configured as described below.
 * `emitOnErrors` is set true to facilitate debugging.
 * `concatenateModules` is set to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
 * `chunkIds` is set to false in production mode, as `PnpmDeterministicChunkIdsPlugin` is intended to be used instead. The Webpack default 'named' is set in development mode.
@@ -131,7 +131,7 @@ The default options set the following:
 - `minify` is set to an array of two objects:
   - Index `0` configures JS minification using terser:
     - `implementation` is set to `MinimizerPlugin.MinimizerPlugin.terserMinify`.
-    - `options.ecma`, `minify.options.safari10`, and `minify.options.ie8` are set based on the browserslist config if available, otherwise based on [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
+    - `options.ecma`, `options.safari10`, and `options.ie8` are set based on the browserslist config if available, otherwise based on [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
     - `options.mangle.reserved` is set to preserve the `wp-i18n` methods.
     - `options.format.comments` is set to a regex to preserve "translators" comments.
   - Index `1` configures CSS minification using cssnano:
