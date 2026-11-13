@@ -1,4 +1,5 @@
 @use "../../styles/hover-action" as *;
+@use "../../styles/widget-text" as *;
 
 .container {
 	min-inline-size: 0;
@@ -7,6 +8,8 @@
 }
 
 .label {
+
+	@include widget-text-weight;
 	min-inline-size: 0;
 	overflow: hidden;
 	font-size: var(--wpds-typography-font-size-md);

@@ -331,7 +331,7 @@ function wpcomsh_get_atomic_client_id() {
  * @return array
  */
 function wpcomsh_get_wpcom_active_subscriptions() {
-	$persistent_data = new Atomic_Persistent_Data();
+	$persistent_data = wpcomsh_get_atomic_persistent_data();
 
 	if ( ! $persistent_data->WPCOM_PURCHASES ) { // phpcs:ignore WordPress.NamingConventions
 		return array();

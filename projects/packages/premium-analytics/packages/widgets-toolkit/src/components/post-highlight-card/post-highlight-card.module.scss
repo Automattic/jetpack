@@ -1,3 +1,5 @@
+@use "../../styles/widget-text" as *;
+
 /* Shared single-post highlight card. The widget host owns the card
  * chrome, so this only lays out the body: title, publish line, metric
  * tiles, and the featured image.
@@ -101,6 +103,8 @@
 }
 
 .date {
+
+	@include widget-text-weight;
 	flex-shrink: 0;
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral-weak);
@@ -129,6 +133,8 @@
 }
 
 .metricLabel {
+
+	@include widget-text-weight;
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);
 	text-overflow: ellipsis;

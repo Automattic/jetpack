@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -49,6 +49,19 @@ describe( 'useEmailTabScope', () => {
 		expect( scope?.range.from ).toEqual( recent );
 		expect( scope?.range.to.toISOString() ).toBe( '2026-08-28T23:59:59.999Z' );
 		expect( scope?.reportParams.to.startsWith( '2026-08-28' ) ).toBe( true );
+	} );
+
+	it( "moves a young send's window to the new day after the site's midnight", () => {
+		jest.setSystemTime( new Date( '2026-08-28T23:59:30Z' ) );
+		const recent = new Date( '2026-08-20T00:00:00Z' );
+		const { result } = renderHook( () => useEmailTabScope( POST_ID, recent, TIME_ZONE ) );
+
+		act( () => {
+			jest.advanceTimersByTime( 60 * 1000 );
+		} );
+
+		expect( result.current?.range.to.toISOString() ).toBe( '2026-08-29T23:59:59.999Z' );
+		expect( result.current?.reportParams.to.startsWith( '2026-08-29' ) ).toBe( true );
 	} );
 
 	it( 'is undefined until the publish day is known', () => {

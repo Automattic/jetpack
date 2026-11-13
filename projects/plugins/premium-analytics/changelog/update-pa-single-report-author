@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Serve the author page from /report/author/<id>; the old /author/<id> address redirects.

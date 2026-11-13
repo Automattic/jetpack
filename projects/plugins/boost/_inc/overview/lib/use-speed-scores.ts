@@ -1,4 +1,5 @@
 import { requestSpeedScores, standardizeError } from '@automattic/jetpack-boost-score-api';
+import type { SpeedScoreProgress as ReportedProgress } from '@automattic/jetpack-boost-score-api';
 import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -8,11 +9,7 @@ import { castToString } from '../../../app/assets/src/js/lib/utils/cast-to-strin
 import { requestDataSync, type ScoreRefreshState } from './use-modules-state';
 
 export type SpeedScoresSet = NonNullable< Awaited< ReturnType< typeof requestSpeedScores > > >;
-export type SpeedScoreProgress = {
-	elapsed: number;
-	expected: number;
-	receivedAt: number;
-};
+export type SpeedScoreProgress = ReportedProgress & { receivedAt: number };
 export type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error' | 'offline';
 	error?: Error;
@@ -94,11 +91,11 @@ export function useSpeedScores(
 								setState( previous => ( { ...previous, isRunning: true } ) );
 							}
 						},
-						onProgress: ( { elapsed, expected } ) => {
+						onProgress: reported => {
 							if ( id === requestId.current ) {
 								setState( previous => ( {
 									...previous,
-									progress: { elapsed, expected, receivedAt: Date.now() },
+									progress: { ...reported, receivedAt: Date.now() },
 								} ) );
 							}
 						},

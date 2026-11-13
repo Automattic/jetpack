@@ -443,6 +443,23 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	}
 
 	/**
+	 * Guards the suite's metadata cache: a rebased cache hit must equal freshly generated metadata.
+	 */
+	public function test_cached_attachment_metadata_matches_fresh_generation() {
+		$filename = __DIR__ . '/sample-content/test-image-medium.png';
+		$first    = self::create_upload_object( $filename, 0, true );
+		$second   = self::create_upload_object( $filename, 0, true );
+
+		$this->assertNotSame( get_attached_file( $first ), get_attached_file( $second ) );
+		// Read first: generating metadata also saves it over the stored copy.
+		$cached = wp_get_attachment_metadata( $second );
+		$this->assertSame( wp_generate_attachment_metadata( $second, get_attached_file( $second ) ), $cached );
+
+		wp_delete_attachment( $first );
+		wp_delete_attachment( $second );
+	}
+
+	/**
 	 * Tests Photon image_downsize filter will return accurate size for a full-size image.
 	 *
 	 * @author kraftbj

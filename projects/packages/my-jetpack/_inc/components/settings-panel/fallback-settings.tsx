@@ -34,7 +34,12 @@ export function FallbackSettings( { module: $module, disabled }: ModuleSettingsP
 
 			{ $module.configure_url && (
 				<Link href={ $module.configure_url }>
-					{ __( 'Manage in Settings', 'jetpack-my-jetpack' ) }
+					{
+						/* translators: "Jetpack" is a product name. */ __(
+							'Manage in Jetpack Settings',
+							'jetpack-my-jetpack'
+						)
+					}
 				</Link>
 			) }
 		</Stack>

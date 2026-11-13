@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep commenters signed in on custom-domain WordPress.com sites after they log out of WordPress.com.
