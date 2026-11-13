@@ -107,6 +107,52 @@ const findMonorepoRoot = startDir => {
 };
 
 /**
+ * Path to the monorepo CLI's entry point, when its dependencies resolve on the host.
+ *
+ * With pnpm on the host, the container shares the host's store, so the CLI's symlinked
+ * dependencies resolve on both sides.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @return {string|null} The entry point, or null if it cannot run on the host
+ */
+const hostCli = monorepoRoot => {
+	const cli = resolve( monorepoRoot, 'tools/cli/bin/jetpack.js' );
+	const dependency = resolve( monorepoRoot, 'tools/cli/node_modules/yargs/package.json' );
+	return fs.existsSync( cli ) && fs.existsSync( dependency ) ? cli : null;
+};
+
+const ownCommands = {
+	init: 'Clone the Jetpack monorepo',
+	'init-hooks': 'Install git hooks that run in Docker',
+};
+
+/**
+ * Answer a shell completion request from the script `jp completion` prints.
+ *
+ * Docker is far too slow for a TAB, so this runs the monorepo CLI on the host and adds the
+ * commands only jp has.
+ *
+ * @param {string|null} monorepoRoot - Path to the monorepo root, if in one
+ * @param {Array}       args         - `--get-yargs-completions` followed by the command line words
+ */
+const complete = ( monorepoRoot, args ) => {
+	const cli = monorepoRoot && hostCli( monorepoRoot );
+	if ( cli ) {
+		spawnSync( process.execPath, [ cli, ...args ], { stdio: [ 'ignore', 'inherit', 'ignore' ] } );
+	}
+
+	// The first word only. yargs formats candidates as `name:description` for zsh.
+	if ( args.length === 3 && ! args[ 2 ].startsWith( '-' ) ) {
+		const zsh = ( process.env.SHELL ?? '' ).includes( 'zsh' );
+		for ( const [ name, description ] of Object.entries( ownCommands ) ) {
+			if ( name.startsWith( args[ 2 ] ) ) {
+				console.log( zsh ? `${ name }:${ description }` : name );
+			}
+		}
+	}
+};
+
+/**
  * Clone the monorepo.
  *
  * @param {string} targetDir - Directory to clone into
@@ -555,6 +601,11 @@ const main = async () => {
 		// Try to find monorepo root from current directory
 		const monorepoRoot = findMonorepoRoot( process.cwd() );
 
+		if ( args[ 0 ] === '--get-yargs-completions' ) {
+			complete( monorepoRoot, args );
+			return;
+		}
+
 		if ( ! monorepoRoot ) {
 			console.error( chalk.red( 'Could not find Jetpack monorepo.' ) );
 
@@ -586,6 +637,26 @@ const main = async () => {
 			}
 
 			runGitHook( monorepoRoot, hookName, hookArgs );
+			return;
+		}
+
+		// Print the shell completion script, from the monorepo CLI on the host (see `complete()`),
+		// with `jp` in place of `jetpack` as the command it completes.
+		if ( args[ 0 ] === 'completion' ) {
+			const cli = hostCli( monorepoRoot );
+			if ( ! cli ) {
+				throw new Error(
+					'Shell completion runs the monorepo CLI on the host, so its dependencies must resolve here: install pnpm on the host, then reinstall with `jp install -r`.'
+				);
+			}
+			const result = spawnSync( process.execPath, [ cli, ...args ], {
+				encoding: 'utf8',
+				stdio: [ 'ignore', 'pipe', 'inherit' ],
+			} );
+			if ( result.status !== 0 ) {
+				throw new Error( `Command failed with status ${ result.status }` );
+			}
+			process.stdout.write( result.stdout.replaceAll( 'jetpack', 'jp' ) );
 			return;
 		}
 
