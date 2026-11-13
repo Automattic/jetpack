@@ -166,7 +166,11 @@ export {
 	type ReportRecordsTableProps,
 	type ReportCsvActionProps,
 } from './report-page';
-export { useDetailPageCustomize, type DetailPageCustomize } from './detail-page';
+export {
+	CustomizingBadge,
+	useDetailPageCustomize,
+	type DetailPageCustomize,
+} from './detail-page';
 export { PageEmptyState, type PageEmptyStateProps } from './page-empty-state';
 export { LockedPage, LockedWidget } from './locked-widget';
 export { PageNotice, type PageNoticeProps } from './page-notice';

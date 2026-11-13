@@ -239,17 +239,25 @@ The date controls read it through `useReportScope()`; absent where the host appl
 ### Period changes a widget sets
 
 A widget never writes the surface's window itself. It calls `openPeriod` from `useReportScope()`,
-which the host built with `usePeriodHost()` (routing package). That call raises a period-change
-signal (`PeriodChangeSignalProvider`, mounted once per stage) and commits the range to the URL in
-one history entry. Once the host's control shows the applied range, `useSettlePeriodChange()`
-matches the pending signal to the surface and hands out an `attentionId` for 1.6 seconds, then
-drops it; a signal whose navigation landed elsewhere, or older than 5 seconds, is dropped unused,
-so a period the reader picked, a tab switch or Customize never replay it.
+which the host built with `usePeriodHost()` (routing package), or `useOpenSectionRange()` to open
+another dashboard section. Either call raises a period-change signal (`PeriodChangeSignalProvider`,
+mounted once per stage) naming the surface and the range, and commits the range to the URL in one
+history entry. `useSettlePeriodChange()` fires the signal as soon as it names the host's surface
+and the host's control shows, so a change on the same surface fires at once and one for another
+section waits for that section. It hands out the `PeriodChange` (`id` and `range`) for 1.6
+seconds, or until the control hides, the surface moves on, or the reader moves the applied range
+away from the one raised; a signal whose surface lands elsewhere, or older than 5 seconds, is
+dropped unused, so a period the reader picked, a tab switch or Customize never replay it.
 
-The host passes `attentionId` to the date control (`DatePeriodDropdown` draws a fading fill),
-to `PeriodChangeStatus` (the live region reads the new range out) and, on a detail page, to the
-layout's `returnToTopKey`. A host that renders its control through the `jpa/report-params` field
-puts `attentionId` on `ReportScopeProvider` next to `openPeriod`, and the field reads it there.
+The host passes the change's `id` to the date control (`DatePeriodDropdown` draws a fading fill)
+and, on a detail page, to the layout's `returnToTopKey`, and the change itself to
+`PeriodChangeStatus`, whose live region reads the range out. `ReportScope` also carries an
+`attentionId` for the `jpa/report-params` field to read; the stages in this package hand the `id`
+straight to their date control instead.
+
+A range the surface's plan will move (one starting before `dateLimits.earliestDate`) is committed
+but not signalled: the route redirects to the plan's window and explains it, and the control never
+draws attention to a period it does not show.
 
 ## Architecture
 

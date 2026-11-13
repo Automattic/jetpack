@@ -307,11 +307,11 @@ function Dashboard(): JSX.Element {
 	// the section shows the period control, it draws attention to the new period.
 	const showsPeriodControl =
 		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
-	const { openPeriod, attentionId } = usePeriodHost(
+	const { openPeriod, attention } = usePeriodHost(
 		activeSection,
 		dateFilters.appliedRange,
 		showsPeriodControl,
-		lockedIntervals
+		dateLimits
 	);
 
 	const {
@@ -468,18 +468,14 @@ function Dashboard(): JSX.Element {
 					onApply={ onDateApply }
 					stepping={ dateStepping }
 					withIntervalControl={ showHeaderIntervalControl }
-					attentionId={ attentionId }
+					attentionId={ attention?.id }
 				/>
 			);
 	}
 
 	return (
 		<>
-			<PeriodChangeStatus
-				attentionId={ attentionId }
-				appliedPresetId={ dateFilters.appliedPresetId }
-				appliedRange={ dateFilters.appliedRange }
-			/>
+			<PeriodChangeStatus periodChange={ attention } />
 			{ /*
 			 * Declared once for widgets below: hiding the control doesn't strip the params,
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
