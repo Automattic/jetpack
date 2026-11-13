@@ -26,6 +26,7 @@ import { useVideoDetailsForm } from '../../src/dashboard/components/video-detail
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
 import VideoInfoCard from '../../src/dashboard/components/video-details/video-info-card';
 import VideoNav from '../../src/dashboard/components/video-nav';
+import { useAdminShellLeaveGuard } from '../../src/dashboard/hooks/use-admin-shell-leave-guard';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useSettings } from '../../src/dashboard/hooks/use-settings';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
@@ -222,6 +223,7 @@ const Editor = ( {
 			)
 		);
 	}, [ isDirty ] );
+	useAdminShellLeaveGuard( confirmNavigation );
 
 	let progressStatus: UploadProgressStatus = 'pending';
 	let onRetry: ( () => void ) | undefined;

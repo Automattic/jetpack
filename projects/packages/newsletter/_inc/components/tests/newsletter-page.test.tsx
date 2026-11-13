@@ -163,6 +163,30 @@ describe( 'NewsletterPage tab navigation', () => {
 		}
 	);
 
+	it.each( [
+		[ 'stays when the user cancels', 'jetpack-newsletter', false, true ],
+		[ 'goes on when the user confirms', 'jetpack-newsletter', true, false ],
+		[ 'ignores another page', 'my-jetpack', false, false ],
+	] )( "answers the admin shell's leave check for dirty Settings: %s", ( _, page, ok, stays ) => {
+		const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( ok );
+		try {
+			render(
+				<NewsletterPage activeTab="settings" hasUnsavedChanges>
+					<div>panel body</div>
+				</NewsletterPage>
+			);
+			const event = new CustomEvent( 'jetpack-admin-shell:before-leave', {
+				detail: { page },
+				cancelable: true,
+			} );
+			window.dispatchEvent( event );
+
+			expect( event.defaultPrevented ).toBe( stays );
+		} finally {
+			confirm.mockRestore();
+		}
+	} );
+
 	it( 'navigates to ?tab=settings and clears subscriber-detail params on switch', () => {
 		render(
 			<NewsletterPage activeTab="subscribers">

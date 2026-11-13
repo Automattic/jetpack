@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Ask a page with unsaved changes before switching away from it or opening it at another route, so a link can no longer silently drop an edit.

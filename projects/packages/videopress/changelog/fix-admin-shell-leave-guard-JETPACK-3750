@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Ask before the Jetpack admin shell leaves an unsaved video, chapter or playlist edit.

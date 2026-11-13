@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Ask before the Jetpack admin shell leaves unsaved settings or opens Newsletter at another tab.

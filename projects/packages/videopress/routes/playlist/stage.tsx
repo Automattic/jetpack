@@ -36,6 +36,7 @@ import {
 	PlaybackCard,
 } from '../../src/dashboard/components/playlists/settings-cards';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import { useAdminShellLeaveGuard } from '../../src/dashboard/hooks/use-admin-shell-leave-guard';
 import {
 	useDeletePlaylist,
 	usePlaylist,
@@ -271,6 +272,7 @@ const Editor = ( { playlist }: { playlist: PlaylistItem } ) => {
 		window.confirm(
 			__( 'You have unsaved changes. Leave this page and discard them?', 'jetpack-videopress-pkg' )
 		);
+	useAdminShellLeaveGuard( confirmLeave );
 
 	return (
 		<AdminPage

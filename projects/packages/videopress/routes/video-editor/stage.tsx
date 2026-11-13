@@ -30,6 +30,7 @@ import TrimCutEditor from '../../src/dashboard/components/editor/editor-screen';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import VideoLayout from '../../src/dashboard/components/video-layout';
 import { videoTabPath } from '../../src/dashboard/components/video-nav';
+import { useAdminShellLeaveGuard } from '../../src/dashboard/hooks/use-admin-shell-leave-guard';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUploadUnloadGuard } from '../../src/dashboard/hooks/use-upload-unload-guard';
@@ -384,6 +385,7 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 			)
 		);
 	}, [] );
+	useAdminShellLeaveGuard( confirmNavigation );
 
 	// Dirty guard, half three: in-app links (the "VideoPress" breadcrumb and
 	// anything else rendered inside this screen's chrome). Router links can't

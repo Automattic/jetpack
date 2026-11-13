@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
+import useAdminShellLeaveGuard from '../hooks/use-admin-shell-leave-guard';
 import './newsletter-page.scss';
 import type { JSX, ReactNode } from 'react';
 
@@ -83,6 +84,21 @@ export default function NewsletterPage( {
 	const subscribersEnabled = newsletterData?.subscriberManagementEnabled !== false;
 	const overviewEnabled = newsletterData?.overviewEnabled === true;
 
+	const confirmLeave = useCallback(
+		() =>
+			activeTab !== 'settings' ||
+			! hasUnsavedChanges ||
+			// eslint-disable-next-line no-alert
+			window.confirm(
+				__(
+					'You have unsaved changes. Are you sure you want to leave this tab?',
+					'jetpack-newsletter'
+				)
+			),
+		[ activeTab, hasUnsavedChanges ]
+	);
+	useAdminShellLeaveGuard( confirmLeave );
+
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
 	// Clear the subscriber-detail inspector params (`subscriber`, `u`) on
@@ -97,18 +113,7 @@ export default function NewsletterPage( {
 			) {
 				return;
 			}
-			if (
-				activeTab === 'settings' &&
-				next !== activeTab &&
-				hasUnsavedChanges &&
-				// eslint-disable-next-line no-alert
-				! window.confirm(
-					__(
-						'You have unsaved changes. Are you sure you want to leave this tab?',
-						'jetpack-newsletter'
-					)
-				)
-			) {
+			if ( next !== activeTab && ! confirmLeave() ) {
 				return;
 			}
 			// SAFETY: This is the dashboard's complete search state, but generated route types are unavailable.
@@ -120,7 +125,7 @@ export default function NewsletterPage( {
 				},
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ activeTab, hasUnsavedChanges, navigate, overviewEnabled ]
+		[ activeTab, confirmLeave, navigate, overviewEnabled ]
 	);
 
 	const contentClass = contentHasPadding

@@ -34,6 +34,28 @@ const emit = ( type, detail ) => {
 	window.dispatchEvent( new CustomEvent( `jetpack-admin-shell:${ type }`, { detail } ) );
 };
 
+/*
+ * Ask a member whether it can be left or retargeted. One with unsaved changes asks the user in its
+ * own words and cancels the event to stay. Members on an older shell never get it.
+ */
+const mayLeave = ( page, url ) => {
+	const proceed = window.dispatchEvent(
+		new CustomEvent( 'jetpack-admin-shell:before-leave', {
+			detail: { page, url },
+			cancelable: true,
+		} )
+	);
+	log( 'shell', `before-leave ${ page }: ${ proceed ? 'go on' : 'stay' }`, url );
+	return proceed;
+};
+
+// Query and hash, order-insensitive: two URLs with the same route open the same view.
+const routeOf = href => {
+	const url = new URL( href, location.href );
+	url.searchParams.sort();
+	return url.search + url.hash;
+};
+
 const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
 	if ( ! hostEl ) {
@@ -201,10 +223,29 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		if ( slug === previous ) {
 			log( 'switch', `${ via }: already on ${ slug }, only the URL changes` );
 			if ( push ) {
+				if ( routeOf( url ) !== routeOf( location.href ) && ! mayLeave( slug, url ) ) {
+					return;
+				}
 				gate.pushUrl( url );
 			}
 			notifyRouters();
 			return;
+		}
+
+		// A booted app opened at another route unmounts the view it was left on, edits and all.
+		const retargets =
+			apps.has( slug ) && lastUrl[ slug ] && routeOf( url ) !== routeOf( lastUrl[ slug ] );
+		if ( push ) {
+			if ( apps.get( previous )?.state === 'visible' && ! mayLeave( previous, url ) ) {
+				return;
+			}
+			if ( retargets && ! mayLeave( slug, url ) ) {
+				return;
+			}
+		} else if ( retargets && ! mayLeave( slug, url ) ) {
+			// Back/Forward can't be called off: reopen the app where it was left, in this same entry.
+			url = lastUrl[ slug ];
+			gate.replaceUrl( url );
 		}
 
 		const elapsed = stopwatch();
@@ -290,6 +331,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 
 	// Not gated: the shell itself must hear Back/Forward across pages.
 	gate.listen( 'popstate', event => {
+		// Back/Forward inside the visible app writes nothing, so record where it now is.
+		if ( event.isTrusted && pageOf( location.href ) === visible ) {
+			lastUrl[ visible ] = location.href;
+		}
 		if ( event.isTrusted && isMemberUrl( location.href ) && pageOf( location.href ) !== visible ) {
 			if ( gate.isMounting() ) {
 				location.reload();
