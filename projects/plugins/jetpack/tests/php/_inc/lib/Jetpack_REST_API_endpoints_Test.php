@@ -1800,28 +1800,28 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Register a subscription service that finds the given token in the request but can't decode it.
-	 * Null means no token at all.
+	 * Register a subscription service whose request token decodes to the given payload.
+	 * False means no usable token.
 	 *
-	 * @param string|null $token The token the request carries.
+	 * @param array|false $payload The decoded token payload.
 	 */
-	private function mock_subscriber_token( $token ) {
+	private function mock_subscriber_token( $payload = false ) {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 		add_filter(
 			'earn_premium_content_subscription_service',
-			function () use ( $token ) {
-				return new class( $token ) extends \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service {
-					private $request_token;
-					public function __construct( $request_token ) {
+			function () use ( $payload ) {
+				return new class( $payload ) extends \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service {
+					private $payload;
+					public function __construct( $payload ) {
 						parent::__construct();
-						$this->request_token = $request_token;
+						$this->payload = $payload;
 					}
 					public function get_and_set_token_from_request() {
-						return $this->request_token;
+						return null;
 					}
 					public function decode_token( $token ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Matches the parent signature.
-						return false;
+						return $this->payload;
 					}
 				};
 			},
@@ -1884,22 +1884,19 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A silent check whose token this site can't decode sends the visitor back too, instead of a 403.
+	 * With a usable token, the silent flag doesn't loosen the redirect check.
 	 */
-	public function test_subscriber_auth_silent_with_undecodable_token_redirects_back() {
+	public function test_subscriber_auth_silent_with_token_rejects_external_redirect() {
 		$this->load_rest_endpoints_direct();
-		$this->mock_subscriber_token( 'invalid-token' );
+		$this->mock_subscriber_token( array( 'blog_sub' => 'active' ) );
 
-		$redirect_url = home_url( '/?p=123&jp_sub_check=1' );
-		$request      = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
-		$request->set_param( 'redirect_url', $redirect_url );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', 'https://attacker.example/phishing' );
 		$request->set_param( 'silent', true );
 
 		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
 
-		$this->assertInstanceOf( 'WP_REST_Response', $response, 'A silent check with a bad token must not fail.' );
-		$this->assertSame( 302, $response->get_status() );
-		$headers = $response->get_headers();
-		$this->assertSame( $redirect_url, $headers['location'] );
+		$this->assertInstanceOf( 'WP_Error', $response, 'A usable token must take the normal redirect check.' );
+		$this->assertSame( 'invalid-redirect', $response->get_error_code() );
 	}
 } // class end

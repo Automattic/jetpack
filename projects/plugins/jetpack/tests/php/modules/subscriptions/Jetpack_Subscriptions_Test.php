@@ -1223,6 +1223,25 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$this->assertMatchesRegularExpression( '#"jwtBase":"https://subscribe\.wordpress\.com/memberships/jwt/\?site_id=12345[^"]*silent=1"#', $output );
 		$this->assertMatchesRegularExpression( '#"authBase":"https://example\.org/[^"]*subscribers(/|%2F)auth[^"]*silent=1"#', $output );
 		$this->assertStringContainsString( 'jp_sub_check', $output );
+		$this->assertStringContainsString( '"pauseCookie":"' . Jetpack_Memberships::SILENT_SUBSCRIBER_CHECK_COOKIE . '"', $output );
+		$this->assertStringContainsString( '"cookiePath":"/"', $output );
+	}
+
+	/**
+	 * A site under a subdirectory scopes the pause cookie to its own path.
+	 * Catches a check on one site pausing the check on another site under the same host.
+	 */
+	public function test_silent_subscriber_check_scopes_pause_cookie_to_site_path() {
+		$this->set_up_silent_check_site();
+		$in_subdirectory = function ( $url, $path ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Matches the filter signature.
+			return 'https://example.org/blog' . $path;
+		};
+		add_filter( 'home_url', $in_subdirectory, 100, 2 );
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+		remove_filter( 'home_url', $in_subdirectory, 100 );
+
+		$this->assertStringContainsString( '"cookiePath":"/blog/"', $output );
 	}
 
 	/**
@@ -1324,12 +1343,13 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 * Catches the check signing a subscriber straight back in after they log out.
 	 */
 	public function test_subscriber_logout_pauses_silent_subscriber_check() {
+		$pause_cookie = Jetpack_Memberships::SILENT_SUBSCRIBER_CHECK_COOKIE;
 		$_COOKIE[ Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] = 'token';
-		unset( $_COOKIE['jp-sub-check'] );
+		unset( $_COOKIE[ $pause_cookie ] );
 
 		Jetpack_Memberships::get_instance()->subscriber_logout();
-		$paused = $_COOKIE['jp-sub-check'] ?? null;
-		unset( $_COOKIE['jp-sub-check'] );
+		$paused = $_COOKIE[ $pause_cookie ] ?? null;
+		unset( $_COOKIE[ $pause_cookie ] );
 
 		$this->assertArrayNotHasKey( Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $_COOKIE );
 		$this->assertSame( '1', $paused );
