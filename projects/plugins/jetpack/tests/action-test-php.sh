@@ -13,8 +13,19 @@ if [[ "$WITH_WPCOMSH" == true ]]; then
 	export JETPACK_TEST_WPCOMSH=1
 fi
 
+SPLIT_ISOLATED=true
+
 declare -A TESTS
 TESTS[normal]="phpunit-select-config 'phpunit.#.xml.dist'"
+
+# Each separate-process test re-bootstraps WordPress, so run them alongside the rest instead of after.
+if [[ "$SPLIT_ISOLATED" == true ]]; then
+	JETPACK_ISOLATED_FILTER="$( php tests/isolated-tests-filter.php )"
+	JETPACK_NOT_ISOLATED_FILTER="$( php tests/isolated-tests-filter.php --exclude )"
+	export JETPACK_ISOLATED_FILTER JETPACK_NOT_ISOLATED_FILTER
+	TESTS[normal]="phpunit-select-config 'phpunit.#.xml.dist' --filter \"\$JETPACK_NOT_ISOLATED_FILTER\""
+	TESTS[isolated]="phpunit-select-config 'phpunit.#.xml.dist' --filter \"\$JETPACK_ISOLATED_FILTER\""
+fi
 
 if [[ "$WP_BRANCH" == "trunk" ]]; then
 	TESTS[multisite]="WP_MULTISITE=1 phpunit-select-config 'tests/php.multisite.#.xml'"
