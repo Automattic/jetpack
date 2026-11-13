@@ -9,9 +9,14 @@ import { buildCsv, buildCsvDateRangeFilename, saveCsv } from '../helpers/build-c
 import type { ReportCsvExporter } from './types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
+export type CsvFilenameOptions = Pick<
+	ReportCsvExporter< unknown, unknown >,
+	'filenamePrefix' | 'hasDateRange' | 'datesAllTime'
+>;
+
 /** The report's CSV filename, dated when the report covers a date range. */
-export function getReportCsvFilename< TItem, TRow >(
-	exporter: ReportCsvExporter< TItem, TRow >,
+export function getReportCsvFilename(
+	exporter: CsvFilenameOptions,
 	reportParams: ReportParams
 ): string {
 	if ( ! exporter.hasDateRange ) {

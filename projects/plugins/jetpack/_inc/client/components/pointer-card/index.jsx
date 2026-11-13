@@ -31,7 +31,7 @@ export default function PointerCard( { header, href, linkText, children } ) {
  * @param {object}  props                        - Component props.
  * @param {string}  props.header                 - Card header.
  * @param {string}  props.name                   - Product name.
- * @param {string}  [props.search]               - Search term that finds the product in Features.
+ * @param {string}  [props.search]               - Search term that finds the product in Features; pick an untranslated one (a module search term or a product name) so it matches in every locale.
  * @param {string}  [props.feature]              - Features card to open instead of searching.
  * @param {boolean} [props.linksToSettings=true] - False for a feature Features only switches on or off.
  * @return {import('react').ReactNode} The card.

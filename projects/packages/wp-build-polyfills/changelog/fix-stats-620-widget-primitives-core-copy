@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix dashboards failing to load on WordPress 7.2, where Core's own, older widget-primitives module took precedence over the bundled one and lacked an export they import.

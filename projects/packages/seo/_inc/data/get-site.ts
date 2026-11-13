@@ -10,6 +10,8 @@ export interface SiteData {
 	url: string;
 	icon: string;
 	image: string;
+	content_image?: string;
+	front_page_protected?: boolean;
 }
 
 interface SeoScriptData {

@@ -5,6 +5,7 @@ import {
 	installShellProbe,
 	menuLink,
 	openMember,
+	skipUnlessOnSite,
 	switchTo,
 	waitForShown,
 	where,
@@ -90,6 +91,7 @@ test.describe( 'Admin shell: history', () => {
 
 	for ( const m of MEMBERS ) {
 		test( `full load of ${ m.slug } renders with the shell on`, async ( { page } ) => {
+			await skipUnlessOnSite( page, m.slug );
 			await openMember( page, m.slug );
 			await expectShown( page, m.slug );
 			expect( await where( page ) ).toMatch( m.landing );

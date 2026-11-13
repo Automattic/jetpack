@@ -1789,6 +1789,7 @@ class Initializer {
 
 		( new REST_Onboarding() )->register_rest_routes();
 		( new REST_Main_Features() )->register_rest_routes();
+		Google_Analytics_Settings::register_rest_routes();
 
 		Products::register_product_endpoints();
 		Historically_Active_Modules::register_rest_endpoints();

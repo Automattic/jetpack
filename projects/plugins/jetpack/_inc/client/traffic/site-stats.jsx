@@ -237,8 +237,7 @@ class SiteStatsComponent extends Component {
 							compact
 							className="jp-settings-card__configure-link"
 							href={
-								getAnalyticsUrl( { view: 'dashboard', section: 'settings' } ) ??
-								'admin.php?page=stats#!/stats/settings'
+								getAnalyticsUrl( { view: 'settings' } ) ?? 'admin.php?page=stats#!/stats/settings'
 							}
 						>
 							{ __( 'Manage Stats settings', 'jetpack' ) }

@@ -326,14 +326,19 @@ class Speed_Score {
 	 *
 	 * @param Speed_Score_Request|null $score_request Speed score request.
 	 *
-	 * @return array{elapsed: int, expected: int} Seconds since dispatch, and the seconds a run usually takes on this site.
+	 * @return array{elapsed: int, expected: int, stage?: string, scores?: array} Seconds since dispatch, the seconds the run should take (Boost Cloud's estimate, else this site's usual), and the cloud's stage and finished scores when known.
 	 */
 	private function get_progress( $score_request ) {
-		$started = $score_request && $score_request->is_pending() ? $score_request->get_created() : microtime( true );
+		$pending = $score_request && $score_request->is_pending();
+		$started = $pending ? $score_request->get_created() : microtime( true );
+		$cloud   = $pending ? $score_request->get_cloud_progress() : array();
 
-		return array(
-			'elapsed'  => (int) round( microtime( true ) - $started ),
-			'expected' => Speed_Score_Durations::expected(),
+		return array_merge(
+			array(
+				'elapsed'  => (int) round( microtime( true ) - $started ),
+				'expected' => $cloud['estimatedSeconds'] ?? Speed_Score_Durations::expected(),
+			),
+			array_intersect_key( $cloud, array_flip( array( 'stage', 'scores' ) ) )
 		);
 	}
 

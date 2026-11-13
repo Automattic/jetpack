@@ -1,4 +1,5 @@
 import { CarouselSettings } from './carousel';
+import { GoogleAnalyticsSettings } from './google-analytics';
 import { InfiniteScrollSettings } from './infinite-scroll';
 import { PostByEmailSettings } from './post-by-email';
 import { RelatedPostsSettings } from './related-posts';
@@ -26,4 +27,11 @@ export const moduleSettings: Record< string, ComponentType< ModuleSettingsProps 
 	'related-posts': RelatedPostsSettings,
 	'seo-tools': SeoSettings,
 	'verification-tools': SeoSettings,
+};
+
+/**
+ * Settings components by settings entry slug, for settings with no module (see `Main_Features::get_settings_entries()` in PHP).
+ */
+export const entrySettings: Record< string, ComponentType > = {
+	'google-analytics': GoogleAnalyticsSettings,
 };
