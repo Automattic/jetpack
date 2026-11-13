@@ -62,11 +62,13 @@ export default function DeletePlanDialog( { plan, onClose }: { plan: Plan; onClo
 				) }
 				confirmButtonText={ __( 'Delete', 'jetpack-monetize' ) }
 			>
-				<CheckboxControl
-					label={ __( 'Cancel existing subscriptions', 'jetpack-monetize' ) }
-					checked={ cancelSubscriptions }
-					onCheckedChange={ setCancelSubscriptions }
-				/>
+				<div className="jp-monetize-payments__delete-options">
+					<CheckboxControl
+						label={ __( 'Cancel existing subscriptions', 'jetpack-monetize' ) }
+						checked={ cancelSubscriptions }
+						onCheckedChange={ setCancelSubscriptions }
+					/>
+				</div>
 			</AlertDialog.Popup>
 		</AlertDialog.Root>
 	);

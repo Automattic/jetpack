@@ -11,6 +11,10 @@
 		}
 	}
 
+	&__delete-options {
+		margin-block-start: var(--wpds-dimension-gap-lg);
+	}
+
 	&__plan:not(:last-child) {
 		padding-block-end: var(--wpds-dimension-gap-lg);
 		border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
