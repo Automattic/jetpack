@@ -1176,4 +1176,146 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$this->assertCount( 1, $new, 'The legacy Calypso Subscribers shortcut should be registered.' );
 		$this->assertStringContainsString( 'jetpack-menu-jetpack-manage-subscribers', $new[0] );
 	}
+
+	/**
+	 * Serve the site over https, connected, as a production site, so the silent check can run.
+	 */
+	private function set_up_silent_check_site() {
+		$this->set_up_connected_self_hosted_site();
+		add_filter( 'jetpack_is_development_site', '__return_false', 99 );
+		add_filter( 'home_url', array( $this, 'force_https' ), 99 );
+		add_filter( 'site_url', array( $this, 'force_https' ), 99 );
+		\Automattic\Jetpack\Status\Cache::clear();
+	}
+
+	/**
+	 * Swap http for https in a URL.
+	 *
+	 * @param string $url URL.
+	 * @return string
+	 */
+	public function force_https( $url ) {
+		return set_url_scheme( $url, 'https' );
+	}
+
+	/**
+	 * Capture what the silent check prints.
+	 *
+	 * @param callable $printer Function that prints.
+	 * @return string
+	 */
+	private function capture( $printer ) {
+		ob_start();
+		$printer();
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * A connected https site gets the script, pointed at its own site ID and silent auth route.
+	 * Catches the check silently doing nothing on the sites it is meant for.
+	 */
+	public function test_silent_subscriber_check_prints_for_connected_https_site() {
+		$this->set_up_silent_check_site();
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+
+		$this->assertStringContainsString( '<script', $output );
+		$this->assertMatchesRegularExpression( '#"jwtBase":"https://subscribe\.wordpress\.com/memberships/jwt/\?site_id=12345[^"]*silent=1"#', $output );
+		$this->assertMatchesRegularExpression( '#"authBase":"https://example\.org/[^"]*subscribers(/|%2F)auth[^"]*silent=1"#', $output );
+		$this->assertStringContainsString( 'jp_sub_check', $output );
+	}
+
+	/**
+	 * WordPress.com never gives a silent token to a plain-http site, so an http site gets no script.
+	 * Catches a redirect on every page view that can never sign anyone in.
+	 */
+	public function test_silent_subscriber_check_skips_http_site() {
+		$this->set_up_connected_self_hosted_site();
+		add_filter( 'jetpack_is_development_site', '__return_false', 99 );
+		add_filter( 'home_url', array( $this, 'force_http' ), 99 );
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * Swap https for http in a URL.
+	 *
+	 * @param string $url URL.
+	 * @return string
+	 */
+	public function force_http( $url ) {
+		return set_url_scheme( $url, 'http' );
+	}
+
+	/**
+	 * A staging or development copy gets no script, since it would send visitors to the production host.
+	 */
+	public function test_silent_subscriber_check_skips_development_site() {
+		$this->set_up_silent_check_site();
+		remove_filter( 'jetpack_is_development_site', '__return_false', 99 );
+		add_filter( 'jetpack_is_development_site', '__return_true', 99 );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * A site that isn't connected has no site ID to send, so it gets no script.
+	 */
+	public function test_silent_subscriber_check_skips_unconnected_site() {
+		$this->set_up_silent_check_site();
+		Jetpack_Options::delete_option( 'id' );
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * The filter turns the check off.
+	 */
+	public function test_silent_subscriber_check_filter_turns_it_off() {
+		$this->set_up_silent_check_site();
+		add_filter( 'jetpack_subscriptions_silent_subscriber_check', '__return_false' );
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * The cleanup script prints only after the round trip, so other pages keep their query string.
+	 */
+	public function test_silent_subscriber_check_cleanup_prints_only_with_marker() {
+		$printer = 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check_cleanup';
+
+		unset( $_GET['jp_sub_check'] );
+		$this->assertSame( '', $this->capture( $printer ) );
+
+		$_GET['jp_sub_check'] = '1';
+		$output               = $this->capture( $printer );
+		unset( $_GET['jp_sub_check'] );
+
+		$this->assertStringContainsString( 'history.replaceState', $output );
+		$this->assertStringContainsString( "searchParams.delete( 'token' )", $output );
+		$this->assertStringContainsString( "searchParams.delete( 'jp_sub_check' )", $output );
+	}
+
+	/**
+	 * A visitor on the way back from a check gets no script, so they are never sent round again.
+	 * Catches a redirect loop when the round trip returns without a token.
+	 */
+	public function test_silent_subscriber_check_skips_return_from_check() {
+		$this->set_up_silent_check_site();
+
+		$_GET['jp_sub_check'] = '1';
+		$output               = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+		unset( $_GET['jp_sub_check'] );
+
+		$this->assertSame( '', $output );
+	}
 }

@@ -1798,4 +1798,108 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 		$error_data = $response->get_error_data();
 		$this->assertSame( 403, $error_data['status'], 'An invalid token must surface as an HTTP 403.' );
 	}
+
+	/**
+	 * Register a subscription service that finds the given token in the request but can't decode it.
+	 * Null means no token at all.
+	 *
+	 * @param string|null $token The token the request carries.
+	 */
+	private function mock_subscriber_token( $token ) {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+
+		add_filter(
+			'earn_premium_content_subscription_service',
+			function () use ( $token ) {
+				return new class( $token ) extends \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service {
+					private $request_token;
+					public function __construct( $request_token ) {
+						parent::__construct();
+						$this->request_token = $request_token;
+					}
+					public function get_and_set_token_from_request() {
+						return $this->request_token;
+					}
+					public function decode_token( $token ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Matches the parent signature.
+						return false;
+					}
+				};
+			},
+			99
+		);
+	}
+
+	/**
+	 * A silent paywall check that comes back without a token returns the visitor to the post.
+	 */
+	public function test_subscriber_auth_silent_without_token_redirects_back() {
+		$this->load_rest_endpoints_direct();
+		$this->mock_subscriber_token( null );
+
+		$redirect_url = home_url( '/?p=123&jp_sub_check=1' );
+		$request      = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', $redirect_url );
+		$request->set_param( 'silent', true );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_REST_Response', $response, 'A silent check without a token must not fail.' );
+		$this->assertSame( 302, $response->get_status() );
+		$headers = $response->get_headers();
+		$this->assertSame( $redirect_url, $headers['location'] );
+	}
+
+	/**
+	 * A silent check without a token still never redirects to another host.
+	 */
+	public function test_subscriber_auth_silent_without_token_rejects_external_redirect() {
+		$this->load_rest_endpoints_direct();
+		$this->mock_subscriber_token( null );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', 'https://attacker.example/phishing' );
+		$request->set_param( 'silent', true );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_REST_Response', $response );
+		$headers = $response->get_headers();
+		$this->assertSame( home_url( '/' ), $headers['location'], 'An external target must fall back to the home page.' );
+	}
+
+	/**
+	 * Without the silent flag, a missing token is still rejected as before.
+	 */
+	public function test_subscriber_auth_without_token_or_silent_is_rejected() {
+		$this->load_rest_endpoints_direct();
+		$this->mock_subscriber_token( null );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', home_url( '/?p=123' ) );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response, 'A missing token without the silent flag must be rejected.' );
+		$this->assertSame( 'invalid-token', $response->get_error_code() );
+	}
+
+	/**
+	 * A silent check whose token this site can't decode sends the visitor back too, instead of a 403.
+	 */
+	public function test_subscriber_auth_silent_with_undecodable_token_redirects_back() {
+		$this->load_rest_endpoints_direct();
+		$this->mock_subscriber_token( 'invalid-token' );
+
+		$redirect_url = home_url( '/?p=123&jp_sub_check=1' );
+		$request      = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', $redirect_url );
+		$request->set_param( 'silent', true );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_REST_Response', $response, 'A silent check with a bad token must not fail.' );
+		$this->assertSame( 302, $response->get_status() );
+		$headers = $response->get_headers();
+		$this->assertSame( $redirect_url, $headers['location'] );
+	}
 } // class end
