@@ -158,6 +158,23 @@ describe( 'BulkRemoveModal', () => {
 		expect( screen.getByText( /The other 13,800 stay on your list\./ ) ).toBeInTheDocument();
 	} );
 
+	it.each( [ 'fetching', 'paused', 'error', 'missing' ] )(
+		'leaves out how many stay when the whole-list count is %s',
+		state => {
+			mockCountStates.all = {
+				fetchStatus: state === 'error' || state === 'missing' ? 'idle' : state,
+				isError: state === 'error',
+			};
+			if ( state === 'missing' ) {
+				delete mockCounts.all;
+			}
+			renderModal( { scope: 'matching', query: filtered } );
+
+			expect( screen.getByText( 'Remove 1,200 matching subscribers?' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /stays? on your list/ ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'warns that Remove all ignores the search and filters, and offers the matches instead', () => {
 		const { onChangeScope } = renderModal( { scope: 'all', query: filtered } );
 

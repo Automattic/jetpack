@@ -67,6 +67,7 @@ export default function BulkRemoveModal( {
 	const counts = isAll ? everyone : matching;
 	const countsReady = counts.isSuccess && counts.fetchStatus === 'idle';
 	const matchingReady = matching.isSuccess && matching.fetchStatus === 'idle';
+	const listReady = everyone.isSuccess && everyone.fetchStatus === 'idle';
 	const total = counts.data?.total ?? 0;
 	const paid = counts.data?.paid ?? 0;
 	const listTotal = everyone.data?.total ?? 0;
@@ -367,7 +368,7 @@ export default function BulkRemoveModal( {
 						) : null }
 						<Text variant="body-md">
 							{ consequence }{ ' ' }
-							{ ! isAll
+							{ ! isAll && listReady
 								? sprintf(
 										// translators: %s: number of subscribers who are not removed.
 										_n(

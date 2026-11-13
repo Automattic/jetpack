@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import {
 	BULK_REMOVE_QUERY_KEY,
@@ -265,6 +265,29 @@ describe( 'useBulkRemoveStatus', () => {
 		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
 
 		expect( result.current.isEnabled ).toBe( false );
+	} );
+
+	it( 'picks up a removal started in another tab when the tab regains focus', async () => {
+		mockFetchBulkRemoveStatus.mockResolvedValue( { job: null, enabled: true } );
+		// Mirror the shared client, which turns focus refetches off and keeps data fresh for 30s.
+		const queryClient = new QueryClient( {
+			defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false, staleTime: 30000 } },
+		} );
+		const wrapper = ( { children }: { children: React.ReactNode } ) => (
+			<QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>
+		);
+		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+		await waitFor( () => expect( result.current.isEnabled ).toBe( true ) );
+		expect( result.current.isActive ).toBe( false );
+
+		mockFetchBulkRemoveStatus.mockResolvedValue( { job: buildJob(), enabled: true } );
+		act( () => {
+			focusManager.setFocused( false );
+			focusManager.setFocused( true );
+		} );
+
+		await waitFor( () => expect( result.current.isActive ).toBe( true ) );
+		focusManager.setFocused( undefined );
 	} );
 
 	it( 'fetches nothing when disabled', () => {

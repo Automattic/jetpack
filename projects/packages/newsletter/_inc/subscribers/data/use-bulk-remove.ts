@@ -50,6 +50,8 @@ export function useBulkRemoveStatus( enabled = true, onFinished?: ( job: BulkRem
 		},
 		enabled,
 		refetchInterval: q => ( isBulkRemoveActive( q.state.data?.job ) ? POLL_MS : false ),
+		// The shared client skips focus refetches; this one must catch a removal started in another tab.
+		refetchOnWindowFocus: 'always',
 	} );
 
 	const job = query.data?.job ?? null;
