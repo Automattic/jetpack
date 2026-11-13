@@ -146,6 +146,12 @@ $hover-reserve: var(--wpds-dimension-gap-2xl);
 	justify-items: end;
 }
 
+.label,
+.value,
+.deltaValue {
+	font-weight: var(--a8c-charts-font-weight-leaderboard);
+}
+
 .deltaValue {
 	display: inline-block;
 	font-variant-numeric: tabular-nums;

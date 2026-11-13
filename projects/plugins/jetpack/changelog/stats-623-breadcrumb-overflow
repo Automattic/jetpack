@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Shorten the breadcrumb trail and hide the Customizing badge on phones, instead of letting them cover the header buttons.

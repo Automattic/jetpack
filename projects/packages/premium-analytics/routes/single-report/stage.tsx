@@ -7,7 +7,7 @@ import {
 	ReportScopeProvider,
 	isPlanDateLimitedSection,
 } from '@jetpack-premium-analytics/data';
-import { Badge, Icon } from '@jetpack-premium-analytics/externals';
+import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
@@ -19,6 +19,7 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { PeriodChangeStatus, SectionTabs, StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
+	CustomizingBadge,
 	DetailPageActions,
 	PageEmptyState,
 	PageNotice,
@@ -270,11 +271,11 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	// A card can set the period (the All-time traffic card opens a month): the change is read
 	// out and the page returns to the top, where the re-scoped cards are.
-	const { openPeriod, attentionId } = usePeriodHost(
+	const { openPeriod, attention } = usePeriodHost(
 		`${ page.path }:${ entityId }`,
 		dateFilters.appliedRange,
 		! isPinned,
-		lockedIntervals
+		dateLimits
 	);
 
 	const reportSearch = pickReportNavigationParams( search );
@@ -373,14 +374,10 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	return (
 		<>
-			<PeriodChangeStatus
-				attentionId={ attentionId }
-				appliedPresetId={ dateFilters.appliedPresetId }
-				appliedRange={ dateFilters.appliedRange }
-			/>
+			<PeriodChangeStatus periodChange={ attention } />
 			<ReportScopeProvider
 				openPeriod={ openPeriod }
-				attentionId={ attentionId }
+				attentionId={ attention?.id }
 				dateLimits={ dateLimits }
 			>
 				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
@@ -400,13 +397,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 								className={ styles.page }
 								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-								badges={
-									isCustomizing ? (
-										<Badge intent="informational">
-											{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }
-										</Badge>
-									) : undefined
-								}
+								badges={ isCustomizing ? <CustomizingBadge /> : undefined }
 								actions={
 									<DetailPageActions
 										isCustomizing={ isCustomizing }
@@ -431,7 +422,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 									controls={ controlFields as never }
 									data={ controlsData }
 									onChange={ applyReportParams }
-									returnToTopKey={ attentionId }
+									returnToTopKey={ attention?.id }
 								>
 									{ emptyState ? <PageEmptyState { ...emptyState } /> : null }
 									{ /* Keyed by section: each is its own layout, so the grid mounts fresh. */ }

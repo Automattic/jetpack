@@ -278,11 +278,13 @@ describe( 'MoreFeatures', () => {
 
 	it( 'links to an active module\u2019s settings, and to nothing while it is off or switching', () => {
 		setSiteEditor( { isBlockTheme: false } );
-		const configured = { ...sharing, configure_url: 'https://example.com/settings' };
+		// A page the settings panel flag would name, so this also keeps "Configure" when the flag is off.
+		const url = 'https://example.com/wp-admin/admin.php?page=jetpack-seo';
+		const configured = { ...sharing, configure_url: url };
 		const link = () => screen.queryByRole( 'link', { name: 'Configure Sharing Buttons' } );
 
 		const { rerender } = renderSection( { ...configured, activated: true } );
-		expect( link() ).toHaveAttribute( 'href', 'https://example.com/settings' );
+		expect( link() ).toHaveAttribute( 'href', url );
 
 		rerender( section( configured ) );
 		expect( link() ).not.toBeInTheDocument();
@@ -291,25 +293,69 @@ describe( 'MoreFeatures', () => {
 		expect( link() ).not.toBeInTheDocument();
 	} );
 
+	const panel = '/features?view=list&configure=sharedaddy';
+	const admin = 'https://example.com/wp-admin/';
+
 	it.each( [
 		[
 			'the settings-search default',
-			'https://example.com/wp-admin/admin.php?page=jetpack-settings#/settings?term=sharedaddy',
-			'/features?view=list&configure=sharedaddy',
+			`${ admin }admin.php?page=jetpack-settings#/settings?term=sharedaddy`,
+			panel,
+			'Configure',
+			'Configure Sharing Buttons',
 		],
 		[
 			'the panel URL',
-			'https://example.com/wp-admin/admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dsharedaddy',
-			'/features?view=list&configure=sharedaddy',
+			`${ admin }admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dsharedaddy`,
+			panel,
+			'Configure',
+			'Configure Sharing Buttons',
 		],
 		[
-			'a page of its own, such as the SEO page',
-			'https://example.com/wp-admin/admin.php?page=jetpack-seo',
-			'https://example.com/wp-admin/admin.php?page=jetpack-seo',
+			'the SEO page',
+			`${ admin }admin.php?page=jetpack-seo`,
+			null,
+			'Manage in SEO',
+			'Manage Sharing Buttons in SEO',
+		],
+		[
+			'a WordPress Settings screen',
+			`${ admin }options-general.php?page=sharing`,
+			null,
+			'Manage in Settings',
+			'Manage Sharing Buttons in Settings',
+		],
+		[
+			'the Monetize page',
+			`${ admin }admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dsettings`,
+			null,
+			'Manage in Monetize',
+			'Manage Sharing Buttons in Monetize',
+		],
+		[
+			'the Customizer',
+			`${ admin }customize.php?autofocus[panel]=widgets`,
+			null,
+			'Manage in Customizer',
+			'Manage Sharing Buttons in Customizer',
+		],
+		[
+			'the Protect page',
+			`${ admin }admin.php?page=jetpack-protect&p=firewall`,
+			null,
+			'Manage in Protect',
+			'Manage Sharing Buttons in Protect',
+		],
+		[
+			'a page it cannot name',
+			`${ admin }admin.php?page=vaultpress`,
+			null,
+			'Configure',
+			'Configure Sharing Buttons',
 		],
 	] )(
-		'with settings consolidation on, links Configure by %s',
-		( _name, configureUrl, expectedHref ) => {
+		'with settings consolidation on, labels the link to %s',
+		( _name, configureUrl, panelHref, text, name ) => {
 			setSiteEditor( { isBlockTheme: false } );
 			window.JetpackScriptData = {
 				...window.JetpackScriptData,
@@ -327,10 +373,9 @@ describe( 'MoreFeatures', () => {
 				</MemoryRouter>
 			);
 
-			expect( screen.getByRole( 'link', { name: 'Configure Sharing Buttons' } ) ).toHaveAttribute(
-				'href',
-				expectedHref
-			);
+			const link = screen.getByRole( 'link', { name } );
+			expect( link ).toHaveAttribute( 'href', panelHref ?? configureUrl );
+			expect( link ).toHaveTextContent( text );
 		}
 	);
 

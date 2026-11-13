@@ -136,6 +136,21 @@ class Google_Analytics_Settings_Test extends BaseTestCase {
 		$this->assertSame( $expected, Google_Analytics_Settings::get_entry()['status'] );
 	}
 
+	public function test_script_data_tells_the_settings_page_whether_the_panel_is_available() {
+		$_GET['page'] = 'jetpack';
+		try {
+			$this->assertSame(
+				Initializer::get_settings_panel_url( 'google-analytics' ),
+				Initializer::add_admin_script_data( array() )['myJetpack']['googleAnalyticsPanel']
+			);
+
+			$GLOBALS['my_jetpack_test_site_features'] = array();
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['googleAnalyticsPanel'] );
+		} finally {
+			unset( $_GET['page'] );
+		}
+	}
+
 	public function test_save_keeps_the_keys_the_panel_does_not_show_and_rejects_a_bad_id() {
 		update_option(
 			'jetpack_wga',

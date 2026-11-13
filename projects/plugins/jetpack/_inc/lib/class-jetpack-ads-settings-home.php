@@ -9,12 +9,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Monetize\Dashboard;
 use Automattic\Jetpack\My_Jetpack\Initializer;
-use Automattic\Jetpack\Partner;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Terms_Of_Service;
-use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -42,7 +37,6 @@ class Jetpack_Ads_Settings_Home {
 	public static function init() {
 		add_filter( 'jetpack_module_configuration_url_wordads', array( __CLASS__, 'filter_configure_url' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
 	}
 
 	/**
@@ -116,21 +110,9 @@ class Jetpack_Ads_Settings_Home {
 
 		if ( $is_tab_request ) {
 			$data['monetize']['adsSettings'] = self::get_dashboard_data();
-			$data                            = self::add_tracks_identity( $data );
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Load the Tracks script on the tab, as Jetpack › Settings does; other packages load it only for some plans.
-	 *
-	 * @return void
-	 */
-	public static function enqueue_tracks_transport() {
-		if ( self::is_tab_request() && self::can_use_analytics() ) {
-			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
-		}
 	}
 
 	/**
@@ -141,44 +123,6 @@ class Jetpack_Ads_Settings_Home {
 	private static function is_tab_request() {
 		// Do not reorder: is_on_monetize_page() checks that Dashboard exists.
 		return self::is_on_monetize_page() && Dashboard::is_dashboard_request();
-	}
-
-	/**
-	 * Whether the site and user allow Tracks, as on Jetpack's other admin pages.
-	 *
-	 * @return bool
-	 */
-	private static function can_use_analytics() {
-		$tracking = new Tracking( 'jetpack', new Connection_Manager( 'jetpack' ) );
-
-		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
-	}
-
-	/**
-	 * Add the connected WordPress.com user for Tracks, unless another package already did.
-	 *
-	 * @param array $data Script data.
-	 * @return array
-	 */
-	private static function add_tracks_identity( $data ) {
-		if ( ! empty( $data['user']['current_user']['wpcom']['ID'] ) ) {
-			return $data;
-		}
-
-		$connected = ( new Connection_Manager() )->get_connected_user_data();
-		if ( empty( $connected['ID'] ) || empty( $connected['login'] ) ) {
-			return $data;
-		}
-
-		$data['user']['current_user']['wpcom'] = array_merge(
-			$data['user']['current_user']['wpcom'] ?? array(),
-			array(
-				'ID'    => $connected['ID'],
-				'login' => $connected['login'],
-			)
-		);
-
-		return $data;
 	}
 
 	/**
@@ -200,51 +144,12 @@ class Jetpack_Ads_Settings_Home {
 	private static function get_dashboard_data() {
 		$connection = new Connection_Manager();
 		$suffix     = ( new Status() )->get_site_suffix();
-		$blog_id    = Jetpack_Options::get_option( 'id' );
-		$site       = $blog_id ? (string) $blog_id : $suffix;
 
 		return array(
 			'hasWordAds'         => Current_Plan::supports( 'wordads' ),
 			'hasConnectedOwner'  => $connection->has_connected_owner(),
-			'upgradeUrl'         => self::get_upgrade_url( $site, $connection ),
-			'earningsUrl'        => Redirect::get_url( 'calypso-stats-ads-day', array( 'site' => $site ) ),
 			'isSubdirectorySite' => str_contains( $suffix, '::' ),
 			'moduleOverride'     => Jetpack_Modules_Overrides::instance()->get_module_override( 'wordads' ),
-			'tracks'             => self::can_use_analytics(),
-		);
-	}
-
-	/**
-	 * The Ads upgrade URL, with the same arguments as the Settings app's `getUpgradeUrl()`.
-	 *
-	 * @param string             $site       Blog ID, or the site suffix without one.
-	 * @param Connection_Manager $connection Connection manager.
-	 * @return string
-	 */
-	private static function get_upgrade_url( $site, $connection ) {
-		if ( ! class_exists( 'Jetpack_Redux_State_Helper' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
-		}
-
-		$query = $connection->is_user_connected() ? '' : 'unlinked=1&';
-
-		$purchase_token = Jetpack_Redux_State_Helper::get_purchase_token();
-		if ( $purchase_token ) {
-			$query .= 'purchasetoken=' . $purchase_token;
-		}
-
-		$partner = Partner::init();
-
-		return Redirect::get_url(
-			'jetpack-creator-cta',
-			array(
-				'site'         => $site,
-				'aff'          => $partner->get_partner_code( Partner::AFFILIATE_CODE ),
-				'u'            => (string) get_current_user_id(),
-				'subsidiaryId' => $partner->get_partner_code( Partner::SUBSIDIARY_CODE ),
-				'query'        => $query,
-				'calypso_env'  => ( new Host() )->get_calypso_env(),
-			)
 		);
 	}
 }

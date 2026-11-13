@@ -9,5 +9,6 @@
 		"./declarations.d.ts",
 		"./wordpress-augmentations.d.ts"
 	],
-	"files": [ "./global.d.ts" ]
+	// Overriding `files` drops the base list, so re-add the console matcher types tests rely on.
+	"files": [ "./global.d.ts", "../../../tools/js-tools/jest/setup-console.d.ts" ]
 }

@@ -1,4 +1,5 @@
 import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
+import { _x } from '@wordpress/i18n';
 import { currentThemeIsBlockTheme, userCanManageModules } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
 
@@ -59,6 +60,17 @@ export function getMovedOutModules( state ) {
 export const isMovedOut = ( module, state ) => getMovedOutModules( state ).includes( module );
 
 /**
+ * Whether settings that moved to a My Jetpack settings panel leave only a pointer here.
+ *
+ * The panel lives in Features, which needs manage_options, so users who cannot manage modules keep the card.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True when the card gives way to a pointer.
+ */
+export const isInSettingsPanel = state =>
+	isSettingsConsolidationEnabled() && userCanManageModules( state );
+
+/**
  * Whether a module's Settings toggle gives way to its switch in My Jetpack › Features, leaving only a search result that points there.
  *
  * Users who cannot manage modules have no Features, so they keep the toggle.
@@ -87,3 +99,15 @@ export function isSwitchedInFeatures( state, module ) {
 export function isDeprecatedInFeatures( state, module ) {
 	return currentThemeIsBlockTheme( state ) && WIDGET_MODULES.includes( module );
 }
+
+/**
+ * Whether a search names Google Analytics, in English or the site's language.
+ *
+ * @param {string} searchTerm - The search term.
+ * @return {boolean} True on a match.
+ */
+export const searchFindsGoogleAnalytics = searchTerm =>
+	!! searchTerm &&
+	`google analytics ${ _x( 'Google Analytics', 'Settings header', 'jetpack' ) }`
+		.toLowerCase()
+		.includes( searchTerm.toLowerCase() );

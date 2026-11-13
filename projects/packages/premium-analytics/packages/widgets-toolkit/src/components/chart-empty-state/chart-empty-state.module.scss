@@ -1,4 +1,5 @@
 @use "../../styles/widget-container" as *;
+@use "../../styles/widget-text" as *;
 
 // Size container so the state can shed its icon and padding on short tiles
 // (see the query below). Safe here: the empty state always sits in a
@@ -74,4 +75,9 @@
 	// Added to the root's own gap, the text sits 16px under the icon, as in
 	// the error state.
 	margin-block-end: var(--wpds-dimension-gap-md);
+}
+
+.description {
+
+	@include widget-text-weight;
 }

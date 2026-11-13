@@ -268,6 +268,7 @@ class Jetpack_Memberships {
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
+		add_filter( 'map_meta_cap', array( $this, 'map_plan_meta_cap' ), 10, 4 );
 		$this->setup_cpts();
 
 		if ( Jetpack::is_module_active( 'subscriptions' ) && Request::is_frontend() ) {
@@ -284,6 +285,46 @@ class Jetpack_Memberships {
 		}
 
 		Abstract_Token_Subscription_Service::clear_token_cookie();
+	}
+
+	/**
+	 * Require ownership before editing or deleting a plan or coupon.
+	 *
+	 * These post types register with `map_meta_cap => false`, so core maps `edit_post`/`delete_post`
+	 * to the flat `edit_posts`/`delete_posts` primitives with no author comparison, letting any
+	 * `edit_posts` role edit another author's plan (e.g. reprice an admin-owned tier). We can't flip
+	 * to `map_meta_cap => true` because code checks these types' meta caps without a post ID, which
+	 * trips core's 6.1 meta-cap `_doing_it_wrong` notice. Core rewrites the meta cap to its primitive
+	 * before this filter runs, so match the primitive and add the `_others_posts` cap for non-owners.
+	 *
+	 * @param string[] $caps    Primitive capabilities required of the user.
+	 * @param string   $cap     Capability being checked, already mapped to the post type's primitive.
+	 * @param int      $user_id User ID.
+	 * @param array    $args    Arguments; $args[0] is the post ID when checking a post capability.
+	 * @return string[]
+	 */
+	public function map_plan_meta_cap( $caps, $cap, $user_id, $args ) {
+		if ( empty( $args[0] ) ) {
+			return $caps;
+		}
+
+		$post = get_post( $args[0] );
+		if ( ! $post instanceof WP_Post || ! in_array( $post->post_type, array( self::$post_type_plan, self::$post_type_coupon ), true ) ) {
+			return $caps;
+		}
+
+		if ( (int) $post->post_author === (int) $user_id ) {
+			return $caps;
+		}
+
+		$post_type = get_post_type_object( $post->post_type );
+		if ( $cap === $post_type->cap->edit_post ) {
+			$caps[] = 'edit_others_posts';
+		} elseif ( $cap === $post_type->cap->delete_post ) {
+			$caps[] = 'delete_others_posts';
+		}
+
+		return $caps;
 	}
 
 	/**
