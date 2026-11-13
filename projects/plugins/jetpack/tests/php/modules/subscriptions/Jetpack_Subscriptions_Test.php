@@ -1318,4 +1318,20 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		$this->assertSame( '', $output );
 	}
+
+	/**
+	 * Logging out clears the subscriber token and pauses the silent check.
+	 * Catches the check signing a subscriber straight back in after they log out.
+	 */
+	public function test_subscriber_logout_pauses_silent_subscriber_check() {
+		$_COOKIE[ Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] = 'token';
+		unset( $_COOKIE['jp-sub-check'] );
+
+		Jetpack_Memberships::get_instance()->subscriber_logout();
+		$paused = $_COOKIE['jp-sub-check'] ?? null;
+		unset( $_COOKIE['jp-sub-check'] );
+
+		$this->assertArrayNotHasKey( Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $_COOKIE );
+		$this->assertSame( '1', $paused );
+	}
 }

@@ -285,6 +285,25 @@ class Jetpack_Memberships {
 		}
 
 		Abstract_Token_Subscription_Service::clear_token_cookie();
+		self::pause_silent_subscriber_check();
+	}
+
+	/**
+	 * Stops the paywall's silent subscriber check for a month, so it can't sign the subscriber
+	 * straight back in from their WordPress.com session. The check's script reads this cookie
+	 * (see print_silent_subscriber_check() in the Subscriptions block), so it can't be httponly.
+	 */
+	private static function pause_silent_subscriber_check() {
+		$_COOKIE['jp-sub-check'] = '1';
+
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			return;
+		}
+
+		if ( ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( 'jp-sub-check', '1', strtotime( '+1 month' ), '/', '', is_ssl(), false );
+		}
 	}
 
 	/**
