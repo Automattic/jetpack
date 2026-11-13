@@ -638,10 +638,12 @@ function wpcomsh_rum_consent_gate_js( $script_url ) {
 		if ( typeof window.wp_has_consent === "function" && window.wp_has_consent( "statistics" ) ) { load(); }
 	}
 	document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
-		if ( event.detail && event.detail[ "statistics" ] === "allow" ) { load(); }
+		var value = event.detail && event.detail[ "statistics" ];
+		if ( value === "allow" ) { load(); }
+		// Withdrawing consent must also drop a beacon bilmur might have already queued.
+		if ( value === "deny" && loadDone ) { document.dispatchEvent( new Event( "bilmur:cancel" ) ); }
 	} );
 	document.addEventListener( "wp_consent_type_defined", check );
-	window.addEventListener( "wp_consent_type_defined", check );
 	if ( document.readyState === "loading" ) {
 		document.addEventListener( "DOMContentLoaded", check );
 	} else {
