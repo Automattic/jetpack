@@ -1,4 +1,5 @@
 import { formatNumber } from '@automattic/number-formatters';
+import { speak } from '@wordpress/a11y';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
@@ -67,6 +68,38 @@ export default function SelectionBanner( {
 		},
 		[ onClear ]
 	);
+
+	// The banner's text changes in place, so screen readers hear nothing without this.
+	const handleSelectAll = useCallback( () => {
+		onSelectAll();
+		const count = formatNumber( matchingCount );
+		const pages = formatNumber( totalPages );
+		speak(
+			narrowed
+				? sprintf(
+						// translators: %1$s: number of subscribers. %2$s: number of pages.
+						_n(
+							'All %1$s matching subscriber is selected, across all %2$s pages.',
+							'All %1$s matching subscribers are selected, across all %2$s pages.',
+							matchingCount,
+							'jetpack-newsletter'
+						),
+						count,
+						pages
+					)
+				: sprintf(
+						// translators: %1$s: number of subscribers. %2$s: number of pages.
+						_n(
+							'All %1$s subscriber is selected, across all %2$s pages.',
+							'All %1$s subscribers are selected, across all %2$s pages.',
+							matchingCount,
+							'jetpack-newsletter'
+						),
+						count,
+						pages
+					)
+		);
+	}, [ onSelectAll, narrowed, matchingCount, totalPages ] );
 
 	if ( pageCount === 0 || selectedCount < pageCount ) {
 		return null;
@@ -177,7 +210,7 @@ export default function SelectionBanner( {
 			</Notice.Description>
 			<Notice.Actions>
 				{ canSelectAll ? (
-					<Notice.ActionButton variant="minimal" onClick={ onSelectAll } disabled={ disabled }>
+					<Notice.ActionButton variant="minimal" onClick={ handleSelectAll } disabled={ disabled }>
 						{ narrowed
 							? sprintf(
 									// translators: %s: number of subscribers.

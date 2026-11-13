@@ -1,6 +1,9 @@
 /* eslint-disable testing-library/prefer-user-event -- user-event is not a dependency of this package. */
 import { fireEvent, render, screen } from '@testing-library/react';
+import { speak } from '@wordpress/a11y';
 import SelectionBanner from '../_inc/subscribers/components/selection-banner';
+
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 const baseProps = {
 	pageCount: 20,
@@ -35,6 +38,9 @@ describe( 'SelectionBanner', () => {
 		).toBeInTheDocument();
 		fireEvent.click( screen.getByRole( 'button', { name: 'Select all 15,000 subscribers' } ) );
 		expect( baseProps.onSelectAll ).toHaveBeenCalled();
+		expect( speak ).toHaveBeenCalledWith(
+			'All 15,000 subscribers are selected, across all 750 pages.'
+		);
 
 		fireEvent.click( screen.getByRole( 'button', { name: 'Remove these 20' } ) );
 		expect( baseProps.onRemovePage ).toHaveBeenCalled();
@@ -43,9 +49,12 @@ describe( 'SelectionBanner', () => {
 	it( 'says "matching" when a search or filter is on', () => {
 		render( <SelectionBanner { ...baseProps } narrowed matchingCount={ 1200 } /> );
 
-		expect(
+		fireEvent.click(
 			screen.getByRole( 'button', { name: 'Select all 1,200 matching subscribers' } )
-		).toBeInTheDocument();
+		);
+		expect( speak ).toHaveBeenCalledWith(
+			'All 1,200 matching subscribers are selected, across all 750 pages.'
+		);
 	} );
 
 	it( 'removes everyone once everyone is selected', () => {
