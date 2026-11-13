@@ -38,7 +38,7 @@ import {
 	useSyncExternalStore,
 } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { chevronLeft, chevronRight, pencil } from '@wordpress/icons';
+import { chevronLeft, chevronRight, pencil, update } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import GridiconPlus from 'gridicons/dist/plus-small';
@@ -657,7 +657,7 @@ export default function ApiManagedEdit( {
 	const [ isSavingButton, setIsSavingButton ] = useState( false );
 
 	/**
-	 * Back from the form to the details, asking first when there is something to lose.
+	 * Leave the form, asking first when there is something to lose.
 	 * Compared on the click, since the snapshot is retaken in an effect after the render.
 	 */
 	const leaveForm = () => {
@@ -681,8 +681,8 @@ export default function ApiManagedEdit( {
 	};
 
 	/**
-	 * Send the form to PayPal, and leave it for the details once PayPal has it. The
-	 * post is not saved: the block holds the payment id until it is.
+	 * Send the form to PayPal, and leave it once PayPal has it. The post is not saved:
+	 * the block holds the payment id until it is.
 	 */
 	const saveChanges = async () => {
 		setIsSavingButton( true );
@@ -978,7 +978,18 @@ export default function ApiManagedEdit( {
 		setIsEditing( true );
 	};
 
-	// The saved button's Edit and Delete, as in the menu beside its name.
+	// Toolbar Change item opens the picker from any screen, leaving the form as its back link does.
+	const openPicker = () => {
+		openBlockSettings();
+		if ( isEditing && ! isSwitching ) {
+			leaveToPicker.current = true;
+			leaveForm();
+		} else {
+			setIsSwitching( true );
+		}
+	};
+
+	// The saved button's Edit, Change item and Delete, as in the menu beside its name.
 	const toolbarControls = hasButton ? (
 		<BlockControls>
 			<ToolbarGroup>
@@ -986,6 +997,12 @@ export default function ApiManagedEdit( {
 					icon={ pencil }
 					label={ __( 'Edit', 'jetpack-paypal-payments' ) }
 					onClick={ openForm }
+				/>
+				<ToolbarButton
+					icon={ update }
+					label={ __( 'Change item', 'jetpack-paypal-payments' ) }
+					onClick={ openPicker }
+					disabled={ ! canChangeLink }
 				/>
 				<ToolbarButton
 					icon="trash"
