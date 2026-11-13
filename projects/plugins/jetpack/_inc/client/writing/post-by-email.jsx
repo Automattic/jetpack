@@ -1,10 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
-import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
+import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -90,17 +90,11 @@ class PostByEmail extends Component {
 					) }
 					<FormFieldset>
 						{ ( this.props.userCanManageModules || emailAddress ) && (
-							<FormLabel>
-								<FormLegend>
-									{ __( 'Send your new posts to this email address:', 'jetpack' ) }
-								</FormLegend>
-								<ClipboardButtonInput
-									value={ emailAddress }
-									disabled={ ! isPbeActive || disabledControls }
-									copy={ _x( 'Copy', 'verb', 'jetpack' ) }
-									rna
-								/>
-							</FormLabel>
+							<ClipboardButtonInput
+								label={ __( 'Send your new posts to this email address:', 'jetpack' ) }
+								value={ emailAddress }
+								disabled={ ! isPbeActive || disabledControls }
+							/>
 						) }
 						<Button
 							rna

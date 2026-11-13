@@ -1,55 +1,28 @@
-Clipboard Button Input
-======================
+# Clipboard Button Input
 
-Clipboard Button Input is a React component used to display a text input field containing a button for copying the value of the input to a user's clipboard. It makes use of the [Clipboard Button component](../form/clipboard-button), which uses `useCopyToClipboard` from `@wordpress/compose`.
+A read-only text field with a copy button, built from `InputControl`, `InputLayout` and `IconButton` in `@wordpress/ui`. Copying uses `useCopyToClipboard` from `@wordpress/compose`.
+
+The button's accessible name stays "Copy". A check or error icon shows the result for two seconds, and the outcome is announced to screen readers with `speak()`, following the [Gutenberg Copy to Clipboard pattern](https://wordpress.github.io/gutenberg/?path=/docs/design-system-patterns-copy-to-clipboard--docs).
 
 ## Usage
-
-In most cases, the component can be treated much like any other text input element. Pass a `value` to be used as the input text to be copied.
 
 ```jsx
 import ClipboardButtonInput from 'components/clipboard-button-input';
 
 export default function MyComponent() {
 	return (
-		<ClipboardButtonInput
-			value="https://example.wordpress.com/"
-			copy="Copy"
-		/>
+		<ClipboardButtonInput label="Sitemap" value="https://example.wordpress.com/sitemap.xml" />
 	);
-};
+}
 ```
 
 ## Props
 
-The following props can be passed to the ClipboardButtonInput component. With the exception of `className`, all props, including those not listed below, will be passed to the child `<input />` element.
+Props not listed here are passed to the `InputControl`.
 
-### `value`
-
-<table>
-	<tr><td>Type</td><td>String</td></tr>
-	<tr><td>Required</td><td>No</td></tr>
-	<tr><td>Default</td><td><code>""</code></td></tr>
-</table>
-
-The value of the `<input />` element, and the text to be copied when clicking the copy button.
-
-### `copy`
-
-<table>
-	<tr><td>Type</td><td>String</td></tr>
-	<tr><td>Required</td><td>No</td></tr>
-	<tr><td>Default</td><td><code>""</code></td></tr>
-</table>
-
-The label of the button that user can click to copy the input text to clipboard. It stays the same after copying; a check or error icon and a screen reader announcement show the result.
-
-### `disabled`
-
-<table>
-	<tr><td>Type</td><td>Boolean</td></tr>
-	<tr><td>Required</td><td>No</td></tr>
-	<tr><td>Default</td><td><code>false</code></td></tr>
-</table>
-
-Whether the children `<input />` and `<button />` should be rendered as `disabled`.
+- `label` (string, required): Accessible label of the field.
+- `value` (string): Text shown in the field and copied. Default `""`.
+- `className` (string): Class added to the root element (`jetpack-components-clipboard-button-input`). Use it only for width and position, such as `flex-grow` or margins; do not override colors or other styles.
+- `copyLabel` (string): Accessible name and tooltip of the copy button. Default "Copy".
+- `disabled` (boolean): Disable the field and the button. Default `false`.
+- `hideLabelFromVision` (boolean): Hide the label visually but keep it for screen readers. Default `false`.

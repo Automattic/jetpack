@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Copy buttons in settings: Show a check or error icon after copying and announce the result to screen readers.

@@ -27,19 +27,15 @@
 }
 
 .jp-sitemap-row {
-	display: flex;
-	align-items: center;
-	margin-top: 1rem;
+	margin-block-start: var(--wpds-dimension-gap-lg);
 
-	.dops-clipboard-button-input {
+	.jp-sitemap-row__input {
 		flex-grow: 1;
 	}
 
 	.components-external-link__icon {
 		width: 1.125rem;
 		height: 1.125rem;
-		margin-inline-start: 6px;
-		margin-top: -3px;
 	}
 }
 
