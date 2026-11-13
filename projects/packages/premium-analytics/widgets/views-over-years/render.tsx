@@ -45,8 +45,17 @@ type ViewsOverYearsInnerProps = {
 function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : undefined;
-	const { rows, partialMonths, lifeStartsAt, isLoading, isFetching, isError, error, refetch } =
-		useViewsOverYears( metric, authorId );
+	const {
+		rows,
+		partialMonths,
+		lifeStartsAt,
+		isLoading,
+		isFetching,
+		isError,
+		isPlaceholderData,
+		error,
+		refetch,
+	} = useViewsOverYears( metric, authorId );
 	const openSectionRange = useOpenSectionRange();
 	const { openPeriod } = useReportScope();
 	const timeZone = reportingTimeZone();
@@ -85,7 +94,7 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 			...csv,
 			filenamePrefix: authorId ? `author-${ authorId }-${ metricPrefix }` : metricPrefix,
 			hasDateRange: false,
-			status: { isLoading, isFetching, isError },
+			status: { isLoading, isFetching, isError, isPlaceholderData },
 		},
 	} );
 

@@ -73,7 +73,8 @@ function PostingActivityInner() {
 		[ from, to, preset, interval ]
 	);
 
-	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
+	const { data, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
+		useStatsStreak( streakParams );
 
 	// The endpoint returns only days with posts.
 	const postsByDay = data ?? NO_POSTS_BY_DAY;
@@ -96,7 +97,7 @@ function PostingActivityInner() {
 			columns: CSV_COLUMNS,
 			filenamePrefix: 'posting-activity',
 			range: { from: range.start, to: range.end },
-			status: { isLoading, isFetching, isError },
+			status: { isLoading, isFetching, isError, isPlaceholderData },
 		},
 	} );
 

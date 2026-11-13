@@ -37,6 +37,7 @@ export interface SubscribersChartState {
 	isFetching: boolean;
 	isError: boolean;
 	csvIsError: boolean;
+	csvIsPlaceholderData: boolean;
 	/** The zone the bucket dates are in. */
 	timezone: string;
 	refetch: () => void;
@@ -88,6 +89,7 @@ export default function useSubscribersChart(
 		// surface the error once there is nothing on screen to show.
 		isError: current.length === 0 && report.isError,
 		csvIsError: report.primary.isError,
+		csvIsPlaceholderData: report.primary.isPlaceholderData,
 		timezone: zone,
 		refetch: report.refetch,
 	};

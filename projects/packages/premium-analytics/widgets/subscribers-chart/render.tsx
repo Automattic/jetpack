@@ -132,6 +132,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 				isLoading: state.isLoading,
 				isFetching: state.isFetching,
 				isError: state.csvIsError,
+				isPlaceholderData: state.csvIsPlaceholderData,
 			},
 		},
 	} );
