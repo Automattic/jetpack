@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-JSON API: Avoid a fatal error when the `fields` query parameter is passed as an array.
+JSON API: Ignore the `fields` query parameter when it is passed as an array, instead of causing a fatal error.
