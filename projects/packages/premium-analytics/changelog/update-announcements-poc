@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: added
 
-Dashboard: Show a What's new teaser with the announcements of the dashboard.
+Dashboard: Add a What's new teaser with the announcements of the dashboard, behind a feature flag that is off by default.
