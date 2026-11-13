@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\Dashboard;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -226,5 +227,56 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 		Dashboard::mark_classic_form_detected();
 
 		$this->assertEquals( self::STATE_DISMISSED, get_option( self::OPTION_NAME ) );
+	}
+
+	/**
+	 * Data provider for test_shell_landing_subtitle_follows_the_classic_forms_state.
+	 *
+	 * @return array[] Stored state, whether detection finds classic forms, expected subtitle.
+	 */
+	public static function provide_landing_subtitle_states() {
+		$short = 'View and manage all your forms.';
+		$long  = 'View and manage all your forms in one place.';
+		return array(
+			'unset, classic forms found' => array( false, true, $short ),
+			'unset, none found'          => array( false, false, $long ),
+			'classic'                    => array( self::STATE_CLASSIC, false, $short ),
+			'dismissed'                  => array( self::STATE_DISMISSED, true, $long ),
+		);
+	}
+
+	/**
+	 * The admin shell's Forms subtitle starts as the dashboard's, which detects classic forms when the state is unset.
+	 *
+	 * @dataProvider provide_landing_subtitle_states
+	 *
+	 * @param string|false $stored   Stored classic forms state.
+	 * @param bool         $detected Whether detection finds classic forms.
+	 * @param string       $expected Expected subtitle.
+	 */
+	#[DataProvider( 'provide_landing_subtitle_states' )]
+	public function test_shell_landing_subtitle_follows_the_classic_forms_state( $stored, $detected, $expected ) {
+		if ( $stored ) {
+			update_option( self::OPTION_NAME, $stored );
+		}
+		if ( $detected ) {
+			$this->simulate_classic_forms_detected();
+		} else {
+			$this->simulate_no_classic_forms();
+		}
+		$flags = static function ( $flags ) {
+			return array( 'central-form-management' => true ) + $flags;
+		};
+		add_filter( 'jetpack_block_editor_feature_flags', $flags );
+		$method = new \ReflectionMethod( Dashboard::class, 'landing_subtitle' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		try {
+			$this->assertSame( $expected, $method->invoke( null ) );
+		} finally {
+			remove_filter( 'jetpack_block_editor_feature_flags', $flags );
+		}
 	}
 }
