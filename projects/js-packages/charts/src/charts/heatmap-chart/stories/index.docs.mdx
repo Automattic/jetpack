@@ -352,7 +352,7 @@ Add a legend by placing `<HeatmapChart.Legend />` as a child. Between its Less a
 
 <Canvas of={ HeatmapStories.WithBarLegend } />
 
-The legend draws five swatches by default. Under `scale="buckets"` that count is fixed: a cell's shade is always `k / 4` for a whole number `k`, so a `steps` that differs would show shades the cells never paint, and it is ignored with a warning. Under the default `linear` scale the shades are continuous, so `steps` there is only how many samples of them the legend shows.
+The legend draws five swatches by default. Under `scale="buckets"` that count is fixed: a cell's shade is always `k / 4` for a whole number `k`, so a `steps` that differs would show shades the cells never paint, and it is ignored with a warning. Under the default `linear` scale the shades are continuous, so `steps` there is only how many samples of them the legend shows. The `Calendar` story asks for seven: switch its **scale** control to `buckets` and the legend drops back to the five the cells paint.
 
 ## Error / Empty State
 
