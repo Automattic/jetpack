@@ -29,8 +29,9 @@ class Hide_Non_Breaking_Space_Markers_Test extends \WorDBless\BaseTestCase {
 
 		$GLOBALS['wpcom_site_stickers_test_value'] = array( 'hide-non-breaking-space-markers' );
 		wpcom_hide_non_breaking_space_markers();
-		wpcom_hide_non_breaking_space_markers();
 		$this->assertTrue( wp_style_is( self::HANDLE ) );
+
+		wpcom_hide_non_breaking_space_markers();
 		$this->assertCount( 1, wp_styles()->get_data( self::HANDLE, 'after' ) );
 	}
 }
