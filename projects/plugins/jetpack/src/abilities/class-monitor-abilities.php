@@ -149,7 +149,8 @@ class Monitor_Abilities extends Registrar {
 	 * Permission check: can the current user manage Monitor notifications?
 	 *
 	 * The settings API needs `jetpack_configure_modules` (`manage_options`) for this setting, and the
-	 * write also updates the site-wide `monitor_receive_notifications` option the settings screen reads.
+	 * write also updates the current user's local copy (`monitor_receive_notifications{user_id}`) the
+	 * settings screen reads.
 	 */
 	public static function can_manage_monitor(): bool {
 		return current_user_can( 'manage_options' );

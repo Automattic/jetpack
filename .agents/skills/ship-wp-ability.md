@@ -140,7 +140,7 @@ Inline decision table:
 
 Rules:
 
-- Use the capability the matching REST route or settings screen checks, never a looser one. `jetpack_admin_page` maps to `edit_posts` (so Contributors pass) and exists only inside the Jetpack plugin: never use it for a write, or for data its route keeps admin-only.
+- Use the capability the matching REST route or settings screen checks, never a looser one. `jetpack_admin_page` maps to `edit_posts` outside offline mode (so Contributors pass; offline mode maps it to `manage_options`) and exists only inside the Jetpack plugin: never use it for a write, or for data its route keeps admin-only.
 - Prefer narrow Jetpack-specific caps over `manage_options`.
 - Differentiate read (`can_view_*`) from write (`can_manage_*`). Never reuse a view check to gate a write.
 - `permission_callback` returns `bool` or `WP_Error`. Never throws.
