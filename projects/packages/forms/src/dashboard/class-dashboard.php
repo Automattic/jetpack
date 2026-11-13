@@ -173,8 +173,8 @@ class Dashboard {
 		if ( 'forms' !== self::landing_tab() ) {
 			return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
 		}
-		// Detects and stores the state when unset, as the dashboard's config request would.
-		if ( self::CLASSIC_FORMS_STATE_CLASSIC === ( new self() )->get_classic_forms_state() ) {
+		// Read, not detected: the members filter must not query or write. Unset shows the long message.
+		if ( self::CLASSIC_FORMS_STATE_CLASSIC === get_option( self::CLASSIC_FORMS_OPTION ) ) {
 			return __( 'View and manage all your forms.', 'jetpack-forms' );
 		}
 		return __( 'View and manage all your forms in one place.', 'jetpack-forms' );

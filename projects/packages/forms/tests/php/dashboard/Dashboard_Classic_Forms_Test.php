@@ -238,7 +238,7 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 		$short = 'View and manage all your forms.';
 		$long  = 'View and manage all your forms in one place.';
 		return array(
-			'unset, classic forms found' => array( false, true, $short ),
+			'unset, classic forms found' => array( false, true, $long ),
 			'unset, none found'          => array( false, false, $long ),
 			'classic'                    => array( self::STATE_CLASSIC, false, $short ),
 			'dismissed'                  => array( self::STATE_DISMISSED, true, $long ),
@@ -246,7 +246,7 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The admin shell's Forms subtitle starts as the dashboard's, which detects classic forms when the state is unset.
+	 * The admin shell's Forms subtitle reads the stored classic forms state, and never detects or stores it.
 	 *
 	 * @dataProvider provide_landing_subtitle_states
 	 *
@@ -275,6 +275,7 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 
 		try {
 			$this->assertSame( $expected, $method->invoke( null ) );
+			$this->assertSame( $stored, get_option( self::OPTION_NAME ) );
 		} finally {
 			remove_filter( 'jetpack_block_editor_feature_flags', $flags );
 		}
