@@ -38,10 +38,11 @@ async function renderModern() {
 }
 
 function render() {
-	if ( detectMode() === 'modern' ) {
-		renderModern();
-	} else {
+	// No root yet: the admin shell runs this bundle before it mounts the chassis, so wait for its slots.
+	if ( detectMode() === 'legacy' ) {
 		renderLegacy();
+	} else {
+		renderModern();
 	}
 }
 

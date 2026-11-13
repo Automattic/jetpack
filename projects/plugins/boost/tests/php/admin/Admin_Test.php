@@ -53,6 +53,7 @@ class Admin_Test extends Base_TestCase {
 		// capability to true so the registration path runs. Overridden per-test below.
 		Functions\when( 'current_user_can' )->justReturn( true );
 		Functions\when( 'is_admin' )->justReturn( true );
+		Functions\when( 'wp_doing_ajax' )->justReturn( false );
 
 		// Start each test with a clean registry; other suites registering
 		// under different ids don't matter here since we only assert on
@@ -518,6 +519,32 @@ class Admin_Test extends Base_TestCase {
 		$this->assertFalse( $data['getting_started']['value'] );
 		$this->assertFalse( $data['dismissed_alerts']['value']['score_increase'] );
 		$this->assertNotEmpty( $data['dismissed_alerts']['nonce'] );
+	}
+
+	/**
+	 * @dataProvider admin_shell_member_cases
+	 */
+	#[DataProvider( 'admin_shell_member_cases' )]
+	public function test_admin_shell_member_follows_modern_dashboard( $modern, $build_exists, $joins ) {
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( $modern );
+		Functions\when( 'Automattic\\Jetpack_Boost\\Admin\\file_exists' )->justReturn( $build_exists );
+		$admin = new Admin();
+
+		$members = $admin->add_admin_shell_member( array( 'my-jetpack' => array() ) );
+
+		$this->assertSame( $joins, isset( $members[ JETPACK_BOOST_SLUG ] ) );
+		$this->assertArrayHasKey( 'my-jetpack', $members );
+		if ( $joins ) {
+			$this->assertSame( array( $admin, 'load_as_admin_shell_guest' ), $members[ JETPACK_BOOST_SLUG ]['load'] );
+		}
+	}
+
+	public static function admin_shell_member_cases() {
+		return array(
+			'modern dashboard'         => array( true, true, true ),
+			'legacy dashboard'         => array( false, true, false ),
+			'modern build not present' => array( true, false, false ),
+		);
 	}
 
 	private function assert_screen_id_not_aliased( $admin ) {
