@@ -165,6 +165,21 @@ describe( 'dependencyAnalysis', () => {
 				'js-packages/e': [],
 			} );
 		} );
+
+		describe( 'dependents with a Map', () => {
+			// A require-devs X, B requires A, C require-devs B, D requires C.
+			const toMap = obj =>
+				new Map( Object.entries( obj ).map( ( [ k, v ] ) => [ k, new Set( v ) ] ) );
+			const prodDeps = toMap( { X: [], A: [], B: [ 'A' ], C: [], D: [ 'C' ] } );
+			const deps = toMap( { X: [], A: [ 'X' ], B: [ 'A' ], C: [ 'B' ], D: [ 'C' ] } );
+
+			test.each( [
+				[ 'X', { X: [], A: [ 'X' ] } ],
+				[ 'A', { A: [], B: [ 'A' ], C: [ 'B' ] } ],
+			] )( 'changing %s', ( changed, expected ) => {
+				expect( filterDeps( deps, [ changed ], { dependents: prodDeps } ) ).toMatchDeps( expected );
+			} );
+		} );
 	} );
 
 	describe( 'getBuildOrder', () => {

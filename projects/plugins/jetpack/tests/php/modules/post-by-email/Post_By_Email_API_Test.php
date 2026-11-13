@@ -12,6 +12,8 @@ if ( defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/post-by-email.php';
 }
 
+require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
+
 /**
  * Automated testing of the post-by-email REST API.
  */

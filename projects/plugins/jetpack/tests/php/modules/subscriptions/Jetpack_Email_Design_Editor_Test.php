@@ -49,6 +49,14 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	private $wrote_asset = false;
 
 	/**
+	 * Lock held while this test owns the build directory. Concurrent PHPUnit shards share one
+	 * checkout, so two set_build() calls would otherwise move the same real asset file aside.
+	 *
+	 * @var resource|null
+	 */
+	private $build_lock = null;
+
+	/**
 	 * A snapshot of the admin menu globals, which add_theme_page() appends to. `_parent_pages`
 	 * belongs here too: `menu_page_url()` reads it, so without it one test's page is another's.
 	 *
@@ -117,6 +125,11 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 			rmdir( $this->created_build_dir );
 		}
 
+		if ( null !== $this->build_lock ) {
+			flock( $this->build_lock, LOCK_UN );
+			fclose( $this->build_lock );
+		}
+
 		foreach ( $this->registered_blocks as $name ) {
 			unregister_block_type( $name );
 		}
@@ -157,6 +170,11 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 */
 	private function set_build( ?array $asset ) {
 		$build_dir = dirname( $this->asset_path );
+
+		if ( null === $this->build_lock ) {
+			$this->build_lock = fopen( get_temp_dir() . 'jetpack-email-design-editor-build-' . md5( $this->asset_path ) . '.lock', 'c' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+			flock( $this->build_lock, LOCK_EX );
+		}
 
 		if ( file_exists( $this->asset_path ) ) {
 			$this->asset_backup = $this->asset_path . '.test-backup';
