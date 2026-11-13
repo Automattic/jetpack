@@ -388,8 +388,6 @@ class Admin_UI {
 	 */
 	public static function load_as_admin_shell_guest() {
 		self::load_wp_build();
-		// The page init action that runs this never fires for a guest, and the shell reads the routes first.
-		self::maybe_strip_chapters_editor_routes();
 		self::admin_init();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
 	}
