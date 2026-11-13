@@ -253,13 +253,21 @@ function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportPr
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { allRows, rows, isLoading, isFetching, isError, csvIsError, refetch } =
-		useEmailBreakdownRows( {
-			postId,
-			view,
-			metric,
-			max: WIDGET_ROW_LIMIT,
-		} );
+	const {
+		allRows,
+		rows,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError,
+		csvIsPlaceholderData,
+		refetch,
+	} = useEmailBreakdownRows( {
+		postId,
+		view,
+		metric,
+		max: WIDGET_ROW_LIMIT,
+	} );
 
 	const columns = useMemo( () => csvColumns( view, metric ), [ view, metric ] );
 	useReportActions( {
@@ -268,7 +276,12 @@ function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportPr
 			columns,
 			filenamePrefix: `email-${ postId }-${ view }-${ view === 'links' ? 'clicks' : metric }`,
 			hasDateRange: false,
-			status: { isLoading, isFetching, isError: csvIsError },
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
 		},
 	} );
 

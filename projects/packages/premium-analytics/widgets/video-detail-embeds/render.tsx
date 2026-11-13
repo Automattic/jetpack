@@ -95,7 +95,8 @@ function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo( videoId );
+	const { data, isLoading, isFetching, isError, isPlaceholderData, refetch } =
+		useStatsSingleVideo( videoId );
 
 	useReportActions( {
 		csv: {
@@ -103,7 +104,7 @@ function VideoDetailEmbedsReport() {
 			columns: CSV_COLUMNS,
 			filenamePrefix: `video-${ videoId }-embeds`,
 			hasDateRange: false,
-			status: { isLoading, isFetching, isError },
+			status: { isLoading, isFetching, isError, isPlaceholderData },
 		},
 	} );
 
