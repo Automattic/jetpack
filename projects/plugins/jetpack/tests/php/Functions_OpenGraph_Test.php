@@ -11,7 +11,6 @@ use PHPUnit\Framework\Attributes\Group;
  * @since 3.9.2
  * @covers ::jetpack_og_tags
  * @covers ::jetpack_og_get_image
- * @covers ::jetpack_og_tags
  * @covers ::jetpack_og_get_description
  * @covers ::jetpack_og_remove_query_blocks
  * @covers ::jetpack_og_get_site_fallback_blank_image
@@ -22,7 +21,6 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversFunction( 'jetpack_og_tags' )]
 #[CoversFunction( 'jetpack_og_get_image' )]
-#[CoversFunction( 'jetpack_og_tags' )]
 #[CoversFunction( 'jetpack_og_get_description' )]
 #[CoversFunction( 'jetpack_og_remove_query_blocks' )]
 #[CoversFunction( 'jetpack_og_get_site_fallback_blank_image' )]
