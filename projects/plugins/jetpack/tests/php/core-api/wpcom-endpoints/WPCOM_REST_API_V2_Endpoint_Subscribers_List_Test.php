@@ -445,6 +445,277 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	}
 
 	/**
+	 * Asking about one removal appends its `job_id` to the upstream status path.
+	 */
+	public function test_bulk_remove_status_forwards_job_id() {
+		$captured_url = '';
+		$filter       = function ( $preempt, $parsed_args, $url ) use ( &$captured_url ) {
+			$captured_url = $url;
+
+			return $this->fake_wpcom_response( 200, array( 'job' => array( 'id' => 77 ) ) );
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/subscribers/bulk-remove/status' );
+		$request->set_query_params( array( 'job_id' => 77 ) );
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString(
+			'/wpcom/v2/sites/' . static::$blog_id . '/subscribers/bulk-remove/status?job_id=77',
+			$captured_url
+		);
+	}
+
+	/**
+	 * `/subscribers/bulk-remove` forwards the filters, search and expected count to the wpcom
+	 * `/sites/{blog_id}/subscribers/bulk-remove` (v2) endpoint as JSON, always asks it to cancel
+	 * paid subscriptions, and returns the started job unchanged.
+	 */
+	public function test_bulk_remove_forwards_payload_and_returns_job() {
+		$job      = array(
+			'job' => array(
+				'id'     => 42,
+				'status' => 'queued',
+			),
+		);
+		$captured = array(
+			'url'  => '',
+			'body' => '',
+		);
+		$filter   = function ( $preempt, $parsed_args, $url ) use ( &$captured, $job ) {
+			$captured['url']  = $url;
+			$captured['body'] = $parsed_args['body'] ?? null;
+
+			return $this->fake_wpcom_response( 200, $job );
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/bulk-remove' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'filters'        => array( 'paid' ),
+					'search'         => 'example.com',
+					'expected_count' => 12,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( $job, $response->get_data() );
+		$this->assertStringContainsString(
+			'/wpcom/v2/sites/' . static::$blog_id . '/subscribers/bulk-remove',
+			$captured['url']
+		);
+		$this->assertSame(
+			array(
+				'filters'        => array( 'paid' ),
+				'search'         => 'example.com',
+				'expected_count' => 12,
+				'cancel_paid'    => true,
+			),
+			json_decode( (string) $captured['body'], true )
+		);
+	}
+
+	/**
+	 * Without filters or a search, the job covers everyone.
+	 */
+	public function test_bulk_remove_defaults_to_all_subscribers() {
+		$captured_body = '';
+		$filter        = function ( $preempt, $parsed_args ) use ( &$captured_body ) {
+			$captured_body = $parsed_args['body'] ?? null;
+
+			return $this->fake_wpcom_response( 200, array( 'job' => array( 'id' => 1 ) ) );
+		};
+		add_filter( 'pre_http_request', $filter, 10, 2 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/bulk-remove' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'expected_count' => 3 ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		$sent = (array) json_decode( (string) $captured_body, true );
+		$this->assertSame( array( 'all' ), $sent['filters'] );
+		$this->assertSame( '', $sent['search'] );
+	}
+
+	/**
+	 * The expected count guards against removing a list that changed, so a request without one
+	 * never reaches WP.com.
+	 */
+	public function test_bulk_remove_requires_expected_count() {
+		$called = false;
+		$filter = function () use ( &$called ) {
+			$called = true;
+
+			return $this->fake_wpcom_response( 200, array() );
+		};
+		add_filter( 'pre_http_request', $filter );
+
+		$request  = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/bulk-remove' );
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_missing_callback_param', $response->get_data()['code'] );
+		$this->assertFalse( $called );
+	}
+
+	/**
+	 * When WP.com refuses to start (the list changed, or a removal is already running), its code,
+	 * message, data and status pass through, so the screen can say what happened.
+	 */
+	public function test_bulk_remove_passes_through_wpcom_refusal() {
+		$filter = function () {
+			return $this->fake_wpcom_response(
+				409,
+				array(
+					'code'    => 'subscribers_bulk_remove_count_changed',
+					'message' => 'The subscriber list changed.',
+					'data'    => array( 'count' => 11 ),
+				)
+			);
+		};
+		add_filter( 'pre_http_request', $filter );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/bulk-remove' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'expected_count' => 12 ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter );
+
+		$data = $response->get_data();
+		$this->assertSame( 409, $response->get_status() );
+		$this->assertSame( 'subscribers_bulk_remove_count_changed', $data['code'] );
+		$this->assertSame( 'The subscriber list changed.', $data['message'] );
+		$this->assertSame( 11, $data['data']['count'] );
+		$this->assertSame( 409, $data['data']['status'] );
+	}
+
+	/**
+	 * A WP.com failure with no code or message of its own falls back to a generic code and each
+	 * route's own message.
+	 *
+	 * @param string $method   HTTP method.
+	 * @param string $route    Route under test.
+	 * @param array  $params   Body params.
+	 * @param string $expected Expected message.
+	 * @dataProvider provider_bulk_remove_routes
+	 */
+	#[DataProvider( 'provider_bulk_remove_routes' )]
+	public function test_bulk_remove_falls_back_to_default_error( $method, $route, $params, $expected ) {
+		$filter = function () {
+			return $this->fake_wpcom_response( 500, null );
+		};
+		add_filter( 'pre_http_request', $filter );
+
+		$request = new WP_REST_Request( $method, $route );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter );
+
+		$this->assertSame( 500, $response->get_status() );
+		$this->assertSame( 'subscribers_bulk_remove_failed', $response->get_data()['code'] );
+		$this->assertSame( $expected, $response->get_data()['message'] );
+	}
+
+	/**
+	 * Without a Jetpack connection there is no blog id, so neither route calls WP.com.
+	 *
+	 * @param string $method HTTP method.
+	 * @param string $route  Route under test.
+	 * @param array  $params Body params.
+	 * @dataProvider provider_bulk_remove_routes
+	 */
+	#[DataProvider( 'provider_bulk_remove_routes' )]
+	public function test_bulk_remove_needs_a_site_id( $method, $route, $params ) {
+		$called = false;
+		$filter = function () use ( &$called ) {
+			$called = true;
+
+			return $this->fake_wpcom_response( 200, array() );
+		};
+		add_filter( 'pre_http_request', $filter );
+		add_filter( 'pre_option_jetpack_options', '__return_empty_array', 20 );
+
+		$request = new WP_REST_Request( $method, $route );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_option_jetpack_options', '__return_empty_array', 20 );
+		remove_filter( 'pre_http_request', $filter );
+
+		$this->assertTrue( $response->is_error() );
+		$this->assertSame( 'unavailable_site_id', $response->get_data()['code'] );
+		$this->assertFalse( $called );
+	}
+
+	/**
+	 * The two bulk remove routes, with a valid body and each route's fallback error message.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: array, 3: string}>
+	 */
+	public static function provider_bulk_remove_routes() {
+		return array(
+			'start'  => array(
+				Requests::POST,
+				'/wpcom/v2/subscribers/bulk-remove',
+				array( 'expected_count' => 5 ),
+				'Could not start removing subscribers.',
+			),
+			'status' => array(
+				Requests::GET,
+				'/wpcom/v2/subscribers/bulk-remove/status',
+				array(),
+				'Could not check the removal.',
+			),
+		);
+	}
+
+	/**
+	 * Build a `pre_http_request` response that looks like WP.com answered.
+	 *
+	 * @param int   $code HTTP status.
+	 * @param mixed $body Body to JSON-encode.
+	 * @return array
+	 */
+	private function fake_wpcom_response( $code, $body ) {
+		return array(
+			'headers'  => array(),
+			'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+			'response' => array(
+				'code'    => $code,
+				'message' => '',
+			),
+			'cookies'  => array(),
+			'filename' => null,
+		);
+	}
+
+	/**
 	 * `/subscribers/remove` rejects payloads with no identifiers at all — protects WP.com from
 	 * receiving a no-op cascade.
 	 */
