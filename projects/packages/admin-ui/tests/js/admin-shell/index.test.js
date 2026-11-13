@@ -16,7 +16,23 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	transitionSettled: jest.fn( () => Promise.resolve() ),
 } ) );
 jest.mock( '../../../src/admin-shell/app', () => ( {
-	createApp: jest.fn( ( slug, el ) => ( { slug, el, to: jest.fn(), place: jest.fn() } ) ),
+	createApp: jest.fn( ( slug, el ) => {
+		let ready = false;
+		let placed = false;
+		return {
+			slug,
+			el,
+			get state() {
+				if ( ! ready ) {
+					return 'loading';
+				}
+				return placed ? 'visible' : 'hidden';
+			},
+			to: jest.fn( next => ( ready ||= next === 'ready' ) ),
+			place: jest.fn( on => ( placed = on ) ),
+			focusHeading: jest.fn(),
+		};
+	} ),
 	whenRendered: jest.fn( () => Promise.resolve() ),
 } ) );
 jest.mock( '../../../src/admin-shell/guest-assets', () => ( {
@@ -66,10 +82,14 @@ const settle = async () => {
 	}
 };
 
+const click = slug => document.querySelector( `#adminmenu a[href$="page=${ slug }"]` ).click();
+
 const hover = slug =>
 	document
 		.querySelector( `#adminmenu a[href$="page=${ slug }"]` )
 		.dispatchEvent( new Event( 'pointerover', { bubbles: true } ) );
+
+let addListener;
 
 beforeEach( () => {
 	mockInits.a.mockReset();
@@ -102,11 +122,15 @@ beforeEach( () => {
 		) }</script>`;
 	// The shell imports guest modules into the shared registry; reset it so each test evaluates them anew.
 	jest.resetModules();
+	addListener = jest.spyOn( document, 'addEventListener' );
 	require( '../../../src/admin-shell/index' );
 } );
 
 afterEach( () => {
 	jest.useRealTimers();
+	// Otherwise this test's shell would handle, and preventDefault, the next test's clicks.
+	addListener.mock.calls.forEach( args => document.removeEventListener( ...args ) );
+	addListener.mockRestore();
 } );
 
 describe( 'admin shell prewarm', () => {
@@ -169,5 +193,34 @@ describe( 'admin shell prewarm', () => {
 		await settle();
 
 		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b' } );
+	} );
+} );
+
+describe( 'admin shell switch', () => {
+	it( 'shows a page once when a switch back to it overtakes one still waiting on a dialog', async () => {
+		jest.spyOn( window, 'scrollTo' ).mockImplementation( () => {} );
+		click( 'guest-a' );
+		await settle();
+		click( 'guest-b' );
+		await settle();
+		const { createApp } = require( '../../../src/admin-shell/app' );
+		const { closeDialogsOf } = require( '../../../src/admin-shell/overlays' );
+		const appA = createApp.mock.results.find( ( { value } ) => value.slug === 'guest-a' ).value;
+		appA.focusHeading.mockClear();
+		const closeDialogs = [];
+		closeDialogsOf.mockImplementation(
+			() => new Promise( resolve => closeDialogs.push( resolve ) )
+		);
+
+		click( 'guest-a' );
+		await settle();
+		click( 'guest-b' );
+		await settle();
+		click( 'guest-a' );
+		await settle();
+		closeDialogs.forEach( resolve => resolve() );
+		await settle();
+
+		expect( appA.focusHeading ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

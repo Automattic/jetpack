@@ -99,20 +99,26 @@ describe( 'overlays', () => {
 		expect( otherModal ).toBeInTheDocument();
 	} );
 
+	const animatingOut = dialog => dialog.parentElement.classList.add( 'is-animating-out' );
+	const endingStyle = dialog => dialog.setAttribute( 'data-ending-style', '' );
+
 	it.each( [
-		[ '@wordpress/components', dialog => dialog.parentElement.classList.add( 'is-animating-out' ) ],
-		[ '@wordpress/ui', dialog => dialog.setAttribute( 'data-ending-style', '' ) ],
-	] )( 'waits out a slow exit of a %s dialog', async ( _, startClosing ) => {
+		[ 'a slow exit of a @wordpress/components dialog', animatingOut, 800, 800 ],
+		[ 'a slow exit of a @wordpress/ui dialog', endingStyle, 800, 800 ],
+		[ 'a dialog stuck closing, up to the cap', animatingOut, null, 5000 ],
+	] )( 'waits out %s', async ( _, startClosing, exitAfter, settlesAt ) => {
 		const modal = await addToBody( '<div><div role="dialog"></div></div>' );
 		modal.addEventListener( 'keydown', event => {
 			startClosing( event.target );
-			setTimeout( () => modal.remove(), 800 );
+			if ( exitAfter ) {
+				setTimeout( () => modal.remove(), exitAfter );
+			}
 		} );
 		jest.useFakeTimers();
 
 		const gone = jest.fn();
 		closeDialogsOf( 'my-jetpack' ).then( gone );
-		await jest.advanceTimersByTimeAsync( 700 );
+		await jest.advanceTimersByTimeAsync( settlesAt - 100 );
 		expect( gone ).not.toHaveBeenCalled();
 		await jest.advanceTimersByTimeAsync( 200 );
 
