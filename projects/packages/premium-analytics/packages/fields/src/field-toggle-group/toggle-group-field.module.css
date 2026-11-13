@@ -20,11 +20,13 @@
 }
 
 /*
- * A text segment keeps its own label's width. Core shares the control's width
- * equally, which squeezes the padding out of the longer of two unequal labels.
+ * Text segments are all as wide as the longest label. Core shares out the sum
+ * of the labels' widths instead, which leaves the longest one no padding.
  */
-.control[role="radiogroup"] > * {
-	flex: 1 0 auto;
+.text[role="radiogroup"] {
+	display: grid;
+	grid-auto-columns: 1fr;
+	grid-auto-flow: column;
 }
 
 /*
