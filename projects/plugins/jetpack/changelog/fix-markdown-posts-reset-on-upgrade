@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Markdown: Keep Markdown for posts off after a Jetpack update when it was turned off.
