@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Monetize\Sections;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Monetize\Dashboard_Section;
 use Automattic\Jetpack\Monetize\WPCOM_Proxy;
 
@@ -31,12 +32,16 @@ class Payments implements Dashboard_Section {
 	}
 
 	/**
-	 * Nothing yet: the page reads payments data from WordPress.com.
+	 * Whether the plan lets the site manage payment plans, as Calypso decides it.
 	 *
 	 * @return array
 	 */
 	public function get_state() {
-		return array();
+		return array(
+			'canManagePlans' => Current_Plan::supports( 'recurring-payments' )
+				|| Current_Plan::supports( 'donations' )
+				|| Current_Plan::supports( 'premium-content/container' ),
+		);
 	}
 
 	/**
@@ -58,7 +63,31 @@ class Payments implements Dashboard_Section {
 			)
 		);
 
-		// Totals and next month's forecast, for the Overview.
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/stripe/disconnect', 'POST' );
+
+		// Totals and next month's forecast, plus the commission.
 		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/earnings', 'GET' );
+
+		WPCOM_Proxy::register_route(
+			'wpcom/v2',
+			'memberships/products',
+			'GET',
+			array(
+				'type'        => array(
+					'type' => 'string',
+					'enum' => array( 'all' ),
+				),
+				'is_editable' => array( 'type' => 'boolean' ),
+			)
+		);
+
+		WPCOM_Proxy::register_route(
+			'wpcom/v2',
+			'memberships/product/(?P<id>\d+)',
+			'DELETE',
+			array(
+				'cancel_subscriptions' => array( 'type' => 'boolean' ),
+			)
+		);
 	}
 }
