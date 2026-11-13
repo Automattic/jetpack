@@ -353,8 +353,9 @@
 
 	select.addEventListener( 'change', () => {
 		const installer = window.wp.themes.RunInstaller?.view;
-		if ( tabFiltered ) {
-			installer?.applyFilters();
+		// Core's applyFilters() requests nothing once every box is unchecked.
+		if ( tabFiltered && installer?.filtersChecked() ) {
+			installer.applyFilters();
 		} else {
 			installer?.browse( config.sort );
 		}
