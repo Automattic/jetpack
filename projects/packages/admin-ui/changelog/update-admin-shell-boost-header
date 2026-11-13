@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Keep a dashboard that hides its header from lending a blank one to the page that opens next.
