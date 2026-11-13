@@ -885,6 +885,10 @@ class Initializer {
 			'build_page'   => self::WP_BUILD_PAGE_ID,
 			'init_modules' => array( '@jetpack-my-jetpack/init' ),
 			'title'        => 'My Jetpack',
+			'header'       => array(
+				'title'    => 'Jetpack',
+				'subtitle' => '',
+			),
 			'capability'   => 'edit_posts',
 			'handles'      => array( 'my_jetpack_main_app', 'my_jetpack_ai_app', 'jetpack-script-data', 'jetpack-connection', 'my-jetpack-header-controls', 'wp-jp-i18n-loader' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),

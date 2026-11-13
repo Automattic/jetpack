@@ -178,12 +178,29 @@ class Social_Admin_Page {
 			'init_modules' => array( '@jetpack-social/init' ),
 			/** "Jetpack Social" is a product name, do not translate. */
 			'title'        => 'Jetpack Social',
+			'header'       => array(
+				'title'    => 'Social',
+				'subtitle' => self::landing_subtitle(),
+			),
 			'capability'   => 'publish_posts',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
 			'media'        => true,
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
+	}
+
+	/**
+	 * The subtitle of the tab a bare dashboard URL opens, as the dashboard renders it.
+	 *
+	 * @return string
+	 */
+	private static function landing_subtitle() {
+		// Settings opens while Social is off and the user can turn it on: canToggleSocialModule() in _inc/utils/misc.ts.
+		if ( 'wpcom' !== ( new Host() )->get_known_host_guess() && current_user_can( 'jetpack_manage_modules' ) && ! Utils::is_publicize_active() ) {
+			return __( 'Customize how your posts are shared to social media.', 'jetpack-publicize-pkg' );
+		}
+		return __( 'Connect your social accounts and see what drives traffic.', 'jetpack-publicize-pkg' );
 	}
 
 	/**

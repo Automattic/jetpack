@@ -43,7 +43,13 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	members[ host ].adminTitle = document.title;
 	configureHeaders( headerStorageKey, members );
 	trackViewTransitions();
-	const titleOf = slug => menuLabel( slug ) ?? members[ slug ].title;
+	// A member declares the header of the view its bare menu link opens; other views only get a title.
+	const showHeaderAt = ( slug, el, url ) => {
+		const { header, defaultPath, title } = members[ slug ];
+		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
+		const landing = [ '/', defaultPath ].includes( path );
+		return showHeader( slug, el, menuLabel( slug ) ?? title, landing ? header : null );
+	};
 
 	log(
 		'shell',
@@ -154,7 +160,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		setTimeout( () => visible === app.slug && rememberHeader( app.slug, app.el ), 1000 );
 	};
 
-	const bootGuest = async slug => {
+	const bootGuest = async ( slug, url ) => {
 		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
 		const el = document.createElement( 'section' );
 		el.id = members[ slug ].mountId;
@@ -166,7 +172,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			apps.delete( slug );
 			el.remove();
 		};
-		const removeStandIn = showHeader( slug, el, titleOf( slug ) );
+		const removeStandIn = showHeaderAt( slug, el, url );
 
 		try {
 			const waited = stopwatch();
@@ -240,7 +246,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			} else {
 				log( 'switch', `${ slug } has not booted yet` );
 				window.scrollTo( 0, 0 );
-				await bootGuest( slug );
+				await bootGuest( slug, url );
 			}
 			// Focus and speech inside a closing modal's `aria-hidden` would go unheard.
 			await dialogsClosed;
@@ -343,7 +349,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	trackOverlays( () => visible );
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
-	const removeHostHeader = showHeader( host, hostEl, titleOf( host ) );
+	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
 	gate.mount( host );
 	log( 'host', `${ host } boots from the page load` );
 	whenRendered( hostEl, 30000 )

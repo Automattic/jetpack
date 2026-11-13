@@ -1,4 +1,6 @@
 const mockInits = { a: jest.fn(), b: jest.fn() };
+// One mock for every copy of the shell: each test loads it again, and earlier copies still hear clicks.
+const mockShowHeader = jest.fn( () => () => {} );
 const mockCapturedSlug = {};
 
 jest.mock( '../../../src/admin-shell/adapter', () => ( {
@@ -26,7 +28,7 @@ jest.mock( '../../../src/admin-shell/header', () => ( {
 	configureHeaders: jest.fn(),
 	rememberHeader: jest.fn(),
 	removeHeader: jest.fn(),
-	showHeader: jest.fn( () => () => {} ),
+	showHeader: mockShowHeader,
 } ) );
 jest.mock( '../../../src/admin-shell/overlays', () => ( {
 	closeDialogsOf: jest.fn( () => Promise.resolve() ),
@@ -72,6 +74,7 @@ const hover = slug =>
 		.dispatchEvent( new Event( 'pointerover', { bubbles: true } ) );
 
 beforeEach( () => {
+	mockShowHeader.mockClear();
 	mockInits.a.mockReset();
 	mockInits.b.mockReset();
 	delete mockCapturedSlug.a;
@@ -82,7 +85,7 @@ beforeEach( () => {
 		host: 'host',
 		members: {
 			host: member( 'host' ),
-			'guest-a': member( 'guest-a', 'a' ),
+			'guest-a': { ...member( 'guest-a', 'a' ), header: { title: 'Guest A', subtitle: 'Sub' } },
 			'guest-b': member( 'guest-b', 'b' ),
 			// Another page built from guest A's package: same init module.
 			'guest-a2': member( 'guest-a2', 'a', null ),
@@ -169,5 +172,26 @@ describe( 'admin shell prewarm', () => {
 		await settle();
 
 		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b' } );
+	} );
+} );
+
+describe( 'admin shell stand-in header', () => {
+	it.each( [
+		[
+			'its declared header on the view a bare link opens',
+			'',
+			{ title: 'Guest A', subtitle: 'Sub' },
+		],
+		[ 'only its menu label on any other view', '&p=%2Fdeep', null ],
+	] )( 'gives a page %s', async ( _, query, header ) => {
+		jest.spyOn( window, 'scrollTo' ).mockImplementation( () => {} );
+		const link = document.createElement( 'a' );
+		link.href = `/wp-admin/admin.php?page=guest-a${ query }`;
+		document.body.append( link );
+
+		link.click();
+		await settle();
+
+		expect( mockShowHeader ).toHaveBeenCalledWith( 'guest-a', expect.anything(), 'A', header );
 	} );
 } );
