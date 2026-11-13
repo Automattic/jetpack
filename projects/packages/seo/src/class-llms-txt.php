@@ -173,10 +173,11 @@ class Llms_Txt {
 	 */
 	public static function clear_cache_for_option( $option ) {
 		if ( self::OPTION === $option ) {
-			// Turning llms.txt off or on is the owner's reset, so purge even when nothing is stored:
-			// the edge copy can outlive an expired stored one.
+			// Turning llms.txt off or on is the owner's reset, so fire even when nothing is stored:
+			// an edge or CDN copy can outlive an expired stored one.
 			delete_transient( self::CACHE_KEY );
-			self::purge_edge_cache();
+			/** This action is documented in projects/packages/seo/src/class-llms-txt.php */
+			do_action( 'jetpack_seo_llms_txt_cleared' );
 		} elseif (
 			in_array( $option, self::CACHE_OPTIONS, true )
 			|| ( 0 === strpos( $option, 'theme_mods_' ) && 'theme_mods_' . get_stylesheet() === $option )
@@ -193,25 +194,12 @@ class Llms_Txt {
 	public static function clear_cache() {
 		// The lookup is cached when nothing is stored, so bulk edits and imports don't query on every write.
 		if ( false !== get_transient( self::CACHE_KEY ) && delete_transient( self::CACHE_KEY ) ) {
-			self::purge_edge_cache();
-		}
-	}
-
-	/**
-	 * Ask WordPress.com to drop its edge copy of llms.txt on every domain of the site, as
-	 * it does for robots.txt; a no-op elsewhere.
-	 *
-	 * @return void
-	 */
-	private static function purge_edge_cache() {
-		if ( ! function_exists( 'wpcom_get_all_blog_domains_with_path' ) || ! function_exists( 'queue_async_job' ) ) {
-			return;
-		}
-		// @phan-suppress-next-line PhanUndeclaredFunction -- WordPress.com-only and guarded above; remove once wpcom stubs declare it.
-		$urls = wpcom_get_all_blog_domains_with_path( 0, '/llms.txt', true );
-		if ( ! empty( $urls ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- WordPress.com-only and guarded above; remove once wpcom stubs declare it.
-			queue_async_job( array( 'output_cache' => array( 'url' => $urls ) ), 'wpcom_invalidate_output_cache_job', -16, 0 );
+			/**
+			 * Fires after the stored llms.txt is dropped, so hosts can purge cached copies of /llms.txt.
+			 *
+			 * @since $$next-version$$
+			 */
+			do_action( 'jetpack_seo_llms_txt_cleared' );
 		}
 	}
 
@@ -383,7 +371,21 @@ class Llms_Txt {
 			}
 		}
 
-		return implode( "\n\n", $blocks ) . "\n";
+		$text = implode( "\n\n", $blocks ) . "\n";
+
+		/**
+		 * Filters the llms.txt Markdown, e.g. to add a section.
+		 *
+		 * The result is stored for up to 12 hours; call Llms_Txt::clear_cache() when your section's data
+		 * changes. Anything but a non-empty string keeps the unfiltered text.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $text The llms.txt Markdown.
+		 */
+		$filtered = apply_filters( 'jetpack_seo_llms_txt', $text );
+
+		return is_string( $filtered ) && '' !== $filtered ? $filtered : $text;
 	}
 
 	/**
@@ -599,15 +601,23 @@ class Llms_Txt {
 	}
 
 	/**
-	 * A short, single-line summary for a post: its excerpt when set, otherwise a
-	 * trimmed slice of the content.
+	 * A short, single-line summary for a post: its SEO description when set, then
+	 * its excerpt, otherwise a trimmed slice of the content.
 	 *
 	 * @param \WP_Post $post Post to summarize.
 	 * @return string
 	 */
 	private static function summary( $post ) {
-		if ( has_excerpt( $post ) ) {
-			// A manual excerpt is a deliberate public summary; a body gate does not withhold it.
+		$seo_description = '';
+		if ( class_exists( 'Jetpack_SEO_Utils' ) && class_exists( 'Jetpack_SEO_Posts' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; guarded by the class_exists checks above.
+			$seo_description = wp_trim_words( strip_shortcodes( wp_strip_all_tags( \Jetpack_SEO_Posts::get_post_custom_description( $post ) ) ), Post_Schema_Node::DESCRIPTION_MAX_WORDS, '' );
+		}
+
+		// The SEO description and manual excerpt are deliberate public summaries; a body gate does not withhold them.
+		if ( '' !== $seo_description ) {
+			$raw = $seo_description;
+		} elseif ( has_excerpt( $post ) ) {
 			$raw = get_the_excerpt( $post );
 		} elseif ( Content_Gate::is_gated( $post ) ) {
 			$teaser = Content_Gate::public_teaser( $post );

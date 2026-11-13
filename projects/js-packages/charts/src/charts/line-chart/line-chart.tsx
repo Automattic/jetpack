@@ -640,6 +640,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					isSeriesVisible,
 					chartWidth: width,
 					chartHeight: measuredChartHeight || 0,
+					legendItems,
+					chartType: 'line',
 				} }
 			>
 				<ChartLayout

@@ -56,6 +56,8 @@ class LlmsTxtTest extends SeoTestCase {
 		}
 		$this->post_ids = array();
 
+		\Jetpack_SEO_Posts::$custom_description = '';
+
 		if ( post_type_exists( 'seo_book' ) ) {
 			unregister_post_type( 'seo_book' );
 		}
@@ -115,6 +117,54 @@ class LlmsTxtTest extends SeoTestCase {
 		update_option( 'blogdescription', 'Cats & dogs' );
 
 		$this->assertStringStartsWith( "# Tom's & Jerry's\n\n> Cats & dogs\n", Llms_Txt::generate() );
+	}
+
+	/**
+	 * A theme or plugin can add to the served text; a callback that returns nothing leaves it as is.
+	 *
+	 * @dataProvider provide_text_filters
+	 *
+	 * @param callable $filter Callback for `jetpack_seo_llms_txt`.
+	 * @param string   $added  What the served text gains.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_text_filters' )]
+	public function test_text_filter( $filter, $added ) {
+		$unfiltered = Llms_Txt::generate();
+		add_filter( 'jetpack_seo_llms_txt', $filter );
+		try {
+			$this->assertSame( $unfiltered . $added, Llms_Txt::get_stored() );
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt', $filter );
+		}
+	}
+
+	/**
+	 * Filter callbacks and what each adds to the served text.
+	 *
+	 * @return array
+	 */
+	public static function provide_text_filters() {
+		$section = "\n## AI agents\n\n- [MCP server](https://example.com/mcp)\n";
+
+		return array(
+			'adds a section'          => array(
+				static function ( $text ) use ( $section ) {
+					return $text . $section;
+				},
+				$section,
+			),
+			'returns nothing'         => array(
+				static function () {},
+				'',
+			),
+			'returns an empty string' => array(
+				static function () {
+					return '';
+				},
+				'',
+			),
+		);
 	}
 
 	/**
@@ -477,6 +527,59 @@ class LlmsTxtTest extends SeoTestCase {
 		update_post_meta( $post->ID, '_jetpack_memberships_contains_paid_content', '1' );
 
 		$this->assertSame( 'Public summary.', $this->summary( $post ) );
+	}
+
+	/**
+	 * A custom SEO description is the summary whenever one is set.
+	 *
+	 * @dataProvider provide_seo_description_summaries
+	 *
+	 * @param string $description Stored SEO description.
+	 * @param array  $fields      Post fields.
+	 * @param string $expected    Expected summary.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_seo_description_summaries' )]
+	public function test_summary_prefers_seo_description( string $description, array $fields, string $expected ) {
+		\Jetpack_SEO_Posts::$custom_description = $description;
+
+		$this->assertSame( $expected, $this->summary( $this->insert_post( $fields ) ) );
+	}
+
+	/**
+	 * @return array<string, array{string, array<string, string>, string}>
+	 */
+	public static function provide_seo_description_summaries(): array {
+		return array(
+			'ahead of a manual excerpt' => array(
+				'SEO summary.',
+				array(
+					'post_content' => 'Body text.',
+					'post_excerpt' => 'Manual excerpt.',
+				),
+				'SEO summary.',
+			),
+			'kept on a gated post'      => array(
+				'SEO summary.',
+				array( 'post_content' => '<!-- wp:jetpack/paywall -->Paid body text.<!-- /wp:jetpack/paywall -->' ),
+				'SEO summary.',
+			),
+			'cleaned to a single line'  => array(
+				"<b>First line</b>\n\n[gallery]second line.",
+				array( 'post_content' => 'Body text.' ),
+				'First line second line.',
+			),
+			'capped like the meta tag'  => array(
+				str_repeat( 'word ', 60 ),
+				array( 'post_content' => 'Body text.' ),
+				trim( str_repeat( 'word ', 55 ) ),
+			),
+			'skipped when blank'        => array(
+				'   ',
+				array( 'post_excerpt' => 'Manual excerpt.' ),
+				'Manual excerpt.',
+			),
+		);
 	}
 
 	/**
@@ -852,26 +955,18 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Clearing asks WordPress.com to purge its edge copy only when a stored copy existed.
+	 * Clearing tells hosts to purge cached copies only when a stored copy existed.
 	 *
 	 * @return void
 	 */
-	public function test_clearing_purges_the_edge_copy_only_when_one_was_stored() {
-		\Wpcom_Test_Async_Jobs::$queued = array();
+	public function test_clearing_announces_only_when_a_copy_was_stored() {
+		$before = did_action( 'jetpack_seo_llms_txt_cleared' );
 		Llms_Txt::clear_cache();
-		$this->assertSame( array(), \Wpcom_Test_Async_Jobs::$queued );
+		$this->assertSame( $before, did_action( 'jetpack_seo_llms_txt_cleared' ) );
 
 		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
 		Llms_Txt::clear_cache();
-		$this->assertSame(
-			array(
-				array(
-					'type' => 'wpcom_invalidate_output_cache_job',
-					'data' => array( 'output_cache' => array( 'url' => array( home_url( '/llms.txt' ) ) ) ),
-				),
-			),
-			\Wpcom_Test_Async_Jobs::$queued
-		);
+		$this->assertSame( $before + 1, did_action( 'jetpack_seo_llms_txt_cleared' ) );
 	}
 
 	/**
@@ -901,17 +996,17 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Turning llms.txt on purges the edge copy even when nothing is stored here.
+	 * Turning llms.txt on tells hosts to purge cached copies even when nothing is stored here.
 	 *
 	 * @return void
 	 */
-	public function test_turning_llms_txt_on_purges_the_edge_copy_with_nothing_stored() {
-		\Wpcom_Test_Async_Jobs::$queued = array();
+	public function test_turning_llms_txt_on_announces_with_nothing_stored() {
+		$before = did_action( 'jetpack_seo_llms_txt_cleared' );
 		$this->with_write_hooks(
 			static function () {
 				update_option( Llms_Txt::OPTION, true );
 			}
 		);
-		$this->assertCount( 1, \Wpcom_Test_Async_Jobs::$queued );
+		$this->assertSame( $before + 1, did_action( 'jetpack_seo_llms_txt_cleared' ) );
 	}
 }

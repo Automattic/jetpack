@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Backup\V0005\Initial_State as Backup_Initial_State;
 use Automattic\Jetpack\Config;
@@ -26,6 +27,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
@@ -43,6 +45,7 @@ use function menu_page_url;
 use function rest_ensure_response;
 use function update_option;
 use function wp_add_inline_script;
+use function wp_doing_ajax;
 use function wp_remote_get;
 use function wp_remote_retrieve_body;
 use function wp_remote_retrieve_response_code;
@@ -143,6 +146,11 @@ class Jetpack_Backup {
 	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
 
 	/**
+	 * The wp-build page id, which the screen ID is aliased to on the Backup page.
+	 */
+	const WP_BUILD_PAGE_ID = 'jetpack-backup-dashboard';
+
+	/**
 	 * Rewind state read from WordPress.com, memoized for the request.
 	 *
 	 * A class property and not a function static so tests can clear it.
@@ -188,6 +196,10 @@ class Jetpack_Backup {
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
 
 		if ( $options['manage_connection'] ) {
 			self::init_standalone_connection();
@@ -250,10 +262,15 @@ class Jetpack_Backup {
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
-		// The page title's relabel rides the modernized dashboard rather than the filter alone,
-		// so a fallback to the legacy page also falls back to the legacy title.
-		$page_title = $wp_build_active ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
-		$menu_title = 'Backup'; // Product name, do not translate.
+		/*
+		 * The page title's relabel rides the modernized dashboard rather than the filter alone,
+		 * so a fallback to the legacy page also falls back to the legacy title. Off the Backup
+		 * page the build isn't loaded, so the admin shell's title comes from the build index.
+		 */
+		$renders_modernized = $wp_build_active
+			|| ( ! self::is_backup_admin_request() && self::is_modernized() && file_exists( dirname( __DIR__ ) . '/build/build.php' ) );
+		$page_title         = $renders_modernized ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$menu_title         = 'Backup'; // Product name, do not translate.
 
 		$page_suffix = Admin_Menu::add_menu(
 			$page_title,
@@ -292,6 +309,51 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Register Backup with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * The page is added whenever the package is initialized; only the modernized dashboard is a wp-build page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| ! self::is_modernized()
+			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
+		) {
+			return $members;
+		}
+
+		$members[ self::JETPACK_BACKUP_SLUG ] = array(
+			'build_prefix' => 'jetpack_backup',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-backup/init' ),
+			// "Backup" is a product name, do not translate.
+			'title'        => 'Backup',
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-script-data', 'jp-tracks-functions', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Backup routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+	}
+
+	/**
 	 * Checks current version against version in code and run upgrades if we are running a new version
 	 */
 	public static function maybe_upgrade_db() {
@@ -318,8 +380,8 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
-		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
-		// so it only fires on the Backup admin page — no need to re-check the page here.
+		// Hooked only for the Backup page: via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
+		// or by the admin shell's guest load, so there's no need to re-check the page here.
 		if ( self::is_wp_build_dashboard_active() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but
 			// only enqueued when depended on; the esbuild bundles don't pull it in.
@@ -1194,13 +1256,6 @@ class Jetpack_Backup {
 
 		self::load_wp_build_with_screen_alias();
 
-		// wp-build registers standalone modules (e.g. the init module) on
-		// wp_default_scripts, which has already fired by admin_menu. Register them
-		// directly so the init module makes it into the import map.
-		if ( function_exists( 'jetpack_backup_register_script_modules' ) ) {
-			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
-
 		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
 	}
 
@@ -1243,8 +1298,24 @@ class Jetpack_Backup {
 	 * @return string|null
 	 */
 	public static function get_activity_log_url() {
+		// No admin menu here: see Admin_Shell::guest_assets().
+		if ( wp_doing_ajax() ) {
+			return self::activity_log_page_will_register() ? admin_url( 'admin.php?page=jetpack-activity-log' ) : null;
+		}
+
 		$url = menu_page_url( 'jetpack-activity-log', false );
 		return $url ? $url : null;
+	}
+
+	/**
+	 * Whether the Activity Log page registers for this user, for requests that never build the menu.
+	 *
+	 * @return bool
+	 */
+	private static function activity_log_page_will_register() {
+		return did_action( 'jetpack_activity_log_initialized' )
+			&& class_exists( 'Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log' )
+			&& \Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::is_available();
 	}
 
 	/**
@@ -1263,6 +1334,13 @@ class Jetpack_Backup {
 		}
 
 		require_once $build_index;
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_backup_register_script_modules' ) ) {
+			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 			'jetpack-backup',
@@ -1319,7 +1397,7 @@ class Jetpack_Backup {
 		}
 
 		self::$wp_build_original_screen_id = $screen->id;
-		$screen->id                        = 'jetpack-backup-dashboard';
+		$screen->id                        = self::WP_BUILD_PAGE_ID;
 	}
 
 	/**

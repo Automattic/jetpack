@@ -1,13 +1,13 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { speak } from '@wordpress/a11y';
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
 import { Button, Card, Notice, Popover, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import IndeterminateProgress from '../../app/assets/src/js/features/ui/indeterminate-progress/indeterminate-progress';
 import GradeExplanation from './grade-explanation';
+import { getProgressMessage } from './lib/progress-message';
 import { getOverallScoreTier, getScoreDisplayState } from './lib/score-utils';
 import { useEstimatedPercent } from './lib/use-estimated-percent';
 import ScoreCard from './score-card';
@@ -91,16 +91,7 @@ export default function ScoreCards( {
 			>
 				{ showOverlay &&
 					announceCalculating &&
-					( percent === undefined
-						? __( 'Checking site speed…', 'jetpack-boost' )
-						: createInterpolateElement(
-								sprintf(
-									/* translators: %d: how much of the speed test is done, as a percentage. */
-									__( 'Checking site speed… <pct>%d%%</pct>', 'jetpack-boost' ),
-									percent
-								),
-								{ pct: <span aria-hidden="true" /> }
-							) ) }
+					getProgressMessage( progress, percent, <span aria-hidden="true" /> ) }
 			</IndeterminateProgress>
 		</Card.Content>
 	);

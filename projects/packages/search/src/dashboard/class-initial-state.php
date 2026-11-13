@@ -196,11 +196,28 @@ class Initial_State {
 	 * @return string Guidelines admin URL, or an empty string when unavailable.
 	 */
 	protected function get_guidelines_url() {
+		// No admin menu here: see Admin_Shell::guest_assets().
+		if ( wp_doing_ajax() ) {
+			return self::guidelines_page_will_register() ? esc_url_raw( admin_url( 'options-general.php?page=guidelines-wp-admin' ) ) : '';
+		}
+
 		if ( ! function_exists( 'menu_page_url' ) ) {
 			return '';
 		}
 
 		return esc_url_raw( menu_page_url( 'guidelines-wp-admin', false ) );
+	}
+
+	/**
+	 * Whether the Guidelines page registers for this user, for requests that never build the menu.
+	 *
+	 * Gutenberg's Guidelines experiment hooks this registrar only while the experiment is on.
+	 *
+	 * @return bool
+	 */
+	private static function guidelines_page_will_register() {
+		return current_user_can( 'manage_options' )
+			&& false !== has_action( 'admin_menu', 'gutenberg_register_guidelines_settings_submenu' );
 	}
 
 	/**

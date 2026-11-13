@@ -2,7 +2,11 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import { queryClient } from '@jetpack-premium-analytics/data';
+import {
+	queryClient,
+	takeConsentCardFocusRequest,
+	updateConsentStatus,
+} from '@jetpack-premium-analytics/data';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
@@ -10,22 +14,22 @@ import { RegistryProvider } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { resetConsentStatusForTesting } from '../../../../packages/data/src/hooks/use-consent-status';
 import { createNoticesRegistry } from '../../../../tests/js/notice-test-utils';
 import { DashboardNotices } from '../dashboard-notices';
 import { resetFreeSiteUpgradeNoticeForTesting } from '../free-site-upgrade-notice/free-site-upgrade-notice';
 import { resetPlanLimitNoticeForTesting } from '../plan-limit-notice/plan-limit-notice';
-import { ConsentCard, resetConsentCardForTesting } from '../stats-settings/consent-card';
-import { resetConsentStatusForTesting } from '../stats-settings/consent-status';
 import { resetVisitorConsentNoticeForTesting } from './visitor-consent-notice';
-import type { ReactNode } from 'react';
 
 jest.mock(
 	'@automattic/jetpack-analytics',
 	() => jest.requireActual( '../../../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+const mockNavigate = jest.fn();
 jest.mock( '@wordpress/route', () => ( {
-	Link: jest.requireActual( '../../../../tests/js/route-test-utils' ).mockWordPressRoute.Link,
+	...jest.requireActual( '../../../../tests/js/route-test-utils' ).mockWordPressRoute,
+	useNavigate: () => mockNavigate,
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
@@ -73,7 +77,7 @@ function setSite( consent: Partial< typeof NOT_SET_UP > = {}, upgradeOffered = f
 }
 
 /**
- * Answers the notices, plan usage and plugin requests.
+ * Answers the notices and plan usage requests.
  *
  * @param state - The Stats notice visibility state, over a notice WordPress.com reports visible.
  */
@@ -90,28 +94,22 @@ function mockEndpoints( state: Record< string, boolean | undefined > = {} ) {
 				}
 				return Promise.resolve( saved );
 			}
-			if ( path.startsWith( '/wp/v2/plugins' ) ) {
-				return Promise.resolve( { status: 'active' } );
-			}
 			return Promise.reject( new Error( `Unexpected request: ${ path }` ) );
 		}
 	);
 }
 
 /**
- * Renders the dashboard notices, beside anything else the test needs, and settles their requests.
+ * Renders the dashboard notices and settles their requests.
  *
- * @param onOpenSettings - Opens the Settings tab.
- * @param children       - Rendered after the notices.
  * @return The render result.
  */
-async function renderNotices( onOpenSettings = jest.fn(), children?: ReactNode ) {
+async function renderNotices() {
 	const view = render(
 		<RegistryProvider value={ notices.registry }>
 			<div data-testid="notices">
-				<DashboardNotices onOpenSettings={ onOpenSettings } />
+				<DashboardNotices />
 			</div>
-			{ children }
 		</RegistryProvider>
 	);
 	await act( () => jest.runAllTimersAsync() );
@@ -129,9 +127,9 @@ describe( 'VisitorConsentNotice', () => {
 		resetFreeSiteUpgradeNoticeForTesting();
 		resetPlanLimitNoticeForTesting();
 		resetConsentStatusForTesting();
-		resetConsentCardForTesting();
 		notices = createNoticesRegistry();
 		recordEvent.mockClear();
+		mockNavigate.mockClear();
 		mockApiFetch.mockReset();
 		user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 	} );
@@ -191,25 +189,19 @@ describe( 'VisitorConsentNotice', () => {
 		expect( screen.queryByText( /paid plan/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'opens Settings with focus on the Visitor consent card', async () => {
+	it( 'opens Settings, asking the Visitor consent card to take focus', async () => {
 		setSite();
 		mockEndpoints();
-		const onOpenSettings = jest.fn();
-		const { rerender } = await renderNotices( onOpenSettings );
+		await renderNotices();
 
 		await user.click( screen.getByRole( 'button', { name: 'Set up' } ) );
-		rerender(
-			<RegistryProvider value={ notices.registry }>
-				<ConsentCard />
-			</RegistryProvider>
-		);
 
-		expect( onOpenSettings ).toHaveBeenCalled();
+		expect( mockNavigate ).toHaveBeenCalledWith( expect.objectContaining( { to: '/settings' } ) );
 		expect( recordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_visitor_consent_notice_set_up_click',
 			undefined
 		);
-		expect( screen.getByRole( 'region', { name: 'Visitor consent' } ) ).toHaveFocus();
+		expect( takeConsentCardFocusRequest() ).toBe( true );
 	} );
 
 	it( 'goes for good once dismissed', async () => {
@@ -229,12 +221,12 @@ describe( 'VisitorConsentNotice', () => {
 		);
 	} );
 
-	it( 'goes once the Settings card sets up WP Consent API', async () => {
+	it( 'goes once Settings sets up WP Consent API', async () => {
 		setSite();
 		mockEndpoints();
-		await renderNotices( jest.fn(), <ConsentCard /> );
+		await renderNotices();
 
-		await user.click( screen.getByRole( 'button', { name: 'Activate' } ) );
+		act( () => updateConsentStatus( { api_active: true } ) );
 		await act( () => jest.runAllTimersAsync() );
 
 		expect( screen.getByTestId( 'notices' ) ).toBeEmptyDOMElement();

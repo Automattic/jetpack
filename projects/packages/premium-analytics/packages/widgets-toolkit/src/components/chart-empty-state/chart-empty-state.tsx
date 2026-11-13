@@ -41,7 +41,7 @@ export function ChartEmptyState( {
 				<EmptyState.Visual className={ styles.icon }>
 					<Icon size={ 40 } icon={ icon } />
 				</EmptyState.Visual>
-				<EmptyState.Description>{ text }</EmptyState.Description>
+				<EmptyState.Description className={ styles.description }>{ text }</EmptyState.Description>
 				{ action && (
 					<EmptyState.Actions>
 						{ 'href' in action ? (

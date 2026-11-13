@@ -24,6 +24,38 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		$this->infinite_scroll = new The_Neverending_Home_Page();
 	}
 
+	/**
+	 * @dataProvider get_scroll_option_data
+	 *
+	 * @param string|int|null $stored   The stored infinite_scroll option, or null when unset.
+	 * @param bool            $expected Whether loading on scroll is off.
+	 */
+	#[DataProvider( 'get_scroll_option_data' )]
+	public function test_is_scroll_disabled( $stored, $expected ) {
+		if ( null === $stored ) {
+			delete_option( 'infinite_scroll' );
+		} else {
+			update_option( 'infinite_scroll', $stored );
+		}
+
+		$this->assertSame( $expected, The_Neverending_Home_Page::is_scroll_disabled() );
+	}
+
+	/**
+	 * Gets the test data for test_is_scroll_disabled().
+	 *
+	 * @return array The test data.
+	 */
+	public static function get_scroll_option_data() {
+		return array(
+			'unset'                   => array( null, false ),
+			'on'                      => array( '1', false ),
+			'off from Reading screen' => array( '', true ),
+			'off from settings API'   => array( '0', true ),
+			'off, cached as an int'   => array( 0, true ),
+		);
+	}
+
 	public function test_body_class() {
 		$classes = $this->infinite_scroll->body_class();
 		$this->assertStringContainsString( 'infinite-scroll', $classes );

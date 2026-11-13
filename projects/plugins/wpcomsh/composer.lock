@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9be91a4c6483b9306ac9143ea09b9229",
+    "content-hash": "31c547991325076623399c6e4fae6990",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -122,12 +122,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "541c1a337db228eaabc700491d9a4a43c8187ee1"
+                "reference": "974babc97924025e7598fe1ed17722fd57372dad"
             },
             "require": {
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -174,7 +175,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "f997d354525ea5e38f5cacea2ae0f9843b2ec4c7"
+                "reference": "838ca9a21e304710a2e58934cfa1da5d6c6681d7"
             },
             "require": {
                 "automattic/jetpack-feature-flags": "@dev",
@@ -225,6 +226,12 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -2675,16 +2682,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.10",
+            "version": "v2.11.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "01dacf401792f455da725fa07657f2a031d06628"
+                "reference": "b9e63d6daa6c329acab044f23e39074838404fa4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/01dacf401792f455da725fa07657f2a031d06628",
-                "reference": "01dacf401792f455da725fa07657f2a031d06628",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/b9e63d6daa6c329acab044f23e39074838404fa4",
+                "reference": "b9e63d6daa6c329acab044f23e39074838404fa4",
                 "shasum": ""
             },
             "require-dev": {
@@ -2726,7 +2733,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-09-16T13:59:30+00:00"
+            "time": "2026-11-12T09:45:14+00:00"
         },
         {
             "name": "league/uri",

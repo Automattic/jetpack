@@ -60,7 +60,10 @@ describe( 'WordAdsEdit', () => {
 
 		expect( placeholder ).toHaveStyle( `width: ${ selectedFormat.width }px` );
 		expect( placeholder ).toHaveStyle( `height: ${ selectedFormat.height }px` );
-		expect( placeholder ).toHaveStyle( `backgroundImage: url( ${ rectangleExample } )` );
+		expect( placeholder ).toHaveStyle(
+			// jsdom v31's getComputedStyle fully qualifies the URL
+			`backgroundImage: url("http://localhost/${ rectangleExample }")`
+		);
 		expect( placeholder ).toHaveStyle( `backgroundSize: cover` );
 	} );
 
@@ -69,7 +72,10 @@ describe( 'WordAdsEdit', () => {
 
 		expect( placeholder ).toHaveStyle( `width: ${ selectedFormat.width }px` );
 		expect( placeholder ).toHaveStyle( `height: ${ selectedFormat.height }px` );
-		expect( placeholder ).toHaveStyle( `backgroundImage: url( ${ leaderboardExample } )` );
+		expect( placeholder ).toHaveStyle(
+			// jsdom v31's getComputedStyle fully qualifies the URL
+			`backgroundImage: url("http://localhost/${ leaderboardExample }")`
+		);
 	} );
 
 	test( 'renders mobile_leaderboard format correctly', () => {
@@ -77,7 +83,10 @@ describe( 'WordAdsEdit', () => {
 
 		expect( placeholder ).toHaveStyle( `width: ${ selectedFormat.width }px` );
 		expect( placeholder ).toHaveStyle( `height: ${ selectedFormat.height }px` );
-		expect( placeholder ).toHaveStyle( `backgroundImage: url( ${ mobileLeaderboardExample } )` );
+		expect( placeholder ).toHaveStyle(
+			// jsdom v31's getComputedStyle fully qualifies the URL
+			`backgroundImage: url("http://localhost/${ mobileLeaderboardExample }")`
+		);
 	} );
 
 	test( 'renders wideskyscraper format correctly', () => {
@@ -85,7 +94,10 @@ describe( 'WordAdsEdit', () => {
 
 		expect( placeholder ).toHaveStyle( `width: ${ selectedFormat.width }px` );
 		expect( placeholder ).toHaveStyle( `height: ${ selectedFormat.height }px` );
-		expect( placeholder ).toHaveStyle( `backgroundImage: url( ${ wideSkyscraperExample } )` );
+		expect( placeholder ).toHaveStyle(
+			// jsdom v31's getComputedStyle fully qualifies the URL
+			`backgroundImage: url("http://localhost/${ wideSkyscraperExample }")`
+		);
 	} );
 
 	test( 'renders placeholder and activates the plugin', async () => {

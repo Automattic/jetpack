@@ -4,11 +4,37 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import { AdsSettings } from './components/ads-settings';
 import ConnectionGate from './components/connection-gate';
+import Overview from './components/overview';
 import Placeholder from './components/placeholder';
 import { queryClient } from './data/query-client';
 import { TABS, getTab, getTabSearch } from './data/tabs';
+import type { TabValue } from './data/tabs';
 import './route.scss';
+
+/**
+ * One tab's screen. Settings saves through Jetpack's own endpoints; Overview gates only what needs WordPress.com.
+ *
+ * @param props         - Component props.
+ * @param props.tab     - The tab.
+ * @param props.openTab - Opens another tab.
+ * @return The screen.
+ */
+function TabContent( { tab, openTab }: { tab: TabValue; openTab: ( next: string ) => void } ) {
+	switch ( tab ) {
+		case 'overview':
+			return <Overview openTab={ openTab } />;
+		case 'settings':
+			return <AdsSettings openTab={ openTab } />;
+		default:
+			return (
+				<ConnectionGate>
+					<Placeholder />
+				</ConnectionGate>
+			);
+	}
+}
 
 /**
  * Boot stage for the Monetize dashboard: one tab per screen, the active one in `?tab=`.
@@ -51,10 +77,7 @@ const Stage = () => {
 						<div id="jp-admin-notices" />
 						{ TABS.map( tab => (
 							<Tabs.Panel key={ tab.value } value={ tab.value }>
-								{ /* Every tab so far needs WordPress.com. */ }
-								<ConnectionGate>
-									<Placeholder />
-								</ConnectionGate>
+								<TabContent tab={ tab.value } openTab={ openTab } />
 							</Tabs.Panel>
 						) ) }
 					</div>

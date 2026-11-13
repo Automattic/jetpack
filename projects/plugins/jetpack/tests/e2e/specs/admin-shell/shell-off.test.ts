@@ -5,6 +5,7 @@ import {
 	installShellProbe,
 	isShellActive,
 	menuLink,
+	onSite,
 	waitForShown,
 	where,
 } from '../../helpers/admin-shell-helper';
@@ -25,7 +26,8 @@ test.describe( 'Admin shell off: smoke', () => {
 		await page.goto( `/wp-admin/admin.php?page=${ first.slug }` );
 		await waitForShown( page, first.slug );
 		await expectShown( page, first.slug );
-		for ( const m of rest ) {
+		const present = await Promise.all( rest.map( m => onSite( page, m.slug ) ) );
+		for ( const m of rest.filter( ( _, i ) => present[ i ] ) ) {
 			await menuLink( page, m.slug ).click();
 			await waitForShown( page, m.slug );
 			expect( await isShellActive( page ), 'shell is off' ).toBe( false );

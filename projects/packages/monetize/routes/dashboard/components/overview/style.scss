@@ -1,0 +1,19 @@
+.jp-monetize-overview {
+
+	&__figures {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	&__figure-placeholder {
+		inline-size: 6rem;
+		block-size: 1.75rem;
+	}
+
+	&__promos {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+		gap: var(--wpds-dimension-gap-lg);
+	}
+}

@@ -5,9 +5,12 @@ import {
 	installShellProbe,
 	openMember,
 	settle,
+	skipUnlessOnSite,
 	switchTo,
 	tracksEvents,
 } from '../../helpers/admin-shell-helper';
+
+const FORMS = 'jetpack-forms-responses-wp-admin';
 
 /* Tracks calls go out after render, so give each arrival a moment before reading. */
 const SETTLE = 5000;
@@ -59,49 +62,53 @@ test.describe( 'Admin shell: Tracks page views', () => {
 	} );
 
 	for ( const m of MEMBERS ) {
-		const other = m.slug === 'jetpack-podcast' ? 'jetpack-newsletter' : 'jetpack-podcast';
+		const other = MEMBERS.find( x => x !== m )!.slug;
 
 		test( `the first switch to ${ m.slug } records the page view a full load does`, async ( {
 			page,
 		} ) => {
+			await skipUnlessOnSite( page, m.slug );
 			const expected = await fullLoadViews( page, m.slug );
 			await openMember( page, other );
 			expect( await viewsOnSwitch( page, m.slug ) ).toEqual( expect.arrayContaining( expected ) );
 		} );
 
 		test( `a return switch to ${ m.slug } records the page view again`, async ( { page } ) => {
+			await skipUnlessOnSite( page, m.slug );
 			const expected = await fullLoadViews( page, m.slug );
 			await openMember( page, other );
 			await switchTo( page, m.slug );
 			await switchTo( page, other );
 			const views = await viewsOnSwitch( page, m.slug );
 			// Called here, so a failed switch above is still a real failure.
-			test.fail( true, 'Spike bug: a kept-alive app records no page view when shown again.' );
+			test.fail( true, 'Known gap: a kept-alive app records no page view when shown again.' );
 			expect( views ).toEqual( expect.arrayContaining( expected ) );
 		} );
 	}
 
 	test( 'hidden apps record no page views while another is shown', async ( { page } ) => {
+		await openMember( page, FORMS );
+		await settle( page, SETTLE );
+		const formsViews = new Set( await viewsSince( page, 0 ) );
 		await openMember( page, 'my-jetpack' );
 		await settle( page, SETTLE );
 		const own = new Set( await viewsSince( page, 0 ) );
 		expect( own.size, 'the probe sees My Jetpack’s own page view' ).toBeGreaterThan( 0 );
+		test.skip(
+			[ ...formsViews ].every( name => own.has( name ) ),
+			'Forms records no view event of its own, so a leak would not show'
+		);
 
-		// Settings' router stays mounted while hidden; My Jetpack's hash writes reach it.
-		await openMember( page, 'jetpack-settings' );
-		await settle( page, SETTLE );
-		const settingsViews = ( await viewsSince( page, 0 ) ).filter( name => ! own.has( name ) );
-		expect(
-			settingsViews,
-			'Settings records a view My Jetpack does not, so a leak would show'
-		).not.toEqual( [] );
+		// Forms' router stays mounted while hidden; My Jetpack's URL writes must not reach it.
+		await switchTo( page, FORMS );
 		await switchTo( page, 'my-jetpack' );
-		await switchTo( page, 'jetpack-podcast' );
 		await settle( page, SETTLE );
 		const seen = ( await tracksEvents( page ) ).length;
-		await switchTo( page, 'my-jetpack' );
+		await page.getByRole( 'tab', { name: 'Features' } ).filter( { visible: true } ).click();
 		await settle( page, SETTLE );
-		const foreign = ( await viewsSince( page, seen ) ).filter( name => ! own.has( name ) );
+		const foreign = ( await viewsSince( page, seen ) ).filter(
+			name => formsViews.has( name ) && ! own.has( name )
+		);
 		expect( foreign, 'view events from apps that are not shown' ).toEqual( [] );
 	} );
 } );

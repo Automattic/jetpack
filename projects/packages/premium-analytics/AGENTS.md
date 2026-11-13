@@ -519,6 +519,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   sizing when the style is not part of the shipped widget UI.
 - Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
   `packages/widgets-toolkit/src/helpers/` before writing a new one.
+- Leaving widget text at the design system weight — `WidgetRoot` only declares the widget
+  weight, so labels, values and captions opt in with `@include widget-text-weight`, or in a plain
+  `.css` module `var(--jpa-widget-font-weight, var(--wpds-typography-font-weight-default))`.
 
 ### Stats widgets
 
@@ -569,8 +572,8 @@ it owns the list with flags, the map and the states. Everything else renders its
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
-shared `describeError()` mapper so failures a retry cannot fix (403 access failures, an
-unusable response, the author post limit and an outdated WooCommerce analytics schema) get
+shared `describeError()` mapper so failures a retry cannot fix (403 access failures, the
+author post limit and an outdated WooCommerce analytics schema) get
 their own copy and no retry action, while other failures — including the proxy's
 `no_connection` 403, which can heal after reconnecting — offer Retry. Pass the retryable copy
 as a full sentence (not a fragment interpolated into a shared frame) so translators see the whole

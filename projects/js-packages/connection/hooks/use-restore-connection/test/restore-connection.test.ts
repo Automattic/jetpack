@@ -7,9 +7,11 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 	default: { reconnect, setApiRoot: jest.fn(), setApiNonce: jest.fn() },
 } ) );
 
+const disconnectUserSuccess = jest.fn();
+const setConnectionErrors = jest.fn();
 jest.unstable_mockModule( '@wordpress/data', () => ( {
 	__esModule: true,
-	useDispatch: () => ( { disconnectUserSuccess: jest.fn(), setConnectionErrors: jest.fn() } ),
+	useDispatch: () => ( { disconnectUserSuccess, setConnectionErrors } ),
 	createReduxStore: jest.fn(),
 	register: jest.fn(),
 } ) );
@@ -28,7 +30,11 @@ jest.unstable_mockModule( '../../../state/store', () => ( {
 const useRestoreConnection = ( await import( '../index' ) ).default;
 
 describe( 'restoreConnection', () => {
-	beforeEach( () => getUserConnectionUrl.mockClear() );
+	beforeEach( () => {
+		getUserConnectionUrl.mockClear();
+		disconnectUserSuccess.mockClear();
+		setConnectionErrors.mockClear();
+	} );
 
 	it( 'reports the message of a failed request without the error name', async () => {
 		const error = new Error( 'Ask an administrator (Status 403)' );
@@ -57,4 +63,19 @@ describe( 'restoreConnection', () => {
 			from: 'here',
 		} );
 	} );
+
+	it.each( [ true, false ] )(
+		'updates the store only when not redirecting (autoReconnectUser: %s)',
+		async autoReconnectUser => {
+			reconnect.mockResolvedValue( { status: 'in_progress' } );
+			const { result } = renderHook( () => useRestoreConnection() );
+
+			await act( () => result.current.restoreConnection( autoReconnectUser ) );
+
+			expect( getUserConnectionUrl ).toHaveBeenCalledTimes( autoReconnectUser ? 1 : 0 );
+			expect( disconnectUserSuccess ).toHaveBeenCalledTimes( autoReconnectUser ? 0 : 1 );
+			expect( setConnectionErrors ).toHaveBeenCalledTimes( autoReconnectUser ? 0 : 1 );
+			expect( result.current.isRestoringConnection ).toBe( true );
+		}
+	);
 } );

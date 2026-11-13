@@ -13,16 +13,19 @@ import {
 	buildLeaderboardRow,
 	WidgetRoot,
 	WidgetState,
+	useReportActions,
 	useWidgetRootContext,
+	type CsvColumn,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import usePlatformViews from './use-platform-views';
+import usePlatformViews, { type PlatformView } from './use-platform-views';
 import { type TopPlatformsAttributes } from './widget';
 /**
  * Types
@@ -46,18 +49,54 @@ type TopPlatformsInnerProps = {
 function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = usePlatformViews(
-		{
-			reportParams,
-			max: WIDGET_ROW_LIMIT,
-			deviceProperty: platformDimension,
-		}
-	);
+	const {
+		data,
+		hasComparison,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError,
+		csvIsPlaceholderData,
+		error,
+		refetch,
+	} = usePlatformViews( {
+		reportParams,
+		max: WIDGET_ROW_LIMIT,
+		deviceProperty: platformDimension,
+	} );
 
 	const emptyState = useNoViewsEmptyState(
 		{ isLoading, isError, isEmpty: data.length === 0 },
 		__( 'You don’t have platforms recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
+
+	const isOs = platformDimension === 'platform';
+	const columns = useMemo< CsvColumn< PlatformView >[] >(
+		() => [
+			{
+				label: isOs
+					? __( 'Operating system', 'jetpack-premium-analytics-pkg' )
+					: __( 'Browser', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.label,
+			},
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+		],
+		[ isOs ]
+	);
+	useReportActions( {
+		csv: {
+			rows: data,
+			columns,
+			filenamePrefix: isOs ? 'top-operating-systems' : 'top-browsers',
+			hasDateRange: true,
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
+		},
+	} );
 
 	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
 		id: `${ index }-${ item.key }`,
