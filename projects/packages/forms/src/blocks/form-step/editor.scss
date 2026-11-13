@@ -8,7 +8,6 @@
 	display: flex;
 	align-items: center;
 	color: currentColor;
-	margin: var(--wp--style--block-gap, 1.5rem) 0;
 
 	// Horizontal lines on both sides, similar to paywall block.
 	&::before,
@@ -37,9 +36,9 @@
 	box-sizing: border-box;
 }
 
-.wp-block-jetpack-form-step .jetpack-form-step__container {
-	display: flex;
-	justify-content: flex-start;
-	flex-direction: row;
-	gap: var(--wp--style--block-gap, 1.5rem);
+// Two classes beat core's `.is-layout-flex > :is(*, div) { margin: 0 }`.
+// Block-start only: it separates steps in All steps view, and the step's own
+// `gap` already spaces the label below.
+.wp-block-jetpack-form-step > .jetpack-form-step__break {
+	margin-block-start: var(--wp--style--block-gap, 1.5rem);
 }

@@ -1623,8 +1623,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 				&& wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), "contact-form-sent-{$feedback_id}" );
 		}
 
+		/*
+		 * The rendered steps are the only record of the count. Accept raw or `&quot;`-encoded
+		 * quotes: a miss silently drops `currentStep` and the form stops paginating.
+		 */
 		$max_steps = 0;
-		if ( preg_match_all( '/data-wp-context=[\'"]?{"step":(\d+)}[\'"]?/', $content, $matches ) ) {
+		if ( preg_match_all( '/data-wp-context=[\'"]?{(?:"|&quot;)step(?:"|&quot;):(\d+)}[\'"]?/', $content, $matches ) ) {
 			if ( ! empty( $matches[1] ) ) {
 				$max_steps = max( array_map( 'intval', $matches[1] ) );
 			}

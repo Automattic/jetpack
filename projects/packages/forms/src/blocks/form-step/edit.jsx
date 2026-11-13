@@ -118,7 +118,6 @@ function StepBreak( { stepLabel, currentIndex, setAttributes, clientId } ) {
 
 export default function Edit( { attributes, setAttributes, clientId, isSelected } ) {
 	const blockProps = useBlockProps();
-	blockProps.className += ' jetpack-form-step__container';
 
 	const ancestorFormClientId = useParentFormClientId( clientId );
 	const steps = useFormSteps( ancestorFormClientId );
@@ -166,14 +165,12 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 		renderAppender = InnerBlocks.ButtonBlockAppender;
 	}
 
-	const innerBlocksProps = useInnerBlocksProps(
-		{ className: 'wp-block-jetpack-form-step jetpack-form-step__container' },
-		{
-			template: getStepTemplate( hasPrevNavigation ),
-			allowedBlocks: ALLOWED_BLOCKS,
-			renderAppender,
-		}
-	);
+	// One element, so the layout classes land on the div that lays the step's blocks out.
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		template: getStepTemplate( hasPrevNavigation ),
+		allowedBlocks: ALLOWED_BLOCKS,
+		renderAppender,
+	} );
 
 	useEffect( () => {
 		if (
@@ -200,9 +197,11 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 		return null;
 	}
 
+	const { children: innerBlocksChildren, ...stepProps } = innerBlocksProps;
+
 	return (
 		<>
-			<div { ...blockProps }>
+			<div { ...stepProps }>
 				{ ! isSingleStep && (
 					<StepBreak
 						stepLabel={ attributes.stepLabel }
@@ -211,7 +210,7 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 						clientId={ clientId }
 					/>
 				) }
-				<div { ...innerBlocksProps } />
+				{ innerBlocksChildren }
 				<AttributesControls
 					attributes={ attributes }
 					setAttributes={ setAttributes }

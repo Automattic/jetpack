@@ -22,7 +22,24 @@ export const settings = {
 		html: false,
 		reusable: false,
 		inserter: true,
-		align: true,
+		layout: {
+			/*
+			 * Mirrored in class-contact-form-block.php. `stretch` is what makes a step's
+			 * blocks fill it: core maps it onto `align-items`, and any other value shrinks them.
+			 */
+			default: {
+				type: 'flex',
+				orientation: 'vertical',
+				justifyContent: 'stretch',
+				flexWrap: 'nowrap',
+			},
+			allowSwitching: false,
+			allowEditing: true,
+			allowOrientation: false,
+			allowJustification: true,
+			allowVerticalAlignment: false,
+			allowWrap: false,
+		},
 		color: {
 			gradients: true,
 			link: true,
@@ -40,6 +57,7 @@ export const settings = {
 		},
 	},
 	attributes: {
+		// No `align` support; the attribute stays so previously saved values still round-trip.
 		align: {
 			type: 'string',
 		},

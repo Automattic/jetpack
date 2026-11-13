@@ -109,6 +109,18 @@ const MULTISTEP_FORM = `<!-- wp:jetpack/contact-form {"subject":"Multistep layou
 <!-- wp:jetpack/input {"type":"text"} /--></div>
 <!-- /wp:jetpack/field-text -->
 
+<!-- wp:jetpack/field-text {"width":25} -->
+<div><!-- wp:jetpack/label {"label":"Quarter field"} /-->
+
+<!-- wp:jetpack/input {"type":"text"} /--></div>
+<!-- /wp:jetpack/field-text -->
+
+<!-- wp:jetpack/field-text {"width":"auto"} -->
+<div><!-- wp:jetpack/label {"label":"Auto field"} /-->
+
+<!-- wp:jetpack/input {"type":"text"} /--></div>
+<!-- /wp:jetpack/field-text -->
+
 <!-- wp:jetpack/field-name -->
 <div><!-- wp:jetpack/label {"label":"Step name"} /-->
 
@@ -117,6 +129,20 @@ const MULTISTEP_FORM = `<!-- wp:jetpack/contact-form {"subject":"Multistep layou
 <!-- /wp:jetpack/form-step --></div></div>
 <!-- /wp:jetpack/form-step-container --></div>
 <!-- /wp:jetpack/contact-form -->`;
+
+/**
+ * The same form with the *step* justified center.
+ *
+ * A step lays its own blocks out, so this is the step's `layout` attribute rather
+ * than the form's. It is the case that has no coverage and the case that broke: a
+ * step whose children were all forced to `width: 100%` had nothing left for
+ * justification to move, so the control silently stopped working for every block
+ * that does not set its own width.
+ */
+const MULTISTEP_CENTERED_FORM = MULTISTEP_FORM.replace(
+	'<!-- wp:jetpack/form-step {"stepLabel":"Step one"} -->',
+	'<!-- wp:jetpack/form-step {"stepLabel":"Step one","layout":{"type":"flex","orientation":"vertical","justifyContent":"center","flexWrap":"nowrap"}} -->'
+).replace( 'Multistep layout test', 'Multistep centered layout test' );
 
 /**
  * The editor and the front end render the same form from different code, so
@@ -134,6 +160,8 @@ type Selectors = {
 	column: string;
 	step: string;
 	halfField: string;
+	quarterField: string;
+	autoField: string;
 };
 
 const EDITOR_SELECTORS: Selectors = {
@@ -145,7 +173,9 @@ const EDITOR_SELECTORS: Selectors = {
 	para: '[data-type="core/paragraph"]',
 	column: '[data-type="core/column"]',
 	step: '.wp-block-jetpack-form-step',
-	halfField: '[data-type="jetpack/field-text"]',
+	halfField: '.jetpack-field__width-50',
+	quarterField: '.jetpack-field__width-25',
+	autoField: '.jetpack-field__width-auto',
 };
 
 const FRONT_END_SELECTORS: Selectors = {
@@ -158,6 +188,8 @@ const FRONT_END_SELECTORS: Selectors = {
 	column: '.wp-block-column',
 	step: '.wp-block-jetpack-form-step',
 	halfField: '.grunion-field-width-50-wrap',
+	quarterField: '.grunion-field-width-25-wrap',
+	autoField: '.grunion-field-width-auto-wrap',
 };
 
 type SingleStepMetrics = {
@@ -179,6 +211,11 @@ type MultistepMetrics = {
 	halfFieldWidth: number | null;
 	halfFieldOffsetLeft: number | null;
 	halfFieldIsAboutHalf: boolean | null;
+	quarterFieldWidth: number | null;
+	quarterFieldIsAboutQuarter: boolean | null;
+	autoFieldWidth: number | null;
+	autoFieldFillsStep: boolean | null;
+	stepElementCount: number;
 };
 
 /**
@@ -249,11 +286,12 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
 			return { left: Math.round( r.left ), width: Math.round( r.width ) };
 		};
 
-		// The editor and the front end both nest an element that repeats the
-		// step class, so take the innermost one — that is the flex row container
-		// whose children are the step's blocks.
+		// A step is one element per surface, which is what lets block supports put
+		// its layout classes and its scoped container rule on the element that
+		// actually lays its blocks out. Count them: a second element repeating the
+		// step class would mean the layout landed on the wrong one.
 		const steps = Array.from( form.querySelectorAll( s.step ) );
-		const step = steps[ steps.length - 1 ] as HTMLElement | undefined;
+		const step = steps[ 0 ] as HTMLElement | undefined;
 		if ( ! step ) {
 			return {
 				stepWidth: null,
@@ -264,6 +302,11 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
 				halfFieldWidth: null,
 				halfFieldOffsetLeft: null,
 				halfFieldIsAboutHalf: null,
+				quarterFieldWidth: null,
+				quarterFieldIsAboutQuarter: null,
+				autoFieldWidth: null,
+				autoFieldFillsStep: null,
+				stepElementCount: steps.length,
 			};
 		}
 
@@ -271,6 +314,8 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
 		const paraEl = step.querySelector( s.para );
 		const paraBox = box( paraEl );
 		const halfBox = box( step.querySelector( s.halfField ) );
+		const quarterBox = box( step.querySelector( s.quarterField ) );
+		const autoBox = box( step.querySelector( s.autoField ) );
 
 		return {
 			stepWidth: stepBox ? stepBox.width : null,
@@ -288,6 +333,15 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
 			// theme's gap rather than tight to today's numbers.
 			halfFieldIsAboutHalf:
 				halfBox && stepBox ? Math.abs( halfBox.width - stepBox.width / 2 ) <= 40 : null,
+			quarterFieldWidth: quarterBox ? quarterBox.width : null,
+			quarterFieldIsAboutQuarter:
+				quarterBox && stepBox ? Math.abs( quarterBox.width - stepBox.width / 4 ) <= 40 : null,
+			autoFieldWidth: autoBox ? autoBox.width : null,
+			// Auto does not hug its content: a field with no width set fills the
+			// step, the same as it does in a single-step form.
+			autoFieldFillsStep:
+				autoBox && stepBox ? Math.abs( autoBox.width - stepBox.width ) <= 2 : null,
+			stepElementCount: steps.length,
 		};
 	}, sel );
 }
@@ -412,6 +466,7 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 	test.describe( `Form block layout: ${ theme }`, () => {
 		let singleStepPageId: number;
 		let multistepPageId: number;
+		let multistepCenteredPageId: number;
 		let originalTheme: string | null = null;
 
 		test.beforeAll( async ( { requestUtils } ) => {
@@ -436,12 +491,19 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 				status: 'publish',
 			} );
 			multistepPageId = multi.id;
+
+			const centered = await requestUtils.createPage( {
+				title: `Form layout multistep centered (${ theme })`,
+				content: MULTISTEP_CENTERED_FORM,
+				status: 'publish',
+			} );
+			multistepCenteredPageId = centered.id;
 		} );
 
 		test.afterAll( async ( { requestUtils } ) => {
 			try {
 				// `deletePage` is not bound onto RequestUtils, so go through REST.
-				for ( const id of [ singleStepPageId, multistepPageId ] ) {
+				for ( const id of [ singleStepPageId, multistepPageId, multistepCenteredPageId ] ) {
 					/*
 					 * `beforeAll` can throw before either page exists. Deleting
 					 * `undefined` 404s, and the hook's own error would then bury
@@ -571,6 +633,16 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 
 			// A field's own width setting still wins over that.
 			expect( metrics.halfFieldIsAboutHalf ).toBe( true );
+			expect( metrics.quarterFieldIsAboutQuarter ).toBe( true );
+
+			// Auto fills the step rather than hugging its content.
+			expect( metrics.autoFieldFillsStep ).toBe( true );
+
+			// One element per step. Layout support attaches a block's classes and its
+			// scoped container rule to exactly one element, so a second element
+			// repeating the step class would mean the step's layout and the element
+			// holding its blocks had come apart again.
+			expect( metrics.stepElementCount ).toBe( 1 );
 		} );
 
 		test( 'front end: a step lays its blocks out the same way', async ( { page } ) => {
@@ -605,6 +677,75 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 			expect( metrics.paragraphFillsStep ).toBe( true );
 			expect( metrics.paragraphTextAlign ).toBe( 'center' );
 			expect( metrics.halfFieldIsAboutHalf ).toBe( true );
+			expect( metrics.quarterFieldIsAboutQuarter ).toBe( true );
+			expect( metrics.autoFieldFillsStep ).toBe( true );
+			expect( metrics.stepElementCount ).toBe( 1 );
+		} );
+
+		/**
+		 * A centered step is the case the container-width work kept getting wrong.
+		 * A step whose children are all forced to `width: 100%` leaves justification
+		 * nothing to move, so the control appears to do nothing for any block that
+		 * does not set its own width — and it half-works, because percentage-width
+		 * fields still shift. Assert on the paragraph, which is the block with no
+		 * width of its own.
+		 */
+		test( 'editor: a centered step centers every block, not only the sized ones', async ( {
+			admin,
+			page,
+		} ) => {
+			await admin.editPost( multistepCenteredPageId );
+
+			const stepSelector = `${ EDITOR_SELECTORS.form } ${ EDITOR_SELECTORS.step }`;
+			let canvas: Frame;
+			try {
+				canvas = await waitForEditorCanvas( page, stepSelector, 30000 );
+			} catch {
+				test.skip(
+					true,
+					'No form step rendered. Multistep forms may not be available on this site.'
+				);
+				return;
+			}
+
+			const metrics = await measureMultistep(
+				canvas.locator( EDITOR_SELECTORS.form ).first(),
+				EDITOR_SELECTORS
+			);
+			logger.debug( `editor/${ theme } multistep centered: ${ JSON.stringify( metrics ) }` );
+
+			expect( metrics.stepWidth ).not.toBeNull();
+			expect( metrics.stepWidth as number ).toBeGreaterThan( 0 );
+
+			// The paragraph shrinks to its text and sits away from the left edge.
+			expect( metrics.paragraphFillsStep ).toBe( false );
+			expect( metrics.paragraphOffsetLeft ).not.toBeNull();
+			expect( metrics.paragraphOffsetLeft as number ).toBeGreaterThan( 0 );
+
+			// A sized field still gets its width, and moves too.
+			expect( metrics.halfFieldIsAboutHalf ).toBe( true );
+			expect( metrics.halfFieldOffsetLeft as number ).toBeGreaterThan( 0 );
+		} );
+
+		test( 'front end: a centered step centers the same way', async ( { page } ) => {
+			await page.goto( `/?page_id=${ multistepCenteredPageId }` );
+
+			const metrics = await measureMultistep(
+				page.locator( FRONT_END_SELECTORS.form ).first(),
+				FRONT_END_SELECTORS
+			);
+			logger.debug( `front/${ theme } multistep centered: ${ JSON.stringify( metrics ) }` );
+
+			test.skip(
+				metrics.stepWidth === null,
+				'No form step in the response. Multistep forms may not be available on this site.'
+			);
+
+			expect( metrics.stepWidth as number ).toBeGreaterThan( 0 );
+			expect( metrics.paragraphFillsStep ).toBe( false );
+			expect( metrics.paragraphOffsetLeft as number ).toBeGreaterThan( 0 );
+			expect( metrics.halfFieldIsAboutHalf ).toBe( true );
+			expect( metrics.halfFieldOffsetLeft as number ).toBeGreaterThan( 0 );
 		} );
 	} );
 }

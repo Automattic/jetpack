@@ -218,20 +218,9 @@
 	:is(.jetpack-form-steps-wrapper, .wp-block-jetpack-form-step-container, .wp-block-jetpack-form-step) > .wp-block {
 		margin-block: 0;
 
-		// The same blocks need their inline margins cleared, for a second core
-		// rule. A step is a flex container by CSS but carries no `is-layout-flex`
-		// class, so `.editor-styles-wrapper :where(:not(.is-layout-flex,
-		// .is-layout-grid)) > .wp-block` does not skip it and hands its children
-		// `margin-inline: auto`. Auto margins absorb a flex item's free space, and
-		// a multistep form is vertical, so on the cross axis that beats the step's
-		// own `align-items` and centers anything narrower than the row: a
-		// paragraph, a heading, or a field with a width setting.
-		// `aligncenter` is the one place auto inline margins are meant, so leave
-		// it alone.
-		// Only the margins are editor-specific. The other half of making a step's
-		// blocks look right — being wide enough for that centering to be visible
-		// at all — is `.wp-block-jetpack-form-step > *` in
-		// jetpack-forms-layout.scss, which both surfaces share.
+		// Clear the `margin-inline: auto` core's
+		// `:where(:not(.is-layout-flex, .is-layout-grid)) > .wp-block` gives these
+		// children; it would center anything narrower. `aligncenter` means it.
 		&:not(.aligncenter) {
 			margin-inline: 0;
 		}
