@@ -385,7 +385,6 @@ class Dashboard {
 			'init_modules' => array( '@jetpack-protect/init' ),
 			// "Protect" is a product name and is not translated.
 			'title'        => 'Protect',
-			// As the header in routes/dashboard/stage.tsx renders it.
 			'header'       => array(
 				'title'    => 'Protect',
 				'subtitle' => '',

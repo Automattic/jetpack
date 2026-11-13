@@ -353,7 +353,7 @@ class Settings {
 	}
 
 	/**
-	 * The subtitle of the tab a bare dashboard URL opens, as _inc/components/newsletter-page.tsx renders it.
+	 * The subtitle of the tab a bare dashboard URL opens, as the dashboard renders it.
 	 *
 	 * @return string
 	 */

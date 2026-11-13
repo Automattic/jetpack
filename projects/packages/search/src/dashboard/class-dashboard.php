@@ -146,7 +146,6 @@ class Dashboard {
 			'init_modules' => array( '@jetpack-search/init' ),
 			// "Search" is a product name, do not translate.
 			'title'        => 'Search',
-			// As the header in src/dashboard/components/pages/dashboard-page.jsx renders it.
 			'header'       => array(
 				'title'    => 'Search',
 				'subtitle' => __( 'Help your visitors find exactly what they are looking for.', 'jetpack-search-pkg' ),

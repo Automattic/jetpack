@@ -885,7 +885,6 @@ class Initializer {
 			'build_page'   => self::WP_BUILD_PAGE_ID,
 			'init_modules' => array( '@jetpack-my-jetpack/init' ),
 			'title'        => 'My Jetpack',
-			// As the header in _inc/components/my-jetpack-screen/index.jsx renders it.
 			'header'       => array(
 				'title'    => 'Jetpack',
 				'subtitle' => '',

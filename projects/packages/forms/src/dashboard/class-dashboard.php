@@ -165,14 +165,12 @@ class Dashboard {
 	}
 
 	/**
-	 * The subtitle of the tab a bare dashboard URL opens, as use-page-header-details.tsx renders it.
+	 * The subtitle of the tab a bare dashboard URL opens, as the dashboard renders it.
 	 *
 	 * @return string
 	 */
 	private static function landing_subtitle() {
-		// The root route opens the remembered tab, and `/forms` falls back to the inbox without Central Form Management.
-		$tab = sanitize_key( wp_unslash( $_COOKIE[ self::LAST_TAB_COOKIE ] ?? '' ) );
-		if ( 'responses' === $tab || ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
+		if ( 'forms' !== self::landing_tab() ) {
 			return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
 		}
 		// Read, not detected: get_classic_forms_state() can write an option.
@@ -645,6 +643,15 @@ class Dashboard {
 	public static function get_default_tab() {
 		_deprecated_function( __METHOD__, 'package-8.3.5' );
 
+		return self::landing_tab();
+	}
+
+	/**
+	 * The tab a bare dashboard URL opens: the remembered one, as the dashboard's root route picks it.
+	 *
+	 * @return string `forms`, `responses` or `inbox`.
+	 */
+	private static function landing_tab() {
 		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
 			// The Forms tab is not rendered at all here, so honouring a stored 'forms'
 			// would strand the user on a tab they cannot leave.

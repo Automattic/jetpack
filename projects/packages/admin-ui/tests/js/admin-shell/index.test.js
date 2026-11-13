@@ -182,7 +182,7 @@ describe( 'admin shell stand-in header', () => {
 			'',
 			{ title: 'Guest A', subtitle: 'Sub' },
 		],
-		[ 'only its menu label on any other view', '&p=%2Fdeep', { title: 'A' } ],
+		[ 'only its menu label on any other view', '&p=%2Fdeep', null ],
 	] )( 'gives a page %s', async ( _, query, header ) => {
 		jest.spyOn( window, 'scrollTo' ).mockImplementation( () => {} );
 		const link = document.createElement( 'a' );
@@ -192,6 +192,6 @@ describe( 'admin shell stand-in header', () => {
 		link.click();
 		await settle();
 
-		expect( mockShowHeader ).toHaveBeenCalledWith( 'guest-a', expect.anything(), header );
+		expect( mockShowHeader ).toHaveBeenCalledWith( 'guest-a', expect.anything(), 'A', header );
 	} );
 } );

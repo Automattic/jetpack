@@ -333,7 +333,6 @@ class Jetpack_Backup {
 			'init_modules' => array( '@jetpack-backup/init' ),
 			// "Backup" is a product name, do not translate.
 			'title'        => 'Backup',
-			// As the header in src/dashboard/components/dashboard-layout/index.tsx renders it.
 			'header'       => array(
 				'title'    => 'VaultPress Backup',
 				'subtitle' => __( 'Save changes and restore quickly with one-click recovery.', 'jetpack-backup-pkg' ),

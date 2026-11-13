@@ -182,7 +182,6 @@ class Admin_Page {
 			'build_prefix' => 'jetpack_seo',
 			'build_page'   => self::WP_BUILD_SLUG,
 			'title'        => 'SEO',
-			// As the header in _inc/dashboard/dashboard-page.tsx renders it.
 			'header'       => array(
 				'title'    => 'SEO',
 				'subtitle' => __( 'Make your site discoverable in search and social, and control AI access.', 'jetpack-seo' ),

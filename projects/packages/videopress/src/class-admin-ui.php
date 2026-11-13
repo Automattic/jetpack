@@ -371,7 +371,6 @@ class Admin_UI {
 			'init_modules' => array( '@jetpack-videopress/init' ),
 			// "VideoPress" is a product name, do not translate.
 			'title'        => 'Jetpack VideoPress',
-			// As the header in src/dashboard/components/page-subtitle/index.tsx renders it.
 			'header'       => array(
 				'title'    => 'VideoPress',
 				'subtitle' => wp_strip_all_tags( __( 'Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.', 'jetpack-videopress-pkg' ) ),

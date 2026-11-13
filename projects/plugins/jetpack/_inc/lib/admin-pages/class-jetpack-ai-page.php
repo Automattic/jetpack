@@ -117,7 +117,6 @@ class Jetpack_AI_Page {
 			'init_modules' => array( '@jetpack-plugin/init' ),
 			// "Jetpack AI" is a product name and should not be translated.
 			'title'        => 'Jetpack AI',
-			// As the header in _inc/client/ai/main.jsx renders it.
 			'header'       => array(
 				'title'    => 'Jetpack AI',
 				'subtitle' => __( 'Create, connect, and automate with Jetpack AI.', 'jetpack' ),

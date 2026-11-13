@@ -145,7 +145,6 @@ class Admin_Page {
 			'init_modules' => array( '@jetpack-podcast/init' ),
 			/** "Podcast" is a product name, do not translate. */
 			'title'        => 'Podcast',
-			// As the header in src/dashboard/index.tsx renders it.
 			'header'       => array(
 				'title'    => 'Podcast',
 				'subtitle' => __( 'Publish a podcast and reach your fans, anywhere they listen.', 'jetpack-podcast' ),

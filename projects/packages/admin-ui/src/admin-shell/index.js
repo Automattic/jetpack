@@ -43,14 +43,12 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	members[ host ].adminTitle = document.title;
 	configureHeaders( headerStorageKey, members );
 	trackViewTransitions();
-	// A member declares the header its bare menu link opens on; other views only get a title.
-	const headerAt = ( slug, url ) => {
-		const { header, defaultPath } = members[ slug ];
-		const path = new URL( url, location.href ).searchParams.get( 'p' );
-		if ( header && ( ! path || path === defaultPath ) ) {
-			return header;
-		}
-		return { title: menuLabel( slug ) ?? members[ slug ].title };
+	// A member declares the header of the view its bare menu link opens; other views only get a title.
+	const showHeaderAt = ( slug, el, url ) => {
+		const { header, defaultPath, title } = members[ slug ];
+		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
+		const landing = [ '/', defaultPath ].includes( path );
+		return showHeader( slug, el, menuLabel( slug ) ?? title, landing ? header : null );
 	};
 
 	log(
@@ -174,7 +172,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			apps.delete( slug );
 			el.remove();
 		};
-		const removeStandIn = showHeader( slug, el, headerAt( slug, url ) );
+		const removeStandIn = showHeaderAt( slug, el, url );
 
 		try {
 			const waited = stopwatch();
@@ -351,7 +349,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	trackOverlays( () => visible );
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
-	const removeHostHeader = showHeader( host, hostEl, headerAt( host, location.href ) );
+	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
 	gate.mount( host );
 	log( 'host', `${ host } boots from the page load` );
 	whenRendered( hostEl, 30000 )

@@ -180,10 +180,7 @@ class Social_Admin_Page {
 			'title'        => 'Jetpack Social',
 			'header'       => array(
 				'title'    => 'Social',
-				// As _inc/components/social-page.tsx renders it: the Settings tab opens while Social is off and can be turned on.
-				'subtitle' => ! $host->is_wpcom_platform() && current_user_can( 'jetpack_manage_modules' ) && ! Utils::is_publicize_active()
-					? __( 'Customize how your posts are shared to social media.', 'jetpack-publicize-pkg' )
-					: __( 'Connect your social accounts and see what drives traffic.', 'jetpack-publicize-pkg' ),
+				'subtitle' => self::landing_subtitle(),
 			),
 			'capability'   => 'publish_posts',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
@@ -191,6 +188,19 @@ class Social_Admin_Page {
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
+	}
+
+	/**
+	 * The subtitle of the tab a bare dashboard URL opens, as the dashboard renders it.
+	 *
+	 * @return string
+	 */
+	private static function landing_subtitle() {
+		// Settings opens while Social is off and the user can turn it on.
+		if ( ! ( new Host() )->is_wpcom_platform() && current_user_can( 'jetpack_manage_modules' ) && ! Utils::is_publicize_active() ) {
+			return __( 'Customize how your posts are shared to social media.', 'jetpack-publicize-pkg' );
+		}
+		return __( 'Connect your social accounts and see what drives traffic.', 'jetpack-publicize-pkg' );
 	}
 
 	/**

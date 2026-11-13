@@ -3,6 +3,7 @@ import { configureHeaders, rememberHeader, showHeader } from '../../../src/admin
 const PREFIX = 'jetpack-admin-shell-header:1:7:0.15.0:';
 
 beforeEach( () => {
+	document.head.innerHTML = '';
 	localStorage.clear();
 	document.body.innerHTML = '<section id="app"></section>';
 	configureHeaders( PREFIX, MEMBERS );
@@ -72,7 +73,7 @@ describe( 'header stand-in', () => {
 			'<div class="admin-ui-navigable-region"><header><div class="x__header-visual"><svg class="jetpack-logo"><path d="M1"></path></svg></div><h1 class="x__header-title">Forms</h1><div class="x__header-actions">New</div></header><div role="tablist">Tabs</div></div>'
 		);
 
-		showHeader( 'newsletter', document.getElementById( 'app' ), { title: 'Newsletter' } );
+		showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter' );
 
 		const standIn = document.querySelector( '[data-shell-header="newsletter"]' );
 		expect( standIn.querySelector( 'h1' ) ).toHaveTextContent( 'Newsletter' );
@@ -95,7 +96,7 @@ describe( 'header stand-in', () => {
 		);
 		save( savedAs, withSubtitle( 'Old title', 'Old subtitle' ) );
 
-		showHeader( 'newsletter', document.getElementById( 'app' ), {
+		showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter', {
 			title: 'Newsletter',
 			subtitle,
 		} );
@@ -113,7 +114,7 @@ describe( 'header stand-in', () => {
 			'<div><header><div class="b__header-content"><h1 class="t__text t__heading-lg b__header-title">Jetpack</h1></div></header></div>'
 		);
 
-		showHeader( 'newsletter', document.getElementById( 'app' ), {
+		showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter', {
 			title: 'Newsletter',
 			subtitle: 'View a summary of your newsletter.',
 		} );
@@ -121,7 +122,6 @@ describe( 'header stand-in', () => {
 		const row = document.querySelector( '[data-shell-header="newsletter"] .b__header-content + p' );
 		expect( row ).toHaveTextContent( 'View a summary of your newsletter.' );
 		expect( [ ...row.classList ] ).toEqual( [ 't__text', 'b__header-subtitle', 't__body-md' ] );
-		document.head.innerHTML = '';
 	} );
 
 	it( 'moves a saved header’s page-scoped styles to the page it is shown for', () => {
@@ -134,7 +134,7 @@ describe( 'header stand-in', () => {
 
 		rememberHeader( 'forms', app );
 		jest.runAllTimers();
-		showHeader( 'newsletter', app, { title: 'Newsletter' } );
+		showHeader( 'newsletter', app, 'Newsletter' );
 
 		const css = document.querySelector( '[data-shell-header="newsletter"] style' ).textContent;
 		expect( css ).toContain( 'body.jetpack_page_newsletter .x__header-title' );
