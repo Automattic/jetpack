@@ -117,6 +117,417 @@
 				"imageUrl": "https://example.com/widget.jpg"
 			},
 			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"><span class=\"jetpack-paypal-button__product-name\">Widget</span><span class=\"jetpack-paypal-button__product-description\">Hand made</span></div><span class=\"jetpack-paypal-button__product-price\">$10.00</span></div>"
+		},
+		{
+			"name": "discounts a price by a percentage",
+			"attributes": {
+				"price": "1.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "10"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$1.00</s> $0.90</span><span class=\"jetpack-paypal-button__discount\">10% discount</span></div>"
+		},
+		{
+			"name": "shows a struck price of 1 as $1",
+			"attributes": {
+				"price": "1",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "10"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$1</s> $0.90</span><span class=\"jetpack-paypal-button__discount\">10% discount</span></div>"
+		},
+		{
+			"name": "takes a flat discount off the price",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "FLAT",
+				"discountValue": "2.00"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$10.00</s> $8.00</span><span class=\"jetpack-paypal-button__discount\">$2.00 discount</span></div>"
+		},
+		{
+			"name": "discounts the From price by a percentage",
+			"attributes": {
+				"price": "",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "10",
+				"variantsEnabled": true,
+				"variants": {
+					"dimensions": [
+						{
+							"name": "size",
+							"primary": true,
+							"options": [
+								{
+									"label": "small",
+									"unit_amount": {
+										"value": "20.00"
+									}
+								},
+								{
+									"label": "large",
+									"unit_amount": {
+										"value": "30.00"
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">From <s class=\"jetpack-paypal-button__original-price\">$20.00</s> $18.00</span><span class=\"jetpack-paypal-button__discount\">10% discount</span></div>"
+		},
+		{
+			"name": "takes a flat discount off the From price",
+			"attributes": {
+				"price": "",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "FLAT",
+				"discountValue": "2.00",
+				"variantsEnabled": true,
+				"variants": {
+					"dimensions": [
+						{
+							"name": "size",
+							"primary": true,
+							"options": [
+								{
+									"label": "small",
+									"unit_amount": {
+										"value": "20.00"
+									}
+								},
+								{
+									"label": "large",
+									"unit_amount": {
+										"value": "30.00"
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">From <s class=\"jetpack-paypal-button__original-price\">$20.00</s> $18.00</span><span class=\"jetpack-paypal-button__discount\">$2.00 discount</span></div>"
+		},
+		{
+			"name": "shows a From price below zero for a flat discount over the cheapest option",
+			"attributes": {
+				"price": "",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "FLAT",
+				"discountValue": "25.00",
+				"variantsEnabled": true,
+				"variants": {
+					"dimensions": [
+						{
+							"name": "size",
+							"primary": true,
+							"options": [
+								{
+									"label": "small",
+									"unit_amount": {
+										"value": "20.00"
+									}
+								},
+								{
+									"label": "large",
+									"unit_amount": {
+										"value": "30.00"
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">From <s class=\"jetpack-paypal-button__original-price\">$20.00</s> -$5.00</span><span class=\"jetpack-paypal-button__discount\">$25.00 discount</span></div>"
+		},
+		{
+			"name": "rounds a percentage discount to the yen",
+			"attributes": {
+				"price": "999",
+				"currencyCode": "JPY",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "15"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">¥999</s> ¥849</span><span class=\"jetpack-paypal-button__discount\">15% discount</span></div>"
+		},
+		{
+			"name": "rounds half a cent of discount up",
+			"attributes": {
+				"price": "0.50",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "5"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$0.50</s> $0.47</span><span class=\"jetpack-paypal-button__discount\">5% discount</span></div>"
+		},
+		{
+			"name": "rounds half a yen of discount up",
+			"attributes": {
+				"price": "10",
+				"currencyCode": "JPY",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "5"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">¥10</s> ¥9</span><span class=\"jetpack-paypal-button__discount\">5% discount</span></div>"
+		},
+		{
+			"name": "rounds half a cent of a 64.6% discount up",
+			"attributes": {
+				"price": "2.50",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "64.6"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$2.50</s> $0.88</span><span class=\"jetpack-paypal-button__discount\">64.6% discount</span></div>"
+		},
+		{
+			"name": "rounds a flat discount of $1.005 up",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "FLAT",
+				"discountValue": "1.005"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$10.00</s> $8.99</span><span class=\"jetpack-paypal-button__discount\">$1.005 discount</span></div>"
+		},
+		{
+			"name": "takes 10% off a price of $1.005",
+			"attributes": {
+				"price": "1.005",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "10"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$1.005</s> $0.91</span><span class=\"jetpack-paypal-button__discount\">10% discount</span></div>"
+		},
+		{
+			"name": "rounds a price of $1.005 to the cent before taking 50% off",
+			"attributes": {
+				"price": "1.005",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "50"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$1.005</s> $0.50</span><span class=\"jetpack-paypal-button__discount\">50% discount</span></div>"
+		},
+		{
+			"name": "reads a percentage that starts with a point",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": ".5"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$10.00</s> $9.95</span><span class=\"jetpack-paypal-button__discount\">.5% discount</span></div>"
+		},
+		{
+			"name": "reads a percentage and a price that end with a point",
+			"attributes": {
+				"price": "2.",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "10."
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$2.</s> $1.80</span><span class=\"jetpack-paypal-button__discount\">10.% discount</span></div>"
+		},
+		{
+			"name": "trims spaces around the discount",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": " 10 "
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$10.00</s> $9.00</span><span class=\"jetpack-paypal-button__discount\">10% discount</span></div>"
+		},
+		{
+			"name": "shows $0.00 for a flat discount equal to the price",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "FLAT",
+				"discountValue": "10.00"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$10.00</s> $0.00</span><span class=\"jetpack-paypal-button__discount\">$10.00 discount</span></div>"
+		},
+		{
+			"name": "shows a price below zero for a flat discount over the price",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "FLAT",
+				"discountValue": "12.00"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$10.00</s> -$2.00</span><span class=\"jetpack-paypal-button__discount\">$12.00 discount</span></div>"
+		},
+		{
+			"name": "shows $0.00 for a 100% discount",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "100"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$10.00</s> $0.00</span><span class=\"jetpack-paypal-button__discount\">100% discount</span></div>"
+		},
+		{
+			"name": "treats an unknown discount type as flat",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "AMOUNT",
+				"discountValue": "2.00"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\"><s class=\"jetpack-paypal-button__original-price\">$10.00</s> $8.00</span><span class=\"jetpack-paypal-button__discount\">$2.00 discount</span></div>"
+		},
+		{
+			"name": "shows the price alone for a discount turned off with a value saved",
+			"attributes": {
+				"price": "1.00",
+				"currencyCode": "USD",
+				"discountEnabled": false,
+				"discountType": "PERCENTAGE",
+				"discountValue": "10"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">$1.00</span></div>"
+		},
+		{
+			"name": "shows the From price alone for a discount turned off on options",
+			"attributes": {
+				"price": "",
+				"currencyCode": "USD",
+				"discountEnabled": false,
+				"discountType": "PERCENTAGE",
+				"discountValue": "10",
+				"variantsEnabled": true,
+				"variants": {
+					"dimensions": [
+						{
+							"name": "size",
+							"primary": true,
+							"options": [
+								{
+									"label": "small",
+									"unit_amount": {
+										"value": "20.00"
+									}
+								},
+								{
+									"label": "large",
+									"unit_amount": {
+										"value": "30.00"
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">From $20.00</span></div>"
+		},
+		{
+			"name": "shows the price alone for a blank percentage",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": ""
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">$10.00</span></div>"
+		},
+		{
+			"name": "shows the price alone for a blank flat discount",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "FLAT",
+				"discountValue": ""
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">$10.00</span></div>"
+		},
+		{
+			"name": "shows the price alone for a discount with letters before it",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "abc10"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">$10.00</span></div>"
+		},
+		{
+			"name": "shows the price alone for a discount with letters after it",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "FLAT",
+				"discountValue": "10abc"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">$10.00</span></div>"
+		},
+		{
+			"name": "shows the price alone for a negative discount",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "FLAT",
+				"discountValue": "-2.00"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">$10.00</span></div>"
+		},
+		{
+			"name": "shows the price alone for a discount written with an exponent",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "FLAT",
+				"discountValue": "1e1"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">$10.00</span></div>"
+		},
+		{
+			"name": "shows a price with letters as typed, with a discount on",
+			"attributes": {
+				"price": "10abc",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "10"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">$10abc</span></div>"
 		}
 	]
 }

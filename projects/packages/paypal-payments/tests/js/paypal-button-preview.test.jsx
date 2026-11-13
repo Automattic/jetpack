@@ -1247,7 +1247,14 @@ describe( 'PayPalButtonPreview', () => {
 // The same cases run against the PHP render in Paypal_Payment_Buttons_Test.
 describe( 'product card matches the published page', () => {
 	it.each( cardParity.cases.map( c => [ c.name, c ] ) )( '%s', ( _name, testCase ) => {
-		render( <PayPalButtonPreview { ...testCase.attributes } attributes={ testCase.attributes } /> );
+		// The editor passes the discount in `attributes` only.
+		const {
+			discountEnabled: _enabled,
+			discountType: _type,
+			discountValue: _value,
+			...props
+		} = testCase.attributes;
+		render( <PayPalButtonPreview { ...props } attributes={ testCase.attributes } /> );
 
 		const card = document.querySelector( '.jetpack-paypal-button__product' );
 		expect( card?.outerHTML ?? null ).toBe( testCase.card );
