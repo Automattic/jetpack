@@ -527,6 +527,30 @@ it( 'answers the admin shell for a dirty draft and asks once per shell navigatio
 		[ 'You have unsaved changes in VideoPress. Discard them?' ],
 	] );
 	expect( navigate ).not.toHaveBeenCalled();
+
+	// A later Back is the user's own, so the editor asks again.
+	await act( () => new Promise( resolve => setTimeout( resolve ) ) );
+	act( () => window.dispatchEvent( new PopStateEvent( 'popstate' ) ) );
+	expect( confirmNavigation ).toHaveBeenLastCalledWith(
+		'You have unsaved edits. Leave the editor and discard them?'
+	);
+} );
+
+it.each( [
+	[ 'stays silent while the admin shell hides VideoPress', 'page-hidden', 0 ],
+	[ 'asks again once the admin shell shows VideoPress', 'page-shown', 1 ],
+] )( '%s', async ( _, type, asks ) => {
+	const { user } = renderEditor();
+	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+	act( () => {
+		window.dispatchEvent(
+			new CustomEvent( `jetpack-admin-shell:${ type }`, { detail: { page: 'jetpack-videopress' } } )
+		);
+		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+	} );
+
+	expect( confirmNavigation ).toHaveBeenCalledTimes( asks );
+	expect( navigate ).toHaveBeenCalledTimes( asks );
 } );
 
 it( 'suspends editor shortcuts until the save dialog is dismissed', async () => {

@@ -209,7 +209,7 @@ window.addEventListener( 'jetpack-admin-shell:before-leave', event => {
 } );
 ```
 
-The shell asks before its own navigation, and a screen that also guards `popstate` hears that navigation in the same task: let it skip its own prompt then, so the user is asked once.
+The shell asks before its own navigation, and a screen that also guards `popstate` hears that navigation in the same task: let it skip its own prompt then, so the user is asked once. Such a guard also hears popstates while its page is hidden, so let it stand down from `jetpack-admin-shell:page-hidden` until `jetpack-admin-shell:page-shown` for its page.
 
 ## Security
 

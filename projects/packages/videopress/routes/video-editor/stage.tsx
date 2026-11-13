@@ -30,7 +30,10 @@ import TrimCutEditor from '../../src/dashboard/components/editor/editor-screen';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import VideoLayout from '../../src/dashboard/components/video-layout';
 import { videoTabPath } from '../../src/dashboard/components/video-nav';
-import { useAdminShellLeaveGuard } from '../../src/dashboard/hooks/use-admin-shell-leave-guard';
+import {
+	isHiddenByShell,
+	useAdminShellLeaveGuard,
+} from '../../src/dashboard/hooks/use-admin-shell-leave-guard';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUploadUnloadGuard } from '../../src/dashboard/hooks/use-upload-unload-guard';
@@ -430,7 +433,7 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 			return;
 		}
 		const onPopState = () => {
-			if ( ! askedByShell() && ! confirmNavigation() ) {
+			if ( ! isHiddenByShell() && ! askedByShell() && ! confirmNavigation() ) {
 				navigate( { href: videoTabPath( video.id, 'editor' ) } );
 			}
 		};

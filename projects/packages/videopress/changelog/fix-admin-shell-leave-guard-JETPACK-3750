@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Dashboard: Ask before the Jetpack admin shell opens VideoPress at another screen while a video, trim, chapter or playlist edit is unsaved.
+Dashboard: Ask before the Jetpack admin shell opens VideoPress at another screen while a video, trim, chapter or playlist edit is unsaved, and keep the trim and chapter editors from asking while another dashboard is on screen.

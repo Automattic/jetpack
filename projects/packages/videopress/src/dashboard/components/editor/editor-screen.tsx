@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import EditorOperationsPanel from '../../../../routes/video-editor/operations-panel';
 import { usePreviewTransport } from '../../../client/components/chapters-editor/preview/use-preview-transport';
 import { canRedo, canUndo } from '../../../client/components/chapters-editor/state/history';
-import { useAdminShellLeaveGuard } from '../../hooks/use-admin-shell-leave-guard';
+import { isHiddenByShell, useAdminShellLeaveGuard } from '../../hooks/use-admin-shell-leave-guard';
 import useFilmstrip from '../../hooks/use-filmstrip';
 import { useVideo } from '../../hooks/use-video';
 import VideoLayout from '../video-layout';
@@ -78,7 +78,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 			event.returnValue = '';
 		};
 		const popState = () => {
-			if ( ! askedByShell() && ! confirmNavigation() ) {
+			if ( ! isHiddenByShell() && ! askedByShell() && ! confirmNavigation() ) {
 				navigate( { href: videoTabPath( video.id, 'editor' ) } );
 			}
 		};
