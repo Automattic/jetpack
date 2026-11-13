@@ -587,6 +587,9 @@ export default function ApiManagedEdit( {
 	const formIsValid = useRef( isFormValid );
 	formIsValid.current = isFormValid;
 	const [ isEditing, setIsEditing ] = useState( ! isFormValid );
+	// Set only while the form is leaving for the picker rather than the details.
+	// Anything that closes the form or its dialog clears it.
+	const leaveToPicker = useRef( false );
 	// A saved link can be switched for another of the account's links from its
 	// details menu. A new link, however it arrived, closes the picker.
 	const [ isSwitching, setIsSwitching ] = useState( false );
@@ -594,6 +597,7 @@ export default function ApiManagedEdit( {
 		setIsEditing( ! formIsValid.current );
 		setIsSwitching( false );
 		setShowUnsavedConfirm( false );
+		leaveToPicker.current = false;
 	}, [ resourceId ] );
 	// An undo, or a read writing back a value that fails validation, can break the
 	// link later on, and the details have nowhere to show it. Opening only, so the
@@ -618,15 +622,27 @@ export default function ApiManagedEdit( {
 		}
 	}, [ isEditing, paymentChanged, postSaves ] );
 	const [ showUnsavedConfirm, setShowUnsavedConfirm ] = useState( false );
+
+	/**
+	 * Leave the form for the details, or for the picker when leaveToPicker is set.
+	 */
+	const closeForm = useCallback( () => {
+		setShowUnsavedConfirm( false );
+		setIsEditing( false );
+		if ( leaveToPicker.current ) {
+			leaveToPicker.current = false;
+			setIsSwitching( true );
+		}
+	}, [] );
+
 	// A post save while the dialog is open saves the changes it asks about, so leave.
 	const dialogOpen = useRef( showUnsavedConfirm );
 	dialogOpen.current = showUnsavedConfirm;
 	useEffect( () => {
 		if ( dialogOpen.current ) {
-			setShowUnsavedConfirm( false );
-			setIsEditing( false );
+			closeForm();
 		}
-	}, [ postSaves ] );
+	}, [ postSaves, closeForm ] );
 	const [ isSavingButton, setIsSavingButton ] = useState( false );
 
 	/**
@@ -641,7 +657,7 @@ export default function ApiManagedEdit( {
 		if ( hasUnsavedChanges ) {
 			setShowUnsavedConfirm( true );
 		} else {
-			setIsEditing( false );
+			closeForm();
 		}
 	};
 
@@ -650,8 +666,7 @@ export default function ApiManagedEdit( {
 	 */
 	const discardChanges = () => {
 		setAttributes( formOpenedWith.current );
-		setShowUnsavedConfirm( false );
-		setIsEditing( false );
+		closeForm();
 	};
 
 	/**
@@ -663,8 +678,7 @@ export default function ApiManagedEdit( {
 		const saved = await savePaymentButton( { clientId: blockClientId, attributes }, environment );
 		setIsSavingButton( false );
 		if ( saved ) {
-			setShowUnsavedConfirm( false );
-			setIsEditing( false );
+			closeForm();
 		}
 	};
 
@@ -1730,7 +1744,10 @@ export default function ApiManagedEdit( {
 					isSaving={ isSavingButton }
 					onSave={ saveChanges }
 					onDiscard={ discardChanges }
-					onCancel={ () => setShowUnsavedConfirm( false ) }
+					onCancel={ () => {
+						leaveToPicker.current = false;
+						setShowUnsavedConfirm( false );
+					} }
 				/>
 			) }
 		</div>
