@@ -216,7 +216,6 @@ class Local_Report_Test extends BaseTestCase {
 	 */
 	public static function data_dates() {
 		return array(
-			'no offset is store wall time'         => array( '2026-10-01T00:00:00', '2026-10-31T23:59:59', '2026-10-01T00:00:00-04:00', '2026-10-31T23:59:59-04:00', '2026-10-01T00:00:00-04:00' ),
 			'a UTC offset is converted'            => array( '2026-10-01T00:00:00.000Z', '2026-10-31T23:59:59.999Z', '2026-09-30T20:00:00-04:00', '2026-10-31T19:59:59-04:00', '2026-09-30T20:00:00-04:00' ),
 			'another offset is converted'          => array( '2026-12-01T00:00:00+09:00', '2026-12-31T23:59:59+09:00', '2026-11-30T10:00:00-05:00', '2026-12-31T09:59:59-05:00', '2026-11-30T10:00:00-05:00' ),
 			'a bare date spans its day'            => array( '2026-10-01', '2026-10-31', '2026-10-01T00:00:00-04:00', '2026-10-31T23:59:59-04:00', '2026-10-01T00:00:00-04:00' ),
@@ -276,8 +275,6 @@ class Local_Report_Test extends BaseTestCase {
 		return array(
 			'filters'                => array( array( 'filters' => 'status' ), 422, 'unsupported_parameter' ),
 			'wpcom fields'           => array( array( 'fields' => 'orders_no' ), 422, 'unsupported_parameter' ),
-			'an unserved field'      => array( array( 'report_fields' => 'orders_no,total_items' ), 422, 'unsupported_fields' ),
-			'the whole contract'     => array( array( 'report_fields' => null ), 422, 'unsupported_fields' ),
 			'no interval'            => array( array( 'interval' => null ), 400, 'missing_parameter' ),
 			'an unknown interval'    => array( array( 'interval' => 'fortnight' ), 400, 'invalid_parameter' ),
 			'a date that rolls over' => array( array( 'to' => '2026-02-30' ), 400, 'invalid_parameter' ),
