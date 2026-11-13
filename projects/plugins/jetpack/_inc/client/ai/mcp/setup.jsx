@@ -130,7 +130,7 @@ export default function McpSetup() {
 				<Card>
 					<CardBody>
 						<Stack direction="column" gap="md">
-							<Text as="h3" weight={ 600 }>
+							<Text as="h2" weight={ 600 }>
 								{ __( 'Quick setup', 'jetpack' ) }
 							</Text>
 
@@ -308,7 +308,7 @@ export default function McpSetup() {
 					<CardBody>
 						<Stack direction="column" gap="sm">
 							<Stack direction="row" justify="space-between" align="center">
-								<Text as="h3" weight={ 600 }>
+								<Text as="h2" weight={ 600 }>
 									{ __( 'Manual setup', 'jetpack' ) }
 								</Text>
 								<Button

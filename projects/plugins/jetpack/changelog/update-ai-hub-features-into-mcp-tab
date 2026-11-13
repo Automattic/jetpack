@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack AI: Rename the AI Hub's MCP and Connectors tab to Settings and fold the AI Features tab into it as an AI features section. Move the "Connect your AI agent" buttons for Claude and ChatGPT to the Overview, replacing Quick start; Settings keeps them only when there is no Overview tab. Order the tabs Overview, Skills, Settings, Scheduled tasks, and give every tab except Skills a 660px content column. The jetpack_ai_hub_viewed event now fires whenever the tab bar shows, not only behind the host gate, and carries section: ai_features when the visit came through an old AI Features link.

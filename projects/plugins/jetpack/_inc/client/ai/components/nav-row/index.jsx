@@ -72,7 +72,8 @@ export default function NavRow( {
 				<Text
 					render={ <p /> }
 					id={ titleId }
-					variant="heading-lg"
+					// The skill cards' title size, so the Overview's lists read alike.
+					variant="heading-md"
 					className="jetpack-ai-nav-row__title"
 				>
 					{ title }

@@ -4,7 +4,7 @@ import { speak } from '@wordpress/a11y';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import { GATED_VIEWS } from '../../constants';
+import { NOTICE_VIEWS } from '../../constants';
 
 // Listed in the order getPageNoticeState resolves them.
 const PAGE_NOTICE_STATES = {
@@ -16,6 +16,25 @@ const PAGE_NOTICE_STATES = {
 	USER_UNLINKED: 'user-unlinked',
 	MASTER_OFF: 'master-off',
 };
+
+// The states about the connection itself rather than about AI. MCP rides the
+// same connection, so on the MCP view one of these speaks for the whole view.
+const CONNECTION_NOTICE_STATES = [
+	PAGE_NOTICE_STATES.OFFLINE_MODE,
+	PAGE_NOTICE_STATES.SITE_DISCONNECTED,
+	PAGE_NOTICE_STATES.USER_UNLINKED,
+];
+
+/**
+ * Whether a resolved state is about the connection rather than about AI.
+ *
+ * @param {string|null} state - The state from getPageNoticeState.
+ * @return {boolean} True for offline mode, a disconnected site or an unlinked account.
+ */
+export function isConnectionNoticeState( state ) {
+	return CONNECTION_NOTICE_STATES.includes( state );
+}
+
 /**
  * Decide which site-state notice the page owes the reader, if any.
  *
@@ -47,7 +66,7 @@ export function getPageNoticeState( {
 	masterForcedOff,
 	hasConnectionError,
 } ) {
-	if ( ! GATED_VIEWS.includes( view ) ) {
+	if ( ! NOTICE_VIEWS.includes( view ) ) {
 		return null;
 	}
 
@@ -205,8 +224,10 @@ function getNoticeContent( state, pageData ) {
 }
 
 /**
- * The one site-state notice the Jetpack AI Hub shows, above whichever view is
- * active. Nothing else on the page renders these states.
+ * The one site-state notice the Jetpack AI Hub shows: above Overview, and on
+ * the MCP view either at the top of the view (the connection states, which
+ * stand in for MCP's own connection asks) or at the head of its AI features
+ * section (the rest). Nothing else on the page renders these states.
  *
  * @param {object}      props                     - Component props.
  * @param {string|null} props.state               - The resolved state, from getPageNoticeState.

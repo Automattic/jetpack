@@ -1,7 +1,8 @@
 /**
- * AI Features view — per-feature toggles for Jetpack AI, grouped by area
+ * AI Features card — per-feature toggles for Jetpack AI, grouped by area
  * (Content, Media, SEO, Search) inside a single card per the AI-Settings
- * design. The card carries no heading of its own: the tab names it.
+ * design. The card carries no heading of its own: the "AI features" h2 of
+ * the MCP view's section names it, so the group headings are h3s.
  *
  * Each feature has its own on/off switch, backed by the feature-settings
  * endpoint. A disabled feature must genuinely stop loading (its assets are
@@ -201,7 +202,7 @@ function FeatureRow( {
 }
 
 /**
- * AI Features view component.
+ * AI Features card component.
  *
  * @param {object}   props                 - Component props.
  * @param {object}   props.settings        - Full settings shape from the feature-settings endpoint.
@@ -308,7 +309,9 @@ export default function AiFeatures( {
 										render={ <section aria-labelledby={ titleId } /> }
 									>
 										<div className="jetpack-ai-features__section-header">
-											<Text variant="heading-lg" render={ <h2 id={ titleId } /> }>
+											{ /* A step under the section's heading-lg h2, as the other h3s on
+											     the Settings tab (How it works). */ }
+											<Text variant="heading-md" render={ <h3 id={ titleId } /> }>
 												{ section.title }
 											</Text>
 											{ isConnected &&

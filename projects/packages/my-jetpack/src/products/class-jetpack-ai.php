@@ -258,7 +258,7 @@ class Jetpack_Ai extends Module_Product {
 	public static function get_long_description_by_usage_tier( $tier ) {
 		switch ( (int) $tier ) {
 			case 1:
-				return __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' );
+				return __( 'Jetpack AI brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' );
 			case 100:
 				return __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
 			default:
