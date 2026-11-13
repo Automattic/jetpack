@@ -4,7 +4,7 @@
  */
 
 import type { FunnelStep } from '../../charts/conversion-funnel-chart';
-import type { HeatmapColumn } from '../../charts/heatmap-chart';
+import type { HeatmapCell, HeatmapColumn } from '../../charts/heatmap-chart';
 import type { LeaderboardEntry } from '../../charts/leaderboard-chart';
 import type { DataPointDate, DataPointPercentage, GeoData, SeriesData } from '../../types';
 
@@ -1174,3 +1174,214 @@ export const heatmapPostsByDay: Record< string, number > = Object.fromEntries(
 		return [ day.toISOString().slice( 0, 10 ), posts ];
 	} ).filter( ( [ , posts ] ) => Number( posts ) > 0 )
 );
+
+const MONTH_LABELS = [
+	'Jan',
+	'Feb',
+	'Mar',
+	'Apr',
+	'May',
+	'Jun',
+	'Jul',
+	'Aug',
+	'Sep',
+	'Oct',
+	'Nov',
+	'Dec',
+];
+
+/**
+ * Lay months out as twelve columns with one row per year.
+ *
+ * @param years   - The years, one per row.
+ * @param cellFor - The cell for a month, or `null` for a month outside the covered span.
+ * @return One column per month; uncovered months are placeholder cells.
+ */
+const monthColumns = (
+	years: number[],
+	cellFor: ( year: number, month: number ) => HeatmapCell | null
+): HeatmapColumn[] =>
+	MONTH_LABELS.map( ( label, month ) => ( {
+		label,
+		data: years.map( year => ( {
+			label: `${ label } ${ year }`,
+			...( cellFor( year, month ) ?? { value: null, placeholder: true } ),
+		} ) ),
+	} ) );
+
+const monthValues = ( year: number, values: number[] ): Record< string, number > =>
+	Object.fromEntries( values.map( ( value, month ) => [ `${ year }-${ month }`, value ] ) );
+
+const hashFraction = ( seed: number ) => Math.abs( Math.sin( seed * 12.9898 ) * 43758.5453 ) % 1;
+
+const jitter = ( seed: number ) => 0.85 + 0.3 * hashFraction( seed );
+
+const LONG_HISTORY_YEARS = [ 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 ];
+const LONG_HISTORY_YEARLY_BASE = [ 18000, 28000, 34000, 30000, 25000, 21000, 18000, 16000 ];
+const LONG_HISTORY_SEASONALITY = [ 1, 0.95, 1.05, 1, 0.9, 0.8, 0.75, 0.8, 1.1, 1.15, 1.05, 0.85 ];
+
+// Launched late March 2018, one viral September 2021, and November 2025 still running.
+const longHistoryCell = ( year: number, month: number ): HeatmapCell | null => {
+	if ( year === 2018 && month < 2 ) {
+		return null;
+	}
+	if ( year === 2018 && month === 2 ) {
+		return { value: 200, partial: true };
+	}
+	if ( year === 2025 && month === 10 ) {
+		return { value: 14200, partial: true };
+	}
+	if ( year === 2025 && month === 11 ) {
+		return null;
+	}
+	if ( year === 2021 && month === 8 ) {
+		return { value: 800000 };
+	}
+	const yearIndex = LONG_HISTORY_YEARS.indexOf( year );
+	return {
+		value: Math.round(
+			LONG_HISTORY_YEARLY_BASE[ yearIndex ] *
+				LONG_HISTORY_SEASONALITY[ month ] *
+				jitter( yearIndex * 12 + month )
+		),
+	};
+};
+
+const longHistoryMonths = monthColumns( LONG_HISTORY_YEARS, longHistoryCell );
+
+/**
+ * A site's views by month over eight years, with a trailing yearly total.
+ *
+ * The "Views over years" shape: every year carries its own busy and quiet months beside a
+ * viral September 2021 near 800,000. The launch month and the current month are partial.
+ * - Category: matrix
+ * - Data points: 96 months over 8 rows, plus a summary column
+ * - Suitable for: HeatmapChart (log scale)
+ */
+export const heatmapViewsOverYears: { rowLabels: string[]; data: HeatmapColumn[] } = {
+	rowLabels: LONG_HISTORY_YEARS.map( String ),
+	data: [
+		...longHistoryMonths,
+		{
+			label: 'Totals',
+			summary: true,
+			data: LONG_HISTORY_YEARS.map( ( year, row ) => ( {
+				label: `Total ${ year }`,
+				value: longHistoryMonths.reduce(
+					( sum, column ) => sum + ( column.data[ row ].value ?? 0 ),
+					0
+				),
+			} ) ),
+		},
+	],
+};
+
+const SINGLE_POST_HISTORY_YEARS = [ 2024, 2025 ];
+
+// Published in October 2024, one spike in January 2025, November 2025 still running.
+const SINGLE_POST_VIEWS: Record< string, number > = {
+	'2024-9': 85,
+	'2024-10': 140,
+	'2024-11': 96,
+	'2025-0': 9400,
+	'2025-1': 310,
+	'2025-2': 180,
+	'2025-3': 150,
+	'2025-4': 120,
+	'2025-5': 95,
+	'2025-6': 88,
+	'2025-7': 110,
+	'2025-8': 70,
+	'2025-9': 82,
+	'2025-10': 41,
+};
+
+/**
+ * One post's views by month over the fourteen months since it was published.
+ *
+ * One spike sits two orders of magnitude above the rest. The publish month and the current
+ * month are partial; the months outside that span are placeholders.
+ * - Category: matrix
+ * - Data points: 14 months over 2 rows
+ * - Suitable for: HeatmapChart (log scale)
+ */
+export const heatmapPostHistory: { rowLabels: string[]; data: HeatmapColumn[] } = {
+	rowLabels: SINGLE_POST_HISTORY_YEARS.map( String ),
+	data: monthColumns( SINGLE_POST_HISTORY_YEARS, ( year, month ) => {
+		const key = `${ year }-${ month }`;
+		if ( ! ( key in SINGLE_POST_VIEWS ) ) {
+			return null;
+		}
+		return { value: SINGLE_POST_VIEWS[ key ], partial: key === '2024-9' || key === '2025-10' };
+	} ),
+};
+
+const SCALE_COMPARISON_YEARS = [ 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026 ];
+
+const SCALE_COMPARISON_VIEWS: Record< string, number > = {
+	...monthValues( 2017, [ 4, 21, 33, 19, 7, 12, 11, 15, 8, 3, 16, 22 ] ),
+	...monthValues( 2018, [ 7, 5, 14, 9, 11, 6, 15, 8, 4, 6, 2, 5 ] ),
+	...monthValues( 2019, [ 9, 7, 4, 15, 18, 13, 6, 5, 2, 28, 9, 11 ] ),
+	...monthValues( 2020, [ 6, 9, 8, 3, 12, 640, 11, 2900, 8, 18, 14, 12 ] ),
+	...monthValues( 2021, [ 21, 11, 16, 5, 7, 4, 11, 9, 2, 3, 5, 6 ] ),
+	...monthValues( 2022, [ 12, 10, 9, 8, 6, 5, 7, 910, 205, 9, 4, 7 ] ),
+	...monthValues( 2023, [ 8, 13, 5, 4, 7, 6, 3, 5, 9, 3, 2, 27 ] ),
+	...monthValues( 2024, [ 16, 6, 5, 58, 230, 7, 14, 2, 1, 3, 9, 19 ] ),
+	...monthValues( 2025, [ 0, 6, 3, 2, 19, 5, 275, 221, 1700, 2300, 11400, 10600 ] ),
+	...monthValues( 2026, [ 9800, 7100, 1500, 4200, 2800, 2400, 3100, 1900, 1400, 2600, 820 ] ),
+};
+
+/**
+ * One post's views by month over ten years, running from single digits to five figures.
+ *
+ * The shape a distance scale flattens everywhere below its spike: eight quiet years, then
+ * the post catches on. The current month is partial.
+ * - Category: matrix
+ * - Data points: 119 months over 10 rows
+ * - Suitable for: HeatmapChart (comparing the linear and log scales)
+ */
+export const heatmapScaleComparison: { rowLabels: string[]; data: HeatmapColumn[] } = {
+	rowLabels: SCALE_COMPARISON_YEARS.map( String ),
+	data: monthColumns( SCALE_COMPARISON_YEARS, ( year, month ) => {
+		const key = `${ year }-${ month }`;
+		if ( ! ( key in SCALE_COMPARISON_VIEWS ) ) {
+			return null;
+		}
+		return { value: SCALE_COMPARISON_VIEWS[ key ], partial: key === '2026-10' };
+	} ),
+};
+
+// A mid-week span (Wed to Wed) so both calendar edges are ragged. Sliced once, not per
+// render, since `useCalendarHeatmapData` holds the series by reference.
+const raggedCalendarSeries = heatmapCalendarSeries.slice( 2, 115 );
+
+const calendarSeriesFrom = ( valueFor: ( dayIndex: number ) => number ): DataPointDate[] =>
+	raggedCalendarSeries.map( ( { date }, dayIndex ) => ( { date, value: valueFor( dayIndex ) } ) );
+
+const GROWTH_WEEKLY_SEASONALITY = [ 1.15, 1.05, 1, 0.95, 0.9, 0.8, 1.05 ];
+
+const CALENDAR_VALUE_STEPS = [ 4, 30, 120, 900 ];
+
+/**
+ * Five traffic shapes over the same 113 days, for reading a color scale against each.
+ *
+ * - Category: time-series
+ * - Data points: 113 days per shape
+ * - Suitable for: HeatmapChart (calendar layout)
+ */
+export const heatmapCalendarDatasets: Record< string, DataPointDate[] > = {
+	'Steady traffic': raggedCalendarSeries,
+	'Publication spike and decay': calendarSeriesFrom( day =>
+		Math.round( 500 * 0.45 ** day + 4 * jitter( day ) )
+	),
+	'Gradual growth': calendarSeriesFrom( day =>
+		Math.round( ( 20 + day * 1.6 ) * GROWTH_WEEKLY_SEASONALITY[ day % 7 ] * jitter( day + 500 ) )
+	),
+	'A few distinct values': calendarSeriesFrom(
+		day => CALENDAR_VALUE_STEPS[ Math.floor( hashFraction( day ) * CALENDAR_VALUE_STEPS.length ) ]
+	),
+	// Days 54 to 60 fill one whole column while weeks start on Monday, so the busy week reads as one.
+	'One busy week': calendarSeriesFrom( day =>
+		Math.round( ( day >= 54 && day <= 60 ? 140 : 18 ) * jitter( day ) )
+	),
+};

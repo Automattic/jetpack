@@ -8,15 +8,18 @@ import {
 	HEATMAP_POSTS_RANGE,
 	heatmapActivityMatrix,
 	heatmapActivityMatrixWithTotals,
-	heatmapCalendarSeries,
+	heatmapCalendarDatasets,
 	heatmapLargeValueMatrix,
 	heatmapPartialMonthCalendarSeries,
+	heatmapPostHistory,
 	heatmapPostsByDay,
+	heatmapScaleComparison,
+	heatmapViewsOverYears,
 } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { HeatmapChart, useCalendarHeatmapData, useMonthCalendarHeatmapData } from '../index';
 import type { DataPointDate } from '../../../types';
-import type { CalendarHeatmapOptions, HeatmapCell, HeatmapColumn } from '../index';
+import type { CalendarHeatmapOptions } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { ReactNode } from 'react';
 
@@ -106,92 +109,6 @@ export const MinimumCellSize: Story = {
 	},
 };
 
-const MONTH_LABELS = [
-	'Jan',
-	'Feb',
-	'Mar',
-	'Apr',
-	'May',
-	'Jun',
-	'Jul',
-	'Aug',
-	'Sep',
-	'Oct',
-	'Nov',
-	'Dec',
-];
-
-/**
- * Lay months out as twelve columns with one row per year.
- *
- * @param years   - The years, one per row.
- * @param cellFor - The cell for a month, or `null` for a month outside the covered span.
- * @return One column per month; uncovered months are placeholder cells.
- */
-const monthColumns = (
-	years: number[],
-	cellFor: ( year: number, month: number ) => HeatmapCell | null
-): HeatmapColumn[] =>
-	MONTH_LABELS.map( ( label, month ) => ( {
-		label,
-		data: years.map( year => ( {
-			label: `${ label } ${ year }`,
-			...( cellFor( year, month ) ?? { value: null, placeholder: true } ),
-		} ) ),
-	} ) );
-
-const LONG_HISTORY_YEARS = [ 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 ];
-const LONG_HISTORY_YEARLY_BASE = [ 18000, 28000, 34000, 30000, 25000, 21000, 18000, 16000 ];
-const LONG_HISTORY_SEASONALITY = [ 1, 0.95, 1.05, 1, 0.9, 0.8, 0.75, 0.8, 1.1, 1.15, 1.05, 0.85 ];
-
-const hashFraction = ( seed: number ) => Math.abs( Math.sin( seed * 12.9898 ) * 43758.5453 ) % 1;
-
-const jitter = ( seed: number ) => 0.85 + 0.3 * hashFraction( seed );
-
-// Launched late March 2018, one viral September 2021, and November 2025 still running.
-const longHistoryCell = ( year: number, month: number ): HeatmapCell | null => {
-	if ( year === 2018 && month < 2 ) {
-		return null;
-	}
-	if ( year === 2018 && month === 2 ) {
-		return { value: 200, partial: true };
-	}
-	if ( year === 2025 && month === 10 ) {
-		return { value: 14200, partial: true };
-	}
-	if ( year === 2025 && month === 11 ) {
-		return null;
-	}
-	if ( year === 2021 && month === 8 ) {
-		return { value: 800000 };
-	}
-	const yearIndex = LONG_HISTORY_YEARS.indexOf( year );
-	return {
-		value: Math.round(
-			LONG_HISTORY_YEARLY_BASE[ yearIndex ] *
-				LONG_HISTORY_SEASONALITY[ month ] *
-				jitter( yearIndex * 12 + month )
-		),
-	};
-};
-
-const longHistoryMonths = monthColumns( LONG_HISTORY_YEARS, longHistoryCell );
-
-const longHistoryData: HeatmapColumn[] = [
-	...longHistoryMonths,
-	{
-		label: 'Totals',
-		summary: true,
-		data: LONG_HISTORY_YEARS.map( ( year, row ) => ( {
-			label: `Total ${ year }`,
-			value: longHistoryMonths.reduce(
-				( sum, column ) => sum + ( column.data[ row ].value ?? 0 ),
-				0
-			),
-		} ) ),
-	},
-];
-
 /**
  * The "Views over years" shape: eight years of months, skewed the way a real site's are.
  * Look for two things. Every year shows its own busy and quiet months, even beside a viral
@@ -208,45 +125,13 @@ export const LongSiteHistory: Story = {
 	),
 	args: {
 		...sharedThemeArgs,
-		data: longHistoryData,
-		rowLabels: LONG_HISTORY_YEARS.map( String ),
+		...heatmapViewsOverYears,
 		scale: 'log',
 		withTooltips: true,
 		ariaLabel: 'Views over years',
 		containerWidth: '960px',
 		containerHeight: '460px',
 	},
-};
-
-const monthValues = ( year: number, values: number[] ): Record< string, number > =>
-	Object.fromEntries( values.map( ( value, month ) => [ `${ year }-${ month }`, value ] ) );
-
-const SINGLE_POST_HISTORY_YEARS = [ 2024, 2025 ];
-
-// Published in October 2024, one spike in January 2025, November 2025 still running.
-const SINGLE_POST_VIEWS: Record< string, number > = {
-	'2024-9': 85,
-	'2024-10': 140,
-	'2024-11': 96,
-	'2025-0': 9400,
-	'2025-1': 310,
-	'2025-2': 180,
-	'2025-3': 150,
-	'2025-4': 120,
-	'2025-5': 95,
-	'2025-6': 88,
-	'2025-7': 110,
-	'2025-8': 70,
-	'2025-9': 82,
-	'2025-10': 41,
-};
-
-const singlePostCell = ( year: number, month: number ): HeatmapCell | null => {
-	const key = `${ year }-${ month }`;
-	if ( ! ( key in SINGLE_POST_VIEWS ) ) {
-		return null;
-	}
-	return { value: SINGLE_POST_VIEWS[ key ], partial: key === '2024-9' || key === '2025-10' };
 };
 
 /**
@@ -263,39 +148,13 @@ export const SinglePostHistory: Story = {
 	),
 	args: {
 		...sharedThemeArgs,
-		data: monthColumns( SINGLE_POST_HISTORY_YEARS, singlePostCell ),
-		rowLabels: SINGLE_POST_HISTORY_YEARS.map( String ),
+		...heatmapPostHistory,
 		scale: 'log',
 		withTooltips: true,
 		ariaLabel: 'Post views by month',
 		containerWidth: '960px',
 		containerHeight: '280px',
 	},
-};
-
-const SCALE_COMPARISON_YEARS = [ 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026 ];
-
-// A post that sat in single digits for eight years, then caught on: the shape a rank scale
-// flattens at the top and a distance scale flattens everywhere else.
-const SCALE_COMPARISON_VIEWS: Record< string, number > = {
-	...monthValues( 2017, [ 4, 21, 33, 19, 7, 12, 11, 15, 8, 3, 16, 22 ] ),
-	...monthValues( 2018, [ 7, 5, 14, 9, 11, 6, 15, 8, 4, 6, 2, 5 ] ),
-	...monthValues( 2019, [ 9, 7, 4, 15, 18, 13, 6, 5, 2, 28, 9, 11 ] ),
-	...monthValues( 2020, [ 6, 9, 8, 3, 12, 640, 11, 2900, 8, 18, 14, 12 ] ),
-	...monthValues( 2021, [ 21, 11, 16, 5, 7, 4, 11, 9, 2, 3, 5, 6 ] ),
-	...monthValues( 2022, [ 12, 10, 9, 8, 6, 5, 7, 910, 205, 9, 4, 7 ] ),
-	...monthValues( 2023, [ 8, 13, 5, 4, 7, 6, 3, 5, 9, 3, 2, 27 ] ),
-	...monthValues( 2024, [ 16, 6, 5, 58, 230, 7, 14, 2, 1, 3, 9, 19 ] ),
-	...monthValues( 2025, [ 0, 6, 3, 2, 19, 5, 275, 221, 1700, 2300, 11400, 10600 ] ),
-	...monthValues( 2026, [ 9800, 7100, 1500, 4200, 2800, 2400, 3100, 1900, 1400, 2600, 820 ] ),
-};
-
-const scaleComparisonCell = ( year: number, month: number ): HeatmapCell | null => {
-	const key = `${ year }-${ month }`;
-	if ( ! ( key in SCALE_COMPARISON_VIEWS ) ) {
-		return null;
-	}
-	return { value: SCALE_COMPARISON_VIEWS[ key ], partial: key === '2026-10' };
 };
 
 const SCALE_CAPTIONS: Record< 'linear' | 'log', string > = {
@@ -330,8 +189,7 @@ export const ScaleComparison: Story = {
 	),
 	args: {
 		...sharedThemeArgs,
-		data: monthColumns( SCALE_COMPARISON_YEARS, scaleComparisonCell ),
-		rowLabels: SCALE_COMPARISON_YEARS.map( String ),
+		...heatmapScaleComparison,
 		withTooltips: true,
 		ariaLabel: 'Post views by month',
 		containerWidth: '1000px',
@@ -388,48 +246,12 @@ const calendarArgTypes = {
 	},
 };
 
-// A mid-week span (Wed to Wed) so both calendar edges are ragged. Sliced once, not per
-// render, since `useCalendarHeatmapData` holds the series by reference.
-const raggedCalendarSeries = heatmapCalendarSeries.slice( 2, 115 );
-
-const calendarSeriesFrom = ( valueFor: ( dayIndex: number ) => number ): DataPointDate[] =>
-	raggedCalendarSeries.map( ( { date }, dayIndex ) => ( { date, value: valueFor( dayIndex ) } ) );
-
-const publicationSpikeSeries = calendarSeriesFrom( day =>
-	Math.round( 500 * 0.45 ** day + 4 * jitter( day ) )
-);
-
-const GROWTH_WEEKLY_SEASONALITY = [ 1.15, 1.05, 1, 0.95, 0.9, 0.8, 1.05 ];
-
-const gradualGrowthSeries = calendarSeriesFrom( day =>
-	Math.round( ( 20 + day * 1.6 ) * GROWTH_WEEKLY_SEASONALITY[ day % 7 ] * jitter( day + 500 ) )
-);
-
-const CALENDAR_VALUE_STEPS = [ 4, 30, 120, 900 ];
-
-const fewValuesCalendarSeries = calendarSeriesFrom(
-	day => CALENDAR_VALUE_STEPS[ Math.floor( hashFraction( day ) * CALENDAR_VALUE_STEPS.length ) ]
-);
-
-// Days 54 to 60 fill one whole column while weeks start on Monday, so the busy week reads as one.
-const oneBusyWeekSeries = calendarSeriesFrom( day =>
-	Math.round( ( day >= 54 && day <= 60 ? 140 : 18 ) * jitter( day ) )
-);
-
-const CALENDAR_DATASETS = {
-	'Steady traffic': raggedCalendarSeries,
-	'Publication spike and decay': publicationSpikeSeries,
-	'Gradual growth': gradualGrowthSeries,
-	'A few distinct values': fewValuesCalendarSeries,
-	'One busy week': oneBusyWeekSeries,
-};
-
-type CalendarDatasetStoryArgs = CalendarStoryArgs & { dataset: keyof typeof CALENDAR_DATASETS };
+type CalendarDatasetStoryArgs = CalendarStoryArgs & { dataset: string };
 
 export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
 	render: ( { dataset, ...args } ) => (
 		// Seven swatches hold under `linear` and snap back to the five the cells paint under `log`.
-		<CalendarGrid { ...args } series={ CALENDAR_DATASETS[ dataset ] }>
+		<CalendarGrid { ...args } series={ heatmapCalendarDatasets[ dataset ] }>
 			<HeatmapChart.Legend steps={ 7 } />
 		</CalendarGrid>
 	),
@@ -449,7 +271,7 @@ export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
 			// Radio, not select: the select control carries an empty "Choose option" entry, and this
 			// arg indexes the series the calendar draws, so there is no series for it to pick.
 			control: 'radio' as const,
-			options: Object.keys( CALENDAR_DATASETS ),
+			options: Object.keys( heatmapCalendarDatasets ),
 			description:
 				'Traffic shape the calendar draws, for comparing how the color scale reads on each.',
 			table: { category: 'Calendar' },
