@@ -180,6 +180,7 @@ describe( 'PostingActivityWidget', () => {
 			'a refetch failed behind the calendar on screen',
 			streakResult( { isError: true, error: new Error( 'boom' ) } ),
 		],
+		[ "the calendar is a previous request's", streakResult( { isPlaceholderData: true } ) ],
 	] )( 'offers no download when %s', ( _, result ) => {
 		mockUseStatsStreak.mockReturnValue( result );
 

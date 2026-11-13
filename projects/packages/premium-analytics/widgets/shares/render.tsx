@@ -41,9 +41,7 @@ const CSV_COLUMNS: CsvColumn< ShareView >[] = [
 function SharesInner() {
 	// Every network goes into the download; the card lists the top ones.
 	const { data, isLoading, isFetching, isError, csvIsError, csvIsPlaceholderData, refetch } =
-		useShareViews( {
-			max: 0,
-		} );
+		useShareViews();
 
 	useReportActions( {
 		csv: {

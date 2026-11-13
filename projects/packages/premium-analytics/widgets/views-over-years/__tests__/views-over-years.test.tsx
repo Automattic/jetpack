@@ -159,8 +159,8 @@ describe( 'ViewsOverYears widget', () => {
 		renderWidget( { metric: 'average' } );
 
 		// Nov 24 through Nov 30: 300 / 7, the year over 7 + 31 days, and March 15 days in: 450 / 15.
-		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 24' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toHaveTextContent( '43' );
+		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 24' } ) ).toHaveTextContent( '24' );
 		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 30' } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
 	} );
@@ -344,15 +344,31 @@ describe( 'ViewsOverYears widget', () => {
 	} );
 
 	it.each( [
-		[ 'the site has no views', visitsResult( [ [ '2026-03-01', 0 ] ] ) ],
+		[ 'the site has no views', {}, visitsResult( [ [ '2026-03-01', 0 ] ] ), undefined ],
 		[
 			'a refetch failed behind the rows on screen',
+			{},
 			visitsResult( ROWS, { isError: true, error: new Error( 'boom' ) } ),
+			undefined,
 		],
-	] )( 'offers no download when %s', ( _, months ) => {
-		mockVisits( months );
+		[
+			"the rows are a previous request's",
+			{},
+			visitsResult( ROWS, {
+				primary: { data: visitsResult( ROWS ).primary.data, isPlaceholderData: true },
+			} ),
+			undefined,
+		],
+		[
+			'the averages could not read the first day with views',
+			{ metric: 'average' },
+			visitsResult( ROWS ),
+			visitsResult( undefined, { isError: true, error: new Error( 'boom' ) } ),
+		],
+	] )( 'offers no download when %s', ( _, attributes, months, days ) => {
+		mockVisits( months, days );
 
-		const { declaredAction } = renderWidget();
+		const { declaredAction } = renderWidget( attributes );
 
 		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );

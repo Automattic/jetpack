@@ -1,28 +1,13 @@
 /**
  * External dependencies
  */
-import { formatMonth } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { MONTHS_IN_YEAR } from '../../helpers/month-key';
+import { monthlyHeatmapColumnLabels } from './monthly-heatmap-labels';
 import type { MonthlyHeatmapRow } from './monthly-heatmap';
 import type { CsvColumn } from '../../helpers/build-csv';
-
-/**
- * The table's column headers: the months, January first, then the totals column.
- *
- * @return The month labels and the totals label.
- */
-export function monthlyHeatmapColumnLabels(): { months: string[]; total: string } {
-	return {
-		months: Array.from( { length: MONTHS_IN_YEAR }, ( _, month ) =>
-			formatMonth( month, { short: true } )
-		),
-		total: __( 'Totals', 'jetpack-premium-analytics-pkg' ),
-	};
-}
 
 /**
  * A monthly views table as CSV rows: one per year, newest first, with the table's columns.

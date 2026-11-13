@@ -15,7 +15,7 @@ import { useCallback, useMemo, type KeyboardEvent, type MouseEvent } from 'react
  */
 import { useChartName } from '../../hooks/use-chart-name';
 import { CalendarHeatmapTooltip } from '../calendar-heatmap';
-import { monthlyHeatmapColumnLabels } from './monthly-heatmap-csv';
+import { monthlyHeatmapColumnLabels } from './monthly-heatmap-labels';
 import styles from './monthly-heatmap.module.scss';
 
 export type MonthlyHeatmapRow = {

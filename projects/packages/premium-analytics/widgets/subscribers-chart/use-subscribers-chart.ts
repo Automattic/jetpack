@@ -36,6 +36,7 @@ export interface SubscribersChartState {
 	/** True while fetching, including granularity-switch refetches. */
 	isFetching: boolean;
 	isError: boolean;
+	/** The request's own error, which `isError` hides while points stay on screen. */
 	csvIsError: boolean;
 	csvIsPlaceholderData: boolean;
 	/** The zone the bucket dates are in. */
