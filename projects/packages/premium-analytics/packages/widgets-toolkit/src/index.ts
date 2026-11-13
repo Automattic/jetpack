@@ -293,6 +293,8 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	formatComparisonSeriesLabel,
+	getComparisonPeriodLabel,
 	metricTabsToCsv,
 	pairComparisonBuckets,
 	type ComparisonPeriodStarts,

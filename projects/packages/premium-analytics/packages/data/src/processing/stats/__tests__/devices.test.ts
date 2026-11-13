@@ -1,4 +1,8 @@
-import { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from '..';
+import {
+	mergeStatsDevicesComparisonRows,
+	sanitizeStatsDevicesPeriodsResponse,
+	sanitizeStatsDevicesResponse,
+} from '..';
 import { devicesEmptyFixture, devicesFixture } from '../__fixtures__/devices';
 import type { StatsDevicesItem, StatsNormalizedReport } from '..';
 
@@ -73,5 +77,18 @@ describe( 'Stats devices normalizer', () => {
 				expect.objectContaining( { label: 'mobile', previousValue: 0 } ),
 			],
 		} );
+	} );
+} );
+
+describe( 'sanitizeStatsDevicesPeriodsResponse', () => {
+	// An endpoint that ignored `unit` must surface as an error, not as a range with no views.
+	it( 'rejects a response without per-period views', () => {
+		expect( () =>
+			sanitizeStatsDevicesPeriodsResponse( { top_values: { desktop: 62.3 } } )
+		).toThrow();
+	} );
+
+	it( 'reads an empty days map as a range with no views', () => {
+		expect( sanitizeStatsDevicesPeriodsResponse( { unit: 'day', days: {} } ).data ).toEqual( [] );
 	} );
 } );

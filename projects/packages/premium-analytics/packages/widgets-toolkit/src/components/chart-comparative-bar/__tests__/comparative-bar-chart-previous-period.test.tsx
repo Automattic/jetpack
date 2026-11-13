@@ -122,10 +122,19 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 
 	const setupUser = () => userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-	it.each( [ false, true ] )(
-		'draws the previous period only when previousPeriodShown is true (%s)',
-		shown => {
-			renderChart( { previousPeriodShown: shown, onPreviousPeriodShownChange: jest.fn() } );
+	it.each( [
+		[ false, 'overlap' ],
+		[ true, 'overlap' ],
+		[ false, 'stacked' ],
+		[ true, 'stacked' ],
+	] as const )(
+		'draws the previous period only when previousPeriodShown is %s, in a %s layout',
+		( shown, layout ) => {
+			renderChart( {
+				layout,
+				previousPeriodShown: shown,
+				onPreviousPeriodShownChange: jest.fn(),
+			} );
 
 			expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', String( shown ) );
 			expect( drawnLabels() ).toEqual(
@@ -229,6 +238,33 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 		).toEqual( [
 			[ 'Views', 100, 80 ],
 			[ 'Visitors', 40, 30 ],
+		] );
+	} );
+
+	it( "totals a stack's rows in its tooltip, without the chart's own previous-total entry", () => {
+		renderChart( { layout: 'stacked', previousPeriodShown: true } );
+
+		const entry = ( key: string, value: number ) => ( { datum: { date: JULY_1, value }, key } );
+		/* eslint-disable testing-library/render-result-naming-convention --
+		   `renderTooltip` is the chart's prop, not testing-library's `render()`. */
+		const tooltip = lastBarChart().renderTooltip( {
+			tooltipData: {
+				nearestDatum: entry( 'Views', 100 ),
+				datumByKey: {
+					Views: { ...entry( 'Views', 100 ), index: 0 },
+					Visitors: { ...entry( 'Visitors', 40 ), index: 1 },
+					'Comparison period': { ...entry( 'Comparison period', 110 ), index: 2 },
+				},
+			},
+		} );
+		/* eslint-enable testing-library/render-result-naming-convention */
+
+		expect(
+			tooltip?.props.model.rows.map( row => [ row.name, row.value, row.previous?.value ] )
+		).toEqual( [
+			[ 'Views', 100, 80 ],
+			[ 'Visitors', 40, 30 ],
+			[ 'Total', 140, 110 ],
 		] );
 	} );
 

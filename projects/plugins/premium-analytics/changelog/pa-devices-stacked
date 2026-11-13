@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Devices: Add a bar chart of views by device over time, with the previous period's total beside each bar.

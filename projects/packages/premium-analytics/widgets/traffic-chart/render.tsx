@@ -27,9 +27,9 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { useNoPublishedPosts } from '../use-no-published-posts';
+import { usePreviousPeriodShown } from '../use-previous-period-shown';
 import { trafficIntervalExtension } from './interval-extension';
 import styles from './style.module.css';
-import { usePreviousPeriodShown } from './use-previous-period-shown';
 import useTrafficChart from './use-traffic-chart';
 import { TRAFFIC_PERIODS, defaultChartType } from './widget';
 import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
@@ -65,7 +65,9 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 	// A host without a period to set leaves the bars inert.
 	const { openPeriod } = useReportScope();
 	const lockedIntervals = useScopeLockedIntervals();
-	const [ previousPeriodShown, setPreviousPeriodShown ] = usePreviousPeriodShown();
+	const [ previousPeriodShown, setPreviousPeriodShown ] = usePreviousPeriodShown(
+		'trafficChartPreviousPeriod'
+	);
 	const period: TrafficChartGranularity = chartInterval(
 		{ ...reportParams, interval },
 		TRAFFIC_PERIODS,

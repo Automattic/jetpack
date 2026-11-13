@@ -63,7 +63,11 @@ export {
 } from './subscribers';
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
-export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
+export {
+	mergeStatsDevicesComparisonRows,
+	sanitizeStatsDevicesPeriodsResponse,
+	sanitizeStatsDevicesResponse,
+} from './devices';
 export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
 export { sanitizeStatsAuthorResponse } from './author';

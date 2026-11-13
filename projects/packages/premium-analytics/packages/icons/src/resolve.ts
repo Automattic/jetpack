@@ -41,6 +41,7 @@ import {
  */
 import {
 	channel,
+	chartHalfRing,
 	chartLine,
 	coupon,
 	customer,
@@ -98,6 +99,7 @@ const ICONS: Record< string, ReactElement > = {
 	video,
 	wordpress,
 	channel,
+	'chart-half-ring': chartHalfRing,
 	'chart-line': chartLine,
 	coupon,
 	customer,

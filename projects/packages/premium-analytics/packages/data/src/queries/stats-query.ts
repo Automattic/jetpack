@@ -6,6 +6,7 @@ import {
 } from '../api';
 import {
 	sanitizeStatsClicksResponse,
+	sanitizeStatsDevicesPeriodsResponse,
 	sanitizeStatsDevicesResponse,
 	sanitizeStatsFileDownloadsResponse,
 	sanitizeStatsHighlightsResponse,
@@ -93,6 +94,7 @@ const statsSanitizers = {
 	followers: sanitizeStatsFollowersResponse,
 	comments: sanitizeStatsCommentsResponse,
 	devices: sanitizeStatsDevicesResponse,
+	devicesPeriods: sanitizeStatsDevicesPeriodsResponse,
 	insights: sanitizeStatsInsightsResponse,
 	streak: sanitizeStatsStreakResponse,
 	tags: sanitizeStatsTagsResponse,

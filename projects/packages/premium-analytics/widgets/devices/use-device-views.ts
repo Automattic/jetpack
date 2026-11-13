@@ -50,7 +50,7 @@ interface DeviceViewsState {
  * Maps raw API device keys to human-readable display labels.
  * Keys not in this map are title-cased as a fallback.
  */
-const DEVICE_LABELS: Record< string, string > = {
+export const DEVICE_LABELS: Record< string, string > = {
 	desktop: __( 'Desktop', 'jetpack-premium-analytics-pkg' ),
 	mobile: __( 'Mobile', 'jetpack-premium-analytics-pkg' ),
 	tablet: __( 'Tablet', 'jetpack-premium-analytics-pkg' ),

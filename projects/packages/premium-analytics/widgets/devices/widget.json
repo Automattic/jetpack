@@ -13,5 +13,28 @@
 		]
 	},
 	"category": "traffic",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "chartInterval"
+		},
+		{
+			"id": "chartType",
+			"type": "jpa/toggle-group",
+			"label": "Chart type",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "half-ring",
+					"label": "Semi-circle chart",
+					"icon": "jpa/chart-half-ring"
+				},
+				{
+					"value": "bar",
+					"label": "Bar chart",
+					"icon": "jpa/chart-bar"
+				}
+			]
+		}
+	]
 }

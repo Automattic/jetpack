@@ -1136,6 +1136,62 @@ function isComparisonRequest( path: string ): boolean {
 	return daysFromToday > 1;
 }
 
+/**
+ * The first day of the `unit` bucket a day falls in, as `stats/devices` keys its `days`.
+ *
+ * @param day  - A UTC date.
+ * @param unit - The bucket size.
+ * @return The bucket's first day, Y-m-d.
+ */
+function devicesBucketStart( day: Date, unit: string ): string {
+	const start = new Date( day );
+	if ( unit === 'week' ) {
+		start.setUTCDate( start.getUTCDate() - ( ( start.getUTCDay() + 6 ) % 7 ) );
+	} else if ( unit === 'month' || unit === 'quarter' || unit === 'year' ) {
+		const month = {
+			month: start.getUTCMonth(),
+			quarter: start.getUTCMonth() - ( start.getUTCMonth() % 3 ),
+			year: 0,
+		}[ unit ];
+		start.setUTCMonth( month, 1 );
+	}
+	return start.toISOString().slice( 0, 10 );
+}
+
+/**
+ * A `stats/devices/screensize?unit=` response: views per screen size in each bucket of the window.
+ *
+ * @param query        - The request's query.
+ * @param isComparison - Whether this is the previous period's request.
+ * @return The response.
+ */
+function buildDevicesPeriodsResponse( query: URLSearchParams, isComparison: boolean ) {
+	const unit = query.get( 'unit' ) || 'day';
+	// The dashboard sends offset-bearing timestamps; the endpoint reads their calendar day.
+	const dayOf = ( value: string ) => new Date( `${ value.slice( 0, 10 ) }T00:00:00Z` );
+	const end = dayOf( getRequestDate( query ) );
+	const start = dayOf( query.get( 'start_date' ) || getRequestDate( query ) );
+	const days: Record< string, Record< string, number > > = {};
+
+	for (
+		let day = new Date( start ), index = 0;
+		day <= end;
+		day.setUTCDate( day.getUTCDate() + 1 ), index++
+	) {
+		const bucket = ( days[ devicesBucketStart( day, unit ) ] ??= {
+			desktop: 0,
+			mobile: 0,
+			tablet: 0,
+		} );
+		const scale = isComparison ? 0.85 : 1;
+		bucket.desktop += Math.round( ( 1800 + ( ( index * 137 ) % 600 ) ) * scale );
+		bucket.mobile += Math.round( ( 1400 + ( ( index * 89 ) % 500 ) ) * scale );
+		bucket.tablet += Math.round( ( 200 + ( ( index * 53 ) % 150 ) ) * scale );
+	}
+
+	return { date: getRequestDate( query ).slice( 0, 10 ), unit, days, utc_offset: 0 };
+}
+
 function getRequestDate( query: URLSearchParams ) {
 	return query.get( 'date' ) || new Date().toISOString().slice( 0, 10 );
 }
@@ -1257,6 +1313,9 @@ export function getStatsMock( path: string ): unknown | null {
 		return { top_utm_values: {}, top_posts: {} };
 	}
 
+	if ( subPath.startsWith( '/devices/screensize' ) && query.get( 'unit' ) ) {
+		return buildDevicesPeriodsResponse( query, isComparison );
+	}
 	if ( subPath.startsWith( '/devices/screensize' ) ) {
 		return isComparison ? MOCK_DEVICES_SCREENSIZE_COMPARISON : MOCK_DEVICES_SCREENSIZE;
 	}
