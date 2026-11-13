@@ -122,7 +122,6 @@ const renderAt = ( url: string ) => {
 
 describe( 'FeaturesContent', () => {
 	beforeEach( () => {
-		window.localStorage.clear();
 		mockModules = {};
 		mockModulesLoaded = true;
 		mockModulesFailed = false;

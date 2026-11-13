@@ -76,7 +76,7 @@ function resolveView( viewParam: string | null ): FeaturesView {
 }
 
 /**
- * Reads the grid's state out of the URL.
+ * Reads the grid's state out of the URL, falling back to the stored layout when it names none.
  *
  * @return The active filter, search term, layout, and the feature whose modal is open.
  */
@@ -390,7 +390,8 @@ function FeaturesTabContent() {
 			}
 
 			storeView( next );
-			updateParams( { view: next === 'grid' ? null : next } );
+			// Named even for the grid, so a stale stored list cannot win if storing fails.
+			updateParams( { view: next } );
 		},
 		[ tracking, updateParams, view ]
 	);
