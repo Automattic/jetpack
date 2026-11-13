@@ -46,6 +46,7 @@
 		var(--wpds-dimension-padding-md);
 	overflow: hidden;
 	color: var(--wpds-color-foreground-interactive-brand);
+	font-weight: var(--jpa-widget-font-weight, var(--wpds-typography-font-weight-default));
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }

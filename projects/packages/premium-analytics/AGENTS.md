@@ -519,6 +519,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   sizing when the style is not part of the shipped widget UI.
 - Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
   `packages/widgets-toolkit/src/helpers/` before writing a new one.
+- Leaving widget text at the design system weight — `WidgetRoot` only declares the widget
+  weight, so labels, values and captions opt in with `@include widget-text-weight`, or in a plain
+  `.css` module `var(--jpa-widget-font-weight, var(--wpds-typography-font-weight-default))`.
 
 ### Stats widgets
 
