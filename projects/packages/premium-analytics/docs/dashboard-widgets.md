@@ -321,7 +321,7 @@ Top videos moved with `jpa/videopress` declared as a former name. A stored layou
 
 ### What leaves this package
 
-The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WIDGET_TYPES`, and the row helpers only it used. `src/videopress-availability.php` stays: the Videos report and the video detail route still gate on it, and whether the widget appears is the VideoPress package's call now.
+The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WIDGET_TYPES`, and the row helpers only it used. `src/videopress-availability.php` stays: the Videos report and the video detail widgets still gate on it, and whether the widget appears is the VideoPress package's call now.
 
 ## Where the tests are
 
