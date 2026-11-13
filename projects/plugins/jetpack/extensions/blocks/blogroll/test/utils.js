@@ -88,6 +88,7 @@ describe( 'getValidFeedUrl', () => {
 	it.each( [
 		[ '  https://example.com/feed/  ', 'https://example.com/feed/' ],
 		[ 'http://example.com/rss.xml', 'http://example.com/rss.xml' ],
+		[ 'https://example.com/my feed/', 'https://example.com/my%20feed/' ],
 		[ '   ', undefined ],
 		[ 'not a url', undefined ],
 		[ 'javascript:void(0)', undefined ],
@@ -98,24 +99,42 @@ describe( 'getValidFeedUrl', () => {
 } );
 
 describe( 'discoverFeedUrl', () => {
+	const feeds = [
+		{ subscribe_URL: 'https://example.com/feed/' },
+		{ subscribe_URL: 'https://example.com/feed/podcast' },
+	];
+
+	// Answer /sites/ with `site` and the Reader with `readerFeeds`; undefined means a 404.
+	const mockFetch = ( site, readerFeeds ) =>
+		jest.spyOn( global, 'fetch' ).mockImplementation( url => {
+			const body = url.includes( '/read/feed/' ) ? readerFeeds && { feeds: readerFeeds } : site;
+			return Promise.resolve( { ok: !! body, json: () => Promise.resolve( body ) } );
+		} );
+
+	// jsdom has no fetch, so give spyOn one to replace.
+	beforeEach( () => {
+		global.fetch = () => Promise.reject( new Error( 'fetch is not mocked' ) );
+	} );
+
 	afterEach( () => {
 		delete global.fetch;
 	} );
 
-	it( 'returns the first feed the Reader finds', async () => {
-		jest
-			.spyOn( global, 'fetch' )
-			.mockImplementation()
-			.mockResolvedValue( {
-				ok: true,
-				json: () =>
-					Promise.resolve( {
-						feeds: [
-							{ subscribe_URL: 'https://example.com/feed/' },
-							{ subscribe_URL: 'https://example.com/feed/podcast' },
-						],
-					} ),
-			} );
+	it( 'uses /feed/ for a WordPress.com-hosted site', async () => {
+		mockFetch( { jetpack: false, URL: 'https://example.wordpress.com' }, [
+			{ subscribe_URL: 'http://example.wordpress.com' },
+		] );
+
+		await expect( discoverFeedUrl( 'example.wordpress.com' ) ).resolves.toBe(
+			'https://example.wordpress.com/feed/'
+		);
+	} );
+
+	it.each( [
+		[ 'a Jetpack site', { jetpack: true, URL: 'https://example.com' } ],
+		[ 'a site WordPress.com does not know', undefined ],
+	] )( 'returns the first feed the Reader finds for %s', async ( _, site ) => {
+		mockFetch( site, feeds );
 
 		await expect( discoverFeedUrl( 'example.com' ) ).resolves.toBe( 'https://example.com/feed/' );
 		expect( global.fetch ).toHaveBeenCalledWith(
@@ -124,10 +143,13 @@ describe( 'discoverFeedUrl', () => {
 	} );
 
 	it.each( [
-		[ 'no feed is found', () => Promise.resolve( { ok: false } ) ],
-		[ 'the request fails', () => Promise.reject( new Error( 'offline' ) ) ],
-	] )( 'returns undefined when %s', async ( _, response ) => {
-		jest.spyOn( global, 'fetch' ).mockImplementation( response );
+		[ 'no feed is found', () => mockFetch( undefined, undefined ) ],
+		[
+			'the request fails',
+			() => jest.spyOn( global, 'fetch' ).mockRejectedValue( new Error( 'offline' ) ),
+		],
+	] )( 'returns undefined when %s', async ( _, setup ) => {
+		setup();
 
 		await expect( discoverFeedUrl( 'example.com' ) ).resolves.toBeUndefined();
 	} );

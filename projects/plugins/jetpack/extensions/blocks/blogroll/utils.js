@@ -67,10 +67,12 @@ export function getWpcomFeedUrl( siteURL ) {
 }
 
 /**
- * Trim a feed URL and only keep it when it is an http(s) URL.
+ * Normalize a feed URL and only keep it when it is an http(s) URL.
+ *
+ * The normalized form is what the `uri` schema of the site recommendations setting stores too.
  *
  * @param {string} value - Feed URL as entered or returned by an API.
- * @return {string|undefined} Trimmed feed URL, or undefined when it is not valid.
+ * @return {string|undefined} Normalized feed URL, or undefined when it is not valid.
  */
 export function getValidFeedUrl( value ) {
 	const feedUrl = value?.trim();
@@ -79,20 +81,39 @@ export function getValidFeedUrl( value ) {
 	}
 
 	try {
-		return [ 'http:', 'https:' ].includes( new URL( feedUrl ).protocol ) ? feedUrl : undefined;
+		const url = new URL( feedUrl );
+		return [ 'http:', 'https:' ].includes( url.protocol ) ? url.href : undefined;
 	} catch {
 		return undefined;
 	}
 }
 
 /**
- * Discover the feed of a site through the WordPress.com Reader.
+ * Find the feed of a site: /feed/ for a WordPress.com-hosted site, Reader discovery otherwise.
+ *
+ * The Reader returns the site URL as the feed of a WordPress.com-hosted site, so ask /sites/ first.
  *
  * @param {string} siteURL - Site URL or domain.
- * @return {Promise<string|undefined>} The first feed found, or undefined.
+ * @return {Promise<string|undefined>} The feed found, or undefined.
  */
 export async function discoverFeedUrl( siteURL ) {
+	const domain = getValidDomain( siteURL );
+	if ( ! domain ) {
+		return undefined;
+	}
+
 	try {
+		const siteResponse = await fetch(
+			`https://public-api.wordpress.com/rest/v1.1/sites/${ encodeURIComponent( domain ) }?force=wpcom`,
+			{ cache: 'force-cache' }
+		);
+		if ( siteResponse.ok ) {
+			const site = await siteResponse.json();
+			if ( false === site?.jetpack ) {
+				return getWpcomFeedUrl( site.URL );
+			}
+		}
+
 		const response = await fetch(
 			`https://public-api.wordpress.com/rest/v1.1/read/feed/?url=${ encodeURIComponent( siteURL ) }`
 		);
