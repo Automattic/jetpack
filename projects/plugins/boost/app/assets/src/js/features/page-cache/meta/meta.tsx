@@ -6,7 +6,7 @@ import { Button as UIButton, Notice, Stack, Link as WPLink } from '@wordpress/ui
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
 import modernStyles from './modern-meta.module.scss';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
@@ -16,7 +16,7 @@ import { useModuleSurface, useTooltipLayer } from '$features/module/surface';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
-import type { ChangeEvent, ReactNode } from 'react';
+import type { ChangeEvent, ReactNode, RefObject } from 'react';
 
 const Meta = () => {
 	const isRow = useModuleSurface() === 'row';
@@ -234,6 +234,7 @@ const BypassPatterns = ( {
 	const [ inputValue, setInputValue ] = useState( patterns );
 	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
 	const [ inputInvalid, setInputInvalid ] = useState( false );
+	const exceptionsFieldRef = useRef< HTMLTextAreaElement >( null );
 
 	const exclusionsLink = getRedirectUrl( 'jetpack-boost-cache-how-to-exclude' );
 
@@ -283,6 +284,7 @@ const BypassPatterns = ( {
 				{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
 			</label>
 			<textarea
+				ref={ exceptionsFieldRef }
 				value={ inputValue }
 				rows={ 3 }
 				onChange={ e => validateInputValue( e.target.value ) }
@@ -298,9 +300,10 @@ const BypassPatterns = ( {
 				) }
 				<br />
 				{ createInterpolateElement(
-					__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
+					__( '<help>See examples</help> or <link>learn more</link>.', 'jetpack-boost' ),
 					{
-						help: <BypassPatternsExample />, // children are passed after the interpolation.
+						// children are passed after the interpolation.
+						help: <BypassPatternsExample exceptionsFieldRef={ exceptionsFieldRef } />,
 						link: <WPLink openInNewTab href={ exclusionsLink } />,
 					}
 				) }
@@ -328,15 +331,16 @@ const BypassPatterns = ( {
 
 type BypassPatternsExampleProps = {
 	children?: ReactNode;
+	exceptionsFieldRef: RefObject< HTMLTextAreaElement >;
 };
 
-const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
+const BypassPatternsExample = ( { children, exceptionsFieldRef }: BypassPatternsExampleProps ) => {
 	const tooltipLayer = useTooltipLayer();
 
 	return (
 		<IconTooltip
 			trigger={ children }
-			closeOnClickOutside={ false }
+			closeOnClickOutsideExceptRef={ exceptionsFieldRef }
 			className={ styles[ 'example-trigger' ] }
 			onTriggerClick={ () => recordBoostEvent( 'page_cache_see_example_clicked', {} ) }
 			placement="bottom-start"
@@ -345,7 +349,7 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 			popoverClassName={ styles.tooltip }
 			{ ...tooltipLayer }
 		>
-			<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
+			<strong>{ __( 'Examples:', 'jetpack-boost' ) }</strong>
 			<br />
 			checkout
 			<br />
