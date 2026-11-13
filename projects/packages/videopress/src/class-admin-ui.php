@@ -373,8 +373,7 @@ class Admin_UI {
 			'title'        => 'Jetpack VideoPress',
 			'header'       => array(
 				'title'    => 'VideoPress',
-				// The dashboard's string, without its "Learn more" link.
-				'subtitle' => wp_strip_all_tags( preg_replace( '#\s*<link>.*?</link>\.?#', '', __( 'Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.', 'jetpack-videopress-pkg' ) ) ),
+				'subtitle' => self::shell_header_subtitle(),
 			),
 			'capability'   => 'manage_options',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
@@ -382,6 +381,16 @@ class Admin_UI {
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
+	}
+
+	/**
+	 * The dashboard's subtitle without its "Learn more" link, and the full stop after it in any script.
+	 *
+	 * @return string
+	 */
+	private static function shell_header_subtitle() {
+		$subtitle = __( 'Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.', 'jetpack-videopress-pkg' );
+		return trim( wp_strip_all_tags( (string) preg_replace( '#\s*<link>.*?</link>[.。．]?\s*#u', '', $subtitle ) ) );
 	}
 
 	/**
