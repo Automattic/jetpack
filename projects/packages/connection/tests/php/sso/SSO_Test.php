@@ -148,14 +148,14 @@ class SSO_Test extends BaseTestCase {
 	 *
 	 * @dataProvider provide_standalone_sites
 	 *
-	 * @param bool $connected Whether the site has a connected owner.
-	 * @param bool $offline   Whether the site is in offline mode.
-	 * @param bool $active    Whether the `sso` module is on.
-	 * @param bool $starts    Whether SSO should start.
+	 * @param string $connection 'owner', 'site' for a connection with no owner, or 'none'.
+	 * @param bool   $offline    Whether the site is in offline mode.
+	 * @param bool   $active     Whether the `sso` module is on.
+	 * @param bool   $starts     Whether SSO should start.
 	 */
 	#[DataProvider( 'provide_standalone_sites' )]
-	public function test_maybe_start_standalone_needs_a_connected_owner_and_the_module( $connected, $offline, $active, $starts ) {
-		self::set_up_standalone_site( $connected, $offline, $active );
+	public function test_maybe_start_standalone_needs_a_connected_owner_and_the_module( $connection, $offline, $active, $starts ) {
+		self::set_up_standalone_site( $connection, $offline, $active );
 
 		SSO::maybe_start_standalone();
 		$started = null !== SSO::$instance;
@@ -173,7 +173,7 @@ class SSO_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_maybe_start_standalone_leaves_sso_to_the_jetpack_plugin() {
-		self::set_up_standalone_site( true, false, true );
+		self::set_up_standalone_site( 'owner', false, true );
 		// Before PHP 8.3, class_alias() needs a user-defined class, so not stdClass.
 		class_alias( self::class, 'Jetpack' );
 
@@ -194,7 +194,7 @@ class SSO_Test extends BaseTestCase {
 		global $wp_actions;
 		$saved                           = $wp_actions['after_setup_theme'] ?? null;
 		$wp_actions['after_setup_theme'] = $fired ? 1 : 0;
-		self::set_up_standalone_site( true, false, true );
+		self::set_up_standalone_site( 'owner', false, true );
 
 		SSO::init_standalone();
 		$priority = has_action( 'after_setup_theme', array( SSO::class, 'maybe_start_standalone' ) );
@@ -226,12 +226,16 @@ class SSO_Test extends BaseTestCase {
 	/**
 	 * Make the site a standalone plugin would see, with SSO not yet started.
 	 *
-	 * @param bool $connected Whether the site has a connected owner.
-	 * @param bool $offline   Whether the site is in offline mode.
-	 * @param bool $active    Whether the `sso` module is on.
+	 * @param string $connection 'owner', 'site' for a connection with no owner, or 'none'.
+	 * @param bool   $offline    Whether the site is in offline mode.
+	 * @param bool   $active     Whether the `sso` module is on.
 	 */
-	private static function set_up_standalone_site( $connected, $offline, $active ) {
-		if ( $connected ) {
+	private static function set_up_standalone_site( $connection, $offline, $active ) {
+		if ( 'none' !== $connection ) {
+			\Jetpack_Options::update_option( 'id', 123 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		}
+		if ( 'owner' === $connection ) {
 			$user_id = wp_insert_user(
 				array(
 					'user_login' => 'sso_owner',
@@ -239,8 +243,6 @@ class SSO_Test extends BaseTestCase {
 					'role'       => 'administrator',
 				)
 			);
-			\Jetpack_Options::update_option( 'id', 123 );
-			\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
 			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
 			\Jetpack_Options::update_option( 'master_user', $user_id );
 		}
@@ -268,10 +270,11 @@ class SSO_Test extends BaseTestCase {
 	 */
 	public static function provide_standalone_sites() {
 		return array(
-			'connected, module on'     => array( true, false, true, true ),
-			'not connected, module on' => array( false, false, true, false ),
-			'offline, module on'       => array( true, true, true, false ),
-			'connected, module off'    => array( true, false, false, false ),
+			'connected, module on'          => array( 'owner', false, true, true ),
+			'not connected, module on'      => array( 'none', false, true, false ),
+			'no connected owner, module on' => array( 'site', false, true, false ),
+			'offline, module on'            => array( 'owner', true, true, false ),
+			'connected, module off'         => array( 'owner', false, false, false ),
 		);
 	}
 
