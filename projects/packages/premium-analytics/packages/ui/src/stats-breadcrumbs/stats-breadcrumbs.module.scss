@@ -48,4 +48,7 @@
 .trail nav > ul > li,
 .trail nav > ul > li > * {
 	display: inline;
+
+	// Not inherited: the crumbs' `text-wrap: pretty` turns wrapping back on.
+	white-space: nowrap;
 }
