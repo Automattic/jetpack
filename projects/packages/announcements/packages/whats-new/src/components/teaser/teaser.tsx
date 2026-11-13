@@ -30,17 +30,25 @@ export type TeaserProps = {
 /**
  * The card that teases one announcement. A labelled region that never takes focus on its own.
  *
+ * An image is shown as the cover of the card. A video is left for the reader.
+ *
  * @param {TeaserProps} props - The props.
  * @return The teaser.
  */
 export function Teaser( { announcement, onOpen, onDismiss }: TeaserProps ) {
 	const label = __( 'What’s new', 'jetpack-announcements' );
+	const cover = announcement.media?.type === 'image' ? announcement.media : null;
 
 	return (
 		<Card.Root render={ <section aria-label={ label } /> } className={ styles.teaser }>
 			<Card.Header>
+				{ cover && (
+					<Card.FullBleed className={ styles.cover }>
+						<img src={ cover.url } alt={ cover.alt } />
+					</Card.FullBleed>
+				) }
 				<Stack direction="row" align="center" justify="space-between" gap="sm">
-					<Text variant="body-sm" className={ styles.label }>
+					<Text variant="body-sm" className={ styles.muted }>
 						{ label }
 					</Text>
 					<IconButton
@@ -55,10 +63,14 @@ export function Teaser( { announcement, onOpen, onDismiss }: TeaserProps ) {
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" align="flex-start" gap="sm">
-					<Text variant="heading-sm" render={ <h2 /> }>
+					<Text variant="heading-md" render={ <h2 /> }>
 						{ announcement.title }
 					</Text>
-					{ announcement.excerpt && <Text render={ <p /> }>{ announcement.excerpt }</Text> }
+					{ announcement.excerpt && (
+						<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
+							{ announcement.excerpt }
+						</Text>
+					) }
 					<Button variant="outline" tone="neutral" size="compact" onClick={ onOpen }>
 						{ __( 'Read more', 'jetpack-announcements' ) }
 					</Button>
