@@ -13,7 +13,8 @@ export default function BlogrollAppender( { isLoading, subscriptions, clientId }
 	const [ isVisible, setIsVisible ] = useState( false );
 	const [ popoverAnchor, setPopoverAnchor ] = useState();
 	const [ searchInput, setSearchInput ] = useState( '' );
-	const { insertBlock, updateBlockAttributes } = dispatch( 'core/block-editor' );
+	const { insertBlock, updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
+		dispatch( 'core/block-editor' );
 	const { siteDetails, isLoading: isLoadingSiteDetails } = useGetSiteDetails( {
 		siteURL: searchInput,
 		subscriptions,
@@ -37,6 +38,8 @@ export default function BlogrollAppender( { isLoading, subscriptions, clientId }
 		discoverFeedUrl( block.attributes.url ).then( feedUrl => {
 			const attributes = select( 'core/block-editor' ).getBlockAttributes( block.clientId );
 			if ( feedUrl && attributes && ! attributes.feed_url ) {
+				// Part of adding the site, so no undo step of its own.
+				__unstableMarkNextChangeAsNotPersistent();
 				updateBlockAttributes( block.clientId, { feed_url: feedUrl } );
 			}
 		} );

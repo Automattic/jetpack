@@ -69,8 +69,6 @@ export function getWpcomFeedUrl( siteURL ) {
 /**
  * Normalize a feed URL and only keep it when it is an http(s) URL.
  *
- * The normalized form is what the `uri` schema of the site recommendations setting stores too.
- *
  * @param {string} value - Feed URL as entered or returned by an API.
  * @return {string|undefined} Normalized feed URL, or undefined when it is not valid.
  */
