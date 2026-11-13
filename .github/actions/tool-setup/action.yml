@@ -21,6 +21,12 @@ runs:
           cat /etc/apt/apt-mirrors.txt
         fi
 
+        # 2026-11-11: Ubuntu DNS is down. Try to detect that and use a mirror instead.
+        if ! host archive.ubuntu.com; then
+          echo "Ubuntu DNS seems to be down. Trying a mirror."
+          printf 'http://mirror.fmt-2.serverforge.org/ubuntu/' | sudo tee /etc/apt/apt-mirrors.txt
+        fi
+
     - name: "Read tool versions"
       id: versions
       shell: bash
