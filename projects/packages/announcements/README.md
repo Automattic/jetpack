@@ -65,6 +65,8 @@ Both routes require a logged-in user. An announcement that names a `capability` 
 
 `seen` and `seen_at`, the date the user saw the announcement, are computed for the current user. Where they are stored is private to the package.
 
+An announcement older than the user's registration is served as seen, with no `seen_at`: to a new user it is no news.
+
 ## Using this package in your WordPress plugin
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.

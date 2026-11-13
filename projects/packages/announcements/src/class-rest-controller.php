@@ -231,7 +231,7 @@ class REST_Controller extends WP_REST_Controller {
 					'type'        => 'boolean',
 				),
 				'seen_at'  => array(
-					'description' => __( 'The date the current user saw the announcement, as GMT, or null.', 'jetpack-announcements' ),
+					'description' => __( 'The date the current user saw the announcement, as GMT. Null while unseen, and for one older than the user.', 'jetpack-announcements' ),
 					'type'        => array( 'string', 'null' ),
 					'format'      => 'date-time',
 					'readonly'    => true,
@@ -285,9 +285,21 @@ class REST_Controller extends WP_REST_Controller {
 		unset( $announcement['capability'] );
 
 		$seen_at                 = $seen_dates[ $announcement['id'] ] ?? null;
-		$announcement['seen']    = null !== $seen_at;
+		$announcement['seen']    = null !== $seen_at || self::predates_current_user( $announcement );
 		$announcement['seen_at'] = null === $seen_at ? null : gmdate( DATE_ATOM, $seen_at );
 
 		return $announcement;
+	}
+
+	/**
+	 * Whether an announcement is older than the current user's registration: to a new user it is no news.
+	 *
+	 * @param array $announcement A registered announcement.
+	 * @return bool
+	 */
+	private static function predates_current_user( array $announcement ) {
+		$registered = strtotime( wp_get_current_user()->user_registered . ' +0000' );
+
+		return false !== $registered && strtotime( $announcement['date'] ) < $registered;
 	}
 }

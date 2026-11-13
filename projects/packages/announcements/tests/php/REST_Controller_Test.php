@@ -72,16 +72,18 @@ class REST_Controller_Test extends BaseTestCase {
 
 		$this->admin_id      = wp_insert_user(
 			array(
-				'user_login' => 'an_admin',
-				'user_pass'  => 'password',
-				'role'       => 'administrator',
+				'user_login'      => 'an_admin',
+				'user_pass'       => 'password',
+				'role'            => 'administrator',
+				'user_registered' => '2026-01-01 00:00:00',
 			)
 		);
 		$this->subscriber_id = wp_insert_user(
 			array(
-				'user_login' => 'a_subscriber',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
+				'user_login'      => 'a_subscriber',
+				'user_pass'       => 'password',
+				'role'            => 'subscriber',
+				'user_registered' => '2026-01-01 00:00:00',
 			)
 		);
 	}
@@ -188,6 +190,24 @@ class REST_Controller_Test extends BaseTestCase {
 
 		$this->assertTrue( $record['seen'] );
 		$this->assertSame( '2023-11-14T22:13:20+00:00', $record['seen_at'] );
+	}
+
+	public function test_serves_an_announcement_older_than_the_user_as_seen() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login'      => 'a_newcomer',
+					'user_pass'       => 'password',
+					'role'            => 'administrator',
+					'user_registered' => '2026-11-20 12:00:00',
+				)
+			)
+		);
+
+		$records = $this->request( 'GET' )->get_data();
+
+		$this->assertSame( array( true, false ), array_column( $records, 'seen' ) );
+		$this->assertNull( $records[0]['seen_at'] );
 	}
 
 	/**

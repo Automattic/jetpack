@@ -65,7 +65,7 @@ export type Announcement = {
 	seen: boolean;
 
 	/*
-	 * When the current user saw it: ISO 8601, GMT. Null while unseen.
+	 * When the current user saw it: ISO 8601, GMT. Null while unseen, and for one older than the user.
 	 */
 	seen_at: string | null;
 };
