@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
+import { Notice } from '@wordpress/ui';
+import { useBulkRemoveStatus } from '../data/use-bulk-remove';
 import { useImportCompletionRefresh } from '../data/use-import-completion-refresh';
 import { useNewsletterCategories } from '../data/use-newsletter-categories';
+import { isNarrowed } from '../lib/bulk-remove-scope';
 import { installDataViewsFooterI18n } from '../lib/dataviews-i18n';
 import { getBlogId } from '../lib/site';
 import { isOpenSubscriberRemoved, toFiniteNumber } from '../lib/subscriber-helpers';
+import BulkRemoveNotice from './bulk-remove-notice';
 import HeaderActions from './header-actions';
 import AddSubscribersModal from './modals/add-subscribers-modal';
+import BulkRemoveModal from './modals/bulk-remove-modal';
 import SubscribersDataViews from './subscribers-data-views';
-import type { Subscriber, SubscribersExportQuery } from '../data/types';
+import type { BulkRemoveJob, Subscriber, SubscribersExportQuery } from '../data/types';
+import type { BulkRemoveScope } from '../data/use-bulk-remove';
 import type { JSX, ReactNode } from 'react';
 
 installDataViewsFooterI18n();
@@ -76,6 +82,13 @@ export default function SubscribersBody( {
 		sortOrder: 'desc',
 	} );
 
+	const [ bulkRemoveScope, setBulkRemoveScope ] = useState< BulkRemoveScope | null >( null );
+	const closeBulkRemove = useCallback( () => setBulkRemoveScope( null ), [] );
+	const [ list, setList ] = useState< { total: number; examples: string[] } >( {
+		total: 0,
+		examples: [],
+	} );
+
 	const [ isAddOpen, setAddOpen ] = useState( false );
 	const openAdd = useCallback( () => {
 		setAddOpen( true );
@@ -138,16 +151,62 @@ export default function SubscribersBody( {
 		[ navigate, search ]
 	);
 
+	// A bulk job does not report who it removed, so close the inspector after any job that removed
+	// someone rather than leave it showing a subscriber who may be gone.
+	const handleBulkRemoveFinished = useCallback(
+		( job: BulkRemoveJob ) => {
+			if ( ! job.removed || ( ! search.subscriber && ! search.u ) ) {
+				return;
+			}
+			navigate( {
+				search: {
+					...search,
+					subscriber: undefined,
+					u: undefined,
+				},
+			} as unknown as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate, search ]
+	);
+
+	// The site's running or latest bulk removal. Polled while it runs, so the progress notice and
+	// the disabled remove buttons survive leaving the page and coming back. The remove actions only
+	// show once WP.com says removal is turned on for this site; the notice shows either way.
+	const {
+		job: bulkRemoveJob,
+		isActive: isBulkRemoveRunning,
+		isEnabled: isBulkRemoveEnabled,
+	} = useBulkRemoveStatus( importRefreshEnabled, handleBulkRemoveFinished );
+
+	const openRemoveAll = useCallback( () => setBulkRemoveScope( 'all' ), [] );
+	const openRemoveMatching = useCallback( () => setBulkRemoveScope( 'matching' ), [] );
+
 	const body = (
 		<>
+			{ /* Always mounted, so screen readers hear the notice appear and change. */ }
+			<Notice.List>
+				<BulkRemoveNotice job={ bulkRemoveJob ?? null } />
+			</Notice.List>
 			<SubscribersDataViews
 				onAddSubscribers={ openAdd }
 				onViewSubscriber={ handleViewSubscriber }
 				onSubscribersRemoved={ handleSubscribersRemoved }
 				onSelfOnlyChange={ setIsSelfOnly }
 				onQueryChange={ setExportQuery }
+				onListChange={ setList }
+				onRequestBulkRemove={ setBulkRemoveScope }
+				isBulkRemoveRunning={ isBulkRemoveRunning }
+				isBulkRemoveEnabled={ isBulkRemoveEnabled }
 			/>
 			<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
+			<BulkRemoveModal
+				scope={ isBulkRemoveRunning || ! isBulkRemoveEnabled ? null : bulkRemoveScope }
+				query={ exportQuery }
+				examples={ list.examples }
+				blogId={ blogId }
+				onChangeScope={ setBulkRemoveScope }
+				onClose={ closeBulkRemove }
+			/>
 		</>
 	);
 
@@ -158,6 +217,12 @@ export default function SubscribersBody( {
 			onAddSubscribers={ openAdd }
 			showSelfOnlyNudge={ isSelfOnly && ! isNudgeDismissed && ! isAddOpen }
 			onDismissSelfOnlyNudge={ dismissNudge }
+			matchingCount={ list.total }
+			narrowed={ isNarrowed( exportQuery.filters, exportQuery.search ) }
+			isBulkRemoveRunning={ isBulkRemoveRunning }
+			isBulkRemoveEnabled={ isBulkRemoveEnabled }
+			onRemoveAll={ openRemoveAll }
+			onRemoveMatching={ openRemoveMatching }
 		/>
 	);
 

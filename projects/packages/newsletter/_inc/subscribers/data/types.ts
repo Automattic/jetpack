@@ -133,6 +133,61 @@ export type RemoveSubscriberResponse = {
 	errors: RemoveSubscriberError[];
 };
 
+export type BulkRemoveJobStatus =
+	'queued' | 'backing_up' | 'removing' | 'finishing' | 'done' | 'failed' | 'stopped';
+
+export type BulkRemoveCounts = {
+	total: number;
+	wpcom: number;
+	email: number;
+	pending: number;
+	paid: number;
+};
+
+/**
+ * A bulk removal job, as `/wpcom/v2/subscribers/bulk-remove` and its `status` route return it.
+ * `total` is the number of subscribers the job will remove, set once the backup is written.
+ */
+export type BulkRemoveJob = {
+	id: number;
+	status: BulkRemoveJobStatus;
+	stalled?: boolean;
+	filters: string[];
+	search: string;
+	cancel_paid: boolean;
+	created_at: number;
+	updated_at: number;
+	finished_at?: number | null;
+	total: number;
+	processed: number;
+	removed: number;
+	failed: number;
+	skipped_paid: number;
+	counts_before?: BulkRemoveCounts | null;
+	counts_after?: BulkRemoveCounts | null;
+	has_backup?: boolean;
+};
+
+export type BulkRemoveResponse = {
+	job: BulkRemoveJob | null;
+};
+
+/**
+ * The `status` route's body. `enabled` says whether owner removal is turned on for the site
+ * (WP.com turns it on per site). An older WP.com that does not send it counts as off.
+ */
+export type BulkRemoveStatusResponse = BulkRemoveResponse & {
+	enabled?: boolean;
+};
+
+/**
+ * What the screen keeps for bulk removal: the latest job and whether the site can start one.
+ */
+export type BulkRemoveState = {
+	job: BulkRemoveJob | null;
+	enabled: boolean;
+};
+
 export type AddSubscribersResponse = {
 	// Async import job id returned by `/sites/{id}/subscribers/import`.
 	upload_id?: number;
