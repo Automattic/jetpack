@@ -37,19 +37,28 @@ describe( 'EnableSeoEmptyState', () => {
 	} );
 
 	it.each( [
-		[ true, "Yoast SEO is active on this site. Jetpack's overlapping SEO output is paused." ],
-		[ false, 'Yoast SEO is active on this site.' ],
-	] )( 'names the competing plugin with paused output %s', ( paused, description ) => {
-		getScriptData.mockReturnValue( {
-			seo: { output: { paused, conflicting_plugin: 'Yoast SEO' } },
-		} );
-		render( <EnableSeoEmptyState screen="settings" /> );
+		[
+			true,
+			"Yoast SEO is active on this site. Enabling Jetpack's SEO tools gives you access to its settings, but overlapping SEO output will remain paused.",
+		],
+		[
+			false,
+			"Yoast SEO is active on this site. Enabling Jetpack's SEO tools gives you access to its settings.",
+		],
+	] )(
+		'explains enabling alongside the competing plugin with paused output %s',
+		( paused, description ) => {
+			getScriptData.mockReturnValue( {
+				seo: { output: { paused, conflicting_plugin: 'Yoast SEO' } },
+			} );
+			render( <EnableSeoEmptyState screen="settings" /> );
 
-		expect( screen.getByText( description ) ).toBeInTheDocument();
-		// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing single-click activation check.
-		fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
-		expect( enable ).toHaveBeenCalled();
-	} );
+			expect( screen.getByText( description ) ).toBeInTheDocument();
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing single-click activation check.
+			fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
+			expect( enable ).toHaveBeenCalled();
+		}
+	);
 
 	it( 'enables SEO tools when the primary button is clicked', () => {
 		render( <EnableSeoEmptyState screen="overview" /> );

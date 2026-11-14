@@ -27,9 +27,14 @@ const EnableSeoEmptyState: FC< { screen: SeoTracksScreen } > = ( { screen } ) =>
 			__( '%s is active on this site.', 'jetpack-seo' ),
 			plugin
 		);
-		if ( paused ) {
-			description += ' ' + __( "Jetpack's overlapping SEO output is paused.", 'jetpack-seo' );
-		}
+		description +=
+			' ' +
+			( paused
+				? __(
+						"Enabling Jetpack's SEO tools gives you access to its settings, but overlapping SEO output will remain paused.",
+						'jetpack-seo'
+					)
+				: __( "Enabling Jetpack's SEO tools gives you access to its settings.", 'jetpack-seo' ) );
 	}
 
 	return (
