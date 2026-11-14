@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add an optional `$pages` argument to `WP_Build_Polyfills::register()` for WordPress 7.1's site-data preload on wp-build pages, and accept `null` as the threshold to leave it unchanged.

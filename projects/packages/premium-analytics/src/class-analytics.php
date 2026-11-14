@@ -480,6 +480,13 @@ class Analytics {
 				array_merge(
 					WP_Build_Polyfills::SCRIPT_HANDLES,
 					WP_Build_Polyfills::MODULE_IDS
+				),
+				null,
+				array(
+					array(
+						'prefix' => 'jpa',
+						'slug'   => 'jetpack-premium-analytics',
+					),
 				)
 			);
 
