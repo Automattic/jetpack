@@ -8,8 +8,6 @@ When ownership is transferable (`is_ownership_transferable()`), `authorize()` se
 
 `has_connected_owner()` is also false when the recorded owner's token is missing or malformed, but that owner still holds the slot. While ownership is locked, only they can reclaim it; anyone else is linked. A recorded owner whose WordPress user was deleted can never reconnect, so their slot counts as vacant.
 
-When the authorizing user becomes the owner, `authorize()` fires `jetpack_authorize_ending_authorized` with the request data and `$had_connected_owner`: true when the site already had a connected owner, so this is an owner change or re-authorization rather than a new connection. The Jetpack plugin skips its module reset in that case.
-
 ## The authorization flow
 
 Authorizing a user means redirecting them to WordPress.com, where they approve the connection, and then back to your site. The Connection package builds the correct, signed URL for you — you should never construct it by hand, because it carries a signed representation of the user's role.
