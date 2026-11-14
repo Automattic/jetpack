@@ -6,6 +6,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/paywall/paywall.php';
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
@@ -51,6 +52,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'pre_http_request' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 
 		// Status\Cache is a process-wide static that WP_UnitTestCase does not reset.
 		\Automattic\Jetpack\Status\Cache::clear();
@@ -1385,5 +1387,59 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		$this->assertArrayNotHasKey( Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $_COOKIE );
 		$this->assertSame( '1', $paused );
+	}
+
+	/**
+	 * A WordPress.com Simple site on a custom domain gets the script, pointed at its blog ID with no Jetpack auth hop.
+	 * Catches Simple sites on custom domains, the main case the check is for, getting no script or a self-hosted auth route.
+	 */
+	public function test_silent_subscriber_check_prints_for_simple_site_on_custom_domain() {
+		$this->set_up_silent_check_site();
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+
+		$this->assertStringContainsString( '<script', $output );
+		$this->assertMatchesRegularExpression( '#"jwtBase":"https://subscribe\.wordpress\.com/memberships/jwt/\?site_id=' . get_current_blog_id() . '[^"]*silent=1"#', $output );
+		$this->assertStringContainsString( '"authBase":""', $output );
+	}
+
+	/**
+	 * A WordPress.com Simple site on a *.wordpress.com address gets no script, since it already shares the login.
+	 * Catches a pointless redirect on every paywalled page view of a wordpress.com address.
+	 */
+	public function test_silent_subscriber_check_skips_simple_site_on_wpcom_address() {
+		$this->set_up_silent_check_site();
+		Constants::set_constant( 'IS_WPCOM', true );
+		$on_wpcom_address = function ( $url, $path ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Matches the filter signature.
+			return 'https://example.wordpress.com' . $path;
+		};
+		add_filter( 'home_url', $on_wpcom_address, 100, 2 );
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+		remove_filter( 'home_url', $on_wpcom_address, 100 );
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * The paywall queues the check for a logged-out visitor, and not for someone it already recognizes.
+	 * Catches the check never running because the paywall stops queuing it, or running for a reader who already has access.
+	 */
+	public function test_paywall_queues_silent_subscriber_check_only_for_unrecognized_visitor() {
+		$printer = 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check';
+		remove_action( 'wp_footer', $printer );
+
+		wp_set_current_user( $this->admin_user_id );
+		\Automattic\Jetpack\Extensions\Subscriptions\get_paywall_blocks();
+		$queued_for_admin = has_action( 'wp_footer', $printer );
+
+		wp_set_current_user( 0 );
+		\Automattic\Jetpack\Extensions\Subscriptions\get_paywall_blocks();
+		$queued_for_visitor = has_action( 'wp_footer', $printer );
+		remove_action( 'wp_footer', $printer );
+
+		$this->assertFalse( $queued_for_admin );
+		$this->assertNotFalse( $queued_for_visitor );
 	}
 }
