@@ -194,6 +194,8 @@ class Initializer {
 
 		self::register_write_hooks();
 
+		Indexnow_Client::init();
+
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
 		// endpoints until then. Everything the dashboard saves is exposed to WordPress
