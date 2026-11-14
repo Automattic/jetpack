@@ -52,8 +52,22 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 	 * @var int
 	 */
 	private $total_count;
+	/**
+	 * Uploaded themes that are imported under a new slug, keyed by their uploaded slug.
+	 *
+	 * @var array<string, string>
+	 */
+	private $theme_renames = array();
+	/**
+	 * The directory holding the versions of managed themes, e.g. `/wordpress/themes/`.
+	 *
+	 * @var string
+	 */
+	private $managed_themes_root;
 	const THEMES_DIR  = 'wp-content/themes/';
 	const PLUGINS_DIR = 'wp-content/plugins/';
+	// Appended to the slug of an edited managed theme, so it is imported next to the managed copy.
+	const RENAMED_THEME_SUFFIX = '-imported';
 
 	/**
 	 * FileRestorer constructor.
@@ -64,14 +78,28 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 	 * @param string               $source_dir The source directory.
 	 * @param string               $dest_dir The destination directory.
 	 * @param null|LoggerInterface $logger An optional logger.
+	 * @param string               $managed_themes_root The directory holding the versions of managed themes.
 	 */
-	public function __construct( $source_dir, $dest_dir, $logger = null ) {
+	public function __construct( $source_dir, $dest_dir, $logger = null, $managed_themes_root = '/wordpress/themes/' ) {
 		parent::__construct( $logger );
-		$this->source_dir     = trailingslashit( $source_dir );
-		$this->dest_dir       = trailingslashit( $dest_dir );
-		$this->queue          = new SplQueue();
-		$this->total_count    = 0;
-		$this->symlinked_dirs = array();
+		$this->source_dir          = trailingslashit( $source_dir );
+		$this->dest_dir            = trailingslashit( $dest_dir );
+		$this->queue               = new SplQueue();
+		$this->total_count         = 0;
+		$this->symlinked_dirs      = array();
+		$this->managed_themes_root = trailingslashit( $managed_themes_root );
+	}
+
+	/**
+	 * The uploaded themes imported under a new slug, keyed by their uploaded slug.
+	 *
+	 * The database still refers to them by their uploaded slug; SQL_Postprocessor::rename_themes()
+	 * updates those references.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_theme_renames() {
+		return $this->theme_renames;
 	}
 
 	/**
@@ -82,9 +110,14 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 	 * @return bool|\WP_Error True if at least one file was enqueued, or a WP_Error if no files were enqueued.
 	 */
 	public function enqueue_files() {
+		// Install the stock default themes first: an uploaded default theme is compared against them.
+		// This shouldn't be a hard stop, but we should log it.
+		$this->install_default_themes();
+
 		$dir_iterator         = new RecursiveDirectoryIterator( $this->source_dir, RecursiveDirectoryIterator::SKIP_DOTS );
 		$iterator             = new RecursiveIteratorIterator( $dir_iterator, RecursiveIteratorIterator::SELF_FIRST );
 		$this->symlinked_dirs = $this->get_symlinked_dirs();
+		$this->resolve_managed_themes();
 		foreach ( $iterator as $fileinfo ) {
 			if ( $fileinfo->isFile() && $this->should_enqueue_file( $fileinfo ) ) {
 				$this->queue->enqueue( $this->create_file_info_array( $fileinfo ) );
@@ -96,10 +129,162 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 		if ( $this->total_count === 0 ) {
 			return new WP_Error( 'file_queue_failed', __( 'No files are queued.', 'wpcomsh' ) );
 		}
-		// This shouldn't be a hard stop, but we should log it.
-		$this->install_default_themes();
 
 		return true;
+	}
+
+	/**
+	 * Decides what happens to each uploaded theme that the site already has a managed copy of: a
+	 * stock default theme, or a theme symlinked to WordPress.com's managed tree.
+	 *
+	 * An unmodified upload keeps the managed copy, so the site stays on the managed, updated theme
+	 * and its files aren't copied. An upload whose files differ from the same version of the managed
+	 * theme was edited: it is imported under a new slug, next to the managed copy, so the edits are
+	 * not lost. When there is no copy of the same version to compare against, the upload can't be
+	 * told apart from an older stock version, and it keeps the managed copy.
+	 */
+	private function resolve_managed_themes() {
+		$source_themes_dir = $this->source_dir . self::THEMES_DIR;
+		if ( ! is_dir( $source_themes_dir ) ) {
+			return;
+		}
+
+		foreach ( new \DirectoryIterator( $source_themes_dir ) as $fileinfo ) {
+			if ( $fileinfo->isDot() || ! $fileinfo->isDir() ) {
+				continue;
+			}
+
+			$slug           = $fileinfo->getFilename();
+			$theme_dir      = self::THEMES_DIR . $slug;
+			$dest_theme_dir = $this->dest_dir . $theme_dir;
+			if ( ! is_dir( $dest_theme_dir ) ) {
+				continue;
+			}
+
+			$is_symlinked = in_array( $theme_dir, $this->symlinked_dirs, true );
+			if ( ! $is_symlinked && ! self::is_default_theme_slug( $slug ) ) {
+				// A theme the site has its own copy of, e.g. from an earlier import: overwrite it.
+				continue;
+			}
+
+			$source_theme_dir = $fileinfo->getPathname();
+			$reference_dir    = $this->get_theme_reference_dir( $slug, $source_theme_dir, $dest_theme_dir );
+			if ( null === $reference_dir || $this->theme_matches_reference( $source_theme_dir, $reference_dir ) ) {
+				if ( ! $is_symlinked ) {
+					$this->symlinked_dirs[] = $theme_dir;
+				}
+				$this->log( "Theme $slug: keeping the managed copy." );
+				continue;
+			}
+
+			$new_slug                     = $this->get_renamed_theme_slug( $slug );
+			$this->theme_renames[ $slug ] = $new_slug;
+			$this->symlinked_dirs         = array_values( array_diff( $this->symlinked_dirs, array( $theme_dir ) ) );
+			$this->log( "Theme $slug differs from the managed copy: importing it as $new_slug." );
+		}
+	}
+
+	/**
+	 * Whether a theme slug is one of the default themes the importer installs from the stock copy.
+	 *
+	 * @param string $slug The theme slug.
+	 * @return bool
+	 */
+	public static function is_default_theme_slug( $slug ) {
+		return 1 === preg_match( '/^twentytwenty[a-z]*$/', $slug );
+	}
+
+	/**
+	 * The stock copy of the same version as an uploaded theme, to compare the upload against.
+	 *
+	 * @param string $slug             The theme slug.
+	 * @param string $source_theme_dir The uploaded theme's directory.
+	 * @param string $dest_theme_dir   The site's copy of the theme.
+	 * @return string|null The directory of the stock copy, or null when there is none to compare against.
+	 */
+	private function get_theme_reference_dir( $slug, $source_theme_dir, $dest_theme_dir ) {
+		$version = self::get_theme_version( $source_theme_dir );
+		if ( '' === $version ) {
+			return null;
+		}
+
+		$versioned_dir = $this->managed_themes_root . $slug . '/' . $version;
+		if ( is_dir( $versioned_dir ) ) {
+			return $versioned_dir;
+		}
+
+		if ( self::get_theme_version( $dest_theme_dir ) === $version ) {
+			return $dest_theme_dir;
+		}
+
+		return null;
+	}
+
+	/**
+	 * The version in a theme's style.css header.
+	 *
+	 * @param string $theme_dir The theme directory.
+	 * @return string The version, or '' when there is none.
+	 */
+	private static function get_theme_version( $theme_dir ) {
+		$style_css = trailingslashit( $theme_dir ) . 'style.css';
+		if ( ! is_file( $style_css ) ) {
+			return '';
+		}
+
+		$headers = get_file_data( $style_css, array( 'Version' => 'Version' ) );
+
+		return trim( $headers['Version'] );
+	}
+
+	/**
+	 * Whether every uploaded file of a theme is the same as in the stock copy. Dotfiles are ignored.
+	 *
+	 * @param string $source_theme_dir The uploaded theme's directory.
+	 * @param string $reference_dir    The stock copy's directory.
+	 * @return bool
+	 */
+	private function theme_matches_reference( $source_theme_dir, $reference_dir ) {
+		$source_theme_dir = trailingslashit( $source_theme_dir );
+		$reference_dir    = trailingslashit( $reference_dir );
+		$iterator         = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator( $source_theme_dir, RecursiveDirectoryIterator::SKIP_DOTS )
+		);
+
+		foreach ( $iterator as $fileinfo ) {
+			if ( ! $fileinfo->isFile() || str_starts_with( $fileinfo->getFilename(), '.' ) ) {
+				continue;
+			}
+
+			$relative_path  = substr( $fileinfo->getPathname(), strlen( $source_theme_dir ) );
+			$reference_file = $reference_dir . $relative_path;
+			if (
+				! is_file( $reference_file ) ||
+				filesize( $reference_file ) !== $fileinfo->getSize() ||
+				md5_file( $reference_file ) !== md5_file( $fileinfo->getPathname() )
+			) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * The slug an edited managed theme is imported under: one that no managed theme uses.
+	 *
+	 * @param string $slug The uploaded theme's slug.
+	 * @return string
+	 */
+	private function get_renamed_theme_slug( $slug ) {
+		$new_slug = $slug . self::RENAMED_THEME_SUFFIX;
+		$i        = 2;
+		while ( is_link( $this->dest_dir . self::THEMES_DIR . $new_slug ) ) {
+			$new_slug = $slug . self::RENAMED_THEME_SUFFIX . '-' . $i;
+			++$i;
+		}
+
+		return $new_slug;
 	}
 
 	/**
@@ -158,6 +343,9 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 			} else {
 				++$copied_count;
 				$this->log( "$file_seen_count/$this->total_count entries seen. Restoring: $relative_path" );
+				if ( $file_type === 'theme_files' ) {
+					$this->update_renamed_parent_theme( $relative_path, $dest_path );
+				}
 			}
 		}
 
@@ -256,13 +444,48 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 	private function create_file_info_array( $fileinfo ) {
 		$source_file_path   = $fileinfo->getRealPath();
 		$relative_file_path = str_replace( $this->source_dir, '', $source_file_path );
+		$file_type          = $this->get_file_type( $relative_file_path );
+		$dest_relative_path = $relative_file_path;
+
+		if ( $file_type === 'theme_files' ) {
+			$slug = $this->get_extension_slug_from_path( $relative_file_path );
+			if ( $slug && isset( $this->theme_renames[ $slug ] ) ) {
+				$dest_relative_path = self::THEMES_DIR . $this->theme_renames[ $slug ] . substr( $relative_file_path, strlen( self::THEMES_DIR . $slug ) );
+			}
+		}
 
 		return array(
 			'source_file_path'   => $source_file_path,
-			'dest_file_path'     => str_replace( $this->source_dir, $this->dest_dir, $source_file_path ),
+			'dest_file_path'     => $this->dest_dir . $dest_relative_path,
 			'relative_file_path' => $relative_file_path,
-			'file_type'          => $this->get_file_type( $relative_file_path ),
+			'file_type'          => $file_type,
 		);
+	}
+
+	/**
+	 * Points a restored child theme at its parent's new slug, when the parent was renamed.
+	 *
+	 * @param string $relative_path The uploaded file's path, relative to the source directory.
+	 * @param string $dest_path     The restored file's path.
+	 */
+	private function update_renamed_parent_theme( $relative_path, $dest_path ) {
+		if ( ! $this->theme_renames || ! preg_match( '#^' . preg_quote( self::THEMES_DIR, '#' ) . '[^/]+/style\.css$#', $relative_path ) ) {
+			return;
+		}
+
+		$contents = file_get_contents( $dest_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( false === $contents || ! preg_match( '/^([ \t\/*#@]*Template:[ \t]*)([^\r\n]+?)[ \t]*$/mi', $contents, $matches ) ) {
+			return;
+		}
+
+		$parent = $matches[2];
+		if ( ! isset( $this->theme_renames[ $parent ] ) ) {
+			return;
+		}
+
+		$contents = str_replace( $matches[0], $matches[1] . $this->theme_renames[ $parent ], $contents );
+		file_put_contents( $dest_path, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$this->log( "Pointed $relative_path at the renamed parent theme {$this->theme_renames[ $parent ]}." );
 	}
 
 	/**
@@ -473,10 +696,6 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 			array(
 				'pattern' => '/\/wp-config\.php$/',
 				'message' => 'Excluded because file is wp-config.php.',
-			),
-			array(
-				'pattern' => '/\/wp-content\/themes\/twentytwenty.*/',
-				'message' => 'Excluded because path includes a theme starting with twentytwenty.',
 			),
 		);
 	}

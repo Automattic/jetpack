@@ -182,6 +182,99 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Themes imported under a new slug are renamed in the imported database.
+	 */
+	public function test_rename_themes() {
+		global $wpdb;
+
+		$tmp_options = self::TEMPORARY_PREFIX . $wpdb->prefix . 'options';
+		$tmp_posts   = self::TEMPORARY_PREFIX . $wpdb->prefix . 'posts';
+		$tmp_terms   = self::TEMPORARY_PREFIX . $wpdb->prefix . 'terms';
+		$tmp_tt      = self::TEMPORARY_PREFIX . $wpdb->prefix . 'term_taxonomy';
+		$block       = '<!-- wp:template-part {"slug":"header","theme":"twentytwentyfive"} /-->';
+
+		$wpdb->query( "DELETE FROM {$tmp_options} WHERE option_name IN ('template', 'stylesheet') OR option_name LIKE 'theme\\_mods\\_%'" );
+		$wpdb->insert(
+			$tmp_options,
+			array(
+				'option_name'  => 'template',
+				'option_value' => 'twentytwentyfive',
+			)
+		);
+		$wpdb->insert(
+			$tmp_options,
+			array(
+				'option_name'  => 'stylesheet',
+				'option_value' => 'twentytwentyfive',
+			)
+		);
+		$wpdb->insert(
+			$tmp_options,
+			array(
+				'option_name'  => 'theme_mods_twentytwentyfive',
+				'option_value' => 'a:1:{s:11:"custom_logo";i:5;}',
+			)
+		);
+		$wpdb->insert(
+			$tmp_terms,
+			array(
+				'name' => 'twentytwentyfive',
+				'slug' => 'twentytwentyfive',
+			)
+		);
+		$term_id = $wpdb->insert_id;
+		$wpdb->insert(
+			$tmp_tt,
+			array(
+				'term_id'     => $term_id,
+				'taxonomy'    => 'wp_theme',
+				'description' => '',
+			)
+		);
+		$wpdb->insert(
+			$tmp_posts,
+			array(
+				'post_type'             => 'wp_global_styles',
+				'post_name'             => 'wp-global-styles-twentytwentyfive',
+				'post_content'          => '{}',
+				'post_excerpt'          => '',
+				'to_ping'               => '',
+				'pinged'                => '',
+				'post_content_filtered' => '',
+			)
+		);
+		$global_styles_id = $wpdb->insert_id;
+		$wpdb->insert(
+			$tmp_posts,
+			array(
+				'post_type'             => 'wp_template',
+				'post_name'             => 'index',
+				'post_content'          => $block,
+				'post_excerpt'          => '',
+				'to_ping'               => '',
+				'pinged'                => '',
+				'post_content_filtered' => '',
+			)
+		);
+		$template_id = $wpdb->insert_id;
+
+		$processor = new SQL_Postprocessor( 'test', 'test', self::TEMPORARY_PREFIX );
+		$processor->set_theme_renames( array( 'twentytwentyfive' => 'twentytwentyfive-imported' ) );
+
+		$this->assertTrue( $processor->rename_themes() );
+		$this->assertSame( 'twentytwentyfive-imported', $wpdb->get_var( "SELECT option_value FROM {$tmp_options} WHERE option_name = 'template'" ) );
+		$this->assertSame( 'twentytwentyfive-imported', $wpdb->get_var( "SELECT option_value FROM {$tmp_options} WHERE option_name = 'stylesheet'" ) );
+		$this->assertSame( 'a:1:{s:11:"custom_logo";i:5;}', $wpdb->get_var( "SELECT option_value FROM {$tmp_options} WHERE option_name = 'theme_mods_twentytwentyfive-imported'" ) );
+		$this->assertNull( $wpdb->get_var( "SELECT option_value FROM {$tmp_options} WHERE option_name = 'theme_mods_twentytwentyfive'" ) );
+		$this->assertSame( 'twentytwentyfive-imported', $wpdb->get_var( $wpdb->prepare( "SELECT slug FROM {$tmp_terms} WHERE term_id = %d", $term_id ) ) );
+		$this->assertSame( 'wp-global-styles-twentytwentyfive-imported', $wpdb->get_var( $wpdb->prepare( "SELECT post_name FROM {$tmp_posts} WHERE ID = %d", $global_styles_id ) ) );
+		$this->assertSame(
+			'<!-- wp:template-part {"slug":"header","theme":"twentytwentyfive-imported"} /-->',
+			$wpdb->get_var( $wpdb->prepare( "SELECT post_content FROM {$tmp_posts} WHERE ID = %d", $template_id ) )
+		);
+	}
+
+	/**
 	 * Test various scoped URLs.
 	 */
 	public function test_get_url_scope() {

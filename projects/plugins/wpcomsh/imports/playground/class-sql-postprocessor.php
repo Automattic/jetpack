@@ -54,6 +54,13 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 	private bool $dry_run;
 
 	/**
+	 * Themes imported under a new slug, keyed by their uploaded slug.
+	 *
+	 * @var array<string, string>
+	 */
+	private array $theme_renames = array();
+
+	/**
 	 * SQL_Postprocessor constructor.
 	 *
 	 * @param string                       $home_url   The home URL.
@@ -113,6 +120,13 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 			return $ret;
 		}
 
+		// 6. Point the database at themes imported under a new slug.
+		$ret = $this->rename_themes();
+
+		if ( is_wp_error( $ret ) ) {
+			return $ret;
+		}
+
 		// Query used to replace the tables.
 		// We do not replace the users and usermeta tables.
 		$exclude_list  = array( $wpdb->prefix . 'users', $wpdb->prefix . 'usermeta' );
@@ -125,13 +139,81 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 		if ( ! $this->dry_run ) {
 			$this->log( 'Replace tables' );
 
-			// 6. Replace tables with temporary ones.
+			// 7. Replace tables with temporary ones.
 			foreach ( $replace_query as $query ) {
 				$wpdb->query( $query );
 			}
 
 			// Flush the cache. This is needed to have fresh data.
 			wp_cache_flush();
+		}
+
+		return true;
+	}
+
+	/**
+	 * Set the themes imported under a new slug.
+	 *
+	 * @param array<string, string> $theme_renames New slugs keyed by uploaded slug.
+	 */
+	public function set_theme_renames( array $theme_renames ): void {
+		$this->theme_renames = $theme_renames;
+	}
+
+	/**
+	 * Point the imported database at themes imported under a new slug: the active theme options,
+	 * the theme mods, the theme of Site Editor templates, template parts and global styles, and the
+	 * theme named in template part blocks.
+	 *
+	 * @return bool|\WP_Error
+	 */
+	public function rename_themes() {
+		global $wpdb;
+
+		if ( ! $this->theme_renames ) {
+			return true;
+		}
+
+		$tmp_options       = $this->tmp_table_name( 'options' );
+		$tmp_posts         = $this->tmp_table_name( 'posts' );
+		$tmp_terms         = $this->tmp_table_name( 'terms' );
+		$tmp_term_taxonomy = $this->tmp_table_name( 'term_taxonomy' );
+
+		foreach ( $this->theme_renames as $old_slug => $new_slug ) {
+			$old_slug = (string) $old_slug;
+			$this->log( "Rename theme $old_slug to $new_slug" );
+
+			$queries = array(
+				$wpdb->prepare( "UPDATE %i SET option_value = %s WHERE option_name IN ('template', 'stylesheet') AND option_value = %s", $tmp_options, $new_slug, $old_slug ),
+				$wpdb->prepare( 'DELETE FROM %i WHERE option_name = %s', $tmp_options, 'theme_mods_' . $new_slug ),
+				$wpdb->prepare( 'UPDATE %i SET option_name = %s WHERE option_name = %s', $tmp_options, 'theme_mods_' . $new_slug, 'theme_mods_' . $old_slug ),
+				$wpdb->prepare(
+					"UPDATE %i t INNER JOIN %i tt ON tt.term_id = t.term_id SET t.slug = %s, t.name = %s WHERE tt.taxonomy = 'wp_theme' AND t.slug = %s",
+					$tmp_terms,
+					$tmp_term_taxonomy,
+					$new_slug,
+					$new_slug,
+					$old_slug
+				),
+				$wpdb->prepare(
+					"UPDATE %i SET post_name = %s WHERE post_type = 'wp_global_styles' AND post_name = %s",
+					$tmp_posts,
+					'wp-global-styles-' . rawurlencode( $new_slug ),
+					'wp-global-styles-' . rawurlencode( $old_slug )
+				),
+				$wpdb->prepare(
+					"UPDATE %i SET post_content = REPLACE(post_content, %s, %s) WHERE post_type IN ('wp_template', 'wp_template_part')",
+					$tmp_posts,
+					'"theme":"' . $old_slug . '"',
+					'"theme":"' . $new_slug . '"'
+				),
+			);
+
+			foreach ( $queries as $query ) {
+				if ( false === $wpdb->query( $query ) ) {
+					return $this->error( 'error-rename-theme', __( 'Error renaming an imported theme.', 'wpcomsh' ) );
+				}
+			}
 		}
 
 		return true;

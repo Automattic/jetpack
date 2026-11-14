@@ -26,6 +26,8 @@ use Imports\Utils\Logger\FileLogger;
  */
 class Playground_Importer extends \Imports\Backup_Importer {
 	const SQLITE_DB_PATH = 'wp-content/database/.ht.sqlite';
+	// Where process_files() records the themes it imported under a new slug, for postprocess_database().
+	const THEME_RENAMES_FILE = 'wpcomsh-theme-renames.json';
 
 	/**
 	 * File logger
@@ -129,7 +131,40 @@ class Playground_Importer extends \Imports\Backup_Importer {
 			return $restore_result;
 		}
 
+		$theme_renames = $file_restorer->get_theme_renames();
+		if ( $theme_renames ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			if ( false === file_put_contents( $this->get_theme_renames_path(), wp_json_encode( $theme_renames, JSON_UNESCAPED_SLASHES ) ) ) {
+				return new \WP_Error( 'theme-renames-not-saved', __( 'Could not save the renamed themes.', 'wpcomsh' ) );
+			}
+		}
+
 		return true;
+	}
+
+	/**
+	 * The path of the file recording the themes imported under a new slug.
+	 *
+	 * @return string
+	 */
+	private function get_theme_renames_path(): string {
+		return trailingslashit( $this->destination_path ) . self::THEME_RENAMES_FILE;
+	}
+
+	/**
+	 * The themes process_files() imported under a new slug, keyed by their uploaded slug.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_theme_renames(): array {
+		$path = $this->get_theme_renames_path();
+		if ( ! is_file( $path ) ) {
+			return array();
+		}
+
+		$renames = json_decode( (string) file_get_contents( $path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+		return is_array( $renames ) ? $renames : array();
 	}
 
 	/**
@@ -148,6 +183,7 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	 */
 	public function postprocess_database() {
 		$processor = new SQL_Postprocessor( get_home_url(), get_site_url(), $this->tmp_prefix, false, $this->logger );
+		$processor->set_theme_renames( $this->get_theme_renames() );
 
 		return $processor->postprocess();
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Imports: Import edited copies of default and managed themes under a new slug instead of dropping the edits.
