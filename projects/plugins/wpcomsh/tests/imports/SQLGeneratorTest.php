@@ -96,10 +96,11 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 		$this->generator->start();
 		$this->generator->start_table( 'test_table', array(), 1 );
 
-		$row = "('" . str_repeat( 'é', 300000 ) . "')";
+		$first_row  = "('" . str_repeat( 'é', 300000 ) . "')";
+		$second_row = "('" . str_repeat( 'ü', 300000 ) . "')";
 		$this->generator->table_insert( '(`body`)', '(1)' );
-		$this->generator->table_insert( '(`body`)', $row );
-		$this->generator->table_insert( '(`body`)', $row );
+		$this->generator->table_insert( '(`body`)', $first_row );
+		$this->generator->table_insert( '(`body`)', $second_row );
 		$this->generator->table_insert( '(`body`)', '(2)' );
 		$this->generator->end_table_inserts();
 		$this->generator->end();
@@ -108,7 +109,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 		$insert = "INSERT INTO `test_table` (`body`) VALUES\n";
 		$this->assertSame( 2, substr_count( $dump, $insert ) );
 		$this->assertSame( 1, substr_count( $dump, "\nLOCK TABLES `test_table` WRITE;" ) );
-		$this->assertStringContainsString( $insert . "(1),\n{$row};\n" . $insert . "{$row},\n(2);\n", $dump );
+		$this->assertStringContainsString( $insert . "(1),\n{$first_row};\n" . $insert . "{$second_row},\n(2);\n", $dump );
 	}
 
 	/**
