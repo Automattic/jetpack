@@ -161,7 +161,7 @@ class IndexnowClientTest extends SeoTestCase {
 	public static function response_cases() {
 		return array(
 			array( 200, 'accepted', false ),
-			array( 202, 'verification_pending', true ),
+			array( 202, 'verification_pending', false ),
 			array( 400, 'http_400', false ),
 			array( 403, 'http_403', false ),
 			array( 422, 'http_422', false ),

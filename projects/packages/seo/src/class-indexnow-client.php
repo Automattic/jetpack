@@ -60,6 +60,7 @@ class Indexnow_Client {
 		return (bool) get_option( self::ENABLED_OPTION, false )
 			&& $allowed
 			&& get_option( self::SCOPE_OPTION, '' ) === home_url( '/' )
+			&& ! ( new Host() )->is_vip_site()
 			&& Initializer::is_available() && ( new Modules() )->is_active( 'seo-tools' )
 			&& self::site_is_public()
 			&& ! Seo_Tools::is_disabled();
@@ -133,13 +134,29 @@ class Indexnow_Client {
 	}
 
 	/**
+	 * Bound the configurable request size to the protocol maximum.
+	 *
+	 * @return int
+	 */
+	public static function batch_size() {
+		/**
+		 * Filters the maximum URLs in one IndexNow request.
+		 *
+		 * @since $$next-version$$
+		 * @param int $size Maximum URLs, between 1 and 10,000.
+		 */
+		$size = apply_filters( 'jetpack_seo_indexnow_batch_size', self::BATCH_SIZE );
+		return is_int( $size ) ? max( 1, min( 10000, $size ) ) : self::BATCH_SIZE;
+	}
+
+	/**
 	 * Send an already eligible batch to one participating endpoint.
 	 *
 	 * @param string[] $urls Public URLs.
 	 * @return array
 	 */
 	public static function submit( $urls ) {
-		if ( ! self::enabled() || ! is_array( $urls ) || ! $urls || count( $urls ) > self::BATCH_SIZE ) {
+		if ( ! self::enabled() || ! is_array( $urls ) || ! $urls || count( $urls ) > self::batch_size() ) {
 			return array(
 				'state' => 'disabled_or_invalid',
 				'retry' => false,
@@ -183,7 +200,7 @@ class Indexnow_Client {
 			);
 		}
 		$code        = wp_remote_retrieve_response_code( $response );
-		$retry       = 202 === $code || 429 === $code || $code >= 500;
+		$retry       = 429 === $code || $code >= 500;
 		$retry_after = (string) wp_remote_retrieve_header( $response, 'retry-after' );
 		$retry_after = ctype_digit( $retry_after ) ? (int) $retry_after : max( 0, (int) strtotime( $retry_after ) - time() );
 		return array(
