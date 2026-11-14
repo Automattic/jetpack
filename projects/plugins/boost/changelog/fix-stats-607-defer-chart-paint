@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Charts now wait for their size before drawing; Boost's history chart has no legend and showed no visible change.
+
+

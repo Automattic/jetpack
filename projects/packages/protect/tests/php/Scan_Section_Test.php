@@ -22,6 +22,7 @@ use WP_REST_Request;
  */
 #[CoversClass( Scan::class )]
 class Scan_Section_Test extends BaseTestCase {
+	use Plugin_Cache;
 
 	/**
 	 * The query filter flag_option_row() adds, removed after each test.
@@ -38,12 +39,21 @@ class Scan_Section_Test extends BaseTestCase {
 	private $files = array();
 
 	/**
+	 * Start each test with no plugins installed.
+	 */
+	public function set_up() {
+		parent::set_up();
+		self::seed_plugin_cache();
+	}
+
+	/**
 	 * Release the scan request lock between tests.
 	 */
 	public function tear_down() {
 		foreach ( $this->files as $file ) {
 			wp_delete_file( $file );
 		}
+		self::clear_plugin_cache();
 		delete_transient( Scan::REQUEST_LOCK );
 		delete_transient( Scan::HISTORY_CACHE );
 		delete_option( Dashboard_Threats::RESOLVED_OPTION );
@@ -484,13 +494,10 @@ class Scan_Section_Test extends BaseTestCase {
 	#[DataProvider( 'provider_delete_plugin' )]
 	public function test_delete_software_only_deletes_inactive_plugins( $files, $active, $slug, $is_deleted ) {
 		foreach ( $files as $file ) {
-			// wp_mkdir_p() refuses the test environment's plugin root, whose path has `..` in it.
-			if ( ! is_dir( dirname( WP_PLUGIN_DIR . "/$file" ) ) ) {
-				mkdir( dirname( WP_PLUGIN_DIR . "/$file" ), 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-			}
+			wp_mkdir_p( dirname( WP_PLUGIN_DIR . "/$file" ) );
 			file_put_contents( WP_PLUGIN_DIR . "/$file", "<?php\n/**\n * Plugin Name: $file\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		}
-		wp_clean_plugins_cache( false );
+		self::seed_plugin_cache( $files );
 		update_option( 'active_plugins', $active );
 
 		$result = self::delete_as_admin( 'plugins', $slug );
@@ -515,7 +522,7 @@ class Scan_Section_Test extends BaseTestCase {
 		$file = WP_PLUGIN_DIR . '/protect-delete-test.php';
 		wp_mkdir_p( WP_PLUGIN_DIR );
 		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect Delete Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		wp_clean_plugins_cache( false );
+		self::seed_plugin_cache( array( 'protect-delete-test.php' ) );
 		update_option( 'active_plugins', array() );
 		$use_ftp = function () {
 			return 'ftpext';

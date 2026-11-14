@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -171,6 +172,31 @@ class InitializerTest extends TestCase {
 			remove_filter( 'jetpack_active_modules', $enable_module );
 			delete_option( Initializer::VISIBILITY_OPTION );
 			$initialized->setValue( null, false );
+		}
+	}
+
+	/**
+	 * WordPress.com's API requests call register_write_hooks() without init(), so it alone must
+	 * register the "Always include" page field and hook the coverage and llms.txt clearing.
+	 */
+	public function test_write_hooks_register_without_init() {
+		$hooks = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		unset( $GLOBALS['wp_filter']['transition_post_status'], $GLOBALS['wp_filter']['clean_post_cache'] );
+		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' );
+		try {
+			Initializer::register_write_hooks();
+			$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' ) );
+			$this->assertNotFalse(
+				has_action( 'transition_post_status', array( Content_Coverage::class, 'invalidate_on_status_change' ) )
+			);
+			$this->assertNotFalse( has_action( 'clean_post_cache', array( Llms_Txt::class, 'clear_cache_for_post' ) ) );
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
 	}
 
@@ -494,6 +520,40 @@ class InitializerTest extends TestCase {
 				'sitemaps'           => 'default',
 			),
 			$this->init_and_get_configuration_urls( false )
+		);
+	}
+
+	/**
+	 * The admin shell lists SEO only when init() registers the SEO page.
+	 *
+	 * @dataProvider surface_visibility
+	 *
+	 * @param bool $surface_visible Whether the SEO dashboard surface is visible.
+	 */
+	#[DataProvider( 'surface_visibility' )]
+	public function test_admin_shell_member_registers_with_the_page( $surface_visible ) {
+		remove_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+		$this->init_and_get_configuration_urls( $surface_visible );
+
+		try {
+			$this->assertSame(
+				$surface_visible,
+				false !== has_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) )
+			);
+		} finally {
+			remove_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+		}
+	}
+
+	/**
+	 * Surface visibility cases.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function surface_visibility() {
+		return array(
+			'visible' => array( true ),
+			'hidden'  => array( false ),
 		);
 	}
 }

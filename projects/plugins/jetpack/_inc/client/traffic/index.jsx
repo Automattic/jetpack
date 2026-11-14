@@ -5,7 +5,10 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
 import { FeaturesPointer } from 'components/pointer-card';
-import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
+import {
+	isSettingsConsolidationEnabled,
+	searchFindsGoogleAnalytics,
+} from 'lib/settings-consolidation';
 import {
 	isSiteConnected,
 	isOfflineMode,
@@ -19,6 +22,7 @@ import { getSettings } from 'state/settings';
 import { siteUsesWpAdminInterface } from 'state/site';
 import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
+import { GoogleAnalyticsMoved } from './google-analytics-moved';
 import { RelatedPosts } from './related-posts';
 import { RelatedPostsMoved } from './related-posts-moved';
 import SEO from './seo';
@@ -58,7 +62,12 @@ export class Traffic extends Component {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
-			foundAnalytics = isWoASite(),
+			// Once the panel holds GA, the pointer shows only in a search that names it.
+			gaPanelUrl =
+				isSettingsConsolidationEnabled() && getScriptData()?.myJetpack?.googleAnalyticsPanel,
+			gaInPanel = !! gaPanelUrl,
+			foundAnalytics =
+				isWoASite() && ( ! gaInPanel || searchFindsGoogleAnalytics( this.props.searchTerm ) ),
 			foundBlaze = this.props.isModuleFound( 'blaze' );
 
 		// Once the site is on the new SEO experience (fresh install / opted-in /
@@ -109,9 +118,15 @@ export class Traffic extends Component {
 					/>
 				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
-				{ foundAnalytics && (
-					<GoogleAnalytics { ...commonProps } site={ this.props.blogID ?? this.props.siteRawUrl } />
-				) }
+				{ foundAnalytics &&
+					( gaInPanel ? (
+						<GoogleAnalyticsMoved href={ gaPanelUrl } />
+					) : (
+						<GoogleAnalytics
+							{ ...commonProps }
+							site={ this.props.blogID ?? this.props.siteRawUrl }
+						/>
+					) ) }
 				{ foundBlaze &&
 					( isSettingsConsolidationEnabled() ? (
 						// The Blaze card renders nothing on WoA, so its pointer stays out there too.

@@ -52,7 +52,7 @@ class Marketplace_Software_Manager {
 	 * @return array|WP_Error
 	 */
 	protected function get_apd_marketplace_software() {
-		$atomic_persist_data = new Atomic_Persistent_Data();
+		$atomic_persist_data = wpcomsh_get_atomic_persistent_data();
 		if ( empty( $atomic_persist_data->WPCOM_MARKETPLACE_SOFTWARE ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			return new WP_Error( 'marketplace_software_not_found', 'WPCOM_Marketplace_Software Atomic persist data is empty. No Marketplace Software installed.' );
 		}

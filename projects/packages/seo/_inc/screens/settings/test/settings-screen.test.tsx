@@ -181,7 +181,7 @@ describe( 'Jetpack SEO output paused', () => {
 			expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
 			// The previews stay visible, read-only, with the same line.
 			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
-				expect.objectContaining( { paused: true } )
+				expect.objectContaining( { paused: true, disabled: true } )
 			);
 		}
 	);
@@ -548,21 +548,23 @@ describe( 'WordPress.com Simple settings', () => {
 	);
 
 	it.each( [ true, false ] )(
-		'keeps the sitemap control read-only without claiming publication when indexing is %s',
+		'makes the read-only Simple sitemap switch follow indexing, not the module, when indexing is %s',
 		searchEnginesVisible => {
 			setSimpleSite();
 			const form = buildForm( {
 				search_engines_visible: searchEnginesVisible,
-				sitemap_active: true,
+				sitemap_active: false,
 				sitemap_switchable: true,
 				sitemap_url: 'https://example.com/sitemap.xml',
 			} );
 
 			render( <SettingsScreen form={ form } /> );
 
-			const toggle = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+			const toggle = screen.getByRole( 'checkbox', {
+				name: /Generate an XML sitemap/i,
+				checked: searchEnginesVisible,
+			} );
 			expect( toggle ).toBeDisabled();
-			expect( toggle ).not.toBeChecked();
 			expect( statusFor( 'Site visibility' ) ).toBe(
 				searchEnginesVisible ? 'Complete' : 'Not started'
 			);
@@ -573,7 +575,7 @@ describe( 'WordPress.com Simple settings', () => {
 				'href',
 				'https://wordpress.com/support/activate-your-plan/'
 			);
-			expect( screen.queryByRole( 'link', { name: 'View sitemap' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: /View sitemap/ } ) ).not.toBeInTheDocument();
 			expect( form.commit ).not.toHaveBeenCalled();
 		}
 	);
@@ -649,5 +651,23 @@ describe( 'Search & social previews', () => {
 		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
 			expect.objectContaining( { frontPageTitleFormat: [] } )
 		);
+	} );
+
+	it( 'keeps the default share image editable in the manual settings', () => {
+		const image = { id: 12, src: 'https://example.com/share.jpg', alt_text: 'Share image' };
+		const form = buildForm( { default_share_image: image, share_image_preview: image.src } );
+
+		render( <SettingsScreen form={ form } /> );
+
+		const props = SocialPreviewsCard.mock.lastCall?.[ 0 ];
+		expect( props ).toEqual(
+			expect.objectContaining( {
+				defaultImage: image,
+				resolvedImage: image.src,
+				disabled: false,
+			} )
+		);
+		( props?.onImageChange as ( image: number ) => void )( 34 );
+		expect( form.commit ).toHaveBeenCalledWith( { default_share_image: 34 } );
 	} );
 } );

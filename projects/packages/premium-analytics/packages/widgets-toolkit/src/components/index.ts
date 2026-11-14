@@ -8,7 +8,6 @@ export { MetricList, type MetricListItem, type MetricListProps } from './metric-
 export { AbbreviatedValue, type AbbreviatedValueProps } from './abbreviated-value';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
-export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';
 export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
@@ -84,13 +83,7 @@ export {
 	type LocationsGeoMode,
 	type LocationsGeoRow,
 } from './locations-geo-chart';
-export {
-	CalendarHeatmapPagerOverlay,
-	CalendarHeatmapTooltip,
-	type CalendarHeatmapPager,
-	type CalendarHeatmapPagerOverlayProps,
-	type CalendarHeatmapTooltipProps,
-} from './calendar-heatmap';
+export { CalendarHeatmapTooltip, type CalendarHeatmapTooltipProps } from './calendar-heatmap';
 export { MonthCalendarHeatmap, type MonthCalendarHeatmapProps } from './month-calendar-heatmap';
 export {
 	MonthlyHeatmap,
@@ -167,22 +160,13 @@ export {
 	type ReportCsvActionProps,
 } from './report-page';
 export {
+	CustomizingBadge,
 	DetailPageActions,
-	DetailPageBreadcrumbs,
-	DETAIL_HEADER_GLYPH_SIZE,
-	DetailPageLayout,
-	DetailPageSection,
-	DetailPageShell,
 	useDetailPageCustomize,
 	type DetailPageActionsProps,
-	type DetailPageBreadcrumbsProps,
 	type DetailPageCustomize,
-	type DetailPageHeaderSlots,
-	type DetailPageLayoutProps,
-	type DetailPageSectionProps,
-	type DetailPageShellProps,
 } from './detail-page';
-export { PageEmptyState } from './page-empty-state';
+export { PageEmptyState, type PageEmptyStateProps } from './page-empty-state';
 export { LockedPage, LockedWidget } from './locked-widget';
 export { PageNotice, type PageNoticeProps } from './page-notice';
 export {
@@ -190,7 +174,6 @@ export {
 	FeedbackModal,
 	PageOptionsMenu,
 	type FeedbackSource,
-	type PageOptionsMenuProps,
 } from './page-options-menu';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
@@ -220,8 +203,6 @@ export {
 	GenericSkeleton,
 	HeatmapSkeleton,
 	MonthCalendarHeatmapSkeleton,
-	MetricSparklineSkeleton,
-	type MetricSparklineSkeletonProps,
 	SkeletonRoot,
 	type SkeletonRootProps,
 } from './widget-skeleton';

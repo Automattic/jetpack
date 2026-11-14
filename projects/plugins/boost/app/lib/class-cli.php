@@ -12,9 +12,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Garbage_Collection;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 
 /**
  * Control your local Jetpack Boost installation.
@@ -125,7 +123,7 @@ class CLI {
 		$module->update( $status );
 
 		if ( $module_slug === 'page_cache' && $status ) {
-			$setup_result = Page_Cache_Setup::run_setup();
+			$setup_result = Page_Cache_Setup::enable();
 			if ( is_wp_error( $setup_result ) ) {
 				\WP_CLI::error(
 					sprintf(
@@ -135,9 +133,6 @@ class CLI {
 					)
 				);
 			}
-
-			Garbage_Collection::activate();
-			Boost_Cache_Settings::get_instance()->set( array( 'enabled' => true ) );
 		}
 
 		$status_label = $status ? __( 'activated', 'jetpack-boost' ) : __( 'deactivated', 'jetpack-boost' );

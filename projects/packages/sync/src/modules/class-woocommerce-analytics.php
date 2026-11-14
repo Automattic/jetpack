@@ -694,8 +694,9 @@ class WooCommerce_Analytics extends Module {
 			'order_id'           => $order->get_id(),
 			'parent_id'          => $order->get_parent_id(),
 			'date_created'       => self::datetime_to_object( $order->get_date_created() ),
-			'date_paid'          => self::datetime_to_object( $order->get_date_paid() ),
-			'date_completed'     => self::datetime_to_object( $order->get_date_completed() ),
+			// The `get_date_paid()` and `get_date_completed()` methods were moved to WC_Abstract_Order in Woo 7.5, so refunds only have them after that point. We set the values later for refunds anyway.
+			'date_paid'          => $order instanceof WC_Order ? self::datetime_to_object( $order->get_date_paid() ) : null,
+			'date_completed'     => $order instanceof WC_Order ? self::datetime_to_object( $order->get_date_completed() ) : null,
 			'num_items_sold'     => self::get_num_items_sold( $order ),
 			'total_sales'        => $order->get_total(),
 			'tax_total'          => $order->get_total_tax(),

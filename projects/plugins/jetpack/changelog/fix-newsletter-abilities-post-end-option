@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Abilities: Fix the Newsletter end-of-post subscribe setting, which changed the comment form's follow-blog checkbox instead.

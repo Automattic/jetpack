@@ -46,14 +46,14 @@ describe( 'useSetPrivacy', () => {
 		] );
 	} );
 
-	it( 'reports partial failures without aborting the batch', async () => {
+	it( 'reports rejected and unacknowledged saves as failures without aborting the batch', async () => {
 		mockApiFetch( async ( { method, data } ) => {
 			if ( method === 'POST' ) {
 				const { id } = data as { id: number };
 				if ( id === 2 ) {
 					throw new Error( 'nope' );
 				}
-				return { code: 'success' };
+				return id === 4 ? {} : { code: 'success' };
 			}
 			throw new Error( 'unexpected' );
 		} );
@@ -68,6 +68,7 @@ describe( 'useSetPrivacy', () => {
 					makeLibraryItem( { id: '1', privacy: 'private' } ),
 					makeLibraryItem( { id: '2', privacy: 'private' } ),
 					makeLibraryItem( { id: '3', privacy: 'site-default' } ),
+					makeLibraryItem( { id: '4', privacy: 'private' } ),
 				],
 				privacy: 'public',
 			} );
@@ -75,8 +76,12 @@ describe( 'useSetPrivacy', () => {
 
 		expect( outcome ).toEqual( {
 			succeeded: [ '1', '3' ],
-			failed: [ { id: '2', message: 'nope' } ],
+			failed: [
+				{ id: '2', message: 'nope' },
+				{ id: '4', message: 'The server did not confirm the save.' },
+			],
 		} );
+		expect( console ).toHaveErrored();
 		expect( recordEvent.mock.calls ).toEqual( [
 			[ 'jetpack_videopress_privacy_changed', { from: 'private', to: 'public', is_bulk: true } ],
 			[
@@ -115,19 +120,11 @@ describe( 'useSetPrivacy', () => {
 		] );
 	} );
 
-	it.each< [ string, LibraryItem, unknown ] >( [
-		[ 'local video', makeLibraryItem( { type: 'local' } ), { code: 'success' } ],
-		[ 'unchanged setting', makeLibraryItem( { privacy: 'private' } ), { code: 'success' } ],
-		[ 'missing acknowledgment', makeLibraryItem(), {} ],
-		[ 'null acknowledgment', makeLibraryItem(), null ],
-		[ 'failed request', makeLibraryItem(), new Error( 'Failed' ) ],
-	] )( 'does not record a privacy change for %s', async ( _label, video, response ) => {
-		mockApiFetch( () => {
-			if ( response instanceof Error ) {
-				return Promise.reject( response );
-			}
-			return response;
-		} );
+	it.each< [ string, LibraryItem ] >( [
+		[ 'local video', makeLibraryItem( { type: 'local' } ) ],
+		[ 'unchanged setting', makeLibraryItem( { privacy: 'private' } ) ],
+	] )( 'does not record a privacy change for %s', async ( _label, video ) => {
+		mockApiFetch( () => ( { code: 'success' } ) );
 		const wrapper = createTestWrapper( createTestQueryClient() );
 		const { result } = renderHook( () => useSetPrivacy(), { wrapper } );
 		await act( async () => {

@@ -55,16 +55,6 @@ export type BarChartProps = {
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
 	emptyStateText?: string;
-
-	/**
-	 * Whether to show a thin bar for zero values when the chart is rendered.
-	 * When true and the data is not considered empty, zero-value bars render
-	 * with a small visible height so users have something to hover over for
-	 * tooltips. When all values are 0 or null and the chart is treated as
-	 * empty, an empty state is shown instead and this option has no effect.
-	 * @default true
-	 */
-	showZeroValues?: boolean;
 };
 
 /**
@@ -123,7 +113,6 @@ export function BarChart( {
 	chartTitle,
 	emptyStateIcon,
 	emptyStateText,
-	showZeroValues = true,
 }: BarChartProps ) {
 	const chartName = useChartName( chartTitle );
 	const chartId = useId();
@@ -206,7 +195,6 @@ export function BarChart( {
 			withTooltips={ ! isEmptyData }
 			renderTooltip={ renderTooltip }
 			options={ chartOptions }
-			showZeroValues={ showZeroValues }
 		>
 			<BarChartBase.Legend
 				shape="circle"

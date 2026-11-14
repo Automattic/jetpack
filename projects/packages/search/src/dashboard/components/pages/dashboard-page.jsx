@@ -96,11 +96,16 @@ export default function DashboardPage( { isLoading = false } ) {
 	}, [] );
 
 	// Keep the active tab in sync with external hash changes (back/forward button, manual edit).
+	// `popstate` covers the admin shell, which switches back to this page with pushState and a synthetic popstate.
 	useEffect( () => {
 		if ( typeof window === 'undefined' ) {
 			return;
 		}
 		const onHashChange = () => {
+			// While the admin shell shows another dashboard, the URL is that dashboard's.
+			if ( new URLSearchParams( window.location.search ).get( 'page' ) !== 'jetpack-search' ) {
+				return;
+			}
 			const resolved = resolveTabFromLocation();
 			// Skip the state update when the resolved tab already matches —
 			// otherwise user-initiated clicks would `setActiveTab` twice (once
@@ -110,7 +115,11 @@ export default function DashboardPage( { isLoading = false } ) {
 			normalizeUrlToHash( resolved );
 		};
 		window.addEventListener( 'hashchange', onHashChange );
-		return () => window.removeEventListener( 'hashchange', onHashChange );
+		window.addEventListener( 'popstate', onHashChange );
+		return () => {
+			window.removeEventListener( 'hashchange', onHashChange );
+			window.removeEventListener( 'popstate', onHashChange );
+		};
 	}, [] );
 
 	const handleTabChange = tab => {

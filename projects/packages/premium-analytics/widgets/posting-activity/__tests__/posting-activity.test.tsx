@@ -13,18 +13,9 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-// Keep visx out of jsdom and make the series the widget passes assertable.
-jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
-	Sparkline: ( { data }: { data: number[] } ) => (
-		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
-	),
-} ) );
-
 // Spread the real module: `WidgetRoot` and the toolkit helpers import from it too.
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	useStatsHourOfDay: jest.fn(),
 	useStatsStreak: jest.fn(),
 	useStatsVisits: jest.fn(),
 } ) );

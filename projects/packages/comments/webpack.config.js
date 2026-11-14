@@ -127,7 +127,9 @@ export default {
 		} ),
 		new webpack.DefinePlugin( {
 			JETPACK_COMMENTS_VERSION: JSON.stringify(
-				JSON.parse( fs.readFileSync( path.join( __dirname, 'package.json' ), 'utf8' ) ).version
+				fs
+					.readFileSync( path.join( __dirname, 'src/class-comments.php' ), 'utf8' )
+					.match( /const PACKAGE_VERSION = '([^']+)'/ )[ 1 ]
 			),
 		} ),
 	],

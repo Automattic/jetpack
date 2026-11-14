@@ -137,6 +137,9 @@ describe( 'NewsletterPage tab navigation', () => {
 
 				expect( mockNavigate ).not.toHaveBeenCalled();
 				expect( confirm ).toHaveBeenCalledTimes( 1 );
+				expect( confirm ).toHaveBeenCalledWith(
+					'You have unsaved changes. Are you sure you want to leave this tab?'
+				);
 
 				confirm.mockReturnValue( true );
 				destination.click();
@@ -162,6 +165,65 @@ describe( 'NewsletterPage tab navigation', () => {
 			}
 		}
 	);
+
+	it.each( [
+		[ 'stays when the user cancels', 'jetpack-newsletter', false, true ],
+		[ 'goes on when the user confirms', 'jetpack-newsletter', true, false ],
+		[ 'ignores another page', 'my-jetpack', false, false ],
+	] )( "answers the admin shell's leave check for dirty Settings: %s", ( _, page, ok, stays ) => {
+		const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( ok );
+		try {
+			render(
+				<NewsletterPage activeTab="settings" hasUnsavedChanges>
+					<div>panel body</div>
+				</NewsletterPage>
+			);
+			const event = new CustomEvent( 'jetpack-admin-shell:before-leave', {
+				detail: { page },
+				cancelable: true,
+			} );
+			window.dispatchEvent( event );
+
+			expect( event.defaultPrevented ).toBe( stays );
+			expect( confirm.mock.calls ).toEqual(
+				page === 'jetpack-newsletter'
+					? [ [ 'You have unsaved changes in Newsletter. Discard them?' ] ]
+					: []
+			);
+		} finally {
+			confirm.mockRestore();
+		}
+	} );
+
+	it( "follows the latest unsaved state in the admin shell's leave check, and stops on unmount", () => {
+		const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+		const leave = () => {
+			const event = new CustomEvent( 'jetpack-admin-shell:before-leave', {
+				detail: { page: 'jetpack-newsletter' },
+				cancelable: true,
+			} );
+			window.dispatchEvent( event );
+			return event.defaultPrevented;
+		};
+		try {
+			const { rerender, unmount } = render(
+				<NewsletterPage activeTab="settings">
+					<div>panel body</div>
+				</NewsletterPage>
+			);
+			expect( leave() ).toBe( false );
+			rerender(
+				<NewsletterPage activeTab="settings" hasUnsavedChanges>
+					<div>panel body</div>
+				</NewsletterPage>
+			);
+			expect( leave() ).toBe( true );
+			unmount();
+			expect( leave() ).toBe( false );
+		} finally {
+			confirm.mockRestore();
+		}
+	} );
 
 	it( 'navigates to ?tab=settings and clears subscriber-detail params on switch', () => {
 		render(

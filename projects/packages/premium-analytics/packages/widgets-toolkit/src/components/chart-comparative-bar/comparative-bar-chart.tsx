@@ -427,8 +427,8 @@ export function ComparativeBarChart( {
 	 * chart scale to the data.
 	 */
 	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData ),
-		[ dataFormat.type, isEmptyData ]
+		() => getFixedYAxis( dataFormat.type, isEmptyData, drawnSeries ),
+		[ dataFormat.type, isEmptyData, drawnSeries ]
 	);
 
 	const chartOptions = useMemo( () => {
@@ -466,9 +466,6 @@ export function ComparativeBarChart( {
 				maxWidth={ maxWidth }
 				compactWhenShort={ compactWhenShort }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
-				// A zero-value bar has no height, so a quiet day would otherwise read as
-				// missing data. This draws it as a hairline stub instead.
-				showZeroValues
 				showLegend={ false }
 				withTooltips={ hasTooltipRows }
 				renderTooltip={ renderTooltip }

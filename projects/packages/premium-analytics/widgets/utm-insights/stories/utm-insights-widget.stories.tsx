@@ -204,6 +204,7 @@ function UtmInsightsDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: DashboardStory = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <UtmInsightsDashboardStory { ...args } />,
 	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS, withComparison: false, dataState: 'data' },
 	argTypes: {

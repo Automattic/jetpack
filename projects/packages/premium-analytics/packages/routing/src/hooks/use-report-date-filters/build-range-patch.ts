@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	deriveComparisonRange,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 	type LockableInterval,
@@ -16,7 +17,6 @@ import {
 /**
  * Internal dependencies
  */
-import { deriveComparisonRange } from '../../search/comparison';
 import { encodeRangeToSearchParams } from '../../search/date-range';
 
 /**

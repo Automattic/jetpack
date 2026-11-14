@@ -50,6 +50,7 @@ import PayPalFormatControls from './components/format-controls';
 import LegacyBlock from './components/legacy-block';
 import LinkDetails, { LinkDetailsList } from './components/link-details';
 import PayPalButtonPreview from './components/paypal-button-preview';
+import ProductImages from './components/product-images';
 import ReadOnlyBlock from './components/read-only-block';
 import VariantBuilder, {
 	getComparisonPrice,
@@ -256,6 +257,7 @@ export default function ApiManagedEdit( {
 		productDescription,
 		productId,
 		imageUrl,
+		images,
 		returnUrl,
 		variantsEnabled,
 		variants,
@@ -1205,6 +1207,13 @@ export default function ApiManagedEdit( {
 							: undefined
 					}
 				/>
+
+				<ProductImages
+					images={ images || [] }
+					onChange={ next => setAttributes( { images: next } ) }
+					disabled={ isBusy }
+					hasPayment={ !! resourceId }
+				/>
 			</PanelBody>
 			{ /* A closed panel renders no children, so open it when an option needs
 			     fixing - otherwise the error is invisible on a saved button. */ }
@@ -1232,6 +1241,7 @@ export default function ApiManagedEdit( {
 					// there is no blur coming - the same reason the panel opens below.
 					showAll={ hasButton }
 					onTouch={ markTouched }
+					hasPayment={ !! resourceId }
 				/>
 			</PanelBody>
 			{ /* `initialOpen`, so the panel opens itself on a checkout-field error and the

@@ -23,7 +23,7 @@ function usage {
 		Pass \`-a\` to prepare a developer release by passing \`--prerelease=a.N\` to changelogger.
 		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
 		Pass \`-r <version>\` to prepare a release for a specific version number, passing \`--use-version=<version>\` to changelogger.
-		Pass \`-R\` if doing a package release on a plugin release branch.
+		Pass \`-R\` if doing a package release on a plugin release branch. JS packages are not released then.
 	EOH
 	exit 1
 }
@@ -69,7 +69,7 @@ VERBOSE=
 ADDPRNUM=
 ALPHABETA=
 RELEASEBRANCH=
-while getopts ":vpabhHRr:" opt; do
+while getopts ":vpabhRr:" opt; do
 	case ${opt} in
 		v)
 			if [[ -n "$VERBOSE" ]]; then
@@ -90,8 +90,7 @@ while getopts ":vpabhHRr:" opt; do
 		r)
 			ALPHABETA=$OPTARG
 			;;
-		H|R)
-			# -H is an old name, kept for back compat.
+		R)
 			RELEASEBRANCH=-R
 			;;
 		h)
@@ -172,6 +171,11 @@ for SLUG in "${TO_RELEASE[@]}"; do
 		debug "Project $SLUG has no changes, skipping."
 		continue
 	fi
+	# Plugins and packages bundle these, so there is no need to publish them from a release branch.
+	if [[ -n "$RELEASEBRANCH" && "$SLUG" == js-packages/* ]]; then
+		debug "Project $SLUG is a JS package on a release branch, skipping."
+		continue
+	fi
 
 	info "Processing $SLUG..."
 
@@ -194,6 +198,27 @@ for SLUG in "${TO_RELEASE[@]}"; do
 		OLDVER=''
 	fi
 
+	# On a release branch, use a four-point version if the normal next version was already released.
+	FOURPOINT=
+	MIRROR=$(jq -r '.extra["mirror-repo"] // empty' composer.json)
+	if [[ -n "$RELEASEBRANCH" && "$SLUG" == packages/* && -n "$MIRROR" && "$SLUG" != "$REL_SLUG" ]]; then
+		EXISTING_TAGS=$(git ls-remote --tags "https://github.com/$MIRROR" | sed 's|.*refs/tags/||')
+		if [[ "$OLDVER" =~ ^[0-9]+(\.[0-9]+){3}$ ]] ||
+			grep -qxF "v$(changelogger version next --use-significance=patch)" <<<"$EXISTING_TAGS" ||
+			grep -qxF "v$(changelogger version next --use-significance=minor)" <<<"$EXISTING_TAGS" ||
+			grep -qxF "v$(changelogger version next --use-significance=major)" <<<"$EXISTING_TAGS"
+		then
+			FOURPOINT_BASE=$(cut -d. -f1-3 <<<"$OLDVER")
+			FOURPOINT_N=1
+			while grep -qxF "v$FOURPOINT_BASE.$FOURPOINT_N" <<<"$EXISTING_TAGS"; do
+				# Pre-increment, as otherwise set -e complains.
+				((++FOURPOINT_N))
+			done
+			FOURPOINT="$FOURPOINT_BASE.$FOURPOINT_N"
+		fi
+		[[ -n "$FOURPOINT" ]] && debug "Next version already released, so using $FOURPOINT"
+	fi
+
 	# Changelogger write.
 	ARGS=( write )
 	if [[ -n "$VERBOSE" ]]; then
@@ -203,7 +228,10 @@ for SLUG in "${TO_RELEASE[@]}"; do
 		ARGS+=( "$ADDPRNUM" )
 	fi
 	ARGS+=( "--default-first-version" )
-	if [[ "$SLUG" == "$REL_SLUG" ]]; then
+	if [[ -n "$FOURPOINT" ]]; then
+		# Changelogger considers four-point versions invalid, so skip its confirmation.
+		ARGS+=( "--use-version=$FOURPOINT" --yes --no-interaction )
+	elif [[ "$SLUG" == "$REL_SLUG" ]]; then
 		if [[ "$ALPHABETA" == "alpha" ]]; then
 			P=$(alpha_tag composer.json 1)
 			[[ "$P" == "alpha" ]] && die "Cannot use -a with $SLUG"

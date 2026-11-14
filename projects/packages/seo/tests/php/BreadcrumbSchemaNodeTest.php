@@ -246,6 +246,20 @@ class BreadcrumbSchemaNodeTest extends TestCase {
 	}
 
 	/**
+	 * Names decode exactly once, so escaped markup stays as text instead of being stripped.
+	 */
+	public function test_decodes_html_entities_in_names_once() {
+		$post = $this->insert_post( array( 'post_title' => 'Tom &amp; Jerry &lt;div&gt; &amp;amp;' ) );
+
+		$this->set_query( array( 'is_singular' ), $post );
+		$this->assert_trail(
+			array( 'Home', 'Tom & Jerry <div> &amp;' ),
+			array( home_url( '/' ) ),
+			Breadcrumb_Schema_Node::build()
+		);
+	}
+
+	/**
 	 * A static front page with no posts page must not turn the request's global post into a crumb.
 	 *
 	 * @dataProvider provide_requests_without_a_posts_page

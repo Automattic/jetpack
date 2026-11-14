@@ -8,4 +8,5 @@ export {
 	postSurface,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
+	type PeriodChange,
 } from './period-change-signal';

@@ -1,0 +1,33 @@
+[
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/blogroll",
+		"isValid": true,
+		"attributes": {
+			"show_avatar": true,
+			"show_description": true,
+			"open_links_new_window": true,
+			"ignore_user_blogs": true,
+			"load_placeholders": true
+		},
+		"innerBlocks": [
+			{
+				"clientId": "_clientId_0",
+				"name": "jetpack/blogroll-item",
+				"isValid": true,
+				"attributes": {
+					"id": "123456",
+					"name": "Example Blog",
+					"icon": "https://example.com/icon.png",
+					"is_non_wpcom_site": false,
+					"url": "https://example.com",
+					"description": "A blog about examples.",
+					"feed_url": "https://example.com/feed/"
+				},
+				"innerBlocks": [],
+				"originalContent": "<div class=\"wp-block-jetpack-blogroll-item\"></div>"
+			}
+		],
+		"originalContent": "<div class=\"wp-block-jetpack-blogroll\"></div>"
+	}
+]

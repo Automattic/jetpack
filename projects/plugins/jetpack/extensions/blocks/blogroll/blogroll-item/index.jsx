@@ -64,6 +64,9 @@ export const settings = {
 		description: {
 			type: 'string',
 		},
+		feed_url: {
+			type: 'string',
+		},
 	},
 	save: () => {
 		const blockProps = useBlockProps.save();

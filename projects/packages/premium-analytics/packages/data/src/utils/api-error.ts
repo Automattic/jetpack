@@ -1,8 +1,3 @@
-/**
- * Marks a successful response whose shape cannot be sanitized.
- */
-export class StatsResponseShapeError extends Error {}
-
 // About a minute of retries while sync creates a store's analytics tables, which usually takes seconds.
 const TABLES_NOT_READY_RETRIES = 20;
 const TABLES_NOT_READY_RETRY_DELAY = 3000;
@@ -104,11 +99,7 @@ export function isAnalyticsSchemaOutdated( error: unknown ): boolean {
  * even though auto-retrying it three times unprompted is not.
  */
 export function isUserRetryableError( error: unknown ): boolean {
-	return (
-		! ( error instanceof StatsResponseShapeError ) &&
-		! isAccessDenied( error ) &&
-		! isAnalyticsSchemaOutdated( error )
-	);
+	return ! isAccessDenied( error ) && ! isAnalyticsSchemaOutdated( error );
 }
 
 /**
@@ -118,7 +109,7 @@ export function isUserRetryableError( error: unknown ): boolean {
  * current user/session, so retrying only delays the widget-specific error UI.
  */
 export function shouldRetryApiError( failureCount: number, error: unknown ): boolean {
-	if ( error instanceof StatsResponseShapeError || isAnalyticsSchemaOutdated( error ) ) {
+	if ( isAnalyticsSchemaOutdated( error ) ) {
 		return false;
 	}
 

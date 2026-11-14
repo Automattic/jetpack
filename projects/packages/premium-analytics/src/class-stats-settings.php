@@ -1,6 +1,6 @@
 <?php
 /**
- * The Stats settings the dashboard's Settings tab edits.
+ * The Stats settings the dashboard's Settings page edits.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -11,7 +11,7 @@ use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Settings as Stats_Package_Settings;
 
 /**
- * Exposes the Stats settings through core's `wp/v2/settings` route, and the settings and roles the Settings tab offers through script data.
+ * Exposes the Stats settings through core's `wp/v2/settings` route, and the settings and roles the Settings page offers through script data.
  */
 final class Stats_Settings {
 
@@ -44,7 +44,7 @@ final class Stats_Settings {
 	private const CONSENT = 'consent';
 
 	/**
-	 * The `stats_options` fields the Settings tab edits. The option also holds internal state, which the route never exposes.
+	 * The `stats_options` fields the Settings page edits. The option also holds internal state, which the route never exposes.
 	 *
 	 * @var string[]
 	 */
@@ -100,7 +100,7 @@ final class Stats_Settings {
 	private static $update_error = null;
 
 	/**
-	 * Hook up the settings route and the Settings tab's script data.
+	 * Hook up the settings route and the Settings page's script data.
 	 *
 	 * Call it before `rest_api_init`, or hook register() itself on that hook, which add_action() merges with this one. Add any FIELDS_FILTER callback before either.
 	 *
@@ -183,7 +183,7 @@ final class Stats_Settings {
 		$fields = array_merge( self::FIELDS, array( self::READER_VIEWS_OPTION, self::CONSENT ) );
 
 		/**
-		 * Filters the Stats settings the dashboard's Settings tab and the settings route offer, and whether the tab shows the visitor consent card.
+		 * Filters the Stats settings the dashboard's Settings page and the settings route offer, and whether the page shows the visitor consent card.
 		 *
 		 * @since 0.16.0
 		 *
@@ -294,7 +294,7 @@ final class Stats_Settings {
 	}
 
 	/**
-	 * Give the Settings tab the settings it shows, the roles it lists with how many users hold each, the screen that switches the Stats module on and off, and the visitor consent setup.
+	 * Give the Settings page the settings it shows, the roles it lists with how many users hold each, the screen that switches the Stats module on and off, and the visitor consent setup.
 	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the Stats settings context added.

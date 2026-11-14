@@ -107,9 +107,6 @@ export const mockChartExternals = () => ( {
 	LineChart,
 	LineShape: Swatch,
 	RectShape: Swatch,
-	Sparkline: ( { data }: { data: number[] } ) => (
-		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
-	),
 	// One item per non-comparison series, as `collapseGroups` would produce.
 	useBarLegendItems: ( data: ChartSeries[], options?: { layout?: string } ) =>
 		data.flatMap( ( series, index ) =>

@@ -409,6 +409,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/code-editor/class-code-editor.php';
 		require_once __DIR__ . '/features/wpcom-blocks/code/class-code-block.php';
+		require_once __DIR__ . '/features/comment-page-canonical/comment-page-canonical.php';
 		require_once __DIR__ . '/features/css-monkey-patches/index.php';
 		require_once __DIR__ . '/features/editor-polyfills/editor-polyfills.php';
 		require_once __DIR__ . '/features/editor-welcome-guides/editor-welcome-guides.php';
@@ -419,6 +420,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
 		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
+		require_once __DIR__ . '/features/hide-non-breaking-space-markers/hide-non-breaking-space-markers.php';
 		require_once __DIR__ . '/features/holiday-snow/class-holiday-snow.php';
 		require_once __DIR__ . '/features/launch-button/index.php';
 		require_once __DIR__ . '/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
@@ -997,6 +999,10 @@ class Jetpack_Mu_Wpcom {
 	 * Load the Random Redirect feature.
 	 */
 	public static function load_wpcom_random_redirect() {
+		// WordPress 7.2 handles random content redirects (/random/, ?random) in core; every 7.2 beta includes it.
+		if ( version_compare( $GLOBALS['wp_version'], '7.2-beta', '>=' ) ) {
+			return;
+		}
 		require_once __DIR__ . '/features/random-redirect/random-redirect.php';
 	}
 
