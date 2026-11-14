@@ -1,0 +1,474 @@
+@use "sass:meta";
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// Admin_Menu may register the page top-level or under Jetpack.
+body.jetpack_page_jetpack-send,
+body.toplevel_page_jetpack-send {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+// Content renders inside Tabs.Root so the sticky tab strip spans the page.
+.jetpack-send-tabs {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+}
+
+// Centered column like Social and Podcast.
+.jetpack-send-page__content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	box-sizing: border-box;
+	inline-size: 100%;
+	max-inline-size: 744px;
+	margin-inline: auto;
+	padding: var(--wpds-dimension-padding-2xl);
+}
+
+// DataViews tabs fill the page and own their spacing, like SEO and Forms.
+.jetpack-send-tabs:has(.jetpack-send-page__content--flush) {
+	flex: 1 1 auto;
+	min-block-size: 0;
+}
+
+.jetpack-send-page__content--flush,
+.jetpack-send-log,
+.jetpack-send-log .dataviews-wrapper {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-block-size: 0;
+}
+
+.jetpack-send-page__content--flush {
+	gap: 0;
+	max-inline-size: none;
+	margin-inline: 0;
+	padding: 0;
+}
+
+.jetpack-send-log__notice {
+	padding-block-start: var(--wpds-dimension-padding-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+.jetpack-send-dns__records {
+	border-block-start: 1px solid #f0f0f0;
+}
+
+.jetpack-send-dns__record {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding-block: 16px;
+	border-block-end: 1px solid #f0f0f0;
+
+	&.is-compact {
+		padding-block: 12px;
+	}
+}
+
+.jetpack-send-dns__record-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.jetpack-send-dns__record-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.jetpack-send-dns__type {
+	padding: 1px 6px;
+	border: 1px solid #dcdcde;
+	border-radius: 2px;
+	color: #757575;
+	font-family: Menlo, Consolas, monospace;
+	font-size: 11px;
+}
+
+.jetpack-send-dns__optional-intro {
+	margin: 0;
+	color: #757575;
+}
+
+// Notice is a 3-column grid; stay in the text column.
+.jetpack-send-zone-records {
+	grid-column: 2;
+	min-inline-size: 0;
+	margin-block-start: 8px;
+
+	summary {
+		cursor: pointer;
+	}
+
+	ul {
+		margin: 8px 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	li {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		margin-block-end: 8px;
+	}
+
+	code {
+		overflow-wrap: anywhere;
+		font-size: 11px;
+	}
+}
+
+.jetpack-send-dns__fields {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 0;
+}
+
+.jetpack-send-dns__field {
+	display: grid;
+	grid-template-columns: 64px minmax(0, 1fr);
+	align-items: start;
+	gap: 12px;
+
+	dt {
+		padding-block-start: 6px;
+		color: #757575;
+		font-size: 12px;
+	}
+
+	dd {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+		margin: 0;
+	}
+}
+
+// Overrides wp-admin's `code` styles; long DKIM keys wrap inside the box.
+.jetpack-send-dns__value {
+	flex: 1;
+	min-inline-size: 0;
+	margin: 0;
+	padding: 5px 8px;
+	border-radius: 2px;
+	background: #f6f7f7;
+	color: #1e1e1e;
+	font-family: Menlo, Consolas, monospace;
+	font-size: 12px;
+	line-height: 1.6;
+	overflow-wrap: anywhere;
+}
+
+// Keeps Copy at its compact height beside multi-line values.
+.jetpack-send-copy {
+	flex-shrink: 0;
+}
+
+.jetpack-send-dns__problem {
+	color: #b32d2e;
+}
+
+.jetpack-send-dns__count {
+	color: #757575;
+}
+
+.jetpack-send-dns__actions,
+.jetpack-send-form-actions {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.jetpack-send-saved {
+	color: #008a20;
+}
+
+.jetpack-send-sender-preview {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	background: #f6f7f7;
+}
+
+.jetpack-send-sender-preview__avatar {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	inline-size: 36px;
+	block-size: 36px;
+	border-radius: 50%;
+	background: var(--jp-green-40, #069e08);
+	color: #fff;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.jetpack-send-sender-preview__text {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	min-inline-size: 0;
+}
+
+.jetpack-send-sender-preview__name {
+	font-weight: 600;
+}
+
+.jetpack-send-sender-preview__address,
+.jetpack-send-sender-preview__hint {
+	color: #757575;
+	overflow-wrap: anywhere;
+}
+
+.jetpack-send-sender-preview__hint {
+	flex-shrink: 0;
+	text-align: end;
+}
+
+.jetpack-send-account {
+	display: grid;
+	grid-template-columns: max-content minmax(0, 1fr);
+	gap: 10px 32px;
+	margin: 0;
+
+	dt {
+		color: #757575;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+
+	code {
+		padding: 0;
+		background: none;
+		font-size: 12px;
+	}
+}
+
+.jetpack-send-danger {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding-block-start: 20px;
+	border-block-start: 1px solid #f0f0f0;
+
+	p {
+		margin: 0;
+	}
+}
+
+.jetpack-send-usage__bar {
+	block-size: 8px;
+	border-radius: 4px;
+	background: #f0f0f0;
+	overflow: hidden;
+}
+
+.jetpack-send-usage__fill {
+	block-size: 100%;
+	background: var(--jp-green-40, #069e08);
+}
+
+// A bare button so the tooltip trigger shows only the badge.
+.jetpack-send-status-trigger {
+	display: inline-flex;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: help;
+}
+
+// Keeps the badge by the subject; the close icon's auto margin centers it.
+.jetpack-send-email__heading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-inline-size: 0;
+}
+
+.jetpack-send-email__content {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.jetpack-send-email__message {
+	border: 1px solid #f0f0f0;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.jetpack-send-email__envelope {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 16px 20px;
+	border-block-end: 1px solid #f0f0f0;
+}
+
+.jetpack-send-email__meta {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 4px;
+	min-inline-size: 0;
+}
+
+.jetpack-send-email__name {
+	font-weight: 600;
+}
+
+.jetpack-send-email__address {
+	margin-inline-start: 4px;
+	color: #757575;
+}
+
+.jetpack-send-email__recipients {
+	display: grid;
+	grid-template-columns: max-content minmax(0, 1fr);
+	gap: 2px 8px;
+	margin: 0;
+	font-size: 12px;
+
+	div {
+		display: contents;
+	}
+
+	dt {
+		color: #757575;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+}
+
+.jetpack-send-email__date {
+	flex-shrink: 0;
+	color: #757575;
+	font-size: 12px;
+}
+
+.jetpack-send-email__frame {
+	display: block;
+	inline-size: 100%;
+	block-size: min(60vh, 640px);
+	border: 0;
+	background: #fff;
+}
+
+.jetpack-send-email__text {
+	padding: 24px;
+	font-size: 14px;
+	line-height: 1.5;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.jetpack-send-email__empty {
+	margin: 0;
+	padding: 24px;
+	color: #757575;
+}
+
+.jetpack-send-email__attachments {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0;
+	padding: 12px 20px 16px;
+	border-block-start: 1px solid #f0f0f0;
+	list-style: none;
+
+	li {
+		margin: 0;
+		padding: 4px 10px;
+		border: 1px solid #dcdcde;
+		border-radius: 4px;
+		font-size: 12px;
+	}
+}
+
+// Navy and blue set Send apart from the AI banner's green.
+// isolation keeps its layers under the sticky page header.
+.jetpack-send-banner {
+	position: relative;
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	min-block-size: 156px;
+	padding: 32px;
+	border-radius: 8px;
+	background: #0b1d3a;
+	overflow: hidden;
+	isolation: isolate;
+	container-type: inline-size;
+}
+
+.jetpack-send-banner__content {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-inline-size: 420px;
+}
+
+.jetpack-send-banner__title {
+	margin: 0;
+	color: #eef3ff;
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 32px;
+}
+
+.jetpack-send-banner__description {
+	margin: 0;
+	color: #c5d3f5;
+	font-size: 13px;
+	line-height: 20px;
+}
+
+.jetpack-send-banner__art {
+	position: absolute;
+	inset-block-start: 50%;
+	inset-inline-end: 24px;
+	inline-size: 280px;
+	transform: translateY(-50%);
+
+	&:dir(rtl) {
+		transform: translateY(-50%) scaleX(-1);
+	}
+}
+
+.jetpack-send-banner__close {
+	position: absolute;
+	inset-block-start: 8px;
+	inset-inline-end: 8px;
+	z-index: 1;
+	color: #fff;
+}
+
+// The art would sit under the copy on narrow screens.
+@container (max-width: 600px) {
+
+	.jetpack-send-banner__art {
+		display: none;
+	}
+}

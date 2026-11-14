@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add transactional email delivery through MailChannels.
