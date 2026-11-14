@@ -81,7 +81,7 @@ describe( 'ThreatDetails', () => {
 			undefined,
 			'active',
 			'current',
-			'Deactivate and delete',
+			'deactivate and delete this plugin',
 		],
 		[
 			'an inactive plugin',
@@ -90,7 +90,7 @@ describe( 'ThreatDetails', () => {
 			undefined,
 			'inactive',
 			'current',
-			'Delete it until',
+			'delete this',
 		],
 		[
 			'the active theme',
@@ -99,19 +99,27 @@ describe( 'ThreatDetails', () => {
 			undefined,
 			'active',
 			'current',
-			'Switch to another',
+			'switch to another theme',
 		],
-		[ 'a parent theme', 'themes', 'Extension', undefined, 'parent', 'current', 'built on it' ],
 		[
-			'an unused theme',
+			'a parent theme',
 			'themes',
 			'Extension',
 			undefined,
-			'inactive',
+			'parent',
 			'current',
-			'Delete it until',
+			'built on this one',
 		],
-		[ 'WordPress', undefined, 'Core', undefined, undefined, 'current', 'Update as soon as' ],
+		[ 'an unused theme', 'themes', 'Extension', undefined, 'inactive', 'current', 'delete this' ],
+		[
+			'WordPress',
+			undefined,
+			'Core',
+			undefined,
+			undefined,
+			'current',
+			'Update as soon as a release does',
+		],
 		[
 			'a fixed plugin',
 			'plugins',
@@ -144,6 +152,32 @@ describe( 'ThreatDetails', () => {
 			render( <ThreatDetails threat={ threat } canAct={ false } /> );
 
 			expect( screen.getByText( advice, { exact: false } ) ).toBeInTheDocument();
+		}
+	);
+
+	it.each( [
+		[ 'an unfixed plugin', 'plugins', 'Extension', undefined, 'current', true ],
+		[ 'an unfixed theme', 'themes', 'Extension', undefined, 'current', true ],
+		[ 'a plugin with a fixed version', 'plugins', 'Extension', '2.0.2', 'current', false ],
+		[ 'a fixed plugin', 'plugins', 'Extension', undefined, 'fixed', false ],
+		[ 'WordPress', undefined, 'Core', undefined, 'current', false ],
+	] as const )(
+		'explains that later versions are affected for %s: %p',
+		( _name, type, signature, fixedIn, status, shown ) => {
+			const threat: ScanThreat = {
+				id: 4,
+				signature: `Vulnerable.WP.${ signature }`,
+				title: 'Vulnerable software',
+				status,
+				fixedIn,
+				extension: type && { type, slug: 'akismet', name: 'Akismet', version: '4.8.2' },
+			};
+			render( <ThreatDetails threat={ threat } canAct={ false } /> );
+
+			expect( !! screen.queryByText( /Jetpack flags every version, including yours/ ) ).toBe(
+				shown
+			);
+			expect( !! screen.queryByText( /false positive, contact the (plugin|theme)/ ) ).toBe( shown );
 		}
 	);
 
