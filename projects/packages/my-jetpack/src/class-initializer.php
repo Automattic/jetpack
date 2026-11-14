@@ -1733,28 +1733,7 @@ class Initializer {
 	}
 
 	/**
-	 * Build the state the My Jetpack "try the new SEO experience" opt-in card hydrates from.
-	 *
-	 * The card invites an existing self-hosted install to switch over to the new Jetpack SEO
-	 * dashboard (JETPACK-1700). Gating lives server-side, where the signals actually are. The
-	 * card shows only when all of:
-	 *
-	 * - the new SEO product is available — the `rsm_jetpack_seo` feature filter is on (the SEO
-	 *   package autoloads regardless, so `class_exists()` alone isn't enough; the filter is the
-	 *   real availability switch and the same one the SEO package gates its own surface behind);
-	 * - the site is self-hosted — WordPress.com (Simple + Atomic) decides its own SEO surface, so
-	 *   the opt-in card is for self-hosted installs only;
-	 * - the install hasn't opted in yet — the SEO surface isn't visible. On wpcom
-	 *   the SEO package's `is_seo_surface_visible()` short-circuits to `true`, so the
-	 *   "not visible yet" check also doubles as the self-hosted guard, but we check the platform
-	 *   explicitly for clarity.
-	 *
-	 * Referenced through `class_exists()` rather than a hard composer dependency: both packages
-	 * ship inside the Jetpack plugin and the SEO surface is feature-flagged, so a guarded read of
-	 * its public API keeps this from adding plumbing to consumers that don't load SEO.
-	 *
-	 * The on-success destination is computed by the opt-in endpoint itself; we only seed the card
-	 * with the same admin URL so the button has a sensible fallback before the request resolves.
+	 * Build the legacy SEO opt-in card state through the package availability API.
 	 *
 	 * @return array{showCard: bool, redirect: string}
 	 */
