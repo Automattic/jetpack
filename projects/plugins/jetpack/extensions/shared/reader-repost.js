@@ -1,8 +1,10 @@
 import { createBlock } from '@wordpress/blocks';
-import { dispatch } from '@wordpress/data';
+import { dispatch, resolveSelect, select } from '@wordpress/data';
 import { escapeAttribute, escapeHTML } from '@wordpress/escape-html';
+import { __ } from '@wordpress/i18n';
 import { getQueryArgs } from '@wordpress/url';
 import { waitForEditor } from './wait-for-editor';
+import '@wordpress/notices';
 
 const queryArgs = getQueryArgs( window.location.href );
 
@@ -265,8 +267,80 @@ if ( safeUrl ) {
 				);
 			}
 		}
-		blocks.push( createBlock( 'core/embed', { url: safeUrl, type: 'wp-embed' } ) );
+		const embed = createBlock( 'core/embed', { url: safeUrl, type: 'wp-embed' } );
+		blocks.push( embed );
 
 		dispatch( 'core/editor' ).resetEditorBlocks( blocks );
+
+		// Core retries failed embeds without a trailing slash.
+		const previewUrls = safeUrl.endsWith( '/' ) ? [ safeUrl, safeUrl.slice( 0, -1 ) ] : [ safeUrl ];
+		for ( const previewUrl of previewUrls ) {
+			const preview = await resolveSelect( 'core' ).getEmbedPreview( previewUrl );
+			if ( preview?.html && ! select( 'core' ).isPreviewEmbedFallback( previewUrl ) ) {
+				return;
+			}
+		}
+
+		const blockEditor = select( 'core/block-editor' );
+		let currentBlock = blockEditor.getBlock( embed.clientId );
+		if ( ! currentBlock ) {
+			const entityBlock = select( 'core/editor' )
+				.getEditorBlocks()
+				.find( block => block.clientId === embed.clientId );
+			if (
+				! entityBlock ||
+				entityBlock.name !== 'core/embed' ||
+				! previewUrls.includes( entityBlock.attributes.url )
+			) {
+				return;
+			}
+
+			// Controlled Post Content clones the entity blocks with different client IDs.
+			const candidates = blockEditor.getBlocksByName( 'core/embed' ).filter( clientId => {
+				return (
+					previewUrls.includes( blockEditor.getBlock( clientId ).attributes.url ) &&
+					blockEditor.getBlockName( blockEditor.getBlockRootClientId( clientId ) ) ===
+						'core/post-content' &&
+					blockEditor.getBlockParentsByBlockName( clientId, 'core/query' ).length === 0
+				);
+			} );
+			if ( candidates.length > 1 ) {
+				return;
+			}
+			currentBlock = candidates.length === 1 ? blockEditor.getBlock( candidates[ 0 ] ) : null;
+		}
+
+		if (
+			currentBlock &&
+			( currentBlock.name !== 'core/embed' ||
+				! previewUrls.includes( currentBlock.attributes.url ) )
+		) {
+			return;
+		}
+
+		let linkAdded = false;
+		if ( currentBlock && blockEditor.canRemoveBlock( currentBlock.clientId ) ) {
+			const paragraph = createBlock( 'core/paragraph', {
+				content: `<a href="${ escapeAttribute( safeUrl ) }">${ escapeHTML( safeUrl ) }</a>`,
+			} );
+			dispatch( 'core/block-editor' ).replaceBlocks( currentBlock.clientId, paragraph );
+			linkAdded =
+				! blockEditor.getBlock( currentBlock.clientId ) &&
+				blockEditor.getBlock( paragraph.clientId )?.name === 'core/paragraph';
+		}
+		dispatch( 'core/notices' ).createNotice(
+			'warning',
+			linkAdded
+				? __(
+						'The original post could not be embedded. This can happen when its site is private or discourages search engines. A link to the original post has been added instead.',
+						'jetpack'
+					)
+				: __(
+						'The original post could not be embedded. This can happen when its site is private or discourages search engines.',
+						'jetpack',
+						/* dummy arg to avoid bad minification */ 0
+					),
+			{ isDismissible: true }
+		);
 	} )();
 }
