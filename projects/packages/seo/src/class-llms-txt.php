@@ -45,7 +45,7 @@ class Llms_Txt {
 	const MAX_MAIN_MENU_PAGES = 100;
 
 	/**
-	 * Page meta an owner sets to always list a page in llms.txt.
+	 * Post meta an owner sets to always list supported content in llms.txt.
 	 *
 	 * @var string
 	 */
@@ -99,19 +99,18 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Register the always-include page meta, so the Content tab can read and save it
-	 * through core REST like the page's other SEO fields, and keep it off on hidden pages.
+	 * Register the always-include meta for core REST and keep it off on hidden content.
 	 *
 	 * @return void
 	 */
 	public static function register_always_include() {
-		register_post_meta(
-			'page',
+		register_meta(
+			'post',
 			self::META_ALWAYS_INCLUDE,
 			array(
 				'type'         => 'boolean',
 				// Not translated: this runs before `init`, too early to load the text domain.
-				'description'  => 'Whether to always list the page in llms.txt.',
+				'description'  => 'Whether to always list the content in llms.txt.',
 				'single'       => true,
 				'default'      => false,
 				'show_in_rest' => true,
@@ -123,8 +122,7 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Keep "Always include" off while a page is hidden from search engines, from any editor,
-	 * so un-hiding the page doesn't bring it back.
+	 * Keep "Always include" off while content is hidden from search engines.
 	 *
 	 * @param int    $meta_id    Meta ID.
 	 * @param int    $post_id    Post ID.
@@ -136,7 +134,6 @@ class Llms_Txt {
 		if (
 			$meta_value
 			&& in_array( $meta_key, array( Content_Coverage::META_NOINDEX, self::META_ALWAYS_INCLUDE ), true )
-			&& 'page' === get_post_type( $post_id )
 			&& get_post_meta( $post_id, Content_Coverage::META_NOINDEX, true )
 		) {
 			delete_post_meta( $post_id, self::META_ALWAYS_INCLUDE );
@@ -418,12 +415,19 @@ class Llms_Txt {
 			return self::get_pages();
 		}
 
+		$always_included = self::get_always_included_posts( $post_type );
+		$room            = max( 0, self::MAX_POSTS_PER_TYPE - count( $always_included ) );
+		if ( 0 === $room ) {
+			return $always_included;
+		}
+
 		$args                   = self::query_args( $post_type );
-		$args['posts_per_page'] = self::MAX_POSTS_PER_TYPE;
+		$args['posts_per_page'] = $room;
+		$args['post__not_in']   = wp_list_pluck( $always_included, 'ID' );
 		$args['orderby']        = 'date';
 		$args['order']          = 'DESC';
 
-		return get_posts( $args );
+		return array_merge( $always_included, get_posts( $args ) );
 	}
 
 	/**
@@ -433,7 +437,7 @@ class Llms_Txt {
 	 * @return \WP_Post[]
 	 */
 	private static function get_pages() {
-		$always_included = self::get_always_included_pages();
+		$always_included = self::get_always_included_posts( 'page' );
 		$skip            = wp_list_pluck( $always_included, 'ID' );
 		$menus           = Nav_Menu_Pages::get();
 		$main            = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), self::MAX_MAIN_MENU_PAGES );
@@ -452,12 +456,13 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Listable pages the owner switched on to always include, sorted by {@see get_pages_by_order()}.
+	 * Fetch eligible content the owner switched on to always include.
 	 *
+	 * @param string $post_type Post type slug.
 	 * @return \WP_Post[]
 	 */
-	private static function get_always_included_pages() {
-		$args                   = self::query_args( 'page' );
+	private static function get_always_included_posts( $post_type ) {
+		$args                   = self::query_args( $post_type );
 		$args['meta_query']     = array(
 			// @phan-suppress-next-line PhanPluginMixedKeyNoKey
 			'relation' => 'AND',
@@ -468,8 +473,10 @@ class Llms_Txt {
 			),
 		);
 		$args['posts_per_page'] = -1;
+		$args['orderby']        = 'date';
+		$args['order']          = 'DESC';
 
-		return self::get_pages_by_order( $args );
+		return 'page' === $post_type ? self::get_pages_by_order( $args ) : get_posts( $args );
 	}
 
 	/**
