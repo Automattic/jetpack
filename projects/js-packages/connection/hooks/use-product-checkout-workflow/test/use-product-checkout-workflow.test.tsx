@@ -28,6 +28,7 @@ jest.unstable_mockModule( '../../../helpers/get-calypso-origin', () => ( {
 jest.unstable_mockModule( '../../../state/store.jsx', () => ( {
 	__esModule: true,
 	STORE_ID: 'jetpack-connection',
+	initConnectionStore: () => 'jetpack-connection',
 } ) );
 
 const useProductCheckoutWorkflow = ( await import( '../index' ) ).default;

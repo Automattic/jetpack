@@ -10,6 +10,15 @@ jest.mock( '@automattic/jetpack-script-data', () => {
 	};
 } );
 
+/*
+ * The nudge pulls in useAnalytics -> useConnection, which registers the connection store.
+ * This test only cares about the nudge, so stub useConnection out of that path.
+ */
+jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
+	__esModule: true,
+	default: () => ( { isUserConnected: false, isRegistered: false, userConnectionData: {} } ),
+} ) );
+
 describe( 'Stripe nudge component', () => {
 	describe( 'Membership store aware stripe nudge tests', () => {
 		const selectSpy = jest.spyOn( data, 'select' );

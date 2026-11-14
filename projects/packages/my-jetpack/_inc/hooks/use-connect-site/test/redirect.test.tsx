@@ -1,5 +1,5 @@
 import restApi from '@automattic/jetpack-api';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { initConnectionStore } from '@automattic/jetpack-connection';
 import { act, renderHook } from '@testing-library/react';
 import { dispatch } from '@wordpress/data';
 import { leavePageFor } from '../../../utils/reload-page';
@@ -36,11 +36,15 @@ jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 
 describe( 'useConnectSite', () => {
 	beforeEach( () => {
+		// jsdom doesn't implement scrollTo; connectSite calls it on a 100ms timer that a slow run reaches.
+		jest.spyOn( window, 'scrollTo' ).mockImplementation();
 		jest.clearAllMocks();
 		( restApi.registerSite as jest.Mock ).mockResolvedValue( { authorizeUrl: 'x' } );
 		// The connection store is shared, and each registration marks the site registered.
 		(
-			dispatch( CONNECTION_STORE_ID ) as { setConnectionStatus: ( status: object ) => void }
+			dispatch( initConnectionStore() ) as unknown as {
+				setConnectionStatus: ( status: object ) => void;
+			}
 		 ).setConnectionStatus( { isRegistered: false } );
 	} );
 
@@ -74,6 +78,6 @@ describe( 'useConnectSite', () => {
 			await result.current.connectSite( undefined );
 		} );
 
-		expect( restApi.registerSite ).toHaveBeenCalledWith( null, '', expected );
+		expect( restApi.registerSite ).toHaveBeenCalledWith( null, '', expected, 'jetpack-test' );
 	} );
 } );

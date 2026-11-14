@@ -84,7 +84,11 @@ export {
 /**
  * Store
  */
-export { STORE_ID as CONNECTION_STORE_ID } from './state/store';
+export {
+	/** @deprecated $$next-version$$ Call `initConnectionStore()` and select through the store descriptor it returns. */
+	STORE_ID as CONNECTION_STORE_ID,
+	initConnectionStore,
+} from './state/store';
 
 /**
  * Hooks

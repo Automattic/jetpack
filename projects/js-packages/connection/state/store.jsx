@@ -1,43 +1,16 @@
-/* eslint-disable no-console */
-
-import restApi from '@automattic/jetpack-api';
-import { getScriptData } from '@automattic/jetpack-script-data';
-import actions from './actions';
-import controls from './controls';
-import decodeInitialState from './decode-initial-state';
-import reducer from './reducers';
-import resolvers from './resolvers';
-import selectors from './selectors';
-import storeHolder from './store-holder';
-import STORE_ID from './store-id';
-
-const initialState = window.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection;
-
-/*
- * The registered store's controls call this copy's `restApi`, which otherwise is only configured
- * by hooks such as useConnection. Configure it here, or a request made before one renders has no root.
+/**
+ * Back-compat re-export.
+ *
+ * The `jetpack-connection` store moved to `@automattic/jetpack-shared-stores`
+ * so it is built into a single externalized bundle and registered only once.
+ * It is exposed on the package's `/connection` subpath and registers lazily via
+ * `initConnectionStore()` rather than as an import side effect, so consumers
+ * that don't use the connection store never register it. This shim preserves
+ * the historical `./state/store` import path (the `STORE_ID` name) and exposes
+ * the initializer.
  */
-if ( initialState?.apiRoot ) {
-	restApi.setApiRoot( initialState.apiRoot );
-}
-if ( initialState?.apiNonce ) {
-	restApi.setApiNonce( initialState.apiNonce );
-}
-
-if ( ! initialState ) {
-	console.error(
-		'Jetpack Connection package: Initial state is missing. Check documentation to see how to use the Connection composer package to set up the initial state.'
-	);
-}
-
-storeHolder.mayBeInit( STORE_ID, {
-	__experimentalUseThunks: true,
-	reducer,
-	actions,
-	selectors,
-	resolvers,
-	controls,
-	initialState: decodeInitialState( initialState || {} ),
-} );
-
-export { STORE_ID };
+export {
+	/** @deprecated $$next-version$$ Call `initConnectionStore()` and select through the store descriptor it returns. */
+	CONNECTION_STORE_ID as STORE_ID,
+	initConnectionStore,
+} from '@automattic/jetpack-shared-stores/connection';

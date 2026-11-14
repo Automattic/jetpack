@@ -83,10 +83,13 @@ function JetpackRestApiClient( root, nonce ) {
 			cacheBusterCallback = callback;
 		},
 
-		registerSite: ( deprecated, redirectUri, from ) => {
+		registerSite: ( deprecated, redirectUri, from, pluginSlug ) => {
 			const params = {};
 
-			if ( jetpackConfigHas( 'consumer_slug' ) ) {
+			// The caller's slug wins: a shared bundle's own jetpackConfig doesn't name the consuming plugin.
+			if ( pluginSlug ) {
+				params.plugin_slug = pluginSlug;
+			} else if ( jetpackConfigHas( 'consumer_slug' ) ) {
 				params.plugin_slug = jetpackConfigGet( 'consumer_slug' );
 			}
 

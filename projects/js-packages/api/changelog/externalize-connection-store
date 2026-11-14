@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Accept the plugin slug as an argument to registerSite(), ahead of the build-time jetpackConfig consumer_slug.

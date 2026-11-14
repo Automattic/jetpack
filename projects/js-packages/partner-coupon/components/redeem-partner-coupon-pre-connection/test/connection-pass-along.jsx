@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID, useConnection } from '@automattic/jetpack-connection';
+import { initConnectionStore, useConnection } from '@automattic/jetpack-connection';
 import { jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -9,9 +9,9 @@ let stubGetConnectionStatus;
 
 describe( 'RedeemPartnerCouponPreConnection', () => {
 	const setupSpies = () => {
-		const { result: dispatch } = renderHook( () => useDispatch( CONNECTION_STORE_ID ) );
+		const { result: dispatch } = renderHook( () => useDispatch( initConnectionStore() ) );
 		let storeSelect;
-		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
+		renderHook( () => useSelect( select => ( storeSelect = select( initConnectionStore() ) ) ) );
 
 		stubConnectUser = jest.spyOn( dispatch.current, 'connectUser' ).mockReset().mockReturnValue();
 		stubGetConnectionStatus = jest
@@ -42,6 +42,7 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 				registrationNonce: 'REGISTRATION',
 				redirectUri: 'admin.php?page=my-jetpack&partnerCoupon=TEST_TST_1234',
 				from: 'jetpack-partner-coupon',
+				pluginSlug: 'jetpack-test',
 			} );
 
 			expect( stubConnectUser ).toHaveBeenCalledTimes( 1 );

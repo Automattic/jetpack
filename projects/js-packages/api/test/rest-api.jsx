@@ -71,6 +71,14 @@ describe( 'restApi', () => {
 			} );
 		} );
 
+		it( 'sends the plugin slug it is given when registering the site', async () => {
+			fetch.mockFetchResponse( {} );
+			await restApi.registerSite( null, null, 'FROM', 'jetpack-social' );
+			expect( JSON.parse( fetch.mock.calls[ 0 ][ 1 ].body ) ).toEqual(
+				expect.objectContaining( { plugin_slug: 'jetpack-social', from: 'FROM' } )
+			);
+		} );
+
 		it( 'can fetchBackupPreflightStatus', async () => {
 			fetch.mockFetchResponse( { ok: true, tests: [] } );
 			const preflightStatus = await restApi.fetchBackupPreflightStatus();

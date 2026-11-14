@@ -1,6 +1,6 @@
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from 'react';
-import { STORE_ID } from '../state/store';
+import { initConnectionStore } from '../state/store';
 
 interface UnlinkOptions {
 	/** Force the disconnection. An administrator unlinking themselves needs it. */
@@ -31,7 +31,7 @@ interface UseUnlinkUserReturn {
 export default function useUnlinkUser(): UseUnlinkUserReturn {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ error, setError ] = useState( '' );
-	const { unlinkUser } = useDispatch( STORE_ID );
+	const { unlinkUser } = useDispatch( initConnectionStore() );
 
 	const unlink = useCallback(
 		async ( { force = false, disconnectAllUsers = false, errorMessage }: UnlinkOptions ) => {

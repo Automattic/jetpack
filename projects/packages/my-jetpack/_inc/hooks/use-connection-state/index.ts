@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { initConnectionStore, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -40,7 +40,7 @@ export type ConnectionState = {
 
 // The connection package's store is plain JS with no types, so describe the one selector read here.
 type StoreSelector = (
-	storeId: string
+	store: ReturnType< typeof initConnectionStore >
 ) => Record< 'getConnectionStatus', () => Record< string, unknown > >;
 
 /**
@@ -90,17 +90,21 @@ export function useConnectionState( {
 }: { skipSafeMode?: boolean; skipOfflineMode?: boolean } = {} ): ConnectionState {
 	const { isRegistered, isUserConnected, hasConnectedOwner, isOfflineMode, userConnectionData } =
 		useMyJetpackConnection();
-	const { isKnown, isSafeMode } = useSelect( select => {
-		const status = ( select as unknown as StoreSelector )(
-			CONNECTION_STORE_ID
-		).getConnectionStatus();
-		// getConnectionStatus() returns {} until the page's connection state is loaded into the store.
-		return {
-			isKnown: typeof status.isRegistered === 'boolean',
-			// `isStaging` is Status::in_safe_mode(), true while an identity crisis is unresolved.
-			isSafeMode: status.isStaging === true,
-		};
-	}, [] );
+	const connectionStore = initConnectionStore();
+	const { isKnown, isSafeMode } = useSelect(
+		select => {
+			const status = ( select as unknown as StoreSelector )(
+				connectionStore
+			).getConnectionStatus();
+			// getConnectionStatus() returns {} until the page's connection state is loaded into the store.
+			return {
+				isKnown: typeof status.isRegistered === 'boolean',
+				// `isStaging` is Status::in_safe_mode(), true while an identity crisis is unresolved.
+				isSafeMode: status.isStaging === true,
+			};
+		},
+		[ connectionStore ]
+	);
 	const errorNotice = useConnectionErrorNotice();
 
 	if ( ! isKnown ) {

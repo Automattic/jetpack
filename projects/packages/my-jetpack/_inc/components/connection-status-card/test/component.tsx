@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { initConnectionStore } from '@automattic/jetpack-connection';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
@@ -142,7 +142,7 @@ const setConnectionStore = ( {
 	isOfflineMode = false,
 } = {} ) => {
 	let storeSelect;
-	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ), [] ), {
+	renderHook( () => useSelect( select => ( storeSelect = select( initConnectionStore() ) ), [] ), {
 		wrapper: Providers,
 	} );
 	jest
