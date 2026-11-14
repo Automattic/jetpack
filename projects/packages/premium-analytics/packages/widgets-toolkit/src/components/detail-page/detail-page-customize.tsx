@@ -1,4 +1,5 @@
 import { Badge, Stack } from '@jetpack-premium-analytics/externals';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
@@ -135,31 +136,21 @@ export function useDetailPageCustomize(
 	};
 }
 
-export type DetailPageBreadcrumbsProps = {
-	isCustomizing: boolean;
-	/** The page's breadcrumbs. */
-	children: ReactNode;
-};
-
 /**
- * The breadcrumbs slot of a detail page: the trail, with a Customizing badge
- * beside it while customize mode is on.
+ * The badge a detail page shows while customizing. A phone's header has no room for it beside
+ * Cancel and Done, which say as much already.
  *
- * @param props               - Component props.
- * @param props.isCustomizing - Whether the page is in customize mode.
- * @param props.children      - The page's breadcrumbs.
- * @return The slot content.
+ * @return The badge, or nothing on a phone.
  */
-export function DetailPageBreadcrumbs( { isCustomizing, children }: DetailPageBreadcrumbsProps ) {
-	if ( ! isCustomizing ) {
-		return <>{ children }</>;
+export function CustomizingBadge() {
+	const isNarrow = useViewportMatch( 'small', '<' );
+
+	if ( isNarrow ) {
+		return null;
 	}
 
 	return (
-		<Stack direction="row" align="center" gap="sm">
-			{ children }
-			<Badge intent="informational">{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }</Badge>
-		</Stack>
+		<Badge intent="informational">{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }</Badge>
 	);
 }
 

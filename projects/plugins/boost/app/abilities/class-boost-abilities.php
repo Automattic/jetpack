@@ -16,6 +16,7 @@ use Automattic\Jetpack\WP_Abilities\Registrar;
 use Automattic\Jetpack_Boost\Modules\Features_Index;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 
 /**
@@ -112,7 +113,7 @@ class Boost_Abilities extends Registrar {
 
 			'jetpack-boost/set-module-status' => array(
 				'label'               => __( 'Set Boost module status', 'jetpack-boost' ),
-				'description'         => __( 'Enable or disable a single Jetpack Boost module by slug. Required: { slug, active }. Returns { slug, active, changed }. Idempotent: setting a module to its current state returns changed=false. Slugs use underscores (e.g. "critical_css", "page_cache"). Unknown slugs return jetpack_boost_invalid_slug; modules not loadable on this site return jetpack_boost_module_unavailable; always-on modules cannot be disabled and return jetpack_boost_module_always_on — call jetpack-boost/get-modules to enumerate available slugs. Toggling a parent module also drives submodule lifecycle.', 'jetpack-boost' ),
+				'description'         => __( 'Enable or disable a single Jetpack Boost module by slug. Required: { slug, active }. Returns { slug, active, changed }. Idempotent: setting a module to its current state returns changed=false. Slugs use underscores (e.g. "critical_css", "page_cache"). Unknown slugs return jetpack_boost_invalid_slug; modules not loadable on this site return jetpack_boost_module_unavailable; always-on modules cannot be disabled and return jetpack_boost_module_always_on — call jetpack-boost/get-modules to enumerate available slugs. Toggling a parent module also drives submodule lifecycle. Turning on page_cache also sets up the cache, as the Boost settings screen does; if that setup fails, the module stays on and jetpack_boost_page_cache_setup_failed explains why. When setup does something the site owner should know about, such as switching off WP Super Cache, the result (or the error data on failure) includes notices: [ { title, message } ]; pass them on to the user.', 'jetpack-boost' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'slug', 'active' ),
@@ -135,6 +136,16 @@ class Boost_Abilities extends Registrar {
 						'slug'    => array( 'type' => 'string' ),
 						'active'  => array( 'type' => 'boolean' ),
 						'changed' => array( 'type' => 'boolean' ),
+						'notices' => array(
+							'type'  => 'array',
+							'items' => array(
+								'type'       => 'object',
+								'properties' => array(
+									'title'   => array( 'type' => 'string' ),
+									'message' => array( 'type' => 'string' ),
+								),
+							),
+						),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'set_module_status' ),
@@ -429,38 +440,56 @@ class Boost_Abilities extends Registrar {
 			);
 		}
 
-		$current = $module->is_enabled();
-		if ( $desired === $current ) {
-			return array(
-				'slug'    => $slug,
-				'active'  => $current,
-				'changed' => false,
-			);
+		// A saved status reads back as "1", not true.
+		$changed = $desired !== (bool) $module->is_enabled();
+		if ( $changed ) {
+			if ( ! $module->update( $desired ) ) {
+				return new \WP_Error(
+					'jetpack_boost_module_update_failed',
+					__( 'Failed to persist the module status.', 'jetpack-boost' )
+				);
+			}
+
+			/**
+			 * Fires when a module is enabled or disabled through the abilities surface.
+			 *
+			 * Mirrors the action emitted by `Modules_State_Entry::set()` so submodule
+			 * lifecycle handlers fire identically regardless of caller.
+			 *
+			 * @param string $module_slug The module slug.
+			 * @param bool   $is_active   The new state.
+			 */
+			do_action( 'jetpack_boost_module_status_updated', $slug, $desired );
 		}
 
-		if ( ! $module->update( $desired ) ) {
-			return new \WP_Error(
-				'jetpack_boost_module_update_failed',
-				__( 'Failed to persist the module status.', 'jetpack-boost' )
-			);
+		$notices = array();
+		// Also when it was already on, as the settings screen does on load, so calling again retries a failed setup.
+		if ( $desired && Page_Cache::get_slug() === $slug ) {
+			$setup_result = Page_Cache_Setup::enable();
+			// A step can switch off WP Super Cache before a later step fails.
+			$notices = Page_Cache_Setup::get_notices();
+			if ( is_wp_error( $setup_result ) ) {
+				return new \WP_Error(
+					'jetpack_boost_page_cache_setup_failed',
+					sprintf(
+						/* translators: %s: setup error code, such as "wp-config-not-writable". */
+						__( 'Page Cache is on, but its setup failed (%s), so pages are not cached yet. Fix the problem shown in the Page Cache settings in Jetpack Boost, then call this again.', 'jetpack-boost' ),
+						$setup_result->get_error_code()
+					),
+					array( 'notices' => $notices )
+				);
+			}
 		}
 
-		/**
-		 * Fires when a module is enabled or disabled through the abilities surface.
-		 *
-		 * Mirrors the action emitted by `Modules_State_Entry::set()` so submodule
-		 * lifecycle handlers fire identically regardless of caller.
-		 *
-		 * @param string $module_slug The module slug.
-		 * @param bool   $is_active   The new state.
-		 */
-		do_action( 'jetpack_boost_module_status_updated', $slug, $desired );
-
-		return array(
+		$result = array(
 			'slug'    => $slug,
 			'active'  => $desired,
-			'changed' => true,
+			'changed' => $changed,
 		);
+		if ( $notices ) {
+			$result['notices'] = $notices;
+		}
+		return $result;
 	}
 
 	/**

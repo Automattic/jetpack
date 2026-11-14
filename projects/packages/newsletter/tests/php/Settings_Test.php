@@ -823,4 +823,43 @@ class Settings_Test extends BaseTestCase {
 			has_action( 'admin_menu', array( Settings::class, 'redirect_retired_subscribers_page' ) )
 		);
 	}
+
+	/**
+	 * Data provider for test_shell_landing_subtitle_is_the_tab_the_dashboard_opens.
+	 *
+	 * @return array[] Subscriber management on, Overview flag on, expected subtitle.
+	 */
+	public static function provide_landing_tabs() {
+		return array(
+			'Settings only' => array( false, true, 'Configure how your newsletter looks, behaves, and reaches subscribers.' ),
+			'Overview'      => array( true, true, 'View a summary of your newsletter.' ),
+			'Subscribers'   => array( true, false, 'Manage everyone subscribed to your site.' ),
+		);
+	}
+
+	/**
+	 * The admin shell's subtitle is that of the tab a bare Newsletter link opens: Settings, Overview, or Subscribers.
+	 *
+	 * @dataProvider provide_landing_tabs
+	 *
+	 * @param bool   $management Whether wp-admin subscriber management is on.
+	 * @param bool   $overview   Whether the Overview feature flag is on.
+	 * @param string $expected   Expected subtitle.
+	 */
+	#[DataProvider( 'provide_landing_tabs' )]
+	public function test_shell_landing_subtitle_is_the_tab_the_dashboard_opens( $management, $overview, $expected ) {
+		Settings::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, $overview ? '__return_true' : '__return_false' );
+		add_filter( 'jetpack_wp_admin_subscriber_management_enabled', $management ? '__return_true' : '__return_false' );
+		$method = new \ReflectionMethod( Settings::class, 'landing_subtitle' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		try {
+			$this->assertSame( $expected, $method->invoke( null ) );
+		} finally {
+			remove_all_filters( 'jetpack_wp_admin_subscriber_management_enabled' );
+		}
+	}
 }

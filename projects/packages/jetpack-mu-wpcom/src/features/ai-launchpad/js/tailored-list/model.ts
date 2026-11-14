@@ -46,6 +46,8 @@ export interface SiteData {
 	edit_url?: string | null;
 	// The site language (WordPress locale), which the AI output is written in.
 	language?: string;
+	// The site_intent option, which preselects the wizard goal when it matches one.
+	site_intent?: string;
 	// Copy written into the site's posts and pages, translated into the site language.
 	copy?: SiteCopy;
 }
@@ -69,6 +71,11 @@ export interface LaunchpadData {
 	list_completed?: boolean;
 	// Whether the next tailoring is for an AI-built site.
 	ai_built?: boolean;
+	// The goals step's ExPlat variation, or null when the user is not in the experiment.
+	goals_variation?: string | null;
+	mcp_detection?: boolean;
+	// Whether POST /mcp-access can allow full MCP access in place.
+	mcp_allow_full?: boolean;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */

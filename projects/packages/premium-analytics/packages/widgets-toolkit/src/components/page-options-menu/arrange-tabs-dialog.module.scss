@@ -1,0 +1,40 @@
+.list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.row {
+	margin: 0;
+	padding-block: var(--wpds-dimension-padding-xs);
+
+	& + & {
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
+.label {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+	overflow-wrap: anywhere;
+}
+
+// The badge follows the first row, and fades in where it lands.
+.badge {
+
+	@media not (prefers-reduced-motion) {
+		animation: appear var(--wpds-motion-duration-lg) var(--wpds-motion-easing-subtle);
+	}
+}
+
+@keyframes appear {
+
+	from {
+		opacity: 0;
+	}
+}
+
+// The footer lays its actions out from the end; this one sits at the start.
+.reset {
+	margin-inline-end: auto;
+}

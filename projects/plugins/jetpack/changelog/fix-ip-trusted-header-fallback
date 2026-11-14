@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Brute Force Protection: Allow the feature to turn on when the configured trusted IP header is empty or holds no valid address.

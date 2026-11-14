@@ -48,9 +48,11 @@ class PayPal_Platform_Client {
 	 * @param string     $path       PayPal API path, with any query string.
 	 * @param array|null $body       Request body for POST and PUT.
 	 * @param string     $request_id PayPal-Request-Id idempotency key.
+	 * @param array      $files      Files for an image upload, each with name, type and content.
+	 *                               WordPress.com sends them to PayPal as multipart/form-data.
 	 * @return array|\WP_Error A wp_remote_request()-shaped response, or WP_Error when the call never reached PayPal.
 	 */
-	public static function request( $method, $path, $body = null, $request_id = '' ) {
+	public static function request( $method, $path, $body = null, $request_id = '', $files = array() ) {
 		$merchant_id = PayPal_Partner_Onboarding::get_merchant_id();
 		if ( '' === $merchant_id ) {
 			return new \WP_Error(
@@ -73,6 +75,19 @@ class PayPal_Platform_Client {
 		$tracking_id = PayPal_Partner_Onboarding::get_referral_tracking_id();
 		if ( '' !== $tracking_id ) {
 			$params['tracking_id'] = $tracking_id;
+		}
+
+		if ( ! empty( $files ) ) {
+			$params['files'] = array_map(
+				function ( $file ) {
+					return array(
+						'name'    => (string) ( $file['name'] ?? 'image' ),
+						'type'    => (string) ( $file['type'] ?? 'application/octet-stream' ),
+						'content' => base64_encode( (string) ( $file['content'] ?? '' ) ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Binary file bytes in a JSON body.
+					);
+				},
+				array_values( $files )
+			);
 		}
 
 		$result = self::call_wpcom( 'POST', self::WPCOM_REQUEST_ROUTE, $params );

@@ -642,7 +642,6 @@ function createSkeleton( type, dir, name ) {
 function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
 	packageJson.name = `@automattic/jetpack-${ answers.name }`;
-	packageJson.version = '0.1.0-alpha';
 	packageJson.repository.directory = `projects/${ pluralize( answers.type ) }/${ answers.name }`;
 
 	if ( answers.type !== 'plugin' ) {

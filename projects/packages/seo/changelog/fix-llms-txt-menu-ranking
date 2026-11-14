@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+llms.txt: List pages from the main menu first, so they are not cut on sites with more than 50 pages.

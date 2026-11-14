@@ -23,6 +23,7 @@ namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\Helper as Search_Helper;
 use Automattic\Jetpack\Search\Plan;
+use Automattic\Jetpack\SEO\Content_Gate;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -35,6 +36,8 @@ const READER_CHAT_JS_URL                  = 'https://widgets.wp.com/agents-manag
 const READER_CHAT_CSS_URL                 = 'https://widgets.wp.com/agents-manager/reader-chat.css';
 const READER_CHAT_ASSET_TRANSIENT         = 'jetpack_reader_chat_asset';
 const READER_CHAT_ASSET_FAILURE_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+const READER_CHAT_QUERY_FILTER_OPTION     = 'reader_chat_query_filter';
+const READER_CHAT_QUERY_FILTER_MAX_BYTES  = 20000;
 
 /**
  * Handles loading the reader chat UI on the frontend.
@@ -78,6 +81,7 @@ class Jetpack_Reader_Chat {
 			return;
 		}
 
+		add_action( 'admin_init', array( __CLASS__, 'sync_query_filter_option' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'render_mount_div' ) );
 	}
@@ -100,6 +104,48 @@ class Jetpack_Reader_Chat {
 				'default'           => false,
 			)
 		);
+	}
+
+	/**
+	 * Evaluate the Site Chat content filter and store it where wpcom can read it.
+	 *
+	 * The filter is PHP on this site, so wpcom, which answers the chat requests,
+	 * can only enforce it through the synced `reader_chat_query_filter` option.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function sync_query_filter_option(): void {
+		/**
+		 * Filter the Elasticsearch filter clause that limits which content Site Chat can use.
+		 *
+		 * Same shape as the `adminQueryFilter` Instant Search option, but applied to
+		 * Site Chat only. Return an empty array to apply no restriction. For example,
+		 * to hide posts older than a date:
+		 *
+		 *   array( 'range' => array( 'date' => array( 'gte' => '2024-01-01' ) ) )
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $query_filter Elasticsearch filter clause. Default empty.
+		 */
+		$query_filter = apply_filters( 'jetpack_site_chat_query_filter', array() );
+
+		// An empty array, not a deleted option, so the autoloaded value never misses the cache.
+		if ( empty( $query_filter ) ) {
+			$query_filter = array();
+		}
+
+		$encoded = is_array( $query_filter ) ? wp_json_encode( $query_filter, JSON_UNESCAPED_SLASHES ) : false;
+		if ( false === $encoded || strlen( $encoded ) > READER_CHAT_QUERY_FILTER_MAX_BYTES ) {
+			// Keep the last good filter: clearing it would expose the content the owner hid.
+			$message = __( 'The Site Chat query filter must be an array under 20 KB. The previous filter stays in effect.', 'jetpack' );
+			_doing_it_wrong( 'jetpack_site_chat_query_filter', esc_html( $message ), '$$next-version$$' );
+			return;
+		}
+
+		update_option( READER_CHAT_QUERY_FILTER_OPTION, $query_filter, true );
 	}
 
 	/**
@@ -388,6 +434,11 @@ JS;
 		// currentPost envelope so the chat doesn't imply it "knows" the
 		// post's content either.
 		if ( post_password_required( $post ) ) {
+			return null;
+		}
+
+		// Gates apply when content renders, so check before reading raw post_content.
+		if ( Content_Gate::is_gated( $post ) ) {
 			return null;
 		}
 

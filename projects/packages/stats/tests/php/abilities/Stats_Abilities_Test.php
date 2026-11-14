@@ -126,6 +126,17 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Assert a reader's result validates against the output schema it declares, as execute() checks it.
+	 *
+	 * @param string $slug   Ability slug.
+	 * @param mixed  $result Result of the ability's execute callback.
+	 */
+	private function assert_matches_output_schema( string $slug, $result ): void {
+		$schema = Stats_Abilities::get_abilities()[ $slug ]['output_schema'];
+		$this->assertTrue( rest_validate_value_from_schema( $result, $schema, 'result' ) );
+	}
+
+	/**
 	 * Run a callable while the given Abilities API lifecycle action appears to be firing.
 	 *
 	 * The Registrar guards its register_* methods with `doing_action()`. Pushing onto
@@ -244,11 +255,11 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		}
 	}
 
-	public function test_update_settings_is_not_readonly_but_idempotent(): void {
+	public function test_update_settings_is_a_destructive_idempotent_write(): void {
 		$abilities = Stats_Abilities::get_abilities();
 		$ann       = $abilities['jetpack-stats/update-settings']['meta']['annotations'];
 		$this->assertFalse( $ann['readonly'] );
-		$this->assertFalse( $ann['destructive'] );
+		$this->assertTrue( $ann['destructive'], 'update-settings overwrites saved settings, so clients must confirm it' );
 		$this->assertTrue( $ann['idempotent'] );
 	}
 
@@ -275,15 +286,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_init_hooks_lifecycle_actions_when_gate_is_true(): void {
-		// Only valid when the Abilities API lifecycle actions have NOT yet fired.
-		// WP_Abilities_Registry::get_instance() fires `wp_abilities_api_init` on first call
-		// (in response to any wp_has_ability / wp_register_ability call elsewhere in the run),
-		// which would push the Registrar down its synchronous late-load path and this test
-		// would assert against a world it doesn't apply to.
-		if ( did_action( 'wp_abilities_api_init' ) || did_action( 'wp_abilities_api_categories_init' ) ) {
-			$this->markTestSkipped( 'Abilities API lifecycle already fired in this test run; late-load path covered elsewhere.' );
-		}
-
 		Stats_Abilities::init();
 
 		$this->assertNotFalse(
@@ -384,6 +386,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertFalse( Stats_Abilities::can_manage_settings() );
 	}
 
+	public function test_get_settings_denies_a_user_who_can_only_view_stats(): void {
+		Options::set_options( array( 'roles' => array( 'administrator', 'editor' ) ) );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'stats_abilities_editor_' . wp_generate_password( 8, false ),
+					'user_pass'  => 'pw',
+					'role'       => 'editor',
+				)
+			)
+		);
+		$spec = Stats_Abilities::get_abilities()['jetpack-stats/get-settings'];
+
+		$this->assertTrue( Stats_Abilities::can_view_stats() );
+		$this->assertFalse( call_user_func( $spec['permission_callback'] ) );
+	}
+
 	public function test_get_site_overview_returns_composed_shape(): void {
 		// An offset that puts the site on a different calendar day from UTC right now.
 		$offset = (int) gmdate( 'G' ) >= 12 ? 13 : -12;
@@ -402,6 +421,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$requests = $this->filter_wpcom_stats( $responses );
 
 		$result = Stats_Abilities::get_site_overview();
+		$this->assert_matches_output_schema( 'jetpack-stats/get-site-overview', $result );
 
 		$this->assertIsArray( $result );
 		$this->assertSame(
@@ -509,6 +529,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->filter_wpcom_stats( array( $method => $response ) + self::overview_responses() );
 
 		$result = Stats_Abilities::get_site_overview();
+		$this->assert_matches_output_schema( 'jetpack-stats/get-site-overview', $result );
 
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['partial'] );
@@ -561,6 +582,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				'max'  => 5,
 			)
 		);
+		$this->assert_matches_output_schema( 'jetpack-stats/get-top-content', $result );
 
 		$this->assertSame( 'posts', $result['type'] );
 		$this->assertSame( 'day', $result['period'] );
@@ -802,6 +824,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 
 		$result = Stats_Abilities::get_top_content( array( 'type' => 'tags' ) );
+		$this->assert_matches_output_schema( 'jetpack-stats/get-top-content', $result );
 
 		$this->assertSame(
 			array(
@@ -1154,6 +1177,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				'date'    => '2026-10-08',
 			)
 		);
+		$this->assert_matches_output_schema( 'jetpack-stats/get-post-views', $result );
 
 		$this->assertSame( $expected, $result['series'] );
 	}
@@ -1168,6 +1192,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				'num'     => 3,
 			)
 		);
+		$this->assert_matches_output_schema( 'jetpack-stats/get-post-views', $result );
 
 		$this->assertNull( $result['total_views'] );
 		$this->assertSame( array( null, null, null ), array_column( $result['series'], 'views' ) );
@@ -1268,6 +1293,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 
 		$result = Stats_Abilities::get_visits( array( 'fields' => array( 'views', 'likes', 'comments' ) ) );
+		$this->assert_matches_output_schema( 'jetpack-stats/get-visits', $result );
 
 		$this->assertSame( array( 'views', 'likes', 'comments' ), $result['fields'] );
 		$this->assertSame( 100, $result['series'][0]['views'] );
@@ -1324,6 +1350,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 
 		$result = Stats_Abilities::get_followers();
+		$this->assert_matches_output_schema( 'jetpack-stats/get-followers', $result );
 
 		$this->assertSame( 10, $result['email'] );
 		$this->assertSame( 25, $result['wpcom'] );
@@ -1374,6 +1401,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 
 		$result = Stats_Abilities::get_followers();
+		$this->assert_matches_output_schema( 'jetpack-stats/get-followers', $result );
 
 		$this->assertTrue( $result['partial'] );
 		$this->assertSame( array( 'comment_followers' ), $result['errors'] );

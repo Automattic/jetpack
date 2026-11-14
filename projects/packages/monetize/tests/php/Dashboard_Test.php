@@ -43,18 +43,31 @@ class Dashboard_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		Constants::clear_constants();
 		Cache::clear();
+		self::reset_sections();
 		parent::tear_down();
 	}
 
 	/**
-	 * The constants that identify each host, and whether init() should queue the sidebar item.
+	 * Empty the private section registry.
+	 */
+	private static function reset_sections() {
+		$sections = new \ReflectionProperty( Dashboard::class, 'sections' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$sections->setAccessible( true );
+		}
+		$sections->setValue( null, array() );
+	}
+
+	/**
+	 * The constants that identify each host, and whether init() should queue the sidebar item and the REST routes.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_hosts() {
 		return array(
-			'self-hosted' => array( array(), true ),
-			'Simple'      => array( array( 'IS_WPCOM' => true ), false ),
+			'self-hosted' => array( array(), true, true ),
+			'Simple'      => array( array( 'IS_WPCOM' => true ), false, false ),
 			'Atomic'      => array(
 				array(
 					'ATOMIC_SITE_ID'       => 1,
@@ -62,6 +75,7 @@ class Dashboard_Test extends BaseTestCase {
 					'WPCOMSH__PLUGIN_FILE' => 'wpcomsh.php',
 				),
 				false,
+				true,
 			),
 		);
 	}
@@ -71,15 +85,18 @@ class Dashboard_Test extends BaseTestCase {
 	 *
 	 * @param array $constants Host constants to set.
 	 * @param bool  $queued    Whether the sidebar item should be queued.
+	 * @param bool  $routes    Whether the REST routes should be registered.
 	 */
 	#[DataProvider( 'provide_hosts' )]
-	public function test_init_queues_the_item_only_off_the_wpcom_platform( $constants, $queued ) {
+	public function test_init_queues_the_item_off_the_wpcom_platform_and_routes_off_simple( $constants, $queued, $routes ) {
 		foreach ( $constants as $name => $value ) {
 			Constants::set_constant( $name, $value );
 		}
 
 		Dashboard::init( array( 'module' => 'monetize' ) );
 		$priority = has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) );
+
+		$this->assertSame( $routes, false !== has_action( 'rest_api_init', array( Dashboard::class, 'register_rest_routes' ) ) );
 
 		if ( ! $queued ) {
 			$this->assertFalse( $priority );
@@ -196,5 +213,210 @@ class Dashboard_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
+	}
+
+	/**
+	 * Tabs and the admin path that opens each; wp-build's router reads the search from `p`, never `&tab=`.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tab_urls() {
+		return array(
+			'Overview, the bare page' => array( 'overview', 'admin.php?page=jetpack-monetize' ),
+			'another tab'             => array( 'settings', 'admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dsettings' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_tab_urls
+	 *
+	 * @param string $tab  The tab's `?tab=` value.
+	 * @param string $path The admin path that opens it.
+	 */
+	#[DataProvider( 'provide_tab_urls' )]
+	public function test_get_tab_url_opens_the_tab( $tab, $path ) {
+		$this->assertSame( admin_url( $path ), Dashboard::get_tab_url( $tab ) );
+	}
+
+	public function test_init_registers_each_section_once() {
+		$doing_it_wrong = new \ArrayObject();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) use ( $doing_it_wrong ) {
+				$doing_it_wrong[] = $function_name;
+			}
+		);
+
+		Dashboard::init();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Running twice is the behavior under test.
+		Dashboard::init();
+
+		$this->assertSame( array( 'overview', 'payments', 'ads' ), array_keys( Dashboard::get_initial_state() ) );
+		$this->assertCount( 0, $doing_it_wrong );
+	}
+
+	public function test_register_section_refuses_a_taken_key() {
+		$doing_it_wrong = new \ArrayObject();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) use ( $doing_it_wrong ) {
+				$doing_it_wrong[] = $function_name;
+			}
+		);
+
+		Dashboard::register_section( $this->section( 'example', array( 'first' => true ) ) );
+		Dashboard::register_section( $this->section( 'example', array( 'second' => true ) ) );
+
+		$this->assertEquals( array( 'example' => (object) array( 'first' => true ) ), Dashboard::get_initial_state() );
+		$this->assertSame( array( Dashboard::class . '::register_section' ), $doing_it_wrong->getArrayCopy() );
+	}
+
+	/**
+	 * The `page` query arg, and the `monetize` script data keys each should end up with.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_script_data_pages() {
+		return array(
+			'the Monetize page' => array( 'jetpack-monetize', array( 'other', 'sections', 'upgradeUrl', 'tracks' ) ),
+			'another page'      => array( 'jetpack', array( 'other' ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_script_data_pages
+	 *
+	 * @param string   $page     The `page` query arg.
+	 * @param string[] $expected The `monetize` script data keys.
+	 */
+	#[DataProvider( 'provide_script_data_pages' )]
+	public function test_add_script_data_adds_the_page_data_only_on_the_monetize_page( $page, $expected ) {
+		$_GET['page'] = $page;
+		Dashboard::register_section( $this->section( 'example', array( 'title' => 'Ads' ) ) );
+		Dashboard::register_section( $this->section( 'empty', array() ) );
+
+		$data = Dashboard::add_script_data( array( 'monetize' => array( 'other' => 1 ) ) );
+
+		$this->assertSame( $expected, array_keys( $data['monetize'] ) );
+		if ( isset( $data['monetize']['sections'] ) ) {
+			$this->assertSame( '{"example":{"title":"Ads"},"empty":{}}', wp_json_encode( $data['monetize']['sections'], JSON_UNESCAPED_SLASHES ) );
+		}
+	}
+
+	public function test_upgrade_url_defaults_to_jetpack_creator() {
+		$this->assertStringContainsString( 'source=jetpack-creator-cta', Dashboard::get_upgrade_url() );
+	}
+
+	/**
+	 * A connection state, and whether the upgrade link should say the user is unlinked and carry a purchase token.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_connections() {
+		return array(
+			'not connected'   => array( 'none', true, false ),
+			'site connection' => array( 'site', true, true ),
+			'connected user'  => array( 'user', false, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_connections
+	 *
+	 * @param string $connection     'none', 'site' or 'user'.
+	 * @param bool   $unlinked       Whether the link should say the user is unlinked.
+	 * @param bool   $purchase_token Whether the link should carry a purchase token.
+	 */
+	#[DataProvider( 'provide_connections' )]
+	public function test_upgrade_url_carries_the_checkout_arguments_for_the_connection( $connection, $unlinked, $purchase_token ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		if ( 'none' !== $connection ) {
+			\Jetpack_Options::update_option( 'id', 1234 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog.secret' );
+		}
+		if ( 'user' === $connection ) {
+			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+
+		$query = array();
+		wp_parse_str( (string) wp_parse_url( Dashboard::get_upgrade_url(), PHP_URL_QUERY ), $query );
+		wp_parse_str( $query['query'] ?? '', $checkout );
+
+		$this->assertSame( $unlinked, isset( $checkout['unlinked'] ) );
+		$this->assertSame( $purchase_token, ! empty( $checkout['purchasetoken'] ) );
+		if ( $purchase_token ) {
+			$this->assertSame( \Jetpack_Options::get_option( 'purchase_token' ), $checkout['purchasetoken'] );
+		}
+	}
+
+	public function test_upgrade_url_follows_a_host_that_sells_its_own_plans() {
+		add_filter(
+			'jetpack_feature_upgrade',
+			function ( $upgrade, $slug ) {
+				return Dashboard::UPGRADE_SLUG === $slug ? array( 'url' => 'https://example.com/plans' ) : $upgrade;
+			},
+			10,
+			2
+		);
+
+		$this->assertSame( 'https://example.com/plans', Dashboard::get_upgrade_url() );
+	}
+
+	/**
+	 * A section with a fixed key and state, and no routes.
+	 *
+	 * @param string $key   Section key.
+	 * @param array  $state Section state.
+	 * @return Dashboard_Section
+	 */
+	private function section( $key, array $state ) {
+		return new class( $key, $state ) implements Dashboard_Section {
+			/**
+			 * Section key.
+			 *
+			 * @var string
+			 */
+			private $key;
+
+			/**
+			 * Section state.
+			 *
+			 * @var array
+			 */
+			private $state;
+
+			/**
+			 * @param string $key   Section key.
+			 * @param array  $state Section state.
+			 */
+			public function __construct( $key, array $state ) {
+				$this->key   = $key;
+				$this->state = $state;
+			}
+
+			/** @return string */
+			public function get_key() {
+				return $this->key;
+			}
+
+			/** @return array */
+			public function get_state() {
+				return $this->state;
+			}
+
+			/** @return void */
+			public function register_routes() {}
+		};
 	}
 }

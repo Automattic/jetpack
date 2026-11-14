@@ -77,4 +77,49 @@ class Comment_Form_Test extends BaseTestCase {
 			'logged in, bad nonce, other site' => array( true, 'stale', 'https://evil.test', false ),
 		);
 	}
+
+	public function test_markup_keeps_the_theme_submit_button() {
+		// Not render(): it enqueues the JS build, which CI's PHP tests run without.
+		$method = new \ReflectionMethod( Comment_Form::class, 'markup' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true ); // Deprecated in PHP 8.5, needed before 8.1.
+		}
+
+		$markup = $method->invoke(
+			Comment_Form::init(),
+			array(
+				'submit_button' => '<input name="custom-%1$s" type="submit" id="custom-%2$s" class="%3$s" value="custom-%4$s" />',
+				'name_submit'   => 'foo-name',
+				'id_submit'     => 'foo-id',
+				'class_submit'  => 'foo-class',
+				'label_submit'  => 'foo-label',
+			)
+		);
+
+		$this->assertStringContainsString( '<input name="custom-foo-name" type="submit" id="custom-foo-id" class="foo-class" value="custom-foo-label" />', $markup );
+	}
+
+	/**
+	 * @dataProvider provide_site_name_is_plain_text
+	 */
+	#[DataProvider( 'provide_site_name_is_plain_text' )]
+	public function test_site_name_is_plain_text( $saved, $expected ) {
+		// Saving runs the name through esc_html(), so the option holds "The Horse&#039;s Tale &amp; Co".
+		update_option( 'blogname', $saved );
+
+		$method = new \ReflectionMethod( Comment_Form::class, 'site_name' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true ); // Deprecated in PHP 8.5, needed before 8.1.
+		}
+
+		$this->assertSame( $expected, $method->invoke( null ) );
+	}
+
+	public static function provide_site_name_is_plain_text() {
+		return array(
+			'apostrophe and ampersand' => array( 'The Horse\'s Tale & Co', 'The Horse\'s Tale & Co' ),
+			'quotes'                   => array( 'The "Best" Tale', 'The "Best" Tale' ),
+			'markup'                   => array( '<b>Tale</b>', '<b>Tale</b>' ),
+		);
+	}
 }

@@ -1,6 +1,5 @@
 {
 	"name": "@automattic/jetpack-premium-analytics-widget-react-query-dev-tool",
-	"version": "0.1.0-alpha",
 	"private": true,
 	"type": "module"
 }

@@ -114,6 +114,16 @@ class Jetpack_Sitemap_Manager {
 			defined( 'IS_WPCOM' ) && IS_WPCOM ? 100 : 10
 		);
 
+		add_action( 'template_redirect', array( $this, 'callback_redirect_core_index' ), 0 );
+		add_filter( 'robots_txt', array( $this, 'callback_filter_core_robots' ), 1 );
+		add_filter( 'wp_sitemaps_posts_query_args', array( $this, 'callback_filter_core_query' ) );
+		add_filter( 'the_posts', array( $this, 'callback_filter_core_posts' ), 10, 2 );
+		add_action( 'wp_loaded', array( __CLASS__, 'callback_purge_pending_index_cache' ), 20 );
+		add_action( 'wp_after_insert_post', array( __CLASS__, 'callback_sitemap_saved' ), 10, 4 );
+		add_action( 'jetpack_activate_module_sitemaps', array( __CLASS__, 'callback_invalidate_index_cache' ) );
+		add_action( 'jetpack_deactivate_module_sitemaps', array( __CLASS__, 'callback_invalidate_index_cache' ) );
+		add_action( 'deleted_post', array( __CLASS__, 'callback_sitemap_deleted' ), 10, 2 );
+
 		// Add generator to wp_cron task list.
 		$this->schedule_sitemap_generation();
 
@@ -154,6 +164,217 @@ class Jetpack_Sitemap_Manager {
 	}
 
 	/**
+	 * Whether Jetpack has stored a generated master index.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public function is_sitemap_ready() {
+		return '' !== $this->librarian->get_sitemap_text(
+			jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, '0' ),
+			JP_MASTER_SITEMAP_TYPE
+		);
+	}
+
+	/**
+	 * Redirect submitted core indexes without breaking their child sitemap URLs.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function callback_redirect_core_index() {
+		if ( 'index' !== get_query_var( 'sitemap' ) || ! $this->is_sitemap_ready() || ! wp_sitemaps_get_server()->sitemaps_enabled() ) {
+			return;
+		}
+
+		$this->prevent_caching();
+		wp_safe_redirect( jetpack_sitemap_uri(), 301, 'Jetpack' );
+		exit;
+	}
+
+	/**
+	 * Advertise only Jetpack's index once it is available.
+	 *
+	 * @since $$next-version$$
+	 * @param string $output Robots.txt contents.
+	 * @return string
+	 */
+	public function callback_filter_core_robots( $output ) {
+		if ( ! $this->is_sitemap_ready() ) {
+			return $output;
+		}
+
+		$core_line = 'Sitemap: ' . esc_url( get_sitemap_url( 'index' ) );
+		return preg_replace( '/^' . preg_quote( $core_line, '/' ) . '\r?(?:\n|$)/m', '', $output );
+	}
+
+	/**
+	 * Apply SEO exclusions to core's fallback queries, including their page counts.
+	 *
+	 * @since $$next-version$$
+	 * @param array $args Core sitemap query arguments.
+	 * @return array
+	 */
+	public function callback_filter_core_query( $args ) {
+		$args['jetpack_sitemap_fallback'] = true;
+		if ( has_filter( 'jetpack_sitemap_skip_post', array( 'Jetpack_SEO_Posts', 'exclude_noindex_posts_from_jetpack_sitemap' ) ) && Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+			$indexable          = array(
+				'relation'         => 'OR',
+				'noindex_missing'  => array(
+					'key'     => 'jetpack_seo_noindex',
+					'compare' => 'NOT EXISTS',
+				),
+				'noindex_disabled' => array(
+					'key'     => 'jetpack_seo_noindex',
+					'value'   => array( '', '0' ),
+					'compare' => 'IN',
+				),
+			);
+			$args['meta_query'] = empty( $args['meta_query'] ) ? $indexable : array(
+				'relation'          => 'AND',
+				'existing'          => $args['meta_query'],
+				'jetpack_indexable' => $indexable,
+			); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Scoped sitemap queries must exclude noindex posts before pagination.
+		}
+		return $args;
+	}
+
+	/**
+	 * Preserve custom Jetpack post exclusions on core's fallback sitemap pages.
+	 *
+	 * @since $$next-version$$
+	 * @param WP_Post[] $posts Query results.
+	 * @param WP_Query  $query Current query.
+	 * @return WP_Post[]
+	 */
+	public function callback_filter_core_posts( $posts, $query ) {
+		if ( ! $query->get( 'jetpack_sitemap_fallback' ) ) {
+			return $posts;
+		}
+		update_meta_cache( 'post', wp_list_pluck( $posts, 'ID' ) );
+		return array_values(
+			array_filter(
+				$posts,
+				static function ( $post ) {
+					return true !== apply_filters( 'jetpack_sitemap_skip_post', false, $post );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Invalidate only the index and discovery URLs after a stored index changes.
+	 *
+	 * @since $$next-version$$
+	 * @return string[] Discovery URLs supplied to cache adapters.
+	 */
+	public static function callback_invalidate_index_cache() {
+		$url       = jetpack_sitemap_uri();
+		$urls      = array_unique( array( $url, get_sitemap_url( 'index' ), home_url( '/robots.txt' ) ) );
+		$clear_url = function_exists( 'batcache_clear_url' ) ? 'batcache_clear_url' : null;
+		if ( ! $clear_url && function_exists( 'pcm_flush_batcache_url' ) ) {
+			$clear_url = 'pcm_flush_batcache_url';
+		}
+		if ( $clear_url && defined( 'WP_CLI' ) && WP_CLI && ! get_option( 'jetpack_sitemap_pending_cache_purge' ) ) {
+			update_option( 'jetpack_sitemap_pending_cache_purge', 'urls', true );
+		}
+		if ( $clear_url && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			// Batcache shares a URL version across query variants, except for the "p" parameter.
+			$cache_urls = array();
+			foreach ( $urls as $cached_url ) {
+				$query = array();
+				wp_parse_str( (string) wp_parse_url( $cached_url, PHP_URL_QUERY ), $query );
+				$cache_urls[] = remove_query_arg( array_diff( array_keys( $query ), array( 'p' ) ), $cached_url );
+			}
+			foreach ( array_unique( $cache_urls ) as $cached_url ) {
+				$clear_url( $cached_url );
+			}
+		}
+
+		/**
+		 * Invalidate sitemap discovery responses in additional page caches.
+		 *
+		 * @since $$next-version$$
+		 * @param string   $url  Jetpack sitemap index URL.
+		 * @param string[] $urls Sitemap index and discovery URLs to invalidate.
+		 */
+		do_action( 'jetpack_sitemap_index_updated', $url, $urls );
+		return $urls;
+	}
+
+	/**
+	 * Purge cached pending responses when the first usable index is stored.
+	 *
+	 * @since $$next-version$$
+	 * @param int           $post_id Stored post ID.
+	 * @param \WP_Post|null $post Stored sitemap post.
+	 * @param bool          $update Whether this updates an existing post.
+	 * @param \WP_Post|null $post_before Previously stored post, if any.
+	 */
+	public static function callback_sitemap_saved( $post_id, $post, $update, $post_before ) {
+		if ( ! $post instanceof \WP_Post || JP_MASTER_SITEMAP_TYPE !== $post->post_type || jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, '0' ) !== $post->post_title ) {
+			return;
+		}
+
+		if ( '' !== $post->post_content && ( ! $post_before || '' === $post_before->post_content ) ) {
+			update_option( 'jetpack_sitemap_pending_cache_purge', 'first-build', true );
+			if ( ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+				self::callback_purge_pending_index_cache();
+				return;
+			}
+		}
+		self::callback_invalidate_index_cache();
+	}
+
+	/**
+	 * Finish deferred cache recovery in a web bootstrap with host cache APIs.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function callback_purge_pending_index_cache() {
+		$pending = get_option( 'jetpack_sitemap_pending_cache_purge' );
+		if ( ( defined( 'WP_CLI' ) && WP_CLI ) || ! $pending ) {
+			if ( false === $pending ) {
+				add_option( 'jetpack_sitemap_pending_cache_purge', '', '', true );
+			}
+			return;
+		}
+		if ( ! update_option( 'jetpack_sitemap_pending_cache_purge', '', true ) ) {
+			return;
+		}
+		$urls = self::callback_invalidate_index_cache();
+		if ( 'first-build' === $pending ) {
+			// Some hosts also flush the whole origin; avoid doing that on routine rebuilds.
+			do_action( 'edge_cache_purge_uris', $urls );
+		}
+	}
+
+	/**
+	 * Invalidate discovery responses when the generated index is removed.
+	 *
+	 * @since $$next-version$$
+	 * @param int           $post_id Deleted post ID.
+	 * @param \WP_Post|null $post Deleted post.
+	 */
+	public static function callback_sitemap_deleted( $post_id, $post ) {
+		if ( $post instanceof \WP_Post && JP_MASTER_SITEMAP_TYPE === $post->post_type ) {
+			self::callback_invalidate_index_cache();
+		}
+	}
+
+	/**
+	 * Keep pending sitemap responses and reversible redirects out of page caches.
+	 *
+	 * @since $$next-version$$
+	 */
+	private function prevent_caching() {
+		nocache_headers();
+		if ( function_exists( 'batcache_cancel' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Optional Batcache API, guarded above.
+			batcache_cancel();
+		}
+	}
+
+	/**
 	 * Echo a raw string of given content-type.
 	 *
 	 * @access private
@@ -171,6 +392,7 @@ class Jetpack_Sitemap_Manager {
 		set_query_var( 'feed', 'sitemap' );
 
 		if ( '' === $the_content ) {
+			$this->prevent_caching();
 			$error = __( 'No sitemap found. Please try again later.', 'jetpack' );
 			if ( current_user_can( 'manage_options' ) ) {
 				$next = human_time_diff( wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
@@ -236,12 +458,16 @@ class Jetpack_Sitemap_Manager {
 			// Catch master sitemap xml.
 			if ( 'sitemap.xml' === $request['sitemap_name'] ) {
 				$sitemap_content = $this->librarian->get_sitemap_text(
-					jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
+					jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, '0' ),
 					JP_MASTER_SITEMAP_TYPE
 				);
 
-				// if there is no master sitemap yet, let's just return an empty sitemap with a short TTL instead of a 404.
 				if ( empty( $sitemap_content ) ) {
+					$this->prevent_caching();
+					if ( wp_sitemaps_get_server()->sitemaps_enabled() ) {
+						wp_safe_redirect( get_sitemap_url( 'index' ), 302, 'Jetpack' );
+						exit;
+					}
 					$builder         = new Jetpack_Sitemap_Builder();
 					$sitemap_content = $builder->empty_sitemap_xml();
 				}
@@ -463,7 +689,7 @@ class Jetpack_Sitemap_Manager {
 		 */
 		$discover_sitemap = apply_filters( 'jetpack_sitemap_include_in_robotstxt', $discover_sitemap );
 
-		if ( true === $discover_sitemap ) {
+		if ( true === $discover_sitemap && $this->is_sitemap_ready() ) {
 			$sitemap_url = $this->finder->construct_sitemap_url( 'sitemap.xml' );
 			echo 'Sitemap: ' . esc_url( $sitemap_url ) . "\n";
 		}

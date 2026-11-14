@@ -31,7 +31,7 @@ export { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './
 export { parseDateStepId, type DateStepId, type StepDirection } from './step-date-range';
 export { planDateStep, type DateStep, type DateStepContext } from './plan-date-step';
 
-export { drillDateRange } from './drill-date-range';
+export { drillDateRange, isDrillableInterval, type DrillableInterval } from './drill-date-range';
 
 export { toBucketStamp, resolveBucketStamp } from './bucket-stamp';
 
@@ -67,6 +67,7 @@ export {
 	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
+	PRESET_LAST_3_YEARS,
 	PRESET_CUSTOM,
 	PRESET_ALL_TIME,
 	MENU_SURFACE_PRESETS,

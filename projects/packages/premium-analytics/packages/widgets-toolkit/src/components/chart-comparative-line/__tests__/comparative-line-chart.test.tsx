@@ -303,9 +303,19 @@ describe( 'ComparativeLineChart', () => {
 		} );
 
 		it( 'keeps a percentage metric on 0 to 100% whatever the baseline', () => {
+			const rates: ComparativeLineChartSeries[] = [
+				{
+					label: 'Rate',
+					group: 'rate',
+					data: [
+						{ date: JULY_1, value: 0.4 },
+						{ date: JULY_2, value: 0.42 },
+					],
+				},
+			];
 			render(
 				<ComparativeLineChart
-					series={ STEADY }
+					series={ rates }
 					dataFormat={ { type: 'percentage', options: { decimals: 0 } } }
 					baseline="padded"
 				/>

@@ -73,6 +73,7 @@ You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000
 * `PORT_SMTP`: (default=`25`) The port on your host machine connected to the Mailpit container's SMTP server.
 * `PORT_PHPMY`: (default=`8181`) The port on your host machine connected to the phpMyAdmin container's web interface.
 * `PORT_SFTP`: (default=`1022`) The port on your host machine connected to the SFTP container's SFTP server.
+* `PULL_POLICY`: (default varies) If set to `never`, Docker will no longer try to retrieve the latest image.
 
 ### Container Environments
 

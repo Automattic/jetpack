@@ -1,6 +1,8 @@
 import actions, {
 	SET_USER_IS_CONNECTING,
 	CONNECT_USER,
+	CLEAR_USER_CONNECTION_ERROR,
+	SET_USER_CONNECTION_ERROR,
 	CLEAR_REGISTRATION_ERROR,
 	SET_SITE_IS_REGISTERING,
 	REGISTER_SITE,
@@ -15,6 +17,7 @@ describe( 'actions', () => {
 			const redirectFunc = () => {};
 			const from = 'FROM';
 			const action = actions.connectUser( { from, redirectFunc } );
+			expect( action.next().value ).toEqual( { type: CLEAR_USER_CONNECTION_ERROR } );
 			expect( action.next().value ).toEqual( {
 				isConnecting: true,
 				type: SET_USER_IS_CONNECTING,
@@ -25,6 +28,7 @@ describe( 'actions', () => {
 				redirectFunc,
 				redirectUri: undefined,
 			} );
+			expect( action.next() ).toEqual( { done: true, value: undefined } );
 		} );
 
 		it( 'connect user with redirectUri', () => {
@@ -32,6 +36,7 @@ describe( 'actions', () => {
 			const from = 'FROM';
 			const redirectUri = 'REDIRECT';
 			const action = actions.connectUser( { from, redirectFunc, redirectUri } );
+			expect( action.next().value ).toEqual( { type: CLEAR_USER_CONNECTION_ERROR } );
 			expect( action.next().value ).toEqual( {
 				isConnecting: true,
 				type: SET_USER_IS_CONNECTING,
@@ -42,6 +47,24 @@ describe( 'actions', () => {
 				redirectFunc,
 				redirectUri,
 			} );
+		} );
+
+		it( 'records the error, resets the flag and rejects when the connection fails', async () => {
+			const error = new Error( 'failed' );
+			const action = actions.connectUser();
+			action.next();
+			action.next();
+			action.next();
+
+			expect( action.throw( error ).value ).toEqual( {
+				type: SET_USER_CONNECTION_ERROR,
+				userConnectionError: error,
+			} );
+			expect( action.next().value ).toEqual( {
+				type: SET_USER_IS_CONNECTING,
+				isConnecting: false,
+			} );
+			await expect( action.next().value ).rejects.toBe( error );
 		} );
 	} );
 
@@ -54,6 +77,7 @@ describe( 'actions', () => {
 			const action = actions.registerSite( { registrationNonce, redirectUri, from } );
 
 			expect( action.next().value ).toEqual( { type: CLEAR_REGISTRATION_ERROR } );
+			expect( action.next().value ).toEqual( { type: CLEAR_USER_CONNECTION_ERROR } );
 			expect( action.next().value ).toEqual( {
 				type: SET_SITE_IS_REGISTERING,
 				isRegistering: true,
@@ -90,6 +114,7 @@ describe( 'actions', () => {
 			const action = actions.registerSite( { registrationNonce, redirectUri, from } );
 
 			expect( action.next().value ).toEqual( { type: CLEAR_REGISTRATION_ERROR } );
+			expect( action.next().value ).toEqual( { type: CLEAR_USER_CONNECTION_ERROR } );
 			expect( action.next().value ).toEqual( {
 				type: SET_SITE_IS_REGISTERING,
 				isRegistering: true,

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Admin shell guest loader: drop the manual chapters-editor route strip, now that the shell fires the page init action that does it.
+
+

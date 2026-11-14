@@ -8,10 +8,15 @@
 namespace Automattic\Jetpack\Monetize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
+use Jetpack_Options;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -59,6 +64,24 @@ class Dashboard {
 	const RENDER_FUNCTION = 'jetpack_monetize_jetpack_monetize_dashboard_wp_admin_render_page';
 
 	/**
+	 * The slug the `jetpack_feature_upgrade` filter sees for this page's upgrade links.
+	 *
+	 * @var string
+	 */
+	const UPGRADE_SLUG = 'monetize-dashboard';
+
+	/**
+	 * The dashboard's sections.
+	 *
+	 * @var string[]
+	 */
+	const SECTIONS = array(
+		Sections\Overview::class,
+		Sections\Payments::class,
+		Sections\Ads::class,
+	);
+
+	/**
 	 * Extra Admin_Menu item options, such as the module that owns the item.
 	 *
 	 * @var array
@@ -71,6 +94,13 @@ class Dashboard {
 	 * @var string|null
 	 */
 	private static $original_screen_id = null;
+
+	/**
+	 * Registered sections, keyed by section key.
+	 *
+	 * @var Dashboard_Section[]
+	 */
+	private static $sections = array();
 
 	/**
 	 * Register the flag. Hosts call this before they decide whether to load the dashboard.
@@ -113,6 +143,167 @@ class Dashboard {
 			// Before Admin_Menu registers its items at 1000.
 			add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		}
+
+		// Simple reaches WordPress.com directly, so it needs none of the forwarding routes.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		}
+
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
+		add_action( 'admin_enqueue_scripts', array( Tracks::class, 'enqueue_transport' ) );
+
+		self::register_sections();
+	}
+
+	/**
+	 * Register each of SECTIONS, skipping keys already registered so init() can run twice.
+	 *
+	 * @return void
+	 */
+	private static function register_sections() {
+		foreach ( self::SECTIONS as $class ) {
+			$section = new $class();
+			if ( ! isset( self::$sections[ $section->get_key() ] ) ) {
+				self::register_section( $section );
+			}
+		}
+	}
+
+	/**
+	 * Add a section to the dashboard.
+	 *
+	 * @param Dashboard_Section $section The section.
+	 * @return void
+	 */
+	public static function register_section( Dashboard_Section $section ) {
+		$key = $section->get_key();
+		if ( isset( self::$sections[ $key ] ) ) {
+			/* translators: %s is a dashboard section key. */
+			$message = sprintf( __( 'A Monetize dashboard section with the key "%s" is already registered.', 'jetpack-monetize' ), $key );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
+			return;
+		}
+		self::$sections[ $key ] = $section;
+	}
+
+	/**
+	 * Register every section's REST routes.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_routes() {
+		foreach ( self::$sections as $section ) {
+			$section->register_routes();
+		}
+	}
+
+	/**
+	 * Whether the current user may see the dashboard and use its REST routes.
+	 *
+	 * @return bool
+	 */
+	public static function can_manage() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Each section's state, keyed by section key.
+	 *
+	 * @return object[]
+	 */
+	public static function get_initial_state() {
+		$state = array();
+		foreach ( self::$sections as $key => $section ) {
+			// An empty array would print as `[]`, and the page reads every section's state as an object.
+			$state[ $key ] = (object) $section->get_state();
+		}
+		return $state;
+	}
+
+	/**
+	 * Add the page's data to `JetpackScriptData.monetize` on the dashboard's page: each section's state, and what every tab shares.
+	 *
+	 * @param array $data Script data.
+	 * @return array
+	 */
+	public static function add_script_data( $data ) {
+		if ( ! self::is_dashboard_request() ) {
+			return $data;
+		}
+
+		$data['monetize']['sections']   = (object) self::get_initial_state();
+		$data['monetize']['upgradeUrl'] = self::get_upgrade_url();
+		$data['monetize']['tracks']     = Tracks::is_allowed();
+
+		return Tracks::add_identity( $data );
+	}
+
+	/**
+	 * Where the page's upgrade links go: Jetpack Creator, unless a host sends them to its own plans.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public static function get_upgrade_url() {
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '',
+				'name'     => 'Jetpack Creator', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
+			),
+			self::UPGRADE_SLUG,
+			false
+		);
+
+		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
+
+		return $url ? $url : self::get_jetpack_creator_url();
+	}
+
+	/**
+	 * Jetpack Creator's checkout, with the arguments Jetpack's other upgrade links carry.
+	 *
+	 * @return string
+	 */
+	private static function get_jetpack_creator_url() {
+		$connection = new Connection_Manager();
+		$blog_id    = Jetpack_Options::get_option( 'id' );
+		$partner    = Partner::init();
+
+		$query = $connection->is_user_connected() ? '' : 'unlinked=1&';
+		// Lets an admin of a site with no connected user buy without a WordPress.com account.
+		if ( $connection->is_site_connection() && current_user_can( 'manage_options' ) ) {
+			$query .= 'purchasetoken=' . self::get_purchase_token();
+		}
+
+		return Redirect::get_url(
+			'jetpack-creator-cta',
+			array(
+				'site'         => $blog_id ? (string) $blog_id : ( new Status() )->get_site_suffix(),
+				'aff'          => $partner->get_partner_code( Partner::AFFILIATE_CODE ),
+				'u'            => (string) get_current_user_id(),
+				'subsidiaryId' => $partner->get_partner_code( Partner::SUBSIDIARY_CODE ),
+				'query'        => $query,
+				'calypso_env'  => ( new Host() )->get_calypso_env(),
+			)
+		);
+	}
+
+	/**
+	 * The site's token for buying without a WordPress.com account, created on first use.
+	 *
+	 * @return string
+	 */
+	private static function get_purchase_token() {
+		$token = Jetpack_Options::get_option( 'purchase_token' );
+		if ( ! $token ) {
+			$token = wp_generate_password( 12, false );
+			Jetpack_Options::update_option( 'purchase_token', $token, true );
+		}
+		return (string) $token;
 	}
 
 	/**
@@ -136,6 +327,23 @@ class Dashboard {
 	public static function is_dashboard_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
 		return isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+	}
+
+	/**
+	 * The admin URL that opens one of the dashboard's tabs.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $tab The tab's `?tab=` value; 'overview' opens the bare page.
+	 * @return string
+	 */
+	public static function get_tab_url( $tab ) {
+		$path = 'admin.php?page=' . self::MENU_SLUG;
+		if ( 'overview' !== $tab ) {
+			// wp-build's router reads a route's search params from `p`.
+			$path .= '&p=' . rawurlencode( '/?tab=' . $tab );
+		}
+		return admin_url( $path );
 	}
 
 	/**

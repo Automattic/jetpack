@@ -81,7 +81,7 @@ describe( 'AuthorTopPostsWidget', () => {
 		const top = await screen.findByRole( 'link', { name: 'Top post' } );
 		expect( top ).toHaveAttribute(
 			'href',
-			expect.stringMatching( /^\/post\/1\?from=2026-07-01.*to=2026-07-07/ )
+			expect.stringMatching( /^\/report\/post\/1\?from=2026-07-01.*to=2026-07-07/ )
 		);
 		expect( screen.getByRole( 'link', { name: 'Second post' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Not hers' ) ).not.toBeInTheDocument();

@@ -102,6 +102,10 @@ function site_recommendations_settings() {
 								'type'   => 'string',
 								'format' => 'uri',
 							),
+							'feed_url'          => array(
+								'type'   => 'string',
+								'format' => 'uri',
+							),
 							'description'       => array(
 								'type'   => 'string',
 								'format' => 'text-field',
