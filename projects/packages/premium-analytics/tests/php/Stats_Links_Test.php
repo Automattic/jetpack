@@ -291,6 +291,19 @@ class Stats_Links_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_retired_stats_page_opens_the_hourly_traffic_route_on_today() {
+		$this->login_as( 'administrator' );
+		$_GET['page'] = 'stats';
+		$today        = wp_date( 'Y-m-d' );
+
+		$this->assertSame(
+			self::DASHBOARD_URL . rawurlencode(
+				'?section=traffic&from=' . rawurlencode( $today . 'T00:00:00.000+00:00' ) . '&to=' . rawurlencode( $today . 'T23:59:59.999+00:00' )
+			),
+			$this->redirect_from_retired_stats_page( '#!/stats/hour/123' )
+		);
+	}
+
 	/**
 	 * Data for test_retired_stats_page_opens_the_matching_route.
 	 *
@@ -300,6 +313,13 @@ class Stats_Links_Test extends BaseTestCase {
 		return array(
 			'no route'             => array( '', '%2F' ),
 			'traffic period'       => array( '#!/stats/day/123', '%2F%3Fsection%3Dtraffic' ),
+			'summary'              => array( '#!/stats/day/referrers/123?startDate=2026-10-01', '%2Freports%2Freferrers' ),
+			'summary, other name'  => array( '#!/stats/year/searchterms/123', '%2Freports%2Fsearch-terms' ),
+			'summary by the hour'  => array( '#!/stats/hour/countryviews/123', '%2Freports%2Flocations' ),
+			'summary, no period'   => array( '#!/stats/videoplays/123', '%2Freports%2Fvideos' ),
+			'summary, no report'   => array( '#!/stats/day/devices/123', '%2F%3Fsection%3Dtraffic' ),
+			'emails'               => array( '#!/stats/day/emails/123', '%2Freports%2Femails' ),
+			'comment followers'    => array( '#!/stats/follows/comment/2/123', '%2Freports%2Fcomment-followers' ),
 			'insights'             => array( '#!/stats/insights/example.org', '%2F%3Fsection%3Dinsights' ),
 			'subscribers'          => array( '#!/stats/subscribers/example.org', '%2F%3Fsection%3Dsubscribers' ),
 			'store'                => array( '#!/stats/store/orders/day/example.org', '%2F%3Fsection%3Dwoocommerce' ),

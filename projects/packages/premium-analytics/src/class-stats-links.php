@@ -35,6 +35,29 @@ class Stats_Links {
 	);
 
 	/**
+	 * Periods of the old `#!/stats/<period>/<module>` summary routes.
+	 */
+	private const LEGACY_PERIODS = array( 'hour', 'day', 'week', 'month', 'year' );
+
+	/**
+	 * Modules of the old summary routes, and the report each one opens.
+	 */
+	private const LEGACY_REPORTS = array(
+		'posts'         => 'posts',
+		'referrers'     => 'referrers',
+		'clicks'        => 'clicks',
+		'countryviews'  => 'locations',
+		'locations'     => 'locations',
+		'authors'       => 'authors',
+		'videoplays'    => 'videos',
+		'filedownloads' => 'downloads',
+		'searchterms'   => 'search-terms',
+		'annualstats'   => 'annual-insights',
+		'utm'           => 'utm',
+		'emails'        => 'emails',
+	);
+
+	/**
 	 * Claim the links. Idempotent, like the other register() calls.
 	 *
 	 * Outside the admin-chrome gate on purpose: the admin bar and the action bar also render on the front end, and Quick Edit re-renders the Views column over AJAX.
@@ -138,6 +161,32 @@ class Stats_Links {
 
 		if ( 'settings' === $view ) {
 			return '/settings';
+		}
+
+		if ( 'follows' === $view && 'comment' === ( $segments[1] ?? '' ) ) {
+			return '/reports/comment-followers';
+		}
+
+		// A summary route names its module after the period, or alone when it leaves the period out.
+		$module = in_array( $view, self::LEGACY_PERIODS, true ) ? ( $segments[1] ?? '' ) : $view;
+
+		if ( array_key_exists( $module, self::LEGACY_REPORTS ) ) {
+			return '/reports/' . self::LEGACY_REPORTS[ $module ];
+		}
+
+		// The dashboard draws a window of one day by the hour.
+		if ( 'hour' === $view ) {
+			$today = wp_date( 'Y-m-d' );
+
+			return self::dashboard_path(
+				array(
+					'section' => 'traffic',
+					'range'   => array(
+						'from' => $today,
+						'to'   => $today,
+					),
+				)
+			);
 		}
 
 		return array_key_exists( $view, self::LEGACY_SECTIONS ) ? '/?section=' . self::LEGACY_SECTIONS[ $view ] : '/';
