@@ -918,7 +918,7 @@ class Helper {
 		}
 
 		$is_wpcom                  = static::is_wpcom();
-		$is_private_site           = ( new Status() )->is_private_site();
+		$is_private_site           = static::is_private_or_login_walled_site();
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
 		$options = array(
@@ -1221,6 +1221,82 @@ class Helper {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Plugins that hide the whole site from anonymous visitors, so that only logged-in visitors can see it.
+	 *
+	 * @var string[]
+	 */
+	const LOGIN_WALL_PLUGIN_SLUGS = array(
+		'wp-force-login',
+		'wp-basic-auth',
+		'http-basic-auth',
+		'easy-basic-authentication',
+		'restrict-anonymous-access',
+		'jonradio-private-site',
+		'site-pin',
+		'maintenance',
+		'wp-maintenance-mode',
+		'cmp-coming-soon-maintenance',
+		'wp-maintenance',
+		'slim-maintenance-mode',
+		'nifty-coming-soon-and-under-construction-page',
+		'jf3-maintenance-mode',
+		'coming-soon-page',
+		'hkdev-maintenance-mode',
+		'coming-soon-maintenance-mode',
+		'colorlib-coming-soon-maintenance',
+		'simple-maintenance',
+		'yith-maintenance-mode',
+		'maintenance-page',
+		'maintenance-coming-soon-redirect-animation',
+		'under-construction-maintenance-mode',
+		'site-offline',
+		'maintenance-mode-for-woocommerce',
+		'wp-secure-maintainance',
+		'rocket-maintenance-mode',
+		'ultimate-coming-soon',
+		'responsive-coming-soon',
+		'coming-soon-wp',
+		'coming-soon',
+		'under-construction-page',
+		'labinator-minimal-maintenance-mode',
+		'minimal-coming-soon-maintenance-mode',
+		'easy-maintenance-mode-by-wpkoder',
+		'schedule-maintenance-mode',
+		'landing-page-cat',
+	);
+
+	/**
+	 * Whether Instant Search must call this site's own REST API (as the logged-in visitor) instead of the public WordPress.com API.
+	 *
+	 * The public API is called anonymously and refuses sites that hide themselves from the public, so a site that is private or behind a login wall
+	 * would give logged-in visitors no search. Sites reporting private here are queried through `jetpack/v4/search`, which requires a logged-in user.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_private_or_login_walled_site() {
+		if ( ( new Status() )->is_private_site() ) {
+			return true;
+		}
+
+		$plugins = (array) get_option( 'active_plugins', array() );
+		if ( is_multisite() ) {
+			$plugins = array_merge( $plugins, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
+		}
+
+		foreach ( $plugins as $plugin_file ) {
+			$plugin_file = (string) $plugin_file;
+			$slug        = '.' === dirname( $plugin_file ) ? basename( $plugin_file, '.php' ) : dirname( $plugin_file );
+			if ( in_array( $slug, self::LOGIN_WALL_PLUGIN_SLUGS, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
