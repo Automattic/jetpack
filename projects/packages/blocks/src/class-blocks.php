@@ -21,6 +21,13 @@ use Jetpack_Gutenberg;
  */
 class Blocks {
 	/**
+	 * Names of blocks registered through jetpack_register_block() that have a front-end `style`, as keys.
+	 *
+	 * @var array<string, true>
+	 */
+	private static $blocks_with_style = array();
+
+	/**
 	 * Wrapper function to safely register a Gutenberg block type
 	 *
 	 * @see register_block_type
@@ -132,7 +139,38 @@ class Blocks {
 			}
 		}
 
-		return register_block_type( $block_type, $args );
+		$registered = register_block_type( $block_type, $args );
+
+		if ( $registered instanceof \WP_Block_Type && ! empty( $registered->style_handles ) ) {
+			self::$blocks_with_style[ $registered->name ] = true;
+			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'load_styles_only_where_blocks_render' ), 9 );
+		}
+
+		return $registered;
+	}
+
+	/**
+	 * On a site that turned off on-demand block assets, load our blocks' `style` only where they render.
+	 *
+	 * Core enqueues every block's `style` on every page there, but only enqueues a `viewStyle` at render. Running
+	 * before wp_common_block_scripts_and_styles() keeps on-demand sites, and core's placement of these styles, as is.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function load_styles_only_where_blocks_render() {
+		if ( wp_should_load_block_assets_on_demand() ) {
+			return;
+		}
+
+		$registry = \WP_Block_Type_Registry::get_instance();
+		foreach ( array_keys( self::$blocks_with_style ) as $name ) {
+			$block_type = $registry->get_registered( $name );
+			if ( ! $block_type || empty( $block_type->style_handles ) ) {
+				continue;
+			}
+			$block_type->view_style_handles = array_values( array_unique( array_merge( $block_type->style_handles, $block_type->view_style_handles ) ) );
+			$block_type->style_handles      = array();
+		}
 	}
 
 	/**
