@@ -85,6 +85,10 @@ class Initializer {
 		}
 		self::$initialized = true;
 
+		if ( ! self::is_available() ) {
+			return;
+		}
+
 		// Before anything can read the AI crawler choices.
 		Ai_Crawlers::register_legacy_migration();
 
@@ -93,9 +97,7 @@ class Initializer {
 		// Traffic page or My Jetpack (JETPACK-1700). Registered ahead of the cohort gate.
 		add_action( 'rest_api_init', array( Surface_Visibility::class, 'register_optin_route' ) );
 
-		// Expose opt-in availability to other admin surfaces (the legacy Traffic-page
-		// banner reads it via `@automattic/jetpack-script-data`). Hooked here — after the
-		// feature flag, before the cohort gate — so a still-hidden install gets the signal.
+		// Hidden self-hosted installs need the opt-in signal before the cohort gate.
 		add_filter( 'jetpack_admin_js_script_data', array( Surface_Visibility::class, 'inject_optin_availability' ) );
 
 		// Sitemap output is a front-end concern tied to the SEO feature itself, not to
@@ -227,7 +229,7 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_available() {
-		return true;
+		return ! ( new Host() )->is_vip_site();
 	}
 
 	/**
