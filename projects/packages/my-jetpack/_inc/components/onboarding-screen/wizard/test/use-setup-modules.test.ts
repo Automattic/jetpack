@@ -1,0 +1,232 @@
+import { act, renderHook } from '@testing-library/react';
+import { queueActivationRequest } from '../../../../data/queue-activation-request';
+import { readModuleActive, useApplySetupModules, useSetupModules } from '../use-setup-modules';
+import type { SetupModule } from '../use-setup-modules';
+
+const mockRequestModuleSwitch = jest.fn();
+const mockApiFetch = jest.fn();
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
+} ) );
+
+jest.mock( '../../../../data/module-switch', () => ( {
+	__esModule: true,
+	requestModuleSwitch: ( ...args: unknown[] ) => mockRequestModuleSwitch( ...args ),
+} ) );
+
+const mockStore: { modules: Record< string, object >; isLoading: boolean; resolved: boolean } = {
+	modules: {},
+	isLoading: false,
+	resolved: true,
+};
+
+jest.mock( '@automattic/jetpack-shared-stores', () => ( { __esModule: true, store: 'modules' } ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	__esModule: true,
+	useSelect: ( read: ( select: () => object ) => unknown ) =>
+		read( () => ( {
+			getJetpackModules: () => mockStore.modules,
+			areModulesLoading: () => mockStore.isLoading,
+			hasFinishedResolution: () => mockStore.resolved,
+		} ) ),
+	useDispatch: () => ( { updateJetpackModuleStatus: jest.fn() } ),
+} ) );
+
+const module = ( slug: SetupModule[ 'slug' ], activated: boolean, locked = false ) =>
+	( {
+		slug,
+		name: slug,
+		description: '',
+		icon: null,
+		activated,
+		locked,
+	} ) as unknown as SetupModule;
+
+beforeEach( () => {
+	mockRequestModuleSwitch.mockReset();
+	mockApiFetch.mockReset().mockRejectedValue( new Error( 'offline' ) );
+	mockStore.modules = {};
+	mockStore.isLoading = false;
+	mockStore.resolved = true;
+} );
+
+describe( 'Applying the wizard’s switches', () => {
+	it( 'asks only for the switches the user moved, and reports each one', async () => {
+		mockRequestModuleSwitch.mockImplementation( ( _toggle, slug ) =>
+			Promise.resolve( slug === 'stats' )
+		);
+		const { result } = renderHook( () => useApplySetupModules() );
+
+		let results;
+		await act( async () => {
+			results = await result.current.apply(
+				[ module( 'stats', true ), module( 'monitor', false ), module( 'contact-form', false ) ],
+				{ stats: false, monitor: true }
+			);
+		} );
+
+		expect( mockRequestModuleSwitch ).toHaveBeenCalledTimes( 2 );
+		expect( mockRequestModuleSwitch ).toHaveBeenCalledWith( expect.anything(), 'stats', false );
+		expect( mockRequestModuleSwitch ).toHaveBeenCalledWith( expect.anything(), 'monitor', true );
+		expect( results ).toEqual( [
+			{ slug: 'stats', name: 'stats', wanted: false, ok: true, changed: true },
+			// A failed switch is reported, never folded into the rest.
+			{ slug: 'monitor', name: 'monitor', wanted: true, ok: false, changed: true },
+			{ slug: 'contact-form', name: 'contact-form', wanted: false, ok: true, changed: false },
+		] );
+	} );
+
+	it.each( [
+		[ 'took after all', { monitor: { activated: true } }, true ],
+		[ 'did not take', { monitor: { activated: false } }, false ],
+		[ 'cannot be confirmed', { monitor: { name: 'Monitor' } }, false ],
+		[ 'cannot be asked', new Error( 'offline' ), false ],
+	] )( 'asks the site about a switch that reported false, and it %s', async ( _name, read, ok ) => {
+		mockRequestModuleSwitch.mockResolvedValue( false );
+		if ( read instanceof Error ) {
+			mockApiFetch.mockRejectedValue( read );
+		} else {
+			mockApiFetch.mockResolvedValue( read );
+		}
+		const { result } = renderHook( () => useApplySetupModules() );
+
+		let results;
+		await act( async () => {
+			results = await result.current.apply( [ module( 'monitor', false ) ], { monitor: true } );
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/module/all' } );
+		expect( results ).toEqual( [
+			{ slug: 'monitor', name: 'monitor', wanted: true, ok, changed: true },
+		] );
+	} );
+
+	it( 'waits for a switch still running before asking the site', async () => {
+		mockRequestModuleSwitch.mockResolvedValue( false );
+		mockApiFetch.mockResolvedValue( { monitor: { activated: true } } );
+		let finish: () => void = () => {};
+		queueActivationRequest( () => new Promise< void >( resolve => ( finish = resolve ) ) );
+		const { result } = renderHook( () => useApplySetupModules() );
+
+		let running: Promise< unknown > = Promise.resolve();
+		try {
+			await act( async () => {
+				running = result.current.apply( [ module( 'monitor', false ) ], { monitor: true } );
+			} );
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+		} finally {
+			// Left held, the module-level queue would stall every later test.
+			await act( async () => {
+				finish();
+				await running;
+			} );
+		}
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'stops waiting on a switch that never answers', async () => {
+		jest.useFakeTimers();
+		let finish: () => void = () => {};
+		queueActivationRequest( () => new Promise< void >( resolve => ( finish = resolve ) ) );
+		try {
+			const reading = readModuleActive( 'monitor' );
+			await jest.advanceTimersByTimeAsync( 10_000 );
+
+			await expect( reading ).resolves.toBeNull();
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+		} finally {
+			jest.useRealTimers();
+			finish();
+			// Let the read it queued run now, not in a later test.
+			await queueActivationRequest( () => Promise.resolve() );
+		}
+	} );
+
+	it( 'never asks to move a module the host forces', async () => {
+		const { result } = renderHook( () => useApplySetupModules() );
+
+		await act( async () => {
+			await result.current.apply( [ module( 'monitor', false, true ) ], { monitor: true } );
+		} );
+
+		expect( mockRequestModuleSwitch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'reports applying until the last switch answers', async () => {
+		let answer: ( ok: boolean ) => void = () => {};
+		mockRequestModuleSwitch.mockReturnValue( new Promise( resolve => ( answer = resolve ) ) );
+		const { result } = renderHook( () => useApplySetupModules() );
+
+		let running: Promise< unknown > = Promise.resolve();
+		act( () => {
+			running = result.current.apply( [ module( 'monitor', false ) ], { monitor: true } );
+		} );
+		expect( result.current.isApplying ).toBe( true );
+
+		await act( async () => {
+			answer( true );
+			await running;
+		} );
+		expect( result.current.isApplying ).toBe( false );
+	} );
+} );
+
+describe( 'The modules the wizard offers', () => {
+	// Only a connected user reaches the step that lists them, so reading earlier is wasted.
+	it( 'does not read the modules until it is enabled', () => {
+		mockStore.modules = { stats: { name: 'Stats', description: '', activated: true } };
+
+		const { result } = renderHook( () => useSetupModules( undefined, false ) );
+
+		expect( result.current ).toEqual( { modules: [], isLoading: true } );
+	} );
+
+	// A reload straight onto the feature step must not say the list failed to load.
+	it( 'is loading until the request has finished, not only while it runs', () => {
+		mockStore.resolved = false;
+
+		const { result } = renderHook( () => useSetupModules() );
+
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'locks host-forced modules and leaves out ones Jetpack does not have here', () => {
+		mockStore.modules = {
+			stats: { name: 'Stats', description: '', activated: true, override: 'active' },
+			monitor: { name: 'Monitor', description: '', activated: false },
+		};
+
+		const { result } = renderHook( () => useSetupModules() );
+
+		expect( result.current.modules.map( ( { slug, locked } ) => ( { slug, locked } ) ) ).toEqual( [
+			{ slug: 'stats', locked: true },
+			{ slug: 'monitor', locked: false },
+		] );
+	} );
+
+	it( 'replaces a line that promises a paid plan, and keeps the rest', () => {
+		mockStore.modules = {
+			stats: { name: 'Stats', description: 'Traffic insights.', activated: true },
+			'activity-log': {
+				name: 'Activity Log',
+				description: 'See what happened and roll back when something goes wrong.',
+				activated: true,
+			},
+		};
+
+		const { result } = renderHook( () => useSetupModules() );
+
+		expect(
+			result.current.modules.map( ( { slug, description } ) => ( { slug, description } ) )
+		).toEqual( [
+			{ slug: 'stats', description: 'Traffic insights.' },
+			{
+				slug: 'activity-log',
+				description: 'See what changed on your site, who changed it, and when.',
+			},
+		] );
+	} );
+} );

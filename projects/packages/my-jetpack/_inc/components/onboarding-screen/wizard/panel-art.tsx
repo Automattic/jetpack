@@ -4,15 +4,9 @@ import styles from './styles.module.scss';
 
 /**
  * The brand artwork's own geometry: 14 hairline strokes making the isometric
- * Jetpack bolt inside two organic circles.
- *
- * Copied verbatim from the prototype's `components/onboarding/panel-art.tsx`,
- * which inlined it from Layer_1.svg. It is hand-drawn brand art: the path data
- * and the two stroke widths are not to be redrawn, rounded or simplified.
- *
- * The stroke colour is not here. The prototype writes `#48FF50` on every path;
- * that value is `$brand-gradient-green-bright` in styles.module.scss, so the
- * paths take `currentColor` and the stylesheet is the one place it lives.
+ * Jetpack bolt inside two organic circles. Hand-drawn brand art, copied
+ * verbatim — not to be redrawn, rounded or simplified. The colour is not here:
+ * the paths take `currentColor` so the stylesheet is the one place it lives.
  */
 const ART_PATHS: { d: string; width: number }[] = [
 	{
@@ -79,35 +73,20 @@ const DRAW_DELAY_STEP_S = 0.08;
 // The artwork's own coordinate space, from Layer_1.svg.
 const ART_VIEW_BOX = '0 0 660 689';
 
-type PanelArtProps = {
-	/*
-	 * Draw the paths in, one after another. True on the start step only, which
-	 * is what the prototype does: its other panels render the art complete.
-	 */
-	animate?: boolean;
-};
-
 /**
  * The brand panel's artwork.
  *
- * Each path's own length is measured and published as `--draw-length`, which the
- * dash rules read. `pathLength` would be tidier, but Chrome only normalises
- * against it for presentation attributes: a `stroke-dasharray` coming from a
- * stylesheet stays in user units, so the whole bolt draws as a 1px dotted line
- * at a third of a pixel wide and nothing appears on screen.
+ * Each path's length is measured and published as `--draw-length`, which the
+ * dash rules read. `pathLength` would be tidier, but Chrome normalises against
+ * it only for presentation attributes, so a stylesheet's dasharray stays in user
+ * units and the whole bolt draws as a 1px dotted line.
  *
- * @param props         - The component props.
- * @param props.animate - Whether the paths draw themselves in.
  * @return The rendered artwork.
  */
-export function PanelArt( { animate = false }: PanelArtProps ) {
+export function PanelArt() {
 	const svgRef = useRef< SVGSVGElement >( null );
 
 	useLayoutEffect( () => {
-		if ( ! animate ) {
-			return;
-		}
-
 		const paths = Array.from( svgRef.current?.querySelectorAll( 'path' ) ?? [] );
 
 		// Chrome rasterises a dashed hairline at far lower coverage than a plain one,
@@ -124,15 +103,10 @@ export function PanelArt( { animate = false }: PanelArtProps ) {
 		} );
 
 		return () => paths.forEach( path => path.removeEventListener( 'animationend', clearDash ) );
-	}, [ animate ] );
+	}, [] );
 
 	return (
-		<div
-			className={ clsx(
-				styles[ 'brand-panel__art' ],
-				animate && styles[ 'brand-panel__art--drawing' ]
-			) }
-		>
+		<div className={ clsx( styles[ 'brand-panel__art' ], styles[ 'brand-panel__art--drawing' ] ) }>
 			<svg
 				ref={ svgRef }
 				viewBox={ ART_VIEW_BOX }
@@ -153,14 +127,8 @@ export function PanelArt( { animate = false }: PanelArtProps ) {
 						 * the dash lengths into screen pixels, which is the same trap as
 						 * pathLength above by another route.
 						 */
-						{ ...( animate
-							? {
-									className: styles[ 'brand-panel__art-path' ],
-									style: {
-										animationDelay: `${ DRAW_DELAY_BASE_S + index * DRAW_DELAY_STEP_S }s`,
-									},
-								}
-							: {} ) }
+						className={ styles[ 'brand-panel__art-path' ] }
+						style={ { animationDelay: `${ DRAW_DELAY_BASE_S + index * DRAW_DELAY_STEP_S }s` } }
 					/>
 				) ) }
 			</svg>

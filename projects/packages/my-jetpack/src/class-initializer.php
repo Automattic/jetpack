@@ -77,6 +77,37 @@ class Initializer {
 	const ONBOARDING_COMPLETED_OPTION = 'jetpack_my_jetpack_onboarding_completed';
 
 	/**
+	 * `from` the setup wizard sends when it registers the site.
+	 *
+	 * Same string as the wizard's connect link. That request is what switches
+	 * Jetpack's default modules on, before the features step has asked.
+	 */
+	const ONBOARDING_WIZARD_FROM = 'my_jetpack_onboarding';
+
+	/**
+	 * Set while a wizard registration is waiting for the user to come back.
+	 *
+	 * Not autoloaded: it is read on the authorize return, not on every request.
+	 */
+	const ONBOARDING_DEFER_MODULES_OPTION = 'jetpack_my_jetpack_onboarding_defer_modules';
+
+	/**
+	 * Modules a fresh connection still needs. The features step offers the rest.
+	 *
+	 * @var string[]
+	 */
+	const ONBOARDING_BACKGROUND_MODULES = array( 'blocks', 'json-api' );
+
+	/**
+	 * Whether the current request is the wizard's registration call.
+	 *
+	 * A worker handles more than one request, so this cannot outlive the one that set it.
+	 *
+	 * @var bool
+	 */
+	private static $limit_onboarding_modules = false;
+
+	/**
 	 * Handle for the classic script that carries the React initial state.
 	 *
 	 * Plugins that render My Jetpack components on their own pages (Boost) depend on this name.
@@ -258,6 +289,14 @@ class Initializer {
 
 		// Track whether the user is an agency, for the Automattic for Agencies banner.
 		Jetpack_Manage::init();
+
+		// Get started registers the site, which is when Jetpack switches its defaults on.
+		add_filter( 'rest_pre_dispatch', array( __CLASS__, 'note_onboarding_registration' ), 10, 3 );
+		// After Jetpack's own default-module filters, the last of which runs at 99.
+		add_filter( 'jetpack_get_default_modules', array( __CLASS__, 'limit_onboarding_default_modules' ), 100 );
+		// Jetpack's handler on this hook is what reads the list, so clear it afterwards.
+		add_action( 'jetpack_authorize_ending_authorized', array( __CLASS__, 'clear_onboarding_module_deferral' ), 100 );
+		add_action( 'shutdown', array( __CLASS__, 'forget_onboarding_registration_request' ) );
 
 		/**
 		 * Fires after the My Jetpack package is initialized
@@ -663,6 +702,11 @@ class Initializer {
 			return false;
 		}
 
+		// Its features step switches Jetpack modules, whose routes only the Jetpack plugin has.
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return false;
+		}
+
 		// The wizard registers the site at its own first step, which writes the marker
 		// below, so asking again on the way back from WordPress.com would drop someone
 		// out of a run already under way.
@@ -694,7 +738,7 @@ class Initializer {
 	 *
 	 * @since 6.11.0
 	 *
-	 * @return array{exitUrl: string, dashboardUrl: string}|null
+	 * @return array{exitUrl: string, dashboardUrl: string, runScope: string}|null
 	 */
 	public static function get_onboarding_wizard_state() {
 		if ( ! self::is_onboarding_wizard_enabled() ) {
@@ -706,7 +750,144 @@ class Initializer {
 			'exitUrl'      => admin_url( 'admin.php?page=my-jetpack' ),
 			// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 			'dashboardUrl' => admin_url(),
+			// Keys the run in session storage, which subdirectory sites on one domain share.
+			'runScope'     => substr( md5( admin_url() . '|' . get_current_user_id() ), 0, 12 ),
 		);
+	}
+
+	/**
+	 * Remember a registration that came from the setup wizard.
+	 *
+	 * The user-connection half of the default modules activates on the way back
+	 * from WordPress.com, in a request that no longer carries `from`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed            $result  Response to short-circuit with, or null.
+	 * @param \WP_REST_Server  $server  Server instance.
+	 * @param \WP_REST_Request $request Request used to generate the response.
+	 * @return mixed
+	 */
+	public static function note_onboarding_registration( $result, $server, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
+		self::$limit_onboarding_modules = $request instanceof \WP_REST_Request
+			&& '/jetpack/v4/connection/register' === $request->get_route()
+			&& self::ONBOARDING_WIZARD_FROM === (string) $request->get_param( 'from' );
+
+		if ( self::$limit_onboarding_modules ) {
+			update_option( self::ONBOARDING_DEFER_MODULES_OPTION, '1', false );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Drop the user-facing default modules during a wizard registration.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $modules Modules Jetpack would otherwise switch on.
+	 * @return array
+	 */
+	public static function limit_onboarding_default_modules( $modules ) {
+		if ( ! is_array( $modules ) || ! self::should_limit_onboarding_default_modules() ) {
+			return $modules;
+		}
+
+		return array_values( array_intersect( $modules, self::ONBOARDING_BACKGROUND_MODULES ) );
+	}
+
+	/**
+	 * Whether this activation belongs to the wizard's registration.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function should_limit_onboarding_default_modules() {
+		if ( self::$limit_onboarding_modules ) {
+			return true;
+		}
+
+		// The way back has no `from`. The option is the registration, the query is the wizard's return.
+		if ( ! get_option( self::ONBOARDING_DEFER_MODULES_OPTION ) ) {
+			return false;
+		}
+
+		return self::is_onboarding_authorize_return();
+	}
+
+	/**
+	 * Whether this request is WordPress.com sending the wizard's user back.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_onboarding_authorize_return() {
+		if ( 'jetpack-connection-webhooks' !== self::onboarding_query_text( 'handler' ) ) {
+			return false;
+		}
+
+		if ( 'authorize' !== self::onboarding_query_text( 'action' ) ) {
+			return false;
+		}
+
+		// Once through PHP's query decode, and once more when the value is still encoded.
+		$redirect = rawurldecode( self::onboarding_query_text( 'redirect' ) );
+
+		return false !== strpos( $redirect, 'step=onboarding' );
+	}
+
+	/**
+	 * One query argument, as text.
+	 *
+	 * The authorize webhook checks its nonce before this activation runs.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $key Query argument name.
+	 * @return string
+	 */
+	private static function onboarding_query_text( $key ) {
+		if ( ! isset( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Verified by the connection webhook before activation.
+			return '';
+		}
+
+		$value = wp_unslash( $_GET[ $key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized after the type check.
+
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		return sanitize_text_field( $value );
+	}
+
+	/**
+	 * Forget that a wizard registration is still waiting.
+	 *
+	 * Runs after the return trip has activated its modules, so a later connection
+	 * from anywhere else gets Jetpack's defaults again.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function clear_onboarding_module_deferral() {
+		self::$limit_onboarding_modules = false;
+		delete_option( self::ONBOARDING_DEFER_MODULES_OPTION );
+	}
+
+	/**
+	 * Drop the in-request flag at the end of the registration request.
+	 *
+	 * The option stays: the authorize return still needs it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function forget_onboarding_registration_request() {
+		self::$limit_onboarding_modules = false;
 	}
 
 	/**
@@ -1060,6 +1241,7 @@ class Initializer {
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
 				'adminUrl'               => esc_url( admin_url() ),
 				'assetsUrl'              => self::get_assets_url(),
+				'webpackPublicPath'      => self::get_build_url(),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				// wp_localize_script() decodes the HTML entities WordPress stores names with.
@@ -1401,6 +1583,17 @@ class Initializer {
 	}
 
 	/**
+	 * Get the base URL of the package's build directory, with a trailing slash.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	private static function get_build_url() {
+		return trailingslashit( Assets::normalize_path( plugins_url( '../build/', __FILE__ ) ) );
+	}
+
+	/**
 	 * Get the base URL of the package's built images, with a trailing slash.
 	 *
 	 * @since 6.3.0
@@ -1408,7 +1601,7 @@ class Initializer {
 	 * @return string
 	 */
 	public static function get_assets_url() {
-		return trailingslashit( Assets::normalize_path( plugins_url( '../build/images/', __FILE__ ) ) );
+		return self::get_build_url() . 'images/';
 	}
 
 	/**

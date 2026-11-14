@@ -481,6 +481,8 @@ type OnboardingWizardState = {
 	exitUrl: string;
 	// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 	dashboardUrl: string;
+	// This site and user, hashed: what the saved run is stored under.
+	runScope: string;
 };
 
 type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';
@@ -597,6 +599,8 @@ interface Window {
 		// Localized on the My Jetpack page only, with a trailing slash; `assetUrl()`
 		// falls back to script data elsewhere.
 		assetsUrl?: string;
+		// The build dir, with a trailing slash, for webpack's lazy chunks.
+		webpackPublicPath?: string;
 		blogID: string;
 		fileSystemWriteAccess: 'yes' | 'no';
 		isStatsModuleActive: string;

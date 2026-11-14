@@ -1,12 +1,141 @@
-import { Container, Col } from '@automattic/jetpack-components';
+import { Container, Col, JetpackLogo, Text } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
+import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
+import { Link, Spinner } from '@wordpress/ui';
 import clsx from 'clsx';
+import { lazy, Suspense, useCallback, useRef, useState } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useFullScreen } from '../../hooks/use-fullscreen';
+import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import Testimonials from '../testimonials';
 import ConnectionForm from './connection-form/connection-form';
+import formStyles from './connection-form/styles.module.scss';
+import { isPlainClick } from './is-plain-click';
 import styles from './styles.module.scss';
-import { Wizard } from './wizard';
-import type { FC } from 'react';
+import type { ComponentType, FC, MouseEvent, ReactNode } from 'react';
+
+const OnboardingLayout: FC< { children: ReactNode } > = ( { children } ) => (
+	<Container
+		horizontalSpacing={ 3 }
+		horizontalGap={ 0 }
+		className={ styles[ 'onboarding-screen' ] }
+	>
+		<Col sm={ 4 } md={ 4 } lg={ 6 } className={ clsx( styles.column, styles[ 'primary-column' ] ) }>
+			{ children }
+		</Col>
+		<Col
+			sm={ 4 }
+			md={ 4 }
+			lg={ 6 }
+			className={ clsx( styles.column, styles[ 'seconday-column' ], styles.testimonials ) }
+		>
+			<Testimonials />
+		</Col>
+	</Container>
+);
+
+const ConnectScreen: FC< { children?: ReactNode } > = ( { children } ) => (
+	<OnboardingLayout>
+		<ConnectionForm />
+		{ children }
+	</OnboardingLayout>
+);
+
+// The window the wizard opens into, saying it is busy rather than sitting blank.
+const WizardLoading: FC = () => (
+	<div className={ styles[ 'wizard-loading' ] } role="status">
+		{ /* Outside the wizard's ThemeProvider, the default foreground is too faint on the dark shell. */ }
+		<Spinner color="#fff" />
+		<span className="screen-reader-text">{ __( 'Loading setup…', 'jetpack-my-jetpack' ) }</span>
+	</div>
+);
+
+// The two ways out; the wizard reads its storage scope off the page itself.
+type WizardLinks = Pick< OnboardingWizardState, 'exitUrl' | 'dashboardUrl' >;
+
+// Stands in for a wizard that failed to load, keeping its skip: with the flag on,
+// My Jetpack keeps sending a site-only connection back here.
+const WizardFallback: FC< WizardLinks > = ( { exitUrl, dashboardUrl } ) => {
+	const { isRegistered, isUserConnected } = useConnection();
+	const skipping = useRef( false );
+	const [ isSkipping, setIsSkipping ] = useState( false );
+
+	// The wizard's own skip request; see settleOnboarding() in wizard/lib.ts.
+	const handleSkip = useCallback(
+		( event: MouseEvent< HTMLElement > ) => {
+			// A modified click opens My Jetpack elsewhere and records nothing, as in the wizard.
+			if ( ! isPlainClick( event ) ) {
+				return;
+			}
+			event.preventDefault();
+
+			if ( skipping.current ) {
+				return;
+			}
+			skipping.current = true;
+			setIsSkipping( true );
+
+			apiFetch( {
+				path: '/my-jetpack/v1/site/onboarding/settled',
+				method: 'POST',
+				data: { outcome: 'skipped' },
+			} ).then(
+				() => assignLocation( exitUrl ),
+				// Unsettled, a site-only connection would be sent straight back here.
+				() => assignLocation( isUserConnected ? exitUrl : dashboardUrl )
+			);
+		},
+		[ exitUrl, dashboardUrl, isUserConnected ]
+	);
+
+	const skip = (
+		<div className={ styles.skip }>
+			<Link href={ exitUrl } onClick={ handleSkip } aria-disabled={ isSkipping || undefined }>
+				{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
+			</Link>
+		</div>
+	);
+
+	// Past the wizard's connect step: connecting again would only repeat the authorization.
+	if ( isUserConnected ) {
+		return (
+			<OnboardingLayout>
+				{ /* Laid out like the connect form it replaces. */ }
+				<div className={ formStyles[ 'connection-form' ] }>
+					<JetpackLogo height={ 24 } className={ formStyles[ 'jetpack-logo' ] } />
+					<Text variant="headline-medium" className={ formStyles.title }>
+						{ __( 'Your site is connected to Jetpack', 'jetpack-my-jetpack' ) }
+					</Text>
+					<Text variant="body" className={ formStyles.description }>
+						{ __(
+							'Setup could not load. You can skip it and go to My Jetpack.',
+							'jetpack-my-jetpack'
+						) }
+					</Text>
+				</div>
+				{ skip }
+			</OnboardingLayout>
+		);
+	}
+
+	return <ConnectScreen>{ isRegistered && skip }</ConnectScreen>;
+};
+
+/*
+ * A chunk of its own, so the single screen every flag-off site loads leaves out the wizard's art.
+ * A chunk that fails, or outlasts output.chunkLoadTimeout in webpack.config.js, gets the fallback.
+ */
+const Wizard = lazy< ComponentType< WizardLinks > >( () =>
+	import( /* webpackChunkName: "onboarding-wizard" */ './wizard' ).then(
+		module => ( { default: module.Wizard } ),
+		error => {
+			// eslint-disable-next-line no-console
+			console.error( 'My Jetpack: the setup wizard failed to load.', error );
+			return { default: WizardFallback };
+		}
+	)
+);
 
 const OnboardingScreen: FC = () => {
 	useFullScreen();
@@ -16,33 +145,14 @@ const OnboardingScreen: FC = () => {
 	const wizard = getMyJetpackWindowInitialState( 'onboardingWizard' );
 
 	if ( wizard?.exitUrl ) {
-		return <Wizard exitUrl={ wizard.exitUrl } dashboardUrl={ wizard.dashboardUrl } />;
+		return (
+			<Suspense fallback={ <WizardLoading /> }>
+				<Wizard exitUrl={ wizard.exitUrl } dashboardUrl={ wizard.dashboardUrl } />
+			</Suspense>
+		);
 	}
 
-	return (
-		<Container
-			horizontalSpacing={ 3 }
-			horizontalGap={ 0 }
-			className={ styles[ 'onboarding-screen' ] }
-		>
-			<Col
-				sm={ 4 }
-				md={ 4 }
-				lg={ 6 }
-				className={ clsx( styles.column, styles[ 'primary-column' ] ) }
-			>
-				<ConnectionForm />
-			</Col>
-			<Col
-				sm={ 4 }
-				md={ 4 }
-				lg={ 6 }
-				className={ clsx( styles.column, styles[ 'seconday-column' ], styles.testimonials ) }
-			>
-				<Testimonials />
-			</Col>
-		</Container>
-	);
+	return <ConnectScreen />;
 };
 
 export default OnboardingScreen;
