@@ -48,7 +48,7 @@ describe( 'ContentCoverageCard', () => {
 			<ContentCoverageCard data={ buildCoverage() } onManage={ jest.fn() } onFilter={ jest.fn() } />
 		);
 
-		// with_search_visible === total, so the "Visible to search engines" ring is
+		// with_search_visible === total, so the "Indexing allowed per item" ring is
 		// not a button.
 		expect(
 			screen.queryByRole( 'button', { name: /Configure search visibility/ } )

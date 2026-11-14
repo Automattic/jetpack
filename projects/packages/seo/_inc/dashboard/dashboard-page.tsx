@@ -2,6 +2,7 @@ import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import SearchVisibilityNotice from '../components/search-visibility-notice';
 import { recordScreenViewOnce } from '../data/record-seo-event';
 import DashboardNav from './dashboard-nav';
 import '../admin-page-layout.scss';
@@ -64,14 +65,17 @@ const DashboardPage = ( {
 	useEffect( () => recordScreenViewOnce( active ), [ active ] );
 
 	const content = (
-		<div
-			className={ clsx( 'jetpack-seo-page-content', {
-				'jetpack-seo-page-content--flush': flush,
-				'jetpack-seo-page-content--centered': centered,
-			} ) }
-		>
-			{ children }
-		</div>
+		<>
+			<SearchVisibilityNotice />
+			<div
+				className={ clsx( 'jetpack-seo-page-content', {
+					'jetpack-seo-page-content--flush': flush,
+					'jetpack-seo-page-content--centered': centered,
+				} ) }
+			>
+				{ children }
+			</div>
+		</>
 	);
 
 	return (
