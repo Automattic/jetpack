@@ -49,6 +49,11 @@ jest.unstable_mockModule( '../google-verification-field', () => ( {
 	default: () => <div>google field</div>,
 } ) );
 
+const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
+	<div>notification settings</div>
+) );
+jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
+
 const { default: SettingsScreen } = await import( '../index' );
 
 const EMPTY_VERIFICATION = {
@@ -651,5 +656,37 @@ describe( 'Search & social previews', () => {
 		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
 			expect.objectContaining( { frontPageTitleFormat: [] } )
 		);
+	} );
+} );
+
+describe( 'Notification settings inside Site visibility', () => {
+	it( 'places notifications after the sitemap and forwards the parent save state', () => {
+		const form = { ...buildForm(), isSaving: true };
+		render( <SettingsScreen form={ form } /> );
+		expect( IndexnowSettings.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { isSaving: true, onSavingChange: expect.any( Function ) } )
+		);
+		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const notifications = screen.getByText( 'notification settings' );
+		expect( sitemap.compareDocumentPosition( notifications ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		// eslint-disable-next-line testing-library/no-node-access -- The section anchor owns the inline controls.
+		expect( notifications.closest( '#visibility' ) ).not.toBeNull();
+	} );
+
+	it( 'locks visibility toggles only while a notification save is in flight', () => {
+		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
+		const indexing = screen.getByRole( 'checkbox', { name: /Allow search engines/i } );
+		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const onSavingChange = IndexnowSettings.mock.lastCall?.[ 0 ].onSavingChange as (
+			saving: boolean
+		) => void;
+		act( () => onSavingChange( true ) );
+		expect( indexing ).toBeDisabled();
+		expect( sitemap ).toBeDisabled();
+		act( () => onSavingChange( false ) );
+		expect( indexing ).toBeEnabled();
+		expect( sitemap ).toBeEnabled();
 	} );
 } );

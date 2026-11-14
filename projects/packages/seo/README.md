@@ -93,3 +93,11 @@ Lowering capacity preserves existing entries and allows updates to an already pe
 Workers read pages of 250 rows and normally inspect at most 5,000 rows per run. Larger configured batches can increase that scan budget. A 1 MiB stored-payload budget can reduce the actual batch size, and workers check a 20-second processing budget between pages. Scheduler delays can extend delivery time.
 
 HTTP 202 records receipt with ownership verification pending, without consuming retries. HTTP 429 pauses all site submissions and respects `Retry-After`, with a minimum ten-minute cooldown. Other temporary failures receive bounded backoff, with five retries and a maximum entry age of 48 hours. Receipt does not establish crawling or indexing. Delivery can repeat after an interruption with an ambiguous response.
+
+### IndexNow settings
+
+The Site visibility section has one off-by-default "Notify search engines when content changes" toggle. It does not affect the existing completion badge. Enabling it creates verification automatically and applies only to subsequent eligible content changes. Disabling it clears pending work without changing other SEO settings.
+
+Status distinguishes received notifications awaiting ownership verification from accepted notifications; neither confirms indexing. Contextual warnings explain throttling, pauses, delayed scheduling, and missed notifications. Status refreshes when the section opens, the window regains focus, or a settings save settles. Visibility and notification saves cannot overlap, and a refresh preserves unrelated unsaved edits. Delivery limits are configured through the filters above, with no tuning controls in the dashboard.
+
+WordPress.com Simple also requires the guarded native route registration before this interface is released. The companion can deploy before the package because it tolerates versions without the controller.
