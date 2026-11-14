@@ -153,12 +153,7 @@ function wpcomsh_ignore_outdated_gutenberg_plugin( $plugins ) {
  * @see https://github.com/WordPress/gutenberg/blob/e6d8284b03799136915495654e821ca6212ae6d8/lib/load.php#L22
  */
 function wpcomsh_remove_gutenberg_experiments() {
-	$jetpack_options = get_option( 'jetpack_options' );
-	if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
-		$blog_id = (int) $jetpack_options['id'];
-	} else {
-		$blog_id = get_current_blog_id();
-	}
+	$blog_id = (int) _wpcom_get_current_blog_id();
 
 	$allowed_blogs = array(
 		211453162, // wpmovies.dev
