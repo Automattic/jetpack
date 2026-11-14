@@ -90,6 +90,45 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Large tables are split across INSERT statements inside the same table lock.
+	 */
+	public function test_large_table_inserts_are_batched_by_bytes() {
+		$this->generator->start();
+		$this->generator->start_table( 'test_table', array(), 1 );
+
+		$row = "('" . str_repeat( 'é', 300000 ) . "')";
+		$this->generator->table_insert( '(`body`)', '(1)' );
+		$this->generator->table_insert( '(`body`)', $row );
+		$this->generator->table_insert( '(`body`)', $row );
+		$this->generator->table_insert( '(`body`)', '(2)' );
+		$this->generator->end_table_inserts();
+		$this->generator->end();
+
+		$dump   = $this->generator->get_dump();
+		$insert = "INSERT INTO `test_table` (`body`) VALUES\n";
+		$this->assertSame( 2, substr_count( $dump, $insert ) );
+		$this->assertSame( 1, substr_count( $dump, "\nLOCK TABLES `test_table` WRITE;" ) );
+		$this->assertStringContainsString( $insert . "(1),\n{$row};\n" . $insert . "{$row},\n(2);\n", $dump );
+	}
+
+	/**
+	 * Rows larger than the batch size are written intact.
+	 */
+	public function test_one_large_row_gets_its_own_insert() {
+		$this->generator->start();
+		$this->generator->start_table( 'test_table', array(), 1 );
+
+		$row = "('" . str_repeat( 'a', 1100000 ) . "')";
+		$this->generator->table_insert( '(`body`)', $row );
+		$this->generator->table_insert( '(`body`)', '(2)' );
+		$this->generator->end_table_inserts();
+		$this->generator->end();
+
+		$insert = "INSERT INTO `test_table` (`body`) VALUES\n";
+		$this->assertStringContainsString( $insert . "{$row};\n" . $insert . "(2);\n", $this->generator->get_dump() );
+	}
+
+	/**
 	 * Test error end inserting without table.
 	 */
 	public function test_error_end_table_without_table() {
