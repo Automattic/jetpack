@@ -670,11 +670,6 @@ class ManagerTest extends TestCase {
 			return $disconnect_cap;
 		};
 		add_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
-		$had_owner = null;
-		$record    = static function ( $data, $had_connected_owner ) use ( &$had_owner ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			$had_owner = $had_connected_owner;
-		};
-		add_action( 'jetpack_authorize_ending_authorized', $record, 10, 2 );
 
 		$memo = new \ReflectionProperty( Manager::class, 'connection_owner_id' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
@@ -693,7 +688,6 @@ class ManagerTest extends TestCase {
 		} finally {
 			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
 			remove_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
-			remove_action( 'jetpack_authorize_ending_authorized', $record, 10 );
 			\Jetpack_Options::delete_option( 'master_user' );
 		}
 
@@ -703,8 +697,6 @@ class ManagerTest extends TestCase {
 		$this->assertSame( $expected_result, $result );
 		// Whoever decided it, a replaced recorded owner must not linger in the memoized owner ID.
 		$this->assertSame( $expected_master && in_array( $recorded_owner, array( 'other', 'deleted' ), true ) ? null : 999, $memo_after );
-		// An empty slot is a new connection, so the plugin's module setup still runs.
-		$this->assertSame( 'authorized' === $result ? false : null, $had_owner );
 		// No connected owner, so any claim must tell WordPress.com the slot is unusable.
 		$this->assertSame(
 			$sends_claim ? array(
@@ -825,11 +817,6 @@ class ManagerTest extends TestCase {
 
 		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
 		add_filter( 'pre_http_request', $intercept, 10, 2 );
-		$had_owner = null;
-		$record    = static function ( $data, $had_connected_owner ) use ( &$had_owner ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			$had_owner = $had_connected_owner;
-		};
-		add_action( 'jetpack_authorize_ending_authorized', $record, 10, 2 );
 
 		try {
 			$result = $manager->authorize(
@@ -843,7 +830,6 @@ class ManagerTest extends TestCase {
 		} finally {
 			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
 			remove_filter( 'pre_http_request', $intercept, 10 );
-			remove_action( 'jetpack_authorize_ending_authorized', $record, 10 );
 			delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
 			\Jetpack_Options::delete_option( array( 'master_user', 'id' ) );
 		}
@@ -853,8 +839,6 @@ class ManagerTest extends TestCase {
 			array_intersect_key( $sent_body, array_flip( array( 'owner_claim', 'local_owner_unusable' ) ) )
 		);
 		$this->assertSame( $expected_master ? 'authorized' : 'linked', $result );
-		// A stored owner token means an owner change, which skips the plugin's module reset.
-		$this->assertSame( $expected_master ? true : null, $had_owner );
 	}
 
 	/**

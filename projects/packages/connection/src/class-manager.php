@@ -3535,7 +3535,6 @@ class Manager {
 			? $wpcom_answer
 			: $can_manage_connection && ! $this->has_connected_owner() && $this->can_fill_unconnected_owner_slot( $current_user_id );
 		$owner_changed       = $is_connection_owner && $recorded_owner_id && $recorded_owner_id !== $current_user_id;
-		$had_connected_owner = $this->has_connected_owner();
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
@@ -3575,12 +3574,10 @@ class Manager {
 		 *
 		 * @since 1.7.0
 		 * @since-jetpack 8.0.0
-		 * @since $$next-version$$ Added the `$had_connected_owner` parameter.
 		 *
-		 * @param array $data                The request data.
-		 * @param bool  $had_connected_owner Whether the site already had a connected owner, so this is an owner change or re-authorization rather than a new connection.
+		 * @param array $data The request data.
 		 */
-		do_action( 'jetpack_authorize_ending_authorized', $data, $had_connected_owner );
+		do_action( 'jetpack_authorize_ending_authorized', $data );
 
 		\Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
 
