@@ -117,11 +117,11 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			return $post;
 		}
 
-		$GLOBALS['post'] = $post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['post'] = $post->post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// TODO: not sure where this one should go
 		if ( 'display' === $context ) {
-			setup_postdata( $post );
+			setup_postdata( $post->post );
 		}
 
 		$keys_to_render = array_keys( $this->post_object_format );

@@ -149,6 +149,41 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // ph
 	}
 
 	/**
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_display_content_renders_footnotes() {
+		$post_id = $this->create_post(
+			array(
+				'post_content' => '<!-- wp:paragraph --><p>A reference<sup data-fn="read-847-note" class="fn"><a href="#read-847-note" id="read-847-note-link">1</a></sup>.</p><!-- /wp:paragraph --><!-- wp:footnotes /-->',
+			)
+		);
+		update_post_meta(
+			$post_id,
+			'footnotes',
+			wp_json_encode(
+				array(
+					array(
+						'id'      => 'read-847-note',
+						'content' => 'Reader footnote regression.',
+					),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->get_endpoint()->callback(
+			'/sites/' . self::$blog_id . '/posts/' . $post_id,
+			self::$blog_id,
+			$post_id
+		);
+
+		$this->assertStringContainsString( 'href="#read-847-note" id="read-847-note-link"', $response['content'] );
+		$this->assertStringContainsString( 'Reader footnote regression.', $response['content'] );
+		$this->assertStringContainsString( '<li id="read-847-note">', $response['content'] );
+	}
+
+	/**
 	 * Test that has_password is true for a password-protected post.
 	 *
 	 * @group json-api
