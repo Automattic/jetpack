@@ -58,6 +58,39 @@ class IndexnowEventsTest extends SeoTestCase {
 		parent::tearDown();
 	}
 
+	/** @dataProvider unrelated_metadata_operations */
+	#[DataProvider( 'unrelated_metadata_operations' )]
+	public function test_unrelated_metadata_changes_do_not_read_notification_settings( $operation ) {
+		$id = wp_insert_post( array( 'post_title' => 'Template settings' ) );
+		if ( 'add' !== $operation ) {
+			add_post_meta( $id, '_wp_page_template', 'default' );
+		}
+		$filter = 'pre_option_' . Indexnow_Client::ENABLED_OPTION;
+		$fail   = function () {
+			$this->fail( 'Unrelated metadata must not read IndexNow settings.' );
+		};
+		add_filter( $filter, $fail );
+		try {
+			if ( 'add' === $operation ) {
+				$this->assertNotFalse( add_post_meta( $id, '_wp_page_template', 'default' ) );
+			} elseif ( 'update' === $operation ) {
+				$this->assertTrue( update_post_meta( $id, '_wp_page_template', 'full-width.php' ) );
+			} else {
+				$this->assertTrue( delete_post_meta( $id, '_wp_page_template' ) );
+			}
+		} finally {
+			remove_filter( $filter, $fail );
+		}
+	}
+
+	public static function unrelated_metadata_operations() {
+		return array(
+			'add'    => array( 'add' ),
+			'update' => array( 'update' ),
+			'delete' => array( 'delete' ),
+		);
+	}
+
 	public function test_disabled_notifications_leave_post_provenance_unchanged() {
 		$id  = wp_insert_post(
 			array(

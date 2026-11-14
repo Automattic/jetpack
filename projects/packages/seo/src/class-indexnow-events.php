@@ -194,14 +194,12 @@ class Indexnow_Events {
 	 * @return mixed
 	 */
 	public static function remember_before_meta_change( $check, $post_id, $key ) {
-		if ( ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
+		if ( Content_Coverage::META_NOINDEX !== $key || isset( self::$deleting[ $post_id ] ) || ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
 			return $check;
 		}
-		if ( Content_Coverage::META_NOINDEX === $key && ! isset( self::$deleting[ $post_id ] ) ) {
-			$post = get_post( $post_id );
-			if ( self::eligible( $post ) ) {
-				update_post_meta( $post_id, self::PUBLIC_URL_META, get_permalink( $post ) );
-			}
+		$post = get_post( $post_id );
+		if ( self::eligible( $post ) ) {
+			update_post_meta( $post_id, self::PUBLIC_URL_META, get_permalink( $post ) );
 		}
 		return $check;
 	}
@@ -214,9 +212,6 @@ class Indexnow_Events {
 	 * @param string $key Meta key.
 	 */
 	public static function meta_changed( $meta_id, $post_id, $key ) {
-		if ( ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
-			return;
-		}
 		if ( isset( self::$deleting[ $post_id ] ) ) {
 			return;
 		}
@@ -234,6 +229,9 @@ class Indexnow_Events {
 			),
 			true
 		) ) {
+			return;
+		}
+		if ( ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
 			return;
 		}
 		$post = get_post( $post_id );
