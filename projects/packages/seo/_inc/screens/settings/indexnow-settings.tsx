@@ -244,20 +244,18 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 						) }
 					/>
 					{ paused && <Text render={ <p /> }>{ paused }</Text> }
-					{ status.enabled && ! paused && (
+					{ status.enabled && ! paused && status.pending > 0 && (
 						<Text render={ <p /> }>
-							{ status.pending > 0
-								? sprintf(
-										/* translators: %d: pending URL notifications. */
-										_n(
-											'%d notification waiting for delivery.',
-											'%d notifications waiting for delivery.',
-											status.pending,
-											'jetpack-seo'
-										),
-										status.pending
-									)
-								: __( 'New public content changes will be sent automatically.', 'jetpack-seo' ) }
+							{ sprintf(
+								/* translators: %d: pending URL notifications. */
+								_n(
+									'%d notification waiting for delivery.',
+									'%d notifications waiting for delivery.',
+									status.pending,
+									'jetpack-seo'
+								),
+								status.pending
+							) }
 						</Text>
 					) }
 					{ status.enabled && received && (
