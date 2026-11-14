@@ -633,12 +633,85 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Hiding a page from search engines, from any editor, switches "Always include" off.
-	 *
+	 * @dataProvider provide_non_page_types
+	 * @param string $post_type Post type slug.
+	 * @param int    $included_count Number of pinned items.
+	 */
+	#[DataProvider( 'provide_non_page_types' )]
+	public function test_included_posts_precede_recent_content_and_bypass_the_limit( $post_type, $included_count ) {
+		$this->register_book_type();
+		$included = array();
+		for ( $i = 0; $i < $included_count; $i++ ) {
+			$post       = $this->insert_post(
+				array(
+					'post_type' => $post_type,
+					'post_date' => '2001-01-01 00:00:00',
+				)
+			);
+			$included[] = $post->ID;
+			update_post_meta( $post->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+		}
+		for ( $i = 0; $i <= Llms_Txt::MAX_POSTS_PER_TYPE; $i++ ) {
+			$this->insert_post(
+				array(
+					'post_type' => $post_type,
+					'post_date' => '2026-01-01 00:00:00',
+				)
+			);
+		}
+		foreach ( array( array( 'post_status' => 'draft' ), array( 'post_password' => 'secret' ), array() ) as $fields ) {
+			$hidden = $this->insert_post( array_merge( array( 'post_type' => $post_type ), $fields ) );
+			update_post_meta( $hidden->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+			if ( empty( $fields ) ) {
+				update_post_meta( $hidden->ID, Content_Coverage::META_NOINDEX, '1' );
+			}
+		}
+
+		$posts = $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', $post_type );
+		$ids   = wp_list_pluck( $posts, 'ID' );
+		$this->assertCount( max( Llms_Txt::MAX_POSTS_PER_TYPE, $included_count ), $ids );
+		$this->assertCount( $included_count, array_intersect( $included, array_slice( $ids, 0, $included_count ) ) );
+		$this->assertSameSize( $ids, array_unique( $ids ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_non_page_types(): array {
+		return array(
+			'posts'             => array( 'post', 2 ),
+			'custom posts'      => array( 'seo_book', 2 ),
+			'posts past limit'  => array( 'post', 51 ),
+			'custom past limit' => array( 'seo_book', 51 ),
+		);
+	}
+
+	/**
 	 * @return void
 	 */
-	public function test_hiding_a_page_switches_always_include_off() {
-		$page = $this->insert_page( 'Hidden Later' );
+	private function register_book_type() {
+		register_post_type(
+			'seo_book',
+			array(
+				'public'       => true,
+				'show_in_rest' => true,
+				'rest_base'    => 'seo-books',
+				'supports'     => array( 'title', 'editor', 'custom-fields' ),
+			)
+		);
+	}
+
+	/**
+	 * Hiding supported content from search engines switches "Always include" off.
+	 *
+	 * @dataProvider provide_supported_types
+	 * @param string $post_type Post type slug.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_supported_types' )]
+	public function test_hiding_content_switches_always_include_off( $post_type ) {
+		$this->register_book_type();
+		$page = $this->insert_post( array( 'post_type' => $post_type ) );
 		update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
 
 		$this->with_write_hooks(
@@ -655,12 +728,14 @@ class LlmsTxtTest extends SeoTestCase {
 	 *
 	 * @param array[] $saves    Meta for each REST save, in order.
 	 * @param bool    $expected Whether "Always include" is on after the last save.
+	 * @param string  $post_type Post type slug.
 	 * @return void
 	 * @dataProvider provide_rest_saves
 	 */
 	#[DataProvider( 'provide_rest_saves' )]
-	public function test_rest_saves_only_turn_always_include_on_for_visible_pages( array $saves, bool $expected ) {
-		$page    = $this->insert_page( 'Saved Through REST' );
+	public function test_rest_saves_only_turn_always_include_on_for_visible_content( array $saves, bool $expected, $post_type ) {
+		$this->register_book_type();
+		$page    = $this->insert_post( array( 'post_type' => $post_type ) );
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'llms_txt_admin',
@@ -683,9 +758,9 @@ class LlmsTxtTest extends SeoTestCase {
 		$responses = array();
 		try {
 			$this->with_write_hooks(
-				static function () use ( $page, $saves, &$responses ) {
+				static function () use ( $page, $saves, &$responses, $post_type ) {
 					foreach ( $saves as $meta ) {
-						$request = new WP_REST_Request( 'POST', '/wp/v2/pages/' . $page->ID );
+						$request = new WP_REST_Request( 'POST', '/wp/v2/' . get_post_type_object( $post_type )->rest_base . '/' . $page->ID );
 						$request->set_body_params( array( 'meta' => $meta ) );
 						$responses[] = rest_do_request( $request );
 					}
@@ -693,7 +768,7 @@ class LlmsTxtTest extends SeoTestCase {
 			);
 		} finally {
 			unregister_meta_key( 'post', Content_Coverage::META_NOINDEX );
-			unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' );
+			unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
 			$GLOBALS['wp_rest_server'] = null;
 			wp_set_current_user( 0 );
 			wp_delete_user( $user_id );
@@ -708,10 +783,10 @@ class LlmsTxtTest extends SeoTestCase {
 	/**
 	 * REST saves, and whether "Always include" ends up on.
 	 *
-	 * @return array<string, array{array[], bool}>
+	 * @return array<string, array{array[], bool, string}>
 	 */
 	public static function provide_rest_saves(): array {
-		return array(
+		$saves = array(
 			'hide and include together, then un-hide' => array(
 				array(
 					array(
@@ -732,6 +807,24 @@ class LlmsTxtTest extends SeoTestCase {
 				),
 				true,
 			),
+		);
+		$cases = array();
+		foreach ( array( 'page', 'post', 'seo_book' ) as $post_type ) {
+			foreach ( $saves as $name => $case ) {
+				$cases[ $post_type . ': ' . $name ] = array_merge( $case, array( $post_type ) );
+			}
+		}
+		return $cases;
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_supported_types(): array {
+		return array(
+			'page'   => array( 'page' ),
+			'post'   => array( 'post' ),
+			'custom' => array( 'seo_book' ),
 		);
 	}
 
