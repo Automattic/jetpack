@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Food Menus: Keep item names as typed when adding items via Add Many Items, instead of saving them in lowercase.
