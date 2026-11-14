@@ -236,7 +236,7 @@ class InitializerTest extends TestCase {
 	 *
 	 * @return array{llms_txt: bool, ai_crawlers: bool, canonical: bool}
 	 */
-	private function init_and_check_paid_services() {
+	private function init_and_check_services() {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
@@ -275,27 +275,18 @@ class InitializerTest extends TestCase {
 		}
 	}
 
-	/**
-	 * A self-hosted (never-gated) site registers both GEO-tab front-end services:
-	 * /llms.txt is served and the AI-crawler robots.txt directives are appended.
-	 */
-	public function test_init_registers_paid_services_when_not_gated() {
-		$hooked = $this->init_and_check_paid_services();
+	public function test_init_registers_services_on_self_hosted_sites() {
+		$hooked = $this->init_and_check_services();
 
 		$this->assertTrue( $hooked['llms_txt'] );
 		$this->assertTrue( $hooked['ai_crawlers'] );
 	}
 
-	/**
-	 * A WordPress.com site entitled to `advanced-seo` (Premium and above) is not
-	 * gated, so it registers the paid services too — gating keys off entitlement,
-	 * not merely off being on WordPress.com.
-	 */
-	public function test_init_registers_paid_services_on_entitled_wpcom_site() {
+	public function test_init_registers_services_on_entitled_wpcom_site() {
 		$this->simulate_wpcom_site( true );
 
 		try {
-			$hooked = $this->init_and_check_paid_services();
+			$hooked = $this->init_and_check_services();
 
 			$this->assertTrue( $hooked['llms_txt'] );
 			$this->assertTrue( $hooked['ai_crawlers'] );
@@ -305,34 +296,25 @@ class InitializerTest extends TestCase {
 		}
 	}
 
-	/**
-	 * A plan-gated WordPress.com site must not merely hide the paid controls — it must
-	 * stop running the services behind them, or it would keep emitting output it isn't
-	 * entitled to.
-	 */
-	public function test_init_skips_paid_services_when_gated() {
+	public function test_init_registers_services_without_wpcom_entitlement() {
 		$this->simulate_wpcom_site( false );
 
 		try {
-			$hooked = $this->init_and_check_paid_services();
+			$hooked = $this->init_and_check_services();
 
-			$this->assertFalse( $hooked['llms_txt'] );
-			$this->assertFalse( $hooked['ai_crawlers'] );
-			$this->assertFalse( $hooked['canonical'] );
+			$this->assertTrue( $hooked['llms_txt'] );
+			$this->assertTrue( $hooked['ai_crawlers'] );
+			$this->assertTrue( $hooked['canonical'] );
 		} finally {
 			$this->reset_wpcom_site();
 		}
 	}
 
-	/**
-	 * Gating only suppresses the paid services — the schema output and the admin
-	 * surface still register, so a gated site keeps the free subset of the dashboard.
-	 */
-	public function test_init_still_registers_schema_and_menu_when_gated() {
+	public function test_init_registers_schema_and_menu_without_wpcom_entitlement() {
 		$this->simulate_wpcom_site( false );
 
 		try {
-			$this->init_and_check_paid_services();
+			$this->init_and_check_services();
 
 			$this->assertNotFalse( has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) ) );
 			$this->assertNotFalse(

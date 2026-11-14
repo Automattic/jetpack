@@ -19,7 +19,6 @@ import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import { FEATURE_ADVANCED_SEO } from 'lib/plans/constants';
 import {
 	getSiteIcon,
 	isSeoEnhancerAvailable,
@@ -197,7 +196,7 @@ export const SEO = withModuleSettingsFormHelpers(
 				<SettingsCard
 					{ ...restProps }
 					header={ _x( 'Search engine optimization', 'Settings header', 'jetpack' ) }
-					feature={ FEATURE_ADVANCED_SEO }
+					feature={ false }
 					module={ seo.module }
 					saveDisabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
 					hideButton={ hasConflictingSeoPlugin || ! hasSeoTools }

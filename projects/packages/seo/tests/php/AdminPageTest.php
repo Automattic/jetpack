@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -101,15 +100,9 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * Put the site on WordPress.com, entitled to `advanced-seo` or not.
+	 * Simulate a WordPress.com entitlement lookup.
 	 *
-	 * `advanced-seo` sits in the FREE plan's supports list and plan classes are
-	 * cumulative, so the plan data alone can never report it unsupported. On
-	 * WordPress.com `Current_Plan::supports()` hijacks to the platform's own feature
-	 * check instead, and that hijack is the only thing that can gate the dashboard —
-	 * so that is what these tests drive.
-	 *
-	 * @param bool $entitled Whether the site is entitled to `advanced-seo`.
+	 * @param bool $entitled Whether the site has the legacy SEO entitlement.
 	 */
 	private function simulate_wpcom_site( $entitled ) {
 		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
@@ -127,22 +120,20 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * Self-hosted Jetpack is never plan-gated: SEO stays free there, so the gate
-	 * short-circuits on the host check before any plan lookup happens.
+	 * Self-hosted sites retain access to the complete SEO dashboard.
 	 */
 	public function test_is_gated_is_false_on_self_hosted() {
 		$this->assertFalse( $this->read_is_gated() );
 	}
 
 	/**
-	 * On WordPress.com, a site not entitled to `advanced-seo` (below Premium after
-	 * the March 2026 rebundling) is gated.
+	 * WordPress.com sites retain the full dashboard without an entitlement.
 	 */
-	public function test_is_gated_is_true_on_wpcom_without_advanced_seo() {
+	public function test_is_gated_is_false_on_wpcom_without_advanced_seo() {
 		$this->simulate_wpcom_site( false );
 
 		try {
-			$this->assertTrue( $this->read_is_gated() );
+			$this->assertFalse( $this->read_is_gated() );
 		} finally {
 			$this->reset_wpcom_site();
 		}
@@ -162,75 +153,14 @@ class AdminPageTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @dataProvider upgrade_plans
-	 */
-	#[DataProvider( 'upgrade_plans' )]
-	public function test_upsell_url_targets_premium_checkout( $simple, $plan_slug, $product ) {
+	public function test_no_upsell_url_without_advanced_seo() {
 		$this->simulate_wpcom_site( false );
-		if ( ! $simple ) {
-			Constants::clear_single_constant( 'IS_WPCOM' );
-			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
-			Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
-			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
-		}
-		Status_Cache::clear();
-		\WPCOM_Store_API::$plan = array( 'product_slug' => $simple ? $plan_slug : 'jetpack_free' );
-		Current_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => $simple ? 'jetpack_free' : $plan_slug ) ) );
 
-		try {
-			$data       = Admin_Page::inject_script_data( array() );
-			$upsell_url = $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['upsell_url'];
-
-			$this->assertIsString( $upsell_url );
-			$this->assertStringStartsWith( 'https://wordpress.com/checkout/', $upsell_url );
-			$this->assertStringEndsWith( '/' . $product, wp_parse_url( $upsell_url, PHP_URL_PATH ) );
-			parse_str( wp_parse_url( $upsell_url, PHP_URL_QUERY ), $query );
-			$this->assertSame( admin_url( 'admin.php?page=jetpack-seo' ), $query['redirect_to'] );
-			$this->assertSame( Admin_Page::get_url(), $query['checkoutBackUrl'] );
-		} finally {
-			\WPCOM_Store_API::$plan = array();
-			Current_Plan::update_from_site_record( array( 'plan' => array() ) );
-			delete_option( Current_Plan::PLAN_OPTION );
-			Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
-			Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
-			Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
-			Status_Cache::clear();
-			$this->reset_wpcom_site();
-		}
-	}
-
-	public static function upgrade_plans() {
-		$cases = array();
-		foreach ( array(
-			'Simple' => true,
-			'Atomic' => false,
-		) as $host => $simple ) {
-			foreach ( array(
-				'jetpack_free'            => 'value_bundle',
-				'personal-bundle-monthly' => 'value_bundle',
-				'personal-bundle'         => 'value_bundle',
-				'personal-bundle-2y'      => 'value_bundle-2y',
-				'personal-bundle-3y'      => 'value_bundle-3y',
-			) as $plan => $product ) {
-				$cases[ "$host $plan" ] = array( $simple, $plan, $product );
-			}
-		}
-		return $cases;
-	}
-
-	public function test_p2_sites_have_no_upgrade_offer() {
-		$this->simulate_wpcom_site( false );
-		$stylesheet = static function () {
-			return 'pub/p2';
-		};
-		add_filter( 'stylesheet', $stylesheet );
 		try {
 			$data = Admin_Page::inject_script_data( array() );
-			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['is_gated'] );
+			$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['is_gated'] );
 			$this->assertSame( '', $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['upsell_url'] );
 		} finally {
-			remove_filter( 'stylesheet', $stylesheet );
 			$this->reset_wpcom_site();
 		}
 	}
@@ -246,13 +176,7 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * The gate's load-bearing assumption: `advanced-seo` sits in the FREE plan's
-	 * supports list and plan classes are cumulative, so plan data alone can never
-	 * report it unsupported — only the WordPress.com feature hijack can gate. If
-	 * `advanced-seo` were ever dropped from the wpcom feature registry (so
-	 * `wpcom_feature_exists()` returns false), the hijack no longer fires and the
-	 * site falls through to plan data: ungated. This pins that fail-open direction —
-	 * a lookup that can't answer must never hide a paid feature.
+	 * Missing entitlement metadata cannot hide ordinary SEO settings.
 	 */
 	public function test_is_not_gated_when_wpcom_does_not_register_advanced_seo() {
 		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );

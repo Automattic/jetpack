@@ -69,13 +69,13 @@ describe( 'SeoDisabledStage', () => {
 
 	// Gated sites keep their Overview with the module off, so Settings must keep a
 	// way back to it.
-	it( 'keeps the tabs on plan-gated sites', () => {
+	it( 'hides the tabs while the module is off regardless of entitlement', () => {
 		isGated.mockReturnValue( true );
 
 		render( <SeoDisabledStage active="settings" /> );
 
 		const page = screen.getByTestId( 'dashboard-page' );
-		expect( page ).toHaveAttribute( 'data-show-tabs', 'true' );
+		expect( page ).toHaveAttribute( 'data-show-tabs', 'false' );
 		expect( page ).toHaveAttribute( 'data-centered', 'true' );
 	} );
 

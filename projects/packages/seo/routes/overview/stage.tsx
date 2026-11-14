@@ -3,7 +3,6 @@ import DashboardSkeleton from '../../_inc/components/dashboard-skeleton';
 import SeoDisabledStage from '../../_inc/components/seo-disabled-stage';
 import DashboardPage from '../../_inc/dashboard/dashboard-page';
 import { OVERVIEW_PATH } from '../../_inc/data/get-preloaded';
-import { isGated } from '../../_inc/data/is-gated';
 import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
 import useEnsureTabData from '../../_inc/data/use-ensure-tab-data';
 import OverviewScreen from '../../_inc/screens/overview';
@@ -16,10 +15,8 @@ const Stage = () => {
 	const { status, retry } = useEnsureTabData( [ { path: OVERVIEW_PATH } ] );
 
 	// When the `seo-tools` module is off, the page shows only the enable prompt,
-	// like every other tab: the cards have nothing to act on until SEO tools are
-	// turned on. Plan-gated sites (below-Premium WordPress.com) keep their reduced
-	// Overview, whose two cards read core WordPress options, as before.
-	if ( status === 'ready' && ! isGated() && ! isSeoToolsActive() ) {
+	// like every other tab: the cards need SEO tools to be active.
+	if ( status === 'ready' && ! isSeoToolsActive() ) {
 		return <SeoDisabledStage active="overview" />;
 	}
 

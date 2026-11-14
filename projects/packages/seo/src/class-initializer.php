@@ -15,7 +15,6 @@ namespace Automattic\Jetpack\SEO;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -34,8 +33,7 @@ class Initializer {
 	/**
 	 * WordPress.com site feature that enables the Jetpack SEO surface.
 	 *
-	 * Kept separate from `advanced-seo`, which gates the paid parts of the
-	 * dashboard after this product-level availability check has passed.
+	 * This availability switch is independent of subscription entitlements.
 	 *
 	 * @var string
 	 */
@@ -201,29 +199,12 @@ class Initializer {
 		// runs on and capability-gates writes itself; module activation, the one thing
 		// `register_setting()` can't express, has its own package-owned route.
 		if ( self::is_seo_tools_module_active() ) {
-			// Front-end JSON-LD schema output and author profile schema fields.
-			// Intentionally NOT gated: every site keeps emitting its structured data —
-			// a plan-gated site loses the schema *settings* card (a paid control), but
-			// stripping the schema its pages already carry would hurt SEO it has today.
-			// (Finer per-type gating — e.g. sitewide LocalBusiness to paid plans on
-			// self-hosted — is a separate follow-up, tracked in the schema project.)
 			Share_Image::init();
 			Schema_Builder::init();
 			Author_Schema_Node::init();
-
-			// Paid front-end output. A plan-gated WordPress.com site has these controls
-			// hidden from its dashboard, so it must not keep emitting their output either —
-			// otherwise it would still serve /llms.txt, AI-crawler robots.txt directives and
-			// Simple's archive canonical tags it doesn't qualify for. Self-hosted is never gated.
-			if ( ! self::is_gated() ) {
-				Canonical_Urls::init();
-				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
-				// the front end and stays behind the same gates as the schema above.
-				Llms_Txt::init();
-				// robots.txt directives for blocked AI crawlers. Self-hooks the
-				// `robots_txt` filter, so it stays inert off the front end.
-				Ai_Crawlers::init();
-			}
+			Canonical_Urls::init();
+			Llms_Txt::init();
+			Ai_Crawlers::init();
 
 			// On `rest_api_init` rather than here: which option the front page description
 			// is stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
@@ -297,51 +278,21 @@ class Initializer {
 	}
 
 	/**
-	 * Whether the SEO dashboard is plan-gated for this site.
-	 *
-	 * Gating applies only on WordPress.com (Simple + Atomic): `advanced-seo` is in the
-	 * FREE plan's supports list, so `Current_Plan::supports( 'advanced-seo' )` returns
-	 * true on self-hosted (never gated) and hijacks to `wpcom_site_has_feature()` on
-	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
-	 * Enhancer's plan check in {@see Dashboard_Data::get_geo_data()}.
-	 *
-	 * Public because {@see Admin_Page::inject_script_data()} reads it to build the
-	 * dashboard's gating payload, and {@see self::init()} uses it to decide whether the
-	 * paid front-end output registers at all.
+	 * Compatibility accessor for integrations using the former plan gate.
 	 *
 	 * @return bool
 	 */
 	public static function is_gated() {
-		return ( new Host() )->is_wpcom_platform()
-			&& ! Current_Plan::supports( 'advanced-seo' );
+		return false;
 	}
 
 	/**
-	 * Return the Premium checkout URL, or an empty string when upgrades are unavailable.
+	 * Compatibility accessor for integrations using the former upgrade link.
 	 *
 	 * @return string
 	 */
 	public static function get_upsell_url() {
-		$host = new Host();
-		if ( $host->is_p2_site() ) {
-			return '';
-		}
-
-		$plan       = $host->is_wpcom_simple() && class_exists( '\WPCOM_Store_API' )
-			? \WPCOM_Store_API::get_current_plan( get_current_blog_id() )
-			: Current_Plan::get();
-		$term       = substr( $plan['product_slug'] ?? '', -3 );
-		$product    = in_array( $term, array( '-2y', '-3y' ), true ) ? 'value_bundle' . $term : 'value_bundle';
-		$site_slug  = ( new Status() )->get_site_suffix();
-		$return_url = rawurlencode( Admin_Page::get_url() );
-
-		return add_query_arg(
-			array(
-				'redirect_to'     => $return_url,
-				'checkoutBackUrl' => $return_url,
-			),
-			sprintf( 'https://wordpress.com/checkout/%s/%s', $site_slug, $product )
-		);
+		return '';
 	}
 
 	/**

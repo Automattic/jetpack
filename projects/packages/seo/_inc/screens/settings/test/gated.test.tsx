@@ -19,8 +19,7 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
-// Heavy child cards are paid surfaces hidden when gated; stub them so the screen
-// renders in isolation and the presence of the front-page field is unambiguous.
+// Stub child cards to exercise the settings screen in isolation.
 jest.unstable_mockModule( '../author-profile-card', () => ( {
 	default: () => <div>author</div>,
 } ) );
@@ -86,21 +85,21 @@ const buildForm = ( hasLegacy: boolean ): SettingsForm => {
 	} as unknown as SettingsForm;
 };
 
-describe( 'SettingsScreen — gated front-page description', () => {
+describe( 'SettingsScreen availability', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'hides the front-page description on a gated site with no legacy value', () => {
+	it( 'offers all settings without a legacy description or entitlement', () => {
 		isGated.mockReturnValue( true );
 
 		render( <SettingsScreen form={ buildForm( false ) } /> );
 
-		expect( screen.queryByLabelText( FRONT_PAGE_LABEL ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Canonical URLs' } ) ).not.toBeInTheDocument();
+		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Canonical URLs' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the front-page description on a gated site that has a legacy value', () => {
+	it( 'keeps the front-page description without an entitlement when it has a legacy value', () => {
 		isGated.mockReturnValue( true );
 
 		render( <SettingsScreen form={ buildForm( true ) } /> );
