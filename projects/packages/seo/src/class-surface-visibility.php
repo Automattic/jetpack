@@ -20,7 +20,7 @@ class Surface_Visibility {
 	 * @return bool
 	 */
 	public static function is_visible() {
-		return true;
+		return Initializer::is_available();
 	}
 
 	/**
@@ -33,10 +33,7 @@ class Surface_Visibility {
 	}
 
 	/**
-	 * Expose whether this install should be offered the SEO opt-in, onto
-	 * `window.JetpackScriptData.seo.optin_available` for other admin surfaces (e.g. the
-	 * legacy Traffic-page banner). Only hooked when the feature flag is on, so the field is
-	 * simply absent otherwise.
+	 * Expose legacy opt-in and dashboard visibility state to other admin surfaces.
 	 *
 	 * @param array $data Script data being injected onto the page.
 	 * @return array
@@ -47,7 +44,7 @@ class Surface_Visibility {
 		}
 
 		$data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] = self::is_optin_available();
-		// Hide the legacy Traffic controls now that every install uses the dashboard.
+		// Hide the legacy Traffic controls now that eligible installs use the dashboard.
 		$data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] = self::is_visible();
 
 		return $data;

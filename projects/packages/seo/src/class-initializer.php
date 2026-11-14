@@ -88,7 +88,7 @@ class Initializer {
 		}
 		self::$initialized = true;
 
-		// Gate the entire SEO surface behind its legacy filter or per-site feature.
+		// Check host eligibility before registering package hooks.
 		if ( ! self::is_available() ) {
 			return;
 		}
@@ -209,12 +209,15 @@ class Initializer {
 	/**
 	 * Whether the Jetpack SEO product is available on this site.
 	 *
-	 * Keep the existing filter as an override while allowing WordPress.com to
-	 * enable the product for individual sites through its feature registry.
+	 * Apply legacy feature checks only after establishing host eligibility.
 	 *
 	 * @return bool
 	 */
 	public static function is_available() {
+		if ( ( new Host() )->is_vip_site() ) {
+			return false;
+		}
+
 		if ( (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
 			return true;
 		}

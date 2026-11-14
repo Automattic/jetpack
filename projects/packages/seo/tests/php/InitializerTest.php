@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -68,6 +69,49 @@ class InitializerTest extends TestCase {
 		}
 	}
 
+	public function test_vip_is_excluded_before_registering_seo_hooks() {
+		$hooks = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+
+		$visibility  = get_option( Initializer::VISIBILITY_OPTION, null );
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$was_initialized = $initialized->getValue();
+		$initialized->setValue( null, false );
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+
+		try {
+			$this->assertFalse( Initializer::is_available() );
+			delete_option( Initializer::VISIBILITY_OPTION );
+			$this->assertFalse( Initializer::is_optin_available() );
+
+			update_option( Initializer::VISIBILITY_OPTION, '1' );
+			unset( $GLOBALS['wp_filter']['rest_api_init'], $GLOBALS['wp_filter']['admin_menu'], $GLOBALS['wp_filter']['jetpack_deactivate_module_sitemaps'] );
+			Initializer::init();
+
+			$this->assertFalse( has_action( 'rest_api_init', array( Surface_Visibility::class, 'register_optin_route' ) ) );
+			$this->assertFalse( has_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ) ) );
+			$this->assertFalse( has_action( 'jetpack_deactivate_module_sitemaps', array( Initializer::class, 'flag_sitemap_user_disabled' ) ) );
+		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			if ( null === $visibility ) {
+				delete_option( Initializer::VISIBILITY_OPTION );
+			} else {
+				update_option( Initializer::VISIBILITY_OPTION, $visibility );
+			}
+			$initialized->setValue( null, $was_initialized );
+		}
+	}
+
 	/**
 	 * Clear Current_Plan's request cache after changing its backing option.
 	 */
@@ -89,6 +133,7 @@ class InitializerTest extends TestCase {
 		$this->assertTrue( method_exists( Initializer::class, 'is_optin_available' ) );
 
 		// The delegators track Surface_Visibility's answer, not a stale copy of it.
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		delete_option( Initializer::VISIBILITY_OPTION );
 		try {
 			$this->assertTrue( Initializer::is_seo_surface_visible() );
@@ -97,6 +142,7 @@ class InitializerTest extends TestCase {
 			$this->assertTrue( Initializer::is_seo_surface_visible() );
 			$this->assertFalse( Initializer::is_optin_available() );
 		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			delete_option( Initializer::VISIBILITY_OPTION );
 		}
 	}
