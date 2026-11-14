@@ -40,6 +40,15 @@ class Manager {
 	const SITE_DATA_TRANSIENT_PREFIX = 'jetpack_site_data_';
 
 	/**
+	 * User meta that carries an unusable owner across a Restore relink, which clears the stored errors.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string
+	 */
+	const RELINK_OWNER_UNUSABLE_META = 'jetpack_relink_owner_unusable';
+
+	/**
 	 * Why `has_protected_owner()` answered false, and what would change it.
 	 *
 	 * `RE_EVALUATE` is the race: the gate said false, and by the time the state was classified the
@@ -3152,6 +3161,10 @@ class Manager {
 	/**
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
+	 * Branches on the current user's tokens, not the owner's: a user with no token goes to authorize().
+	 * If both tokens are healthy but the owner has an error, only the current user is relinked.
+	 *
+	 * @since $$next-version$$ Relink only the current user when the owner's connection is broken and both tokens are healthy.
 	 * @since 9.8.1 When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
 	 *
 	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
@@ -3179,6 +3192,12 @@ class Manager {
 			$user_token_healthy = false; // Unknown, treated as unhealthy.
 		}
 
+		// Both healthy, but the owner is recorded as broken: relink only this user, not the whole site.
+		if ( $blog_token_healthy && $user_token_healthy && $this->can_relink_as_owner() ) {
+			$this->remember_unusable_owner();
+			return ( true === $this->refresh_user_token() ) ? 'authorize' : false;
+		}
+
 		// Tokens are both valid, or both invalid. We can't fix the problem we don't see, so the full reconnection is needed.
 		if ( $blog_token_healthy === $user_token_healthy ) {
 			$result = $this->reconnect();
@@ -3190,10 +3209,25 @@ class Manager {
 		}
 
 		if ( ! $user_token_healthy ) {
+			$this->remember_unusable_owner();
 			return ( true === $this->refresh_user_token() ) ? 'authorize' : false;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Whether relinking the current user would repair a recorded broken connection owner.
+	 *
+	 * True when the owner has a recorded error and relinking would make the current user the owner.
+	 * Anyone else would only be linked, so unlinking them would fix nothing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private function can_relink_as_owner() {
+		return $this->has_owner_connection_error() && $this->can_take_owner_slot();
 	}
 
 	/**
@@ -3403,11 +3437,17 @@ class Manager {
 	/**
 	 * Authorizes the user by obtaining and storing the user token.
 	 *
+	 * When ownership is transferable, the token request claims the owner slot, and a `connection_owner`
+	 * answer from WordPress.com decides the owner. Without an answer, a user with `jetpack_connect`
+	 * takes a vacant slot, unless a lock protects a recorded owner (see can_fill_unconnected_owner_slot()).
+	 * Anyone else is linked as a secondary user.
+	 *
 	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
+	 * @since $$next-version$$ Claim the owner slot, let WordPress.com's answer decide the owner, and stop replacing a locked owner with an unusable token.
 	 *
 	 * @param array $data The request data.
-	 * @return string|\WP_Error Returns a string on success.
-	 *                          Returns a \WP_Error on failure.
+	 * @return string|\WP_Error 'authorized' when the user is now the connection owner, 'linked'
+	 *                          when connected as a secondary user, or a \WP_Error on failure.
 	 */
 	public function authorize( $data = array() ) {
 		/**
@@ -3456,7 +3496,25 @@ class Manager {
 			return new \WP_Error( 'no_code', 'Request must include an authorization code.', 400 );
 		}
 
-		$token = $this->get_tokens()->get( $data, $this->api_url( 'token' ) );
+		// Only a user who may manage the site connection can own it; others link as secondary users.
+		$can_manage_connection = current_user_can( 'jetpack_connect' );
+		$recorded_owner_id     = (int) \Jetpack_Options::get_option( 'master_user' );
+
+		// A locked site never claims, so WordPress.com leaves the owner to the site's own rule.
+		$send_owner_claim = $can_manage_connection && $this->is_ownership_transferable();
+		$owner_claim      = $send_owner_claim ? array(
+			'owner_claim'          => 1,
+			// Read before the token write, which clears the stored errors this reads.
+			'local_owner_unusable' => $this->is_owner_slot_unusable() ? 1 : 0,
+		) : array();
+
+		$token_details = null;
+		$token         = $this->get_tokens()->get(
+			$data,
+			$this->api_url( 'token' ),
+			$owner_claim,
+			$token_details
+		);
 
 		if ( is_wp_error( $token ) ) {
 			$code = $token->get_error_code();
@@ -3470,10 +3528,23 @@ class Manager {
 			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
 		}
 
-		// Only a user who may manage the site connection takes a vacant owner slot; others link as secondary users.
-		$is_connection_owner = ! $this->has_connected_owner() && current_user_can( 'jetpack_connect' );
+		// WordPress.com answers only a claim it doesn't block; without an answer, fall back to the vacant-slot rule.
+		$wpcom_answer        = $send_owner_claim && is_array( $token_details ) && isset( $token_details['connection_owner'] ) ? (bool) $token_details['connection_owner'] : null;
+		$wpcom_decided       = null !== $wpcom_answer;
+		$is_connection_owner = $wpcom_decided
+			? $wpcom_answer
+			: $can_manage_connection && ! $this->has_connected_owner() && $this->can_fill_unconnected_owner_slot( $current_user_id );
+		$owner_changed       = $is_connection_owner && $recorded_owner_id && $recorded_owner_id !== $current_user_id;
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
+
+		// Kept until the token request succeeds, so a failed one can retry with it. update_user_token() returns no usable result.
+		delete_user_meta( $current_user_id, self::RELINK_OWNER_UNUSABLE_META );
+
+		if ( $owner_changed ) {
+			// The owner changed under the memoized ID.
+			$this->reset_connection_status();
+		}
 
 		// Delete cached connected user data, so a cached failure from the
 		// previous (broken) token doesn't linger after reconnecting.
@@ -3513,6 +3584,145 @@ class Manager {
 		( new Nonce_Handler() )->reschedule();
 
 		return 'authorized';
+	}
+
+	/**
+	 * Whether this site has no usable connection owner: none recorded, a missing or malformed token, or a token WordPress.com rejected.
+	 *
+	 * WordPress.com can't see a missing owner or a token the site holds but can't use, so the owner claim reports it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|null $user_id The authorizing user's ID, whose remembered state counts. Defaults to the current user.
+	 * @return bool
+	 */
+	private function is_owner_slot_unusable( $user_id = null ) {
+		return ! $this->has_connected_owner() || $this->has_owner_token_rejection() || $this->is_unusable_owner_remembered( $user_id );
+	}
+
+	/**
+	 * Whether connecting or relinking this user would make them the connection owner.
+	 *
+	 * The one rule behind the owner-error notice, Restore's relink and the connect prompt, so their promises match authorize().
+	 * Where WordPress.com answers the claim, it can still refuse one for a blog with a protected owner there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|null $user_id The user's ID. Defaults to the current user.
+	 * @return bool
+	 */
+	public function can_take_owner_slot( $user_id = null ) {
+		$user_id = null === $user_id ? get_current_user_id() : (int) $user_id;
+
+		if ( $user_id <= 0 || ! user_can( $user_id, 'jetpack_connect' ) ) {
+			return false;
+		}
+
+		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+
+		// No owner, the owner themselves, or a deleted owner: authorize()'s fallback gives them the slot.
+		if ( $owner_id <= 0 || $owner_id === $user_id || ! get_userdata( $owner_id ) ) {
+			return true;
+		}
+
+		if ( ! $this->is_ownership_transferable() ) {
+			return false;
+		}
+
+		// WordPress.com ignores claims on Atomic and from non-administrator codes, leaving only the local fallback.
+		$wpcom_answers = ! ( new Host() )->is_woa_site()
+			&& 'administrator' === ( new Roles() )->translate_user_to_role( get_userdata( $user_id ) );
+
+		return $wpcom_answers ? $this->is_owner_slot_unusable( $user_id ) : ! $this->has_connected_owner();
+	}
+
+	/**
+	 * Records for the current user that the owner is unusable, before a Restore relink clears the evidence.
+	 *
+	 * Unlinking deletes every stored error, so authorize() would otherwise report a usable owner.
+	 *
+	 * @since $$next-version$$
+	 */
+	private function remember_unusable_owner() {
+		$user_id = get_current_user_id();
+
+		if ( $user_id && $this->is_owner_slot_unusable() ) {
+			update_user_meta(
+				$user_id,
+				self::RELINK_OWNER_UNUSABLE_META,
+				array(
+					'owner' => (int) \Jetpack_Options::get_option( 'master_user' ),
+					'time'  => time(),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Whether remember_unusable_owner() recorded the current owner within the last hour.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|null $user_id The user's ID. Defaults to the current user.
+	 * @return bool
+	 */
+	private function is_unusable_owner_remembered( $user_id = null ) {
+		$user_id = null === $user_id ? get_current_user_id() : (int) $user_id;
+		$record  = $user_id > 0 ? get_user_meta( $user_id, self::RELINK_OWNER_UNUSABLE_META, true ) : null;
+
+		return is_array( $record )
+			&& isset( $record['owner'] )
+			&& isset( $record['time'] )
+			&& (int) $record['owner'] === (int) \Jetpack_Options::get_option( 'master_user' )
+			&& time() - (int) $record['time'] <= HOUR_IN_SECONDS;
+	}
+
+	/**
+	 * Whether WordPress.com has rejected the owner's token on a request this site signed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private function has_owner_token_rejection() {
+		// A partial update can load this class alongside an Error_Handler that predates the method.
+		return method_exists( Error_Handler::class, 'has_owner_token_rejection' )
+			&& Error_Handler::get_instance()->has_owner_token_rejection();
+	}
+
+	/**
+	 * Whether the authorizing user may fill an owner slot that has no connected owner.
+	 *
+	 * A recorded owner whose token is missing or malformed is not a connected owner, but a lock must
+	 * still protect them. A deleted owner can never reconnect, so their slot counts as vacant.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id The authorizing user's ID.
+	 * @return bool
+	 */
+	private function can_fill_unconnected_owner_slot( $user_id ) {
+		$recorded_owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+
+		return ! $recorded_owner_id
+			|| $recorded_owner_id === $user_id
+			|| ! get_userdata( $recorded_owner_id )
+			|| $this->is_ownership_transferable();
+	}
+
+	/**
+	 * Whether an error on record says the connection owner's own connection is broken.
+	 *
+	 * Covers what has_connected_owner() cannot see: a token that is present but rejected by WordPress.com.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private function has_owner_connection_error() {
+		// A partial update can load this class alongside an Error_Handler that predates the method.
+		return method_exists( Error_Handler::class, 'has_owner_connection_error' )
+			&& Error_Handler::get_instance()->has_owner_connection_error();
 	}
 
 	/**

@@ -142,12 +142,17 @@ class Tokens {
 	/**
 	 * Obtains the auth token.
 	 *
-	 * @param array  $data The request data.
-	 * @param string $token_api_url The URL of the Jetpack "token" API.
+	 * @since $$next-version$$ Added the `$extra_body` and `$token_details` parameters.
+	 *
+	 * @param array      $data          The request data.
+	 * @param string     $token_api_url The URL of the Jetpack "token" API.
+	 * @param array      $extra_body    Fields to send with the token request, next to `client_id` and `code`.
+	 * @param array|null $token_details Set to what WordPress.com reported beyond the token: `connection_owner`
+	 *                                  (bool), only when the response includes it. Left untouched on failure.
 	 * @return object|WP_Error Returns the auth token on success.
 	 *                          Returns a WP_Error on failure.
 	 */
-	public function get( $data, $token_api_url ) {
+	public function get( $data, $token_api_url, $extra_body = array(), &$token_details = null ) {
 		$roles = new Roles();
 		$role  = $roles->translate_current_user_to_role();
 
@@ -206,12 +211,15 @@ class Tokens {
 		 */
 		$body = apply_filters(
 			'jetpack_token_request_body',
-			array(
-				'client_id'     => Jetpack_Options::get_option( 'id' ),
-				'client_secret' => $client_secret->secret,
-				'grant_type'    => 'authorization_code',
-				'code'          => $data['code'],
-				'redirect_uri'  => $redirect_uri,
+			array_merge(
+				$extra_body,
+				array(
+					'client_id'     => Jetpack_Options::get_option( 'id' ),
+					'client_secret' => $client_secret->secret,
+					'grant_type'    => 'authorization_code',
+					'code'          => $data['code'],
+					'redirect_uri'  => $redirect_uri,
+				)
 			)
 		);
 
@@ -280,6 +288,12 @@ class Tokens {
 
 		if ( ! current_user_can( $cap ) ) {
 			return new WP_Error( 'scope', 'current_user_cannot', $code );
+		}
+
+		// A missing field means WordPress.com didn't decide, which is not the same as `false`.
+		$token_details = array();
+		if ( isset( $json->connection_owner ) ) {
+			$token_details['connection_owner'] = (bool) $json->connection_owner;
 		}
 
 		return (string) $json->access_token;

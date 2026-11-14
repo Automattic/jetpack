@@ -35,6 +35,8 @@ const connectionSelectors = {
 	getRequiresProtectedOwner: state => state.requiresProtectedOwner ?? null,
 	getUseDefaultProtectedOwnerUi: state => state.useDefaultProtectedOwnerUi ?? null,
 
+	getCanTakeOwnerSlot: state => state.canTakeOwnerSlot ?? null,
+
 	getWpcomUser,
 	getBlogId,
 };
