@@ -798,7 +798,7 @@ class Initializer {
 				'<figure %1$s>%2$s<p class="videopress-video-browser__empty">%3$s</p></figure>',
 				get_block_wrapper_attributes( array( 'class' => 'videopress-playlist is-layout-' . esc_attr( $block_attributes['layout'] ?? 'grid' ) . ' is-empty' ) ),
 				$before,
-				esc_html__( 'No videos match these filters.', 'jetpack-videopress-pkg' )
+				esc_html__( 'No videos match these filters.', 'jetpack-videopress-pkg' ) . ( $state['terms'] ? sprintf( ' <a class="videopress-video-browser__clear" href="%1$s">%2$s</a>', esc_url( remove_query_arg( array_merge( self::classification_query_args(), array( Channel_Data::QUERY_ARG_PAGE ) ) ) ), esc_html__( 'Clear filters', 'jetpack-videopress-pkg' ) ) : '' )
 			);
 		}
 
@@ -815,7 +815,7 @@ class Initializer {
 	 * @return string Markup.
 	 */
 	private static function render_video_browser_controls( array $state, array $results, $per_page ) {
-		$own_args = array( Channel_Data::QUERY_ARG_SEARCH, Channel_Data::QUERY_ARG_SORT, Channel_Data::QUERY_ARG_LENGTH, Channel_Data::QUERY_ARG_PAGE );
+		$own_args = array_merge( array( Channel_Data::QUERY_ARG_SEARCH, Channel_Data::QUERY_ARG_SORT, Channel_Data::QUERY_ARG_LENGTH, Channel_Data::QUERY_ARG_PAGE ), self::classification_query_args() );
 		$action   = strtok( remove_query_arg( $own_args ), '?' );
 
 		// A GET form drops the action's query string, so the page's other arguments ride along as fields.
@@ -875,7 +875,9 @@ class Initializer {
 				'<button type="submit" class="videopress-video-browser__submit">%8$s</button>' .
 				'<div class="videopress-video-browser__sorts" role="group" aria-label="%9$s">%10$s</div>' .
 				'<select class="videopress-video-browser__length" name="%11$s" aria-label="%12$s">%13$s</select>' .
+				'%15$s' .
 			'</form>' .
+			'%16$s' .
 			'<p class="videopress-video-browser__summary">%14$s</p>',
 			esc_url( $action ),
 			$hidden,
@@ -890,7 +892,98 @@ class Initializer {
 			esc_attr( Channel_Data::QUERY_ARG_LENGTH ),
 			esc_attr__( 'Video length', 'jetpack-videopress-pkg' ),
 			$options,
-			esc_html( $summary )
+			esc_html( $summary ),
+			self::render_video_browser_facets( $state['terms'] ?? array() ),
+			self::render_video_browser_active_filters( $state['terms'] ?? array() )
+		);
+	}
+
+	/**
+	 * The query arguments carrying classification filters.
+	 *
+	 * @return string[]
+	 */
+	private static function classification_query_args() {
+		return array_column( Classification::taxonomies(), 'query_arg' );
+	}
+
+	/**
+	 * One disclosure of checkboxes per classification that labels at least one listed video.
+	 *
+	 * @param array<string, string[]> $selected Selected slugs keyed by taxonomy.
+	 *
+	 * @return string Markup; empty when nothing is classified.
+	 */
+	private static function render_video_browser_facets( array $selected ) {
+		$markup = '';
+		foreach ( Classification::taxonomies() as $taxonomy => $shape ) {
+			$facets = Classification::facets( $taxonomy );
+			if ( ! $facets ) {
+				continue;
+			}
+			$chosen = $selected[ $taxonomy ] ?? array();
+			$boxes  = '';
+			foreach ( $facets as $facet ) {
+				$boxes .= sprintf(
+					'<label class="videopress-video-browser__facet-option"><input type="checkbox" name="%1$s[]" value="%2$s"%3$s /> <span>%4$s</span> <span class="videopress-video-browser__facet-count">%5$s</span></label>',
+					esc_attr( $shape['query_arg'] ),
+					esc_attr( $facet['slug'] ),
+					checked( in_array( $facet['slug'], $chosen, true ), true, false ),
+					esc_html( $facet['name'] ),
+					esc_html( number_format_i18n( $facet['count'] ) )
+				);
+			}
+			$markup .= sprintf(
+				'<details class="videopress-video-browser__facet%1$s"><summary>%2$s</summary><div class="videopress-video-browser__facet-options" role="group" aria-label="%3$s">%4$s<button type="submit" class="videopress-video-browser__apply">%5$s</button></div></details>',
+				$chosen ? ' is-active' : '',
+				esc_html( $chosen ? sprintf( '%1$s (%2$s)', $shape['label'], number_format_i18n( count( $chosen ) ) ) : $shape['label'] ),
+				esc_attr( $shape['label'] ),
+				$boxes,
+				esc_html__( 'Apply', 'jetpack-videopress-pkg' )
+			);
+		}
+		return '' === $markup ? '' : '<div class="videopress-video-browser__facets">' . $markup . '</div>';
+	}
+
+	/**
+	 * The selected classification filters as removable chips, plus a clear-all link.
+	 *
+	 * @param array<string, string[]> $selected Selected slugs keyed by taxonomy.
+	 *
+	 * @return string Markup; empty when no filter is selected.
+	 */
+	private static function render_video_browser_active_filters( array $selected ) {
+		if ( ! $selected ) {
+			return '';
+		}
+		$taxonomies = Classification::taxonomies();
+		$chips      = '';
+		foreach ( $selected as $taxonomy => $slugs ) {
+			$arg = $taxonomies[ $taxonomy ]['query_arg'];
+			foreach ( $slugs as $slug ) {
+				$term = get_term_by( 'slug', $slug, $taxonomy );
+				$rest = array_values( array_diff( $slugs, array( $slug ) ) );
+				$url  = remove_query_arg( array( $arg, Channel_Data::QUERY_ARG_PAGE ) );
+				if ( $rest ) {
+					$url = add_query_arg( $arg, implode( ',', $rest ), $url );
+				}
+				$name   = $term instanceof \WP_Term ? html_entity_decode( $term->name, ENT_QUOTES ) : $slug;
+				$chips .= sprintf(
+					'<a class="videopress-video-browser__active-filter" href="%1$s" aria-label="%2$s"><span class="videopress-video-browser__active-filter-label">%3$s:</span> %4$s <span aria-hidden="true">×</span></a>',
+					esc_url( $url ),
+					/* translators: 1: a classification such as Topic, 2: a term such as Accessibility. */
+					esc_attr( sprintf( __( 'Remove filter %1$s: %2$s', 'jetpack-videopress-pkg' ), $taxonomies[ $taxonomy ]['singular'], $name ) ),
+					esc_html( $taxonomies[ $taxonomy ]['singular'] ),
+					esc_html( $name )
+				);
+			}
+		}
+		return sprintf(
+			'<div class="videopress-video-browser__active" aria-label="%1$s">%2$s<a class="videopress-video-browser__clear" href="%3$s">%4$s</a></div>',
+			esc_attr__( 'Active filters', 'jetpack-videopress-pkg' ),
+			$chips,
+			esc_url( remove_query_arg( array_merge( self::classification_query_args(), array( Channel_Data::QUERY_ARG_PAGE ) ) ) ),
+			esc_html__( 'Clear filters', 'jetpack-videopress-pkg' )
 		);
 	}
 

@@ -115,6 +115,9 @@ class Channel_Data_Test extends BaseTestCase {
 			'videos-sort'   => 'latest',
 			'videos-length' => 'forever',
 			'videos-page'   => '3',
+			'videos-topic'  => array( 'Search', 'a11y', array( 'nested' ) ),
+			'videos-series' => 'meetup-2026,meetup-2026',
+			'videos-person' => 3,
 		);
 
 		$this->assertSame(
@@ -123,6 +126,7 @@ class Channel_Data_Test extends BaseTestCase {
 				'sort'   => 'popular',
 				'length' => 'any',
 				'page'   => 1,
+				'terms'  => array(),
 			),
 			Channel_Data::browse_request( false, false, 'popular' )
 		);
@@ -132,6 +136,10 @@ class Channel_Data_Test extends BaseTestCase {
 				'sort'   => 'newest',
 				'length' => 'any',
 				'page'   => 3,
+				'terms'  => array(
+					'videopress_series' => array( 'meetup-2026' ),
+					'videopress_topic'  => array( 'a11y', 'search' ),
+				),
 			),
 			Channel_Data::browse_request( true, true, 'popular' )
 		);
