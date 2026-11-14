@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Markdown block: Stop a wide table or code block from making a subscription email scroll sideways.
