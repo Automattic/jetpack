@@ -16,7 +16,7 @@ describe( 'VerificationCard', () => {
 	beforeEach( () => {
 		mockUseGoogleVerify.mockReturnValue( {
 			state: 'unverified',
-			isConnected: true,
+			canAutoVerify: true,
 			isOwner: false,
 			searchConsoleUrl: '',
 			isVerifying: false,
