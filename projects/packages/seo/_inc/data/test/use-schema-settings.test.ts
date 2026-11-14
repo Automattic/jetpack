@@ -7,6 +7,8 @@ import type { SchemaSettings } from '../schema-settings-types';
 // True-ESM Jest (`--experimental-vm-modules`): register mocks with
 // `jest.unstable_mockModule`, then import the hook dynamically. `@wordpress/element`
 // stays real so the hook's state/refs behave; only the data/REST edges are stubbed.
+const recordSeoEvent = jest.fn();
+jest.unstable_mockModule( '../record-seo-event', () => ( { recordSeoEvent } ) );
 const mockApiFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
 const createInfoNotice = jest.fn();
 const createSuccessNotice = jest.fn();
@@ -33,6 +35,7 @@ describe( 'useSchemaSettings', () => {
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( recordSeoEvent ).not.toHaveBeenCalled();
 		expect( result.current.siteRepresents ).toBe( 'organization' );
 		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
 		expect( result.current.organization ).toEqual( RESPONSE.organization );
@@ -84,6 +87,18 @@ describe( 'useSchemaSettings', () => {
 		expect( options.data.localBusiness.telephone ).toBe( '+1 555 123 4567' );
 		expect( onSave ).toHaveBeenCalledWith( saved );
 		expect( createSuccessNotice ).toHaveBeenCalled();
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_seo_setting_updated',
+				'settings',
+				{ setting: 'schema_organization', verification_service: 'none', setting_value: 'set' },
+			],
+			[
+				'jetpack_seo_setting_updated',
+				'settings',
+				{ setting: 'schema_localBusiness', verification_service: 'none', setting_value: 'set' },
+			],
+		] );
 	} );
 
 	it( 'ignores a second Save while one is in flight', async () => {
@@ -105,6 +120,7 @@ describe( 'useSchemaSettings', () => {
 		act( () => result.current.saveOrganizationEntity() );
 		act( () => result.current.commitBreadcrumbList( { enabled: false } ) );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		expect( recordSeoEvent ).not.toHaveBeenCalled();
 		// The dropped toggle must not leave the UI showing an unsent change.
 		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
 
@@ -136,6 +152,13 @@ describe( 'useSchemaSettings', () => {
 		expect( result.current.person.name ).toBe( 'Pending person' );
 		expect( result.current.isPersonDirty ).toBe( true );
 		expect( onSave ).toHaveBeenCalledWith( saved );
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_seo_setting_updated',
+				'settings',
+				{ setting: 'schema_siteRepresents', verification_service: 'none', setting_value: 'person' },
+			],
+		] );
 	} );
 
 	it( 'saves only Person and preserves pending Organization edits', async () => {
@@ -165,6 +188,79 @@ describe( 'useSchemaSettings', () => {
 		expect( options.data.person.sameAs ).toEqual( [ 'https://linkedin.com/in/jane' ] );
 		expect( result.current.organization.name ).toBe( 'Pending organization' );
 		expect( result.current.isOrganizationDirty ).toBe( true );
+	} );
+
+	it( 'records saved Person fields without reporting pending Organization edits or field contents', async () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+		act( () => {
+			result.current.setOrganizationField( { name: 'Unsaved business' } );
+			result.current.setPersonField( { name: 'Private name', description: 'Private biography' } );
+		} );
+		mockApiFetch.mockResolvedValueOnce(
+			makeSchemaSettings( {
+				person: { ...RESPONSE.person, name: 'Private name', description: 'Private biography' },
+			} )
+		);
+		act( () => result.current.savePerson() );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_seo_setting_updated',
+				'settings',
+				{ setting: 'schema_person', verification_service: 'none', setting_value: 'set' },
+			],
+		] );
+	} );
+
+	it.each( [ false, true ] )( 'records the saved BreadcrumbList value %s', async enabled => {
+		const initial = makeSchemaSettings( { breadcrumbList: { enabled: ! enabled } } );
+		const { result } = renderHook( () => useSchemaSettings( initial ) );
+		mockApiFetch.mockResolvedValueOnce( makeSchemaSettings( { breadcrumbList: { enabled } } ) );
+		act( () => result.current.commitBreadcrumbList( { enabled } ) );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_seo_setting_updated',
+				'settings',
+				{ setting: 'schema_breadcrumbList', verification_service: 'none', setting_value: enabled },
+			],
+		] );
+	} );
+
+	it( 'records clearing the last nested business value as cleared', async () => {
+		const initial = makeSchemaSettings( {
+			localBusiness: {
+				...RESPONSE.localBusiness,
+				address: { ...RESPONSE.localBusiness.address, streetAddress: 'Private address' },
+			},
+		} );
+		const { result } = renderHook( () => useSchemaSettings( initial ) );
+		act( () =>
+			result.current.setLocalBusinessField( { address: RESPONSE.localBusiness.address } )
+		);
+		mockApiFetch.mockResolvedValueOnce( RESPONSE );
+		act( () => result.current.saveOrganizationEntity() );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_seo_setting_updated',
+				'settings',
+				{ setting: 'schema_localBusiness', verification_service: 'none', setting_value: 'cleared' },
+			],
+		] );
+	} );
+
+	it( 'does not record unchanged saves or unrelated sections changed by another session', async () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+		act( () => result.current.setPersonField( { name: '   ' } ) );
+		mockApiFetch.mockResolvedValueOnce(
+			makeSchemaSettings( {
+				organization: { ...RESPONSE.organization, name: 'Changed elsewhere' },
+			} )
+		);
+		act( () => result.current.savePerson() );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( recordSeoEvent ).not.toHaveBeenCalled();
 	} );
 
 	it( 'auto-saves the BreadcrumbList toggle without dragging in pending edits', async () => {
@@ -213,6 +309,7 @@ describe( 'useSchemaSettings', () => {
 		// …then reverts to the last-saved value when the save fails.
 		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
 		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
+		expect( recordSeoEvent ).not.toHaveBeenCalled();
 	} );
 
 	it( 'rolls the site-entity choice back when its auto-save fails', async () => {
@@ -229,6 +326,7 @@ describe( 'useSchemaSettings', () => {
 		// …then reverts so the card can't keep showing an unpersisted entity.
 		expect( result.current.siteRepresents ).toBe( 'organization' );
 		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
+		expect( recordSeoEvent ).not.toHaveBeenCalled();
 	} );
 
 	it( 'reports a failed Organization-entity save and keeps the edits pending', async () => {
@@ -245,6 +343,7 @@ describe( 'useSchemaSettings', () => {
 		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
 
 		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
+		expect( recordSeoEvent ).not.toHaveBeenCalled();
 		// Unlike the auto-saving toggle, explicit field edits are kept so the admin
 		// can retry without retyping.
 		expect( result.current.organization.name ).toBe( 'Acme' );

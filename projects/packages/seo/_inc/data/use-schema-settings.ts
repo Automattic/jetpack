@@ -3,6 +3,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordSeoEvent } from './record-seo-event';
 import { cleanLocalBusiness, cleanOrganization, cleanPerson } from './schema-settings-utils';
 import type {
 	BreadcrumbListSettings,
@@ -19,6 +20,13 @@ import type {
 const ENDPOINT = '/jetpack/v4/seo/schema-settings';
 // Single snackbar id reused across a save so "Saving…" is replaced in place by the result.
 const NOTICE_ID = 'jetpack-seo-schema-settings-save';
+
+const hasStoredValue = ( value: unknown ): boolean => {
+	if ( value && typeof value === 'object' ) {
+		return Object.values( value ).some( hasStoredValue );
+	}
+	return typeof value === 'string' ? value.trim().length > 0 : Boolean( value );
+};
 
 type EditableSchemaSections = Pick<
 	SchemaSettings,
@@ -125,6 +133,27 @@ export function useSchemaSettings(
 			} );
 			apiFetch< SchemaSettings >( { path: ENDPOINT, method: 'POST', data } )
 				.then( settings => {
+					for ( const section of Object.keys( data ) as ( keyof EditableSchemaSections )[] ) {
+						if (
+							JSON.stringify( settings[ section ] ) ===
+							JSON.stringify( baselineRef.current[ section ] )
+						) {
+							continue;
+						}
+						let value: string | boolean;
+						if ( section === 'siteRepresents' ) {
+							value = settings.siteRepresents;
+						} else if ( section === 'breadcrumbList' ) {
+							value = settings.breadcrumbList.enabled;
+						} else {
+							value = hasStoredValue( settings[ section ] ) ? 'set' : 'cleared';
+						}
+						recordSeoEvent( 'jetpack_seo_setting_updated', 'settings', {
+							setting: `schema_${ section }`,
+							verification_service: 'none',
+							setting_value: value,
+						} );
+					}
 					onSuccess( settings );
 					onSave?.( settings );
 					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
