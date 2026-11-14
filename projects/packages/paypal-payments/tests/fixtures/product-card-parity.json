@@ -186,6 +186,40 @@
 			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">From <s class=\"jetpack-paypal-button__original-price\">$20.00</s> $18.00</span><span class=\"jetpack-paypal-button__discount\">10% discount</span></div>"
 		},
 		{
+			"name": "discounts the From price when a product price is left over",
+			"attributes": {
+				"price": "10.00",
+				"currencyCode": "USD",
+				"discountEnabled": true,
+				"discountType": "PERCENTAGE",
+				"discountValue": "10",
+				"variantsEnabled": true,
+				"variants": {
+					"dimensions": [
+						{
+							"name": "size",
+							"primary": true,
+							"options": [
+								{
+									"label": "small",
+									"unit_amount": {
+										"value": "20.00"
+									}
+								},
+								{
+									"label": "large",
+									"unit_amount": {
+										"value": "30.00"
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">From <s class=\"jetpack-paypal-button__original-price\">$20.00</s> $18.00</span><span class=\"jetpack-paypal-button__discount\">10% discount</span></div>"
+		},
+		{
 			"name": "takes a flat discount off the From price",
 			"attributes": {
 				"price": "",
