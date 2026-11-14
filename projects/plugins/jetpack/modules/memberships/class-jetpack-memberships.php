@@ -67,6 +67,13 @@ class Jetpack_Memberships {
 	public static $post_access_level_meta_name = META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 	/**
+	 * Cookie that pauses the paywall's silent subscriber check.
+	 *
+	 * @var string
+	 */
+	const SILENT_SUBSCRIBER_CHECK_COOKIE = 'jp-sub-check';
+
+	/**
 	 * Post meta that will store the tier ID of access for newsletters
 	 *
 	 * @var string
@@ -285,6 +292,36 @@ class Jetpack_Memberships {
 		}
 
 		Abstract_Token_Subscription_Service::clear_token_cookie();
+		self::pause_silent_subscriber_check();
+	}
+
+	/**
+	 * Stops the paywall's silent subscriber check for a month, so it can't sign the subscriber
+	 * straight back in from their WordPress.com session. The check's script reads this cookie
+	 * (see print_silent_subscriber_check() in the Subscriptions block), so it can't be httponly.
+	 */
+	private static function pause_silent_subscriber_check() {
+		$_COOKIE[ self::SILENT_SUBSCRIBER_CHECK_COOKIE ] = '1';
+
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			return;
+		}
+
+		if ( ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::SILENT_SUBSCRIBER_CHECK_COOKIE, '1', strtotime( '+1 month' ), self::get_silent_subscriber_check_cookie_path(), '', is_ssl(), false );
+		}
+	}
+
+	/**
+	 * Path for the silent check's pause cookie: the site's own path, so a pause on one site
+	 * doesn't stop the check on another site under the same host.
+	 *
+	 * @return string
+	 */
+	public static function get_silent_subscriber_check_cookie_path() {
+		$path = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+		return $path ? $path : '/';
 	}
 
 	/**
