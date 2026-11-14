@@ -86,7 +86,8 @@ const pruned = ( node, keep ) => {
 const frameOf = el => {
 	const h1 = el.querySelector( 'h1' );
 	const page = h1?.closest( '.admin-ui-navigable-region' );
-	if ( ! page || ! el.contains( page ) ) {
+	// A screen that hides its header, such as Boost's Getting Started, would lend other pages an invisible one.
+	if ( ! page || ! el.contains( page ) || h1.checkVisibility?.() === false ) {
 		return null;
 	}
 	const header = [ ...page.children ].find( child => child.contains( h1 ) );
