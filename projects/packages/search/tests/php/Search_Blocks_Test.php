@@ -25,6 +25,13 @@ class Search_Blocks_Test extends TestCase {
 	private $original_wp_the_query;
 
 	/**
+	 * The main query object as it was before a block style test replaced it.
+	 *
+	 * @var \WP_Query|null
+	 */
+	private $original_wp_query;
+
+	/**
 	 * Snapshot the main query before each test so tearDown can restore it.
 	 */
 	protected function setUp(): void {
@@ -1364,6 +1371,11 @@ class Search_Blocks_Test extends TestCase {
 			has_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
 			'seed_interactivity_state must always hook into wp_enqueue_scripts (blocks may be on any page)'
 		);
+		$this->assertSame(
+			9,
+			has_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'load_block_styles_only_where_rendered' ) ),
+			'must run before wp_common_block_scripts_and_styles() enqueues every block style at priority 10'
+		);
 	}
 
 	/**
@@ -1942,6 +1954,7 @@ class Search_Blocks_Test extends TestCase {
 		remove_action( 'init', array( Product_Search_Template::class, 'register_post_type' ), 9 );
 		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
+		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'load_block_styles_only_where_rendered' ), 9 );
 		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
 		remove_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ), 10 );
 		remove_filter( 'script_module_loader_src', array( Search_Blocks::class, 'same_origin_script_module_src' ), 10 );
@@ -3821,5 +3834,65 @@ class Search_Blocks_Test extends TestCase {
 
 		$this->assertContains( 'filters-product', $on );
 		$this->assertNotContains( 'filters-product', $off );
+	}
+
+	/**
+	 * Register a Search block and run the front-end block style enqueue with on-demand block assets on or off.
+	 *
+	 * @param bool $on_demand Value for the on-demand block asset filters.
+	 * @return \WP_Block_Type
+	 */
+	private function register_block_and_enqueue_styles( $on_demand ) {
+		// Core's on-demand checks call is_feed(), which needs a main query.
+		$this->original_wp_query = $GLOBALS['wp_query'] ?? null;
+		$GLOBALS['wp_query']     = new \WP_Query();
+		$GLOBALS['wp_styles']    = new \WP_Styles();
+		$block_type              = register_block_type( dirname( __DIR__, 2 ) . '/src/search-blocks/blocks/powered-by' );
+
+		$filter = $on_demand ? '__return_true' : '__return_false';
+		add_filter( 'should_load_separate_core_block_assets', $filter, 99 );
+		add_filter( 'should_load_block_assets_on_demand', $filter, 99 );
+		Search_Blocks::load_block_styles_only_where_rendered();
+		wp_enqueue_registered_block_scripts_and_styles();
+
+		return $block_type;
+	}
+
+	/**
+	 * Clean up after register_block_and_enqueue_styles().
+	 */
+	private function unregister_block_and_styles() {
+		foreach ( array( '__return_true', '__return_false' ) as $filter ) {
+			remove_filter( 'should_load_separate_core_block_assets', $filter, 99 );
+			remove_filter( 'should_load_block_assets_on_demand', $filter, 99 );
+		}
+		unregister_block_type( 'jetpack-search/powered-by' );
+		$GLOBALS['wp_styles'] = new \WP_Styles();
+		$GLOBALS['wp_query']  = $this->original_wp_query;
+	}
+
+	/**
+	 * A site that turns off on-demand block assets loads a Search block's style only where the block renders.
+	 */
+	public function test_block_style_is_not_loaded_site_wide_when_on_demand_assets_are_off() {
+		try {
+			$block_type = $this->register_block_and_enqueue_styles( false );
+			$this->assertFalse( wp_style_is( 'jetpack-search-powered-by-style', 'enqueued' ) );
+			$this->assertSame( array( 'jetpack-search-powered-by-style' ), $block_type->view_style_handles );
+		} finally {
+			$this->unregister_block_and_styles();
+		}
+	}
+
+	/**
+	 * With on-demand block assets, the style stays a block `style` so core keeps hoisting it to the block styles slot.
+	 */
+	public function test_block_style_stays_a_block_style_when_on_demand_assets_are_on() {
+		try {
+			$block_type = $this->register_block_and_enqueue_styles( true );
+			$this->assertSame( array( 'jetpack-search-powered-by-style' ), $block_type->style_handles );
+		} finally {
+			$this->unregister_block_and_styles();
+		}
 	}
 }
