@@ -227,12 +227,7 @@ function linkPayPalUrls( text ) {
 	);
 }
 
-/**
- * Open the block settings sidebar, where the form and the picker render.
- *
- * `edit-post/block` is the block inspector in both the post and site editors. The store
- * is addressed by name to keep `@wordpress/interface` out of the package's dependencies.
- */
+/** Opens the Block tab in the settings sidebar. */
 function openBlockSettings() {
 	dispatch( 'core/interface' )?.enableComplementaryArea( 'core', 'edit-post/block' );
 }
@@ -598,8 +593,7 @@ export default function ApiManagedEdit( {
 	const formIsValid = useRef( isFormValid );
 	formIsValid.current = isFormValid;
 	const [ isEditing, setIsEditing ] = useState( ! isFormValid );
-	// Set only while the form is leaving for the picker rather than the details.
-	// Anything that closes the form or its dialog clears it.
+	// Set by toolbar Change item. Opens Change item after the form closes.
 	const leaveToPicker = useRef( false );
 	// A saved link can be switched for another of the account's links from its
 	// details menu. A new link, however it arrived, closes the picker.
@@ -634,9 +628,7 @@ export default function ApiManagedEdit( {
 	}, [ isEditing, paymentChanged, postSaves ] );
 	const [ showUnsavedConfirm, setShowUnsavedConfirm ] = useState( false );
 
-	/**
-	 * Leave the form for the details, or for the picker when leaveToPicker is set.
-	 */
+	/** Closes the form. Opens Change item next if leaveToPicker is set. */
 	const closeForm = useCallback( () => {
 		setShowUnsavedConfirm( false );
 		setIsEditing( false );
@@ -657,7 +649,7 @@ export default function ApiManagedEdit( {
 	const [ isSavingButton, setIsSavingButton ] = useState( false );
 
 	/**
-	 * Leave the form, asking first when there is something to lose.
+	 * Closes the form. Asks first if there are unsaved changes.
 	 * Compared on the click, since the snapshot is retaken in an effect after the render.
 	 */
 	const leaveForm = () => {
@@ -681,8 +673,7 @@ export default function ApiManagedEdit( {
 	};
 
 	/**
-	 * Send the form to PayPal, and leave it once PayPal has it. The post is not saved:
-	 * the block holds the payment id until it is.
+	 * Saves the form to PayPal, then closes it. Doesn't save the post.
 	 */
 	const saveChanges = async () => {
 		setIsSavingButton( true );
@@ -971,14 +962,14 @@ export default function ApiManagedEdit( {
 		);
 	}
 
-	// Toolbar Edit opens the form from any screen, and leaves an open form as it is.
+	// Toolbar Edit: opens the form.
 	const openForm = () => {
 		openBlockSettings();
 		setIsSwitching( false );
 		setIsEditing( true );
 	};
 
-	// Toolbar Change item opens the picker from any screen, leaving the form as its back link does.
+	// Toolbar Change item: opens Change item. Asks first if the form has unsaved changes.
 	const openPicker = () => {
 		openBlockSettings();
 		if ( isEditing && ! isSwitching ) {
@@ -989,7 +980,7 @@ export default function ApiManagedEdit( {
 		}
 	};
 
-	// The saved button's Edit, Change item and Delete, as in the menu beside its name.
+	// Toolbar controls to edit, change or delete the payment button.
 	const toolbarControls = hasButton ? (
 		<BlockControls>
 			<ToolbarGroup>
