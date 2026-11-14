@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Keep a video's Retention rate chart inside its plot when retention is above 100%.

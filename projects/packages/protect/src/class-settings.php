@@ -51,6 +51,13 @@ class Settings {
 	const MONITOR_NOTIFICATIONS_FAILED = 'jetpack_protect_monitor_notifications_failed_';
 
 	/**
+	 * IXR error codes the client sets itself, for transport and parse failures, rather than WordPress.com.
+	 *
+	 * @var int[]
+	 */
+	const IXR_CLIENT_ERRORS = array( -10520, -32300, -32700 );
+
+	/**
 	 * SSO's options, saved locally as 0 or 1, each with the SSO helper that reads its value in effect.
 	 *
 	 * @var string[]
@@ -152,11 +159,14 @@ class Settings {
 		}
 		$modules = new Modules();
 
+		foreach ( array_intersect( self::MODULES, array_keys( $patch ) ) as $module ) {
+			if ( ! $modules->is_module( $module ) ) {
+				return self::error( 'module_unavailable', $module );
+			}
+		}
+
 		foreach ( $patch as $key => $value ) {
 			if ( in_array( $key, self::MODULES, true ) ) {
-				if ( ! $modules->is_module( $key ) ) {
-					return self::error( 'module_unavailable', $key );
-				}
 				if ( $value ) {
 					$modules->activate( $key, false, false );
 				} else {
@@ -170,8 +180,9 @@ class Settings {
 				// An integer, because update_option() won't create an option whose value is `false`.
 				update_option( $key, (int) (bool) $value );
 			} elseif ( self::MONITOR_NOTIFICATIONS === $key ) {
-				if ( true !== Monitor::set_notifications( (bool) $value ) ) {
-					return self::error( 'monitor_notifications_failed', $key );
+				$result = Monitor::set_notifications( (bool) $value );
+				if ( true !== $result ) {
+					return self::error( 'monitor_notifications_failed', $key, self::wpcom_fault_message( $result ) );
 				}
 			}
 		}
@@ -202,37 +213,18 @@ class Settings {
 			}
 			if ( ! is_string( $patch[ $key ] ) ) {
 				/* translators: %s is a setting name. */
-				return self::invalid_param( $key, sprintf( __( '%s must be a string.', 'jetpack-protect-pkg' ), $key ) );
+				return self::error( 'rest_invalid_param', $key, sprintf( __( '%s must be a string.', 'jetpack-protect-pkg' ), $key ) );
 			}
 			// The firewall reads the stored copy, so check the list as it will be stored.
 			$patch[ $key ] = esc_textarea( $patch[ $key ] );
 			if ( 'jetpack_waf_ip_block_list' === $key ) {
 				$valid = Firewall::validate_ip_block_list( $patch[ $key ] );
 				if ( is_wp_error( $valid ) ) {
-					return self::invalid_param( $key, $valid->get_error_message() );
+					return self::error( 'rest_invalid_param', $key, $valid->get_error_message() );
 				}
 			}
 		}
 		return $patch;
-	}
-
-	/**
-	 * A 400 error shaped like core's, whose `params` the dashboard shows.
-	 *
-	 * @param string $key     The setting.
-	 * @param string $message Why it was refused.
-	 * @return WP_Error
-	 */
-	private static function invalid_param( $key, $message ) {
-		return new WP_Error(
-			'rest_invalid_param',
-			/* translators: %s is a setting name. */
-			sprintf( __( 'Invalid parameter(s): %s', 'jetpack-protect-pkg' ), $key ),
-			array(
-				'status' => 400,
-				'params' => array( $key => $message ),
-			)
-		);
 	}
 
 	/**
@@ -276,15 +268,34 @@ class Settings {
 	}
 
 	/**
-	 * A 400 error naming the key that could not be saved.
+	 * WordPress.com's own reason for refusing a call, or '' for a transport or parse failure, whose text is untranslated client detail.
 	 *
-	 * @param string $code Error code.
-	 * @param string $key  The setting.
+	 * @param mixed $result What the IXR call returned.
+	 * @return string
+	 */
+	private static function wpcom_fault_message( $result ) {
+		if ( ! is_wp_error( $result ) || in_array( $result->get_error_code(), self::IXR_CLIENT_ERRORS, true ) ) {
+			return '';
+		}
+		return $result->get_error_message();
+	}
+
+	/**
+	 * A 400 error naming the key that could not be saved, with any reason also under `params`, where core's `rest_invalid_param` puts it.
+	 *
+	 * @param string $code   Error code.
+	 * @param string $key    The setting.
+	 * @param string $reason Why it was refused, if known.
 	 * @return WP_Error
 	 */
-	private static function error( $code, $key ) {
+	private static function error( $code, $key, $reason = '' ) {
 		/* translators: %s is a setting name. */
 		$message = sprintf( __( 'The "%s" setting couldn’t be saved.', 'jetpack-protect-pkg' ), $key );
-		return new WP_Error( $code, $message, array( 'status' => 400 ) );
+		$data    = array( 'status' => 400 );
+		if ( '' !== $reason ) {
+			$message       .= ' ' . $reason;
+			$data['params'] = array( $key => $reason );
+		}
+		return new WP_Error( $code, $message, $data );
 	}
 }

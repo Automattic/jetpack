@@ -256,6 +256,8 @@ if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
 			'source'        => $source,
 			'outcome'       => $outcome,
 			'ai_session_id' => $ai_session_id,
+			// The goal a signup flow declared, which preselects the wizard goal when it is a goal slug.
+			'site_intent'   => $string_or_none( get_option( 'site_intent' ) ),
 		);
 	}
 }

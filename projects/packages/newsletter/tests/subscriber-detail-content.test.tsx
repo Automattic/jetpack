@@ -93,6 +93,14 @@ describe( 'SubscriberDetailContent', () => {
 		mockFetchSubscribedNewsletterCategories.mockResolvedValue( makeCategories( true ) );
 	} );
 
+	it( 'labels zero newsletter sends without implying no emails were sent', async () => {
+		renderPanel();
+
+		await expect( screen.findByText( 'Newsletters sent' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '0' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Emails sent', { exact: true } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'lists the categories the subscriber receives emails for', async () => {
 		renderPanel();
 

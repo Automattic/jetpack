@@ -485,7 +485,10 @@ describe( 'DashboardPage', () => {
 		await waitFor( () => expect( window.location.hash ).toBe( '#/ai-answers' ) );
 	} );
 
-	test( 'syncs active tab when the hash changes externally (back/forward)', () => {
+	test.each( [
+		[ 'back/forward', () => new HashChangeEvent( 'hashchange' ) ],
+		[ 'the admin shell switching back', () => new PopStateEvent( 'popstate' ) ],
+	] )( 'syncs active tab when the hash changes externally (%s)', ( _, makeEvent ) => {
 		render( <DashboardPage /> );
 
 		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
@@ -494,11 +497,27 @@ describe( 'DashboardPage', () => {
 		);
 
 		act( () => {
-			window.location.hash = '/settings';
-			window.dispatchEvent( new HashChangeEvent( 'hashchange' ) );
+			window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }#/settings` );
+			window.dispatchEvent( makeEvent() );
 		} );
 
 		expect( screen.getByRole( 'tab', { name: /settings/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+	} );
+
+	test( "leaves another dashboard's URL alone while the admin shell shows it", () => {
+		render( <DashboardPage /> );
+		const otherPage = 'https://example.com/wp-admin/admin.php?page=my-jetpack#/connection';
+
+		act( () => {
+			window.history.pushState( {}, '', otherPage );
+			window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+		} );
+
+		expect( window.location.href ).toBe( otherPage );
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
 			'aria-selected',
 			'true'
 		);

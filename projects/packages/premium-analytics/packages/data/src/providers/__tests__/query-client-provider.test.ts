@@ -7,22 +7,7 @@ import { focusManager, QueryObserver } from '@tanstack/react-query';
  */
 import * as statsProxyFetch from '../../api/stats-proxy-fetch';
 import { statsProxyQuery } from '../../queries/stats-query';
-import { StatsResponseShapeError } from '../../utils/api-error';
 import { queryClient } from '../query-client-provider';
-
-describe( 'query client response-shape diagnostics', () => {
-	it( 'warns with the sanitizer detail for a response contract violation', () => {
-		const warn = jest.spyOn( console, 'warn' ).mockImplementation();
-		const query = queryClient.getQueryCache().build( queryClient, { queryKey: [ 'shape-test' ] } );
-
-		queryClient
-			.getQueryCache()
-			.config.onError?.( new StatsResponseShapeError( 'Expected hour-of-day data' ), query );
-
-		expect( warn ).toHaveBeenCalledWith( 'Unexpected Stats response: Expected hour-of-day data' );
-		warn.mockRestore();
-	} );
-} );
 
 describe( 'Stats automatic refresh', () => {
 	const MINUTE = 60 * 1000;

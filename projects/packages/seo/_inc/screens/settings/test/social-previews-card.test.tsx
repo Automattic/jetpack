@@ -3,6 +3,7 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react';
+import type { SiteData } from '../../../data/get-site';
 import type { TitleFormatToken } from '../../../data/settings-types';
 
 const site = {
@@ -12,7 +13,7 @@ const site = {
 	icon: '',
 	image: 'https://example.com/representative.jpg',
 };
-const getSite = jest.fn( () => site );
+const getSite = jest.fn( (): SiteData => site );
 
 jest.unstable_mockModule( '../../../data/get-site', () => ( {
 	default: getSite,
@@ -50,12 +51,12 @@ describe( 'SocialPreviewsCard', () => {
 		getSite.mockReturnValue( site );
 	} );
 
-	it( 'says it follows both the front-page title structure and the description', () => {
+	it( 'explains that platform appearance can vary', () => {
 		renderOpen();
 
 		expect(
 			screen.getByText(
-				'How your home page looks in search results and social shares. Updates as you edit the front-page title structure and description above.'
+				'Preview your home page in search results and social shares. Actual appearance varies by platform.'
 			)
 		).toBeInTheDocument();
 	} );
@@ -131,5 +132,75 @@ describe( 'SocialPreviewsCard', () => {
 			expect( screen.getAllByText( 'Welcome to Example site' ) ).toHaveLength( 3 );
 			expect( screen.queryByText( 'Example site – Example tagline' ) ).not.toBeInTheDocument();
 		} );
+	} );
+	it( 'updates both social previews with the chosen default', () => {
+		render(
+			<SocialPreviewsCard
+				description=""
+				frontPageTitleFormat={ [] }
+				titleSeparator="-"
+				defaultImage={ { id: 42, src: 'https://example.com/default.jpg', alt_text: 'Default' } }
+			/>
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: /Search & social previews/ } ) );
+		const images = screen.getAllByAltText( '' );
+		expect( images ).toHaveLength( 2 );
+		images.forEach( image =>
+			expect( image ).toHaveAttribute( 'src', 'https://example.com/default.jpg' )
+		);
+	} );
+
+	it( 'preserves the home page content image ahead of the default', () => {
+		getSite.mockReturnValue( {
+			...site,
+			content_image: 'https://example.com/home.jpg',
+		} );
+		render(
+			<SocialPreviewsCard
+				description=""
+				frontPageTitleFormat={ [] }
+				titleSeparator="-"
+				defaultImage={ { id: 42, src: 'https://example.com/default.jpg', alt_text: 'Default' } }
+			/>
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: /Search & social previews/ } ) );
+		screen
+			.getAllByAltText( '' )
+			.forEach( image => expect( image ).toHaveAttribute( 'src', 'https://example.com/home.jpg' ) );
+	} );
+
+	it( 'keeps the picker usable without preview images for a password-protected home page', () => {
+		getSite.mockReturnValue( { ...site, front_page_protected: true } );
+		render(
+			<SocialPreviewsCard
+				description=""
+				frontPageTitleFormat={ [] }
+				titleSeparator="-"
+				defaultImage={ { id: 42, src: 'https://example.com/default.jpg', alt_text: 'Default' } }
+				onImageChange={ jest.fn() }
+			/>
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: /Search & social previews/ } ) );
+
+		expect( screen.queryAllByAltText( '' ) ).toHaveLength( 0 );
+		expect( screen.getByRole( 'button', { name: 'Replace image' } ) ).toBeEnabled();
+	} );
+
+	it( 'preserves a custom fallback ahead of the chosen default', () => {
+		render(
+			<SocialPreviewsCard
+				description=""
+				frontPageTitleFormat={ [] }
+				titleSeparator="-"
+				resolvedImage="https://example.com/custom.jpg"
+				defaultImage={ { id: 42, src: 'https://example.com/default.jpg', alt_text: '' } }
+			/>
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: /Search & social previews/ } ) );
+		screen
+			.getAllByAltText( '' )
+			.forEach( image =>
+				expect( image ).toHaveAttribute( 'src', 'https://example.com/custom.jpg' )
+			);
 	} );
 } );

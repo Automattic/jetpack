@@ -1,14 +1,23 @@
 const mockInits = { a: jest.fn(), b: jest.fn() };
+// One mock for every copy of the shell: each test loads it again, and earlier copies still hear clicks.
+const mockShowHeader = jest.fn( () => () => {} );
 const mockCapturedSlug = {};
 
 jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	bootFor: jest.fn( () => Promise.resolve( { initSinglePage: jest.fn() } ) ),
-	isolateRouters: jest.fn( () => ( {
+	isolateRouters: jest.fn( ( getVisible, onWrite ) => ( {
 		listen: jest.fn(),
 		isMounting: () => false,
 		mount: jest.fn(),
 		mounted: jest.fn(),
-		pushUrl: jest.fn(),
+		pushUrl: jest.fn( url => {
+			globalThis.history.pushState( null, '', url );
+			onWrite();
+		} ),
+		replaceUrl: jest.fn( url => {
+			globalThis.history.replaceState( null, '', url );
+			onWrite();
+		} ),
 	} ) ),
 	notifyRouters: jest.fn(),
 	prefetchBoot: jest.fn( () => Promise.resolve() ),
@@ -16,7 +25,7 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	transitionSettled: jest.fn( () => Promise.resolve() ),
 } ) );
 jest.mock( '../../../src/admin-shell/app', () => ( {
-	createApp: jest.fn( ( slug, el ) => ( { slug, el, to: jest.fn(), place: jest.fn() } ) ),
+	createApp: jest.requireActual( '../../../src/admin-shell/app' ).createApp,
 	whenRendered: jest.fn( () => Promise.resolve() ),
 } ) );
 jest.mock( '../../../src/admin-shell/guest-assets', () => ( {
@@ -26,7 +35,7 @@ jest.mock( '../../../src/admin-shell/header', () => ( {
 	configureHeaders: jest.fn(),
 	rememberHeader: jest.fn(),
 	removeHeader: jest.fn(),
-	showHeader: jest.fn( () => () => {} ),
+	showHeader: mockShowHeader,
 } ) );
 jest.mock( '../../../src/admin-shell/overlays', () => ( {
 	closeDialogsOf: jest.fn( () => Promise.resolve() ),
@@ -72,6 +81,7 @@ const hover = slug =>
 		.dispatchEvent( new Event( 'pointerover', { bubbles: true } ) );
 
 beforeEach( () => {
+	mockShowHeader.mockClear();
 	mockInits.a.mockReset();
 	mockInits.b.mockReset();
 	delete mockCapturedSlug.a;
@@ -82,7 +92,7 @@ beforeEach( () => {
 		host: 'host',
 		members: {
 			host: member( 'host' ),
-			'guest-a': member( 'guest-a', 'a' ),
+			'guest-a': { ...member( 'guest-a', 'a' ), header: { title: 'Guest A', subtitle: 'Sub' } },
 			'guest-b': member( 'guest-b', 'b' ),
 			// Another page built from guest A's package: same init module.
 			'guest-a2': member( 'guest-a2', 'a', null ),
@@ -102,11 +112,151 @@ beforeEach( () => {
 		) }</script>`;
 	// The shell imports guest modules into the shared registry; reset it so each test evaluates them anew.
 	jest.resetModules();
+	jest.spyOn( document, 'addEventListener' );
+	jest.spyOn( window, 'scrollTo' ).mockImplementation( () => {} );
 	require( '../../../src/admin-shell/index' );
 } );
 
 afterEach( () => {
 	jest.useRealTimers();
+	window.removeEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+	// The document outlives each test: drop the previous shell's click handler.
+	for ( const args of document.addEventListener.mock.calls ) {
+		document.removeEventListener( ...args );
+	}
+	jest.restoreAllMocks();
+} );
+
+// A member with unsaved changes whose user chooses to stay.
+const mockStay = jest.fn( event => event.detail.page === 'guest-a' && event.preventDefault() );
+
+const click = href => {
+	const a = document.createElement( 'a' );
+	a.href = href;
+	( href.endsWith( 'page=guest-a' ) || href.endsWith( 'page=guest-b' )
+		? document.querySelector( `#adminmenu a[href="${ href }"]` )
+		: document.body.appendChild( a )
+	).click();
+};
+
+const where = () => location.search;
+const stateOf = slug =>
+	document.querySelector( `[data-shell-page="${ slug }"]` )?.dataset.shellState;
+
+describe( 'admin shell leave guard', () => {
+	const A = '/wp-admin/admin.php?page=guest-a';
+	const B = '/wp-admin/admin.php?page=guest-b';
+
+	// Back/Forward to `url`, as the browser reports it to the shell.
+	const popTo = url => {
+		const { isolateRouters } = require( '../../../src/admin-shell/adapter' );
+		const onPopState = isolateRouters.mock.results[ 0 ].value.listen.mock.calls.find(
+			( [ type ] ) => type === 'popstate'
+		)[ 1 ];
+		globalThis.history.replaceState( null, '', url );
+		onPopState( { isTrusted: true } );
+	};
+
+	beforeEach( async () => {
+		click( `${ A }&p=%2Fone` );
+		await settle();
+		mockStay.mockClear();
+	} );
+
+	it.each( [
+		[ 'stays where it is', true, '?page=guest-b' ],
+		[ 'opens the new route', false, '?page=guest-a&p=%2Ftwo' ],
+	] )(
+		'asks a hidden member with unsaved changes before a link retargets it, and %s',
+		async ( _, stay, expected ) => {
+			click( B );
+			await settle();
+			if ( stay ) {
+				window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+			}
+			click( `${ A }&p=%2Ftwo` );
+			await settle();
+
+			expect( where() ).toBe( expected );
+		}
+	);
+
+	it( 'switches away from a member with unsaved changes without asking, and back to the same route', async () => {
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		click( B );
+		await settle();
+
+		expect( where() ).toBe( '?page=guest-b' );
+		expect( stateOf( 'guest-a' ) ).toBe( 'hidden' );
+
+		click( A );
+		await settle();
+
+		expect( mockStay ).not.toHaveBeenCalled();
+		expect( where() ).toBe( '?page=guest-a&p=%2Fone' );
+		expect( stateOf( 'guest-a' ) ).toBe( 'visible' );
+	} );
+
+	it( 'asks before the menu link of the page on screen opens it at another route', async () => {
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		click( A );
+		await settle();
+
+		expect( where() ).toBe( '?page=guest-a&p=%2Fone' );
+	} );
+
+	it( 'reopens a member with unsaved changes where it was left when Back would retarget it', async () => {
+		click( B );
+		await settle();
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		popTo( `${ A }&p=%2Fzero` );
+		await settle();
+
+		expect( mockStay ).toHaveBeenCalled();
+		expect( where() ).toBe( '?page=guest-a&p=%2Fone' );
+		expect( stateOf( 'guest-a' ) ).toBe( 'visible' );
+	} );
+
+	it.each( [
+		[ 'inside the member', async () => popTo( `${ A }&p=%2Fzero` ) ],
+		[
+			'into it from another member',
+			async () => {
+				click( B );
+				await settle();
+				popTo( `${ A }&p=%2Fzero` );
+			},
+		],
+	] )(
+		'reopens a member from the menu where Back/Forward %s left it, without asking',
+		async ( _, goBack ) => {
+			await goBack();
+			await settle();
+			window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+			click( B );
+			await settle();
+			click( A );
+			await settle();
+
+			expect( mockStay ).not.toHaveBeenCalled();
+			expect( where() ).toBe( '?page=guest-a&p=%2Fzero' );
+		}
+	);
+
+	it( 'keeps a declined Back on the route the member shows after an earlier Back into it', async () => {
+		click( B );
+		await settle();
+		popTo( `${ A }&p=%2Fzero` );
+		await settle();
+		click( B );
+		await settle();
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		popTo( `${ A }&p=%2Ftwo` );
+		await settle();
+
+		expect( mockStay ).toHaveBeenCalled();
+		expect( where() ).toBe( '?page=guest-a&p=%2Fzero' );
+	} );
 } );
 
 describe( 'admin shell prewarm', () => {
@@ -169,5 +319,26 @@ describe( 'admin shell prewarm', () => {
 		await settle();
 
 		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b' } );
+	} );
+} );
+
+describe( 'admin shell stand-in header', () => {
+	it.each( [
+		[
+			'its declared header on the view a bare link opens',
+			'',
+			{ title: 'Guest A', subtitle: 'Sub' },
+		],
+		[ 'only its menu label on any other view', '&p=%2Fdeep', null ],
+	] )( 'gives a page %s', async ( _, query, header ) => {
+		jest.spyOn( window, 'scrollTo' ).mockImplementation( () => {} );
+		const link = document.createElement( 'a' );
+		link.href = `/wp-admin/admin.php?page=guest-a${ query }`;
+		document.body.append( link );
+
+		link.click();
+		await settle();
+
+		expect( mockShowHeader ).toHaveBeenCalledWith( 'guest-a', expect.anything(), 'A', header );
 	} );
 } );

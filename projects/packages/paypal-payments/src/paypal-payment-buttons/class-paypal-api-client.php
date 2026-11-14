@@ -40,6 +40,52 @@ class PayPal_API_Client {
 	const RESOURCES_ENDPOINT = '/v1/checkout/payment-resources';
 
 	/**
+	 * Product images API endpoint path.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string
+	 */
+	const IMAGES_ENDPOINT = '/v1/checkout/payment-resources/images';
+
+	/**
+	 * Files one upload call takes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var int
+	 */
+	const MAX_IMAGES_PER_UPLOAD = 15;
+
+	/**
+	 * Largest image file PayPal takes, in bytes (12 MB).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var int
+	 */
+	const MAX_IMAGE_BYTES = 12582912;
+
+	/**
+	 * Smallest and largest image side PayPal takes, in pixels.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var int
+	 */
+	const MIN_IMAGE_PX = 10;
+	const MAX_IMAGE_PX = 9000;
+
+	/**
+	 * Image formats PayPal takes. The editor keeps the same list in utils/images.js.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string[]
+	 */
+	const IMAGE_MIME_TYPES = array( 'image/jpeg', 'image/png', 'image/bmp', 'image/tiff' );
+
+	/**
 	 * Counter folded into every cached list key, bumped whenever a payment link
 	 * is created, updated or deleted. Cached pages are keyed by PayPal's opaque
 	 * page token, so they cannot be enumerated and deleted one by one.
@@ -369,6 +415,58 @@ class PayPal_API_Client {
 	}
 
 	/**
+	 * Upload product images, for the asset ids a payment then references.
+	 *
+	 * PayPal answers 207 with one row per file: an asset_id and status for a file it
+	 * took, or an error and the file's input_index for one it refused.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $files Each with name, type and content (the bytes).
+	 * @return array|\WP_Error The decoded 207 body, or WP_Error when the call failed as a whole.
+	 */
+	public static function upload_images( array $files ) {
+		if ( empty( $files ) ) {
+			return new \WP_Error(
+				'paypal_no_images',
+				__( 'There are no images to upload.', 'jetpack-paypal-payments' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return self::make_request_with_retry( 'POST', self::IMAGES_ENDPOINT, null, array( 207, 200 ), $files );
+	}
+
+	/**
+	 * Delete an image no payment references.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $asset_id The image, as PayPal identifies it.
+	 * @return true|\WP_Error True on 204, WP_Error otherwise (422 while a payment still carries it).
+	 */
+	public static function delete_image( $asset_id ) {
+		$asset_id = trim( (string) $asset_id );
+		if ( '' === $asset_id ) {
+			return new \WP_Error(
+				'paypal_invalid_asset_id',
+				__( 'The image id is missing.', 'jetpack-paypal-payments' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// An asset id is opaque and can hold characters such as "=".
+		$result = self::make_request_with_retry(
+			'DELETE',
+			self::IMAGES_ENDPOINT . '/' . rawurlencode( $asset_id ),
+			null,
+			204
+		);
+
+		return is_wp_error( $result ) ? $result : true;
+	}
+
+	/**
 	 * Record a deleted link, so a published block still pointing at it renders nothing.
 	 *
 	 * @since 0.9.0
@@ -419,9 +517,10 @@ class PayPal_API_Client {
 	 * @param string     $endpoint        API endpoint path.
 	 * @param array|null $body            Request body data.
 	 * @param int|array  $expected_status Status code, or codes, that count as success.
+	 * @param array      $files           Files to send as multipart/form-data instead of a JSON body.
 	 * @return array|null|\WP_Error Decoded response body, null for 204, or WP_Error.
 	 */
-	private static function make_request_with_retry( $method, $endpoint, $body, $expected_status ) {
+	private static function make_request_with_retry( $method, $endpoint, $body, $expected_status, $files = array() ) {
 		$last_error   = null;
 		$auth_retried = false;
 
@@ -429,7 +528,7 @@ class PayPal_API_Client {
 		$request_id = wp_generate_uuid4();
 
 		for ( $attempt = 0; $attempt <= self::MAX_RETRIES; $attempt++ ) {
-			$result = self::make_request( $method, $endpoint, $body, $expected_status, $request_id );
+			$result = self::make_request( $method, $endpoint, $body, $expected_status, $request_id, $files );
 
 			// Success — return immediately.
 			if ( ! is_wp_error( $result ) ) {
@@ -454,7 +553,7 @@ class PayPal_API_Client {
 
 				// Retry the request with the fresh token (don't increment attempt).
 				// Use a new request ID since this is a distinct attempt after re-auth.
-				$retry_result = self::make_request( $method, $endpoint, $body, $expected_status, wp_generate_uuid4() );
+				$retry_result = self::make_request( $method, $endpoint, $body, $expected_status, wp_generate_uuid4(), $files );
 				if ( ! is_wp_error( $retry_result ) ) {
 					return $retry_result;
 				}
@@ -513,12 +612,13 @@ class PayPal_API_Client {
 	 * @param array|null $body            Request body data (JSON-encoded for POST/PUT).
 	 * @param int|array  $expected_status Status code, or codes, that count as success.
 	 * @param string     $request_id      Idempotency key.
+	 * @param array      $files           Files to send as multipart/form-data instead of a JSON body.
 	 * @return array|null|\WP_Error Decoded response body, null for 204, or WP_Error.
 	 */
-	private static function make_request( $method, $endpoint, $body, $expected_status, $request_id ) {
+	private static function make_request( $method, $endpoint, $body, $expected_status, $request_id, $files = array() ) {
 		$response = PayPal_Partner_Onboarding::is_platform_managed()
-			? PayPal_Platform_Client::request( $method, $endpoint, $body, $request_id )
-			: self::make_direct_request( $method, $endpoint, $body, $request_id );
+			? PayPal_Platform_Client::request( $method, $endpoint, $body, $request_id, $files )
+			: self::make_direct_request( $method, $endpoint, $body, $request_id, $files );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -558,9 +658,10 @@ class PayPal_API_Client {
 	 * @param string     $endpoint   API endpoint path (appended to base URL).
 	 * @param array|null $body       Request body data (JSON-encoded for POST/PUT).
 	 * @param string     $request_id Idempotency key.
+	 * @param array      $files      Files to send as multipart/form-data instead of a JSON body.
 	 * @return array|\WP_Error The wp_remote_request() response, or WP_Error when PayPal was unreachable.
 	 */
-	private static function make_direct_request( $method, $endpoint, $body, $request_id ) {
+	private static function make_direct_request( $method, $endpoint, $body, $request_id, $files = array() ) {
 		$token = PayPal_OAuth::get_access_token();
 		if ( is_wp_error( $token ) ) {
 			return $token;
@@ -580,7 +681,11 @@ class PayPal_API_Client {
 			),
 		);
 
-		if ( null !== $body && in_array( $method, array( 'POST', 'PUT' ), true ) ) {
+		if ( ! empty( $files ) ) {
+			$boundary                        = wp_generate_password( 24, false );
+			$args['headers']['Content-Type'] = 'multipart/form-data; boundary=' . $boundary;
+			$args['body']                    = self::multipart_body( $files, $boundary );
+		} elseif ( null !== $body && in_array( $method, array( 'POST', 'PUT' ), true ) ) {
 			$args['body'] = wp_json_encode( $body, JSON_UNESCAPED_SLASHES );
 		}
 
@@ -607,6 +712,28 @@ class PayPal_API_Client {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Encode files as the multipart/form-data body the image upload takes, one part named `files` each.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array  $files    Each with name, type and content.
+	 * @param string $boundary The part boundary.
+	 * @return string The body.
+	 */
+	private static function multipart_body( array $files, $boundary ) {
+		$body = '';
+		foreach ( $files as $file ) {
+			$name  = str_replace( array( '"', "\r", "\n" ), '', (string) ( $file['name'] ?? 'image' ) );
+			$body .= '--' . $boundary . "\r\n";
+			$body .= 'Content-Disposition: form-data; name="files"; filename="' . $name . "\"\r\n";
+			$body .= 'Content-Type: ' . (string) ( $file['type'] ?? 'application/octet-stream' ) . "\r\n\r\n";
+			$body .= (string) ( $file['content'] ?? '' ) . "\r\n";
+		}
+
+		return $body . '--' . $boundary . "--\r\n";
 	}
 
 	/**

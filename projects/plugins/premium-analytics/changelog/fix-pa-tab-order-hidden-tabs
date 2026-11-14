@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the place of a hidden dashboard tab when the tab order is saved.

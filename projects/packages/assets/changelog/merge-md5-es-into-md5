@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+I18n loader: Replace the md5-es dependency with md5, which hashes non-ASCII script paths as UTF-8 like WordPress does.

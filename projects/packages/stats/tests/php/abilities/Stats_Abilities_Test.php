@@ -286,15 +286,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_init_hooks_lifecycle_actions_when_gate_is_true(): void {
-		// Only valid when the Abilities API lifecycle actions have NOT yet fired.
-		// WP_Abilities_Registry::get_instance() fires `wp_abilities_api_init` on first call
-		// (in response to any wp_has_ability / wp_register_ability call elsewhere in the run),
-		// which would push the Registrar down its synchronous late-load path and this test
-		// would assert against a world it doesn't apply to.
-		if ( did_action( 'wp_abilities_api_init' ) || did_action( 'wp_abilities_api_categories_init' ) ) {
-			$this->markTestSkipped( 'Abilities API lifecycle already fired in this test run; late-load path covered elsewhere.' );
-		}
-
 		Stats_Abilities::init();
 
 		$this->assertNotFalse(
@@ -393,6 +384,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_can_manage_settings_denies_subscriber(): void {
 		wp_set_current_user( self::$subscriber_id );
 		$this->assertFalse( Stats_Abilities::can_manage_settings() );
+	}
+
+	public function test_get_settings_denies_a_user_who_can_only_view_stats(): void {
+		Options::set_options( array( 'roles' => array( 'administrator', 'editor' ) ) );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'stats_abilities_editor_' . wp_generate_password( 8, false ),
+					'user_pass'  => 'pw',
+					'role'       => 'editor',
+				)
+			)
+		);
+		$spec = Stats_Abilities::get_abilities()['jetpack-stats/get-settings'];
+
+		$this->assertTrue( Stats_Abilities::can_view_stats() );
+		$this->assertFalse( call_user_func( $spec['permission_callback'] ) );
 	}
 
 	public function test_get_site_overview_returns_composed_shape(): void {

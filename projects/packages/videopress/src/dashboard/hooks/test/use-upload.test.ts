@@ -43,7 +43,9 @@ beforeEach( () => {
 	jest.clearAllMocks();
 	__resetUploadStoreForTests();
 	mockToken.mockResolvedValue( { token: 'token', url: 'https://example.com/upload', blogId: '1' } );
-	mockFetch.mockResolvedValue( undefined );
+	mockFetch.mockImplementation( async ( { path } ) =>
+		path === '/wpcom/v2/videopress/meta' ? { code: 'success' } : undefined
+	);
 } );
 
 it( 'shares uploads across consumers and continues the queue after the initiating route unmounts', async () => {
@@ -97,7 +99,7 @@ it( 'sends another Save queued during the final save before completing the tempo
 	mockFetch.mockImplementationOnce(
 		() =>
 			new Promise( resolve => {
-				resolveSave = () => resolve( undefined );
+				resolveSave = () => resolve( { code: 'success' } );
 			} )
 	);
 	await succeed();
@@ -123,6 +125,7 @@ it( 'retains a failed metadata draft and retries its save without uploading agai
 		details: { title: '' },
 	} );
 	expect( result.current.completedUploads[ id ] ).toBeUndefined();
+	expect( console ).toHaveErrored();
 	await act( async () => result.current.retryUpload( id ) );
 	expect( mockUploader ).toHaveBeenCalledTimes( 1 );
 	expect( mockFetch ).toHaveBeenLastCalledWith(
@@ -141,6 +144,7 @@ it( 'refreshes the library before saving edits so a failed save still counts the
 	await succeed();
 	expect( result.current.uploadQueue[ 0 ].detailsError ).toBe( true );
 	expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+	expect( console ).toHaveErrored();
 } );
 
 it( 'applies a new Save after a metadata failure without reuploading', async () => {
@@ -150,6 +154,7 @@ it( 'applies a new Save after a metadata failure without reuploading', async () 
 	mockFetch.mockRejectedValueOnce( new Error( 'Offline' ) );
 	await succeed();
 	expect( result.current.uploadQueue[ 0 ].detailsError ).toBe( true );
+	expect( console ).toHaveErrored();
 	await act( async () =>
 		result.current.saveUploadDetails( id, { title: 'Retry with this title' } )
 	);
@@ -203,13 +208,17 @@ it.each( [ 'missing', 'rejected' ] )(
 );
 
 it( 'synchronizes chapters only after the description is saved', async () => {
-	mockFetch.mockResolvedValue( {
-		id: 101,
-		title: { rendered: 'Video' },
-		description: { rendered: '' },
-		media_details: {},
-		jetpack_videopress: { guid: 'abc123' },
-	} );
+	mockFetch.mockImplementation( async ( { path } ) =>
+		path === '/wpcom/v2/videopress/meta'
+			? { code: 'success' }
+			: {
+					id: 101,
+					title: { rendered: 'Video' },
+					description: { rendered: '' },
+					media_details: {},
+					jetpack_videopress: { guid: 'abc123' },
+				}
+	);
 	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
 	const id = await start( result );
 	act( () => result.current.saveUploadDetails( id, { description: '0:00 Intro' } ) );

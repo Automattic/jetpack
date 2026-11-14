@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Dashboard: Open Boost from other Jetpack dashboards without a page load when the Jetpack admin shell is on.

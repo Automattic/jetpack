@@ -1,5 +1,6 @@
 @use "../../styles/hover-action" as *;
 @use "../../styles/widget-container" as *;
+@use "../../styles/widget-text" as *;
 
 /*
  * One grid for the header and every row, which take its columns through
@@ -79,6 +80,12 @@
 /* The UA's [hidden] rule loses to .row's display, so restate it here. */
 .row[hidden] {
 	display: none;
+}
+
+.label,
+.value {
+
+	@include widget-text-weight;
 }
 
 .label {
