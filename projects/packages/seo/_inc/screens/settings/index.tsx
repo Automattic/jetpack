@@ -92,7 +92,7 @@ interface Props {
 }
 
 interface SeoHostingData {
-	seo?: { hosting_options_url?: string };
+	seo?: { hosting_options_url?: string; indexnow_available?: boolean };
 }
 
 type SettingsSearch = Record< string, unknown > & { focus?: string };
@@ -376,7 +376,9 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 									</Link>
 								) }
 							</Stack>
-							<IndexnowSettings isSaving={ isSaving } onSavingChange={ setIndexnowSaving } />
+							{ ( getScriptData() as SeoHostingData )?.seo?.indexnow_available === true && (
+								<IndexnowSettings isSaving={ isSaving } onSavingChange={ setIndexnowSaving } />
+							) }
 						</Stack>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>

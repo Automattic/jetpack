@@ -223,16 +223,27 @@ class IndexnowSettingsTest extends SeoTestCase {
 		);
 	}
 
-	public function test_vip_does_not_register_an_opt_in_endpoint() {
+	/** @dataProvider notification_hosts */
+	#[DataProvider( 'notification_hosts' )]
+	public function test_notification_ui_matches_endpoint_availability( $vip ) {
 		$original                  = $GLOBALS['wp_rest_server'];
 		$GLOBALS['wp_rest_server'] = new \WP_REST_Server(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		\Automattic\Jetpack\Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		\Automattic\Jetpack\Constants::set_constant( 'WPCOM_IS_VIP_ENV', $vip );
 		try {
 			Indexnow::register_routes();
-			$this->assertArrayNotHasKey( '/jetpack/v4/seo/indexnow', rest_get_server()->get_routes() );
+			$data = Admin_Page::inject_script_data( array() );
+			$this->assertSame( ! $vip, $data[ Initializer::SCRIPT_DATA_KEY ]['indexnow_available'] );
+			$this->assertSame( ! $vip, isset( rest_get_server()->get_routes()['/jetpack/v4/seo/indexnow'] ) );
 		} finally {
 			\Automattic\Jetpack\Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 			$GLOBALS['wp_rest_server'] = $original; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
+	}
+
+	public static function notification_hosts() {
+		return array(
+			'VIP'     => array( true ),
+			'non-VIP' => array( false ),
+		);
 	}
 }

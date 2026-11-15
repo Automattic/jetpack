@@ -660,6 +660,29 @@ describe( 'Search & social previews', () => {
 } );
 
 describe( 'Notification settings inside Site visibility', () => {
+	beforeEach( () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			seo: { indexnow_available: true },
+		};
+		IndexnowSettings.mockClear();
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [ false, undefined ] )(
+		'does not mount notifications when host availability is %s',
+		available => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				seo: { indexnow_available: available },
+			};
+			render( <SettingsScreen form={ buildForm() } /> );
+			expect( IndexnowSettings ).not.toHaveBeenCalled();
+			expect( screen.queryByText( 'notification settings' ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'places notifications after the sitemap and forwards the parent save state', () => {
 		const form = { ...buildForm(), isSaving: true };
 		render( <SettingsScreen form={ form } /> );
