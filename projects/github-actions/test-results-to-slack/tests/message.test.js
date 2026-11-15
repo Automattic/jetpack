@@ -146,8 +146,8 @@ describe( 'Message content', () => {
 		description                                      | inputs                                                        | expectedId                                | expectedContextLength | expectedButtonsLength | expectedFirstContextText                                     | expectedSecondButtonUrl
 		${ 'upstream sha, upstream repository' }         | ${ { sha: 'abcdef1234567890', repository: 'upstream/repo' } } | ${ 'workflow_dispatch-abcdef1234567890' } | ${ 2 }                | ${ 2 }                | ${ 'Last commit: abcdef12' }                                 | ${ 'https://github.com/upstream/repo/commit/abcdef1234567890' }
 		${ 'upstream sha, missing upstream repository' } | ${ { sha: 'abcdef1234567890' } }                              | ${ 'workflow_dispatch-abcdef1234567890' } | ${ 2 }                | ${ 1 }                | ${ 'Last commit: abcdef12' }                                 | ${ undefined }
-		${ 'missing upstream sha, upstream repository' } | ${ { repository: 'upstream/repo' } }                          | ${ 'workflow_dispatch-123456789' }        | ${ 1 }                | ${ 1 }                | ${ 'Last run: undefined/1, triggered by the-other-octocat' } | ${ undefined }
-		${ 'missing inputs' }                            | ${ undefined }                                                | ${ 'workflow_dispatch-123456789' }        | ${ 1 }                | ${ 1 }                | ${ 'Last run: undefined/1, triggered by the-other-octocat' } | ${ undefined }
+		${ 'missing upstream sha, upstream repository' } | ${ { sha: '', repository: 'upstream/repo' } }                 | ${ 'workflow_dispatch-123456789' }        | ${ 1 }                | ${ 1 }                | ${ 'Last run: 123456789/1, triggered by the-other-octocat' } | ${ undefined }
+		${ 'missing inputs' }                            | ${ undefined }                                                | ${ 'workflow_dispatch-123456789' }        | ${ 1 }                | ${ 1 }                | ${ 'Last run: 123456789/1, triggered by the-other-octocat' } | ${ undefined }
 	`(
 		`Workflow dispatch blocks for #description`,
 		async ( {
@@ -158,12 +158,11 @@ describe( 'Message content', () => {
 			expectedFirstContextText,
 			expectedSecondButtonUrl,
 		} ) => {
-			const dateNowSpy = jest.spyOn( Date, 'now' ).mockReturnValue( 123456789 );
-
 			// Mock GitHub context
 			await mockGitHubContext( {
 				payload: { inputs },
 				eventName: 'workflow_dispatch',
+				runId: 123456789,
 				serverUrl: 'https://github.com',
 			} );
 			mockContextExtras( { refType, refName } );
@@ -176,8 +175,6 @@ describe( 'Message content', () => {
 			expect( mainMsgBlocks[ 2 ].elements ).toHaveLength( expectedButtonsLength );
 			expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( expectedFirstContextText );
 			expect( mainMsgBlocks[ 2 ].elements[ 1 ]?.url ).toBe( expectedSecondButtonUrl );
-
-			dateNowSpy.mockRestore();
 		}
 	);
 

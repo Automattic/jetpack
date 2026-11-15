@@ -92,7 +92,7 @@ export async function createMessage( isFailure ) {
 				buttons.push( getButton( `Commit ${ upstreamSha.substring( 0, 8 ) }`, commitUrl ) );
 			}
 		} else {
-			msgId = `workflow_dispatch-${ Date.now() }`;
+			msgId = `workflow_dispatch-${ runId }`;
 		}
 	}
 
