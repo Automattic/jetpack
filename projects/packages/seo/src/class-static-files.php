@@ -23,7 +23,7 @@ class Static_Files {
 	 * @return bool Whether the file exists.
 	 */
 	public static function exists( $filename ) {
-		$root = rtrim( Constants::get_constant( 'ABSPATH' ), '/\\' );
+		$root = rtrim( wp_normalize_path( Constants::get_constant( 'ABSPATH' ) ), '/' );
 
 		// Atomic serves the parent directory while keeping managed WordPress core in __wp__.
 		if ( '__wp__' === basename( $root ) && ( new Host() )->is_atomic_platform() ) {
