@@ -237,7 +237,15 @@ class IndexnowQueueTest extends SeoTestCase {
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
 	}
-	public function test_latest_failure_retains_the_last_accepted_batch() {
+	/** @dataProvider summary_cache_states */
+	#[DataProvider( 'summary_cache_states' )]
+	public function test_latest_failure_retains_the_last_accepted_batch( $cached ) {
+		if ( $cached ) {
+			$alloptions                                    = wp_load_alloptions();
+			$alloptions[ Indexnow_Queue::STATUS_OPTION ]   = maybe_serialize( array( 'state' => 'stale' ) );
+			$alloptions[ Indexnow_Queue::ACCEPTED_OPTION ] = maybe_serialize( array( 'state' => 'stale' ) );
+			wp_cache_set( 'alloptions', $alloptions, 'options' );
+		}
 		$id   = wp_insert_post(
 			array(
 				'post_status' => 'publish',
@@ -260,7 +268,7 @@ class IndexnowQueueTest extends SeoTestCase {
 		$this->make_pending_due();
 		Indexnow_Queue::work();
 		$accepted = get_option( Indexnow_Queue::ACCEPTED_OPTION );
-		$this->assertNotNull( $accepted );
+		$this->assertSame( 'accepted', $accepted['state'] ?? null );
 		$code = 503;
 		Indexnow_Queue::enqueue( $url, $id );
 		$this->make_pending_due();
@@ -268,6 +276,13 @@ class IndexnowQueueTest extends SeoTestCase {
 		$status = get_option( Indexnow_Queue::STATUS_OPTION );
 		$this->assertSame( 'http_503', $status['state'] );
 		$this->assertSame( $accepted, get_option( Indexnow_Queue::ACCEPTED_OPTION ) );
+	}
+
+	public static function summary_cache_states() {
+		return array(
+			'individual options'     => array( false ),
+			'complete options cache' => array( true ),
+		);
 	}
 	public function test_exhausted_retries_are_reported_after_dropping_the_notification() {
 		$id = wp_insert_post(
