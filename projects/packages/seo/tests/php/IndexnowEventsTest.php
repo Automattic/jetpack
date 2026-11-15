@@ -34,6 +34,7 @@ class IndexnowEventsTest extends SeoTestCase {
 	}
 
 	protected function tearDown(): void {
+		Indexnow_Events::flush_metadata_changes();
 		$this->candidates = array();
 		foreach ( array(
 			'pre_post_update'      => 'capture_previous_url',
@@ -46,6 +47,7 @@ class IndexnowEventsTest extends SeoTestCase {
 			'updated_post_meta'    => 'meta_changed',
 			'added_post_meta'      => 'meta_changed',
 			'deleted_post_meta'    => 'meta_changed',
+			'shutdown'             => 'flush_metadata_changes',
 		) as $hook => $callback ) {
 			remove_action( $hook, array( Indexnow_Events::class, $callback ) );
 		}
@@ -91,6 +93,99 @@ class IndexnowEventsTest extends SeoTestCase {
 		);
 	}
 
+	/** @dataProvider nonpublic_site_states */
+	#[DataProvider( 'nonpublic_site_states' )]
+	public function test_nonpublic_sites_preserve_provenance_without_emitting_changes( $visibility ) {
+		$id               = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => 'Public guide',
+			)
+		);
+		$url              = get_post_meta( $id, Indexnow_Events::PUBLIC_URL_META, true );
+		$this->candidates = array();
+		update_option( 'blog_public', $visibility );
+		wp_update_post(
+			array(
+				'ID'           => $id,
+				'post_content' => 'Changed while paused.',
+			)
+		);
+		$this->assertSame( $url, get_post_meta( $id, Indexnow_Events::PUBLIC_URL_META, true ) );
+		update_post_meta( $id, Content_Coverage::META_NOINDEX, true );
+		wp_delete_post( $id, true );
+		Indexnow_Events::flush_metadata_changes();
+		$this->assertSame( array(), $this->candidates );
+	}
+
+	public static function nonpublic_site_states() {
+		return array(
+			'discouraged' => array( 0 ),
+			'private'     => array( -1 ),
+		);
+	}
+
+	/** @dataProvider first_publish_metadata_paths */
+	#[DataProvider( 'first_publish_metadata_paths' )]
+	public function test_first_publish_with_noindex_does_not_advertise_the_url( $deferred ) {
+		$metadata = array(
+			Content_Coverage::META_TITLE   => 'Search title',
+			Content_Coverage::META_NOINDEX => true,
+		);
+		$id       = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => 'Never indexed',
+				'meta_input'  => $deferred ? array() : $metadata,
+			),
+			true,
+			! $deferred
+		);
+		if ( $deferred ) {
+			foreach ( $metadata as $key => $value ) {
+				update_post_meta( $id, $key, $value );
+			}
+			wp_after_insert_post( get_post( $id ), false, null );
+		}
+		Indexnow_Events::flush_metadata_changes();
+		$this->assertSame( array(), $this->candidates );
+		$this->assertSame( '', get_post_meta( $id, Indexnow_Events::PUBLIC_URL_META, true ) );
+	}
+
+	public static function first_publish_metadata_paths() {
+		return array(
+			'meta_input'                   => array( false ),
+			'REST-style deferred metadata' => array( true ),
+		);
+	}
+
+	public function test_standalone_metadata_reconciliation_ignores_noop_writes() {
+		update_option( Indexnow_Client::ENABLED_OPTION, false );
+		$id = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => 'Existing guide',
+				'meta_input'  => array( Content_Coverage::META_NOINDEX => '0' ),
+			)
+		);
+		update_option( Indexnow_Client::ENABLED_OPTION, true );
+		update_post_meta( $id, Content_Coverage::META_NOINDEX, '0' );
+		Indexnow_Events::flush_metadata_changes();
+		$this->assertSame( array(), $this->candidates );
+		update_post_meta( $id, Content_Coverage::META_TITLE, 'Changed search title' );
+		Indexnow_Events::flush_metadata_changes();
+		$this->assertSame(
+			array(
+				array(
+					'url'     => 'https://example.com/?p=' . $id,
+					'post'    => $id,
+					'deleted' => false,
+				),
+			),
+			$this->candidates
+		);
+	}
+
 	public function test_disabled_notifications_leave_post_provenance_unchanged() {
 		$id  = wp_insert_post(
 			array(
@@ -128,6 +223,7 @@ class IndexnowEventsTest extends SeoTestCase {
 		$this->assertSame( array(), $this->candidates );
 		$url = get_permalink( $id );
 		update_post_meta( $id, Content_Coverage::META_NOINDEX, true );
+		Indexnow_Events::flush_metadata_changes();
 		$this->assertSame(
 			array(
 				array(
@@ -194,7 +290,12 @@ class IndexnowEventsTest extends SeoTestCase {
 	}
 
 	public static function deletion_paths() {
-		return array( array( true ), array( false ) );
+		return array(
+			'trash'                            => array( true, false ),
+			'permanent'                        => array( false, false ),
+			'trash after permalink change'     => array( true, true ),
+			'permanent after permalink change' => array( false, true ),
+		);
 	}
 
 	/**
@@ -202,20 +303,30 @@ class IndexnowEventsTest extends SeoTestCase {
 	 * @param bool $trash Whether to trash before deleting.
 	 */
 	#[DataProvider( 'deletion_paths' )]
-	public function test_deletion_keeps_only_known_public_urls( $trash ) {
-		$id  = wp_insert_post(
+	public function test_deletion_keeps_only_known_public_urls( $trash, $changed_structure ) {
+		global $wp_rewrite;
+		$original_structure = $wp_rewrite->permalink_structure;
+		$id                 = wp_insert_post(
 			array(
 				'post_title'  => 'Removed guide',
 				'post_status' => 'publish',
 			)
 		);
-		$url = get_permalink( $id );
+		$url                = get_permalink( $id );
 		update_post_meta( $id, Content_Coverage::META_DESCRIPTION, 'Public description' );
 		$this->candidates = array();
-		if ( $trash ) {
-			wp_trash_post( $id );
+		try {
+			if ( $changed_structure ) {
+				$wp_rewrite->set_permalink_structure( '/%postname%/' );
+				$this->assertNotSame( $url, get_permalink( $id ) );
+			}
+			if ( $trash ) {
+				wp_trash_post( $id );
+			}
+			wp_delete_post( $id, true );
+		} finally {
+			$wp_rewrite->set_permalink_structure( $original_structure );
 		}
-		wp_delete_post( $id, true );
 		$rows = $this->candidates;
 		$this->assertNotEmpty( $rows );
 		$item = $rows[0];
@@ -313,6 +424,7 @@ class IndexnowEventsTest extends SeoTestCase {
 		);
 		$this->assertSame( array(), $this->candidates );
 		delete_post_meta( $id, $key );
+		Indexnow_Events::flush_metadata_changes();
 		$this->assertSame(
 			array(
 				array(
