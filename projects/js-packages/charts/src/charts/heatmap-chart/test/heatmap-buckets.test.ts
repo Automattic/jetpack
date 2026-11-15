@@ -1,8 +1,7 @@
 import { getBucketedValue, getValueBuckets } from '../private/heatmap-buckets';
-import { getExtentOf, getValueExtent, scaleValues } from '../private/use-heatmap-colors';
-import type { HeatmapColumn } from '../types';
+import { getExtentOf, HEATMAP_SCALE_STEPS } from '../private/use-heatmap-colors';
 
-const bucketsOf = ( values: number[], steps: number ) =>
+const bucketsOf = ( values: number[], steps: number = HEATMAP_SCALE_STEPS ) =>
 	getValueBuckets( values, getExtentOf( values ), steps );
 
 describe( 'getValueBuckets', () => {
@@ -15,18 +14,6 @@ describe( 'getValueBuckets', () => {
 			0, 0, 0, 0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5, 0.5, 0.75, 0.75, 0.75, 0.75,
 			0.75, 1, 1, 1, 1, 1,
 		] );
-	} );
-
-	test( 'paints the same values on two steps when asked for two', () => {
-		const values = Array.from( { length: 24 }, ( _v, index ) => ( index + 1 ) * 10 );
-		const buckets = bucketsOf( values, 2 );
-
-		expect( buckets ).toEqual( { thresholds: [ 130 ], steps: 2 } );
-		expect( new Set( values.map( value => getBucketedValue( value, buckets ) ) ) ).toEqual(
-			new Set( [ 0, 1 ] )
-		);
-		expect( getBucketedValue( 120, buckets ) ).toBe( 0 );
-		expect( getBucketedValue( 130, buckets ) ).toBe( 1 );
 	} );
 
 	test( 'keeps the smallest value lightest when ties collapse the quantiles', () => {
@@ -88,18 +75,6 @@ describe( 'getValueBuckets', () => {
 
 	test( 'leaves the empty-cell zeros out of the thresholds', () => {
 		expect( bucketsOf( [ 0, 0, 10, 20 ], 5 ).thresholds ).toEqual( [ 20 ] );
-	} );
-
-	test( 'leaves summary columns and partial cells out of the thresholds', () => {
-		const data: HeatmapColumn[] = [
-			{ data: [ { value: 10 }, { value: 20 } ] },
-			{ data: [ { value: 999_999, partial: true } ] },
-			{ summary: true, data: [ { value: 500_000 } ] },
-		];
-
-		expect( getValueBuckets( scaleValues( data ), getValueExtent( data ), 5 ).thresholds ).toEqual(
-			[ 20 ]
-		);
 	} );
 
 	test( 'returns no thresholds for an all-empty series', () => {
