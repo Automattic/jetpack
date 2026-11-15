@@ -547,6 +547,48 @@ class IndexnowQueueTest extends SeoTestCase {
 		}
 		$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/fresh', 42, true ) );
 	}
+
+	/** @dataProvider replacement_interruptions */
+	#[DataProvider( 'replacement_interruptions' )]
+	public function test_replacing_a_url_cannot_cross_a_queue_reset( $before_read ) {
+		$url = 'https://example.com/replaced';
+		$this->assertTrue( Indexnow_Queue::enqueue( $url, 42, true ) );
+		$name        = Indexnow_Queue::PREFIX . hash( 'sha256', $url );
+		$intercepted = false;
+		$fresh       = null;
+		$interrupt   = static function ( $query ) use ( $before_read, $url, $name, &$intercepted, &$fresh ) {
+			$operation = $before_read ? 'SELECT option_name, option_value' : 'UPDATE';
+			if ( ! $intercepted && strpos( $query, $operation ) === 0 && strpos( $query, $name ) !== false ) {
+				$intercepted = true;
+				if ( $before_read ) {
+					update_option( Indexnow_Client::ENABLED_OPTION, false );
+					Indexnow_Queue::clear();
+					update_option( Indexnow_Client::ENABLED_OPTION, true );
+					Indexnow_Queue::enqueue( $url, 43, true );
+				} else {
+					// A concurrent clear has advanced the fence but has not yet deleted the old rows.
+					update_option( Indexnow_Queue::GENERATION_OPTION, wp_generate_uuid4(), false );
+				}
+				$fresh = Indexnow_Queue::rows()[0]['option_value'];
+			}
+			return $query;
+		};
+		add_filter( 'query', $interrupt );
+		try {
+			$this->assertFalse( Indexnow_Queue::enqueue( $url, 42, true ) );
+			$this->assertTrue( $intercepted );
+			$this->assertSame( $fresh, Indexnow_Queue::rows()[0]['option_value'] );
+		} finally {
+			remove_filter( 'query', $interrupt );
+		}
+	}
+
+	public static function replacement_interruptions() {
+		return array(
+			'reset before row read'          => array( true ),
+			'reset before conditional write' => array( false ),
+		);
+	}
 	public function test_failed_insert_is_not_admitted_and_releases_the_lock() {
 		$fail_insert = static function ( $query ) {
 			return strpos( $query, 'INSERT INTO' ) === 0 && strpos( $query, 'database-failure' ) !== false ? '' : $query;

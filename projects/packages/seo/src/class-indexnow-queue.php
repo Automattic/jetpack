@@ -93,18 +93,25 @@ class Indexnow_Queue {
 	/**
 	 * Change a row only if its exact version remains owned.
 	 *
-	 * @param array      $row Observed durable row.
-	 * @param array|null $next Replacement, or null to delete.
+	 * @param array       $row Observed durable row.
+	 * @param array|null  $next Replacement, or null to delete.
+	 * @param string|null $generation Required queue generation for an admission replacement.
 	 * @return bool
 	 */
-	public static function compare_and_swap( $row, $next ) {
+	public static function compare_and_swap( $row, $next, $generation = null ) {
 		global $wpdb;
 		$where = array(
 			'option_name'  => $row['option_name'],
 			'option_value' => $row['option_value'],
 		);
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Conditional writes prevent stale acknowledgments.
-		$changed = null === $next ? $wpdb->delete( $wpdb->options, $where ) : $wpdb->update( $wpdb->options, array( 'option_value' => wp_json_encode( $next, JSON_UNESCAPED_SLASHES ) ), $where );
+		if ( null !== $generation && null !== $next ) {
+			// LIMIT keeps the generation subquery materialized, avoiding MySQL's target-table restriction.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Check the queue fence in the same statement as the conditional replacement.
+			$changed = $wpdb->query( $wpdb->prepare( "UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s AND option_value = %s AND EXISTS (SELECT 1 FROM (SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1) AS queue_generation WHERE queue_generation.option_value = %s)", wp_json_encode( $next, JSON_UNESCAPED_SLASHES ), $row['option_name'], $row['option_value'], self::GENERATION_OPTION, $generation ) );
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Conditional writes prevent stale acknowledgments.
+			$changed = null === $next ? $wpdb->delete( $wpdb->options, $where ) : $wpdb->update( $wpdb->options, array( 'option_value' => wp_json_encode( $next, JSON_UNESCAPED_SLASHES ) ), $where );
+		}
 		wp_cache_delete( $row['option_name'], 'options' );
 		return 1 === $changed;
 	}
@@ -213,7 +220,7 @@ class Indexnow_Queue {
 			}
 			$old = self::row( $name );
 			if ( $old ) {
-				if ( ! self::compare_and_swap( $old, $item ) ) {
+				if ( ! self::compare_and_swap( $old, $item, $generation ) ) {
 					continue;
 				}
 			} else {
