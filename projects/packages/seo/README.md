@@ -81,7 +81,7 @@ The built JS/CSS lives in `build/` and is included in the vendored Jetpack plugi
 
 ### IndexNow background delivery
 
-Pending notifications use non-autoloaded options, with one stable row per URL. Repeated changes are combined for five minutes before background delivery. Workers recheck visibility, consent, and URL scope, and preserve newer changes when acknowledging older work.
+Pending notifications use non-autoloaded options, with one stable row per URL. Repeated changes are combined for five minutes before background delivery. Workers recheck visibility, consent, and URL scope, and preserve newer changes when acknowledging older work. Both new admissions and replacements check the queue generation. Results from a worker that predates a queue reset cannot restore old status or cooldowns.
 
 The following filters accept integers:
 
@@ -96,8 +96,10 @@ HTTP 202 records receipt with ownership verification pending, without consuming 
 
 ### IndexNow settings
 
-The Site visibility section has one off-by-default "Notify search engines when content changes" toggle. It does not affect the existing completion badge. Enabling it creates verification automatically and applies only to subsequent eligible content changes. Disabling it clears pending work without changing other SEO settings.
+The Site visibility section has one off-by-default "Notify search engines when content changes" toggle. It does not affect the existing completion badge. Enabling it creates verification automatically and applies only to subsequent eligible content changes. Disabling it clears pending work and obsolete delivery warnings without changing other SEO settings. Dated accepted history is retained for the current site address; pending-verification receipts and former-address history are discarded.
 
 Status distinguishes received notifications awaiting ownership verification from accepted notifications; neither confirms indexing. Contextual warnings explain throttling, pauses, delayed scheduling, and missed notifications. Status refreshes when the section opens, the window regains focus, or a settings save settles. Visibility and notification saves cannot overlap, and a refresh preserves unrelated unsaved edits. Delivery limits are configured through the filters above, with no tuning controls in the dashboard.
+
+The notification row only mounts when the backend advertises support; unavailable hosts do not request the status endpoint.
 
 WordPress.com Simple also requires the guarded native route registration before this interface is released. The companion can deploy before the package because it tolerates versions without the controller.
