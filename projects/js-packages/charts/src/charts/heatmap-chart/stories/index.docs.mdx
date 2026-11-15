@@ -78,7 +78,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`columnGroups`**: consecutive runs of columns sharing a label beneath the grid, one group gap apart. See [Column Groups](#column-groups).
 - **`ariaLabel`**: accessible name of the grid. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - **`primaryColor`**: color the scale is built from; see [Theming](#theming). Defaults to the first series palette color, `--a8c-charts-color-series-1`
-- **`scale`** (default: `'linear'`): whether a value picks its color by distance, or by distance in log space. See [Color Scale](#color-scale).
+- **`scale`** (default: `'linear'`): whether a value picks its color by distance, by distance in log space, or by its rank in the series. See [Color Scale](#color-scale).
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
@@ -94,14 +94,14 @@ By default a shade reports a value's distance between the lowest and the highest
 
 ### Log space
 
-Set `scale="log"` for those, and a shade reports the value's distance in log space, on five fixed steps. Each step is a jump of the same factor, so a series running from single digits to five figures keeps its spread at both ends: the quiet months separate from each other, and the busiest month still stands clear of a month a tenth its size. That is what every heatmap in Premium Analytics uses.
+Set `scale="log"` for those, and a shade reports the value's distance in log space, on five fixed steps. Each step is a jump of the same factor, so a series running from single digits to five figures keeps its spread at both ends: the quiet months separate from each other, and the busiest month still stands clear of a month a tenth its size. In Premium Analytics that is a single post's traffic, month by month and day by day, which really does run over orders of magnitude over a post's life.
 
 <Source
 	code={ `<HeatmapChart data={ columns } rowLabels={ rowLabels } scale="log" />` }
 	language="tsx"
 />
 
-<Canvas of={ HeatmapStories.LongSiteHistory } />
+<Canvas of={ HeatmapStories.SinglePostHistory } />
 
 The log scale needs every value above zero. A series that reaches zero or below falls back to `linear` and warns once. Zeros are safe, because a zero paints as an empty cell and stays off the scale either way.
 
@@ -117,6 +117,10 @@ Set `scale="buckets"` and a shade reports the value's rank in the series instead
 />
 
 It pays for that with the distances. The top step covers everything above the 80th percentile, so a month ten times busier than the next one shares its shade, and a cell's color no longer says how big the value is, only where it sits in the order. Ties can also leave a step unused, since a value repeated across several quantiles cannot be split.
+
+In Premium Analytics that is a site's own months, which mostly sit inside one band whatever the site's size. Sixteen years of one below: log puts 137 of those 188 months on a single step, and distance puts 75 of them inside one fifth of its range, where rank gives each fifth about 37.
+
+<Canvas of={ HeatmapStories.LongSiteHistory } />
 
 ### Choosing one
 
@@ -134,7 +138,7 @@ The `Calendar` story switches between traffic shapes and between the three scale
 
 Flag a cell `partial: true` when it covers a period the data does not fill, such as a launch month or a month still running. The cell stays off the scale entirely, out of the extent the shades are drawn from, and is painted as a diagonal hatch rather than a shade, so it reads as neither a quiet period nor the lowest step. It keeps its value, tooltip and place in keyboard navigation, and its accessible name ends with `(incomplete)`. A `partial` flag on a cell in a `summary` column is ignored: the summary column stays unfilled.
 
-<Canvas of={ HeatmapStories.SinglePostHistory } />
+Both grids above carry one: the publish month on the post, and the launch month and the month still running on the site.
 
 <Source
 	language="tsx"
@@ -373,7 +377,7 @@ Add a legend by placing `<HeatmapChart.Legend />` as a child. Between its Less a
 
 <Canvas of={ HeatmapStories.WithBarLegend } />
 
-The legend draws five swatches by default. Under `scale="log"` that count is fixed: a cell's shade is always `k / 4` for a whole number `k`, so a `steps` that differs would show shades the cells never paint, and it is ignored with a warning. Under the default `linear` scale the shades are continuous, so `steps` there is only how many samples of them the legend shows. The `Calendar` story asks for seven: switch its **scale** control to `linear` and the legend takes all seven, because there the shades between the swatches exist.
+The legend draws five swatches by default. Under `scale="log"` and `scale="buckets"` that count is fixed: a cell's shade is always `k / 4` for a whole number `k`, so a `steps` that differs would show shades the cells never paint, and it is ignored with a warning. Under the default `linear` scale the shades are continuous, so `steps` there is only how many samples of them the legend shows, and any count is honored.
 
 ## Error / Empty State
 
