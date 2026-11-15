@@ -30,6 +30,20 @@ class Static_Files {
 			$root = dirname( $root );
 		}
 
+		$home = wp_parse_url( home_url( '/' ) );
+		$site = wp_parse_url( site_url( '/' ) );
+		if ( isset( $home['host'] ) && isset( $site['host'] ) && 0 === strcasecmp( $home['host'], $site['host'] ) && ( $home['port'] ?? null ) === ( $site['port'] ?? null ) ) {
+			$home_path = $home['path'] ?? '/';
+			$site_path = $site['path'] ?? '/';
+			if ( 0 === strpos( $site_path, $home_path ) && $site_path !== $home_path ) {
+				$relative = '/' . trim( rawurldecode( substr( $site_path, strlen( $home_path ) ) ), '/' );
+				// URL paths alone cannot establish the filesystem layout on mapped hosts.
+				if ( substr( $root, -strlen( $relative ) ) === $relative ) {
+					$root = substr( $root, 0, -strlen( $relative ) );
+				}
+			}
+		}
+
 		return file_exists( $root . '/' . $filename );
 	}
 }
