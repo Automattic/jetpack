@@ -268,7 +268,8 @@ type CalendarDatasetStoryArgs = CalendarStoryArgs & { dataset: string };
 
 export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
 	render: ( { dataset, ...args } ) => (
-		// Seven swatches hold under `linear` and snap back to the five the cells paint under `log`.
+		// Seven swatches hold under `linear` and snap back to the five the cells paint under the
+		// stepped scales.
 		<CalendarGrid { ...args } series={ heatmapCalendarDatasets[ dataset ] }>
 			<HeatmapChart.Legend steps={ 7 } />
 		</CalendarGrid>
@@ -281,7 +282,7 @@ export const Calendar: StoryObj< CalendarDatasetStoryArgs > = {
 		locale: '',
 		timeZone: '',
 		dataset: 'Steady traffic',
-		scale: 'log',
+		scale: 'linear',
 	},
 	argTypes: {
 		...calendarArgTypes,
