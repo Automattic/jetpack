@@ -150,6 +150,7 @@ class Admin_Page {
 	 */
 	public static function register_page_data() {
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
+		self::enqueue_runtime_config();
 
 		// Without the context the client records nothing, so another script's Tracks transport can't send our events.
 		if ( self::can_use_analytics() ) {
@@ -187,7 +188,7 @@ class Admin_Page {
 				'subtitle' => __( 'Make your site discoverable in search and social, and control AI access.', 'jetpack-seo' ),
 			),
 			'capability'   => 'manage_options',
-			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'handles'      => array( 'jetpack-script-data', 'jetpack-seo-config', 'jp-tracks', 'wp-jp-i18n-loader' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -273,6 +274,18 @@ class Admin_Page {
 			'is_test'         => $is_test,
 			'product_version' => Initializer::PACKAGE_VERSION,
 		);
+	}
+
+	/**
+	 * Supply the consumer identity used by wp-build's shared AdminPage dependencies.
+	 *
+	 * @return void
+	 */
+	private static function enqueue_runtime_config() {
+		wp_register_script( 'jetpack-seo-config', false, array(), Initializer::PACKAGE_VERSION, true );
+		wp_enqueue_script( 'jetpack-seo-config' );
+		$config = wp_json_encode( array( 'consumer_slug' => 'jetpack-seo' ), JSON_HEX_TAG | JSON_HEX_AMP );
+		wp_add_inline_script( 'jetpack-seo-config', 'window.jetpackConfig = Object.assign(' . $config . ', window.jetpackConfig || {});', 'before' );
 	}
 
 	/**

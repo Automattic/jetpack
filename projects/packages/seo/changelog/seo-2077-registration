@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid duplicate dashboard data-store registration and missing consumer configuration.
