@@ -439,14 +439,17 @@ class Indexnow_Queue {
 				);
 			}
 			if ( $claimed && Indexnow_Client::enabled() && self::row( self::WORKER_LOCK ) === $lock && self::generation() === $generation ) {
-				$urls      = array_map(
+				$urls   = array_map(
 					static function ( $row ) {
 						$item = (array) json_decode( $row['option_value'], true );
 						return $item['url'];
 					},
 					$claimed
 				);
-				$result    = Indexnow_Client::submit( $urls );
+				$result = Indexnow_Client::submit( $urls );
+				if ( self::generation() !== $generation || ! Indexnow_Client::enabled() ) {
+					return;
+				}
 				$exhausted = 0;
 				if ( 'http_429' === $result['state'] ) {
 					update_option( self::COOLDOWN_OPTION, time() + max( 600, $result['retry_after'] ?? 0 ), false );

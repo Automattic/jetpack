@@ -589,6 +589,47 @@ class IndexnowQueueTest extends SeoTestCase {
 			'reset before conditional write' => array( false ),
 		);
 	}
+
+	/** @dataProvider reset_delivery_responses */
+	#[DataProvider( 'reset_delivery_responses' )]
+	public function test_a_reset_during_delivery_cannot_restore_old_status( $response_code ) {
+		$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/old', 42, true ) );
+		$this->make_pending_due();
+		$receipt = array(
+			'state' => 'accepted',
+			'time'  => 100,
+			'count' => 1,
+		);
+		update_option( Indexnow_Queue::ACCEPTED_OPTION, $receipt, false );
+		add_filter(
+			'pre_http_request',
+			static function () use ( $response_code ) {
+				update_option( Indexnow_Client::ENABLED_OPTION, false );
+				Indexnow_Queue::clear();
+				delete_option( Indexnow_Queue::STATUS_OPTION );
+				update_option( Indexnow_Client::ENABLED_OPTION, true );
+				Indexnow_Queue::enqueue( 'https://example.com/new', 43, true );
+				return array(
+					'headers'  => array(),
+					'body'     => '',
+					'response' => array( 'code' => $response_code ),
+				);
+			}
+		);
+		Indexnow_Queue::work();
+		$this->assertFalse( get_option( Indexnow_Queue::STATUS_OPTION ) );
+		$this->assertSame( $receipt, get_option( Indexnow_Queue::ACCEPTED_OPTION ) );
+		$this->assertFalse( get_option( Indexnow_Queue::COOLDOWN_OPTION ) );
+		$this->assertSame( 'https://example.com/new', json_decode( Indexnow_Queue::rows()[0]['option_value'], true )['url'] );
+	}
+
+	public static function reset_delivery_responses() {
+		return array(
+			'accepted'       => array( 200 ),
+			'server failure' => array( 500 ),
+			'throttled'      => array( 429 ),
+		);
+	}
 	public function test_failed_insert_is_not_admitted_and_releases_the_lock() {
 		$fail_insert = static function ( $query ) {
 			return strpos( $query, 'INSERT INTO' ) === 0 && strpos( $query, 'database-failure' ) !== false ? '' : $query;
