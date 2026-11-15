@@ -27,6 +27,13 @@ class Indexnow_Events {
 	 */
 	private static $deleting = array();
 
+	/**
+	 * Metadata changes without a previously tracked public URL, pending the completed save.
+	 *
+	 * @var array<int,array{url?:string,changed?:bool}>
+	 */
+	private static $pending_metadata = array();
+
 	/** Register write hooks independently of dashboard rendering. */
 	public static function init() {
 		add_action( 'pre_post_update', array( __CLASS__, 'capture_previous_url' ), 10, 2 );
@@ -39,6 +46,7 @@ class Indexnow_Events {
 		add_action( 'updated_post_meta', array( __CLASS__, 'meta_changed' ), 10, 3 );
 		add_action( 'added_post_meta', array( __CLASS__, 'meta_changed' ), 10, 3 );
 		add_action( 'deleted_post_meta', array( __CLASS__, 'meta_changed' ), 10, 3 );
+		add_action( 'shutdown', array( __CLASS__, 'flush_metadata_changes' ) );
 	}
 
 	/**
@@ -48,7 +56,7 @@ class Indexnow_Events {
 	 * @param array $data Updated post fields.
 	 */
 	public static function capture_previous_url( $id, $data ) {
-		if ( ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
+		if ( ! Indexnow_Client::enabled() ) {
 			return;
 		}
 		$post = get_post( $id );
@@ -85,7 +93,9 @@ class Indexnow_Events {
 	 * @param \WP_Post|null $before Previous post.
 	 */
 	public static function saved( $id, $post, $updated, $before ) {
-		if ( ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
+		$metadata_changed = ! empty( self::$pending_metadata[ $id ]['changed'] );
+		unset( self::$pending_metadata[ $id ] );
+		if ( ! Indexnow_Client::enabled() ) {
 			unset( self::$previous_urls[ $id ] );
 			return;
 		}
@@ -111,7 +121,7 @@ class Indexnow_Events {
 		if ( $old && $old !== $current ) {
 			self::notify( $old, $id, true );
 		}
-		if ( $updated && $before instanceof \WP_Post && $old === $current ) {
+		if ( ! $metadata_changed && $updated && $before instanceof \WP_Post && $old === $current ) {
 			$changed = false;
 			foreach ( array( 'post_title', 'post_content', 'post_excerpt', 'post_status', 'post_name', 'post_parent', 'post_author', 'post_date' ) as $field ) {
 				$changed = $changed || $before->$field !== $post->$field;
@@ -143,12 +153,13 @@ class Indexnow_Events {
 	 * @param int $id Post ID.
 	 */
 	public static function trashing( $id ) {
-		if ( ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
+		if ( ! Indexnow_Client::enabled() ) {
 			return;
 		}
 		$post = get_post( $id );
 		if ( self::eligible( $post ) ) {
-			self::$previous_urls[ $id ] = get_permalink( $post );
+			$known                      = get_post_meta( $id, self::PUBLIC_URL_META, true );
+			self::$previous_urls[ $id ] = $known ? $known : get_permalink( $post );
 			self::notify( self::$previous_urls[ $id ], $id, true );
 		}
 	}
@@ -160,16 +171,20 @@ class Indexnow_Events {
 	 * @param \WP_Post $post Previous post.
 	 */
 	public static function deleted( $id, $post ) {
-		if ( ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
+		if ( ! Indexnow_Client::enabled() ) {
 			return;
 		}
 		self::$deleting[ $id ] = true;
 		if ( ! self::removal_allowed( $post ) ) {
+			unset( self::$pending_metadata[ $id ] );
 			self::notify_restriction( $id );
 			return;
 		}
 		if ( self::eligible( $post ) || ( $post instanceof \WP_Post && 'trash' === $post->post_status ) ) {
-			$url = self::eligible( $post ) ? get_permalink( $post ) : get_post_meta( $id, self::PUBLIC_URL_META, true );
+			$url = get_post_meta( $id, self::PUBLIC_URL_META, true );
+			if ( ! $url && self::eligible( $post ) ) {
+				$url = get_permalink( $post );
+			}
 			if ( $url ) {
 				self::notify( $url, $id, true );
 			}
@@ -194,12 +209,12 @@ class Indexnow_Events {
 	 * @return mixed
 	 */
 	public static function remember_before_meta_change( $check, $post_id, $key ) {
-		if ( Content_Coverage::META_NOINDEX !== $key || isset( self::$deleting[ $post_id ] ) || ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
+		if ( Content_Coverage::META_NOINDEX !== $key || isset( self::$deleting[ $post_id ] ) || ! Indexnow_Client::enabled() ) {
 			return $check;
 		}
 		$post = get_post( $post_id );
-		if ( self::eligible( $post ) ) {
-			update_post_meta( $post_id, self::PUBLIC_URL_META, get_permalink( $post ) );
+		if ( self::eligible( $post ) && ! get_post_meta( $post_id, self::PUBLIC_URL_META, true ) ) {
+			self::$pending_metadata[ $post_id ]['url'] = get_permalink( $post );
 		}
 		return $check;
 	}
@@ -231,13 +246,19 @@ class Indexnow_Events {
 		) ) {
 			return;
 		}
-		if ( ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
+		if ( ! Indexnow_Client::enabled() ) {
 			return;
 		}
 		$post = get_post( $post_id );
 		if ( ! self::removal_allowed( $post ) ) {
+			unset( self::$pending_metadata[ $post_id ] );
 			self::notify_restriction( $post_id );
 			delete_post_meta( $post_id, self::PUBLIC_URL_META );
+			return;
+		}
+		if ( ! get_post_meta( $post_id, self::PUBLIC_URL_META, true ) ) {
+			// A publish row may precede REST or meta_input writes; saved() decides whether it was public before.
+			self::$pending_metadata[ $post_id ]['changed'] = true;
 			return;
 		}
 		if ( self::eligible( $post ) ) {
@@ -247,6 +268,28 @@ class Indexnow_Events {
 			$url = get_post_meta( $post_id, self::PUBLIC_URL_META, true );
 			if ( $url ) {
 				self::notify( $url, $post_id, true );
+			}
+		}
+	}
+
+	/** Reconcile standalone metadata writes after any enclosing post save has completed. */
+	public static function flush_metadata_changes() {
+		$pending                = self::$pending_metadata;
+		self::$pending_metadata = array();
+		foreach ( $pending as $id => $change ) {
+			if ( empty( $change['changed'] ) || ! Indexnow_Client::enabled() ) {
+				continue;
+			}
+			$post = get_post( $id );
+			if ( self::eligible( $post ) ) {
+				$url = get_permalink( $post );
+				update_post_meta( $id, self::PUBLIC_URL_META, $url );
+				self::notify( $url, $id );
+			} elseif ( ! self::removal_allowed( $post ) ) {
+				self::notify_restriction( $id );
+				delete_post_meta( $id, self::PUBLIC_URL_META );
+			} elseif ( ! empty( $change['url'] ) && ( ! $post || get_post_meta( $id, Content_Coverage::META_NOINDEX, true ) ) ) {
+				self::notify( $change['url'], $id, true );
 			}
 		}
 	}
