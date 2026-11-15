@@ -667,6 +667,89 @@ class IndexnowQueueTest extends SeoTestCase {
 			'throttled before write'      => array( 429, true ),
 		);
 	}
+	public function test_option_opt_out_resets_work_without_the_settings_endpoint() {
+		$hooks = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		try {
+			Indexnow_Queue::init();
+			$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/old', 42, true ) );
+			$generation = get_option( Indexnow_Queue::GENERATION_OPTION );
+			update_option( Indexnow_Queue::COOLDOWN_OPTION, time() + DAY_IN_SECONDS, false );
+			update_option( Indexnow_Client::ENABLED_OPTION, false );
+			update_option( Indexnow_Client::ENABLED_OPTION, true );
+			$this->assertNotSame( $generation, get_option( Indexnow_Queue::GENERATION_OPTION ) );
+			$this->assertSame( 0, Indexnow_Queue::size() );
+			$this->assertFalse( get_option( Indexnow_Queue::COOLDOWN_OPTION ) );
+			$this->assertFalse( wp_next_scheduled( Indexnow_Queue::HOOK ) );
+			$this->assertFalse( wp_next_scheduled( Indexnow_Queue::RECOVERY_HOOK ) );
+			$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/fresh', 43, true ) );
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+	}
+
+	/** @dataProvider clear_interruptions */
+	#[DataProvider( 'clear_interruptions' )]
+	public function test_clear_preserves_new_generation_work_and_schedules( $phase ) {
+		$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/old', 42, true ) );
+		$intercepted = false;
+		$fresh       = null;
+		$admit       = static function () use ( &$intercepted, &$fresh ) {
+			$intercepted = true;
+			$fresh       = Indexnow_Queue::enqueue( 'https://example.com/fresh', 43, true );
+		};
+		$rotate      = static function () use ( $phase, $admit ) {
+			if ( 'after rotation' === $phase ) {
+				$admit();
+			}
+		};
+		$delete      = static function ( $query ) use ( $phase, $admit, &$intercepted ) {
+			if ( 'during deletion' === $phase && ! $intercepted && strpos( $query, 'DELETE FROM' ) === 0 && strpos( $query, Indexnow_Queue::PREFIX ) !== false ) {
+				$intercepted = true;
+				Indexnow_Queue::clear();
+				$admit();
+			}
+			return $query;
+		};
+		$schedule    = static function ( $pre, $hook ) use ( $phase, $admit, &$intercepted ) {
+			if ( 'before unscheduling' === $phase && ! $intercepted && Indexnow_Queue::HOOK === $hook ) {
+				$admit();
+			}
+			return $pre;
+		};
+		add_action( 'update_option_' . Indexnow_Queue::GENERATION_OPTION, $rotate );
+		add_filter( 'query', $delete );
+		add_filter( 'pre_clear_scheduled_hook', $schedule, 10, 2 );
+		try {
+			Indexnow_Queue::clear();
+			$this->assertTrue( $intercepted );
+			$this->assertTrue( $fresh );
+			$rows = Indexnow_Queue::rows();
+			$this->assertCount( 1, $rows );
+			$item = json_decode( $rows[0]['option_value'], true );
+			$this->assertSame( 'https://example.com/fresh', $item['url'] );
+			$this->assertSame( get_option( Indexnow_Queue::GENERATION_OPTION ), $item['generation'] );
+			$this->assertNotFalse( wp_next_scheduled( Indexnow_Queue::HOOK ) );
+			$this->assertNotFalse( wp_next_scheduled( Indexnow_Queue::RECOVERY_HOOK ) );
+		} finally {
+			remove_action( 'update_option_' . Indexnow_Queue::GENERATION_OPTION, $rotate );
+			remove_filter( 'query', $delete );
+			remove_filter( 'pre_clear_scheduled_hook', $schedule );
+		}
+	}
+
+	public static function clear_interruptions() {
+		return array(
+			'new generation admitted during clear'    => array( 'after rotation' ),
+			'newer clear and admission before delete' => array( 'during deletion' ),
+			'admission before schedule cleanup'       => array( 'before unscheduling' ),
+		);
+	}
+
 	public function test_failed_insert_is_not_admitted_and_releases_the_lock() {
 		$fail_insert = static function ( $query ) {
 			return strpos( $query, 'INSERT INTO' ) === 0 && strpos( $query, 'database-failure' ) !== false ? '' : $query;

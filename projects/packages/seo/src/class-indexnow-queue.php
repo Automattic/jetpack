@@ -36,6 +36,19 @@ class Indexnow_Queue {
 		add_action( self::RECOVERY_HOOK, array( __CLASS__, 'work' ) );
 		add_action( 'jetpack_deactivate_module_seo-tools', array( __CLASS__, 'clear' ) );
 		add_action( 'update_option_home', array( __CLASS__, 'clear' ) );
+		add_action( 'update_option_' . Indexnow_Client::ENABLED_OPTION, array( __CLASS__, 'preference_changed' ), 10, 2 );
+	}
+
+	/**
+	 * Reset pending work when consent is withdrawn outside the settings endpoint.
+	 *
+	 * @param mixed $old Previous preference.
+	 * @param mixed $enabled Saved preference.
+	 */
+	public static function preference_changed( $old, $enabled ) {
+		if ( ! $enabled ) {
+			self::clear();
+		}
 	}
 
 	/**
@@ -119,10 +132,11 @@ class Indexnow_Queue {
 	/**
 	 * Delete a bounded snapshot without clearing newer row versions.
 	 *
-	 * @param array $rows Observed rows.
+	 * @param array       $rows Observed rows.
+	 * @param string|null $generation Required queue generation during a reset.
 	 * @return int
 	 */
-	private static function delete_rows( $rows ) {
+	private static function delete_rows( $rows, $generation = null ) {
 		global $wpdb;
 		$conditions = array();
 		$values     = array();
@@ -131,7 +145,12 @@ class Indexnow_Queue {
 			$values[]     = $row['option_name'];
 			$values[]     = $row['option_value'];
 		}
-		$where = implode( ' OR ', $conditions );
+		$where = '(' . implode( ' OR ', $conditions ) . ')';
+		if ( null !== $generation ) {
+			$where   .= " AND EXISTS (SELECT 1 FROM (SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1) AS queue_generation WHERE queue_generation.option_value = %s)";
+			$values[] = self::GENERATION_OPTION;
+			$values[] = $generation;
+		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Conditions contain only bound placeholders.
 		$removed = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE $where", $values ) );
 		foreach ( $rows as $row ) {
@@ -311,20 +330,35 @@ class Indexnow_Queue {
 		if ( ( new Host() )->is_vip_site() || ! Initializer::is_available() ) {
 			return;
 		}
-		update_option( self::GENERATION_OPTION, wp_generate_uuid4(), false );
-		$rows = self::rows();
+		$generation = wp_generate_uuid4();
+		update_option( self::GENERATION_OPTION, $generation, false );
+		$after = '';
+		$rows  = self::rows();
 		while ( $rows ) {
-			$removed = $rows ? self::delete_rows( $rows ) : 0;
-			if ( ! $removed ) {
-				break;
+			$stale = array();
+			foreach ( $rows as $row ) {
+				$after = $row['option_name'];
+				if ( ( json_decode( $row['option_value'], true )['generation'] ?? '' ) !== $generation ) {
+					$stale[] = $row;
+				}
 			}
-			$rows = self::rows();
+			if ( $stale ) {
+				self::delete_rows( $stale, $generation );
+			}
+			if ( self::generation() !== $generation ) {
+				return;
+			}
+			$rows = self::rows( self::PAGE_SIZE, $after );
 		}
 		foreach ( array( self::CURSOR_OPTION, self::COOLDOWN_OPTION ) as $option ) {
 			delete_option( $option );
 		}
 		wp_clear_scheduled_hook( self::HOOK );
 		wp_clear_scheduled_hook( self::RECOVERY_HOOK );
+		if ( self::rows( 1 ) && Indexnow_Client::enabled() ) {
+			self::ensure_recovery();
+			self::schedule();
+		}
 	}
 
 	/**
