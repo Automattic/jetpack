@@ -330,21 +330,37 @@ class Indexnow_Queue {
 	/**
 	 * Preserve received status separately from later failed attempts.
 	 *
-	 * @param array $status Delivery summary without URL payloads.
+	 * @param array  $status Delivery summary without URL payloads.
+	 * @param string $generation Queue generation that produced the summary.
 	 */
-	private static function record_status( $status ) {
+	private static function record_status( $status, $generation ) {
 		if ( in_array( $status['state'], array( 'accepted', 'verification_pending' ), true ) ) {
-			update_option(
+			self::store_status_option(
 				self::ACCEPTED_OPTION,
 				array(
 					'time'  => $status['time'],
 					'count' => $status['count'],
 					'state' => $status['state'],
 				),
-				false
+				$generation
 			);
 		}
-		update_option( self::STATUS_OPTION, $status, false );
+		self::store_status_option( self::STATUS_OPTION, $status, $generation );
+	}
+
+	/**
+	 * Store worker state only while its queue generation still exists.
+	 *
+	 * @param string $name Status option name.
+	 * @param mixed  $value Status value.
+	 * @param string $generation Queue generation that produced this value.
+	 */
+	private static function store_status_option( $name, $value, $generation ) {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- The same-statement fence prevents a reset from being followed by an obsolete status write.
+		$wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) SELECT %s, %s, 'no' WHERE EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s) ON DUPLICATE KEY UPDATE option_value = VALUES(option_value)", $name, maybe_serialize( $value ), self::GENERATION_OPTION, $generation ) );
+		wp_cache_delete( $name, 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
 	}
 
 	/** Process a bounded sweep with an expiring worker lock. */
@@ -452,7 +468,7 @@ class Indexnow_Queue {
 				}
 				$exhausted = 0;
 				if ( 'http_429' === $result['state'] ) {
-					update_option( self::COOLDOWN_OPTION, time() + max( 600, $result['retry_after'] ?? 0 ), false );
+					self::store_status_option( self::COOLDOWN_OPTION, time() + max( 600, $result['retry_after'] ?? 0 ), $generation );
 				}
 				foreach ( $claimed as $row ) {
 					$item = (array) json_decode( $row['option_value'], true );
@@ -473,7 +489,8 @@ class Indexnow_Queue {
 						'count'     => count( $claimed ),
 						'expired'   => $expired,
 						'exhausted' => $exhausted,
-					)
+					),
+					$generation
 				);
 			} elseif ( $expired ) {
 				self::record_status(
@@ -482,7 +499,8 @@ class Indexnow_Queue {
 						'time'    => time(),
 						'count'   => 0,
 						'expired' => $expired,
-					)
+					),
+					$generation
 				);
 			}
 			if ( self::rows( 1 ) ) {
