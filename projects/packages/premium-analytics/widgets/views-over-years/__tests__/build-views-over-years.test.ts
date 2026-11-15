@@ -148,43 +148,19 @@ describe( 'buildViewsOverYearsRows', () => {
 		expect( buildRows( [ bucket( 2026, 0, 0 ) ], 'average', TODAY ) ).toEqual( currentMonthOnly );
 	} );
 
+	// Which months are short is `isMonthIncomplete`'s rule, tested with the helper.
 	describe( 'partial months', () => {
 		const CURRENT = { year: 2026, month: 2 };
 		const LAUNCH = { year: 2025, month: 10 };
 
-		it( 'marks the current month, which has not finished', () => {
-			expect( buildViewsOverYearsRows( BUCKETS, 'total', TODAY ).partialMonths ).toEqual( [
-				CURRENT,
-			] );
-		} );
-
-		it( 'marks the launch month too when the first day falls after the 1st', () => {
+		it( 'reports every month the rule calls short', () => {
 			const { partialMonths } = buildViewsOverYearsRows( BUCKETS, 'total', TODAY, NOV_24 );
 
 			expect( partialMonths ).toEqual( expect.arrayContaining( [ LAUNCH, CURRENT ] ) );
 			expect( partialMonths ).toHaveLength( 2 );
 		} );
 
-		it( 'leaves the launch month whole when the first day is the 1st', () => {
-			const { partialMonths } = buildViewsOverYearsRows( BUCKETS, 'total', TODAY, {
-				...NOV_24,
-				day: 1,
-			} );
-
-			expect( partialMonths ).toEqual( [ CURRENT ] );
-		} );
-
-		it( 'leaves the current month whole on the last day of its month', () => {
-			const { partialMonths } = buildViewsOverYearsRows(
-				BUCKETS,
-				'total',
-				new Date( 2026, 2, 31 )
-			);
-
-			expect( partialMonths ).toEqual( [] );
-		} );
-
-		it( 'ignores a first day outside the first month with views', () => {
+		it( 'offers the first day to the first month with views alone', () => {
 			const { partialMonths } = buildViewsOverYearsRows( BUCKETS, 'total', TODAY, {
 				year: 2025,
 				month: 11,
@@ -192,20 +168,6 @@ describe( 'buildViewsOverYearsRows', () => {
 			} );
 
 			expect( partialMonths ).toEqual( [ CURRENT ] );
-		} );
-
-		it( 'marks nothing under the average metric, which is already per day', () => {
-			const { partialMonths } = buildViewsOverYearsRows( BUCKETS, 'average', TODAY, NOV_24 );
-
-			expect( partialMonths ).toEqual( [] );
-		} );
-
-		it( 'never marks a month between the first and the current', () => {
-			const { partialMonths } = buildViewsOverYearsRows( BUCKETS, 'total', TODAY, NOV_24 );
-
-			expect( partialMonths ).not.toContainEqual( { year: 2025, month: 11 } );
-			expect( partialMonths ).not.toContainEqual( { year: 2026, month: 0 } );
-			expect( partialMonths ).not.toContainEqual( { year: 2026, month: 1 } );
 		} );
 	} );
 } );

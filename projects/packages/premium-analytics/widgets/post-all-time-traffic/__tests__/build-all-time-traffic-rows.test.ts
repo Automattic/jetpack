@@ -108,14 +108,9 @@ describe( 'buildAllTimeTrafficRows', () => {
 		} );
 	} );
 
+	// Which months are short is `isMonthIncomplete`'s rule, tested with the helper.
 	describe( 'partial months', () => {
-		it( 'marks the current month, which has not finished', () => {
-			expect( buildAllTimeTrafficRows( RESPONSE, 'total', TODAY ).partialMonths ).toEqual( [
-				CURRENT,
-			] );
-		} );
-
-		it( 'marks the publish month too when the post went out after the 1st', () => {
+		it( 'reports every month the rule calls short', () => {
 			const { partialMonths } = buildAllTimeTrafficRows( RESPONSE, 'total', TODAY, {
 				...FIRST_REPORTED,
 				day: 24,
@@ -125,16 +120,7 @@ describe( 'buildAllTimeTrafficRows', () => {
 			expect( partialMonths ).toHaveLength( 2 );
 		} );
 
-		it( 'leaves the publish month whole when the post went out on the 1st', () => {
-			const { partialMonths } = buildAllTimeTrafficRows( RESPONSE, 'total', TODAY, {
-				...FIRST_REPORTED,
-				day: 1,
-			} );
-
-			expect( partialMonths ).toEqual( [ CURRENT ] );
-		} );
-
-		it( 'ignores a publish day after the first month with stats', () => {
+		it( 'offers the publish day to the first month with stats alone', () => {
 			const { partialMonths } = buildAllTimeTrafficRows( RESPONSE, 'total', TODAY, {
 				year: 2026,
 				month: 0,
@@ -142,20 +128,6 @@ describe( 'buildAllTimeTrafficRows', () => {
 			} );
 
 			expect( partialMonths ).toEqual( [ CURRENT ] );
-		} );
-
-		it( 'leaves the current month whole on the last day of its month', () => {
-			const { partialMonths } = buildAllTimeTrafficRows(
-				RESPONSE,
-				'total',
-				new Date( 2026, 2, 31 )
-			);
-
-			expect( partialMonths ).toEqual( [] );
-		} );
-
-		it( 'marks nothing under the average, which is per day and so comparable', () => {
-			expect( buildAllTimeTrafficRows( RESPONSE, 'average', TODAY ).partialMonths ).toEqual( [] );
 		} );
 
 		it( 'marks nothing when the current month falls before the post life', () => {
