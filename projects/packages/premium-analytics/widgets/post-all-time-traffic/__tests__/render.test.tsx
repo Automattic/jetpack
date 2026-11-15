@@ -121,6 +121,28 @@ describe( 'PostAllTimeTraffic widget', () => {
 		expect( screen.getAllByTestId( 'heatmap-cell-partial' ) ).toHaveLength( 2 );
 	} );
 
+	it( 'shades the months by distance in log space, so a post spanning magnitudes keeps its spread', () => {
+		mockUseStatsPost.mockReturnValue(
+			statsPostResult( {
+				years: {
+					'2025': { total: 1060, months: { '8': 5, '9': 10, '10': 20, '11': 30, '12': 1000 } },
+					'2026': { total: 40, months: { '3': 40 } },
+				},
+				averages: RESPONSE.averages,
+				post: { ID: 779, post_date: '2025-08-10 16:27:32' },
+			} )
+		);
+		renderWidget();
+
+		// 30 of a 10-to-1000 series: a quarter of the way up in log space, where rank
+		// would put it at 0.75 and distance at a fiftieth.
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'Nov 2025: 30' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '0.25' );
+	} );
+
 	it( 'draws views per day under the average metric', () => {
 		renderWidget( 779, { metric: 'average' } );
 

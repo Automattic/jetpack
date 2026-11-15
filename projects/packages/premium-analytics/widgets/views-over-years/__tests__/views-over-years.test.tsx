@@ -176,6 +176,27 @@ describe( 'ViewsOverYears widget', () => {
 		);
 	} );
 
+	it( 'shades the months by rank, so a band of similar months separates', () => {
+		mockVisits(
+			visitsResult( [
+				[ '2025-10-01', 10 ],
+				[ '2025-11-01', 20 ],
+				[ '2025-12-01', 1000 ],
+				[ '2026-01-01', 30 ],
+				[ '2026-02-01', 40 ],
+			] )
+		);
+		renderWidget();
+
+		// 30 is the third of the five ranks. Distance would put it a fiftieth of the
+		// way up to 1000, and distance in log space a quarter.
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'Jan 2026: 30' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '0.5' );
+	} );
+
 	it( 'opens the Traffic tab over the first month from its first day with views', async () => {
 		mockVisits(
 			visitsResult( ROWS ),

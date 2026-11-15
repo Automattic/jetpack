@@ -99,8 +99,8 @@ describe( 'MonthlyHeatmap', () => {
 		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Mar 2026 (incomplete month)' );
 	} );
 
-	it( 'colors a month by its distance in log space', () => {
-		render( <MonthlyHeatmap rows={ ROWS } { ...LABELS } /> );
+	it( 'colors the months on the scale it is handed', () => {
+		render( <MonthlyHeatmap rows={ ROWS } { ...LABELS } scale="log" /> );
 
 		// 10 of a 5-to-40 series: a quarter of the way up in log space, a seventh of it by distance.
 		expect(

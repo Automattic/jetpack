@@ -114,6 +114,9 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 				rows={ rows }
 				partialMonths={ partialMonths }
 				{ ...monthlyHeatmapLabels( metric ) }
+				// A site's months mostly sit in one band, which both distance and log
+				// space flatten. Rank spends a step on each fifth of them instead.
+				scale="buckets"
 				onSelect={ openMonth }
 			/>
 		</WidgetState>

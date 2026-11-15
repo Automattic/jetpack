@@ -76,7 +76,7 @@ interface MonthlyHeatmapStoryControls {
 }
 
 type MonthlyHeatmapStoryArgs = MonthlyHeatmapStoryControls &
-	Pick< MonthlyHeatmapProps, 'onSelect' >;
+	Pick< MonthlyHeatmapProps, 'onSelect' | 'scale' >;
 
 function renderMonthlyHeatmap( {
 	metric,
@@ -85,6 +85,7 @@ function renderMonthlyHeatmap( {
 	tileHeight,
 	selectable,
 	partial,
+	scale,
 	onSelect,
 }: MonthlyHeatmapStoryArgs ) {
 	const partialMonths = partial
@@ -97,6 +98,7 @@ function renderMonthlyHeatmap( {
 				rows={ buildRows( years, metric ) }
 				partialMonths={ partialMonths }
 				{ ...monthlyHeatmapLabels( metric ) }
+				scale={ scale }
 				onSelect={ selectable ? onSelect : undefined }
 			/>
 		</WidgetCard>
@@ -126,6 +128,12 @@ const meta = {
 		tileHeight: { control: { type: 'range', min: 140, max: 900, step: 8 } },
 		selectable: { control: 'boolean' },
 		partial: { control: 'boolean' },
+		scale: {
+			control: 'inline-radio',
+			options: [ 'linear', 'log', 'buckets' ],
+			description:
+				'How a month picks its shade: by distance, by distance in log space, or by its rank. Views over years asks for `buckets`, a post’s All-time traffic for `log`.',
+		},
 		// Logged to the Actions panel; `selectable` decides whether it is passed at all.
 		onSelect: { action: 'select', control: false },
 	},
@@ -145,6 +153,7 @@ const DEFAULT_ARGS: MonthlyHeatmapStoryArgs = {
 	tileHeight: 320,
 	selectable: true,
 	partial: false,
+	scale: 'buckets',
 };
 
 /**

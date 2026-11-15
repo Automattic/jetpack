@@ -108,6 +108,10 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 				rows={ heatmapRows }
 				partialMonths={ partialMonths }
 				{ ...monthlyHeatmapLabels( metric ) }
+				// A post can run from single digits to five figures over its life, which
+				// distance flattens into one pale tone. In log space a tenfold jump is
+				// one step wherever it falls.
+				scale="log"
 				onSelect={ openMonth }
 			/>
 		</WidgetState>

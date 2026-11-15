@@ -10,7 +10,13 @@ import {
 import { formatMonth } from '@jetpack-premium-analytics/formatters';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useMemo, type KeyboardEvent, type MouseEvent } from 'react';
+import {
+	useCallback,
+	useMemo,
+	type ComponentProps,
+	type KeyboardEvent,
+	type MouseEvent,
+} from 'react';
 /**
  * Internal dependencies
  */
@@ -52,6 +58,8 @@ export type MonthlyHeatmapProps = {
 	chartTitle?: string;
 	/** Months whose period the data does not fill, hatched and left out of the scale; a target without a `month` is ignored. */
 	partialMonths?: MonthlyHeatmapTarget[];
+	/** How a month picks its shade. The chart's own default, placement by distance, flattens a grid whose months share one band. */
+	scale?: ComponentProps< typeof HeatmapChart >[ 'scale' ];
 };
 
 // Below the floors the grid scrolls rather than crushing its cells; the cap
@@ -76,6 +84,7 @@ export function MonthlyHeatmap( {
 	onSelect,
 	chartTitle,
 	partialMonths,
+	scale,
 }: MonthlyHeatmapProps ) {
 	const chartName = useChartName( chartTitle );
 	const rows = useMemo( () => [ ...givenRows ].sort( ( a, b ) => b.year - a.year ), [ givenRows ] );
@@ -220,10 +229,7 @@ export function MonthlyHeatmap( {
 				minCellWidth={ MIN_CELL_WIDTH }
 				minCellHeight={ MIN_CELL_HEIGHT }
 				maxCellHeight={ MAX_CELL_HEIGHT }
-				// A post can run from single digits to five figures over its life, which
-				// distance flattens into one pale tone. In log space a tenfold jump is
-				// one step wherever it falls.
-				scale="log"
+				scale={ scale }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
 				renderTooltip={ renderTooltip }
