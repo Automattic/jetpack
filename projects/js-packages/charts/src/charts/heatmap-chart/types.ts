@@ -117,19 +117,11 @@ export interface HeatmapChartProps extends Omit<
 	 */
 	primaryColor?: string;
 	/**
-	 * How a value picks its color. `linear` places it by distance between the
-	 * lowest and highest value, which keeps one outlier looking like an outlier
-	 * at the cost of flattening everything below it. `log` places it by
-	 * distance in log space, on five fixed steps, so each step is a jump of the
-	 * same factor and both ends of a series spanning orders of magnitude keep
-	 * their spread; it needs every value above zero and falls back to `linear`
-	 * with a warning otherwise. `buckets` ranks a value against the series on
-	 * those same five steps, so each step holds about a fifth of the cells
-	 * whatever the distribution, at the cost of the distances between them: the
-	 * top step covers everything above the 80th percentile, however far above
-	 * it the largest value sits. Default `linear`; prefer `log` or `buckets`
-	 * for a series read to compare its periods against each other, such as
-	 * months of a year, and `buckets` where most of the series shares one band.
+	 * How a value picks its color, from the docs' comparison of the three.
+	 * `linear`: by distance between the lowest and highest value. `log`: by
+	 * distance in log space, on five steps; falls back to `linear` with a
+	 * warning when a value is at or below zero. `buckets`: by rank, about a
+	 * fifth of the cells per step. Default `linear`.
 	 */
 	scale?: 'buckets' | 'linear' | 'log';
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
