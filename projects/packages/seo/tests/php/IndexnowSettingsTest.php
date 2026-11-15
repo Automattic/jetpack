@@ -125,6 +125,52 @@ class IndexnowSettingsTest extends SeoTestCase {
 		$this->assertStringNotContainsString( 'private-test-', wp_json_encode( $status, JSON_UNESCAPED_SLASHES ) );
 	}
 
+	/** @dataProvider historical_receipts */
+	#[DataProvider( 'historical_receipts' )]
+	public function test_opt_out_resets_actionable_status_and_retains_only_valid_history( $receipt_state, $address_changed ) {
+		$request = new WP_REST_Request( 'POST' );
+		$request->set_param( 'enabled', true );
+		Indexnow::save( $request );
+		$receipt = array(
+			'state' => $receipt_state,
+			'time'  => 100,
+			'count' => 1,
+		);
+		update_option(
+			Indexnow_Queue::STATUS_OPTION,
+			array(
+				'state'     => 'http_403',
+				'expired'   => 1,
+				'exhausted' => 1,
+			),
+			false
+		);
+		update_option( Indexnow_Queue::ACCEPTED_OPTION, $receipt, false );
+		update_option( 'jetpack_seo_indexnow_enqueue_error', array( 'state' => 'queue_full_or_busy' ), false );
+		if ( $address_changed ) {
+			update_option( Indexnow_Client::SCOPE_OPTION, 'https://previous.example/' );
+		}
+		$request->set_param( 'enabled', false );
+		$status = Indexnow::save( $request );
+		$this->assertFalse( $status['enabled'] );
+		$this->assertNull( $status['enqueue_error'] );
+		$expected = array( 'state' => 'idle' );
+		if ( 'accepted' === $receipt_state && ! $address_changed ) {
+			$expected['accepted'] = $receipt;
+		}
+		$this->assertSame( $expected, $status['latest'] );
+		$request->set_param( 'enabled', true );
+		$this->assertSame( $expected, Indexnow::save( $request )['latest'] );
+	}
+
+	public static function historical_receipts() {
+		return array(
+			'dated accepted batch'  => array( 'accepted', false ),
+			'pending verification'  => array( 'verification_pending', false ),
+			'previous site address' => array( 'accepted', true ),
+		);
+	}
+
 	public function test_status_distinguishes_an_address_change_from_a_provider_pause() {
 		$request = new WP_REST_Request( 'POST' );
 		$request->set_param( 'enabled', true );
