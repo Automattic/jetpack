@@ -119,6 +119,10 @@ class Indexnow {
 			wp_clear_scheduled_hook( Indexnow_Queue::RECOVERY_HOOK );
 		} else {
 			$key = Indexnow_Client::key();
+			if ( get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== home_url( '/' ) ) {
+				delete_option( Indexnow_Queue::STATUS_OPTION );
+				delete_option( Indexnow_Queue::ACCEPTED_OPTION );
+			}
 			update_option( Indexnow_Client::SCOPE_OPTION, home_url( '/' ), false );
 			if ( get_option( Indexnow_Client::KEY_OPTION, '' ) !== $key || get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== home_url( '/' ) ) {
 				return new WP_Error( 'jetpack_seo_indexnow_save_failed', __( 'The IndexNow setting could not be saved. Please try again.', 'jetpack-seo' ), array( 'status' => 500 ) );

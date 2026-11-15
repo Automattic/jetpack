@@ -147,7 +147,7 @@ class IndexnowSettingsTest extends SeoTestCase {
 		);
 		update_option( Indexnow_Queue::ACCEPTED_OPTION, $receipt, false );
 		update_option( 'jetpack_seo_indexnow_enqueue_error', array( 'state' => 'queue_full_or_busy' ), false );
-		if ( $address_changed ) {
+		if ( 'before opt-out' === $address_changed ) {
 			update_option( Indexnow_Client::SCOPE_OPTION, 'https://previous.example/' );
 		}
 		$request->set_param( 'enabled', false );
@@ -155,19 +155,29 @@ class IndexnowSettingsTest extends SeoTestCase {
 		$this->assertFalse( $status['enabled'] );
 		$this->assertNull( $status['enqueue_error'] );
 		$expected = array( 'state' => 'idle' );
-		if ( 'accepted' === $receipt_state && ! $address_changed ) {
+		if ( 'accepted' === $receipt_state && 'before opt-out' !== $address_changed ) {
 			$expected['accepted'] = $receipt;
 		}
 		$this->assertSame( $expected, $status['latest'] );
+		$home = get_option( 'home' );
+		if ( 'after opt-out' === $address_changed ) {
+			update_option( 'home', 'https://new.example' );
+			$expected = array( 'state' => 'idle' );
+		}
 		$request->set_param( 'enabled', true );
-		$this->assertSame( $expected, Indexnow::save( $request )['latest'] );
+		try {
+			$this->assertSame( $expected, Indexnow::save( $request )['latest'] );
+		} finally {
+			update_option( 'home', $home );
+		}
 	}
 
 	public static function historical_receipts() {
 		return array(
-			'dated accepted batch'  => array( 'accepted', false ),
-			'pending verification'  => array( 'verification_pending', false ),
-			'previous site address' => array( 'accepted', true ),
+			'dated accepted batch'           => array( 'accepted', false ),
+			'pending verification'           => array( 'verification_pending', false ),
+			'previous site address'          => array( 'accepted', 'before opt-out' ),
+			'address changes while disabled' => array( 'accepted', 'after opt-out' ),
 		);
 	}
 
