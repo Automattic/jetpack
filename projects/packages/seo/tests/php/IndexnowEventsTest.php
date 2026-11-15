@@ -48,6 +48,7 @@ class IndexnowEventsTest extends SeoTestCase {
 			'added_post_meta'      => 'meta_changed',
 			'deleted_post_meta'    => 'meta_changed',
 			'shutdown'             => 'flush_metadata_changes',
+			'update_option_' . Indexnow_Client::ENABLED_OPTION => 'preference_changed',
 		) as $hook => $callback ) {
 			remove_action( $hook, array( Indexnow_Events::class, $callback ) );
 		}
@@ -184,6 +185,23 @@ class IndexnowEventsTest extends SeoTestCase {
 			),
 			$this->candidates
 		);
+	}
+
+	public function test_opt_out_discards_unflushed_metadata_changes() {
+		update_option( Indexnow_Client::ENABLED_OPTION, false );
+		$id = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => 'Existing guide',
+			)
+		);
+		update_option( Indexnow_Client::ENABLED_OPTION, true );
+		update_post_meta( $id, Content_Coverage::META_TITLE, 'Changed search title' );
+		update_option( Indexnow_Client::ENABLED_OPTION, false );
+		update_option( Indexnow_Client::ENABLED_OPTION, true );
+		Indexnow_Events::flush_metadata_changes();
+		$this->assertSame( array(), $this->candidates );
+		$this->assertSame( '', get_post_meta( $id, Indexnow_Events::PUBLIC_URL_META, true ) );
 	}
 
 	public function test_disabled_notifications_leave_post_provenance_unchanged() {
