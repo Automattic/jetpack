@@ -47,6 +47,20 @@ class Indexnow_Events {
 		add_action( 'added_post_meta', array( __CLASS__, 'meta_changed' ), 10, 3 );
 		add_action( 'deleted_post_meta', array( __CLASS__, 'meta_changed' ), 10, 3 );
 		add_action( 'shutdown', array( __CLASS__, 'flush_metadata_changes' ) );
+		add_action( 'update_option_' . Indexnow_Client::ENABLED_OPTION, array( __CLASS__, 'preference_changed' ), 10, 2 );
+	}
+
+	/**
+	 * Discard request-local changes when consent is withdrawn.
+	 *
+	 * @param mixed $old Previous preference.
+	 * @param mixed $enabled Saved preference.
+	 */
+	public static function preference_changed( $old, $enabled ) {
+		if ( $old && ! $enabled ) {
+			self::$pending_metadata = array();
+			self::$previous_urls    = array();
+		}
 	}
 
 	/**
