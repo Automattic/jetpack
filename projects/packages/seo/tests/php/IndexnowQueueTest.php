@@ -592,7 +592,7 @@ class IndexnowQueueTest extends SeoTestCase {
 
 	/** @dataProvider reset_delivery_responses */
 	#[DataProvider( 'reset_delivery_responses' )]
-	public function test_a_reset_during_delivery_cannot_restore_old_status( $response_code ) {
+	public function test_a_reset_during_delivery_cannot_restore_old_status( $response_code, $during_write ) {
 		$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/old', 42, true ) );
 		$this->make_pending_due();
 		$receipt = array(
@@ -601,14 +601,18 @@ class IndexnowQueueTest extends SeoTestCase {
 			'count' => 1,
 		);
 		update_option( Indexnow_Queue::ACCEPTED_OPTION, $receipt, false );
+		$reset = static function () {
+			update_option( Indexnow_Client::ENABLED_OPTION, false );
+			Indexnow_Queue::clear();
+			delete_option( Indexnow_Queue::STATUS_OPTION );
+			update_option( Indexnow_Client::ENABLED_OPTION, true );
+			Indexnow_Queue::enqueue( 'https://example.com/new', 43, true );
+		};
 		add_filter(
 			'pre_http_request',
-			static function () use ( $response_code ) {
-				update_option( Indexnow_Client::ENABLED_OPTION, false );
-				Indexnow_Queue::clear();
-				delete_option( Indexnow_Queue::STATUS_OPTION );
-				update_option( Indexnow_Client::ENABLED_OPTION, true );
-				Indexnow_Queue::enqueue( 'https://example.com/new', 43, true );
+			static function () use ( $response_code, $during_write, $reset ) {
+				if ( ! $during_write ) {
+					$reset(); }
 				return array(
 					'headers'  => array(),
 					'body'     => '',
@@ -616,18 +620,36 @@ class IndexnowQueueTest extends SeoTestCase {
 				);
 			}
 		);
-		Indexnow_Queue::work();
-		$this->assertFalse( get_option( Indexnow_Queue::STATUS_OPTION ) );
-		$this->assertSame( $receipt, get_option( Indexnow_Queue::ACCEPTED_OPTION ) );
-		$this->assertFalse( get_option( Indexnow_Queue::COOLDOWN_OPTION ) );
-		$this->assertSame( 'https://example.com/new', json_decode( Indexnow_Queue::rows()[0]['option_value'], true )['url'] );
+		$option      = 200 === $response_code ? Indexnow_Queue::ACCEPTED_OPTION : ( 429 === $response_code ? Indexnow_Queue::COOLDOWN_OPTION : Indexnow_Queue::STATUS_OPTION );
+		$intercepted = false;
+		$interrupt   = static function ( $query ) use ( $during_write, $option, $reset, &$intercepted ) {
+			if ( $during_write && ! $intercepted && preg_match( '/^(INSERT|UPDATE) /', $query ) && false !== strpos( $query, $option ) ) {
+				$intercepted = true;
+				$reset();
+			}
+			return $query;
+		};
+		add_filter( 'query', $interrupt );
+		try {
+			Indexnow_Queue::work();
+			$this->assertSame( $during_write, $intercepted );
+			$this->assertFalse( get_option( Indexnow_Queue::STATUS_OPTION ) );
+			$this->assertSame( $receipt, get_option( Indexnow_Queue::ACCEPTED_OPTION ) );
+			$this->assertFalse( get_option( Indexnow_Queue::COOLDOWN_OPTION ) );
+			$this->assertSame( 'https://example.com/new', json_decode( Indexnow_Queue::rows()[0]['option_value'], true )['url'] );
+		} finally {
+			remove_filter( 'query', $interrupt );
+		}
 	}
 
 	public static function reset_delivery_responses() {
 		return array(
-			'accepted'       => array( 200 ),
-			'server failure' => array( 500 ),
-			'throttled'      => array( 429 ),
+			'accepted during HTTP'        => array( 200, false ),
+			'server failure during HTTP'  => array( 500, false ),
+			'throttled during HTTP'       => array( 429, false ),
+			'accepted before write'       => array( 200, true ),
+			'server failure before write' => array( 500, true ),
+			'throttled before write'      => array( 429, true ),
 		);
 	}
 	public function test_failed_insert_is_not_admitted_and_releases_the_lock() {
