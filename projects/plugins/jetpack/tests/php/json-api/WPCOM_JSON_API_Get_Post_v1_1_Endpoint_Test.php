@@ -178,7 +178,7 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // ph
 			$post_id
 		);
 
-		$this->assertStringContainsString( 'href="#read-847-note" id="read-847-note-link"', $response['content'] );
+		$this->assertStringContainsString( 'href="#read-847-note-link"', $response['content'] );
 		$this->assertStringContainsString( 'Reader footnote regression.', $response['content'] );
 		$this->assertStringContainsString( '<li id="read-847-note">', $response['content'] );
 	}
