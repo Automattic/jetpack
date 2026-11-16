@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: Keep the subscription overlay form accessible on wide and short screens.
