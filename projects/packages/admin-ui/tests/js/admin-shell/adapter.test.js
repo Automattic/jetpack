@@ -119,7 +119,7 @@ describe( 'renameBootStore', () => {
 			'rolldown (Gutenberg plugin)',
 			`const Hl=\`wordpress/boot\`,Ul=createReduxStore(Hl);${ unlock }`,
 		],
-		[ 'single quotes', `const n='wordpress/boot';${ unlock }` ],
+		[ 'unminified (single-quoted)', `const n='wordpress/boot';${ unlock }` ],
 	] )( 'renames the store in a %s build and leaves the module id alone', ( _, source ) => {
 		const renamed = renameBootStore( source, 'jetpack-forms' );
 		expect( renamed ).toContain( '"wordpress/boot--jetpack-forms"' );
