@@ -134,7 +134,14 @@ export default function BulkRemoveModal( {
 
 	const handleConfirm = useCallback( async () => {
 		if ( ! counts.data || ! countsReady ) {
-			return { close: false };
+			// AlertDialog cannot disable its confirm button, so say why nothing happened.
+			return {
+				close: false,
+				error: __(
+					'Still counting your subscribers. Try again in a moment.',
+					'jetpack-newsletter'
+				),
+			};
 		}
 		if ( total < 1 ) {
 			return {
@@ -273,11 +280,15 @@ export default function BulkRemoveModal( {
 			<AlertDialog.Popup
 				intent="irreversible"
 				title={ countsReady ? title : __( 'Remove subscribers?', 'jetpack-newsletter' ) }
-				confirmButtonText={ sprintf(
-					// translators: %s: number of subscribers.
-					_n( 'Remove %s subscriber', 'Remove %s subscribers', total, 'jetpack-newsletter' ),
-					formatNumber( total )
-				) }
+				confirmButtonText={
+					countsReady
+						? sprintf(
+								// translators: %s: number of subscribers.
+								_n( 'Remove %s subscriber', 'Remove %s subscribers', total, 'jetpack-newsletter' ),
+								formatNumber( total )
+							)
+						: __( 'Remove subscribers', 'jetpack-newsletter' )
+				}
 				cancelButtonText={ __( 'Cancel', 'jetpack-newsletter' ) }
 			>
 				{ counts.isLoading || counts.isFetching || counts.isPaused ? (
@@ -299,17 +310,7 @@ export default function BulkRemoveModal( {
 					<Notice.Root intent="warning">
 						<Notice.Description>
 							{ matchingReady
-								? sprintf(
-										// translators: %1$s: number of matching subscribers. %2$s: "search", "filter" or "search and filter".
-										_n(
-											'This removes everyone on your list, not only the %1$s that matches your %2$s.',
-											'This removes everyone on your list, not only the %1$s that match your %2$s.',
-											matchingTotal,
-											'jetpack-newsletter'
-										),
-										formatNumber( matchingTotal ),
-										describeNarrowing( query.filters, query.search )
-									)
+								? describeNarrowing( query.filters, query.search, matchingTotal )
 								: __(
 										'This removes everyone on your list, regardless of your current search or filters.',
 										'jetpack-newsletter'

@@ -61,7 +61,8 @@ const renderModal = ( props: Partial< React.ComponentProps< typeof BulkRemoveMod
 	};
 };
 
-const confirmButton = () => screen.getByRole( 'button', { name: /^Remove [\d,]+ subscribers?$/ } );
+const confirmButton = () =>
+	screen.getByRole( 'button', { name: /^Remove ([\d,]+ )?subscribers?$/ } );
 
 beforeEach( () => {
 	jest.clearAllMocks();
@@ -139,9 +140,13 @@ describe( 'BulkRemoveModal', () => {
 		} );
 		mockCountStates.all = state;
 		rerender();
+		// Not "Remove 0 subscribers", and clicking says why nothing happens.
+		expect( confirmButton() ).toHaveTextContent( /^Remove subscribers$/ );
 		fireEvent.click( confirmButton() );
 
-		await waitFor( () => expect( confirmButton() ).toBeEnabled() );
+		await expect(
+			screen.findAllByText( /Still counting your subscribers/ )
+		).resolves.not.toHaveLength( 0 );
 		expect( mockMutateAsync ).not.toHaveBeenCalled();
 		expect( onClose ).not.toHaveBeenCalled();
 	} );

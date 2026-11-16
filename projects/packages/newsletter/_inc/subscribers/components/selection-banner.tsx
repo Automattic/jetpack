@@ -108,7 +108,7 @@ export default function SelectionBanner( {
 	const n = formatNumber( matchingCount );
 	const k = formatNumber( pageCount );
 
-	if ( isAllSelected && canSelectAll ) {
+	if ( isAllSelected ) {
 		return (
 			<Notice.Root intent="neutral" className="jetpack-newsletter__selection-banner">
 				<Notice.Description>
@@ -209,31 +209,29 @@ export default function SelectionBanner( {
 				) }
 			</Notice.Description>
 			<Notice.Actions>
-				{ canSelectAll ? (
-					<Notice.ActionButton variant="minimal" onClick={ handleSelectAll } disabled={ disabled }>
-						{ narrowed
-							? sprintf(
-									// translators: %s: number of subscribers.
-									_n(
-										'Select %s matching subscriber',
-										'Select all %s matching subscribers',
-										matchingCount,
-										'jetpack-newsletter'
-									),
-									n
-								)
-							: sprintf(
-									// translators: %s: number of subscribers.
-									_n(
-										'Select %s subscriber',
-										'Select all %s subscribers',
-										matchingCount,
-										'jetpack-newsletter'
-									),
-									n
-								) }
-					</Notice.ActionButton>
-				) : null }
+				<Notice.ActionButton variant="minimal" onClick={ handleSelectAll } disabled={ disabled }>
+					{ narrowed
+						? sprintf(
+								// translators: %s: number of subscribers.
+								_n(
+									'Select %s matching subscriber',
+									'Select all %s matching subscribers',
+									matchingCount,
+									'jetpack-newsletter'
+								),
+								n
+							)
+						: sprintf(
+								// translators: %s: number of subscribers.
+								_n(
+									'Select %s subscriber',
+									'Select all %s subscribers',
+									matchingCount,
+									'jetpack-newsletter'
+								),
+								n
+							) }
+				</Notice.ActionButton>
 				<Notice.ActionButton onClick={ onRemovePage } disabled={ disabled }>
 					{ sprintf(
 						// translators: %s: number of subscribers on this page.
