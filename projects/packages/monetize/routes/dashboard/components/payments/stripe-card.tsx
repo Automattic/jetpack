@@ -52,35 +52,52 @@ export default function StripeCard() {
 		content = <Text>{ __( 'Loading…', 'jetpack-monetize' ) }</Text>;
 	} else if ( status.isConnected ) {
 		content = (
-			<Stack direction="row" gap="md" align="center" justify="space-between" wrap="wrap">
-				<Text>
-					{ status.accountDescription
-						? sprintf(
-								/* translators: %s: the Stripe account's name or email address. */
-								__( 'Connected to %s.', 'jetpack-monetize' ),
-								status.accountDescription
-							)
-						: __( 'Connected to Stripe.', 'jetpack-monetize' ) }
-				</Text>
-				<AlertDialog.Root
-					open={ confirming }
-					onOpenChange={ setConfirming }
-					onConfirm={ onConfirmDisconnect }
-				>
-					<AlertDialog.Trigger render={ <Button variant="outline" tone="neutral" /> }>
-						{ __( 'Disconnect', 'jetpack-monetize' ) }
-					</AlertDialog.Trigger>
-					<AlertDialog.Popup
-						intent="irreversible"
-						title={ __( 'Disconnect Stripe?', 'jetpack-monetize' ) }
-						description={ __(
-							'Once you disconnect payments from Stripe, new subscribers won’t be able to sign up and existing subscriptions will stop working.',
-							'jetpack-monetize'
-						) }
-						confirmButtonText={ __( 'Disconnect', 'jetpack-monetize' ) }
-					/>
-				</AlertDialog.Root>
-			</Stack>
+			<>
+				{ ! status.acceptsCharges && (
+					<Notice.Root intent="error">
+						<Notice.Description>
+							{ __(
+								'Your Stripe account can’t accept payments right now, so new and renewing subscriptions will fail. Resolve the issue in your Stripe dashboard.',
+								'jetpack-monetize'
+							) }
+						</Notice.Description>
+						<Notice.Actions>
+							<Notice.ActionLink href="https://dashboard.stripe.com/">
+								{ __( 'Open Stripe', 'jetpack-monetize' ) }
+							</Notice.ActionLink>
+						</Notice.Actions>
+					</Notice.Root>
+				) }
+				<Stack direction="row" gap="md" align="center" justify="space-between" wrap="wrap">
+					<Text>
+						{ status.accountDescription
+							? sprintf(
+									/* translators: %s: the Stripe account's name or email address. */
+									__( 'Connected to %s.', 'jetpack-monetize' ),
+									status.accountDescription
+								)
+							: __( 'Connected to Stripe.', 'jetpack-monetize' ) }
+					</Text>
+					<AlertDialog.Root
+						open={ confirming }
+						onOpenChange={ setConfirming }
+						onConfirm={ onConfirmDisconnect }
+					>
+						<AlertDialog.Trigger render={ <Button variant="outline" tone="neutral" /> }>
+							{ __( 'Disconnect', 'jetpack-monetize' ) }
+						</AlertDialog.Trigger>
+						<AlertDialog.Popup
+							intent="irreversible"
+							title={ __( 'Disconnect Stripe?', 'jetpack-monetize' ) }
+							description={ __(
+								'Once you disconnect payments from Stripe, new subscribers won’t be able to sign up and existing subscriptions will stop working.',
+								'jetpack-monetize'
+							) }
+							confirmButtonText={ __( 'Disconnect', 'jetpack-monetize' ) }
+						/>
+					</AlertDialog.Root>
+				</Stack>
+			</>
 		);
 	} else {
 		content = (
