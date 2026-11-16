@@ -20,6 +20,7 @@ jest.mock( '../../../hooks/use-analytics', () => ( {
 } ) );
 
 const mockFetch = apiFetch as unknown as jest.Mock;
+const STATS_URL = 'https://example.com/wp-admin/admin.php?page=stats';
 
 const renderPanel = () =>
 	render(
@@ -32,6 +33,7 @@ const posts = () => mockFetch.mock.calls.filter( ( [ options ] ) => options.meth
 
 beforeEach( () => {
 	jest.clearAllMocks();
+	delete window.myJetpackInitialState;
 	mockFetch.mockImplementation( ( { method, data } ) =>
 		Promise.resolve( {
 			is_active: true,
@@ -43,6 +45,16 @@ beforeEach( () => {
 } );
 
 describe( 'GoogleAnalyticsSettings', () => {
+	it( 'links Jetpack Stats to its manage URL', async () => {
+		window.myJetpackInitialState = {
+			products: { items: { stats: { manage_url: STATS_URL } } },
+		} as unknown as Window[ 'myJetpackInitialState' ];
+		renderPanel();
+
+		const link = await screen.findByRole( 'link', { name: 'Jetpack Stats' } );
+		expect( link ).toHaveAttribute( 'href', STATS_URL );
+	} );
+
 	it( 'saves only a valid Measurement ID, on blur, and never records it', async () => {
 		renderPanel();
 		const input = await screen.findByRole( 'textbox', { name: 'Google Analytics Measurement ID' } );
