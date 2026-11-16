@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Serve an announcement older than the user's registration as seen.
