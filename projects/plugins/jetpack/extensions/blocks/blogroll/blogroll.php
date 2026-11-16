@@ -136,7 +136,7 @@ function has_opml( $post ) {
 	return $post instanceof \WP_Post
 		&& 'publish' === $post->post_status
 		&& ! post_password_required( $post )
-		&& has_block( 'jetpack/blogroll', $post )
+		&& ( has_block( 'jetpack/blogroll', $post ) || has_block( 'core/block', $post ) )
 		&& get_opml_items( parse_blocks( $post->post_content ) );
 }
 
@@ -151,15 +151,16 @@ function get_opml_post() {
 }
 
 /**
- * Collect the subscribable items of the blogroll blocks, including nested ones.
+ * Collect the subscribable items of the blogroll blocks, including nested ones and synced patterns.
  *
  * Items without a feed URL cannot be subscribed to, so they are left out.
  *
  * @param array $blocks Parsed blocks.
  * @param array $items  Items found so far, keyed by normalized feed URL.
+ * @param int[] $refs   Synced patterns already followed, so a pattern that includes itself ends.
  * @return array Items with `name`, `url` and `feed_url`, keyed by normalized feed URL.
  */
-function get_opml_items( $blocks, $items = array() ) {
+function get_opml_items( $blocks, $items = array(), $refs = array() ) {
 	foreach ( $blocks as $block ) {
 		$feed_url = 'jetpack/blogroll-item' === $block['blockName'] ? esc_url_raw( $block['attrs']['feed_url'] ?? '', array( 'http', 'https' ) ) : '';
 		// The same feed with another scheme or without the trailing slash is listed once.
@@ -172,8 +173,16 @@ function get_opml_items( $blocks, $items = array() ) {
 			);
 		}
 
+		$ref = 'core/block' === $block['blockName'] ? (int) ( $block['attrs']['ref'] ?? 0 ) : 0;
+		if ( $ref && ! in_array( $ref, $refs, true ) ) {
+			$pattern = get_post( $ref );
+			if ( $pattern instanceof \WP_Post && 'wp_block' === $pattern->post_type && 'publish' === $pattern->post_status ) {
+				$items = get_opml_items( parse_blocks( $pattern->post_content ), $items, array_merge( $refs, array( $ref ) ) );
+			}
+		}
+
 		if ( ! empty( $block['innerBlocks'] ) ) {
-			$items = get_opml_items( $block['innerBlocks'], $items );
+			$items = get_opml_items( $block['innerBlocks'], $items, $refs );
 		}
 	}
 
