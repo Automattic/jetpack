@@ -1,7 +1,6 @@
 import { IDCScreen } from '@automattic/jetpack-idc';
 import * as WPElement from '@wordpress/element';
 
-import './admin-bar.scss';
 import './style.scss';
 
 /**

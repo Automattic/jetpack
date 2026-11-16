@@ -188,6 +188,8 @@ class Identity_Crisis {
 
 		// 121 Priority so that it's the most inner Jetpack item in the admin bar.
 		add_action( 'admin_bar_menu', array( $this, 'display_admin_bar_button' ), 121 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_bar_styles' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'add_admin_bar_styles' ) );
 
 		UI::init();
 	}
@@ -278,13 +280,29 @@ class Identity_Crisis {
 			'parent' => 'top-secondary',
 		);
 
-		if ( ! self::$is_safe_mode_confirmed ) {
-			$menu['meta'] = array(
-				'class' => 'hide',
-			);
+		$wp_admin_bar->add_node( $menu );
+	}
+
+	/**
+	 * Style the admin bar item, in wp-admin and on the front end.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function add_admin_bar_styles() {
+		if ( ! is_admin_bar_showing() || ! current_user_can( 'jetpack_disconnect' ) ) {
+			return;
 		}
 
-		$wp_admin_bar->add_node( $menu );
+		wp_add_inline_style(
+			'admin-bar',
+			'#wpadminbar #wp-admin-bar-jetpack-idc { margin-inline-end: 5px; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .ab-item { padding: 0; background: #e68b28; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .jp-idc-admin-bar { border-radius: 2px; font-weight: 500; font-size: 14px; line-height: 20px; color: #efeff0; padding: 6px 8px; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .dashicons { font-family: dashicons; margin-block-start: -6px; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .dashicons::before { font-size: 18px; }'
+		);
 	}
 
 	/**

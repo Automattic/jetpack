@@ -54,6 +54,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Jetpack_Options::delete_option( 'safe_mode_confirmed' );
 		$_GET = array();
 		wp_set_current_user( 0 );
+		$GLOBALS['wp_styles']      = null;
+		$GLOBALS['show_admin_bar'] = null;
 	}
 
 	/**
@@ -1849,22 +1851,21 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The admin bar item is hidden until Safe Mode is confirmed.
+	 * Admins get a visible admin bar item whether or not Safe Mode is confirmed.
 	 *
-	 * @param bool        $is_confirmed   Whether Safe Mode is confirmed.
-	 * @param string|null $expected_class The node's class.
+	 * @param bool $is_confirmed Whether Safe Mode is confirmed.
 	 *
 	 * @dataProvider data_provider_test_admin_bar_button_for_admins
 	 */
 	#[DataProvider( 'data_provider_test_admin_bar_button_for_admins' )]
-	public function test_admin_bar_button_for_admins( $is_confirmed, $expected_class ) {
+	public function test_admin_bar_button_for_admins( $is_confirmed ) {
 		$this->set_current_user( true );
 		Identity_Crisis::$is_safe_mode_confirmed = $is_confirmed;
 
 		$node = $this->render_admin_bar_button();
 
 		$this->assertNotNull( $node );
-		$this->assertSame( $expected_class, $node->meta['class'] ?? null );
+		$this->assertArrayNotHasKey( 'class', $node->meta );
 		$this->assertStringContainsString( 'Jetpack Safe Mode', $node->title );
 		$this->assertStringContainsString( 'jetpack_idc_clear_confirmation=1', $node->href );
 	}
@@ -1876,8 +1877,38 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 */
 	public static function data_provider_test_admin_bar_button_for_admins() {
 		return array(
-			'pending'   => array( false, 'hide' ),
-			'confirmed' => array( true, null ),
+			'pending'   => array( false ),
+			'confirmed' => array( true ),
+		);
+	}
+
+	/**
+	 * The admin bar item's styles load wherever the admin bar shows, for users who get the item.
+	 *
+	 * @param bool $can_resolve Whether the user can resolve Safe Mode.
+	 *
+	 * @dataProvider data_provider_test_add_admin_bar_styles
+	 */
+	#[DataProvider( 'data_provider_test_add_admin_bar_styles' )]
+	public function test_add_admin_bar_styles( $can_resolve ) {
+		$this->set_current_user( $can_resolve );
+		show_admin_bar( true );
+
+		Identity_Crisis::init()->add_admin_bar_styles();
+
+		$inline = implode( '', (array) wp_styles()->get_data( 'admin-bar', 'after' ) );
+		$this->assertSame( $can_resolve, false !== strpos( $inline, '#wp-admin-bar-jetpack-idc' ) );
+	}
+
+	/**
+	 * Data provider for test_add_admin_bar_styles.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_add_admin_bar_styles() {
+		return array(
+			'admin'     => array( true ),
+			'non-admin' => array( false ),
 		);
 	}
 
