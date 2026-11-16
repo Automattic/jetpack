@@ -135,6 +135,25 @@ class Blogroll_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * A blogroll in a synced pattern is published, and a pattern that includes itself ends.
+	 */
+	public function test_synced_pattern() {
+		$pattern_id = self::factory()->post->create( array( 'post_type' => 'wp_block' ) );
+		wp_update_post(
+			array(
+				'ID'           => $pattern_id,
+				'post_content' => wp_slash(
+					self::blogroll( self::item( array( 'feed_url' => 'https://feed.example/feed/' ) ) ) . '<!-- wp:block {"ref":' . $pattern_id . '} /-->'
+				),
+			)
+		);
+		$post = self::factory()->post->create_and_get( array( 'post_content' => '<!-- wp:block {"ref":' . $pattern_id . '} /-->' ) );
+
+		$this->assertTrue( Blogroll\has_opml( $post ) );
+		$this->assertSame( array( 'https://feed.example/feed' ), array_keys( Blogroll\get_opml_items( parse_blocks( $post->post_content ) ) ) );
+	}
+
+	/**
 	 * Only a public post with a blogroll publishes OPML.
 	 *
 	 * @dataProvider provide_posts
