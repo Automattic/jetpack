@@ -8,6 +8,11 @@ import { __ } from '@wordpress/i18n';
 import type { QueryParams } from './inbox/stage/types.tsx';
 
 /**
+ * Comment type of response notes; matches `Feedback::NOTE_COMMENT_TYPE` in PHP.
+ */
+export const NOTE_COMMENT_TYPE = 'jetpack_form_note';
+
+/**
  * All form status filter values, including the virtual "all" filter.
  */
 export const FORM_STATUSES = [

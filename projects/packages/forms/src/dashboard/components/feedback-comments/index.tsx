@@ -10,6 +10,7 @@ import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
+import { NOTE_COMMENT_TYPE } from '../../constants';
 import CommentItem from './comment-item';
 import type { FeedbackComment } from '../../../types';
 import type { JSX } from 'react';
@@ -52,18 +53,18 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 	} = useSelect(
 		select => {
 			// Notes are stored held and with their own type, and core returns neither unless asked.
+			// One shared query so the total comes from the same request as the records.
 			const query = {
 				per_page: perPage,
 				page,
 				post: postId,
 				status: 'hold',
-				type: 'jetpack_form_note',
-			};
-			const commentsData = select( coreStore ).getEntityRecords( 'root', 'comment', {
-				...query,
+				type: NOTE_COMMENT_TYPE,
 				orderby: 'date',
 				order: 'asc',
-			} ) as FeedbackComment[] | null | undefined;
+			};
+			const commentsData = select( coreStore ).getEntityRecords( 'root', 'comment', query ) as
+				FeedbackComment[] | null | undefined;
 
 			const total = select( coreStore ).getEntityRecordsTotalItems( 'root', 'comment', query );
 

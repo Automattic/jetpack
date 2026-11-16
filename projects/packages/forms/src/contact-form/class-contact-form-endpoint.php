@@ -1708,16 +1708,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @param \WP_Post $post Post object.
 	 * @return bool
 	 */
-	public function check_read_permission( $post ) {
-		if ( 'feedback' !== $post->post_type ) {
-			return parent::check_read_permission( $post );
-		}
-
-		if ( is_super_admin() ) {
-			return true;
-		}
-
-		return current_user_can( 'edit_pages' ) && is_user_member_of_blog( get_current_user_id(), get_current_blog_id() );
+	public function check_read_permission( $post ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return true === $this->get_items_permissions_check( null );
 	}
 
 	/**
