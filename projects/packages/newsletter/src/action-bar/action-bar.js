@@ -403,6 +403,9 @@
 	 * @param {boolean} isFollowing - Whether the visitor now follows the site.
 	 */
 	function setFollowing( isFollowing ) {
+		if ( ! follow || ! unfollow ) {
+			return;
+		}
 		follow.classList.toggle( 'no-display', isFollowing );
 		unfollow.classList.toggle( 'no-display', ! isFollowing );
 	}
@@ -818,11 +821,7 @@
 	 */
 	function showActionBarStatusMessage( message, subscribed ) {
 		if ( subscribed ) {
-			const followLink = actionbar.querySelector( '.actnbr-actn-follow' );
-			const unfollowLink = actionbar.querySelector( '.actnbr-actn-following' );
-
-			followLink && followLink.classList.add( 'no-display' );
-			unfollowLink && unfollowLink.classList.remove( 'no-display' );
+			setFollowing( true );
 		}
 
 		const msgEl = actionbar.querySelector( '.actnbr-follow-bubble .actnbr-message' );
@@ -842,11 +841,9 @@
 	 * visitor, before or after this script runs, and then dispatches `actionbardata-updated`.
 	 */
 	function syncFollowState() {
-		if ( ! Object.prototype.hasOwnProperty.call( fbd, 'isFollowing' ) || ! follow || ! unfollow ) {
-			return;
+		if ( Object.prototype.hasOwnProperty.call( fbd, 'isFollowing' ) ) {
+			setFollowing( !! fbd.isFollowing );
 		}
-		follow.classList.toggle( 'no-display', !! fbd.isFollowing );
-		unfollow.classList.toggle( 'no-display', ! fbd.isFollowing );
 	}
 	syncFollowState();
 	window.addEventListener( 'actionbardata-updated', syncFollowState );
