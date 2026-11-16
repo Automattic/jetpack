@@ -9,8 +9,8 @@
 // Inline size from which the tiles can sit side by side instead of in a list.
 $wide-min-inline-size: 560px;
 
-// A row tile at its narrowest: room for a six-digit figure at font-size-2xl
-// inside padding-lg on both sides. A row with less falls back to the list.
+// A row tile at its narrowest: close to a six-digit figure at font-size-2xl
+// inside padding-lg. A row with less falls back to the list.
 $row-min-tile-inline-size: 160px;
 
 // gap-md, between tiles side by side and between grid rows.
