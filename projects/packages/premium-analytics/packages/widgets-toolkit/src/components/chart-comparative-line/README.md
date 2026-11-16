@@ -170,7 +170,7 @@ The Y-axis starts at zero, so the line's height reads as the value and a week of
 
 For a cumulative count such as total subscribers, a zero baseline flattens every change, while an axis fitted to the data turns a change of four into a cliff. Pass `baseline="padded"` and the axis starts a little below the data instead, so the data fills about half the chart; `getPaddedYAxis` in the helpers owns the padding, and the chart pads only the series the legend leaves visible. When the padding would reach zero, the axis is the zero baseline. A small change on a large count is labelled in full (4,190, 4,195) rather than as repeated compact labels (4.2K, 4.2K).
 
-A percentage metric always reads 0% to 100%, and an all-zero period keeps the empty-state axis below, whichever baseline is set.
+A percentage metric reads 0% to 100% while every visible value fits there, and an all-zero period keeps the empty-state axis below, whichever baseline is set. Once a visible value passes 100%, as a replayed video's retention rate does, the axis fits the data instead.
 
 ## Empty State
 
