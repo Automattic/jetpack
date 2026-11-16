@@ -2,6 +2,7 @@ import { CONNECTION_FROM } from '@automattic/jetpack-connection/connection-from'
 import { getUserConnectionUrl } from '@automattic/jetpack-connection/get-user-connection-url';
 import { __, _x } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { getPageData } from '../../data/state';
 import { trackBannerClick } from '../../data/tracking';
 import type { AdsSettingsData } from '../../data/ads-settings-data';
 
@@ -50,7 +51,7 @@ export function AdsPrompt( { data }: { data: AdsSettingsData } ) {
 				{ __( 'Generate income with high-quality ads.', 'jetpack-monetize' ) }
 			</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionLink href={ data.upgradeUrl } onClick={ trackUpgradeClick }>
+				<Notice.ActionLink href={ getPageData().upgradeUrl } onClick={ trackUpgradeClick }>
 					{ _x(
 						'Upgrade',
 						'A caption for a button to upgrade an existing paid feature to a higher tier.',

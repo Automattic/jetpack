@@ -24,10 +24,6 @@ const AUGUST = {
 	from: new TZDate( 2026, 7, 1, 0, 0, 0, 0, 'UTC' ),
 	to: new TZDate( 2026, 7, 31, 23, 59, 59, 999, 'UTC' ),
 };
-const JUNE = {
-	from: new TZDate( 2026, 5, 1, 0, 0, 0, 0, 'UTC' ),
-	to: new TZDate( 2026, 5, 30, 23, 59, 59, 999, 'UTC' ),
-};
 
 const TRAFFIC = 'analytics/traffic';
 const INSIGHTS = 'analytics/insights';
@@ -49,10 +45,15 @@ type SurfaceProps = {
 	shown?: boolean;
 };
 
-function Surface( { surface, applied, shown = true }: SurfaceProps ) {
-	const attentionId = useSettlePeriodChange( surface, applied, shown );
+function Surface( { surface, applied = JULY, shown = true }: SurfaceProps ) {
+	const attention = useSettlePeriodChange( surface, applied, shown );
 
-	return <output>{ attentionId ?? 'none' }</output>;
+	return (
+		<>
+			<output>{ attention?.id ?? 'none' }</output>
+			<span data-testid="range">{ attention?.range.from.toISOString() ?? 'no range' }</span>
+		</>
+	);
 }
 
 const attention = () => screen.getByRole( 'status' ).textContent;
@@ -61,15 +62,18 @@ function Scene( {
 	surface,
 	applied,
 	shown,
-	raiseRange = JULY,
-}: SurfaceProps & { raiseRange?: typeof JULY } ) {
+	mounted = true,
+}: SurfaceProps & { mounted?: boolean } ) {
 	return (
 		<PeriodChangeSignalProvider>
-			<Raiser surface={ TRAFFIC } range={ raiseRange } />
-			<Surface surface={ surface } applied={ applied } shown={ shown } />
+			<Raiser surface={ TRAFFIC } range={ JULY } />
+			{ mounted && <Surface surface={ surface } applied={ applied } shown={ shown } /> }
 		</PeriodChangeSignalProvider>
 	);
 }
+
+const raise = ( user: ReturnType< typeof userEvent.setup > ) =>
+	user.click( screen.getByRole( 'button', { name: 'raise' } ) );
 
 describe( 'period change signal', () => {
 	let reactStrictMode: boolean;
@@ -84,29 +88,21 @@ describe( 'period change signal', () => {
 		configure( { reactStrictMode } );
 	} );
 
-	it( 'waits while the navigation is in flight, then fires once the range lands', async () => {
+	it( 'fires on the raise for the surface it names, with the range it was raised with', async () => {
 		const user = userEvent.setup();
-		const view = render( <Scene surface={ INSIGHTS } applied={ AUGUST } /> );
+		render( <Scene surface={ TRAFFIC } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
-		expect( attention() ).toBe( 'none' );
-
-		view.rerender( <Scene surface={ INSIGHTS } applied={ AUGUST } /> );
-		view.rerender( <Scene surface={ INSIGHTS } applied={ AUGUST } /> );
-		expect( attention() ).toBe( 'none' );
-
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+		await raise( user );
 
 		expect( attention() ).not.toBe( 'none' );
+		expect( screen.getByTestId( 'range' ) ).toHaveTextContent( JULY.from.toISOString() );
 	} );
 
-	it( 'fires once for rapid repeated raises before the navigation lands', async () => {
+	it( 'keeps the cue when the navigation lands on the range it was raised with', async () => {
 		const user = userEvent.setup();
-		const view = render( <Scene surface={ INSIGHTS } applied={ AUGUST } /> );
+		const view = render( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+		await raise( user );
 		const fired = attention();
 		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
 
@@ -114,35 +110,26 @@ describe( 'period change signal', () => {
 		expect( attention() ).toBe( fired );
 	} );
 
-	it( 'fires when the range is already applied and the section switches', async () => {
+	it( 'waits while another section shows, then fires once the named one does', async () => {
 		const user = userEvent.setup();
-		const view = render( <Scene surface={ INSIGHTS } applied={ JULY } /> );
+		const view = render( <Scene surface={ INSIGHTS } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		await raise( user );
+		view.rerender( <Scene surface={ INSIGHTS } /> );
 		expect( attention() ).toBe( 'none' );
 
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
-
-		expect( attention() ).not.toBe( 'none' );
-	} );
-
-	it( 'fires on a same-surface change of the applied range', async () => {
-		const user = userEvent.setup();
-		const view = render( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
-
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+		view.rerender( <Scene surface={ TRAFFIC } /> );
 
 		expect( attention() ).not.toBe( 'none' );
 	} );
 
 	it( 'gives each raise its own id so a repeat of the same range fires again', async () => {
 		const user = userEvent.setup();
-		render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+		render( <Scene surface={ TRAFFIC } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		await raise( user );
 		const first = attention();
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		await raise( user );
 
 		expect( first ).not.toBe( 'none' );
 		expect( attention() ).not.toBe( first );
@@ -150,50 +137,24 @@ describe( 'period change signal', () => {
 
 	it( 'waits while the control is hidden and fires once it shows', async () => {
 		const user = userEvent.setup();
-		const view = render( <Scene surface={ TRAFFIC } applied={ JULY } shown={ false } /> );
+		const view = render( <Scene surface={ TRAFFIC } shown={ false } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		await raise( user );
 		expect( attention() ).toBe( 'none' );
 
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } shown /> );
+		view.rerender( <Scene surface={ TRAFFIC } shown /> );
 
 		expect( attention() ).not.toBe( 'none' );
 	} );
 
 	it( 'discards the signal when the navigation lands on another section', async () => {
 		const user = userEvent.setup();
-		const view = render( <Scene surface={ INSIGHTS } applied={ AUGUST } /> );
+		const view = render( <Scene surface={ INSIGHTS } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
-		view.rerender( <Scene surface="analytics/subscribers" applied={ AUGUST } /> );
-		// A later visit to the traffic section over July must not replay it.
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
-
-		expect( attention() ).toBe( 'none' );
-	} );
-
-	it( 'discards the signal when the applied range lands somewhere else', async () => {
-		const user = userEvent.setup();
-		const view = render( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
-
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JUNE } /> );
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
-
-		expect( attention() ).toBe( 'none' );
-	} );
-
-	it( 'discards the signal when the surface mounts elsewhere', async () => {
-		const user = userEvent.setup();
-		const view = render(
-			<PeriodChangeSignalProvider>
-				<Raiser surface={ TRAFFIC } range={ JULY } />
-			</PeriodChangeSignalProvider>
-		);
-
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
-		view.rerender( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+		await raise( user );
+		view.rerender( <Scene surface="analytics/subscribers" /> );
+		// A later visit to the traffic section must not replay it.
+		view.rerender( <Scene surface={ TRAFFIC } /> );
 
 		expect( attention() ).toBe( 'none' );
 	} );
@@ -202,13 +163,13 @@ describe( 'period change signal', () => {
 		jest.useFakeTimers();
 		try {
 			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-			const view = render( <Scene surface={ INSIGHTS } applied={ AUGUST } /> );
+			const view = render( <Scene surface={ INSIGHTS } /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+			await raise( user );
 			act( () => {
 				jest.advanceTimersByTime( PERIOD_CHANGE_SIGNAL_TTL_MS + 1 );
 			} );
-			view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+			view.rerender( <Scene surface={ TRAFFIC } /> );
 
 			expect( attention() ).toBe( 'none' );
 		} finally {
@@ -220,9 +181,9 @@ describe( 'period change signal', () => {
 		jest.useFakeTimers();
 		try {
 			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-			render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+			render( <Scene surface={ TRAFFIC } /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+			await raise( user );
 			expect( attention() ).not.toBe( 'none' );
 
 			act( () => {
@@ -243,13 +204,13 @@ describe( 'period change signal', () => {
 		jest.useFakeTimers();
 		try {
 			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-			render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+			render( <Scene surface={ TRAFFIC } /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+			await raise( user );
 			act( () => {
 				jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS / 2 );
 			} );
-			await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+			await raise( user );
 			const newer = attention();
 
 			act( () => {
@@ -266,28 +227,28 @@ describe( 'period change signal', () => {
 		}
 	} );
 
-	it( 'lets the id go when the control leaves the screen and does not replay it', async () => {
+	it( 'lets the id go when the control leaves the screen', async () => {
 		const user = userEvent.setup();
-		const view = render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+		const view = render( <Scene surface={ TRAFFIC } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		await raise( user );
 		expect( attention() ).not.toBe( 'none' );
 
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } shown={ false } /> );
-		expect( attention() ).toBe( 'none' );
-
-		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } shown /> );
+		view.rerender( <Scene surface={ TRAFFIC } shown={ false } /> );
 		expect( attention() ).toBe( 'none' );
 	} );
 
 	it( 'lets the id go when the section switches inside the attention window', async () => {
 		const user = userEvent.setup();
-		const view = render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+		const view = render( <Scene surface={ TRAFFIC } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		await raise( user );
 		expect( attention() ).not.toBe( 'none' );
 
-		view.rerender( <Scene surface={ INSIGHTS } applied={ JULY } /> );
+		view.rerender( <Scene surface={ INSIGHTS } /> );
+		expect( attention() ).toBe( 'none' );
+
+		view.rerender( <Scene surface={ TRAFFIC } /> );
 		expect( attention() ).toBe( 'none' );
 	} );
 
@@ -295,10 +256,33 @@ describe( 'period change signal', () => {
 		const user = userEvent.setup();
 		const view = render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		await raise( user );
 		expect( attention() ).not.toBe( 'none' );
 
 		view.rerender( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
+		expect( attention() ).toBe( 'none' );
+	} );
+
+	it( 'lets the id go when the reader moves the range after the navigation landed', async () => {
+		const user = userEvent.setup();
+		const view = render( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
+
+		await raise( user );
+		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+		expect( attention() ).not.toBe( 'none' );
+
+		view.rerender( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
+		expect( attention() ).toBe( 'none' );
+	} );
+
+	it( 'does not replay when the control remounts after it fired', async () => {
+		const user = userEvent.setup();
+		const view = render( <Scene surface={ TRAFFIC } /> );
+
+		await raise( user );
+		view.rerender( <Scene surface={ TRAFFIC } mounted={ false } /> );
+		view.rerender( <Scene surface={ TRAFFIC } /> );
+
 		expect( attention() ).toBe( 'none' );
 	} );
 
@@ -307,11 +291,11 @@ describe( 'period change signal', () => {
 		render(
 			<>
 				<Raiser surface={ TRAFFIC } range={ JULY } />
-				<Surface surface={ TRAFFIC } applied={ JULY } />
+				<Surface surface={ TRAFFIC } />
 			</>
 		);
 
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		await raise( user );
 
 		expect( attention() ).toBe( 'none' );
 	} );

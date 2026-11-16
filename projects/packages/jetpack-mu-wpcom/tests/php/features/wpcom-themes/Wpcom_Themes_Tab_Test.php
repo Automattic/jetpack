@@ -13,6 +13,7 @@ use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-themes/wpcom-themes.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-themes/wpcom-themes-tab.php';
 
 /**
@@ -125,7 +126,11 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		Constants::clear_constants();
 		// Host memoizes is_woa_site past clear_constants().
 		Cache::clear();
-		wp_deregister_script( 'wpcom-themes-tab' );
+		// Deregistering leaves a handle in the queue, which wp_script_is( 'enqueued' ) reads.
+		foreach ( array( 'wpcom-themes-tab', 'wpcom-themes-banner' ) as $handle ) {
+			wp_dequeue_script( $handle );
+			wp_deregister_script( $handle );
+		}
 
 		// The shared reader caches in the object cache.
 		wp_cache_flush();
@@ -474,6 +479,38 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		wpcom_themes_tab_enqueue_script();
 
 		$this->assertTrue( wp_script_is( 'wpcom-themes-tab', 'enqueued' ) );
+	}
+
+	/**
+	 * The theme showcase banner shows only while the tab is off.
+	 *
+	 * @dataProvider provide_banner_cases
+	 *
+	 * @param bool $tab_on Whether the tab is enabled.
+	 * @param bool $banner Whether the banner is expected.
+	 */
+	#[DataProvider( 'provide_banner_cases' )]
+	public function test_banner_shows_only_without_the_tab( bool $tab_on, bool $banner ) {
+		update_option( 'wpcom_admin_interface', 'wp-admin' );
+		if ( $tab_on ) {
+			$this->enable_tab();
+		}
+
+		wpcom_themes_show_banner();
+
+		$this->assertSame( $banner, wp_script_is( 'wpcom-themes-banner', 'enqueued' ) );
+	}
+
+	/**
+	 * Data provider for test_banner_shows_only_without_the_tab.
+	 *
+	 * @return array
+	 */
+	public static function provide_banner_cases() {
+		return array(
+			'tab off' => array( false, true ),
+			'tab on'  => array( true, false ),
+		);
 	}
 
 	/**

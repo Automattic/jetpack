@@ -1,6 +1,0 @@
-{
-	"name": "@automattic/jetpack-premium-analytics-widget-total-visitors",
-	"version": "0.1.0-alpha",
-	"private": true,
-	"type": "module"
-}

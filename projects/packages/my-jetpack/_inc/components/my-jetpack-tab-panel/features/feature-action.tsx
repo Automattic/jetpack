@@ -1,10 +1,12 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, ButtonLink, Switch } from '@wordpress/ui';
+import { Button, ButtonLink, Link, Switch } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { featuresFrom, getConnectUrl } from '../../../utils/connect-url';
 import { getProtectPageUrl } from '../../../utils/protect-page';
 import { leavePageFor } from '../../../utils/reload-page';
+import { isSettingsConsolidationEnabled } from '../../../utils/settings-consolidation';
+import { getProtectLinkLabel } from '../../../utils/settings-link-label';
 import { ModuleToggle } from '../../module-toggle';
 import { getFeatureConnectReturnUrl, getSwitchLabel } from '../utils';
 import {
@@ -32,7 +34,8 @@ export function useAccountConnection() {
 
 	return useCallback(
 		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
-			tracking?.trackConnectionStart( state, origin, action );
+			const from = featuresFrom( state.feature.slug );
+			tracking?.trackConnectionStart( state, origin, action, from );
 			// Installing or activating Jetpack from a module's card is the first step of turning that
 			// module on, so the return finishes it. Another plugin's Install has already turned it on.
 			const remembers = action === 'connect' || state.control.kind === 'install-jetpack';
@@ -41,7 +44,7 @@ export function useAccountConnection() {
 				undefined,
 				intent ? { [ CONNECT_INTENT_PARAM ]: intent } : {}
 			);
-			leavePageFor( getUserConnectionUrl( { redirect_url: returnUrl } ) );
+			leavePageFor( getConnectUrl( from, returnUrl ) );
 		},
 		[ tracking ]
 	);
@@ -234,23 +237,26 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 			}
 
 			const protectPageUrl = getProtectPageUrl( control.module.module );
+			if ( protectPageUrl && isSettingsConsolidationEnabled() ) {
+				const { text, label } = getProtectLinkLabel( feature.name, state.status === 'active' );
+				return (
+					<Link href={ protectPageUrl } aria-label={ label } aria-describedby={ describedby }>
+						{ text }
+					</Link>
+				);
+			}
+
 			if ( protectPageUrl ) {
+				const { text, label } = getProtectLinkLabel( feature.name, true );
 				return (
 					<ButtonLink
 						href={ protectPageUrl }
 						variant="outline"
 						size="compact"
-						aria-label={ sprintf(
-							/* translators: %s is the feature name. "Protect" is a product name. */
-							__( 'Manage %s in Protect', 'jetpack-my-jetpack' ),
-							feature.name
-						) }
+						aria-label={ label }
 						aria-describedby={ describedby }
 					>
-						{
-							/* translators: "Protect" is a product name. */
-							__( 'Manage in Protect', 'jetpack-my-jetpack' )
-						}
+						{ text }
 					</ButtonLink>
 				);
 			}

@@ -336,6 +336,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// Not a Simple site, so no DIFM offer. AI_Launchpad_Difm_Offer_Test covers the rules.
 		$this->assertArrayHasKey( 'difm_offer', $data );
 		$this->assertNull( $data['difm_offer'] );
+		// wpcom's connections helper isn't loaded here, so the page can't detect a new AI connection.
+		$this->assertFalse( $data['mcp_detection'] );
+		// Nor is its access-level setter, so the page can't allow full access in place.
+		$this->assertFalse( $data['mcp_allow_full'] );
 
 		$this->assertCount( 6, $data['tasks'] );
 
@@ -1835,6 +1839,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$result = $this->call_api( Requests::DELETE );
 		$this->assertSame( 403, $result->get_status() );
 
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
+		$this->assertSame( 403, $result->get_status() );
+
 		$result = $this->call_api( Requests::GET );
 		$this->assertSame( 403, $result->get_status() );
 
@@ -2178,5 +2185,184 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_dismissed' ) );
 		$this->assertSame( array( 'first_post_published' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
+	}
+
+	/**
+	 * GET /mcp-connections returns the current user's ChatGPT and Claude connections from wpcom, and nothing else, with
+	 * the account's access level.
+	 *
+	 * In its own process, since Brain Monkey's stubs of wpcom's functions would otherwise outlive the test that made them.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_mcp_connections_returns_the_ai_tool_connections() {
+		$user_id = get_current_user_id();
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_get_user_connections' )
+			->once()
+			->with( $user_id )
+			->andReturn(
+				array(
+					array(
+						'integration'  => 'claude',
+						'connected_at' => 1762430000,
+					),
+					array(
+						'integration'  => 'cursor',
+						'connected_at' => 1762430100,
+					),
+					array(
+						'integration'  => 'chatgpt',
+						'connected_at' => 1762430200,
+					),
+				)
+			);
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_get_user_access_level' )
+			->once()
+			->with( $user_id )
+			->andReturn( 'read_only' );
+
+		$result = $this->call_api( Requests::GET, '/mcp-connections' );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			array(
+				'connections'  => array( 'claude', 'chatgpt' ),
+				'access_level' => 'read_only',
+			),
+			$result->get_data()
+		);
+	}
+
+	/**
+	 * GET /mcp-connections returns an empty list where wpcom's connections function is not defined.
+	 *
+	 * In its own process, since Brain Monkey's stub of the function would otherwise outlive the test that made it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_mcp_connections_is_empty_without_wpcom() {
+		$this->assertFalse( function_exists( 'wpcom_mcp_get_user_connections' ) );
+
+		$result = $this->call_api( Requests::GET, '/mcp-connections' );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			array(
+				'connections'  => array(),
+				'access_level' => null,
+			),
+			$result->get_data()
+		);
+	}
+
+	/**
+	 * POST /mcp-access sets the current user's MCP access level to full through wpcom, and ignores a user ID in the
+	 * request, so it can't change anyone else's.
+	 *
+	 * In its own process, since Brain Monkey's stub of wpcom's function would otherwise outlive the test that made it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_post_mcp_access_allows_full_access_for_the_current_user() {
+		$user_id = get_current_user_id();
+		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_access_level' )->justReturn( 'read_only' );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )
+			->once()
+			->with( $user_id, 'full' )
+			->andReturn( true );
+
+		$result = $this->call_api(
+			Requests::POST,
+			'/mcp-access',
+			array( 'user_id' => $this->subscriber_id )
+		);
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array( 'access_level' => 'full' ), $result->get_data() );
+	}
+
+	/**
+	 * POST /mcp-access passes on wpcom's failure as a server error.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_post_mcp_access_reports_a_failed_write() {
+		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_access_level' )->justReturn( 'read_only' );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )
+			->once()
+			->andReturn( new WP_Error( 'mcp_settings_unavailable', 'MCP settings are not available in this request.' ) );
+
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
+
+		$this->assertSame( 500, $result->get_status() );
+		$this->assertSame( 'mcp_settings_unavailable', $result->as_error()->get_error_code() );
+	}
+
+	/**
+	 * POST /mcp-access changes only a read-only account, so it never clears a tuned account's per-tool settings.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_post_mcp_access_leaves_an_account_that_is_not_read_only() {
+		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_access_level' )->justReturn( null );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )->never();
+
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
+
+		$this->assertSame( 409, $result->get_status() );
+		$this->assertSame( 'mcp_access_not_read_only', $result->as_error()->get_error_code() );
+	}
+
+	/**
+	 * POST /mcp-access needs a site admin, so an editor, who can read the wizard, can't change the account's access.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_post_mcp_access_is_denied_without_manage_options() {
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_set_user_access_level' )->never();
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'dummy_editor',
+					'user_pass'  => 'dummy_pass',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
+
+		$this->assertSame( 403, $result->get_status() );
+		$this->assertFalse( $this->call_api( Requests::GET )->get_data()['mcp_allow_full'] );
+	}
+
+	/**
+	 * POST /mcp-access returns 501 where wpcom's setter is not defined, so the wizard falls back to the settings link.
+	 */
+	public function test_post_mcp_access_is_unavailable_without_wpcom() {
+		$this->assertFalse( function_exists( 'wpcom_mcp_set_user_access_level' ) );
+
+		$result = $this->call_api( Requests::POST, '/mcp-access' );
+
+		$this->assertSame( 501, $result->get_status() );
+		$this->assertSame( 'mcp_access_unavailable', $result->as_error()->get_error_code() );
 	}
 }

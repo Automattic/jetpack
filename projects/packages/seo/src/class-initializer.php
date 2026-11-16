@@ -29,7 +29,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.11.0';
+	const PACKAGE_VERSION = '0.12.0';
 
 	/**
 	 * WordPress.com site feature that enables the Jetpack SEO surface.
@@ -207,6 +207,7 @@ class Initializer {
 			// stripping the schema its pages already carry would hurt SEO it has today.
 			// (Finer per-type gating — e.g. sitewide LocalBusiness to paid plans on
 			// self-hosted — is a separate follow-up, tracked in the schema project.)
+			Share_Image::init();
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 

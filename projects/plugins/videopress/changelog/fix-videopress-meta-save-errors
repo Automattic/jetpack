@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Show an error when a video details or privacy change is not saved, instead of reporting success.

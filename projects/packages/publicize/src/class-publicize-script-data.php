@@ -108,7 +108,7 @@ class Publicize_Script_Data {
 	/**
 	 * Get the social script data for the Social dashboard when it opens on another admin page, via `wpcom/v2/publicize/script-data`.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @return array
 	 */

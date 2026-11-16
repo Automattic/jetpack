@@ -156,7 +156,7 @@ class A8c_Mc_Stats {
 	/**
 	 * Pings a stats URL server-side without waiting for the response.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 *
 	 * @param string $url The URL to be pinged.
 	 *

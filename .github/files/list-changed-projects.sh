@@ -66,6 +66,8 @@ if [[ -n "$EXTRA" ]]; then
 	ARGS+=( --extra="$EXTRA" )
 	if [[ "$EXTRA" == "build" ]]; then
 		ARGS+=( --ignore-root )
+	elif [[ "$EXTRA" == "test" ]]; then
+		ARGS+=( --only-direct-dev-dependents )
 	fi
 fi
 

@@ -955,26 +955,18 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Clearing asks WordPress.com to purge its edge copy only when a stored copy existed.
+	 * Clearing tells hosts to purge cached copies only when a stored copy existed.
 	 *
 	 * @return void
 	 */
-	public function test_clearing_purges_the_edge_copy_only_when_one_was_stored() {
-		\Wpcom_Test_Async_Jobs::$queued = array();
+	public function test_clearing_announces_only_when_a_copy_was_stored() {
+		$before = did_action( 'jetpack_seo_llms_txt_cleared' );
 		Llms_Txt::clear_cache();
-		$this->assertSame( array(), \Wpcom_Test_Async_Jobs::$queued );
+		$this->assertSame( $before, did_action( 'jetpack_seo_llms_txt_cleared' ) );
 
 		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
 		Llms_Txt::clear_cache();
-		$this->assertSame(
-			array(
-				array(
-					'type' => 'wpcom_invalidate_output_cache_job',
-					'data' => array( 'output_cache' => array( 'url' => array( home_url( '/llms.txt' ) ) ) ),
-				),
-			),
-			\Wpcom_Test_Async_Jobs::$queued
-		);
+		$this->assertSame( $before + 1, did_action( 'jetpack_seo_llms_txt_cleared' ) );
 	}
 
 	/**
@@ -1004,17 +996,17 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Turning llms.txt on purges the edge copy even when nothing is stored here.
+	 * Turning llms.txt on tells hosts to purge cached copies even when nothing is stored here.
 	 *
 	 * @return void
 	 */
-	public function test_turning_llms_txt_on_purges_the_edge_copy_with_nothing_stored() {
-		\Wpcom_Test_Async_Jobs::$queued = array();
+	public function test_turning_llms_txt_on_announces_with_nothing_stored() {
+		$before = did_action( 'jetpack_seo_llms_txt_cleared' );
 		$this->with_write_hooks(
 			static function () {
 				update_option( Llms_Txt::OPTION, true );
 			}
 		);
-		$this->assertCount( 1, \Wpcom_Test_Async_Jobs::$queued );
+		$this->assertSame( $before + 1, did_action( 'jetpack_seo_llms_txt_cleared' ) );
 	}
 }

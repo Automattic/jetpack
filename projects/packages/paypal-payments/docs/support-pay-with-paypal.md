@@ -73,7 +73,7 @@ A live preview appears showing exactly how your button will look on the publishe
 
 Once a block has a saved payment button, selecting it shows the button in the block settings sidebar: its name and price at the top, then **Embed as** and the style settings for that format, then when it was created, its Hosted ID, how many published posts use it, and the maximum quantity when buyers can pick one.
 
-- **Edit:** Open the menu beside the button's name and choose **Edit** to get the product form. Update the details, then click **Save payment button**; update or publish the post so the page shows the new details too. **Edit Button** at the top of the form goes back; a button with something to fix opens on the form instead
+- **Edit:** Click **Edit** in the block toolbar, or open the menu beside the button's name and choose **Edit**, to get the product form. Update the details, then click **Save payment button**; update or publish the post so the page shows the new details too. **Edit Button** at the top of the form goes back; a button with something to fix opens on the form instead
 - **Manage all links and buttons:** Open the menu beside "PayPal Payment Button" at the top of the block settings sidebar and choose **Manage all links and buttons**. It opens the PayPal Payment Buttons admin page in a new tab, so the post you are editing stays where it is
 - **Delete:** Click "Delete payment button" in the block toolbar, choose **Delete** in the menu beside the button's name, or use the Delete action on the PayPal Payment Buttons admin page
 

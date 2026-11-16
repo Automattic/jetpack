@@ -17,6 +17,11 @@ function wpcom_themes_show_banner() {
 		return;
 	}
 
+	// The Marketplace tab lists these themes on the screen itself, so the banner is hidden on every tab.
+	if ( wpcom_themes_tab_enabled() ) {
+		return;
+	}
+
 	$site_slug        = wp_parse_url( home_url(), PHP_URL_HOST );
 	$wpcom_logo       = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
 	$background_image = plugins_url( 'images/banner-background.webp', __FILE__ );
