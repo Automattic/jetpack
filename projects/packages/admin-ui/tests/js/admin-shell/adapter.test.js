@@ -129,7 +129,7 @@ describe( 'renameBootStore', () => {
 
 	it.each( [
 		[ 'missing', `const n="wordpress/booted";${ unlock }` ],
-		[ 'named twice', 'const a="wordpress/boot",b=`wordpress/boot`;' ],
+		[ 'named twice', `const a="wordpress/boot",b=\`wordpress/boot\`;${ unlock }` ],
 	] )( 'refuses a build whose store name is %s', ( _, source ) => {
 		expect( () => renameBootStore( source, 'jetpack-forms' ) ).toThrow( 'exactly once' );
 	} );
