@@ -155,6 +155,7 @@ class Single_Report_Page {
 		$this->id             = $id;
 		$this->path           = self::derive_path( $id );
 		$this->label          = $id;
+		$this->apply_post_type_defaults( is_array( $args ) ? $args : array() );
 		$this->set_props( $args );
 
 		if ( empty( $this->preferences_scope ) ) {
@@ -177,9 +178,16 @@ class Single_Report_Page {
 	/**
 	 * Whether the page is available to the current reader.
 	 *
+	 * A `postType` entity is unavailable unless that type exists with `show_in_rest`,
+	 * because core-data loads only those.
+	 *
 	 * @return bool
 	 */
 	public function is_available() {
+		if ( ! $this->post_type_entity_is_in_rest() ) {
+			return false;
+		}
+
 		if ( null === $this->is_available ) {
 			return Capabilities::current_user_can_view_stats();
 		}
@@ -320,6 +328,52 @@ class Single_Report_Page {
 		if ( array_key_exists( 'header', $args ) ) {
 			$this->header = self::normalize_header( $args['header'] );
 		}
+	}
+
+	/**
+	 * Default path, label and reports page for a `postType` entity, before explicit arguments.
+	 *
+	 * A post type name with an underscore is not a valid path, so that page keeps the id's name.
+	 *
+	 * @param array $args Page arguments.
+	 */
+	private function apply_post_type_defaults( array $args ) {
+		$entity = self::normalize_entity( $args['entity'] ?? null );
+		if ( null === $entity || 'postType' !== $entity['kind'] ) {
+			return;
+		}
+
+		$post_type = get_post_type_object( $entity['name'] );
+		if ( ! $post_type instanceof \WP_Post_Type ) {
+			return;
+		}
+
+		if ( self::is_valid_slug( $post_type->name ) ) {
+			$this->path = $post_type->name;
+		}
+
+		$singular = $post_type->labels->singular_name ?? '';
+		if ( is_string( $singular ) && '' !== $singular ) {
+			$this->label = $singular;
+		}
+
+		$this->scope_param  = 'post_id';
+		$this->reports_page = 'posts';
+	}
+
+	/**
+	 * Whether a `postType` entity is one core-data can load. A page with no such entity passes.
+	 *
+	 * @return bool
+	 */
+	private function post_type_entity_is_in_rest() {
+		if ( ! is_array( $this->entity ) || 'postType' !== ( $this->entity['kind'] ?? '' ) ) {
+			return true;
+		}
+
+		$post_type = get_post_type_object( $this->entity['name'] );
+
+		return $post_type instanceof \WP_Post_Type && ! empty( $post_type->show_in_rest );
 	}
 
 	/**

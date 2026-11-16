@@ -361,6 +361,58 @@ class Single_Report_Page_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_a_post_type_entity_derives_the_page_from_the_post_type() {
+		$page = register_single_report_page(
+			DASHBOARD_NAME,
+			'analytics/page',
+			array(
+				'entity' => array(
+					'kind' => 'postType',
+					'name' => 'page',
+				),
+				'icon'   => 'jpa/page',
+			)
+		);
+
+		$record = $page->to_array();
+
+		$this->assertSame(
+			array(
+				'kind' => 'postType',
+				'name' => 'page',
+			),
+			$record['entity']
+		);
+		$this->assertNull( $record['header'] );
+		$this->assertSame( 'page', $record['path'] );
+		$this->assertSame( get_post_type_object( 'page' )->labels->singular_name, $record['label'] );
+		$this->assertSame( 'post_id', $record['scope_param'] );
+		$this->assertSame( '^[1-9]\d*$', $record['id_pattern'] );
+		$this->assertSame( 'posts', $record['reports_page'] );
+		$this->assertSame( 'jetpack-premium-analytics/page-detail', $record['preferences_scope'] );
+
+		$this->set_admin_user();
+		$this->assertTrue( $page->is_available() );
+	}
+
+	public function test_a_post_type_entity_keeps_an_explicit_path() {
+		$page = register_single_report_page(
+			DASHBOARD_NAME,
+			'analytics/page',
+			array(
+				'entity' => array(
+					'kind' => 'postType',
+					'name' => 'page',
+				),
+				'path'   => 'clip',
+			)
+		);
+
+		$this->assertSame( 'clip', $page->path );
+		$this->assertSame( 'jetpack-premium-analytics/clip-detail', $page->preferences_scope );
+		$this->assertSame( 'posts', $page->reports_page );
+	}
+
 	public function test_the_record_keeps_a_valid_entity_and_header_and_drops_the_rest() {
 		$kept    = register_single_report_page(
 			DASHBOARD_NAME,
@@ -406,6 +458,61 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$this->assertNull( $kept['reports_page'] );
 		$this->assertNull( $dropped['entity'] );
 		$this->assertNull( $dropped['header'] );
+	}
+
+	public function test_an_unknown_post_type_entity_is_registered_and_not_offered() {
+		$page = register_single_report_page(
+			DASHBOARD_NAME,
+			'example/not-a-type',
+			array(
+				'entity' => array(
+					'kind' => 'postType',
+					'name' => 'not-a-type',
+				),
+			)
+		);
+
+		$this->set_admin_user();
+
+		$this->assertSame( 'not-a-type', $page->path );
+		$this->assertSame( 'example/not-a-type', $page->label );
+		$this->assertNull( $page->reports_page );
+		$this->assertFalse( $page->is_available() );
+		$this->assertNotContains( 'example/not-a-type', array_column( get_available_single_report_page_records(), 'id' ) );
+	}
+
+	public function test_a_post_type_without_rest_is_registered_and_not_offered() {
+		register_post_type(
+			'jpa-hidden',
+			array(
+				'public'       => true,
+				'show_in_rest' => false,
+				'labels'       => array( 'singular_name' => 'Hidden' ),
+			)
+		);
+
+		try {
+			$page = register_single_report_page(
+				DASHBOARD_NAME,
+				'example/jpa-hidden',
+				array(
+					'entity' => array(
+						'kind' => 'postType',
+						'name' => 'jpa-hidden',
+					),
+				)
+			);
+
+			$this->set_admin_user();
+
+			$this->assertSame( 'jpa-hidden', $page->path );
+			$this->assertSame( 'Hidden', $page->label );
+			$this->assertSame( 'posts', $page->reports_page );
+			$this->assertFalse( $page->is_available() );
+			$this->assertNotContains( 'example/jpa-hidden', array_column( get_available_single_report_page_records(), 'id' ) );
+		} finally {
+			unregister_post_type( 'jpa-hidden' );
+		}
 	}
 
 	public function test_the_rest_schema_names_every_record_and_section_field() {
