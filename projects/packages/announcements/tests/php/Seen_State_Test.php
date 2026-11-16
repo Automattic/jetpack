@@ -75,7 +75,7 @@ class Seen_State_Test extends BaseTestCase {
 			$this->user_id,
 			Seen_State::META_KEY,
 			array(
-				'a/no-key',
+				0           => 'a/no-key',
 				'a/no-date' => 'yesterday',
 				'a/first'   => 1000,
 			)
