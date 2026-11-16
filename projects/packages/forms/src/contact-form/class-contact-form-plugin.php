@@ -3958,7 +3958,17 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Store notes on feedback posts unapproved, so they stay out of public comment listings.
+	 * Whether a post ID belongs to a feedback post.
+	 *
+	 * @param mixed $post_id Post ID.
+	 * @return bool
+	 */
+	private static function is_feedback_post( $post_id ) {
+		return ! empty( $post_id ) && Feedback::POST_TYPE === get_post_type( (int) $post_id );
+	}
+
+	/**
+	 * Store notes on feedback posts unapproved; reads are gated by the endpoint, not by this status.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -3967,11 +3977,7 @@ class Contact_Form_Plugin {
 	 * @return int|string|\WP_Error
 	 */
 	public function hold_feedback_notes( $approved, $commentdata ) {
-		if ( is_wp_error( $approved ) || empty( $commentdata['comment_post_ID'] ) ) {
-			return $approved;
-		}
-
-		if ( 'feedback' !== get_post_type( (int) $commentdata['comment_post_ID'] ) ) {
+		if ( is_wp_error( $approved ) || ! self::is_feedback_post( $commentdata['comment_post_ID'] ?? 0 ) ) {
 			return $approved;
 		}
 
@@ -3990,7 +3996,7 @@ class Contact_Form_Plugin {
 	 * @return array|\WP_Error
 	 */
 	public function set_feedback_note_type( $commentdata ) {
-		if ( is_array( $commentdata ) && ! empty( $commentdata['comment_post_ID'] ) && 'feedback' === get_post_type( (int) $commentdata['comment_post_ID'] ) ) {
+		if ( is_array( $commentdata ) && self::is_feedback_post( $commentdata['comment_post_ID'] ?? 0 ) ) {
 			$commentdata['comment_type'] = Feedback::NOTE_COMMENT_TYPE;
 		}
 
@@ -4013,8 +4019,7 @@ class Contact_Form_Plugin {
 			return;
 		}
 
-		$query->query_vars['type__not_in']   = (array) $query->query_vars['type__not_in'];
-		$query->query_vars['type__not_in'][] = Feedback::NOTE_COMMENT_TYPE;
+		$query->query_vars['type__not_in'] = array_merge( (array) $query->query_vars['type__not_in'], array( Feedback::NOTE_COMMENT_TYPE ) );
 	}
 
 	/**
@@ -4029,11 +4034,7 @@ class Contact_Form_Plugin {
 	public function skip_moderation_email_for_feedback_notes( $maybe_notify, $comment_id ) {
 		$comment = get_comment( $comment_id );
 
-		if ( $comment && 'feedback' === get_post_type( (int) $comment->comment_post_ID ) ) {
-			return false;
-		}
-
-		return $maybe_notify;
+		return $comment && Feedback::NOTE_COMMENT_TYPE === $comment->comment_type ? false : $maybe_notify;
 	}
 
 	/**
