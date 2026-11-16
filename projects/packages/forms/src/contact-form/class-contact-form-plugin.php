@@ -246,6 +246,8 @@ class Contact_Form_Plugin {
 
 		// Restrict feedback comments to logged-in users only
 		add_filter( 'comments_open', array( $this, 'restrict_feedback_comments_to_logged_in' ), 10, 2 );
+		add_filter( 'pre_comment_approved', array( $this, 'hold_feedback_notes' ), 10, 2 );
+		add_filter( 'notify_moderator', array( $this, 'skip_moderation_email_for_feedback_notes' ), 10, 2 );
 
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type(
@@ -3950,6 +3952,47 @@ class Contact_Form_Plugin {
 		// For feedback posts, comments are always open for users that can read pages.
 		// regardless of comment_status (which we use for read/unread tracking).
 		return current_user_can( 'edit_pages' );
+	}
+
+	/**
+	 * Store notes on feedback posts unapproved, so they stay out of public comment listings.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|string|\WP_Error $approved    The approval status.
+	 * @param array                $commentdata Comment data.
+	 * @return int|string|\WP_Error
+	 */
+	public function hold_feedback_notes( $approved, $commentdata ) {
+		if ( is_wp_error( $approved ) || empty( $commentdata['comment_post_ID'] ) ) {
+			return $approved;
+		}
+
+		if ( 'feedback' !== get_post_type( (int) $commentdata['comment_post_ID'] ) ) {
+			return $approved;
+		}
+
+		// Keep spam and trash verdicts.
+		return 1 === (int) $approved ? 0 : $approved;
+	}
+
+	/**
+	 * Don't email moderators about notes, which are held by design rather than awaiting review.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $maybe_notify Whether to notify the moderators.
+	 * @param int  $comment_id   Comment ID.
+	 * @return bool
+	 */
+	public function skip_moderation_email_for_feedback_notes( $maybe_notify, $comment_id ) {
+		$comment = get_comment( $comment_id );
+
+		if ( $comment && 'feedback' === get_post_type( (int) $comment->comment_post_ID ) ) {
+			return false;
+		}
+
+		return $maybe_notify;
 	}
 
 	/**

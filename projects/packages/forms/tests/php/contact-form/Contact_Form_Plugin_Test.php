@@ -1894,6 +1894,43 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Notes on responses are never stored approved.
+	 *
+	 * @dataProvider provide_note_approvals
+	 *
+	 * @param string     $post_type Post type the comment is left on.
+	 * @param int|string $approved  Approval status core computed.
+	 * @param int|string $expected  Approval status that should be stored.
+	 */
+	#[DataProvider( 'provide_note_approvals' )]
+	public function test_feedback_notes_are_held( $post_type, $approved, $expected ) {
+		Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => $post_type,
+				'post_status' => 'publish',
+			)
+		);
+
+		$result = apply_filters( 'pre_comment_approved', $approved, array( 'comment_post_ID' => $post_id ) );
+
+		$this->assertSame( $expected, $result );
+	}
+
+	/**
+	 * Post type, computed approval and the approval that should be stored.
+	 *
+	 * @return array
+	 */
+	public static function provide_note_approvals() {
+		return array(
+			'approved note is held'          => array( 'feedback', 1, 0 ),
+			'spam note stays spam'           => array( 'feedback', 'spam', 'spam' ),
+			'regular post comment untouched' => array( 'post', 1, 1 ),
+		);
+	}
+
+	/**
 	 * Test track_feedback_status_change sets spam meta when transitioning to spam
 	 */
 	public function test_track_feedback_status_change_sets_spam_meta() {
