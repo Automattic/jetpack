@@ -51,19 +51,15 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		isLoadingComments,
 	} = useSelect(
 		select => {
+			// Notes are stored unapproved so they stay private; core only returns approved ones by default.
+			const query = { per_page: perPage, page, post: postId, status: 'hold' };
 			const commentsData = select( coreStore ).getEntityRecords( 'root', 'comment', {
-				per_page: perPage,
-				page,
+				...query,
 				orderby: 'date',
 				order: 'asc',
-				post: postId,
 			} ) as FeedbackComment[] | null | undefined;
 
-			const total = select( coreStore ).getEntityRecordsTotalItems( 'root', 'comment', {
-				per_page: perPage,
-				page,
-				post: postId,
-			} );
+			const total = select( coreStore ).getEntityRecordsTotalItems( 'root', 'comment', query );
 
 			return {
 				comments: commentsData,

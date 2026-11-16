@@ -1699,6 +1699,28 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Check whether the current user can read a feedback post.
+	 *
+	 * Core's comments controller also calls this to decide who may read a response's notes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return bool
+	 */
+	public function check_read_permission( $post ) {
+		if ( 'feedback' !== $post->post_type ) {
+			return parent::check_read_permission( $post );
+		}
+
+		if ( is_super_admin() ) {
+			return true;
+		}
+
+		return current_user_can( 'edit_pages' ) && is_user_member_of_blog( get_current_user_id(), get_current_blog_id() );
+	}
+
+	/**
 	 * Get static metadata for an integration (without status checks).
 	 *
 	 * @param string $slug Integration slug.
