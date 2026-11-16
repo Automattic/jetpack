@@ -71,7 +71,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 				'date'       => '2026-11-20T10:00:00+02:00',
 				'title'      => 'Arrange <b>your</b> tabs',
 				'excerpt'    => "Put the tabs you use most\nfirst.",
-				'content'    => '<p>Open <a href="https://example.com/">Settings</a>.</p><script>alert( 1 )</script>',
+				'content'    => '<p onclick="alert( 1 )">Open <a href="https://example.com/">Settings</a>.</p>',
 				'media'      => array(
 					'type' => 'image',
 					'url'  => 'https://example.com/tabs.png',
@@ -89,7 +89,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 				'date'       => '2026-11-20T08:00:00+00:00',
 				'title'      => 'Arrange your tabs',
 				'excerpt'    => 'Put the tabs you use most first.',
-				'content'    => '<p>Open <a href="https://example.com/">Settings</a>.</p>alert( 1 )',
+				'content'    => '<p>Open <a href="https://example.com/">Settings</a>.</p>',
 				'media'      => array(
 					'type' => 'image',
 					'url'  => 'https://example.com/tabs.png',
