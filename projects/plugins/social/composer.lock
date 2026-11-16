@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "654b89c6ccb8f184415abbf868231609",
+    "content-hash": "d261ed044c68062bbaf56ad0f5b09e53",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2441,7 +2441,8 @@
                 "issues": "https://github.com/Brain-WP/BrainMonkey/issues",
                 "source": "https://github.com/Brain-WP/BrainMonkey"
             },
-            "time": "2026-02-05T09:22:14+00:00"
+            "time": "2026-02-05T09:22:14+00:00",
+            "published-time": "2026-02-05T09:30:04+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -4358,7 +4359,8 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2025-02-09T18:58:54+00:00"
+            "time": "2025-02-09T18:58:54+00:00",
+            "published-time": "2025-02-09T19:10:16+00:00"
         }
     ],
     "aliases": [],
