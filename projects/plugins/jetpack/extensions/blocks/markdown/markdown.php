@@ -80,7 +80,7 @@ function make_content_email_safe( $html ) {
 		$processor->set_attribute( 'style', '' === $existing ? $styles[ $tag ] : $existing . '; ' . $styles[ $tag ] );
 
 		// Outlook's Word engine may ignore a table's CSS width, but it reads this attribute.
-		if ( 'TABLE' === $tag && null === $processor->get_attribute( 'width' ) ) {
+		if ( 'TABLE' === $tag ) {
 			$processor->set_attribute( 'width', '100%' );
 		}
 	}

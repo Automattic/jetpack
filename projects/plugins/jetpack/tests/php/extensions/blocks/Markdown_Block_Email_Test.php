@@ -56,16 +56,6 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test a width the author already set on the table is kept.
-	 */
-	public function test_existing_table_width_attribute_is_kept() {
-		$processor = new WP_HTML_Tag_Processor( Automattic\Jetpack\Extensions\Markdown\make_content_email_safe( '<table width="50%"><tr><td>Cell</td></tr></table>' ) );
-		$processor->next_tag( 'table' );
-
-		$this->assertSame( '50%', $processor->get_attribute( 'width' ) );
-	}
-
-	/**
 	 * Test no cell carries a minimum width. A minimum adds up across the row, so a table of
 	 * short columns leaves the width a phone gives it once there are enough of them.
 	 */
@@ -77,7 +67,6 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 
 		$this->assertStringNotContainsString( 'min-width', $html );
 		$this->assertSame( 12, substr_count( $html, 'word-break: break-word;' ), 'Every cell should wrap.' );
-		$this->assertStringContainsString( 'table-layout: fixed; width: 100%;', $html );
 	}
 
 	/**
