@@ -91,6 +91,27 @@ const spikeSeries = recover => [
  * serve a 404 for every metric).
  */
 const SCENARIOS = {
+	digestLayout: () => ( {
+		metrics: [
+			metricRow( 301, 'Forms: LCP', 'forms-responses-connection-sim-largestContentfulPaint' ),
+			{
+				...metricRow( 401, 'Forms: page weight', 'forms-responses-connection-sim-decodedBytesKB' ),
+				unit: 'KB',
+			},
+			{
+				...metricRow( 402, 'My Jetpack: page weight', 'my-jetpack-connection-sim-decodedBytesKB' ),
+				unit: 'KB',
+			},
+			metricRow( 403, 'My Jetpack: TTFB', 'my-jetpack-connection-sim-timeToFirstByte' ),
+		],
+		series: {
+			301: spikeSeries( false ),
+			401: levelSeries( Array( 10 ).fill( 10000 ), 12000, Array( 10 ).fill( 12000 ), 'forms' ),
+			402: levelSeries( Array( 10 ).fill( 10000 ), 12000, Array( 10 ).fill( 12000 ), 'my' ),
+			403: levelSeries( Array( 10 ).fill( 100 ), 120, Array( 5 ).fill( 120 ), 'ttfb' ),
+		},
+		no302: true,
+	} ),
 	backend: () => ( {
 		metrics: [
 			{ ...metricRow( 401, 'PHP total', 'admin-wp-total-staging' ), unit: 'ms' },
@@ -1322,6 +1343,59 @@ async function runDigest( scenario, envOverrides = {}, opts = {} ) {
 	}
 }
 
+test( 'Forms and My Jetpack page weight lead the digest and notification', async () => {
+	const result = await runDigest( 'digestLayout' );
+	assert.equal( result.code, 0, result.err );
+	const payload = JSON.parse( result.out );
+	const texts = payload.blocks.map( b => b.text?.text ?? '' );
+	const headline = texts.indexOf( '*Page weight — Forms and My Jetpack*' );
+	const diagnostics = texts.indexOf( '*Diagnostics*' );
+	assert.equal( headline, 2 );
+	for ( const name of [ 'Forms: page weight', 'My Jetpack: page weight' ] ) {
+		const row = texts.findIndex( text => text.startsWith( `• *${ name }*` ) );
+		assert.ok( row > headline && row < diagnostics, texts.join( '\n' ) );
+		assert.ok( payload.text.indexOf( name ) < payload.text.indexOf( 'Forms: LCP' ), payload.text );
+	}
+} );
+
+test( 'timings appear under diagnostics with the measurement caveat', async () => {
+	const result = await runDigest( 'digestLayout' );
+	assert.equal( result.code, 0, result.err );
+	const payload = JSON.parse( result.out );
+	const texts = payload.blocks.map( b => b.text?.text ?? '' );
+	const diagnostics = texts.indexOf( '*Diagnostics*' );
+	const caveat = 'Timings: warm reload, test site with default data, simulated connection.';
+	assert.equal( texts[ diagnostics + 1 ], caveat );
+	assert.equal( texts.filter( text => text === caveat ).length, 1 );
+	assert.ok( payload.text.includes( `Diagnostics — ${ caveat }` ), payload.text );
+	assert.ok(
+		payload.text.indexOf( 'Forms: LCP' ) > payload.text.indexOf( 'Diagnostics' ),
+		payload.text
+	);
+	for ( const name of [ 'Forms: LCP', 'My Jetpack: TTFB' ] ) {
+		assert.ok( texts.findIndex( text => text.includes( `*${ name }*` ) ) > diagnostics );
+	}
+} );
+
+test( 'alerts describe observed comparison ranges and label flags as observations', async () => {
+	for ( const [ scenario, start, end ] of [
+		[ 'levelstep', 'level0', 'level20' ],
+		[ 'shorttail', 'level0', 'level19' ],
+		[ 'groupedPending', 'tail10', 'tail30' ],
+	] ) {
+		const result = await runDigest( scenario );
+		assert.equal( result.code, 0, result.err );
+		const text = JSON.parse( result.out )
+			.blocks.map( b => b.text?.text ?? '' )
+			.join( '\n' );
+		const range = text.match(
+			/observed between <[^|]+\/([a-f0-9]{40})\|[^>]+> and <[^|]+\/([a-f0-9]{40})\|/
+		);
+		assert.deepEqual( range?.slice( 1 ), [ hx( start ), hx( end ) ], text );
+		assert.match( text, /flags? observed at/ );
+	}
+} );
+
 test( 'digest discovers backend staging metrics and renders their service units', async () => {
 	const result = await runDigest( 'backend', { METRIC_IDS: '' } );
 	assert.equal( result.code, 0, result.err );
@@ -1569,7 +1643,10 @@ test( 'older rows fit the Slack text limit without cutting links and count omitt
 		.text;
 	assert.ok( text.length <= 3000, text.length );
 	const hidden = Number( text.match( /and (\d+) more/ )[ 1 ] );
-	assert.equal( ( text.match( /<https:[^>]+\/commit\/[^>]+>/g ) || [] ).length, 12 - hidden );
+	assert.equal(
+		( text.match( /<https:[^>]+\/commit\/[^>]+>/g ) || [] ).length,
+		3 * ( 12 - hidden )
+	);
 	assert.equal(
 		( text.match( /<https:/g ) || [] ).length,
 		( text.match( /\|[^>]+>/g ) || [] ).length
@@ -1585,8 +1662,8 @@ test( 'an oversize older row does not hide the other rows and is counted as omit
 	for ( const i of [ 1, 2 ] ) assert.ok( text.includes( hx( 'lcf' + i ) ), text );
 	assert.ok( ! text.includes( hx( 'lcf0' ) ), text );
 	assert.ok( text.includes( 'and 1 more' ), text );
-	assert.equal( ( text.match( /<https:/g ) || [] ).length, 4 );
-	assert.equal( ( text.match( /\|[^>]+>/g ) || [] ).length, 4 );
+	assert.equal( ( text.match( /<https:/g ) || [] ).length, 8 );
+	assert.equal( ( text.match( /\|[^>]+>/g ) || [] ).length, 8 );
 } );
 
 test( 'ordinary mixed-length overflow keeps the newest contiguous older rows', async () => {
@@ -1595,9 +1672,9 @@ test( 'ordinary mixed-length overflow keeps the newest contiguous older rows', a
 	const text = JSON.parse( r.out ).blocks.find( b => b.text?.text.includes( '*8 older' ) ).text
 		.text;
 	assert.ok( text.length <= 3000, text.length );
-	for ( const i of [ 0, 1, 2, 3 ] ) assert.ok( text.includes( hx( 'lcf' + i ) ), text );
-	for ( const i of [ 4, 5, 6, 7 ] ) assert.ok( ! text.includes( hx( 'lcf' + i ) ), text );
-	assert.ok( text.includes( 'and 4 more' ), text );
+	for ( const i of [ 0, 1, 2 ] ) assert.ok( text.includes( hx( 'lcf' + i ) ), text );
+	for ( const i of [ 3, 4, 5, 6, 7 ] ) assert.ok( ! text.includes( hx( 'lcf' + i ) ), text );
+	assert.ok( text.includes( 'and 5 more' ), text );
 } );
 
 test( 'older bucket reports age and possible repetition', async () => {
@@ -2100,7 +2177,7 @@ const CASES = [
 		n: 'late-crowd-capped-with-count',
 		sc: 'latecrowd',
 		exit: 0,
-		out: [ '*12 older confirmed changes*', 'and 4 more' ],
+		out: [ '*12 older confirmed changes*', 'and 7 more' ],
 	},
 	{
 		n: 'zero-pair-base-does-not-confirm-flat-medians',
@@ -2398,10 +2475,7 @@ test( 'notification fallback names older confirmed changes and disables mrkdwn/u
 	assert.strictEqual( payload.mrkdwn, false );
 	assert.strictEqual( payload.unfurl_links, false );
 	assert.strictEqual( payload.unfurl_media, false );
-	assert.ok(
-		payload.text.includes( '1 older confirmed change (may repeat): Alpha: TTFB' ),
-		payload.text
-	);
+	assert.ok( payload.text.includes( 'Older confirmed (may repeat): Alpha: TTFB' ), payload.text );
 	// Asserted on payload.text itself, not the whole serialized output, so a block naming the
 	// metric can never satisfy this in the fallback's place.
 	const current = await runDigest( 'confirmed' );
@@ -2616,8 +2690,8 @@ test( 'the worst week stays inside the 50-block Slack ceiling', async () => {
 			`${ needle } missing from:\n${ texts.join( '\n' ) }`
 		);
 	}
-	// 35 regression lines + 12 wrappers leave three blocks below Slack's limit.
-	assert.strictEqual( payload.blocks.length, 47, texts.join( '\n' ) );
+	// The category headings share the block budget with the regression rows.
+	assert.strictEqual( payload.blocks.length, 50, texts.join( '\n' ) );
 	assert.ok( payload.blocks.length <= 50, 'Slack rejects a message over 50 blocks' );
 } );
 
