@@ -2,8 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { useStatsSettings } from '../use-stats-settings';
 
 type Site = {
-	stats_options?: { admin_bar: boolean; roles: string[]; count_roles: string[] };
-	wpcom_reader_views_enabled?: boolean;
+	stats_options?: { admin_bar?: boolean; roles?: string[]; count_roles?: string[] };
 };
 
 const mockSite: {
@@ -69,7 +68,6 @@ describe( 'useStatsSettings', () => {
 	beforeEach( () => {
 		mockSite.stored = {
 			stats_options: { admin_bar: true, roles: [ 'administrator' ], count_roles: [] },
-			wpcom_reader_views_enabled: true,
 		};
 		mockSite.edits = {};
 		mockSite.saves = [];
@@ -77,14 +75,14 @@ describe( 'useStatsSettings', () => {
 
 	it.each( [
 		[
-			'loads the Reader setting alone when the site offers only it',
-			{ wpcom_reader_views_enabled: false },
-			[ 'wpcom_reader_views_enabled' ] as const,
+			'loads the admin bar setting alone when the site offers only it',
+			{ stats_options: { admin_bar: false } },
+			[ 'admin_bar' ] as const,
 			false,
 		],
 		[
 			'reports an error when the site leaves out a setting it offers',
-			{ wpcom_reader_views_enabled: false },
+			{ stats_options: { admin_bar: false } },
 			undefined,
 			true,
 		],
@@ -119,12 +117,12 @@ describe( 'useStatsSettings', () => {
 		const { result } = renderHook( () => useStatsSettings() );
 
 		const first = result.current.saveChange( { admin_bar: false } );
-		result.current.saveChange( { wpcom_reader_views_enabled: false } );
+		result.current.saveChange( { count_roles: [ 'editor' ] } );
 		await sent();
 		mockSite.saves[ 0 ].reject( new Error( 'refused' ) );
 		await expect( first ).rejects.toThrow( 'refused' );
 
-		expect( mockEdited().wpcom_reader_views_enabled ).toBe( false );
+		expect( mockEdited().stats_options?.count_roles ).toEqual( [ 'editor' ] );
 	} );
 
 	it( 'keeps a newer pending edit to the same setting when an earlier save fails', async () => {
