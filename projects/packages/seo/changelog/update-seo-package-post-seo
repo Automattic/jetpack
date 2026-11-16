@@ -1,5 +1,4 @@
 Significance: patch
-Type: changed
-Comment: Own the per-post description and schema type logic, and remove Query Loop blocks with the block scanner helper; no change in behaviour.
+Type: fixed
 
-
+Schema: Stop including Query Loop block text in the Article description when Open Graph tags are off.
