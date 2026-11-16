@@ -25,10 +25,14 @@ class Announcements {
 	 * Always the minified bundle: a production build replaces the other one with a stub.
 	 * Its classic script dependencies are not enqueued, as wp-build leaves them to the page.
 	 *
+	 * @param string $asset_file Optional. Asset file of the built module. Defaults to the package's own.
 	 * @return void
 	 */
-	public static function register_script_module() {
-		$asset_file = dirname( __DIR__ ) . '/build/modules/whats-new/index.min.asset.php';
+	public static function register_script_module( $asset_file = '' ) {
+		if ( '' === $asset_file ) {
+			$asset_file = dirname( __DIR__ ) . '/build/modules/whats-new/index.min.asset.php';
+		}
+
 		if ( ! file_exists( $asset_file ) ) {
 			return;
 		}

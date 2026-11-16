@@ -1,6 +1,6 @@
 <?php
 /**
- * Action Hooks for the Jetpack Announcements package.
+ * Bootstrap of the Jetpack Announcements package.
  *
  * @package automattic/jetpack-announcements
  */

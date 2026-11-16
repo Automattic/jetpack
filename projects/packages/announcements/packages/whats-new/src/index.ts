@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { createElement, createRoot } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import { WhatsNew } from './components';
 import { ensureAnnouncementEntity } from './hooks';
+import { loadTranslations } from './load-translations';
 import type * as Contract from '@automattic/jetpack-announcements';
 
 let ready: Promise< void > | undefined;
@@ -40,9 +40,7 @@ function render(): void {
  */
 export const mountWhatsNew: typeof Contract.mountWhatsNew = options => {
 	latestOptions = options;
-	ready ??= loadI18nCatalogs( 'jetpack-announcements', import.meta.url ).then(
-		ensureAnnouncementEntity
-	);
+	ready ??= loadTranslations().then( ensureAnnouncementEntity );
 
 	void ready.then( render );
 };
