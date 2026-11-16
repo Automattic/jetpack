@@ -37,7 +37,7 @@ class Blogroll_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The OPML lists every item with a feed once, also from nested blogrolls.
+	 * The OPML lists every valid feed once, also from nested blogrolls.
 	 */
 	public function test_get_opml() {
 		$feed    = self::item(
@@ -53,6 +53,19 @@ class Blogroll_Test extends \WP_UnitTestCase {
 				'url'  => 'https://nofeed.example/',
 			)
 		);
+		$bad     = self::item(
+			array(
+				'name'     => 'Bad feed',
+				'url'      => 'https://bad.example/',
+				'feed_url' => 'javascript:alert(1)',
+			)
+		);
+		$no_site = self::item(
+			array(
+				'name'     => 'No site',
+				'feed_url' => 'https://nosite.example/feed',
+			)
+		);
 		$nested  = self::item(
 			array(
 				'name'     => 'Nested',
@@ -64,19 +77,24 @@ class Blogroll_Test extends \WP_UnitTestCase {
 			array(
 				'name'     => 'Duplicate',
 				'url'      => 'https://feed.example/',
-				'feed_url' => 'https://feed.example/feed/',
+				'feed_url' => 'http://feed.example/feed',
 			)
 		);
 		$post    = self::factory()->post->create_and_get(
 			array(
 				'post_title'   => 'Sites I read',
 				'post_content' => wp_slash(
-					self::blogroll( $feed . $no_feed ) . '<!-- wp:group --><div class="wp-block-group">' . self::blogroll( $nested . $dupe ) . '</div><!-- /wp:group -->'
+					self::blogroll( $feed . $no_feed . $bad . $no_site ) . '<!-- wp:group --><div class="wp-block-group">' . self::blogroll( $nested . $dupe ) . '</div><!-- /wp:group -->'
 				),
 			)
 		);
 
+		$span_title = function ( $title ) {
+			return '<span class="icon"></span>' . $title;
+		};
+		add_filter( 'the_title', $span_title );
 		$opml = simplexml_load_string( Blogroll\get_opml( $post ) );
+		remove_filter( 'the_title', $span_title );
 
 		$this->assertNotFalse( $opml );
 		$this->assertSame( 'Sites I read', (string) $opml->head->title );
@@ -87,7 +105,7 @@ class Blogroll_Test extends \WP_UnitTestCase {
 				'type'    => (string) $outline['type'],
 				'text'    => (string) $outline['text'],
 				'xmlUrl'  => (string) $outline['xmlUrl'],
-				'htmlUrl' => (string) $outline['htmlUrl'],
+				'htmlUrl' => isset( $outline['htmlUrl'] ) ? (string) $outline['htmlUrl'] : null,
 			);
 		}
 
@@ -98,6 +116,12 @@ class Blogroll_Test extends \WP_UnitTestCase {
 					'text'    => 'Feed & Co',
 					'xmlUrl'  => 'https://feed.example/feed/',
 					'htmlUrl' => 'https://feed.example/',
+				),
+				array(
+					'type'    => 'rss',
+					'text'    => 'No site',
+					'xmlUrl'  => 'https://nosite.example/feed',
+					'htmlUrl' => null,
 				),
 				array(
 					'type'    => 'rss',
@@ -135,6 +159,7 @@ class Blogroll_Test extends \WP_UnitTestCase {
 
 		return array(
 			'published with blogroll' => array( array( 'post_content' => $content ), true ),
+			'blogroll without feeds'  => array( array( 'post_content' => self::blogroll( self::item( array( 'name' => 'No feed' ) ) ) ), false ),
 			'without blogroll'        => array( array( 'post_content' => '<!-- wp:paragraph --><p>Hi</p><!-- /wp:paragraph -->' ), false ),
 			'draft'                   => array(
 				array(
@@ -157,7 +182,7 @@ class Blogroll_Test extends \WP_UnitTestCase {
 	 * The discovery link is printed on a post with a blogroll only.
 	 */
 	public function test_print_opml_link() {
-		$with    = self::factory()->post->create( array( 'post_content' => self::blogroll( '' ) ) );
+		$with    = self::factory()->post->create( array( 'post_content' => self::blogroll( self::item( array( 'feed_url' => 'https://feed.example/feed/' ) ) ) ) );
 		$without = self::factory()->post->create( array( 'post_content' => 'Hi' ) );
 
 		$this->go_to( get_permalink( $with ) );
