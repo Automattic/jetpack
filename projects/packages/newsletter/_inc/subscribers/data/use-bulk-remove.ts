@@ -55,7 +55,7 @@ export function useBulkRemoveStatus( enabled = true, onFinished?: ( job: BulkRem
 		// The shared client skips focus refetches; catch a removal started in another tab, but only
 		// when removal is on for the site or a job is running.
 		refetchOnWindowFocus: q =>
-			q.state.data?.enabled === true || isBulkRemoveActive( q.state.data?.job ) ? 'always' : false,
+			q.state.data?.enabled || isBulkRemoveActive( q.state.data?.job ) ? 'always' : false,
 	} );
 
 	const job = query.data?.job ?? null;

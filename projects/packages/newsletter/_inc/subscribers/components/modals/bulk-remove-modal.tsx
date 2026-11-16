@@ -275,20 +275,20 @@ export default function BulkRemoveModal( {
 		);
 	}
 
+	const confirmButtonText = countsReady
+		? sprintf(
+				// translators: %s: number of subscribers.
+				_n( 'Remove %s subscriber', 'Remove %s subscribers', total, 'jetpack-newsletter' ),
+				formatNumber( total )
+			)
+		: __( 'Remove subscribers', 'jetpack-newsletter' );
+
 	return (
 		<AlertDialog.Root open onOpenChange={ handleOpenChange } onConfirm={ handleConfirm }>
 			<AlertDialog.Popup
 				intent="irreversible"
 				title={ countsReady ? title : __( 'Remove subscribers?', 'jetpack-newsletter' ) }
-				confirmButtonText={
-					countsReady
-						? sprintf(
-								// translators: %s: number of subscribers.
-								_n( 'Remove %s subscriber', 'Remove %s subscribers', total, 'jetpack-newsletter' ),
-								formatNumber( total )
-							)
-						: __( 'Remove subscribers', 'jetpack-newsletter' )
-				}
+				confirmButtonText={ confirmButtonText }
 				cancelButtonText={ __( 'Cancel', 'jetpack-newsletter' ) }
 			>
 				{ counts.isLoading || counts.isFetching || counts.isPaused ? (
