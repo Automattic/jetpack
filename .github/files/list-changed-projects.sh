@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# CI benchmark, no functional change.
 set -eo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"/../..

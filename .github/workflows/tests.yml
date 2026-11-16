@@ -1,4 +1,5 @@
 name: Tests
+# CI benchmark, no functional change.
 
 on:
   pull_request:
