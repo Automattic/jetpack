@@ -1925,7 +1925,7 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	}
 
 	/**
-	 * Only users who can manage responses may read a response's notes.
+	 * Only users who can manage responses may read a response's notes, using the dashboard's query.
 	 *
 	 * @dataProvider provide_note_readers
 	 *
@@ -1954,7 +1954,13 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		wp_set_current_user( $user_id );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/comments' );
-		$request->set_param( 'post', $feedback_id );
+		$request->set_query_params(
+			array(
+				'post'   => $feedback_id,
+				'status' => 'all',
+				'type'   => Feedback::NOTE_COMMENT_TYPE,
+			)
+		);
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( $expected_status, $response->get_status() );

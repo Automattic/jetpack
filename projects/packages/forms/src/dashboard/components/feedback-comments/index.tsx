@@ -52,13 +52,13 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		isLoadingComments,
 	} = useSelect(
 		select => {
-			// Notes are stored held and with their own type, and core returns neither unless asked.
+			// Notes have their own type, which core only returns when asked. `all` also keeps a note a moderator approved.
 			// One shared query so the total comes from the same request as the records.
 			const query = {
 				per_page: perPage,
 				page,
 				post: postId,
-				status: 'hold',
+				status: 'all',
 				type: NOTE_COMMENT_TYPE,
 				orderby: 'date',
 				order: 'asc',
