@@ -1,4 +1,5 @@
 import { formatNumber } from '@automattic/number-formatters';
+import { speak } from '@wordpress/a11y';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -75,11 +76,14 @@ export default function BulkRemoveModal( {
 
 	const [ typed, setTyped ] = useState( '' );
 	const [ csvDownloaded, setCsvDownloaded ] = useState( false );
+	// Set when confirm is clicked before the count arrives, cleared once it does.
+	const [ clickedWhileCounting, setClickedWhileCounting ] = useState( false );
 	const start = useStartBulkRemoveMutation();
 
 	useEffect( () => {
 		setTyped( '' );
 		setCsvDownloaded( false );
+		setClickedWhileCounting( false );
 		if ( isOpen ) {
 			recordTracksEvent( 'jetpack_subscribers_bulk_remove_modal_showed', {
 				scope: isAll ? 'all' : 'matching',
@@ -119,6 +123,11 @@ export default function BulkRemoveModal( {
 			inputRef.current?.focus();
 		}
 	}, [ isAll, countsReady ] );
+	useEffect( () => {
+		if ( countsReady ) {
+			setClickedWhileCounting( false );
+		}
+	}, [ countsReady ] );
 
 	const handleOpenChange = useCallback(
 		( nextOpen: boolean ) => {
@@ -132,25 +141,28 @@ export default function BulkRemoveModal( {
 		[ isAll, onClose ]
 	);
 
+	const countFailedMessage = __(
+		'Could not count your subscribers. Close this and try again.',
+		'jetpack-newsletter'
+	);
+	const stillCountingMessage = __(
+		'Still counting your subscribers. Try again in a moment.',
+		'jetpack-newsletter'
+	);
+
 	const handleConfirm = useCallback( async () => {
-		if ( counts.isError && counts.fetchStatus === 'idle' ) {
-			return {
-				close: false,
-				error: __(
-					'Could not count your subscribers. Close this and try again.',
-					'jetpack-newsletter'
-				),
-			};
+		// AlertDialog cannot disable its confirm button, so say why nothing happened. These two
+		// messages go in the dialog body, not the footer error, which stays up until the next
+		// click and would go stale once the count arrives.
+		if ( counts.isError && ! counts.isFetching ) {
+			// The body already shows this failure, so only announce it.
+			speak( countFailedMessage, 'assertive' );
+			return { close: false };
 		}
 		if ( ! counts.data || ! countsReady ) {
-			// AlertDialog cannot disable its confirm button, so say why nothing happened.
-			return {
-				close: false,
-				error: __(
-					'Still counting your subscribers. Try again in a moment.',
-					'jetpack-newsletter'
-				),
-			};
+			setClickedWhileCounting( true );
+			speak( stillCountingMessage, 'assertive' );
+			return { close: false };
 		}
 		if ( total < 1 ) {
 			return {
@@ -213,7 +225,20 @@ export default function BulkRemoveModal( {
 					error?.message || __( 'Could not start removing subscribers.', 'jetpack-newsletter' ),
 			};
 		}
-	}, [ counts, countsReady, total, paid, typed, isAll, csvDownloaded, start, query, onClose ] );
+	}, [
+		counts,
+		countsReady,
+		countFailedMessage,
+		stillCountingMessage,
+		total,
+		paid,
+		typed,
+		isAll,
+		csvDownloaded,
+		start,
+		query,
+		onClose,
+	] );
 
 	if ( ! isOpen ) {
 		return null;
@@ -302,17 +327,14 @@ export default function BulkRemoveModal( {
 			>
 				{ counts.isLoading || counts.isFetching || counts.isPaused ? (
 					<Text variant="body-md">
-						{ __( 'Counting your subscribers…', 'jetpack-newsletter' ) }
+						{ clickedWhileCounting
+							? stillCountingMessage
+							: __( 'Counting your subscribers…', 'jetpack-newsletter' ) }
 					</Text>
 				) : null }
 				{ counts.isError ? (
 					<Notice.Root intent="error">
-						<Notice.Description>
-							{ __(
-								'Could not count your subscribers. Close this and try again.',
-								'jetpack-newsletter'
-							) }
-						</Notice.Description>
+						<Notice.Description>{ countFailedMessage }</Notice.Description>
 					</Notice.Root>
 				) : null }
 				{ isAll && narrowed ? (

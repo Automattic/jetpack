@@ -1,7 +1,10 @@
 /* eslint-disable testing-library/prefer-user-event -- user-event is not a dependency of this package. */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { speak } from '@wordpress/a11y';
 import BulkRemoveModal from '../_inc/subscribers/components/modals/bulk-remove-modal';
 import type { SubscribersExportQuery } from '../_inc/subscribers/data/types';
+
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 const mockMutateAsync = jest.fn();
 const mockRefetch = jest.fn();
@@ -91,6 +94,7 @@ describe( 'BulkRemoveModal', () => {
 			screen.getByText( /This can’t be undone, and we can’t bring them back for you\./ )
 		).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Type 15000 to confirm' ) ).toBeInTheDocument();
+		expect( confirmButton() ).toHaveTextContent( /^Remove 15,000 subscribers$/ );
 	} );
 
 	it( 'does not start until the count is typed', async () => {
@@ -129,46 +133,58 @@ describe( 'BulkRemoveModal', () => {
 		);
 	} );
 
-	it.each( [ 'fetching', 'paused' ] )(
-		'blocks cached counts while their refresh is %s',
-		async fetchStatus => {
+	const stillCountingText = 'Still counting your subscribers. Try again in a moment.';
+	const failedText = 'Could not count your subscribers. Close this and try again.';
+
+	it.each( [
+		[ 'fetching', false ],
+		[ 'paused', false ],
+		[ 'fetching after an error', true ],
+	] )(
+		'blocks cached counts while their refresh is %s, then clears the message once they load',
+		async ( label, isError ) => {
+			const fetchStatus = label === 'paused' ? 'paused' : 'fetching';
 			const { rerender, onClose } = renderModal();
 			fireEvent.change( screen.getByLabelText( 'Type 15000 to confirm' ), {
 				target: { value: '15000' },
 			} );
-			mockCountStates.all = { fetchStatus };
+			mockCountStates.all = { fetchStatus, isError };
 			rerender();
 			// The button drops the cached count, and clicking says why nothing happens.
 			expect( confirmButton() ).toHaveTextContent( /^Remove subscribers$/ );
 			fireEvent.click( confirmButton() );
 
-			await expect(
-				screen.findAllByText( /Still counting your subscribers/ )
-			).resolves.not.toHaveLength( 0 );
+			await expect( screen.findByText( stillCountingText ) ).resolves.toBeInTheDocument();
+			expect( speak ).toHaveBeenCalledWith( stillCountingText, 'assertive' );
+			expect( mockMutateAsync ).not.toHaveBeenCalled();
+			expect( onClose ).not.toHaveBeenCalled();
+
+			delete mockCountStates.all;
+			rerender();
+			expect( screen.queryByText( stillCountingText ) ).not.toBeInTheDocument();
+			expect( confirmButton() ).toHaveTextContent( /^Remove 15,000 subscribers$/ );
+		}
+	);
+
+	it.each( [ 'idle', 'paused' ] )(
+		'blocks cached counts when their refresh failed and is %s, and says so once on confirm',
+		async fetchStatus => {
+			const { rerender, onClose } = renderModal();
+			fireEvent.change( screen.getByLabelText( 'Type 15000 to confirm' ), {
+				target: { value: '15000' },
+			} );
+			mockCountStates.all = { fetchStatus, isError: true };
+			rerender();
+			expect( confirmButton() ).toHaveTextContent( /^Remove subscribers$/ );
+			fireEvent.click( confirmButton() );
+
+			await waitFor( () => expect( speak ).toHaveBeenCalledWith( failedText, 'assertive' ) );
+			expect( screen.getAllByText( failedText ) ).toHaveLength( 1 );
+			expect( screen.queryByText( /Still counting your subscribers/ ) ).not.toBeInTheDocument();
 			expect( mockMutateAsync ).not.toHaveBeenCalled();
 			expect( onClose ).not.toHaveBeenCalled();
 		}
 	);
-
-	it( 'blocks cached counts when their refresh failed, and says so on confirm', async () => {
-		const { rerender, onClose } = renderModal();
-		fireEvent.change( screen.getByLabelText( 'Type 15000 to confirm' ), {
-			target: { value: '15000' },
-		} );
-		mockCountStates.all = { fetchStatus: 'idle', isError: true };
-		rerender();
-		expect( confirmButton() ).toHaveTextContent( /^Remove subscribers$/ );
-		const failedText = 'Could not count your subscribers. Close this and try again.';
-		const before = screen.getAllByText( failedText ).length;
-		fireEvent.click( confirmButton() );
-
-		await waitFor( () =>
-			expect( screen.getAllByText( failedText ).length ).toBeGreaterThan( before )
-		);
-		expect( screen.queryByText( /Still counting your subscribers/ ) ).not.toBeInTheDocument();
-		expect( mockMutateAsync ).not.toHaveBeenCalled();
-		expect( onClose ).not.toHaveBeenCalled();
-	} );
 
 	it( 'lists what matches, with examples, when removing the matches', () => {
 		renderModal( { scope: 'matching', query: filtered } );
