@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Heatmap Chart: Add `scale="log"` and `scale="buckets"` to color cells by their distance in log space or by their rank, keeping the existing placement by distance as the default, darken the top of the color range, and leave incomplete periods off the color scale with a hatched pattern.

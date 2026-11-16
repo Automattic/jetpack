@@ -3,36 +3,19 @@
  */
 import {
 	MONTHS_IN_YEAR,
+	daysCovered,
+	isMonthIncomplete,
 	monthOrder,
+	toMonthKey,
+	type DayKey,
 	type MonthKey,
 	type MonthlyHeatmapMetric,
 	type MonthlyHeatmapRow,
+	type MonthlyHeatmapTarget,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /** One `stats/visits` month bucket: the month and its views. */
 export type MonthBucket = { month: MonthKey; views: number };
-
-/** A calendar day on the site's own calendar, as `MonthKey` counts it. */
-export type DayKey = MonthKey & { day: number };
-
-const isSameMonth = ( key: MonthKey, other: MonthKey ) =>
-	key.year === other.year && key.month === other.month;
-
-const toMonthKey = ( date: Date ): MonthKey => ( {
-	year: date.getFullYear(),
-	month: date.getMonth(),
-} );
-
-/** Days in the month, from the first day and up to today when either falls inside. */
-function daysCovered( key: MonthKey, today: Date, firstDay?: DayKey ): number {
-	const first = firstDay && isSameMonth( key, firstDay ) ? firstDay.day : 1;
-	const last = isSameMonth( key, toMonthKey( today ) )
-		? today.getDate()
-		: new Date( key.year, key.month + 1, 0 ).getDate();
-
-	// A browser clock behind the server can put the first day after today.
-	return Math.max( last - first + 1, 1 );
-}
 
 /**
  * Turns the monthly buckets into one row per year, newest first, from the
@@ -43,14 +26,14 @@ function daysCovered( key: MonthKey, today: Date, firstDay?: DayKey ): number {
  * @param metric  - Which number each cell reports.
  * @param today   - The site's current day, which closes the last row.
  * @param opensAt - The site's first day with views, which opens the first month when it falls inside it.
- * @return One row per year with views, newest first; without any views, the current month alone at zero.
+ * @return One row per year with views, newest first, and the months the data does not fill, which a total cannot compare with a full month; without any views, the current month alone at zero.
  */
 export function buildViewsOverYearsRows(
 	buckets: MonthBucket[],
 	metric: MonthlyHeatmapMetric,
 	today: Date,
 	opensAt?: DayKey
-): MonthlyHeatmapRow[] {
+): { rows: MonthlyHeatmapRow[]; partialMonths: MonthlyHeatmapTarget[] } {
 	const viewsByOrder = new Map< number, number >();
 
 	for ( const { month, views } of buckets ) {
@@ -76,6 +59,7 @@ export function buildViewsOverYearsRows(
 	// `monthlyHeatmapLifeStart` does for the Traffic range.
 	const firstDay = opensAt && monthOrder( opensAt ) === firstOrder ? opensAt : undefined;
 	const rows: MonthlyHeatmapRow[] = [];
+	const partialMonths: MonthlyHeatmapTarget[] = [];
 
 	for ( let year = lastYear; year >= firstYear; year-- ) {
 		let yearViews = 0;
@@ -95,6 +79,10 @@ export function buildViewsOverYearsRows(
 			yearViews += views;
 			yearDays += days;
 
+			if ( isMonthIncomplete( key, metric, today, firstDay ) ) {
+				partialMonths.push( key );
+			}
+
 			return metric === 'average' ? Math.round( views / days ) : views;
 		} );
 
@@ -105,5 +93,5 @@ export function buildViewsOverYearsRows(
 		} );
 	}
 
-	return rows;
+	return { rows, partialMonths };
 }
