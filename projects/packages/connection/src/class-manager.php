@@ -40,7 +40,7 @@ class Manager {
 	const SITE_DATA_TRANSIENT_PREFIX = 'jetpack_site_data_';
 
 	/**
-	 * User meta that carries an unusable owner across a Restore relink, which clears the stored errors.
+	 * Per-site user option that carries an unusable owner across a Restore relink, which clears the stored errors.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -3539,7 +3539,7 @@ class Manager {
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
 		// Kept until the token request succeeds, so a failed one can retry with it. update_user_token() returns no usable result.
-		delete_user_meta( $current_user_id, self::RELINK_OWNER_UNUSABLE_META );
+		delete_user_option( $current_user_id, self::RELINK_OWNER_UNUSABLE_META );
 
 		if ( $owner_changed ) {
 			// The owner changed under the memoized ID.
@@ -3640,18 +3640,21 @@ class Manager {
 	 * Records for the current user that the owner is unusable, before a Restore relink clears the evidence.
 	 *
 	 * Unlinking deletes every stored error, so authorize() would otherwise report a usable owner.
+	 * The record is tied to the owner's token, so the owner reconnecting voids every user's record at once.
 	 *
 	 * @since $$next-version$$
 	 */
 	private function remember_unusable_owner() {
 		$user_id = get_current_user_id();
 
-		if ( $user_id && $this->is_owner_slot_unusable() ) {
-			update_user_meta(
+		// The evidence alone, so a remembered record can't renew itself.
+		if ( $user_id && ( ! $this->has_connected_owner() || $this->has_owner_token_rejection() ) ) {
+			update_user_option(
 				$user_id,
 				self::RELINK_OWNER_UNUSABLE_META,
 				array(
 					'owner' => (int) \Jetpack_Options::get_option( 'master_user' ),
+					'token' => $this->get_owner_token_hash(),
 					'time'  => time(),
 				)
 			);
@@ -3659,7 +3662,23 @@ class Manager {
 	}
 
 	/**
-	 * Whether remember_unusable_owner() recorded the current owner within the last hour.
+	 * A hash of the connection owner's stored token, or an empty string when there is none.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	private function get_owner_token_hash() {
+		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+		$tokens   = $this->get_tokens()->get_user_tokens();
+
+		return $owner_id > 0 && is_array( $tokens ) && ! empty( $tokens[ $owner_id ] ) && is_string( $tokens[ $owner_id ] )
+			? wp_hash( $tokens[ $owner_id ] )
+			: '';
+	}
+
+	/**
+	 * Whether remember_unusable_owner() recorded the current owner and owner token within the last hour.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -3668,12 +3687,14 @@ class Manager {
 	 */
 	private function is_unusable_owner_remembered( $user_id = null ) {
 		$user_id = null === $user_id ? get_current_user_id() : (int) $user_id;
-		$record  = $user_id > 0 ? get_user_meta( $user_id, self::RELINK_OWNER_UNUSABLE_META, true ) : null;
+		$record  = $user_id > 0 ? get_user_option( self::RELINK_OWNER_UNUSABLE_META, $user_id ) : null;
 
 		return is_array( $record )
 			&& isset( $record['owner'] )
+			&& isset( $record['token'] )
 			&& isset( $record['time'] )
 			&& (int) $record['owner'] === (int) \Jetpack_Options::get_option( 'master_user' )
+			&& hash_equals( $this->get_owner_token_hash(), (string) $record['token'] )
 			&& time() - (int) $record['time'] <= HOUR_IN_SECONDS;
 	}
 

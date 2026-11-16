@@ -3715,7 +3715,9 @@ class Error_Handler_Test extends BaseTestCase {
 			'Gutenberg Connectors page'  => array( true, '/wp-admin/options-general.php?page=options-connectors-wp-admin', 'options-general.php?page=options-connectors-wp-admin', 'jetpack-connector' ),
 			'Jetpack dashboard'          => array( true, '/wp-admin/admin.php?page=jetpack', 'admin.php?page=jetpack', 'connection_notice_owner_error' ),
 			'other plugin page'          => array( true, '/wp-admin/admin.php?page=jetpack-backup&a=b/c&_wpnonce=abc&action=delete', 'admin.php?page=jetpack-backup', 'connection_notice_owner_error' ),
-			'screen with no page param'  => array( true, '/wp-admin/post.php?post=5&action=edit', 'admin.php?page=my-jetpack', 'connection_notice_owner_error' ),
+			'encoded params in page'     => array( true, '/wp-admin/admin.php?page=x%26action%3Dfoo', 'admin.php?page=x%26action%3Dfoo', 'connection_notice_owner_error' ),
+			'screen with no page param'  => array( true, '/wp-admin/post.php?post=5&action=edit', 'post.php', 'connection_notice_owner_error' ),
+			'admin path with no file'    => array( true, '/wp-admin/', 'admin.php?page=my-jetpack', 'connection_notice_owner_error' ),
 			'request with no admin page' => array( false, '/wp-json/jetpack/v4/connection', 'admin.php?page=my-jetpack', 'connection_notice_owner_error' ),
 		);
 	}

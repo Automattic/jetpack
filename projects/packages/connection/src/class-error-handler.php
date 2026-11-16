@@ -883,9 +883,10 @@ class Error_Handler {
 				$page = is_string( $page ) ? $page : '';
 
 				// Only `page` is kept: other params (a nonce, an `action`) must not replay as a GET after auth.
+				// Re-encoded, because wp_parse_str() decoded it and add_query_arg() doesn't encode.
 				if ( '' !== $page ) {
-					$return_url = self_admin_url( add_query_arg( 'page', $page, $file ) );
-				} elseif ( 'options-connectors.php' === $file ) {
+					$return_url = self_admin_url( add_query_arg( 'page', rawurlencode( $page ), $file ) );
+				} elseif ( '.php' === substr( $file, -4 ) ) {
 					$return_url = self_admin_url( $file );
 				}
 

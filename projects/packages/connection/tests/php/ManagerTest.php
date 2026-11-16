@@ -2185,22 +2185,29 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test that a Restore relink still reports an unusable owner to `authorize()`, although the unlink clears the stored errors.
 	 *
-	 * @param bool $owner_changes     Whether `master_user` changes between the relink and the authorization.
-	 * @param int  $expected_unusable The `local_owner_unusable` value the claim should send.
+	 * @param string|null $change            What changes between the relink and the authorization: `owner`, `owner_token`, or nothing.
+	 * @param int         $expected_unusable The `local_owner_unusable` value the claim should send.
 	 * @dataProvider provide_restore_relink_remembers_unusable_owner
 	 */
 	#[DataProvider( 'provide_restore_relink_remembers_unusable_owner' )]
-	public function test_restore_relink_remembers_unusable_owner( $owner_changes, $expected_unusable ) {
-		$admin_id = wp_insert_user(
+	public function test_restore_relink_remembers_unusable_owner( $change, $expected_unusable ) {
+		$admin_id     = wp_insert_user(
 			array(
 				'user_login' => 'test_relink_admin',
 				'user_pass'  => '123',
 				'role'       => 'administrator',
 			)
 		);
-		$owner_id = wp_insert_user(
+		$owner_id     = wp_insert_user(
 			array(
 				'user_login' => 'test_relink_owner',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		$new_owner_id = wp_insert_user(
+			array(
+				'user_login' => 'test_relink_new_owner',
 				'user_pass'  => '123',
 				'role'       => 'administrator',
 			)
@@ -2211,8 +2218,9 @@ class ManagerTest extends TestCase {
 		\Jetpack_Options::update_option(
 			'user_tokens',
 			array(
-				$owner_id => "key.secret.$owner_id",
-				$admin_id => "key.secret.$admin_id",
+				$owner_id     => "key.secret.$owner_id",
+				$admin_id     => "key.secret.$admin_id",
+				$new_owner_id => "key.secret.$new_owner_id",
 			)
 		);
 		update_option(
@@ -2265,7 +2273,12 @@ class ManagerTest extends TestCase {
 			->getMock();
 		$manager->method( 'is_site_connection' )->willReturn( false );
 		$manager->method( 'get_tokens' )->willReturn( $tokens );
-		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
+		// Follows master_user, without the memoized static that would outlive this test.
+		$manager->method( 'get_connection_owner_id' )->willReturnCallback(
+			static function () {
+				return (int) \Jetpack_Options::get_option( 'master_user' );
+			}
+		);
 		$manager->method( 'is_ownership_transferable' )->willReturn( true );
 		$manager->method( 'unlink_user_from_wpcom' )->willReturn( true );
 		$manager->method( 'get_connected_user_data' )->willReturn( false );
@@ -2277,8 +2290,12 @@ class ManagerTest extends TestCase {
 			$this->assertSame( 'authorize', $manager->restore() );
 			$this->assertFalse( Error_Handler::get_instance()->has_owner_token_rejection(), 'The unlink should have cleared the stored errors.' );
 
-			if ( $owner_changes ) {
-				\Jetpack_Options::update_option( 'master_user', 4242 );
+			if ( 'owner' === $change ) {
+				\Jetpack_Options::update_option( 'master_user', $new_owner_id );
+			} elseif ( 'owner_token' === $change ) {
+				$user_tokens              = \Jetpack_Options::get_option( 'user_tokens' );
+				$user_tokens[ $owner_id ] = "key.newsecret.$owner_id";
+				\Jetpack_Options::update_option( 'user_tokens', $user_tokens );
 			}
 
 			$manager->authorize(
@@ -2287,11 +2304,11 @@ class ManagerTest extends TestCase {
 					'code'  => 'authorization_code',
 				)
 			);
-			$remembered = get_user_meta( $admin_id, Manager::RELINK_OWNER_UNUSABLE_META, true );
+			$remembered = get_user_option( Manager::RELINK_OWNER_UNUSABLE_META, $admin_id );
 		} finally {
 			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
 			remove_filter( 'pre_http_request', array( $this, 'block_http_request' ) );
-			delete_user_meta( $admin_id, Manager::RELINK_OWNER_UNUSABLE_META );
+			delete_user_option( $admin_id, Manager::RELINK_OWNER_UNUSABLE_META );
 			delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
 			\Jetpack_Options::delete_option( array( 'master_user', 'id', 'user_tokens' ) );
 		}
@@ -2303,7 +2320,7 @@ class ManagerTest extends TestCase {
 			),
 			$sent_claim
 		);
-		$this->assertSame( '', $remembered, 'A successful token write should clear the record.' );
+		$this->assertFalse( $remembered, 'A successful token write should clear the record.' );
 	}
 
 	/**
@@ -2313,8 +2330,9 @@ class ManagerTest extends TestCase {
 	 */
 	public static function provide_restore_relink_remembers_unusable_owner() {
 		return array(
-			'same owner is still unusable' => array( false, 1 ),
-			'owner changed since restore'  => array( true, 0 ),
+			'same owner is still unusable'    => array( null, 1 ),
+			'owner changed since restore'     => array( 'owner', 0 ),
+			'owner reconnected since restore' => array( 'owner_token', 0 ),
 		);
 	}
 
