@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Block external HTTP requests in the PHPUnit suite and stop Jetpack_Manage_Test from sending a real signed request.
+

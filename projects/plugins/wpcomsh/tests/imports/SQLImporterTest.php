@@ -59,6 +59,8 @@ class SQLImporterTest extends WP_UnitTestCase {
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'sql-import-failed', $result->get_error_code() );
+		$this->assertStringContainsString( 'ERROR 1064', $result->get_error_message() );
+		$this->assertStringNotContainsString( 'Using a password', $result->get_error_message() );
 	}
 
 	/**

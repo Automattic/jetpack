@@ -11,6 +11,9 @@ import type { AdsValues } from '../../../data/use-ads-settings';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '../../../data/ads-settings-data' );
+jest.mock( '../../../data/state', () => ( {
+	getPageData: () => ( { upgradeUrl: MOCK_UPGRADE_URL, tracks: true } ),
+} ) );
 jest.mock( '../../../data/tracking' );
 jest.mock( '../../../data/use-ads-settings', () => ( {
 	...jest.requireActual( '../../../data/use-ads-settings' ),
@@ -30,13 +33,13 @@ jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
 	getUserConnectionUrl: () => '#connect',
 } ) );
 
+const MOCK_UPGRADE_URL = 'https://jetpack.com/redirect/?source=jetpack-creator-cta&site=1';
+
 const DATA: AdsSettingsData = {
 	hasWordAds: true,
 	hasConnectedOwner: true,
-	upgradeUrl: 'https://jetpack.com/redirect/?source=jetpack-creator-cta&site=1',
 	isSubdirectorySite: false,
 	moduleOverride: false,
-	tracks: true,
 };
 
 const VALUES = {
@@ -169,7 +172,7 @@ describe( 'AdsSettings', () => {
 
 		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
 			'href',
-			DATA.upgradeUrl
+			MOCK_UPGRADE_URL
 		);
 	} );
 

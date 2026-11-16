@@ -427,8 +427,8 @@ export function ComparativeBarChart( {
 	 * chart scale to the data.
 	 */
 	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData ),
-		[ dataFormat.type, isEmptyData ]
+		() => getFixedYAxis( dataFormat.type, isEmptyData, drawnSeries ),
+		[ dataFormat.type, isEmptyData, drawnSeries ]
 	);
 
 	const chartOptions = useMemo( () => {

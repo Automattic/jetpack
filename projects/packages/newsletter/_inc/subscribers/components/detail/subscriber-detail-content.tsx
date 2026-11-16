@@ -58,7 +58,7 @@ function ratePercent( numerator: number, denominator: number ): number | null {
 }
 
 /**
- * Stat tile in the detail view's hero row (Emails sent / Open rate / Click rate).
+ * Stat tile in the detail view's hero row.
  *
  * @param props       - Tile props.
  * @param props.label - Stat label.
@@ -67,7 +67,10 @@ function ratePercent( numerator: number, denominator: number ): number | null {
  */
 function StatCard( { label, value }: { label: string; value: string } ): JSX.Element {
 	return (
-		<Card.Root className="jetpack-newsletter__detail-stat">
+		<Card.Root
+			className="jetpack-newsletter__detail-stat"
+			style={ { minInlineSize: 'min-content' } }
+		>
 			<Card.Content>
 				<Text variant="heading-sm" className="jetpack-newsletter__detail-stat-label">
 					{ label }
@@ -224,10 +227,7 @@ function BounceRetryNotice( {
 }
 
 /**
- * Body content for the subscriber detail view — header (avatar + name + email), 3-column stat
- * row (Emails sent / Open rate / Click rate), then grouped Subscription details and Subscriber
- * information sections. Layout-agnostic: renders identically inside the desktop side-panel and
- * the mobile Modal.
+ * Content shared by the desktop side-panel and mobile Modal.
  *
  * @param props      - Component props.
  * @param props.open - Subscriber identifiers (must be non-null; the parent gates rendering).
@@ -328,7 +328,7 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 
 			<Stack direction="row" gap="sm" wrap="wrap" className="jetpack-newsletter__detail-stats">
 				<StatCard
-					label={ __( 'Emails sent', 'jetpack-newsletter' ) }
+					label={ __( 'Newsletters sent', 'jetpack-newsletter' ) }
 					value={ statsQuery.isLoading ? dash : formatMetric( emailsSent ) }
 				/>
 				<StatCard

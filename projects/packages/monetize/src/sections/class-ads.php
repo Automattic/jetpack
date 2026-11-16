@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Payout details on WordPress.com, and keeping its copy of the site's Ads settings caught up.
  *
- * @since $$next-version$$
+ * @since 0.2.0
  */
 class Ads implements Dashboard_Section {
 

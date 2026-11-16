@@ -349,7 +349,7 @@ class Admin_UI {
 	/**
 	 * Register VideoPress with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -371,6 +371,10 @@ class Admin_UI {
 			'init_modules' => array( '@jetpack-videopress/init' ),
 			// "VideoPress" is a product name, do not translate.
 			'title'        => 'Jetpack VideoPress',
+			'header'       => array(
+				'title'    => 'VideoPress',
+				'subtitle' => self::shell_header_subtitle(),
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
 			'media'        => true,
@@ -380,16 +384,24 @@ class Admin_UI {
 	}
 
 	/**
+	 * The dashboard's subtitle without its "Learn more" link, and the full stop after it in any script.
+	 *
+	 * @return string
+	 */
+	private static function shell_header_subtitle() {
+		$subtitle = __( 'Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.', 'jetpack-videopress-pkg' );
+		return trim( wp_strip_all_tags( (string) preg_replace( '#\s*<link>.*?</link>[.。．]?\s*#u', '', $subtitle ) ) );
+	}
+
+	/**
 	 * Ready the VideoPress routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @return void
 	 */
 	public static function load_as_admin_shell_guest() {
 		self::load_wp_build();
-		// The page init action that runs this never fires for a guest, and the shell reads the routes first.
-		self::maybe_strip_chapters_editor_routes();
 		self::admin_init();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
 	}
@@ -397,7 +409,7 @@ class Admin_UI {
 	/**
 	 * Attach the initial state to a script of its own: the prerequisites script only exists on the VideoPress page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @return void
 	 */

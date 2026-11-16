@@ -1,7 +1,11 @@
 import { createContext } from 'react';
+import type { HeatmapBuckets } from './heatmap-buckets';
 
 export type HeatmapContextValue = {
 	extent: [ number, number ];
+	buckets: HeatmapBuckets;
+	/** Which scale the cells paint on, which decides whether the legend may hold its own step count. */
+	scale: 'buckets' | 'linear' | 'log';
 	/** The custom properties the fill reads, set on the grid and on each legend swatch. */
 	fillVars: Record< string, string >;
 };

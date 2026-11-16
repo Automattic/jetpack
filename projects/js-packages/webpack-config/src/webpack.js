@@ -7,7 +7,6 @@ const WebpackRTLWebpackPlugin = require( '@automattic/webpack-rtl-plugin' );
 const DuplicatePackageCheckerWebpackPlugin = require( '@cerner/duplicate-package-checker-webpack-plugin' );
 const ReactRefreshWebpackPlugin = require( '@pmmmwh/react-refresh-webpack-plugin' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
-const CssMinimizerWebpackPlugin = require( 'css-minimizer-webpack-plugin' );
 const MiniCssExtractWebpackPlugin = require( 'mini-css-extract-plugin' );
 const webpack = require( 'webpack' );
 const BundledWpPkgsTranspileRules = require( './webpack/bundled-wp-pkgs-transpile-rules' );
@@ -16,12 +15,10 @@ const DevServer = require( './webpack/dev-server' );
 const FileRule = require( './webpack/file-rule' );
 const loadTextDomainFromComposerJson = require( './webpack/load-textdomain-from-composer-json.js' );
 const MiniCSSWithRTLWebpackPlugin = require( './webpack/mini-css-with-rtl' );
+const MinimizerPlugin = require( './webpack/minimizer' );
 const PnpmDeterministicChunkIdsWebpackPlugin = require( './webpack/pnpm-deterministic-chunk-ids.js' );
 const PnpmDeterministicModuleIdsWebpackPlugin = require( './webpack/pnpm-deterministic-module-ids.js' );
-const TerserPlugin = require( './webpack/terser' );
 const TranspileRule = require( './webpack/transpile-rule' );
-
-const CssMinimizerPlugin = options => new CssMinimizerWebpackPlugin( options );
 
 /****** Functions ******/
 
@@ -77,7 +74,7 @@ const output = {
 };
 const optimization = {
 	minimize: isProduction,
-	minimizer: [ TerserPlugin(), CssMinimizerPlugin() ],
+	minimizer: [ MinimizerPlugin() ],
 	mangleExports: false,
 	concatenateModules: false,
 	chunkIds: isProduction ? false : 'named',
@@ -322,8 +319,7 @@ module.exports = {
 	devtool,
 	output,
 	optimization,
-	TerserPlugin,
-	CssMinimizerPlugin,
+	MinimizerPlugin,
 	resolve,
 	watchOptions,
 	cache,

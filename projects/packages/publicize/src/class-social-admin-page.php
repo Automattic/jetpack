@@ -155,7 +155,7 @@ class Social_Admin_Page {
 	/**
 	 * Register Jetpack Social with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -178,6 +178,10 @@ class Social_Admin_Page {
 			'init_modules' => array( '@jetpack-social/init' ),
 			/** "Jetpack Social" is a product name, do not translate. */
 			'title'        => 'Jetpack Social',
+			'header'       => array(
+				'title'    => 'Social',
+				'subtitle' => self::landing_subtitle(),
+			),
 			'capability'   => 'publish_posts',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
 			'media'        => true,
@@ -187,9 +191,22 @@ class Social_Admin_Page {
 	}
 
 	/**
+	 * The subtitle of the tab a bare dashboard URL opens, as the dashboard renders it.
+	 *
+	 * @return string
+	 */
+	private static function landing_subtitle() {
+		// Settings opens while Social is off and the user can turn it on: canToggleSocialModule() in _inc/utils/misc.ts.
+		if ( 'wpcom' !== ( new Host() )->get_known_host_guess() && current_user_can( 'jetpack_manage_modules' ) && ! Utils::is_publicize_active() ) {
+			return __( 'Customize how your posts are shared to social media.', 'jetpack-publicize-pkg' );
+		}
+		return __( 'Connect your social accounts and see what drives traffic.', 'jetpack-publicize-pkg' );
+	}
+
+	/**
 	 * Ready the Jetpack Social routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @return void
 	 */
@@ -204,7 +221,7 @@ class Social_Admin_Page {
 	/**
 	 * Hydrate the connection store on a script of its own: the prerequisites script only exists on the Social page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @return void
 	 */

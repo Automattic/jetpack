@@ -843,7 +843,8 @@ class Block_Scanner {
 	 * Returns the document with every block of the given type removed, nested
 	 * blocks and their inner content included.
 	 *
-	 * When a removed block sat on its own line, the line break after it goes too.
+	 * A line feed right after a removed block is dropped when the kept text before it
+	 * ends in one too. Blocks at the document start and CRLF line endings are left alone.
 	 * An opener with no matching closer removes everything after it.
 	 *
 	 * Example:
