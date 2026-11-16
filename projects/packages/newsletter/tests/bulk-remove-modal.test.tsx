@@ -129,24 +129,43 @@ describe( 'BulkRemoveModal', () => {
 		);
 	} );
 
-	it.each( [
-		{ fetchStatus: 'fetching' },
-		{ fetchStatus: 'paused' },
-		{ fetchStatus: 'idle', isError: true },
-	] )( 'blocks cached counts when their refresh is $fetchStatus ($isError)', async state => {
+	it.each( [ 'fetching', 'paused' ] )(
+		'blocks cached counts while their refresh is %s',
+		async fetchStatus => {
+			const { rerender, onClose } = renderModal();
+			fireEvent.change( screen.getByLabelText( 'Type 15000 to confirm' ), {
+				target: { value: '15000' },
+			} );
+			mockCountStates.all = { fetchStatus };
+			rerender();
+			// The button drops the cached count, and clicking says why nothing happens.
+			expect( confirmButton() ).toHaveTextContent( /^Remove subscribers$/ );
+			fireEvent.click( confirmButton() );
+
+			await expect(
+				screen.findAllByText( /Still counting your subscribers/ )
+			).resolves.not.toHaveLength( 0 );
+			expect( mockMutateAsync ).not.toHaveBeenCalled();
+			expect( onClose ).not.toHaveBeenCalled();
+		}
+	);
+
+	it( 'blocks cached counts when their refresh failed, and says so on confirm', async () => {
 		const { rerender, onClose } = renderModal();
 		fireEvent.change( screen.getByLabelText( 'Type 15000 to confirm' ), {
 			target: { value: '15000' },
 		} );
-		mockCountStates.all = state;
+		mockCountStates.all = { fetchStatus: 'idle', isError: true };
 		rerender();
-		// Not "Remove 0 subscribers", and clicking says why nothing happens.
 		expect( confirmButton() ).toHaveTextContent( /^Remove subscribers$/ );
+		const failedText = 'Could not count your subscribers. Close this and try again.';
+		const before = screen.getAllByText( failedText ).length;
 		fireEvent.click( confirmButton() );
 
-		await expect(
-			screen.findAllByText( /Still counting your subscribers/ )
-		).resolves.not.toHaveLength( 0 );
+		await waitFor( () =>
+			expect( screen.getAllByText( failedText ).length ).toBeGreaterThan( before )
+		);
+		expect( screen.queryByText( /Still counting your subscribers/ ) ).not.toBeInTheDocument();
 		expect( mockMutateAsync ).not.toHaveBeenCalled();
 		expect( onClose ).not.toHaveBeenCalled();
 	} );

@@ -236,7 +236,8 @@ describe( 'useBulkRemoveStatus', () => {
 	} );
 
 	it.each( [
-		[ 'a missing route', { code: 'rest_no_route', data: { status: 404 } } ],
+		[ 'a missing route', { code: 'rest_no_route' } ],
+		[ 'a not found error', { code: 'not_found', data: { status: 404 } } ],
 		[ 'a permission error', { code: 'rest_forbidden', data: { status: 403 } } ],
 	] )( 'does not retry %s', async ( _label, error ) => {
 		mockFetchBulkRemoveStatus.mockRejectedValue( error );
@@ -251,6 +252,8 @@ describe( 'useBulkRemoveStatus', () => {
 	it.each( [
 		[ 'a server error', { code: 'internal_server_error', data: { status: 500 } } ],
 		[ 'a network failure', { code: 'fetch_error' } ],
+		[ 'a timeout', { code: 'http_request_failed', data: { status: 408 } } ],
+		[ 'a rate limit', { code: 'too_many_requests', data: { status: 429 } } ],
 	] )( 'retries %s and then shows removal', async ( _label, error ) => {
 		mockFetchBulkRemoveStatus
 			.mockRejectedValueOnce( error )
@@ -272,26 +275,71 @@ describe( 'useBulkRemoveStatus', () => {
 		expect( result.current.isEnabled ).toBe( false );
 	} );
 
-	it.each( [
-		[ 'refetches', true, 2 ],
-		[ 'does not refetch', false, 1 ],
-	] )( '%s on focus when removal is %s', async ( _label, enabled, calls ) => {
-		mockFetchBulkRemoveStatus.mockResolvedValue( { job: null, enabled } );
+	describe( 'on window focus', () => {
 		// Mirror the shared client, which turns focus refetches off and keeps data fresh for 30s.
-		const { wrapper } = setup( { refetchOnWindowFocus: false, staleTime: 30000 } );
-		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		const setupFocus = () =>
+			setup( { refetchOnWindowFocus: false, staleTime: 30000, retryDelay: 0 } );
 
-		act( () => {
-			focusManager.setFocused( false );
-			focusManager.setFocused( true );
-		} );
-		await act( async () => {
-			await new Promise( resolve => setTimeout( resolve, 50 ) );
+		const refocus = async () => {
+			act( () => {
+				focusManager.setFocused( false );
+				focusManager.setFocused( true );
+			} );
+			await act( async () => {
+				await new Promise( resolve => setTimeout( resolve, 50 ) );
+			} );
+		};
+
+		afterEach( () => {
+			focusManager.setFocused( undefined );
 		} );
 
-		expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( calls );
-		focusManager.setFocused( undefined );
+		it.each( [
+			[ 'refetches when removal is on', { job: null, enabled: true }, 2 ],
+			[ 'does not refetch when removal is off', { job: null, enabled: false }, 1 ],
+			[
+				'refetches while a job runs, even with removal off',
+				{ job: 'running', enabled: false },
+				2,
+			],
+		] )( '%s', async ( _label, response, calls ) => {
+			const job = response.job === 'running' ? buildJob() : null;
+			mockFetchBulkRemoveStatus.mockResolvedValue( { ...response, job } );
+			const { wrapper } = setupFocus();
+			const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+			await refocus();
+
+			expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( calls );
+		} );
+
+		it( 'does not refetch after a missing route', async () => {
+			mockFetchBulkRemoveStatus.mockRejectedValue( {
+				code: 'rest_no_route',
+				data: { status: 404 },
+			} );
+			const { wrapper } = setupFocus();
+			const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+			await refocus();
+
+			expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'tries again after retries ran out on an error that may pass', async () => {
+			mockFetchBulkRemoveStatus.mockRejectedValue( { code: 'fetch_error' } );
+			const { wrapper } = setupFocus();
+			const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+			expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( 4 );
+
+			mockFetchBulkRemoveStatus.mockResolvedValue( { job: null, enabled: true } );
+			await refocus();
+
+			await waitFor( () => expect( result.current.isEnabled ).toBe( true ) );
+		} );
 	} );
 
 	it( 'fetches nothing when disabled', () => {

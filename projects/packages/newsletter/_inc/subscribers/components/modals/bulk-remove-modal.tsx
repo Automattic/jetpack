@@ -133,6 +133,15 @@ export default function BulkRemoveModal( {
 	);
 
 	const handleConfirm = useCallback( async () => {
+		if ( counts.isError && counts.fetchStatus === 'idle' ) {
+			return {
+				close: false,
+				error: __(
+					'Could not count your subscribers. Close this and try again.',
+					'jetpack-newsletter'
+				),
+			};
+		}
 		if ( ! counts.data || ! countsReady ) {
 			// AlertDialog cannot disable its confirm button, so say why nothing happened.
 			return {

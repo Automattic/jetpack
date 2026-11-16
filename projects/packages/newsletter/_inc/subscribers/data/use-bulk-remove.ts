@@ -30,8 +30,8 @@ const MAX_STATUS_RETRIES = 3;
 
 /**
  * Whether to retry a failed status request. A client error, such as the missing route on a site
- * without bulk removal (404), is final. A server error or a network failure may pass, and giving
- * up on it would hide the remove actions until the screen is opened again.
+ * without bulk removal (404), is final, except a timeout (408) or rate limit (429). A server error
+ * or a network failure may pass, and giving up on it would hide the remove actions.
  *
  * @param failureCount - Retries so far.
  * @param error        - The error `apiFetch` rejected with.
@@ -45,6 +45,9 @@ export function shouldRetryBulkRemoveStatus(
 		return false;
 	}
 	const status = error?.data?.status;
+	if ( status === 408 || status === 429 ) {
+		return true;
+	}
 	return ! ( typeof status === 'number' && status >= 400 && status < 500 );
 }
 
@@ -74,9 +77,15 @@ export function useBulkRemoveStatus( enabled = true, onFinished?: ( job: BulkRem
 		refetchInterval: q => ( isBulkRemoveActive( q.state.data?.job ) ? POLL_MS : false ),
 		retry: shouldRetryBulkRemoveStatus,
 		// The shared client skips focus refetches; catch a removal started in another tab, but only
-		// when removal is on for the site or a job is running.
-		refetchOnWindowFocus: q =>
-			q.state.data?.enabled || isBulkRemoveActive( q.state.data?.job ) ? 'always' : false,
+		// when removal is on for the site or a job is running. After a failure that may pass, try
+		// again, so the remove actions can come back without a reload.
+		refetchOnWindowFocus: q => {
+			const { data, error, status } = q.state;
+			if ( data?.enabled || isBulkRemoveActive( data?.job ) ) {
+				return 'always';
+			}
+			return status === 'error' && shouldRetryBulkRemoveStatus( 0, error ) ? 'always' : false;
+		},
 	} );
 
 	const job = query.data?.job ?? null;
