@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Managed themes: Keep the list of symlinked (managed) themes in the `wpcomsh_at_managed_themes` option and sync it, like `wpcomsh_at_managed_plugins`.
