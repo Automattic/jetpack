@@ -1,8 +1,10 @@
-// Broader than an RFC address on purpose, but the domain must carry a dot, so a Firefox stack
-// frame such as `render@https://host/x.js:1:1` is not mistaken for one and erased. The local part
-// stops at a slash and at the delimiters of a query string, so an address written into a URL path
-// or a parameter value costs that one segment and not the path around it.
-const EMAIL = /[^\s<>()[\]{}",;:@&=/]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+// Broader than an RFC address on purpose, but the domain must carry a dot, so a Firefox stack frame
+// such as `render@https://host/x.js:1:1` is not mistaken for one and erased. The local part stops at
+// a slash and at the delimiters of a query string, so an address written into a URL path or a
+// parameter value costs that one segment and not the path around it. Every part stays bounded and
+// the domain is matched label by label: unbounded, a long run of text holding no address backtracks
+// quadratically.
+const EMAIL = /[^\s<>()[\]{}",;:@&=/]{1,64}@(?:[A-Za-z0-9-]{1,63}\.){1,8}[A-Za-z]{2,24}/g;
 
 export const EMAIL_MASK = '[email]';
 
