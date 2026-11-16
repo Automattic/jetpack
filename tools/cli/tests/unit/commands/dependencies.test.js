@@ -18,7 +18,7 @@ describe( 'dependencies list --add-dependents', () => {
 		const log = jest.spyOn( console, 'log' ).mockImplementation( () => {} );
 		await handler( {
 			subcommand: 'list',
-			projects: [ 'packages/x' ],
+			project: [ 'packages/x' ],
 			addDependents: true,
 			onlyDirectDevDependents,
 			extra: 'test',
