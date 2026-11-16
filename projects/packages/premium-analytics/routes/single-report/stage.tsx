@@ -54,6 +54,7 @@ import {
 	type SectionState,
 	type SingleReportAdapter,
 } from './pages';
+import { entityAdapter } from './pages/entity/adapter';
 import {
 	getSingleReportLayout,
 	getSingleReportPage,
@@ -461,7 +462,10 @@ function SingleReport(): JSX.Element | null {
 			key={ page.path }
 			page={ page }
 			entityId={ id }
-			adapter={ getSingleReportAdapter( page.path ) ?? RECORD_ADAPTER }
+			adapter={
+				getSingleReportAdapter( page.path ) ??
+				( page.entity ? entityAdapter( page ) : RECORD_ADAPTER )
+			}
 		/>
 	);
 }

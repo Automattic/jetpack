@@ -210,6 +210,11 @@ function register_default_single_report_pages( $registry = null ) {
 				'kind' => 'postType',
 				'name' => 'page',
 			),
+			'header'            => array(
+				'title'       => 'title',
+				'media'       => 'featured_media',
+				'description' => 'excerpt',
+			),
 			'dashboard_section' => 'traffic',
 			'icon'              => 'jpa/page',
 			'sections'          => $post_sections,

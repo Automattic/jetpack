@@ -117,6 +117,14 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 			),
 			$record['entity']
 		);
+		$this->assertSame(
+			array(
+				'title'       => 'title',
+				'media'       => 'featured_media',
+				'description' => 'excerpt',
+			),
+			$record['header']
+		);
 		$this->assertSame( 'page', $record['path'] );
 		$this->assertSame( get_post_type_object( 'page' )->labels->singular_name, $record['label'] );
 		$this->assertSame( 'post_id', $record['scope_param'] );
