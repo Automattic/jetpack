@@ -28,7 +28,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_STRIP;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.1.8';
+	const PACKAGE_VERSION = '0.1.9';
 
 	/**
 	 * Namespaced section identifier. Its slug, `ads`, keys the section's URL and stored layouts.

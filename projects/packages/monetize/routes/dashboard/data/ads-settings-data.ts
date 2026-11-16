@@ -6,12 +6,9 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 export interface AdsSettingsData {
 	hasWordAds: boolean;
 	hasConnectedOwner: boolean;
-	upgradeUrl: string;
 	isSubdirectorySite: boolean;
 	/** Set when the host forces WordAds on or off through `jetpack_active_modules`. */
 	moduleOverride: 'active' | 'inactive' | false;
-	/** Whether the site and user allow Tracks. */
-	tracks: boolean;
 }
 
 type MonetizeScriptData = { monetize?: { adsSettings?: AdsSettingsData } };

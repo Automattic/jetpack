@@ -21,11 +21,10 @@ export function useOpenSectionRange(): OpenSectionRange {
 	const commitExactRange = useCommitExactRange();
 
 	return useCallback(
-		( section, range ) =>
-			commitExactRange( section, range, {
-				opensSection: true,
-				lockedIntervals: getSectionDatePolicy( section ).lockedIntervals,
-			} ),
+		( section, range ) => {
+			const { lockedIntervals, earliestDate } = getSectionDatePolicy( section );
+			commitExactRange( section, range, { opensSection: true, lockedIntervals, earliestDate } );
+		},
 		[ commitExactRange ]
 	);
 }

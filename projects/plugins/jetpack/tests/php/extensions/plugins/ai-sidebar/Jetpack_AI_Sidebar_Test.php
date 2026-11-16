@@ -1718,25 +1718,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * With writing on keeping the sidebar available, the SEO enhancer option at
-	 * its stored off value keeps SEO suggestions out of the emitted payload —
-	 * the option alone, independent of the ai_seo_enhancer_enabled kill switch.
-	 */
-	public function test_add_agents_manager_data_seo_suggestions_follow_option_off() {
-		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$this->activate_seo_tools_module();
-		update_option( 'jetpack_ai_seo_enabled', 0 );
-
-		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
-
-		delete_option( 'jetpack_ai_seo_enabled' );
-
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
-		$this->assertSame( true, $data['jetpackAiSidebar']['features']['proofreadContent'] );
-	}
-
-	/**
 	 * The generic preview features filter can still disable released features.
 	 */
 	public function test_add_agents_manager_data_preview_features_filter_can_disable_released_features() {

@@ -14,6 +14,11 @@ use WP_Error;
  */
 class SQL_Importer {
 	/**
+	 * How much of mysql's output to keep in an error. Its errors quote the SQL near the failure.
+	 */
+	private const MAX_ERROR_DETAILS_BYTES = 500;
+
+	/**
 	 * Import the dump file.
 	 *
 	 * @param string $sql_file_path The path of the SQL file.
@@ -50,6 +55,40 @@ class SQL_Importer {
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
 		exec( $command, $output, $ret );
 
-		return $ret === 0 ? true : new WP_Error( 'sql-import-failed', __( 'SQL import failed', 'wpcomsh' ) );
+		if ( $ret === 0 ) {
+			return true;
+		}
+
+		// Keep mysql's error, e.g. a packet over max_allowed_packet, so the failure can be told apart.
+		$message = __( 'SQL import failed', 'wpcomsh' );
+		$details = self::get_error_details( (array) $output );
+		if ( $details !== '' ) {
+			$message .= ': ' . $details;
+		}
+
+		return new WP_Error( 'sql-import-failed', $message );
+	}
+
+	/**
+	 * The mysql client's output, without its password warning, on one line and truncated.
+	 *
+	 * @param string[] $output Lines of output.
+	 *
+	 * @return string
+	 */
+	private static function get_error_details( array $output ): string {
+		$lines = array_filter(
+			array_map( 'trim', $output ),
+			static function ( $line ) {
+				return $line !== '' && ! str_contains( $line, 'Using a password on the command line' );
+			}
+		);
+
+		$details = implode( ' ', $lines );
+		if ( strlen( $details ) > self::MAX_ERROR_DETAILS_BYTES ) {
+			$details = mb_strcut( $details, 0, self::MAX_ERROR_DETAILS_BYTES ) . '…';
+		}
+
+		return $details;
 	}
 }

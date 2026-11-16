@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Remove a test of the Registrar late path, which the Registrar package tests.
+

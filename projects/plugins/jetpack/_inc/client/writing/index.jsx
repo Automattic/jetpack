@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import {
+	isInSettingsPanel,
 	isMovedOut,
 	isSettingsConsolidationEnabled,
 	isSwitchedInFeatures,
@@ -172,7 +173,7 @@ export class Writing extends Component {
 				<Widgets { ...commonProps } />
 				{ this.props.isModuleFound( 'post-by-email' ) &&
 					showPostByEmail &&
-					( isSettingsConsolidationEnabled() && this.props.userCanManageModules ? (
+					( this.props.isPostByEmailMoved ? (
 						this.props.searchTerm && <PostByEmailMoved getModule={ this.props.module } />
 					) : (
 						<PostByEmail
@@ -206,6 +207,7 @@ export default connect(
 			isModuleActivated: module_name => isModuleActivated( state, module_name ),
 			isLinked: isCurrentUserLinked( state ),
 			userCanManageModules: userCanManageModules( state ),
+			isPostByEmailMoved: isInSettingsPanel( state ),
 			isModuleFound: module_name =>
 				isModuleFound( state, module_name ) &&
 				! isMovedOut( module_name, state ) &&

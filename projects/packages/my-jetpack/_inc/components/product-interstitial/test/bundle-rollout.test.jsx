@@ -34,8 +34,13 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	TermsOfService: () => null,
 } ) );
 jest.mock( '@wordpress/ui', () => ( { ButtonLink: () => null } ) );
-jest.mock( '../../product-detail-card', () => ( { slug, isUpsell } ) => (
-	<span data-testid={ isUpsell ? 'bundle' : 'product' }>{ slug }</span>
+jest.mock( '../../product-detail-card/skeleton', () => () => (
+	<span data-testid="offer-skeleton" />
+) );
+jest.mock( '../../product-detail-card', () => ( { slug, isUpsell, hideTOS } ) => (
+	<span data-testid={ isUpsell ? 'bundle' : 'product' } data-hide-tos={ String( !! hideTOS ) }>
+		{ slug }
+	</span>
 ) );
 
 describe.each( [
@@ -67,6 +72,7 @@ describe.each( [
 			expect( screen.queryByTestId( 'product' )?.textContent ?? null ).toBe(
 				destination ? null : slug
 			);
+			expect( Boolean( screen.queryByRole( 'img' ) ) ).toBe( ! destination );
 		}
 	);
 } );
@@ -88,22 +94,26 @@ it( 'keeps the Pro page mounted but hidden while its availability is refreshing'
 } );
 
 it.each( [
-	[ false, false, 'security' ],
-	[ true, true, 'pro' ],
-	[ true, false, 'complete' ],
-	[ undefined, true, 'security' ],
-	[ 'yes', true, 'security' ],
+	[ false, false, false, 'security', 'true' ],
+	[ true, true, false, 'pro', 'true' ],
+	[ true, false, false, 'complete', 'true' ],
+	[ undefined, true, false, 'security', 'true' ],
+	[ 'yes', true, false, 'security', 'true' ],
+	[ false, false, true, null, 'false' ],
 ] )(
-	'selects %s/%s from the shared gate and customer eligibility',
-	( catalogAvailable, available, expected ) => {
+	'selects %s/%s (loading %s) from the shared gate and customer eligibility',
+	( catalogAvailable, available, isLoading, expected, productHidesTOS ) => {
 		useProduct.mockImplementation( slug => ( {
 			detail:
 				slug === 'pro'
 					? { pricingForUi: { catalogAvailable, available } }
 					: { title: slug, isUpgradableByBundle: [], pricingForUi: { available: true } },
+			isLoading,
 		} ) );
 		render( <ProductInterstitial slug="scan" bundle="security" /> );
-		expect( screen.getByTestId( 'bundle' ) ).toHaveTextContent( expected );
+		expect( screen.queryByTestId( 'bundle' )?.textContent ?? null ).toBe( expected );
+		expect( Boolean( screen.queryByTestId( 'offer-skeleton' ) ) ).toBe( isLoading );
+		expect( screen.getByTestId( 'product' ) ).toHaveAttribute( 'data-hide-tos', productHidesTOS );
 	}
 );
 

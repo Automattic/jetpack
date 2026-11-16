@@ -71,6 +71,8 @@ export interface MyJetpackScriptData {
 	aiManageUrl?: string;
 	/** Whether settings move to My Jetpack: the settings consolidation flag is on and My Jetpack is available. */
 	settingsConsolidation?: boolean;
+	/** The settings panel URL when it holds Google Analytics for this user, `false` otherwise. Only on the Jetpack, Settings and My Jetpack pages. */
+	googleAnalyticsPanel?: string | false;
 }
 
 export interface JetpackScriptData {

@@ -63,16 +63,7 @@ class Seo_Tools {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		/**
-		 * Can be used by SEO plugin authors to disable the conflicting output of SEO Tools.
-		 *
-		 * @module seo-tools
-		 *
-		 * @since jetpack-5.0.0
-		 *
-		 * @param bool True if SEO Tools should be disabled, false otherwise.
-		 */
-		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+		if ( self::is_disabled() ) {
 			return false;
 		}
 

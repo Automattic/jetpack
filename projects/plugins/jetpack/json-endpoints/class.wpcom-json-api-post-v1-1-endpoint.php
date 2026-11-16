@@ -117,15 +117,16 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			return $post;
 		}
 
-		$GLOBALS['post'] = $post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['post'] = $post->post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// TODO: not sure where this one should go
 		if ( 'display' === $context ) {
-			setup_postdata( $post );
+			setup_postdata( $post->post );
 		}
 
 		$keys_to_render = array_keys( $this->post_object_format );
-		if ( isset( $this->api->query['fields'] ) ) {
+		// See WPCOM_JSON_API::filter_fields().
+		if ( isset( $this->api->query['fields'] ) && is_string( $this->api->query['fields'] ) ) {
 			$limit_to_fields = array_map( 'trim', explode( ',', $this->api->query['fields'] ) );
 			$keys_to_render  = array_intersect( $keys_to_render, $limit_to_fields );
 		}

@@ -1,4 +1,6 @@
-import { Stack } from '@jetpack-premium-analytics/externals';
+import { Badge, Stack } from '@jetpack-premium-analytics/externals';
+import { useViewportMatch } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
 import { PageOptionsMenu } from '../page-options-menu';
@@ -132,6 +134,24 @@ export function useDetailPageCustomize(
 		onEditChange,
 		onLayoutChange: handleLayoutChange,
 	};
+}
+
+/**
+ * The badge a detail page shows while customizing. A phone's header has no room for it beside
+ * Cancel and Done, which say as much already.
+ *
+ * @return The badge, or nothing on a phone.
+ */
+export function CustomizingBadge() {
+	const isNarrow = useViewportMatch( 'small', '<' );
+
+	if ( isNarrow ) {
+		return null;
+	}
+
+	return (
+		<Badge intent="informational">{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }</Badge>
+	);
 }
 
 export type DetailPageActionsProps = {

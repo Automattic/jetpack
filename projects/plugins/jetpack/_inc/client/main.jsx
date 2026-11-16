@@ -284,9 +284,22 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
-			case '/settings':
 			case '/writing':
+				// Only admins get here, and they find every Writing setting in Features once settings move out.
+				if ( '/writing' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
+					break;
+				}
+			// Falls through.
 			case '/discussion':
+				if ( '/discussion' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments' )
+					);
+					break;
+				}
+			// Falls through.
+			case '/settings':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (

@@ -79,6 +79,16 @@ describe( 'ArrangeTabsDialog', () => {
 		expect( onClose ).toHaveBeenCalled();
 	} );
 
+	it( 'keeps the place of a tab that is hidden while the reader saves', async () => {
+		setSectionOrder( SCOPE, [ 'traffic', 'ads', 'insights', 'subscribers' ] );
+		const { user } = renderDialog();
+
+		await user.click( screen.getByRole( 'button', { name: 'Move Subscribers up' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		expect( getSectionOrder( SCOPE ) ).toEqual( [ 'traffic', 'ads', 'subscribers', 'insights' ] );
+	} );
+
 	it( 'shows the page each order the reader tries, and takes it back on the way out', async () => {
 		const onPreview = jest.fn();
 		const { user, unmount } = renderDialog( onPreview );
