@@ -49,7 +49,20 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 			'<table><thead><tr><th>Code</th><th>Value</th></tr></thead><tbody><tr><td>GR-1</td><td>' . self::UNBREAKABLE_WORD . '</td></tr></tbody></table>'
 		);
 
-		$this->assertStringContainsString( '<table style="table-layout: fixed; width: 100%;">', $html );
+		$processor = new WP_HTML_Tag_Processor( $html );
+		$processor->next_tag( 'table' );
+		$this->assertSame( 'table-layout: fixed; width: 100%;', $processor->get_attribute( 'style' ) );
+		$this->assertSame( '100%', $processor->get_attribute( 'width' ) );
+	}
+
+	/**
+	 * Test a width the author already set on the table is kept.
+	 */
+	public function test_existing_table_width_attribute_is_kept() {
+		$processor = new WP_HTML_Tag_Processor( Automattic\Jetpack\Extensions\Markdown\make_content_email_safe( '<table width="50%"><tr><td>Cell</td></tr></table>' ) );
+		$processor->next_tag( 'table' );
+
+		$this->assertSame( '50%', $processor->get_attribute( 'width' ) );
 	}
 
 	/**

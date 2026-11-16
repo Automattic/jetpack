@@ -51,18 +51,15 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 /**
  * Let a table or a code fence wrap, so it can't widen the whole email.
  *
- * Markdown saves rendered HTML, so these reach the email as plain `<table>` and `<pre>`
- * with none of the block classes the email engine styles. A cell or a line holding a word
- * too long to break then sets the width of the message and it scrolls sideways.
+ * Markdown saves rendered HTML, so these arrive without the block classes the email engine
+ * styles, and one unbreakable word in a cell or line sets the width of the whole message.
  *
  * @param string $html Block markup.
  * @return string
  */
 function make_content_email_safe( $html ) {
-	// Equal columns are the only arrangement that neither overflows, whatever the column count,
-	// nor leaves a short label squeezed beside a long value until it reads one letter per line.
-	// A table block the email engine renders itself carries the same pair: without the width the
-	// fixed layout has nothing to divide, and the table lays out as if the layout were auto.
+	// Fixed layout splits the width into equal columns, so no column count can overflow a phone.
+	// It needs the width: without one, the table lays out as if the layout were auto.
 	$styles = array(
 		'TABLE' => 'table-layout: fixed; width: 100%;',
 		'TD'    => 'word-break: break-word;',
@@ -81,6 +78,11 @@ function make_content_email_safe( $html ) {
 
 		$existing = rtrim( trim( (string) $processor->get_attribute( 'style' ) ), ';' );
 		$processor->set_attribute( 'style', '' === $existing ? $styles[ $tag ] : $existing . '; ' . $styles[ $tag ] );
+
+		// Outlook's Word engine may ignore a table's CSS width, but it reads this attribute.
+		if ( 'TABLE' === $tag && null === $processor->get_attribute( 'width' ) ) {
+			$processor->set_attribute( 'width', '100%' );
+		}
 	}
 
 	return $processor->get_updated_html();
