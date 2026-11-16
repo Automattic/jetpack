@@ -1,0 +1,79 @@
+.logo {
+	block-size: 24px;
+	inline-size: auto;
+}
+
+.label {
+	font-weight: 600;
+}
+
+.prose {
+	max-inline-size: 70ch;
+}
+
+// A container query: the My Jetpack window is narrower than the screen.
+.options {
+	container-type: inline-size;
+}
+
+.options-row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+.options-separator {
+	align-self: center;
+	font-weight: 600;
+}
+
+@container (min-width: 640px) {
+
+	.options-row {
+		flex-direction: row;
+	}
+
+	.options-row > .option {
+		flex: 1 1 0;
+		min-inline-size: 0;
+	}
+}
+
+.option {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+	padding: var(--wpds-dimension-padding-xl);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+// Pinned to the bottom so buttons line up across options of different heights.
+.option-button {
+	margin-block-start: auto;
+	inline-size: 100%;
+	justify-content: center;
+}
+
+.addresses {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+.address {
+	inline-size: 100%;
+	box-sizing: border-box;
+	padding: var(--wpds-dimension-padding-md);
+	border-radius: var(--wpds-border-radius-lg);
+	background: var(--wpds-color-background-surface-neutral-weak);
+	font-weight: 600;
+	text-align: center;
+	overflow-wrap: anywhere;
+}
+
+.host-actions {
+	padding-block-start: var(--wpds-dimension-padding-md);
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+}
