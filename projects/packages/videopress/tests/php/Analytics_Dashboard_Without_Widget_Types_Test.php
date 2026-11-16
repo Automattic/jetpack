@@ -44,18 +44,19 @@ class Analytics_Dashboard_Without_Widget_Types_Test extends BaseTestCase {
 	}
 
 	/**
-	 * On WordPress.com Simple the registrant is called directly, so the origin must reach the
+	 * On WordPress.com Simple the registrant is called directly, so the origins must reach the
 	 * dashboard even on the run where the registrant registers nothing.
 	 */
-	public function test_the_error_reporting_origin_does_not_wait() {
+	public function test_the_error_reporting_origins_do_not_wait() {
 		$this->assertFalse( defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) );
 
 		Analytics_Dashboard::register_widget_types( new Widget_Type_Registry() );
 
 		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
 
-		$this->assertCount( 1, $origins );
-		$this->assertStringEndsWith( '/', $origins[0] );
+		$this->assertCount( 2, $origins );
+		$this->assertStringEndsWith( '/widgets/', $origins[0] );
+		$this->assertStringEndsWith( '/modules/', $origins[1] );
 	}
 
 	public function test_the_layout_seed_does_not_wait() {

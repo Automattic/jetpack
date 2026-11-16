@@ -347,25 +347,27 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The dashboard reports errors thrown by scripts under the package's build.
+	 * The dashboard reports errors thrown by the package's widgets and modules, and not by the rest
+	 * of its build. The origins are derived from a URL the registration itself publishes, so a build
+	 * served from somewhere else cannot pass.
 	 */
-	public function test_publishes_its_build_url_as_an_error_reporting_origin() {
+	public function test_publishes_its_widget_and_module_urls_as_error_reporting_origins() {
 		$this->enable_store();
 		$registry = new Widget_Type_Registry();
 
 		Analytics_Dashboard::register_widget_types( $registry );
 
 		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
+		$build   = trailingslashit( dirname( $registry->get_registered( Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE )->i18n_manifest ) );
 
-		$this->assertCount( 1, $origins );
-		$this->assertStringStartsWith( $origins[0], $registry->get_registered( Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE )->i18n_manifest );
+		$this->assertSame( array( $build . 'widgets/', $build . 'modules/' ), $origins );
 	}
 
 	/**
 	 * On WordPress.com Simple the registrant is called directly, so the origin must reach the
 	 * dashboard even on the run where the registrant registers nothing.
 	 */
-	public function test_publishes_the_error_reporting_origin_without_woocommerce() {
+	public function test_publishes_the_error_reporting_origins_without_woocommerce() {
 		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_false' );
 		$registry = new Widget_Type_Registry();
 
@@ -374,8 +376,9 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
 
 		$this->assertSame( array(), $registry->get_all_registered() );
-		$this->assertCount( 1, $origins );
-		$this->assertStringEndsWith( '/', $origins[0] );
+		$this->assertCount( 2, $origins );
+		$this->assertStringEndsWith( '/widgets/', $origins[0] );
+		$this->assertStringEndsWith( '/modules/', $origins[1] );
 	}
 
 	/**

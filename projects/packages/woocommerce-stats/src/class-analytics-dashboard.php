@@ -334,14 +334,21 @@ class Analytics_Dashboard {
 	}
 
 	/**
-	 * Append this package's build base URL to the dashboard's error reporting origins.
+	 * Append this package's dashboard build directories to the error reporting origins.
+	 *
+	 * The widget and module directories rather than the whole build, which also carries script that
+	 * never runs on the dashboard. Every widget and module builds into one of these two, so a new
+	 * one needs no change here.
 	 *
 	 * @param string[] $origins Absolute URL prefixes, each ending in a slash.
 	 * @return string[]
 	 */
 	public static function add_error_reporting_origin( $origins ) {
-		$origins   = is_array( $origins ) ? $origins : array();
-		$origins[] = trailingslashit( plugins_url( '', self::build_dir() . '/build.php' ) );
+		$origins = is_array( $origins ) ? $origins : array();
+		$build   = trailingslashit( plugins_url( '', self::build_dir() . '/build.php' ) );
+
+		$origins[] = $build . 'widgets/';
+		$origins[] = $build . 'modules/';
 
 		return $origins;
 	}

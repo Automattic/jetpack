@@ -20,7 +20,9 @@ PHP decides whether reporting is on. The package only reads the boolean `premium
 
 ## Script origins
 
-`premium_analytics.error_reporting.script_origins` lists the URL prefixes that mark a stack frame as dashboard code. It starts with this package's own `build/` URL. A package that ships its own build for the dashboard adds its build base URL, ending in a slash, through the `jetpack_premium_analytics_error_reporting_script_origins` filter. `ads`, `videopress` and `woocommerce-stats` already do this. Without it, an error thrown in that package's widget bundle is dropped as foreign when it arrives through `error` or `unhandledrejection`.
+`premium_analytics.error_reporting.script_origins` lists the URL prefixes that mark a stack frame as dashboard code. It starts with this package's own `build/` URL. A package that ships its own build for the dashboard adds its `build/widgets/` and `build/modules/` URLs, each ending in a slash, through the `jetpack_premium_analytics_error_reporting_script_origins` filter. `ads`, `videopress` and `woocommerce-stats` already do this. Without it, an error thrown in that package's widget bundle is dropped as foreign when it arrives through `error` or `unhandledrejection`.
+
+Those two directories rather than the whole build, because a package ships plenty of script that never runs on the dashboard: an error in the VideoPress player is not a dashboard error. Every widget and module builds into one of the two, so a new widget needs no change here.
 
 ## Redaction
 
