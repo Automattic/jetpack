@@ -48,6 +48,13 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	private $stats = array();
 
 	/**
+	 * Errors the editor sent to Logstash, as array( message, extra ).
+	 *
+	 * @var array[]
+	 */
+	private $logged = array();
+
+	/**
 	 * Path download_url() wrote to, when a test mocks the download.
 	 *
 	 * @var string
@@ -78,6 +85,28 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 			10,
 			2
 		);
+		add_filter(
+			'jetpack_wpcom_ai_marker_log_enabled',
+			function ( $enabled, $message, $extra ) {
+				$this->logged[] = array( $message, $extra );
+				return false;
+			},
+			10,
+			3
+		);
+
+		// Each test is its own request.
+		foreach ( array( 'logged', 'broken_tools' ) as $name ) {
+			$property = new \ReflectionProperty( \Jetpack_WPCOM_AI_Marker::class, $name );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, array() );
+		}
+
+		// Other suites call Feature_Flags::reset(), which drops the flag this file registered on load.
+		jetpack_wpcom_ai_marker_register_flag();
 	}
 
 	/**
@@ -108,6 +137,13 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( $expected, jetpack_wpcom_ai_marker_image_editors( array( 'WP_Image_Editor_Imagick', 'WP_Image_Editor_GD' ) ) );
 		$this->assertSame( end( $expected ), get_class( wp_get_image_editor( $this->jpeg() ) ) );
+	}
+
+	public function test_keeps_gd_when_the_flag_is_off() {
+		$this->fake_exiftool( '' );
+		add_filter( 'jetpack_feature_flag_enabled_' . JETPACK_WPCOM_AI_MARKER_FLAG, '__return_false' );
+
+		$this->assertSame( 'WP_Image_Editor_GD', get_class( wp_get_image_editor( $this->jpeg() ) ) );
 	}
 
 	/**
@@ -212,6 +248,33 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertLessThan( 3, microtime( true ) - $start );
 		$this->assertIsArray( $saved );
 		$this->assertSame( array( 'timed-out' ), $this->stats );
+		$this->assertSame(
+			array(
+				array(
+					'timed-out',
+					$this->log_extra(
+						array(
+							'tool' => $tool,
+							'step' => 'read',
+						)
+					),
+				),
+			),
+			$this->logged
+		);
+	}
+
+	public function test_skips_a_tool_for_the_rest_of_the_request_once_it_times_out() {
+		$this->fake_tool( 'exiftool', "exec sleep 5\n" );
+		$this->limit_tools_to_one_second();
+		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+		$start = microtime( true );
+
+		$saved = wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+
+		$this->assertLessThan( 0.5, microtime( true ) - $start );
+		$this->assertIsArray( $saved );
+		$this->assertSame( array( 'timed-out' ), $this->stats );
 	}
 
 	/**
@@ -252,6 +315,20 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertIsArray( $saved );
 		$this->assertSame( array( 'output-too-large' ), $this->stats );
+		$this->assertSame(
+			array(
+				array(
+					'output-too-large',
+					$this->log_extra(
+						array(
+							'tool' => 'exiftool',
+							'step' => 'read',
+						)
+					),
+				),
+			),
+			$this->logged
+		);
 	}
 
 	/**
@@ -446,6 +523,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertIsArray( $saved );
 		$this->assertSame( array(), $this->calls( 'exiftool' ) );
 		$this->assertSame( array( 'remote-source', 'download-failed' ), $this->stats );
+		$this->assertSame( array( array( 'download-failed', $this->log_extra( array( 'error' => 'http_request_failed' ) ) ) ), $this->logged );
 	}
 
 	public function test_deletes_the_download_when_the_read_fails() {
@@ -457,6 +535,9 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertIsArray( $saved );
 		$this->assertFileDoesNotExist( $this->downloaded );
 		$this->assertSame( array( 'remote-source', 'read-error' ), $this->stats );
+		$this->assertSame( array( 'read-error' ), array_column( $this->logged, 0 ) );
+		// The class only: messages can hold file paths.
+		$this->assertSame( 'ValueError', $this->logged[0][1]['error'] );
 	}
 
 	public function test_saves_the_edit_when_exiftool_cannot_write() {
@@ -466,7 +547,116 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertIsArray( $saved );
 		$this->assertNotFalse( getimagesize( $saved['path'] ) );
-		$this->assertSame( array( 'write-failed' ), $this->stats );
+		$this->assertSame( array( 'tool-failed' ), $this->stats );
+		$this->assertSame(
+			array(
+				array(
+					'tool-failed',
+					$this->log_extra(
+						array(
+							'tool'      => 'exiftool',
+							'step'      => 'write',
+							'exit_code' => 1,
+						)
+					),
+				),
+			),
+			$this->logged
+		);
+	}
+
+	public function test_logs_a_read_that_fails() {
+		$this->fake_tool( 'exiftool', "exit 3\n" );
+
+		$saved = wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+
+		$this->assertIsArray( $saved );
+		$this->assertSame( array( 'tool-failed' ), $this->stats );
+		$this->assertSame(
+			array(
+				array(
+					'tool-failed',
+					$this->log_extra(
+						array(
+							'tool'      => 'exiftool',
+							'step'      => 'read',
+							'exit_code' => 3,
+						)
+					),
+				),
+			),
+			$this->logged
+		);
+	}
+
+	public function test_saves_the_edit_when_logging_throws() {
+		$this->use_tool( 'exiftool', "/no/such\0tool" );
+		add_filter(
+			'jetpack_wpcom_ai_marker_log_enabled',
+			function () {
+				throw new \RuntimeException( 'Logging failed.' );
+			},
+			20
+		);
+
+		$saved = wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+
+		$this->assertIsArray( $saved );
+	}
+
+	public function test_logs_a_tool_that_cannot_start() {
+		$this->use_tool( 'exiftool', '/no/such/exiftool' );
+		// proc_open() warns before it returns false.
+		set_error_handler( '__return_true', E_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+
+		try {
+			$saved = wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertIsArray( $saved );
+		$this->assertSame( array( 'could-not-start' ), $this->stats );
+		$this->assertSame(
+			array(
+				array(
+					'could-not-start',
+					$this->log_extra(
+						array(
+							'tool' => 'exiftool',
+							'step' => 'read',
+						)
+					),
+				),
+			),
+			$this->logged
+		);
+	}
+
+	public function test_sends_each_error_to_logstash_once_per_request() {
+		$this->fake_exiftool( self::AI_MARKER, 1 );
+
+		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+
+		$this->assertSame( array( 'tool-failed', 'tool-failed' ), $this->stats );
+		$this->assertSame( array( 'tool-failed' ), array_column( $this->logged, 0 ) );
+	}
+
+	public function test_saves_the_edit_when_a_stats_hook_throws() {
+		$this->fake_exiftool( self::AI_MARKER );
+		add_action(
+			'jetpack_bump_stats_extras',
+			function () {
+				throw new \RuntimeException( 'Stats failed.' );
+			},
+			20
+		);
+
+		$saved = wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+
+		$this->assertIsArray( $saved );
+		$this->assertSame( array( 'written' ), $this->stats );
 	}
 
 	/**
@@ -493,6 +683,16 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Returns the extra fields a Logstash entry should have.
+	 *
+	 * @param array $extra The fields after the stats group.
+	 * @return array
+	 */
+	private function log_extra( array $extra ) {
+		return array( 'group' => 'image_editor_ai_marker' ) + $extra;
 	}
 
 	/**

@@ -34,6 +34,20 @@ class Jetpack_WPCOM_AI_Marker {
 	private $stats_group;
 
 	/**
+	 * The errors this request sent to Logstash, by blog, so a bulk job sends each one once.
+	 *
+	 * @var true[][]
+	 */
+	private static $logged = array();
+
+	/**
+	 * The tools that timed out or couldn't start in this request, so later saves don't wait on them again.
+	 *
+	 * @var true[]
+	 */
+	private static $broken_tools = array();
+
+	/**
 	 * Sets the stats group.
 	 *
 	 * @param string $stats_group The jetpack_bump_stats_extras group for this caller.
@@ -55,7 +69,8 @@ class Jetpack_WPCOM_AI_Marker {
 				? $this->read_from_url( $file )
 				: $this->read_local( $file );
 		} catch ( Throwable $e ) {
-			$this->bump_stat( 'read-error' );
+			// The class only: messages can hold file paths.
+			$this->log_error( 'read-error', array( 'error' => get_class( $e ) ) );
 			return '';
 		}
 	}
@@ -70,12 +85,16 @@ class Jetpack_WPCOM_AI_Marker {
 		try {
 			$exiftool = jetpack_wpcom_ai_marker_tool_path( 'exiftool' );
 			// Stops exiftool recording its version.
-			$output = $this->run_tool( array( $exiftool, '-config', '', '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', '-XMP-iptcExt:DigitalSourceType=' . $digital_source_type, $filename ) );
+			$output = $this->run_tool( 'exiftool', 'write', array( $exiftool, '-config', '', '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', '-XMP-iptcExt:DigitalSourceType=' . $digital_source_type, $filename ) );
 		} catch ( Throwable $e ) {
-			$output = null;
+			$this->log_error( 'write-error', array( 'error' => get_class( $e ) ) );
+			return;
 		}
 
-		$this->bump_stat( null !== $output ? 'written' : 'write-failed' );
+		// run_tool() counts and logs a failed write.
+		if ( null !== $output ) {
+			$this->bump_stat( 'written' );
+		}
 	}
 
 	/**
@@ -87,7 +106,7 @@ class Jetpack_WPCOM_AI_Marker {
 	private function read_local( $file ) {
 		$exiftool = jetpack_wpcom_ai_marker_tool_path( 'exiftool' );
 		// No config file: exiftool runs it as Perl.
-		$output              = (string) $this->run_tool( array( $exiftool, '-config', '', '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $file ) );
+		$output              = (string) $this->run_tool( 'exiftool', 'read', array( $exiftool, '-config', '', '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $file ) );
 		$digital_source_type = preg_match( '/^DigitalSourceType: (.*)$/m', $output, $match ) ? trim( $match[1] ) : '';
 		if ( self::is_synthetic( $digital_source_type ) ) {
 			return $digital_source_type;
@@ -108,7 +127,7 @@ class Jetpack_WPCOM_AI_Marker {
 
 		$temp = download_url( $url, 10 );
 		if ( is_wp_error( $temp ) ) {
-			$this->bump_stat( 'download-failed' );
+			$this->log_error( 'download-failed', array( 'error' => $temp->get_error_code() ) );
 			return '';
 		}
 
@@ -134,7 +153,7 @@ class Jetpack_WPCOM_AI_Marker {
 			return '';
 		}
 
-		$store     = json_decode( (string) $this->run_tool( array( $c2patool, '--settings', $settings, $file ) ), true );
+		$store     = json_decode( (string) $this->run_tool( 'c2patool', 'read', array( $c2patool, '--settings', $settings, $file ) ), true );
 		$manifests = (array) ( $store['manifests'] ?? array() );
 		$active    = $store['active_manifest'] ?? '';
 		if ( isset( $manifests[ $active ] ) ) {
@@ -159,10 +178,16 @@ class Jetpack_WPCOM_AI_Marker {
 	/**
 	 * Runs a tool without a shell, with a time limit: PHP's own limit ignores other programs.
 	 *
+	 * @param string   $name    exiftool or c2patool, for the error log.
+	 * @param string   $step    'read' or 'write', for the error log.
 	 * @param string[] $command The program and its arguments.
 	 * @return string|null Its output, or null when it fails, times out or prints too much.
 	 */
-	private function run_tool( array $command ) {
+	private function run_tool( $name, $step, array $command ) {
+		if ( isset( self::$broken_tools[ $name ] ) ) {
+			return null;
+		}
+
 		/**
 		 * Filters how many seconds a tool may run.
 		 *
@@ -180,7 +205,13 @@ class Jetpack_WPCOM_AI_Marker {
 		);
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_proc_open
 		$process = proc_open( $command, $descriptors, $pipes );
+		$tool    = array(
+			'tool' => $name,
+			'step' => $step,
+		);
 		if ( ! is_resource( $process ) ) {
+			self::$broken_tools[ $name ] = true;
+			$this->log_error( 'could-not-start', $tool );
 			return null;
 		}
 
@@ -195,11 +226,6 @@ class Jetpack_WPCOM_AI_Marker {
 			$too_big = strlen( $output ) > self::MAX_OUTPUT;
 		} while ( $status['running'] && ! $too_big && microtime( true ) < $deadline );
 
-		if ( $too_big ) {
-			$this->bump_stat( 'output-too-large' );
-		} elseif ( $status['running'] ) {
-			$this->bump_stat( 'timed-out' );
-		}
 		if ( $status['running'] ) {
 			self::stop( $process );
 		}
@@ -207,7 +233,18 @@ class Jetpack_WPCOM_AI_Marker {
 		proc_close( $process );
 
 		// proc_close() returns -1 once proc_get_status() has seen the exit.
-		return ! $too_big && ! $status['running'] && 0 === $status['exitcode'] ? $output : null;
+		if ( $too_big ) {
+			$this->log_error( 'output-too-large', $tool );
+		} elseif ( $status['running'] ) {
+			self::$broken_tools[ $name ] = true;
+			$this->log_error( 'timed-out', $tool );
+		} elseif ( 0 !== $status['exitcode'] ) {
+			$this->log_error( 'tool-failed', $tool + array( 'exit_code' => $status['exitcode'] ) );
+		} else {
+			return $output;
+		}
+
+		return null;
 	}
 
 	/**
@@ -238,11 +275,52 @@ class Jetpack_WPCOM_AI_Marker {
 	}
 
 	/**
+	 * Counts an error, and sends it to Logstash: stats don't reach Atomic.
+	 *
+	 * @param string $message The error, also used as the stat.
+	 * @param array  $extra   Details for the Logstash entry.
+	 */
+	private function log_error( $message, array $extra = array() ) {
+		// read() and write() call this from their catch blocks, so it must not throw.
+		try {
+			$this->bump_stat( $message );
+
+			$blog_id = get_current_blog_id();
+			if ( isset( self::$logged[ $blog_id ][ $message ] ) ) {
+				return;
+			}
+			self::$logged[ $blog_id ][ $message ] = true;
+
+			$extra = array( 'group' => $this->stats_group ) + $extra;
+			/**
+			 * Filters whether to send an AI marker error to Logstash.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool   $enabled Whether to send the entry. Default true.
+			 * @param string $message The error.
+			 * @param array  $extra   The entry's details.
+			 */
+			if ( apply_filters( 'jetpack_wpcom_ai_marker_log_enabled', true, $message, $extra ) ) {
+				// The endpoint Atomic posts to only accepts features with an "atomic" prefix.
+				\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash( 'atomic_image_ai_marker', $message, $extra );
+			}
+		} catch ( Throwable $e ) {
+			unset( $e );
+		}
+	}
+
+	/**
 	 * Bumps a stat in this caller's group.
 	 *
 	 * @param string $value The stat.
 	 */
 	private function bump_stat( $value ) {
-		do_action( 'jetpack_bump_stats_extras', $this->stats_group, $value );
+		// The marker is optional, so a stats hook mustn't stop the save.
+		try {
+			do_action( 'jetpack_bump_stats_extras', $this->stats_group, $value );
+		} catch ( Throwable $e ) {
+			unset( $e );
+		}
 	}
 }

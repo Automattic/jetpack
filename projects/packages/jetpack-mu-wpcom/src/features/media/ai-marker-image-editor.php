@@ -5,6 +5,27 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+
+const JETPACK_WPCOM_AI_MARKER_FLAG = 'wpcom-ai-marker';
+
+/**
+ * Registers the feature flag.
+ *
+ * Runs as this file loads, so the flag is listed wherever flags are read or toggled.
+ */
+function jetpack_wpcom_ai_marker_register_flag() {
+	Feature_Flags::register(
+		JETPACK_WPCOM_AI_MARKER_FLAG,
+		array(
+			'default'     => true,
+			'description' => 'Keep the AI marker in images WordPress.com edits or converts. Turn off to stop running exiftool and c2patool.',
+			'owner'       => 'jetpack-mu-wpcom',
+		)
+	);
+}
+jetpack_wpcom_ai_marker_register_flag();
+
 /**
  * Returns the path of exiftool or c2patool, or '' when the host has none.
  *
@@ -12,6 +33,10 @@
  * @return string
  */
 function jetpack_wpcom_ai_marker_tool_path( $tool ) {
+	if ( ! Feature_Flags::is_enabled( JETPACK_WPCOM_AI_MARKER_FLAG ) ) {
+		return '';
+	}
+
 	$candidates = 'c2patool' === $tool
 		? array( defined( 'C2PATOOL' ) ? C2PATOOL : '/usr/local/bin/c2patool' )
 		: array( '/usr/local/bin/exiftool', '/usr/bin/exiftool' );
