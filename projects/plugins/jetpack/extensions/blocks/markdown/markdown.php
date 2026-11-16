@@ -49,7 +49,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 }
 
 /**
- * Let a table cell or a code fence wrap, so it can't widen the whole email.
+ * Let a table or a code fence wrap, so it can't widen the whole email.
  *
  * Markdown saves rendered HTML, so these reach the email as plain `<table>` and `<pre>`
  * with none of the block classes the email engine styles. A cell or a line holding a word
@@ -59,16 +59,15 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
  * @return string
  */
 function make_content_email_safe( $html ) {
-	// min-width on cells: word-break drops a cell's minimum width to one character, and auto
-	// table layout then squeezes a short column sharing a row with a long one until its label
-	// reads one letter per line. A code fence has no such neighbour, so it needs no floor.
-	//
-	// 3em, not more: every cell carries the floor, so a wider value pushes a table of short
-	// columns that fitted before past the email's width and back into a sideways scroll.
+	// Equal columns are the only arrangement that neither overflows, whatever the column count,
+	// nor leaves a short label squeezed beside a long value until it reads one letter per line.
+	// A table block the email engine renders itself carries the same pair: without the width the
+	// fixed layout has nothing to divide, and the table lays out as if the layout were auto.
 	$styles = array(
-		'TD'  => 'word-break: break-word; min-width: 3em;',
-		'TH'  => 'word-break: break-word; min-width: 3em;',
-		'PRE' => 'white-space: pre-wrap; word-break: break-word;',
+		'TABLE' => 'table-layout: fixed; width: 100%;',
+		'TD'    => 'word-break: break-word;',
+		'TH'    => 'word-break: break-word;',
+		'PRE'   => 'white-space: pre-wrap; word-break: break-word;',
 	);
 
 	$processor = new \WP_HTML_Tag_Processor( $html );

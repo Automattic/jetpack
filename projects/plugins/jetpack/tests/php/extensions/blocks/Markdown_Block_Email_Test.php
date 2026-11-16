@@ -36,55 +36,35 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 			'<table><thead><tr><th>Guard reason</th></tr></thead><tbody><tr><td>' . self::UNBREAKABLE_WORD . '</td></tr></tbody></table>'
 		);
 
-		$this->assertStringContainsString( '<th style="word-break: break-word; min-width: 3em;">', $html );
-		$this->assertStringContainsString( '<td style="word-break: break-word; min-width: 3em;">', $html );
+		$this->assertStringContainsString( '<th style="word-break: break-word;">', $html );
+		$this->assertStringContainsString( '<td style="word-break: break-word;">', $html );
 	}
 
 	/**
-	 * Test a short label column keeps a readable width beside a long one, instead of being
-	 * squeezed to the single character that word-break allows.
+	 * Test the table divides the email's width between its columns, which is what keeps a short
+	 * label beside a long value from being squeezed to the single character word-break allows.
 	 */
-	public function test_narrow_cells_keep_a_floor() {
+	public function test_the_table_divides_its_width_between_the_columns() {
 		$html = Automattic\Jetpack\Extensions\Markdown\make_content_email_safe(
 			'<table><thead><tr><th>Code</th><th>Value</th></tr></thead><tbody><tr><td>GR-1</td><td>' . self::UNBREAKABLE_WORD . '</td></tr></tbody></table>'
 		);
 
-		$this->assertSame( 4, substr_count( $html, 'min-width: 3em;' ) );
+		$this->assertStringContainsString( '<table style="table-layout: fixed; width: 100%;">', $html );
 	}
 
 	/**
-	 * Test the floor every cell carries stays small enough that a table of short columns,
-	 * which fitted before the floor existed, still fits the email.
+	 * Test no cell carries a minimum width. A minimum adds up across the row, so a table of
+	 * short columns leaves the width a phone gives it once there are enough of them.
 	 */
-	public function test_the_cell_floor_leaves_room_for_several_columns() {
+	public function test_cells_carry_no_minimum_width() {
 		$html = Automattic\Jetpack\Extensions\Markdown\make_content_email_safe(
-			'<table><thead><tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead>'
-			. '<tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr></tbody></table>'
+			'<table><thead><tr><th>Code</th><th>Name</th><th>Qty</th><th>Unit</th><th>Tax</th><th>Net</th></tr></thead>'
+			. '<tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr></tbody></table>'
 		);
 
-		preg_match_all( '/min-width: (\\d+)em;/', $html, $matches );
-		$this->assertCount( 10, $matches[1], 'Every cell should carry the floor.' );
-
-		// A 390px phone, less the email's 24px of root padding either side, leaves 342px. Measure
-		// against that rather than the 612px desktop width, which is wide enough to accept a floor
-		// that overflows a phone.
-		$columns      = 5;
-		$mobile_width = 342;
-		$width        = static function ( $em ) use ( $columns ) {
-			// Each cell adds 8px of padding either side, and collapsed borders add one per column
-			// plus one.
-			return $columns * ( $em * 16 + 16 ) + $columns + 1;
-		};
-
-		$this->assertLessThanOrEqual(
-			$mobile_width,
-			$width( (int) $matches[1][0] ),
-			'The floor must leave a table of short columns inside the width a phone gives it.'
-		);
-
-		// The floor this replaced cleared the desktop width and still overflowed a phone, which is
-		// what makes the limit above worth asserting.
-		$this->assertGreaterThan( $mobile_width, $width( 4 ) );
+		$this->assertStringNotContainsString( 'min-width', $html );
+		$this->assertSame( 12, substr_count( $html, 'word-break: break-word;' ), 'Every cell should wrap.' );
+		$this->assertStringContainsString( 'table-layout: fixed; width: 100%;', $html );
 	}
 
 	/**
@@ -105,7 +85,7 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 	public function test_existing_style_is_kept() {
 		$html = Automattic\Jetpack\Extensions\Markdown\make_content_email_safe( '<table><tr><td style="text-align: right">Total</td></tr></table>' );
 
-		$this->assertStringContainsString( 'text-align: right; word-break: break-word; min-width: 3em;', $html );
+		$this->assertStringContainsString( 'style="text-align: right; word-break: break-word;"', $html );
 	}
 
 	/**
@@ -129,7 +109,7 @@ class Markdown_Block_Email_Test extends WP_UnitTestCase {
 			new stdClass()
 		);
 
-		$this->assertStringContainsString( '<td style="word-break: break-word; min-width: 3em;">' . self::UNBREAKABLE_WORD . '</td>', (string) $rendered );
+		$this->assertStringContainsString( '<td style="word-break: break-word;">' . self::UNBREAKABLE_WORD . '</td>', (string) $rendered );
 	}
 
 	/**
