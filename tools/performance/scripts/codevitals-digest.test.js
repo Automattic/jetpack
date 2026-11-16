@@ -103,15 +103,49 @@ const SCENARIOS = {
 				unit: 'KB',
 			},
 			metricRow( 403, 'My Jetpack: TTFB', 'my-jetpack-connection-sim-timeToFirstByte' ),
+			metricRow( 404, 'Forms: FCP', 'forms-responses-connection-sim-firstContentfulPaint' ),
+			metricRow( 405, 'My Jetpack: LCP', 'my-jetpack-connection-sim-largestContentfulPaint' ),
+			metricRow( 406, 'My Jetpack: FCP', 'my-jetpack-connection-sim-firstContentfulPaint' ),
 		],
 		series: {
 			301: spikeSeries( false ),
 			401: levelSeries( Array( 10 ).fill( 10000 ), 12000, Array( 10 ).fill( 12000 ), 'forms' ),
 			402: levelSeries( Array( 10 ).fill( 10000 ), 12000, Array( 10 ).fill( 12000 ), 'my' ),
 			403: levelSeries( Array( 10 ).fill( 100 ), 120, Array( 5 ).fill( 120 ), 'ttfb' ),
+			404: spikeSeries( false ),
+			405: spikeSeries( false ),
+			406: spikeSeries( false ),
 		},
 		no302: true,
 	} ),
+	digestQuiet: () => {
+		const fixture = SCENARIOS.digestLayout();
+		for ( const metric of fixture.metrics ) {
+			fixture.series[ metric.id ] = steady( 30, 0.5, metric.unit === 'KB' ? 10000 : 100 );
+		}
+		return fixture;
+	},
+	pageWeightUnreadable: () => {
+		const fixture = SCENARIOS.digestQuiet();
+		delete fixture.series[ 401 ];
+		delete fixture.series[ 402 ];
+		return fixture;
+	},
+	pageWeightStale: () => {
+		const fixture = SCENARIOS.digestQuiet();
+		for ( const id of [ 401, 402 ] ) fixture.series[ id ] = steady( 30, 12, 10000 );
+		return fixture;
+	},
+	timingUnreadable: () => {
+		const fixture = SCENARIOS.digestQuiet();
+		delete fixture.series[ 301 ];
+		return fixture;
+	},
+	timingStale: () => {
+		const fixture = SCENARIOS.digestQuiet();
+		fixture.series[ 301 ] = steady( 30, 12, 100 );
+		return fixture;
+	},
 	backend: () => ( {
 		metrics: [
 			{ ...metricRow( 401, 'PHP total', 'admin-wp-total-staging' ), unit: 'ms' },
@@ -504,7 +538,12 @@ const SCENARIOS = {
 		// 45 metrics each holding a sustained spike: 45 confirmed, past the MAX_LINES cut.
 		for ( let i = 0; i < 45; i++ ) {
 			const id = 400 + i;
-			metrics.push( metricRow( id, `Flood ${ i }: LCP`, `flood-${ i }` ) );
+			const key =
+				[
+					'forms-responses-connection-sim-decodedBytesKB',
+					'my-jetpack-connection-sim-decodedBytesKB',
+				][ i ] ?? `flood-${ i }`;
+			metrics.push( metricRow( id, `Flood ${ i }`, key ) );
 			series[ id ] = spikeSeries( false );
 		}
 		metrics.push( metricRow( 'x9', 'Bad: id', 'bad-id' ) ); // non-numeric id -> dropped
@@ -1127,7 +1166,7 @@ const SCENARIOS = {
 		metrics: [ ...baseMetrics(), metricRow( 303, 'Fut: FCP', 'fut-fcp', -40 ) ],
 		series: { 301: steady( 30, 0.5, 100 ), 303: [] },
 	} ),
-	// Non-numeric regressionPercent on a confirmed flag: render "regressed", never "+NaN%".
+	// A non-numeric percentage must render as unavailable, never "+NaN%".
 	nanpct: () => ( {
 		series: {
 			301: [
@@ -1137,6 +1176,11 @@ const SCENARIOS = {
 			],
 		},
 	} ),
+	nanpctPending: () => {
+		const fixture = SCENARIOS.nanpct();
+		fixture.series[ 301 ] = fixture.series[ 301 ].slice( 0, 26 );
+		return fixture;
+	},
 	// 200-char unit must be clipped to 120 in every render site.
 	hugeunit: () => ( {
 		metrics: [
@@ -1343,6 +1387,61 @@ async function runDigest( scenario, envOverrides = {}, opts = {} ) {
 	}
 }
 
+test( 'unreadable page weight has a qualified headline', async () => {
+	const result = await runDigest( 'pageWeightUnreadable' );
+	assert.equal( result.code, 1, result.err );
+	assert.ok( result.out.includes( 'Page weight could not be fully read this week.' ), result.out );
+	assert.ok( ! result.out.includes( 'No page-weight alerts in this digest.' ), result.out );
+} );
+
+test( 'stale page weight has a qualified headline', async () => {
+	const result = await runDigest( 'pageWeightStale' );
+	assert.equal( result.code, 1, result.err );
+	assert.ok( result.out.includes( 'Page weight could not be fully read this week.' ), result.out );
+	assert.ok( ! result.out.includes( 'No page-weight alerts in this digest.' ), result.out );
+} );
+
+test( 'an override cannot claim quiet page weight without metric discovery', async () => {
+	const result = await runDigest( 'digestLayout', { METRIC_IDS: '401,402' }, { discoFail: true } );
+	assert.equal( result.code, 0, result.err );
+	assert.ok( result.out.includes( 'Page weight could not be fully read this week.' ), result.out );
+	assert.ok( ! result.out.includes( 'No page-weight alerts in this digest.' ), result.out );
+	assert.ok( ! result.out.includes( 'No timing alerts in this digest.' ), result.out );
+	const texts = JSON.parse( result.out ).blocks.map( b => b.text?.text ?? '' );
+	for ( const id of [ 401, 402 ] ) {
+		assert.ok(
+			texts.findIndex( text => text.startsWith( `• *metric ${ id }*` ) ) >
+				texts.indexOf( '*Diagnostics*' )
+		);
+	}
+} );
+
+test( 'timing quiet-state messages require complete fresh reads', async () => {
+	for ( const scenario of [ 'digestQuiet', 'timingUnreadable', 'timingStale' ] ) {
+		const result = await runDigest( scenario );
+		const complete = scenario === 'digestQuiet';
+		assert.equal( result.code, complete ? 0 : 1, result.err );
+		assert.ok( result.out.includes( 'No page-weight alerts in this digest.' ), result.out );
+		assert.equal( result.out.includes( 'No timing alerts in this digest.' ), complete, result.out );
+		assert.equal(
+			result.out.includes( 'Timing diagnostics could not be fully read this week.' ),
+			! complete,
+			result.out
+		);
+	}
+} );
+
+test( 'notification truncation follows the list of timing names it cuts', async () => {
+	for ( const ids of [ '301,404,405,406', '301,401,404,405,406' ] ) {
+		const result = await runDigest( 'digestLayout', { METRIC_IDS: ids } );
+		assert.equal( result.code, 0, result.err );
+		const text = JSON.parse( result.out ).text;
+		const [ headline, diagnostics ] = text.split( '\nDiagnostics' );
+		assert.ok( ! headline.includes( '…' ), headline );
+		assert.ok( diagnostics.endsWith( ', …' ), diagnostics );
+	}
+} );
+
 test( 'Forms and My Jetpack page weight lead the digest and notification', async () => {
 	const result = await runDigest( 'digestLayout' );
 	assert.equal( result.code, 0, result.err );
@@ -1354,7 +1453,11 @@ test( 'Forms and My Jetpack page weight lead the digest and notification', async
 	for ( const name of [ 'Forms: page weight', 'My Jetpack: page weight' ] ) {
 		const row = texts.findIndex( text => text.startsWith( `• *${ name }*` ) );
 		assert.ok( row > headline && row < diagnostics, texts.join( '\n' ) );
-		assert.ok( payload.text.indexOf( name ) < payload.text.indexOf( 'Forms: LCP' ), payload.text );
+		const notificationIndex = payload.text.indexOf( name );
+		assert.ok(
+			notificationIndex >= 0 && notificationIndex < payload.text.indexOf( 'Forms: LCP' ),
+			payload.text
+		);
 	}
 } );
 
@@ -1372,7 +1475,13 @@ test( 'timings appear under diagnostics with the measurement caveat', async () =
 		payload.text.indexOf( 'Forms: LCP' ) > payload.text.indexOf( 'Diagnostics' ),
 		payload.text
 	);
-	for ( const name of [ 'Forms: LCP', 'My Jetpack: TTFB' ] ) {
+	for ( const name of [
+		'Forms: LCP',
+		'My Jetpack: TTFB',
+		'Forms: FCP',
+		'My Jetpack: LCP',
+		'My Jetpack: FCP',
+	] ) {
 		assert.ok( texts.findIndex( text => text.includes( `*${ name }*` ) ) > diagnostics );
 	}
 } );
@@ -1382,16 +1491,35 @@ test( 'alerts describe observed comparison ranges and label flags as observation
 		[ 'levelstep', 'level0', 'level20' ],
 		[ 'shorttail', 'level0', 'level19' ],
 		[ 'groupedPending', 'tail10', 'tail30' ],
+		[ 'adjacentSteps', 'p7c10', 'p7c31' ],
+		[ 'diprecovery', 'level0', 'level20' ],
+		[ 'nanpctPending', 'c10', 'q4' ],
 	] ) {
 		const result = await runDigest( scenario );
 		assert.equal( result.code, 0, result.err );
 		const text = JSON.parse( result.out )
-			.blocks.map( b => b.text?.text ?? '' )
+			.blocks.map(
+				b => b.text?.text ?? b.elements?.map( element => element.text ).join( '\n' ) ?? ''
+			)
 			.join( '\n' );
 		const range = text.match(
-			/observed between <[^|]+\/([a-f0-9]{40})\|[^>]+> and <[^|]+\/([a-f0-9]{40})\|/
+			/(?:observed between|within the comparison window) <[^|]+\/([a-f0-9]{40})\|[^>]+> (?:and|to) <[^|]+\/([a-f0-9]{40})\|/
 		);
 		assert.deepEqual( range?.slice( 1 ), [ hx( start ), hx( end ) ], text );
+		assert.equal(
+			text.includes( 'observed between' ),
+			! [ 'shorttail', 'diprecovery', 'nanpctPending' ].includes( scenario ),
+			text
+		);
+		if ( [ 'shorttail', 'diprecovery' ].includes( scenario ) )
+			assert.ok( text.includes( '(single pair) within the comparison window' ), text );
+		if ( scenario === 'nanpctPending' )
+			assert.ok(
+				text.includes(
+					'Change (single pair; percentage unavailable) within the comparison window'
+				),
+				text
+			);
 		assert.match( text, /flags? observed at/ );
 	}
 } );
@@ -1720,7 +1848,7 @@ const CASES = [
 	},
 	{ n: 'disco-empty-fails-loud', sc: 'disco-empty', exit: 1, out: [ 'METRIC DISCOVERY FAILURE' ] },
 	{
-		n: 'disco-html-override-cosmetic',
+		n: 'disco-html-override-keeps-reading-ids',
 		sc: 'disco-html',
 		env: { METRIC_IDS: '301,302' },
 		exit: 0,
@@ -2252,10 +2380,10 @@ const CASES = [
 		out: [ 'Stale metric', 'DATA STALE', 'no data points' ],
 	},
 	{
-		n: 'nan-pct-renders-regressed',
+		n: 'nan-pct-reports-unavailable-percentage',
 		sc: 'nanpct',
 		exit: 0,
-		out: [ 'regressed', '1 sustained regression' ],
+		out: [ 'single-pair percentage unavailable', '1 sustained regression' ],
 		not: [ '+NaN%' ],
 	},
 	{
@@ -2679,6 +2807,9 @@ test( 'the worst week stays inside the 50-block Slack ceiling', async () => {
 		'Skipped malformed data point',
 		'*Stale metric',
 		'Unusable level baseline',
+		'*Page weight — Forms and My Jetpack*',
+		'*Diagnostics*',
+		'Timing diagnostics could not be fully read this week.',
 		'sustained regressions* in the last',
 		'more — see the metric charts',
 		'older confirmed change',
@@ -2690,8 +2821,15 @@ test( 'the worst week stays inside the 50-block Slack ceiling', async () => {
 			`${ needle } missing from:\n${ texts.join( '\n' ) }`
 		);
 	}
+	for ( const i of [ 0, 1 ] ) {
+		const row = texts.findIndex( text => text.startsWith( `• *Flood ${ i }*` ) );
+		assert.ok(
+			row > texts.indexOf( '*Page weight — Forms and My Jetpack*' ) &&
+				row < texts.indexOf( '*Diagnostics*' )
+		);
+	}
 	// The category headings share the block budget with the regression rows.
-	assert.strictEqual( payload.blocks.length, 50, texts.join( '\n' ) );
+	assert.strictEqual( payload.blocks.length, 49, texts.join( '\n' ) );
 	assert.ok( payload.blocks.length <= 50, 'Slack rejects a message over 50 blocks' );
 } );
 

@@ -3,6 +3,7 @@
  */
 import { WebClient } from '@slack/web-api';
 import { isDirectInvocation } from './post-to-codevitals.js';
+import { SCENARIOS } from './scenarios.js';
 import { median, stdDev } from './stats.js';
 
 // Day-count knobs parse strict decimal only: Number() also accepts hex ("0x10" is 16) and
@@ -34,10 +35,14 @@ const clip = raw => {
 // rule cannot drift.
 const mrkdwn = text => ( { type: 'mrkdwn', text, verbatim: true } );
 const section = text => ( { type: 'section', text: mrkdwn( text ) } );
-const PAGE_WEIGHT_KEYS = new Set( [
-	'forms-responses-connection-sim-decodedBytesKB',
-	'my-jetpack-connection-sim-decodedBytesKB',
-] );
+const PAGE_WEIGHT_KEYS = new Set(
+	[ 'formsResponses', 'myJetpack' ].map(
+		key =>
+			SCENARIOS.find( scenario => scenario.key === key ).metrics.find(
+				metric => metric.field === 'decodedBytesKB'
+			).codevitalsKey
+	)
+);
 const TIMING_CAVEAT = 'Timings: warm reload, test site with default data, simulated connection.';
 const LEVEL_WINDOW = 10;
 const robustScale = ( values, level ) =>
@@ -233,9 +238,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		oneLine( e?.cause?.message ? `${ e.message } (${ e.cause.message })` : e.message );
 
 	// ---- metric inventory: id discovery + name/key/unit labels ----
-	// With no METRIC_IDS override this lookup is LOAD-BEARING (it enumerates what we watch), so
-	// its failure is a loud digest-level failure, never a silent shrink to nothing. With an
-	// override it degrades to cosmetic (labels fall back to ids).
+	// Discovery supplies the watch list unless overridden; it still identifies headline series
+	// so unreadable metadata cannot produce a page-weight all-clear.
 	let metaById = new Map();
 	let discoveryError = '';
 	try {
@@ -795,13 +799,13 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		const commits = members
 			.map( member => commitLink( member.hash ) + ( member.self ? '' : ' (re-run)' ) )
 			.join( ', ' );
-		return `*${ esc( clip( r.name ) ) }* median ${ medianPct( r ) } (${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) }) · single-pair ${ pctStr( r.pct ) || 'regressed' }${ delta }${ r.reRun ? ' (flag from a re-run)' : '' }${ r.grouped > 1 ? ` (${ r.grouped } flags grouped)` : '' } — observed between ${ commitLink( r.rangeStart ) } and ${ commitLink( r.rangeEnd ) }; flags observed at ${ commits }${ r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '' }`;
+		return `*${ esc( clip( r.name ) ) }* median ${ medianPct( r ) } (${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) }) · single-pair ${ pctStr( r.pct ) || 'percentage unavailable' }${ delta }${ r.reRun ? ' (flag from a re-run)' : '' }${ r.grouped > 1 ? ` (${ r.grouped } flags grouped)` : '' } — observed between ${ commitLink( r.rangeStart ) } and ${ commitLink( r.rangeEnd ) }; flags observed at ${ commits }${ r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '' }`;
 	};
-	// Pending and suppressed rows share this tail: the 'regressed' fallback (a '' fallback
-	// double-spaced the line) and a (late) marker — a weeks-old orphaned flag must not render
-	// byte-identically to one raised this week.
-	const lateRow = r =>
-		`${ pctStr( r.pct ) || 'regressed' } observed between ${ commitLink( r.rangeStart ) } and ${ commitLink( r.rangeEnd ) }; flag observed at ${ commitLink( r.hash ) }${ r.reRun ? ' (flag from a re-run)' : '' }${ r.late ? ' (late)' : '' }`;
+	// A single-pair percentage does not describe the change across the whole comparison window.
+	const lateRow = r => {
+		const pct = pctStr( r.pct );
+		return `${ pct || 'Change' } (single pair${ pct ? '' : '; percentage unavailable' }) within the comparison window ${ commitLink( r.rangeStart ) } to ${ commitLink( r.rangeEnd ) }; flag observed at ${ commitLink( r.hash ) }${ r.reRun ? ' (flag from a re-run)' : '' }${ r.late ? ' (late)' : '' }`;
+	};
 	const blocks = [
 		{
 			type: 'header',
@@ -978,20 +982,54 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				items.filter( r => PAGE_WEIGHT_KEYS.has( r.key ) === pageWeight )
 			)
 		);
-		// Reserve the headings, joined lists and overflow notices before allocating row blocks.
+		const staleIds = new Set( staleInfo.map( stale => stale.id ) );
+		const categoryFullyRead = categories.map( ( _, index ) => {
+			const inventory = [ ...metaById ].filter(
+				( [ , metric ] ) => PAGE_WEIGHT_KEYS.has( metric.key ) === ( index === 0 )
+			);
+			return (
+				! discoveryError &&
+				inventory.length > 0 &&
+				( index !== 0 ||
+					[ ...PAGE_WEIGHT_KEYS ].every( key =>
+						inventory.some( ( [ , metric ] ) => metric.key === key )
+					) ) &&
+				inventory.every(
+					( [ id ] ) =>
+						newestByMetric.get( id ) > 0 && ! staleIds.has( id ) && ! badPoints.has( id )
+				)
+			);
+		} );
+		const notices = categories.filter(
+			( lists, index ) => ! categoryFullyRead[ index ] || lists.every( items => items.length === 0 )
+		).length;
+		// Slack allows 50 blocks; reserve the two category headings and timing caveat (3) before rows.
 		const wrappers = categories.reduce(
 			( count, lists ) => count + lists.filter( items => items.length > 0 ).length,
-			3
+			3 + notices
 		);
 		let linesLeft = Math.min( MAX_LINES, 50 - blocks.length - wrappers - categories.length );
 		for ( const [ index, lists ] of categories.entries() ) {
 			blocks.push(
 				section( index === 0 ? '*Page weight — Forms and My Jetpack*' : '*Diagnostics*' )
 			);
-			if ( index === 0 && lists.every( items => items.length === 0 ) ) {
-				blocks.push( section( 'No page-weight alerts in this digest.' ) );
-			} else if ( index === 1 ) {
-				blocks.push( section( TIMING_CAVEAT ) );
+			if ( index === 1 ) blocks.push( section( TIMING_CAVEAT ) );
+			if ( ! categoryFullyRead[ index ] ) {
+				blocks.push(
+					section(
+						index === 0
+							? 'Page weight could not be fully read this week.'
+							: 'Timing diagnostics could not be fully read this week.'
+					)
+				);
+			} else if ( lists.every( items => items.length === 0 ) ) {
+				blocks.push(
+					section(
+						index === 0
+							? 'No page-weight alerts in this digest.'
+							: 'No timing alerts in this digest.'
+					)
+				);
 			}
 			appendAlerts( ...lists, linesLeft );
 			linesLeft -= Math.min( lists[ 0 ].length, linesLeft );
@@ -1017,26 +1055,23 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	else {
 		// Notifications name page-weight changes first, including older confirmed changes.
 		const summaryName = r =>
-			`${ esc( clip( r.name ) ) } median ${ medianPct( r ) } (single-pair ${ pctStr( r.pct ) || 'regressed' })`;
-		const headlineFirst = items => [
-			...items.filter( r => PAGE_WEIGHT_KEYS.has( r.key ) ),
-			...items.filter( r => ! PAGE_WEIGHT_KEYS.has( r.key ) ),
-		];
+			`${ esc( clip( r.name ) ) } median ${ medianPct( r ) } (single-pair ${ pctStr( r.pct ) || 'percentage unavailable' })`;
 		const splitNames = ( items, limit, older = false ) => {
-			const selected = headlineFirst( items ).slice( 0, limit );
-			diagnosticSummary.push(
-				...selected
-					.filter( r => ! PAGE_WEIGHT_KEYS.has( r.key ) )
-					.map( r => `${ older ? 'Older confirmed (may repeat): ' : '' }${ summaryName( r ) }` )
-			);
-			return selected.filter( r => PAGE_WEIGHT_KEYS.has( r.key ) ).map( summaryName );
+			const headline = items.filter( r => PAGE_WEIGHT_KEYS.has( r.key ) );
+			const diagnostics = items.filter( r => ! PAGE_WEIGHT_KEYS.has( r.key ) );
+			const headlineNames = headline.slice( 0, limit ).map( summaryName );
+			const diagnosticNames = diagnostics
+				.slice( 0, Math.max( 0, limit - headline.length ) )
+				.map( r => `${ older ? 'Older confirmed (may repeat): ' : '' }${ summaryName( r ) }` );
+			if ( headlineNames.length < headline.length ) headlineNames.push( '…' );
+			if ( diagnosticNames.length < diagnostics.length ) diagnosticNames.push( '…' );
+			diagnosticSummary.push( ...diagnosticNames );
+			return headlineNames;
 		};
 		const topNames = splitNames( confirmed, 3 );
 		summaryParts.push(
 			`${ confirmed.length } sustained regression(s)${
-				topNames.length > 0
-					? `: ${ topNames.join( ', ' ) }${ confirmed.length > 3 ? ', …' : '' }`
-					: ''
+				topNames.length > 0 ? `: ${ topNames.join( ', ' ) }` : ''
 			}`
 		);
 		if ( confirmedLate.length > 0 ) {
@@ -1046,7 +1081,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				true
 			);
 			summaryParts.push(
-				`${ confirmedLate.length } older confirmed change${ confirmedLate.length > 1 ? 's' : '' } (may repeat)${ lateNames.length > 0 ? `: ${ lateNames.join( ', ' ) }${ confirmedLate.length > 2 ? ', …' : '' }` : '' }`
+				`${ confirmedLate.length } older confirmed change${ confirmedLate.length > 1 ? 's' : '' } (may repeat)${ lateNames.length > 0 ? `: ${ lateNames.join( ', ' ) }` : '' }`
 			);
 		}
 		if ( pending.length > 0 ) summaryParts.push( `${ pending.length } pending` );
