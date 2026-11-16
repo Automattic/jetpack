@@ -146,6 +146,28 @@ const SCENARIOS = {
 		fixture.series[ 301 ] = steady( 30, 12, 100 );
 		return fixture;
 	},
+	diagnosticWarming: () => {
+		const fixture = SCENARIOS.digestQuiet();
+		fixture.metrics.find( metric => metric.id === 301 ).createdAt = naive( NOW - 2 * D );
+		fixture.series[ 301 ] = [];
+		return fixture;
+	},
+	malformedDiagnosticWarming: () => {
+		const fixture = SCENARIOS.diagnosticWarming();
+		fixture.series[ 301 ] = [ { ...pt( 0.5, 100, 'warmbad', false ), measuredAt: 'bad-date' } ];
+		return fixture;
+	},
+	pageWeightWarming: () => {
+		const fixture = SCENARIOS.digestQuiet();
+		fixture.metrics.find( metric => metric.id === 401 ).createdAt = naive( NOW - 2 * D );
+		fixture.series[ 401 ] = [];
+		return fixture;
+	},
+	singlePageWeight: () => {
+		const fixture = SCENARIOS.digestQuiet();
+		fixture.metrics = fixture.metrics.filter( metric => metric.id !== 402 );
+		return fixture;
+	},
 	backend: () => ( {
 		metrics: [
 			{ ...metricRow( 401, 'PHP total', 'admin-wp-total-staging' ), unit: 'ms' },
@@ -1416,8 +1438,13 @@ test( 'an override cannot claim quiet page weight without metric discovery', asy
 	}
 } );
 
-test( 'timing quiet-state messages require complete fresh reads', async () => {
-	for ( const scenario of [ 'digestQuiet', 'timingUnreadable', 'timingStale' ] ) {
+test( 'timing quiet-state messages qualify stale, unreadable and malformed reads', async () => {
+	for ( const scenario of [
+		'digestQuiet',
+		'timingUnreadable',
+		'timingStale',
+		'malformedDiagnosticWarming',
+	] ) {
 		const result = await runDigest( scenario );
 		const complete = scenario === 'digestQuiet';
 		assert.equal( result.code, complete ? 0 : 1, result.err );
@@ -1426,6 +1453,33 @@ test( 'timing quiet-state messages require complete fresh reads', async () => {
 		assert.equal(
 			result.out.includes( 'Timing diagnostics could not be fully read this week.' ),
 			! complete,
+			result.out
+		);
+	}
+} );
+
+test( 'diagnostic exemptions leave the page-weight inventory requirement strict', async () => {
+	for ( const [ scenario, env, pageWeightQuiet ] of [
+		[ 'diagnosticWarming', {}, true ],
+		[ 'digestQuiet', { METRIC_IDS: '301,401,402' }, true ],
+		[ 'pageWeightWarming', {}, false ],
+		[ 'singlePageWeight', {}, false ],
+	] ) {
+		const result = await runDigest( scenario, env );
+		assert.equal( result.code, 0, result.err );
+		assert.ok( result.out.includes( 'No timing alerts in this digest.' ), result.out );
+		assert.ok(
+			! result.out.includes( 'Timing diagnostics could not be fully read this week.' ),
+			result.out
+		);
+		assert.equal(
+			result.out.includes( 'No page-weight alerts in this digest.' ),
+			pageWeightQuiet,
+			result.out
+		);
+		assert.equal(
+			result.out.includes( 'Page weight could not be fully read this week.' ),
+			! pageWeightQuiet,
 			result.out
 		);
 	}

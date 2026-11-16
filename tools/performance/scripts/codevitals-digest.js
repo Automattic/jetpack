@@ -983,6 +983,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			)
 		);
 		const staleIds = new Set( staleInfo.map( stale => stale.id ) );
+		const watchedIds = new Set( metricIds );
+		const warmingUpIds = new Set( warmingUp );
 		const categoryFullyRead = categories.map( ( _, index ) => {
 			const inventory = [ ...metaById ].filter(
 				( [ , metric ] ) => PAGE_WEIGHT_KEYS.has( metric.key ) === ( index === 0 )
@@ -994,16 +996,21 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 					[ ...PAGE_WEIGHT_KEYS ].every( key =>
 						inventory.some( ( [ , metric ] ) => metric.key === key )
 					) ) &&
-				inventory.every(
-					( [ id ] ) =>
-						newestByMetric.get( id ) > 0 && ! staleIds.has( id ) && ! badPoints.has( id )
-				)
+				inventory.every( ( [ id ] ) => {
+					if ( index === 1 && METRIC_IDS_OVERRIDE.length > 0 && ! watchedIds.has( id ) )
+						return true;
+					if ( badPoints.has( id ) ) return false;
+					return (
+						( index === 1 && warmingUpIds.has( id ) ) ||
+						( newestByMetric.get( id ) > 0 && ! staleIds.has( id ) )
+					);
+				} )
 			);
 		} );
 		const notices = categories.filter(
 			( lists, index ) => ! categoryFullyRead[ index ] || lists.every( items => items.length === 0 )
 		).length;
-		// Slack allows 50 blocks; reserve the two category headings and timing caveat (3) before rows.
+		// Slack allows 50 blocks; the 3 reserves the timing caveat and up to two overflow notices.
 		const wrappers = categories.reduce(
 			( count, lists ) => count + lists.filter( items => items.length > 0 ).length,
 			3 + notices
