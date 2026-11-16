@@ -45,14 +45,21 @@ beforeEach( () => {
 } );
 
 describe( 'GoogleAnalyticsSettings', () => {
-	it( 'links Jetpack Stats to its manage URL', async () => {
+	it.each( [
+		[ 'links Jetpack Stats to its manage URL', { stats: { manage_url: STATS_URL } }, STATS_URL ],
+		[ 'keeps Jetpack Stats as plain text without a manage URL', {}, null ],
+	] )( '%s', async ( _name, items, href ) => {
 		window.myJetpackInitialState = {
-			products: { items: { stats: { manage_url: STATS_URL } } },
+			products: { items },
 		} as unknown as Window[ 'myJetpackInitialState' ];
 		renderPanel();
 
-		const link = await screen.findByRole( 'link', { name: 'Jetpack Stats' } );
-		expect( link ).toHaveAttribute( 'href', STATS_URL );
+		const intro = await screen.findByText( /^Google Analytics is a free service/ );
+		expect( intro ).toHaveTextContent(
+			'Google Analytics is a free service that complements Jetpack Stats with different insights into your traffic.'
+		);
+		const link = screen.queryByRole( 'link', { name: 'Jetpack Stats' } );
+		expect( link?.getAttribute( 'href' ) ?? null ).toBe( href );
 	} );
 
 	it( 'saves only a valid Measurement ID, on blur, and never records it', async () => {
