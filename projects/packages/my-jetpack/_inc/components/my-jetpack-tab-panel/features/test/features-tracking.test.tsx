@@ -25,12 +25,6 @@ jest.mock( '../../../../utils/reload-page', () => ( {
 	leavePageFor: jest.fn(),
 } ) );
 
-// The Features tab sends no `from` yet (CONNECT-571), and the real helper warns about that.
-jest.mock( '@automattic/jetpack-connection', () => ( {
-	...jest.requireActual( '@automattic/jetpack-connection' ),
-	getUserConnectionUrl: jest.fn( () => '/wp-admin/admin.php?connect_url_redirect=1' ),
-} ) );
-
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( { modules: {}, isLoading: false, hasLoaded: true } ),
 } ) );
@@ -391,6 +385,7 @@ describe( 'Feature action tracking', () => {
 		expect( lastEvent( 'jetpack_myjetpack_feature_connection_start' ) ).toMatchObject( {
 			action,
 			origin,
+			from: 'my_jetpack_features_boost',
 			product: 'boost',
 			feature_slug: 'boost',
 			account_needed: true,

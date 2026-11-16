@@ -13,6 +13,11 @@ use WP_Error;
  * Generate a SQL file from metadata.
  */
 class SQL_Generator {
+	/**
+	 * Target size for batched INSERTs. A single large row is sent on its own.
+	 */
+	private const MAX_INSERT_BYTES = 1048576;
+
 	const OUTPUT_TYPE_FILE   = 0;
 	const OUTPUT_TYPE_STRING = 1;
 	const OUTPUT_TYPE_STDOUT = 2;
@@ -42,11 +47,11 @@ class SQL_Generator {
 	private $current_table = null;
 
 	/**
-	 * The current insert index.
+	 * Bytes written for the current INSERT.
 	 *
 	 * @var int
 	 */
-	private $current_insert_index = 0;
+	private $current_insert_bytes = 0;
 
 	/**
 	 * Whether the dump has started.
@@ -339,7 +344,7 @@ class SQL_Generator {
 		$this->output( "LOCK TABLES `{$this->current_table}` WRITE;" );
 		$this->var( "ALTER TABLE `{$this->current_table}` DISABLE KEYS", 40000 );
 
-		$this->current_insert_index = 0;
+		$this->current_insert_bytes = 0;
 	}
 
 	/**
@@ -355,15 +360,25 @@ class SQL_Generator {
 			return;
 		}
 
-		if ( $this->current_insert_index === 0 ) {
-			$this->output( "INSERT INTO `{$this->current_table}` {$field_names} VALUES" );
+		// Include the separator before the row and the semicolon that ends the statement.
+		$row_bytes = strlen( $data );
+		if ( $this->current_insert_bytes > 0 && $this->current_insert_bytes + $row_bytes + 3 > self::MAX_INSERT_BYTES ) {
+			$this->output( ';' );
+			$this->current_insert_bytes = 0;
+		}
+
+		if ( $this->current_insert_bytes === 0 ) {
+			$header = "INSERT INTO `{$this->current_table}` {$field_names} VALUES";
+			$this->output( $header );
+			$this->current_insert_bytes = strlen( $header ) + 1;
 		} else {
 			$this->output( ',' );
+			$this->current_insert_bytes += 2;
 		}
 
 		$this->output( $data, false );
 
-		++$this->current_insert_index;
+		$this->current_insert_bytes += $row_bytes;
 	}
 
 	/**
@@ -376,7 +391,7 @@ class SQL_Generator {
 			return;
 		}
 
-		if ( $this->current_insert_index > 0 ) {
+		if ( $this->current_insert_bytes > 0 ) {
 			$this->output( ';' );
 		}
 
@@ -384,7 +399,7 @@ class SQL_Generator {
 		$this->output( 'UNLOCK TABLES;' );
 		$this->nl();
 
-		$this->current_insert_index = 0;
+		$this->current_insert_bytes = 0;
 	}
 
 	/**
@@ -534,7 +549,7 @@ class SQL_Generator {
 
 		$this->charset              = self::DEFAULT_CHARSET;
 		$this->collation            = null;
-		$this->current_insert_index = 0;
+		$this->current_insert_bytes = 0;
 		$this->current_table        = null;
 		$this->output_handle        = '';
 		$this->output_mode          = self::OUTPUT_TYPE_STRING;

@@ -88,12 +88,13 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Metric tiles laid out from the size of their own box, wherever the widget is ' +
-					'placed. A narrow box gets a vertical list (icon and label on the left, value on ' +
-					'the right): stretched to fill when each row has room, compact and scrolling ' +
-					'when it does not. A wider box gets a single row of centered tiles, or a ' +
-					'two-column grid once it is tall enough for every tile row, the last tile ' +
-					'taking the whole row when the count is odd.',
+					'Metric tiles laid out from the size of their own box and the number of tiles, ' +
+					'wherever the widget is placed. A narrow box gets a vertical list (icon and label ' +
+					'on the left, value on the right): stretched to fill when each row has room, ' +
+					'compact and scrolling when it does not. A wider box gets a two-column grid once ' +
+					'it is tall enough for every tile row, the last tile taking the whole row when ' +
+					'the count is odd. A wide box too short for the grid gets a single row of ' +
+					'centered tiles when every tile has room for its figure, and the list when not.',
 			},
 		},
 	},
@@ -151,8 +152,8 @@ type ResizableStoryArgs = {
 /**
  * Drag the corner of the box to resize it. The tiles are a list while the box
  * is narrow and sit side by side once it is wide enough, and each of the two
- * splits again by height: compact or stacked, row or grid. The height it takes
- * depends on how many tiles there are.
+ * splits again by height: compact or stacked, row or grid. The width a row
+ * takes and the height a grid takes depend on how many tiles there are.
  */
 export const Resizable: StoryObj< ResizableStoryArgs > = {
 	render: ( { tileCount } ) => (

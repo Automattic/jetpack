@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Store each SSO and Monitor opt-in separately; the opt-ins are not released yet.
+
+

@@ -19,13 +19,14 @@
 	 *
 	 * @param {object}   params   - Request body; must include `action`.
 	 * @param {Function} callback - Called with the fetch Response.
+	 * @return {Promise|undefined} The request, or undefined when `action` is missing.
 	 */
 	function postAction( params = {}, callback = () => {} ) {
 		if ( ! params.action ) {
 			return;
 		}
 
-		fetch( fbd.xhrURL, {
+		return fetch( fbd.xhrURL, {
 			method: 'POST',
 			body: new URLSearchParams( { _wpnonce: fbd.nonce, ...params } ),
 			headers: {
@@ -93,17 +94,30 @@
 		);
 	}
 
+	let followPending = false;
+
 	/**
-	 * Subscribe to or unsubscribe from the site.
+	 * Subscribe to or unsubscribe from the site. Only one request runs at a time.
 	 *
-	 * @param {string} action - `ab_subscribe_to_blog` or `ab_unsubscribe_from_blog`.
+	 * @param {string}   action    - `ab_subscribe_to_blog` or `ab_unsubscribe_from_blog`.
+	 * @param {Function} onSuccess - Called when the request went through.
 	 */
-	function followRequest( action ) {
-		postAction( {
-			action,
-			source: 'actionbar',
-			blog_id: fbd.siteID,
-		} );
+	function followRequest( action, onSuccess = () => {} ) {
+		followPending = true;
+		postAction(
+			{
+				action,
+				source: 'actionbar',
+				blog_id: fbd.siteID,
+			},
+			response => ( response.ok ? response.json() : null )
+		)
+			// A WP_Error comes back as an object with `errors`.
+			.then( result => result && ! result.errors && onSuccess() )
+			.catch( () => {} )
+			.finally( () => {
+				followPending = false;
+			} );
 	}
 
 	let lastScrollTop = window.scrollY || window.pageYOffset || 0;
@@ -344,6 +358,10 @@
 	if ( follow ) {
 		follow.addEventListener( 'click', e => {
 			e.preventDefault();
+			if ( followPending ) {
+				return;
+			}
+			hideUndoNotice();
 
 			openFollowBubble();
 
@@ -355,7 +373,7 @@
 					url: fbd.siteURL,
 				} );
 
-				followRequest( 'ab_subscribe_to_blog' );
+				followRequest( 'ab_subscribe_to_blog', () => setFollowing( true ) );
 				const defaultEmailFrequency = fbd.subsEmailDefault;
 				if ( defaultEmailFrequency !== 'never' ) {
 					emailPostsToggle.click();
@@ -375,11 +393,83 @@
 
 	// Unfollow site
 	const unfollow = actionbar.querySelector( '.actnbr-actn-following' );
+	const undoNotice = actionbar.querySelector( '.actnbr-undo' );
+	const undoButton = undoNotice && undoNotice.querySelector( '.actnbr-undo__button' );
+	let undoTimer;
+
+	/**
+	 * Show Subscribe or Subscribed.
+	 *
+	 * @param {boolean} isFollowing - Whether the visitor now follows the site.
+	 */
+	function setFollowing( isFollowing ) {
+		if ( ! follow || ! unfollow ) {
+			return;
+		}
+		follow.classList.toggle( 'no-display', isFollowing );
+		unfollow.classList.toggle( 'no-display', ! isFollowing );
+	}
+
+	/**
+	 * Hide the Undo notice.
+	 */
+	function hideUndoNotice() {
+		clearTimeout( undoTimer );
+		if ( undoNotice ) {
+			undoNotice.classList.add( 'no-display' );
+		}
+	}
+
+	/**
+	 * Show the Undo notice for a few seconds, longer while it holds focus.
+	 *
+	 * @param {boolean} focusUndo - Move focus to Undo, for keyboard users.
+	 */
+	function showUndoNotice( focusUndo ) {
+		if ( ! undoNotice ) {
+			return;
+		}
+		undoNotice.classList.remove( 'no-display' );
+		announce( undoNotice.querySelector( 'span' ).textContent.trim() );
+		if ( focusUndo ) {
+			undoButton.focus();
+		}
+		clearTimeout( undoTimer );
+		undoTimer = setTimeout( function dismiss() {
+			if ( undoNotice.contains( undoNotice.ownerDocument.activeElement ) ) {
+				undoTimer = setTimeout( dismiss, 1000 );
+			} else {
+				hideUndoNotice();
+			}
+		}, 8000 );
+	}
+
+	if ( undoButton ) {
+		undoButton.addEventListener( 'click', e => {
+			if ( followPending ) {
+				return;
+			}
+			hideUndoNotice();
+			recordTracksEvent( 'wpcom_actionbar_site_unfollow_undone', {
+				follow_source: 'actionbar',
+				url: fbd.siteURL,
+			} );
+			followRequest( 'ab_subscribe_to_blog', () => {
+				setFollowing( true );
+				if ( e.detail === 0 ) {
+					unfollow.focus();
+				}
+			} );
+		} );
+	}
+
 	if ( unfollow ) {
 		unfollow.addEventListener( 'click', e => {
 			e.preventDefault();
-			unfollow.classList.add( 'no-display' );
-			follow.classList.remove( 'no-display' );
+			if ( followPending ) {
+				return;
+			}
+			setFollowing( false );
 
 			bumpStat( 'unfollowed' );
 			recordTracksEvent( 'wpcom_actionbar_site_unfollowed', {
@@ -387,7 +477,7 @@
 				url: fbd.siteURL,
 			} );
 
-			followRequest( 'ab_unsubscribe_from_blog' );
+			followRequest( 'ab_unsubscribe_from_blog', () => showUndoNotice( e.detail === 0 ) );
 
 			closeFollowBubble( false );
 			actionbar.querySelectorAll( '.actnbr-site-settings__toggle__input' ).forEach( input => {
@@ -627,14 +717,15 @@
 	}
 
 	/**
-	 * Whether the menu or the Subscribe popover is showing.
+	 * Whether the menu, the Subscribe popover, or the Undo notice is showing.
 	 *
-	 * @return {boolean} True while either is open.
+	 * @return {boolean} True while any is open.
 	 */
 	function isPopoverOpen() {
 		return (
 			! ellipsis.classList.contains( 'actnbr-hidden' ) ||
-			( !! followItem && ! followItem.classList.contains( 'actnbr-hidden' ) )
+			( !! followItem && ! followItem.classList.contains( 'actnbr-hidden' ) ) ||
+			( !! undoNotice && ! undoNotice.classList.contains( 'no-display' ) )
 		);
 	}
 
@@ -730,11 +821,7 @@
 	 */
 	function showActionBarStatusMessage( message, subscribed ) {
 		if ( subscribed ) {
-			const followLink = actionbar.querySelector( '.actnbr-actn-follow' );
-			const unfollowLink = actionbar.querySelector( '.actnbr-actn-following' );
-
-			followLink && followLink.classList.add( 'no-display' );
-			unfollowLink && unfollowLink.classList.remove( 'no-display' );
+			setFollowing( true );
 		}
 
 		const msgEl = actionbar.querySelector( '.actnbr-follow-bubble .actnbr-message' );
@@ -754,11 +841,9 @@
 	 * visitor, before or after this script runs, and then dispatches `actionbardata-updated`.
 	 */
 	function syncFollowState() {
-		if ( ! Object.prototype.hasOwnProperty.call( fbd, 'isFollowing' ) || ! follow || ! unfollow ) {
-			return;
+		if ( Object.prototype.hasOwnProperty.call( fbd, 'isFollowing' ) ) {
+			setFollowing( !! fbd.isFollowing );
 		}
-		follow.classList.toggle( 'no-display', !! fbd.isFollowing );
-		unfollow.classList.toggle( 'no-display', ! fbd.isFollowing );
 	}
 	syncFollowState();
 	window.addEventListener( 'actionbardata-updated', syncFollowState );

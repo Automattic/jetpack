@@ -2,6 +2,8 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import type {
 	AddSubscribersResponse,
+	BulkRemoveResponse,
+	BulkRemoveStatusResponse,
 	ImportJob,
 	NewsletterCategoriesData,
 	RemoveSubscriberPayload,
@@ -13,6 +15,7 @@ import type {
 	Subscriber,
 	SubscriberDetails,
 	SubscriberStats,
+	SubscribersFilter,
 	SubscribersQueryParams,
 	SubscribersResponse,
 } from './types';
@@ -89,6 +92,59 @@ export function removeSubscriber(
 			email_subscription_id: payload.email_subscription_id ?? 0,
 			paid_subscription_ids: payload.paid_subscription_ids ?? [],
 		},
+	} );
+}
+
+/**
+ * Start removing every subscriber that matches `filters` and `search` (everyone with the `all`
+ * filter and no search), as a background job on WP.com. WP.com saves a backup first and cancels
+ * paid subscriptions, the same as the single remove.
+ *
+ * WP.com refuses when the list no longer holds `expectedCount` matching subscribers (409
+ * `bulk_remove_count_changed`, new count in `data.count`) or when a removal is already running
+ * (409 `bulk_remove_in_progress`, the job in `data.job`).
+ *
+ * @param params               - What to remove.
+ * @param params.filters       - List filters, combined with AND, as the list endpoint takes them.
+ * @param params.search        - Search term, or an empty string.
+ * @param params.expectedCount - The number of subscribers the user confirmed.
+ * @return The queued job.
+ */
+export function startBulkRemove( {
+	filters,
+	search,
+	expectedCount,
+}: {
+	filters: SubscribersFilter[];
+	search: string;
+	expectedCount: number;
+} ): Promise< BulkRemoveResponse > {
+	return apiFetch< BulkRemoveResponse >( {
+		path: '/wpcom/v2/subscribers/bulk-remove',
+		method: 'POST',
+		data: {
+			filters: filters.length ? filters : [ 'all' ],
+			search,
+			expected_count: expectedCount,
+			cancel_paid: true,
+		},
+	} );
+}
+
+/**
+ * Fetch a bulk removal's progress. Without a job id, WP.com returns the running removal, or else
+ * the latest one from the last 30 days, or `{ job: null }`. `enabled` says whether the site can
+ * start a removal.
+ *
+ * @param jobId - Job to read, or undefined for the current one.
+ * @return The job, or null, and whether removal is turned on for the site.
+ */
+export function fetchBulkRemoveStatus( jobId?: number ): Promise< BulkRemoveStatusResponse > {
+	return apiFetch< BulkRemoveStatusResponse >( {
+		path: jobId
+			? addQueryArgs( '/wpcom/v2/subscribers/bulk-remove/status', { job_id: jobId } )
+			: '/wpcom/v2/subscribers/bulk-remove/status',
+		method: 'GET',
 	} );
 }
 

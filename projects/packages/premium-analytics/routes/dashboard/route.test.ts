@@ -3,6 +3,8 @@ import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 } from '../site-readiness';
+import { WIDGET_MODULES_QUERY } from '../use-widget-modules';
+import { DASHBOARD_SECTIONS_QUERY } from './hooks/use-dashboard-sections';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -50,6 +52,18 @@ jest.mock( '../stats-date-window', () => ( {
 	limitStatsDateSearch: jest.fn( () => undefined ),
 	dateWindowNotice: () => undefined,
 	withoutCarriedYearWindow: ( search: object ) => ( { ...search } ),
+} ) );
+
+const mockGetEntityRecords = jest.fn( () => Promise.resolve( [] ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	resolveSelect: () => ( { getEntityRecords: mockGetEntityRecords } ),
+	useSelect: jest.fn(),
+} ) );
+
+jest.mock( '@wordpress/core-data', () => ( {
+	store: 'core',
+	useEntityRecords: jest.fn(),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -152,5 +166,22 @@ describe( 'dashboard route.beforeLoad', () => {
 		} );
 
 		expect( search ).toMatchObject( { comp: '1', compare_preset: 'previous-period' } );
+	} );
+} );
+
+describe( 'dashboard route.loader', () => {
+	it( 'requests the dashboard sections and widget modules', () => {
+		route.loader();
+
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith(
+			'root',
+			'dashboardSection',
+			DASHBOARD_SECTIONS_QUERY
+		);
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith(
+			'root',
+			'widgetModule',
+			WIDGET_MODULES_QUERY
+		);
 	} );
 } );

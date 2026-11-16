@@ -198,7 +198,6 @@
 	"projects/packages/seo/_inc/screens/content/seo-inspector.tsx",
 	"projects/packages/seo/_inc/screens/settings/google-verification-field.tsx",
 	"projects/packages/seo/_inc/screens/settings/index.tsx",
-	"projects/packages/seo/_inc/screens/settings/schema-card.tsx",
 	"projects/packages/seo/_inc/screens/settings/schema-settings/author-profile-section.tsx",
 	"projects/packages/seo/_inc/screens/settings/schema-settings/local-business-fields.tsx",
 	"projects/packages/seo/_inc/screens/settings/schema-settings/local-business-section.tsx",

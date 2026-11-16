@@ -136,6 +136,7 @@ class Admin_Page {
 			return;
 		}
 
+		wp_enqueue_media();
 		self::load_wp_build_with_screen_alias();
 		self::register_page_data();
 	}
@@ -143,7 +144,7 @@ class Admin_Page {
 	/**
 	 * Hook the app's initial state and, when the site allows tracking, its Tracks transport and context.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @return void
 	 */
@@ -162,7 +163,7 @@ class Admin_Page {
 	 *
 	 * Only hooked once Initializer::init() has passed the checks that register the page itself.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -181,6 +182,10 @@ class Admin_Page {
 			'build_prefix' => 'jetpack_seo',
 			'build_page'   => self::WP_BUILD_SLUG,
 			'title'        => 'SEO',
+			'header'       => array(
+				'title'    => 'SEO',
+				'subtitle' => __( 'Make your site discoverable in search and social, and control AI access.', 'jetpack-seo' ),
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
@@ -191,7 +196,7 @@ class Admin_Page {
 	/**
 	 * Ready the SEO routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @return void
 	 */

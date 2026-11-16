@@ -90,7 +90,7 @@ describe( 'useViewsOverYears', () => {
 		expect( path ).toMatch( /date=2025-11-30/ );
 
 		// Nov 24 through Nov 30: 300 / 7.
-		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
+		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300 / 7, 20 ] );
 		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-24T00:00:00.000Z' );
 	} );
 
@@ -106,7 +106,7 @@ describe( 'useViewsOverYears', () => {
 
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
-			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
+			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300 / 7, 20 ] );
 			expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-23T15:00:00.000Z' );
 		} finally {
 			setSettings( settings );
@@ -178,13 +178,18 @@ describe( 'useViewsOverYears', () => {
 		resolveRetry( FIRST_MONTH_RESPONSE );
 
 		await waitFor( () =>
-			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] )
+			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300 / 7, 20 ] )
 		);
 	} );
 
 	it( 'draws the totals before the first day is known, and marks them busy', async () => {
+		let resolveDays: ( value: unknown ) => void = () => {};
 		mockApiFetch.mockImplementation( options =>
-			isDayRequest( options ) ? new Promise( () => {} ) : Promise.resolve( VISITS_RESPONSE )
+			isDayRequest( options )
+				? new Promise( resolve => {
+						resolveDays = resolve;
+					} )
+				: Promise.resolve( VISITS_RESPONSE )
 		);
 		const { result } = renderHook( () => useViewsOverYears( 'total' ), { wrapper } );
 
@@ -192,6 +197,16 @@ describe( 'useViewsOverYears', () => {
 
 		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300, 620 ] );
 		expect( result.current.isFetching ).toBe( true );
+		// The launch month's hatch needs that day, so until it lands only the current month carries one.
+		expect( result.current.partialMonths ).toEqual( [ { year: 2026, month: 2 } ] );
+
+		resolveDays( FIRST_MONTH_RESPONSE );
+
+		await waitFor( () =>
+			expect( result.current.partialMonths ).toEqual(
+				expect.arrayContaining( [ { year: 2025, month: 10 } ] )
+			)
+		);
 	} );
 
 	it( 'keeps loading until the first day is known', async () => {
@@ -211,7 +226,7 @@ describe( 'useViewsOverYears', () => {
 		resolveDays( FIRST_MONTH_RESPONSE );
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
-		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
+		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300 / 7, 20 ] );
 	} );
 
 	it( 'has no rows before the response arrives, so a failed first load is not drawn as a site without views', () => {

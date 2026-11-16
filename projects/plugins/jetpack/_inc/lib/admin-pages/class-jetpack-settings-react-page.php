@@ -87,7 +87,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Register Settings with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -118,7 +118,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Ready the Settings routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return void
 	 */

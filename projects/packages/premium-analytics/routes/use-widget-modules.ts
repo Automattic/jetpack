@@ -13,6 +13,9 @@ type CoreDataSelectors = {
 	) => WidgetModuleRecord[] | null;
 };
 
+// `per_page: -1`: core-data's default first page of 10 would silently drop any widget past the tenth.
+export const WIDGET_MODULES_QUERY = { per_page: -1 };
+
 /**
  * The registered widget modules, or `null` while core-data resolves them.
  *
@@ -21,12 +24,10 @@ type CoreDataSelectors = {
 export function useWidgetModules(): WidgetModuleRecord[] | null {
 	return useSelect(
 		select =>
-			// `per_page: -1`: core-data's default first page of 10 would silently
-			// drop any widget past the tenth.
 			( select( coreStore ) as unknown as CoreDataSelectors ).getEntityRecords(
 				'root',
 				'widgetModule',
-				{ per_page: -1 }
+				WIDGET_MODULES_QUERY
 			),
 		[]
 	);
