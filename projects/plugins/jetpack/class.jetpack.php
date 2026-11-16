@@ -499,8 +499,6 @@ class Jetpack {
 					Jetpack_Options::delete_option( 'identity_crisis_whitelist' );
 				}
 
-				self::enable_markdown_for_posts_after_upgrade( $version );
-
 				/*
 				 * Minileven deprecation. 8.3.0.
 				 * Only delete options if not using
@@ -3118,22 +3116,6 @@ p {
 		// a later version bump rather than being silently skipped.
 		if ( self::is_module_active( 'subscriptions' ) || self::activate_module( 'subscriptions', false, false ) ) {
 			update_option( 'jetpack_subscriptions_default_on_migrated', true );
-		}
-	}
-
-	/**
-	 * Turn Markdown for posts back on for sites upgrading from before 4.7, which stopped forcing it on.
-	 *
-	 * Later upgrades leave it alone, so a site that turned it off keeps it off.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $previous_version The Jetpack version the site upgrades from.
-	 * @return void
-	 */
-	public static function enable_markdown_for_posts_after_upgrade( $previous_version ) {
-		if ( version_compare( $previous_version, '4.7', '<' ) && ! get_option( 'wpcom_publish_posts_with_markdown' ) ) {
-			update_option( 'wpcom_publish_posts_with_markdown', true );
 		}
 	}
 
