@@ -11,7 +11,6 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/version-compare.sh"
 . "$BASE/tools/includes/normalize-version.sh"
 . "$BASE/tools/includes/changelogger.sh"
-. "$BASE/tools/includes/send_tracks_event.sh"
 
 VERSION_REGEX='^[0-9]+(\.[0-9]+)+(-.*)?$'
 CUR_STEP=0
@@ -60,18 +59,6 @@ function usage {
 
 	EOH
 	exit 1
-}
-
-handle_exit() {
-	local exit_code=$?
-	local PAYLOAD
-	PAYLOAD="$(
-		jq -n \
-			--arg exit_code "$exit_code" \
-			--arg step "$CUR_STEP" \
-			'{"exit_code": $exit_code, "step": $step }'
-	)"
-	send_tracks_event "jetpack_release_exit" "$PAYLOAD"
 }
 
 # Preliminary environment checks.
@@ -217,10 +204,8 @@ function do_prerelease_branch_prep() {
 	# @todo: Push once we're ready to test more lively.
 	$FROM_RELEASE_BRANCH && return
 	if ! git push -u origin HEAD; then
-		send_tracks_event "jetpack_release_prerelease_push" '{"result": "failure"}'
 		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 	fi
-	send_tracks_event "jetpack_release_prerelease_push" '{"result": "success"}'
 }
 
 function do_create_release_branch_from_release_branch {
@@ -345,17 +330,14 @@ function do_push_and_build {
 	done
 
 	if [[ -z "$BUILDID" ]]; then
-		send_tracks_event "jetpack_release_github_build" '{"result": "not_found"}'
 		die "Build ID not found. Check GitHub actions to see if build on prerelease branch is running, then continue with manual steps."
 	fi
 
 	yellow "Build ID found, waiting for build to complete and push to mirror repos."
 	if ! gh run watch "${BUILDID[0]}" --exit-status; then
-		send_tracks_event "jetpack_release_github_build" '{"result": "failure"}'
 		die "Build failed! Check for build errors on GitHub for more information."
 	fi
 
-	send_tracks_event "jetpack_release_github_build" '{"result": "success"}'
 	yellow "Build is complete."
 }
 
@@ -471,10 +453,6 @@ function do_final_instructions {
 	EOM
 }
 
-trap 'exit 130' SIGINT
-trap 'exit 143' SIGTERM
-trap 'handle_exit' EXIT
-
 preflight_checks
 
 while [[ $# -gt 0 ]]; do
@@ -553,32 +531,6 @@ fi
 echo "$PLUGIN: $CUR_VERSION -> $VERSION"
 
 proceed_p "" "Proceed releasing $PLUGIN?" Y
-
-VERSION_DIFF=$( version_diff "$CUR_VERSION" "$VERSION" )
-if [[ "$VERSION" == *-* ]]; then
-	# The version is a prerelease.
-	if proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
-		VERSION_DIFF="bugfix"
-	fi
-elif [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0.]*[1-9] ]]; then
-	# The version in patch-level.
-	VERSION_DIFF="bugfix"
-
-	# If a project follows semver versioning, we prompt.
-	if jq -e '.extra.changelogger["versioning"] == "semver"' "$BASE/projects/$PLUGIN/composer.json" &>/dev/null; then
-		if ! proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
-			VERSION_DIFF="patch"
-		fi
-	fi
-fi
-
-send_tracks_event "jetpack_release_start" "$(
-	jq -n \
-		--arg prefix "${PLUGIN//[\/-]/_}" \
-		--arg type "$VERSION_DIFF" \
-		--arg version "$VERSION" \
-		'{ "\($prefix)_release_type": $type, "\($prefix)_version": $version }'
-)"
 
 # Run each release step.
 for ((i = CUR_STEP; i < ${#STEPS[@]}; i++)); do
