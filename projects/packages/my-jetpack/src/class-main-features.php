@@ -57,6 +57,11 @@ class Main_Features {
 	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.15.0';
 
 	/**
+	 * Prototype: the module that only shows or hides the SEO page.
+	 */
+	const SEO_DASHBOARD_MODULE = 'seo-dashboard';
+
+	/**
 	 * The bundles the Features tab offers as filter pills. Must match `GROUPS` in use-feature-filter.ts.
 	 */
 	private const FILTER_GROUPS = array( 'security', 'growth' );
@@ -436,6 +441,27 @@ class Main_Features {
 				),
 				'plans'            => array( 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
+			),
+			'seo-dashboard'     => array(
+				'info_url'         => 'https://jetpack.com/support/seo-tools/',
+				'docs_url'         => 'https://jetpack.com/support/seo-tools/',
+				'name'             => __( 'SEO dashboard', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Manage how your site appears in search engines, social previews and AI tools.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'One page for your sitemap, search engine verification, titles and descriptions, social previews, structured data and AI crawler access.', 'jetpack-my-jetpack' ),
+				'icon'             => 'search',
+				'admin_page'       => 'jetpack-seo',
+				'module'           => self::SEO_DASHBOARD_MODULE,
+				'free_highlights'  => array(
+					__( 'Sitemaps, site verification and canonical URLs in one place', 'jetpack-my-jetpack' ),
+					__( 'Titles, descriptions and social previews for every post', 'jetpack-my-jetpack' ),
+					__( 'Structured data and control over AI crawlers', 'jetpack-my-jetpack' ),
+				),
+				'delivery'         => array(
+					'jetpack' => true,
+					'plugin'  => '',
+					'free'    => true,
+				),
+				'plans'            => array(),
 			),
 			'social'            => array(
 				'info_url'         => 'https://jetpack.com/social/',
@@ -1075,6 +1101,11 @@ class Main_Features {
 				continue;
 			}
 
+			// Only the Jetpack plugin ships the switch, and not on every host.
+			if ( self::SEO_DASHBOARD_MODULE === $slug && ! in_array( $slug, ( new \Automattic\Jetpack\Modules() )->get_available(), true ) ) {
+				continue;
+			}
+
 			$delivery      = $definition['delivery'] ?? array();
 			$plugin        = $delivery['plugin'] ?? '';
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
@@ -1131,6 +1162,11 @@ class Main_Features {
 		usort(
 			$features,
 			function ( $a, $b ) {
+				// Prototype: the SEO dashboard card goes last, whatever its name.
+				$last = array( self::SEO_DASHBOARD_MODULE === $a['slug'], self::SEO_DASHBOARD_MODULE === $b['slug'] );
+				if ( $last[0] !== $last[1] ) {
+					return $last[0] ? 1 : -1;
+				}
 				return strnatcasecmp( $a['name'], $b['name'] );
 			}
 		);
