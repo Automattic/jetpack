@@ -33,6 +33,17 @@ describe( 'buildCorePayload', () => {
 		expect( buildCorePayload( baseline, makeSettings() ) ).toEqual( {} );
 	} );
 
+	it.each( [ 42, 0 ] )( 'sends only the default-image choice (%i)', id => {
+		const previous = { id: 1, src: 'https://example.com/old.jpg', alt_text: '' };
+		const next = id ? { id, src: 'https://example.com/new.jpg', alt_text: '' } : null;
+		expect(
+			buildCorePayload(
+				makeSettings( { default_share_image: previous } ),
+				makeSettings( { default_share_image: next } )
+			)
+		).toEqual( { jetpack_seo_default_share_image: id } );
+	} );
+
 	it( 'maps allow-indexing to blog_public = 1', () => {
 		const baseline = makeSettings( { search_engines_visible: false } );
 		const local = makeSettings( { search_engines_visible: true } );

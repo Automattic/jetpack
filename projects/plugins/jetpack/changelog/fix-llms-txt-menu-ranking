@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-SEO: List pages from the main menu first in llms.txt, so they are not cut on sites with more than 50 pages.

@@ -6,7 +6,7 @@ services:
     ports:
       - "0.0.0.0:4040:4040"
     image: wernight/ngrok
-    pull_policy: weekly
+    pull_policy: ${PULL_POLICY:-weekly}
     links:
       - "wordpress"
     env_file:

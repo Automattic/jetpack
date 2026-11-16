@@ -88,7 +88,6 @@
 		"react-redux": "9.3.0",
 		"redux": "5.0.1",
 		"refx": "3.1.1",
-		"strip": "3.0.0",
 		"tiny-lru": "7.0.6"
 	},
 	"devDependencies": {

@@ -906,6 +906,46 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Core registers widget-primitives from WP 7.2, from a Gutenberg branch older than the bundled
+	 * copy, so with no Gutenberg active the bundled copy has to displace it (STATS-620).
+	 */
+	public function test_register_modules_replaces_core_widget_primitives_without_gutenberg() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', includes_url( 'js/dist/script-modules/widget-primitives/index.js' ), array(), '1.0.0-core' );
+
+		$this->invoke_register_modules( $this->make_widget_primitives_build( '0.11.0', 'bundled' ) );
+
+		$this->assert_widget_primitives_from( 'bundled' );
+	}
+
+	/**
+	 * A copy released before the Core check records its version even where Core won the ID, so
+	 * the recorded version says the module is served when Core's copy is what the page gets.
+	 */
+	public function test_register_modules_replaces_core_widget_primitives_despite_a_recorded_version() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', includes_url( 'js/dist/script-modules/widget-primitives/index.js' ), array(), '1.0.0-core' );
+		$GLOBALS[ WP_Build_Polyfills::MODULE_VERSIONS_GLOBAL ] = array( '@wordpress/widget-primitives' => '0.11.0' );
+
+		$this->invoke_register_modules( $this->make_widget_primitives_build( '0.11.0', 'bundled' ) );
+
+		$this->assert_widget_primitives_from( 'bundled' );
+	}
+
+	/**
+	 * Nothing exposes the package version behind a registration, so a copy from outside
+	 * wp-includes could be newer than the bundled one and keeps first-wins.
+	 */
+	public function test_register_modules_keeps_third_party_widget_primitives_without_gutenberg() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/other-plugin-widget-primitives.js', array(), '1.0.0-third-party' );
+
+		$this->invoke_register_modules( $this->make_widget_primitives_build( '0.11.0', 'bundled' ) );
+
+		$this->assert_widget_primitives_from( '1.0.0-third-party' );
+	}
+
+	/**
 	 * A newer bundled widget-primitives replaces the copy another plugin registered first.
 	 */
 	public function test_register_modules_newer_copy_replaces_older_copy() {

@@ -268,19 +268,22 @@ function jetpack_og_tags() {
 	$tags['og:site_name'] = get_bloginfo( 'name' );
 
 	// Get image info and build tags.
-	if ( ! post_password_required() ) {
-		$image_info       = jetpack_og_get_image( $image_width, $image_height );
-		$tags['og:image'] = $image_info['src'];
+	$image_info = array();
+	if ( ! is_singular() || ! post_password_required() ) {
+		$image_info = jetpack_og_get_image( $image_width, $image_height );
+		if ( ! empty( $image_info['src'] ) && 'https://s0.wp.com/i/blank.jpg' !== $image_info['src'] ) {
+			$tags['og:image'] = $image_info['src'];
 
-		if ( ! empty( $image_info['width'] ) ) {
-			$tags['og:image:width'] = (int) $image_info['width'];
-		}
-		if ( ! empty( $image_info['height'] ) ) {
-			$tags['og:image:height'] = (int) $image_info['height'];
-		}
-		// If we have an image, add the alt text even if it's empty.
-		if ( ! empty( $image_info['src'] ) && isset( $image_info['alt_text'] ) ) {
-			$tags['og:image:alt'] = esc_attr( $image_info['alt_text'] );
+			if ( ! empty( $image_info['width'] ) ) {
+				$tags['og:image:width'] = (int) $image_info['width'];
+			}
+			if ( ! empty( $image_info['height'] ) ) {
+				$tags['og:image:height'] = (int) $image_info['height'];
+			}
+			// If we have an image, add the alt text even if it's empty.
+			if ( ! empty( $image_info['src'] ) && isset( $image_info['alt_text'] ) ) {
+				$tags['og:image:alt'] = $image_info['alt_text'];
+			}
 		}
 	}
 
@@ -322,6 +325,19 @@ function jetpack_og_tags() {
 	 * @param array $args Array of image size parameters.
 	 */
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
+
+	// A Social image override must not inherit the default image's alt text.
+	if ( 'seo_default' === ( $image_info['type'] ?? '' ) ) {
+		$image_alt = (string) ( $image_info['alt_text'] ?? '' );
+		$image_src = $image_info['src'] ?? '';
+		foreach ( array( 'og:image', 'twitter:image' ) as $tag ) {
+			$alt_tag     = $tag . ':alt';
+			$default_alt = 'twitter:image' === $tag ? mb_substr( $image_alt, 0, 420 ) : $image_alt;
+			if ( isset( $tags[ $tag ] ) && isset( $tags[ $alt_tag ] ) && $tags[ $tag ] !== $image_src && $tags[ $alt_tag ] === $default_alt ) {
+				unset( $tags[ $alt_tag ] );
+			}
+		}
+	}
 
 	// secure_urls need to go right after each og:image to work properly so we will abstract them here.
 	$tags['og:image:secure_url'] = ( empty( $tags['og:image:secure_url'] ) ) ? '' : $tags['og:image:secure_url'];
@@ -470,9 +486,11 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 	if ( empty( $image ) ) {
 		$site_image = jetpack_og_get_fallback_social_image( $width, $height );
 		if ( ! empty( $site_image ) ) {
-			$image['src']    = $site_image['src'];
-			$image['width']  = $site_image['width'];
-			$image['height'] = $site_image['height'];
+			$image['src']      = $site_image['src'];
+			$image['width']    = $site_image['width'];
+			$image['height']   = $site_image['height'];
+			$image['alt_text'] = $site_image['alt_text'] ?? '';
+			$image['type']     = $site_image['type'] ?? '';
 		}
 	}
 
@@ -632,7 +650,7 @@ function jetpack_og_get_site_image( $width, $height ) {
 	}
 
 	// Fourth fall back, Core Site Icon, if valid in size.
-	if ( has_site_icon() ) {
+	if ( has_site_icon() && 'image/svg+xml' !== get_post_mime_type( get_option( 'site_icon' ) ) ) {
 		$image_id = get_option( 'site_icon' );
 		$icon     = wp_get_attachment_image_src( $image_id, 'full' );
 		if (
@@ -921,13 +939,83 @@ function jetpack_og_remove_query_blocks( $description ) {
 		return '';
 	}
 
-	// Another plugin can load an older block-delimiter copy without remove_blocks(), before ours or through
-	// its own autoloader (@since $$next-version$$). The description then keeps its Query Loop blocks.
-	if ( ! method_exists( Block_Scanner::class, 'remove_blocks' ) ) {
+	// An older block-delimiter copy can load first and lack remove_blocks(); the loop below covers it.
+	if ( method_exists( Block_Scanner::class, 'remove_blocks' ) ) {
+		return Block_Scanner::remove_blocks( $description, 'query' );
+	}
+
+	$output         = '';
+	$offset         = 0;
+	$depth          = 0;
+	$in_query_block = false;
+
+	$scanner = Block_Scanner::create( $description );
+	if ( ! $scanner ) {
 		return $description;
 	}
 
-	return Block_Scanner::remove_blocks( $description, 'query' );
+	while ( $scanner->next_delimiter() ) {
+		$span     = $scanner->get_span();
+		$match_at = $span->start;
+		$length   = $span->length;
+
+		// Check if this is a query block.
+		if ( $scanner->is_block_type( 'query' ) ) {
+			switch ( $scanner->get_delimiter_type() ) {
+				case Block_Scanner::OPENER:
+					if ( ! $in_query_block ) {
+						// Copy content before the query block.
+						$output        .= substr( $description, $offset, $match_at - $offset );
+						$in_query_block = true;
+					}
+					++$depth;
+					break;
+
+				case Block_Scanner::CLOSER:
+					--$depth;
+					if ( $in_query_block && $depth === 0 ) {
+						// We've exited the query block, continue from after it.
+						$in_query_block = false;
+						$offset         = $match_at + $length;
+
+						// Remove extra newline if present
+						if (
+							str_starts_with( substr( $description, $offset ), "\n" )
+							&& str_ends_with( $output, "\n" )
+						) {
+							++$offset;
+						}
+					}
+					break;
+
+				case Block_Scanner::VOID:
+					// Void query blocks should be removed entirely.
+					if ( ! $in_query_block ) {
+						$output .= substr( $description, $offset, $match_at - $offset );
+						$offset  = $match_at + $length;
+						// Remove extra newline if present
+						if (
+							str_starts_with( substr( $description, $offset ), "\n" )
+							&& str_ends_with( $output, "\n" )
+						) {
+							++$offset;
+						}
+					}
+					break;
+			}
+		} elseif ( ! $in_query_block ) {
+			// Not a query block, copy content including the delimiter if we're not inside a query block.
+			$output .= substr( $description, $offset, $match_at - $offset + $length );
+			$offset  = $match_at + $length;
+		}
+	}
+
+	// Add any remaining content after the last delimiter.
+	if ( ! $in_query_block ) {
+		$output .= substr( $description, $offset );
+	}
+
+	return $output;
 }
 
 /**

@@ -1540,8 +1540,8 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 		$user = $this->create_and_get_user();
 		wp_set_current_user( $user->ID );
 
-		// Fetch the purchase token.
-		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+		// Delete the purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'POST' );
 
 		// Request fails because the user doesn't have the `manage_options` permission.
 		$this->assertResponseStatus( 403, $response );

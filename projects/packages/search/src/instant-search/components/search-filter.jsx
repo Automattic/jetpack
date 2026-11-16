@@ -2,8 +2,10 @@ import clsx from 'clsx';
 import * as React from 'react';
 import { createRef, Component } from 'react';
 import { connect } from 'react-redux';
-import strip from 'strip';
 import { getCheckedInputNames } from '../lib/dom';
+
+const HTML_TAG_REGEX = /<\/?([a-z][a-z0-9]*)\b[^>]*>?/gi;
+const strip = html => ( html || '' ).replace( HTML_TAG_REGEX, '' ).trim();
 
 /**
  * Get date options given an interval.
