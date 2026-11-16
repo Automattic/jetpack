@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Settings: Deprecate the method that saves the WordPress.com Reader post views setting, which no longer has any effect.

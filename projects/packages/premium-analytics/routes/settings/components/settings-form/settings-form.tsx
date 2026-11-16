@@ -36,11 +36,6 @@ const getCardGroups = ( offered?: string[] ): CardGroup[] => {
 			label: __( 'Manage permissions', 'jetpack-premium-analytics-pkg' ),
 			children: [ 'roles', 'count_roles' ],
 		},
-		{
-			id: 'reader',
-			label: __( 'WordPress.com Reader', 'jetpack-premium-analytics-pkg' ),
-			children: [ 'wpcom_reader_views_enabled' ],
-		},
 	];
 	if ( ! offered ) {
 		return groups;

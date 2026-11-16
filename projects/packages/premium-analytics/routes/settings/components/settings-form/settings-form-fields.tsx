@@ -78,11 +78,5 @@ export function getFields( roles: SiteRole[] ): Field< Partial< StatsSettings > 
 			elements,
 			Edit: ChipSelectEdit,
 		},
-		{
-			id: 'wpcom_reader_views_enabled',
-			type: 'boolean',
-			Edit: 'toggle',
-			label: __( 'Show post views for this site', 'jetpack-premium-analytics-pkg' ),
-		},
 	];
 }
