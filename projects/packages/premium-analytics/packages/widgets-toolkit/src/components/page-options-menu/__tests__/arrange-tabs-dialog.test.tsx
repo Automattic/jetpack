@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { getSectionOrder, setSectionOrder } from '@jetpack-premium-analytics/data';
 import { render, screen, within } from '@testing-library/react';
@@ -10,6 +11,7 @@ import '@wordpress/preferences';
 /**
  * Internal dependencies
  */
+import { DashboardSectionProvider } from '../../../hooks/use-dashboard-origin-search';
 import { ArrangeTabsDialog } from '../arrange-tabs-dialog';
 import { PageOptionsMenu } from '../page-options-menu';
 
@@ -31,6 +33,13 @@ const TABS = [
 ];
 
 const setupUser = () => userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+
+const arrangeTabsEvents = () =>
+	jest
+		.mocked( analytics.tracks.recordEvent )
+		.mock.calls.filter( ( [ name ] ) =>
+			name.startsWith( 'jetpack_premium_analytics_arrange_tabs_' )
+		);
 
 const tabOrder = () =>
 	screen.getAllByRole( 'listitem' ).map( row => row.firstElementChild?.textContent );
@@ -164,6 +173,69 @@ describe( 'ArrangeTabsDialog', () => {
 		expect( getSectionOrder( SCOPE ) ).toEqual( [] );
 	} );
 
+	it.each( [
+		[ 'no stored order', undefined, false ],
+		[ 'an order of their own', [ 'traffic', 'insights', 'subscribers' ], true ],
+	] )(
+		'tracks the order saved over %s, and a move only for the tab the reader moved',
+		async ( _, stored, hasCustomOrder ) => {
+			setSectionOrder( SCOPE, stored );
+			const { user } = renderDialog();
+
+			await user.click( screen.getByRole( 'button', { name: 'Move Subscribers up' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Move Subscribers up' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+			expect( arrangeTabsEvents() ).toEqual( [
+				[
+					'jetpack_premium_analytics_arrange_tabs_save',
+					{ order: 'subscribers,traffic,insights', tab_count: 3 },
+				],
+				[
+					'jetpack_premium_analytics_arrange_tabs_tab_move',
+					{
+						tab: 'subscribers',
+						from_position: 3,
+						to_position: 1,
+						has_custom_order: hasCustomOrder,
+					},
+				],
+				[ 'jetpack_premium_analytics_arrange_tabs_exit', { outcome: 'save', move_count: 2 } ],
+			] );
+		}
+	);
+
+	it( 'tracks a save that leaves the order as it was as unchanged, with no save event', async () => {
+		const { user } = renderDialog();
+
+		await user.click( screen.getByRole( 'button', { name: 'Move Insights up' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Move Insights down' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		expect( arrangeTabsEvents() ).toEqual( [
+			[ 'jetpack_premium_analytics_arrange_tabs_exit', { outcome: 'unchanged', move_count: 2 } ],
+		] );
+	} );
+
+	it.each( [
+		[
+			'cancel',
+			( user: ReturnType< typeof setupUser > ) =>
+				user.click( screen.getByRole( 'button', { name: 'Cancel' } ) ),
+		],
+		[ 'dismiss', ( user: ReturnType< typeof setupUser > ) => user.keyboard( '{Escape}' ) ],
+	] )( 'tracks one %s exit when the reader leaves without saving', async ( outcome, leave ) => {
+		const { user, onClose } = renderDialog();
+
+		await user.click( screen.getByRole( 'button', { name: 'Move Insights up' } ) );
+		await leave( user );
+
+		expect( onClose ).toHaveBeenCalled();
+		expect( arrangeTabsEvents() ).toEqual( [
+			[ 'jetpack_premium_analytics_arrange_tabs_exit', { outcome, move_count: 1 } ],
+		] );
+	} );
+
 	it( "resets an order of the reader's own, and offers to only then", async () => {
 		const { unmount } = render(
 			<ArrangeTabsDialog scope={ SCOPE } items={ TABS } onClose={ jest.fn() } />
@@ -176,20 +248,35 @@ describe( 'ArrangeTabsDialog', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Reset order' } ) );
 
 		expect( getSectionOrder( SCOPE ) ).toEqual( [] );
+		expect( arrangeTabsEvents() ).toEqual( [
+			[ 'jetpack_premium_analytics_arrange_tabs_reset' ],
+			[ 'jetpack_premium_analytics_arrange_tabs_exit', { outcome: 'reset', move_count: 0 } ],
+		] );
 	} );
 } );
 
 describe( 'page-options-menu Arrange tabs entry', () => {
-	it( 'opens the dialog for a page with two or more tabs', async () => {
+	it( 'opens the dialog for a page with two or more tabs, and tracks the tab it opens on', async () => {
+		setSectionOrder( SCOPE, [ 'insights' ] );
 		const user = setupUser();
 
-		render( <PageOptionsMenu tabs={ { scope: SCOPE, items: TABS } } /> );
+		render(
+			<DashboardSectionProvider section="insights">
+				<PageOptionsMenu tabs={ { scope: SCOPE, items: TABS } } />
+			</DashboardSectionProvider>
+		);
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Arrange tabs' } ) );
 
 		await expect(
 			screen.findByRole( 'dialog', { name: 'Arrange tabs' } )
 		).resolves.toBeInTheDocument();
+		expect( arrangeTabsEvents() ).toEqual( [
+			[
+				'jetpack_premium_analytics_arrange_tabs_open',
+				{ section: 'insights', tab_count: 3, has_custom_order: true },
+			],
+		] );
 	} );
 
 	it( 'is absent for a page with a single tab', async () => {
