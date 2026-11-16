@@ -674,6 +674,14 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertFalse( $enabled() );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 
+		// So does a conflict reported only through the conflicting-plugin filter.
+		$yoast = static function () {
+			return 'Yoast SEO';
+		};
+		add_filter( 'jetpack_seo_conflicting_plugin', $yoast );
+		$this->assertFalse( $enabled() );
+		remove_filter( 'jetpack_seo_conflicting_plugin', $yoast );
+
 		// WordPress.com Simple: the site's `advanced-seo` entitlement decides.
 		Constants::set_constant( 'IS_WPCOM', true );
 		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
