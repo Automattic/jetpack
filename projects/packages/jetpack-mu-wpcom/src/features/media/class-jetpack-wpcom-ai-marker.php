@@ -238,6 +238,10 @@ class Jetpack_WPCOM_AI_Marker {
 		} elseif ( $status['running'] ) {
 			self::$broken_tools[ $name ] = true;
 			$this->log_error( 'timed-out', $tool );
+		} elseif ( 127 === $status['exitcode'] ) {
+			// Older PHP on Linux starts the child even when the program is missing, and it exits 127.
+			self::$broken_tools[ $name ] = true;
+			$this->log_error( 'could-not-start', $tool );
 		} elseif ( 0 !== $status['exitcode'] ) {
 			$this->log_error( 'tool-failed', $tool + array( 'exit_code' => $status['exitcode'] ) );
 		} else {

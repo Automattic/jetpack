@@ -593,7 +593,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->use_tool( 'exiftool', "/no/such\0tool" );
 		add_filter(
 			'jetpack_wpcom_ai_marker_log_enabled',
-			function () {
+			/** @return never */ function () {
 				throw new \RuntimeException( 'Logging failed.' );
 			},
 			20
@@ -633,10 +633,21 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
+	public function test_treats_exit_code_127_as_a_tool_that_cannot_start() {
+		$this->fake_tool( 'exiftool', "exit 127\n" );
+
+		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- The second save must skip the tool.
+		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+
+		$this->assertSame( array( 'could-not-start' ), $this->stats );
+	}
+
 	public function test_sends_each_error_to_logstash_once_per_request() {
 		$this->fake_exiftool( self::AI_MARKER, 1 );
 
 		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- The second save is the one under test.
 		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
 
 		$this->assertSame( array( 'tool-failed', 'tool-failed' ), $this->stats );
@@ -647,7 +658,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->fake_exiftool( self::AI_MARKER );
 		add_action(
 			'jetpack_bump_stats_extras',
-			function () {
+			/** @return never */ function () {
 				throw new \RuntimeException( 'Stats failed.' );
 			},
 			20
