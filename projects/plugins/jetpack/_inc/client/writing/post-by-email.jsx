@@ -1,10 +1,9 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ClipboardIconButton, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
-import ClipboardIconButton from 'components/clipboard-icon-button';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';

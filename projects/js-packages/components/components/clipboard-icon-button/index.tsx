@@ -4,27 +4,35 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { check, copy, error } from '@wordpress/icons';
 import { IconButton } from '@wordpress/ui';
-import PropTypes from 'prop-types';
+import type { ClipboardIconButtonProps } from './types.ts';
+import type { FC } from 'react';
 
 const FEEDBACK_TIMEOUT = 2000;
 
 /**
- * Icon button that copies text and shows a check or error icon, announcing the result.
+ * An `IconButton` that copies text and shows a check or error icon for two seconds.
  *
- * @param {object} props       - Component props, the rest go to `IconButton`.
- * @param {string} props.text  - Text to copy.
- * @param {string} props.label - Accessible name and tooltip; it stays the same after copying.
- * @param {object} props.icon  - Icon shown before copying.
- * @return {object} Button element.
+ * The accessible name stays the same and `speak()` announces the outcome, following the
+ * Gutenberg Copy to Clipboard pattern.
+ *
+ * @param props        - Component props. Props not listed in the type go to `IconButton`.
+ * @param props.text
+ * @param props.label
+ * @param props.icon
+ * @param props.onCopy
+ * @return The button.
  */
-export default function ClipboardIconButton( {
+export const ClipboardIconButton: FC< ClipboardIconButtonProps > = ( {
 	text,
-	label = __( 'Copy', 'jetpack' ),
+	label = __( 'Copy', 'jetpack-components' ),
 	icon = copy,
+	onCopy,
 	...buttonProps
-} ) {
+} ) => {
 	// A fresh object per result restarts the timeout for repeated copies.
-	const [ feedback, setFeedback ] = useState( { result: 'idle' } );
+	const [ feedback, setFeedback ] = useState< { result: 'idle' | 'copied' | 'error' } >( {
+		result: 'idle',
+	} );
 
 	useEffect( () => {
 		if ( feedback.result === 'idle' ) {
@@ -34,15 +42,16 @@ export default function ClipboardIconButton( {
 		return () => clearTimeout( timeoutId );
 	}, [ feedback ] );
 
-	const copyRef = useCopyToClipboard(
+	const copyRef = useCopyToClipboard< HTMLButtonElement >(
 		text,
 		() => {
 			setFeedback( { result: 'copied' } );
-			speak( __( 'Copied to clipboard', 'jetpack' ) );
+			speak( __( 'Copied to clipboard', 'jetpack-components' ) );
+			onCopy?.();
 		},
 		() => {
 			setFeedback( { result: 'error' } );
-			speak( __( "Couldn't copy to clipboard.", 'jetpack' ) );
+			speak( __( "Couldn't copy to clipboard.", 'jetpack-components' ) );
 		}
 	);
 
@@ -59,10 +68,6 @@ export default function ClipboardIconButton( {
 			icon={ icons[ feedback.result ] }
 		/>
 	);
-}
-
-ClipboardIconButton.propTypes = {
-	text: PropTypes.string,
-	label: PropTypes.string,
-	icon: PropTypes.oneOfType( [ PropTypes.object, PropTypes.func, PropTypes.element ] ),
 };
+
+export default ClipboardIconButton;

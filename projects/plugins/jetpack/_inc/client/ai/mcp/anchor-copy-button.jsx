@@ -2,9 +2,9 @@
  * Button that copies a link to one tool on an MCP view.
  */
 
+import { ClipboardIconButton } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { link } from '@wordpress/icons';
-import ClipboardIconButton from 'components/clipboard-icon-button';
 
 /**
  * Build the shareable URL. The hash is the router, so the anchor goes in the path.

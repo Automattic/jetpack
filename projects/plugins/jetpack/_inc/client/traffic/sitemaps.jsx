@@ -1,11 +1,10 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ClipboardIconButton, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { InputControl, InputLayout, Link, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import ClipboardIconButton from 'components/clipboard-icon-button';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';

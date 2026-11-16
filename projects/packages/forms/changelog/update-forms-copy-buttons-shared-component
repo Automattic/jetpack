@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the shared ClipboardIconButton for copy buttons, so the label stays the same and the result is announced to screen readers.

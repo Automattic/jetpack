@@ -1,6 +1,6 @@
+import { ClipboardIconButton } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { InputControl, InputLayout } from '@wordpress/ui';
-import ClipboardIconButton from '../../_inc/client/components/clipboard-icon-button';
 
 const ClipboardInput = ( { link } ) => {
 	return (
