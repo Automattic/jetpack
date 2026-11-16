@@ -75,6 +75,7 @@ export {
 	type MonthlyHeatmapProps,
 	type MonthlyHeatmapRow,
 	type MonthlyHeatmapTarget,
+	monthlyHeatmapToCsv,
 	ChartEmptyState,
 	type ChartEmptyStateProps,
 	WidgetState,

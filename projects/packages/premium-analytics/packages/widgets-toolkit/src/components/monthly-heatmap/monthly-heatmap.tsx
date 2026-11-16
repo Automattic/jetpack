@@ -7,7 +7,6 @@ import {
 	type HeatmapColumn,
 	type HeatmapTooltipData,
 } from '@jetpack-premium-analytics/externals';
-import { formatMonth } from '@jetpack-premium-analytics/formatters';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
@@ -20,9 +19,10 @@ import {
 /**
  * Internal dependencies
  */
-import { MONTHS_IN_YEAR, monthOrder } from '../../helpers/month-key';
+import { monthOrder } from '../../helpers/month-key';
 import { useChartName } from '../../hooks/use-chart-name';
 import { CalendarHeatmapTooltip } from '../calendar-heatmap';
+import { monthlyHeatmapColumnLabels } from './monthly-heatmap-labels';
 import styles from './monthly-heatmap.module.scss';
 
 export type MonthlyHeatmapRow = {
@@ -91,6 +91,7 @@ export function MonthlyHeatmap( {
 
 	// No per-cell label: the chart names a cell from its column and row.
 	const columns = useMemo< HeatmapColumn[] >( () => {
+		const labels = monthlyHeatmapColumnLabels();
 		const partialOrders = new Set(
 			( partialMonths ?? [] ).flatMap( ( { year, month } ) =>
 				month === undefined ? [] : [ monthOrder( { year, month } ) ]
@@ -98,8 +99,8 @@ export function MonthlyHeatmap( {
 		);
 
 		return [
-			...Array.from( { length: MONTHS_IN_YEAR }, ( _column, month ) => ( {
-				label: formatMonth( month, { short: true } ),
+			...labels.months.map( ( label, month ) => ( {
+				label,
 				data: rows.map( row => {
 					const value = row.months[ month ];
 
@@ -114,7 +115,7 @@ export function MonthlyHeatmap( {
 				} ),
 			} ) ),
 			{
-				label: __( 'Totals', 'jetpack-premium-analytics-pkg' ),
+				label: labels.total,
 				summary: true,
 				data: rows.map( row => ( { value: row.total } ) ),
 			},

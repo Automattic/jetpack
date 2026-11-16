@@ -40,6 +40,9 @@ export interface ViewsOverYearsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	/** Also a failed first-day request, whose stand-in averages the table still draws. */
+	csvIsError: boolean;
+	isPlaceholderData: boolean;
 	error: unknown;
 	refetch: () => void;
 }
@@ -192,6 +195,8 @@ function useSiteViewsOverYears(
 		isLoading: isLoading || awaitingFirstDay,
 		isFetching: isFetching || firstMonthDays.isFetching,
 		isError,
+		csvIsError: isError || ( metric === 'average' && firstMonthDays.isError ),
+		isPlaceholderData: primary.isPlaceholderData,
 		error,
 		refetch,
 	};
@@ -212,10 +217,8 @@ function useAuthorViewsOverYears(
 	enabled: boolean
 ): ViewsOverYearsState {
 	const today = useSiteToday();
-	const { data, isLoading, isFetching, isError, error, refetch } = useStatsAuthorAllTime(
-		authorId,
-		{ enabled: enabled && authorId > 0 }
-	);
+	const { data, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
+		useStatsAuthorAllTime( authorId, { enabled: enabled && authorId > 0 } );
 
 	const { rows, partialMonths, lifeStartsAt } = useMemo( () => {
 		if ( ! data ) {
@@ -231,7 +234,18 @@ function useAuthorViewsOverYears(
 		return buildRows( buckets, metric, today, parseSiteDateTime( data.startDate ?? undefined ) );
 	}, [ data, metric, today ] );
 
-	return { rows, partialMonths, lifeStartsAt, isLoading, isFetching, isError, error, refetch };
+	return {
+		rows,
+		partialMonths,
+		lifeStartsAt,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError: isError,
+		isPlaceholderData,
+		error,
+		refetch,
+	};
 }
 
 /**
