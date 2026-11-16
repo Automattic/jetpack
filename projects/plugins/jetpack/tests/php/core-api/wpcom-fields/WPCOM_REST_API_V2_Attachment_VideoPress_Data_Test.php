@@ -24,6 +24,41 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group( 'rest-api' )]
 class WPCOM_REST_API_V2_Attachment_VideoPress_Data_Test extends Jetpack_REST_TestCase {
 	/**
+	 * Checks that the jetpack_videopress field is filled with the VideoPress GUID
+	 */
+	public function test_attachment_fields_videopress_get() {
+		$this->markTestSkipped( 'Test is broken' );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
+		$mock = $this->getMockBuilder( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class )
+						->onlyMethods( array( 'get_videopress_data' ) )
+						->getMock();
+
+		$mock->expects( $this->once() )
+				->method( 'get_videopress_data' )
+				->willReturn(
+					array(
+						'guid'   => 'mocked_videopress_guid',
+						'rating' => 'G',
+					)
+				);
+
+		$attachment_id = self::factory()->attachment->create_upload_object( dirname( __DIR__, 2 ) . '/jetpack-icon.jpg', 0 );
+		$object        = array(
+			'id' => $attachment_id,
+		);
+		$request       = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $attachment_id ) );
+		$data          = $mock->get( $object, $request );
+
+		$this->assertSame(
+			array(
+				'guid'   => 'mocked_videopress_guid',
+				'rating' => 'G',
+			),
+			$data
+		);
+	}
+
+	/**
 	 * Checks that the jetpack_videopress field is removed for non videos
 	 */
 	public function test_attachment_fields_videopress_remove_for_non_videos() {

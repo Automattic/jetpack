@@ -576,6 +576,53 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertFalse( (bool) $comment_approved_to_unapproved_event );
 	}
 
+	/** Full Sync **/
+	public function test_full_sync_order_items() {
+		$this->markTestSkipped( 'Temporarily skip this test.' );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
+		$order1 = $this->createOrderWithItem();
+		$order2 = $this->createOrderWithItem();
+
+		// order items
+		$order1_items = $order1->get_items();
+		$order1_item  = reset( $order1_items ); // first item from order1
+		wc_update_order_item_meta( $order1_item->get_id(), '_line_subtotal', 10 );
+
+		$order2_items = $order2->get_items();
+		$order2_item  = reset( $order2_items ); // first item from order2
+		wc_update_order_item_meta( $order2_item->get_id(), '_line_subtotal', 20 );
+
+		$this->full_sync->start( array( 'woocommerce' => true ) );
+		$this->sender->do_full_sync();
+
+		$full_sync_order_items = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_woocommerce_order_items' );
+
+		$this->assertTrue( (bool) $full_sync_order_items );
+		$synced_order_items = $full_sync_order_items->args[0];
+
+		$found_order_item_2 = false;
+		$found_order_item_1 = $found_order_item_2; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		foreach ( $synced_order_items as $synced_order_item ) {
+			if ( $order1_item->get_id() === $synced_order_item->order_item_id ) {
+				$this->assertHasOrderItemProperties( $synced_order_item, $order1_item );
+				$found_order_item_1 = true; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				continue;
+			}
+
+			if ( $order2_item->get_id() === $synced_order_item->order_item_id ) {
+				$this->assertHasOrderItemProperties( $synced_order_item, $order2_item );
+				$found_order_item_2 = true;
+				continue;
+			}
+		}
+
+		$synced_order_item_metas = $full_sync_order_items->args[1];
+
+		// find the _line_subtotal metas and assert they have the right values
+		$this->assertHasObjectMetaValue( $synced_order_item_metas, $order1_item->get_id(), '_line_subtotal', 10 );
+		$this->assertHasObjectMetaValue( $synced_order_item_metas, $order2_item->get_id(), '_line_subtotal', 20 );
+	}
+
 	private function assertHasOrderItemProperties( $object, $compare = false ) {
 		$this->assertObjectHasProperty( 'order_item_id', $object );
 		$this->assertObjectHasProperty( 'order_item_name', $object );
@@ -588,6 +635,18 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 			$this->assertEquals( $compare->get_name(), $object->order_item_name );
 			$this->assertEquals( $compare->get_order_id(), $object->order_id );
 		}
+	}
+
+	private function assertHasObjectMetaValue( $metas, $order_item_id, $expected_meta_key, $expected_meta_value ) {
+		$has_meta_entry = false;
+		foreach ( $metas as $meta ) {
+			if ( $order_item_id === $meta->order_item_id && $expected_meta_key === $meta->meta_key ) {
+				$this->assertEquals( $expected_meta_value, $meta->meta_value );
+				$has_meta_entry = true;
+			}
+		}
+
+		$this->assertTrue( $has_meta_entry );
 	}
 
 	/** Utility functions **/
