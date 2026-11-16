@@ -27,8 +27,6 @@ class Stats_Settings_Test extends BaseTestCase {
 
 	const GROUP = 'jetpack_premium_analytics';
 
-	const READER_VIEWS_OPTION = 'wpcom_reader_views_enabled';
-
 	const CONSENT_API_FILE = WP_PLUGIN_DIR . '/wp-consent-api/wp-consent-api.php';
 
 	/**
@@ -104,16 +102,13 @@ class Stats_Settings_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_option( Stats_Options::OPTION_NAME );
-		delete_option( self::READER_VIEWS_OPTION );
 		unregister_setting( self::GROUP, Stats_Options::OPTION_NAME );
-		unregister_setting( self::GROUP, self::READER_VIEWS_OPTION );
 		remove_action( 'rest_api_init', array( Stats_Settings::class, 'register' ) );
 		remove_action( 'rest_api_init', array( $this, 'register_core_settings_route' ), 99 );
 		remove_filter( 'rest_pre_get_setting', array( Stats_Settings::class, 'get_stats_options' ) );
 		remove_filter( 'rest_pre_update_setting', array( Stats_Settings::class, 'update_stats_options' ) );
 		remove_filter( 'rest_request_after_callbacks', array( Stats_Settings::class, 'report_update_error' ) );
 		remove_all_filters( 'pre_update_option_' . Stats_Options::OPTION_NAME );
-		remove_all_filters( 'pre_update_option_' . self::READER_VIEWS_OPTION );
 		remove_all_filters( 'wp_is_large_user_count' );
 		remove_all_filters( 'file_mod_allowed' );
 		remove_filter( 'map_meta_cap', array( $this, 'deny_activate_plugin' ) );
@@ -163,7 +158,6 @@ class Stats_Settings_Test extends BaseTestCase {
 			}
 		);
 		unregister_setting( self::GROUP, Stats_Options::OPTION_NAME );
-		unregister_setting( self::GROUP, self::READER_VIEWS_OPTION );
 		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
 		do_action( 'rest_api_init' );
 	}
@@ -277,43 +271,6 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertSame( 400, $response->get_status() );
 	}
 
-	public function test_reader_views_switched_off_read_back_as_off() {
-		$this->log_in_as( 'administrator' );
-
-		$data = $this->post_settings( array( self::READER_VIEWS_OPTION => false ) )->get_data();
-
-		$this->assertFalse( $data[ self::READER_VIEWS_OPTION ] );
-		$this->assertSame( 0, get_option( self::READER_VIEWS_OPTION ) );
-	}
-
-	public function test_reader_views_null_resets_to_the_default() {
-		$this->log_in_as( 'administrator' );
-		update_option( self::READER_VIEWS_OPTION, 0 );
-
-		$data = $this->post_settings( array( self::READER_VIEWS_OPTION => null ) )->get_data();
-
-		$this->assertTrue( $data[ self::READER_VIEWS_OPTION ] );
-		$this->assertSame( 'unset', get_option( self::READER_VIEWS_OPTION, 'unset' ) );
-	}
-
-	public function test_reader_views_write_the_site_does_not_store_answers_with_an_error() {
-		$this->log_in_as( 'administrator' );
-		update_option( self::READER_VIEWS_OPTION, 1 );
-		add_filter(
-			'pre_update_option_' . self::READER_VIEWS_OPTION,
-			function ( $value, $old_value ) {
-				return $old_value;
-			},
-			10,
-			2
-		);
-
-		$response = $this->post_settings( array( self::READER_VIEWS_OPTION => false ) );
-
-		$this->assertSame( 500, $response->get_status() );
-		$this->assertSame( 1, get_option( self::READER_VIEWS_OPTION ) );
-	}
-
 	public function test_route_offers_only_the_fields_the_host_keeps() {
 		$this->log_in_as( 'administrator' );
 		update_option( Stats_Options::OPTION_NAME, array( 'roles' => array( 'administrator', 'editor' ) ) );
@@ -323,18 +280,17 @@ class Stats_Settings_Test extends BaseTestCase {
 		$status = $this->post_settings( array( Stats_Options::OPTION_NAME => array( 'roles' => array( 'administrator' ) ) ) )->get_status();
 
 		$this->assertSame( array( 'admin_bar' => true ), $data[ Stats_Options::OPTION_NAME ] );
-		$this->assertArrayNotHasKey( self::READER_VIEWS_OPTION, $data );
 		$this->assertSame( 400, $status );
 		$this->assertSame( array( 'administrator', 'editor' ), get_option( Stats_Options::OPTION_NAME )['roles'] );
 	}
 
 	public function test_script_data_lists_the_fields_the_host_keeps_without_roles_or_consent() {
 		$this->log_in_as( 'administrator' );
-		$this->keep_fields( array( 'admin_bar', self::READER_VIEWS_OPTION ) );
+		$this->keep_fields( array( 'admin_bar' ) );
 
 		$context = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
 
-		$this->assertSame( array( 'admin_bar', self::READER_VIEWS_OPTION ), $context['fields'] );
+		$this->assertSame( array( 'admin_bar' ), $context['fields'] );
 		$this->assertSame( array(), $context['roles'] );
 		$this->assertArrayNotHasKey( 'consent', $context );
 	}
