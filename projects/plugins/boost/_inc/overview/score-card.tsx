@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { Icon, info } from '@wordpress/icons';
 import { Badge, Meter, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
-import { useId, useState } from 'react';
+import { useId } from 'react';
 import {
 	formatScoreDelta,
 	getScoreDelta,
@@ -56,7 +55,6 @@ export default function ScoreCard( {
 	closePopover = false,
 }: Props ) {
 	const headingId = useId();
-	const [ infoTrigger, setInfoTrigger ] = useState< HTMLButtonElement | null >( null );
 	const delta = getScoreDelta( score, noBoost, isStale );
 	const gain = getScoreGain( score, noBoost, isStale );
 	return (
@@ -90,48 +88,24 @@ export default function ScoreCard( {
 						</Meter.Track>
 					</Meter.Root>
 					{ gain !== null && (
-						<Stack
-							direction="row"
-							align="center"
-							gap="sm"
+						<Badge
+							key={ closePopover ? 'running' : 'loaded' }
 							className="jetpack-boost-overview__delta"
+							intent={ gain > 0 ? 'informational' : 'none' }
+							infotip={ {
+								popover: Popover,
+								popup: (
+									<Popover.Popup className="jetpack-boost-overview__score-popover jetpack-boost-overview__points-tooltip">
+										<VisuallyHidden render={ <Popover.Title /> }>
+											{ __( 'About points', 'jetpack-boost' ) }
+										</VisuallyHidden>
+										<Popover.Description>{ explainDelta( delta ) }</Popover.Description>
+									</Popover.Popup>
+								),
+							} }
 						>
-							<Popover.Root key={ closePopover ? 'running' : 'loaded' }>
-								<Popover.Trigger
-									openOnHover
-									delay={ 200 }
-									nativeButton={ false }
-									// The badge only adds a hover target; the info button stays the control.
-									role={ undefined }
-									tabIndex={ undefined }
-									aria-haspopup={ undefined }
-									aria-expanded={ undefined }
-									render={
-										<Badge intent={ gain > 0 ? 'informational' : 'none' }>
-											{ formatScoreDelta( gain ) }
-										</Badge>
-									}
-								/>
-								<Popover.Trigger
-									ref={ setInfoTrigger }
-									openOnHover
-									delay={ 200 }
-									aria-label={ __( 'About points', 'jetpack-boost' ) }
-									className="jetpack-boost-overview__info-trigger"
-								>
-									<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
-								</Popover.Trigger>
-								<Popover.Popup
-									className="jetpack-boost-overview__score-popover jetpack-boost-overview__points-tooltip"
-									positioner={ <Popover.Positioner anchor={ infoTrigger } /> }
-								>
-									<VisuallyHidden render={ <Popover.Title /> }>
-										{ __( 'About points', 'jetpack-boost' ) }
-									</VisuallyHidden>
-									<Popover.Description>{ explainDelta( delta ) }</Popover.Description>
-								</Popover.Popup>
-							</Popover.Root>
-						</Stack>
+							{ formatScoreDelta( gain ) }
+						</Badge>
 					) }
 				</div>
 			) }

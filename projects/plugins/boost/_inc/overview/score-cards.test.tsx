@@ -135,7 +135,7 @@ test.each< [ string, number, string, string, number, string, string[] ] >( [
 		expect( card.getByText( label ) ).toHaveClass( new RegExp( `__is-${ intent }-intent$` ) );
 		expect( card.getByRole( 'meter', { name: 'Desktop' } ) ).toHaveValue( Number( score ) );
 		expect( card.getByText( tierLabel ) ).toBeVisible();
-		expect( card.getByRole( 'button', { name: 'About points' } ) ).toBeVisible();
+		expect( card.getByRole( 'button', { name: label } ) ).toBeVisible();
 		for ( const absentLabel of absentLabels ) {
 			expect( card.queryByText( absentLabel ) ).not.toBeInTheDocument();
 		}
@@ -156,7 +156,7 @@ test( 'hides unknown and stale deltas while retaining measured scores', () => {
 	] ) {
 		rerender( <ScoreCards scores={ unavailable } /> );
 		expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'About points' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /points/ } ) ).not.toBeInTheDocument();
 		for ( const [ device, score ] of [
 			[ 'Desktop', 91 ],
 			[ 'Mobile', 61 ],
@@ -180,7 +180,7 @@ test( 'opens the points explanation beside the badge', async () => {
 	);
 	expect( screen.queryByText( 'Points gained from optimizations' ) ).not.toBeInTheDocument();
 	const trigger = within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByRole( 'button', {
-		name: 'About points',
+		name: '+10 points',
 	} );
 	fireEvent.click( trigger );
 	await waitFor( () =>
@@ -197,6 +197,7 @@ test.each( [
 	[ 'a clamped negative delta', 80, 'Speed score has fallen' ],
 	[ 'a positive delta', 50, 'Points gained from optimizations' ],
 ] )( 'explains %s in the points tooltip', async ( _description, baseline, explanation ) => {
+	const label = baseline === 50 ? '+10 points' : '0 points';
 	render(
 		<ScoreCards
 			scores={ {
@@ -207,7 +208,7 @@ test.each( [
 		/>
 	);
 	const trigger = within( screen.getByRole( 'region', { name: 'Mobile' } ) ).getByRole( 'button', {
-		name: 'About points',
+		name: label,
 	} );
 	fireEvent.click( trigger );
 
@@ -231,10 +232,8 @@ test.each( [
 		);
 		const card = within( screen.getByRole( 'region', { name: 'Mobile' } ) );
 		const badge = card.getByText( label );
-		expect( badge ).not.toHaveAttribute( 'tabindex' );
-		expect( badge ).not.toHaveAttribute( 'role' );
 		expect( card.getAllByRole( 'button' ) ).toEqual( [
-			card.getByRole( 'button', { name: 'About points' } ),
+			card.getByRole( 'button', { name: label } ),
 		] );
 		fireEvent.mouseEnter( badge );
 		fireEvent.mouseMove( badge );
@@ -404,8 +403,8 @@ test( 'retains scores with a busy state during a cached read', () => {
 
 test.each< [ string, number, boolean ] >( [
 	[ 'How the overall grade is calculated', 0, true ],
-	[ 'About points', 0, true ],
-	[ 'About points', 1, true ],
+	[ '+10 points', 0, true ],
+	[ '+10 points', 1, true ],
 	[ 'Try again', 0, true ],
 	[ 'Try again', 0, false ],
 ] )( 'preserves focus when a run hides %s', ( name, index, hasScores ) => {
@@ -424,7 +423,7 @@ test.each< [ string, number, boolean ] >( [
 	expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus();
 } );
 
-test.each( [ 'How the overall grade is calculated', 'About points' ] )(
+test.each( [ 'How the overall grade is calculated', '+10 points' ] )(
 	'hides an open %s popover when a real run starts',
 	async name => {
 		const scores = {
