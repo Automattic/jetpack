@@ -315,7 +315,7 @@ class REST_Main_Features {
 	 * @param bool   $active Whether to switch it on.
 	 * @return true|WP_Error
 	 */
-	private static function switch_module( $slug, $active ) {
+	public static function switch_module( $slug, $active ) {
 		$modules = new Modules();
 
 		// Not is_module(): with no modules on offer, its allow-list is skipped and any slug passes.

@@ -30,4 +30,37 @@ class Sample_Gated_Product extends Products\Stats {
 	public static function is_activated() {
 		return static::$active;
 	}
+
+	/**
+	 * Whether something other than its switch keeps it off.
+	 *
+	 * @var bool
+	 */
+	public static $held_off = false;
+
+	/**
+	 * Whether something other than its switch keeps it off.
+	 *
+	 * @return bool
+	 */
+	public static function is_held_off() {
+		return static::$held_off;
+	}
+
+	/**
+	 * How often Product::activate() got as far as asking whether the product is active, its first step.
+	 *
+	 * @var int
+	 */
+	public static $activation_attempts = 0;
+
+	/**
+	 * Count the attempt and report active, so activation goes no further.
+	 *
+	 * @return bool
+	 */
+	public static function is_active() {
+		++static::$activation_attempts;
+		return true;
+	}
 }

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Modules;
+use WP_Error;
 
 /**
  * The activation half of the sidebar visibility contract.
@@ -88,6 +89,46 @@ class Menu_Visibility {
 	}
 
 	/**
+	 * Switch a gated feature on the way the Features tab does: its module, when Jetpack runs one, before its plugin.
+	 *
+	 * @param array $args The item's visibility declaration.
+	 * @return true|WP_Error
+	 */
+	public static function activate( $args ) {
+		$product_class = empty( $args['product'] ) ? null : Products::get_product_class( $args['product'] );
+		$module        = empty( $args['module'] ) ? ( $product_class ? $product_class::get_module_name() : null ) : $args['module'];
+
+		// Else the product fallback below would install a plugin for a module the site filtered away or holds off.
+		if ( ! self::can_offer( $args ) ) {
+			return new WP_Error( 'not_available', __( 'This feature is not available on this site.', 'jetpack-my-jetpack' ) );
+		}
+
+		if ( $module && in_array( $module, ( new Modules() )->get_available(), true ) ) {
+			if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
+				return new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
+			}
+			$result = REST_Main_Features::switch_module( $module, true );
+			// A product whose standalone plugin is off stays off with its module on: activate the plugin below.
+			if ( is_wp_error( $result ) || ! $product_class || $product_class::is_activated() ) {
+				self::forget_resolved_gates();
+				return $result;
+			}
+		}
+
+		if ( ! $product_class ) {
+			return new WP_Error( 'not_found', __( 'That feature was not found.', 'jetpack-my-jetpack' ) );
+		}
+		if ( ! REST_Products::edit_permissions_callback() ) {
+			return new WP_Error( 'not_allowed', __( 'Your account can’t activate plugins on this site.', 'jetpack-my-jetpack' ) );
+		}
+
+		$result = $product_class::activate();
+		self::forget_resolved_gates();
+
+		return is_wp_error( $result ) ? $result : true;
+	}
+
+	/**
 	 * Whether a Jetpack module gating an item is switched on.
 	 *
 	 * A name this site has no module for is unanswerable rather than off, so a typo in a gate
@@ -125,5 +166,56 @@ class Menu_Visibility {
 		}
 
 		return (bool) $product_class::is_activated();
+	}
+
+	/**
+	 * Whether activate() can switch a gate's feature on: nothing removed its module or holds it off.
+	 *
+	 * Separate from resolve(), which also decides the sidebar: a feature held off is still off there.
+	 *
+	 * @param array $args The item's visibility declaration.
+	 * @return bool
+	 */
+	public static function can_offer( $args ) {
+		$product_class = empty( $args['product'] ) ? null : Products::get_product_class( $args['product'] );
+		$module        = empty( $args['module'] ) ? ( $product_class ? $product_class::get_module_name() : null ) : $args['module'];
+
+		return ! self::is_module_removed( $module )
+			&& ! self::is_module_held_off( $module )
+			&& ! ( $product_class && $product_class::is_held_off() );
+	}
+
+	/**
+	 * Whether the site saved this module on but a `jetpack_active_modules` callback, such as a host's, keeps it off.
+	 *
+	 * @param string|null $module_name A Jetpack module name.
+	 * @return bool
+	 */
+	private static function is_module_held_off( $module_name ) {
+		if ( ! $module_name || ! class_exists( 'Jetpack_Options' ) ) {
+			return false;
+		}
+
+		return in_array( $module_name, (array) \Jetpack_Options::get_option( 'active_modules', array() ), true )
+			&& ! ( new Modules() )->is_active( $module_name );
+	}
+
+	/**
+	 * Whether the Jetpack plugin ships this module but no longer offers it, as when a
+	 * `jetpack_get_available_modules` filter removes it.
+	 *
+	 * Bundles and Scan name modules Jetpack has no file for, which are not removed.
+	 *
+	 * @param string|null $module_name A Jetpack module name.
+	 * @return bool
+	 */
+	private static function is_module_removed( $module_name ) {
+		if ( ! $module_name || ! class_exists( 'Jetpack' ) ) {
+			return false;
+		}
+		$modules = new Modules();
+		$path    = $modules->get_path( $module_name );
+
+		return $path && file_exists( $path ) && ! in_array( $module_name, $modules->get_available(), true );
 	}
 }
