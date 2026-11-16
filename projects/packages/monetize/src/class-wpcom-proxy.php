@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * The local path mirrors the upstream one, so the page's client only swaps the prefix: Simple sites call WordPress.com directly.
  *
- * @since $$next-version$$
+ * @since 0.2.0
  */
 class WPCOM_Proxy {
 	use WPCOM_REST_API_Proxy_Request;
@@ -62,7 +62,7 @@ class WPCOM_Proxy {
 		if ( ! isset( self::APIS[ $api ] ) ) {
 			/* translators: %s is a WordPress.com API, such as wpcom/v2. */
 			$message = sprintf( __( 'Unknown WordPress.com API "%s".', 'jetpack-monetize' ), $api );
-			_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), '0.2.0' );
 			return false;
 		}
 
