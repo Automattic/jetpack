@@ -176,17 +176,7 @@ class Stats_Links {
 
 		// The dashboard draws a window of one day by the hour.
 		if ( 'hour' === $view ) {
-			$today = wp_date( 'Y-m-d' );
-
-			return self::dashboard_path(
-				array(
-					'section' => 'traffic',
-					'range'   => array(
-						'from' => $today,
-						'to'   => $today,
-					),
-				)
-			);
+			return '/?section=traffic&preset=today';
 		}
 
 		return array_key_exists( $view, self::LEGACY_SECTIONS ) ? '/?section=' . self::LEGACY_SECTIONS[ $view ] : '/';
