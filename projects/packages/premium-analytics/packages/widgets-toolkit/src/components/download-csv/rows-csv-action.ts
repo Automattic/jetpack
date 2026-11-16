@@ -46,7 +46,8 @@ export type RowsCsvActionOptions< TRow > = {
 	  }
 	| {
 			/**
-			 * Dates the file by the widget's own window instead of the report window.
+			 * Dates the file by this window instead of the report window, and keeps the dates under
+			 * All time, whose start a detail page knows (the publish day).
 			 */
 			range: CsvDateRange;
 			hasDateRange?: never;

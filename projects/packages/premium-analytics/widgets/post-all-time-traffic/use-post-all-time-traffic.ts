@@ -27,6 +27,7 @@ export interface PostAllTimeTrafficState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	isPlaceholderData: boolean;
 	error: unknown;
 	refetch: () => void;
 }
@@ -44,10 +45,12 @@ export default function usePostAllTimeTraffic(
 	postId: number,
 	metric: MonthlyHeatmapMetric
 ): PostAllTimeTrafficState {
-	const { data, isLoading, isFetching, isError, error, refetch } = useStatsPost( {
-		postId,
-		fields: [ 'years', 'averages', 'post' ],
-	} );
+	const { data, isLoading, isFetching, isError, isPlaceholderData, error, refetch } = useStatsPost(
+		{
+			postId,
+			fields: [ 'years', 'averages', 'post' ],
+		}
+	);
 
 	// Same reading as the page header: a site-local wall time, or the GMT stamp
 	// pinned to UTC when that is all the row carries.
@@ -86,6 +89,7 @@ export default function usePostAllTimeTraffic(
 		isLoading,
 		isFetching,
 		isError,
+		isPlaceholderData,
 		error,
 		refetch,
 	};
