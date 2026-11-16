@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Monetize: Warn on the Payments tab when the connected Stripe account can't accept payments.
