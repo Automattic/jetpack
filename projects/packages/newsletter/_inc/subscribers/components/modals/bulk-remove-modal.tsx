@@ -67,6 +67,8 @@ export default function BulkRemoveModal( {
 	} );
 	const counts = isAll ? everyone : matching;
 	const countsReady = counts.isSuccess && counts.fetchStatus === 'idle';
+	// A failed count that is retrying counts as still counting; one that is paused offline has failed.
+	const countFailed = counts.isError && ! counts.isFetching;
 	const matchingReady = matching.isSuccess && matching.fetchStatus === 'idle';
 	const listReady = everyone.isSuccess && everyone.fetchStatus === 'idle';
 	const total = counts.data?.total ?? 0;
@@ -154,7 +156,7 @@ export default function BulkRemoveModal( {
 		// AlertDialog cannot disable its confirm button, so say why nothing happened. These two
 		// messages go in the dialog body, not the footer error, which stays up until the next
 		// click and would go stale once the count arrives.
-		if ( counts.isError && ! counts.isFetching ) {
+		if ( countFailed ) {
 			// The body already shows this failure, so only announce it.
 			speak( countFailedMessage, 'assertive' );
 			return { close: false };
@@ -228,6 +230,7 @@ export default function BulkRemoveModal( {
 	}, [
 		counts,
 		countsReady,
+		countFailed,
 		countFailedMessage,
 		stillCountingMessage,
 		total,
@@ -325,14 +328,14 @@ export default function BulkRemoveModal( {
 				confirmButtonText={ confirmButtonText }
 				cancelButtonText={ __( 'Cancel', 'jetpack-newsletter' ) }
 			>
-				{ counts.isLoading || counts.isFetching || counts.isPaused ? (
+				{ ! countFailed && ( counts.isLoading || counts.isFetching || counts.isPaused ) ? (
 					<Text variant="body-md">
 						{ clickedWhileCounting
 							? stillCountingMessage
 							: __( 'Counting your subscribers…', 'jetpack-newsletter' ) }
 					</Text>
 				) : null }
-				{ counts.isError ? (
+				{ countFailed ? (
 					<Notice.Root intent="error">
 						<Notice.Description>{ countFailedMessage }</Notice.Description>
 					</Notice.Root>

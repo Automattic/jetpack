@@ -156,6 +156,8 @@ describe( 'BulkRemoveModal', () => {
 
 			await expect( screen.findByText( stillCountingText ) ).resolves.toBeInTheDocument();
 			expect( speak ).toHaveBeenCalledWith( stillCountingText, 'assertive' );
+			// A retry after a failure is still counting, so the old failure is not shown beside it.
+			expect( screen.queryByText( failedText ) ).not.toBeInTheDocument();
 			expect( mockMutateAsync ).not.toHaveBeenCalled();
 			expect( onClose ).not.toHaveBeenCalled();
 
@@ -181,6 +183,7 @@ describe( 'BulkRemoveModal', () => {
 			await waitFor( () => expect( speak ).toHaveBeenCalledWith( failedText, 'assertive' ) );
 			expect( screen.getAllByText( failedText ) ).toHaveLength( 1 );
 			expect( screen.queryByText( /Still counting your subscribers/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Counting your subscribers…' ) ).not.toBeInTheDocument();
 			expect( mockMutateAsync ).not.toHaveBeenCalled();
 			expect( onClose ).not.toHaveBeenCalled();
 		}

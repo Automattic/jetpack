@@ -241,7 +241,8 @@ describe( 'useBulkRemoveStatus', () => {
 		[ 'a permission error', { code: 'rest_forbidden', data: { status: 403 } } ],
 	] )( 'does not retry %s', async ( _label, error ) => {
 		mockFetchBulkRemoveStatus.mockRejectedValue( error );
-		const { wrapper } = setup( { retryDelay: 0 } );
+		// The library default, so this fails if the hook stops setting its own retry rule.
+		const { wrapper } = setup( { retry: 3, retryDelay: 0 } );
 		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
