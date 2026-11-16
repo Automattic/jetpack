@@ -67,7 +67,7 @@ fi
 
 process_plugin_arg "${ARGS[0]}"
 NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
-PREFIX=$(jq -r '.extra["release-branch-prefix"] // "" | if type == "array" then .[0] else . end' "$PLUGIN_DIR/composer.json")
+PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$PLUGIN_DIR/composer.json")
 if [[ -z "$PREFIX" ]]; then
 	die "Plugin $NAME does not have a release branch prefix defined in composer.json. Aborting."
 fi

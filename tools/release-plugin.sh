@@ -121,7 +121,7 @@ function find_base_branch {
 		BASE_BRANCH=trunk
 		return
 	fi
-	prefix=$(jq -r '.extra["release-branch-prefix"] | if type == "array" then first else . end' "$BASE/projects/$PLUGIN/composer.json")
+	prefix=$(jq -r '.extra["release-branch-prefix"]' "$BASE/projects/$PLUGIN/composer.json")
 	stable=$(grep -oE '^[0-9]+\.[0-9]+' <<<"$VERSION")
 	# We only fetch the subset of branches needed, as no one sort order fits both: branch-x.y must sort below
 	# x.y-beta.N for stable and beta releases, but above it for point releases.
