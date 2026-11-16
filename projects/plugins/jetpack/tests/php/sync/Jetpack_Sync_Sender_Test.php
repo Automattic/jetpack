@@ -395,7 +395,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		remove_all_filters( 'jetpack_sync_send_data' );
 		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithDelay' ) );
 		$this->sender->set_sync_wait_time( 10 );       // 10 second delay
-		$this->sender->set_sync_wait_threshold( 0.2 ); // shorter than the 0.3s receive delay
+		$this->sender->set_sync_wait_threshold( 1 ); // shorter than the receive delay
 
 		self::factory()->post->create();
 
@@ -429,14 +429,14 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		$this->assertSame( 0, $this->sender->get_sync_queue()->size() );
 
-		$this->sender->set_max_dequeue_time( 0.5 );
+		$this->sender->set_max_dequeue_time( 1 );
 
 		add_filter( 'jetpack_sync_before_send_super_slow_action', array( $this, 'before_send_super_slow_action' ) );
 
 		// register the action to be synced
 		add_action( 'super_slow_action', array( $this->listener, 'action_handler' ) );
 
-		// it should only dequeue 2 of these, because each takes 0.3 seconds to process, and 0.3*2 = 0.6, which is > 0.5
+		// it should only dequeue 2 of these, because each takes 0.6 seconds to process, and 0.6*2 = 1.2, which is > 1
 		do_action( 'super_slow_action' );
 		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally testing limits.
 		do_action( 'super_slow_action' );
@@ -936,12 +936,12 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function before_send_super_slow_action( $args ) {
-		usleep( 300000 );
+		usleep( 600000 );
 		return $args;
 	}
 
 	public function serverReceiveWithDelay( $data ) {
-		usleep( 300000 );
+		usleep( 1200000 );
 		return array_keys( $data );
 	}
 
