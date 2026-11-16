@@ -36,7 +36,7 @@ jobs:
         run: |
           REF=${GITHUB_REF#refs/heads/}
           if [[ "$REF" == */branch-* ]]; then
-            PROJECTS="$(jq -r --arg P "${REF%%/branch-*}" '.extra["release-branch-prefix"] | if type == "array" then . else [ . ] end | if index( $P ) then input_filename | match( "^projects/([^/]+/[^/]+)/composer.json$" ).captures[0].string else empty end' projects/*/*/composer.json)"
+            PROJECTS="$(jq -r --arg P "${REF%%/branch-*}" 'if .extra["release-branch-prefix"] == $P then input_filename | match( "^projects/([^/]+/[^/]+)/composer.json$" ).captures[0].string else empty end' projects/*/*/composer.json)"
             if [[ -n "$PROJECTS" ]]; then
               echo "Branch $REF seems to be a release branch, checking matching projects."
             else
