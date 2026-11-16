@@ -4963,7 +4963,8 @@
                 "issues": "https://github.com/antecedent/patchwork/issues",
                 "source": "https://github.com/antecedent/patchwork/tree/2.2.5"
             },
-            "time": "2026-11-10T09:08:20+00:00"
+            "time": "2026-11-10T09:08:20+00:00",
+            "published-time": "2026-11-10T21:11:40+00:00"
         },
         {
             "name": "automattic/patchwork-redefine-exit",
@@ -6942,5 +6943,5 @@
     "platform-overrides": {
         "ext-intl": "0.0.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }

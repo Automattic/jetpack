@@ -116,13 +116,15 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * Make every post report the "faq" schema-type override, including unsaved ones.
+	 * Make every post report a schema-type override, including unsaved ones.
+	 *
+	 * @param string $type Schema type, e.g. "faq" or "article".
 	 */
-	private function set_faq_schema_type() {
+	private function set_schema_type( $type ) {
 		add_filter(
 			'get_post_metadata',
-			static function ( $value, $post_id, $key ) {
-				return Content_Coverage::META_SCHEMA_TYPE === $key ? array( 'faq' ) : $value;
+			static function ( $value, $post_id, $key ) use ( $type ) {
+				return Content_Coverage::META_SCHEMA_TYPE === $key ? array( $type ) : $value;
 			},
 			10,
 			3
@@ -441,7 +443,7 @@ class SchemaBuilderTest extends TestCase {
 	 * A "faq" override emits a `@graph` document containing a FAQPage node.
 	 */
 	public function test_emits_graph_with_faqpage_for_faq_override() {
-		$this->set_faq_schema_type();
+		$this->set_schema_type( 'faq' );
 
 		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
@@ -819,15 +821,15 @@ class SchemaBuilderTest extends TestCase {
 	public function test_static_article_front_page_defines_person_publisher_once() {
 		$this->set_site_name( 'Jane Rivera' );
 		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
-		$author                          = $this->make_user();
-		$post                            = $this->make_post(
+		$author = $this->make_user();
+		$post   = $this->make_post(
 			array(
 				'ID'          => 71,
 				'post_type'   => 'page',
 				'post_author' => $author->ID,
 			)
 		);
-		\Jetpack_SEO_Posts::$schema_type = 'article';
+		$this->set_schema_type( 'article' );
 		add_filter(
 			'pre_option_show_on_front',
 			static function () {
@@ -972,7 +974,7 @@ class SchemaBuilderTest extends TestCase {
 	 */
 	public function test_faqpage_has_no_publisher() {
 		$this->set_site_name( 'Acme Co' );
-		$this->set_faq_schema_type();
+		$this->set_schema_type( 'faq' );
 
 		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
