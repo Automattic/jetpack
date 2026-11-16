@@ -178,7 +178,7 @@ export function FeatureItem( {
 		state.control.kind === 'module' && isLockedBySeoDashboard( state.control.module.module );
 	// Connect or Install already says an account is needed.
 	const reason = locked
-		? __( 'Paused while the SEO dashboard is off.', 'jetpack-my-jetpack' )
+		? __( 'Turn on the SEO dashboard to use this.', 'jetpack-my-jetpack' )
 		: ( ( ! state.accountNeeded || needsAccountWithoutConnect( state ) ) && unavailable ) ||
 			getModuleUnavailableNote( state );
 	// With no Active or Inactive badge, this says why there is no switch, a host's choice or what
@@ -215,7 +215,6 @@ export function FeatureItem( {
 		<div
 			className={ clsx( styles[ 'feature-item' ], className, {
 				[ styles[ 'feature-item--static' ] ]: ! onOpen,
-				[ styles[ 'feature-item--locked' ] ]: locked,
 				[ styles[ 'feature-item--connect' ] ]: ! state.pending && offersConnect( state ),
 			} ) }
 			data-feature={ feature.slug }
