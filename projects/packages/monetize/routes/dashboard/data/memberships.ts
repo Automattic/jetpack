@@ -53,6 +53,7 @@ interface StatusResponse {
 	connected_account_description?: string | null;
 	connect_url?: string | null;
 	store_context?: string | null;
+	connected_account_accepts_charges?: boolean;
 }
 
 export interface StripeStatus {
@@ -61,6 +62,7 @@ export interface StripeStatus {
 	accountDescription: string;
 	connectUrl: string;
 	isSandbox: boolean;
+	acceptsCharges: boolean;
 }
 
 /**
@@ -82,6 +84,7 @@ export function useStripeStatus() {
 			accountDescription: data.connected_account_description ?? '',
 			connectUrl: data.connect_url ?? '',
 			isSandbox: data.store_context === 'sandbox',
+			acceptsCharges: data.connected_account_accepts_charges ?? true,
 		} ),
 	} );
 }

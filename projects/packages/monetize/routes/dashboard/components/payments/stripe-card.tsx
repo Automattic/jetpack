@@ -118,6 +118,21 @@ export default function StripeCard() {
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="lg">
+					{ status?.isConnected && ! status.acceptsCharges && (
+						<Notice.Root intent="error">
+							<Notice.Description>
+								{ __(
+									'Your Stripe account can’t accept payments right now, so new and renewing subscriptions will fail. Resolve the issue in your Stripe dashboard.',
+									'jetpack-monetize'
+								) }
+							</Notice.Description>
+							<Notice.Actions>
+								<Notice.ActionLink href="https://dashboard.stripe.com/">
+									{ __( 'Open Stripe', 'jetpack-monetize' ) }
+								</Notice.ActionLink>
+							</Notice.Actions>
+						</Notice.Root>
+					) }
 					{ content }
 					{ earnings && earnings.commission !== null && (
 						<CommissionFees commission={ earnings.commission } />
