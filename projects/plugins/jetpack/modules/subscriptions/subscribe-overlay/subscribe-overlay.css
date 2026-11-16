@@ -33,6 +33,7 @@ body.jetpack-subscribe-overlay-open {
 	display: none;
 	cursor: pointer;
 	position: fixed;
+	z-index: 1;
 	top: 32px;
 	right: 32px;
 	width: 24px;
