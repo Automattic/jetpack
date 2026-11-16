@@ -46,7 +46,8 @@ class Single_Report_Page {
 	public $entity = null;
 
 	/**
-	 * Field ids of that entity for the header (`title`, `media`, `description`, `actions`), or null.
+	 * Header slots, each naming DataViews fields of that entity by id: one for `title`, `media`
+	 * and `description`, a list for `actions`. Null when the page names none.
 	 *
 	 * @var array|null
 	 */
@@ -406,7 +407,7 @@ class Single_Report_Page {
 	}
 
 	/**
-	 * The header field ids the record names, or null when none of them is valid.
+	 * The header slots that name a valid field id, `actions` as a list of them, or null when none does.
 	 *
 	 * @param mixed $header Declared header.
 	 * @return array|null
@@ -417,9 +418,19 @@ class Single_Report_Page {
 		}
 
 		$normalized = array();
-		foreach ( array( 'title', 'media', 'description', 'actions' ) as $slot ) {
+		foreach ( array( 'title', 'media', 'description' ) as $slot ) {
 			if ( self::is_entity_token( $header[ $slot ] ?? null ) ) {
 				$normalized[ $slot ] = $header[ $slot ];
+			}
+		}
+
+		// A lone field id is a list of one; a keyed array is a declaration, not a list of ids.
+		$actions = $header['actions'] ?? array();
+		$actions = is_string( $actions ) ? array( $actions ) : $actions;
+		if ( is_array( $actions ) && wp_is_numeric_array( $actions ) ) {
+			$actions = array_values( array_filter( $actions, array( self::class, 'is_entity_token' ) ) );
+			if ( $actions ) {
+				$normalized['actions'] = $actions;
 			}
 		}
 

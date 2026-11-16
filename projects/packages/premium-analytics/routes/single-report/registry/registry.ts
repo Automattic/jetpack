@@ -67,13 +67,14 @@ export type SingleReportPageRecord = {
 	} | null;
 
 	/*
-	 * Field ids of that entity for the header. Null when the page names none.
+	 * The header's slots, each naming DataViews fields of that entity by id; `actions` takes a list.
+	 * Null when the page names none.
 	 */
 	header?: {
 		title?: string;
 		media?: string;
 		description?: string;
-		actions?: string;
+		actions?: string[];
 	} | null;
 
 	/*

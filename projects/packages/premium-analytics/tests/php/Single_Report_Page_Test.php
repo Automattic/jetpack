@@ -427,7 +427,7 @@ class Single_Report_Page_Test extends BaseTestCase {
 				'header' => array(
 					'title'   => 'name',
 					'media'   => 'Avatar URL',
-					'actions' => 'view',
+					'actions' => array( 'link', 'edit_link' ),
 				),
 			)
 		)->to_array();
@@ -451,13 +451,48 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'title'   => 'name',
-				'actions' => 'view',
+				'actions' => array( 'link', 'edit_link' ),
 			),
 			$kept['header']
 		);
 		$this->assertNull( $kept['reports_page'] );
 		$this->assertNull( $dropped['entity'] );
 		$this->assertNull( $dropped['header'] );
+	}
+
+	/**
+	 * @param mixed         $declared The declared header actions.
+	 * @param string[]|null $served   The field ids the record serves, or null for none.
+	 *
+	 * @dataProvider provide_declared_header_actions
+	 */
+	#[DataProvider( 'provide_declared_header_actions' )]
+	public function test_the_header_actions_are_a_list_of_field_ids( $declared, $served ) {
+		$record = register_single_report_page( DASHBOARD_NAME, 'example/post', array( 'header' => array( 'actions' => $declared ) ) )->to_array();
+
+		$this->assertSame( $served, $record['header']['actions'] ?? null );
+	}
+
+	/**
+	 * Declared header actions, with the field ids the record serves.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_declared_header_actions() {
+		return array(
+			'a lone field id'                 => array( 'link', array( 'link' ) ),
+			'invalid entries among valid ids' => array(
+				array( 'Not A Field', 'link', array( 'id' => 'view' ) ),
+				array( 'link' ),
+			),
+			'an action declaration'           => array(
+				array(
+					'id'       => 'view',
+					'callback' => '__return_true',
+				),
+				null,
+			),
+		);
 	}
 
 	public function test_an_unknown_post_type_entity_is_registered_and_not_offered() {

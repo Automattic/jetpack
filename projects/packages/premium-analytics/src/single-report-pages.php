@@ -181,7 +181,10 @@ function get_single_report_page_schema() {
 					'title'       => array( 'type' => 'string' ),
 					'media'       => array( 'type' => 'string' ),
 					'description' => array( 'type' => 'string' ),
-					'actions'     => array( 'type' => 'string' ),
+					'actions'     => array(
+						'type'  => 'array',
+						'items' => array( 'type' => 'string' ),
+					),
 				),
 			),
 			'path'              => array( 'type' => 'string' ),
