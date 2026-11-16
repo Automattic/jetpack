@@ -63,8 +63,7 @@ class Seo_Tools {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
-		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+		if ( self::is_disabled() ) {
 			return false;
 		}
 
