@@ -137,7 +137,13 @@ export type ConnectionScriptData = {
 	siteSuffix: string;
 	connectionErrors: Array< string | object >;
 	isOfflineMode: boolean;
+	/**
+	 * Whether ownership can be transferred.
+	 * @deprecated Use `canTakeOwnerSlot`. Kept for third-party readers; remove in a later release.
+	 */
 	isOwnershipTransferable: boolean;
+	/** Whether connecting would make the viewer the connection owner. Null from a server that predates it. */
+	canTakeOwnerSlot: boolean | null;
 	/** Owner identity; null when unresolvable or when the viewer lacks the jetpack_connect capability. */
 	connectionOwner: ConnectionOwner | null;
 	/**
