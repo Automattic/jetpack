@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.18.1] - 2026-11-16
+### Changed
+- Internal updates.
+
 ## [6.18.0] - 2026-11-16
 ### Added
 - Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54708]
@@ -3273,6 +3277,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.18.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.18.0...6.18.1
 [6.18.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.17.1...6.18.0
 [6.17.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.17.0...6.17.1
 [6.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.16.0...6.17.0
