@@ -94,5 +94,23 @@ class Dashboard_Announcements {
 				'channels' => array( self::CHANNEL ),
 			)
 		);
+
+		// Proof of concept only: dated now, so a site created today has one to see.
+		register_announcement(
+			'premium-analytics/demo-protect-page',
+			array(
+				'date'     => gmdate( DATE_ATOM ),
+				'title'    => 'Everything that keeps your site safe, now on one page',
+				'excerpt'  => 'Scan, Firewall, Login protection and Downtime monitoring come together on one Protect page.',
+				'content'  => '<p>Jetpack 16.4 brings Scan, Firewall, Login protection and Downtime monitoring together on one Protect page in wp-admin.</p><ul><li>See whether your site is safe.</li><li>Fix what is wrong without leaving your dashboard.</li></ul>',
+				'media'    => array(
+					'type' => 'image',
+					'url'  => 'https://jetpack.com/wp-content/uploads/2026/10/jetpack-protect-page-blog-1680x964-1.png',
+					'alt'  => '',
+				),
+				'link'     => 'https://jetpack.com/resources/jetpack-protect-page/',
+				'channels' => array( self::CHANNEL ),
+			)
+		);
 	}
 }
