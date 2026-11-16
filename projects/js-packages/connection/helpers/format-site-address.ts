@@ -7,8 +7,13 @@
  * @return The address, e.g. `example.com/blog`.
  */
 export function formatSiteAddress( url: string ): string {
-	return url
-		.trim()
-		.replace( /^https?:\/\//i, '' )
-		.replace( /\/+$/, '' );
+	const address = url.trim().replace( /^https?:\/\//i, '' );
+
+	// Keep this a loop: /\/+$/ backtracks quadratically on a long run of slashes mid-string.
+	let end = address.length;
+	while ( end > 0 && address[ end - 1 ] === '/' ) {
+		end--;
+	}
+
+	return address.slice( 0, end );
 }
