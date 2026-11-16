@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Stats dashboard failing to load on WordPress 7.2.

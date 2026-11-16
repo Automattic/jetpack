@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Admin shell: Switch to and from the SEO page without a page load when the shell is on.

@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -537,6 +538,40 @@ class InitializerTest extends TestCase {
 				'sitemaps'           => 'default',
 			),
 			$this->init_and_get_configuration_urls( false )
+		);
+	}
+
+	/**
+	 * The admin shell lists SEO only when init() registers the SEO page.
+	 *
+	 * @dataProvider surface_visibility
+	 *
+	 * @param bool $surface_visible Whether the SEO dashboard surface is visible.
+	 */
+	#[DataProvider( 'surface_visibility' )]
+	public function test_admin_shell_member_registers_with_the_page( $surface_visible ) {
+		remove_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+		$this->init_and_get_configuration_urls( $surface_visible );
+
+		try {
+			$this->assertSame(
+				$surface_visible,
+				false !== has_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) )
+			);
+		} finally {
+			remove_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+		}
+	}
+
+	/**
+	 * Surface visibility cases.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function surface_visibility() {
+		return array(
+			'visible' => array( true ),
+			'hidden'  => array( false ),
 		);
 	}
 }

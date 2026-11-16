@@ -24,16 +24,6 @@ const VIDEOPRESS_WIDGET_TYPES = array(
 );
 
 /**
- * Period widgets whose chart reads the section's date range.
- */
-const PERIOD_WIDGET_TYPES = array(
-	'jpa/total-views',
-	'jpa/total-visitors',
-	'jpa/popular-days',
-	'jpa/popular-hours',
-);
-
-/**
  * Returns the current widget support context.
  *
  * @return array{is_wpcom_simple:bool,has_videopress:bool} Widget support context.
@@ -52,9 +42,7 @@ function get_widget_support_context() {
  * @return string[] Unsupported widget type names.
  */
 function get_unsupported_widget_types( $context ) {
-	// Temporary: the period widgets are held back on every site until product decides
-	// whether they return or go (WOOA7S-2020). Their code stays.
-	$unsupported = PERIOD_WIDGET_TYPES;
+	$unsupported = array();
 
 	// File download tracking is served only on WPCOM Simple. Calypso applies
 	// the same boundary, which excludes self-hosted Jetpack and Atomic sites.

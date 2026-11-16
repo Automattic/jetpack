@@ -180,6 +180,8 @@ class SSO {
 	/**
 	 * Start SSO for a standalone plugin, under the conditions the Jetpack plugin's module loader would.
 	 *
+	 * @internal Public only so init_standalone() can hook it; call init_standalone() instead.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return void
@@ -201,6 +203,8 @@ class SSO {
 
 	/**
 	 * Add `sso` to the modules a standalone plugin can switch on.
+	 *
+	 * @internal Public only so init_standalone() can hook it; call init_standalone() instead.
 	 *
 	 * @since $$next-version$$
 	 *

@@ -252,7 +252,7 @@ class Dashboard_Test extends BaseTestCase {
 		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Running twice is the behavior under test.
 		Dashboard::init();
 
-		$this->assertSame( array( 'payments' ), array_keys( Dashboard::get_initial_state() ) );
+		$this->assertSame( array( 'overview', 'payments', 'ads' ), array_keys( Dashboard::get_initial_state() ) );
 		$this->assertCount( 0, $doing_it_wrong );
 	}
 
@@ -274,32 +274,103 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The `page` query arg, and the `monetize` script data each should end up with.
+	 * The `page` query arg, and the `monetize` script data keys each should end up with.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_script_data_pages() {
 		return array(
-			'the Monetize page' => array( 'jetpack-monetize', '{"other":1,"sections":{"example":{"title":"Ads"},"empty":{}}}' ),
-			'another page'      => array( 'jetpack', '{"other":1}' ),
+			'the Monetize page' => array( 'jetpack-monetize', array( 'other', 'sections', 'upgradeUrl', 'tracks' ) ),
+			'another page'      => array( 'jetpack', array( 'other' ) ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_script_data_pages
 	 *
-	 * @param string $page     The `page` query arg.
-	 * @param string $expected The `monetize` script data, as JSON.
+	 * @param string   $page     The `page` query arg.
+	 * @param string[] $expected The `monetize` script data keys.
 	 */
 	#[DataProvider( 'provide_script_data_pages' )]
-	public function test_add_script_data_adds_section_state_only_on_the_monetize_page( $page, $expected ) {
+	public function test_add_script_data_adds_the_page_data_only_on_the_monetize_page( $page, $expected ) {
 		$_GET['page'] = $page;
 		Dashboard::register_section( $this->section( 'example', array( 'title' => 'Ads' ) ) );
 		Dashboard::register_section( $this->section( 'empty', array() ) );
 
 		$data = Dashboard::add_script_data( array( 'monetize' => array( 'other' => 1 ) ) );
 
-		$this->assertSame( $expected, wp_json_encode( $data['monetize'], JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame( $expected, array_keys( $data['monetize'] ) );
+		if ( isset( $data['monetize']['sections'] ) ) {
+			$this->assertSame( '{"example":{"title":"Ads"},"empty":{}}', wp_json_encode( $data['monetize']['sections'], JSON_UNESCAPED_SLASHES ) );
+		}
+	}
+
+	public function test_upgrade_url_defaults_to_jetpack_creator() {
+		$this->assertStringContainsString( 'source=jetpack-creator-cta', Dashboard::get_upgrade_url() );
+	}
+
+	/**
+	 * A connection state, and whether the upgrade link should say the user is unlinked and carry a purchase token.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_connections() {
+		return array(
+			'not connected'   => array( 'none', true, false ),
+			'site connection' => array( 'site', true, true ),
+			'connected user'  => array( 'user', false, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_connections
+	 *
+	 * @param string $connection     'none', 'site' or 'user'.
+	 * @param bool   $unlinked       Whether the link should say the user is unlinked.
+	 * @param bool   $purchase_token Whether the link should carry a purchase token.
+	 */
+	#[DataProvider( 'provide_connections' )]
+	public function test_upgrade_url_carries_the_checkout_arguments_for_the_connection( $connection, $unlinked, $purchase_token ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		if ( 'none' !== $connection ) {
+			\Jetpack_Options::update_option( 'id', 1234 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog.secret' );
+		}
+		if ( 'user' === $connection ) {
+			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+
+		$query = array();
+		wp_parse_str( (string) wp_parse_url( Dashboard::get_upgrade_url(), PHP_URL_QUERY ), $query );
+		wp_parse_str( $query['query'] ?? '', $checkout );
+
+		$this->assertSame( $unlinked, isset( $checkout['unlinked'] ) );
+		$this->assertSame( $purchase_token, ! empty( $checkout['purchasetoken'] ) );
+		if ( $purchase_token ) {
+			$this->assertSame( \Jetpack_Options::get_option( 'purchase_token' ), $checkout['purchasetoken'] );
+		}
+	}
+
+	public function test_upgrade_url_follows_a_host_that_sells_its_own_plans() {
+		add_filter(
+			'jetpack_feature_upgrade',
+			function ( $upgrade, $slug ) {
+				return Dashboard::UPGRADE_SLUG === $slug ? array( 'url' => 'https://example.com/plans' ) : $upgrade;
+			},
+			10,
+			2
+		);
+
+		$this->assertSame( 'https://example.com/plans', Dashboard::get_upgrade_url() );
 	}
 
 	/**

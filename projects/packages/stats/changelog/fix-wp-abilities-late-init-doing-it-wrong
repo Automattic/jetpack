@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Drop a test guard for the Registrar late path, which no longer applies.
+

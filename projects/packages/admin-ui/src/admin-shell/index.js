@@ -11,7 +11,7 @@ import {
 	transitionSettled,
 } from './adapter';
 import { createApp, whenRendered } from './app';
-import { announcePage, pageOf, updateChrome } from './chrome';
+import { announcePage, menuLabel, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
 import { applyGuestAssets } from './guest-assets';
 import { configureHeaders, rememberHeader, removeHeader, showHeader } from './header';
@@ -19,6 +19,7 @@ import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } fro
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
 const RENDER_TIMEOUT = 15000;
+const INIT_TIMEOUT = 15000;
 
 const readConfig = () => {
 	try {
@@ -33,6 +34,25 @@ const emit = ( type, detail ) => {
 	window.dispatchEvent( new CustomEvent( `jetpack-admin-shell:${ type }`, { detail } ) );
 };
 
+// Ask a member whether it can be opened at another route: the contract is in the README.
+const mayLeave = ( page, url ) => {
+	const proceed = window.dispatchEvent(
+		new CustomEvent( 'jetpack-admin-shell:before-leave', {
+			detail: { page, url },
+			cancelable: true,
+		} )
+	);
+	log( 'shell', `before-leave ${ page }: ${ proceed ? 'go on' : 'stay' }`, url );
+	return proceed;
+};
+
+// Query and hash, order-insensitive: two URLs with the same route open the same view.
+const routeOf = href => {
+	const url = new URL( href, location.href );
+	url.searchParams.sort();
+	return url.search + url.hash;
+};
+
 const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
 	if ( ! hostEl ) {
@@ -40,8 +60,15 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	}
 	// The title the host page was printed with, filters included.
 	members[ host ].adminTitle = document.title;
-	configureHeaders( headerStorageKey );
+	configureHeaders( headerStorageKey, members );
 	trackViewTransitions();
+	// A member declares the header of the view its bare menu link opens; other views only get a title.
+	const showHeaderAt = ( slug, el, url ) => {
+		const { header, defaultPath, title } = members[ slug ];
+		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
+		const landing = [ '/', defaultPath ].includes( path );
+		return showHeader( slug, el, menuLabel( slug ) ?? title, landing ? header : null );
+	};
 
 	log(
 		'shell',
@@ -73,6 +100,16 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 
 	// Pages built from one package share an init module; run each once.
 	const ranInit = new Set( members[ host ].initModules );
+	/*
+	 * One guest's init and route-module imports at a time: an init sets globals such as
+	 * `window.jetpackConfig` that its route modules read when they are evaluated.
+	 */
+	let booting = Promise.resolve();
+	const oneAtATime = task => {
+		const run = booting.then( task );
+		booting = run.catch( () => {} );
+		return run;
+	};
 	const warm = {};
 	// Everything short of mounting: a mounted router would start reading the visible page's URL.
 	const prewarm = ( slug, reason ) => {
@@ -86,29 +123,45 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			let step = stopwatch();
 			const added = await applyGuestAssets( guestAssetsUrl, slug );
 			log( 'prewarm', `${ slug }: page data fetched and applied in ${ step() }`, added );
-			for ( const id of members[ slug ].initModules ) {
-				if ( ! ranInit.has( id ) ) {
-					ranInit.add( id );
-					step = stopwatch();
-					// Not bundled: wp-build's modules resolve through the page's import map at runtime.
-					const initModule = await import( /* webpackIgnore: true */ id );
-					await initModule.init?.();
-					log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
+			return oneAtATime( async () => {
+				for ( const id of members[ slug ].initModules ) {
+					if ( ! ranInit.has( id ) ) {
+						step = stopwatch();
+						// Not bundled: wp-build's modules resolve through the page's import map at runtime.
+						const initModule = await import( /* webpackIgnore: true */ id );
+						/*
+						 * Bounded, so a hung init can't hold up every guest queued behind it. A timed-out init
+						 * may still finish later and set its globals; it runs again on the next attempt.
+						 */
+						let timer;
+						await Promise.race( [
+							initModule.init?.(),
+							new Promise( ( resolve, reject ) => {
+								timer = setTimeout(
+									() => reject( new Error( `Admin shell: ${ id } timed out` ) ),
+									INIT_TIMEOUT
+								);
+							} ),
+						] ).finally( () => clearTimeout( timer ) );
+						// Only once it succeeded, so a failed init runs again on the next attempt.
+						ranInit.add( id );
+						log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
+					}
 				}
-			}
-			const boot = await bootFor( slug );
-			const modules = members[ slug ].routes
-				.flatMap( route => [ route.route_module, route.content_module ] )
-				.filter( Boolean );
-			step = stopwatch();
-			await Promise.all( modules.map( id => import( /* webpackIgnore: true */ id ) ) );
-			log(
-				'prewarm',
-				`${ slug }: imported ${ modules.length } route modules in ${ step() }`,
-				modules
-			);
-			log( 'prewarm', `${ slug }: ready to boot, ${ total() } in all` );
-			return boot;
+				const boot = await bootFor( slug );
+				const modules = members[ slug ].routes
+					.flatMap( route => [ route.route_module, route.content_module ] )
+					.filter( Boolean );
+				step = stopwatch();
+				await Promise.all( modules.map( id => import( /* webpackIgnore: true */ id ) ) );
+				log(
+					'prewarm',
+					`${ slug }: imported ${ modules.length } route modules in ${ step() }`,
+					modules
+				);
+				log( 'prewarm', `${ slug }: ready to boot, ${ total() } in all` );
+				return boot;
+			} );
 		} )().catch( error => {
 			log( 'prewarm', `${ slug }: failed after ${ total() }`, error );
 			delete warm[ slug ];
@@ -122,9 +175,11 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		app.to( 'ready' );
 		app.place( visible === app.slug );
 		rememberHeader( app.slug, app.el );
+		// Tab bars and actions often render just after the heading.
+		setTimeout( () => visible === app.slug && rememberHeader( app.slug, app.el ), 1000 );
 	};
 
-	const bootGuest = async slug => {
+	const bootGuest = async ( slug, url ) => {
 		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
 		const el = document.createElement( 'section' );
 		el.id = members[ slug ].mountId;
@@ -136,7 +191,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			apps.delete( slug );
 			el.remove();
 		};
-		const removeStandIn = showHeader( slug, el );
+		const removeStandIn = showHeaderAt( slug, el, url );
 
 		try {
 			const waited = stopwatch();
@@ -171,10 +226,26 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		if ( slug === previous ) {
 			log( 'switch', `${ via }: already on ${ slug }, only the URL changes` );
 			if ( push ) {
+				if ( routeOf( url ) !== routeOf( location.href ) && ! mayLeave( slug, url ) ) {
+					return;
+				}
 				gate.pushUrl( url );
 			}
 			notifyRouters();
 			return;
+		}
+
+		// A booted app opened at another route unmounts the view it was left on, edits and all.
+		const retargets =
+			apps.has( slug ) && lastUrl[ slug ] && routeOf( url ) !== routeOf( lastUrl[ slug ] );
+		// Hiding the visible app keeps its edits, so only a retarget asks.
+		if ( retargets && ! mayLeave( slug, url ) ) {
+			if ( push ) {
+				return;
+			}
+			// Back/Forward can't be called off: reopen the app where it was left, in this same entry.
+			url = lastUrl[ slug ];
+			gate.replaceUrl( url );
 		}
 
 		const elapsed = stopwatch();
@@ -185,6 +256,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		}
 		// Hide the outgoing app before the URL changes, so its router never sees the new URL.
 		visible = slug;
+		// Back/Forward wrote nothing, so onWrite never saw where this app now is.
+		if ( ! push ) {
+			lastUrl[ slug ] = url;
+		}
 		if ( apps.get( previous )?.state === 'loading' ) {
 			removeHeader( previous );
 		}
@@ -210,7 +285,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			} else {
 				log( 'switch', `${ slug } has not booted yet` );
 				window.scrollTo( 0, 0 );
-				await bootGuest( slug );
+				await bootGuest( slug, url );
 			}
 			// Focus and speech inside a closing modal's `aria-hidden` would go unheard.
 			await dialogsClosed;
@@ -260,6 +335,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 
 	// Not gated: the shell itself must hear Back/Forward across pages.
 	gate.listen( 'popstate', event => {
+		// Back/Forward inside the visible app writes nothing, so record where it now is.
+		if ( event.isTrusted && pageOf( location.href ) === visible ) {
+			lastUrl[ visible ] = location.href;
+		}
 		if ( event.isTrusted && isMemberUrl( location.href ) && pageOf( location.href ) !== visible ) {
 			if ( gate.isMounting() ) {
 				location.reload();
@@ -313,7 +392,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	trackOverlays( () => visible );
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
-	const removeHostHeader = showHeader( host, hostEl );
+	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
 	gate.mount( host );
 	log( 'host', `${ host } boots from the page load` );
 	whenRendered( hostEl, 30000 )

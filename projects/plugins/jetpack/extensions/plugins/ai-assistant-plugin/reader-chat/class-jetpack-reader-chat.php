@@ -23,6 +23,7 @@ namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\Helper as Search_Helper;
 use Automattic\Jetpack\Search\Plan;
+use Automattic\Jetpack\SEO\Content_Gate;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -433,6 +434,11 @@ JS;
 		// currentPost envelope so the chat doesn't imply it "knows" the
 		// post's content either.
 		if ( post_password_required( $post ) ) {
+			return null;
+		}
+
+		// Gates apply when content renders, so check before reading raw post_content.
+		if ( Content_Gate::is_gated( $post ) ) {
 			return null;
 		}
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `jetpack_seo_llms_txt` filter so themes and plugins can add their own sections to llms.txt.

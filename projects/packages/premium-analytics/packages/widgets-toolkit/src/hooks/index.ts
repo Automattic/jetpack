@@ -9,6 +9,7 @@ export { useLockedPrimaryLegendItems } from './use-locked-primary-legend-items';
 export { useHostLinkSearch } from './use-host-link-search';
 export { useNormalizedReportParams } from './use-normalized-report-params';
 export { useReportNavigationSearch } from './use-report-navigation-search';
+export { useOpenChartBucket } from './use-open-chart-bucket';
 export {
 	useReportActions,
 	type ReportActionsOptions,

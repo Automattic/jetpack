@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Widget header toggles: Keep the side padding on the longer of two options, such as Posts & pages on the Top pages card.

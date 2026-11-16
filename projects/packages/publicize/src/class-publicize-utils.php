@@ -87,6 +87,17 @@ class Publicize_Utils {
 	}
 
 	/**
+	 * Whether the current user may open the Social dashboard: admins can turn Social on, so they see it while Publicize is off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function can_open_social_dashboard() {
+		return current_user_can( 'manage_options' ) || self::is_publicize_active();
+	}
+
+	/**
 	 * Whether the current user may be shown Publicize data.
 	 *
 	 * The single definition of that gate. Both the block editor assets and the

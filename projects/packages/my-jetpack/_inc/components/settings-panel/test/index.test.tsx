@@ -85,7 +85,7 @@ describe( 'SettingsPanel', () => {
 		expect( screen.getByRole( 'heading', { name: 'Tiled Galleries' } ) ).toHaveFocus();
 		expect( screen.getByText( tiledGallery.description ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeEnabled();
-		expect( screen.getByRole( 'link', { name: 'Manage in Settings' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'Manage in Jetpack Settings' } ) ).toHaveAttribute(
 			'href',
 			tiledGallery.configure_url
 		);
@@ -95,7 +95,9 @@ describe( 'SettingsPanel', () => {
 		mockSearch = { configure: 'likes' };
 		render( <SettingsPanel /> );
 
-		expect( screen.queryByRole( 'link', { name: 'Manage in Settings' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Manage in Jetpack Settings' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'shows a registered component in place of the fallback', () => {
@@ -105,7 +107,9 @@ describe( 'SettingsPanel', () => {
 		render( <SettingsPanel /> );
 
 		expect( screen.getByText( 'Options of Tiled Galleries' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Manage in Settings' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Manage in Jetpack Settings' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it.each( [

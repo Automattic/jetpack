@@ -5,6 +5,7 @@ import {
 	installShellProbe,
 	openMember,
 	settle,
+	skipUnlessOnSite,
 	switchTo,
 	tracksEvents,
 } from '../../helpers/admin-shell-helper';
@@ -66,12 +67,14 @@ test.describe( 'Admin shell: Tracks page views', () => {
 		test( `the first switch to ${ m.slug } records the page view a full load does`, async ( {
 			page,
 		} ) => {
+			await skipUnlessOnSite( page, m.slug );
 			const expected = await fullLoadViews( page, m.slug );
 			await openMember( page, other );
 			expect( await viewsOnSwitch( page, m.slug ) ).toEqual( expect.arrayContaining( expected ) );
 		} );
 
 		test( `a return switch to ${ m.slug } records the page view again`, async ( { page } ) => {
+			await skipUnlessOnSite( page, m.slug );
 			const expected = await fullLoadViews( page, m.slug );
 			await openMember( page, other );
 			await switchTo( page, m.slug );

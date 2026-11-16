@@ -114,6 +114,13 @@ class WPCOM_Proxy {
 		$forwarded->set_query_params( array_intersect_key( $request->get_query_params(), $declared ) );
 
 		$body = array_intersect_key( array_merge( $request->get_body_params(), (array) $request->get_json_params() ), $declared );
+
+		// WordPress.com ignores a DELETE body when it checks the signature, so its body hash would fail the user token.
+		if ( 'DELETE' === $request->get_method() ) {
+			$forwarded->set_query_params( $forwarded->get_query_params() + $body );
+			$body = array();
+		}
+
 		if ( $body ) {
 			$forwarded->set_header( 'Content-Type', 'application/json' );
 			$forwarded->set_body( (string) wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
