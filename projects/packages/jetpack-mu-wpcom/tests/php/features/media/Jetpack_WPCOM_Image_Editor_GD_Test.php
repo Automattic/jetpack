@@ -382,6 +382,18 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * An AI edit of a camera photo can keep the camera's XMP and record the edit in C2PA.
+	 */
+	public function test_reads_the_c2pa_type_when_the_xmp_type_is_not_ai() {
+		$this->fake_exiftool( self::CAMERA, 0, true );
+		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
+
+		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
+
+		$this->assertSame( array( self::AI_MARKER ), $this->written_types() );
+	}
+
+	/**
 	 * Checks the fake stores against real c2patool output. Skips without c2patool.
 	 */
 	public function test_reads_the_type_from_real_c2patool_output() {

@@ -88,9 +88,8 @@ class Jetpack_WPCOM_AI_Marker {
 		$exiftool = jetpack_wpcom_ai_marker_tool_path( 'exiftool' );
 		// No config file: exiftool runs it as Perl.
 		$output = (string) $this->run_tool( array( $exiftool, '-config', '', '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $file ) );
-		if ( preg_match( '/^DigitalSourceType: (.*)$/m', $output, $match ) ) {
-			$digital_source_type = trim( $match[1] );
-			return self::is_synthetic( $digital_source_type ) ? $digital_source_type : '';
+		if ( preg_match( '/^DigitalSourceType: (.*)$/m', $output, $match ) && self::is_synthetic( trim( $match[1] ) ) ) {
+			return trim( $match[1] );
 		}
 
 		return str_contains( $output, 'JUMDLabel: ' ) ? $this->read_c2pa( $file ) : '';
