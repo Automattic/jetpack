@@ -10,4 +10,11 @@
 // Require base config.
 require __DIR__ . '/../../../../.phan/config.base.php';
 
-return make_phan_config( dirname( __DIR__ ) );
+return make_phan_config(
+	dirname( __DIR__ ),
+	array(
+		'exclude_file_regex' => array(
+			'build/',
+		),
+	)
+);
