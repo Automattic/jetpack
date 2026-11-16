@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use `@wordpress/notices` directly instead of the deprecated global notices hook.
