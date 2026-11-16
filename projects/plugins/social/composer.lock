@@ -2442,8 +2442,7 @@
                 "issues": "https://github.com/Brain-WP/BrainMonkey/issues",
                 "source": "https://github.com/Brain-WP/BrainMonkey"
             },
-            "time": "2026-02-05T09:22:14+00:00",
-            "published-time": "2026-02-05T09:30:04+00:00"
+            "time": "2026-02-05T09:22:14+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -4360,8 +4359,7 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2025-02-09T18:58:54+00:00",
-            "published-time": "2025-02-09T19:10:16+00:00"
+            "time": "2025-02-09T18:58:54+00:00"
         }
     ],
     "aliases": [],

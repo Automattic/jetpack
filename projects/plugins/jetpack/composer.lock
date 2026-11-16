@@ -4819,8 +4819,7 @@
             "support": {
                 "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.18.1"
             },
-            "time": "2026-10-21T06:12:56+00:00",
-            "published-time": "2026-10-21T06:13:10+00:00"
+            "time": "2026-10-21T06:12:56+00:00"
         },
         {
             "name": "wikimedia/aho-corasick",
@@ -4913,8 +4912,7 @@
                 "issues": "https://github.com/wp-php-toolkit/reprint-server/issues",
                 "source": "https://github.com/wp-php-toolkit/reprint-server/tree/v0.11.2"
             },
-            "time": "2026-10-16T20:46:27+00:00",
-            "published-time": "2026-10-19T13:19:19+00:00"
+            "time": "2026-10-16T20:46:27+00:00"
         }
     ],
     "packages-dev": [
@@ -6865,8 +6863,7 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2025-02-09T18:58:54+00:00",
-            "published-time": "2025-02-09T19:10:16+00:00"
+            "time": "2025-02-09T18:58:54+00:00"
         }
     ],
     "aliases": [],
