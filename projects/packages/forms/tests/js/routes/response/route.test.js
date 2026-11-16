@@ -34,6 +34,7 @@ describe( 'route loaders', () => {
 			'the responses list route',
 			() => responsesRoute.loader( { params: { view: 'inbox' }, search: {} } ),
 		],
+		[ 'the responses list guard', () => responsesRoute.beforeLoad() ],
 	] )( '%s does not block navigation', ( _label, run ) => {
 		const returned = run();
 
