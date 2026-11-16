@@ -128,15 +128,13 @@ if [[ -n "${ARGS[1]}" ]]; then
 else
 	# Prompt for the version.
 	$INTERACTIVE || die "Cannot prompt for a version when running in non-interactive mode!"
-	cd "$PLUGIN_DIR"
-	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+	CHANGES_DIR="$PLUGIN_DIR/$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PLUGIN_DIR/composer.json")"
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-		PRERELEASE=$(alpha_tag composer.json 0)
-		VER=$(changelogger version next --default-first-version --prerelease="$PRERELEASE") || die "$VER"
+		PRERELEASE=$(cd "$PLUGIN_DIR" && alpha_tag composer.json 0)
+		VER=$(cd "$PLUGIN_DIR" && changelogger version next --default-first-version --prerelease="$PRERELEASE") || die "$VER"
 	else
-		VER=$(changelogger version current --default-first-version) || die "$VER"
+		VER=$(cd "$PLUGIN_DIR" && changelogger version current --default-first-version) || die "$VER"
 	fi
-	cd "$BASE"
 
 	PROMPT="Version to use for plugin $NAME:"
 	# shellcheck disable=SC2310
