@@ -1709,7 +1709,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return bool
 	 */
 	public function check_read_permission( $post ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return true === $this->get_items_permissions_check( null );
+		return true === $this->get_items_permissions_check( new WP_REST_Request() );
 	}
 
 	/**

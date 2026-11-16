@@ -2102,22 +2102,23 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The notes exporter and eraser run core's comment callbacks against notes only, and leave other queries alone after.
+	 * The registered notes exporter and eraser run core's comment callbacks against notes only, and leave other queries alone after.
 	 *
 	 * @dataProvider provide_notes_privacy_callbacks
 	 *
-	 * @param string $method Contact_Form_Plugin method.
+	 * @param string $register Contact_Form_Plugin method that registers the callback.
 	 */
 	#[DataProvider( 'provide_notes_privacy_callbacks' )]
-	public function test_notes_privacy_callbacks_query_notes_only( $method ) {
-		$plugin = Contact_Form_Plugin::init();
-		$types  = array();
-		$probe  = function ( $query ) use ( &$types ) {
+	public function test_notes_privacy_callbacks_query_notes_only( $register ) {
+		$plugin     = Contact_Form_Plugin::init();
+		$registered = $plugin->$register( array() );
+		$types      = array();
+		$probe      = function ( $query ) use ( &$types ) {
 			$types[] = $query->query_vars['type'];
 		};
 		add_action( 'pre_get_comments', $probe, 6 );
 
-		$plugin->$method( 'someone@example.com' );
+		call_user_func( $registered['jetpack-feedback-notes']['callback'], 'someone@example.com', 1 );
 		get_comments( array( 'number' => 1 ) );
 		remove_action( 'pre_get_comments', $probe, 6 );
 
@@ -2131,8 +2132,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 */
 	public static function provide_notes_privacy_callbacks() {
 		return array(
-			'exporter' => array( 'personal_data_notes_exporter' ),
-			'eraser'   => array( 'personal_data_notes_eraser' ),
+			'exporter' => array( 'register_personal_data_exporter' ),
+			'eraser'   => array( 'register_personal_data_eraser' ),
 		);
 	}
 
