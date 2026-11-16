@@ -13,7 +13,7 @@ require_once __DIR__ . '/class-jetpack-wpcom-ai-marker.php';
 /**
  * Keeps the source's AI DigitalSourceType, which GD drops on save.
  *
- * Global, not namespaced: Photon on WordPress.com declares "Photon_Subsizes_{$class}" with eval().
+ * Global, not namespaced: Photon on WoW declares "Photon_Subsizes_{$class}" with eval(), so a namespaced name would cause a fatal error.
  */
 class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 
