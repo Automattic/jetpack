@@ -307,11 +307,12 @@ function do_readme {
 		return
 	fi
 	yellow "Updating the readme.txt file for $PLUGIN."
+	ARGS=()
 	# Add alpha and beta flags.
 	case $VERSION in
-		*-a* ) ARGS=('-a');;
-		*-beta ) ARGS=('-b');;
-		* ) ARGS=('-s');;
+		*-a* ) ARGS+=('-a');;
+		*-beta ) ARGS+=('-b');;
+		* ) ARGS+=('-s');;
 	esac
 	pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
 
