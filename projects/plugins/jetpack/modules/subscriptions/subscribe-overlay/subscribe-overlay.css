@@ -32,7 +32,7 @@ body.jetpack-subscribe-overlay-open {
 .jetpack-subscribe-overlay__close {
 	display: none;
 	cursor: pointer;
-	position: absolute;
+	position: fixed;
 	top: 32px;
 	right: 32px;
 	width: 24px;
