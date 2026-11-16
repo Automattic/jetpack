@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Describes one single-report page registered with the dashboard.
  *
- * The record is declarative. `entity` names the core-data record the page is about;
- * the summary and header still come from the page adapter keyed by `path`.
+ * The record is declarative. `entity` names the core-data record the page is about; the summary
+ * and header still come from a client-side adapter: the page's own, or the post one for a post type.
  *
  * @since 0.16.0
  */
