@@ -30,6 +30,8 @@
 /*
  * Segments of different widths: the indicator resizes as it slides, or it
  * would take the new width at once and overshoot the control's edge.
+ * TODO: remove once ToggleGroupControl transitions the indicator's width
+ * (https://github.com/WordPress/gutenberg/pull/86830).
  */
 @media not (prefers-reduced-motion) {
 
