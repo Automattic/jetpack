@@ -830,7 +830,20 @@ class REST_Controller {
 		$params = $req->get_params();
 		$keys   = self::get_stats_settings_keys();
 
-		$result = Stats_Settings::update( $params, $keys );
+		$stats_values = array_intersect_key( $params, array_flip( $keys ) );
+		if ( empty( $stats_values ) ) {
+			return new WP_Error(
+				'jetpack_stats_missing_setting_field',
+				sprintf(
+					/* translators: %s: comma-separated list of the settings that can be changed. */
+					__( 'Provide at least one of: %s.', 'jetpack-stats-admin' ),
+					implode( ', ', $keys )
+				),
+				array( 'status' => 400 )
+			);
+		}
+
+		$result = Stats_Settings::update( $stats_values, $keys );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}

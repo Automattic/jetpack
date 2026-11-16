@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -439,12 +440,32 @@ class REST_Controller_Test extends Stats_TestCase {
 		$this->assertNotContains( 'editor', wp_list_pluck( $response->get_data()['roles'], 'slug' ) );
 	}
 
-	public function test_settings_save_with_a_misspelled_setting_is_refused() {
+	/**
+	 * @dataProvider provide_requests_without_a_setting
+	 *
+	 * @param array $body The request body.
+	 */
+	#[DataProvider( 'provide_requests_without_a_setting' )]
+	public function test_settings_save_without_a_setting_is_refused( $body ) {
 		wp_set_current_user( $this->admin_id );
 
-		$response = $this->dispatch_settings_request( 'POST', array( 'adminbar' => false ) );
+		$response = $this->dispatch_settings_request( 'POST', $body );
 
 		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'jetpack_stats_missing_setting_field', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Data provider for test_settings_save_without_a_setting_is_refused.
+	 *
+	 * @return array
+	 */
+	public static function provide_requests_without_a_setting() {
+		return array(
+			'empty body'          => array( array() ),
+			'misspelled setting'  => array( array( 'adminbar' => false ) ),
+			'retired Reader flag' => array( array( 'wpcom_reader_views_enabled' => false ) ),
+		);
 	}
 
 	/**
