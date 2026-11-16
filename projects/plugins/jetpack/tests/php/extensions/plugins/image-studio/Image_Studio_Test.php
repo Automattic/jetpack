@@ -899,6 +899,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips(), 'Clips are available when the site can upload videos.' );
 		$this->assertFalse( ImageStudio\is_tracking_automattician(), 'An ordinary request is not Automattician traffic.' );
 
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips(), 'The override filter can turn clips off on a site that can upload videos.' );
+		remove_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+
 		$GLOBALS['image_studio_test_wpcom']['can_upload_videos'] = false;
 		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips(), 'Clips are unavailable when the site cannot upload videos.' );
 
