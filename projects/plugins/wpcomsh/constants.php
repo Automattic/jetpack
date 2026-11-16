@@ -38,7 +38,7 @@ define( 'LEGACY_200GB_CUTOFF_DATE', '2023-07-20' );
 
 // Sites created from this blog ID on get no setup guidance unless they turn on the AI Launchpad (Site Setup).
 // Keep in sync with WordPress.com's .config/constants.php.
-define( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID', 0 );
+define( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID', 258712000 );
 
 // Disable dupe comments for the MovableType Importer.
 define( 'WP_MT_IMPORT_ALLOW_DUPE_COMMENTS', false );
