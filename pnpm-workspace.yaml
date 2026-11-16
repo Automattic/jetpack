@@ -96,3 +96,8 @@ patchedDependencies:
   # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
   # even if upstream fixes init-module handling first.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
+
+# Don't link dependency-shipped agent skills into our agent directories.
+permissions:
+  tsdown:
+    skills: false
