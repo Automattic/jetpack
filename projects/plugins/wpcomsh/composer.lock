@@ -904,13 +904,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "e5a6859e359fc30b26ee70ba245a64238f7ef361"
+                "reference": "1f96b7e514a056f188f8bb5589cc89d5a111a3b7"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-roles": "@dev",

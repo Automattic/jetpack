@@ -2,7 +2,11 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Cache;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,8 +22,12 @@ class Initial_State_Test extends TestCase {
 	protected function tearDown(): void {
 		parent::tearDown();
 
-		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens', Protected_Owner::OPTION ) );
+		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens', 'safe_mode_confirmed', Protected_Owner::OPTION ) );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
+		remove_all_filters( 'jetpack_is_in_safe_mode' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG );
+		Feature_Flags::reset();
+		Cache::clear();
 		remove_all_filters( 'jetpack_connection_protected_owner_default_ui' );
 		( new Manager() )->reset_connection_status();
 		wp_set_current_user( 0 );
@@ -107,6 +115,7 @@ class Initial_State_Test extends TestCase {
 			'hasProtectedOwner'          => null,
 			'requiresProtectedOwner'     => null,
 			'useDefaultProtectedOwnerUi' => null,
+			'identityCrisis'             => null,
 		);
 		$expected_value = 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = ' . wp_json_encode( $expected_state, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');'
 			. sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;', absint( \Jetpack_Options::get_option( 'id', 0 ) ) );
@@ -267,5 +276,93 @@ class Initial_State_Test extends TestCase {
 
 		$this->assertTrue( $data['requiresProtectedOwner'] );
 		$this->assertFalse( $data['useDefaultProtectedOwnerUi'] );
+	}
+
+	/**
+	 * The Safe Mode surfaces pick the old or the shared screen from this value alone.
+	 *
+	 * @dataProvider provide_new_screen_flag_states
+	 *
+	 * @param bool $enabled Whether the flag is forced on.
+	 */
+	#[DataProvider( 'provide_new_screen_flag_states' )]
+	public function test_get_data_identity_crisis_follows_the_new_screen_flag( $enabled ) {
+		self::enter_safe_mode();
+		if ( $enabled ) {
+			add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, '__return_true' );
+		}
+
+		$this->assertSame( $enabled, self::get_data()['identityCrisis']['useNewScreen'] );
+	}
+
+	/**
+	 * Data provider for test_get_data_identity_crisis_follows_the_new_screen_flag.
+	 *
+	 * @return array
+	 */
+	public static function provide_new_screen_flag_states() {
+		return array(
+			'off by default' => array( false ),
+			'forced on'      => array( true ),
+		);
+	}
+
+	/**
+	 * Only a viewer who can resolve Safe Mode gets the site's addresses; everyone learns it was confirmed.
+	 *
+	 * @dataProvider provide_identity_crisis_viewers
+	 *
+	 * @param string $role          Role of the viewer.
+	 * @param bool   $can_resolve   Whether the viewer can resolve Safe Mode.
+	 * @param array  $expected_keys Keys the viewer receives.
+	 */
+	#[DataProvider( 'provide_identity_crisis_viewers' )]
+	public function test_get_data_identity_crisis_details_follow_the_viewer( $role, $can_resolve, $expected_keys ) {
+		self::enter_safe_mode();
+		\Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'initial_state_idc_' . $role,
+				'user_pass'  => 'password',
+				'role'       => $role,
+			)
+		);
+		if ( $can_resolve ) {
+			get_user_by( 'id', $user_id )->add_cap( 'jetpack_disconnect' );
+		}
+		wp_set_current_user( $user_id );
+
+		$identity_crisis = self::get_data()['identityCrisis'];
+
+		$this->assertEqualsCanonicalizing( $expected_keys, array_keys( $identity_crisis ) );
+		$this->assertSame( $can_resolve, $identity_crisis['canResolve'] );
+		$this->assertTrue( $identity_crisis['isSafeModeConfirmed'] );
+	}
+
+	/**
+	 * Data provider for test_get_data_identity_crisis_details_follow_the_viewer.
+	 *
+	 * @return array
+	 */
+	public static function provide_identity_crisis_viewers() {
+		$shared = array( 'useNewScreen', 'canResolve', 'isSafeModeConfirmed' );
+
+		return array(
+			'can resolve'    => array(
+				'administrator',
+				true,
+				array_merge( $shared, array( 'wpcomHomeUrl', 'currentUrl', 'isDevelopmentSite', 'possibleDynamicSiteUrlDetected', 'logoUrl' ) ),
+			),
+			'cannot resolve' => array( 'contributor', false, $shared ),
+		);
+	}
+
+	/**
+	 * Put the site in Safe Mode for the rest of the test.
+	 */
+	private static function enter_safe_mode() {
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+		Cache::clear();
 	}
 }

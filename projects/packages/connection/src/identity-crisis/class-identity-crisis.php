@@ -10,6 +10,7 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
@@ -38,6 +39,11 @@ class Identity_Crisis {
 	 * Maximum delay for IDC validation in seconds (30 days).
 	 */
 	const IDC_VALIDATION_MAX_DELAY = 2592000;
+
+	/**
+	 * Feature flag that switches every Safe Mode surface to the shared screen.
+	 */
+	const NEW_SCREEN_FLAG = 'connection-idc-screen';
 
 	/**
 	 * Instance of the object.
@@ -87,6 +93,8 @@ class Identity_Crisis {
 	 * @return void
 	 */
 	private function __construct() {
+		self::register_feature_flags();
+
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\IdentityCrisis\\REST_Endpoints', 'initialize_rest_api' ) );
 		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'do_jetpack_idc_disconnect' ) );
@@ -881,6 +889,40 @@ class Identity_Crisis {
 	 */
 	public static function safe_mode_is_confirmed() {
 		return Jetpack_Options::get_option( 'safe_mode_confirmed' );
+	}
+
+	/**
+	 * Register the Safe Mode feature flags.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::NEW_SCREEN_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show the shared Safe Mode screen from the connection package in the admin notice, the My Jetpack window and the Connectors card.',
+				'owner'       => 'connection',
+			)
+		);
+	}
+
+	/**
+	 * Whether the Safe Mode surfaces show the shared screen.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_new_screen_enabled() {
+		// The Connectors card can be the only reader, on a site where no plugin ensures the identity_crisis feature.
+		if ( null === Feature_Flags::get( self::NEW_SCREEN_FLAG ) ) {
+			self::register_feature_flags();
+		}
+
+		return Feature_Flags::is_enabled( self::NEW_SCREEN_FLAG );
 	}
 
 	/**
