@@ -303,6 +303,8 @@ class Stats_Links_Test extends BaseTestCase {
 			'traffic by the hour'  => array( '#!/stats/hour/123', '%2F%3Fsection%3Dtraffic%26preset%3Dtoday' ),
 			'summary'              => array( '#!/stats/day/referrers/123?startDate=2026-10-01', '%2Freports%2Freferrers' ),
 			'summary, other name'  => array( '#!/stats/year/searchterms/123', '%2Freports%2Fsearch-terms' ),
+			'summary, downloads'   => array( '#!/stats/day/filedownloads/123', '%2Freports%2Fdownloads' ),
+			'summary, annual'      => array( '#!/stats/annualstats/123', '%2Freports%2Fannual-insights' ),
 			'summary by the hour'  => array( '#!/stats/hour/countryviews/123', '%2Freports%2Flocations' ),
 			'summary, no period'   => array( '#!/stats/videoplays/123', '%2Freports%2Fvideos' ),
 			'summary, no report'   => array( '#!/stats/day/devices/123', '%2F%3Fsection%3Dtraffic' ),
