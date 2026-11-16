@@ -21,7 +21,7 @@ final class Announcement_Registry {
 	const REGISTER_ACTION = 'jetpack_register_announcements';
 
 	/**
-	 * Pattern of an announcement id, `vendor/slug`.
+	 * Pattern of an announcement id, `vendor/slug`. The REST item route matches it.
 	 */
 	const ID_PATTERN = '[a-z0-9-]+/[a-z0-9-]+';
 

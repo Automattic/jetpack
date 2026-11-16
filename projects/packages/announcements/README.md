@@ -38,6 +38,17 @@ The registrant translates its own strings. Every value is sanitized at registrat
 
 Do no I/O in the action: the read that fires it may be a REST request.
 
+## REST routes
+
+| Route                                             | Methods      | Purpose                                          |
+| ------------------------------------------------- | ------------ | ------------------------------------------------ |
+| `/wpcom/v2/jetpack-announcements`                 | `GET`        | The announcements the current user may see.      |
+| `/wpcom/v2/jetpack-announcements/<vendor>/<slug>` | `GET`, `PUT` | One announcement. The write accepts `seen` only. |
+
+Both routes require a logged-in user. An announcement that names a `capability` is left out for users without it.
+
+`seen` and `seen_at`, the date the user saw the announcement, are computed for the current user. Where they are stored is private to the package.
+
 ## Using this package in your WordPress plugin
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
