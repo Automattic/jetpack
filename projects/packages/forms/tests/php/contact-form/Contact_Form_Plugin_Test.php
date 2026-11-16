@@ -1931,6 +1931,99 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Comments on responses get the note type on both the REST and the classic insert path.
+	 *
+	 * @dataProvider provide_note_type_cases
+	 *
+	 * @param string $hook      Filter the comment data passes through.
+	 * @param string $post_type Post type the comment is left on.
+	 * @param string $expected  Comment type that should be stored.
+	 */
+	#[DataProvider( 'provide_note_type_cases' )]
+	public function test_feedback_notes_get_note_type( $hook, $post_type, $expected ) {
+		Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => $post_type,
+				'post_status' => 'publish',
+			)
+		);
+
+		$data = apply_filters(
+			$hook,
+			array(
+				'comment_post_ID' => $post_id,
+				'comment_type'    => 'comment',
+			),
+			null
+		);
+
+		$this->assertSame( $expected, $data['comment_type'] );
+	}
+
+	/**
+	 * Hook, post type and the comment type that should be stored.
+	 *
+	 * @return array
+	 */
+	public static function provide_note_type_cases() {
+		return array(
+			'REST note'          => array( 'rest_pre_insert_comment', 'feedback', Feedback::NOTE_COMMENT_TYPE ),
+			'classic note'       => array( 'preprocess_comment', 'feedback', Feedback::NOTE_COMMENT_TYPE ),
+			'REST post comment'  => array( 'rest_pre_insert_comment', 'post', 'comment' ),
+			'classic post reply' => array( 'preprocess_comment', 'post', 'comment' ),
+		);
+	}
+
+	/**
+	 * Core stores `comment_type` in a varchar(20) column, and MySQL rejects the whole insert when it's longer.
+	 */
+	public function test_note_comment_type_fits_core_column() {
+		$this->assertLessThanOrEqual( 20, strlen( Feedback::NOTE_COMMENT_TYPE ) );
+	}
+
+	/**
+	 * Comment queries leave notes out unless they ask for them, so wp-admin's Comments screens never list or count them.
+	 *
+	 * @dataProvider provide_note_query_cases
+	 *
+	 * @param array $args     Comment query arguments.
+	 * @param bool  $excluded Whether notes should be excluded.
+	 */
+	#[DataProvider( 'provide_note_query_cases' )]
+	public function test_comment_queries_exclude_feedback_notes( $args, $excluded ) {
+		Contact_Form_Plugin::init();
+		$query = new \WP_Comment_Query();
+		$query->parse_query( $args );
+
+		do_action_ref_array( 'pre_get_comments', array( &$query ) );
+
+		$this->assertSame( $excluded, in_array( Feedback::NOTE_COMMENT_TYPE, (array) $query->query_vars['type__not_in'], true ) );
+	}
+
+	/**
+	 * Query arguments and whether notes should be excluded.
+	 *
+	 * @return array
+	 */
+	public static function provide_note_query_cases() {
+		return array(
+			'default query'           => array( array(), true ),
+			'pending comments count'  => array(
+				array(
+					'status' => 'hold',
+					'count'  => true,
+				),
+				true,
+			),
+			'other excluded types'    => array( array( 'type__not_in' => array( 'pings' ) ), true ),
+			'notes requested by type' => array( array( 'type' => Feedback::NOTE_COMMENT_TYPE ), false ),
+			'notes in type__in'       => array( array( 'type__in' => array( Feedback::NOTE_COMMENT_TYPE ) ), false ),
+			'all types requested'     => array( array( 'type' => 'all' ), false ),
+		);
+	}
+
+	/**
 	 * Test track_feedback_status_change sets spam meta when transitioning to spam
 	 */
 	public function test_track_feedback_status_change_sets_spam_meta() {

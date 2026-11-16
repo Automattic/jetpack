@@ -51,8 +51,14 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		isLoadingComments,
 	} = useSelect(
 		select => {
-			// Notes are stored unapproved so they stay private; core only returns approved ones by default.
-			const query = { per_page: perPage, page, post: postId, status: 'hold' };
+			// Notes are stored held and with their own type, and core returns neither unless asked.
+			const query = {
+				per_page: perPage,
+				page,
+				post: postId,
+				status: 'hold',
+				type: 'jetpack_form_note',
+			};
 			const commentsData = select( coreStore ).getEntityRecords( 'root', 'comment', {
 				...query,
 				orderby: 'date',

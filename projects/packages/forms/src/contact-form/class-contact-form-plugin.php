@@ -247,6 +247,9 @@ class Contact_Form_Plugin {
 		// Restrict feedback comments to logged-in users only
 		add_filter( 'comments_open', array( $this, 'restrict_feedback_comments_to_logged_in' ), 10, 2 );
 		add_filter( 'pre_comment_approved', array( $this, 'hold_feedback_notes' ), 10, 2 );
+		add_filter( 'preprocess_comment', array( $this, 'set_feedback_note_type' ) );
+		add_filter( 'rest_pre_insert_comment', array( $this, 'set_feedback_note_type' ) );
+		add_action( 'pre_get_comments', array( $this, 'exclude_feedback_notes_from_comment_queries' ) );
 		add_filter( 'notify_moderator', array( $this, 'skip_moderation_email_for_feedback_notes' ), 10, 2 );
 
 		// custom post type we'll use to keep copies of the feedback items
@@ -3974,6 +3977,44 @@ class Contact_Form_Plugin {
 
 		// Keep spam and trash verdicts.
 		return 1 === (int) $approved ? 0 : $approved;
+	}
+
+	/**
+	 * Give comments on feedback posts the note comment type.
+	 *
+	 * Core's REST API only accepts core types on create, so the type is set here instead.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|\WP_Error $commentdata Comment data.
+	 * @return array|\WP_Error
+	 */
+	public function set_feedback_note_type( $commentdata ) {
+		if ( is_array( $commentdata ) && ! empty( $commentdata['comment_post_ID'] ) && 'feedback' === get_post_type( (int) $commentdata['comment_post_ID'] ) ) {
+			$commentdata['comment_type'] = Feedback::NOTE_COMMENT_TYPE;
+		}
+
+		return $commentdata;
+	}
+
+	/**
+	 * Leave notes out of comment queries that don't ask for them, as core does for its `note` type.
+	 *
+	 * This keeps them out of the Comments screen, its counts, and the Activity dashboard widget.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param \WP_Comment_Query $query Comment query.
+	 */
+	public function exclude_feedback_notes_from_comment_queries( $query ) {
+		$requested = array_merge( (array) $query->query_vars['type'], (array) $query->query_vars['type__in'] );
+
+		if ( in_array( 'all', $requested, true ) || in_array( Feedback::NOTE_COMMENT_TYPE, $requested, true ) ) {
+			return;
+		}
+
+		$query->query_vars['type__not_in']   = (array) $query->query_vars['type__not_in'];
+		$query->query_vars['type__not_in'][] = Feedback::NOTE_COMMENT_TYPE;
 	}
 
 	/**
