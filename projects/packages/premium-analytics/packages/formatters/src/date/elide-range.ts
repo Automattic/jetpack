@@ -6,7 +6,7 @@ import { getSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { formatDate } from './format-date';
+import { formatDate, siteDateFormat } from './format-date';
 
 /**
  * Forms a range can be elided in. All three name the month, so the elision
@@ -163,7 +163,7 @@ export function elideRange(
 	}
 
 	const settings = getSettings();
-	const key = `${ settings.l10n.locale }|${ settings.formats.date }|${ reportingTimeZone() }`;
+	const key = `${ settings.l10n.locale }|${ siteDateFormat() }|${ reportingTimeZone() }`;
 	const cached = cache.get( name );
 
 	if ( cached?.key !== key ) {

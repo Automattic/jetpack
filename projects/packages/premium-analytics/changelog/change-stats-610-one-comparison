@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Date filters: Measure a comparison with one implementation for reading and writing the URL.

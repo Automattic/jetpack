@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Move focus to the page heading, announce the page, and close a hidden page's dialogs on in-shell switches.

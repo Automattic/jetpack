@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fall back to the connection address when the configured trusted header is empty or holds no valid IP address.

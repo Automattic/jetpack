@@ -35,7 +35,9 @@ class AdminPageTest extends TestCase {
 		wp_dequeue_script( 'jp-tracks' );
 		wp_deregister_script( 'jp-tracks' );
 		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_Page::class, 'hide_jitms_on_wp_build_dashboard' ) );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'register_page_data' ), 0 );
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
+		$this->set_wp_build_index( null );
 
 		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
 		if ( \PHP_VERSION_ID < 80100 ) {
@@ -483,6 +485,84 @@ class AdminPageTest extends TestCase {
 		} finally {
 			$this->revoke_terms_of_service();
 		}
+	}
+
+	/**
+	 * The shell offers SEO only where the page has a build, its menu link, and a non-Simple host.
+	 *
+	 * @dataProvider admin_shell_member_cases
+	 *
+	 * @param bool $built           Whether build/build.php exists.
+	 * @param bool $seo_tools       Whether the seo-tools module is active.
+	 * @param bool $simple          Whether the site is WordPress.com Simple.
+	 * @param bool $expected_listed Whether SEO should join the shell.
+	 */
+	#[DataProvider( 'admin_shell_member_cases' )]
+	public function test_admin_shell_member( $built, $seo_tools, $simple, $expected_listed ) {
+		$this->set_wp_build_index( __DIR__ . ( $built ? '/files/build-entry/build.php' : '/files/build-entry/absent.php' ) );
+		$modules = static function ( $active ) use ( $seo_tools ) {
+			$active = array_diff( (array) $active, array( 'seo-tools' ) );
+			return $seo_tools ? array_merge( $active, array( 'seo-tools' ) ) : $active;
+		};
+		add_filter( 'jetpack_active_modules', $modules );
+		if ( $simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+
+		try {
+			$members = Admin_Page::add_admin_shell_member( array( 'other' => array() ) );
+		} finally {
+			remove_filter( 'jetpack_active_modules', $modules );
+			Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+
+		$this->assertArrayHasKey( 'other', $members );
+		$this->assertSame(
+			$expected_listed ? array( Admin_Page::class, 'load_as_admin_shell_guest' ) : null,
+			$members[ Admin_Page::MENU_SLUG ]['load'] ?? null
+		);
+	}
+
+	/**
+	 * Admin shell member cases.
+	 *
+	 * @return array<string, array{bool, bool, bool, bool}>
+	 */
+	public static function admin_shell_member_cases() {
+		return array(
+			'built, seo-tools on, self-hosted' => array( true, true, false, true ),
+			'unbuilt'                          => array( false, true, false, false ),
+			'seo-tools off'                    => array( true, false, false, false ),
+			'Simple'                           => array( true, true, true, false ),
+		);
+	}
+
+	/**
+	 * Hosted by another dashboard, SEO still hands its app the initial state when the shell prints its assets.
+	 */
+	public function test_admin_shell_guest_adds_the_page_data_when_assets_print() {
+		$this->set_wp_build_index( __DIR__ . '/files/build-entry/absent.php' );
+		Admin_Page::load_as_admin_shell_guest();
+		$this->assertSame( 0, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'register_page_data' ) ) );
+
+		set_current_screen( 'toplevel_page_jetpack' );
+		do_action( 'admin_enqueue_scripts', 'toplevel_page_jetpack' );
+
+		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
+		$this->assertArrayHasKey( 'gating', $data[ Initializer::SCRIPT_DATA_KEY ] ?? array() );
+	}
+
+	/**
+	 * Point the build-entry lookup at a path of our choosing, or back at the real one with null.
+	 *
+	 * @param string|null $path Path to stand in for build/build.php.
+	 */
+	private function set_wp_build_index( $path ) {
+		$property = new \ReflectionProperty( Admin_Page::class, 'wp_build_index' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
 	}
 
 	/**

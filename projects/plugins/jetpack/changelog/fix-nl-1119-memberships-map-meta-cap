@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Memberships: Enforce post ownership on membership plans and coupons so users cannot edit ones owned by others.

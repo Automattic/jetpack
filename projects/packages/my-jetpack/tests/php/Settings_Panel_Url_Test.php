@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\My_Jetpack\Products\Creator;
 use Automattic\Jetpack\My_Jetpack\Products\Related_Posts;
+use Automattic\Jetpack\My_Jetpack\Products\Site_Accelerator;
 use Automattic\Jetpack\My_Jetpack\Products\Videopress;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -116,14 +117,17 @@ class Settings_Panel_Url_Test extends BaseTestCase {
 	 */
 	public static function provide_moved_manage_urls() {
 		return array(
-			'creator, flag off'                    => array( Creator::class, false, 'admin.php?page=jetpack#/settings?term=creator' ),
-			'creator, flag on'                     => array( Creator::class, true, 'admin.php?page=jetpack-newsletter' ),
-			'videopress, flag off'                 => array( Videopress::class, false, 'admin.php?page=jetpack#/settings?term=videopress' ),
-			'videopress, flag on'                  => array( Videopress::class, true, 'admin.php?page=my-jetpack#/features?search=videopress' ),
-			'creator, host hides My Jetpack'       => array( Creator::class, true, 'admin.php?page=jetpack#/settings?term=creator', self::HOST_FILTER ),
-			'videopress, host hides My Jetpack'    => array( Videopress::class, true, 'admin.php?page=jetpack#/settings?term=videopress', self::HOST_FILTER ),
-			'related posts, host hides My Jetpack' => array( Related_Posts::class, true, 'admin.php?page=jetpack#/traffic?term=related%20posts', self::HOST_FILTER ),
-			'related posts, My Jetpack off'        => array( Related_Posts::class, true, 'admin.php?page=jetpack#/traffic?term=related%20posts', self::INIT_FILTER ),
+			'creator, flag off'                       => array( Creator::class, false, 'admin.php?page=jetpack#/settings?term=creator' ),
+			'creator, flag on'                        => array( Creator::class, true, 'admin.php?page=jetpack-newsletter' ),
+			'videopress, flag off'                    => array( Videopress::class, false, 'admin.php?page=jetpack#/settings?term=videopress' ),
+			'videopress, flag on'                     => array( Videopress::class, true, 'admin.php?page=my-jetpack#/features?search=videopress' ),
+			'site accelerator, flag off'              => array( Site_Accelerator::class, false, 'admin.php?page=jetpack#/settings?term=site%20accelerator' ),
+			'site accelerator, flag on'               => array( Site_Accelerator::class, true, 'admin.php?page=my-jetpack#/features?search=cdn' ),
+			'creator, host hides My Jetpack'          => array( Creator::class, true, 'admin.php?page=jetpack#/settings?term=creator', self::HOST_FILTER ),
+			'videopress, host hides My Jetpack'       => array( Videopress::class, true, 'admin.php?page=jetpack#/settings?term=videopress', self::HOST_FILTER ),
+			'site accelerator, host hides My Jetpack' => array( Site_Accelerator::class, true, 'admin.php?page=jetpack#/settings?term=site%20accelerator', self::HOST_FILTER ),
+			'related posts, host hides My Jetpack'    => array( Related_Posts::class, true, 'admin.php?page=jetpack#/traffic?term=related%20posts', self::HOST_FILTER ),
+			'related posts, My Jetpack off'           => array( Related_Posts::class, true, 'admin.php?page=jetpack#/traffic?term=related%20posts', self::INIT_FILTER ),
 		);
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WPCOM JSON API: Load post meta for a media list page in a single cache request.

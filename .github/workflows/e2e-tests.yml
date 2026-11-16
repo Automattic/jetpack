@@ -181,8 +181,12 @@ jobs:
         if: needs.build-projects.result == 'success'
         env:
           BUILD_GROUP: ${{ matrix.buildGroup }}
+          TEMP: ${{ runner.temp }}
         run: |
-          tar --xz -xvvf "$BUILD_GROUP.tar.xz" .
+          mkdir "$TEMP/tmp"
+          tar -C "$TEMP/tmp" --xz -k -xvvf "$BUILD_GROUP.tar.xz" .
+          rsync -a "$TEMP/tmp/." .
+          rm -rf "$TEMP/tmp"
 
       - name: Setup tools
         uses: $/.github/actions/tool-setup

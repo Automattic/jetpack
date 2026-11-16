@@ -60,6 +60,12 @@ class Publicize_Script_Data {
 	 */
 	public static function set_admin_script_data( $data ) {
 
+		/**
+		 * Filters the data the Social UI reads as `JetpackScriptData.social`.
+		 *
+		 * @param array $social_data The social script data.
+		 * @param array $script_data The rest of the Jetpack script data, empty when the Social dashboard fetches it.
+		 */
 		$data['social'] = apply_filters( 'jetpack_social_admin_script_data', self::get_admin_script_data(), $data );
 
 		if ( empty( $data['site']['plan']['product_slug'] ) ) {
@@ -100,21 +106,36 @@ class Publicize_Script_Data {
 	}
 
 	/**
-	 * Get the script data for admin UI.
+	 * Get the social script data for the Social dashboard when it opens on another admin page, via `wpcom/v2/publicize/script-data`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array
+	 */
+	public static function get_social_script_data() {
+		/** This filter is documented in set_admin_script_data(). */
+		return apply_filters( 'jetpack_social_admin_script_data', self::build_admin_script_data(), array() );
+	}
+
+	/**
+	 * Get the script data for admin UI, on the pages that print it inline: Social, Jetpack Settings and the block editor.
 	 *
 	 * @return array
 	 */
 	public static function get_admin_script_data() {
-
-		// Only set script data on the social settings page,
-		// the Jetpack settings page, or the block editor.
-		$should_set_script_data = Utils::is_jetpack_settings_page()
-			|| Utils::is_social_settings_page()
-			|| Utils::should_block_editor_have_social();
-
-		if ( ! $should_set_script_data ) {
+		if ( ! Utils::is_social_settings_page() && ! Utils::is_jetpack_settings_page() && ! Utils::should_block_editor_have_social() ) {
 			return array();
 		}
+
+		return self::build_admin_script_data();
+	}
+
+	/**
+	 * Build the script data for admin UI, whatever the current page.
+	 *
+	 * @return array
+	 */
+	private static function build_admin_script_data() {
 
 		$basic_data = array(
 			'api_paths'            => self::get_api_paths(),
@@ -209,6 +230,10 @@ class Publicize_Script_Data {
 		$jetpack_version = null;
 
 		if ( defined( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ) ) {
+			// REST requests don't load the admin includes.
+			if ( ! function_exists( 'get_plugin_data' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
 
 			$plugin_data = get_plugin_data( (string) constant( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ), false, false );
 

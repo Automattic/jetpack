@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Omit separate first and last profile names from structured data and Open Graph metadata.

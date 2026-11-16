@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Make unit tests independent of other plugins in the shared test environment.
+
+

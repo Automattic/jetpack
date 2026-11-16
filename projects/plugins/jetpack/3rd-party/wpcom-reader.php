@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 foreach ( array( 'rss_head', 'rss1_head', 'rss2_head' ) as $rss_head_action ) {
 	add_action( $rss_head_action, 'jetpack_wpcomreader_feed_id' );
+	add_action( $rss_head_action, 'jetpack_wpcomreader_track_set_up_posts' );
 }
 foreach ( array( 'rss_item', 'rss1_item', 'rss2_item' ) as $rss_item_action ) {
 	add_action( $rss_item_action, 'jetpack_wpcomreader_post_id' );
@@ -53,13 +54,45 @@ function jetpack_wpcomreader_feed_id() {
 }
 
 /**
+ * Start tracking the posts set up by the feed's loop.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function jetpack_wpcomreader_track_set_up_posts() {
+	jetpack_wpcomreader_set_up_post_id();
+	add_action( 'the_post', 'jetpack_wpcomreader_set_up_post_id' );
+}
+
+/**
+ * Track the post most recently set up by a loop, and hand its ID out once.
+ *
+ * @since $$next-version$$
+ *
+ * @param WP_Post|null $post Post being set up, or null to read and clear the tracked ID.
+ * @return int ID of the post set up before this call, or 0.
+ */
+function jetpack_wpcomreader_set_up_post_id( $post = null ) {
+	static $set_up_post_id = 0;
+
+	$previous_id    = $set_up_post_id;
+	$set_up_post_id = $post instanceof WP_Post ? (int) $post->ID : 0;
+
+	return $previous_id;
+}
+
+/**
  * Output feed item identifier based on current post ID.
+ *
+ * Custom feed templates can fire the item actions without setting up a post per item, so the
+ * global post is still the main query's; only print an ID that was set up for this item.
  *
  * @return void
  */
 function jetpack_wpcomreader_post_id() {
 	$id = get_the_ID();
-	if ( ! $id ) {
+	if ( ! $id || jetpack_wpcomreader_set_up_post_id() !== $id ) {
 		return;
 	}
 

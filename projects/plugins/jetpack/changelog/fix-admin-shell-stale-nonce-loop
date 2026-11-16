@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Add an admin shell e2e regression test for stale REST nonces.
+
+

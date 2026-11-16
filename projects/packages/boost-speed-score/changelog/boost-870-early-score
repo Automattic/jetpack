@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Return the new speed scores as soon as they are ready, using the previous comparison score until the run without Boost finishes.

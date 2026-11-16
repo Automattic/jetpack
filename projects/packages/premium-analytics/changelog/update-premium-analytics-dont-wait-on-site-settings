@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Start loading stats without waiting for the site settings when the dashboard opens with no dates in its URL.

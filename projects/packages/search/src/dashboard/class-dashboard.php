@@ -8,9 +8,11 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
@@ -117,6 +119,54 @@ class Dashboard {
 			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->search_menu_priority );
 			// Check if the site plan changed and deactivate module accordingly.
 			add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
+			if ( class_exists( Admin_Shell::class ) ) {
+				add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
+			}
+		}
+	}
+
+	/**
+	 * Register Search with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * The page is registered for every admin, with or without a menu entry, so links to it switch in place.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		if ( ( new Host() )->is_wpcom_simple() || ! file_exists( $this->wp_build_index() ) ) {
+			return $members;
+		}
+
+		$members['jetpack-search'] = array(
+			'build_prefix' => 'jetpack_search',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-search/init' ),
+			// "Search" is a product name, do not translate.
+			'title'        => 'Search',
+			'header'       => array(
+				'title'    => 'Search',
+				'subtitle' => __( 'Help your visitors find exactly what they are looking for.', 'jetpack-search-pkg' ),
+			),
+			'capability'   => 'manage_options',
+			'handles'      => array( self::DATA_SCRIPT_HANDLE, 'jetpack-script-data', 'jp-tracks-functions', 'wp-jp-i18n-loader' ),
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Search routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		if ( $this->load_wp_build( false ) ) {
+			$this->admin_init();
 		}
 	}
 
@@ -130,12 +180,28 @@ class Dashboard {
 			return;
 		}
 
+		$this->load_wp_build();
+	}
+
+	/**
+	 * Load the wp-build bundle and its polyfills.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $alias Whether to alias the screen ID. Pass false to ready the routes on another page, which must not boot it.
+	 * @return bool Whether the build exists.
+	 */
+	private function load_wp_build( $alias = true ) {
 		$build_index = $this->wp_build_index();
 		if ( ! file_exists( $build_index ) ) {
-			return;
+			return false;
 		}
 
-		self::require_wp_build_with_screen_alias( $build_index );
+		if ( $alias ) {
+			self::require_wp_build_with_screen_alias( $build_index );
+		} else {
+			require_once $build_index;
+		}
 
 		// wp-build hooks module registration to wp_default_scripts, which has already
 		// fired by admin_menu — call it directly or the init module never registers.
@@ -147,6 +213,7 @@ class Dashboard {
 			'jetpack-search',
 			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
+		return true;
 	}
 
 	/**

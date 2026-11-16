@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Add a standalone-plugins run to the admin shell e2e regression suite.
+
+

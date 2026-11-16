@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sidebar notice: Fix the Dismiss button on admin pages other than the Dashboard.

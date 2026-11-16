@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Request the dashboard sections and widget types while the page is still loading the site details, instead of after.

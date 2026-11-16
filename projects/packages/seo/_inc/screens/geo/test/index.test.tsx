@@ -197,6 +197,22 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		expect( form[ setter ] ).toHaveBeenCalledWith( target, true );
 	} );
 
+	it.each( [
+		[ 'Answer engines', /cite you in their answers/, 'Block ChatGPT Search' ],
+		[ 'Training crawlers', /train AI models/, 'Block Google Gemini' ],
+	] )(
+		'exposes the %s toggles as a named group described by its intro',
+		( name, intro, toggle ) => {
+			render( <GeoScreen form={ crawlerForm() } searchEnginesVisible /> );
+
+			const group = screen.getByRole( 'group', { name, hidden: true } );
+			expect( group ).toHaveAccessibleDescription( intro );
+			expect(
+				within( group ).getByRole( 'switch', { name: toggle, hidden: true } )
+			).toBeInTheDocument();
+		}
+	);
+
 	it( 'links each group to the robots.txt file under its description', () => {
 		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible /> );
 

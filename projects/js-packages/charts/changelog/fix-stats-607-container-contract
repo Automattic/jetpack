@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Warn when a chart's parent cannot give it a width, and document the container a responsive chart needs.

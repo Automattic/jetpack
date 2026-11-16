@@ -56,6 +56,26 @@ class Jetpack_SEO_Utils {
 	}
 
 	/**
+	 * Gets the page set as the posts page in Settings > Reading, when that page is being viewed.
+	 *
+	 * Use it there instead of get_post(), which returns the first listed post.
+	 *
+	 * @return WP_Post|null The published posts page, or null on any other view.
+	 */
+	public static function get_viewed_posts_page() {
+		global $wp_query;
+
+		if ( empty( $wp_query->is_posts_page ) ) {
+			return null;
+		}
+
+		$page = get_queried_object();
+
+		// WordPress still lists posts at an unpublished page's URL, and that page's text must stay private.
+		return $page instanceof WP_Post && 'publish' === $page->post_status ? $page : null;
+	}
+
+	/**
 	 * Returns front page meta description for current site.
 	 *
 	 * @return string Front page meta description string or empty string.

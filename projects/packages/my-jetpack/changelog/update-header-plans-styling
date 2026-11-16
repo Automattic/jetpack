@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Header: Highlight expiring and expired plans in the account panel, list them first with a renew link, and show other plans as active until their renewal date.

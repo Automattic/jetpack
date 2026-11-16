@@ -78,8 +78,19 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 	 * @return array
 	 */
 	public static function get_initial_state() {
+		$plan = null;
+
+		// Agencies handle billing for the sites they fully manage, so their clients get no upsell.
+		if ( current_user_can( 'manage_options' ) && ! get_option( 'wpcom_is_staging_site' ) && ! is_fully_managed_agency_site() ) {
+			$plan = array(
+				'name' => function_exists( 'wpcom_get_current_plan_name' ) ? wpcom_get_current_plan_name() : null,
+				'url'  => 'https://wordpress.com/plans/' . wpcom_get_site_slug(),
+			);
+		}
+
 		return array(
 			'tools' => static::get_tools(),
+			'plan'  => $plan,
 		);
 	}
 

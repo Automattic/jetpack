@@ -243,7 +243,8 @@ jobs:
           touch merged.mirrors.txt
           for ARCHIVE in partial-build-*.tar.xz; do
             echo "::group::Extracting $ARCHIVE"
-            tar --xz -xvvf "$ARCHIVE" build
+            mkdir build
+            tar --xz -k -xvvf "$ARCHIVE" build
             echo "::endgroup::"
             for MIRROR in $(< build/mirrors.txt ); do
               if [[ ! -d "merged/$MIRROR" ]]; then
@@ -503,7 +504,9 @@ jobs:
         with:
           name: partial-build-wpcom.tar.xz
       - name: Extract build archive
-        run: tar --xz -xvvf partial-build-wpcom.tar.xz build
+        run: |
+          mkdir build
+          tar --xz -k -xvvf partial-build-wpcom.tar.xz build
       - name: Filter mirrors.txt
         run: |
           # We only want to push certain plugins here.
@@ -566,7 +569,9 @@ jobs:
         with:
           name: jetpack-build.tar.xz
       - name: Extract build archive
-        run: tar --xz -xvvf jetpack-build.tar.xz build
+        run: |
+          mkdir build
+          tar --xz -k -xvvf jetpack-build.tar.xz build
       - name: Filter mirrors.txt
         if: ${{ fromJson( needs.prepare.outputs.build_matrix ).wpcom }}
         run: |

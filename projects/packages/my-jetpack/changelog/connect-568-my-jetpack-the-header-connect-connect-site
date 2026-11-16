@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Show the WordPress.com connection screen made for the site's plugins when connecting an account, connecting the site or restoring the connection from the header, and return to the page the header is on.

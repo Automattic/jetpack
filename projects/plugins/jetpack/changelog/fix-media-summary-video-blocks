@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Open Graph Meta tags: Add video tags for posts that use a VideoPress or Video block, so shared links can play the video.

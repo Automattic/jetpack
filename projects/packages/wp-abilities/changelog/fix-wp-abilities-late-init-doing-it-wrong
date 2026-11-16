@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Registrar: Register right away only while an Abilities API init action is running, instead of trying registrations WordPress rejects once those actions have fired.

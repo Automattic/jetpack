@@ -390,6 +390,10 @@ class Analytics {
 		require_once __DIR__ . '/assets-url.php';
 		configure_assets_url();
 
+		// The locale's default date format, for site formats the dashboard cannot shorten.
+		require_once __DIR__ . '/date-format.php';
+		configure_date_format();
+
 		// Temporary: carries a default layout move into layouts readers customized before it.
 		Stored_Layout_Move::register();
 	}

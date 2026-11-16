@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Pass on the speed test step and any device score already measured while a test runs.

@@ -9,6 +9,7 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-menu-badges": "@dev",
+		"automattic/jetpack-monitor": "@dev",
 		"automattic/jetpack-protect-models": "@dev",
 		"automattic/jetpack-protect-status": "@dev",
 		"automattic/jetpack-status": "@dev",

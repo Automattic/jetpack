@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Tests: Give the unit tests their own plugins folder, so other projects' tests running in parallel can't affect them.
+
+

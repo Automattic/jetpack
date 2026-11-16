@@ -287,6 +287,16 @@ describe( 'comparison options', () => {
 		expect( options[ 2 ].range ).toEqual( daysRange( [ 2027, 0, 2 ], [ 2027, 2, 3 ] ) );
 	} );
 
+	// The range steps calendar years while the label counts days, as Last 12 months' does.
+	it( 'starts the previous period of Last 3 years three calendar years back', () => {
+		const lastThreeYears = daysRange( [ 2024, 0, 1 ], [ 2026, 7, 20 ] );
+		const options = getComparisonOptions( lastThreeYears, { primaryPresetId: 'last-3-years' } );
+		const previous = options.find( option => option.id === 'previous-period' )!;
+
+		expect( previous.range ).toEqual( daysRange( [ 2021, 0, 1 ], [ 2023, 7, 20 ] ) );
+		expect( previous.label ).toBe( 'Previous 963 days' );
+	} );
+
 	it( 'folds the year option into the previous period for Last 12 months in a leap year', () => {
 		const last12Months2028 = daysRange( [ 2027, 9, 1 ], [ 2028, 8, 11 ] );
 		const options = getComparisonOptions( last12Months2028, { primaryPresetId: 'last-12-months' } );

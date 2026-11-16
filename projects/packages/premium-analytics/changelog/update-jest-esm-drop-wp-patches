@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Jest: load @wordpress/components through its ESM entry like the shared resolver does.
+
+

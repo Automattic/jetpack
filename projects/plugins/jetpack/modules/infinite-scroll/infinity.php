@@ -89,6 +89,19 @@ class The_Neverending_Home_Page {
 	public static $option_name_enabled = 'infinite_scroll';
 
 	/**
+	 * Whether the site owner turned off loading on scroll, so posts load with a button.
+	 *
+	 * The Reading screen stores '' for off, and the Jetpack settings API stores '0'. Unset means on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_scroll_disabled() {
+		return in_array( get_option( self::$option_name_enabled ), array( '', '0', 0 ), true );
+	}
+
+	/**
 	 * Parse IS settings provided by theme
 	 *
 	 * @uses get_theme_support, infinite_scroll_has_footer_widgets, sanitize_title, add_action, get_option, wp_parse_args, is_active_sidebar
@@ -258,7 +271,7 @@ class The_Neverending_Home_Page {
 			// Ensure that IS is enabled and no footer widgets exist if the IS type isn't already "click".
 			if ( 'click' !== $settings['type'] ) {
 				// Check the setting status
-				$disabled = '' === get_option( self::$option_name_enabled );
+				$disabled = self::is_scroll_disabled();
 
 				// Footer content or Reading option check
 				if ( $settings['footer_widgets'] || $disabled ) {
@@ -457,7 +470,7 @@ class The_Neverending_Home_Page {
 		if ( $settings->footer_widgets || 'click' === $settings->requested_type ) {
 			echo '<label><em>' . esc_html__( 'We&rsquo;ve changed this option to a click-to-scroll version for you since you have footer widgets in Appearance &rarr; Widgets, or your theme uses click-to-scroll as the default behavior.', 'jetpack' ) . '</em></label>';
 		} else {
-			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
+			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, ! self::is_scroll_disabled(), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
 			// translators: the number of posts to show on each page load.
 			echo '<p class="description">' . esc_html( sprintf( _n( 'Shows %s post on each load.', 'Shows %s posts on each load.', self::posts_per_page(), 'jetpack' ), number_format_i18n( self::posts_per_page() ) ) ) . '</p>';
 		}
@@ -553,7 +566,7 @@ class The_Neverending_Home_Page {
 		$settings = self::get_settings();
 		$classes  = '';
 		// Do not add infinity-scroll class if disabled through the Reading page
-		$disabled = '' === get_option( self::$option_name_enabled );
+		$disabled = self::is_scroll_disabled();
 		if ( ! $disabled || 'click' === $settings->type ) {
 			$classes = 'infinite-scroll';
 

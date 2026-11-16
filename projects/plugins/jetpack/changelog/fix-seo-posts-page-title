@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Use the posts page's own SEO title, or the Pages title format, in its title and Open Graph title.

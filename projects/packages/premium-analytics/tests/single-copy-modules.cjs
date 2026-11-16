@@ -8,6 +8,7 @@
  */
 
 const path = require( 'path' );
+const { resolveMapperTarget } = require( 'jetpack-js-tools/jest/jest-resolver.js' );
 
 // Where the copies come from: this package's own dependencies, so the suite runs the versions it
 // declares. DataViews' prerelease asks for newer `components`/`ui` than that, and does not get them
@@ -54,7 +55,7 @@ function singleCopyModuleMapper( rootDir ) {
 	for ( const name of DEDUPED_PACKAGES ) {
 		for ( const from of searchDirs ) {
 			try {
-				mapper[ `^${ escapeRegExp( name ) }$` ] = require.resolve( name, { paths: [ from ] } );
+				mapper[ `^${ escapeRegExp( name ) }$` ] = resolveMapperTarget( name, from );
 				break;
 			} catch {
 				// Not reachable from here; try the package root, then leave the import alone.

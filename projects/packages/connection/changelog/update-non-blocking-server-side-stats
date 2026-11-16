@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Keep sending heartbeat stats blocking now that batched MC stats no longer wait for a response.
+

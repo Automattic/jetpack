@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+SEO: Serve a stored copy of llms.txt that is rebuilt only after content or settings change, and let caches keep it for up to 15 minutes.

@@ -246,6 +246,25 @@ describe( 'Overview page view', () => {
 		).toHaveLength( 1 );
 	} );
 
+	it( 'records again when the admin shell switches back to the page', async () => {
+		await renderOverview();
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_admin_page_view' )
+		);
+		const shown = ( page: string, firstShow: boolean ) =>
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+			);
+
+		shown( 'jetpack-backup', true );
+		shown( 'my-jetpack', false );
+		shown( 'jetpack-backup', false );
+
+		expect(
+			mockRecordEvent.mock.calls.filter( c => c[ 0 ] === 'jetpack_backup_admin_page_view' )
+		).toHaveLength( 2 );
+	} );
+
 	it( 'identifies the reader before recording the view', async () => {
 		// Ordering, not coincidence: an event recorded before
 		// `initialize()` carries no identity, so the hook is called ahead

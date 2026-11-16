@@ -1,4 +1,5 @@
 import { requestSpeedScores, standardizeError } from '@automattic/jetpack-boost-score-api';
+import type { SpeedScoreProgress as ReportedProgress } from '@automattic/jetpack-boost-score-api';
 import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -8,11 +9,13 @@ import { castToString } from '../../../app/assets/src/js/lib/utils/cast-to-strin
 import { requestDataSync, type ScoreRefreshState } from './use-modules-state';
 
 export type SpeedScoresSet = NonNullable< Awaited< ReturnType< typeof requestSpeedScores > > >;
+export type SpeedScoreProgress = ReportedProgress & { receivedAt: number };
 export type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error' | 'offline';
 	error?: Error;
 	hasScores: boolean;
 	isRunning: boolean;
+	progress?: SpeedScoreProgress;
 	scores: SpeedScoresSet;
 };
 
@@ -69,6 +72,7 @@ export function useSpeedScores(
 					acceptedUserRun.current === url ||
 					( previous.status === 'loading' && previous.isRunning ),
 				error: undefined,
+				progress: undefined,
 			} ) );
 			try {
 				const scores = await requestSpeedScores(
@@ -85,6 +89,14 @@ export function useSpeedScores(
 									acceptedUserRun.current = url;
 								}
 								setState( previous => ( { ...previous, isRunning: true } ) );
+							}
+						},
+						onProgress: reported => {
+							if ( id === requestId.current ) {
+								setState( previous => ( {
+									...previous,
+									progress: { ...reported, receivedAt: Date.now() },
+								} ) );
 							}
 						},
 					}
@@ -109,7 +121,13 @@ export function useSpeedScores(
 				recordBoostEvent( 'speed_score_request_error', {
 					error_message: castToString( error.message ),
 				} );
-				setState( previous => ( { ...previous, status: 'error', isRunning: false, error } ) );
+				setState( previous => ( {
+					...previous,
+					status: 'error',
+					isRunning: false,
+					progress: undefined,
+					error,
+				} ) );
 			}
 		},
 		[ online, url, enabled, cancelPending, onUserRunComplete ]
@@ -130,6 +148,31 @@ export function useSpeedScores(
 		}
 		return cancelPending;
 	}, [ online, enabled, refresh, cancelPending ] );
+
+	// Keep collecting the comparison run quietly; the scores are already on screen.
+	const { status, scores } = state;
+	useEffect( () => {
+		if ( status !== 'loaded' || ! scores.noBoostPending || ! online || ! enabled ) {
+			return;
+		}
+		const id = requestId.current;
+		const timer = window.setTimeout( async () => {
+			try {
+				const next = await requestSpeedScores(
+					false,
+					wpApiSettings.root,
+					url,
+					wpApiSettings.nonce
+				);
+				if ( id === requestId.current && next ) {
+					setState( previous => ( { ...previous, scores: next } ) );
+				}
+			} catch {
+				// The badge keeps the previous comparison; the next test measures it again.
+			}
+		}, 5000 );
+		return () => window.clearTimeout( timer );
+	}, [ status, scores, online, enabled, url ] );
 
 	const config = refreshState?.config;
 	const isPending = refreshState?.isPending;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Add an admin shell e2e test for unsaved changes.
+

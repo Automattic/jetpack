@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Omit separate first and last profile names from author structured data.

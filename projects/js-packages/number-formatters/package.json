@@ -41,7 +41,7 @@
 		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"jest": "30.5.2",
-		"tsdown": "0.23.1",
+		"tsdown": "0.23.7",
 		"typescript": "6.0.3"
 	}
 }

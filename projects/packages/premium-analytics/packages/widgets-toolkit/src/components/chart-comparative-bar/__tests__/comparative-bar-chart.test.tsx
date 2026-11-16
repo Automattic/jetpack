@@ -511,10 +511,10 @@ describe( 'ComparativeBarChart', () => {
 		expect( tickFormat( 18432 ) ).toBe( '18.4K' );
 	} );
 
-	it( 'draws zero-value bars so a quiet day reads as zero, not missing data', () => {
+	it( 'leaves zero-value buckets empty so an hour without views does not look like one', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( recordedProps().showZeroValues ).toBe( true );
+		expect( recordedProps().showZeroValues ).toBeFalsy();
 	} );
 
 	describe( 'pinned y-axis domains', () => {
@@ -535,6 +535,18 @@ describe( 'ComparativeBarChart', () => {
 
 			// Scaling to the data would make a 3% bar fill the plot.
 			expect( recordedOptions().yScale?.domain ).toEqual( [ 0, 1 ] );
+		} );
+
+		it( 'scales a percentage metric to the data once a value passes 100%', () => {
+			render(
+				<ComparativeBarChart
+					series={ [ { label: 'July', group: 'rate', data: [ { date: JULY_1, value: 32.5 } ] } ] }
+					dataFormat={ { type: 'percentage' } }
+				/>
+			);
+
+			// Pinned at 100%, a 3,250% bar would run off the top of the plot.
+			expect( recordedOptions() ).not.toHaveProperty( 'yScale' );
 		} );
 
 		it( 'leaves the pinned domain to size its own gutter', () => {

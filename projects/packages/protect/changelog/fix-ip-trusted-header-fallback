@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Firewall and Login protection: Hide the add-my-IP suggestion when the configured trusted IP header cannot be resolved.

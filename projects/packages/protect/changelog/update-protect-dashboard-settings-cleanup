@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Save nothing when a settings change includes an unavailable feature, show WordPress.com's reason when downtime email settings can't be saved, and ask for a reload once the site's connection goes away.

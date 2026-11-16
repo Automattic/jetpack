@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Preload the open screen's code and the first REST responses, so the first widgets appear sooner.

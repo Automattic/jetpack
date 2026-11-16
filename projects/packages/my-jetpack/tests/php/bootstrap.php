@@ -37,5 +37,11 @@ if ( empty( $_SERVER['HTTP_HOST'] ) ) {
 define( 'WP_DEBUG', true );
 define( 'JETPACK_ENABLE_MY_JETPACK', true );
 
+// Its own plugins folder, since other projects' tests add and remove plugins in the shared one in parallel CI runs.
+define( 'WP_PLUGIN_DIR', dirname( \Automattic\Jetpack\Test_Environment::find_autoloader(), 2 ) . '/wordpress/wp-content/plugins-packages-my-jetpack' );
+if ( ! is_dir( WP_PLUGIN_DIR ) ) {
+	mkdir( WP_PLUGIN_DIR, 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+}
+
 // Initialize WordPress test environment
 \Automattic\Jetpack\Test_Environment::init();

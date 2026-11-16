@@ -214,6 +214,7 @@ class Admin_Menu {
 			self::$initialized = true;
 			// Every plugin's admin menu comes through here, so the flag is listed wherever the shell could run.
 			Admin_Shell::register_feature_flag();
+			Admin_Shell::init();
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.

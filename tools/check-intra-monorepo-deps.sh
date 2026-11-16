@@ -41,7 +41,7 @@ AUTO_SUFFIX=false
 CL_FILENAME=
 RELEASEBRANCH=false
 DO_PNPM_LOCK=true
-while getopts ":uUvhHRPan:" opt; do
+while getopts ":uUvhRPan:" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
@@ -59,8 +59,7 @@ while getopts ":uUvhHRPan:" opt; do
 		v)
 			VERBOSE=true
 			;;
-		H|R)
-			# -H is an old name, kept for back compat.
+		R)
 			RELEASEBRANCH=true
 			;;
 		P)

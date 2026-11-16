@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { test as setup, expect, type Browser } from '@playwright/test';
-import { STATE_OFF, STATE_ON } from '../../helpers/admin-shell-helper';
+import { STATE_OFF, STATE_ON, STATE_STANDALONE } from '../../helpers/admin-shell-helper';
 
 /**
  * Log in through wp-login.php and save the session.
@@ -60,4 +60,16 @@ setup( 'log in to the shell-off site', async ( { browser } ) => {
 		STATE_OFF
 	);
 	expect( fs.existsSync( STATE_OFF ) ).toBe( true );
+} );
+
+setup( 'log in to the standalone-only site', async ( { browser } ) => {
+	setup.skip( ! process.env.ADMIN_SHELL_STANDALONE_URL, 'ADMIN_SHELL_STANDALONE_URL is not set' );
+	await logIn(
+		browser,
+		process.env.ADMIN_SHELL_STANDALONE_URL!,
+		process.env.ADMIN_SHELL_STANDALONE_USER ?? 'admin',
+		process.env.ADMIN_SHELL_STANDALONE_PASSWORD ?? 'password',
+		STATE_STANDALONE
+	);
+	expect( fs.existsSync( STATE_STANDALONE ) ).toBe( true );
 } );

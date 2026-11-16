@@ -87,11 +87,14 @@ const CLIP_PAGE = {
 	reports_page: null,
 };
 
-const settledSearch = {
+const ownSearch = {
 	from: '2026-06-01T00:00:00',
 	to: '2026-06-16T23:59:59',
 	post_id: '42',
 };
+
+// A settled URL also carries the origin its seed stored: here, of a page opened without a window.
+const settledSearch = { ...ownSearch, ref_preset: 'none' };
 
 const beforeLoad = ( params?: object, search?: object ) =>
 	route.beforeLoad( { params, search } as Parameters< typeof route.beforeLoad >[ 0 ] );
@@ -148,7 +151,7 @@ describe( 'single-report route.beforeLoad', () => {
 	it( 'sends a plan-locked page to its reports page, keeping the window it was opened from', async () => {
 		jest.mocked( isStatsFeatureLocked ).mockImplementationOnce( key => key === 'videos' );
 		const search = {
-			...settledSearch,
+			...ownSearch,
 			ref_from: '2026-05-01T00:00:00',
 			ref_to: '2026-05-31T23:59:59',
 			ds: 'traffic',
@@ -171,6 +174,14 @@ describe( 'single-report route.beforeLoad', () => {
 
 	it( 'passes through a settled URL without redirecting', async () => {
 		await expect( beforeLoad( video, settledSearch ) ).resolves.toBeUndefined();
+	} );
+
+	it( 'settles a URL saved without an origin window as one opened without a window', async () => {
+		await expect( beforeLoad( video, ownSearch ) ).rejects.toMatchObject( {
+			replace: true,
+			viewTransition: false,
+			search: settledSearch,
+		} );
 	} );
 
 	it( 'seeds the scope param into the URL when it does not match the path', async () => {
@@ -210,7 +221,9 @@ describe( 'single-report route.beforeLoad', () => {
 	it( 'seeds when the date params are missing', async () => {
 		jest.mocked( needsReportDateParamsSeed ).mockReturnValueOnce( true );
 
-		await expect( beforeLoad( video, { post_id: '42' } ) ).rejects.toMatchObject( {
+		await expect(
+			beforeLoad( video, { post_id: '42', ref_preset: 'none' } )
+		).rejects.toMatchObject( {
 			to: '/report/$kind/$id',
 			search: expect.objectContaining( { from: expect.any( String ), post_id: '42' } ),
 		} );

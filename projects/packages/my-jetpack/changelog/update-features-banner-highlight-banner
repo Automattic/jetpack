@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Features: Use the shared HighlightBanner from Jetpack components for the banner above the features grid.

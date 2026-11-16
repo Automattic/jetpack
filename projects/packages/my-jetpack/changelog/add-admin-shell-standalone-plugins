@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Register the admin shell feature flag on every request, so sites without the Jetpack plugin list it.
+
+

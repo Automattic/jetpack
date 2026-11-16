@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Admin shell: Show the page header and its tabs straight away while a dashboard opens, including one opened for the first time.

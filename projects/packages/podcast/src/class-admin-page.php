@@ -8,8 +8,10 @@
 namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
@@ -69,6 +71,10 @@ class Admin_Page {
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
+
 		// On Simple/Atomic, wpcom-admin-menu.php builds the Jetpack menu at
 		// priority 999999 and calls add_wp_admin_submenu() itself. Self-hosted
 		// has no such file, so we register our own. Priority 999 queues the item
@@ -118,6 +124,50 @@ class Admin_Page {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 			self::opt_out_of_jitms( $page_suffix );
 		}
+	}
+
+	/**
+	 * Register Podcast with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ( new Host() )->is_wpcom_simple() || ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			return $members;
+		}
+
+		$members[ self::ADMIN_PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_podcast',
+			'build_page'   => self::WP_BUILD_SLUG,
+			'init_modules' => array( '@jetpack-podcast/init' ),
+			/** "Podcast" is a product name, do not translate. */
+			'title'        => 'Podcast',
+			'header'       => array(
+				'title'    => 'Podcast',
+				'subtitle' => __( 'Publish a podcast and reach your fans, anywhere they listen.', 'jetpack-podcast' ),
+			),
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'media'        => true,
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Podcast routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_podcast_script_data' ) );
+		self::admin_init();
 	}
 
 	/**
@@ -211,9 +261,16 @@ class Admin_Page {
 				);
 			}
 		}
+		$status         = new Status();
+		$is_site_public = 1 === (int) get_option( 'blog_public', 1 )
+			&& 'unlaunched' !== get_option( 'launch-status' )
+			&& ! $status->is_private_site()
+			&& ! $status->is_coming_soon();
+
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
+			'is_site_public'      => $is_site_public,
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
 			'feed_limit_max'      => Settings::feed_limit_max(),

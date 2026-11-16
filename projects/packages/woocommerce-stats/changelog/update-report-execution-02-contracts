@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Reports: Describe the fields of the orders by date and sessions by device reports, let callers name the fields they read, and name the provider and contract in response headers.

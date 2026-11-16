@@ -12,6 +12,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
@@ -179,6 +180,10 @@ class Initializer {
 		add_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ), 10 );
 
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+		}
+
 		// Read-only REST routes the dashboard hydrates its initial state from. Preloaded
 		// into the page (see Admin_Page::inject_script_data) so a normal load resolves
 		// them with no request, and fetched by the app when that preload is missing or
@@ -202,6 +207,7 @@ class Initializer {
 			// stripping the schema its pages already carry would hurt SEO it has today.
 			// (Finer per-type gating — e.g. sitewide LocalBusiness to paid plans on
 			// self-hosted — is a separate follow-up, tracked in the schema project.)
+			Share_Image::init();
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 
@@ -239,14 +245,16 @@ class Initializer {
 	}
 
 	/**
-	 * Hook what any request that saves content needs: clearing the Overview counts and the
-	 * page fields the SEO page saves. WordPress.com calls this on its API requests, which skip init().
+	 * Hook what any request that saves content needs: the page fields the SEO page saves, and
+	 * clearing the Overview counts and the stored llms.txt. WordPress.com calls this on its API
+	 * requests, which skip init().
 	 *
 	 * @return void
 	 */
 	public static function register_write_hooks() {
 		Content_Coverage::register_invalidation();
 		Llms_Txt::register_always_include();
+		Llms_Txt::register_invalidation();
 	}
 
 	/**

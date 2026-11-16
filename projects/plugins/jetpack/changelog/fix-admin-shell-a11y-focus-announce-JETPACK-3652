@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Expect the admin shell accessibility e2e tests to pass now that the off-by-default shell moves focus and announces switches.
+
+

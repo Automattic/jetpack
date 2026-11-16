@@ -7,5 +7,5 @@ import '../../routes/dashboard/config/sections.test';
 import '../../routes/dashboard/config/widget-type-renames.test';
 import '../../routes/dashboard/hooks/use-dashboard-section-layout/use-dashboard-section-layout.test';
 import '../../routes/dashboard/hooks/use-section-date-filter/use-section-date-filter.test';
-import '../../routes/detail-header.test';
+import '../../routes/single-report/detail-header.test';
 import '../../routes/single-report/pages/post/post-header-slots.test';

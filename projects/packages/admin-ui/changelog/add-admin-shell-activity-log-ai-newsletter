@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Admin shell: Let members ask for the media library, so it works when their page opens inside another dashboard.

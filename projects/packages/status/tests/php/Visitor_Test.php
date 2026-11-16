@@ -467,16 +467,16 @@ class Visitor_Test extends TestCase {
 	}
 
 	/**
-	 * Tests that a trusted header carrying no valid address yields nothing, rather than falling
-	 * back to another source. Brute force protection reads the same configuration through
-	 * IP\Utils::get_ip() and gets the same empty answer, which is the point of deferring to it.
+	 * Tests that a trusted header carrying no valid address falls back to REMOTE_ADDR, as
+	 * IP\Utils::get_ip() does for brute force protection, rather than to the header sweep.
 	 */
-	public function test_get_ip_returns_an_empty_string_when_the_trusted_header_holds_no_address() {
+	public function test_get_ip_falls_back_to_remote_addr_when_the_trusted_header_holds_no_address() {
 		$_SERVER['REMOTE_ADDR']          = '10.0.0.5';
 		$_SERVER['HTTP_X_FORWARDED_FOR'] = 'not-an-ip-address';
+		$_SERVER['HTTP_CLIENT_IP']       = '6.6.6.6';
 		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR' );
 
-		$this->assertSame( '', $this->visitor_obj->get_ip( true ) );
+		$this->assertSame( '10.0.0.5', $this->visitor_obj->get_ip( true ) );
 	}
 
 	/**

@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Jest config: inherit the shared transform allowlist instead of replacing it.
+
+

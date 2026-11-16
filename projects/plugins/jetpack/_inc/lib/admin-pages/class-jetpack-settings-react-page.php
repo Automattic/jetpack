@@ -9,6 +9,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
 require_once __DIR__ . '/class-jetpack-redux-state-helper.php';
@@ -80,6 +81,51 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	public function maybe_load_wp_build() {
 		if ( $this->should_load_wp_build() ) {
 			$this->is_wp_build_loaded = Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID );
+		}
+	}
+
+	/**
+	 * Register Settings with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		// During IDC the page shows only the IDC banner.
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' )
+			|| ! $this->can_access_settings()
+			|| $this->block_page_rendering_for_idc()
+		) {
+			return $members;
+		}
+
+		$members['jetpack-settings'] = array(
+			'build_prefix' => 'jetpack_plugin',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-plugin/init' ),
+			'title'        => __( 'Settings', 'jetpack' ),
+			'capability'   => 'jetpack_admin_page',
+			'handles'      => array( 'react-plugin', 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Settings routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		$this->is_wp_build_loaded = Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID, false );
+		if ( $this->is_wp_build_loaded ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_scripts' ) );
 		}
 	}
 

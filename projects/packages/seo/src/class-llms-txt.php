@@ -11,8 +11,8 @@
  * path rather than registering a rewrite rule, so it needs no rewrite flush and
  * works under any permalink structure. The tradeoff — it matches a root-level
  * request only, and like robots.txt won't apply on a multisite subdirectory or
- * a site fronted by a static file. Hardening the serving path (a rewrite rule,
- * caching) is tracked separately in JETPACK-1830.
+ * a site fronted by a static file. A rewrite rule is tracked separately in
+ * JETPACK-1830.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -50,6 +50,44 @@ class Llms_Txt {
 	 * @var string
 	 */
 	const META_ALWAYS_INCLUDE = 'jetpack_seo_llms_txt_always_include';
+
+	/**
+	 * Transient holding the last built llms.txt until {@see clear_cache()} runs.
+	 */
+	const CACHE_KEY = 'jetpack_seo_llms_txt';
+
+	/**
+	 * How long a stored llms.txt is kept at most, for changes no hook reports.
+	 */
+	const CACHE_TTL = 12 * HOUR_IN_SECONDS;
+
+	/**
+	 * How long CDNs and page caches may keep a served llms.txt.
+	 */
+	const HTTP_MAX_AGE = 15 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Options whose changes alter llms.txt, besides its own on/off setting.
+	 */
+	const CACHE_OPTIONS = array( 'blogname', 'blogdescription', 'blog_public', 'show_on_front', 'page_on_front', 'permalink_structure', 'home', 'siteurl', 'WPLANG' );
+
+	/**
+	 * Post meta that changes whether or how a post appears in llms.txt, including the
+	 * always-include switch and page template the menu ranking reads.
+	 */
+	const CACHE_META = array(
+		Content_Coverage::META_NOINDEX,
+		Content_Gate::META_CONTAINS_PAID_CONTENT,
+		Content_Gate::META_CONTAINS_PAYWALLED_CONTENT,
+		Content_Gate::META_NEWSLETTER_ACCESS,
+		self::META_ALWAYS_INCLUDE,
+		'_wp_page_template',
+	);
+
+	/**
+	 * Non-public post types that still shape llms.txt: menus and the theme parts that hold them.
+	 */
+	const CACHE_POST_TYPES = array( 'nav_menu_item', 'wp_navigation', 'wp_template', 'wp_template_part', 'wp_block' );
 
 	/**
 	 * Wire the front-end request handler.
@@ -103,6 +141,104 @@ class Llms_Txt {
 		) {
 			delete_post_meta( $post_id, self::META_ALWAYS_INCLUDE );
 		}
+	}
+
+	/**
+	 * Clear the stored copy when something it lists changes. Registered even while llms.txt
+	 * can't be served, so a copy stored earlier is not served stale once it can again.
+	 *
+	 * @return void
+	 */
+	public static function register_invalidation() {
+		foreach ( array( 'wp_update_nav_menu', 'switch_theme', 'customize_save_after', 'activated_plugin', 'deactivated_plugin' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'clear_cache' ) );
+		}
+		add_action( 'clean_post_cache', array( __CLASS__, 'clear_cache_for_post' ), 10, 2 );
+		// Any taxonomy: besides menus, a category's slug or parent can be part of post URLs.
+		add_action( 'clean_term_cache', array( __CLASS__, 'clear_cache' ) );
+		foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'clear_cache_for_meta' ), 10, 3 );
+		}
+		foreach ( array( 'added_option', 'updated_option', 'deleted_option' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'clear_cache_for_option' ) );
+		}
+	}
+
+	/**
+	 * Drop the stored llms.txt after a write to an option it reads. Matched when the option is
+	 * saved, since WordPress.com API requests register these hooks before switching to the site.
+	 *
+	 * @param string $option Option name.
+	 * @return void
+	 */
+	public static function clear_cache_for_option( $option ) {
+		if ( self::OPTION === $option ) {
+			// Turning llms.txt off or on is the owner's reset, so fire even when nothing is stored:
+			// an edge or CDN copy can outlive an expired stored one.
+			delete_transient( self::CACHE_KEY );
+			/** This action is documented in projects/packages/seo/src/class-llms-txt.php */
+			do_action( 'jetpack_seo_llms_txt_cleared' );
+		} elseif (
+			in_array( $option, self::CACHE_OPTIONS, true )
+			|| ( 0 === strpos( $option, 'theme_mods_' ) && 'theme_mods_' . get_stylesheet() === $option )
+		) {
+			self::clear_cache();
+		}
+	}
+
+	/**
+	 * Drop the stored llms.txt so the next request rebuilds it.
+	 *
+	 * @return void
+	 */
+	public static function clear_cache() {
+		// The lookup is cached when nothing is stored, so bulk edits and imports don't query on every write.
+		if ( false !== get_transient( self::CACHE_KEY ) && delete_transient( self::CACHE_KEY ) ) {
+			/**
+			 * Fires after the stored llms.txt is dropped, so hosts can purge cached copies of /llms.txt.
+			 *
+			 * @since $$next-version$$
+			 */
+			do_action( 'jetpack_seo_llms_txt_cleared' );
+		}
+	}
+
+	/**
+	 * Drop the stored llms.txt after a change to a post llms.txt can list or a menu it reads.
+	 *
+	 * @param int           $post_id Post ID.
+	 * @param \WP_Post|null $post    Post object; still set after a permanent delete, when the ID no longer resolves.
+	 * @return void
+	 */
+	public static function clear_cache_for_post( $post_id, $post = null ) {
+		if ( self::shapes_llms_txt( $post instanceof \WP_Post ? $post->post_type : get_post_type( $post_id ) ) ) {
+			self::clear_cache();
+		}
+	}
+
+	/**
+	 * Drop the stored llms.txt after a write to post meta that llms.txt reads.
+	 *
+	 * @param int|int[] $meta_id  Meta ID or IDs.
+	 * @param int       $post_id  Post ID.
+	 * @param string    $meta_key Meta key.
+	 * @return void
+	 */
+	public static function clear_cache_for_meta( $meta_id, $post_id, $meta_key ) {
+		if ( in_array( $meta_key, self::CACHE_META, true ) ) {
+			self::clear_cache();
+		}
+	}
+
+	/**
+	 * Whether posts of a type can appear in llms.txt or hold a menu, so a sitemap, oEmbed
+	 * cache or revision write leaves the stored copy alone.
+	 *
+	 * @param string|false $type Post type slug.
+	 * @return bool
+	 */
+	private static function shapes_llms_txt( $type ) {
+		return $type && ( is_post_type_viewable( $type ) || in_array( $type, self::CACHE_POST_TYPES, true ) );
 	}
 
 	/**
@@ -173,13 +309,42 @@ class Llms_Txt {
 			return;
 		}
 
-		nocache_headers();
+		// A private site (`blog_public` -1) serves members only, so shared caches must not keep it.
+		if ( 1 === (int) get_option( 'blog_public' ) ) {
+			header( 'Cache-Control: public, max-age=' . self::HTTP_MAX_AGE );
+		} else {
+			nocache_headers();
+		}
 		status_header( 200 );
 		header( 'Content-Type: text/plain; charset=utf-8' );
 
 		// Content is plain-text Markdown; not HTML, so it's emitted as-is.
-		echo self::generate(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo self::get_stored(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		exit;
+	}
+
+	/**
+	 * The stored llms.txt, built and stored first when there is none.
+	 *
+	 * @return string
+	 */
+	public static function get_stored() {
+		$body = get_transient( self::CACHE_KEY );
+		if ( is_string( $body ) && '' !== $body ) {
+			return $body;
+		}
+
+		// Every visitor gets the stored copy, so build it as a logged-out visitor sees it.
+		$user_id = get_current_user_id();
+		wp_set_current_user( 0 );
+		try {
+			$body = self::generate();
+		} finally {
+			wp_set_current_user( $user_id );
+		}
+
+		set_transient( self::CACHE_KEY, $body, self::CACHE_TTL );
+		return $body;
 	}
 
 	/**
@@ -189,8 +354,8 @@ class Llms_Txt {
 	 * @return string
 	 */
 	public static function generate() {
-		$name        = wp_strip_all_tags( get_bloginfo( 'name' ) );
-		$description = wp_strip_all_tags( get_bloginfo( 'description' ) );
+		$name        = self::plain_text( get_bloginfo( 'name' ) );
+		$description = self::plain_text( get_bloginfo( 'description' ) );
 
 		$blocks = array();
 
@@ -206,7 +371,21 @@ class Llms_Txt {
 			}
 		}
 
-		return implode( "\n\n", $blocks ) . "\n";
+		$text = implode( "\n\n", $blocks ) . "\n";
+
+		/**
+		 * Filters the llms.txt Markdown, e.g. to add a section.
+		 *
+		 * The result is stored for up to 12 hours; call Llms_Txt::clear_cache() when your section's data
+		 * changes. Anything but a non-empty string keeps the unfiltered text.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $text The llms.txt Markdown.
+		 */
+		$filtered = apply_filters( 'jetpack_seo_llms_txt', $text );
+
+		return is_string( $filtered ) && '' !== $filtered ? $filtered : $text;
 	}
 
 	/**
@@ -384,7 +563,7 @@ class Llms_Txt {
 		if ( 'post' === $post_type->name ) {
 			return __( 'Posts', 'jetpack-seo' );
 		}
-		return wp_strip_all_tags( $post_type->label );
+		return self::plain_text( $post_type->label );
 	}
 
 	/**
@@ -403,8 +582,7 @@ class Llms_Txt {
 				continue;
 			}
 
-			// Collapse whitespace (incl. newlines) so each entry stays on one line.
-			$title = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( get_the_title( $post ) ) ) );
+			$title = self::plain_text( get_the_title( $post ) );
 			if ( '' === $title ) {
 				$title = __( '(untitled)', 'jetpack-seo' );
 			}
@@ -423,15 +601,23 @@ class Llms_Txt {
 	}
 
 	/**
-	 * A short, single-line summary for a post: its excerpt when set, otherwise a
-	 * trimmed slice of the content.
+	 * A short, single-line summary for a post: its SEO description when set, then
+	 * its excerpt, otherwise a trimmed slice of the content.
 	 *
 	 * @param \WP_Post $post Post to summarize.
 	 * @return string
 	 */
 	private static function summary( $post ) {
-		if ( has_excerpt( $post ) ) {
-			// A manual excerpt is a deliberate public summary; a body gate does not withhold it.
+		$seo_description = '';
+		if ( class_exists( 'Jetpack_SEO_Utils' ) && class_exists( 'Jetpack_SEO_Posts' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; guarded by the class_exists checks above.
+			$seo_description = wp_trim_words( strip_shortcodes( wp_strip_all_tags( \Jetpack_SEO_Posts::get_post_custom_description( $post ) ) ), Post_Schema_Node::DESCRIPTION_MAX_WORDS, '' );
+		}
+
+		// The SEO description and manual excerpt are deliberate public summaries; a body gate does not withhold them.
+		if ( '' !== $seo_description ) {
+			$raw = $seo_description;
+		} elseif ( has_excerpt( $post ) ) {
 			$raw = get_the_excerpt( $post );
 		} elseif ( Content_Gate::is_gated( $post ) ) {
 			$teaser = Content_Gate::public_teaser( $post );
@@ -444,6 +630,18 @@ class Llms_Txt {
 		}
 
 		// Collapse whitespace so a link line stays on one row.
-		return trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $raw ) ) );
+		return self::plain_text( $raw );
+	}
+
+	/**
+	 * Reduce a WordPress display string to one line of plain text.
+	 *
+	 * @param string $text Text that may hold tags and HTML entities.
+	 * @return string
+	 */
+	private static function plain_text( $text ) {
+		// Do not reorder: decoding can reveal whitespace (`&#10;`), and text like `&lt;b&gt;` isn't a tag.
+		$text = \WP_HTML_Decoder::decode_text_node( wp_strip_all_tags( $text ) );
+		return trim( preg_replace( '/\s+/', ' ', $text ) );
 	}
 }

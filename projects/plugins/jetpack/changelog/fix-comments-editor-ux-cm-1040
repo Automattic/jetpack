@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Comments: Fix the comment editor's leftover placeholder on empty lines, doubled focus ring, missing caret after Reply, and gaps from empty paragraphs, and stop the page jumping as the form loads and the editor opens.

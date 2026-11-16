@@ -1,15 +1,16 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
+import PointerCard from 'components/pointer-card';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { getSupportUrl, openWpcomSupportDoc } from 'components/support-link';
 import analytics from 'lib/analytics';
 import { FEATURE_SIMPLE_PAYMENTS_JETPACK } from 'lib/plans/constants';
-import { isMovedOut } from 'lib/settings-consolidation';
+import { getAdsSettingsUrl, isMovedOut } from 'lib/settings-consolidation';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
@@ -103,7 +104,9 @@ export function Earn( props ) {
 		return null;
 	}
 
-	const foundAds = isModuleFound( 'wordads' ),
+	// Once the Ads settings have a new home, only a search shows their pointer here.
+	const adsSettingsUrl = getAdsSettingsUrl(),
+		foundAds = isModuleFound( 'wordads' ) && ( ! adsSettingsUrl || Boolean( searchTerm ) ),
 		foundEarnBlocks = ! isMovedOut( 'earn' ) && isModuleFound( 'earn' );
 
 	if ( ! foundAds && ! foundEarnBlocks ) {
@@ -188,7 +191,16 @@ export function Earn( props ) {
 			<QuerySite />
 			<h1 className="screen-reader-text">{ __( 'Jetpack Earn Settings', 'jetpack' ) }</h1>
 			{ searchTerm && <h2 className="jp-settings__section-title">{ __( 'Earn', 'jetpack' ) }</h2> }
-			{ foundAds && (
+			{ foundAds && adsSettingsUrl && (
+				<PointerCard
+					header={ _x( 'Ads', 'Ads header', 'jetpack' ) }
+					href={ adsSettingsUrl }
+					linkText={ __( 'Open Ads settings', 'jetpack' ) }
+				>
+					{ __( 'Your ads settings are on the Monetize page.', 'jetpack' ) }
+				</PointerCard>
+			) }
+			{ foundAds && ! adsSettingsUrl && (
 				<Ads
 					{ ...props }
 					configureUrl={ getRedirectUrl( 'calypso-stats-ads-day', {

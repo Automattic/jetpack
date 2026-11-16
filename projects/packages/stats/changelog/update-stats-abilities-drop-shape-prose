@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Abilities: Declare the nested Stats result fields in each output schema, and remove the result-shape sentences from the ability descriptions.

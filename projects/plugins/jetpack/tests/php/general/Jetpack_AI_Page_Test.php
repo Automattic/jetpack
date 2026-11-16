@@ -386,6 +386,22 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The admin shell loads the page over admin-ajax, which never builds the menu; the link follows Search's own registration.
+	 */
+	public function test_search_settings_url_without_a_built_menu() {
+		$GLOBALS['submenu'] = array();
+		$dashboard          = $this->createMock( \Automattic\Jetpack\Search\Dashboard::class );
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_action( 'admin_menu', array( $dashboard, 'add_wp_admin_submenu' ) );
+
+		$settings = $this->get_injected_settings();
+
+		remove_action( 'admin_menu', array( $dashboard, 'add_wp_admin_submenu' ) );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search#/ai-answers' ), $settings['searchSettingsUrl'] );
+	}
+
+	/**
 	 * VIP removes the page on admin_menu; the row then gets no link rather than a dead one.
 	 */
 	public function test_search_settings_url_is_empty_when_the_page_was_removed() {

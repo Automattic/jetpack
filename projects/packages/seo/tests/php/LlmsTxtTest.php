@@ -27,6 +27,13 @@ class LlmsTxtTest extends SeoTestCase {
 	private $post_ids = array();
 
 	/**
+	 * Site title before the test.
+	 *
+	 * @var string
+	 */
+	private $blogname = '';
+
+	/**
 	 * Reset the enable option before each test.
 	 *
 	 * @return void
@@ -34,6 +41,8 @@ class LlmsTxtTest extends SeoTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		delete_option( Llms_Txt::OPTION );
+		Llms_Txt::clear_cache();
+		$this->blogname = get_option( 'blogname' );
 	}
 
 	/**
@@ -47,9 +56,21 @@ class LlmsTxtTest extends SeoTestCase {
 		}
 		$this->post_ids = array();
 
+		\Jetpack_SEO_Posts::$custom_description = '';
+
 		if ( post_type_exists( 'seo_book' ) ) {
 			unregister_post_type( 'seo_book' );
 		}
+
+		foreach ( wp_get_nav_menus() as $menu ) {
+			wp_delete_nav_menu( $menu->term_id );
+		}
+		$category = get_term_by( 'name', 'Listed Category', 'category' );
+		if ( $category ) {
+			wp_delete_term( $category->term_id, 'category' );
+		}
+		update_option( 'blogname', $this->blogname );
+		Llms_Txt::clear_cache();
 
 		parent::tearDown();
 	}
@@ -84,6 +105,66 @@ class LlmsTxtTest extends SeoTestCase {
 		update_option( 'blogname', 'Site' );
 		update_option( 'blogdescription', 'Just another test site' );
 		$this->assertStringContainsString( '> Just another test site', Llms_Txt::generate() );
+	}
+
+	/**
+	 * WordPress stores the site name and tagline escaped; plain text needs the characters.
+	 *
+	 * @return void
+	 */
+	public function test_generate_decodes_site_identity() {
+		update_option( 'blogname', "Tom's & Jerry's" );
+		update_option( 'blogdescription', 'Cats & dogs' );
+
+		$this->assertStringStartsWith( "# Tom's & Jerry's\n\n> Cats & dogs\n", Llms_Txt::generate() );
+	}
+
+	/**
+	 * A theme or plugin can add to the served text; a callback that returns nothing leaves it as is.
+	 *
+	 * @dataProvider provide_text_filters
+	 *
+	 * @param callable $filter Callback for `jetpack_seo_llms_txt`.
+	 * @param string   $added  What the served text gains.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_text_filters' )]
+	public function test_text_filter( $filter, $added ) {
+		$unfiltered = Llms_Txt::generate();
+		add_filter( 'jetpack_seo_llms_txt', $filter );
+		try {
+			$this->assertSame( $unfiltered . $added, Llms_Txt::get_stored() );
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt', $filter );
+		}
+	}
+
+	/**
+	 * Filter callbacks and what each adds to the served text.
+	 *
+	 * @return array
+	 */
+	public static function provide_text_filters() {
+		$section = "\n## AI agents\n\n- [MCP server](https://example.com/mcp)\n";
+
+		return array(
+			'adds a section'          => array(
+				static function ( $text ) use ( $section ) {
+					return $text . $section;
+				},
+				$section,
+			),
+			'returns nothing'         => array(
+				static function () {},
+				'',
+			),
+			'returns an empty string' => array(
+				static function () {
+					return '';
+				},
+				'',
+			),
+		);
 	}
 
 	/**
@@ -275,7 +356,7 @@ class LlmsTxtTest extends SeoTestCase {
 		register_post_type(
 			'seo_book',
 			array(
-				'label'        => 'Books',
+				'label'        => 'Books &amp; Zines',
 				'public'       => true,
 				'show_ui'      => true,
 				'show_in_rest' => true,
@@ -291,9 +372,43 @@ class LlmsTxtTest extends SeoTestCase {
 
 		$output = Llms_Txt::generate();
 
-		$this->assertStringContainsString( "## Books\n\n", $output );
+		$this->assertStringContainsString( "## Books & Zines\n\n", $output );
 		$this->assertStringContainsString( 'Practical Schema', $output );
 		$this->assertStringContainsString( 'A concise guide to schema markup.', $output );
+	}
+
+	/**
+	 * Link lines hold characters rather than HTML entities, and still parse as one link.
+	 *
+	 * @dataProvider provide_entity_link_lines
+	 *
+	 * @param array  $fields   Post fields.
+	 * @param string $expected Text the link line must contain.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_entity_link_lines' )]
+	public function test_link_list_decodes_entities( array $fields, string $expected ) {
+		$output = $this->link_list( array( $this->insert_post( $fields ) ) );
+
+		$this->assertStringContainsString( $expected, $output );
+		$this->assertStringNotContainsString( "\n", $output );
+	}
+
+	/**
+	 * Post fields and the text each must render as.
+	 *
+	 * @return array
+	 */
+	public static function provide_entity_link_lines() {
+		return array(
+			'texturized apostrophe' => array( array( 'post_title' => "What's New" ), "- [What\u{2019}s New](" ),
+			'ampersand in title'    => array( array( 'post_title' => 'Tips & Tricks' ), '- [Tips & Tricks](' ),
+			'named apostrophe'      => array( array( 'post_excerpt' => 'It&apos;s here' ), ": It's here" ),
+			'encoded brackets'      => array( array( 'post_title' => 'Notes &#91;draft&#93;' ), '- [Notes \[draft\]](' ),
+			'encoded newline'       => array( array( 'post_title' => 'One&#10;Two' ), '- [One Two](' ),
+			'encoded return'        => array( array( 'post_title' => 'One&#13;Two' ), '- [One Two](' ),
+			'ampersand in summary'  => array( array( 'post_excerpt' => 'Salt &amp; pepper' ), ': Salt & pepper' ),
+		);
 	}
 
 	/**
@@ -415,6 +530,59 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
+	 * A custom SEO description is the summary whenever one is set.
+	 *
+	 * @dataProvider provide_seo_description_summaries
+	 *
+	 * @param string $description Stored SEO description.
+	 * @param array  $fields      Post fields.
+	 * @param string $expected    Expected summary.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_seo_description_summaries' )]
+	public function test_summary_prefers_seo_description( string $description, array $fields, string $expected ) {
+		\Jetpack_SEO_Posts::$custom_description = $description;
+
+		$this->assertSame( $expected, $this->summary( $this->insert_post( $fields ) ) );
+	}
+
+	/**
+	 * @return array<string, array{string, array<string, string>, string}>
+	 */
+	public static function provide_seo_description_summaries(): array {
+		return array(
+			'ahead of a manual excerpt' => array(
+				'SEO summary.',
+				array(
+					'post_content' => 'Body text.',
+					'post_excerpt' => 'Manual excerpt.',
+				),
+				'SEO summary.',
+			),
+			'kept on a gated post'      => array(
+				'SEO summary.',
+				array( 'post_content' => '<!-- wp:jetpack/paywall -->Paid body text.<!-- /wp:jetpack/paywall -->' ),
+				'SEO summary.',
+			),
+			'cleaned to a single line'  => array(
+				"<b>First line</b>\n\n[gallery]second line.",
+				array( 'post_content' => 'Body text.' ),
+				'First line second line.',
+			),
+			'capped like the meta tag'  => array(
+				str_repeat( 'word ', 60 ),
+				array( 'post_content' => 'Body text.' ),
+				trim( str_repeat( 'word ', 55 ) ),
+			),
+			'skipped when blank'        => array(
+				'   ',
+				array( 'post_excerpt' => 'Manual excerpt.' ),
+				'Manual excerpt.',
+			),
+		);
+	}
+
+	/**
 	 * Pages list the main menu first, then other displayed menus, then pages with an Order
 	 * set ahead of untouched ones, up to the per-type limit.
 	 *
@@ -473,7 +641,7 @@ class LlmsTxtTest extends SeoTestCase {
 		$page = $this->insert_page( 'Hidden Later' );
 		update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
 
-		$this->with_always_include_hooks(
+		$this->with_write_hooks(
 			static function () use ( $page ) {
 				update_post_meta( $page->ID, Content_Coverage::META_NOINDEX, '1' );
 			}
@@ -514,7 +682,7 @@ class LlmsTxtTest extends SeoTestCase {
 
 		$responses = array();
 		try {
-			$this->with_always_include_hooks(
+			$this->with_write_hooks(
 				static function () use ( $page, $saves, &$responses ) {
 					foreach ( $saves as $meta ) {
 						$request = new WP_REST_Request( 'POST', '/wp/v2/pages/' . $page->ID );
@@ -616,12 +784,12 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Run a callback with the "Always include" hooks attached, then restore the global hooks.
+	 * Run a callback with the write hooks attached, keeping them out of the rest of the suite.
 	 *
 	 * @param callable $callback Code to run.
 	 * @return void
 	 */
-	private function with_always_include_hooks( callable $callback ) {
+	private function with_write_hooks( callable $callback ) {
 		$hooks = array_map(
 			static function ( $hook ) {
 				return clone $hook;
@@ -630,6 +798,7 @@ class LlmsTxtTest extends SeoTestCase {
 		);
 		try {
 			Llms_Txt::register_always_include();
+			Llms_Txt::register_invalidation();
 			$callback();
 		} finally {
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -662,5 +831,182 @@ class LlmsTxtTest extends SeoTestCase {
 		preg_match( '/^## Pages\n\n(.*?)(?:\n\n## |\n\z)/ms', Llms_Txt::generate(), $section );
 		preg_match_all( '/^- \[(.+?)\]/m', $section[1] ?? '', $titles );
 		return $titles[1];
+	}
+
+	/**
+	 * A stored llms.txt is served as is; without one, the file is built and stored.
+	 *
+	 * @return void
+	 */
+	public function test_stored_copy_is_served_without_rebuilding() {
+		set_transient( Llms_Txt::CACHE_KEY, 'stored body', HOUR_IN_SECONDS );
+		$this->assertSame( 'stored body', Llms_Txt::get_stored() );
+
+		Llms_Txt::clear_cache();
+		update_option( 'blogname', 'Built Title' );
+		$built = Llms_Txt::get_stored();
+		$this->assertStringStartsWith( '# Built Title', $built );
+		$this->assertSame( $built, get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Changes to what llms.txt lists clear the stored copy; the editor's own bookkeeping doesn't.
+	 *
+	 * @dataProvider provide_changes
+	 *
+	 * @param callable $change Makes the change, given a published page's ID.
+	 * @param bool     $clears Whether the stored copy should be cleared.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_changes' )]
+	public function test_changes_clear_the_stored_copy( $change, $clears ) {
+		update_option( Llms_Txt::OPTION, true );
+		$page = $this->insert_post(
+			array(
+				'post_type'  => 'page',
+				'post_title' => 'Existing Page',
+			)
+		);
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+
+		$this->with_write_hooks(
+			static function () use ( $change, $page ) {
+				$change( $page->ID );
+			}
+		);
+
+		$this->assertSame( $clears ? false : 'stored', get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Changes and whether each clears the stored llms.txt.
+	 *
+	 * @return array
+	 */
+	public static function provide_changes() {
+		return array(
+			'page edited'              => array(
+				static function ( $page_id ) {
+					wp_update_post(
+						array(
+							'ID'         => $page_id,
+							'post_title' => 'Renamed Page',
+						)
+					);
+				},
+				true,
+			),
+			'page deleted permanently' => array(
+				static function ( $page_id ) {
+					wp_delete_post( $page_id, true );
+				},
+				true,
+			),
+			'page hidden from search'  => array(
+				static function ( $page_id ) {
+					update_post_meta( $page_id, Content_Coverage::META_NOINDEX, '1' );
+				},
+				true,
+			),
+			'site title changed'       => array(
+				static function () {
+					update_option( 'blogname', 'Renamed Site' );
+				},
+				true,
+			),
+			'llms.txt turned off'      => array(
+				static function () {
+					update_option( Llms_Txt::OPTION, false );
+				},
+				true,
+			),
+			'classic menu saved'       => array(
+				static function () {
+					wp_create_nav_menu( 'Main' );
+				},
+				true,
+			),
+			'oEmbed cache saved'       => array(
+				static function () {
+					wp_insert_post(
+						array(
+							'post_type'   => 'oembed_cache',
+							'post_status' => 'publish',
+							'post_title'  => 'Embed',
+						)
+					);
+				},
+				false,
+			),
+			'category renamed'         => array(
+				static function () {
+					$term = wp_insert_term( 'Listed Category', 'category' );
+					wp_update_term( $term['term_id'], 'category', array( 'slug' => 'renamed-category' ) );
+				},
+				true,
+			),
+			'editor lock refreshed'    => array(
+				static function ( $page_id ) {
+					update_post_meta( $page_id, '_edit_lock', time() . ':1' );
+				},
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Clearing tells hosts to purge cached copies only when a stored copy existed.
+	 *
+	 * @return void
+	 */
+	public function test_clearing_announces_only_when_a_copy_was_stored() {
+		$before = did_action( 'jetpack_seo_llms_txt_cleared' );
+		Llms_Txt::clear_cache();
+		$this->assertSame( $before, did_action( 'jetpack_seo_llms_txt_cleared' ) );
+
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+		Llms_Txt::clear_cache();
+		$this->assertSame( $before + 1, did_action( 'jetpack_seo_llms_txt_cleared' ) );
+	}
+
+	/**
+	 * Theme changes clear the stored copy for the theme active when they're saved, not when the
+	 * hooks were registered: WordPress.com API requests register them before switching sites.
+	 *
+	 * @return void
+	 */
+	public function test_theme_mods_clear_the_stored_copy_for_the_theme_active_when_saved() {
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+		$api_host_theme = static function () {
+			return 'api-host-theme';
+		};
+		add_filter( 'stylesheet', $api_host_theme );
+		try {
+			$this->with_write_hooks(
+				static function () use ( $api_host_theme ) {
+					remove_filter( 'stylesheet', $api_host_theme );
+					set_theme_mod( 'llms_txt_test', 'changed' );
+				}
+			);
+		} finally {
+			remove_filter( 'stylesheet', $api_host_theme );
+			remove_theme_mod( 'llms_txt_test' );
+		}
+		$this->assertFalse( get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Turning llms.txt on tells hosts to purge cached copies even when nothing is stored here.
+	 *
+	 * @return void
+	 */
+	public function test_turning_llms_txt_on_announces_with_nothing_stored() {
+		$before = did_action( 'jetpack_seo_llms_txt_cleared' );
+		$this->with_write_hooks(
+			static function () {
+				update_option( Llms_Txt::OPTION, true );
+			}
+		);
+		$this->assertSame( $before + 1, did_action( 'jetpack_seo_llms_txt_cleared' ) );
 	}
 }

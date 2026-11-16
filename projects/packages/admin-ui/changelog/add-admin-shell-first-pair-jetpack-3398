@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the admin shell client and its guest endpoint, so Jetpack dashboards can switch without a page load when the admin shell flag is on.

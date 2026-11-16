@@ -30,7 +30,8 @@ const defaultProps = {
 
 const gradientProps = {
 	gradientClass: 'has-green-to-yellow-gradient-background',
-	gradientValue: 'linear-gradient(160deg, rgb(209, 228, 221) 0%, rgb(238, 234, 221) 100%)',
+	gradientValue:
+		'linear-gradient(160deg, rgb(209, 228, 221) 0%, rgb(238, 234, 221) 100%) rgba(0, 0, 0, 0)',
 	setGradient: jest.fn(),
 };
 
