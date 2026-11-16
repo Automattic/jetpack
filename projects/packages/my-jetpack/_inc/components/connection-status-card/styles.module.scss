@@ -119,27 +119,3 @@
 		margin-bottom: 0.5rem;
 	}
 }
-
-
-.account-error-trigger {
-	display: inline-flex;
-	vertical-align: middle;
-	padding: 2px;
-	border: 0;
-	background: transparent;
-	color: var(--jp-yellow-50);
-	cursor: pointer;
-
-	svg {
-		fill: currentColor;
-	}
-
-	&:focus-visible {
-		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
-		outline-offset: var(--wpds-border-width-focus);
-	}
-}
-
-.account-error-popup {
-	max-inline-size: 20rem;
-}
