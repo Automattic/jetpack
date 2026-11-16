@@ -50,7 +50,6 @@ class Subscriptions_Block_Placements_Test extends WP_UnitTestCase {
 		$GLOBALS['wp_theme_directories'] = $this->theme_directories;
 		Constants::clear_constants();
 		Cache::clear();
-		set_current_screen( 'front' );
 		parent::tear_down();
 	}
 

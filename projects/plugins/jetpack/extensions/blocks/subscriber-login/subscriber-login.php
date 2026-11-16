@@ -56,7 +56,7 @@ function register_block() {
 		}
 	);
 
-	// If called via REST API, we need to register later in the lifecycle
+	// The WordPress.com Simple JSON API loads the theme late and replays `init` as `restapi_theme_init`.
 	if ( ( new Host() )->is_wpcom_simple() && ! Request::is_frontend() ) {
 		add_action(
 			'restapi_theme_init',
