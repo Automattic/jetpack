@@ -142,11 +142,7 @@
 		},
 		"wp-svn-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-production",
-		"release-branch-prefix": [
-			"jetpack",
-			"weekly",
-			"monthly"
-		],
+		"release-branch-prefix": "jetpack",
 		"version-constants": {
 			"JETPACK__VERSION": "jetpack.php"
 		},
