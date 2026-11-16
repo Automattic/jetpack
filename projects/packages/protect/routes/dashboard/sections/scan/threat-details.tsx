@@ -10,7 +10,7 @@ import { FixDeleteConfirmation, getDeleteFixTitle } from './fix-delete-confirmat
 import { FixUpdateConfirmation, getUpdateFixTitle } from './fix-update-confirmation';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import SeverityBadge from './severity-badge';
-import { THREAT_PARAM, useCanIgnore, useCanViewFiles, useSearchParam } from './store';
+import { THREAT_PARAM, useCanIgnore, useCanViewFiles, useScan, useSearchParam } from './store';
 import {
 	deleteThreatRow,
 	fixThreat,
@@ -76,6 +76,7 @@ function getLocation( threat: ScanThreat ): string {
 
 /**
  * Whether a threat is an open plugin or theme vulnerability whose report names no fixed version.
+ * Only the free check's `fixedIn` comes from the vulnerability data; Scan sets it from an update fixer.
  *
  * @param threat - The threat.
  * @return Whether it is.
@@ -563,6 +564,7 @@ export default function ThreatDetails( {
 	const context = threat.context ?? [];
 	const { row, rowError } = useThreatRow( threat, canAct );
 	const canViewFile = useCanViewFiles();
+	const explainNoFix = ! useScan()?.hasPlan && lacksFixedVersion( threat );
 
 	return (
 		<div className="jp-protect-threat-details">
@@ -676,10 +678,10 @@ export default function ThreatDetails( {
 									) }
 						</Text>
 					) }
-					{ lacksFixedVersion( threat ) && (
+					{ explainNoFix && (
 						<Text variant="body-md" className="jp-protect-card__muted">
 							{ __(
-								'This report doesn’t name a version that fixes it, so Jetpack flags every version, including yours.',
+								'This report doesn’t name a version that fixes this vulnerability, so Jetpack treats your version as affected.',
 								'jetpack-protect-pkg'
 							) }
 						</Text>
@@ -691,7 +693,7 @@ export default function ThreatDetails( {
 				<Text variant="body-md" className="jp-protect-card__muted">
 					{ getResolution( threat, !! row?.canDelete ) }
 				</Text>
-				{ lacksFixedVersion( threat ) && (
+				{ explainNoFix && (
 					<Text variant="body-md" className="jp-protect-card__muted">
 						{ threat.extension?.type === 'themes'
 							? __(

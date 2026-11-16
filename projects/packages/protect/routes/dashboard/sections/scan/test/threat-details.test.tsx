@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { resetScan, setScan } from '../store';
 import { ignoreThreat, resetThreatActions } from '../threat-actions';
 import ThreatDetails from '../threat-details';
 import type { ScanThreat } from '../types';
@@ -90,7 +91,7 @@ describe( 'ThreatDetails', () => {
 			undefined,
 			'inactive',
 			'current',
-			'delete this',
+			'delete this plugin.',
 		],
 		[
 			'the active theme',
@@ -110,7 +111,15 @@ describe( 'ThreatDetails', () => {
 			'current',
 			'built on this one',
 		],
-		[ 'an unused theme', 'themes', 'Extension', undefined, 'inactive', 'current', 'delete this' ],
+		[
+			'an unused theme',
+			'themes',
+			'Extension',
+			undefined,
+			'inactive',
+			'current',
+			'delete this theme.',
+		],
 		[
 			'WordPress',
 			undefined,
@@ -155,31 +164,66 @@ describe( 'ThreatDetails', () => {
 		}
 	);
 
-	it.each( [
-		[ 'an unfixed plugin', 'plugins', 'Extension', undefined, 'current', true ],
-		[ 'an unfixed theme', 'themes', 'Extension', undefined, 'current', true ],
-		[ 'a plugin with a fixed version', 'plugins', 'Extension', '2.0.2', 'current', false ],
-		[ 'a fixed plugin', 'plugins', 'Extension', undefined, 'fixed', false ],
-		[ 'WordPress', undefined, 'Core', undefined, 'current', false ],
-	] as const )(
-		'explains that later versions are affected for %s: %p',
-		( _name, type, signature, fixedIn, status, shown ) => {
-			const threat: ScanThreat = {
-				id: 4,
-				signature: `Vulnerable.WP.${ signature }`,
-				title: 'Vulnerable software',
-				status,
-				fixedIn,
-				extension: type && { type, slug: 'akismet', name: 'Akismet', version: '4.8.2' },
-			};
-			render( <ThreatDetails threat={ threat } canAct={ false } /> );
+	describe( 'for a vulnerability with no fixed version', () => {
+		afterEach( resetScan );
 
-			expect( !! screen.queryByText( /Jetpack flags every version, including yours/ ) ).toBe(
-				shown
-			);
-			expect( !! screen.queryByText( /false positive, contact the (plugin|theme)/ ) ).toBe( shown );
-		}
-	);
+		it.each( [
+			[
+				'an unfixed plugin on the free check',
+				'plugins',
+				'Extension',
+				undefined,
+				'current',
+				false,
+				'plugin',
+			],
+			[
+				'an unfixed theme on the free check',
+				'themes',
+				'Extension',
+				undefined,
+				'current',
+				false,
+				'theme',
+			],
+			[ 'a plugin with a fixed version', 'plugins', 'Extension', '2.0.2', 'current', false, null ],
+			[ 'a fixed plugin', 'plugins', 'Extension', undefined, 'fixed', false, null ],
+			[ 'WordPress', undefined, 'Core', undefined, 'current', false, null ],
+			[
+				'a plugin Scan has no update fixer for',
+				'plugins',
+				'Extension',
+				undefined,
+				'current',
+				true,
+				null,
+			],
+			[ 'an ignored plugin', 'plugins', 'Extension', undefined, 'ignored', true, null ],
+		] as const )(
+			'explains it and suggests the developer for %s: %p',
+			( _name, type, signature, fixedIn, status, hasPlan, developer ) => {
+				setScan( scan => ( { ...scan, hasPlan } ) );
+				const threat: ScanThreat = {
+					id: 4,
+					signature: `Vulnerable.WP.${ signature }`,
+					title: 'Vulnerable software',
+					status,
+					fixedIn,
+					extension: type && { type, slug: 'akismet', name: 'Akismet', version: '4.8.2' },
+				};
+				render( <ThreatDetails threat={ threat } canAct={ false } /> );
+
+				expect( !! screen.queryByText( /treats your version as affected/ ) ).toBe( !! developer );
+				expect(
+					screen.queryByText( /false positive, contact the (plugin|theme)’s developer/ )
+						?.textContent ?? null
+				).toBe(
+					developer &&
+						`If you believe this is a false positive, contact the ${ developer }’s developer and share this vulnerability report with them so they can address it.`
+				);
+			}
+		);
+	} );
 
 	it.each( [
 		[ 'Confirm deletion', 3, 'delete' ],
