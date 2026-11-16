@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.6.0] - 2026-11-16
+### Added
+- Search: Sync the reader_chat_query_filter option so Site Chat content filters reach WordPress.com. [#54612]
+- Sync the setting that turns off the daily Protect vulnerability check. [#54600]
+
+### Fixed
+- Prevent errors when running alongside old versions of WooCommerce. [#54742]
+
 ## [5.5.1] - 2026-11-09
 ### Changed
 - Internal updates.
@@ -1895,6 +1903,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[5.6.0]: https://github.com/Automattic/jetpack-sync/compare/v5.5.1...v5.6.0
 [5.5.1]: https://github.com/Automattic/jetpack-sync/compare/v5.5.0...v5.5.1
 [5.5.0]: https://github.com/Automattic/jetpack-sync/compare/v5.4.4...v5.5.0
 [5.4.4]: https://github.com/Automattic/jetpack-sync/compare/v5.4.3...v5.4.4

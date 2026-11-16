@@ -23,7 +23,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.18.5';
+	const PACKAGE_VERSION = '0.19.0';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -317,7 +317,7 @@ class Settings {
 	/**
 	 * Register Newsletter with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -370,7 +370,7 @@ class Settings {
 	/**
 	 * Ready the Newsletter routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.0
 	 *
 	 * @return void
 	 */

@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Premium Analytics: Serve the author page from /report/author/<id>; the old /author/<id> address redirects.

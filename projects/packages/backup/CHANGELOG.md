@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.5] - 2026-11-16
+### Added
+- Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54829]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Update package dependencies. [#54703]
+
 ## [5.2.4] - 2026-11-09
 ### Changed
 - Update dependencies. [#54609]
@@ -1311,6 +1319,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[5.2.5]: https://github.com/Automattic/jetpack-backup/compare/v5.2.4...v5.2.5
 [5.2.4]: https://github.com/Automattic/jetpack-backup/compare/v5.2.3...v5.2.4
 [5.2.3]: https://github.com/Automattic/jetpack-backup/compare/v5.2.2...v5.2.3
 [5.2.2]: https://github.com/Automattic/jetpack-backup/compare/v5.2.1...v5.2.2

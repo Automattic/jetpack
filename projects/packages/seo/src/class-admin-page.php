@@ -144,7 +144,7 @@ class Admin_Page {
 	/**
 	 * Hook the app's initial state and, when the site allows tracking, its Tracks transport and context.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @return void
 	 */
@@ -163,7 +163,7 @@ class Admin_Page {
 	 *
 	 * Only hooked once Initializer::init() has passed the checks that register the page itself.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -196,7 +196,7 @@ class Admin_Page {
 	/**
 	 * Ready the SEO routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @return void
 	 */

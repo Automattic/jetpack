@@ -23,7 +23,7 @@ if ( ! function_exists( 'jetpack_matt_random_redirect' ) ) {
 	/**
 	 * Redirects to a random post on the site.
 	 *
-	 * @deprecated $$next-version$$ WordPress 7.2 and later handle random content redirects in core, and Jetpack loads this only on older versions.
+	 * @deprecated 16.5 WordPress 7.2 and later handle random content redirects in core, and Jetpack loads this only on older versions.
 	 */
 	function jetpack_matt_random_redirect() {
 		/**

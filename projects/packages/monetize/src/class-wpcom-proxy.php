@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * The local path mirrors the upstream one, so the page's client only swaps the prefix: Simple sites call WordPress.com directly.
  *
- * @since $$next-version$$
+ * @since 0.2.0
  */
 class WPCOM_Proxy {
 	use WPCOM_REST_API_Proxy_Request;
@@ -62,7 +62,7 @@ class WPCOM_Proxy {
 		if ( ! isset( self::APIS[ $api ] ) ) {
 			/* translators: %s is a WordPress.com API, such as wpcom/v2. */
 			$message = sprintf( __( 'Unknown WordPress.com API "%s".', 'jetpack-monetize' ), $api );
-			_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), '0.2.0' );
 			return false;
 		}
 
@@ -114,6 +114,13 @@ class WPCOM_Proxy {
 		$forwarded->set_query_params( array_intersect_key( $request->get_query_params(), $declared ) );
 
 		$body = array_intersect_key( array_merge( $request->get_body_params(), (array) $request->get_json_params() ), $declared );
+
+		// WordPress.com ignores a DELETE body when it checks the signature, so its body hash would fail the user token.
+		if ( 'DELETE' === $request->get_method() ) {
+			$forwarded->set_query_params( $forwarded->get_query_params() + $body );
+			$body = array();
+		}
+
 		if ( $body ) {
 			$forwarded->set_header( 'Content-Type', 'application/json' );
 			$forwarded->set_body( (string) wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );

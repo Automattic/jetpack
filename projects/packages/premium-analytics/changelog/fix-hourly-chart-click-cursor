@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Charts: Stop hourly charts from showing a clickable cursor when a click opens nothing.
