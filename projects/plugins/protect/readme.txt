@@ -205,6 +205,8 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 2. Find out your site is down before your visitors do, with Jetpack Monitor’s uptime history and email alerts.
 3. View all the found vulnerabilities in your site and learn how to fix them.
 4. Turn on the firewall, downtime monitoring, and login protection from one Settings tab.
+5. Scans run in the background, so you can keep working while Jetpack Protect checks your plugins and themes.
+6. Block brute force attacks, protect accounts with weak or leaked passwords, and let users log in with WordPress.com.
 
 == Changelog ==
 ### 7.0.0 - 2026-11-16
