@@ -138,9 +138,13 @@ const defaultRequestMap = {
 		handle: 'jetpack-connection',
 	},
 	// The shared data stores are externalized into a single bundle so they
-	// register exactly once. The package exposes only its barrel entry, so a
-	// single mapping covers every consumer.
+	// register exactly once. The package exposes its main barrel plus a
+	// `/connection` subpath; both resolve to the same externalized bundle.
 	'@automattic/jetpack-shared-stores': {
+		external: 'JetpackSharedStores',
+		handle: 'jetpack-shared-stores',
+	},
+	'@automattic/jetpack-shared-stores/connection': {
 		external: 'JetpackSharedStores',
 		handle: 'jetpack-shared-stores',
 	},

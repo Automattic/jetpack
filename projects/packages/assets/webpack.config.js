@@ -63,6 +63,15 @@ module.exports = [
 	},
 	{
 		...sharedConfig,
+		/*
+		 * This bundle pulls in @automattic/jetpack-api -> @automattic/jetpack-config, whose
+		 * `require( 'jetpackConfig' )` needs a value or it logs "jetpackConfig is missing". The
+		 * shared bundle serves every plugin, so it can't bake in a single consumer_slug; useConnection
+		 * passes the consuming bundle's slug to registerSite instead.
+		 */
+		externals: {
+			jetpackConfig: JSON.stringify( {} ),
+		},
 		entry: {
 			'jetpack-shared-stores': {
 				import: './src/js/shared-stores.js',
@@ -72,8 +81,11 @@ module.exports = [
 				},
 			},
 		},
-		// Transpile the bundled @automattic/jetpack-shared-stores source (it ships as
-		// untranspiled TS/JS), in addition to the default node_modules-excluding rule.
+		/*
+		 * Transpile the bundled @automattic/jetpack-shared-stores source (it ships as
+		 * untranspiled TS/JS), in addition to the default node_modules-excluding rule.
+		 * babel.config.js rewrites its strings to the jetpack-assets textdomain.
+		 */
 		module: {
 			strictExportPresence: true,
 			rules: [
@@ -87,8 +99,10 @@ module.exports = [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: {
 					requestMap: {
-						// We don't want to externalize this package, we rather want to bundle it.
+						// We don't want to externalize this package (and its
+						// /connection subpath), we rather want to bundle it.
 						'@automattic/jetpack-shared-stores': {},
+						'@automattic/jetpack-shared-stores/connection': {},
 					},
 				},
 			} ),

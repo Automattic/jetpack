@@ -3,7 +3,7 @@ import { jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import useConnection from '../';
-import { STORE_ID } from '../../../state/store';
+import { initConnectionStore } from '../../../state/store';
 import type { UseConnectionProps } from '../types';
 
 /**
@@ -27,9 +27,15 @@ interface StoreSelect {
 
 describe( 'useConnection', () => {
 	const setupStubs = () => {
-		const { result: dispatch } = renderHook( () => useDispatch( STORE_ID ) as StoreDispatch );
+		const { result: dispatch } = renderHook(
+			() => useDispatch( initConnectionStore() ) as unknown as StoreDispatch
+		);
 		let storeSelect: StoreSelect;
-		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) as StoreSelect ) ) );
+		renderHook( () =>
+			useSelect(
+				select => ( storeSelect = select( initConnectionStore() ) as unknown as StoreSelect )
+			)
+		);
 
 		// stubs
 		const stubRegisterSite = jest
@@ -73,7 +79,11 @@ describe( 'useConnection', () => {
 		[ 'reports false when an older store lacks the selector', undefined, false ],
 	] )( '%s', ( _name, selector, expected ) => {
 		let storeSelect: StoreSelect;
-		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) as StoreSelect ) ) );
+		renderHook( () =>
+			useSelect(
+				select => ( storeSelect = select( initConnectionStore() ) as unknown as StoreSelect )
+			)
+		);
 		const original = storeSelect.getUserConnectionError;
 		storeSelect.getUserConnectionError = selector;
 
@@ -111,6 +121,7 @@ describe( 'useConnection', () => {
 		expect( stubRegisterSite ).toHaveBeenCalledWith( {
 			registrationNonce: 'REGISTRATION',
 			redirectUri: 'REDIRECT',
+			pluginSlug: 'jetpack-test',
 		} );
 		stubRegisterSite.mockClear();
 		rerender( { autoTrigger: false } );

@@ -1,3 +1,4 @@
-const STORE_ID = 'jetpack-connection';
-
-export default STORE_ID;
+export {
+	/** @deprecated $$next-version$$ Call `initConnectionStore()` and select through the store descriptor it returns. */
+	CONNECTION_STORE_ID as default,
+} from '@automattic/jetpack-shared-stores/connection';

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Externalize the jetpack-shared-stores /connection subpath to the shared stores bundle.

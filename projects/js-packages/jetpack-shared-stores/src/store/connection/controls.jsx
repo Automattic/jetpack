@@ -3,7 +3,8 @@ import { createRegistryControl } from '@wordpress/data';
 import { assignLocation } from './assignLocation';
 import STORE_ID from './store-id';
 
-const REGISTER_SITE = ( { redirectUri, from } ) => restApi.registerSite( null, redirectUri, from );
+const REGISTER_SITE = ( { redirectUri, from, pluginSlug } ) =>
+	restApi.registerSite( null, redirectUri, from, pluginSlug );
 
 const CONNECT_USER = createRegistryControl(
 	( { dispatch, resolveSelect } ) =>

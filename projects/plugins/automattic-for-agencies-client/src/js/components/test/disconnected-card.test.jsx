@@ -23,6 +23,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 // Mock the jetpack-connection package
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	CONNECTION_STORE_ID: 'jetpack-connection-store',
+	initConnectionStore: () => 'jetpack-connection-store',
 	ConnectButton: ( { apiRoot, apiNonce, registrationNonce } ) => (
 		<button
 			className="components-button"

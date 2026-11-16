@@ -1,5 +1,5 @@
 import { Container, Col, ThemeProvider } from '@automattic/jetpack-components';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { initConnectionStore } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from 'react';
 import ConnectedCard from '../connected-card';
@@ -17,14 +17,15 @@ const Admin = () => {
 		[ setWasManuallyDisconnected ]
 	);
 
+	const connectionStore = initConnectionStore();
 	const { isUserConnected, isRegistered } = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
-		[]
+		select => select( connectionStore ).getConnectionStatus(),
+		[ connectionStore ]
 	);
 
 	const connectionErrors = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionErrors(),
-		[]
+		select => select( connectionStore ).getConnectionErrors(),
+		[ connectionStore ]
 	);
 
 	/** Render the relevant card based on the connection status. */

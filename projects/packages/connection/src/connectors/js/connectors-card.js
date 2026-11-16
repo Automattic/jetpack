@@ -22,13 +22,13 @@
 import {
 	bumpConnectionStat,
 	CONNECTION_EVENTS,
-	CONNECTION_STORE_ID,
 	ConnectionErrorView,
 	DisconnectDialog,
 	DisconnectUserDialog,
 	getProtectedOwnerConfirmationCopy,
 	getRegistrationErrorDisplay,
 	getTracksIdentity,
+	initConnectionStore,
 	initializeTracksIdentity,
 	ProtectedOwnerConfirmation,
 	ProtectedOwnerRelease,
@@ -104,6 +104,7 @@ const protectedOwnerStatus = getProtectedOwnerStatus( protectedOwner );
  * @return {object} Connection state and the values derived from it.
  */
 function useCardConnection() {
+	const connectionStore = initConnectionStore();
 	const {
 		connectionStatus,
 		userConnectionData,
@@ -111,17 +112,20 @@ function useCardConnection() {
 		plugins,
 		isOfflineMode,
 		blogId,
-	} = useSelect( select => {
-		const store = select( CONNECTION_STORE_ID );
-		return {
-			connectionStatus: store.getConnectionStatus(),
-			userConnectionData: store.getUserConnectionData(),
-			owner: store.getConnectionOwner(),
-			plugins: store.getConnectedPlugins(),
-			isOfflineMode: store.getIsOfflineMode(),
-			blogId: store.getBlogId() || null,
-		};
-	}, [] );
+	} = useSelect(
+		select => {
+			const store = select( connectionStore );
+			return {
+				connectionStatus: store.getConnectionStatus(),
+				userConnectionData: store.getUserConnectionData(),
+				owner: store.getConnectionOwner(),
+				plugins: store.getConnectedPlugins(),
+				isOfflineMode: store.getIsOfflineMode(),
+				blogId: store.getBlogId() || null,
+			};
+		},
+		[ connectionStore ]
+	);
 
 	return useMemo( () => {
 		const connection = getCardConnection(

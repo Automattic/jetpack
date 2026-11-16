@@ -13,7 +13,6 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"sideEffects": [
-		"./state/store.jsx",
 		"*.css",
 		"*.scss"
 	],
@@ -25,6 +24,7 @@
 		"./get-calypso-origin": "./helpers/get-calypso-origin.ts",
 		"./get-user-connection-url": "./helpers/get-user-connection-url.ts",
 		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
+		"./state/store": "./state/store.jsx",
 		"./state/store-id": "./state/store-id.jsx",
 		"./use-connection": "./components/use-connection/index.ts",
 		"./use-connection-error-notice": "./hooks/use-connection-error-notice/index.tsx"
@@ -40,6 +40,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-config": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-shared-stores": "workspace:*",
 		"@wordpress/base-styles": "15.0.0",
 		"@wordpress/browserslist-config": "7.1.0",
 		"@wordpress/components": "44.0.0",

@@ -9,7 +9,7 @@ const mockDispatch = {
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	__esModule: true,
-	CONNECTION_STORE_ID: 'jetpack-connection',
+	initConnectionStore: () => 'jetpack-connection',
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {

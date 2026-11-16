@@ -33,6 +33,10 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 	hasConnectionError: false,
 } ) );
 
+jest.mock( '@automattic/jetpack-connection/state/store', () => ( {
+	initConnectionStore: () => 'jetpack-connection',
+} ) );
+
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		fetchModules: mockFetchModules,

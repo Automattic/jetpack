@@ -14,6 +14,10 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 	hasConnectionError: mockHasConnectionError,
 } ) );
 
+jest.mock( '@automattic/jetpack-connection/state/store', () => ( {
+	initConnectionStore: () => 'jetpack-connection',
+} ) );
+
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: ( callback: ( select: unknown ) => unknown ) =>
 		callback( () => ( {

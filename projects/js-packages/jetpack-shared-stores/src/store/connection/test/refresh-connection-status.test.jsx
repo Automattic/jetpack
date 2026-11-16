@@ -1,21 +1,18 @@
-import { jest } from '@jest/globals';
+import restApi from '@automattic/jetpack-api';
 import { createReduxStore, dispatch, register, select } from '@wordpress/data';
+import actions from '../actions';
+import reducers from '../reducers';
+import selectors from '../selectors';
 
-const fetchSiteConnectionStatus = jest.fn();
-
-jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
+jest.mock( '@automattic/jetpack-api', () => ( {
 	__esModule: true,
-	default: { fetchSiteConnectionStatus },
+	default: { fetchSiteConnectionStatus: jest.fn() },
 } ) );
-
-const { default: actions } = await import( '../actions' );
-const { default: reducers } = await import( '../reducers' );
-const { default: selectors } = await import( '../selectors' );
 
 describe( 'refreshConnectionStatus', () => {
 	it( 'replaces the status the page loaded with the one the server reports now', async () => {
 		const fresh = { isActive: true, isRegistered: true, isUserConnected: true };
-		fetchSiteConnectionStatus.mockResolvedValue( fresh );
+		restApi.fetchSiteConnectionStatus.mockResolvedValue( fresh );
 		register(
 			createReduxStore( 'test/refresh-connection-status', {
 				reducer: reducers,

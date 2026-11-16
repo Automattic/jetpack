@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Register the Jetpack connection data store when the shared connection script loads, and through initConnectionStore() in the Connectors card.

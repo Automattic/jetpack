@@ -17,7 +17,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factory above.
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { initConnectionStore } from '@automattic/jetpack-connection';
 import { act, renderHook } from '@testing-library/react';
 import { dispatch, select } from '@wordpress/data';
 import useAnalytics from '../index';
@@ -31,7 +31,7 @@ import useAnalytics from '../index';
  * @return The bound selector object for the connection store.
  */
 function connectionSelectors() {
-	return select( CONNECTION_STORE_ID ) as unknown as {
+	return select( initConnectionStore() ) as unknown as {
 		getUserConnectionData: () => unknown;
 	};
 }
@@ -44,7 +44,7 @@ function connectionSelectors() {
  * @return The bound action object for the connection store.
  */
 function connectionActions() {
-	return dispatch( CONNECTION_STORE_ID ) as unknown as {
+	return dispatch( initConnectionStore() ) as unknown as {
 		setConnectionStatus: ( status: Record< string, boolean > ) => void;
 	};
 }
