@@ -404,7 +404,7 @@ function do_create_prerelease_PR {
 		git commit -am 'Version bumps'
 	fi
 	git push
-	PLUGINS_CHANGED="$(basename "$PLUGIN") $VERSION"
+	RELEASED_PLUGIN="$(basename "$PLUGIN") $VERSION"
 
 	# If the plugin has a readme.txt, update its stable tag to the release version.
 	README_FILE="$BASE/projects/$PLUGIN/readme.txt"
@@ -418,8 +418,8 @@ function do_create_prerelease_PR {
 	fi
 	git push
 
-	sed "s/%RELEASED_PLUGINS%/$PLUGINS_CHANGED/g" .github/files/BACKPORT_RELEASE_CHANGES.md > .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
-	gh pr create --title "Backport $PLUGINS_CHANGED changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --label "[Type] Janitorial" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
+	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md > .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
+	gh pr create --title "Backport $RELEASED_PLUGIN changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --label "[Type] Janitorial" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
 	rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
 }
 
