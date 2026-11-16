@@ -177,6 +177,11 @@ $band-ground: #f8f8f8;
 	margin: 0;
 }
 
+// Prototype: an SEO module paused by the SEO dashboard switch.
+.feature-item--locked {
+	opacity: 0.55;
+}
+
 .install-notice {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	margin: 0;

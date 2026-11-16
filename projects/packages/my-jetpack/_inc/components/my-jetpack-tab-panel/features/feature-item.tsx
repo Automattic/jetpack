@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getProtectPageUrl } from '../../../utils/protect-page';
+import { isLockedBySeoDashboard } from '../../../utils/seo-dashboard-lock';
 import { isSettingsConsolidationEnabled } from '../../../utils/settings-consolidation';
 import { getLeavingLinkLabel } from '../../../utils/settings-link-label';
 import { FeatureAction } from './feature-action';
@@ -172,14 +173,18 @@ export function FeatureItem( {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
 	const unavailable = getFeatureUnavailableReason( state );
+	// Prototype: the SEO dashboard being off pauses this module.
+	const locked =
+		state.control.kind === 'module' && isLockedBySeoDashboard( state.control.module.module );
 	// Connect or Install already says an account is needed.
-	const reason =
-		( ( ! state.accountNeeded || needsAccountWithoutConnect( state ) ) && unavailable ) ||
-		getModuleUnavailableNote( state );
+	const reason = locked
+		? __( 'Paused while the SEO dashboard is off.', 'jetpack-my-jetpack' )
+		: ( ( ! state.accountNeeded || needsAccountWithoutConnect( state ) ) && unavailable ) ||
+			getModuleUnavailableNote( state );
 	// With no Active or Inactive badge, this says why there is no switch, a host's choice or what
 	// the site can't run, unless the line above already does.
 	const forcedReason = isAccountConnectEnabled() ? getForcedReason( state ) : null;
-	const forcedNote = forcedReason !== reason ? forcedReason : null;
+	const forcedNote = ! locked && forcedReason !== reason ? forcedReason : null;
 	const statusId = `feature-status-${ feature.slug }`;
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
@@ -193,7 +198,7 @@ export function FeatureItem( {
 		state.control.kind === 'module' &&
 		! getForcedReason( state ) &&
 		Boolean( getProtectPageUrl( state.control.module.module ) );
-	const statusLabel = migration ? null : getFeatureStatusLabel( state, linksToProtect );
+	const statusLabel = migration || locked ? null : getFeatureStatusLabel( state, linksToProtect );
 	// A card with details keeps its manage link in the modal; the stretched title would cover one here.
 	// A migration notice says the legacy settings no longer apply, so it gets no link either.
 	const settingsUrl =
@@ -210,6 +215,7 @@ export function FeatureItem( {
 		<div
 			className={ clsx( styles[ 'feature-item' ], className, {
 				[ styles[ 'feature-item--static' ] ]: ! onOpen,
+				[ styles[ 'feature-item--locked' ] ]: locked,
 				[ styles[ 'feature-item--connect' ] ]: ! state.pending && offersConnect( state ),
 			} ) }
 			data-feature={ feature.slug }

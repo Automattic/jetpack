@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import { featuresFrom, getConnectUrl } from '../../../utils/connect-url';
 import { getProtectPageUrl } from '../../../utils/protect-page';
 import { leavePageFor } from '../../../utils/reload-page';
+import { isLockedBySeoDashboard } from '../../../utils/seo-dashboard-lock';
 import { isSettingsConsolidationEnabled } from '../../../utils/settings-consolidation';
 import { getProtectLinkLabel } from '../../../utils/settings-link-label';
 import { ModuleToggle } from '../../module-toggle';
@@ -232,6 +233,22 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 			return <UpgradeButton state={ state } />;
 
 		case 'module': {
+			// Prototype: an SEO module reads off and cannot be switched while the SEO dashboard is off.
+			if ( isLockedBySeoDashboard( control.module.module ) ) {
+				return (
+					<Switch
+						disabled
+						checked={ false }
+						aria-label={ sprintf(
+							/* translators: %s is the module name */
+							__( 'Toggle %s module', 'jetpack-my-jetpack' ),
+							control.module.name
+						) }
+						aria-describedby={ describedby }
+					/>
+				);
+			}
+
 			if ( getForcedReason( state ) ) {
 				return null;
 			}
