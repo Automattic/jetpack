@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Tidy the bulk subscriber removal dialog so it no longer reads Remove 0 subscribers while counts load, and stop retrying a failed removal status check.
+Tidy the bulk subscriber removal dialog so it no longer reads Remove 0 subscribers while counts load, and stop retrying a removal status check that cannot succeed, such as on a site without bulk removal.

@@ -235,13 +235,41 @@ describe( 'useBulkRemoveStatus', () => {
 		expect( result.current.isEnabled ).toBe( false );
 	} );
 
-	it( 'does not retry a failed status request', async () => {
-		mockFetchBulkRemoveStatus.mockRejectedValue( { code: 'rest_no_route' } );
-		const { wrapper } = setup( { retry: 3, retryDelay: 0 } );
+	it.each( [
+		[ 'a missing route', { code: 'rest_no_route', data: { status: 404 } } ],
+		[ 'a permission error', { code: 'rest_forbidden', data: { status: 403 } } ],
+	] )( 'does not retry %s', async ( _label, error ) => {
+		mockFetchBulkRemoveStatus.mockRejectedValue( error );
+		const { wrapper } = setup( { retryDelay: 0 } );
 		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 		expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.isEnabled ).toBe( false );
+	} );
+
+	it.each( [
+		[ 'a server error', { code: 'internal_server_error', data: { status: 500 } } ],
+		[ 'a network failure', { code: 'fetch_error' } ],
+	] )( 'retries %s and then shows removal', async ( _label, error ) => {
+		mockFetchBulkRemoveStatus
+			.mockRejectedValueOnce( error )
+			.mockResolvedValueOnce( { job: null, enabled: true } );
+		const { wrapper } = setup( { retryDelay: 0 } );
+		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isEnabled ).toBe( true ) );
+		expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'gives up after three retries', async () => {
+		mockFetchBulkRemoveStatus.mockRejectedValue( { code: 'fetch_error' } );
+		const { wrapper } = setup( { retryDelay: 0 } );
+		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( 4 );
+		expect( result.current.isEnabled ).toBe( false );
 	} );
 
 	it.each( [

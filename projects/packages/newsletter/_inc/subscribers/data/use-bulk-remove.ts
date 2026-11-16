@@ -26,6 +26,28 @@ export function isBulkRemoveActive( job: BulkRemoveJob | null | undefined ): boo
 	return !! job && ACTIVE_STATUSES.includes( job.status ) && ! job.stalled;
 }
 
+const MAX_STATUS_RETRIES = 3;
+
+/**
+ * Whether to retry a failed status request. A client error, such as the missing route on a site
+ * without bulk removal (404), is final. A server error or a network failure may pass, and giving
+ * up on it would hide the remove actions until the screen is opened again.
+ *
+ * @param failureCount - Retries so far.
+ * @param error        - The error `apiFetch` rejected with.
+ * @return True to try again.
+ */
+export function shouldRetryBulkRemoveStatus(
+	failureCount: number,
+	error: BulkRemoveError | null | undefined
+): boolean {
+	if ( failureCount >= MAX_STATUS_RETRIES || error?.code === 'rest_no_route' ) {
+		return false;
+	}
+	const status = error?.data?.status;
+	return ! ( typeof status === 'number' && status >= 400 && status < 500 );
+}
+
 /**
  * The current bulk removal, polled every 5 seconds while it runs. On load this picks up a
  * removal started earlier (or in another tab), so the progress notice comes back after a reload.
@@ -42,7 +64,7 @@ export function isBulkRemoveActive( job: BulkRemoveJob | null | undefined ): boo
  */
 export function useBulkRemoveStatus( enabled = true, onFinished?: ( job: BulkRemoveJob ) => void ) {
 	const queryClient = useQueryClient();
-	const query = useQuery< BulkRemoveState >( {
+	const query = useQuery< BulkRemoveState, BulkRemoveError >( {
 		queryKey: BULK_REMOVE_QUERY_KEY,
 		queryFn: async () => {
 			const response = await fetchBulkRemoveStatus();
@@ -50,8 +72,7 @@ export function useBulkRemoveStatus( enabled = true, onFinished?: ( job: BulkRem
 		},
 		enabled,
 		refetchInterval: q => ( isBulkRemoveActive( q.state.data?.job ) ? POLL_MS : false ),
-		// A missing route (404) is final, so do not retry it.
-		retry: false,
+		retry: shouldRetryBulkRemoveStatus,
 		// The shared client skips focus refetches; catch a removal started in another tab, but only
 		// when removal is on for the site or a job is running.
 		refetchOnWindowFocus: q =>
