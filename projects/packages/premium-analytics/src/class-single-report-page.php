@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Describes one single-report page registered with the dashboard.
  *
- * The record is declarative: the client renders the page from it. What a record cannot
- * express, the entity's summary and header, lives in a client-side page adapter keyed by `path`.
+ * The record is declarative. `entity` names the core-data record the page is about;
+ * the summary and header still come from the page adapter keyed by `path`.
  *
  * @since 0.16.0
  */
@@ -37,6 +37,20 @@ class Single_Report_Page {
 	 * @var string
 	 */
 	public $id;
+
+	/**
+	 * Core-data entity the page is about (`kind`, `name`, optional `key`), or null.
+	 *
+	 * @var array|null
+	 */
+	public $entity = null;
+
+	/**
+	 * Field ids of that entity for the header (`title`, `media`, `description`, `actions`), or null.
+	 *
+	 * @var array|null
+	 */
+	public $header = null;
 
 	/**
 	 * URL segment, the public identity of the page: `/report/{path}/{id}`.
@@ -242,6 +256,8 @@ class Single_Report_Page {
 	public function to_array() {
 		return array(
 			'id'                => $this->id,
+			'entity'            => $this->entity,
+			'header'            => $this->header,
 			'path'              => $this->path,
 			'label'             => $this->label,
 			'dashboard_section' => $this->dashboard_section,
@@ -296,6 +312,74 @@ class Single_Report_Page {
 		if ( isset( $args['sections'] ) && is_array( $args['sections'] ) ) {
 			$this->sections = self::normalize_sections( $args['sections'] );
 		}
+
+		if ( array_key_exists( 'entity', $args ) ) {
+			$this->entity = self::normalize_entity( $args['entity'] );
+		}
+
+		if ( array_key_exists( 'header', $args ) ) {
+			$this->header = self::normalize_header( $args['header'] );
+		}
+	}
+
+	/**
+	 * The entity block when it names a kind and a name, or null.
+	 *
+	 * @param mixed $entity Declared entity.
+	 * @return array|null
+	 */
+	private static function normalize_entity( $entity ) {
+		if ( ! is_array( $entity ) ) {
+			return null;
+		}
+
+		$kind = $entity['kind'] ?? null;
+		$name = $entity['name'] ?? null;
+		if ( ! self::is_entity_token( $kind ) || ! self::is_entity_token( $name ) ) {
+			return null;
+		}
+
+		$normalized = array(
+			'kind' => $kind,
+			'name' => $name,
+		);
+
+		if ( self::is_entity_token( $entity['key'] ?? null ) ) {
+			$normalized['key'] = $entity['key'];
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * The header field ids the record names, or null when none of them is valid.
+	 *
+	 * @param mixed $header Declared header.
+	 * @return array|null
+	 */
+	private static function normalize_header( $header ) {
+		if ( ! is_array( $header ) ) {
+			return null;
+		}
+
+		$normalized = array();
+		foreach ( array( 'title', 'media', 'description', 'actions' ) as $slot ) {
+			if ( self::is_entity_token( $header[ $slot ] ?? null ) ) {
+				$normalized[ $slot ] = $header[ $slot ];
+			}
+		}
+
+		return $normalized ? $normalized : null;
+	}
+
+	/**
+	 * Whether a value can be a core-data kind, name, key or field id.
+	 *
+	 * @param mixed $value Candidate.
+	 * @return bool
+	 */
+	private static function is_entity_token( $value ) {
+		return is_string( $value ) && 1 === preg_match( '/^[A-Za-z0-9_-]+$/', $value );
 	}
 
 	/**

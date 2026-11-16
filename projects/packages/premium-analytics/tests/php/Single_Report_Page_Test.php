@@ -121,6 +121,8 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'id'                => 'example/video',
+				'entity'            => null,
+				'header'            => null,
 				'path'              => 'video',
 				'label'             => 'Video',
 				'dashboard_section' => null,
@@ -357,6 +359,53 @@ class Single_Report_Page_Test extends BaseTestCase {
 				null,
 			),
 		);
+	}
+
+	public function test_the_record_keeps_a_valid_entity_and_header_and_drops_the_rest() {
+		$kept    = register_single_report_page(
+			DASHBOARD_NAME,
+			'example/author',
+			array(
+				'entity' => array(
+					'kind'  => 'root',
+					'name'  => 'user',
+					'key'   => 'id',
+					'extra' => 'no',
+				),
+				'header' => array(
+					'title'   => 'name',
+					'media'   => 'Avatar URL',
+					'actions' => 'view',
+				),
+			)
+		)->to_array();
+		$dropped = register_single_report_page(
+			DASHBOARD_NAME,
+			'example/video',
+			array(
+				'entity' => array( 'kind' => 'postType' ),
+				'header' => 'title',
+			)
+		)->to_array();
+
+		$this->assertSame(
+			array(
+				'kind' => 'root',
+				'name' => 'user',
+				'key'  => 'id',
+			),
+			$kept['entity']
+		);
+		$this->assertSame(
+			array(
+				'title'   => 'name',
+				'actions' => 'view',
+			),
+			$kept['header']
+		);
+		$this->assertNull( $kept['reports_page'] );
+		$this->assertNull( $dropped['entity'] );
+		$this->assertNull( $dropped['header'] );
 	}
 
 	public function test_the_rest_schema_names_every_record_and_section_field() {
