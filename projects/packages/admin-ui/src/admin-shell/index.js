@@ -13,6 +13,7 @@ import {
 import { createApp, whenRendered } from './app';
 import { announcePage, menuLabel, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
+import { checkFeature, showFeatureOff } from './feature';
 import { applyGuestAssets } from './guest-assets';
 import { configureHeaders, rememberHeader, removeHeader, showHeader } from './header';
 import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } from './overlays';
@@ -53,7 +54,7 @@ const routeOf = href => {
 	return url.search + url.hash;
 };
 
-const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
+const start = ( { host, members, guestAssetsUrl, headerStorageKey, featureUrl, featureOff } ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
 	if ( ! hostEl ) {
 		return;
@@ -170,13 +171,46 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		return warm[ slug ];
 	};
 
+	// Panels standing in for pages whose feature is off, by page.
+	const offPanels = new Map();
+	const onScreen = slug => visible === slug && ! offPanels.has( slug );
+	const featureOf = slug =>
+		members[ slug ].gate && featureUrl
+			? checkFeature( featureUrl, slug, members[ slug ].gate, members[ slug ].gateNonce )
+			: Promise.resolve( { on: true, card: '' } );
+	const showOff = ( slug, card ) => {
+		if ( offPanels.has( slug ) ) {
+			return;
+		}
+		apps.get( slug )?.place( false );
+		removeHeader( slug );
+		offPanels.set(
+			slug,
+			showFeatureOff( {
+				after: [ ...apps.values() ].at( -1 )?.el ?? hostEl,
+				slug,
+				title: menuLabel( slug ) ?? members[ slug ].title,
+				gate: members[ slug ].gate,
+				gateNonce: members[ slug ].gateNonce,
+				url: featureUrl,
+				strings: featureOff,
+				card,
+			} )
+		);
+		announcePage( members[ slug ].adminTitle );
+	};
+	const hideOff = slug => {
+		offPanels.get( slug )?.remove();
+		offPanels.delete( slug );
+	};
+
 	// Once an app's first route is on screen.
 	const markReady = app => {
 		app.to( 'ready' );
-		app.place( visible === app.slug );
+		app.place( onScreen( app.slug ) );
 		rememberHeader( app.slug, app.el );
 		// Tab bars and actions often render just after the heading.
-		setTimeout( () => visible === app.slug && rememberHeader( app.slug, app.el ), 1000 );
+		setTimeout( () => onScreen( app.slug ) && rememberHeader( app.slug, app.el ), 1000 );
 	};
 
 	const bootGuest = async ( slug, url ) => {
@@ -266,6 +300,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			removeHeader( previous );
 		}
 		apps.get( previous )?.place( false );
+		hideOff( previous );
+		// Asked on every visit: the feature may have been switched off since the menu was drawn.
+		const feature = featureOf( slug );
 		const dialogsClosed = closeDialogsOf( previous );
 		showOverlaysOf( slug );
 		emit( 'page-hidden', { page: previous, previous: null, firstShow: false, url: location.href } );
@@ -284,10 +321,18 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				if ( push ) {
 					notifyRouters();
 				}
+				// Shown at once, as it usually is still on; swapped for the panel if not.
+				feature.then( ( { on, card } ) => ! on && visible === slug && showOff( slug, card ) );
 			} else {
 				log( 'switch', `${ slug } has not booted yet` );
 				window.scrollTo( 0, 0 );
-				await bootGuest( slug, url );
+				prewarm( slug, 'switch' ).catch( () => {} );
+				const { on, card } = await feature;
+				if ( on ) {
+					await bootGuest( slug, url );
+				} else if ( visible === slug ) {
+					showOff( slug, card );
+				}
 			}
 			// Focus and speech inside a closing modal's `aria-hidden` would go unheard.
 			await dialogsClosed;
@@ -396,6 +441,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
 	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
+	if ( members[ host ].featureOn === false ) {
+		featureOf( host ).then( ( { on, card } ) => ! on && visible === host && showOff( host, card ) );
+	}
 	gate.mount( host );
 	log( 'host', `${ host } boots from the page load` );
 	whenRendered( hostEl, 30000 )

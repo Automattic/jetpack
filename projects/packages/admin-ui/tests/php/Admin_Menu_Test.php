@@ -976,6 +976,29 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * A page reads back the gate its menu item declared, and nothing for an item without one.
+	 */
+	public function test_get_feature_gate() {
+		Admin_Menu::add_menu(
+			'Gated',
+			'Gated',
+			'manage_options',
+			'gate-module',
+			'__return_null',
+			null,
+			array(
+				'module' => 'seo-tools',
+				'key'    => 'jetpack-seo',
+			)
+		);
+		Admin_Menu::add_menu( 'Ungated', 'Ungated', 'manage_options', 'gate-none', '__return_null', null, array( 'key' => 'none' ) );
+
+		$this->assertSame( array( 'module' => 'seo-tools' ), Admin_Menu::get_feature_gate( 'gate-module' ) );
+		$this->assertNull( Admin_Menu::get_feature_gate( 'gate-none' ) );
+		$this->assertNull( Admin_Menu::get_feature_gate( 'not-registered' ) );
+	}
+
+	/**
 	 * The resolver sees the declaration it was given.
 	 */
 	public function test_resolver_receives_the_declared_args() {

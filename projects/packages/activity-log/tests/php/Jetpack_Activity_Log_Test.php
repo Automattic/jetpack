@@ -261,6 +261,17 @@ class Jetpack_Activity_Log_Test extends TestCase {
 	}
 
 	/**
+	 * The menu item names its module, which the admin shell checks each time the page is opened.
+	 */
+	public function test_menu_item_declares_its_module() {
+		$this->enter_activity_log_admin_request();
+
+		Jetpack_Activity_Log::add_wp_admin_submenu();
+
+		$this->assertSame( array( 'module' => 'activity-log' ), Admin_Menu::get_feature_gate( 'jetpack-activity-log' ) );
+	}
+
+	/**
 	 * Simple has no module system, so the standalone default would write an option to every blog.
 	 */
 	public function test_initialize_is_inert_on_wpcom_simple() {
