@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Fix running out of memory when exporting a large number of responses to CSV or Google Drive.

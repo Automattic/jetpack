@@ -197,7 +197,7 @@ class Llms_Txt {
 			/**
 			 * Fires after the stored llms.txt is dropped, so hosts can purge cached copies of /llms.txt.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.12.0
 			 */
 			do_action( 'jetpack_seo_llms_txt_cleared' );
 		}
@@ -379,7 +379,7 @@ class Llms_Txt {
 		 * The result is stored for up to 12 hours; call Llms_Txt::clear_cache() when your section's data
 		 * changes. Anything but a non-empty string keeps the unfiltered text.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.12.0
 		 *
 		 * @param string $text The llms.txt Markdown.
 		 */

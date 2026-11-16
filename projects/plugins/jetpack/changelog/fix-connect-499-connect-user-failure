@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Connection: Restore the connect button and explain what went wrong when the connection to WordPress.com fails to start.
