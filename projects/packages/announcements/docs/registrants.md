@@ -102,7 +102,7 @@ An announcement without a `capability` reaches every logged-in user of the site.
 
 A channel is a label a host subscribes to. Publish to the channel of the page that should show the announcement, or to several.
 
-There is no list of channels to join. A channel no host subscribes to is shown nowhere.
+[Channels](channels.md) covers how they match, and a channel shared by several hosts.
 
 ### Its words
 

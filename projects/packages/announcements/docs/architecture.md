@@ -30,6 +30,8 @@ A product can be a registrant, a host, or both, and the package knows none of th
 | Where what a user has seen is kept              | Package    | The user's WordPress preferences, written by the surface |
 | How the teaser and the reader look and behave   | Package    | The surface, the same in every host                      |
 
+[Channels](channels.md) covers how the two consumers meet: publishing to channels, subscribing to them, and sharing one.
+
 ## The rule behind the table
 
 The package takes a responsibility only when it must hold for every consumer and no consumer can enforce it alone. The shape of a record and its safety are of that kind.

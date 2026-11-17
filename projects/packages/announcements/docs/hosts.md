@@ -57,7 +57,9 @@ The function acts only while its mount still owns the surface. Once a later moun
 
 ### Which channels
 
-The host shows the channels it names. Nothing else filters: whatever a registrant publishes to them is shown.
+The host shows the channels it names, one or several. Nothing else filters: whatever a registrant publishes to them is shown.
+
+[Channels](channels.md) has the examples, and a channel shared by several hosts.
 
 ### When to mount
 

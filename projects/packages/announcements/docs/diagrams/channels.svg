@@ -1,0 +1,68 @@
+<svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three announcements, three channels and two hosts. The first announcement is published to plugin-a, the second to plugin-a and jetpack, and the third to plugin-b. Host A subscribes to plugin-a and jetpack and shows the first two. Host B subscribes to plugin-b and jetpack and shows the last two. An announcement is shown when one of its channels is one the host subscribes to. A channel is a label: nothing registers it, and the package gives it no meaning.">
+  <defs>
+    <marker id="arrow-ch" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="6" y="6" width="868" height="408" rx="12" fill="#ffffff"/>
+
+  <text x="440" y="36" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155">Registrants publish to channels; hosts subscribe to them.</text>
+
+  <!-- Column headers -->
+  <text x="150" y="62" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="10" font-weight="700" fill="#64748b">registrants publish</text>
+  <text x="440" y="62" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="10" font-weight="700" fill="#64748b">channels</text>
+  <text x="730" y="62" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="10" font-weight="700" fill="#64748b">hosts subscribe</text>
+
+  <!-- Announcements -->
+  <rect x="30" y="76" width="240" height="62" rx="9" fill="#fff3d0" stroke="#b07020" stroke-width="1.5"/>
+  <text x="44" y="100" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" font-weight="700" fill="#855317">plugin-a/new-reports</text>
+  <text x="44" y="120" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9" fill="#855317">channels: plugin-a</text>
+
+  <rect x="30" y="150" width="240" height="62" rx="9" fill="#fff3d0" stroke="#b07020" stroke-width="1.5"/>
+  <text x="44" y="174" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" font-weight="700" fill="#855317">plugin-a/big-news</text>
+  <text x="44" y="194" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9" fill="#855317">channels: plugin-a, jetpack</text>
+
+  <rect x="30" y="224" width="240" height="62" rx="9" fill="#fff3d0" stroke="#b07020" stroke-width="1.5"/>
+  <text x="44" y="248" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" font-weight="700" fill="#855317">plugin-b/redesign</text>
+  <text x="44" y="268" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9" fill="#855317">channels: plugin-b</text>
+
+  <!-- Announcements to channels -->
+  <line x1="272" y1="107" x2="366" y2="107" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-ch)"/>
+  <line x1="272" y1="174" x2="366" y2="114" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-ch)"/>
+  <line x1="272" y1="184" x2="366" y2="181" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-ch)"/>
+  <line x1="272" y1="255" x2="366" y2="255" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-ch)"/>
+
+  <!-- Channels -->
+  <rect x="370" y="90" width="140" height="34" rx="17" fill="#ffffff" stroke="#1d6b5a" stroke-width="1.4"/>
+  <text x="440" y="112" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11" font-weight="700" fill="#1d6b5a">plugin-a</text>
+
+  <rect x="370" y="164" width="140" height="34" rx="17" fill="#dff3ec" stroke="#1d6b5a" stroke-width="1.4"/>
+  <text x="440" y="186" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11" font-weight="700" fill="#1d6b5a">jetpack</text>
+  <text x="440" y="212" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#94a3b8">shared by convention</text>
+
+  <rect x="370" y="238" width="140" height="34" rx="17" fill="#ffffff" stroke="#1d6b5a" stroke-width="1.4"/>
+  <text x="440" y="260" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11" font-weight="700" fill="#1d6b5a">plugin-b</text>
+
+  <!-- Channels to hosts -->
+  <line x1="512" y1="107" x2="606" y2="110" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-ch)"/>
+  <line x1="512" y1="177" x2="606" y2="134" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-ch)"/>
+  <line x1="512" y1="185" x2="606" y2="226" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-ch)"/>
+  <line x1="512" y1="255" x2="606" y2="250" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-ch)"/>
+
+  <!-- Hosts -->
+  <rect x="610" y="76" width="240" height="92" rx="9" fill="#fff3d0" stroke="#b07020" stroke-width="1.5"/>
+  <text x="624" y="100" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#855317">host A</text>
+  <text x="624" y="120" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9" fill="#855317">channels: [ 'plugin-a', 'jetpack' ]</text>
+  <text x="624" y="144" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" font-style="italic" fill="#855317">shows new-reports and big-news</text>
+
+  <rect x="610" y="192" width="240" height="92" rx="9" fill="#fff3d0" stroke="#b07020" stroke-width="1.5"/>
+  <text x="624" y="216" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#855317">host B</text>
+  <text x="624" y="236" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9" fill="#855317">channels: [ 'plugin-b', 'jetpack' ]</text>
+  <text x="624" y="260" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" font-style="italic" fill="#855317">shows big-news and redesign</text>
+
+  <text x="440" y="322" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" font-style="italic" fill="#94a3b8">an announcement is shown when one of its channels is one the host subscribes to</text>
+  <text x="440" y="338" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" font-style="italic" fill="#94a3b8">a channel is a label: nothing registers it, and the package gives it no meaning</text>
+
+  <text x="440" y="376" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#855317">published to labels · subscribed by labels · matched by the package</text>
+</svg>

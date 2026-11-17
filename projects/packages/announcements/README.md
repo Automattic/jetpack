@@ -6,11 +6,12 @@ A product is a registrant, which publishes announcements, a host, which shows th
 
 ## Documentation
 
-| Page                                                    | What it covers                                           |
-| ------------------------------------------------------- | -------------------------------------------------------- |
-| [How Jetpack Announcements works](docs/architecture.md) | The three roles, who decides what, and the public API    |
-| [Publishing announcements](docs/registrants.md)         | The registrant's side: the record, the action, its rules |
-| [Hosting What's new](docs/hosts.md)                     | The host's side: mounting, leaving, what the page needs  |
+| Page                                                    | What it covers                                               |
+| ------------------------------------------------------- | ------------------------------------------------------------ |
+| [How Jetpack Announcements works](docs/architecture.md) | The three roles, who decides what, and the public API        |
+| [Publishing announcements](docs/registrants.md)         | The registrant's side: the record, the action, its rules     |
+| [Hosting What's new](docs/hosts.md)                     | The host's side: mounting, leaving, what the page needs      |
+| [Channels](docs/channels.md)                            | Publishing to channels, subscribing to them, and sharing one |
 
 ## Registering an announcement
 
