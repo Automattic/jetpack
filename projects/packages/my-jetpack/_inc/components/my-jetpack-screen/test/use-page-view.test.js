@@ -56,4 +56,24 @@ describe( 'usePageView', () => {
 			],
 		] );
 	} );
+
+	it( 'records one view, once the alerts load, when the admin shell shows My Jetpack before they do', () => {
+		const { rerender } = renderHook( ( { alerts } ) => usePageView( 'overview', alerts ), {
+			initialProps: { alerts: { ...LOADED, isRedBubbleAlertsLoading: true } },
+		} );
+
+		window.dispatchEvent(
+			new CustomEvent( 'jetpack-admin-shell:page-shown', {
+				detail: { page: 'my-jetpack', firstShow: false },
+			} )
+		);
+		rerender( { alerts: LOADED } );
+
+		expect( recordEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_myjetpack_page_view',
+				{ red_bubble_alerts: 'backup-failure', tab_name: 'overview', previous_tab: null },
+			],
+		] );
+	} );
 } );
