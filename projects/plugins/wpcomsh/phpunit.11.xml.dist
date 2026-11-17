@@ -25,6 +25,7 @@
 			<exclude>tests/FrontendNoticesTest.php</exclude>
 			<exclude>tests/FunctionsTest.php</exclude>
 			<exclude>tests/PlanNoticesTest.php</exclude>
+			<exclude>tests/PreventOwnerRemovalTest.php</exclude>
 			<exclude>tests/WpcomCurrentBlogIdTest.php</exclude>
 			<exclude>tests/WpcomFeaturesMapTest.php</exclude>
 			<exclude>tests/WpcomFeaturesTest.php</exclude>
@@ -36,6 +37,7 @@
 			<file>tests/FrontendNoticesTest.php</file>
 			<file>tests/FunctionsTest.php</file>
 			<file>tests/PlanNoticesTest.php</file>
+			<file>tests/PreventOwnerRemovalTest.php</file>
 			<file>tests/WpcomCurrentBlogIdTest.php</file>
 			<file>tests/WpcomFeaturesMapTest.php</file>
 			<file>tests/WpcomFeaturesTest.php</file>

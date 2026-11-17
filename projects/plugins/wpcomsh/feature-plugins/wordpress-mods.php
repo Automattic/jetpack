@@ -234,9 +234,16 @@ add_filter( 'site_status_tests', 'wpcomsh_site_status_tests_disable' );
 function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) {
 	// Trying to edit or delete a user other than yourself?
 	if ( in_array( $args[0], array( 'edit_user', 'delete_user', 'remove_user', 'promote_user' ), true ) ) {
-		$jetpack = get_option( 'jetpack_options' );
+		// `Jetpack_Options` reads the platform's external storage before the `jetpack_options` row.
+		// After a site migration, the row comes from the source site and can name a different owner.
+		if ( class_exists( 'Jetpack_Options' ) ) {
+			$master_user = (int) Jetpack_Options::get_option( 'master_user' );
+		} else {
+			$jetpack     = get_option( 'jetpack_options' );
+			$master_user = is_array( $jetpack ) && isset( $jetpack['master_user'] ) ? (int) $jetpack['master_user'] : 0;
+		}
 
-		if ( ! empty( $jetpack['master_user'] ) && isset( $args[2] ) && $args[2] === $jetpack['master_user'] ) {
+		if ( $master_user && isset( $args[2] ) && (int) $args[2] === $master_user ) {
 			return array();
 		}
 	}
