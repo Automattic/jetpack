@@ -421,7 +421,35 @@ class Jetpack_Boost {
 			)
 		);
 
+		add_action( 'added_option', array( $this, 'maybe_sync_module_status' ) );
+		add_action( 'updated_option', array( $this, 'maybe_sync_module_status' ) );
+		add_action( 'deleted_option', array( $this, 'maybe_sync_module_status' ) );
+
 		$jetpack_config->ensure( 'identity_crisis' );
+	}
+
+	/**
+	 * Queue a fresh `boost_modules` snapshot when a module status option changes.
+	 *
+	 * Sync checks callables only when something else is queued, so a toggle alone can leave WP.com stale.
+	 *
+	 * @param string $option Option name.
+	 */
+	public function maybe_sync_module_status( $option ) {
+		// Image CDN follows Jetpack's own module state.
+		if ( 'jetpack_active_modules' !== $option && ! str_starts_with( $option, Status::OPTION_PREFIX ) ) {
+			return;
+		}
+
+		// Deferred: some writes land before Sync's listener loads, and mapped modules change after the toggle.
+		add_action( 'shutdown', array( $this, 'sync_module_status' ) );
+	}
+
+	/**
+	 * Send the current module status map to WP.com.
+	 */
+	public function sync_module_status() {
+		do_action( 'jetpack_sync_callable', 'boost_modules', ( new Modules_Setup() )->get_status() );
 	}
 
 	/**

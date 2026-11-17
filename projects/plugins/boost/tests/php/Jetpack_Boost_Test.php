@@ -172,6 +172,76 @@ class Jetpack_Boost_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that module status writes queue a `boost_modules` snapshot, and other writes don't.
+	 *
+	 * @param callable $write       Option write to run.
+	 * @param bool     $expect_sync Whether a snapshot should be queued.
+	 * @dataProvider provide_option_writes
+	 */
+	#[DataProvider( 'provide_option_writes' )]
+	public function test_module_status_writes_queue_boost_modules_sync( $write, $expect_sync ) {
+		add_option( 'jetpack_boost_status_minify-js', '0' );
+		new Jetpack_Boost();
+		remove_all_actions( 'shutdown' );
+
+		$synced = array();
+		add_action(
+			'jetpack_sync_callable',
+			function ( $name, $value ) use ( &$synced ) {
+				$synced[ $name ] = $value;
+			},
+			10,
+			2
+		);
+
+		$write();
+		do_action( 'shutdown' );
+
+		$expected = $expect_sync ? array( 'boost_modules' => ( new Modules_Setup() )->get_status() ) : array();
+		$this->assertEquals( $expected, $synced );
+	}
+
+	/**
+	 * Data provider for test_module_status_writes_queue_boost_modules_sync.
+	 *
+	 * @return array
+	 */
+	public static function provide_option_writes() {
+		return array(
+			'status add'             => array(
+				function () {
+					add_option( 'jetpack_boost_status_page-cache', true );
+				},
+				true,
+			),
+			'status update'          => array(
+				function () {
+					update_option( 'jetpack_boost_status_minify-js', true );
+				},
+				true,
+			),
+			'status delete'          => array(
+				function () {
+					delete_option( 'jetpack_boost_status_minify-js' );
+				},
+				true,
+			),
+			'Jetpack modules update' => array(
+				function () {
+					update_option( 'jetpack_active_modules', array( 'photon' ) );
+				},
+				true,
+			),
+			'unrelated option'       => array(
+				function () {
+					update_option( 'blogname', 'Changed' );
+				},
+				false,
+			),
+		);
+	}
+
+	/**
 	 * Test that the lazy sync callables are invocable and read current state at invocation time.
 	 */
 	public function test_sync_callable_whitelist_closures_are_invocable() {
