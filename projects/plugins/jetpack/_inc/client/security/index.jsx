@@ -3,12 +3,10 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import QuerySite from 'components/data/query-site';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
-import { getSiteId, hasBackupPage } from 'state/initial-state';
-import { getModule, hasProtectPage } from 'state/modules';
+import { getSiteId, hasBackupPage, hasProtectPage } from 'state/initial-state';
+import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { siteHasFeature } from 'state/site';
@@ -21,12 +19,7 @@ import { JetpackBackup } from './jetpack-backup';
 import { Monitor } from './monitor';
 import { MovedSettings } from './moved-settings';
 import { Protect } from './protect';
-import {
-	BACKUP_MODULES,
-	PROTECT_PAGE_MODULES,
-	getProtectPluginUrl,
-	isProtectPluginActive,
-} from './protect-page';
+import { BACKUP_MODULES, PROTECT_PAGE_MODULES } from './protect-page';
 import { SSO } from './sso';
 import Waf from './waf';
 
@@ -134,21 +127,6 @@ export class Security extends Component {
 				{ isSearchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Security', 'jetpack' ) }</h2>
 				) }
-				{ ! isSearchTerm && this.props.isProtectPluginActive && (
-					<SimpleNotice
-						className="jp-security__protect-plugin-notice"
-						status="is-info"
-						showDismiss={ false }
-						text={ __(
-							"Jetpack's Protect page is off while the Jetpack Protect plugin is active. Scans and firewall settings are on that plugin's Protect page; the settings below still apply here.",
-							'jetpack'
-						) }
-					>
-						<NoticeAction href={ getProtectPluginUrl( this.props.siteAdminUrl ) }>
-							{ __( 'Open Protect', 'jetpack' ) }
-						</NoticeAction>
-					</SimpleNotice>
-				) }
 				{ foundBackups && backupsContent }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (
@@ -179,7 +157,6 @@ export default connect( state => {
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
-		isProtectPluginActive: isProtectPluginActive( state ),
 		vaultPressData: getVaultPressData( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		blogID: getSiteId( state ),
