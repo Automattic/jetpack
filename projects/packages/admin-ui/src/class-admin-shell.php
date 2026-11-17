@@ -125,7 +125,7 @@ class Admin_Shell {
 		 * - title (string)          Document title while the page is shown.
 		 * - header (array)          Optional. `title` and `subtitle` ('' for none) of the view a bare menu link opens, as the dashboard renders them. Shown while it opens. A malformed one is dropped, not the member.
 		 * - default_path (string)   Optional. The `p` a bare menu link opens.
-		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options.
+		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options. Add print hook callbacks here, not from admin_enqueue_scripts: the guest endpoint drops what those print.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
 		 * - media (bool)            Optional, default false. Whether the page opens the media library: the endpoint then prints it and its templates too.
@@ -421,7 +421,7 @@ class Admin_Shell {
 		set_current_screen( $hook_suffix );
 		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- One script tag per handle, so the client can skip what the host already has.
 
-		// What the media library's listeners hook (VideoPress's templates, for one) belongs to the member that opens it.
+		// Print callbacks the media library's listeners add (VideoPress's templates) belong to the member.
 		$media_start = static function () use ( &$snapshot ) {
 			$snapshot = self::hook_snapshot();
 		};
@@ -480,9 +480,9 @@ class Admin_Shell {
 	}
 
 	/**
-	 * Fire a print hook, discarding what callbacks print unless the member added them or core defines them.
+	 * Fire a print hook, discarding what callbacks echo unless the member added them or core defines them.
 	 *
-	 * Other plugins' callbacks still run, so data they attach to the member's handles is printed; what they echo already ran on the host page.
+	 * Every callback still runs, so data attached to the member's handles prints. Their echoes already ran on the host page.
 	 *
 	 * @param string             $hook Hook name.
 	 * @param array<string,true> $own  Callbacks the member's loader added, keyed as hook_snapshot() keys them.
@@ -499,11 +499,15 @@ class Admin_Shell {
 				$function                    = $callback['function'];
 				$wrapped[ $priority ][ $id ] = $function;
 				$wp_filter[ $hook ]->callbacks[ $priority ][ $id ]['function'] = static function ( ...$args ) use ( $function ) {
+					$level = ob_get_level();
 					ob_start();
 					try {
 						call_user_func_array( $function, $args );
 					} finally {
-						ob_end_clean();
+						// Also closes buffers the callback left open.
+						while ( ob_get_level() > $level ) {
+							ob_end_clean();
+						}
 					}
 				};
 			}
@@ -534,7 +538,13 @@ class Admin_Shell {
 		static $core_dirs = null;
 		if ( null === $core_dirs ) {
 			$core_dirs = array();
-			foreach ( array( ABSPATH . WPINC, ABSPATH . 'wp-admin', WP_PLUGIN_DIR . '/gutenberg' ) as $dir ) {
+			$dirs      = array( ABSPATH . WPINC, ABSPATH . 'wp-admin' );
+			// Found from its main file: WordPress.com loads it from a versioned directory.
+			if ( function_exists( 'gutenberg_pre_init' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Defined by the Gutenberg plugin, when active.
+				$dirs[] = dirname( (string) ( new \ReflectionFunction( 'gutenberg_pre_init' ) )->getFileName() );
+			}
+			foreach ( $dirs as $dir ) {
 				$real = realpath( $dir );
 				if ( false !== $real ) {
 					$core_dirs[] = trailingslashit( wp_normalize_path( $real ) );

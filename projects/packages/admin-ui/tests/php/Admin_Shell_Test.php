@@ -643,11 +643,13 @@ class Admin_Shell_Test extends TestCase {
 				);
 			}
 		);
-		$this->start_host_page( '__return_null' );
+		wp_register_script( 'shell-test-guest', 'https://example.com/guest.js', array(), '1', true );
+		$this->start_host_page( '__return_null', 'manage_options', array( 'shell-test-guest' ) );
 
 		$html = Admin_Shell::guest_assets( 'guest-page' );
 
 		$this->assertIsString( $html );
+		$this->assertStringContainsString( 'guest.js', $html );
 		$this->assertStringNotContainsString( 'otherPluginFooter', $html );
 		$this->assertStringNotContainsString( 'otherPluginHead', $html );
 		$this->assertStringNotContainsString( 'otherPluginLate', $html, 'nor what a callback hooked while enqueuing prints' );
@@ -726,6 +728,7 @@ class Admin_Shell_Test extends TestCase {
 		$this->start_host_page( '__return_null' );
 
 		$html = Admin_Shell::guest_assets( 'guest-page' );
+		$rendered->setValue( null, false );
 
 		$this->assertIsString( $html );
 		$this->assertMatchesRegularExpression( '/id="jetpack-script-data-js-before">[^<]*window\.JetpackScriptData = /', $html );
@@ -778,7 +781,6 @@ class Admin_Shell_Test extends TestCase {
 				$this->add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 			}
 		};
-		// Like VideoPress, which overrides the media templates this way.
 		$this->add_action(
 			'wp_enqueue_media',
 			function () {
