@@ -25,13 +25,12 @@ function usage {
 # Sets options.
 VERBOSE=
 RELEASEBRANCH=
-while getopts ":vhHR" opt; do
+while getopts ":vhR" opt; do
 	case ${opt} in
 		v)
 			VERBOSE="${VERBOSE:--}v"
 			;;
-		H|R)
-			# -H is an old name, kept for back compat.
+		R)
 			RELEASEBRANCH="-R"
 			;;
 		h)

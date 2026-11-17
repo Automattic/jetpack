@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\SEO\Initializer;
+use Automattic\Jetpack\SEO\Llms_Txt;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-posts.php';
@@ -13,7 +15,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-utils.ph
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo.php';
 
 /**
- * Tests that Jetpack_SEO applies per-post SEO settings only on singular views.
+ * Tests Jetpack's SEO output and post metadata registration.
  */
 class Jetpack_SEO_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -43,6 +45,76 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 		delete_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION );
 		delete_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION );
 		parent::tear_down();
+	}
+
+	/**
+	 * @dataProvider provide_rest_post_types
+	 * @param string $post_type Post type slug.
+	 */
+	#[DataProvider( 'provide_rest_post_types' )]
+	public function test_rest_unhide_and_include_preserves_llms_txt_inclusion( $post_type ) {
+		register_post_type(
+			'seo_book',
+			array(
+				'public'       => true,
+				'show_in_rest' => true,
+				'rest_base'    => 'seo-books',
+				'supports'     => array( 'title', 'editor', 'custom-fields' ),
+			)
+		);
+		$post_id         = self::factory()->post->create( array( 'post_type' => $post_type ) );
+		$user_id         = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$registered_meta = $GLOBALS['wp_meta_keys'];
+		wp_set_current_user( $user_id );
+
+		try {
+			$GLOBALS['wp_rest_server'] = null;
+			unregister_meta_key( 'post', Jetpack_SEO_Posts::NOINDEX_META_KEY );
+			unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
+			Initializer::register_write_hooks();
+			$this->seo->init();
+
+			$route   = '/wp/v2/' . get_post_type_object( $post_type )->rest_base . '/' . $post_id;
+			$request = new WP_REST_Request( 'POST', $route );
+			$request->set_body_params( array( 'meta' => array( Jetpack_SEO_Posts::NOINDEX_META_KEY => true ) ) );
+			$response = rest_do_request( $request );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertTrue( $response->get_data()['meta'][ Jetpack_SEO_Posts::NOINDEX_META_KEY ] );
+
+			$request = new WP_REST_Request( 'POST', $route );
+			$request->set_body_params(
+				array(
+					'meta' => array(
+						Jetpack_SEO_Posts::NOINDEX_META_KEY => false,
+						Llms_Txt::META_ALWAYS_INCLUDE => true,
+					),
+				)
+			);
+			$response = rest_do_request( $request );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertFalse( $response->get_data()['meta'][ Jetpack_SEO_Posts::NOINDEX_META_KEY ] );
+			$this->assertTrue( $response->get_data()['meta'][ Llms_Txt::META_ALWAYS_INCLUDE ] );
+
+			$response = rest_do_request( new WP_REST_Request( 'GET', $route ) );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertTrue( $response->get_data()['meta'][ Llms_Txt::META_ALWAYS_INCLUDE ] );
+		} finally {
+			$GLOBALS['wp_meta_keys']   = $registered_meta;
+			$GLOBALS['wp_rest_server'] = null;
+			unregister_post_type( 'seo_book' );
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_rest_post_types() {
+		return array(
+			'Post'        => array( 'post' ),
+			'Page'        => array( 'page' ),
+			'Custom type' => array( 'seo_book' ),
+		);
 	}
 
 	/**

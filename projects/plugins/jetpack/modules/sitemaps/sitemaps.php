@@ -166,7 +166,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Whether Jetpack has stored a generated master index.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @return bool
 	 */
 	public function is_sitemap_ready() {
@@ -179,7 +179,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Redirect submitted core indexes without breaking their child sitemap URLs.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 */
 	public function callback_redirect_core_index() {
 		if ( 'index' !== get_query_var( 'sitemap' ) || ! $this->is_sitemap_ready() || ! wp_sitemaps_get_server()->sitemaps_enabled() ) {
@@ -194,7 +194,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Advertise only Jetpack's index once it is available.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @param string $output Robots.txt contents.
 	 * @return string
 	 */
@@ -210,7 +210,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Apply SEO exclusions to core's fallback queries, including their page counts.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @param array $args Core sitemap query arguments.
 	 * @return array
 	 */
@@ -241,7 +241,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Preserve custom Jetpack post exclusions on core's fallback sitemap pages.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @param WP_Post[] $posts Query results.
 	 * @param WP_Query  $query Current query.
 	 * @return WP_Post[]
@@ -264,7 +264,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Invalidate only the index and discovery URLs after a stored index changes.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @return string[] Discovery URLs supplied to cache adapters.
 	 */
 	public static function callback_invalidate_index_cache() {
@@ -293,7 +293,7 @@ class Jetpack_Sitemap_Manager {
 		/**
 		 * Invalidate sitemap discovery responses in additional page caches.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.5
 		 * @param string   $url  Jetpack sitemap index URL.
 		 * @param string[] $urls Sitemap index and discovery URLs to invalidate.
 		 */
@@ -304,7 +304,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Purge cached pending responses when the first usable index is stored.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @param int           $post_id Stored post ID.
 	 * @param \WP_Post|null $post Stored sitemap post.
 	 * @param bool          $update Whether this updates an existing post.
@@ -328,7 +328,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Finish deferred cache recovery in a web bootstrap with host cache APIs.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 */
 	public static function callback_purge_pending_index_cache() {
 		$pending = get_option( 'jetpack_sitemap_pending_cache_purge' );
@@ -351,7 +351,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Invalidate discovery responses when the generated index is removed.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @param int           $post_id Deleted post ID.
 	 * @param \WP_Post|null $post Deleted post.
 	 */
@@ -364,7 +364,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Keep pending sitemap responses and reversible redirects out of page caches.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 */
 	private function prevent_caching() {
 		nocache_headers();

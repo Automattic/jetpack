@@ -103,8 +103,12 @@ const pressEscape = target => {
 	);
 };
 
-// The longest a closing dialog gets to leave the document: modals close after an exit animation.
+// The longest a dialog gets to start closing: one behind a confirm, say, stays open.
 const CLOSE_TIMEOUT = 500;
+// The longest a closing dialog gets to leave: a busy main thread can delay its exit, as in WebKit.
+const EXIT_TIMEOUT = 5000;
+// Exit markers of @wordpress/components and @wordpress/ui dialogs.
+const CLOSING = '.is-animating-out, [data-ending-style]';
 
 /**
  * Close the dialogs of a page being hidden, as leaving it with a page load would.
@@ -127,8 +131,10 @@ export async function closeDialogsOf( slug ) {
 		);
 	const open = () => dialogs.some( d => d.isConnected ) || ( dialogs.length && documentHidden() );
 	const start = performance.now();
+	const timeout = () =>
+		dialogs.some( d => d.isConnected && d.closest( CLOSING ) ) ? EXIT_TIMEOUT : CLOSE_TIMEOUT;
 	// Timers, not frames: a Back in a background tab gets no animation frames.
-	while ( open() && performance.now() - start < CLOSE_TIMEOUT ) {
+	while ( open() && performance.now() - start < timeout() ) {
 		await new Promise( resolve => setTimeout( resolve, 16 ) );
 	}
 	// One that stayed open, such as behind a confirm, gets Escape again the next time.

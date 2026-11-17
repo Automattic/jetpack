@@ -185,7 +185,7 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage, onFilter } ) => {
 								onFilter={ onFilter }
 							/>
 							<CoverageRing
-								label={ __( 'Visible to search engines', 'jetpack-seo' ) }
+								label={ __( 'Indexing allowed per item', 'jetpack-seo' ) }
 								action={ searchAction }
 								segment={ with_search_visible }
 								total={ total }

@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Open Graph: Use the block scanner helper to remove Query Loop blocks from descriptions; no change in output.
+
+

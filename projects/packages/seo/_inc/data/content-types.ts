@@ -4,7 +4,7 @@
 // field here comes from a core REST record's `meta` object.
 
 // The allowed per-post Schema.org override. Mirrors
-// `Jetpack_SEO_Posts::ALLOWED_SCHEMA_TYPES` ('' = no override / default).
+// `Post_Seo::ALLOWED_SCHEMA_TYPES` ('' = no override / default).
 export type SchemaType = '' | 'article' | 'faq';
 
 // The SEO post meta as it arrives in a core REST record's `meta` object.
@@ -13,7 +13,7 @@ export interface SeoPostMeta {
 	jetpack_seo_html_title: string;
 	jetpack_seo_noindex: boolean;
 	jetpack_seo_schema_type: SchemaType;
-	// Registered for pages only, in `Llms_Txt::register_always_include()`.
+	// Registered in `Llms_Txt::register_always_include()`.
 	jetpack_seo_llms_txt_always_include?: boolean;
 }
 

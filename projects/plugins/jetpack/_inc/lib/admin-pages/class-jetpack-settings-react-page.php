@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -87,7 +88,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Register Settings with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -118,7 +119,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Ready the Settings routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return void
 	 */
@@ -275,11 +276,11 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 			 * Non-admins only have access to settings
 			 * for the following modules:
 			 * - Publicize
-			 * - Post By Email
+			 * - Post By Email, until it lives only on their Profile page
 			 * If those modules are not available, bail.
 			 */
 			if (
-				! Jetpack::is_module_active( 'post-by-email' )
+				( ! Jetpack::is_module_active( 'post-by-email' ) || self::is_post_by_email_on_profile_only() )
 					&& (
 						! Jetpack::is_module_active( 'publicize' ) ||
 						! current_user_can( 'publish_posts' )
@@ -291,6 +292,18 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 
 		// fallback.
 		return true;
+	}
+
+	/**
+	 * Whether users who cannot manage modules find Post by Email only on their Profile page, once settings move to My Jetpack.
+	 *
+	 * Uses the check that needs no admin menu, since this runs while the menu is built.
+	 *
+	 * @return bool
+	 */
+	private static function is_post_by_email_on_profile_only() {
+		return method_exists( My_Jetpack_Initializer::class, 'is_settings_consolidation_on_for_site' )
+			&& My_Jetpack_Initializer::is_settings_consolidation_on_for_site();
 	}
 
 	/**

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-SEO: Use the posts page's own SEO description, excerpt, and title in its meta and Open Graph tags.

@@ -20,6 +20,7 @@ jest.mock( '../../../hooks/use-analytics', () => ( {
 } ) );
 
 const mockFetch = apiFetch as unknown as jest.Mock;
+const STATS_URL = 'https://example.com/wp-admin/admin.php?page=stats';
 
 const renderPanel = () =>
 	render(
@@ -32,6 +33,7 @@ const posts = () => mockFetch.mock.calls.filter( ( [ options ] ) => options.meth
 
 beforeEach( () => {
 	jest.clearAllMocks();
+	delete window.myJetpackInitialState;
 	mockFetch.mockImplementation( ( { method, data } ) =>
 		Promise.resolve( {
 			is_active: true,
@@ -43,6 +45,23 @@ beforeEach( () => {
 } );
 
 describe( 'GoogleAnalyticsSettings', () => {
+	it.each( [
+		[ 'links Jetpack Stats to its manage URL', { stats: { manage_url: STATS_URL } }, STATS_URL ],
+		[ 'keeps Jetpack Stats as plain text without a manage URL', {}, null ],
+	] )( '%s', async ( _name, items, href ) => {
+		window.myJetpackInitialState = {
+			products: { items },
+		} as unknown as Window[ 'myJetpackInitialState' ];
+		renderPanel();
+
+		const intro = await screen.findByText( /^Google Analytics is a free service/ );
+		expect( intro ).toHaveTextContent(
+			'Google Analytics is a free service that complements Jetpack Stats with different insights into your traffic.'
+		);
+		const link = screen.queryByRole( 'link', { name: 'Jetpack Stats' } );
+		expect( link?.getAttribute( 'href' ) ?? null ).toBe( href );
+	} );
+
 	it( 'saves only a valid Measurement ID, on blur, and never records it', async () => {
 		renderPanel();
 		const input = await screen.findByRole( 'textbox', { name: 'Google Analytics Measurement ID' } );
@@ -59,6 +78,10 @@ describe( 'GoogleAnalyticsSettings', () => {
 		await waitFor( () => expect( posts() ).toHaveLength( 1 ) );
 		expect( posts()[ 0 ][ 0 ].data ).toEqual( { code: 'G-NEW123' } );
 		expect( JSON.stringify( mockRecordEvent.mock.calls ) ).not.toContain( 'G-NEW123' );
+		const [ [ event, props ] ] = mockRecordEvent.mock.calls;
+		expect( event ).toBe( 'jetpack_wpa_settings_change' );
+		expect( props ).toMatchObject( { module: 'google-analytics', setting: 'code' } );
+		expect( props ).not.toHaveProperty( 'value' );
 	} );
 
 	it( 'keeps a switch click made while the ID saves, and saves one at a time', async () => {
@@ -103,6 +126,7 @@ describe( 'GoogleAnalyticsSettings', () => {
 			setting: 'anonymize_ip',
 			toggled: 'on',
 			origin: 'my-jetpack-settings-panel',
+			event_version: 1,
 		} );
 	} );
 } );

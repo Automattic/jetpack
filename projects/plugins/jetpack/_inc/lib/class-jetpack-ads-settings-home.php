@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Picks this site's home for the Ads settings, for the Settings app, the Monetize page and configure_url.
  *
- * @since $$next-version$$
+ * @since 16.5
  */
 class Jetpack_Ads_Settings_Home {
 

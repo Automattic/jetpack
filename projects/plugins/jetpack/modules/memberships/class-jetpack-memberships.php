@@ -308,6 +308,11 @@ class Jetpack_Memberships {
 			return $caps;
 		}
 
+		// Bail before get_post(): for other caps $args[0] may be a comment, user or term ID, and missing posts are not cached.
+		if ( 'edit_posts' !== $cap && 'delete_posts' !== $cap ) {
+			return $caps;
+		}
+
 		$post = get_post( $args[0] );
 		if ( ! $post instanceof WP_Post || ! in_array( $post->post_type, array( self::$post_type_plan, self::$post_type_coupon ), true ) ) {
 			return $caps;

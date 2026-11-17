@@ -17,6 +17,8 @@ const SUMMARY: PostSummary = {
 	refetch: () => {},
 };
 
+const CONTEXT = { label: 'Post', title: 'Hello world' };
+
 const EMAIL_SECTION = {
 	section: {
 		section: {
@@ -46,9 +48,7 @@ function renderHeader(
 	summary: PostSummary,
 	context: Partial< Parameters< typeof postHeaderSlots >[ 1 ] > = {}
 ) {
-	return render(
-		<SectionHeader { ...postHeaderSlots( summary, { label: 'Post', ...context } ) } />
-	);
+	return render( <SectionHeader { ...postHeaderSlots( summary, { ...CONTEXT, ...context } ) } /> );
 }
 
 describe( 'postHeaderSlots', () => {
@@ -97,16 +97,6 @@ describe( 'postHeaderSlots', () => {
 	} );
 
 	it.each( [
-		[ 'post', 'Untitled post' ],
-		[ 'page', 'Untitled page' ],
-		[ 'product', 'Untitled product' ],
-	] )( 'names an untitled %s so the page keeps its heading', ( type, heading ) => {
-		renderHeader( { ...SUMMARY, type, title: '' } );
-
-		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( heading );
-	} );
-
-	it.each( [
 		[ 'post', 'Post unavailable' ],
 		[ 'page', 'Page unavailable' ],
 		[ 'product', 'Product unavailable' ],
@@ -139,7 +129,7 @@ describe( 'postHeaderSlots', () => {
 			'true'
 		);
 
-		rerender( <SectionHeader { ...postHeaderSlots( SUMMARY, { label: 'Post' } ) } /> );
+		rerender( <SectionHeader { ...postHeaderSlots( SUMMARY, CONTEXT ) } /> );
 
 		// eslint-disable-next-line testing-library/no-node-access -- The text cell the slot fills has no accessible query target.
 		expect( screen.getByRole( 'heading', { level: 2 } ).parentElement ).not.toHaveAttribute(

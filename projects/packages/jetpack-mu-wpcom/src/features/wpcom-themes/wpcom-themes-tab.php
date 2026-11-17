@@ -429,8 +429,22 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 		);
 	}
 
-	$page   = isset( $args->page ) ? max( 1, (int) $args->page ) : 1;
 	$mapper = wpcom_themes_tab_mapper();
+
+	// Core's Feature Filter: as on WordPress.org, a theme has to carry every tag asked for.
+	$tags = isset( $args->tag ) ? array_filter( (array) $args->tag, 'is_string' ) : array();
+	if ( array() !== $tags ) {
+		$themes = array_values(
+			array_filter(
+				$themes,
+				static function ( $theme ) use ( $mapper, $tags ) {
+					return array() === array_diff( $tags, $mapper->build_theme_tags( $theme ) );
+				}
+			)
+		);
+	}
+
+	$page = isset( $args->page ) ? max( 1, (int) $args->page ) : 1;
 
 	// Only the page core asked for is mapped: mapping reads each theme from disk to say whether it
 	// is installed.

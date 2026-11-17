@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Plugin;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack;
@@ -121,7 +122,7 @@ class Unavailable_Blocks {
 		return array(
 			'reason'           => $reason,
 			'canFix'           => current_user_can( $is_disconnected ? 'jetpack_connect' : 'jetpack_manage_modules' ),
-			'fixUrl'           => admin_url( $is_disconnected ? 'admin.php?page=jetpack' : 'admin.php?page=jetpack#/writing' ),
+			'fixUrl'           => $is_disconnected ? admin_url( 'admin.php?page=jetpack' ) : self::get_blocks_module_url(),
 			'features'         => $features,
 			'canManageModules' => current_user_can( 'jetpack_manage_modules' ),
 			'modulesUrl'       => admin_url( 'admin.php?page=jetpack_modules' ),
@@ -226,6 +227,22 @@ class Unavailable_Blocks {
 		}
 
 		return array_values( array_diff( $blocks, self::CONDITIONAL_BLOCKS ) );
+	}
+
+	/**
+	 * Where an admin turns the Blocks module back on.
+	 *
+	 * @return string
+	 */
+	private static function get_blocks_module_url() {
+		if ( ! method_exists( Initializer::class, 'is_settings_consolidation_enabled' ) || ! Initializer::is_settings_consolidation_enabled() ) {
+			return admin_url( 'admin.php?page=jetpack#/writing' );
+		}
+
+		// Features searches translated module names, so an English term would miss the row in other locales.
+		$i18n = function_exists( 'jetpack_get_module_i18n' ) ? jetpack_get_module_i18n( 'blocks' ) : array();
+
+		return admin_url( 'admin.php?page=my-jetpack#/features?search=' . rawurlencode( ! empty( $i18n['name'] ) ? $i18n['name'] : 'blocks' ) );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Content: Allow posts and supported custom post types to be marked for inclusion in llms.txt.

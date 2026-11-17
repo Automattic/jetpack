@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Premium Analytics: Serve the post page from /report/post/<id>; the old /post/<id> address redirects.

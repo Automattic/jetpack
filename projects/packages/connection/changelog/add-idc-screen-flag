@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Safe Mode: Add a feature flag for the shared Safe Mode screen, and include Safe Mode state in the connection initial state.

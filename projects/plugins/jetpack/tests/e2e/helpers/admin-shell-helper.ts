@@ -75,6 +75,15 @@ export const MEMBERS: Member[] = [
 		// Needs the `seo-admin-ui` plan feature or the `rsm_jetpack_seo` filter, and the seo-tools module on.
 		optional: true,
 	},
+	{
+		slug: 'jetpack-boost',
+		mountId: 'jetpack-boost-dashboard-wp-admin-app',
+		title: 'Jetpack Boost - Settings',
+		heading: 'Boost',
+		landing: /^\?page=jetpack-boost$/,
+		// Needs the Boost plugin.
+		optional: true,
+	},
 	/* Activity Log, Newsletter, Protect and VideoPress are members too, but CI leaves their modules off,
 	 * and its stubbed WordPress.com connection can't fetch the data their pages show. */
 ];

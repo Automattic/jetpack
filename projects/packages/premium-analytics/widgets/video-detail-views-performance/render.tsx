@@ -11,9 +11,13 @@ import {
 	WidgetState,
 	defaultPeriodForInterval,
 	describeError,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
+	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -31,6 +35,21 @@ type VideoDetailViewsPerformanceRenderAttributes = VideoDetailViewsPerformanceAt
 type VideoDetailViewsPerformanceWidgetProps =
 	WidgetRenderProps< VideoDetailViewsPerformanceRenderAttributes >;
 
+// The chart reads the rate as a 0 to 1 ratio; the file writes the percentage it shows.
+function retentionAsPercent( tab: MetricTab ): MetricTab {
+	return tab.key === 'retention-rate'
+		? {
+				...tab,
+				label: __( 'Retention rate (%)', 'jetpack-premium-analytics-pkg' ),
+				current: tab.current.map( point => ( {
+					...point,
+					// toPrecision drops the float noise of the multiplication (0.453 * 100).
+					value: point.value === null ? null : Number( ( point.value * 100 ).toPrecision( 12 ) ),
+				} ) ),
+			}
+		: tab;
+}
+
 type VideoDetailViewsPerformanceInnerProps = {
 	/** How the selected metric is drawn. `MetricTabsChart` owns the default. */
 	chartType?: VideoDetailViewsPerformanceChartType;
@@ -45,11 +64,30 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 	const videoId = toPostId( reportParams.post_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { metrics, isLoading, isFetching, isError, error, refetch } = useVideoMetrics(
-		videoId,
-		reportParams,
-		period
+	const { metrics, timezone, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
+		useVideoMetrics( videoId, reportParams, period );
+	const csv = useMemo(
+		() =>
+			metricTabsToCsv(
+				metrics.some( tab => tab.current.some( point => ( point.value ?? 0 ) > 0 ) )
+					? metrics.map( retentionAsPercent )
+					: [],
+				{
+					zone: timezone,
+					withTime: false,
+					dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+				}
+			),
+		[ metrics, timezone ]
 	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: `video-${ videoId }-performance`,
+			range: { from: reportParams.from, to: reportParams.to },
+			status: { isLoading, isFetching, isError, isPlaceholderData },
+		},
+	} );
 	const groupLabel = __( 'Video metric', 'jetpack-premium-analytics-pkg' );
 
 	return (

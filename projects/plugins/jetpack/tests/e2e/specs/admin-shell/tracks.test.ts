@@ -116,10 +116,9 @@ test.describe( 'Admin shell: Tracks page views', () => {
 			await openMember( page, other );
 			await switchTo( page, m.slug );
 			await switchTo( page, other );
-			const views = await viewsOnSwitch( page, m.slug, expected );
-			// Called here, so a failed switch above is still a real failure.
-			test.fail( true, 'Known gap: a kept-alive app records no page view when shown again.' );
-			expect( views ).toEqual( expect.arrayContaining( expected ) );
+			expect( await viewsOnSwitch( page, m.slug, expected ) ).toEqual(
+				expect.arrayContaining( expected )
+			);
 		} );
 	}
 

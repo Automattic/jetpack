@@ -487,7 +487,7 @@ describe( 'HeatmapChart', () => {
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#7f93f1' );
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#3554df' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#283ea5' );
 
 		document.body.removeChild( scope );
 	} );
@@ -584,9 +584,10 @@ const mockRects = () =>
 	} );
 
 describe( 'HeatmapChart value text contrast', () => {
-	// The low end, a mid-tone, and the high end of the scale.
+	// Three powers of ten on the log scale, which lands them on the low end, the
+	// mid-tone and the high end exactly.
 	const scale: HeatmapColumn[] = [
-		{ label: 'W1', data: [ { value: 1 }, { value: 60 }, { value: 100 } ] },
+		{ label: 'W1', data: [ { value: 1 }, { value: 10 }, { value: 100 } ] },
 	];
 
 	let injectedStyle: HTMLStyleElement | null = null;
@@ -603,6 +604,7 @@ describe( 'HeatmapChart value text contrast', () => {
 					width={ 500 }
 					height={ 300 }
 					data={ scale }
+					scale="log"
 					primaryColor="#3858e9"
 					className={ className }
 				/>
@@ -616,10 +618,10 @@ describe( 'HeatmapChart value text contrast', () => {
 		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 
-	test( 'falls back to black on a mid-tone cell where neither role reaches AA', () => {
+	test( 'falls back to white on a mid-tone cell where neither role reaches AA', () => {
 		renderScale();
 
-		expect( screen.getByText( '60' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+		expect( screen.getByText( '10' ) ).toHaveClass( 'heatmap-chart__cell-value--white' );
 	} );
 
 	test( 'reads the label roles once data arrives after an empty first render', () => {
@@ -683,6 +685,27 @@ describe( 'HeatmapChart value text contrast', () => {
 		expect( screen.getByText( '1' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 
+	test( 'gives a hatched value the pick the hatch tone gets as the lowest step', () => {
+		injectedStyle = document.createElement( 'style' );
+		injectedStyle.textContent =
+			'.swapped-heatmap { --a8c-charts-color-label: #f0f0f0; --a8c-charts-color-label-inverse: #1e1e1e; }';
+		document.head.appendChild( injectedStyle );
+
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					className="swapped-heatmap"
+					primaryColor="#3858e9"
+					data={ [ ...scale, { label: 'Nov', data: [ { value: 7, partial: true } ] } ] }
+				/>
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getByText( '7' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+	} );
+
 	test( "keeps one color when both label roles are set to it on the chart's own class", () => {
 		injectedStyle = document.createElement( 'style' );
 		injectedStyle.textContent =
@@ -691,7 +714,7 @@ describe( 'HeatmapChart value text contrast', () => {
 
 		renderScale( 'pinned-heatmap' );
 
-		[ '1', '60', '100' ].forEach( value =>
+		[ '1', '10', '100' ].forEach( value =>
 			expect( screen.getByText( value ) ).toHaveClass( 'heatmap-chart__cell-value', {
 				exact: true,
 			} )
@@ -1268,5 +1291,290 @@ describe( 'HeatmapChart naming and focus', () => {
 		renderChart( { data: [], columnGroups: [ { label: 'Q1', span: 3 } ] } );
 		expect( screen.getByText( 'No data available' ) ).toBeInTheDocument();
 		expect( console ).not.toHaveWarned();
+	} );
+} );
+
+describe( 'HeatmapChart linear scale', () => {
+	const ascending: HeatmapColumn[] = Array.from( { length: 24 }, ( _column, index ) => ( {
+		data: [ { value: ( index + 1 ) * 10 } ],
+	} ) );
+
+	const intensitiesOf = ( testId: string ) =>
+		screen
+			.getAllByTestId( testId )
+			.map( element => element.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) );
+
+	test( 'keeps an outlier apart from the rest', () => {
+		const spike: HeatmapColumn[] = [ 1, 2, 3, 500 ].map( value => ( { data: [ { value } ] } ) );
+
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ spike } scale="linear" />
+			</GlobalChartsProvider>
+		);
+
+		expect( intensitiesOf( 'heatmap-cell' ) ).toEqual( [
+			'0',
+			'0.002004008016032064',
+			'0.004008016032064128',
+			'1',
+		] );
+	} );
+
+	test( 'paints a continuous blend without a scale prop', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } />
+			</GlobalChartsProvider>
+		);
+
+		// A stepped scale would collapse the twenty-four values onto five steps.
+		expect( new Set( intensitiesOf( 'heatmap-cell' ) ).size ).toBe( 24 );
+	} );
+
+	test( 'lets the legend hold its own step count', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ ascending }>
+					<HeatmapChart.Legend steps={ 3 } />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+
+		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [ '0', '0.5', '1' ] );
+	} );
+} );
+
+describe( 'HeatmapChart bucket scale', () => {
+	// Twenty-four ascending values, so every one of the five buckets is populated.
+	const ascending: HeatmapColumn[] = Array.from( { length: 24 }, ( _column, index ) => ( {
+		data: [ { value: ( index + 1 ) * 10 } ],
+	} ) );
+
+	const intensitiesOf = ( testId: string ) =>
+		screen
+			.getAllByTestId( testId )
+			.map( element => element.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) );
+
+	test( 'gives each step about a fifth of the cells', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ ascending } scale="buckets">
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+
+		const counts = intensitiesOf( 'heatmap-cell' ).reduce< Record< string, number > >(
+			( tally, intensity ) => ( { ...tally, [ intensity ]: ( tally[ intensity ] ?? 0 ) + 1 } ),
+			{}
+		);
+		expect( counts ).toEqual( { '0': 4, '0.25': 5, '0.5': 5, '0.75': 5, '1': 5 } );
+		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [
+			'0',
+			'0.25',
+			'0.5',
+			'0.75',
+			'1',
+		] );
+	} );
+
+	test( 'hands the top step to everything in it, however far apart', () => {
+		const spike: HeatmapColumn[] = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 500 ].map( value => ( {
+			data: [ { value } ],
+		} ) );
+
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ spike } scale="buckets" />
+			</GlobalChartsProvider>
+		);
+
+		// The cost of ranking: 9, 10 and 500 share the darkest step, where distance keeps 500 alone.
+		expect( intensitiesOf( 'heatmap-cell' ).slice( -3 ) ).toEqual( [ '1', '1', '1' ] );
+	} );
+} );
+
+describe( 'HeatmapChart log scale', () => {
+	const intensitiesOf = ( testId: string ) =>
+		screen
+			.getAllByTestId( testId )
+			.map( element => element.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) );
+
+	const renderLog = ( values: number[] ) =>
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					data={ values.map( value => ( { data: [ { value } ] } ) ) }
+					scale="log"
+				/>
+			</GlobalChartsProvider>
+		);
+
+	test( 'gives each tenfold jump the same step', () => {
+		renderLog( [ 1, 10, 100, 1000, 10000 ] );
+
+		expect( intensitiesOf( 'heatmap-cell' ) ).toEqual( [ '0', '0.25', '0.5', '0.75', '1' ] );
+	} );
+
+	test( 'spreads a series that runs over orders of magnitude', () => {
+		// The shape a post's all-time traffic takes: years of single digits, then a jump.
+		renderLog( [ 5, 18, 234, 812, 12100 ] );
+
+		// Distance would leave everything below the largest on the lightest tone.
+		expect( intensitiesOf( 'heatmap-cell' ) ).toEqual( [ '0', '0.25', '0.5', '0.75', '1' ] );
+	} );
+
+	test( "holds the legend to the cells' steps", () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					data={ [ 1, 10, 100 ].map( value => ( { data: [ { value } ] } ) ) }
+					scale="log"
+				>
+					<HeatmapChart.Legend steps={ 7 } />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+
+		expect( intensitiesOf( 'heatmap-legend-swatch' ) ).toEqual( [
+			'0',
+			'0.25',
+			'0.5',
+			'0.75',
+			'1',
+		] );
+		expect( console ).toHaveWarnedWith(
+			'[Charts] steps is fixed under the log scale, where a cell paints on exactly 5 steps, so the legend keeps them.'
+		);
+	} );
+
+	test( 'stays quiet for a series with nothing on the scale', () => {
+		// A site with no views yet: every cell is a zero, which paints as empty either way.
+		renderLog( [ 0, 0, 0 ] );
+
+		expect( console ).not.toHaveWarned();
+	} );
+
+	test( 'falls back to distance and warns once where a value has no logarithm', () => {
+		renderLog( [ -5, 10, 100 ] );
+
+		// Snapping would leave at most five distinct values; distance leaves three here.
+		expect( new Set( intensitiesOf( 'heatmap-cell' ) ) ).toEqual(
+			new Set( [ '0', '0.14285714285714285', '1' ] )
+		);
+		expect( console ).toHaveWarnedWith(
+			'[Charts] The log scale needs every value above zero, so the cells keep their placement by distance.'
+		);
+	} );
+} );
+
+describe( 'HeatmapChart partial cells', () => {
+	const withPartial: HeatmapColumn[] = [
+		{ label: 'Oct', data: [ { value: 10, label: 'October' } ] },
+		{ label: 'Nov', data: [ { value: 400, label: 'November', partial: true } ] },
+		{ label: 'Dec', data: [ { value: 30, label: 'December' } ] },
+	];
+
+	test( 'paints a partial cell as a hatch instead of a scale step', () => {
+		renderChart( { data: withPartial } );
+
+		const partial = screen.getByTestId( 'heatmap-cell-partial' );
+		expect( partial ).toHaveClass( 'heatmap-chart__cell--partial' );
+		expect( partial ).not.toHaveClass( 'heatmap-chart__cell--filled' );
+		expect( partial.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) ).toBe( '' );
+		expect( screen.getAllByTestId( 'heatmap-cell' ) ).toHaveLength( 2 );
+	} );
+
+	test( 'keeps a partial cell reporting its value', () => {
+		renderChart( { data: withPartial } );
+
+		const partial = screen.getByTestId( 'heatmap-cell-partial' );
+		expect( partial ).toHaveTextContent( '400' );
+		expect( partial ).toHaveAccessibleName( /November: 400/ );
+	} );
+
+	test( 'says in the tooltip that a partial period is incomplete', async () => {
+		renderChart( { data: withPartial, withTooltips: true } );
+
+		await userEvent.setup().hover( screen.getByTestId( 'heatmap-cell-partial' ) );
+
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+			'November (incomplete)'
+		);
+	} );
+
+	test( 'passes the partial flag to a custom tooltip', async () => {
+		const renderTooltip = jest.fn( () => <span>custom</span> );
+		renderChart( { data: withPartial, withTooltips: true, renderTooltip } );
+
+		await userEvent.setup().hover( screen.getByTestId( 'heatmap-cell-partial' ) );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+
+		expect( renderTooltip ).toHaveBeenCalledWith( expect.objectContaining( { partial: true } ) );
+	} );
+
+	test( 'says in the accessible name that a partial period is incomplete', () => {
+		renderChart( { data: withPartial } );
+
+		expect( screen.getByTestId( 'heatmap-cell-partial' ) ).toHaveAccessibleName(
+			'November: 400 (incomplete)'
+		);
+	} );
+
+	test( 'keeps a partial cell in keyboard navigation', async () => {
+		renderChart( { data: withPartial } );
+		const grid = screen.getByRole( 'grid' );
+
+		grid.focus();
+		// The first arrow key only selects the first cell.
+		await userEvent.setup().keyboard( '{ArrowDown}{ArrowRight}' );
+
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			screen.getByTestId( 'heatmap-cell-partial' ).id
+		);
+	} );
+
+	test( 'ignores a partial flag on a summary cell', async () => {
+		const renderTooltip = jest.fn( () => <span>custom</span> );
+		renderChart( {
+			data: [
+				{ label: 'Oct', data: [ { value: 10, label: 'October' } ] },
+				{ label: 'Total', summary: true, data: [ { value: 10, label: 'Totals', partial: true } ] },
+			],
+			withTooltips: true,
+			renderTooltip,
+		} );
+
+		const summary = screen.getByTestId( 'heatmap-cell-summary' );
+		expect( summary ).toHaveAccessibleName( 'Totals: 10' );
+
+		await userEvent.setup().hover( summary );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+
+		expect( renderTooltip ).toHaveBeenCalledWith( expect.objectContaining( { partial: false } ) );
+	} );
+
+	test( 'renders a series of nothing but partial cells', () => {
+		const onlyPartial: HeatmapColumn[] = [
+			{ data: [ { value: 5, partial: true } ] },
+			{ data: [ { value: 50, partial: true } ] },
+		];
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ onlyPartial }>
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getAllByTestId( 'heatmap-cell-partial' ) ).toHaveLength( 2 );
+		expect( screen.queryByTestId( 'heatmap-cell' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByTestId( 'heatmap-legend-swatch' ).length ).toBeGreaterThan( 0 );
 	} );
 } );

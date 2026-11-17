@@ -363,6 +363,7 @@ export const getConnectScreenErrorMessage = (
 			);
 
 		// The site's own REST request failed before WordPress.com was contacted.
+		// The Safe Mode screen reads these the same way (`getIdentityCrisisErrorCause()`); keep the two in step.
 		case 'JsonParseError':
 		case 'JsonParseAfterRedirectError':
 			return __(

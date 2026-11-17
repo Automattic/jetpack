@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Custom Content Types settings state.
+ * Tests for the Custom Content Types settings.
  *
  * @package automattic/jetpack-classic-theme-helper
  */
@@ -13,8 +13,10 @@ require_once __DIR__ . '/../../src/custom-content-types.php';
 
 /**
  * @covers ::jetpack_custom_post_types_loaded
+ * @covers ::jetpack_cpt_section_callback
  */
 #[CoversFunction( 'jetpack_custom_post_types_loaded' )]
+#[CoversFunction( 'jetpack_cpt_section_callback' )]
 class Custom_Content_Types_Test extends TestCase {
 
 	/**
@@ -54,5 +56,16 @@ class Custom_Content_Types_Test extends TestCase {
 			'new Settings page' => array( 'jetpack-settings', true ),
 			'other admin page'  => array( 'jetpack_modules', false ),
 		);
+	}
+
+	/**
+	 * Test that the Settings › Writing section links to the support doc.
+	 */
+	public function test_section_description_links_to_the_support_doc() {
+		ob_start();
+		jetpack_cpt_section_callback();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'source=jetpack-support-custom-content-types', $output );
 	}
 }
