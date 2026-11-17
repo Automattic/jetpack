@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Playground backup restores for sites with plugin tables keyed by a text column, like Novamira's chat sessions.

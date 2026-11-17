@@ -4,10 +4,13 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	applyStatsDatePolicy,
+	DASHBOARD_PREFERENCES_SCOPE,
 	getPolicyDefaultPreset,
+	getSectionOrder,
 	isDateLimitedPolicy,
 	isPresetLockedByPolicy,
 	normalizeReportParams,
+	orderSections,
 	withoutComparison,
 	type DateLimitFeature,
 	type StatsDatePolicy,
@@ -19,7 +22,8 @@ type Search = Record< string, unknown >;
 type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
 
 /**
- * The dashboard tab a `section` search param shows; an unknown or absent one is the first tab.
+ * The dashboard tab a `section` search param shows; an unknown or absent one is the first tab,
+ * in the order the reader arranged them.
  *
  * @param section - The `section` search param.
  * @return The tab's slug, or undefined when the server lists no tabs.
@@ -28,9 +32,17 @@ export function dashboardSectionOf( section: unknown ): string | undefined {
 	const slugs = getScriptData()?.premium_analytics?.sections;
 	const isKnown =
 		typeof section === 'string' && ( ! Array.isArray( slugs ) || slugs.includes( section ) );
-	const active = isKnown ? section : slugs?.[ 0 ];
+	if ( isKnown ) {
+		return section;
+	}
 
-	return typeof active === 'string' ? active : undefined;
+	// The same ordering the dashboard's tab bar gets, so both agree on the first tab.
+	const [ first ] = orderSections(
+		( Array.isArray( slugs ) ? slugs : [] ).map( slug => ( { slug } ) ),
+		getSectionOrder( DASHBOARD_PREFERENCES_SCOPE )
+	);
+
+	return typeof first?.slug === 'string' ? first.slug : undefined;
 }
 
 /**

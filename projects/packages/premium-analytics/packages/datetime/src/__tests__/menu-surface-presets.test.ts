@@ -14,7 +14,7 @@ describe( 'getMenuSurfacePresetGroups', () => {
 		expect( idsOf( getMenuSurfacePresetGroups( TIME_ZONE ) ) ).toEqual( [
 			[ 'today', 'yesterday', 'last-24-hours', 'last-7-days', 'last-30-days' ],
 			[ 'month-to-date', 'last-month' ],
-			[ 'year-to-date', 'last-12-months' ],
+			[ 'year-to-date', 'last-12-months', 'last-3-years' ],
 		] );
 	} );
 

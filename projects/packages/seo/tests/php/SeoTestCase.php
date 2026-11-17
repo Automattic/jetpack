@@ -19,6 +19,20 @@ use PHPUnit\Framework\TestCase;
 abstract class SeoTestCase extends TestCase {
 
 	/**
+	 * Nav menus created by {@see add_nav_menu()}.
+	 *
+	 * @var int[]
+	 */
+	private $nav_menu_ids = array();
+
+	/**
+	 * Menu locations registered by {@see add_nav_menu()}.
+	 *
+	 * @var string[]
+	 */
+	private $nav_menu_locations = array();
+
+	/**
 	 * Short-circuit filter for the active plan option.
 	 */
 	const PLAN_FILTER = 'pre_option_' . Current_Plan::PLAN_OPTION;
@@ -35,6 +49,7 @@ abstract class SeoTestCase extends TestCase {
 	}
 
 	protected function tearDown(): void {
+		$this->reset_nav_menus();
 		$this->reset_content();
 		$this->reset_coverage_cache();
 		parent::tearDown();
@@ -200,5 +215,56 @@ abstract class SeoTestCase extends TestCase {
 				'meta_value' => $value,
 			)
 		);
+	}
+
+	/**
+	 * Create a classic nav menu linking pages, optionally registering a location and
+	 * assigning the menu to it.
+	 *
+	 * @param int[]       $page_ids Pages to link, in menu order.
+	 * @param string|null $location Location slug, or null to leave the menu unassigned.
+	 * @return int Menu ID.
+	 */
+	protected function add_nav_menu( array $page_ids, $location = null ) {
+		$menu_id              = wp_create_nav_menu( 'Test menu ' . count( $this->nav_menu_ids ) );
+		$this->nav_menu_ids[] = $menu_id;
+
+		foreach ( $page_ids as $page_id ) {
+			wp_update_nav_menu_item(
+				$menu_id,
+				0,
+				array(
+					'menu-item-object-id' => $page_id,
+					'menu-item-object'    => 'page',
+					'menu-item-type'      => 'post_type',
+					'menu-item-status'    => 'publish',
+				)
+			);
+		}
+
+		if ( null !== $location ) {
+			register_nav_menus( array( $location => $location ) );
+			$this->nav_menu_locations[] = $location;
+			set_theme_mod( 'nav_menu_locations', array_merge( (array) get_theme_mod( 'nav_menu_locations', array() ), array( $location => $menu_id ) ) );
+		}
+
+		return $menu_id;
+	}
+
+	/**
+	 * Delete the menus and locations created by {@see add_nav_menu()}.
+	 *
+	 * @return void
+	 */
+	protected function reset_nav_menus() {
+		foreach ( $this->nav_menu_ids as $menu_id ) {
+			wp_delete_nav_menu( $menu_id );
+		}
+		foreach ( $this->nav_menu_locations as $location ) {
+			unregister_nav_menu( $location );
+		}
+		$this->nav_menu_ids       = array();
+		$this->nav_menu_locations = array();
+		remove_theme_mod( 'nav_menu_locations' );
 	}
 }

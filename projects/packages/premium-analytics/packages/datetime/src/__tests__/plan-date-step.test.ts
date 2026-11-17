@@ -2,7 +2,17 @@
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { addDays, addYears, endOfMonth, startOfDay, startOfMonth, subMonths } from 'date-fns';
+import {
+	addDays,
+	addYears,
+	endOfMonth,
+	endOfYear,
+	startOfDay,
+	startOfMonth,
+	startOfYear,
+	subMonths,
+	subYears,
+} from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -367,6 +377,13 @@ describe( 'planDateStep over a year', () => {
 				const lastMonth = subMonths( today, 12 );
 
 				return { from: startOfMonth( firstMonth ), to: endOfMonth( lastMonth ) };
+			}
+			case 'last-3-years': {
+				const today = startOfDay( now );
+				const firstYear = subYears( today, 5 );
+				const lastYear = subYears( today, 3 );
+
+				return { from: startOfYear( firstYear ), to: endOfYear( lastYear ) };
 			}
 		}
 	}

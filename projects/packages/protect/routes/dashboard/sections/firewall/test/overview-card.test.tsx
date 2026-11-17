@@ -535,7 +535,9 @@ describe( 'FirewallOverviewCard', () => {
 					data: { params: { jetpack_waf_ip_block_list: refusal } },
 				} );
 			}
-			return Promise.resolve( path === '/jetpack/v4/settings' ? { waf: true, ...OFF } : {} );
+			return Promise.resolve(
+				path === '/jetpack/v4/protect-dashboard/settings' ? { waf: true, ...OFF } : {}
+			);
 		} );
 		const Live = () => (
 			<FirewallOverviewCard
@@ -592,7 +594,9 @@ describe( 'FirewallOverviewCard', () => {
 	it( 'moves focus to Edit block list when saving swaps out the button that opened the dialog', async () => {
 		( apiFetch as unknown as jest.Mock ).mockImplementation( ( { method, path } ) =>
 			Promise.resolve(
-				method !== 'POST' && path === '/jetpack/v4/settings' ? { waf: true, ...EMPTY_LIST } : {}
+				method !== 'POST' && path === '/jetpack/v4/protect-dashboard/settings'
+					? { waf: true, ...EMPTY_LIST }
+					: {}
 			)
 		);
 		const Live = () => (

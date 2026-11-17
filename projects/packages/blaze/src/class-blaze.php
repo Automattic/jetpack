@@ -212,11 +212,6 @@ class Blaze {
 				);
 			}
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
-
-			// Temporary entry at the old Tools location; remove ~1 month after the move ships.
-			if ( 'tools.php' !== $parent_slug ) {
-				self::add_migration_notice_menu();
-			}
 		}
 	}
 
@@ -291,118 +286,6 @@ class Blaze {
 
 		/** This filter is documented above. */
 		return apply_filters( 'jetpack_blaze_menu_parent', 'tools.php' );
-	}
-
-	/**
-	 * Register a temporary "moved" notice page at the old Tools menu location.
-	 *
-	 * The menu keeps its old "Advertising" label so users who knew it by that
-	 * name still recognize it; the page itself explains the move to Blaze Ads.
-	 *
-	 * @return void
-	 */
-	public static function add_migration_notice_menu() {
-		/**
-		 * Filter whether to show the temporary migration notice at the old
-		 * Tools > Advertising location.
-		 *
-		 * @since 0.28.0
-		 *
-		 * @param bool $show_notice Whether to show the migration notice. Default true.
-		 */
-		if ( ! apply_filters( 'jetpack_blaze_show_migration_notice', true ) ) {
-			return;
-		}
-
-		add_submenu_page(
-			'tools.php',
-			esc_attr__( 'Advertising', 'jetpack-blaze' ),
-			__( 'Advertising', 'jetpack-blaze' ),
-			'manage_options',
-			'advertising-moved',
-			array( __CLASS__, 'render_migration_notice' ),
-			1
-		);
-	}
-
-	/**
-	 * Render the temporary migration notice shown at the old Tools menu location.
-	 *
-	 * @return void
-	 */
-	public static function render_migration_notice() {
-		/** This filter is documented in Blaze::enable_blaze_menu() */
-		$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
-
-		$parent_slug  = self::get_menu_parent();
-		$parent_label = 'woocommerce-marketing' === $parent_slug
-			? __( 'Marketing', 'jetpack-blaze' )
-			: 'Jetpack';
-
-		$dashboard_url = admin_url( 'admin.php?page=' . $menu_slug );
-		$image_file    = 'woocommerce-marketing' === $parent_slug
-			? 'blaze-ads-moved-woo.webp'
-			: 'blaze-ads-moved.webp';
-		$image_path    = dirname( __DIR__ ) . '/assets/images/' . $image_file;
-		$image_url     = plugins_url( 'assets/images/' . $image_file, __DIR__ );
-
-		?>
-		<div class="wrap blaze-ads-migration">
-			<div class="blaze-ads-migration__header">
-				<svg class="blaze-ads-migration__logo" xmlns="http://www.w3.org/2000/svg" height="32" width="32" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-					<path d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z" fill="#069e08" />
-					<polygon points="15,19 7,19 15,3" fill="#fff" />
-					<polygon points="17,29 17,13 25,13" fill="#fff" />
-				</svg>
-				<span class="blaze-ads-migration__brand">Blaze Ads</span>
-			</div>
-			<h1 class="blaze-ads-migration__title">
-				<?php
-				printf(
-					/* translators: %s is the product name (not translatable). */
-					esc_html__( '%s has moved', 'jetpack-blaze' ),
-					'Blaze Ads'
-				);
-				?>
-			</h1>
-			<p class="blaze-ads-migration__subtitle">
-				<?php
-				printf(
-					/* translators: %s is the menu path where the section lives now, e.g. "Jetpack → Blaze Ads" or "Marketing → Blaze Ads". */
-					esc_html__( "Now it's part of %s", 'jetpack-blaze' ),
-					esc_html( $parent_label . ' → Blaze Ads' )
-				);
-				?>
-			</p>
-			<p>
-				<a class="button button-primary button-hero" href="<?php echo esc_url( $dashboard_url ); ?>">
-					<?php
-					printf(
-						/* translators: %s is the product name (not translatable). */
-						esc_html__( 'Check new %s', 'jetpack-blaze' ),
-						'Blaze Ads'
-					);
-					?>
-				</a>
-			</p>
-			<?php if ( file_exists( $image_path ) ) : ?>
-				<p class="blaze-ads-migration__image">
-					<img
-						src="<?php echo esc_url( $image_url ); ?>"
-						alt="<?php echo esc_attr( sprintf( /* translators: %s is the product name (not translatable). */ __( '%s has moved', 'jetpack-blaze' ), 'Blaze Ads' ) ); ?>"
-					/>
-				</p>
-			<?php endif; ?>
-		</div>
-		<style>
-			.blaze-ads-migration__header { display: flex; align-items: center; gap: 8px; margin: 16px 0 24px; }
-			.blaze-ads-migration__brand { font-size: 1.65em; font-weight: 500; line-height: 1; }
-			.blaze-ads-migration__title { font-size: 2.5em; margin-bottom: 0.25em; padding: 0; }
-			.blaze-ads-migration__subtitle { font-size: 1.4em; margin-top: 0; color: #50575e; }
-			.blaze-ads-migration__image { margin-top: 3em; }
-			.blaze-ads-migration__image img { max-width: 100%; height: auto; }
-		</style>
-		<?php
 	}
 
 	/**

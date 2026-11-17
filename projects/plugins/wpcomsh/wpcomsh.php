@@ -25,6 +25,20 @@ if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 	require_once __DIR__ . '/class-atomic-persistent-data.php';
 }
 
+/**
+ * Returns a shared Atomic_Persistent_Data instance, as each new instance re-reads and decodes the data file.
+ * Replace this and its calls once Atomic_Persistent_Data has a singleton operation method.
+ *
+ * @return Atomic_Persistent_Data
+ */
+function wpcomsh_get_atomic_persistent_data() {
+	static $persistent_data = null;
+	if ( $persistent_data === null ) {
+		$persistent_data = new Atomic_Persistent_Data();
+	}
+	return $persistent_data;
+}
+
 require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
 require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-manager.php';
@@ -363,6 +377,7 @@ function wpcomsh_allow_custom_wp_options( $options ) {
 	$options[] = 'site_logo';
 	$options[] = 'footercredit';
 	$options[] = 'wpcomsh_at_managed_plugins';
+	$options[] = 'wpcomsh_at_managed_themes';
 
 	return $options;
 }

@@ -245,6 +245,8 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 		[ type, onToggleAll ]
 	);
 
+	const introId = `jetpack-seo-geo-crawlers-intro-${ type }`;
+
 	return (
 		// Collapsed by default — most people won't open these. A notice (e.g. why the
 		// controls are disabled) sits between the header and the collapsible content,
@@ -272,7 +274,9 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 				   keep each crawler's user-agent line closer to its own toggle than the next. */ }
 				<Stack direction="column" gap="lg">
 					<Stack direction="column" gap="xs">
-						<p className="jetpack-seo-geo__crawlers-intro">{ intro }</p>
+						<p id={ introId } className="jetpack-seo-geo__crawlers-intro">
+							{ intro }
+						</p>
 						<Link
 							className="jetpack-seo-geo__robots-link"
 							href={ robotsTxtUrl }
@@ -282,7 +286,13 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 							{ __( 'View your robots.txt', 'jetpack-seo' ) }
 						</Link>
 					</Stack>
-					<Stack direction="column" gap="lg">
+					<Stack
+						direction="column"
+						gap="lg"
+						role="group"
+						aria-label={ title }
+						aria-describedby={ introId }
+					>
 						<div className="jetpack-seo-geo__crawler-bulk">
 							<LockedTooltip reason={ lockedReason }>
 								<SwitchControl
@@ -414,7 +424,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 			);
 		}
 
-		// A static robots.txt file in the WordPress installation is separate from
+		// A static robots.txt file in the public directory is separate from
 		// the virtual output these settings change.
 		if ( crawlers.staticRobotsTxt ) {
 			return (
@@ -422,7 +432,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 					<Notice.Root intent="warning">
 						<Notice.Description>
 							{ __(
-								"Jetpack detected a static robots.txt file in the WordPress installation directory. These settings only change WordPress's virtual robots.txt; edit or remove the static file to manage AI crawler access here.",
+								"Jetpack detected a static robots.txt file in your site's public directory. These settings only change WordPress's virtual robots.txt; edit or remove the static file to manage AI crawler access here.",
 								'jetpack-seo'
 							) }
 						</Notice.Description>

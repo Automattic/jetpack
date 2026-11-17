@@ -42,7 +42,8 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 				<td>
 					<p><strong>
 					<?php
-					$current_ip = IP_Utils::get_ip();
+					// Don't suggest the fallback address when the configured trusted header can't be resolved.
+					$current_ip = method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ? '' : IP_Utils::get_ip();
 					if ( ! empty( $current_ip ) ) {
 						printf(
 							/* Translators: placeholder is an IP address. */

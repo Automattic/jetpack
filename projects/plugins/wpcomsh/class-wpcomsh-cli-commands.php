@@ -523,7 +523,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			}
 
 			$name            = $args[0];
-			$persistent_data = new Atomic_Persistent_Data();
+			$persistent_data = wpcomsh_get_atomic_persistent_data();
 
 			$output = json_decode( $persistent_data->{ $name } );
 			if ( null === $output ) {

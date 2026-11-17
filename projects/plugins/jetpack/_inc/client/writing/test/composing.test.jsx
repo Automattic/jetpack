@@ -14,6 +14,9 @@ jest.mock( 'components/module-toggle', () => ( {
 jest.mock( 'components/pointer-card', () => ( {
 	FeaturesPointer: ( { search } ) => <div>{ `Features pointer: ${ search }` }</div>,
 } ) );
+jest.mock( '../markdown-moved', () => ( {
+	MarkdownMoved: () => <div>markdown panel pointer</div>,
+} ) );
 jest.mock( 'components/settings-card', () => ( {
 	__esModule: true,
 	default: ( { children } ) => children,
@@ -49,7 +52,11 @@ const buildState = ( canManageModules, searchTerm ) => ( {
 
 const shownToggles = () => MODULES.filter( module => screen.queryByText( `${ module } toggle` ) );
 const shownPointers = () =>
-	MODULES.filter( module => screen.queryByText( `Features pointer: ${ NAMES[ module ] }` ) );
+	MODULES.filter(
+		module =>
+			screen.queryByText( `Features pointer: ${ NAMES[ module ] }` ) ||
+			screen.queryByText( `${ module } panel pointer` )
+	);
 
 describe( 'Composing', () => {
 	afterEach( () => {
@@ -58,7 +65,7 @@ describe( 'Composing', () => {
 
 	it.each( [
 		[ 'every toggle while the settings flag is off', false, true, '', MODULES, [] ],
-		[ 'only Markdown once Features switches the rest', true, true, '', [ 'markdown' ], [] ],
+		[ 'no toggle once the settings move out', true, true, '', [], [] ],
 		[
 			'a pointer to Features for a search once the flag is on',
 			true,
@@ -66,6 +73,14 @@ describe( 'Composing', () => {
 			'latex',
 			[],
 			[ 'latex' ],
+		],
+		[
+			'a pointer to the panel for a Markdown search once the flag is on',
+			true,
+			true,
+			'markdown',
+			[],
+			[ 'markdown' ],
 		],
 		[ 'every toggle to users who cannot manage modules', true, false, '', MODULES, [] ],
 	] )( 'shows %s', ( _label, flag, canManageModules, searchTerm, toggles, pointers ) => {

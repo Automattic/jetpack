@@ -62,7 +62,7 @@ describe( 'playlist queries', () => {
 		const { result: create } = renderHook( () => useCreatePlaylist(), { wrapper } );
 		await act( () => create.current.mutateAsync( { title: 'New', postType: 'page' } ) );
 		expect( api ).toHaveBeenCalledWith( {
-			path: '/jetpack/v4/videopress/playlists',
+			path: '/wpcom/v3/videopress/playlists',
 			method: 'POST',
 			data: { title: 'New', postType: 'page' },
 		} );
@@ -70,7 +70,7 @@ describe( 'playlist queries', () => {
 		const { result: remove } = renderHook( () => useDeletePlaylist(), { wrapper } );
 		await act( () => remove.current.mutateAsync( 'a' ) );
 		expect( api ).toHaveBeenCalledWith( {
-			path: '/jetpack/v4/videopress/playlists/a',
+			path: '/wpcom/v3/videopress/playlists/a',
 			method: 'DELETE',
 		} );
 		expect(

@@ -1,5 +1,5 @@
 /**
- * Assistant announcement banner — the shared dark-green AiBanner at the top
+ * Assistant announcement banner — the shared dark-green HighlightBanner at the top
  * of the Overview tab. Dismissal is per-user via the preferences store:
  * core's inline bootstrap on the wp-preferences script handle (which this
  * bundle's DependencyExtraction externalizes to) preloads the user's
@@ -9,11 +9,11 @@
  * page can lose the write, in which case the banner just shows once more.
  */
 
+import HighlightBanner from '@automattic/jetpack-components/highlight-banner';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
-import AiBanner from '../../../../shared/components/ai-banner';
 import { recordAiHubEvent } from '../../tracks';
 
 const PREFERENCE_SCOPE = 'jetpack/ai';
@@ -43,7 +43,7 @@ export default function AssistantBanner() {
 	}
 
 	return (
-		<AiBanner
+		<HighlightBanner
 			className="jetpack-ai-overview__assistant-banner"
 			title={ __( 'Do more on your site with AI.', 'jetpack' ) }
 			description={ __(

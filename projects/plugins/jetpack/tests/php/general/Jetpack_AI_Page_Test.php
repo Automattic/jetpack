@@ -386,6 +386,22 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The admin shell loads the page over admin-ajax, which never builds the menu; the link follows Search's own registration.
+	 */
+	public function test_search_settings_url_without_a_built_menu() {
+		$GLOBALS['submenu'] = array();
+		$dashboard          = $this->createMock( \Automattic\Jetpack\Search\Dashboard::class );
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_action( 'admin_menu', array( $dashboard, 'add_wp_admin_submenu' ) );
+
+		$settings = $this->get_injected_settings();
+
+		remove_action( 'admin_menu', array( $dashboard, 'add_wp_admin_submenu' ) );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search#/ai-answers' ), $settings['searchSettingsUrl'] );
+	}
+
+	/**
 	 * VIP removes the page on admin_menu; the row then gets no link rather than a dead one.
 	 */
 	public function test_search_settings_url_is_empty_when_the_page_was_removed() {
@@ -429,9 +445,9 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 */
 	public static function seo_settings_url_cases() {
 		return array(
-			'plan has the SEO page'         => array( array( 'seo-admin-ui' ), true, 'admin.php?page=jetpack-seo' ),
-			'existing install not opted in' => array( array( 'seo-admin-ui' ), false, 'admin.php?page=jetpack-settings#/traffic' ),
-			'plan lacks the SEO page'       => array( array(), true, 'admin.php?page=jetpack-settings#/traffic' ),
+			'visible surface with plan features'    => array( array( 'unrelated-feature' ), true, 'admin.php?page=jetpack-seo' ),
+			'existing install not opted in'         => array( array( 'unrelated-feature' ), false, 'admin.php?page=jetpack-settings#/traffic' ),
+			'visible surface without plan features' => array( array(), true, 'admin.php?page=jetpack-seo' ),
 		);
 	}
 

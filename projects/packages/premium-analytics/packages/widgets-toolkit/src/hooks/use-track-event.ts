@@ -4,12 +4,12 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import {
+	deriveComparisonRange,
 	resolveIntervalForPresetChange,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM, type IntervalType } from '@jetpack-premium-analytics/datetime';
 import {
-	deriveComparisonRange,
 	encodeRangeToSearchParams,
 	type ReportDateFilters,
 } from '@jetpack-premium-analytics/routing';

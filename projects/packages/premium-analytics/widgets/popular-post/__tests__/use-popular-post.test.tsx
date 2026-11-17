@@ -348,12 +348,6 @@ describe( 'usePopularPost', () => {
 			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
 
 			expect( result.current.post?.title ).toBe( 'Winning & popular post' );
-			expect( result.current.range ).toEqual( {
-				from: '2026-01-01T00:00:00',
-				to: '2026-06-30T23:59:59',
-				interval: 'month',
-				preset: 'year-2026',
-			} );
 			expect( requestPaths( 'stats/top-posts' ) ).toEqual( [] );
 
 			const ranking = decodeURIComponent( requestPaths( 'stats/top-authors' )[ 0 ] );
@@ -467,11 +461,9 @@ describe( 'usePopularPost', () => {
 
 			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
 
-			expect( result.current.range.from ).toBe( '2025-09-01T00:00:00.000-07:00' );
-			expect( result.current.range.to ).toBe( '2026-08-27T23:59:59.999-07:00' );
-			expect( decodeURIComponent( topPostsRequestPaths()[ 0 ] ) ).toContain(
-				'start_date=2025-09-01T00:00:00.000-07:00'
-			);
+			const ranking = decodeURIComponent( topPostsRequestPaths()[ 0 ] );
+			expect( ranking ).toContain( 'start_date=2025-09-01T00:00:00.000-07:00' );
+			expect( ranking ).toContain( 'date=2026-08-27T23:59:59.999-07:00' );
 		} );
 	} );
 

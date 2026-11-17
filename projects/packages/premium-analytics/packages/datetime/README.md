@@ -181,12 +181,14 @@ calendar month boundaries. A month starting mid-month (September 8 to October
 7) keeps its day count, and so does a "Last N days" preset passed as
 `primaryPresetId`: April 1-30 from "Last 30 days" compares against March 2-31.
 
-A to-date preset (`last-12-months` runs to the end of today) is measured on
-the window it covers once its running month closes, so `previous-period` steps
-back twelve months and stops as many days short as the reference does; both
-windows are the same length. `previous-month` / `previous-year` shift the dates
-as read, and so do the `match-day-of-week` variants: a whole-week shift ignores
-the month shape and the to-date preset alike.
+A to-date preset (`last-12-months` and `last-3-years` both run to the end of
+today) is measured on the window it covers once its running unit closes: the
+month for `last-12-months`, the year for `last-3-years`. So `previous-period`
+steps back twelve months or three years and stops as many days short as the
+reference does; both windows are the same length. `previous-month` /
+`previous-year` shift the dates as read, and so do the `match-day-of-week`
+variants: a whole-week shift ignores the month shape and the to-date preset
+alike.
 
 #### `getComparisonOptions( reference, options? )`
 
@@ -256,8 +258,9 @@ by, the site `timeZone`, `now` and the plan's `earliestDate`. Returns
 
 A window steps by one unit, decided once and carried in the URL as `step`: a
 preset's own (`last-7-days` moves 7 days, `month-to-date` a month,
-`last-12-months` 12 months, `year-to-date` a year, `last-24-hours` 24 elapsed
-hours), or the shape a hand-picked window has on its first step, written as an
+`last-12-months` 12 months, `year-to-date` a year, `last-3-years` 3 years,
+`last-24-hours` 24 elapsed hours), or the shape a hand-picked window has on its
+first step, written as an
 ISO 8601 duration (`P30D`, `P1M`, `P1Y`, `PT6H`: whole calendar months step by
 months, whole years by years, any other run of whole days by its days, anything
 else by its hours). The applied preset wins over a `step` the URL carries; a

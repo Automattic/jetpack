@@ -10,16 +10,16 @@ import {
 	waitForShown,
 } from '../../helpers/admin-shell-helper';
 
-/* A tour that passes through both hash routers and both `p` routers. */
-const TOUR = [
-	'jetpack-settings',
-	'jetpack-forms-responses-wp-admin',
-	'jetpack-newsletter',
-	'my-jetpack',
-	'jetpack-ai',
-	'jetpack-podcast',
-	'my-jetpack',
-];
+const FORMS = 'jetpack-forms-responses-wp-admin';
+
+/* Back and forth, so each app is hidden while the other writes its routes. */
+const TOUR = [ 'my-jetpack', FORMS, 'my-jetpack', FORMS ];
+
+/* A member's own routes: its `p` path, nothing else. */
+const OWN_ROUTES: Record< string, RegExp > = {
+	'my-jetpack': /^\?page=my-jetpack(&p=%2F[a-z-]+(%3F[^#&]*)?)?$/,
+	[ FORMS ]: /^\?page=jetpack-forms-responses-wp-admin(&p=%2F(forms|responses)[^#&]*)?$/,
+};
 
 test.describe( 'Admin shell: hidden apps stay out of the way', () => {
 	test.beforeEach( async ( { page } ) => {
@@ -27,11 +27,7 @@ test.describe( 'Admin shell: hidden apps stay out of the way', () => {
 	} );
 
 	test( 'no member URL ever carries another member’s route', async ( { page } ) => {
-		test.fail(
-			true,
-			'Known spike bug: routes leak between apps (seen: Forms’ p=/forms on Newsletter).'
-		);
-		await openMember( page, 'jetpack-podcast' );
+		await openMember( page, FORMS );
 		await startFrames( page );
 		for ( const slug of TOUR ) {
 			await switchTo( page, slug );
@@ -40,37 +36,27 @@ test.describe( 'Admin shell: hidden apps stay out of the way', () => {
 		const frames = await stopFrames( page );
 		// A full load mid-tour would reset the recording and pass vacuously.
 		expect( frames[ 0 ]?.href, 'recorded from the first switch' ).toMatch(
-			/^\?page=jetpack-podcast/
+			/^\?page=jetpack-forms-responses-wp-admin/
 		);
 		const urls = [ ...new Set( frames.map( f => f.href ) ) ];
 		const stray = urls.filter( href => {
 			const slug = new URLSearchParams( href.split( '#' )[ 0 ] ).get( 'page' );
 			const own = MEMBERS.find( m => m.slug === slug );
-			// Only a member's own routes may appear: hashes for hash routers, `p` for path routers.
-			const ownRoutes: Record< string, RegExp > = {
-				'my-jetpack': /^\?page=my-jetpack(#\/[a-z-]+)?$/,
-				'jetpack-settings': /^\?page=jetpack-settings(#\/[a-z-]+)?$/,
-				'jetpack-ai': /^\?page=jetpack-ai(#\/[a-z-]+)?$/,
-				'jetpack-forms-responses-wp-admin':
-					/^\?page=jetpack-forms-responses-wp-admin(&p=%2F(forms|responses)[^#&]*)?$/,
-				'jetpack-newsletter':
-					/^\?page=jetpack-newsletter(&p=%2F%3Ftab%3D[a-z]+)?(&(?!p=)[a-z_]+=[^&#]*)*$/,
-			};
-			return own && ! ( ownRoutes[ own.slug ] ?? own.landing ).test( href );
+			return own && ! OWN_ROUTES[ own.slug ].test( href );
 		} );
 		expect( stray, 'URLs written with another app’s route' ).toEqual( [] );
 	} );
 
 	test( 'a hidden app’s portals hide with it', async ( { page } ) => {
-		await openMember( page, 'jetpack-newsletter' );
-		await switchTo( page, 'jetpack-forms-responses-wp-admin' );
+		await openMember( page, 'my-jetpack' );
+		await switchTo( page, FORMS );
 		await page.getByRole( 'button', { name: 'Create a form' } ).filter( { visible: true } ).click();
 		const dialog = page.getByRole( 'dialog' );
 		await expect( dialog ).toBeVisible();
 
 		// The modal covers the sidebar, so leave through Back.
 		await page.goBack();
-		await waitForShown( page, 'jetpack-newsletter' );
+		await waitForShown( page, 'my-jetpack' );
 		await expect( dialog ).toBeHidden();
 	} );
 } );

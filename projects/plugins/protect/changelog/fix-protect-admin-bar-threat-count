@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update the admin bar threat count when threats are fixed, ignored, or a new scan finds none.

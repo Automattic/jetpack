@@ -1009,7 +1009,7 @@ test( 'tracks score errors and offers a successful retry', async () => {
 	expect( card.getByText( 'Score service unavailable' ) ).toBeVisible();
 	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'region', { name: 'Desktop' } ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'meter' ) ).not.toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toBeEnabled();
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_request_error', {
 		error_message: 'Score service unavailable',
@@ -1054,8 +1054,8 @@ test( 'shows calculating after Run speed test and replaces it with new scores', 
 	);
 	await act( async () => resolveRefresh( { ...scores, current: { desktop: 95, mobile: 85 } } ) );
 	expect( screen.queryByText( 'Checking site speed…' ) ).not.toBeInTheDocument();
-	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 95 );
-	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 85 );
+	expect( screen.getByRole( 'meter', { name: 'Desktop' } ) ).toHaveValue( 95 );
+	expect( screen.getByRole( 'meter', { name: 'Mobile' } ) ).toHaveValue( 85 );
 } );
 
 test( 'keeps scores visible and focused while re-enabling cached reads', async () => {
@@ -1163,7 +1163,7 @@ test( 'does not present initial loading scores as measured scores', () => {
 	expect( screen.queryByText( '81' ) ).not.toBeInTheDocument();
 	expect( screen.getByText( 'Checking site speed…' ) ).toBeVisible();
 	expect( screen.queryByRole( 'region', { name: 'Desktop' } ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'progressbar', { name: 'Desktop' } ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'meter', { name: 'Desktop' } ) ).not.toBeInTheDocument();
 	expect( screen.getByRole( 'progressbar', { name: 'Testing site speed' } ) ).not.toHaveAttribute(
 		'value'
 	);
@@ -1720,6 +1720,11 @@ test.each( [
 		dismissed: false,
 	},
 	{ name: 'stale', scoreFixture: { ...decreasedScores, isStale: true }, dismissed: false },
+	{
+		name: 'still-comparing',
+		scoreFixture: { ...decreasedScores, noBoostPending: true as const },
+		dismissed: false,
+	},
 ] )( 'does not show a $name score decrease alert', async ( { scoreFixture, dismissed } ) => {
 	window.jetpack_boost_ds!.dismissed_alerts!.value = {
 		performance_history_fresh_start: true,

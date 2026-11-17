@@ -337,6 +337,34 @@ describe( 'FeaturesContent', () => {
 		);
 	} );
 
+	it( 'reopens on the layout chosen last when the route names none', async () => {
+		const { unmount } = renderAt( '/features' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'List view' } ) );
+		unmount();
+
+		const { unmount: unmountList } = renderAt( '/features' );
+		expect( screen.getByText( 'list rows' ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Grid view' } ) );
+		unmountList();
+
+		renderAt( '/features' );
+		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'list', 'grid', 'grid card' ],
+		[ 'grid', 'list', 'list rows' ],
+	] )( 'lets the route override a remembered %s layout', async ( stored, routed, shown ) => {
+		const { unmount } = renderAt( '/features' );
+		await userEvent.click(
+			screen.getByRole( 'button', { name: stored === 'list' ? 'List view' : 'Grid view' } )
+		);
+		unmount();
+
+		renderAt( `/features?view=${ routed }` );
+		expect( screen.getByText( shown ) ).toBeInTheDocument();
+	} );
+
 	it( 'names the filter that matched nothing and switches back from the empty state', async () => {
 		renderAt( '/features?filter=inactive' );
 

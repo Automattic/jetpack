@@ -12,10 +12,7 @@ import { post } from '@wordpress/icons';
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { DateFiltersPanel } from '../../date-filters-panel';
 import { DateIntervalDropdown } from '../../date-interval-dropdown';
-import {
-	getStoryIntervalOptions,
-	resolveStoryInterval,
-} from '../../date-interval-dropdown/stories/story-interval-options';
+import { getStoryIntervalState } from '../../date-interval-dropdown/stories/story-interval-options';
 import { DateYearFilter } from '../../date-year-filter';
 import { SectionHeader } from '../section-header';
 import type { DateRange as PanelDateRange } from '../../date-filters-panel/date-filters-panel';
@@ -131,9 +128,12 @@ function RollingDateControls() {
 		[]
 	);
 
-	// A pick the committed range no longer allows coerces to the finest bucket
-	// it does, the way the report params have it.
-	const intervalOptions = getStoryIntervalOptions( staged.presetId );
+	const { options: intervalOptions, interval } = getStoryIntervalState(
+		staged.presetId,
+		staged.range,
+		STORYBOOK_TIMEZONE,
+		pickedInterval
+	);
 
 	return (
 		<DateFiltersPanel
@@ -142,7 +142,7 @@ function RollingDateControls() {
 			appliedRange={ committed.range }
 			comparisonPresetId={ comparisonPresetId }
 			withIntervalControl
-			interval={ resolveStoryInterval( pickedInterval, intervalOptions ) }
+			interval={ interval }
 			intervalOptions={ intervalOptions }
 			onChange={ handleChange }
 			onComparisonChange={ handleComparisonChange }
@@ -165,7 +165,12 @@ function YearDateControls( { containerElement }: { containerElement: HTMLElement
 
 	// A calendar year allows finer buckets than all time, so the interval is
 	// re-resolved against the selection rather than carried.
-	const intervalOptions = getStoryIntervalOptions( presetId );
+	const { options: intervalOptions, interval } = getStoryIntervalState(
+		presetId,
+		computePrimaryRange( presetId, STORYBOOK_TIMEZONE ) ?? {},
+		STORYBOOK_TIMEZONE,
+		pickedInterval
+	);
 
 	return (
 		<Stack direction="row" align="center" gap="sm">
@@ -178,7 +183,7 @@ function YearDateControls( { containerElement }: { containerElement: HTMLElement
 
 			<DateIntervalDropdown
 				options={ intervalOptions }
-				value={ resolveStoryInterval( pickedInterval, intervalOptions ) }
+				value={ interval }
 				onChange={ setPickedInterval }
 			/>
 		</Stack>

@@ -1781,6 +1781,7 @@ class Search extends Module {
 		'jetpack_search_suggestions_enabled',
 		'jetpack_search_override_woocommerce_search_template',
 		'reader_chat',
+		'reader_chat_query_filter',
 		'instant_search_enabled',
 	); // end options.
 

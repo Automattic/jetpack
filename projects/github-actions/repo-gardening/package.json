@@ -37,7 +37,7 @@
 		"babel-jest": "30.5.2",
 		"jest": "30.5.2",
 		"rollup-plugin-license": "3.7.1",
-		"tsdown": "0.23.1",
+		"tsdown": "0.23.7",
 		"typescript": "6.0.3"
 	}
 }
