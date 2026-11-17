@@ -40,11 +40,11 @@ class Provider_Setting {
 	 * @return void
 	 */
 	public static function init() {
-		add_action( 'add_option_' . self::OPTION, array( __CLASS__, 'clear_report_caches' ) );
-		add_action( 'update_option_' . self::OPTION, array( __CLASS__, 'clear_report_caches' ) );
-		foreach ( self::REPORT_OPTIONS as $option ) {
-			add_action( 'add_option_' . $option, array( __CLASS__, 'maybe_clear_report_caches' ) );
-			add_action( 'update_option_' . $option, array( __CLASS__, 'maybe_clear_report_caches' ) );
+		foreach ( array( 'add_option_', 'update_option_', 'delete_option_' ) as $hook ) {
+			add_action( $hook . self::OPTION, array( __CLASS__, 'clear_report_caches' ) );
+			foreach ( self::REPORT_OPTIONS as $option ) {
+				add_action( $hook . $option, array( __CLASS__, 'maybe_clear_report_caches' ) );
+			}
 		}
 	}
 
@@ -63,6 +63,9 @@ class Provider_Setting {
 		 * @param string[]|string $providers Registered provider names, such as `wpcom` or `local`, as a list or comma-separated.
 		 */
 		$providers = apply_filters( self::FILTER, get_option( self::OPTION, array() ) );
+		if ( ! is_array( $providers ) && ! is_string( $providers ) ) {
+			return array();
+		}
 
 		return array_values( array_unique( array_filter( wp_parse_list( $providers ), 'is_string' ) ) );
 	}

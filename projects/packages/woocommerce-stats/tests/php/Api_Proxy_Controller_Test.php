@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\WooCommerceStats;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
-use Automattic\Jetpack\WooCommerceStats\Report_Execution\Provider_Setting;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Capability;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
@@ -31,7 +30,6 @@ use WP_REST_Server;
  *
  * @covers \Automattic\Jetpack\WooCommerceStats\Api_Proxy_Controller
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports
- * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Provider_Setting
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry
@@ -41,7 +39,6 @@ use WP_REST_Server;
  */
 #[CoversClass( Api_Proxy_Controller::class )]
 #[CoversClass( Default_Reports::class )]
-#[CoversClass( Provider_Setting::class )]
 #[CoversClass( Report_Definition::class )]
 #[CoversClass( Report_Executor::class )]
 #[CoversClass( Report_Registry::class )]
@@ -259,9 +256,30 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->requests );
 	}
 
-	public function test_refuses_an_unknown_provider() {
-		$this->assertSame( 400, $this->get_report( 'orders/by-date', array( 'provider' => 'mars' ) )->get_status() );
+	/**
+	 * @dataProvider data_unknown_providers
+	 *
+	 * @param string $provider The `provider` param.
+	 * @param int    $status   Expected status.
+	 * @param string $code     Expected error code.
+	 */
+	#[DataProvider( 'data_unknown_providers' )]
+	public function test_refuses_an_unknown_provider( $provider, $status, $code ) {
+		$response = $this->get_report( 'orders/by-date', array( 'provider' => $provider ) );
+
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertSame( $code, $response->get_data()['code'] );
 		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: int, 2: string}>
+	 */
+	public static function data_unknown_providers() {
+		return array(
+			'an unregistered name' => array( 'mars', 422, 'unsupported_provider' ),
+			'a malformed name'     => array( 'Mars/../x', 400, 'rest_invalid_param' ),
+		);
 	}
 
 	public function test_answers_unsupported_provider_for_a_provider_without_a_handler() {
@@ -369,29 +387,6 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->get_report();
 
 		$this->assertCount( 2, $this->requests );
-	}
-
-	/**
-	 * @dataProvider data_settings_without_woocommerce
-	 *
-	 * @param string $setting Stored provider names.
-	 * @param int    $status  Expected status.
-	 */
-	#[DataProvider( 'data_settings_without_woocommerce' )]
-	public function test_serves_auto_on_a_site_without_woocommerce( $setting, $status ) {
-		update_option( 'jetpack_woocommerce_stats_report_providers', $setting );
-
-		$this->assertSame( $status, $this->get_report( 'orders/by-date', array( 'provider' => 'auto' ) )->get_status() );
-	}
-
-	/**
-	 * @return array<string, array{0: string, 1: int}>
-	 */
-	public static function data_settings_without_woocommerce() {
-		return array(
-			'local then wpcom' => array( 'local,wpcom', 200 ),
-			'local'            => array( 'local', 422 ),
-		);
 	}
 
 	/**

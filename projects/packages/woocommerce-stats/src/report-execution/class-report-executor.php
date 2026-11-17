@@ -18,11 +18,6 @@ use WP_Error;
 class Report_Executor {
 
 	/**
-	 * Values the `provider` param accepts.
-	 */
-	const PROVIDERS = array( 'local', 'wpcom' );
-
-	/**
 	 * `provider` value that follows the site's `Provider_Setting`, or the default provider without one.
 	 */
 	const AUTO = 'auto';
@@ -152,10 +147,10 @@ class Report_Executor {
 			}
 
 			$covered = self::check_capability( $handler, $request );
-			if ( true === $covered && $handler instanceof Report_Support ) {
+			if ( ! is_wp_error( $covered ) && $handler instanceof Report_Support ) {
 				$covered = $handler->supports( $request );
 			}
-			if ( true === $covered ) {
+			if ( ! is_wp_error( $covered ) ) {
 				return array( $name, $handler );
 			}
 			$refusals[] = $covered;

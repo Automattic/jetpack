@@ -124,9 +124,9 @@ class Api_Proxy_Controller {
 						'validate_callback' => array( $this, 'validate_endpoint' ),
 					),
 					'provider'         => array(
-						'description'       => __( 'Provider to serve the report from, or auto to follow the site setting. Defaults to WordPress.com.', 'jetpack-woocommerce-stats-pkg' ),
+						'description'       => __( 'A registered provider to serve the report from, such as wpcom or local, or auto to follow the site setting. Defaults to WordPress.com.', 'jetpack-woocommerce-stats-pkg' ),
 						'type'              => 'string',
-						'enum'              => array_merge( Report_Executor::PROVIDERS, array( Report_Executor::AUTO ) ),
+						'pattern'           => '^[a-z0-9_-]+$',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 					self::FIELDS_PARAM => array(

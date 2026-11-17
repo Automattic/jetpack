@@ -394,6 +394,7 @@ class Local_Report_Test extends BaseTestCase {
 			'an unregistered provider first'         => array( 'mars,local', null, array(), 200, 'local' ),
 			'unregistered first, local refuses'      => array( 'mars,local', null, array( 'report_fields' => null ), 422, 'unsupported_fields' ),
 			'only an unregistered provider'          => array( 'mars', null, array(), 422, 'unsupported_provider' ),
+			'a filter returning an object'           => array( 'local', new \stdClass(), array(), 200, 'wpcom' ),
 			'no provider on a local site'            => array( 'local', null, array( 'provider' => null ), 200, 'wpcom' ),
 			'provider=wpcom on a local site'         => array( 'local', null, array( 'provider' => 'wpcom' ), 200, 'wpcom' ),
 			'provider=local on a WordPress.com site' => array( 'wpcom', null, array( 'provider' => 'local' ), 200, 'local' ),
@@ -405,22 +406,25 @@ class Local_Report_Test extends BaseTestCase {
 	 *
 	 * @param string|null $setting       Stored provider names, null when unset.
 	 * @param string      $option        Option changed between the two requests.
-	 * @param mixed       $value         Its new value.
+	 * @param mixed       $value         Its new value, or null to delete it.
 	 * @param int         $requests      Requests expected to reach WordPress.com.
 	 * @param int         $invalidations Expected invalidations of core's report cache.
 	 */
 	#[DataProvider( 'data_option_changes' )]
 	public function test_a_report_option_change_drops_both_caches_only_on_a_site_with_a_provider_setting( $setting, $option, $value, $requests, $invalidations ) {
 		require_once __DIR__ . '/mocks/woocommerce-reports-cache-mock.php';
-		// @phan-suppress-next-line PhanAccessMethodInternal -- The test hooks what the package bootstrap does.
-		Provider_Setting::init();
+		Analytics_Dashboard::init();
 		if ( null !== $setting ) {
 			update_option( 'jetpack_woocommerce_stats_report_providers', $setting );
 		}
 		$GLOBALS['woocommerce_stats_mock_cache_invalidations'] = 0;
 
 		$this->get_report( array() );
-		update_option( $option, $value );
+		if ( null === $value ) {
+			delete_option( $option );
+		} else {
+			update_option( $option, $value );
+		}
 		$this->get_report( array() );
 
 		$this->assertCount( $requests, $this->wpcom_requests );
@@ -437,6 +441,7 @@ class Local_Report_Test extends BaseTestCase {
 			'excluded statuses, local'      => array( 'local', 'woocommerce_excluded_report_order_statuses', array( 'pending' ), 2, 1 ),
 			'the provider setting, set'     => array( null, 'jetpack_woocommerce_stats_report_providers', 'local,wpcom', 2, 1 ),
 			'the provider setting, changed' => array( 'wpcom', 'jetpack_woocommerce_stats_report_providers', 'local,wpcom', 2, 1 ),
+			'the provider setting, deleted' => array( 'local', 'jetpack_woocommerce_stats_report_providers', null, 2, 1 ),
 		);
 	}
 
