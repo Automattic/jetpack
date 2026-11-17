@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Cache;
@@ -24,6 +23,13 @@ class Initial_State_Test extends TestCase {
 	private $caps_manager;
 
 	/**
+	 * Whether a test attached the URL reversal filter that Identity_Crisis::init() adds.
+	 *
+	 * @var bool
+	 */
+	private $added_reversal_filter = false;
+
+	/**
 	 * Cleans up the test environment after each test.
 	 */
 	protected function tearDown(): void {
@@ -33,8 +39,12 @@ class Initial_State_Test extends TestCase {
 		Identity_Crisis::$is_safe_mode_confirmed = false;
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
-		remove_filter( 'jetpack_options', array( Identity_Crisis::class, 'reverse_wpcom_urls_for_idc' ) );
+		if ( $this->added_reversal_filter ) {
+			remove_filter( 'jetpack_options', array( Identity_Crisis::class, 'reverse_wpcom_urls_for_idc' ) );
+			$this->added_reversal_filter = false;
+		}
 		delete_transient( 'jetpack_idc_local' );
+		delete_transient( 'jetpack_idc_possible_dynamic_site_url_detected' );
 		remove_all_filters( 'jetpack_sync_home_url' );
 		remove_all_filters( 'jetpack_sync_site_url' );
 		if ( $this->caps_manager ) {
@@ -42,7 +52,6 @@ class Initial_State_Test extends TestCase {
 			$this->caps_manager = null;
 		}
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG );
-		Feature_Flags::reset();
 		Cache::clear();
 		remove_all_filters( 'jetpack_connection_protected_owner_default_ui' );
 		( new Manager() )->reset_connection_status();
@@ -379,8 +388,9 @@ class Initial_State_Test extends TestCase {
 		if ( $response ) {
 			\Jetpack_Options::update_option( 'sync_error_idc', Identity_Crisis::get_sync_error_idc_option( $response ) );
 		}
-		if ( $reversal_filter ) {
+		if ( $reversal_filter && false === has_filter( 'jetpack_options', array( Identity_Crisis::class, 'reverse_wpcom_urls_for_idc' ) ) ) {
 			add_filter( 'jetpack_options', array( Identity_Crisis::class, 'reverse_wpcom_urls_for_idc' ) );
+			$this->added_reversal_filter = true;
 		}
 		Identity_Crisis::$is_safe_mode_confirmed = true;
 		self::enter_safe_mode();
