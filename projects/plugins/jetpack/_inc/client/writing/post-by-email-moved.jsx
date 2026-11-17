@@ -31,6 +31,6 @@ export const PostByEmailOnProfile = () => (
 		href={ getAdminUrl( 'profile.php#post-by-email' ) }
 		linkText={ __( 'Open your profile', 'jetpack' ) }
 	>
-		<p>{ __( 'Your Post by Email address is now on your Profile page.', 'jetpack' ) }</p>
+		<p>{ __( 'Set up your Post by Email address on your Profile page.', 'jetpack' ) }</p>
 	</PointerCard>
 );
