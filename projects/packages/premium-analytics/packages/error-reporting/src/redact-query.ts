@@ -13,6 +13,8 @@ const ALLOWED_PARAMS = new Set( [
 	'interval',
 	'preset',
 	'step',
+	'period',
+	'date_type',
 	'comp',
 	'compare_from',
 	'compare_to',

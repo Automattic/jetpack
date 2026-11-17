@@ -1,7 +1,7 @@
 import { redactQuery } from '../redact-query';
 
 const ALLOWLISTED_SEARCH =
-	'?page=jetpack-premium-analytics-wp-admin&p=/&from=2026-01-01&to=2026-01-31&interval=day&preset=last-30&step=1&comp=1&compare_from=2025-12-01&compare_to=2025-12-31&compare_preset=previous&ds=traffic&section=posts&ref=dashboard&ref_section=traffic&post_url=https%3A%2F%2Fexample.com%2Fhello&post_id=7&author_id=3';
+	'?page=jetpack-premium-analytics-wp-admin&p=/&from=2026-01-01&to=2026-01-31&interval=day&preset=last-30&step=1&period=day&date_type=paid&comp=1&compare_from=2025-12-01&compare_to=2025-12-31&compare_preset=previous&ds=traffic&section=posts&ref=dashboard&ref_section=traffic&post_url=https%3A%2F%2Fexample.com%2Fhello&post_id=7&author_id=3';
 
 describe( 'redactQuery', () => {
 	it( 'keeps the value and the encoding of every allowlisted parameter', () => {
