@@ -3048,8 +3048,9 @@ class Contact_Form_Plugin {
 				// Handles both storage variants:
 				// - Pattern 3: double-escaped quotes (e.g. stored as \"value\":\" in JSON-encoded content).
 				// - Pattern 4: single-escaped quotes (e.g. stored as "value":" after one level of unescaping).
-				'%\\"value\\":\\"' . $wpdb->esc_like( $this->pde_email_address ) . '%',
-				'%\"value\":\"' . $wpdb->esc_like( $this->pde_email_address ) . '%',
+				// The closing quote stops foo@example.com from matching foo@example.com.au.
+				'%\\"value\\":\\"' . $wpdb->esc_like( $this->pde_email_address ) . '\\"%',
+				'%\"value\":\"' . $wpdb->esc_like( $this->pde_email_address ) . '\"%',
 			);
 
 			// V2 has a bug where emojis become malformed: 🎉 becomes ud83cudf89 instead of \ud83c\udf89.
@@ -3062,7 +3063,7 @@ class Contact_Form_Plugin {
 			$v2_corrupted_email = stripslashes( trim( wp_json_encode( $this->pde_email_address, JSON_UNESCAPED_SLASHES ), '"' ) );
 			if ( $v2_corrupted_email !== $this->pde_email_address ) {
 				// Email contains unicode - add pattern for V2's corrupted format.
-				$patterns[] = '%\"value\":\"' . $wpdb->esc_like( $v2_corrupted_email ) . '%';
+				$patterns[] = '%\"value\":\"' . $wpdb->esc_like( $v2_corrupted_email ) . '\"%';
 			}
 
 			// Build SQL with all patterns
