@@ -104,6 +104,26 @@ describe( 'MediaPicker', () => {
 		expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
+	it( 'opens the media library once when the preview is clicked twice while it loads', async () => {
+		let finishLoading;
+		loadMediaLibrary.mockReturnValue(
+			new Promise( resolve => {
+				finishLoading = resolve;
+			} )
+		);
+		const { user } = await setup(
+			<MediaPickerMock detailsMock={ DUMMY_IMAGE_DETAILS } mediaIdMock={ 1 } />
+		);
+		// The image inside the preview button; the click bubbles to the button.
+		const preview = screen.getByRole( 'presentation' );
+
+		await user.click( preview );
+		await user.click( preview );
+		await act( async () => finishLoading() );
+
+		expect( mockOpen ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'says so when the media library fails to load', async () => {
 		loadMediaLibrary.mockRejectedValue( new Error( 'HTTP 500' ) );
 		const { user } = await setup( <MediaPickerMock /> );

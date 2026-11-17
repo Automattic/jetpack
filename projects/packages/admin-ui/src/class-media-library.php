@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Admin_UI;
 
 /**
- * Serves the media library to `loadMediaLibrary()` in `src/media-library.ts`.
+ * Serves the media library to `loadMediaLibrary()` in `@automattic/jetpack-components/tools/load-media-library`.
  */
 class Media_Library {
 
@@ -69,7 +69,10 @@ class Media_Library {
 	 * @return string
 	 */
 	public static function get_html( array $done_scripts = array(), array $done_styles = array() ) {
+		// Notices from other plugins' wp_enqueue_media callbacks would break the JSON.
+		ob_start();
 		wp_enqueue_media();
+		ob_end_clean();
 		wp_scripts()->done = array_merge( wp_scripts()->done, $done_scripts );
 		wp_styles()->done  = array_merge( wp_styles()->done, $done_styles );
 		ob_start();
