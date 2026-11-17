@@ -208,31 +208,25 @@ class Jetpack_Boost_Test extends BaseTestCase {
 	 */
 	public static function provide_option_writes() {
 		return array(
-			'status add'             => array(
+			'status add'       => array(
 				function () {
 					add_option( 'jetpack_boost_status_page-cache', true );
 				},
 				true,
 			),
-			'status update'          => array(
+			'status update'    => array(
 				function () {
 					update_option( 'jetpack_boost_status_minify-js', true );
 				},
 				true,
 			),
-			'status delete'          => array(
+			'status delete'    => array(
 				function () {
 					delete_option( 'jetpack_boost_status_minify-js' );
 				},
 				true,
 			),
-			'Jetpack modules update' => array(
-				function () {
-					update_option( 'jetpack_active_modules', array( 'photon' ) );
-				},
-				true,
-			),
-			'unrelated option'       => array(
+			'unrelated option' => array(
 				function () {
 					update_option( 'blogname', 'Changed' );
 				},

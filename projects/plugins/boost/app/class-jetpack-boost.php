@@ -436,8 +436,7 @@ class Jetpack_Boost {
 	 * @param string $option Option name.
 	 */
 	public function maybe_sync_module_status( $option ) {
-		// Image CDN follows Jetpack's own module state.
-		if ( 'jetpack_active_modules' !== $option && ! str_starts_with( $option, Status::OPTION_PREFIX ) ) {
+		if ( ! str_starts_with( $option, Status::OPTION_PREFIX ) ) {
 			return;
 		}
 
