@@ -600,6 +600,77 @@ class IndexnowEventsTest extends SeoTestCase {
 		}
 	}
 
+	/**
+	 * @dataProvider access_metadata
+	 * @param string $key Access metadata.
+	 * @param mixed  $value Access value.
+	 */
+	#[DataProvider( 'access_metadata' )]
+	public function test_failed_rest_save_still_cancels_restricted_content( $key, $value ) {
+		$id = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => 'Public guide',
+			)
+		);
+		$this->assertNotEmpty( get_post_meta( $id, Indexnow_Events::PUBLIC_URL_META, true ) );
+		$this->candidates = array();
+		$user_id          = wp_insert_user(
+			array(
+				'user_login' => 'indexnow-rest-' . wp_generate_uuid4(),
+				'user_pass'  => 'test',
+				'role'       => 'administrator',
+			)
+		);
+		$previous_user    = get_current_user_id();
+		wp_set_current_user( $user_id );
+		register_post_meta(
+			'post',
+			$key,
+			array(
+				'type'          => is_bool( $value ) ? 'boolean' : 'string',
+				'single'        => true,
+				'show_in_rest'  => true,
+				'auth_callback' => '__return_true',
+			)
+		);
+		register_rest_field(
+			'post',
+			'indexnow_save_error',
+			array(
+				'update_callback' => static function () {
+					return new \WP_Error( 'indexnow_test_save_failed', 'Fixture error', array( 'status' => 500 ) );
+				},
+				'schema'          => array( 'type' => 'boolean' ),
+			)
+		);
+		$cancelled = array();
+		$capture   = static function ( $post_id ) use ( &$cancelled ) {
+			$cancelled[] = $post_id;
+		};
+		add_action( 'jetpack_seo_indexnow_post_restricted', $capture );
+		try {
+			$request = new \WP_REST_Request( 'POST' );
+			$request->set_param( 'id', $id );
+			$request->set_param( 'meta', array( $key => $value ) );
+			$request->set_param( 'indexnow_save_error', true );
+			$result = ( new \WP_REST_Posts_Controller( 'post' ) )->update_item( $request );
+			$this->assertInstanceOf( \WP_Error::class, $result );
+			$this->assertSame( 'indexnow_test_save_failed', $result->get_error_code() );
+			$this->assertSame( is_bool( $value ) ? '1' : $value, get_post_meta( $id, $key, true ) );
+			$this->assertSame( array( $id ), $cancelled );
+			$this->assertSame( '', get_post_meta( $id, Indexnow_Events::PUBLIC_URL_META, true ) );
+			Indexnow_Events::flush_metadata_changes();
+			$this->assertSame( array(), $this->candidates );
+		} finally {
+			remove_action( 'jetpack_seo_indexnow_post_restricted', $capture );
+			unset( $GLOBALS['wp_rest_additional_fields']['post']['indexnow_save_error'] );
+			unregister_post_meta( 'post', $key );
+			wp_set_current_user( $previous_user );
+			wp_delete_user( $user_id );
+		}
+	}
+
 	public static function access_metadata() {
 		return array(
 			'newsletter access'   => array( '_jetpack_newsletter_access', 'subscribers' ),
