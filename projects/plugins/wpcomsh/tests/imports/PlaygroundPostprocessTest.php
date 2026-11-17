@@ -114,24 +114,38 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 	public function test_replace_urls_in_plain_text_and_json(): void {
 		global $wpdb;
 
-		$processor = $this->getMockBuilder( SQL_Postprocessor::class )
-			->setConstructorArgs( array( 'https://example.com', 'https://example.com/wp', self::TEMPORARY_PREFIX ) )
-			->onlyMethods( array( 'run_command', 'get_app_scope' ) )
-			->getMock();
-		$processor->method( 'get_app_scope' )->willReturn( 'test-scope' );
-		$commands = array();
-		$processor->method( 'run_command' )->willReturnCallback(
-			static function ( $command ) use ( &$commands ) {
-				$commands[] = $command;
+		$processor = new class( 'https://example.com', 'https://example.com/wp', self::TEMPORARY_PREFIX ) extends SQL_Postprocessor {
+			/**
+			 * The commands that were run.
+			 *
+			 * @var string[]
+			 */
+			public array $commands = array();
+
+			/**
+			 * Record the command instead of running it.
+			 *
+			 * @param string $command The command.
+			 * @param array  $args    The arguments.
+			 */
+			public function run_command( $command, $args = array() ) {
+				$this->commands[] = $command;
 				return true;
 			}
-		);
+
+			/**
+			 * Return a fixed app scope.
+			 */
+			public function get_app_scope() {
+				return 'test-scope';
+			}
+		};
 
 		$tmp_options = $processor->tmp_table_name( 'options' );
 		foreach ( array( 'http://localhost:8881/wp', 'http://localhost:8881' ) as $home ) {
 			$wpdb->update( $tmp_options, array( 'option_value' => 'http://localhost:8881/wp' ), array( 'option_name' => 'siteurl' ) );
 			$wpdb->update( $tmp_options, array( 'option_value' => $home ), array( 'option_name' => 'home' ) );
-			$commands = array();
+			$processor->commands = array();
 			$this->assertTrue( $processor->replace_urls() );
 
 			$pairs = array( array( 'http://localhost:8881/wp', 'https://example.com/wp' ) );
@@ -149,7 +163,7 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 					);
 				}
 			}
-			$this->assertSame( $expected, $commands );
+			$this->assertSame( $expected, $processor->commands );
 		}
 	}
 
