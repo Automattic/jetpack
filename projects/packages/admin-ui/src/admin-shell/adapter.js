@@ -225,7 +225,7 @@ export function renameBootStore( source, slug ) {
 	if ( source.match( BOOT_STORE_NAME )?.length !== 1 ) {
 		throw new Error( '@wordpress/boot no longer names its store "wordpress/boot" exactly once' );
 	}
-	return source.replace( BOOT_STORE_NAME, JSON.stringify( `wordpress/boot--${ slug }` ) );
+	return source.replace( BOOT_STORE_NAME, () => JSON.stringify( `wordpress/boot--${ slug }` ) );
 }
 
 /**
