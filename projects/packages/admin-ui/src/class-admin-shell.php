@@ -504,9 +504,9 @@ class Admin_Shell {
 					try {
 						call_user_func_array( $function, $args );
 					} finally {
-						// Also closes buffers the callback left open.
-						while ( ob_get_level() > $level ) {
-							ob_end_clean();
+						// Also closes buffers the callback left open, stopping at one that can't be removed.
+						while ( ob_get_level() > $level && ob_end_clean() ) {
+							continue;
 						}
 					}
 				};
