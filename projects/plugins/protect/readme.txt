@@ -177,7 +177,7 @@ If you have upgraded Protect, your site will also be automatically scanned for m
 
 = How does downtime monitoring work? =
 
-Jetpack Monitor checks your site from WordPress.com every five minutes. If your site stops responding, it emails you within minutes, and again when your site is back up. The Overview tab of the Protect page shows your uptime for the last 40 days. Downtime monitoring is free and needs your WordPress.com account to be connected, since that is where alerts are sent.
+Jetpack Monitor checks your site from WordPress.com every five minutes. If your site stops responding, Jetpack Monitor checks it again from several locations around the world, so a problem in one place doesn’t set off a false alarm. Once the outage is confirmed, it emails you within minutes, and again when your site is back up. The Overview tab of the Protect page shows your uptime for the last 40 days. Downtime monitoring is free and needs your WordPress.com account to be connected, since that is where alerts are sent.
 
 = Where do I turn on downtime monitoring or logging in with WordPress.com? =
 
