@@ -404,12 +404,33 @@ class Dashboard {
 	 * @return void
 	 */
 	public static function load_as_admin_shell_guest() {
+		// A menu hover readies the page and may fetch the report; the page's own load caches it.
+		foreach ( array( Scan_Status::class, \Automattic\Jetpack\Protect_Status\Protect_Status::class ) as $status ) {
+			if ( class_exists( $status ) ) {
+				add_filter( 'pre_update_option_' . $status::OPTION_NAME, array( __CLASS__, 'keep_stored_option' ), 10, 2 );
+				add_filter( 'pre_update_option_' . $status::OPTION_TIMESTAMP_NAME, array( __CLASS__, 'keep_stored_option' ), 10, 2 );
+			}
+		}
+
 		if ( ! self::load_wp_build( dirname( __DIR__ ) . '/build/build.php', false ) ) {
 			return;
 		}
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_tracks_identity' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
+	}
+
+	/**
+	 * Skip an option update by answering with the stored value.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $value     The new value.
+	 * @param mixed $old_value The stored value.
+	 * @return mixed
+	 */
+	public static function keep_stored_option( $value, $old_value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Filter signature.
+		return $old_value;
 	}
 
 	/**
