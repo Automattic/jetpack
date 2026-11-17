@@ -12,6 +12,7 @@ import {
 	type DateStepId,
 	type IntervalType,
 } from '@jetpack-premium-analytics/datetime';
+import { differenceInCalendarDays } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -125,11 +126,13 @@ export function bucketRange(
 	bounds: Omit< PeriodBounds, 'lifeStartsAt' >
 ): OpenableBucket | null {
 	const { timeZone, now } = bounds;
+	const localDate = toLocalTZ( date, timeZone );
+	const localNow = toLocalTZ( now, timeZone );
 	// Re-anchored to the site zone: `drillDateRange` closes a bucket on the clock of the date it gets.
 	const bucket = drillDateRange(
-		toLocalTZ( date, timeZone ),
+		localDate,
 		interval,
-		toLocalTZ( now, timeZone ),
+		localNow,
 		endDate && toLocalTZ( endDate, timeZone )
 	);
 
@@ -137,9 +140,23 @@ export function bucketRange(
 		return null;
 	}
 
+	const stated = { from: bucket.from, to: bucket.to };
 	// An edge bucket is usually partial; opening it whole would widen the report past the window.
-	const from = window.from && bucket.from < window.from ? window.from : bucket.from;
-	const to = window.to && bucket.to > window.to ? window.to : bucket.to;
+	const from = window.from && stated.from < window.from ? window.from : stated.from;
+	const to = window.to && stated.to > window.to ? window.to : stated.to;
 
-	return openable( bucket, from.getTime() < to.getTime() ? { from, to } : null, interval );
+	return openable(
+		statedWhole( stated, interval ) ? stated : drillDateRange( localDate, interval, localNow ),
+		from.getTime() < to.getTime() ? { from, to } : null,
+		interval
+	);
+}
+
+/**
+ * Whether a bucket the report states spans its whole unit. A report stamps a bucket the
+ * window cuts with the window's edge, so a stated start says nothing about the bucket's
+ * own; only a stated week that runs seven days (a store week) is whole as stated.
+ */
+function statedWhole( bucket: Required< DateRange >, interval: IntervalType ): boolean {
+	return interval === 'week' && differenceInCalendarDays( bucket.to, bucket.from ) === 6;
 }

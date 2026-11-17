@@ -89,7 +89,29 @@ describe( 'useOpenChartBucket', () => {
 	} );
 
 	// A bar the window cuts at its start is left to the arrows to measure, so Previous
-	// then Next lands back on it instead of drifting off the chart's weeks.
+	// then Next lands back on it instead of drifting off the chart's weeks. The report
+	// stamps such a bar with the window's start, so the stamp is not its own start.
+	it( 'leaves the step to the arrows for a first week bar the report stamped with the window start', () => {
+		const { openPeriod, click } = renderOpenChartBucket( {
+			...OCTOBER,
+			from: '2026-10-01T00:00:00',
+		} );
+
+		click( {
+			date: new Date( '2026-10-01T00:00:00Z' ),
+			endDate: new Date( '2026-10-04T23:59:59Z' ),
+			isComparison: false,
+		} );
+
+		expect( openPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2026-10-01T00:00:00.000Z' ),
+				to: new Date( '2026-10-04T23:59:59.999Z' ),
+			},
+			{ step: undefined }
+		);
+	} );
+
 	it( 'cuts the bucket to the window of the current period after the period changes, leaving its step to the arrows', () => {
 		const { openPeriod, setReportParams, click } = renderOpenChartBucket( OCTOBER );
 
