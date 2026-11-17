@@ -130,7 +130,7 @@ class Dashboard {
 	 *
 	 * The page is registered for every admin, with or without a menu entry, so links to it switch in place.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.3
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -146,6 +146,10 @@ class Dashboard {
 			'init_modules' => array( '@jetpack-search/init' ),
 			// "Search" is a product name, do not translate.
 			'title'        => 'Search',
+			'header'       => array(
+				'title'    => 'Search',
+				'subtitle' => __( 'Help your visitors find exactly what they are looking for.', 'jetpack-search-pkg' ),
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( self::DATA_SCRIPT_HANDLE, 'jetpack-script-data', 'jp-tracks-functions', 'wp-jp-i18n-loader' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
@@ -156,7 +160,7 @@ class Dashboard {
 	/**
 	 * Ready the Search routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.3
 	 *
 	 * @return void
 	 */
@@ -182,7 +186,7 @@ class Dashboard {
 	/**
 	 * Load the wp-build bundle and its polyfills.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.3
 	 *
 	 * @param bool $alias Whether to alias the screen ID. Pass false to ready the routes on another page, which must not boot it.
 	 * @return bool Whether the build exists.

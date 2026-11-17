@@ -199,6 +199,8 @@ class Jetpack_Redux_State_Helper {
 				'isMultisite'                => is_multisite(),
 				// Set when Jetpack or the standalone plugin registered the Backup page on this request.
 				'hasBackupPage'              => (bool) did_action( 'jetpack_backup_initialized' ),
+				// Set when Jetpack or the Protect plugin registered the Protect page on this request.
+				'hasProtectPage'             => (bool) did_action( 'jetpack_protect_dashboard_initialized' ),
 				'hasSocialPage'              => self::has_social_page(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
@@ -407,7 +409,7 @@ class Jetpack_Redux_State_Helper {
 	 *
 	 * Publicize skips it when `jetpack_publicize_should_load` is false, even on a connected site, so this reads the built menu.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return bool
 	 */

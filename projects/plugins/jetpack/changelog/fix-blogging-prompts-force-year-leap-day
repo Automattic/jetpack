@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Blogging Prompts: Fix prompts starting a day off when requesting a specific year with a month-and-day start date.

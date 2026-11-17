@@ -83,7 +83,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Line-item images PayPal shows on one payment. Mirrored in `utils/images.js`.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @var int
 	 */
@@ -461,7 +461,7 @@ class PayPal_Attribute_Mapper {
 	 * An image still in review has no URLs yet; the block keeps the media library's
 	 * own thumbnail for it.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param array $images Images as PayPal returns them.
 	 * @return array Each with assetId, status, url and thumbnailUrl.

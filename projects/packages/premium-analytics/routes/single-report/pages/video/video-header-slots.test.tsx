@@ -32,7 +32,13 @@ const PERFORMANCE_RANGE = {
  */
 function renderHeader( summary: VideoSummary, performanceRange?: typeof PERFORMANCE_RANGE ) {
 	return render(
-		<SectionHeader { ...videoHeaderSlots( summary, { label: 'Video', performanceRange } ) } />
+		<SectionHeader
+			{ ...videoHeaderSlots( summary, {
+				label: 'Video',
+				title: 'Launch recap',
+				performanceRange,
+			} ) }
+		/>
 	);
 }
 
@@ -52,12 +58,6 @@ describe( 'videoHeaderSlots', () => {
 		renderHeader( { ...SUMMARY, publishedDate: undefined } );
 
 		expect( screen.queryByText( /Video uploaded on/ ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'names an untitled video rather than leaving the page without a heading', () => {
-		renderHeader( { ...SUMMARY, title: '   ' } );
-
-		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Untitled video' );
 	} );
 
 	it.each( [

@@ -84,7 +84,7 @@ const READY_SUMMARY: EntitySummary = {
 // A page the route ships no adapter for renders from its record: the label titles it.
 const RECORD_ADAPTER: SingleReportAdapter = {
 	useSummary: () => READY_SUMMARY,
-	headerSlots: ( summary, { label } ) => ( { title: label } ),
+	headerSlots: ( summary, { title } ) => ( { title } ),
 };
 
 /**
@@ -311,13 +311,16 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		surface,
 	} );
 
+	// One title for the crumb and the header: the entity's, else the adapter's untitled one.
+	const title = summary.title?.trim() || adapter.untitledTitle?.( summary ) || page.label;
 	const breadcrumbs = useDetailBreadcrumbs(
-		canRenderWidgets ? summary.title?.trim() || page.label : undefined,
+		canRenderWidgets ? title : undefined,
 		page.reports_page ?? undefined
 	);
 
 	const header = adapter.headerSlots( summary, {
 		label: page.label,
+		title,
 		section: activeState,
 		performanceRange: pinnedWindow?.range ?? dateFilters.appliedRange,
 	} );

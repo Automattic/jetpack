@@ -231,6 +231,25 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 		} );
 	} );
 
+	it( 'records the tab again when the admin shell shows the page again, not on its first show', () => {
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+		render( <Stage /> );
+		const shown = ( page: string, firstShow: boolean ) =>
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+			);
+
+		shown( 'jetpack-newsletter', true );
+		shown( 'my-jetpack', false );
+		shown( 'jetpack-newsletter', false );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 2 );
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith( 'jetpack_newsletter_tab_view', {
+			site_type: 'jetpack',
+			tab: 'settings',
+		} );
+	} );
+
 	it( 'records an old ?tab=stats link as the Overview tab', () => {
 		mockSearch.mockReturnValue( { tab: 'stats' } );
 

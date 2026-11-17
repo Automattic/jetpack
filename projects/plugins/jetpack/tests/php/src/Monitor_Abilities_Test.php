@@ -349,6 +349,22 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		$this->assertFalse( Monitor_Abilities::can_manage_monitor() );
 	}
 
+	public function test_can_manage_monitor_denies_contributor_who_can_open_the_jetpack_admin_page() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'monitor_abilities_contributor_' . wp_generate_password( 8, false, false ),
+					'user_pass'  => 'pw',
+					'user_email' => 'contributor_' . wp_generate_password( 6, false, false ) . '@example.test',
+					'role'       => 'contributor',
+				)
+			)
+		);
+
+		$this->assertTrue( current_user_can( 'jetpack_admin_page' ) );
+		$this->assertFalse( Monitor_Abilities::can_manage_monitor() );
+	}
+
 	public function test_can_manage_monitor_denies_anonymous() {
 		wp_set_current_user( 0 );
 		$this->assertFalse( Monitor_Abilities::can_manage_monitor() );
