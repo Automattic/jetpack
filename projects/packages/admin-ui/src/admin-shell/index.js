@@ -65,9 +65,14 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	// A member declares the header of the view its bare menu link opens; other views only get a title.
 	const showHeaderAt = ( slug, el, url ) => {
 		const { header, defaultPath, title } = members[ slug ];
+		if ( header === false ) {
+			log( 'header', `${ slug } opts out of the stand-in header` );
+			return () => {};
+		}
 		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
 		const landing = [ '/', defaultPath ].includes( path );
-		return showHeader( slug, el, menuLabel( slug ) ?? title, landing ? header : null );
+		const heading = header?.title ?? menuLabel( slug ) ?? title;
+		return showHeader( slug, el, heading, landing ? header : null );
 	};
 
 	log(

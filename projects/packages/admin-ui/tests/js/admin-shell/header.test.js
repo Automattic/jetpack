@@ -110,6 +110,8 @@ describe( 'header stand-in', () => {
 			'Short.',
 			'Short.',
 		],
+		[ 'its own header, for a subtitle picked as it renders', 'newsletter', 'Old', null, 'Old' ],
+		[ 'a borrowed header, for a subtitle picked as it renders', 'z-donor', 'Old', null, '\u00a0' ],
 	] )(
 		'gives %s the declared title and subtitle',
 		( _, savedAs, savedSubtitle, subtitle, shown ) => {
