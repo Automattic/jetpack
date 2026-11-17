@@ -265,7 +265,7 @@ function DeleteOptionButton( { threat, name }: { threat: ScanThreat; name: strin
 function useThreatRow( threat: ScanThreat, canAct: boolean ) {
 	const [ row, setRow ] = useState< ThreatRow | null >( null );
 	const [ rowError, setRowError ] = useState< string | null >( null );
-	const canRead = canAct && threat.status !== 'fixed' && !! threat.database;
+	const canRead = canAct && threat.status === 'current' && !! threat.database;
 
 	useEffect( () => {
 		setRow( null );
