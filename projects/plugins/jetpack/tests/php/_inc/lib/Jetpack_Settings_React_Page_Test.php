@@ -54,6 +54,14 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$this->reset_menus();
 
 		wp_deregister_script( 'react-plugin' );
+		remove_all_filters( 'pre_http_request' );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		unset( $_GET['action'] );
+		$user_id = get_current_user_id();
+		foreach ( array( 'sharing-options', "monitor_receive_notifications$user_id", "post_by_email_address$user_id" ) as $option ) {
+			remove_all_filters( "pre_update_option_$option" );
+			delete_option( $option );
+		}
 		wp_dequeue_style( 'components-css' );
 		set_current_screen( 'front' );
 
@@ -370,32 +378,26 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$user_id = get_current_user_id();
 		$options = array( 'sharing-options', "monitor_receive_notifications$user_id", "post_by_email_address$user_id" );
 		// Monitor and Post by Email read the user's values from WordPress.com over XML-RPC.
-		$reply = static function () {
-			return array(
-				'response' => array( 'code' => 200 ),
-				'body'     => '<?xml version="1.0"?><methodResponse><params><param><value><string>pbe@example.com</string></value></param></params></methodResponse>',
-			);
-		};
-		add_filter( 'pre_http_request', $reply );
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '<?xml version="1.0"?><methodResponse><params><param><value><string>pbe@example.com</string></value></param></params></methodResponse>',
+				);
+			}
+		);
 
 		$page = $this->page_on_wp_build();
 		$page->load_as_admin_shell_guest();
 		$page->page_admin_scripts();
-		remove_filter( 'pre_http_request', $reply );
-		remove_filter( 'wp_doing_ajax', '__return_true' );
-		unset( $_GET['action'] );
 
 		$saved = array();
 		foreach ( $options as $option ) {
-			remove_all_filters( "pre_update_option_$option" );
-			$saved[ $option ] = get_option( $option );
+			$saved[ $option ] = false !== get_option( $option );
 		}
-
 		$this->assertStringContainsString( 'pbe@example.com', implode( '', (array) wp_scripts()->get_data( 'react-plugin', 'before' ) ) );
-		$this->assertSame( ! $is_hover, (bool) array_filter( $saved ) );
-		foreach ( $options as $option ) {
-			delete_option( $option );
-		}
+		$this->assertSame( array_fill_keys( $options, ! $is_hover ), $saved );
 	}
 
 	/**
