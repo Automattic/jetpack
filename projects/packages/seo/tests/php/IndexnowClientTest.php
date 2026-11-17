@@ -39,6 +39,53 @@ class IndexnowClientTest extends SeoTestCase {
 		}
 	}
 
+	public function test_scope_and_key_location_do_not_change_with_the_request_scheme() {
+		update_option( 'home', 'http://example.com/blog' );
+		update_option( Indexnow_Client::SCOPE_OPTION, 'http://example.com/blog/' );
+		$key   = Indexnow_Client::key();
+		$https = $_SERVER['HTTPS'] ?? null;
+		try {
+			foreach ( array( 'on', 'off' ) as $transport ) {
+				$_SERVER['HTTPS'] = $transport;
+				$this->assertTrue( Indexnow_Client::enabled() );
+				$this->assertSame( 'http://example.com/blog/', Indexnow_Client::scope() );
+				$this->assertSame( 'http://example.com/blog/' . $key . '.txt', Indexnow_Client::key_location() );
+				$this->assertTrue( Indexnow_Client::in_scope( 'https://example.com/blog/public/' ) );
+				$this->assertTrue( Indexnow_Client::in_scope( 'http://example.com/blog/public/' ) );
+				$this->assertFalse( Indexnow_Client::in_scope( 'https://example.com:8443/blog/public/' ) );
+			}
+		} finally {
+			if ( null === $https ) {
+				unset( $_SERVER['HTTPS'] );
+			} else {
+				$_SERVER['HTTPS'] = $https;
+			}
+		}
+	}
+
+	public function test_ordinary_paths_do_not_read_notification_options() {
+		$uri    = $_SERVER['REQUEST_URI'] ?? null;
+		$filter = 'pre_option_' . Indexnow_Client::ENABLED_OPTION;
+		$fail   = function () {
+			$this->fail( 'Ordinary paths must not read IndexNow options.' );
+		};
+		add_filter( $filter, $fail );
+		try {
+			foreach ( array( '/', '/guide/', '/not-a-key.txt', '/' . str_repeat( 'a', 32 ) . '.txt/extra' ) as $path ) {
+				$_SERVER['REQUEST_URI'] = $path;
+				Indexnow_Client::maybe_serve_key();
+			}
+			$this->assertSame( '', get_option( Indexnow_Client::KEY_OPTION, '' ) );
+		} finally {
+			remove_filter( $filter, $fail );
+			if ( null === $uri ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $uri;
+			}
+		}
+	}
+
 	public function test_off_and_private_states_never_send_requests() {
 		$calls = 0;
 		add_filter(
@@ -119,7 +166,7 @@ class IndexnowClientTest extends SeoTestCase {
 			10,
 			3
 		);
-		$result = Indexnow_Client::submit( array_merge( $urls, $urls ) );
+		$result = Indexnow_Client::submit( array_merge( $urls, array_fill( 0, Indexnow_Client::BATCH_SIZE, $urls[0] ) ) );
 		$this->assertSame( 'accepted', $result['state'] );
 		$this->assertSame( 1, $calls );
 	}
@@ -133,7 +180,13 @@ class IndexnowClientTest extends SeoTestCase {
 				return new \WP_Error( 'unexpected_network' );
 			}
 		);
-		foreach ( array( array(), 'https://example.com/guide/', array_fill( 0, Indexnow_Client::BATCH_SIZE + 1, 'https://example.com/guide/' ), array( 'https://other.example/guide/' ), array( 'https://example.com/guide/#private' ) ) as $urls ) {
+		$oversized = array_map(
+			static function ( $id ) {
+				return 'https://example.com/guide-' . $id . '/';
+			},
+			range( 0, Indexnow_Client::BATCH_SIZE )
+		);
+		foreach ( array( array(), 'https://example.com/guide/', $oversized, array( 'https://other.example/guide/' ), array( 'https://example.com/guide/#private' ), array( array() ) ) as $urls ) {
 			$this->assertFalse( Indexnow_Client::submit( $urls )['retry'] );
 		}
 		$this->assertSame( 0, $calls );
@@ -158,10 +211,26 @@ class IndexnowClientTest extends SeoTestCase {
 		$this->assertSame( 3600, $result['retry_after'] );
 	}
 
+	public function test_repeated_retry_after_headers_do_not_raise_a_warning() {
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return array(
+					'headers'  => array( 'retry-after' => array( '60', '120' ) ),
+					'body'     => '',
+					'response' => array( 'code' => 429 ),
+				);
+			}
+		);
+		$result = Indexnow_Client::submit( array( 'https://example.com/public/' ) );
+		$this->assertTrue( $result['retry'] );
+		$this->assertSame( 0, $result['retry_after'] );
+	}
+
 	public static function response_cases() {
 		return array(
 			array( 200, 'accepted', false ),
-			array( 202, 'verification_pending', true ),
+			array( 202, 'verification_pending', false ),
 			array( 400, 'http_400', false ),
 			array( 403, 'http_403', false ),
 			array( 422, 'http_422', false ),
