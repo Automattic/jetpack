@@ -6,6 +6,7 @@ import { jetpack } from '@jetpack-premium-analytics/icons';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
+	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ReportRecordsTable,
@@ -83,12 +84,14 @@ function EmailsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ emailsCsvExporter }
-					items={ records.rows }
-					status={ records }
-					reportParams={ reportParams }
-				/>
+				<ReportPageActions>
+					<ExporterCsvAction
+						exporter={ emailsCsvExporter }
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+				</ReportPageActions>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>

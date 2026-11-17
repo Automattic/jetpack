@@ -7,6 +7,7 @@ import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
+	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ReportPageTabs,
@@ -98,7 +99,7 @@ function UtmReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<>
+				<ReportPageActions>
 					<Button variant="outline" size="compact" onClick={ openBlankBuilder }>
 						{ __( 'Build URL', 'jetpack-premium-analytics-pkg' ) }
 					</Button>
@@ -108,7 +109,7 @@ function UtmReport(): JSX.Element {
 						status={ records }
 						reportParams={ reportParams }
 					/>
-				</>
+				</ReportPageActions>
 			}
 		>
 			<ReportPageLayout

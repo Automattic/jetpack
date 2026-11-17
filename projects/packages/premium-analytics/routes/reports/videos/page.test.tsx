@@ -41,6 +41,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportErrorState: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.ReportErrorState,
+	ReportPageActions: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportRecordsTable: jest.fn( () => null ),
 	ExporterCsvAction: jest.fn( () => <button>Download</button> ),

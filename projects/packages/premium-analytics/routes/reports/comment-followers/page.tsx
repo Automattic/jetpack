@@ -7,6 +7,7 @@ import { jetpack } from '@jetpack-premium-analytics/icons';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
+	ReportPageActions,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportErrorState,
@@ -96,9 +97,11 @@ function CommentFollowersReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ReportPageActions>
+					{ canExport && (
+						<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+					) }
+				</ReportPageActions>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>

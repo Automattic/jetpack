@@ -4,6 +4,7 @@ export {
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
 } from './report-page-layout';
+export { ReportPageActions } from './report-page-actions';
 export { ReportChartSection, type ReportChartSectionProps } from './report-chart-section';
 export { ReportLocationsMap, type ReportLocationsMapProps } from './report-locations-map';
 export { ExporterCsvAction } from './exporter-csv-action';

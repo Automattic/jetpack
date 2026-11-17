@@ -139,6 +139,7 @@ export {
 	ReportChartSection,
 	ReportDrilldownTable,
 	ReportLocationsMap,
+	ReportPageActions,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageTabPanel,
