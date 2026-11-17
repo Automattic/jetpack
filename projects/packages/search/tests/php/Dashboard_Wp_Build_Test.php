@@ -7,8 +7,11 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__ . '/fixtures/wp-build-render.php';
 
@@ -28,6 +31,8 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 		wp_deregister_script( Dashboard::DATA_SCRIPT_HANDLE );
 		remove_all_actions( 'admin_enqueue_scripts' );
 		unset( $GLOBALS['jetpack_search_test_wp_build_check_screen_id'], $GLOBALS['current_screen'] );
+		remove_filter( 'jetpack_options', array( $this, 'mock_site_connection_without_users' ), 11 );
+		( new Connection_Manager() )->reset_connection_status();
 
 		parent::tearDown();
 	}
@@ -133,6 +138,62 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 
 		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( Dashboard::DATA_SCRIPT_HANDLE, 'before' ) ) );
 		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * A menu hover readies the page through the admin shell, which must not create the purchase token.
+	 *
+	 * @dataProvider provide_page_loads
+	 *
+	 * @param bool $is_guest Whether the admin shell readies the page.
+	 */
+	#[DataProvider( 'provide_page_loads' )]
+	public function test_only_the_page_itself_creates_the_purchase_token( $is_guest ) {
+		wp_set_current_user( $this->admin_id );
+		set_current_screen( 'jetpack_page_jetpack-search' );
+		// A site connection with no connected user, the only state that gets a purchase token.
+		add_filter( 'jetpack_options', array( $this, 'mock_site_connection_without_users' ), 11, 2 );
+		( new Connection_Manager() )->reset_connection_status();
+		$dashboard = new class() extends Dashboard {
+			/**
+			 * @return string
+			 */
+			protected function wp_build_index() {
+				return __DIR__ . '/fixtures/wp-build-index.php';
+			}
+		};
+
+		if ( $is_guest ) {
+			$dashboard->load_as_admin_shell_guest();
+		} else {
+			$dashboard->admin_init();
+		}
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-search' );
+
+		$this->assertSame( ! $is_guest, (bool) Jetpack_Options::get_option( 'purchase_token' ) );
+	}
+
+	/**
+	 * Drop the user tokens the base test case's connection mock adds.
+	 *
+	 * @param mixed  $value The current option value.
+	 * @param string $name  Option name.
+	 * @return mixed
+	 */
+	public function mock_site_connection_without_users( $value, $name ) {
+		return 'user_tokens' === $name ? array() : $value;
+	}
+
+	/**
+	 * The page's own load, and the admin shell readying it.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function provide_page_loads() {
+		return array(
+			'page load'         => array( false ),
+			'admin shell guest' => array( true ),
+		);
 	}
 
 	public function test_the_constants_match_the_wp_build_page_definition() {

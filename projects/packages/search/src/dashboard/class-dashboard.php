@@ -87,6 +87,13 @@ class Dashboard {
 	protected $search_menu_priority = 1;
 
 	/**
+	 * Whether the admin shell is readying Search behind another dashboard, where nothing may be saved.
+	 *
+	 * @var bool
+	 */
+	private $is_admin_shell_guest = false;
+
+	/**
 	 * Contructor
 	 *
 	 * @param \Automattic\Jetpack\Search\Plan           $plan - Plan instance.
@@ -165,6 +172,7 @@ class Dashboard {
 	 * @return void
 	 */
 	public function load_as_admin_shell_guest() {
+		$this->is_admin_shell_guest = true;
 		if ( $this->load_wp_build( false ) ) {
 			$this->admin_init();
 		}
@@ -408,7 +416,7 @@ class Dashboard {
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script(
 			self::DATA_SCRIPT_HANDLE,
-			( new Initial_State() )->render(),
+			( new Initial_State( null, null, $this->is_admin_shell_guest ) )->render(),
 			'before'
 		);
 
