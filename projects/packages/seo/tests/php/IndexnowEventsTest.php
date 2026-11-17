@@ -44,6 +44,7 @@ class IndexnowEventsTest extends SeoTestCase {
 			'deleted_post'         => 'forget_deleted',
 			'add_post_metadata'    => 'remember_before_meta_change',
 			'update_post_metadata' => 'remember_before_meta_change',
+			'delete_post_metadata' => 'remember_before_meta_change',
 			'updated_post_meta'    => 'meta_changed',
 			'added_post_meta'      => 'meta_changed',
 			'deleted_post_meta'    => 'meta_changed',
@@ -83,6 +84,36 @@ class IndexnowEventsTest extends SeoTestCase {
 			}
 		} finally {
 			remove_filter( $filter, $fail );
+		}
+	}
+
+	public function test_unsupported_content_does_not_read_settings_or_cancel_work() {
+		register_post_type( 'seo_ignored', array( 'public' => true ) );
+		$cancelled = array();
+		$capture   = static function ( $id ) use ( &$cancelled ) {
+			$cancelled[] = $id;
+		};
+		$fail      = function () {
+			$this->fail( 'Unsupported content must not read IndexNow settings.' );
+		};
+		add_action( 'jetpack_seo_indexnow_post_restricted', $capture );
+		add_filter( 'pre_option_' . Indexnow_Client::ENABLED_OPTION, $fail );
+		try {
+			$id = wp_insert_post(
+				array(
+					'post_type'   => 'seo_ignored',
+					'post_status' => 'publish',
+				)
+			);
+			update_post_meta( $id, Content_Coverage::META_TITLE, 'Ignored title' );
+			wp_trash_post( $id );
+			wp_delete_post( $id, true );
+			$this->assertSame( array(), $cancelled );
+			$this->assertSame( array(), $this->candidates );
+		} finally {
+			remove_filter( 'pre_option_' . Indexnow_Client::ENABLED_OPTION, $fail );
+			remove_action( 'jetpack_seo_indexnow_post_restricted', $capture );
+			unregister_post_type( 'seo_ignored' );
 		}
 	}
 
@@ -415,13 +446,16 @@ class IndexnowEventsTest extends SeoTestCase {
 		} finally {
 			$wp_rewrite->set_permalink_structure( $original_structure );
 		}
-		$rows = $this->candidates;
-		$this->assertNotEmpty( $rows );
-		$item = $rows[0];
-		$this->assertTrue( $item['deleted'] );
-		$this->assertSame( $url, $item['url'] );
-		$this->assertSame( array( $url ), array_values( array_unique( array_column( $rows, 'url' ) ) ) );
-		$this->assertSame( array( true ), array_values( array_unique( array_column( $rows, 'deleted' ) ) ) );
+		$this->assertSame(
+			array(
+				array(
+					'url'     => $url,
+					'post'    => $id,
+					'deleted' => true,
+				),
+			),
+			$this->candidates
+		);
 	}
 
 	public function test_deleting_an_old_public_post_is_a_new_change_without_a_backfill() {
@@ -435,9 +469,87 @@ class IndexnowEventsTest extends SeoTestCase {
 		$this->assertCount( 0, $this->candidates );
 		update_option( Indexnow_Client::ENABLED_OPTION, true );
 		wp_trash_post( $id );
-		$this->assertNotEmpty( $this->candidates );
-		$item = $this->candidates[0];
-		$this->assertTrue( $item['deleted'] );
+		$this->assertSame(
+			array(
+				array(
+					'url'     => 'https://example.com/?p=' . $id,
+					'post'    => $id,
+					'deleted' => true,
+				),
+			),
+			$this->candidates
+		);
+	}
+
+	public function test_deletion_preserves_a_public_url_captured_before_a_deferred_noindex_change() {
+		update_option( Indexnow_Client::ENABLED_OPTION, false );
+		$id = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => 'Existing public guide',
+			)
+		);
+		update_option( Indexnow_Client::ENABLED_OPTION, true );
+		$url = get_permalink( $id );
+		update_post_meta( $id, Content_Coverage::META_NOINDEX, true );
+		wp_delete_post( $id, true );
+		Indexnow_Events::flush_metadata_changes();
+		$this->assertSame(
+			array(
+				array(
+					'url'     => $url,
+					'post'    => $id,
+					'deleted' => true,
+				),
+			),
+			$this->candidates
+		);
+	}
+
+	public function test_bulk_standalone_metadata_is_bounded_and_can_resume_after_a_flush() {
+		update_option( Indexnow_Client::ENABLED_OPTION, false );
+		$ids = array();
+		for ( $i = 0; $i < 1001; ++$i ) {
+			$ids[] = wp_insert_post(
+				array(
+					'post_status' => 'publish',
+					'post_title'  => 'Existing guide ' . $i,
+				)
+			);
+		}
+		update_option( Indexnow_Client::ENABLED_OPTION, true );
+		foreach ( $ids as $id ) {
+			update_post_meta( $id, Content_Coverage::META_TITLE, 'Bulk title' );
+		}
+		$last      = end( $ids );
+		$cancelled = array();
+		$capture   = static function ( $id ) use ( &$cancelled ) {
+			$cancelled[] = $id;
+		};
+		add_action( 'jetpack_seo_indexnow_post_restricted', $capture );
+		try {
+			update_post_meta( $last, Content_Gate::META_NEWSLETTER_ACCESS, 'subscribers' );
+			$this->assertSame( array( $last ), $cancelled );
+			delete_post_meta( $last, Content_Gate::META_NEWSLETTER_ACCESS );
+		} finally {
+			remove_action( 'jetpack_seo_indexnow_post_restricted', $capture );
+		}
+		Indexnow_Events::flush_metadata_changes();
+		$this->assertCount( 1000, $this->candidates );
+		$this->assertSame( array_slice( $ids, 0, 1000 ), array_column( $this->candidates, 'post' ) );
+		$this->candidates = array();
+		update_post_meta( $last, Content_Coverage::META_TITLE, 'Retried title' );
+		Indexnow_Events::flush_metadata_changes();
+		$this->assertSame(
+			array(
+				array(
+					'url'     => get_permalink( $last ),
+					'post'    => $last,
+					'deleted' => false,
+				),
+			),
+			$this->candidates
+		);
 	}
 
 	public static function restrictions() {

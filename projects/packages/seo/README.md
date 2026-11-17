@@ -78,3 +78,7 @@ pnpm --filter='@automattic/jetpack-seo' run test
 ```
 
 The built JS/CSS lives in `build/` and is included in the vendored Jetpack plugin distribution via `.gitattributes` (`/build/** production-include`).
+
+### IndexNow metadata reconciliation
+
+Tracked editor saves emit once after the completed save. Standalone metadata changes on previously untracked posts reconcile at request shutdown, using the originating site and the visibility captured before the first write. This avoids announcing a temporary public state between access and `noindex` changes. At most 1,000 posts can await standalone metadata reconciliation per request; additional candidates are skipped until the pending batch is flushed, while restriction cancellation continues. Long CLI jobs can explicitly call `Automattic\Jetpack\SEO\Indexnow_Events::flush_metadata_changes()` at completed logical save boundaries; an interrupted process can lose deferred notifications. No historical backfill is performed.

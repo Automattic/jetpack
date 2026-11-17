@@ -11,26 +11,27 @@ namespace Automattic\Jetpack\SEO;
  * Privacy changes suppress discovery; permanent deletion retains the former URL.
  */
 class Indexnow_Events {
-	const PUBLIC_URL_META = '_jetpack_seo_indexnow_public_url';
+	const PUBLIC_URL_META      = '_jetpack_seo_indexnow_public_url';
+	const MAX_PENDING_METADATA = 1000;
 
 	/**
 	 * URLs captured before a permalink-changing update.
 	 *
-	 * @var array<int,string>
+	 * @var array<string,string>
 	 */
 	private static $previous_urls = array();
 
 	/**
 	 * Posts whose metadata is being removed by core.
 	 *
-	 * @var array<int,bool>
+	 * @var array<string,bool>
 	 */
 	private static $deleting = array();
 
 	/**
-	 * Metadata changes without a previously tracked public URL, pending the completed save.
+	 * Metadata changes awaiting the completed save or standalone reconciliation.
 	 *
-	 * @var array<int,array{url?:string,changed?:bool}>
+	 * @var array<string,array{blog:int,post:int,url?:string,changed?:bool}>
 	 */
 	private static $pending_metadata = array();
 
@@ -43,6 +44,7 @@ class Indexnow_Events {
 		add_action( 'deleted_post', array( __CLASS__, 'forget_deleted' ) );
 		add_filter( 'add_post_metadata', array( __CLASS__, 'remember_before_meta_change' ), 10, 3 );
 		add_filter( 'update_post_metadata', array( __CLASS__, 'remember_before_meta_change' ), 10, 3 );
+		add_filter( 'delete_post_metadata', array( __CLASS__, 'remember_before_meta_change' ), 10, 3 );
 		add_action( 'updated_post_meta', array( __CLASS__, 'meta_changed' ), 10, 3 );
 		add_action( 'added_post_meta', array( __CLASS__, 'meta_changed' ), 10, 3 );
 		add_action( 'deleted_post_meta', array( __CLASS__, 'meta_changed' ), 10, 3 );
@@ -58,8 +60,12 @@ class Indexnow_Events {
 	 */
 	public static function preference_changed( $old, $enabled ) {
 		if ( $old && ! $enabled ) {
-			self::$pending_metadata = array();
-			self::$previous_urls    = array();
+			$prefix = get_current_blog_id() . ':';
+			foreach ( array_keys( self::$pending_metadata + self::$previous_urls ) as $key ) {
+				if ( 0 === strpos( $key, $prefix ) ) {
+					unset( self::$pending_metadata[ $key ], self::$previous_urls[ $key ] );
+				}
+			}
 		}
 	}
 
@@ -70,15 +76,19 @@ class Indexnow_Events {
 	 * @param array $data Updated post fields.
 	 */
 	public static function capture_previous_url( $id, $data ) {
-		if ( ! Indexnow_Client::enabled() ) {
+		$post = get_post( $id );
+		if ( ! self::supported( $post ) || ! Indexnow_Client::enabled() ) {
 			return;
 		}
-		$post = get_post( $id );
-		if ( ! isset( self::$previous_urls[ $id ] ) && self::eligible( $post ) ) {
-			$known = get_post_meta( $id, self::PUBLIC_URL_META, true );
-			// Core may already have appended __trashed before this hook; use the saved public URL or post-before snapshot.
-			if ( $known || 'trash' !== ( $data['post_status'] ?? '' ) ) {
-				self::$previous_urls[ $id ] = $known ? $known : get_permalink( $post );
+		$key = self::post_key( $id );
+		if ( ! isset( self::$previous_urls[ $key ] ) ) {
+			self::$previous_urls[ $key ] = '';
+			if ( self::eligible( $post ) ) {
+				$known = get_post_meta( $id, self::PUBLIC_URL_META, true );
+				// Core may append __trashed before this hook; trashing() preserves the former URL.
+				if ( $known || 'trash' !== ( $data['post_status'] ?? '' ) ) {
+					self::$previous_urls[ $key ] = $known ? $known : get_permalink( $post );
+				}
 			}
 		}
 	}
@@ -107,14 +117,14 @@ class Indexnow_Events {
 	 * @param \WP_Post|null $before Previous post.
 	 */
 	public static function saved( $id, $post, $updated, $before ) {
-		$metadata_changed = ! empty( self::$pending_metadata[ $id ]['changed'] );
-		unset( self::$pending_metadata[ $id ] );
-		if ( ! Indexnow_Client::enabled() ) {
-			unset( self::$previous_urls[ $id ] );
+		$metadata_changed = ! empty( self::$pending_metadata[ self::post_key( $id ) ]['changed'] );
+		unset( self::$pending_metadata[ self::post_key( $id ) ] );
+		if ( ! self::supported( $post ) || ! Indexnow_Client::enabled() ) {
+			unset( self::$previous_urls[ self::post_key( $id ) ] );
 			return;
 		}
-		$old = self::$previous_urls[ $id ] ?? '';
-		unset( self::$previous_urls[ $id ] );
+		$old = self::$previous_urls[ self::post_key( $id ) ] ?? '';
+		unset( self::$previous_urls[ self::post_key( $id ) ] );
 		if ( ! $old && $before instanceof \WP_Post && self::eligible( $before ) ) {
 			$old = get_permalink( $before );
 		}
@@ -167,14 +177,13 @@ class Indexnow_Events {
 	 * @param int $id Post ID.
 	 */
 	public static function trashing( $id ) {
-		if ( ! Indexnow_Client::enabled() ) {
+		$post = get_post( $id );
+		if ( ! self::supported( $post ) || ! Indexnow_Client::enabled() ) {
 			return;
 		}
-		$post = get_post( $id );
 		if ( self::eligible( $post ) ) {
-			$known                      = get_post_meta( $id, self::PUBLIC_URL_META, true );
-			self::$previous_urls[ $id ] = $known ? $known : get_permalink( $post );
-			self::notify( self::$previous_urls[ $id ], $id, true );
+			$known                                        = get_post_meta( $id, self::PUBLIC_URL_META, true );
+			self::$previous_urls[ self::post_key( $id ) ] = $known ? $known : get_permalink( $post );
 		}
 	}
 
@@ -185,17 +194,19 @@ class Indexnow_Events {
 	 * @param \WP_Post $post Previous post.
 	 */
 	public static function deleted( $id, $post ) {
-		if ( ! Indexnow_Client::enabled() ) {
+		if ( ! self::supported( $post ) || ! Indexnow_Client::enabled() ) {
 			return;
 		}
-		self::$deleting[ $id ] = true;
+		self::$deleting[ self::post_key( $id ) ] = true;
 		if ( ! self::removal_allowed( $post ) ) {
-			unset( self::$pending_metadata[ $id ] );
+			unset( self::$pending_metadata[ self::post_key( $id ) ] );
 			self::notify_restriction( $id );
 			return;
 		}
-		if ( self::eligible( $post ) || ( $post instanceof \WP_Post && 'trash' === $post->post_status ) ) {
-			$url = get_post_meta( $id, self::PUBLIC_URL_META, true );
+		$url = get_post_meta( $id, self::PUBLIC_URL_META, true );
+		$url = $url ? $url : ( self::$pending_metadata[ self::post_key( $id ) ]['url'] ?? '' );
+		unset( self::$pending_metadata[ self::post_key( $id ) ] );
+		if ( $url || self::eligible( $post ) ) {
 			if ( ! $url && self::eligible( $post ) ) {
 				$url = get_permalink( $post );
 			}
@@ -211,11 +222,11 @@ class Indexnow_Events {
 	 * @param int $id Deleted post ID.
 	 */
 	public static function forget_deleted( $id ) {
-		unset( self::$deleting[ $id ], self::$previous_urls[ $id ] );
+		unset( self::$deleting[ self::post_key( $id ) ], self::$previous_urls[ self::post_key( $id ) ] );
 	}
 
 	/**
-	 * Snapshot public visibility before a first noindex write changes it.
+	 * Snapshot visibility before the first relevant metadata write.
 	 *
 	 * @param mixed  $check Metadata short-circuit result.
 	 * @param int    $post_id Source post ID.
@@ -223,12 +234,20 @@ class Indexnow_Events {
 	 * @return mixed
 	 */
 	public static function remember_before_meta_change( $check, $post_id, $key ) {
-		if ( Content_Coverage::META_NOINDEX !== $key || isset( self::$deleting[ $post_id ] ) || ! Indexnow_Client::enabled() ) {
+		if ( ! self::relevant_metadata( $key ) || isset( self::$deleting[ self::post_key( $post_id ) ] ) ) {
 			return $check;
 		}
 		$post = get_post( $post_id );
-		if ( self::eligible( $post ) && ! get_post_meta( $post_id, self::PUBLIC_URL_META, true ) ) {
-			self::$pending_metadata[ $post_id ]['url'] = get_permalink( $post );
+		if ( ! self::supported( $post ) || ! Indexnow_Client::enabled() ) {
+			return $check;
+		}
+		$identity = self::post_key( $post_id );
+		if ( ! isset( self::$pending_metadata[ $identity ] ) && count( self::$pending_metadata ) < self::MAX_PENDING_METADATA ) {
+			self::$pending_metadata[ $identity ] = array(
+				'blog' => get_current_blog_id(),
+				'post' => $post_id,
+				'url'  => self::eligible( $post ) ? get_permalink( $post ) : '',
+			);
 		}
 		return $check;
 	}
@@ -241,10 +260,100 @@ class Indexnow_Events {
 	 * @param string $key Meta key.
 	 */
 	public static function meta_changed( $meta_id, $post_id, $key ) {
-		if ( isset( self::$deleting[ $post_id ] ) ) {
+		$identity = self::post_key( $post_id );
+		if ( isset( self::$deleting[ $identity ] ) || ! self::relevant_metadata( $key ) ) {
 			return;
 		}
-		if ( ! in_array(
+		$post = get_post( $post_id );
+		if ( ! self::supported( $post ) || ! Indexnow_Client::enabled() ) {
+			return;
+		}
+		if ( isset( self::$previous_urls[ $identity ] ) || ! get_post_meta( $post_id, self::PUBLIC_URL_META, true ) ) {
+			if ( isset( self::$pending_metadata[ $identity ] ) || count( self::$pending_metadata ) < self::MAX_PENDING_METADATA ) {
+				self::$pending_metadata[ $identity ]['blog']    = get_current_blog_id();
+				self::$pending_metadata[ $identity ]['post']    = $post_id;
+				self::$pending_metadata[ $identity ]['changed'] = true;
+			}
+			if ( ! self::removal_allowed( $post ) && ! isset( self::$previous_urls[ $identity ] ) ) {
+				self::notify_restriction( $post_id );
+				delete_post_meta( $post_id, self::PUBLIC_URL_META );
+			}
+			return;
+		}
+		unset( self::$pending_metadata[ $identity ] );
+		if ( ! self::removal_allowed( $post ) ) {
+			self::notify_restriction( $post_id );
+			delete_post_meta( $post_id, self::PUBLIC_URL_META );
+		} elseif ( self::eligible( $post ) ) {
+			update_post_meta( $post_id, self::PUBLIC_URL_META, get_permalink( $post ) );
+			self::notify( get_permalink( $post ), $post_id );
+		} elseif ( Content_Coverage::META_NOINDEX === $key ) {
+			self::notify( get_post_meta( $post_id, self::PUBLIC_URL_META, true ), $post_id, true );
+		}
+	}
+
+	/** Reconcile standalone metadata writes after any enclosing post save has completed. */
+	public static function flush_metadata_changes() {
+		$pending                = self::$pending_metadata;
+		self::$pending_metadata = array();
+		foreach ( $pending as $change ) {
+			if ( empty( $change['changed'] ) ) {
+				continue;
+			}
+			$switched = (int) $change['blog'] !== get_current_blog_id();
+			if ( $switched ) {
+				switch_to_blog( $change['blog'] );
+			}
+			try {
+				$id   = $change['post'];
+				$post = get_post( $id );
+				if ( ! Indexnow_Client::enabled() || ! self::supported( $post ) ) {
+					continue;
+				}
+				if ( self::eligible( $post ) ) {
+					$url = get_permalink( $post );
+					update_post_meta( $id, self::PUBLIC_URL_META, $url );
+					self::notify( $url, $id );
+				} elseif ( ! empty( $change['url'] ) && self::removal_allowed( $post ) && get_post_meta( $id, Content_Coverage::META_NOINDEX, true ) ) {
+					self::notify( $change['url'], $id, true );
+				}
+			} finally {
+				if ( $switched ) {
+					restore_current_blog();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Scope request-local post state to its originating site.
+	 *
+	 * @param int $id Post ID.
+	 * @return string
+	 */
+	private static function post_key( $id ) {
+		return get_current_blog_id() . ':' . $id;
+	}
+
+	/**
+	 * Exclude content types and placeholders that cannot enter the queue.
+	 *
+	 * @param \WP_Post|null $post Current post.
+	 * @return bool
+	 */
+	private static function supported( $post ) {
+		return $post instanceof \WP_Post && 'auto-draft' !== $post->post_status
+			&& in_array( $post->post_type, Post_Types::get_supported_content_types(), true );
+	}
+
+	/**
+	 * Whether metadata can change notification eligibility or search output.
+	 *
+	 * @param string $key Metadata key.
+	 * @return bool
+	 */
+	private static function relevant_metadata( $key ) {
+		return in_array(
 			$key,
 			array(
 				Content_Coverage::META_NOINDEX,
@@ -257,55 +366,7 @@ class Indexnow_Events {
 				Content_Gate::META_CONTAINS_PAYWALLED_CONTENT,
 			),
 			true
-		) ) {
-			return;
-		}
-		if ( ! Indexnow_Client::enabled() ) {
-			return;
-		}
-		$post = get_post( $post_id );
-		if ( ! self::removal_allowed( $post ) ) {
-			unset( self::$pending_metadata[ $post_id ] );
-			self::notify_restriction( $post_id );
-			delete_post_meta( $post_id, self::PUBLIC_URL_META );
-			return;
-		}
-		if ( ! get_post_meta( $post_id, self::PUBLIC_URL_META, true ) ) {
-			// A publish row may precede REST or meta_input writes; saved() decides whether it was public before.
-			self::$pending_metadata[ $post_id ]['changed'] = true;
-			return;
-		}
-		if ( self::eligible( $post ) ) {
-			update_post_meta( $post_id, self::PUBLIC_URL_META, get_permalink( $post ) );
-			self::notify( get_permalink( $post ), $post_id );
-		} elseif ( Content_Coverage::META_NOINDEX === $key ) {
-			$url = get_post_meta( $post_id, self::PUBLIC_URL_META, true );
-			if ( $url ) {
-				self::notify( $url, $post_id, true );
-			}
-		}
-	}
-
-	/** Reconcile standalone metadata writes after any enclosing post save has completed. */
-	public static function flush_metadata_changes() {
-		$pending                = self::$pending_metadata;
-		self::$pending_metadata = array();
-		foreach ( $pending as $id => $change ) {
-			if ( empty( $change['changed'] ) || ! Indexnow_Client::enabled() ) {
-				continue;
-			}
-			$post = get_post( $id );
-			if ( self::eligible( $post ) ) {
-				$url = get_permalink( $post );
-				update_post_meta( $id, self::PUBLIC_URL_META, $url );
-				self::notify( $url, $id );
-			} elseif ( ! self::removal_allowed( $post ) ) {
-				self::notify_restriction( $id );
-				delete_post_meta( $id, self::PUBLIC_URL_META );
-			} elseif ( ! empty( $change['url'] ) && ( ! $post || get_post_meta( $id, Content_Coverage::META_NOINDEX, true ) ) ) {
-				self::notify( $change['url'], $id, true );
-			}
-		}
+		);
 	}
 
 	/**
