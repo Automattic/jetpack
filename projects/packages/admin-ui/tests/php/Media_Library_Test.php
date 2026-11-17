@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Admin_UI;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -18,6 +19,17 @@ use RuntimeException;
  */
 #[CoversClass( Media_Library::class )]
 class Media_Library_Test extends TestCase {
+
+	/**
+	 * Start each test with nothing printed yet.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$GLOBALS['wp_scripts'] = null;
+		$GLOBALS['wp_styles']  = null;
+	}
 
 	/**
 	 * Remove what the tests hooked.
@@ -57,17 +69,48 @@ class Media_Library_Test extends TestCase {
 	}
 
 	/**
-	 * Only users who can upload files get the library.
+	 * Handles the page already has, which it may have loaded concatenated with no id, are left out.
 	 *
 	 * @return void
 	 */
-	public function test_ajax_refuses_users_who_cannot_upload_files() {
+	public function test_get_html_leaves_out_what_the_page_has() {
+		$html = Media_Library::get_html( array( 'jquery-core', 'jquery-migrate' ), array( 'buttons' ) );
+
+		$this->assertStringContainsString( 'id="media-views-js"', $html );
+		$this->assertStringNotContainsString( 'id="jquery-core-js"', $html );
+		$this->assertStringNotContainsString( 'id="buttons-css"', $html );
+	}
+
+	/**
+	 * Data provider for test_ajax_answers_only_users_who_can_upload_files.
+	 *
+	 * @return array[] Role, whether the response carries the library.
+	 */
+	public static function provide_roles() {
+		return array(
+			'administrator' => array( 'administrator', true ),
+			'subscriber'    => array( 'subscriber', false ),
+		);
+	}
+
+	/**
+	 * The registered action answers with the library, but only users who can upload files get it.
+	 *
+	 * @dataProvider provide_roles
+	 *
+	 * @param string $role     User role.
+	 * @param bool   $expected Whether the response carries the library.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_roles' )]
+	public function test_ajax_answers_only_users_who_can_upload_files( $role, $expected ) {
+		Media_Library::init();
 		wp_set_current_user(
 			wp_insert_user(
 				array(
-					'user_login' => 'media-library-subscriber-' . wp_rand(),
+					'user_login' => 'media-library-' . $role . '-' . wp_rand(),
 					'user_pass'  => wp_generate_password(),
-					'role'       => 'subscriber',
+					'role'       => $role,
 				)
 			)
 		);
@@ -84,13 +127,15 @@ class Media_Library_Test extends TestCase {
 
 		ob_start();
 		try {
-			Media_Library::ajax_media_library();
+			do_action( 'wp_ajax_jetpack_media_library' );
 		} catch ( RuntimeException $e ) {
-			// wp_send_json_error() ends the request.
+			// wp_send_json() ends the request.
 			unset( $e );
 		}
 		$response = json_decode( (string) ob_get_clean(), true );
 
-		$this->assertSame( array( 'success' => false ), $response );
+		$this->assertIsArray( $response );
+		$this->assertSame( $expected, $response['success'] );
+		$this->assertSame( $expected, str_contains( $response['data']['html'] ?? '', 'id="media-views-js"' ) );
 	}
 }
