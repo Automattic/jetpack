@@ -1,6 +1,7 @@
+import { loadMediaLibrary } from '@automattic/jetpack-admin-ui/media-library';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { Fragment, useCallback } from '@wordpress/element';
+import { Fragment, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import { Button, Spinner, VisuallyHidden } from '@wordpress/ui';
@@ -21,13 +22,6 @@ type MediaPickerProps = {
 	wrapperClassName?: string;
 	allowedMediaTypes?: string[] | null;
 	isEditor?: boolean;
-};
-
-// This is to cope with the problem describeed here:
-// https://github.com/WordPress/gutenberg/blob/ebad47952fc94ce4324e989691dde2d3d7689f45/packages/block-editor/src/components/inserter/media-tab/media-tab.js#L122
-const clickHandler = open => e => {
-	e.currentTarget.focus();
-	open();
 };
 
 /**
@@ -61,6 +55,29 @@ export default function MediaPicker( {
 	} = mediaDetails;
 
 	const isImageLoading = ! sourceUrl || ! width || ! height || ! mime;
+	const [ isLoadingLibrary, setIsLoadingLibrary ] = useState( false );
+	const [ hasLibraryError, setHasLibraryError ] = useState( false );
+
+	// MediaUpload's `open` needs wp.media, which loads on the first click.
+	const clickHandler = useCallback(
+		open => async e => {
+			// Focus first, to cope with the problem described here:
+			// https://github.com/WordPress/gutenberg/blob/ebad47952fc94ce4324e989691dde2d3d7689f45/packages/block-editor/src/components/inserter/media-tab/media-tab.js#L122
+			e.currentTarget.focus();
+			setIsLoadingLibrary( true );
+			setHasLibraryError( false );
+			try {
+				await loadMediaLibrary();
+			} catch {
+				setHasLibraryError( true );
+				return;
+			} finally {
+				setIsLoadingLibrary( false );
+			}
+			open();
+		},
+		[]
+	);
 
 	const onRemoveMedia = useCallback( () => onChange( null ), [ onChange ] );
 	const onUpdateMedia = useCallback(
@@ -105,6 +122,7 @@ export default function MediaPicker( {
 			);
 		},
 		[
+			clickHandler,
 			height,
 			length,
 			mime,
@@ -128,6 +146,8 @@ export default function MediaPicker( {
 							size="small"
 							className={ styles[ 'picker-button' ] }
 							onClick={ clickHandler( open ) }
+							loading={ isLoadingLibrary }
+							disabled={ isLoadingLibrary }
 							data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
 						>
 							{ buttonLabel }
@@ -145,7 +165,7 @@ export default function MediaPicker( {
 				) }
 			</div>
 		),
-		[ buttonLabel, mediaId, onRemoveMedia, subTitle ]
+		[ buttonLabel, clickHandler, isLoadingLibrary, mediaId, onRemoveMedia, subTitle ]
 	);
 
 	const setMediaRender = useCallback(
@@ -166,6 +186,11 @@ export default function MediaPicker( {
 					value={ mediaId }
 				/>
 			</MediaUploadComponent>
+			{ hasLibraryError && (
+				<p role="alert" className={ styles[ 'library-error' ] }>
+					{ __( 'The media library could not be loaded. Try again.', 'jetpack-publicize-pkg' ) }
+				</p>
+			) }
 		</ThemeProvider>
 	);
 }

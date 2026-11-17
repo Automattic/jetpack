@@ -183,7 +183,6 @@ class Social_Admin_Page {
 			),
 			'capability'   => 'publish_posts',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
-			'media'        => true,
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -248,9 +247,6 @@ class Social_Admin_Page {
 		 * Use priority 20 to ensure that we can dequeue the old Social assets.
 		 */
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 20 );
-
-		// Initialize the media library for the social image generator.
-		wp_enqueue_media();
 	}
 
 	/**
