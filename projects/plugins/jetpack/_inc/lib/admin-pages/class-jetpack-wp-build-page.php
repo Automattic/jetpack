@@ -74,11 +74,12 @@ class Jetpack_WP_Build_Page {
 			WP_Build_Polyfills::register(
 				'jetpack',
 				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
-				JETPACK__MINIMUM_WP_VERSION,
+				// WordPress.com can load this file without the plugin's main file, which defines this constant.
+				defined( 'JETPACK__MINIMUM_WP_VERSION' ) ? JETPACK__MINIMUM_WP_VERSION : null,
 				array(
 					array(
 						'prefix' => 'jetpack_plugin',
-						'slug'   => self::$page_id,
+						'slug'   => $page_id,
 					),
 				)
 			);
