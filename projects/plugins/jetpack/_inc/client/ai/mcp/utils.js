@@ -141,14 +141,17 @@ export function isRemoteAbilityEnabled(
  */
 export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultEnabled = null ) {
 	return Object.fromEntries(
-		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => [
-			toolId,
-			{
-				...tool,
-				enabled:
-					toolId in siteAbilities ? siteAbilities[ toolId ] : ( defaultEnabled ?? tool.enabled ),
-			},
-		] )
+		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => {
+			const fallbackEnabled =
+				tool.requires_opt_in === true ? tool.enabled : ( defaultEnabled ?? tool.enabled );
+			return [
+				toolId,
+				{
+					...tool,
+					enabled: toolId in siteAbilities ? siteAbilities[ toolId ] : fallbackEnabled,
+				},
+			];
+		} )
 	);
 }
 
