@@ -312,7 +312,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the top items for a chosen content type in one filtered call: posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, regions, cities, browsers, platforms (operating systems), screen sizes, UTM campaign values, commenters, commented posts, downloads, or video plays. Every type returns the same item shape. `label` is human-readable (post title, referrer host, search term, place name, browser, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the count for that item: views for most types, clicks, comments, downloads or plays where the type says so, and for `screen-sizes` the percent of views. `country` is the ISO country code of a region or city item. `max` caps the items; `max=0` returns every item. With `expand=true`, an item that groups other rows lists them in `children`. Referrers group the pages that sent views (and the Search Engines item each engine), clicks group the links under one domain, authors group their posts, and a tags item lists each tag and category (`type`), which share its views so carry no `value` of their own. `max` caps each item\'s children too, as WordPress.com does at every level; `max=0` returns them all. `truncated` is true when more items exist than `max` returned; WordPress.com ranks at most 20 authors, so a full authors list is flagged too. `href` is present only when the item has a canonical URL, and is where a link leads rather than WordPress.com\'s href.li redirect. `id` is the post ID on posts and commented-posts items other than the home page / archives row (pass it to jetpack-stats/get-post-views), and the author\'s user ID on authors items (pass it to jetpack-stats/get-author-views). With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `utm` groups views by `utm_param`. `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday; `commenters` and `commented-posts` ignore them too and count every comment ever approved. Regions, cities, browsers, platforms, screen sizes and UTM values need a Stats plan that includes them; on other sites WordPress.com refuses with `stats_error` and says so. `downloads` only works on WordPress.com sites that do not use Jetpack; elsewhere it returns `jetpack_stats_invalid_type`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'Return the top items for a chosen content type in one filtered call: posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, regions, cities, browsers, platforms (operating systems), screen sizes, UTM campaign values, commenters, commented posts, downloads, or video plays. Every type returns the same item shape. `label` is human-readable (post title, referrer host, search term, place name, browser, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the count for that item: views for most types, clicks, comments, downloads or plays where the type says so, and for `screen-sizes` the percent of views. `country` is the ISO country code of a region or city item. `max` caps the items; `max=0` returns every item. With `expand=true`, an item that groups other rows lists them in `children`. Referrers group the pages that sent views (and the Search Engines item each engine), clicks group the links under one domain, authors group their posts, and a tags item lists each tag and category (`type`), which share its views so carry no `value` of their own. `max` caps each item\'s children too, as WordPress.com does at every level; `max=0` returns them all. `truncated` is true when more items exist than `max` returned; WordPress.com ranks at most 20 authors, so a full authors list is flagged too. `href` is present only when the item has a canonical URL, and is where a link leads rather than WordPress.com\'s href.li redirect. `id` is the post ID on posts and commented-posts items other than the home page / archives row (pass it to jetpack-stats/get-post-views), and the author\'s user ID on authors items. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `utm` groups views by `utm_param`. `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday; `commenters` and `commented-posts` ignore them too and count every comment ever approved. Regions, cities, browsers, platforms, screen sizes and UTM values need a Stats plan that includes them; on other sites WordPress.com refuses with `stats_error` and says so. `downloads` only works on WordPress.com sites that do not use Jetpack; elsewhere it returns `jetpack_stats_invalid_type`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -633,7 +633,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get views for an author', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Report one author\'s views over time, with the likes and comments their content received in the same window — the detail behind an authors item of jetpack-stats/get-top-content, whose `id` is the `author_id` to pass. `series` has one row per period, oldest first; `views`, `likes` and `comments` are totals for the whole window. `views` counts every post and page the author wrote, so it can exceed their authors item, which counts only the site\'s most-viewed posts each day. `content_counts` is the author\'s published content by post type, and `first_content_date` when they first published, in GMT. An author with 50,000 or more posts returns `stats_error`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'Report one author\'s views over time, with the likes and comments their content received in the same window. `series` has one row per period, oldest first; `views`, `likes` and `comments` are totals for the whole window. `views` counts every post and page the author wrote, so it can exceed their authors item, which counts only the site\'s most-viewed posts each day. `content_counts` is the author\'s published content by post type, and `first_content_date` when they first published, in GMT. An author with 50,000 or more posts returns `stats_error`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -642,7 +642,7 @@ class Stats_Abilities extends Registrar {
 				'properties'           => array(
 					'author_id' => array(
 						'type'        => 'integer',
-						'description' => __( 'The author\'s user ID, the `id` of an authors item from jetpack-stats/get-top-content.', 'jetpack-stats-pkg' ),
+						'description' => __( 'The author\'s user ID, as Stats reports it on a top author.', 'jetpack-stats-pkg' ),
 						'minimum'     => 1,
 					),
 					'period'    => self::period_schema(),
@@ -696,7 +696,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site stats insights', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Answer "what does the site\'s history say about its audience?" in one call, as the Stats dashboard\'s Insights page does. `all_time` holds the site\'s lifetime totals and its best day. `busiest` names the hour (0-23, site timezone) that drew the most views over the last 60 days and the weekday that drew the most over the last 10 weeks, each with its share of views. `recent` compares the last 7 and 30 days, both ending yesterday, with the windows just before them. `streak` is the posting streak, as in jetpack-stats/get-site-overview. `years` totals each year\'s published posts and the words, likes and comments on them. `plan_usage` is the views counted toward the site\'s Stats plan this billing month against its limit (`views_limit` null for no limit). Composes five WPCOM endpoints — if any sub-call fails, `partial` is true, `errors` lists the failed sub-calls (`summary`, `insights`, `highlights`, `streak`, `usage`), and the fields they feed are null; `years` comes with `insights`. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'Answer "what does the site\'s history say about its audience?" in one call, as the Stats dashboard\'s Insights page does. `all_time` holds the site\'s lifetime totals and its best day. `busiest` names the hour (0-23, site timezone) that drew the most views over the last 60 days and the weekday that drew the most over the last 10 weeks, each with its share of views. `recent` compares the last 7 and 30 days, both ending yesterday, with the windows just before them. `streak` is the posting streak: the current and longest runs of consecutive days with a published post. `years` totals each year\'s published posts and the words, likes and comments on them. `plan_usage` is the views counted toward the site\'s Stats plan this billing month against its limit (`views_limit` null for no limit). Composes five WPCOM endpoints — if any sub-call fails, `partial` is true, `errors` lists the failed sub-calls (`summary`, `insights`, `highlights`, `streak`, `usage`), and the fields they feed are null; `years` comes with `insights`. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -810,9 +810,10 @@ class Stats_Abilities extends Registrar {
 						'default'     => 'post_date',
 					),
 					'order'      => array(
-						'type'    => 'string',
-						'enum'    => array( 'desc', 'asc' ),
-						'default' => 'desc',
+						'type'        => 'string',
+						'description' => __( 'Sort direction: highest or newest first (`desc`) or the reverse.', 'jetpack-stats-pkg' ),
+						'enum'        => array( 'desc', 'asc' ),
+						'default'     => 'desc',
 					),
 					'max'        => array(
 						'type'        => 'integer',
@@ -883,15 +884,17 @@ class Stats_Abilities extends Registrar {
 				'default'              => array(),
 				'properties'           => array(
 					'page'     => array(
-						'type'    => 'integer',
-						'minimum' => 1,
-						'default' => 1,
+						'type'        => 'integer',
+						'description' => __( 'Page of results, from 1.', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+						'default'     => 1,
 					),
 					'per_page' => array(
-						'type'    => 'integer',
-						'minimum' => 1,
-						'maximum' => 100,
-						'default' => 20,
+						'type'        => 'integer',
+						'description' => __( 'Subscribers per page (1-100).', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+						'maximum'     => 100,
+						'default'     => 20,
 					),
 					'search'   => array(
 						'type'        => 'string',
@@ -904,14 +907,16 @@ class Stats_Abilities extends Registrar {
 						'default'     => 'all',
 					),
 					'sort'     => array(
-						'type'    => 'string',
-						'enum'    => self::SUBSCRIBER_SORTS,
-						'default' => 'date_subscribed',
+						'type'        => 'string',
+						'description' => __( 'Sort subscribers by subscription date, email, name, plan or status.', 'jetpack-stats-pkg' ),
+						'enum'        => self::SUBSCRIBER_SORTS,
+						'default'     => 'date_subscribed',
 					),
 					'order'    => array(
-						'type'    => 'string',
-						'enum'    => array( 'desc', 'asc' ),
-						'default' => 'desc',
+						'type'        => 'string',
+						'description' => __( 'Sort direction: newest or last first (`desc`) or the reverse.', 'jetpack-stats-pkg' ),
+						'enum'        => array( 'desc', 'asc' ),
+						'default'     => 'desc',
 					),
 				),
 				'additionalProperties' => false,
