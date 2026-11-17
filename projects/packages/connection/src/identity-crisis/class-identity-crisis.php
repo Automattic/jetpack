@@ -917,11 +917,6 @@ class Identity_Crisis {
 	 * @return bool
 	 */
 	public static function is_new_screen_enabled() {
-		// The Connectors card can be the only reader, on a site where no plugin ensures the identity_crisis feature.
-		if ( null === Feature_Flags::get( self::NEW_SCREEN_FLAG ) ) {
-			self::register_feature_flags();
-		}
-
 		return Feature_Flags::is_enabled( self::NEW_SCREEN_FLAG );
 	}
 

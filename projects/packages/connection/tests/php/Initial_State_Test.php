@@ -22,9 +22,11 @@ class Initial_State_Test extends TestCase {
 	protected function tearDown(): void {
 		parent::tearDown();
 
-		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens', 'safe_mode_confirmed', Protected_Owner::OPTION ) );
+		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens', 'safe_mode_confirmed', 'blog_token', 'id', 'sync_error_idc', Protected_Owner::OPTION ) );
+		Identity_Crisis::$is_safe_mode_confirmed = null;
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
+		remove_all_filters( 'jetpack_sync_error_idc_validation' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG );
 		Feature_Flags::reset();
 		Cache::clear();
@@ -355,6 +357,58 @@ class Initial_State_Test extends TestCase {
 				array_merge( $shared, array( 'wpcomHomeUrl', 'currentUrl', 'isDevelopmentSite', 'possibleDynamicSiteUrlDetected', 'logoUrl' ) ),
 			),
 			'cannot resolve' => array( 'contributor', false, $shared ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_identity_crisis_errors
+	 *
+	 * @param string $error_code    The stored error code.
+	 * @param string $expected_wpcom The expected wpcomHomeUrl.
+	 * @param string $expected_local The expected currentUrl.
+	 */
+	#[DataProvider( 'provide_identity_crisis_errors' )]
+	public function test_get_data_identity_crisis_urls_survive_confirmation( $error_code, $expected_wpcom, $expected_local ) {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option(
+			'sync_error_idc',
+			array(
+				'error_code'    => $error_code,
+				'home'          => 'https://local.example',
+				'siteurl'       => 'https://local.example/wp',
+				'wpcom_home'    => 'https://wpcom.example',
+				'wpcom_siteurl' => 'https://wpcom.example/wp',
+			)
+		);
+		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
+		Identity_Crisis::$is_safe_mode_confirmed = true;
+		self::enter_safe_mode();
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'initial_state_' . $error_code,
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		get_user_by( 'id', $user_id )->add_cap( 'jetpack_disconnect' );
+		wp_set_current_user( $user_id );
+
+		$identity_crisis = self::get_data()['identityCrisis'];
+
+		$this->assertSame( $expected_wpcom, $identity_crisis['wpcomHomeUrl'] );
+		$this->assertSame( $expected_local, $identity_crisis['currentUrl'] );
+	}
+
+	/**
+	 * Data provider for test_get_data_identity_crisis_urls_survive_confirmation.
+	 *
+	 * @return array
+	 */
+	public static function provide_identity_crisis_errors() {
+		return array(
+			'site URL mismatch' => array( 'jetpack_site_url_mismatch', 'https://wpcom.example/wp', 'https://local.example/wp' ),
+			'home URL mismatch' => array( 'jetpack_home_url_mismatch', 'https://wpcom.example', 'https://local.example' ),
 		);
 	}
 

@@ -126,14 +126,48 @@ class Initial_State {
 			return $data;
 		}
 
-		$idc_urls = Identity_Crisis::get_mismatched_urls();
+		$idc_urls = self::get_mismatched_urls();
 
 		return $data + array(
-			'wpcomHomeUrl'                   => is_array( $idc_urls ) && isset( $idc_urls['wpcom_url'] ) ? $idc_urls['wpcom_url'] : '',
-			'currentUrl'                     => is_array( $idc_urls ) && isset( $idc_urls['current_url'] ) ? $idc_urls['current_url'] : home_url(),
+			'wpcomHomeUrl'                   => $idc_urls ? $idc_urls['wpcom_url'] : '',
+			'currentUrl'                     => $idc_urls ? $idc_urls['current_url'] : home_url(),
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
 			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
 			'logoUrl'                        => Jetpack_Connector::get_connector_logo_url(),
+		);
+	}
+
+	/**
+	 * Get the mismatched URLs, including after an admin confirms Safe Mode.
+	 *
+	 * Identity_Crisis::get_mismatched_urls() returns false once Safe Mode is confirmed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{wpcom_url: string, current_url: string}|null
+	 */
+	private static function get_mismatched_urls() {
+		$error = Identity_Crisis::check_identity_crisis();
+		if ( ! is_array( $error ) ) {
+			return null;
+		}
+
+		foreach ( array( 'error_code', 'wpcom_home', 'home', 'wpcom_siteurl', 'siteurl' ) as $key ) {
+			if ( ! isset( $error[ $key ] ) ) {
+				return null;
+			}
+		}
+
+		if ( 'jetpack_site_url_mismatch' === $error['error_code'] ) {
+			return array(
+				'wpcom_url'   => $error['wpcom_siteurl'],
+				'current_url' => $error['siteurl'],
+			);
+		}
+
+		return array(
+			'wpcom_url'   => $error['wpcom_home'],
+			'current_url' => $error['home'],
 		);
 	}
 
