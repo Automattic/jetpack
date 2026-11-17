@@ -1040,7 +1040,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		);
 
 		try {
-			$result = $this->call_get_current_site();
+			$this->assertSame( 258563328, $this->call_get_current_site()['ID'] );
 		} finally {
 			$provider = new \ReflectionProperty( \Automattic\Jetpack\Connection\External_Storage::class, 'provider' );
 			if ( PHP_VERSION_ID < 80100 ) {
@@ -1049,8 +1049,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			$provider->setValue( null, null );
 			delete_option( 'jetpack_options' );
 		}
-
-		$this->assertSame( 258563328, $result['ID'] );
 	}
 
 	/**
