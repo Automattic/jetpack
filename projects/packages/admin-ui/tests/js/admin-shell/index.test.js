@@ -379,7 +379,19 @@ describe( 'admin shell prewarm', () => {
 		finishB();
 		await settle();
 
+		expect( mockCapturedSlug.b ).toBe( 'b' );
 		expect( globalThis.jetpackConfig ).toBe( hostConfig );
+	} );
+
+	it( "gives a page sharing an init that set no Jetpack config the page's current one", async () => {
+		globalThis.jetpackConfig = { consumer_slug: 'old' };
+		hover( 'guest-a' );
+		await settle();
+		globalThis.jetpackConfig = { consumer_slug: 'host' };
+		hover( 'guest-a2' );
+		await settle();
+
+		expect( mockCapturedSlug ).toEqual( { a: 'old', a2: 'host' } );
 	} );
 } );
 

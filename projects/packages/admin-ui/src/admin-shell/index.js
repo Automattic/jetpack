@@ -103,22 +103,22 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	// The Jetpack config a guest's init set, for another page built from its package.
 	const configOfInit = new Map();
 	const guestConfigs = new Set();
+	// The page's own config is the newest one no guest set: the host's init sets it on DOMContentLoaded.
+	let pageConfig;
+	const pageConfigNow = () => {
+		if ( ! guestConfigs.has( globalThis.jetpackConfig ) ) {
+			pageConfig = globalThis.jetpackConfig;
+		}
+		return pageConfig;
+	};
 	/*
 	 * One guest's init and route-module imports at a time: an init sets globals such as
 	 * `window.jetpackConfig` that its route modules read when they are evaluated.
-	 * The page's config is put back after, unless the host's own init set a newer one meanwhile.
 	 */
 	let booting = Promise.resolve();
 	const oneAtATime = task => {
-		const run = booting.then( async () => {
-			const pageConfig = globalThis.jetpackConfig;
-			try {
-				return await task();
-			} finally {
-				if ( guestConfigs.has( globalThis.jetpackConfig ) ) {
-					globalThis.jetpackConfig = pageConfig;
-				}
-			}
+		const run = booting.then( task ).finally( () => {
+			globalThis.jetpackConfig = pageConfigNow();
 		} );
 		booting = run.catch( () => {} );
 		return run;
@@ -137,17 +137,21 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			const added = await applyGuestAssets( guestAssetsUrl, slug );
 			log( 'prewarm', `${ slug }: page data fetched and applied in ${ step() }`, added );
 			return oneAtATime( async () => {
+				let guestConfig;
 				for ( const id of members[ slug ].initModules ) {
 					if ( ranInit.has( id ) ) {
-						if ( configOfInit.has( id ) ) {
-							globalThis.jetpackConfig = configOfInit.get( id );
-						}
+						guestConfig = configOfInit.get( id ) ?? guestConfig;
 					} else {
 						step = stopwatch();
 						// Not bundled: wp-build's modules resolve through the page's import map at runtime.
 						const initModule = await import( /* webpackIgnore: true */ id );
-						const configBefore = globalThis.jetpackConfig;
-						const running = initModule.init?.();
+						const configBefore = ( globalThis.jetpackConfig = pageConfigNow() );
+						let running;
+						try {
+							running = initModule.init?.();
+						} catch ( error ) {
+							running = Promise.reject( error );
+						}
 						// Members set it before their first await; a later change may be the host's own init.
 						const ownConfig = globalThis.jetpackConfig;
 						if ( ownConfig !== configBefore ) {
@@ -171,6 +175,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 						ranInit.add( id );
 						if ( ownConfig !== configBefore ) {
 							configOfInit.set( id, ownConfig );
+							guestConfig = ownConfig;
 						}
 						log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
 					}
@@ -180,6 +185,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 					.flatMap( route => [ route.route_module, route.content_module ] )
 					.filter( Boolean );
 				step = stopwatch();
+				// Set again here, in case the host's init replaced it while this guest's init ran.
+				const current = pageConfigNow();
+				globalThis.jetpackConfig = guestConfig ?? current;
 				await Promise.all( modules.map( id => import( /* webpackIgnore: true */ id ) ) );
 				log(
 					'prewarm',
