@@ -34,8 +34,8 @@ class Indexnow_Queue {
 		add_action( 'jetpack_seo_indexnow_post_restricted', array( __CLASS__, 'discard_post' ) );
 		add_action( self::HOOK, array( __CLASS__, 'work' ) );
 		add_action( self::RECOVERY_HOOK, array( __CLASS__, 'work' ) );
-		add_action( 'jetpack_deactivate_module_seo-tools', array( __CLASS__, 'clear' ) );
-		add_action( 'update_option_home', array( __CLASS__, 'clear' ) );
+		add_action( 'jetpack_deactivate_module_seo-tools', array( __CLASS__, 'clear_if_used' ) );
+		add_action( 'update_option_home', array( __CLASS__, 'clear_if_used' ) );
 		add_action( 'update_option_' . Indexnow_Client::ENABLED_OPTION, array( __CLASS__, 'preference_changed' ), 10, 2 );
 	}
 
@@ -108,7 +108,7 @@ class Indexnow_Queue {
 	 *
 	 * @param array       $row Observed durable row.
 	 * @param array|null  $next Replacement, or null to delete.
-	 * @param string|null $generation Required queue generation for an admission replacement.
+	 * @param string|null $generation Required queue generation for a replacement.
 	 * @return bool
 	 */
 	public static function compare_and_swap( $row, $next, $generation = null ) {
@@ -227,7 +227,7 @@ class Indexnow_Queue {
 			'url'        => $url,
 			'post'       => (int) $post_id,
 			'deleted'    => (bool) $deleted,
-			'scope'      => home_url( '/' ),
+			'scope'      => Indexnow_Client::scope(),
 			'version'    => wp_generate_uuid4(),
 			'due'        => time() + 300,
 			'attempt'    => 0,
@@ -257,7 +257,7 @@ class Indexnow_Queue {
 					}
 					global $wpdb;
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Fence inserts against replacement of an expired admission lock.
-					$added = $wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) SELECT %s, %s, 'no' WHERE EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s) AND EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s)", $name, wp_json_encode( $item, JSON_UNESCAPED_SLASHES ), $lock['option_name'], $lock['option_value'], self::GENERATION_OPTION, $generation ) );
+					$added = $wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) SELECT %s, %s, 'no' FROM DUAL WHERE EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s) AND EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s)", $name, wp_json_encode( $item, JSON_UNESCAPED_SLASHES ), $lock['option_name'], $lock['option_value'], self::GENERATION_OPTION, $generation ) );
 					wp_cache_delete( $name, 'options' );
 					if ( 1 !== $added ) {
 						continue;
@@ -273,8 +273,9 @@ class Indexnow_Queue {
 		update_option(
 			'jetpack_seo_indexnow_enqueue_error',
 			array(
-				'state' => 'queue_full_or_busy',
-				'time'  => time(),
+				'state'   => 'queue_full_or_busy',
+				'time'    => time(),
+				'version' => wp_generate_uuid4(),
 			),
 			false
 		);
@@ -325,6 +326,17 @@ class Indexnow_Queue {
 		}
 	}
 
+	/**
+	 * Avoid queue work for passive site changes before the first admission.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function clear_if_used() {
+		if ( self::row( self::GENERATION_OPTION ) ) {
+			self::clear();
+		}
+	}
+
 	/** Discard pending work without depending on the current admission limit. */
 	public static function clear() {
 		if ( ( new Host() )->is_vip_site() || ! Initializer::is_available() ) {
@@ -350,8 +362,21 @@ class Indexnow_Queue {
 			}
 			$rows = self::rows( self::PAGE_SIZE, $after );
 		}
-		foreach ( array( self::CURSOR_OPTION, self::COOLDOWN_OPTION ) as $option ) {
-			delete_option( $option );
+		$history = array();
+		foreach ( array( self::CURSOR_OPTION, self::COOLDOWN_OPTION, self::STATUS_OPTION, self::ACCEPTED_OPTION, 'jetpack_seo_indexnow_enqueue_error' ) as $option ) {
+			$row = self::row( $option );
+			if ( ! $row ) {
+				continue;
+			}
+			$receipt = maybe_unserialize( $row['option_value'] );
+			if ( self::ACCEPTED_OPTION === $option && is_array( $receipt ) && 'accepted' === ( $receipt['state'] ?? '' ) && get_option( Indexnow_Client::SCOPE_OPTION, '' ) === Indexnow_Client::scope() ) {
+				continue;
+			}
+			$history[] = $row;
+		}
+		if ( $history ) {
+			self::delete_rows( $history, $generation );
+			self::invalidate_summary_cache( array_column( $history, 'option_name' ) );
 		}
 		wp_clear_scheduled_hook( self::HOOK );
 		wp_clear_scheduled_hook( self::RECOVERY_HOOK );
@@ -392,11 +417,22 @@ class Indexnow_Queue {
 	private static function store_status_option( $name, $value, $generation ) {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- The same-statement fence prevents a reset from being followed by an obsolete status write.
-		$wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) SELECT %s, %s, 'no' WHERE EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s) ON DUPLICATE KEY UPDATE option_value = VALUES(option_value), autoload = 'no'", $name, maybe_serialize( $value ), self::GENERATION_OPTION, $generation ) );
+		$wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) SELECT %s, %s, 'no' FROM DUAL WHERE EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s) ON DUPLICATE KEY UPDATE option_value = VALUES(option_value), autoload = 'no'", $name, maybe_serialize( $value ), self::GENERATION_OPTION, $generation ) );
 		wp_cache_delete( $name, 'options' );
 		wp_cache_delete( 'notoptions', 'options' );
-		// Some hosts also cache non-autoloaded options in alloptions.
-		wp_cache_delete( 'alloptions', 'options' );
+		self::invalidate_summary_cache( array( $name ) );
+	}
+
+	/**
+	 * Preserve the shared cache on hosts that cache only autoloaded options.
+	 *
+	 * @param string[] $names Changed summary options.
+	 */
+	private static function invalidate_summary_cache( $names ) {
+		$cached = wp_cache_get( 'alloptions', 'options' );
+		if ( ( new Host() )->is_wpcom_simple() || array_intersect_key( (array) $cached, array_fill_keys( $names, true ) ) ) {
+			wp_cache_delete( 'alloptions', 'options' );
+		}
 	}
 
 	/** Process a bounded sweep with an expiring worker lock. */
@@ -449,7 +485,7 @@ class Indexnow_Queue {
 						$expired += self::compare_and_swap( $row, null ) ? 1 : 0;
 						continue;
 					}
-					if ( ( $item['scope'] ?? '' ) !== home_url( '/' ) || ! Indexnow_Client::in_scope( $item['url'] ?? '' ) ) {
+					if ( ( $item['scope'] ?? '' ) !== Indexnow_Client::scope() || ! Indexnow_Client::in_scope( $item['url'] ?? '' ) ) {
 						self::compare_and_swap( $row, null );
 						continue;
 					}
@@ -491,18 +527,25 @@ class Indexnow_Queue {
 				);
 			}
 			if ( $claimed && Indexnow_Client::enabled() && self::row( self::WORKER_LOCK ) === $lock && self::generation() === $generation ) {
-				$urls   = array_map(
+				$urls          = array_map(
 					static function ( $row ) {
 						$item = (array) json_decode( $row['option_value'], true );
 						return $item['url'];
 					},
 					$claimed
 				);
-				$result = Indexnow_Client::submit( $urls );
+				$enqueue_error = self::row( 'jetpack_seo_indexnow_enqueue_error' );
+				$result        = Indexnow_Client::submit( $urls );
 				if ( self::generation() !== $generation || ! Indexnow_Client::enabled() ) {
 					return;
 				}
 				$exhausted = 0;
+				$retrying  = 0;
+				$dropped   = 0;
+				if ( $enqueue_error && in_array( $result['state'], array( 'accepted', 'verification_pending' ), true ) ) {
+					self::delete_rows( array( $enqueue_error ), $generation );
+					self::invalidate_summary_cache( array( 'jetpack_seo_indexnow_enqueue_error' ) );
+				}
 				if ( 'http_429' === $result['state'] ) {
 					self::store_status_option( self::COOLDOWN_OPTION, time() + max( 600, $result['retry_after'] ?? 0 ), $generation );
 				}
@@ -512,10 +555,10 @@ class Indexnow_Queue {
 						++$item['attempt'];
 						$item['due']  = time() + max( $result['retry_after'] ?? 0, min( 43200, 60 * pow( 4, $item['attempt'] ) ), 'http_429' === $result['state'] ? 600 : 0 );
 						$earliest_due = min( $earliest_due, $item['due'] );
-						self::compare_and_swap( $row, $item );
-					} else {
-						$exhausted += $result['retry'] ? 1 : 0;
-						self::compare_and_swap( $row, null );
+						$retrying    += self::compare_and_swap( $row, $item, $generation ) ? 1 : 0;
+					} elseif ( self::compare_and_swap( $row, null ) ) {
+							$exhausted += $result['retry'] ? 1 : 0;
+							$dropped   += ! $result['retry'] && ! in_array( $result['state'], array( 'accepted', 'verification_pending' ), true ) ? 1 : 0;
 					}
 				}
 				self::record_status(
@@ -525,6 +568,8 @@ class Indexnow_Queue {
 						'count'     => count( $claimed ),
 						'expired'   => $expired,
 						'exhausted' => $exhausted,
+						'retrying'  => $retrying,
+						'dropped'   => $dropped,
 					),
 					$generation
 				);
