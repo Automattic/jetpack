@@ -315,7 +315,6 @@ export {
 	monthlyHeatmapLifeStart,
 	monthRange,
 	yearRange,
-	type OpenableBucket,
 	type PeriodBounds,
 } from './helpers';
 

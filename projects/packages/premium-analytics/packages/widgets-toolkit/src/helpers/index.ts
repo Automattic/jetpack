@@ -68,7 +68,6 @@ export {
 	bucketRange,
 	monthRange,
 	yearRange,
-	type OpenableBucket,
 	type PeriodBounds,
 } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
