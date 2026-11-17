@@ -4,7 +4,6 @@
 import { authorPostsQuery, getApiErrorCode, useStatsQuery } from '@jetpack-premium-analytics/data';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -91,14 +90,4 @@ export function useAuthorSummary( id: string ): AuthorSummary {
 		isPostsLoading: posts.isLoading,
 		isPostsError: posts.isError,
 	};
-}
-
-/**
- * The name the page shows for a resolved author, shared by the header and the breadcrumb.
- *
- * @param summary - The resolved author summary.
- * @return The author's name, or a placeholder when it is blank.
- */
-export function authorDisplayName( summary: Pick< AuthorSummary, 'name' > ): string {
-	return summary.name?.trim() || __( 'Unnamed author', 'jetpack-premium-analytics-pkg' );
 }

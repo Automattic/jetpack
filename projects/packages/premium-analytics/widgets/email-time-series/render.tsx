@@ -24,6 +24,8 @@ import {
 	WidgetState,
 	defaultPeriodForInterval,
 	describeError,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
 	type CountLabel,
 	type MetricTab,
@@ -182,6 +184,35 @@ function EmailTimeSeriesReport( {
 			},
 		];
 	}, [ chartReport, field, metric, active.timezone ] );
+
+	const csv = useMemo(
+		() =>
+			metricTabsToCsv(
+				metricTabs[ 0 ].current.some( point => ( point.value ?? 0 ) > 0 ) ? metricTabs : [],
+				{
+					zone: active.timezone,
+					withTime: period === 'hour',
+					dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+				}
+			),
+		[ metricTabs, active.timezone, period ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: `email-${ postId }-${ metric }`,
+			// The file is dated by the window the chart's own control picked, where it picked one.
+			...( sendWindow
+				? { range: { from: sendWindow.from, to: sendWindow.to } }
+				: { hasDateRange: true } ),
+			status: {
+				isLoading: active.isLoading,
+				isFetching: active.isFetching,
+				isError: active.isError,
+				isPlaceholderData: active.isPlaceholderData,
+			},
+		},
+	} );
 
 	return (
 		<div className={ styles.root }>

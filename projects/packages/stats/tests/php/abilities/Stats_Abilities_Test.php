@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats\Abilities;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Main;
 use Automattic\Jetpack\Stats\Options;
 use Automattic\Jetpack\Stats\Settings;
@@ -87,6 +88,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	 * {@inheritDoc}
 	 */
 	public function tear_down() {
+		Constants::clear_single_constant( 'IS_WPCOM' );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
 		remove_all_filters( 'jetpack_stats_abilities_wpcom_stats' );
@@ -286,15 +288,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_init_hooks_lifecycle_actions_when_gate_is_true(): void {
-		// Only valid when the Abilities API lifecycle actions have NOT yet fired.
-		// WP_Abilities_Registry::get_instance() fires `wp_abilities_api_init` on first call
-		// (in response to any wp_has_ability / wp_register_ability call elsewhere in the run),
-		// which would push the Registrar down its synchronous late-load path and this test
-		// would assert against a world it doesn't apply to.
-		if ( did_action( 'wp_abilities_api_init' ) || did_action( 'wp_abilities_api_categories_init' ) ) {
-			$this->markTestSkipped( 'Abilities API lifecycle already fired in this test run; late-load path covered elsewhere.' );
-		}
-
 		Stats_Abilities::init();
 
 		$this->assertNotFalse(
@@ -393,6 +386,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_can_manage_settings_denies_subscriber(): void {
 		wp_set_current_user( self::$subscriber_id );
 		$this->assertFalse( Stats_Abilities::can_manage_settings() );
+	}
+
+	public function test_get_settings_denies_a_user_who_can_only_view_stats(): void {
+		Options::set_options( array( 'roles' => array( 'administrator', 'editor' ) ) );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'stats_abilities_editor_' . wp_generate_password( 8, false ),
+					'user_pass'  => 'pw',
+					'role'       => 'editor',
+				)
+			)
+		);
+		$spec = Stats_Abilities::get_abilities()['jetpack-stats/get-settings'];
+
+		$this->assertTrue( Stats_Abilities::can_view_stats() );
+		$this->assertFalse( call_user_func( $spec['permission_callback'] ) );
 	}
 
 	public function test_get_site_overview_returns_composed_shape(): void {
@@ -688,7 +698,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			array(
 				'period'    => 'day',
 				'date'      => $end,
-				'max'       => 20,
+				'max'       => 21,
 				'num'       => $days,
 				'summarize' => 1,
 			),
@@ -779,6 +789,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			array(
 				'type' => 'countries',
 				'date' => '2026-04-23',
+				'max'  => 3,
 			)
 		);
 
@@ -787,6 +798,8 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			array_column( $result['items'], 'label' )
 		);
 		$this->assertSame( array( 12, 6 + 5, 9 ), array_column( $result['items'], 'value' ) );
+		// Folding left three items, but WordPress.com sent more rows than `max`, so more may exist.
+		$this->assertTrue( $result['truncated'] );
 	}
 
 	public function test_get_top_content_tags_names_every_term_a_row_groups(): void {
@@ -836,37 +849,59 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 	}
 
-	public function test_get_top_content_enforces_max_cap(): void {
-		$this->filter_wpcom_stats(
+	/**
+	 * Cap, requested row count, and whether rows were left out.
+	 */
+	public static function provide_max_caps(): array {
+		return array(
+			'cap below the rows'  => array( 2, 3, 2, true ),
+			'cap equals the rows' => array( 3, 4, 3, false ),
+			'max=0 returns all'   => array( 0, 0, 3, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_max_caps
+	 *
+	 * @param int  $max       Requested cap.
+	 * @param int  $requested Rows asked of WPCOM.
+	 * @param int  $count     Items returned.
+	 * @param bool $truncated Expected truncated flag.
+	 */
+	#[DataProvider( 'provide_max_caps' )]
+	public function test_get_top_content_caps_items_and_flags_truncation( int $max, int $requested, int $count, bool $truncated ): void {
+		$rows     = array(
 			array(
-				'get_top_posts' => self::days_fixture(
-					'postviews',
-					array(
-						array(
-							'title' => 'A',
-							'views' => 1,
-						),
-						array(
-							'title' => 'B',
-							'views' => 1,
-						),
-						array(
-							'title' => 'C',
-							'views' => 1,
-						),
-					)
-				),
+				'title' => 'A',
+				'views' => 3,
+			),
+			array(
+				'title' => 'B',
+				'views' => 2,
+			),
+			array(
+				'title' => 'C',
+				'views' => 1,
+			),
+		);
+		$requests = $this->filter_wpcom_stats(
+			array(
+				// WPCOM returns at most the rows asked for, and every row for max=0.
+				'get_top_posts' => self::days_fixture( 'postviews', 0 === $requested ? $rows : array_slice( $rows, 0, $requested ) ),
 			)
 		);
 
 		$result = Stats_Abilities::get_top_content(
 			array(
 				'type' => 'posts',
-				'max'  => 2,
+				'max'  => $max,
 			)
 		);
 
-		$this->assertCount( 2, $result['items'] );
+		$this->assertSame( $requested, $requests['get_top_posts']['max'] );
+		$this->assertCount( $count, $result['items'] );
+		$this->assertSame( $max, $result['max'] );
+		$this->assertSame( $truncated, $result['truncated'] );
 	}
 
 	public function test_get_top_content_propagates_wp_error(): void {
@@ -990,6 +1025,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_get_top_content_downloads_uniform_shape(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
 		$this->filter_wpcom_stats(
 			array(
 				'get_file_downloads' => self::days_fixture(
@@ -1025,6 +1061,16 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( '/downloads/spec.zip', $result['items'][1]['label'] );
 		$this->assertSame( 7, $result['items'][1]['value'] );
 		$this->assertSame( '/downloads/spec.zip', $result['items'][1]['href'] );
+	}
+
+	public function test_get_top_content_downloads_is_refused_on_jetpack_sites_without_asking_wpcom(): void {
+		$requests = $this->filter_wpcom_stats( array( 'get_file_downloads' => array() ) );
+
+		$result = Stats_Abilities::get_top_content( array( 'type' => 'downloads' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_stats_invalid_type', $result->get_error_code() );
+		$this->assertArrayNotHasKey( 'get_file_downloads', $requests );
 	}
 
 	public function test_get_top_content_video_plays_uniform_shape(): void {
@@ -1236,8 +1282,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				'get_visits' => array(
 					'fields' => array( 'period', 'views', 'visitors' ),
 					'data'   => array(
-						array( '2026-04-22', 100, 70 ),
-						array( '2026-04-23', 120, 90 ),
+						// WPCOM labels each week with its Monday.
+						array( '2026W04W13', 100, 70 ),
+						array( '2026W04W20', 120, 90 ),
 					),
 				),
 			)
@@ -1265,7 +1312,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertCount( 2, $result['series'] );
 		$this->assertSame(
 			array(
-				'date'     => '2026-04-22',
+				'date'     => '2026-04-13',
 				'views'    => 100,
 				'visitors' => 70,
 			),

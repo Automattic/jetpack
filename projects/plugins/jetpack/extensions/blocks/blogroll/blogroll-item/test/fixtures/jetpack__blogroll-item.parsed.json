@@ -1,0 +1,24 @@
+[
+	{
+		"blockName": "jetpack/blogroll",
+		"attrs": {},
+		"innerBlocks": [
+			{
+				"blockName": "jetpack/blogroll-item",
+				"attrs": {
+					"id": "123456",
+					"name": "Example Blog",
+					"url": "https://example.com",
+					"description": "A blog about examples.",
+					"icon": "https://example.com/icon.png",
+					"feed_url": "https://example.com/feed/"
+				},
+				"innerBlocks": [],
+				"innerHTML": "\n<div class=\"wp-block-jetpack-blogroll-item\"></div>\n",
+				"innerContent": [ "\n<div class=\"wp-block-jetpack-blogroll-item\"></div>\n" ]
+			}
+		],
+		"innerHTML": "\n<div class=\"wp-block-jetpack-blogroll\"></div>\n",
+		"innerContent": [ "\n<div class=\"wp-block-jetpack-blogroll\">", null, "</div>\n" ]
+	}
+]

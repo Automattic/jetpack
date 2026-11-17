@@ -7,7 +7,7 @@ import {
 	ReportScopeProvider,
 	isPlanDateLimitedSection,
 } from '@jetpack-premium-analytics/data';
-import { Badge, Icon } from '@jetpack-premium-analytics/externals';
+import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
@@ -19,6 +19,7 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { PeriodChangeStatus, SectionTabs, StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
+	CustomizingBadge,
 	DetailPageActions,
 	PageEmptyState,
 	PageNotice,
@@ -83,7 +84,7 @@ const READY_SUMMARY: EntitySummary = {
 // A page the route ships no adapter for renders from its record: the label titles it.
 const RECORD_ADAPTER: SingleReportAdapter = {
 	useSummary: () => READY_SUMMARY,
-	headerSlots: ( summary, { label } ) => ( { title: label } ),
+	headerSlots: ( summary, { title } ) => ( { title } ),
 };
 
 /**
@@ -270,11 +271,11 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	// A card can set the period (the All-time traffic card opens a month): the change is read
 	// out and the page returns to the top, where the re-scoped cards are.
-	const { openPeriod, attentionId } = usePeriodHost(
+	const { openPeriod, attention } = usePeriodHost(
 		`${ page.path }:${ entityId }`,
 		dateFilters.appliedRange,
 		! isPinned,
-		lockedIntervals
+		dateLimits
 	);
 
 	const reportSearch = pickReportNavigationParams( search );
@@ -310,13 +311,16 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		surface,
 	} );
 
+	// One title for the crumb and the header: the entity's, else the adapter's untitled one.
+	const title = summary.title?.trim() || adapter.untitledTitle?.( summary ) || page.label;
 	const breadcrumbs = useDetailBreadcrumbs(
-		canRenderWidgets ? summary.title?.trim() || page.label : undefined,
+		canRenderWidgets ? title : undefined,
 		page.reports_page ?? undefined
 	);
 
 	const header = adapter.headerSlots( summary, {
 		label: page.label,
+		title,
 		section: activeState,
 		performanceRange:
 			pinnedWindow?.headerRange?.( layout ) ?? pinnedWindow?.range ?? dateFilters.appliedRange,
@@ -374,14 +378,10 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	return (
 		<>
-			<PeriodChangeStatus
-				attentionId={ attentionId }
-				appliedPresetId={ dateFilters.appliedPresetId }
-				appliedRange={ dateFilters.appliedRange }
-			/>
+			<PeriodChangeStatus periodChange={ attention } />
 			<ReportScopeProvider
 				openPeriod={ openPeriod }
-				attentionId={ attentionId }
+				attentionId={ attention?.id }
 				dateLimits={ dateLimits }
 			>
 				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
@@ -401,13 +401,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 								className={ styles.page }
 								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-								badges={
-									isCustomizing ? (
-										<Badge intent="informational">
-											{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }
-										</Badge>
-									) : undefined
-								}
+								badges={ isCustomizing ? <CustomizingBadge /> : undefined }
 								actions={
 									<DetailPageActions
 										isCustomizing={ isCustomizing }
@@ -432,7 +426,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 									controls={ controlFields as never }
 									data={ controlsData }
 									onChange={ applyReportParams }
-									returnToTopKey={ attentionId }
+									returnToTopKey={ attention?.id }
 								>
 									{ emptyState ? <PageEmptyState { ...emptyState } /> : null }
 									{ /* Keyed by section: each is its own layout, so the grid mounts fresh. */ }

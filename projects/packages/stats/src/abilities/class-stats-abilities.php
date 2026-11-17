@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Stats\Abilities;
 
 use Automattic\Jetpack\Stats\Settings;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack_Options;
 use WP_Error;
@@ -154,7 +155,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site stats overview', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Answer "how is my site doing right now?" in one zero-argument call, from today\'s and recent Stats. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are null, `streak` included, as is a total covering a day WordPress.com did not report, so a 0 is a value WordPress.com reported. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
+				'Answer "how is my site doing right now?" in one call, from today\'s and recent Stats. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are null, `streak` included, as is a total covering a day WordPress.com did not report, so a 0 is a value WordPress.com reported. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -224,7 +225,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Every type returns the same item shape. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
+				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Every type returns the same item shape. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `max` caps the items; `max=0` returns every item. `truncated` is true when more items exist than `max` returned. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. `downloads` only works on WordPress.com sites that do not use Jetpack; elsewhere it returns `jetpack_stats_invalid_type`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -256,8 +257,8 @@ class Stats_Abilities extends Registrar {
 					),
 					'max'    => array(
 						'type'        => 'integer',
-						'description' => __( 'Results cap (1-100).', 'jetpack-stats-pkg' ),
-						'minimum'     => 1,
+						'description' => __( 'Results cap (1-100), or 0 for every item.', 'jetpack-stats-pkg' ),
+						'minimum'     => 0,
 						'maximum'     => 100,
 						'default'     => 20,
 					),
@@ -267,13 +268,14 @@ class Stats_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'site'   => self::site_schema(),
-					'type'   => array( 'type' => 'string' ),
-					'period' => array( 'type' => 'string' ),
-					'date'   => array( 'type' => 'string' ),
-					'num'    => array( 'type' => 'integer' ),
-					'max'    => array( 'type' => 'integer' ),
-					'items'  => array(
+					'site'      => self::site_schema(),
+					'type'      => array( 'type' => 'string' ),
+					'period'    => array( 'type' => 'string' ),
+					'date'      => array( 'type' => 'string' ),
+					'num'       => array( 'type' => 'integer' ),
+					'max'       => array( 'type' => 'integer' ),
+					'truncated' => array( 'type' => 'boolean' ),
+					'items'     => array(
 						'type'  => 'array',
 						'items' => array(
 							'type'       => 'object',
@@ -390,7 +392,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site visits timeseries', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as negative, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
+				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Each row\'s `date` is the first day of its period (weeks start on Monday). Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as negative, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -542,7 +544,7 @@ class Stats_Abilities extends Registrar {
 				'properties' => self::settings_output_properties(),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_settings' ),
-			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
+			'permission_callback' => array( __CLASS__, 'can_manage_settings' ),
 			'meta'                => array(
 				'annotations'  => array(
 					'readonly'    => true,
@@ -659,11 +661,10 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Write-side permission: manage_options.
+	 * Settings permission, for reads and writes: manage_options, as on the Stats settings screen.
 	 *
-	 * Stats configuration writes modify the `stats_options` WP option,
-	 * which includes the very roles that gate `view_stats`. Guard with the
-	 * site-admin capability, not `view_stats`, so readers can't escalate.
+	 * The `stats_options` WP option includes the very roles that gate `view_stats`,
+	 * so users who can only view stats must not read or change it.
 	 *
 	 * @return bool
 	 */
@@ -721,8 +722,8 @@ class Stats_Abilities extends Registrar {
 		$days     = self::normalize_visits_series( $values['visits'], array( 'views', 'visitors' ) );
 		$last_day = end( $days );
 		$last_day = false === $last_day ? array() : $last_day;
-		$top_post = self::first_post( self::normalize_top_content_items( 'posts', $values['top_posts'], $post_rows ) );
-		$top_ref  = self::normalize_top_content_items( 'referrers', $values['referrers'], 1 )[0] ?? null;
+		$top_post = self::first_post( self::rank_and_cap( self::top_content_rows( 'posts', $values['top_posts'] ), $post_rows ) );
+		$top_ref  = self::rank_and_cap( self::top_content_rows( 'referrers', $values['referrers'] ), 1 )[0] ?? null;
 
 		$out = array(
 			'site'           => self::site(),
@@ -771,11 +772,19 @@ class Stats_Abilities extends Registrar {
 			);
 		}
 
+		// WordPress.com answers stats/file-downloads with a 404 for every Jetpack-connected site.
+		if ( 'downloads' === $input['type'] && ! ( new Host() )->is_wpcom_simple() ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'invalid_type',
+				__( 'WordPress.com does not keep file download stats for Jetpack-connected sites. Choose another type.', 'jetpack-stats-pkg' )
+			);
+		}
+
 		$type   = $input['type'];
 		$period = self::pick_period( $input['period'] ?? null );
 		$date   = self::resolve_date( $input['date'] ?? null );
 		$num    = self::clamp_int( $input['num'] ?? 1, 1, 90, 1 );
-		$max    = self::clamp_int( $input['max'] ?? 20, 1, 100, 20 );
+		$max    = self::clamp_int( $input['max'] ?? 20, 0, 100, 20 );
 		if ( is_wp_error( $date ) ) {
 			return $date;
 		}
@@ -783,7 +792,8 @@ class Stats_Abilities extends Registrar {
 		$args = array(
 			'period' => $period,
 			'date'   => $date,
-			'max'    => $max,
+			// WordPress.com returns every row for max=0; otherwise one extra row shows whether the list was cut.
+			'max'    => 0 === $max ? 0 : $max + 1,
 		);
 		// Without `summarize`, WPCOM returns each period separately and only the first would be read.
 		// Several summarized endpoints ignore `period` and read `num` as days, so ask for the days the periods cover.
@@ -797,16 +807,19 @@ class Stats_Abilities extends Registrar {
 			return $raw;
 		}
 
-		$items = self::normalize_top_content_items( $type, $raw, $max, isset( $args['summarize'] ) );
+		$rows = self::top_content_rows( $type, $raw, isset( $args['summarize'] ) );
+		// Countries drops and folds rows, so whether WordPress.com held more is read from its own list.
+		$sent = 'countries' === $type ? count( self::rows_at( self::first_period_block( $raw, isset( $args['summarize'] ) ), 'views' ) ) : count( $rows );
 
 		return array(
-			'site'   => self::site(),
-			'type'   => $type,
-			'period' => $period,
-			'date'   => $date,
-			'num'    => $num,
-			'max'    => $max,
-			'items'  => $items,
+			'site'      => self::site(),
+			'type'      => $type,
+			'period'    => $period,
+			'date'      => $date,
+			'num'       => $num,
+			'max'       => $max,
+			'truncated' => $max > 0 && $sent > $max,
+			'items'     => self::rank_and_cap( $rows, $max ),
 		);
 	}
 
@@ -1116,7 +1129,7 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Normalize a WPCOM top-content response into the uniform item shape.
+	 * Project a WPCOM top-content response into label/value rows, in WordPress.com's order.
 	 *
 	 * Most `type` values follow the `days -> <date> -> <list-key>` shape (or
 	 * `summary -> <list-key>` when summarized) and project through
@@ -1124,19 +1137,18 @@ class Stats_Abilities extends Registrar {
 	 *
 	 * @param string $type       Content type enum.
 	 * @param array  $raw        Raw WPCOM response.
-	 * @param int    $max        Result cap.
 	 * @param bool   $summarized Whether the request asked WPCOM to `summarize`.
-	 * @return array List of { rank, label, value, href?, id? } items.
+	 * @return array List of { label, value, href?, id? } rows.
 	 */
-	private static function normalize_top_content_items( string $type, array $raw, int $max, bool $summarized = false ): array {
+	private static function top_content_rows( string $type, array $raw, bool $summarized = false ): array {
 		if ( 'tags' === $type ) {
-			return self::rank_and_cap( self::tag_rows( $raw ), $max );
+			return self::tag_rows( $raw );
 		}
 
 		$day_data = self::first_period_block( $raw, $summarized );
 
 		if ( 'countries' === $type ) {
-			return self::rank_and_cap( self::country_rows( $day_data, self::rows_at( $raw, 'country-info' ) ), $max );
+			return self::country_rows( $day_data, self::rows_at( $raw, 'country-info' ) );
 		}
 
 		$map = self::TOP_CONTENT_MAP[ $type ] ?? null;
@@ -1153,7 +1165,7 @@ class Stats_Abilities extends Registrar {
 				'id'    => isset( $map['id'] ) ? self::pick_field( $row, $map['id'] ) : null,
 			);
 		}
-		return self::rank_and_cap( $rows, $max );
+		return $rows;
 	}
 
 	/**
@@ -1239,7 +1251,7 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * Return the first posts item that is a post or page, skipping the home page / archives row.
 	 *
-	 * @param array $items Items from normalize_top_content_items().
+	 * @param array $items Items from rank_and_cap().
 	 * @return array|null
 	 */
 	private static function first_post( array $items ): ?array {
@@ -1283,12 +1295,12 @@ class Stats_Abilities extends Registrar {
 	 * Cap rows and turn them into ranked items, dropping empty `href`s and non-positive `id`s.
 	 *
 	 * @param array $rows Rows of `{ label, value, href?, id? }`.
-	 * @param int   $max  Result cap.
+	 * @param int   $max  Result cap; 0 keeps every row.
 	 * @return array Items of `{ rank, label, value, href?, id? }`.
 	 */
 	private static function rank_and_cap( array $rows, int $max ): array {
 		$items = array();
-		foreach ( array_slice( $rows, 0, $max ) as $i => $row ) {
+		foreach ( 0 === $max ? $rows : array_slice( $rows, 0, $max ) as $i => $row ) {
 			$item = array(
 				'rank'  => $i + 1,
 				// WordPress.com sends titles and names HTML-encoded.
@@ -1508,7 +1520,7 @@ class Stats_Abilities extends Registrar {
 				continue;
 			}
 			$entry = array(
-				'date' => isset( $row[ $date_idx ] ) ? (string) $row[ $date_idx ] : '',
+				'date' => self::period_start_date( (string) ( $row[ $date_idx ] ?? '' ) ),
 			);
 			foreach ( $fields as $field ) {
 				$idx             = $field_idx[ $field ] ?? null;
@@ -1517,6 +1529,18 @@ class Stats_Abilities extends Registrar {
 			$series[] = $entry;
 		}
 		return $series;
+	}
+
+	/**
+	 * Turn a `stats/visits` period label into the first day of its period.
+	 *
+	 * Weeks come labelled with their Monday as `2026W10W19`; every other period already is a YYYY-MM-DD date.
+	 *
+	 * @param string $label Period label from WordPress.com.
+	 * @return string
+	 */
+	private static function period_start_date( string $label ): string {
+		return (string) preg_replace( '/^(\d{4})W(\d{2})W(\d{2})$/', '$1-$2-$3', $label );
 	}
 
 	/**

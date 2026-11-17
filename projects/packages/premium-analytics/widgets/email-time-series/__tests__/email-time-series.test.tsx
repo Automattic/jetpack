@@ -8,6 +8,8 @@ import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import EmailTimeSeriesWidget from '../render';
 import type { ReactNode } from 'react';
 
@@ -490,5 +492,102 @@ describe( 'EmailTimeSeriesWidget', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 		expect( console ).toHaveWarned();
+	} );
+
+	describe( 'CSV download', () => {
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+		} );
+
+		it.each( [
+			[
+				'daily',
+				OPENS_TIMELINE_RESPONSE,
+				JULY_WEEK_PARAMS,
+				'email-1234-opens-2026-07-01_2026-07-07.csv',
+				[ '"Date","Opens"', '"2026-07-04","10"', '"2026-07-05","5"', '"2026-07-06","7"' ],
+			],
+			[
+				'hourly',
+				{
+					timeline: {
+						unit: 'hour',
+						fields: [ 'date', 'hour', 'opens_count' ],
+						data: Array.from( { length: 24 }, ( _, hour ) => [ '2026-07-04', hour, hour ] ),
+					},
+				},
+				{
+					...JULY_WEEK_PARAMS,
+					from: '2026-07-04T00:00:00.000+08:00',
+					to: '2026-07-04T23:59:59.999+08:00',
+					interval: 'hour',
+				},
+				'email-1234-opens-2026-07-04_2026-07-04.csv',
+				[ '"Date","Opens"', '"2026-07-04 00:00","0"', '"2026-07-04 01:00","1"' ],
+			],
+		] )( 'saves each %s bucket of the timeline', async ( _, response, params, filename, lines ) => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( response );
+
+			const { findDeclaredAction } = renderWithActionsHost(
+				<EmailTimeSeriesWidget
+					attributes={ { reportParams: { ...params, post_id: 1234 }, metric: 'opens' } }
+				/>
+			);
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			expect( downloads.files[ 0 ].filename ).toBe( filename );
+			expect( ( await downloads.lines() ).slice( 0, lines.length ) ).toEqual( lines );
+		} );
+
+		it( 'dates and times the file by the window the chart’s own control picked', async () => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( {
+				timeline: {
+					unit: 'hour',
+					fields: [ 'date', 'hour', 'opens_count' ],
+					data: Array.from( { length: 24 }, ( _, hour ) => [ '2026-07-01', hour, hour + 1 ] ),
+				},
+			} );
+
+			const { findDeclaredAction } = renderWithActionsHost(
+				<EmailTimeSeriesWidget
+					attributes={ {
+						reportParams: {
+							...JULY_WEEK_PARAMS,
+							from: '2026-07-01T00:00:00.000Z',
+							post_id: 1234,
+						},
+						metric: 'opens',
+						sendWindow: 'first-24-hours',
+					} }
+				/>
+			);
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			expect( downloads.files[ 0 ].filename ).toBe( 'email-1234-opens-2026-07-01_2026-07-01.csv' );
+			expect( ( await downloads.lines() ).slice( 0, 2 ) ).toEqual( [
+				'"Date","Opens"',
+				'"2026-07-01 00:00","1"',
+			] );
+		} );
+
+		it( 'offers no download for an email nobody opened', async () => {
+			mockApiFetch.mockResolvedValue( {
+				timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [ [ '2026-07-04', 0 ] ] },
+			} );
+
+			const { declaredAction } = renderWithActionsHost(
+				<EmailTimeSeriesWidget
+					attributes={ { reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 }, metric: 'opens' } }
+				/>
+			);
+			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+
+			expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+		} );
 	} );
 } );

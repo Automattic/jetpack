@@ -1,3 +1,4 @@
+import { TZDate } from '@date-fns/tz';
 import { useReportScope, useStatsEmailClicksBreakdown } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -8,13 +9,14 @@ import { getNoticeAnnouncement, getNoticeText } from '../../../tests/js/notice-t
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../../widget-module-i18n';
 import { stage } from '../stage';
 import type { EntitySummary, SingleReportAdapter } from '../pages';
+import type { PeriodChange } from '@jetpack-premium-analytics/data';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
 let mockParams: Record< string, string > = {};
 let mockDateFilterOverrides: Record< string, unknown > = {};
-let mockPeriodHost: { openPeriod: () => void; attentionId?: number } | undefined;
+let mockPeriodHost: { openPeriod: () => void; attention?: PeriodChange } | undefined;
 let mockDashboardProps: {
 	editMode?: boolean;
 	onEditChange?: ( next: boolean ) => void;
@@ -385,6 +387,7 @@ describe( 'single-report stage', () => {
 		mockAdapters = {
 			video: {
 				useSummary: mockUseSummary,
+				untitledTitle: jest.requireActual( '../pages/video' ).videoAdapter.untitledTitle,
 				headerSlots: jest.requireActual( '../pages/video/video-header-slots' ).videoHeaderSlots,
 				notFoundDescription:
 					jest.requireActual( '../pages/video' ).videoAdapter.notFoundDescription,
@@ -520,6 +523,18 @@ describe( 'single-report stage', () => {
 		expect( screen.getByText( 'Page widgets' ) ).toBeInTheDocument();
 	} );
 
+	it( 'titles an untitled entity the same in the crumb and the header', () => {
+		mockSummary( { title: '   ' } );
+
+		render( stage() );
+
+		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+		expect(
+			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Untitled video' } )
+		).toBeInTheDocument();
+		expect( getSummaryHeading( 'Untitled video' ) ).toBeInTheDocument();
+	} );
+
 	it( 'crumbs the referring report instead when the URL names one', () => {
 		mockSearch = { ...mockSearch, ref: 'authors' };
 		mockSummary( { title: 'Launch recap' } );
@@ -598,7 +613,16 @@ describe( 'single-report stage', () => {
 
 	// The control is a DataForm field, so the host's attention reaches it through the scope.
 	it( 'hands the control the attention the period host raises', () => {
-		mockPeriodHost = { openPeriod: jest.fn(), attentionId: 7 };
+		mockPeriodHost = {
+			openPeriod: jest.fn(),
+			attention: {
+				id: 7,
+				range: {
+					from: new TZDate( 2026, 5, 1, 'UTC' ),
+					to: new TZDate( 2026, 5, 30, 23, 59, 59, 999, 'UTC' ),
+				},
+			},
+		};
 		mockSummary( { title: 'Launch recap' } );
 
 		render( stage() );
@@ -771,6 +795,7 @@ describe( 'single-report stage', () => {
 			mockAdapters = {
 				post: {
 					useSummary: mockUseSummary,
+					untitledTitle: jest.requireActual( '../pages/post' ).postAdapter.untitledTitle,
 					headerSlots: jest.requireActual( '../pages/post/post-header-slots' ).postHeaderSlots,
 					headerActions: jest.requireActual( '../pages/post/header-actions' ).postHeaderActions,
 					useSections: jest.requireActual( '../pages/post/use-post-sections' ).usePostSections,
@@ -827,6 +852,18 @@ describe( 'single-report stage', () => {
 			expect(
 				screen.getByRole( 'link', { name: 'View page(opens in a new tab)' } )
 			).toBeInTheDocument();
+		} );
+
+		it( 'titles an untitled page for its type, in the crumb and the header', () => {
+			mockSummary( { title: '', type: 'page' } );
+
+			render( stage() );
+
+			const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+			expect(
+				breadcrumbs.getByRole( 'heading', { level: 1, name: 'Untitled page' } )
+			).toBeInTheDocument();
+			expect( getSummaryHeading( 'Untitled page' ) ).toBeInTheDocument();
 		} );
 
 		it( 'holds the traffic tab name while the type loads', () => {

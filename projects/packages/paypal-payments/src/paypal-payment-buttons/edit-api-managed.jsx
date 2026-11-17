@@ -27,6 +27,7 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
+import { dispatch } from '@wordpress/data';
 import {
 	createInterpolateElement,
 	useState,
@@ -37,7 +38,7 @@ import {
 	useSyncExternalStore,
 } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { chevronLeft, chevronRight } from '@wordpress/icons';
+import { chevronLeft, chevronRight, pencil, update } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import GridiconPlus from 'gridicons/dist/plus-small';
@@ -50,6 +51,7 @@ import PayPalFormatControls from './components/format-controls';
 import LegacyBlock from './components/legacy-block';
 import LinkDetails, { LinkDetailsList } from './components/link-details';
 import PayPalButtonPreview from './components/paypal-button-preview';
+import ProductImages from './components/product-images';
 import ReadOnlyBlock from './components/read-only-block';
 import VariantBuilder, {
 	getComparisonPrice,
@@ -225,6 +227,11 @@ function linkPayPalUrls( text ) {
 	);
 }
 
+/** Opens the Block tab in the settings sidebar. */
+function openBlockSettings() {
+	dispatch( 'core/interface' )?.enableComplementaryArea( 'core', 'edit-post/block' );
+}
+
 /**
  * API-managed PayPal Payment Buttons edit component.
  *
@@ -256,6 +263,7 @@ export default function ApiManagedEdit( {
 		productDescription,
 		productId,
 		imageUrl,
+		images,
 		returnUrl,
 		variantsEnabled,
 		variants,
@@ -585,6 +593,8 @@ export default function ApiManagedEdit( {
 	const formIsValid = useRef( isFormValid );
 	formIsValid.current = isFormValid;
 	const [ isEditing, setIsEditing ] = useState( ! isFormValid );
+	// Set by toolbar Change item. Opens Change item after the form closes.
+	const leaveToPicker = useRef( false );
 	// A saved link can be switched for another of the account's links from its
 	// details menu. A new link, however it arrived, closes the picker.
 	const [ isSwitching, setIsSwitching ] = useState( false );
@@ -592,6 +602,7 @@ export default function ApiManagedEdit( {
 		setIsEditing( ! formIsValid.current );
 		setIsSwitching( false );
 		setShowUnsavedConfirm( false );
+		leaveToPicker.current = false;
 	}, [ resourceId ] );
 	// An undo, or a read writing back a value that fails validation, can break the
 	// link later on, and the details have nowhere to show it. Opening only, so the
@@ -616,19 +627,29 @@ export default function ApiManagedEdit( {
 		}
 	}, [ isEditing, paymentChanged, postSaves ] );
 	const [ showUnsavedConfirm, setShowUnsavedConfirm ] = useState( false );
+
+	/** Closes the form. Opens Change item next if leaveToPicker is set. */
+	const closeForm = useCallback( () => {
+		setShowUnsavedConfirm( false );
+		setIsEditing( false );
+		if ( leaveToPicker.current ) {
+			leaveToPicker.current = false;
+			setIsSwitching( true );
+		}
+	}, [] );
+
 	// A post save while the dialog is open saves the changes it asks about, so leave.
 	const dialogOpen = useRef( showUnsavedConfirm );
 	dialogOpen.current = showUnsavedConfirm;
 	useEffect( () => {
 		if ( dialogOpen.current ) {
-			setShowUnsavedConfirm( false );
-			setIsEditing( false );
+			closeForm();
 		}
-	}, [ postSaves ] );
+	}, [ postSaves, closeForm ] );
 	const [ isSavingButton, setIsSavingButton ] = useState( false );
 
 	/**
-	 * Back from the form to the details, asking first when there is something to lose.
+	 * Closes the form. Asks first if there are unsaved changes.
 	 * Compared on the click, since the snapshot is retaken in an effect after the render.
 	 */
 	const leaveForm = () => {
@@ -639,7 +660,7 @@ export default function ApiManagedEdit( {
 		if ( hasUnsavedChanges ) {
 			setShowUnsavedConfirm( true );
 		} else {
-			setIsEditing( false );
+			closeForm();
 		}
 	};
 
@@ -648,21 +669,18 @@ export default function ApiManagedEdit( {
 	 */
 	const discardChanges = () => {
 		setAttributes( formOpenedWith.current );
-		setShowUnsavedConfirm( false );
-		setIsEditing( false );
+		closeForm();
 	};
 
 	/**
-	 * Send the form to PayPal, and leave it for the details once PayPal has it. The
-	 * post is not saved: the block holds the payment id until it is.
+	 * Saves the form to PayPal, then closes it. Doesn't save the post.
 	 */
 	const saveChanges = async () => {
 		setIsSavingButton( true );
 		const saved = await savePaymentButton( { clientId: blockClientId, attributes }, environment );
 		setIsSavingButton( false );
 		if ( saved ) {
-			setShowUnsavedConfirm( false );
-			setIsEditing( false );
+			closeForm();
 		}
 	};
 
@@ -944,10 +962,39 @@ export default function ApiManagedEdit( {
 		);
 	}
 
-	// Toolbar control to delete the payment button.
+	// Toolbar Edit: opens the form.
+	const openForm = () => {
+		openBlockSettings();
+		setIsSwitching( false );
+		setIsEditing( true );
+	};
+
+	// Toolbar Change item: opens Change item. Asks first if the form has unsaved changes.
+	const openPicker = () => {
+		openBlockSettings();
+		if ( isEditing && ! isSwitching ) {
+			leaveToPicker.current = true;
+			leaveForm();
+		} else {
+			setIsSwitching( true );
+		}
+	};
+
+	// Toolbar controls to edit, change or delete the payment button.
 	const toolbarControls = hasButton ? (
 		<BlockControls>
 			<ToolbarGroup>
+				<ToolbarButton
+					icon={ pencil }
+					label={ __( 'Edit', 'jetpack-paypal-payments' ) }
+					onClick={ openForm }
+				/>
+				<ToolbarButton
+					icon={ update }
+					label={ __( 'Change item', 'jetpack-paypal-payments' ) }
+					onClick={ openPicker }
+					disabled={ ! canChangeLink }
+				/>
 				<ToolbarButton
 					icon="trash"
 					label={ __( 'Delete payment button', 'jetpack-paypal-payments' ) }
@@ -1205,6 +1252,13 @@ export default function ApiManagedEdit( {
 							: undefined
 					}
 				/>
+
+				<ProductImages
+					images={ images || [] }
+					onChange={ next => setAttributes( { images: next } ) }
+					disabled={ isBusy }
+					hasPayment={ !! resourceId }
+				/>
 			</PanelBody>
 			{ /* A closed panel renders no children, so open it when an option needs
 			     fixing - otherwise the error is invisible on a saved button. */ }
@@ -1232,6 +1286,7 @@ export default function ApiManagedEdit( {
 					// there is no blur coming - the same reason the panel opens below.
 					showAll={ hasButton }
 					onTouch={ markTouched }
+					hasPayment={ !! resourceId }
 				/>
 			</PanelBody>
 			{ /* `initialOpen`, so the panel opens itself on a checkout-field error and the
@@ -1720,7 +1775,10 @@ export default function ApiManagedEdit( {
 					isSaving={ isSavingButton }
 					onSave={ saveChanges }
 					onDiscard={ discardChanges }
-					onCancel={ () => setShowUnsavedConfirm( false ) }
+					onCancel={ () => {
+						leaveToPicker.current = false;
+						setShowUnsavedConfirm( false );
+					} }
 				/>
 			) }
 		</div>

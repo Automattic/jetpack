@@ -17,7 +17,7 @@ type ModuleOptionValue = boolean | string;
  * @param $module - The module that owns the option.
  * @param name    - The option name, such as `carousel_background_color`.
  * @param parse   - Turns the stored `current_value` into the value to show.
- * @return The value to show, whether a save is running, and the setter.
+ * @return The value to show, whether a save is running, and the setter, which resolves to whether the save worked.
  */
 export function useModuleSetting< T extends ModuleOptionValue >(
 	$module: MyJetpackModule,
@@ -44,10 +44,12 @@ export function useModuleSetting< T extends ModuleOptionValue >(
 				createSuccessNotice( __( 'Updated settings.', 'jetpack-my-jetpack' ), {
 					type: 'snackbar',
 				} );
+				return true;
 			} catch {
 				createErrorNotice( __( 'Failed to save the setting.', 'jetpack-my-jetpack' ), {
 					type: 'snackbar',
 				} );
+				return false;
 			} finally {
 				setRequested( null );
 			}

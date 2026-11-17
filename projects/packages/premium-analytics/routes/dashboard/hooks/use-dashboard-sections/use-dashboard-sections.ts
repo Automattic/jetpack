@@ -14,6 +14,7 @@ import { useMemo } from 'react';
  */
 import type { DashboardSection } from '../../config';
 
+export const DASHBOARD_SECTIONS_QUERY = { per_page: -1 };
 const NO_SECTIONS: DashboardSection[] = [];
 
 /**
@@ -34,7 +35,7 @@ export function useDashboardSections(): {
 	const { records, hasResolved } = useEntityRecords< DashboardSection >(
 		'root',
 		'dashboardSection',
-		{ per_page: -1 }
+		DASHBOARD_SECTIONS_QUERY
 	);
 	const order = useSelect( select => getSectionOrder( DASHBOARD_PREFERENCES_SCOPE, select ), [] );
 	const sections = useMemo(

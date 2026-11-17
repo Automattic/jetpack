@@ -920,9 +920,8 @@ describe( 'useReportDateFilters', () => {
 		expect( mockSearch.to ).toBe( '2026-09-14T15:30:00.000+00:00' );
 	} );
 
-	// A card raises the signal with the range it computed, so the range it then
-	// commits must round-trip to the same instants for the two to match.
-	it( 'lands a raised period change when a card commits its range exactly', () => {
+	// The cue fires before the range lands, and is let go if the landed range differs from it.
+	it( 'keeps a raised period change once a card commits its range exactly', () => {
 		const wrapper = ( { children }: { children: ReactNode } ) => (
 			<PeriodChangeSignalProvider>{ children }</PeriodChangeSignalProvider>
 		);
@@ -943,14 +942,14 @@ describe( 'useReportDateFilters', () => {
 			to: new TZDate( '2026-09-14T15:30:00.000Z', 'UTC' ),
 		};
 
+		act( () => result.current.raise( 'post:1', currentMonth ) );
 		act( () => {
-			result.current.raise( 'post:1', currentMonth );
 			result.current.filters.onChange( currentMonth, 'custom', { exactRange: true } );
 			result.current.filters.onApply();
 		} );
 		rerender();
 
-		expect( result.current.control ).toEqual( expect.any( Number ) );
+		expect( result.current.control?.id ).toEqual( expect.any( Number ) );
 	} );
 
 	it( 'steps a to-date preset by whole months and compares it with the months before', () => {
