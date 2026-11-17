@@ -130,7 +130,7 @@ class Initial_State {
 
 		return $data + array(
 			'wpcomHomeUrl'                   => $idc_urls ? $idc_urls['wpcom_url'] : '',
-			'currentUrl'                     => $idc_urls ? $idc_urls['current_url'] : self::get_normalized_home_url(),
+			'currentUrl'                     => $idc_urls ? $idc_urls['current_url'] : ( Identity_Crisis::get_sync_error_idc_option()['home'] ?? '' ),
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
 			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
 			'logoUrl'                        => Jetpack_Connector::get_connector_logo_url(),
@@ -159,19 +159,6 @@ class Initial_State {
 		}
 
 		return $idc_urls;
-	}
-
-	/**
-	 * Get the home URL in the format the stored URLs use: no scheme, no `www.`, with a trailing slash.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string
-	 */
-	private static function get_normalized_home_url() {
-		$home_url = Identity_Crisis::normalize_url_protocol_agnostic( Urls::home_url() );
-
-		return is_wp_error( $home_url ) ? '' : $home_url;
 	}
 
 	/**
