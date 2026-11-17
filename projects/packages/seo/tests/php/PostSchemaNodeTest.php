@@ -21,6 +21,7 @@ class PostSchemaNodeTest extends TestCase {
 
 	protected function tearDown(): void {
 		remove_all_filters( 'get_post_metadata' );
+		remove_all_filters( 'jetpack_seo_default_schema_type' );
 		parent::tearDown();
 	}
 
@@ -36,16 +37,6 @@ class PostSchemaNodeTest extends TestCase {
 			10,
 			3
 		);
-	}
-
-	/**
-	 * Remove filters added by a test, even when it fails.
-	 *
-	 * @return void
-	 */
-	protected function tearDown(): void {
-		remove_all_filters( 'jetpack_seo_default_schema_type' );
-		parent::tearDown();
 	}
 
 	/**
