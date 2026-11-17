@@ -241,7 +241,9 @@ const { actions } = store( NAMESPACE, {
 				return;
 			}
 			if ( event.key === 'Escape' ) {
+				// Keep Escape from also closing a surrounding dialog or popup.
 				event.preventDefault();
+				event.stopPropagation();
 				context.comboboxOpen = false;
 				// Hiding the dropdown while the search input has focus would drop focus to <body>.
 				event.target

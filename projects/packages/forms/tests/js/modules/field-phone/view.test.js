@@ -364,18 +364,29 @@ describe( 'Phone Field View', () => {
 			mockContext.comboboxOpen = true;
 			const search = document.querySelector( '.jetpack-combobox-search' );
 			search.focus();
-			const mockEvent = { key: 'Escape', target: search, preventDefault: jest.fn() };
+			const mockEvent = {
+				key: 'Escape',
+				target: search,
+				preventDefault: jest.fn(),
+				stopPropagation: jest.fn(),
+			};
 
 			storeConfig.actions.phoneComboboxKeydownHandler( mockEvent );
 
 			expect( mockContext.comboboxOpen ).toBe( false );
 			expect( mockEvent.preventDefault ).toHaveBeenCalled();
+			expect( mockEvent.stopPropagation ).toHaveBeenCalled();
 			expect( document.querySelector( '.jetpack-combobox-trigger' ) ).toHaveFocus();
 		} );
 
 		test( 'Escape outside a combobox still closes the dropdown', () => {
 			mockContext.comboboxOpen = true;
-			const mockEvent = { key: 'Escape', target: document.body, preventDefault: jest.fn() };
+			const mockEvent = {
+				key: 'Escape',
+				target: document.body,
+				preventDefault: jest.fn(),
+				stopPropagation: jest.fn(),
+			};
 
 			storeConfig.actions.phoneComboboxKeydownHandler( mockEvent );
 
