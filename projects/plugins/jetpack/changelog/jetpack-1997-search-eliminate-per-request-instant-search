@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Search: Reduce database queries when loading Instant Search on sites without a persistent object cache.

@@ -850,6 +850,31 @@ class Helper {
 	 * Passes all options to the JS app.
 	 */
 	public static function generate_initial_javascript_state() {
+		$prefix = Options::OPTION_PREFIX;
+
+		// One query for the options read below; a missing or non-autoloaded row costs one query each otherwise.
+		wp_prime_option_caches(
+			array(
+				self::get_widget_option_name(),
+				$prefix . 'excluded_post_types',
+				$prefix . 'color_theme',
+				$prefix . 'inf_scroll',
+				$prefix . 'filtering_opens_overlay',
+				$prefix . 'show_post_date',
+				$prefix . 'show_product_price',
+				$prefix . 'enable_sort',
+				$prefix . 'highlight_color',
+				$prefix . 'overlay_trigger',
+				$prefix . 'result_format',
+				$prefix . 'show_powered_by',
+				$prefix . 'default_sort',
+				$prefix . 'fallback_image_url',
+				$prefix . 'enable_fallback_image',
+				$prefix . 'suggestions_enabled',
+				AI_Answers::ENABLED_OPTION,
+			)
+		);
+
 		$widget_options = self::get_widgets_from_option();
 		if ( is_array( $widget_options ) ) {
 			$widget_options = end( $widget_options );
@@ -896,7 +921,6 @@ class Helper {
 			);
 		}
 
-		$prefix         = Options::OPTION_PREFIX;
 		$posts_per_page = (int) get_option( 'posts_per_page' );
 		if ( ( $posts_per_page > 20 ) || ( $posts_per_page <= 0 ) ) {
 			$posts_per_page = 20;
