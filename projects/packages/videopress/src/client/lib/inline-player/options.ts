@@ -49,7 +49,7 @@ export function getInlinePlayerOptions(
 		loop: !! attributes.loop,
 		muted,
 		persistVolume: ! muted,
-		playsinline: !! attributes.playsinline,
+		playsinline: attributes.playsinline !== false,
 		cover: true,
 		hd: false,
 		useAverageColor: attributes.useAverageColor !== false,

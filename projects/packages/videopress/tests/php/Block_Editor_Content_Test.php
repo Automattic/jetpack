@@ -89,6 +89,36 @@ class Block_Editor_Content_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the shortcode plays in the page unless it says otherwise, as an iframe and as an inline player.
+	 */
+	public function test_shortcode_plays_inline_unless_told_not_to() {
+		$html = Block_Editor_Content::videopress_embed_shortcode( array( 'abcDEF12' ) );
+		$this->assertStringContainsString( 'playsinline=1', $html );
+
+		$html = Block_Editor_Content::videopress_embed_shortcode(
+			array(
+				0             => 'abcDEF12',
+				'playsinline' => 'false',
+			)
+		);
+		$this->assertStringContainsString( 'playsinline=0', $html );
+		$this->assertStringNotContainsString( 'playsinline=1', $html );
+
+		update_option( 'videopress_inline_player_enabled', true );
+
+		$html = Block_Editor_Content::videopress_embed_shortcode( array( 'abcDEF12' ) );
+		$this->assertStringContainsString( '&quot;playsinline&quot;:true', $html );
+
+		$html = Block_Editor_Content::videopress_embed_shortcode(
+			array(
+				0             => 'abcDEF12',
+				'playsinline' => 'false',
+			)
+		);
+		$this->assertStringContainsString( '&quot;playsinline&quot;:false', $html );
+	}
+
+	/**
 	 * Test that the site-wide preload opt-out overrides the shortcode's preload attribute.
 	 */
 	public function test_shortcode_honors_site_preload_opt_out() {

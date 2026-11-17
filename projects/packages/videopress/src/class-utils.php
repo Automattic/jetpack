@@ -31,7 +31,10 @@ class Utils {
 				'controls'            => true,
 				'loop'                => false,
 				'muted'               => false,
-				'playsinline'         => false,
+				// On by default: an iPhone plays a video in the page only when
+				// asked to, and opens the system's fullscreen player otherwise,
+				// without the VideoPress controls.
+				'playsinline'         => true,
 				'poster'              => '',
 				'preload'             => 'metadata',
 				'seekbarColor'        => '',

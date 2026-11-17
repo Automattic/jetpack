@@ -47,6 +47,7 @@ class UtilsTest extends BaseTestCase {
 		// Test with default attributes.
 		$url = Utils::get_video_press_url( $guid );
 		$this->assertStringContainsString( 'https://videopress.com/v/' . $guid, $url );
+		$this->assertStringContainsString( 'playsinline=1', $url );
 
 		// Test with custom attributes.
 		$attributes = array(
@@ -77,6 +78,24 @@ class UtilsTest extends BaseTestCase {
 		$this->assertStringContainsString( 'sbpc=green', $url );
 		$this->assertStringContainsString( 'sblc=blue', $url );
 		$this->assertStringContainsString( 'useAverageColor=0', $url );
+	}
+
+	/**
+	 * A video plays in the page unless the embed says otherwise.
+	 *
+	 * An iPhone plays a video in the page only when asked to. Left unsaid, play
+	 * opens the system's fullscreen player, without the VideoPress controls.
+	 */
+	public function test_get_video_press_url_plays_inline_unless_told_not_to() {
+		$guid = '123abc';
+
+		$this->assertStringContainsString( 'playsinline=1', Utils::get_video_press_url( $guid, array( 'loop' => true ) ) );
+		$this->assertStringContainsString( 'playsinline=1', Utils::get_video_press_url( $guid, array( 'playsinline' => true ) ) );
+
+		// Off has to be said in the URL: the embed page plays in the page when it is not.
+		$url = Utils::get_video_press_url( $guid, array( 'playsinline' => false ) );
+		$this->assertStringContainsString( 'playsinline=0', $url );
+		$this->assertStringNotContainsString( 'playsinline=1', $url );
 	}
 
 	/**
