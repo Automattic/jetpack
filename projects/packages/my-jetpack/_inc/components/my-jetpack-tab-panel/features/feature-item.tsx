@@ -84,7 +84,12 @@ export function opensInSettingsPanel( url: string ): boolean {
 function PanelConfigureLink( { slug, name }: { slug: string; name: string } ) {
 	const [ searchParams ] = useSearchParams();
 	const { trackPanelOpen } = useSettingsPanelTracking( slug );
-	const onClick = useCallback( () => trackPanelOpen( 'configure-link' ), [ trackPanelOpen ] );
+	const isOpen = searchParams.get( 'configure' ) === slug;
+	const onClick = useCallback( () => {
+		if ( ! isOpen ) {
+			trackPanelOpen( 'configure-link' );
+		}
+	}, [ isOpen, trackPanelOpen ] );
 	const next = new URLSearchParams( searchParams );
 	next.set( 'configure', slug );
 

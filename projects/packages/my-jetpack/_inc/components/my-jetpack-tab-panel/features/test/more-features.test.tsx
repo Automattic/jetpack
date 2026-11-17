@@ -296,14 +296,17 @@ describe( 'MoreFeatures', () => {
 	const panel = '/features?view=list&configure=sharedaddy';
 	const admin = 'https://example.com/wp-admin/';
 
-	it( 'records the panel open when its Configure link is clicked', async () => {
+	it.each( [
+		[ 'records the panel open', '/features?view=list', 1 ],
+		[ 'records nothing for the panel already open', '/features?view=list&configure=sharedaddy', 0 ],
+	] )( '%s when its Configure link is clicked', async ( _name, entry, opens ) => {
 		setSiteEditor( { isBlockTheme: false } );
 		window.JetpackScriptData = {
 			...window.JetpackScriptData,
 			myJetpack: { settingsConsolidation: true },
 		} as Window[ 'JetpackScriptData' ];
 		render(
-			<MemoryRouter initialEntries={ [ '/features?view=list' ] }>
+			<MemoryRouter initialEntries={ [ entry ] }>
 				{ section( {
 					...sharing,
 					activated: true,
@@ -315,11 +318,12 @@ describe( 'MoreFeatures', () => {
 
 		await userEvent.click( screen.getByRole( 'link', { name: 'Configure Sharing Buttons' } ) );
 
-		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_settings_panel_open', {
-			feature_slug: 'sharedaddy',
-			trigger: 'configure-link',
-			event_version: 1,
-		} );
+		expect( recordEvent.mock.calls ).toEqual(
+			Array( opens ).fill( [
+				'jetpack_myjetpack_settings_panel_open',
+				{ feature_slug: 'sharedaddy', trigger: 'configure-link', event_version: 1 },
+			] )
+		);
 	} );
 
 	it.each( [
