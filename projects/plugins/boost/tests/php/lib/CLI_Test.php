@@ -27,7 +27,7 @@ class CLI_Test extends Base_TestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	#[DataProvider( 'drop_in_states' )]
-	public function test_deactivating_page_cache_stops_caching( $drop_in_signature, $drop_in_remains ) {
+	public function test_deactivating_page_cache_stops_caching( $drop_in_signature, $drop_in_remains, $initially_enabled = true, $read_only_settings = false ) {
 		define( 'WP_CONTENT_DIR', sys_get_temp_dir() . '/boost-cli-' . uniqid() );
 		mkdir( WP_CONTENT_DIR . '/boost-cache', 0755, true );
 		$drop_in = WP_CONTENT_DIR . '/advanced-cache.php';
@@ -37,7 +37,12 @@ class CLI_Test extends Base_TestCase {
 
 		try {
 			$settings = Boost_Cache_Settings::get_instance();
-			$this->assertTrue( $settings->set( array( 'enabled' => true ) ) );
+			$this->assertTrue( $settings->set( array( 'enabled' => $initially_enabled ) ) );
+			if ( $read_only_settings ) {
+				chmod( WP_CONTENT_DIR . '/boost-cache', 0555 );
+				// Reject writes even when filesystem privileges bypass the read-only mode.
+				\Patchwork\redefine( Filesystem_Utils::class . '::write_to_file', \Patchwork\always( new Boost_Cache_Error( 'could-not-write', 'Settings file is not writable.' ) ) );
+			}
 			$cli = $this->create_cli();
 			Mockery::mock( 'alias:WP_CLI' )->shouldReceive( 'success' )->once()->with( "'page_cache' has been deactivated." );
 
@@ -51,6 +56,9 @@ class CLI_Test extends Base_TestCase {
 				$this->assertSame( '<?php // ' . (string) $drop_in_signature, file_get_contents( $drop_in ) );
 			}
 		} finally {
+			if ( $read_only_settings ) {
+				chmod( WP_CONTENT_DIR . '/boost-cache', 0755 );
+			}
 			foreach ( array( $drop_in, WP_CONTENT_DIR . '/boost-cache/config.php' ) as $file ) {
 				if ( file_exists( $file ) ) {
 					unlink( $file );
@@ -63,9 +71,10 @@ class CLI_Test extends Base_TestCase {
 
 	public static function drop_in_states() {
 		return array(
-			'installed'       => array( Page_Cache::ADVANCED_CACHE_SIGNATURE, false ),
-			'already missing' => array( null, false ),
-			'another plugin'  => array( 'Another Cache Plugin', true ),
+			'installed'                            => array( Page_Cache::ADVANCED_CACHE_SIGNATURE, false ),
+			'already missing'                      => array( null, false ),
+			'another plugin'                       => array( 'Another Cache Plugin', true ),
+			'already disabled, read-only settings' => array( null, false, false, true ),
 		);
 	}
 
