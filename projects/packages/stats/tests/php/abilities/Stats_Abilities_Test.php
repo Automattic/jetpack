@@ -404,9 +404,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				return '1405-07-20';
 			}
 		);
-		$responses = self::overview_responses();
-		$responses['get_streak']['streak']['current']['end'] = $today;
-		$requests = $this->filter_wpcom_stats( $responses );
+		$requests = $this->filter_wpcom_stats( self::overview_responses() );
 
 		$result = Stats_Abilities::get_site_overview();
 		$this->assert_matches_output_schema( 'jetpack-stats/get-site-overview', $result );
@@ -427,15 +425,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 90, $result['visitors_today'] );
 		$this->assertSame( 10 + 20 + 30 + 40 + 50 + 60 + 120, $result['views_week'] );
 		$this->assertSame( 1000 + 2000 + 10 + 20 + 30 + 40 + 50 + 60 + 120, $result['views_month'] );
-		$this->assertSame(
-			array(
-				'current_length' => 3,
-				'longest_length' => 12,
-				'longest_start'  => '2026-01-01',
-				'longest_end'    => '2026-01-12',
-			),
-			$result['streak']
-		);
+		$this->assertArrayNotHasKey( 'streak', $result );
 		$this->assertSame(
 			array(
 				'id'    => 7,
@@ -475,12 +465,27 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	 * @param bool   $current Whether the streak still counts as current.
 	 */
 	#[DataProvider( 'provide_streak_ends' )]
-	public function test_get_site_overview_counts_a_streak_only_while_it_lasts( string $ago, bool $current ): void {
-		$responses = self::overview_responses();
-		$responses['get_streak']['streak']['current']['end'] = gmdate( 'Y-m-d', strtotime( current_time( 'Y-m-d' ) . ' ' . $ago ) );
-		$this->filter_wpcom_stats( $responses );
+	public function test_get_insights_counts_a_streak_only_while_it_lasts( string $ago, bool $current ): void {
+		$this->filter_wpcom_stats(
+			array(
+				'get_streak' => array(
+					'streak' => array(
+						'long'    => array(
+							'start'  => '2026-01-01',
+							'end'    => '2026-01-12',
+							'length' => 12,
+						),
+						'current' => array(
+							'start'  => '2026-04-21',
+							'end'    => gmdate( 'Y-m-d', strtotime( current_time( 'Y-m-d' ) . ' ' . $ago ) ),
+							'length' => 3,
+						),
+					),
+				),
+			)
+		);
 
-		$streak = Stats_Abilities::get_site_overview()['streak'];
+		$streak = Stats_Abilities::get_insights()['streak'];
 
 		$this->assertSame( $current ? 3 : 0, $streak['current_length'] );
 		$this->assertSame( 12, $streak['longest_length'] );
@@ -497,7 +502,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		return array(
 			'visits'                  => array( 'get_visits', $error, 'visits', 'views_today', null ),
 			'visits body is not JSON' => array( 'get_visits', null, 'visits', 'views_month', null ),
-			'streak'                  => array( 'get_streak', $error, 'streak', 'streak', null ),
 			'top posts'               => array( 'get_top_posts', $error, 'top_posts', 'top_post', null ),
 			'referrers'               => array( 'get_referrers', $error, 'referrers', 'top_referrer', null ),
 		);
@@ -2447,7 +2451,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 
 		$readers = array(
-			'overview'         => array( Stats_Abilities::get_site_overview(), array( 'date', 'views', 'visitors', 'views_today', 'visitors_today', 'views_week', 'views_month', 'streak', 'top_post', 'top_referrer' ) ),
+			'overview'         => array( Stats_Abilities::get_site_overview(), array( 'date', 'views', 'visitors', 'views_today', 'visitors_today', 'views_week', 'views_month', 'top_post', 'top_referrer' ) ),
 			'top posts'        => array( Stats_Abilities::get_top_content( array( 'type' => 'posts' ) ), array( 'value', 'items', 'views' ) ),
 			// Clicks are not views, so views is not defined for them.
 			'top clicks'       => array( Stats_Abilities::get_top_content( array( 'type' => 'clicks' ) ), array( 'value', 'items' ) ),
@@ -2656,20 +2660,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 					array( '2026-04-21', 50, 40 ),
 					array( '2026-04-22', 60, 45 ),
 					array( '2026-04-23', 120, 90 ),
-				),
-			),
-			'get_streak'    => array(
-				'streak' => array(
-					'long'    => array(
-						'start'  => '2026-01-01',
-						'end'    => '2026-01-12',
-						'length' => 12,
-					),
-					'current' => array(
-						'start'  => '2026-04-21',
-						'end'    => '2026-04-23',
-						'length' => 3,
-					),
 				),
 			),
 			'get_top_posts' => self::days_fixture(

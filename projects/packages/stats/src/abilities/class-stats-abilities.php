@@ -229,7 +229,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site stats overview', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Answer "how is my site doing right now?" in one call, from today\'s and recent Stats. With `compare`, `comparison` holds the same four figures for the earlier windows the preset names, as in the Stats dashboard\'s Compare menu: `previous-period` (yesterday, the 7 days before the last 7, the 30 days before the last 30), `previous-period-match-day-of-week` (shifted back by whole weeks), `previous-year` (the same dates a year earlier), `previous-year-match-day-of-week` (52 weeks earlier). `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), `referrers` (`top_referrer`), and `comparison` (every `comparison` figure). Fields fed by a failed sub-call are null, `streak` included, as is a total covering a day WordPress.com did not report, so a 0 is a value WordPress.com reported. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
+				'Answer "how is my site doing right now?" in one call, from today\'s and recent Stats. With `compare`, `comparison` holds the same four figures for the earlier windows the preset names, as in the Stats dashboard\'s Compare menu: `previous-period` (yesterday, the 7 days before the last 7, the 30 days before the last 30), `previous-period-match-day-of-week` (shifted back by whole weeks), `previous-year` (the same dates a year earlier), `previous-year-match-day-of-week` (52 weeks earlier). `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `top_posts` (`top_post`), `referrers` (`top_referrer`), and `comparison` (every `comparison` figure). Fields fed by a failed sub-call are null, as is a total covering a day WordPress.com did not report, so a 0 is a value WordPress.com reported. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -249,15 +249,6 @@ class Stats_Abilities extends Registrar {
 					'visitors_today' => array( 'type' => array( 'integer', 'null' ) ),
 					'views_week'     => array( 'type' => array( 'integer', 'null' ) ),
 					'views_month'    => array( 'type' => array( 'integer', 'null' ) ),
-					'streak'         => array(
-						'type'       => array( 'object', 'null' ),
-						'properties' => array(
-							'current_length' => array( 'type' => 'integer' ),
-							'longest_length' => array( 'type' => 'integer' ),
-							'longest_start'  => array( 'type' => 'string' ),
-							'longest_end'    => array( 'type' => 'string' ),
-						),
-					),
 					'top_post'       => array(
 						'type'       => array( 'object', 'null' ),
 						'properties' => array(
@@ -1209,7 +1200,6 @@ class Stats_Abilities extends Registrar {
 					'stat_fields' => 'views,visitors',
 				)
 			),
-			'streak'    => $stats->get_streak(),
 			'top_posts' => $stats->get_top_posts( $day + array( 'max' => $post_rows ) ),
 			'referrers' => $stats->get_referrers( $day + array( 'max' => 1 ) ),
 		);
@@ -1253,7 +1243,6 @@ class Stats_Abilities extends Registrar {
 			'visitors_today' => $last_day['visitors'] ?? null,
 			'views_week'     => self::sum_or_null( array_slice( $days, -7 ), 'views' ),
 			'views_month'    => self::sum_or_null( $days, 'views' ),
-			'streak'         => in_array( 'streak', $errors, true ) ? null : self::extract_streak_summary( $values['streak'], $today ),
 			'top_post'       => null === $top_post ? null : array(
 				'id'    => $top_post['id'],
 				'title' => $top_post['label'],
@@ -1264,7 +1253,7 @@ class Stats_Abilities extends Registrar {
 				'views' => $top_ref['value'],
 			),
 			'partial'        => ! empty( $errors ),
-			'definitions'    => self::definitions( array( 'date', 'views', 'visitors', 'views_today', 'visitors_today', 'views_week', 'views_month', 'streak', 'top_post', 'top_referrer' ) ),
+			'definitions'    => self::definitions( array( 'date', 'views', 'visitors', 'views_today', 'visitors_today', 'views_week', 'views_month', 'top_post', 'top_referrer' ) ),
 		);
 
 		if ( null !== $preset && $windows ) {
