@@ -68,7 +68,7 @@ That’s where Jetpack Protect comes in. Our state-of-the-art security tools aut
 
 On average, Jetpack blocks 5,193 WordPress brute force attacks over a site’s lifetime. It allows you to protect yourself against both traditional brute force attacks and distributed brute force attacks that use many servers against your site.
 
-== NEW: DOWNTIME MONITORING WITH JETPACK MONITOR ==
+== DOWNTIME MONITORING WITH JETPACK MONITOR ==
 
 Find out your site is down before your visitors do. Jetpack Monitor checks your site every five minutes and emails you within minutes if it stops responding, then again when it’s back up.
 
