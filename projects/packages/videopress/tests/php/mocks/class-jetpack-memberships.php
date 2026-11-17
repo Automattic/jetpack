@@ -4,6 +4,7 @@
  *
  * Posts are open to everybody unless a test sets `$GLOBALS['__vp_memberships_access_level']`;
  * visitors hold no membership unless a test sets `$GLOBALS['__vp_memberships_has_access']`.
+ * The class stays loaded for the rest of the run, so keep the everybody default or later tests take the members-only branch.
  *
  * @package automattic/jetpack-videopress
  */
