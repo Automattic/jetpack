@@ -1,3 +1,4 @@
+let mockMounting = false;
 const mockInits = { a: jest.fn(), b: jest.fn() };
 // One mock for every copy of the shell: each test loads it again, and earlier copies still hear clicks.
 const mockShowHeader = jest.fn( () => () => {} );
@@ -7,7 +8,7 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	bootFor: jest.fn( () => Promise.resolve( { initSinglePage: jest.fn() } ) ),
 	isolateRouters: jest.fn( ( getVisible, onWrite ) => ( {
 		listen: jest.fn(),
-		isMounting: () => false,
+		isMounting: () => mockMounting,
 		mount: jest.fn(),
 		mounted: jest.fn(),
 		pushUrl: jest.fn( url => {
@@ -19,6 +20,7 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 			onWrite();
 		} ),
 	} ) ),
+	loadPage: jest.fn(),
 	notifyRouters: jest.fn(),
 	prefetchBoot: jest.fn( () => Promise.resolve() ),
 	trackViewTransitions: jest.fn(),
@@ -500,20 +502,44 @@ describe( 'admin shell live-app limit', () => {
 		}
 	);
 
-	it( 'reloads for Back/Forward to a new dashboard once the limit is reached', async () => {
+	const A2 = '/wp-admin/admin.php?page=guest-a2';
+	const loaded = () => require( '../../../src/admin-shell/adapter' ).loadPage.mock.calls;
+
+	it( 'loads the page for Back/Forward to a new dashboard once the limit is reached', async () => {
 		await fill( false );
-		popTo( '/wp-admin/admin.php?page=guest-a2' );
+		popTo( A2 );
 		await settle();
 
+		expect( loaded() ).toEqual( [
+			[ expect.stringContaining( 'page=guest-a2' ), { replace: true } ],
+		] );
 		expect( stateOf( 'guest-a2' ) ).toBeUndefined();
 		expect( prewarmed() ).toEqual( [ 'guest-a', 'guest-b' ] );
 		// The visible app's router, which hears the popstate next, still reads its own URL.
 		expect( where() ).toBe( '?page=guest-b' );
 	} );
 
+	it( 'loads the page for Back/Forward while an app mounts, without asking', async () => {
+		mockStay.mockClear();
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		mockMounting = true;
+		try {
+			popTo( A2 );
+			await settle();
+		} finally {
+			mockMounting = false;
+		}
+
+		expect( loaded() ).toEqual( [
+			[ expect.stringContaining( 'page=guest-a2' ), { replace: true } ],
+		] );
+		expect( mockStay ).not.toHaveBeenCalled();
+		expect( where() ).toBe( '?page=host' );
+	} );
+
 	it.each( [
-		[ 'a click', () => click( '/wp-admin/admin.php?page=guest-a2' ) ],
-		[ 'Back/Forward', () => popTo( '/wp-admin/admin.php?page=guest-a2' ) ],
+		[ 'a click', () => click( A2 ) ],
+		[ 'Back/Forward', () => popTo( A2 ) ],
 	] )( 'stays past the limit when a hidden dashboard keeps its edits, on %s', async ( _, go ) => {
 		await fill( false );
 		mockStay.mockClear();
@@ -527,30 +553,33 @@ describe( 'admin shell live-app limit', () => {
 			} )
 		);
 		expect( kept ).not.toBe( false );
+		expect( loaded() ).toEqual( [] );
 		expect( where() ).toBe( '?page=guest-b' );
 		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
 	} );
 
-	it( 'asks hidden dashboards when the last slot went while an overlay closed', async () => {
+	it.each( [
+		[ 'stays when a hidden dashboard keeps its edits', true, [] ],
+		[ 'loads the page otherwise', false, [ [ expect.stringContaining( 'page=guest-a2' ) ] ] ],
+	] )( '%s, when the last slot went while an overlay closed', async ( _, stays, expected ) => {
 		click( A );
 		await settle();
 		let closeOverlay;
 		require( '../../../src/admin-shell/overlays' ).closeOverlayAround.mockImplementationOnce(
 			() => new Promise( resolve => ( closeOverlay = resolve ) )
 		);
-		click( '/wp-admin/admin.php?page=guest-a2' );
+		click( A2 );
 		click( '/wp-admin/admin.php?page=guest-b' );
 		await settle();
 		mockStay.mockClear();
-		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		if ( stays ) {
+			window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		}
 		closeOverlay( true );
 		await settle();
 
-		expect( mockStay ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				detail: { page: 'guest-a', url: expect.stringContaining( 'page=guest-a2' ) },
-			} )
-		);
+		expect( loaded() ).toEqual( expected );
+		expect( mockStay.mock.calls.length > 0 ).toBe( stays );
 		expect( stateOf( 'guest-a2' ) ).toBeUndefined();
 		expect( where() ).toBe( '?page=guest-b' );
 	} );
