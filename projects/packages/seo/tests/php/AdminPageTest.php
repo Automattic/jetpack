@@ -491,7 +491,7 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * The shell offers SEO only where the page has a build, its menu link, and a non-Simple host.
+	 * The shell offers SEO only where the page has a build and its menu link, Simple included.
 	 *
 	 * @dataProvider admin_shell_member_cases
 	 *
@@ -536,7 +536,7 @@ class AdminPageTest extends TestCase {
 			'built, seo-tools on, self-hosted' => array( true, true, false, true ),
 			'unbuilt'                          => array( false, true, false, false ),
 			'seo-tools off'                    => array( true, false, false, false ),
-			'Simple'                           => array( true, true, true, false ),
+			'Simple'                           => array( true, true, true, true ),
 		);
 	}
 
