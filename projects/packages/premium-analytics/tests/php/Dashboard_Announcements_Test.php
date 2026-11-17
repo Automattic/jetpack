@@ -12,6 +12,7 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
+use WorDBless\Users as WorDBless_Users;
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Dashboard_Announcements
@@ -20,7 +21,7 @@ use WorDBless\BaseTestCase;
 class Dashboard_Announcements_Test extends BaseTestCase {
 
 	/**
-	 * Drop the flag, the registrant and the registry it hydrated.
+	 * Drop the flag, the registrant, the registry it hydrated and the users.
 	 */
 	public function tear_down() {
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Dashboard_Announcements::FLAG );
@@ -34,11 +35,32 @@ class Dashboard_Announcements_Test extends BaseTestCase {
 		}
 		$instance->setValue( null, null );
 
+		wp_set_current_user( 0 );
+		WorDBless_Users::init()->clear_all_users();
+
 		parent::tear_down();
+	}
+
+	/**
+	 * Log in a user registered on a given date.
+	 *
+	 * @param string $registered Registration date, as `Y-m-d H:i:s`.
+	 */
+	private function log_in_user_registered( $registered ) {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login'      => 'a_reader',
+					'user_pass'       => 'password',
+					'user_registered' => $registered,
+				)
+			)
+		);
 	}
 
 	public function test_registers_announcements_the_dashboard_surface_asks_for() {
 		add_filter( 'jetpack_feature_flag_enabled_' . Dashboard_Announcements::FLAG, '__return_true' );
+		$this->log_in_user_registered( '2020-01-01 00:00:00' );
 		Dashboard_Announcements::configure();
 
 		$announcements = Announcement_Registry::get_instance()->get_all_registered();
@@ -47,6 +69,14 @@ class Dashboard_Announcements_Test extends BaseTestCase {
 		foreach ( $announcements as $announcement ) {
 			$this->assertContains( Dashboard_Announcements::CHANNEL, $announcement['channels'] );
 		}
+	}
+
+	public function test_registers_nothing_older_than_the_user() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Dashboard_Announcements::FLAG, '__return_true' );
+		$this->log_in_user_registered( '2099-01-01 00:00:00' );
+		Dashboard_Announcements::configure();
+
+		$this->assertSame( array(), Announcement_Registry::get_instance()->get_all_registered() );
 	}
 
 	public function test_registers_nothing_while_the_flag_is_off() {
