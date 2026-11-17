@@ -328,13 +328,12 @@ class Initial_State_Test extends TestCase {
 	 *
 	 * @dataProvider provide_identity_crisis_viewers
 	 *
-	 * @param string    $role               Role of the viewer.
-	 * @param bool      $confirmed          Whether an admin confirmed Safe Mode.
-	 * @param bool|null $expected_confirmed The isSafeModeConfirmed the viewer receives, null when withheld.
-	 * @param array     $expected_keys      Keys the viewer receives.
+	 * @param string $role          Role of the viewer.
+	 * @param bool   $confirmed     Whether an admin confirmed Safe Mode.
+	 * @param array  $expected_keys Keys the viewer receives.
 	 */
 	#[DataProvider( 'provide_identity_crisis_viewers' )]
-	public function test_get_data_identity_crisis_details_follow_the_viewer( $role, $confirmed, $expected_confirmed, $expected_keys ) {
+	public function test_get_data_identity_crisis_details_follow_the_viewer( $role, $confirmed, $expected_keys ) {
 		self::enter_safe_mode();
 		\Jetpack_Options::update_option( 'safe_mode_confirmed', $confirmed );
 		$this->act_as( $role );
@@ -343,7 +342,7 @@ class Initial_State_Test extends TestCase {
 
 		$this->assertEqualsCanonicalizing( $expected_keys, array_keys( $identity_crisis ) );
 		$this->assertSame( 'administrator' === $role, $identity_crisis['canResolve'] );
-		$this->assertSame( $expected_confirmed, $identity_crisis['isSafeModeConfirmed'] ?? null );
+		$this->assertSame( $confirmed, $identity_crisis['isSafeModeConfirmed'] );
 	}
 
 	/**
@@ -352,13 +351,13 @@ class Initial_State_Test extends TestCase {
 	 * @return array
 	 */
 	public static function provide_identity_crisis_viewers() {
-		$shared   = array( 'useNewScreen', 'canResolve' );
-		$resolver = array_merge( $shared, array( 'isSafeModeConfirmed', 'wpcomHomeUrl', 'currentUrl', 'isDevelopmentSite', 'possibleDynamicSiteUrlDetected', 'logoUrl' ) );
+		$shared   = array( 'useNewScreen', 'canResolve', 'isSafeModeConfirmed' );
+		$resolver = array_merge( $shared, array( 'wpcomHomeUrl', 'currentUrl', 'isDevelopmentSite', 'possibleDynamicSiteUrlDetected', 'logoUrl' ) );
 
 		return array(
-			'admin, confirmed'     => array( 'administrator', true, true, $resolver ),
-			'admin, not confirmed' => array( 'administrator', false, false, $resolver ),
-			'contributor'          => array( 'contributor', true, null, $shared ),
+			'admin, confirmed'       => array( 'administrator', true, $resolver ),
+			'admin, not confirmed'   => array( 'administrator', false, $resolver ),
+			'contributor, confirmed' => array( 'contributor', true, $shared ),
 		);
 	}
 

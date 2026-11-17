@@ -75,7 +75,7 @@ describe( 'protected owner selectors', () => {
 
 describe( 'getIdentityCrisis', () => {
 	it.each( [
-		[ 'the Safe Mode state', { useNewScreen: true, canResolve: false } ],
+		[ 'the Safe Mode state', { useNewScreen: true, canResolve: false, isSafeModeConfirmed: true } ],
 		[ 'null outside Safe Mode', null ],
 		[ 'null from a server that predates it', undefined ],
 	] )( 'reads %s', ( _, identityCrisis ) => {

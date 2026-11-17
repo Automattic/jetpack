@@ -116,8 +116,9 @@ class Initial_State {
 
 		$can_resolve = current_user_can( 'jetpack_disconnect' );
 		$data        = array(
-			'useNewScreen' => Identity_Crisis::is_new_screen_enabled(),
-			'canResolve'   => $can_resolve,
+			'useNewScreen'        => Identity_Crisis::is_new_screen_enabled(),
+			'canResolve'          => $can_resolve,
+			'isSafeModeConfirmed' => (bool) Identity_Crisis::safe_mode_is_confirmed(),
 		);
 
 		// This state is printed for any logged-in user who loads connection scripts.
@@ -128,7 +129,6 @@ class Initial_State {
 		$idc_urls = self::get_mismatched_urls();
 
 		return $data + array(
-			'isSafeModeConfirmed'            => (bool) Identity_Crisis::safe_mode_is_confirmed(),
 			'wpcomHomeUrl'                   => $idc_urls ? $idc_urls['wpcom_url'] : '',
 			'currentUrl'                     => $idc_urls ? $idc_urls['current_url'] : self::get_normalized_home_url(),
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
