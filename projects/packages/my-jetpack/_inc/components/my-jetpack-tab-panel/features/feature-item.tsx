@@ -30,7 +30,7 @@ import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
 import type { FeatureActionOrigin } from './features-tracking-context';
 import type { MyJetpackModule } from '../../../types';
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 
 /**
  * The module's settings link, unless all it would lead to is the switch the card already has.
@@ -85,11 +85,16 @@ function PanelConfigureLink( { slug, name }: { slug: string; name: string } ) {
 	const [ searchParams ] = useSearchParams();
 	const { trackPanelOpen } = useSettingsPanelTracking( slug );
 	const isOpen = searchParams.get( 'configure' ) === slug;
-	const onClick = useCallback( () => {
-		if ( ! isOpen ) {
-			trackPanelOpen( 'configure-link' );
-		}
-	}, [ isOpen, trackPanelOpen ] );
+	const onClick = useCallback(
+		( event: MouseEvent ) => {
+			// A modified click opens a new tab, which records its own deep-link open.
+			const modified = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+			if ( ! isOpen && ! modified ) {
+				trackPanelOpen( 'configure-link' );
+			}
+		},
+		[ isOpen, trackPanelOpen ]
+	);
 	const next = new URLSearchParams( searchParams );
 	next.set( 'configure', slug );
 

@@ -297,9 +297,15 @@ describe( 'MoreFeatures', () => {
 	const admin = 'https://example.com/wp-admin/';
 
 	it.each( [
-		[ 'records the panel open', '/features?view=list', 1 ],
-		[ 'records nothing for the panel already open', '/features?view=list&configure=sharedaddy', 0 ],
-	] )( '%s when its Configure link is clicked', async ( _name, entry, opens ) => {
+		[ 'records the panel open', '/features?view=list', false, 1 ],
+		[
+			'records nothing for the panel already open',
+			'/features?view=list&configure=sharedaddy',
+			false,
+			0,
+		],
+		[ 'records nothing with Meta held', '/features?view=list', true, 0 ],
+	] )( '%s when its Configure link is clicked', async ( _name, entry, meta, opens ) => {
 		setSiteEditor( { isBlockTheme: false } );
 		window.JetpackScriptData = {
 			...window.JetpackScriptData,
@@ -316,7 +322,14 @@ describe( 'MoreFeatures', () => {
 			</MemoryRouter>
 		);
 
-		await userEvent.click( screen.getByRole( 'link', { name: 'Configure Sharing Buttons' } ) );
+		const link = screen.getByRole( 'link', { name: 'Configure Sharing Buttons' } );
+		// The browser would open a new tab; jsdom cannot navigate.
+		link.addEventListener( 'click', event => meta && event.preventDefault() );
+		const user = userEvent.setup();
+		if ( meta ) {
+			await user.keyboard( '{Meta>}' );
+		}
+		await user.click( link );
 
 		expect( recordEvent.mock.calls ).toEqual(
 			Array( opens ).fill( [
