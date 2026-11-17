@@ -1024,14 +1024,17 @@ class Identity_Crisis_Test extends BaseTestCase {
 	/**
 	 * Test the get_mismatched_urls method.
 	 *
-	 * @param mixed $idc_error       The value of the jetpack_sync_idc_error option.
-	 * @param mixed $expected_result The value that the get_mismatched_value method should return.
+	 * @param mixed $idc_error           The value of the jetpack_sync_idc_error option.
+	 * @param mixed $expected_result     The value that the get_mismatched_value method should return.
+	 * @param bool  $safe_mode_confirmed Whether an admin confirmed Safe Mode.
 	 *
 	 * @dataProvider data_provider_test_get_mismatched_urls
 	 */
 	#[DataProvider( 'data_provider_test_get_mismatched_urls' )]
-	public function test_get_mismatched_urls( $idc_error, $expected_result ) {
+	public function test_get_mismatched_urls( $idc_error, $expected_result, $safe_mode_confirmed = false ) {
 		$this->check_identity_crisis_return_error( $idc_error );
+		Identity_Crisis::$is_safe_mode_confirmed = $safe_mode_confirmed;
+
 		$result = Identity_Crisis::get_mismatched_urls();
 		$this->clean_up_check_identity_crisis_return_error();
 
@@ -1141,6 +1144,17 @@ class Identity_Crisis_Test extends BaseTestCase {
 					'wpcom_url'   => 'example.com/wpcom_home',
 					'current_url' => 'example.com/remote_home',
 				),
+			),
+			'safe_mode_confirmed'     => array(
+				'idc_error'           => array(
+					'error_code'    => 'jetpack_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'wpcom_home'    => 'example.com/wpcom_home',
+					'siteurl'       => 'example.com/remote_siteurl',
+					'home'          => 'example.com/remote_home',
+				),
+				'expected_result'     => false,
+				'safe_mode_confirmed' => true,
 			),
 		);
 	}

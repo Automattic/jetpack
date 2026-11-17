@@ -119,6 +119,9 @@ export function trackPaymentsEvent(
 	action:
 		| 'stripe_connect_click'
 		| 'stripe_disconnect'
+		| 'plan_add_click'
+		| 'plan_dialog_show'
+		| 'plan_save'
 		| 'plan_delete'
 		| 'free_tier_edit_click'
 		| 'free_tier_update',

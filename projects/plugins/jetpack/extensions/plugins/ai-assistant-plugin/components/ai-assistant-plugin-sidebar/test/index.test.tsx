@@ -250,6 +250,7 @@ jest.mock( '../upgrade', () => ( {
 jest.mock( '../style.scss', () => ( {} ) );
 
 const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
+const AGENT_ENABLE_FEATURE = 'ai-sidebar-agent-enable';
 // What a site with AI on, the writing assistant and the image editor exposes.
 const DEFAULT_FEATURES = [
 	'ai-assistant-usage-panel',
@@ -288,7 +289,9 @@ describe( 'AiAssistantPluginSidebar', () => {
 		beforeEach( () => {
 			jest
 				.mocked( getFeatureAvailability )
-				.mockImplementation( feature => feature === AGENT_NOTICE_FEATURE );
+				.mockImplementation(
+					feature => feature === AGENT_NOTICE_FEATURE || feature === AGENT_ENABLE_FEATURE
+				);
 			( window as unknown as { agentsManagerData?: unknown } ).agentsManagerData = {
 				jetpackAiSidebar: { agentNoticeActionAvailable: true },
 			};

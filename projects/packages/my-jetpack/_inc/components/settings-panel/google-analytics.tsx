@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
 	Link,
@@ -10,6 +11,8 @@ import {
 	ValidatedInputControl,
 } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
+import { PRODUCT_SLUGS } from '../../data/constants';
+import useProduct from '../../data/products/use-product';
 import { useGoogleAnalyticsSettings } from './use-google-analytics-settings';
 import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { GoogleAnalyticsSettings as Settings } from './use-google-analytics-settings';
@@ -26,6 +29,7 @@ const CODE_PATTERN = /^(|UA-\d+-\d+|G-[A-Z0-9]+)$/i;
 export function GoogleAnalyticsSettings() {
 	const { settings, isError, isSaving, save } = useGoogleAnalyticsSettings();
 	const { trackSettingToggle } = useSettingsPanelTracking( 'google-analytics' );
+	const { detail: stats } = useProduct( PRODUCT_SLUGS.STATS );
 	// The ID as typed, until it is saved; null shows the stored one.
 	const [ draft, setDraft ] = useState< string | null >( null );
 
@@ -75,9 +79,12 @@ export function GoogleAnalyticsSettings() {
 	return (
 		<Stack direction="column" gap="lg">
 			<Text variant="body-md">
-				{ __(
-					'Google Analytics is a free service that complements Jetpack Stats with different insights into your traffic.',
-					'jetpack-my-jetpack'
+				{ createInterpolateElement(
+					__(
+						'Google Analytics is a free service that complements <a>Jetpack Stats</a> with different insights into your traffic.',
+						'jetpack-my-jetpack'
+					),
+					{ a: stats?.manageUrl ? <Link href={ stats.manageUrl } /> : <></> }
 				) }
 			</Text>
 			<Link

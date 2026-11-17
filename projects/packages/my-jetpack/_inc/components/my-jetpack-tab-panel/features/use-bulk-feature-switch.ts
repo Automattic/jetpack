@@ -1,9 +1,9 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useCallback, useState } from 'react';
 import { QUERY_PRODUCT_BY_OWNERSHIP_KEY } from '../../../data/constants';
 import { hasPlainSwitch } from '../../../data/module-switch';
@@ -77,7 +77,7 @@ export type BulkOutcome = {
 export function useBulkFeatureSwitch() {
 	const queryClient = useQueryClient();
 	const { fetchModules } = useDispatch( modulesStore );
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const [ isRunning, setIsRunning ] = useState( false );
 
 	const run = useCallback(
@@ -145,7 +145,7 @@ export function useBulkFeatureSwitch() {
 						),
 						succeeded
 					);
-					createSuccessNotice( active ? activated : deactivated );
+					createSuccessNotice( active ? activated : deactivated, { type: 'snackbar' } );
 				}
 
 				// One notice per reason, naming every feature it held back.
@@ -163,7 +163,8 @@ export function useBulkFeatureSwitch() {
 							__( '%1$s: %2$s', 'jetpack-my-jetpack' ),
 							names.join( ', ' ),
 							message
-						)
+						),
+						{ type: 'snackbar' }
 					)
 				);
 			} catch ( error ) {
@@ -171,7 +172,8 @@ export function useBulkFeatureSwitch() {
 				failedSlugs = targets.map( state => state.feature.slug );
 				createErrorNotice(
 					( error as { message?: string } )?.message ||
-						__( 'Could not change the selected features. Please try again.', 'jetpack-my-jetpack' )
+						__( 'Could not change the selected features. Please try again.', 'jetpack-my-jetpack' ),
+					{ type: 'snackbar' }
 				);
 				// The run stays busy until this lands.
 				await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
