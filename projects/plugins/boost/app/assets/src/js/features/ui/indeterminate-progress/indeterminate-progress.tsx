@@ -22,8 +22,8 @@ export default function IndeterminateProgress( {
 			</Text>
 			{ isGenerating && (
 				<Progress.Root className={ styles.progress } value={ value ?? null } aria-label={ label }>
-					<Progress.Track className={ styles.track }>
-						<Progress.Indicator className={ styles.indicator } />
+					<Progress.Track>
+						<Progress.Indicator />
 					</Progress.Track>
 				</Progress.Root>
 			) }

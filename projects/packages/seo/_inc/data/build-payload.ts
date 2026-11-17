@@ -25,6 +25,10 @@ export function buildCorePayload(
 ): Record< string, unknown > {
 	const payload: Record< string, unknown > = {};
 
+	if ( ( local.default_share_image?.id ?? 0 ) !== ( baseline.default_share_image?.id ?? 0 ) ) {
+		payload.jetpack_seo_default_share_image = local.default_share_image?.id ?? 0;
+	}
+
 	// Search-engine visibility maps to the core `blog_public` option
 	// (1 = allow indexing, 0 = discourage).
 	if ( local.search_engines_visible !== baseline.search_engines_visible ) {

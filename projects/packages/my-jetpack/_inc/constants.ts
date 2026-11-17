@@ -7,7 +7,6 @@ export const MyJetpackRoutes = {
 	Home: '/:section',
 	Features: '/features',
 	Connection: '/connection',
-	ConnectionSkipPricing: '/connection?skip_pricing=true',
 	AddAkismet: '/add-akismet',
 	AddAntiSpam: '/add-anti-spam', // Old route for Anti Spam
 	AddBackup: '/add-backup',

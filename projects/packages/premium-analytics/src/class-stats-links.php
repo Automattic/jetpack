@@ -32,7 +32,29 @@ class Stats_Links {
 		'subscribers' => 'subscribers',
 		'store'       => 'woocommerce',
 		'ads'         => 'ads',
-		'settings'    => 'settings',
+	);
+
+	/**
+	 * Periods of the old `#!/stats/<period>/<module>` summary routes.
+	 */
+	private const LEGACY_PERIODS = array( 'hour', 'day', 'week', 'month', 'year' );
+
+	/**
+	 * Modules of the old summary routes, and the report each one opens.
+	 */
+	private const LEGACY_REPORTS = array(
+		'posts'         => 'posts',
+		'referrers'     => 'referrers',
+		'clicks'        => 'clicks',
+		'countryviews'  => 'locations',
+		'locations'     => 'locations',
+		'authors'       => 'authors',
+		'videoplays'    => 'videos',
+		'filedownloads' => 'downloads',
+		'searchterms'   => 'search-terms',
+		'annualstats'   => 'annual-insights',
+		'utm'           => 'utm',
+		'emails'        => 'emails',
 	);
 
 	/**
@@ -44,14 +66,16 @@ class Stats_Links {
 	 */
 	public static function register() {
 		add_filter( 'jetpack_stats_url', array( __CLASS__, 'filter_url' ), 10, 2 );
+		// WordPress 7.2 answers an unregistered page on wp_admin_page_not_found and never reaches admin_page_access_denied.
+		add_action( 'wp_admin_page_not_found', array( __CLASS__, 'open_retired_stats_page' ) );
 		add_action( 'admin_page_access_denied', array( __CLASS__, 'open_retired_stats_page' ) );
 	}
 
 	/**
 	 * Open the dashboard in place of `admin.php?page=stats` once no plugin registers that page.
 	 *
-	 * Core fires this for every denied admin page, a registered one the user may not open included;
-	 * the capability check is what keeps that user on core's 403.
+	 * Before 7.2 core fires admin_page_access_denied for every denied admin page, a registered one the
+	 * user may not open included; the capability check is what keeps that user on core's 403.
 	 *
 	 * @return void
 	 */
@@ -133,6 +157,26 @@ class Stats_Links {
 		// The email routes put the post ID after the metric and the period.
 		if ( 'email' === $view && in_array( $segments[1] ?? '', array( 'opens', 'clicks' ), true ) ) {
 			return self::post_path( $segments[3] ?? 0, 'email-' . $segments[1] );
+		}
+
+		if ( 'settings' === $view ) {
+			return '/settings';
+		}
+
+		if ( 'follows' === $view && 'comment' === ( $segments[1] ?? '' ) ) {
+			return '/reports/comment-followers';
+		}
+
+		// A summary route names its module after the period, or alone when it leaves the period out.
+		$module = in_array( $view, self::LEGACY_PERIODS, true ) ? ( $segments[1] ?? '' ) : $view;
+
+		if ( array_key_exists( $module, self::LEGACY_REPORTS ) ) {
+			return '/reports/' . self::LEGACY_REPORTS[ $module ];
+		}
+
+		// The dashboard draws a window of one day by the hour.
+		if ( 'hour' === $view ) {
+			return '/?section=traffic&preset=today';
 		}
 
 		return array_key_exists( $view, self::LEGACY_SECTIONS ) ? '/?section=' . self::LEGACY_SECTIONS[ $view ] : '/';

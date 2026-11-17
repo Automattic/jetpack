@@ -85,6 +85,56 @@ export function showOverlaysOf( slug ) {
 	} );
 }
 
+const DIALOGS = '[role="dialog"], [role="alertdialog"]';
+
+// Dialogs already sent Escape: a second one reaches their close handler again while they animate out.
+const escaped = new WeakSet();
+
+// Dialogs from @wordpress/ui and @wordpress/components both close on Escape.
+const pressEscape = target => {
+	escaped.add( target.closest( DIALOGS ) ?? target );
+	target.dispatchEvent(
+		new KeyboardEvent( 'keydown', {
+			key: 'Escape',
+			code: 'Escape',
+			bubbles: true,
+			cancelable: true,
+		} )
+	);
+};
+
+// The longest a dialog gets to start closing: one behind a confirm, say, stays open.
+const CLOSE_TIMEOUT = 500;
+// The longest a closing dialog gets to leave: a busy main thread can delay its exit, as in WebKit.
+const EXIT_TIMEOUT = 5000;
+// Exit markers of @wordpress/components and @wordpress/ui dialogs.
+const CLOSING = '.is-animating-out, [data-ending-style]';
+
+/**
+ * Close the dialogs of a page being hidden, as leaving it with a page load would.
+ *
+ * An open modal keeps the rest of the document, `#wpwrap` included, `aria-hidden` until it closes.
+ *
+ * @param {string} slug - Page being hidden.
+ * @return {Promise<void>} Resolves once they have left the document, or after a timeout.
+ */
+export async function closeDialogsOf( slug ) {
+	const dialogs = [ ...document.querySelectorAll( OVERLAYS ) ]
+		.filter( el => el.getAttribute( PAGE ) === slug )
+		.flatMap( el => [ el, ...el.querySelectorAll( DIALOGS ) ] )
+		.filter( el => el.matches( DIALOGS ) );
+	dialogs.filter( d => ! escaped.has( d ) ).forEach( pressEscape );
+	const start = performance.now();
+	const timeout = () =>
+		dialogs.some( d => d.isConnected && d.closest( CLOSING ) ) ? EXIT_TIMEOUT : CLOSE_TIMEOUT;
+	// Timers, not frames: a Back in a background tab gets no animation frames.
+	while ( dialogs.some( d => d.isConnected ) && performance.now() - start < timeout() ) {
+		await new Promise( resolve => setTimeout( resolve, 16 ) );
+	}
+	// One that stayed open, such as behind a confirm, gets Escape again the next time.
+	dialogs.forEach( d => escaped.delete( d ) );
+}
+
 // The longest a page gets to update its URL after its overlay closes.
 const SETTLE_TIMEOUT = 100;
 
@@ -103,15 +153,7 @@ export async function closeOverlayAround( link ) {
 		return false;
 	}
 	const before = location.href;
-	// Dialogs from @wordpress/ui and @wordpress/components both close on Escape.
-	link.dispatchEvent(
-		new KeyboardEvent( 'keydown', {
-			key: 'Escape',
-			code: 'Escape',
-			bubbles: true,
-			cancelable: true,
-		} )
-	);
+	pressEscape( link );
 	const start = performance.now();
 	while ( location.href === before && performance.now() - start < SETTLE_TIMEOUT ) {
 		await new Promise( resolve => requestAnimationFrame( resolve ) );

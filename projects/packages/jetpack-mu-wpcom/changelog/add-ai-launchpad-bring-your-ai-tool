@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+AI Launchpad: Add a "Build with AI" path to the wizard as an experiment for Free sites, which adds WordPress.com to ChatGPT or Claude and shows when it connects, or when it only has read-only access.

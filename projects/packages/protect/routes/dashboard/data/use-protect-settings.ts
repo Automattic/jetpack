@@ -47,6 +47,18 @@ function getInvalidParamMessage( data: unknown ): string | undefined {
 	return Object.values( params ).find( ( reason ): reason is string => typeof reason === 'string' );
 }
 
+/**
+ * A request to reload for `rest_no_route`, which a tab left open gets once the site disconnects and the routes go away.
+ *
+ * @param code - The REST error code.
+ * @return The message, or undefined for any other code.
+ */
+function getStalePageMessage( code: unknown ): string | undefined {
+	return code === 'rest_no_route'
+		? __( 'This page is out of date. Reload it to continue.', 'jetpack-protect-pkg' )
+		: undefined;
+}
+
 const SETTINGS_PATH = '/jetpack/v4/protect-dashboard/settings';
 
 /** Flat settings, keyed by option or module slug, as the package's settings route returns them. */
@@ -124,10 +136,12 @@ export default function useProtectSettings(): ProtectSettingsData {
 				setWaf( nextWaf );
 				setIsLoaded( true );
 			} )
-			.catch( () => {
+			.catch( ( e: { code?: unknown } | undefined ) => {
 				loadStarted.current = false;
 				setFailure( {
-					message: __( 'Your settings couldn’t be loaded.', 'jetpack-protect-pkg' ),
+					message:
+						getStalePageMessage( e?.code ) ||
+						__( 'Your settings couldn’t be loaded.', 'jetpack-protect-pkg' ),
 					keys: NO_KEYS,
 				} );
 			} );
@@ -175,6 +189,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 				const wafMessage = getWafErrorMessage( code );
 				setFailure( {
 					message:
+						getStalePageMessage( code ) ||
 						wafMessage ||
 						( code === 'rest_invalid_param' ? getInvalidParamMessage( data ) : undefined ) ||
 						message ||

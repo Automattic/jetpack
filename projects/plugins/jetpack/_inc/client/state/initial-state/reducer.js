@@ -581,6 +581,17 @@ export function hasBackupPage( state ) {
 }
 
 /**
+ * Whether the Jetpack Social page exists for this user, which Publicize's host, connection and filters decide.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if the Social page was registered.
+ */
+export function hasSocialPage( state ) {
+	return state.jetpack.initialState.siteData?.hasSocialPage ?? false;
+}
+
+/**
  * Get the site's date format, in format accepted by DateTimeInterface::format().
  *
  * @param {object} state - Global state tree

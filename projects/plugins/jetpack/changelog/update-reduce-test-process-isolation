@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Run the Image Studio and Security menu tests in fewer separate processes.
+

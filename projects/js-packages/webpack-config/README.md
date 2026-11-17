@@ -113,29 +113,49 @@ Note if you're setting `output.library.name`, you may want to also set `output.u
 `optimization` is an object suitable for spreading some defaults into Webpack's `optimization` setting. It sets the following:
 
 * `minimize` is set based on the mode.
-* `minimizer` is configured with `TerserPlugin` and `CssMinimizerPlugin` configured as described below.
+* `minimizer` is an array with an instance of `MinimizerPlugin`, configured as described below.
 * `emitOnErrors` is set true to facilitate debugging.
 * `concatenateModules` is set to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
 * `chunkIds` is set to false in production mode, as `PnpmDeterministicChunkIdsPlugin` is intended to be used instead. The Webpack default 'named' is set in development mode.
 * `moduleIds` is set to false in production mode, as `PnpmDeterministicModuleIdsPlugin` is intended to be used instead. The Webpack default 'named' is set in development mode.
 * `mangleExports` is set to false in production mode, as `I18nSafeMangleExportsPlugin` is intended to be used instead.
 
-#### `TerserPlugin( options )`
+#### `MinimizerPlugin( options )`
 
-This provides an instance of [terser-webpack-plugin](https://www.npmjs.com/package/terser-webpack-plugin) configured to preserve WordPress i18n methods and translator comments. Options are passed to the plugin.
+This provides an instance of [minimizer-webpack-plugin](https://www.npmjs.com/package/minimizer-webpack-plugin) configured to preserve WordPress i18n methods and translator comments. Options are passed to the plugin.
 
-The non-default options include:
+The default options set the following:
 
-- `terserOptions.ecma`, `terserOptions.safari10`, and `terserOptions.ie8` are set based on the browserslist config if available, otherwise based on [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
-- `terserOptions.mangle.reserved` is set to preserve the `wp-i18n` methods.
-- `terserOptions.format.comments` is set to preserve "translators" comments.
-- `extractComments` is set to extract the comments normally preserved by terser to a LICENSE.txt file.
+- `test` is set to `/\.([cm]?js|css)(\?.*)?$/i`, to minify both JS and CSS.
+- `extractComments` is set to a regex for extracting the comments normally preserved by terser to a LICENSE.txt file.
+- `minify` is set to an array of two objects:
+  - Index `0` configures JS minification using terser:
+    - `implementation` is set to `MinimizerPlugin.MinimizerPlugin.terserMinify`.
+    - `options.ecma`, `options.safari10`, and `options.ie8` are set based on the browserslist config if available, otherwise based on [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
+    - `options.mangle.reserved` is set to preserve the `wp-i18n` methods.
+    - `options.format.comments` is set to a regex to preserve "translators" comments.
+  - Index `1` configures CSS minification using cssnano:
+    - `implementation` is set to `MinimizerPlugin.MinimizerPlugin.cssnanoMinify`.
 
-The options used may be accessed as `TerserPlugin.defaultOptions`. The filter functions used for comments may be accessed as `TerserPlugin.isTranslatorsComment()` and `TerserPlugin.isSomeComments()`. If you want to actually use these to override the default configuration, you may want to look at the hack used in the default configuration to get it to work with terser-webpack-plugin's parallel processing (or disable `parallel`).
+The default options are provided at `MinimizerPlugin.defaultOptions`. The terser and cssnano configurations are additionally provided at `MinimizerPlugin.terserDefaultOptions` and `MinimizerPlugin.cssnanoDefaultOptions`.
 
-#### `CssMinimizerPlugin( options )`
+Note that a full `minify` array must be provided if overriding the default. To change just one terser option, for example, you'd need to do like this to keep the remaining options and cssnano config intact:
+```js
+jetpackWebpackConfig.MinimizerPlugin( {
+	minify: [
+		{
+			...jetpackWebpackConfig.MinimizerPlugin.terserDefaultOptions,
+			options: {
+				...jetpackWebpackConfig.MinimizerPlugin.terserDefaultOptions.options,
+				enclose: true,
+			},
+		},
+		jetpackWebpackConfig.MinimizerPlugin.cssnanoDefaultOptions,
+	],
+} ),
+```
 
-This provides an instance of [css-minimizer-webpack-plugin](https://www.npmjs.com/package/css-minimizer-webpack-plugin). Options are passed to the plugin.
+The raw [minimizer-webpack-plugin](https://www.npmjs.com/package/minimizer-webpack-plugin) package export is provided as `MinimizerPlugin.MinimizerPlugin`, should you need it.
 
 #### `resolve`
 

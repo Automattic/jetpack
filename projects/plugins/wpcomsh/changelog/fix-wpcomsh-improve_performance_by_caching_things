@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Improve performance by reusing Atomic_Persistent_Data across all calls within a request.

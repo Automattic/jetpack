@@ -189,4 +189,23 @@ describe( 'PlansSection', () => {
 			}
 		);
 	} );
+
+	it( 'sends a site with Pro to Complete checkout and reports which Complete', async () => {
+		window.myJetpackInitialState.blogID = '123';
+		setPurchases( [
+			{ ...buildPurchase( 'Jetpack Pro' ), product_slug: 'jetpack_pro_yearly' } as Purchase,
+		] );
+		render( <PlansSection /> );
+		const link = screen.getByRole( 'link', { name: /Upgrade to Complete/ } );
+		link.addEventListener( 'click', event => event.preventDefault() );
+
+		expect( link ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'wordpress.com/checkout/123/jetpack_complete?' )
+		);
+		await userEvent.click( link );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_purchase_click', {
+			product_slug: 'jetpack_complete',
+		} );
+	} );
 } );

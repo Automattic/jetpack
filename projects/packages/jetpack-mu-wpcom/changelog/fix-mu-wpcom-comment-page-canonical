@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Comments: Keep the canonical URL on the post instead of a comment page when comments are split into pages.

@@ -6,7 +6,9 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Lib\Debug;
@@ -53,6 +55,7 @@ class Admin_Test extends Base_TestCase {
 		// capability to true so the registration path runs. Overridden per-test below.
 		Functions\when( 'current_user_can' )->justReturn( true );
 		Functions\when( 'is_admin' )->justReturn( true );
+		Functions\when( 'wp_doing_ajax' )->justReturn( false );
 
 		// Start each test with a clean registry; other suites registering
 		// under different ids don't matter here since we only assert on
@@ -518,6 +521,65 @@ class Admin_Test extends Base_TestCase {
 		$this->assertFalse( $data['getting_started']['value'] );
 		$this->assertFalse( $data['dismissed_alerts']['value']['score_increase'] );
 		$this->assertNotEmpty( $data['dismissed_alerts']['nonce'] );
+	}
+
+	/**
+	 * @dataProvider admin_shell_member_cases
+	 */
+	#[DataProvider( 'admin_shell_member_cases' )]
+	public function test_admin_shell_member_follows_modern_dashboard( $modern, $build_exists, $joins ) {
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( $modern );
+		Functions\when( 'Automattic\\Jetpack_Boost\\Admin\\file_exists' )->justReturn( $build_exists );
+		$admin = new Admin();
+
+		$members = $admin->add_admin_shell_member( array( 'my-jetpack' => array() ) );
+
+		$this->assertSame( $joins, isset( $members[ JETPACK_BOOST_SLUG ] ) );
+		$this->assertArrayHasKey( 'my-jetpack', $members );
+		if ( $joins ) {
+			$this->assertSame( array( $admin, 'load_as_admin_shell_guest' ), $members[ JETPACK_BOOST_SLUG ]['load'] );
+		}
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_shell_guest_loads_build_and_page_data_without_screen_alias() {
+		require_once JETPACK_BOOST_DIR_PATH . '/wp-js-data-sync.php';
+		$fixture = JETPACK_BOOST_DIR_PATH . '/.cache/admin-build-' . uniqid();
+		mkdir( $fixture . '/build', 0777, true );
+		$build_file = $fixture . '/build/build.php';
+		file_put_contents( $build_file, '<?php function jetpack_boost_register_script_modules() { $GLOBALS["boost_fixture_modules"] = true; }' );
+		define( 'Automattic\\Jetpack_Boost\\Admin\\JETPACK_BOOST_DIR_PATH', $fixture );
+
+		try {
+			\Patchwork\redefine( WP_Build_Polyfills::class . '::register', \Patchwork\always( null ) );
+			$admin = new Admin();
+
+			$admin->load_as_admin_shell_guest();
+
+			$this->assertTrue( $GLOBALS['boost_fixture_modules'] ?? false );
+			$this->assert_screen_id_not_aliased( $admin );
+			$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( $admin, 'enqueue_scripts' ) ) );
+			$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) ) );
+			$data_sync = Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE );
+			$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( $data_sync, '_print_options_script_tag' ) ) );
+		} finally {
+			unlink( $build_file );
+			rmdir( $fixture . '/build' );
+			rmdir( $fixture );
+		}
+	}
+
+	public static function admin_shell_member_cases() {
+		return array(
+			'modern dashboard'         => array( true, true, true ),
+			'legacy dashboard'         => array( false, true, false ),
+			'modern build not present' => array( true, false, false ),
+		);
 	}
 
 	private function assert_screen_id_not_aliased( $admin ) {

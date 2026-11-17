@@ -5,7 +5,6 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { DetailPageLayout } from '../detail-page/detail-page-layout';
 import { ReportPageLayout } from '../report-page/report-page-layout';
 import type { ReactNode } from 'react';
 
@@ -18,10 +17,7 @@ function ReportLayout( { children }: { children: ReactNode } ) {
 	return <ReportPageLayout title="Posts">{ children }</ReportPageLayout>;
 }
 
-describe.each( [
-	[ 'DetailPageLayout', DetailPageLayout ],
-	[ 'ReportPageLayout', ReportLayout ],
-] )( '%s', ( _name, Layout ) => {
+describe.each( [ [ 'ReportPageLayout', ReportLayout ] ] )( '%s', ( _name, Layout ) => {
 	it( 'ends its scroll area with the Jetpack footer', () => {
 		const { container } = render(
 			<Layout>

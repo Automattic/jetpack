@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Stats: On sites running the WP Consent API, count AMP views only after the visitor allows statistics in an AMP consent banner. AMP pages without one, AMP pages not rendered by the AMP plugin, and Web Stories are no longer counted there.

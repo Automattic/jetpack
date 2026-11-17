@@ -68,8 +68,9 @@ const Edit = props => {
 		.join( ' ' );
 	const blockProps = useBlockProps( { className: wrapperClassName } );
 	const [ loadingError, setLoadingError ] = useState( '' );
-	const [ products, setProducts ] = useState( [] );
 	const isUserConnected = useIsUserConnected();
+	const { getBlockAttributes } = useSelect( blockEditorStore );
+	const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
 	// When the inserter renders this block as an example/preview (it declares
 	// `"example": {}` in block.json), Gutenberg mounts this Edit component inside
@@ -163,7 +164,21 @@ const Edit = props => {
 			return;
 		}
 
-		lockPostSaving( 'donations' );
+		// One lock per block, so one block's response can't unlock saving for another.
+		const lockName = `donations-${ clientId }`;
+		lockPostSaving( lockName );
+
+		// Set when the effect re-runs or the block goes away: an outdated response must not
+		// unlock saving or write plans while a newer fetch is still in flight.
+		let isStale = false;
+
+		const onError = message => {
+			if ( isStale ) {
+				return;
+			}
+			unlockPostSaving( lockName );
+			apiError( message );
+		};
 
 		const filterProducts = productList =>
 			productList.reduce(
@@ -176,9 +191,36 @@ const Edit = props => {
 				{}
 			);
 
+		// Called before saving is unlocked, so a save can't go out without the plan IDs.
+		// Reads and writes through the store: the user may edit the block during the fetch,
+		// and setAttributes() writes to the multi-selection, if any, instead of this block.
+		const savePlanIds = productIdsPerInterval => {
+			const current = getBlockAttributes( clientId );
+			if ( ! current ) {
+				return;
+			}
+			const updates = {};
+			for ( const [ key, interval ] of [
+				[ 'oneTimeDonation', 'one-time' ],
+				[ 'monthlyDonation', '1 month' ],
+				[ 'annualDonation', '1 year' ],
+			] ) {
+				const planId = productIdsPerInterval[ interval ];
+				if ( planId && current[ key ]?.planId !== planId ) {
+					updates[ key ] = { ...current[ key ], planId };
+				}
+			}
+			if ( Object.keys( updates ).length ) {
+				updateBlockAttributes( clientId, updates );
+			}
+		};
+
 		fetchStatus( 'donation' ).then( result => {
+			if ( isStale ) {
+				return;
+			}
 			if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
-				unlockPostSaving( 'donations' );
+				unlockPostSaving( lockName );
 				setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
 				return;
 			}
@@ -190,32 +232,36 @@ const Edit = props => {
 			const filteredProducts = filterProducts( result.products );
 
 			if ( hasRequiredProducts( filteredProducts ) ) {
-				setProducts( filteredProducts );
-				unlockPostSaving( 'donations' );
+				savePlanIds( filteredProducts );
+				unlockPostSaving( lockName );
 				return;
 			}
 
-			// Set fake products when there is no connection to Stripe so users can still try the block in the editor.
+			// No Stripe connection yet: the block shows the connect nudge instead of the form.
 			if ( result.connect_url ) {
-				setProducts( {
-					'one-time': -1,
-					'1 month': -1,
-					'1 year': -1,
-				} );
-				unlockPostSaving( 'donations' );
+				unlockPostSaving( lockName );
 				return;
 			}
 
 			if ( currency ) {
 				// Only create products if we have the correct plan and stripe connection.
 				fetchDefaultProducts( currency ).then( defaultProducts => {
-					setProducts( filterProducts( defaultProducts ) );
-					unlockPostSaving( 'donations' );
-				}, apiError );
+					if ( isStale ) {
+						return;
+					}
+					savePlanIds( filterProducts( defaultProducts ) );
+					unlockPostSaving( lockName );
+				}, onError );
+				return;
 			}
 
-			unlockPostSaving( 'donations' );
-		}, apiError );
+			unlockPostSaving( lockName );
+		}, onError );
+
+		return () => {
+			isStale = true;
+			unlockPostSaving( lockName );
+		};
 	}, [
 		lockPostSaving,
 		currency,
@@ -224,13 +270,13 @@ const Edit = props => {
 		setConnectedAccountDefaultCurrency,
 		unlockPostSaving,
 		isPreviewMode,
+		clientId,
+		getBlockAttributes,
+		updateBlockAttributes,
 	] );
 
 	// In preview/example mode the Stripe status fetch is skipped, so fall back to
-	// placeholder products and a valid currency to render a representative form
-	// rather than a perpetual spinner or a "connect Stripe" nudge.
-	const previewProducts = { 'one-time': -1, '1 month': -1, '1 year': -1 };
-	const effectiveProducts = isPreviewMode ? previewProducts : products;
+	// a valid currency to render a representative form.
 	const effectiveProps =
 		isPreviewMode && ! currency
 			? { ...props, attributes: { ...attributes, currency: 'USD' } }
@@ -272,7 +318,7 @@ const Edit = props => {
 			</>
 		);
 	} else {
-		content = <Tabs { ...effectiveProps } products={ effectiveProducts } />;
+		content = <Tabs { ...effectiveProps } />;
 	}
 
 	return (

@@ -26,12 +26,16 @@ const DOTORG_PLUGIN_INFO_ENDPOINT = DOTORG_PLUGINS_HOST . '/info/1.0/';
  * @return array|WP_Error
  */
 function search_plugin_info( $slug ) {
-	$request     = array(
+	$request  = array(
 		'action'  => 'plugin_information',
 		'timeout' => 15,
 	);
-	$response    = wp_remote_post( DOTORG_PLUGIN_INFO_ENDPOINT . $slug, array( 'body' => $request ) );
-	$plugin_info = maybe_unserialize( $response['body'] );
+	$response = wp_remote_post( DOTORG_PLUGIN_INFO_ENDPOINT . $slug, array( 'body' => $request ) );
+	if ( is_wp_error( $response ) ) {
+		return $response;
+	}
+
+	$plugin_info = maybe_unserialize( wp_remote_retrieve_body( $response ) );
 
 	if ( $plugin_info && property_exists( $plugin_info, 'error' ) ) {
 		return new WP_Error( 'search_plugin_error', $plugin_info->error );

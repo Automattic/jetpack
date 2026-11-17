@@ -47,8 +47,6 @@ export const Textarea = () => {
 			loadEditor( JetpackComments.editorLocale )
 				.then(
 					( { mountEditor } ) => {
-						// First: a cached chunk renders the editor this microtask, and it can only focus once shown.
-						setEditor( 'ready' );
 						mountEditor( editorRef.current!, {
 							initialContent: commentValue.peek(),
 							labels,
@@ -56,6 +54,13 @@ export const Textarea = () => {
 							focus: focus ? () => ( clicked.current ? textarea.selectionStart : -1 ) : undefined,
 							placeholder,
 							onChange: content => ( commentValue.value = content ),
+							// Swapped here, not on the next render: the editor can only take focus once shown,
+							// and an empty one shown early collapses the box for a frame.
+							onReady: () => {
+								editorRef.current!.hidden = false;
+								textarea.hidden = true;
+								setEditor( 'ready' );
+							},
 							onError: error => fail( 'render', error ),
 						} );
 					},
@@ -85,6 +90,43 @@ export const Textarea = () => {
 			openEditor( false );
 		}
 	}, [] );
+
+	// Core's Reply link focuses the form's first visible control, the toolbar once the editor hides
+	// the textarea. Its handler runs before this one, which puts the caret at the end of the text.
+	useEffect( () => {
+		if ( editor !== 'ready' ) {
+			return;
+		}
+
+		const onClick = ( event: MouseEvent ) => {
+			const link = ( event.target as Element ).closest< HTMLElement >( '.comment-reply-link' );
+			// Core prevents the link's navigation only when it moved the form, and a page can have several.
+			const respond = link && document.getElementById( link.dataset.respondelement ?? '' );
+			if ( ! event.defaultPrevented || ! respond?.contains( editorRef.current ) ) {
+				return;
+			}
+
+			const editable = [
+				...editorRef.current!.querySelectorAll< HTMLElement >(
+					'.is-root-container [contenteditable="true"]'
+				),
+			].at( -1 );
+			if ( ! editable ) {
+				return;
+			}
+
+			editable.focus();
+			// An empty block holds only its placeholder, which the caret goes before.
+			const end = editable.querySelector( '[data-rich-text-placeholder]' )
+				? 0
+				: editable.childNodes.length;
+			editable.ownerDocument.getSelection()?.collapse( editable, end );
+		};
+
+		document.addEventListener( 'click', onClick );
+
+		return () => document.removeEventListener( 'click', onClick );
+	}, [ editor ] );
 
 	// A draft from the editor is block markup, which only the editor shows.
 	const text =
@@ -130,6 +172,8 @@ export const Textarea = () => {
 					role="group"
 					aria-label={ label }
 					hidden={ editor !== 'ready' }
+					// The editor's prompt, which follows the box between comment and reply.
+					style={ { '--jetpack-comments-placeholder': JSON.stringify( placeholder ) } }
 					onFocusCapture={ onEditorFocus }
 				/>
 			) }

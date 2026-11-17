@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Skip private-site status test rows whose AT_PRIVACY_MODEL setup the WP Cloud test site overrides.
+
+

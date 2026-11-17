@@ -36,7 +36,7 @@ export {
 } from './step-date-range';
 export { planDateStep, type DateStep, type DateStepContext } from './plan-date-step';
 
-export { drillDateRange } from './drill-date-range';
+export { drillDateRange, isDrillableInterval, type DrillableInterval } from './drill-date-range';
 
 export { toBucketStamp, resolveBucketStamp } from './bucket-stamp';
 

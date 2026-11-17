@@ -2,9 +2,10 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, onlineManager } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -135,6 +136,68 @@ describe( 'useTrafficChart', () => {
 		expect( metrics[ 1 ].value ).toBe( 1500 );
 		expect( metrics[ 2 ].value ).toBe( 20 );
 		expect( metrics[ 3 ].value ).toBe( 50 );
+	} );
+
+	it.each( [
+		[ 'views and visitors', 'views' ],
+		[ 'likes and comments', 'likes' ],
+	] )(
+		'reports a failed %s refetch to the CSV while the chart keeps its rows',
+		async ( _, failingField ) => {
+			const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+			await waitFor( () => expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 ) );
+			expect( result.current.csvIsError ).toBe( false );
+
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
+				if ( path.includes( failingField ) ) {
+					return Promise.reject( { error: 'unauthorized', status: 403 } );
+				}
+				return Promise.resolve(
+					path.includes( 'views' ) ? VIEWS_VISITORS_RESPONSE : LIKES_COMMENTS_RESPONSE
+				);
+			} );
+			act( () => result.current.refetch() );
+			await waitFor( () => expect( result.current.csvIsError ).toBe( true ) );
+
+			expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 );
+			expect( result.current.isError ).toBe( false );
+		}
+	);
+
+	it( 'tells the CSV when an offline range change keeps the previous range on screen', async () => {
+		const { result, rerender } = renderHook( range => useTrafficChart( range, 'month' ), {
+			wrapper,
+			initialProps: RANGE,
+		} );
+		await waitFor( () => expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 ) );
+		expect( result.current.csvIsPlaceholderData ).toBe( false );
+
+		try {
+			act( () => onlineManager.setOnline( false ) );
+			rerender( { ...RANGE, from: '2026-07-01', to: '2026-08-31' } );
+
+			await waitFor( () => expect( result.current.csvIsPlaceholderData ).toBe( true ) );
+			expect( result.current.isFetching ).toBe( false );
+		} finally {
+			onlineManager.setOnline( true );
+		}
+	} );
+
+	it( 'reports the site zone its buckets are dated in', async () => {
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { ...settings.timezone, string: 'Asia/Taipei', offset: 8 },
+		} );
+
+		try {
+			const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+			await waitFor( () => expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 ) );
+
+			expect( result.current.timezone ).toBe( 'Asia/Taipei' );
+		} finally {
+			setSettings( settings );
+		}
 	} );
 
 	it( 'pairs Views with Visitors, starting Views hidden only on the Visitors tab', async () => {
@@ -425,7 +488,7 @@ describe( 'useTrafficChart', () => {
 			}
 		} );
 
-		it( 'keeps the hourly Views chart when the daily totals request fails', async () => {
+		it( 'keeps the hourly Views chart and its CSV when the daily totals request fails', async () => {
 			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 				path.includes( 'unit=day' )
 					? Promise.reject( { error: 'unauthorized', status: 403 } )
@@ -437,6 +500,7 @@ describe( 'useTrafficChart', () => {
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
 			expect( result.current.isError ).toBe( false );
+			expect( result.current.csvIsError ).toBe( false );
 			const [ views, visitors, comments, likes ] = result.current.metrics;
 			expect( views.current ).toHaveLength( 2 );
 			for ( const metric of [ visitors, comments, likes ] ) {
