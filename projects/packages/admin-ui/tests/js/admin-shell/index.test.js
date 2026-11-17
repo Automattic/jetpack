@@ -515,6 +515,15 @@ describe( 'admin shell live-app limit', () => {
 		}
 	);
 
+	it( 'reloads for Back/Forward to a new dashboard once the limit is reached', async () => {
+		await fill( false );
+		popTo( '/wp-admin/admin.php?page=guest-a2' );
+		await settle();
+
+		expect( stateOf( 'guest-a2' ) ).toBeUndefined();
+		expect( prewarmed() ).toEqual( [ 'guest-a', 'guest-b' ] );
+	} );
+
 	it.each( [
 		[ 'back to a mounted one', false, '/wp-admin/admin.php?page=host', 'host' ],
 		[ 'to one only prewarmed', true, A, 'guest-a' ],
