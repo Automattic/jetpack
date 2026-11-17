@@ -50,16 +50,23 @@ describe( 'CoverImageControl', () => {
 		expect( trigger ).not.toHaveAttribute( 'aria-disabled' );
 	} );
 
-	it( 'says so when the media library fails to load', async () => {
+	it( 'says so when the media library fails to load, until a retry loads it', async () => {
 		const user = userEvent.setup();
-		mockedLoadMediaLibrary.mockRejectedValue( new Error( 'HTTP 500' ) );
+		mockedLoadMediaLibrary.mockRejectedValueOnce( new Error( 'HTTP 500' ) );
 		renderControl();
+		const trigger = screen.getByRole( 'button', { name: 'Set cover image' } );
 
-		await user.click( screen.getByRole( 'button', { name: 'Set cover image' } ) );
+		await user.click( trigger );
 
 		expect( mockOpen ).not.toHaveBeenCalled();
 		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
 			'The media library could not be loaded. Try again.'
 		);
+
+		mockedLoadMediaLibrary.mockResolvedValueOnce( undefined );
+		await user.click( trigger );
+
+		expect( mockOpen ).toHaveBeenCalledTimes( 1 );
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
 	} );
 } );
