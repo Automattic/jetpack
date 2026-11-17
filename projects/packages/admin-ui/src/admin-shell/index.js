@@ -121,6 +121,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 		apps.has( slug ) ||
 		Object.hasOwn( warm, slug ) ||
 		new Set( [ ...apps.keys(), ...Object.keys( warm ) ] ).size < liveLimit - spare;
+	// A page load drops the hidden apps too, edits and all; the visible one has its own beforeunload.
+	const mayUnload = url =>
+		[ ...apps.keys() ].every( slug => slug === visible || mayLeave( slug, url ) );
 	// Everything short of mounting: a mounted router would start reading the visible page's URL.
 	const prewarm = ( slug, reason ) => {
 		if ( warm[ slug ] ) {
@@ -368,8 +371,17 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 			lastUrl[ visible ] = location.href;
 		}
 		if ( event.isTrusted && isMemberUrl( location.href ) && pageOf( location.href ) !== visible ) {
-			if ( gate.isMounting() || ! hasRoomFor( pageOf( location.href ) ) ) {
+			if ( gate.isMounting() ) {
 				location.reload();
+				return;
+			}
+			if ( ! hasRoomFor( pageOf( location.href ) ) ) {
+				if ( mayUnload( location.href ) ) {
+					location.reload();
+				} else {
+					// Back/Forward can't be called off: keep the visible app, in this same entry.
+					gate.replaceUrl( lastUrl[ visible ] );
+				}
 				return;
 			}
 			show( location.href, { push: false, via: 'back/forward' } );
@@ -404,7 +416,11 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 			return;
 		}
 		if ( ! hasRoomFor( pageOf( a.href ) ) ) {
-			log( 'switch', `${ liveLimit } dashboards are live: letting the link load the page` );
+			if ( mayUnload( a.href ) ) {
+				log( 'switch', `${ liveLimit } dashboards are live: letting the link load the page` );
+			} else {
+				event.preventDefault();
+			}
 			return;
 		}
 		event.preventDefault();
@@ -414,7 +430,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 				// Another switch may have taken the last slot while the overlay closed.
 				hasRoomFor( pageOf( a.href ) )
 					? navigate( a.href, inMenu ? 'menu click' : 'link click' )
-					: location.assign( a.href )
+					: mayUnload( a.href ) && location.assign( a.href )
 			);
 	} );
 
