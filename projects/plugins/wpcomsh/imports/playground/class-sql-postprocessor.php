@@ -193,14 +193,24 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 	}
 
 	/**
-	 * Replace plain and JSON-escaped URLs in the temporary tables.
+	 * Replace a URL in the temporary tables, including its JSON-encoded form.
+	 *
+	 * Values stored as raw JSON (such as page builder data) escape slashes, so
+	 * `http://old` appears as `http:\/\/old`. WP-CLI's search-replace handles this
+	 * form itself from wp-cli/search-replace-command v2.1.10; older versions need
+	 * the second pass.
 	 *
 	 * @param string $old_url The old URL.
 	 * @param string $new_url The new URL.
 	 */
 	private function replace_url( string $old_url, string $new_url ): void {
-		$this->search_replace( $old_url, $new_url, $this->tmp_prefix . '*' );
-		$this->search_replace( str_replace( '/', '\\/', $old_url ), str_replace( '/', '\\/', $new_url ), $this->tmp_prefix . '*' );
+		$tables = $this->tmp_prefix . '*';
+		$this->search_replace( $old_url, $new_url, $tables );
+
+		$old_json = substr( (string) wp_json_encode( $old_url ), 1, -1 );
+		if ( $old_json !== '' && $old_json !== $old_url ) {
+			$this->search_replace( $old_json, substr( (string) wp_json_encode( $new_url ), 1, -1 ), $tables );
+		}
 	}
 
 	/**
