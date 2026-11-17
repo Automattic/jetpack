@@ -60,6 +60,8 @@ function renderStage( lockedIntervals?: readonly LockableInterval[], withZoomOut
 
 describe( 'usePeriodHost', () => {
 	beforeEach( () => {
+		// The year-to-date window is read as of today, so the clock stays where the URL's dates are.
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-10-05T12:00:00.000Z' ) );
 		mockSearch = {
 			from: '2026-01-01T00:00:00.000+00:00',
 			to: '2026-10-05T23:59:59.999+00:00',
@@ -76,6 +78,10 @@ describe( 'usePeriodHost', () => {
 				mockSearch = search( mockSearch );
 			}
 		);
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'draws the date control to a period a widget set, once it lands', () => {
