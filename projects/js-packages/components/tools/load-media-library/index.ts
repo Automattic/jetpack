@@ -1,6 +1,6 @@
 /*
  * Load the WordPress media library (`wp.media`) when a dashboard first opens it, instead of on
- * every page load. The endpoint is Media_Library in class-media-library.php.
+ * every page load. The endpoint is Media_Library in the automattic/jetpack-admin-ui package.
  */
 
 type MediaLibraryWindow = Window & {
@@ -11,7 +11,7 @@ type MediaLibraryWindow = Window & {
 const AJAX_ACTION = 'jetpack_media_library';
 
 // Each dashboard bundles its own copy of this module, so the load in flight lives on `window`.
-const PENDING = Symbol.for( 'jetpack.admin-ui.media-library' );
+const PENDING = Symbol.for( 'jetpack.media-library' );
 
 const TIMEOUT_MS = 30000;
 
