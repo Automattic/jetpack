@@ -62,7 +62,7 @@ describe( 'CouponsCard', () => {
 			await expect( screen.findByRole( 'heading', { name: 'SPRING' } ) ).resolves.toBeVisible();
 			expect( screen.getByText( '20% off forever' ) ).toBeVisible();
 			expect( screen.getByText( 'Cannot be combined with other coupons' ) ).toBeVisible();
-			for ( const name of [ 'Add a coupon', 'Edit', 'Delete' ] ) {
+			for ( const name of [ 'Add a coupon', 'Edit SPRING', 'Delete SPRING' ] ) {
 				expect( Boolean( screen.queryByRole( 'button', { name } ) ) ).toBe( offered );
 			}
 		}

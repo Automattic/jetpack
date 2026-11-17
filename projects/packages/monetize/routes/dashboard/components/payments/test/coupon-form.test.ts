@@ -1,6 +1,6 @@
 import { toCoupon } from '../../../data/coupons';
 import { initialForm, toPayload, validate } from '../coupon-form';
-import type { CouponForm } from '../coupon-form';
+import type { CouponForm, CouponFormContext } from '../coupon-form';
 
 const CURRENCIES = { defaultCurrency: 'EUR', minimumAmounts: { EUR: 0.5, USD: 0.5 } };
 
@@ -16,26 +16,48 @@ describe( 'validate', () => {
 	beforeAll( () => jest.useFakeTimers( { now: new Date( 2026, 5, 15 ) } ) );
 	afterAll( () => jest.useRealTimers() );
 
+	const NEW: CouponFormContext = { isEditing: false, takenCodes: [], planIds: [ 1, 2 ] };
+	const EDITING: CouponFormContext = { ...NEW, isEditing: true };
+
 	it.each( [
-		[ 'a valid coupon', form(), false, [] ],
-		[ 'a code with a space', form( { code: 'SPR ING' } ), false, [ 'code' ] ],
-		[ 'a two-character code', form( { code: 'SP' } ), false, [ 'code' ] ],
-		[ 'a fractional discount', form( { discount: '12.5' } ), false, [ 'discount' ] ],
-		[ 'a percentage over 100', form( { discount: '101' } ), false, [ 'discount' ] ],
-		[ 'a large amount', form( { discountType: 'amount', discount: '500' } ), false, [] ],
-		[ 'a blank discount', form( { discount: '' } ), false, [ 'discount' ] ],
-		[ 'an end before the start', form( { endDate: '2025-12-31' } ), true, [ 'endDate' ] ],
-		[ 'a new coupon ending in the past', form( { endDate: '2026-06-14' } ), false, [ 'endDate' ] ],
-		[ 'an edited coupon that has expired', form( { endDate: '2026-06-14' } ), true, [] ],
-		[ 'a usage limit of 0', form( { limitPerUser: '0' } ), false, [ 'limitPerUser' ] ],
+		[ 'a valid coupon', form(), NEW, [] ],
+		[ 'a code with a space', form( { code: 'SPR ING' } ), NEW, [ 'code' ] ],
+		[ 'a two-character code', form( { code: 'SP' } ), NEW, [ 'code' ] ],
+		[
+			'a code another coupon uses, in any case',
+			form( { code: 'spring' } ),
+			{ ...NEW, takenCodes: [ 'SPRING' ] },
+			[ 'codeTaken' ],
+		],
+		[ 'a fractional discount', form( { discount: '12.5' } ), NEW, [ 'discount' ] ],
+		[ 'a percentage over 100', form( { discount: '101' } ), NEW, [ 'discount' ] ],
+		[ 'a large amount', form( { discountType: 'amount', discount: '500' } ), NEW, [] ],
+		[ 'a blank discount', form( { discount: '' } ), NEW, [ 'discount' ] ],
+		[ 'an end before the start', form( { endDate: '2025-12-31' } ), EDITING, [ 'endDate' ] ],
+		[ 'a new coupon ending in the past', form( { endDate: '2026-06-14' } ), NEW, [ 'endDate' ] ],
+		[ 'an edited coupon that has expired', form( { endDate: '2026-06-14' } ), EDITING, [] ],
+		[ 'a usage limit of 0', form( { limitPerUser: '0' } ), NEW, [ 'limitPerUser' ] ],
 		[
 			'emails with a pattern and a typo',
-			form( { emails: '*@university.edu, ann@' } ),
-			false,
+			form( { emails: '*@university.edu, ann@uni*, ann@' } ),
+			NEW,
 			[ 'emails' ],
 		],
-	] )( 'flags %s', ( _name, coupon, isEditing, errors ) => {
-		expect( validate( coupon, isEditing ) ).toEqual( errors );
+		[
+			'a long run of wildcards',
+			form( { emails: `a@${ '*'.repeat( 40 ) }!` } ),
+			NEW,
+			[ 'emails' ],
+		],
+		[ 'a plan the site no longer has', form( { planIds: [ 1, 9 ] } ), EDITING, [ 'plans' ] ],
+		[
+			'plans before the site’s have loaded',
+			form( { planIds: [ 9 ] } ),
+			{ ...EDITING, planIds: null },
+			[],
+		],
+	] )( 'flags %s', ( _name, coupon, context, errors ) => {
+		expect( validate( coupon, context ) ).toEqual( errors );
 	} );
 } );
 

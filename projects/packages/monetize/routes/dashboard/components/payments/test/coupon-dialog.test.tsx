@@ -67,6 +67,20 @@ describe( 'CouponDialog', () => {
 		expect( savedRequest() ).toMatchObject( { path: 'memberships/coupon/7', method: 'PUT' } );
 	} );
 
+	it( 'makes a plan the site no longer has be removed before saving', async () => {
+		const onClose = openDialog( { ...COUPON, planIds: [ 9 ] } );
+		const save = screen.getByRole( 'button', { name: 'Save' } );
+
+		await expect( screen.findByText( 'Unavailable plan (ID 9)' ) ).resolves.toBeVisible();
+		expect( save ).toHaveAttribute( 'aria-disabled', 'true' );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Remove' } ) );
+		await userEvent.click( save );
+
+		await waitFor( () => expect( onClose ).toHaveBeenCalled() );
+		expect( savedRequest() ).toMatchObject( { data: { plan_ids_allow_list: [] } } );
+	} );
+
 	it( 'stays open with WordPress.com’s message when the save fails', async () => {
 		( wpcomFetch as jest.Mock ).mockImplementation( ( { method } ) =>
 			method

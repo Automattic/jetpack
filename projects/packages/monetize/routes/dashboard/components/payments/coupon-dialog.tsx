@@ -8,6 +8,7 @@ import {
 	SelectControl,
 	Stack,
 	SwitchControl,
+	ValidityIndicator,
 } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 import { useSaveCoupon } from '../../data/coupons';
@@ -17,6 +18,7 @@ import {
 	DURATIONS,
 	initialForm,
 	invalidEmails,
+	missingPlanIds,
 	randomCode,
 	toPayload,
 	validate,
@@ -71,9 +73,15 @@ function durationLabel( duration: string ): string {
 export default function CouponDialog( { coupon, codes, currencies, onClose }: Props ) {
 	const isEditing = Boolean( coupon );
 	const [ form, setForm ] = useState< CouponForm >( () => initialForm( coupon, currencies ) );
-	const { data: products = [] } = useMembershipProducts();
+	const { data: products, isPending: isLoadingPlans } = useMembershipProducts();
 	const { mutate, isPending, isError, error } = useSaveCoupon();
-	const errors = validate( form, isEditing );
+	const planIds = useMemo( () => products?.map( product => product.id ) ?? null, [ products ] );
+	const takenCodes = useMemo(
+		() => codes.filter( code => code.toUpperCase() !== coupon?.code.toUpperCase() ),
+		[ codes, coupon ]
+	);
+	const errors = validate( form, { isEditing, takenCodes, planIds } );
+	const missingPlans = useMemo( () => missingPlanIds( form, planIds ), [ form, planIds ] );
 
 	const update = useCallback(
 		( changes: Partial< CouponForm > ) => setForm( prev => ( { ...prev, ...changes } ) ),
@@ -87,14 +95,13 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 		],
 		[]
 	);
-	const currencyItems = useMemo(
-		() =>
-			( Object.keys( currencies.minimumAmounts ).length
-				? Object.keys( currencies.minimumAmounts )
-				: [ form.currency ]
-			).map( code => ( { label: code, value: code } ) ),
-		[ currencies.minimumAmounts, form.currency ]
-	);
+	const currencyItems = useMemo( () => {
+		const offered = Object.keys( currencies.minimumAmounts );
+		// An existing coupon may be in a currency the account no longer offers.
+		return ( offered.includes( form.currency ) ? offered : [ ...offered, form.currency ] ).map(
+			code => ( { label: code, value: code } )
+		);
+	}, [ currencies.minimumAmounts, form.currency ] );
 	const durationItems = useMemo(
 		() =>
 			// An existing coupon may last a length Calypso no longer offers.
@@ -105,16 +112,24 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 	);
 	const planItems = useMemo(
 		() =>
-			products.map( product => ( {
+			( products ?? [] ).map( product => ( {
 				label: product.title,
 				value: String( product.id ),
 				description: priceLabel( product ),
 			} ) ),
 		[ products ]
 	);
+	// Missing plans still show as chips, so they can be removed.
 	const selectedPlans = useMemo(
-		() => planItems.filter( item => form.planIds.includes( Number( item.value ) ) ),
-		[ planItems, form.planIds ]
+		() => [
+			...planItems.filter( item => form.planIds.includes( Number( item.value ) ) ),
+			...missingPlans.map( id => ( {
+				/* translators: %d: a payment plan's ID. */
+				label: sprintf( __( 'Unavailable plan (ID %d)', 'jetpack-monetize' ), id ),
+				value: String( id ),
+			} ) ),
+		],
+		[ planItems, form.planIds, missingPlans ]
 	);
 
 	const onCodeChange = useCallback( ( code: string ) => update( { code } ), [ update ] );
@@ -188,7 +203,12 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 	}, [ coupon, form, isEditing, mutate, onClose ] );
 
 	// A blank code or discount only blocks saving, so a new coupon doesn't open full of errors.
-	const showCodeError = form.code !== '' && errors.includes( 'code' );
+	let codeError;
+	if ( errors.includes( 'codeTaken' ) ) {
+		codeError = __( 'Another coupon already uses this code.', 'jetpack-monetize' );
+	} else if ( form.code !== '' && errors.includes( 'code' ) ) {
+		codeError = __( 'Use 3 to 20 letters, numbers, or hyphens.', 'jetpack-monetize' );
+	}
 	let discountError;
 	if ( form.discount !== '' && errors.includes( 'discount' ) ) {
 		discountError =
@@ -196,6 +216,10 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 				? __( 'Enter a whole number from 1 to 100.', 'jetpack-monetize' )
 				: __( 'Enter a whole amount of at least 1.', 'jetpack-monetize' );
 	}
+
+	// Wait for the plans, so a missing one is caught before saving.
+	const canSave =
+		errors.length === 0 && ! isPending && ! ( isLoadingPlans && form.planIds.length > 0 );
 
 	return (
 		<Dialog.Root open onOpenChange={ onOpenChange }>
@@ -221,12 +245,11 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 								</Button>
 							}
 							description={
-								showCodeError
-									? __( 'Use 3 to 20 letters, numbers, or hyphens.', 'jetpack-monetize' )
-									: __(
-											'Customers enter this at checkout. Letters, numbers, and hyphens; not case-sensitive.',
-											'jetpack-monetize'
-										)
+								codeError ??
+								__(
+									'Customers enter this at checkout. Letters, numbers, and hyphens; not case-sensitive.',
+									'jetpack-monetize'
+								)
 							}
 						/>
 						<div className="jp-monetize-payments__prices">
@@ -304,6 +327,24 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							value={ selectedPlans }
 							onValueChange={ onPlansChange }
 							description={ __( 'Leave empty to apply it to every plan.', 'jetpack-monetize' ) }
+							details={
+								missingPlans.length > 0 && (
+									<ValidityIndicator
+										type="invalid"
+										message={
+											missingPlans.length === form.planIds.length
+												? __(
+														'Remove the unavailable plans to save the coupon. With no plans selected, it applies to every plan.',
+														'jetpack-monetize'
+													)
+												: __(
+														'Remove the unavailable plans to save the coupon.',
+														'jetpack-monetize'
+													)
+										}
+									/>
+								)
+							}
 						/>
 						<InputControl
 							label={ __( 'Limit to specific emails (optional)', 'jetpack-monetize' ) }
@@ -362,11 +403,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 					<Button variant="outline" tone="neutral" onClick={ onClose } disabled={ isPending }>
 						{ __( 'Cancel', 'jetpack-monetize' ) }
 					</Button>
-					<Button
-						onClick={ onSave }
-						disabled={ errors.length > 0 || isPending }
-						loading={ isPending }
-					>
+					<Button onClick={ onSave } disabled={ ! canSave } loading={ isPending }>
 						{ __( 'Save', 'jetpack-monetize' ) }
 					</Button>
 				</Dialog.Footer>

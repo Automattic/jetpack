@@ -10,8 +10,8 @@ export const DURATIONS = [ '', '1 months', '3 months', '6 months', '12 months' ]
 const RANDOM_CODE_CHARSET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const RANDOM_CODE_LENGTH = 8;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-// Calypso's pattern: `*` stands in for any part of the address.
-const EMAIL_PATTERN = /^[\w.\-+*]+@(?:(?:[\w\-*]+(?:\.[\w\-*]+)+)+|(?:[\w\-*]*\*[\w\-*]*)+)+$/;
+// `*` stands in for any part of the address, and lets a domain go without a dot.
+const EMAIL_PATTERN = /^[\w.+*-]+@(?:[\w*-]+(?:\.[\w*-]+)+|[\w-]*\*[\w*-]*)$/;
 
 export interface CouponForm {
 	code: string;
@@ -32,7 +32,16 @@ export interface CouponForm {
 }
 
 export type CouponFormError =
-	'code' | 'discount' | 'startDate' | 'endDate' | 'limitPerUser' | 'emails';
+	'code' | 'codeTaken' | 'discount' | 'startDate' | 'endDate' | 'limitPerUser' | 'emails' | 'plans';
+
+export interface CouponFormContext {
+	/** Whether it's an existing coupon, which may already have expired. */
+	isEditing: boolean;
+	/** Codes other coupons use. */
+	takenCodes: string[];
+	/** The site's plans, or null until they load. */
+	planIds: number[] | null;
+}
 
 /**
  * Today in the browser's timezone, as `Y-m-d`.
@@ -131,13 +140,25 @@ export function invalidEmails( emails: string ): string[] {
 }
 
 /**
+ * The form's plans that the site no longer has.
+ *
+ * @param form    - The form.
+ * @param planIds - The site's plans, or null until they load.
+ * @return The missing plan IDs.
+ */
+export function missingPlanIds( form: CouponForm, planIds: number[] | null ): number[] {
+	return planIds ? form.planIds.filter( id => ! planIds.includes( id ) ) : [];
+}
+
+/**
  * What's wrong with the form, as WordPress.com would reject it.
  *
- * @param form      - The form.
- * @param isEditing - Whether it's an existing coupon, which may already have expired.
+ * @param form    - The form.
+ * @param context - What the form is checked against.
  * @return The fields in error.
  */
-export function validate( form: CouponForm, isEditing: boolean ): CouponFormError[] {
+export function validate( form: CouponForm, context: CouponFormContext ): CouponFormError[] {
+	const { isEditing, takenCodes, planIds } = context;
 	const errors: CouponFormError[] = [];
 	// WordPress.com keeps only the whole part of a discount.
 	const discount = Number( form.discount );
@@ -146,6 +167,8 @@ export function validate( form: CouponForm, isEditing: boolean ): CouponFormErro
 
 	if ( ! CODE_PATTERN.test( form.code ) ) {
 		errors.push( 'code' );
+	} else if ( takenCodes.some( code => code.toUpperCase() === form.code.toUpperCase() ) ) {
+		errors.push( 'codeTaken' );
 	}
 	if ( ! Number.isInteger( discount ) || discount < 1 || discount > maxDiscount ) {
 		errors.push( 'discount' );
@@ -166,6 +189,9 @@ export function validate( form: CouponForm, isEditing: boolean ): CouponFormErro
 	}
 	if ( invalidEmails( form.emails ).length ) {
 		errors.push( 'emails' );
+	}
+	if ( missingPlanIds( form, planIds ).length ) {
+		errors.push( 'plans' );
 	}
 	return errors;
 }

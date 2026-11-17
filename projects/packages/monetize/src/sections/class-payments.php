@@ -144,11 +144,6 @@ class Payments implements Dashboard_Section {
 	 * @return array
 	 */
 	private static function get_coupon_args() {
-		$date = array(
-			'type'    => 'string',
-			'pattern' => '^(\d{4}-\d{2}-\d{2})?$',
-		);
-
 		return array(
 			'coupon_code'              => array(
 				'type'     => 'string',
@@ -163,8 +158,16 @@ class Payments implements Dashboard_Section {
 			'discount_percentage'      => array( 'type' => 'number' ),
 			'discount_value'           => array( 'type' => 'number' ),
 			'discount_currency'        => array( 'type' => 'string' ),
-			'start_date'               => array( 'required' => true ) + $date,
-			'end_date'                 => $date,
+			'start_date'               => array(
+				'type'     => 'string',
+				'pattern'  => '^\d{4}-\d{2}-\d{2}$',
+				'required' => true,
+			),
+			// Empty when the coupon never expires.
+			'end_date'                 => array(
+				'type'    => 'string',
+				'pattern' => '^(\d{4}-\d{2}-\d{2})?$',
+			),
 			// A number of months, such as "3 months", or empty for forever.
 			'duration'                 => array(
 				'type'    => 'string',

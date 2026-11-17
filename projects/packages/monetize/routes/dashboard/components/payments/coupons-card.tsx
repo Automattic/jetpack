@@ -7,36 +7,10 @@ import { useStripeStatus } from '../../data/memberships';
 import CouponDialog from './coupon-dialog';
 import { discountLabel } from './coupons';
 import DeleteCouponDialog from './delete-coupon-dialog';
-import ListRow from './list-row';
+import ListRow, { RowAction } from './list-row';
 import { getPaymentsState } from './state';
 import type { Coupon } from '../../data/coupons';
 import type { StripeStatus } from '../../data/memberships';
-
-/**
- * A button that acts on one coupon.
- *
- * @param props          - Component props.
- * @param props.coupon   - The coupon.
- * @param props.label    - The button's text.
- * @param props.onSelect - Called with the coupon.
- * @return The button.
- */
-function CouponAction( {
-	coupon,
-	label,
-	onSelect,
-}: {
-	coupon: Coupon;
-	label: string;
-	onSelect: ( coupon: Coupon ) => void;
-} ) {
-	const onClick = useCallback( () => onSelect( coupon ), [ onSelect, coupon ] );
-	return (
-		<Button variant="minimal" tone="neutral" size="compact" onClick={ onClick }>
-			{ label }
-		</Button>
-	);
-}
 
 /**
  * A coupon's badges, as Calypso shows them.
@@ -113,14 +87,18 @@ function Coupons( { status }: { status: StripeStatus } ) {
 					<ListRow key={ coupon.id } title={ coupon.code } badges={ couponBadges( coupon ) }>
 						{ canManagePlans && (
 							<Stack direction="row" gap="xs">
-								<CouponAction
-									coupon={ coupon }
+								<RowAction
+									item={ coupon }
 									label={ __( 'Edit', 'jetpack-monetize' ) }
+									/* translators: %s: a coupon code. */
+									ariaLabel={ sprintf( __( 'Edit %s', 'jetpack-monetize' ), coupon.code ) }
 									onSelect={ openEdit }
 								/>
-								<CouponAction
-									coupon={ coupon }
+								<RowAction
+									item={ coupon }
 									label={ __( 'Delete', 'jetpack-monetize' ) }
+									/* translators: %s: a coupon code. */
+									ariaLabel={ sprintf( __( 'Delete %s', 'jetpack-monetize' ), coupon.code ) }
 									onSelect={ setDeleting }
 								/>
 							</Stack>
