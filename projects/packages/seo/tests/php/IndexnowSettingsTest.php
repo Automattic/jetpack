@@ -203,6 +203,71 @@ class IndexnowSettingsTest extends SeoTestCase {
 		$this->assertSame( 0, $status['pending'] );
 		$this->assertSame( 'not_public', $status['pause_reason'] );
 	}
+
+	public function test_request_transport_does_not_reset_consent_or_pending_work() {
+		$home  = get_option( 'home' );
+		$https = $_SERVER['HTTPS'] ?? null;
+		try {
+			update_option( 'home', 'http://example.com/blog' );
+			$_SERVER['HTTPS'] = 'on';
+			$request          = new WP_REST_Request( 'POST' );
+			$request->set_param( 'enabled', true );
+			$this->assertTrue( Indexnow::save( $request )['operational'] );
+			$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/blog/removed/', 42, true ) );
+			$_SERVER['HTTPS'] = 'off';
+			$this->assertTrue( Indexnow::status()['operational'] );
+			$this->assertTrue( Indexnow::save( $request )['operational'] );
+			$this->assertSame( 1, Indexnow_Queue::size() );
+			$this->assertSame( 'http://example.com/blog/', get_option( Indexnow_Client::SCOPE_OPTION ) );
+		} finally {
+			update_option( 'home', $home );
+			if ( null === $https ) {
+				unset( $_SERVER['HTTPS'] );
+			} else {
+				$_SERVER['HTTPS'] = $https;
+			}
+		}
+	}
+
+	public function test_status_uses_server_time_and_a_grace_period_for_scheduled_delivery() {
+		$request = new WP_REST_Request( 'POST' );
+		$request->set_param( 'enabled', true );
+		Indexnow::save( $request );
+		$this->assertTrue( Indexnow_Queue::enqueue( home_url( '/pending' ), 42, true ) );
+		wp_clear_scheduled_hook( Indexnow_Queue::HOOK );
+		wp_clear_scheduled_hook( Indexnow_Queue::RECOVERY_HOOK );
+		wp_schedule_single_event( time() - 600, Indexnow_Queue::HOOK );
+		update_option( Indexnow_Queue::COOLDOWN_OPTION, time() + 1200, false );
+		$status = Indexnow::status();
+		$this->assertFalse( $status['scheduling_delayed'] );
+		$this->assertTrue( $status['cooldown_active'] );
+		$this->assertArrayNotHasKey( 'key_location', $status );
+		wp_clear_scheduled_hook( Indexnow_Queue::HOOK );
+		wp_schedule_single_event( time() - 2 * HOUR_IN_SECONDS, Indexnow_Queue::HOOK );
+		$this->assertTrue( Indexnow::status()['scheduling_delayed'] );
+	}
+
+	public function test_settings_opt_out_rotates_the_queue_only_once_when_the_write_hook_is_loaded() {
+		$hooks     = $GLOBALS['wp_filter'];
+		$rotations = 0;
+		$count     = static function () use ( &$rotations ) {
+			++$rotations;
+		};
+		Indexnow_Queue::init();
+		$request = new WP_REST_Request( 'POST' );
+		$request->set_param( 'enabled', true );
+		Indexnow::save( $request );
+		$this->assertTrue( Indexnow_Queue::enqueue( home_url( '/pending' ), 42, true ) );
+		add_action( 'update_option_' . Indexnow_Queue::GENERATION_OPTION, $count );
+		try {
+			$request->set_param( 'enabled', false );
+			Indexnow::save( $request );
+			$this->assertSame( 1, $rotations );
+			$this->assertSame( 0, Indexnow_Queue::size() );
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+	}
 	/**
 	 * @dataProvider refused_preferences
 	 */

@@ -60,18 +60,24 @@ class Indexnow {
 		if ( is_array( $accepted ) ) {
 			$latest['accepted'] = $accepted;
 		}
+		$pending  = Indexnow_Queue::size();
+		$worker   = wp_next_scheduled( Indexnow_Queue::HOOK );
+		$recovery = wp_next_scheduled( Indexnow_Queue::RECOVERY_HOOK );
+		$cooldown = (int) get_option( Indexnow_Queue::COOLDOWN_OPTION, 0 );
+		$runs     = array_filter( array( $worker, $recovery ), 'is_int' );
 		return array(
-			'enabled'        => (bool) get_option( Indexnow_Client::ENABLED_OPTION, false ),
-			'operational'    => Indexnow_Client::enabled(),
-			'site_public'    => Indexnow_Client::site_is_public(),
-			'pending'        => Indexnow_Queue::size(),
-			'latest'         => $latest,
-			'enqueue_error'  => get_option( 'jetpack_seo_indexnow_enqueue_error', null ),
-			'key_location'   => Indexnow_Client::enabled() ? Indexnow_Client::key_location() : '',
-			'next_worker'    => wp_next_scheduled( Indexnow_Queue::HOOK ),
-			'next_recovery'  => wp_next_scheduled( Indexnow_Queue::RECOVERY_HOOK ),
-			'cooldown_until' => (int) get_option( Indexnow_Queue::COOLDOWN_OPTION, 0 ),
-			'pause_reason'   => self::pause_reason(),
+			'enabled'            => (bool) get_option( Indexnow_Client::ENABLED_OPTION, false ),
+			'operational'        => Indexnow_Client::enabled(),
+			'site_public'        => Indexnow_Client::site_is_public(),
+			'pending'            => $pending,
+			'latest'             => $latest,
+			'enqueue_error'      => get_option( 'jetpack_seo_indexnow_enqueue_error', null ),
+			'next_worker'        => $worker,
+			'next_recovery'      => $recovery,
+			'cooldown_until'     => $cooldown,
+			'cooldown_active'    => $cooldown > time(),
+			'scheduling_delayed' => $pending > 0 && ( ! $runs || min( $runs ) < time() - HOUR_IN_SECONDS ),
+			'pause_reason'       => self::pause_reason(),
 		);
 	}
 
@@ -90,7 +96,7 @@ class Indexnow {
 		if ( ! apply_filters( 'jetpack_seo_indexnow_can_notify', true ) || Seo_Tools::is_disabled() ) {
 			return 'provider';
 		}
-		if ( get_option( Indexnow_Client::ENABLED_OPTION, false ) && get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== home_url( '/' ) ) {
+		if ( get_option( Indexnow_Client::ENABLED_OPTION, false ) && get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== Indexnow_Client::scope() ) {
 			return 'address_changed';
 		}
 		return '';
@@ -105,31 +111,27 @@ class Indexnow {
 	public static function save( $request ) {
 		$enabled = (bool) $request->get_param( 'enabled' );
 		if ( ! $enabled ) {
+			$was_enabled = (bool) get_option( Indexnow_Client::ENABLED_OPTION, false );
 			update_option( Indexnow_Client::ENABLED_OPTION, false, false );
 			if ( get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
-				return new WP_Error( 'jetpack_seo_indexnow_save_failed', __( 'The IndexNow setting could not be saved. Please try again.', 'jetpack-seo' ), array( 'status' => 500 ) );
+				return new WP_Error( 'jetpack_seo_indexnow_save_failed', __( 'The search engine notification setting could not be saved. Please try again.', 'jetpack-seo' ), array( 'status' => 500 ) );
 			}
-			Indexnow_Queue::clear();
-			delete_option( Indexnow_Queue::STATUS_OPTION );
-			$accepted = get_option( Indexnow_Queue::ACCEPTED_OPTION, null );
-			if ( ! is_array( $accepted ) || 'accepted' !== ( $accepted['state'] ?? '' ) || get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== home_url( '/' ) ) {
-				delete_option( Indexnow_Queue::ACCEPTED_OPTION );
+			if ( ! $was_enabled || false === has_action( 'update_option_' . Indexnow_Client::ENABLED_OPTION, array( Indexnow_Queue::class, 'preference_changed' ) ) ) {
+				Indexnow_Queue::clear();
 			}
-			delete_option( 'jetpack_seo_indexnow_enqueue_error' );
-			wp_clear_scheduled_hook( Indexnow_Queue::RECOVERY_HOOK );
 		} else {
 			$key = Indexnow_Client::key();
-			if ( get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== home_url( '/' ) ) {
+			if ( get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== Indexnow_Client::scope() ) {
 				delete_option( Indexnow_Queue::STATUS_OPTION );
 				delete_option( Indexnow_Queue::ACCEPTED_OPTION );
 			}
-			update_option( Indexnow_Client::SCOPE_OPTION, home_url( '/' ), false );
-			if ( get_option( Indexnow_Client::KEY_OPTION, '' ) !== $key || get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== home_url( '/' ) ) {
-				return new WP_Error( 'jetpack_seo_indexnow_save_failed', __( 'The IndexNow setting could not be saved. Please try again.', 'jetpack-seo' ), array( 'status' => 500 ) );
+			update_option( Indexnow_Client::SCOPE_OPTION, Indexnow_Client::scope(), false );
+			if ( get_option( Indexnow_Client::KEY_OPTION, '' ) !== $key || get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== Indexnow_Client::scope() ) {
+				return new WP_Error( 'jetpack_seo_indexnow_save_failed', __( 'The search engine notification setting could not be saved. Please try again.', 'jetpack-seo' ), array( 'status' => 500 ) );
 			}
 			update_option( Indexnow_Client::ENABLED_OPTION, true, false );
 			if ( ! get_option( Indexnow_Client::ENABLED_OPTION, false ) ) {
-				return new WP_Error( 'jetpack_seo_indexnow_save_failed', __( 'The IndexNow setting could not be saved. Please try again.', 'jetpack-seo' ), array( 'status' => 500 ) );
+				return new WP_Error( 'jetpack_seo_indexnow_save_failed', __( 'The search engine notification setting could not be saved. Please try again.', 'jetpack-seo' ), array( 'status' => 500 ) );
 			}
 			Indexnow_Queue::ensure_recovery();
 		}

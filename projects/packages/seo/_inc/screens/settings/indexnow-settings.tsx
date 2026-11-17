@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { dateI18n, getSettings } from '@wordpress/date';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -18,11 +19,15 @@ interface Status {
 	next_worker: number | false;
 	next_recovery: number | false;
 	cooldown_until: number;
+	cooldown_active?: boolean;
+	scheduling_delayed?: boolean;
 	latest: {
 		state: string;
 		time?: number;
 		expired?: number;
 		exhausted?: number;
+		retrying?: number;
+		dropped?: number;
 		accepted?: { time: number; count: number; state: string };
 	};
 	enqueue_error: { state: string } | null;
@@ -79,8 +84,7 @@ function pauseMessage( reason: string, enabled: boolean ) {
  * @return The warning, if needed.
  */
 function deliveryWarning( status: Status ) {
-	const now = Date.now() / 1000;
-	if ( status.cooldown_until > now ) {
+	if ( status.cooldown_active ) {
 		return __(
 			'The receiving service has limited requests. Notifications will resume automatically after the waiting period.',
 			'jetpack-seo'
@@ -99,19 +103,25 @@ function deliveryWarning( status: Status ) {
 		);
 	}
 	if ( status.latest.state.startsWith( 'http_' ) || status.latest.state === 'transport_failure' ) {
-		return __(
-			'There was a delivery problem. Pending notifications will be retried within the delivery limits.',
-			'jetpack-seo'
-		);
+		if ( status.latest.retrying && status.pending > 0 ) {
+			return __(
+				'There was a delivery problem. Pending notifications will be retried within the delivery limits.',
+				'jetpack-seo'
+			);
+		}
+		return status.latest.dropped || status.latest.exhausted
+			? __(
+					'Some notifications could not be delivered and will not be retried automatically.',
+					'jetpack-seo'
+				)
+			: __(
+					'There was a delivery problem. Check the receiving service and site configuration.',
+					'jetpack-seo'
+				);
 	}
-	const nextRun = Math.min(
-		...[ status.next_worker, status.next_recovery ].filter(
-			( time ): time is number => typeof time === 'number'
-		)
-	);
-	if ( status.pending > 0 && ( ! Number.isFinite( nextRun ) || nextRun < now - 300 ) ) {
+	if ( status.scheduling_delayed ) {
 		return __(
-			'Delivery is delayed. Check that WordPress scheduled tasks are running.',
+			'Delivery is waiting for WordPress scheduled tasks. If this continues, check that scheduled tasks are running.',
 			'jetpack-seo'
 		);
 	}
@@ -192,7 +202,10 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 				);
 			} catch {
 				setError(
-					__( 'The IndexNow setting could not be saved. Please try again.', 'jetpack-seo' )
+					__(
+						'The search engine notification setting could not be saved. Please try again.',
+						'jetpack-seo'
+					)
 				);
 			} finally {
 				saving.current = false;
@@ -205,7 +218,11 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 	const paused = status ? pauseMessage( status.pause_reason, status.enabled ) : '';
 	const warning = status?.enabled && ! paused ? deliveryWarning( status ) : '';
 	const lost = Boolean(
-		status && ( status.enqueue_error || status.latest.expired || status.latest.exhausted )
+		status &&
+		( status.enqueue_error ||
+			status.latest.expired ||
+			status.latest.exhausted ||
+			status.latest.dropped )
 	);
 	const received = status?.latest.accepted;
 	return (
@@ -225,8 +242,9 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 					<SwitchControl
 						label={ __( 'Notify search engines when content changes', 'jetpack-seo' ) }
 						checked={ status.enabled }
-						disabled={ isSaving || busy || ( ! status.site_public && ! status.enabled ) }
+						disabled={ isSaving || busy || ( ! status.enabled && Boolean( status.pause_reason ) ) }
 						onCheckedChange={ change }
+						description={ paused || undefined }
 						details={ createInterpolateElement(
 							__(
 								"Automatically notify participating search engines when your public content changes. Uses <a>IndexNow</a>; notifications don't guarantee indexing.",
@@ -243,7 +261,6 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 							}
 						) }
 					/>
-					{ paused && <Text render={ <p /> }>{ paused }</Text> }
 					{ status.enabled && ! paused && status.pending > 0 && (
 						<Text render={ <p /> }>
 							{ sprintf(
@@ -258,21 +275,21 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 							) }
 						</Text>
 					) }
-					{ status.enabled && received && (
+					{ status.enabled && ! paused && received && (
 						<Text render={ <p /> }>
 							{ received.state === 'verification_pending'
 								? sprintf(
-										/* translators: %s: local date and time of the last received batch. */
+										/* translators: %s: site-local date and time of the last received batch. */
 										__(
 											'Last received: %s. Site ownership verification is pending.',
 											'jetpack-seo'
 										),
-										new Date( received.time * 1000 ).toLocaleString()
+										dateI18n( getSettings().formats.datetime, received.time * 1000 )
 									)
 								: sprintf(
-										/* translators: %s: local date and time of the last accepted batch. */
+										/* translators: %s: site-local date and time of the last accepted batch. */
 										__( 'Last accepted: %s. Acceptance does not confirm indexing.', 'jetpack-seo' ),
-										new Date( received.time * 1000 ).toLocaleString()
+										dateI18n( getSettings().formats.datetime, received.time * 1000 )
 									) }
 						</Text>
 					) }

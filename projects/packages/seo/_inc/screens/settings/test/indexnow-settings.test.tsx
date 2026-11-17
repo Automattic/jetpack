@@ -16,6 +16,8 @@ const status = {
 	next_worker: false,
 	next_recovery: false,
 	cooldown_until: 0,
+	cooldown_active: false,
+	scheduling_delayed: false,
 	enqueue_error: null,
 };
 
@@ -38,7 +40,9 @@ it( 'keeps the opt-in off after a rejected save, then permits a retry', async ()
 	// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing settings tests.
 	fireEvent.click( toggle );
 	await expect(
-		screen.findAllByText( 'The IndexNow setting could not be saved. Please try again.' )
+		screen.findAllByText(
+			'The search engine notification setting could not be saved. Please try again.'
+		)
 	).resolves.not.toHaveLength( 0 );
 	expect( toggle ).not.toBeChecked();
 	apiFetch.mockResolvedValueOnce( { ...status, enabled: true, operational: true } );
@@ -73,7 +77,11 @@ it( 'allows opting out on a private site', async () => {
 
 it.each( [
 	[
-		{ latest: { state: 'http_429' }, cooldown_until: Date.now() / 1000 + 3600 },
+		{
+			latest: { state: 'http_429' },
+			cooldown_until: Date.now() / 1000 + 3600,
+			cooldown_active: true,
+		},
 		/limited requests/,
 	],
 	[ { latest: { state: 'http_403' } }, /could not verify site ownership/ ],
@@ -91,7 +99,7 @@ it.each( [
 		{ enqueue_error: { state: 'queue_full_or_busy' } },
 		/Missed notifications are not automatically replayed/,
 	],
-	[ { pending: 1 }, /Delivery is delayed/ ],
+	[ { pending: 1, scheduling_delayed: true }, /Delivery is waiting for WordPress scheduled tasks/ ],
 	[ { pause_reason: 'address_changed' }, /Turn notifications off and on again/ ],
 	[ { pause_reason: 'provider' }, /paused by another SEO plugin or your hosting provider/ ],
 ] )( 'explains delivery state %j without extra controls', async ( extra, expected ) => {
@@ -136,6 +144,96 @@ it( 'retains the last acceptance alongside a newer delivery error', async () => 
 	expect( screen.getAllByText( /delivery problem/ ).length ).toBeGreaterThan( 0 );
 } );
 
+it( 'does not promise retries for rejected notifications', async () => {
+	apiFetch.mockResolvedValueOnce( {
+		...status,
+		enabled: true,
+		operational: true,
+		latest: { state: 'http_404', dropped: 2, retrying: 0 },
+	} );
+	await openSettings();
+	expect( screen.getAllByText( /will not be retried automatically/ ).length ).toBeGreaterThan( 0 );
+	expect(
+		screen.getAllByText( /Missed notifications are not automatically replayed/ ).length
+	).toBeGreaterThan( 0 );
+	expect( screen.queryByText( /Pending notifications will be retried/ ) ).not.toBeInTheDocument();
+} );
+
+it( 'only promises retries when the backend retained retryable notifications', async () => {
+	apiFetch.mockResolvedValueOnce( {
+		...status,
+		enabled: true,
+		operational: true,
+		pending: 2,
+		latest: { state: 'transport_failure', retrying: 2 },
+	} );
+	await openSettings();
+	expect( screen.getAllByText( /Pending notifications will be retried/ ).length ).toBeGreaterThan(
+		0
+	);
+} );
+
+it( 'uses server timing decisions instead of the browser clock', async () => {
+	apiFetch.mockResolvedValueOnce( {
+		...status,
+		enabled: true,
+		operational: true,
+		pending: 1,
+		cooldown_until: 9999999999,
+		cooldown_active: false,
+		next_worker: 1,
+		scheduling_delayed: false,
+	} );
+	await openSettings();
+	expect( screen.queryByText( /limited requests/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /Delivery is waiting/ ) ).not.toBeInTheDocument();
+} );
+
+it( 'hides previous-address receipts while delivery is paused', async () => {
+	apiFetch.mockResolvedValueOnce( {
+		...status,
+		enabled: true,
+		operational: false,
+		pause_reason: 'address_changed',
+		latest: { state: 'accepted', accepted: { state: 'accepted', time: 1700000000, count: 1 } },
+	} );
+	await openSettings();
+	expect( screen.queryByText( /Last accepted:/ ) ).not.toBeInTheDocument();
+} );
+
+it.each( [
+	[ 'not_public', /available only on public/ ],
+	[ 'module_inactive', /Enable SEO tools/ ],
+	[ 'provider', /hosting provider prevents notifications/ ],
+] )( 'describes the disabled switch for %s', async ( reason, expected ) => {
+	apiFetch.mockResolvedValueOnce( { ...status, pause_reason: reason } );
+	const toggle = await openSettings();
+	expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
+	expect( toggle ).toHaveAccessibleDescription( expected );
+} );
+
+it( 'formats receipt dates in the site timezone', async () => {
+	const { getSettings, setSettings } = await import( '@wordpress/date' );
+	const original = getSettings();
+	setSettings( {
+		...original,
+		formats: { ...original.formats, datetime: 'Y-m-d H:i' },
+		timezone: { ...original.timezone, string: 'America/New_York' },
+	} );
+	try {
+		apiFetch.mockResolvedValueOnce( {
+			...status,
+			enabled: true,
+			operational: true,
+			latest: { state: 'accepted', accepted: { state: 'accepted', time: 1700000000, count: 1 } },
+		} );
+		await openSettings();
+		expect( screen.getByText( /Last accepted: 2023-11-14 17:13/ ) ).toBeInTheDocument();
+	} finally {
+		setSettings( original );
+	}
+} );
+
 it( 'recognizes the recovery schedule without falsely reporting unscheduled work', async () => {
 	apiFetch.mockResolvedValueOnce( {
 		...status,
@@ -146,7 +244,9 @@ it( 'recognizes the recovery schedule without falsely reporting unscheduled work
 	} );
 	await openSettings();
 	expect( screen.getByText( '300 notifications waiting for delivery.' ) ).toBeInTheDocument();
-	expect( screen.queryByText( /Delivery is delayed/ ) ).not.toBeInTheDocument();
+	expect(
+		screen.queryByText( /Delivery is waiting for WordPress scheduled tasks/ )
+	).not.toBeInTheDocument();
 } );
 
 it( 'does not let an older background read undo a saved preference', async () => {

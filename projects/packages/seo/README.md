@@ -108,6 +108,8 @@ The notification row only mounts when the backend advertises support; unavailabl
 
 WordPress.com Simple also requires the guarded native route registration before this interface is released. The companion can deploy before the package because it tolerates versions without the controller.
 
+Delivery status distinguishes permanently dropped notifications from records still scheduled for retry. A received or accepted batch clears the admission warning observed before that batch, without erasing a newer warning. Timing warnings use the server clock and allow an hour of scheduler delay before suggesting a check. Receipt dates follow WordPress date settings, and receipts are hidden while delivery is paused.
+
 ### IndexNow metadata reconciliation
 
 Tracked editor saves emit once after the completed save. Standalone metadata changes on previously untracked posts reconcile at request shutdown, using the originating site and the visibility captured before the first write. This avoids announcing a temporary public state between access and `noindex` changes. At most 1,000 posts can await standalone metadata reconciliation per request; additional candidates are skipped until the pending batch is flushed, while restriction cancellation continues. Long CLI jobs can explicitly call `Automattic\Jetpack\SEO\Indexnow_Events::flush_metadata_changes()` at completed logical save boundaries; an interrupted process can lose deferred notifications. No historical backfill is performed.
