@@ -9,6 +9,13 @@ jest.mock( '../wpcom-fetch', () => ( { wpcomFetch: jest.fn() } ) );
 
 const PAYLOAD = { title: 'Gold', price: 5, interval: '1 month', type: 'tier' } as ProductPayload;
 
+const wrapper = ( { children }: { children: ReactNode } ) => (
+	<QueryClientProvider client={ new QueryClient() }>{ children }</QueryClientProvider>
+);
+
+const requestedPaths = () =>
+	( wpcomFetch as jest.Mock ).mock.calls.map( ( [ request ] ) => request.path );
+
 describe( 'useSavePlan', () => {
 	it.each( [
 		[ 'creates', {}, { id: 7 }, 'memberships/product', 'memberships/product' ],
@@ -26,9 +33,6 @@ describe( 'useSavePlan', () => {
 				.mockReset()
 				.mockResolvedValueOnce( monthlyResponse )
 				.mockResolvedValue( {} );
-			const wrapper = ( { children }: { children: ReactNode } ) => (
-				<QueryClientProvider client={ new QueryClient() }>{ children }</QueryClientProvider>
-			);
 			const { result } = renderHook( () => useSavePlan(), { wrapper } );
 
 			await act( () => result.current.mutateAsync( { payload: PAYLOAD, annualPrice: 50, ids } ) );
@@ -43,4 +47,25 @@ describe( 'useSavePlan', () => {
 			] );
 		}
 	);
+
+	it( 'updates the monthly product it created when retrying a failed annual save', async () => {
+		( wpcomFetch as jest.Mock )
+			.mockReset()
+			.mockResolvedValueOnce( { id: 7 } )
+			.mockRejectedValueOnce( new Error( 'Annual failed' ) )
+			.mockResolvedValueOnce( { product: { id: 7 } } )
+			.mockResolvedValue( {} );
+		const { result } = renderHook( () => useSavePlan(), { wrapper } );
+		const variables = { payload: PAYLOAD, annualPrice: 50 };
+
+		await act( () => result.current.mutateAsync( variables ).catch( () => undefined ) );
+		await act( () => result.current.mutateAsync( variables ) );
+
+		expect( requestedPaths() ).toEqual( [
+			'memberships/product',
+			'memberships/product',
+			'memberships/product/7',
+			'memberships/product',
+		] );
+	} );
 } );

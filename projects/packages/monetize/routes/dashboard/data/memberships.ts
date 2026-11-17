@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
 import { wpcomFetch } from './wpcom-fetch';
 
 interface EarningsResponse {
@@ -283,6 +284,8 @@ async function saveProduct( payload: ProductPayload, id?: number ): Promise< num
  */
 export function useSavePlan() {
 	const queryClient = useQueryClient();
+	// A retry after the annual save fails updates the monthly product it already created.
+	const savedMonthlyId = useRef< number >( undefined );
 	return useMutation( {
 		mutationFn: async ( {
 			payload,
@@ -295,7 +298,8 @@ export function useSavePlan() {
 			/** The existing products, when editing. */
 			ids?: { monthly?: number; annual?: number };
 		} ) => {
-			const monthlyId = await saveProduct( payload, ids.monthly );
+			const monthlyId = await saveProduct( payload, ids.monthly ?? savedMonthlyId.current );
+			savedMonthlyId.current = monthlyId;
 			if ( annualPrice !== undefined ) {
 				await saveProduct(
 					{ ...payload, price: annualPrice, interval: '1 year', tier: monthlyId },

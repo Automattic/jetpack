@@ -53,16 +53,14 @@ const toAmount = ( value: string ) => Number( value ) || 0;
  */
 export default function PlanDialog( { plan, currencies, startAsTier = false, onClose }: Props ) {
 	const isEditing = Boolean( plan );
-	const [ form, setForm ] = useState< PlanForm >( () =>
-		initialForm( plan, currencies, startAsTier )
-	);
+	const [ initial ] = useState( () => initialForm( plan, currencies, startAsTier ) );
+	const [ form, setForm ] = useState< PlanForm >( initial );
 	const { mutate, isPending, isError, error } = useSavePlan();
 	const errors = validate( form, currencies );
 	const minimum = formatCurrency( minimumPrice( currencies, form.currency ), form.currency );
 	const priceChanged =
 		isEditing &&
-		( form.price !== plan?.product.price ||
-			( form.isTier && form.annualPrice !== plan?.annual?.price ) );
+		( form.price !== initial.price || ( form.isTier && form.annualPrice !== initial.annualPrice ) );
 
 	useEffect( () => {
 		trackPaymentsEvent( 'plan_dialog_show', { editing: isEditing } );
@@ -193,6 +191,12 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 		__( 'Enter a price of at least %s.', 'jetpack-monetize' ),
 		minimum
 	);
+	const lengthError = ( max: number ) =>
+		sprintf(
+			/* translators: %d: the most characters allowed. */
+			__( 'Shorten this to %d characters or fewer.', 'jetpack-monetize' ),
+			max
+		);
 
 	return (
 		<Dialog.Root open onOpenChange={ onOpenChange }>
@@ -231,15 +235,19 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 									'e.g. Full archive access, community Q&A, and bonus newsletters',
 									'jetpack-monetize'
 								) }
-								description={ sprintf(
-									/* translators: %1$d: characters used. %2$d: the most allowed. */
-									__(
-										'Optional. Shown to readers when they choose a paid tier. %1$d/%2$d characters; Markdown is supported.',
-										'jetpack-monetize'
-									),
-									form.description.trim().length,
-									TIER_DESCRIPTION_MAX
-								) }
+								description={
+									errors.includes( 'description' )
+										? lengthError( TIER_DESCRIPTION_MAX )
+										: sprintf(
+												/* translators: %1$d: characters used. %2$d: the most allowed. */
+												__(
+													'Optional. Shown to readers when they choose a paid tier. %1$d/%2$d characters; Markdown is supported.',
+													'jetpack-monetize'
+												),
+												form.description.trim().length,
+												TIER_DESCRIPTION_MAX
+											)
+								}
 							/>
 						) }
 						{ ! form.isTier && (
@@ -305,15 +313,19 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 							value={ form.welcomeMessage }
 							onChange={ onWelcomeChange }
 							placeholder={ __( 'Thank you for subscribing!', 'jetpack-monetize' ) }
-							description={ sprintf(
-								/* translators: %1$d: characters used. %2$d: the most allowed. */
-								__(
-									'Sent when your customer completes their order. %1$d/%2$d characters.',
-									'jetpack-monetize'
-								),
-								form.welcomeMessage.length,
-								WELCOME_MESSAGE_MAX
-							) }
+							description={
+								errors.includes( 'welcomeMessage' )
+									? lengthError( WELCOME_MESSAGE_MAX )
+									: sprintf(
+											/* translators: %1$d: characters used. %2$d: the most allowed. */
+											__(
+												'Sent when your customer completes their order. %1$d/%2$d characters.',
+												'jetpack-monetize'
+											),
+											form.welcomeMessage.length,
+											WELCOME_MESSAGE_MAX
+										)
+							}
 						/>
 						<Collapsible.Root>
 							<Collapsible.Trigger
