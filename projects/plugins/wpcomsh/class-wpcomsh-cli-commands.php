@@ -2240,6 +2240,59 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 }
 
 /**
+ * Rename a user's login, keeping it in step with their WordPress.com username.
+ *
+ * `wp user update` cannot do this: WordPress writes user_login on insert only and
+ * discards it on update.
+ *
+ * ## OPTIONS
+ *
+ * <user-id>
+ * : ID of the user on this site.
+ *
+ * --from=<old-login>
+ * : The login the user is expected to currently hold. The rename is skipped when they
+ * hold something else, so a stale call cannot revert a newer rename.
+ *
+ * --to=<new-login>
+ * : The login to set.
+ *
+ * [--porcelain]
+ * : Print only the outcome: renamed, already_applied or superseded.
+ *
+ * ## EXAMPLES
+ *
+ *     wp wpcomsh user rename-login 3 --from=oldlogin --to=newlogin
+ *
+ * @param array $args       Positional arguments.
+ * @param array $assoc_args Associative arguments.
+ */
+function wpcomsh_cli_user_rename_login( $args, $assoc_args = array() ) {
+	$result = wpcomsh_rename_user_login( $args[0], $assoc_args['from'], $assoc_args['to'] );
+
+	if ( is_wp_error( $result ) ) {
+		// Code first: it is how a caller tells a collision from a retryable failure.
+		WP_CLI::error( $result->get_error_code() . ': ' . $result->get_error_message() );
+	}
+
+	if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'porcelain', false ) ) {
+		WP_CLI::line( $result );
+		return;
+	}
+
+	switch ( $result ) {
+		case WPCOMSH_USER_LOGIN_ALREADY_APPLIED:
+			WP_CLI::success( sprintf( 'User %d already holds the login %s.', (int) $args[0], $assoc_args['to'] ) );
+			break;
+		case WPCOMSH_USER_LOGIN_SUPERSEDED:
+			WP_CLI::success( sprintf( 'Skipped: user %d no longer holds %s, so a later rename has already landed.', (int) $args[0], $assoc_args['from'] ) );
+			break;
+		default:
+			WP_CLI::success( sprintf( 'Renamed user %d from %s to %s.', (int) $args[0], $assoc_args['from'], $assoc_args['to'] ) );
+	}
+}
+
+/**
  * Makes the site live to the public.
  */
 function wpcomsh_cli_launch_site() {
@@ -2271,6 +2324,7 @@ WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command
 WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
 WP_CLI::add_command( 'theme symlink', 'wpcomsh_cli_theme_symlink' );
 WP_CLI::add_command( 'launch-site', 'wpcomsh_cli_launch_site' );
+WP_CLI::add_command( 'wpcomsh user rename-login', 'wpcomsh_cli_user_rename_login' );
 
 add_action(
 	'plugins_loaded',

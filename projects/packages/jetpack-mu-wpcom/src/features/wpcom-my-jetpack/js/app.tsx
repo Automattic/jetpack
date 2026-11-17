@@ -4,6 +4,7 @@ import { Button } from '@wordpress/components';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
 	audio,
+	chartBar,
 	chevronLeft,
 	chevronRight,
 	currencyDollar,
@@ -45,6 +46,7 @@ const ICONS: Record< string, ReactElement > = {
 	search,
 	seo: globe,
 	social,
+	stats: chartBar,
 	'marketing/traffic': trendingUp,
 	videopress,
 };

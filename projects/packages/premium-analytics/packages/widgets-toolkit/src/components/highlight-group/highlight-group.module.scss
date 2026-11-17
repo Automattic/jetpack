@@ -1,5 +1,4 @@
 @use "../../styles/widget-container" as *;
-@use "../../styles/widget-text" as *;
 
 /* Above the widest English weekday at the 2xl size ("Wednesday" is ~172px),
  * so whether two fields share a row never depends on which day won. */
@@ -51,7 +50,5 @@ $highlight-field-basis: 176px;
 }
 
 .caption {
-
-	@include widget-text-weight;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }

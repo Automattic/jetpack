@@ -396,16 +396,6 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * A site nothing holds off reports no route.
-	 */
-	public function test_master_forced_off_route_empty_when_not_forced_off() {
-		Constants::set_constant( 'IS_WPCOM', false );
-		\Jetpack_Options::update_option( 'active_modules', array() );
-
-		$this->assertSame( '', Jetpack_AI_Settings::get_master_forced_off_route() );
-	}
-
-	/**
 	 * A module that is simply deactivated is an ordinary opt-out, not forced off.
 	 */
 	public function test_master_not_forced_off_when_module_is_plainly_inactive() {

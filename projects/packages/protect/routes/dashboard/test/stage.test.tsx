@@ -271,6 +271,24 @@ describe( 'Protect dashboard stage', () => {
 		expect( search( { threats: '5' } ) ).toEqual( {} );
 	} );
 
+	it( 'records the tab again when the admin shell shows the page again, not on its first show', () => {
+		mockUseSearch.mockReturnValue( { tab: 'settings', section: 'monitor' } );
+		render( <Stage /> );
+		const shown = ( page: string, firstShow: boolean ) =>
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+			);
+
+		shown( 'jetpack-protect', true );
+		shown( 'my-jetpack', false );
+		shown( 'jetpack-protect', false );
+
+		expect( ( recordPageView as jest.Mock ).mock.calls ).toEqual( [
+			[ 'settings', 'monitor' ],
+			[ 'settings', 'monitor' ],
+		] );
+	} );
+
 	it( 'leaving the threat report records the Overview view', () => {
 		window.jetpackProtectDashboard = { scan: { hasPlan: true, lastChecked } };
 		mockUseSearch.mockReturnValue( { threats: '5' } );

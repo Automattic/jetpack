@@ -22,6 +22,7 @@ export interface InfoPopoverProps {
 	/** Shown beside the info icon, e.g. a count. */
 	triggerContent?: ReactNode;
 	critical?: boolean;
+	warning?: boolean;
 }
 
 export const InfoPopover: FC< InfoPopoverProps > = ( {
@@ -34,6 +35,7 @@ export const InfoPopover: FC< InfoPopoverProps > = ( {
 	triggerLabel,
 	triggerContent,
 	critical = false,
+	warning = false,
 } ) => {
 	const { recordEvent } = useAnalytics();
 
@@ -57,6 +59,7 @@ export const InfoPopover: FC< InfoPopoverProps > = ( {
 				closeDelay={ 200 }
 				className={ clsx( 'my-jetpack-info-popover__trigger', {
 					'my-jetpack-info-popover__trigger--critical': critical,
+					'my-jetpack-info-popover__trigger--warning': warning,
 				} ) }
 				aria-label={
 					triggerLabel ??
