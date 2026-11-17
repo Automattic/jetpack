@@ -51,5 +51,14 @@ function wpcomsh_init_protected_owner_handler() {
 	}
 }
 
-// Initialize connection handlers immediately to ensure external storage is available for REST requests
-wpcomsh_init_connection_handlers();
+/*
+ * Register the external storage provider on the first read of external storage, so that the
+ * load order of the plugins does not matter. If a read happened before this file loaded, the
+ * action does not fire again, so register the provider now.
+ */
+add_action( 'jetpack_external_storage_init', 'wpcomsh_init_external_storage' );
+if ( did_action( 'jetpack_external_storage_init' ) ) {
+	wpcomsh_init_external_storage();
+}
+
+wpcomsh_init_protected_owner_handler();
