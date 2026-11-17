@@ -124,12 +124,14 @@ class Turned_Off_Page_Test extends TestCase {
 	/**
 	 * Data provider for test_card_offers_turn_on_only_to_those_who_can.
 	 *
-	 * @return array[] Role, whether the card has the Turn on form.
+	 * @return array[] Role, whether the role may manage modules, whether the card has the Turn on form.
 	 */
 	public static function provide_card_roles() {
 		return array(
-			'administrator' => array( 'administrator', true ),
-			'editor'        => array( 'editor', false ),
+			'administrator'                => array( 'administrator', true, true ),
+			// Activity Log turns on by its module alone, so activating plugins is no help.
+			'administrator without module' => array( 'administrator', false, false ),
+			'editor'                       => array( 'editor', true, false ),
 		);
 	}
 
@@ -138,15 +140,20 @@ class Turned_Off_Page_Test extends TestCase {
 	 *
 	 * @dataProvider provide_card_roles
 	 *
-	 * @param string $role     Role of the current user.
-	 * @param bool   $expected Whether the card has the Turn on form.
+	 * @param string $role       Role of the current user.
+	 * @param bool   $module_cap Whether the role may manage modules, as Sync maps it on a connected site.
+	 * @param bool   $expected   Whether the card has the Turn on form.
 	 */
 	#[DataProvider( 'provide_card_roles' )]
-	public function test_card_offers_turn_on_only_to_those_who_can( $role, $expected ) {
+	public function test_card_offers_turn_on_only_to_those_who_can( $role, $module_cap, $expected ) {
+		$map = static function ( $caps, $cap ) use ( $module_cap ) {
+			return 'jetpack_manage_modules' === $cap ? array( $module_cap ? 'manage_options' : 'do_not_allow' ) : $caps;
+		};
+		add_filter( 'map_meta_cap', $map, 10, 2 );
 		wp_set_current_user(
 			wp_insert_user(
 				array(
-					'user_login' => 'turned_off_card_' . $role,
+					'user_login' => 'turned_off_card_' . $role . (int) $module_cap,
 					'user_pass'  => '123',
 					'role'       => $role,
 				)
@@ -154,6 +161,7 @@ class Turned_Off_Page_Test extends TestCase {
 		);
 
 		$html = Turned_Off_Page::get_card_html( Turned_Off_Page::get_feature_for_page( 'jetpack-activity-log' ), admin_url() );
+		remove_filter( 'map_meta_cap', $map );
 
 		$this->assertStringContainsString( 'features/images/activity-log.webp', $html );
 		$this->assertSame( $expected, str_contains( $html, 'name="action" value="' . Turned_Off_Page::ACTION . '"' ) );

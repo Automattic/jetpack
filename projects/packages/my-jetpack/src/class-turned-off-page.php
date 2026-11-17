@@ -173,10 +173,21 @@ class Turned_Off_Page {
 		// The feature's own capability is unknown while it is off; Forms, the lowest, needs edit_pages.
 		$hookname = add_submenu_page( '', $feature['name'], $feature['name'], 'edit_pages', $page, array( __CLASS__, 'render' ) );
 		if ( $hookname ) {
+			add_action( 'load-' . $hookname, array( __CLASS__, 'set_title' ) );
 			add_action( 'load-' . $hookname, array( __CLASS__, 'remove_admin_notices' ) );
 		}
-		// Core finds no title for a page without a parent, so the browser tab would read " ‹ Site".
-		$GLOBALS['title'] = $feature['name']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Read by admin-header.php.
+	}
+
+	/**
+	 * Name the browser tab after the feature: core finds no title for a page without a parent, so it would read " ‹ Site".
+	 *
+	 * @return void
+	 */
+	public static function set_title() {
+		if ( null === self::$feature ) {
+			return;
+		}
+		$GLOBALS['title'] = self::$feature['name']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Read by admin-header.php.
 	}
 
 	/**
@@ -264,7 +275,7 @@ class Turned_Off_Page {
 						<?php endif; ?>
 					</p>
 				<?php endif; ?>
-				<?php if ( ! self::can_turn_on() ) : ?>
+				<?php if ( ! self::can_turn_on( $feature['gate'] ) ) : ?>
 					<p class="jetpack-feature-off__text"><?php esc_html_e( 'Ask a site administrator to turn it on.', 'jetpack-my-jetpack' ); ?></p>
 				<?php else : ?>
 					<p class="jetpack-feature-off__text"><?php esc_html_e( 'It was switched off in My Jetpack. Turning it on brings this page and its menu item back.', 'jetpack-my-jetpack' ); ?></p>
@@ -355,8 +366,7 @@ class Turned_Off_Page {
 	 * @return true|WP_Error
 	 */
 	public static function turn_on( $slug ) {
-		$definition = Main_Features::get_feature_definitions()[ $slug ] ?? null;
-		$gate       = $definition ? array_filter( array_intersect_key( $definition, array_flip( array( 'product', 'module' ) ) ) ) : array();
+		$gate = self::get_gate( $slug );
 		if ( ! $gate ) {
 			return new WP_Error( 'not_found', __( 'That feature was not found.', 'jetpack-my-jetpack' ) );
 		}
@@ -379,7 +389,7 @@ class Turned_Off_Page {
 				array(
 					'feature'     => $feature,
 					'context'     => $context,
-					'can_turn_on' => self::can_turn_on(),
+					'can_turn_on' => self::can_turn_on( self::get_gate( $feature ) ),
 				),
 				$props
 			)
@@ -387,12 +397,24 @@ class Turned_Off_Page {
 	}
 
 	/**
-	 * Whether the current user passes either check Menu_Visibility::activate() makes.
+	 * Whether the current user can turn this gate's feature on.
 	 *
+	 * @param array $gate The feature's product or module gate.
 	 * @return bool
 	 */
-	public static function can_turn_on() {
-		return current_user_can( 'jetpack_manage_modules' ) || REST_Products::edit_permissions_callback();
+	public static function can_turn_on( array $gate ) {
+		return $gate && Menu_Visibility::can_activate( $gate );
+	}
+
+	/**
+	 * A feature's product or module gate, from the Features tab's map.
+	 *
+	 * @param string $slug Feature slug.
+	 * @return array Empty when no feature has that slug.
+	 */
+	private static function get_gate( $slug ) {
+		$definition = Main_Features::get_feature_definitions()[ $slug ] ?? null;
+		return $definition ? array_filter( array_intersect_key( $definition, array_flip( array( 'product', 'module' ) ) ) ) : array();
 	}
 
 	/**

@@ -46,6 +46,7 @@ class Menu_Visibility_Test extends TestCase {
 		Sample_Gated_Product::$active              = true;
 		Sample_Gated_Product::$activation_attempts = 0;
 		Sample_Gated_Product::$held_off            = false;
+		Sample_Gated_Product::$installed           = true;
 		Admin_Menu::set_visibility_resolver( null );
 		$this->reset_admin_menu();
 		$this->reset_resolved_gates();
@@ -321,6 +322,7 @@ class Menu_Visibility_Test extends TestCase {
 			'its module filtered away' => array( 'removed' ),
 			'its module held off'      => array( 'module held off' ),
 			'the product held off'     => array( 'product held off' ),
+			'its plugin not installed' => array( 'not installed' ),
 		);
 	}
 
@@ -351,8 +353,12 @@ class Menu_Visibility_Test extends TestCase {
 			add_filter( 'jetpack_get_module_path', array( $this, 'ship_stats_module' ), 10, 2 );
 			add_filter( 'jetpack_get_available_modules', array( $this, 'remove_stats_module' ), 20 );
 		} elseif ( 'module held off' === $cause ) {
-			Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+			// Never saved on, so only the filter shows it would stay off.
 			add_filter( 'jetpack_active_modules', array( $this, 'remove_stats_from_active' ), 100 );
+		} elseif ( 'not installed' === $cause ) {
+			remove_filter( 'jetpack_get_available_modules', $offer );
+			remove_filter( 'jetpack_get_available_standalone_modules', $offer_standalone );
+			Sample_Gated_Product::$installed = false;
 		} else {
 			Sample_Gated_Product::$held_off = true;
 		}
@@ -382,12 +388,13 @@ class Menu_Visibility_Test extends TestCase {
 	/**
 	 * Data provider for test_activate_reaches_the_product_only_when_its_module_was_not_enough.
 	 *
-	 * @return array[] Whether the product reads on after its module is, how often Product::activate() is reached.
+	 * @return array[] Whether the product reads on after its module is, whether its plugin is installed, how often Product::activate() is reached.
 	 */
 	public static function provide_product_fallbacks() {
 		return array(
-			'module was enough' => array( true, 0 ),
-			'product still off' => array( false, 1 ),
+			'module was enough'        => array( true, true, 0 ),
+			'product still off'        => array( false, true, 1 ),
+			'its plugin not installed' => array( false, false, 0 ),
 		);
 	}
 
@@ -398,10 +405,11 @@ class Menu_Visibility_Test extends TestCase {
 	 * @dataProvider provide_product_fallbacks
 	 *
 	 * @param bool $on_after_module Whether the product reads on once its module is.
+	 * @param bool $installed       Whether the product's plugin is installed.
 	 * @param int  $expected        How often Product::activate() is reached.
 	 */
 	#[DataProvider( 'provide_product_fallbacks' )]
-	public function test_activate_reaches_the_product_only_when_its_module_was_not_enough( $on_after_module, $expected ) {
+	public function test_activate_reaches_the_product_only_when_its_module_was_not_enough( $on_after_module, $installed, $expected ) {
 		$stats        = static function ( $modules ) {
 			return array_merge( (array) $modules, array( 'stats' ) );
 		};
@@ -422,14 +430,15 @@ class Menu_Visibility_Test extends TestCase {
 				)
 			)
 		);
-		Sample_Gated_Product::$active = $on_after_module;
+		Sample_Gated_Product::$active    = $on_after_module;
+		Sample_Gated_Product::$installed = $installed;
 
 		$result = Menu_Visibility::activate( array( 'product' => 'stats' ) );
 		remove_filter( 'jetpack_get_available_standalone_modules', $stats );
 		remove_filter( 'jetpack_get_available_modules', $stats_by_ver );
 		remove_filter( 'jetpack_active_modules', $stats );
 
-		$this->assertTrue( $result );
+		$this->assertSame( $installed ? true : 'not_available', is_wp_error( $result ) ? $result->get_error_code() : $result );
 		$this->assertSame( $expected, Sample_Gated_Product::$activation_attempts );
 	}
 

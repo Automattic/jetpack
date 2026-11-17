@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-My Jetpack: Opening the page of a switched-off feature, such as Forms or Stats, now offers to turn it back on instead of showing an error.
+My Jetpack: Offer to turn a switched-off feature back on when its page is opened, instead of showing an error.

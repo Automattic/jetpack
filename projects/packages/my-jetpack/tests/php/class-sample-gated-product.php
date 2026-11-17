@@ -48,6 +48,22 @@ class Sample_Gated_Product extends Products\Stats {
 	}
 
 	/**
+	 * What is_plugin_installed() should answer.
+	 *
+	 * @var bool
+	 */
+	public static $installed = true;
+
+	/**
+	 * Whether the product's plugin is installed.
+	 *
+	 * @return bool
+	 */
+	public static function is_plugin_installed() {
+		return static::$installed;
+	}
+
+	/**
 	 * How often Product::activate() got as far as asking whether the product is active, its first step.
 	 *
 	 * @var int

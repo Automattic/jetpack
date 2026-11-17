@@ -91,21 +91,22 @@ class Menu_Visibility {
 	/**
 	 * Switch a gated feature on the way the Features tab does: its module, when Jetpack runs one, before its plugin.
 	 *
+	 * Never installs a plugin; a feature that needs one is set up from My Jetpack.
+	 *
 	 * @param array $args The item's visibility declaration.
 	 * @return true|WP_Error
 	 */
 	public static function activate( $args ) {
-		$product_class = empty( $args['product'] ) ? null : Products::get_product_class( $args['product'] );
-		$module        = empty( $args['module'] ) ? ( $product_class ? $product_class::get_module_name() : null ) : $args['module'];
+		list( $product_class, $module ) = self::get_targets( $args );
 
 		// Else the product fallback below would install a plugin for a module the site filtered away or holds off.
 		if ( ! self::can_offer( $args ) ) {
 			return new WP_Error( 'not_available', __( 'This feature is not available on this site.', 'jetpack-my-jetpack' ) );
 		}
 
-		if ( $module && in_array( $module, ( new Modules() )->get_available(), true ) ) {
-			if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
-				return new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
+		if ( self::is_module_on_offer( $module ) ) {
+			if ( isset( Products\Protect::get_protect_page_module_urls()[ $module ] ) ) {
+				return REST_Main_Features::managed_in_protect_error();
 			}
 			$result = REST_Main_Features::switch_module( $module, true );
 			// A product whose standalone plugin is off stays off with its module on: activate the plugin below.
@@ -118,6 +119,9 @@ class Menu_Visibility {
 		if ( ! $product_class ) {
 			return new WP_Error( 'not_found', __( 'That feature was not found.', 'jetpack-my-jetpack' ) );
 		}
+		if ( ! $product_class::is_plugin_installed() ) {
+			return new WP_Error( 'not_available', __( 'This feature needs a plugin installed from My Jetpack.', 'jetpack-my-jetpack' ) );
+		}
 		if ( ! REST_Products::edit_permissions_callback() ) {
 			return new WP_Error( 'not_allowed', __( 'Your account can’t activate plugins on this site.', 'jetpack-my-jetpack' ) );
 		}
@@ -126,6 +130,50 @@ class Menu_Visibility {
 		self::forget_resolved_gates();
 
 		return is_wp_error( $result ) ? $result : true;
+	}
+
+	/**
+	 * Whether the current user has the capabilities activate() needs for this gate.
+	 *
+	 * @param array $args The item's visibility declaration.
+	 * @return bool
+	 */
+	public static function can_activate( $args ) {
+		list( $product_class, $module ) = self::get_targets( $args );
+		$module_on_offer                = self::is_module_on_offer( $module );
+
+		if ( $module_on_offer && ! current_user_can( 'jetpack_manage_modules' ) ) {
+			return false;
+		}
+		// activate() goes on to the plugin when Jetpack runs no module for it, or the plugin is off.
+		if ( $product_class && ( ! $module_on_offer || ! $product_class::is_plugin_active() ) ) {
+			return REST_Products::edit_permissions_callback();
+		}
+
+		return $module_on_offer;
+	}
+
+	/**
+	 * The product class and module a gate switches.
+	 *
+	 * @param array $args The item's visibility declaration.
+	 * @return array{0: class-string<Product>|null, 1: string|null}
+	 */
+	private static function get_targets( $args ) {
+		$product_class = empty( $args['product'] ) ? null : Products::get_product_class( $args['product'] );
+		$module        = empty( $args['module'] ) ? ( $product_class ? $product_class::get_module_name() : null ) : $args['module'];
+
+		return array( $product_class, $module ? $module : null );
+	}
+
+	/**
+	 * Whether this site runs the module, so switching it on needs no plugin.
+	 *
+	 * @param string|null $module_name A Jetpack module name.
+	 * @return bool
+	 */
+	private static function is_module_on_offer( $module_name ) {
+		return $module_name && in_array( $module_name, ( new Modules() )->get_available(), true );
 	}
 
 	/**
@@ -169,7 +217,7 @@ class Menu_Visibility {
 	}
 
 	/**
-	 * Whether activate() can switch a gate's feature on: nothing removed its module or holds it off.
+	 * Whether activate() can switch a gate's feature on: it needs no install, and nothing removed its module or holds it off.
 	 *
 	 * Separate from resolve(), which also decides the sidebar: a feature held off is still off there.
 	 *
@@ -177,8 +225,12 @@ class Menu_Visibility {
 	 * @return bool
 	 */
 	public static function can_offer( $args ) {
-		$product_class = empty( $args['product'] ) ? null : Products::get_product_class( $args['product'] );
-		$module        = empty( $args['module'] ) ? ( $product_class ? $product_class::get_module_name() : null ) : $args['module'];
+		list( $product_class, $module ) = self::get_targets( $args );
+
+		// A site without the plugin never had the feature on, say Stats on a Boost-only site.
+		if ( ! self::is_module_on_offer( $module ) && ! ( $product_class && $product_class::is_plugin_installed() ) ) {
+			return false;
+		}
 
 		return ! self::is_module_removed( $module )
 			&& ! self::is_module_held_off( $module )
@@ -186,18 +238,22 @@ class Menu_Visibility {
 	}
 
 	/**
-	 * Whether the site saved this module on but a `jetpack_active_modules` callback, such as a host's, keeps it off.
+	 * Whether a `jetpack_active_modules` callback, such as a host's, would keep this module off once it is saved on.
 	 *
 	 * @param string|null $module_name A Jetpack module name.
 	 * @return bool
 	 */
 	private static function is_module_held_off( $module_name ) {
-		if ( ! $module_name || ! class_exists( 'Jetpack_Options' ) ) {
+		if ( ! self::is_module_on_offer( $module_name ) ) {
+			return false;
+		}
+		$active = ( new Modules() )->get_active();
+		if ( in_array( $module_name, $active, true ) ) {
 			return false;
 		}
 
-		return in_array( $module_name, (array) \Jetpack_Options::get_option( 'active_modules', array() ), true )
-			&& ! ( new Modules() )->is_active( $module_name );
+		/** This filter is documented in projects/packages/status/src/class-modules.php */
+		return ! in_array( $module_name, (array) apply_filters( 'jetpack_active_modules', array_merge( $active, array( $module_name ) ) ), true );
 	}
 
 	/**
