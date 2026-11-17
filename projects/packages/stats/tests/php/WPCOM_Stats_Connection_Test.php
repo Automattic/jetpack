@@ -165,7 +165,7 @@ class WPCOM_Stats_Connection_Test extends StatsBaseTestCase {
 	#[DataProvider( 'provide_routes' )]
 	public function test_readers_request_their_route( string $method, array $args, string $url ) {
 		\Automattic\Jetpack\Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-		$requested = null;
+		$requested = '';
 		$respond   = static function ( $pre, $r, $request_url ) use ( &$requested ) {
 			$requested = $request_url;
 			return array(
