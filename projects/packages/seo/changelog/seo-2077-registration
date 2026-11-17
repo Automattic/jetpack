@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Fix console errors when switching between tabs.

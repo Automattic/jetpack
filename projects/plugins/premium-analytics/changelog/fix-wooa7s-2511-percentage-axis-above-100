@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Videos: Keep the Retention rate chart inside its plot when a video's retention is above 100%.

@@ -9,10 +9,12 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Debug;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
@@ -53,6 +55,58 @@ class Admin {
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
 		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
+		}
+	}
+
+	/**
+	 * Register Boost with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		if ( ! self::is_modernization_enabled() || ! file_exists( self::build_file() ) ) {
+			return $members;
+		}
+
+		$members[ JETPACK_BOOST_SLUG ] = array(
+			'build_prefix' => 'jetpack_boost',
+			'build_page'   => 'jetpack-boost-dashboard',
+			'init_modules' => array( '@jetpack-boost/init' ),
+			'title'        => 'Boost', // "Boost" is a product name, do not translate.
+			'capability'   => 'manage_options',
+			// The webpack bundle renders the dashboard's content into the wp-build page; it carries the Boost and DataSync data.
+			'handles'      => array( 'jetpack-boost-admin', 'wp-jp-i18n-loader' ),
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready Boost's routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * Skips admin_init()'s premium feature refresh, since a guest must not write options; Boost's own page load still runs it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		$build_file = self::build_file();
+		require_once $build_file;
+		if ( ! function_exists( 'jetpack_boost_register_script_modules' ) ) {
+			return;
+		}
+		$this->register_wp_build();
+
+		// On the host page the shell removes these again; the guest endpoint runs them.
+		$this->add_enqueue_hooks();
+		// Boost's own page attaches the DataSync state when it renders the page body, which the guest endpoint doesn't print.
+		Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )->attach_to_plugin( 'jetpack-boost-admin', 'admin_enqueue_scripts' );
 	}
 
 	public function handle_admin_menu() {
@@ -138,14 +192,30 @@ class Admin {
 			return;
 		}
 
+		$this->register_wp_build();
+	}
+
+	/**
+	 * Register the polyfills and script modules of the generated build, once it is loaded.
+	 */
+	private function register_wp_build() {
 		WP_Build_Polyfills::register(
 			'jetpack-boost',
 			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
 
 		// wp_default_scripts has already fired by admin_menu, so register the init module now.
-		jetpack_boost_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined by the generated build and checked in dashboard_build_is_available().
+		jetpack_boost_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined by the generated build; callers check it exists.
 		$this->modern_dashboard_loaded = true;
+	}
+
+	/**
+	 * Path to the generated build's entry file.
+	 *
+	 * @return string
+	 */
+	private static function build_file() {
+		return JETPACK_BOOST_DIR_PATH . '/build/build.php';
 	}
 
 	/**
@@ -154,7 +224,7 @@ class Admin {
 	 * @return bool Whether the generated dashboard is available.
 	 */
 	private function dashboard_build_is_available() {
-		$build_file = JETPACK_BOOST_DIR_PATH . '/build/build.php';
+		$build_file = self::build_file();
 		if ( ! file_exists( $build_file ) ) {
 			Debug::log( 'Modern dashboard build is missing; loading the legacy dashboard.' );
 			return false;
@@ -220,6 +290,13 @@ class Admin {
 			}
 		}
 
+		$this->add_enqueue_hooks();
+	}
+
+	/**
+	 * Hook the dashboard's scripts, on Boost's own page and in the admin shell's guest endpoint.
+	 */
+	private function add_enqueue_hooks() {
 		add_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
@@ -279,7 +356,8 @@ class Admin {
 				if ( $i18n_loader_registered ) {
 					$prerequisites->deps[] = 'wp-jp-i18n-loader';
 				}
-			} else {
+			} elseif ( ! wp_doing_ajax() ) {
+				// The admin shell's guest endpoint has no prerequisites handle: the shell runs the bundle before it boots the page.
 				Debug::log( 'Modern dashboard prerequisites are not registered; bootstrap dependencies could not be attached.' );
 			}
 		}

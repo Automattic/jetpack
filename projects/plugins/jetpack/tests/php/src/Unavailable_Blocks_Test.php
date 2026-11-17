@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\Plugin\Unavailable_Blocks;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -35,6 +36,8 @@ class Unavailable_Blocks_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_gutenberg' );
 		remove_all_filters( 'jetpack_active_modules' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG );
+		remove_all_filters( 'jetpack_my_jetpack_modules_management_available' );
 		Jetpack_Options::delete_option( 'active_modules' );
 		Jetpack_Modules_Overrides::instance()->clear_cache();
 		\Automattic\Jetpack\Status\Cache::clear();
@@ -212,7 +215,47 @@ class Unavailable_Blocks_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 'blocks_module', $data['reason'] );
 		$this->assertSame( $can_fix, $data['canFix'] );
-		$this->assertStringEndsWith( 'admin.php?page=jetpack#/writing', $data['fixUrl'] );
+	}
+
+	/**
+	 * Whether settings consolidation is on, filters that override the rest of the site, and where the fix should link.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_fix_urls() {
+		return array(
+			'flag off'                       => array( false, array(), 'admin.php?page=jetpack#/writing' ),
+			'flag on'                        => array( true, array(), 'admin.php?page=my-jetpack#/features?search=Blocks' ),
+			'flag on, host hides My Jetpack' => array( true, array( 'jetpack_my_jetpack_modules_management_available' => '__return_false' ), 'admin.php?page=jetpack#/writing' ),
+			'flag on, not connected'         => array( true, array( 'jetpack_is_connection_ready' => '__return_false' ), 'admin.php?page=jetpack' ),
+		);
+	}
+
+	/**
+	 * @param bool     $consolidated Whether the settings consolidation flag is on.
+	 * @param string[] $filters      Callbacks by hook name, added after the ones set_up() adds.
+	 * @param string   $expected     The fix URL, relative to wp-admin.
+	 *
+	 * @dataProvider provide_fix_urls
+	 */
+	#[DataProvider( 'provide_fix_urls' )]
+	public function test_fix_url_follows_the_settings_consolidation_flag( $consolidated, $filters, $expected ) {
+		global $_registered_pages;
+		$registered_pages = $_registered_pages;
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		Jetpack_Options::update_option( 'active_modules', array() );
+		do_action( 'my_jetpack_init' );
+		$_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] = true;
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG, $consolidated ? '__return_true' : '__return_false' );
+		foreach ( $filters as $hook => $callback ) {
+			add_filter( $hook, $callback, 1001 );
+		}
+
+		try {
+			$this->assertSame( admin_url( $expected ), ( (array) Unavailable_Blocks::get_editor_data() )['fixUrl'] );
+		} finally {
+			$_registered_pages = $registered_pages;
+		}
 	}
 
 	public function test_editor_data_is_null_without_a_site_wide_cause() {

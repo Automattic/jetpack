@@ -159,6 +159,7 @@ describe( 'Writing settings', () => {
 				<UnconnectedWriting
 					active
 					userCanManageModules
+					isPostByEmailMoved={ flag }
 					searchTerm={ searchTerm }
 					isModuleFound={ searchTerm ? ( findsOnly[ searchTerm ] ?? findsNothing ) : findsEvery }
 					getActiveFeatureDetails={ featureDetails }

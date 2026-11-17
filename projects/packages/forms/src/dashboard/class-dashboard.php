@@ -135,7 +135,7 @@ class Dashboard {
 	/**
 	 * Register Forms with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -151,6 +151,11 @@ class Dashboard {
 			'init_modules' => array( '@jetpack-forms/init' ),
 			/** "Jetpack Forms" is a product name, do not translate. */
 			'title'        => 'Jetpack Forms',
+			'header'       => array(
+				/** "Forms" is a product name, do not translate. */
+				'title'    => 'Forms',
+				'subtitle' => self::landing_subtitle(),
+			),
 			'capability'   => 'edit_pages',
 			// The connection initial state and REST preload are inline scripts on wp-api-fetch.
 			'handles'      => array( 'jetpack-forms-layout', 'jetpack-script-data', 'wp-api-fetch', 'wp-jp-i18n-loader', 'jp-tracks-functions' ),
@@ -160,9 +165,25 @@ class Dashboard {
 	}
 
 	/**
+	 * The subtitle of the tab a bare dashboard URL opens, as the dashboard renders it.
+	 *
+	 * @return string
+	 */
+	private static function landing_subtitle() {
+		if ( 'forms' !== self::landing_tab() ) {
+			return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
+		}
+		// Read, not detected: the members filter must not query or write. Unset shows the long message.
+		if ( self::CLASSIC_FORMS_STATE_CLASSIC === get_option( self::CLASSIC_FORMS_OPTION ) ) {
+			return __( 'View and manage all your forms.', 'jetpack-forms' );
+		}
+		return __( 'View and manage all your forms in one place.', 'jetpack-forms' );
+	}
+
+	/**
 	 * Ready the Forms routes while another dashboard's page is open.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @return void
 	 */
@@ -622,6 +643,15 @@ class Dashboard {
 	public static function get_default_tab() {
 		_deprecated_function( __METHOD__, 'package-8.3.5' );
 
+		return self::landing_tab();
+	}
+
+	/**
+	 * The tab a bare dashboard URL opens: the remembered one, as the dashboard's root route picks it.
+	 *
+	 * @return string `forms`, `responses` or `inbox`.
+	 */
+	private static function landing_tab() {
 		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
 			// The Forms tab is not rendered at all here, so honouring a stored 'forms'
 			// would strand the user on a tab they cannot leave.

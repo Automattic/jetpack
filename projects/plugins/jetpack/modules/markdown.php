@@ -33,3 +33,17 @@ function jetpack_markdown_posting_always_on() {
 	}
 }
 add_action( 'admin_init', 'jetpack_markdown_posting_always_on', 11 );
+
+if ( ! function_exists( 'jetpack_do_after_markdown_activation' ) ) {
+	/**
+	 * Turn on Markdown for posts when the module is activated, by any path.
+	 *
+	 * Lives here because Modules::activate() loads this file before it fires the activation hook.
+	 *
+	 * @since 4.7.0
+	 */
+	function jetpack_do_after_markdown_activation() {
+		update_option( 'wpcom_publish_posts_with_markdown', true );
+	}
+}
+add_action( 'jetpack_activate_module_markdown', 'jetpack_do_after_markdown_activation' );

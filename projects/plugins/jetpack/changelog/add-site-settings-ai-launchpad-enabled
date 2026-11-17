@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Site settings API: Let `wpcom_ai_launchpad_enabled` be turned on, so a signup flow can give a new site the AI Launchpad after checkout.

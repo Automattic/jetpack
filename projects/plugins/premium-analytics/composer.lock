@@ -74,7 +74,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "345420ef7251b49b8974ecf25c4a0de93725dafd"
+                "reference": "0b2f6b5c81e65107b79587b26455791b6d027811"
             },
             "require": {
                 "php": ">=7.4"
@@ -94,7 +94,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "4.1.x-dev"
                 }
             },
             "autoload": {
@@ -555,7 +555,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "c8a4acc3337e952c3bb0abbf83760ad6c483e486"
+                "reference": "a005b4ebd3963c975245f9072493641e4812914d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -591,7 +591,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.17.x-dev"
+                    "dev-trunk": "9.18.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -871,7 +871,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "f3b7e33bea8e2522ec56a327788ac13f38204996"
+                "reference": "b9eef465b2f03c2bcb9072ce51c7e17e82607606"
             },
             "require": {
                 "php": ">=7.4"
@@ -891,7 +891,7 @@
                     "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 },
                 "textdomain": "jetpack-ip",
                 "version-constants": {
@@ -1044,7 +1044,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "547c736cba8e741d7768c736bcd90f9484d6d1d6"
+                "reference": "a67590ec41ffc6153c7193540cb65f8b35a06e1d"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1077,7 +1077,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.17.x-dev"
+                    "dev-trunk": "0.18.x-dev"
                 }
             },
             "autoload": {
@@ -1363,7 +1363,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "2d549a904273704cfb99a2855fc9543ebc0b0643"
+                "reference": "8445087228e624d0dd71975fb11249796d3f8e60"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1395,7 +1395,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.5.x-dev"
+                    "dev-trunk": "5.6.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1434,7 +1434,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "05eea86bf700db2a757c6ccbae6bd957a2e11460"
+                "reference": "349c7ddfaaf2a522408eb4ae7dfbc6f093e501d8"
             },
             "require": {
                 "automattic/jetpack-config": "@dev",
@@ -1456,7 +1456,7 @@
                 "autorelease": true,
                 "mirror-repo": "Automattic/jetpack-woocommerce-stats",
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "textdomain": "jetpack-woocommerce-stats-pkg",
                 "version-constants": {

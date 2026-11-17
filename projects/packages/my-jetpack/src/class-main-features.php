@@ -1028,7 +1028,7 @@ class Main_Features {
 	/**
 	 * Settings that have no module but open in the settings panel, for the current user on this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @return array[] Entries with `slug`, `name`, `description` and `status` (`active`, `inactive` or `needs-setup`) keys.
 	 */

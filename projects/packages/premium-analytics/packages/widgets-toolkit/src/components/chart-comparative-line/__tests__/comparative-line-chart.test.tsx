@@ -303,15 +303,43 @@ describe( 'ComparativeLineChart', () => {
 		} );
 
 		it( 'keeps a percentage metric on 0 to 100% whatever the baseline', () => {
+			const rates: ComparativeLineChartSeries[] = [
+				{
+					label: 'Rate',
+					group: 'rate',
+					data: [
+						{ date: JULY_1, value: 0.4 },
+						{ date: JULY_2, value: 0.42 },
+					],
+				},
+			];
 			render(
 				<ComparativeLineChart
-					series={ STEADY }
+					series={ rates }
 					dataFormat={ { type: 'percentage', options: { decimals: 0 } } }
 					baseline="padded"
 				/>
 			);
 
 			expect( recordedProps().options.yScale ).toEqual( { domain: [ 0, 1 ] } );
+		} );
+
+		it.each( [
+			[ 'fits a percentage metric to the data once a value passes 100%', [], { zero: true } ],
+			[
+				'pins the rates left on 0 to 100% when the legend hides the one past it',
+				[ 'Retention' ],
+				{ domain: [ 0, 1 ] },
+			],
+		] )( '%s', ( _name, hidden, yScale ) => {
+			const rates: ComparativeLineChartSeries[] = [
+				{ label: 'Rate', group: 'rate', data: [ { date: JULY_1, value: 0.4 } ] },
+				{ label: 'Retention', group: 'retention', data: [ { date: JULY_1, value: 32.5 } ] },
+			];
+			setMockHiddenSeries( hidden );
+			render( <ComparativeLineChart series={ rates } dataFormat={ { type: 'percentage' } } /> );
+
+			expect( recordedProps().options.yScale ).toEqual( yScale );
 		} );
 
 		it( 'keeps the empty-state axis for an all-zero period whatever the baseline', () => {

@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Account Protection: Stop turning the feature on automatically when Protect is activated. Sites where it is already on keep it on.

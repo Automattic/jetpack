@@ -197,7 +197,7 @@ class Llms_Txt {
 			/**
 			 * Fires after the stored llms.txt is dropped, so hosts can purge cached copies of /llms.txt.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.12.0
 			 */
 			do_action( 'jetpack_seo_llms_txt_cleared' );
 		}
@@ -379,7 +379,7 @@ class Llms_Txt {
 		 * The result is stored for up to 12 hours; call Llms_Txt::clear_cache() when your section's data
 		 * changes. Anything but a non-empty string keeps the unfiltered text.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.12.0
 		 *
 		 * @param string $text The llms.txt Markdown.
 		 */
@@ -608,11 +608,7 @@ class Llms_Txt {
 	 * @return string
 	 */
 	private static function summary( $post ) {
-		$seo_description = '';
-		if ( class_exists( 'Jetpack_SEO_Utils' ) && class_exists( 'Jetpack_SEO_Posts' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; guarded by the class_exists checks above.
-			$seo_description = wp_trim_words( strip_shortcodes( wp_strip_all_tags( \Jetpack_SEO_Posts::get_post_custom_description( $post ) ) ), Post_Schema_Node::DESCRIPTION_MAX_WORDS, '' );
-		}
+		$seo_description = wp_trim_words( strip_shortcodes( wp_strip_all_tags( Post_Seo::get_custom_description( $post ) ) ), Post_Schema_Node::DESCRIPTION_MAX_WORDS, '' );
 
 		// The SEO description and manual excerpt are deliberate public summaries; a body gate does not withhold them.
 		if ( '' !== $seo_description ) {

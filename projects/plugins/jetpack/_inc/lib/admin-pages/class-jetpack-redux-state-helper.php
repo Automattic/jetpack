@@ -407,7 +407,7 @@ class Jetpack_Redux_State_Helper {
 	 *
 	 * Publicize skips it when `jetpack_publicize_should_load` is false, even on a connected site, so this reads the built menu.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return bool
 	 */

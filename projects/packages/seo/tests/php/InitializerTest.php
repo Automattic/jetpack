@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -27,44 +28,56 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The feature gates use the expected slugs.
+	 * Disconnected sites must not need a plan refresh to expose the SEO page.
 	 */
-	public function test_feature_gate_constants_are_defined() {
-		$this->assertSame( 'seo-admin-ui', Initializer::FEATURE_SLUG );
-		$this->assertSame( 'rsm_jetpack_seo', Initializer::FEATURE_FILTER );
-	}
-
-	/**
-	 * Either the existing filter or the WordPress.com site feature can make SEO
-	 * available; neither path is required when the other is enabled.
-	 */
-	public function test_is_available_uses_filter_or_site_feature() {
+	public function test_is_available_without_plan_features() {
 		$plan                       = Current_Plan::get();
 		$plan['features']['active'] = array();
 		update_option( Current_Plan::PLAN_OPTION, $plan );
 		self::reset_current_plan_cache();
+		$this->assertTrue( Initializer::is_available() );
+		delete_option( Current_Plan::PLAN_OPTION );
+		self::reset_current_plan_cache();
+	}
 
-		// The rollout feature deliberately uses the active feature list rather than
-		// WordPress.com's separate plan-entitlement check.
-		\Wpcom_Test_Features::$known    = array( Initializer::FEATURE_SLUG );
-		\Wpcom_Test_Features::$entitled = array();
+	public function test_vip_is_excluded_before_registering_seo_hooks() {
+		$hooks = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+
+		$visibility  = get_option( Initializer::VISIBILITY_OPTION, null );
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$was_initialized = $initialized->getValue();
+		$initialized->setValue( null, false );
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
 
 		try {
 			$this->assertFalse( Initializer::is_available() );
+			delete_option( Initializer::VISIBILITY_OPTION );
+			$this->assertFalse( Initializer::is_optin_available() );
 
-			add_filter( Initializer::FEATURE_FILTER, '__return_true' );
-			$this->assertTrue( Initializer::is_available() );
-			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			update_option( Initializer::VISIBILITY_OPTION, '1' );
+			unset( $GLOBALS['wp_filter']['rest_api_init'], $GLOBALS['wp_filter']['admin_menu'], $GLOBALS['wp_filter']['jetpack_deactivate_module_sitemaps'] );
+			Initializer::init();
 
-			$plan['features']['active'] = array( Initializer::FEATURE_SLUG );
-			update_option( Current_Plan::PLAN_OPTION, $plan );
-			self::reset_current_plan_cache();
-			$this->assertTrue( Initializer::is_available() );
+			$this->assertFalse( has_action( 'rest_api_init', array( Surface_Visibility::class, 'register_optin_route' ) ) );
+			$this->assertFalse( has_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ) ) );
+			$this->assertFalse( has_action( 'jetpack_deactivate_module_sitemaps', array( Initializer::class, 'flag_sitemap_user_disabled' ) ) );
 		} finally {
-			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
-			delete_option( Current_Plan::PLAN_OPTION );
-			self::reset_current_plan_cache();
-			\Wpcom_Test_Features::reset();
+			Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			if ( null === $visibility ) {
+				delete_option( Initializer::VISIBILITY_OPTION );
+			} else {
+				update_option( Initializer::VISIBILITY_OPTION, $visibility );
+			}
+			$initialized->setValue( null, $was_initialized );
 		}
 	}
 
@@ -118,7 +131,6 @@ class InitializerTest extends TestCase {
 		$enable_module = static function () {
 			return array( 'seo-tools' );
 		};
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		add_filter( 'jetpack_active_modules', $enable_module );
 		// Past the discoverability cohort gate (self-hosted opted-in / fresh install).
 		update_option( Initializer::VISIBILITY_OPTION, '1' );
@@ -168,7 +180,6 @@ class InitializerTest extends TestCase {
 				);
 			}
 		} finally {
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			remove_filter( 'jetpack_active_modules', $enable_module );
 			delete_option( Initializer::VISIBILITY_OPTION );
 			$initialized->setValue( null, false );
@@ -246,7 +257,6 @@ class InitializerTest extends TestCase {
 		$enable_module = static function () {
 			return array( 'seo-tools' );
 		};
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		add_filter( 'jetpack_active_modules', $enable_module );
 		update_option( Initializer::VISIBILITY_OPTION, '1' );
 		update_option( Canonical_Urls::OPTION, 1 );
@@ -266,7 +276,6 @@ class InitializerTest extends TestCase {
 				'canonical'   => false !== has_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) ),
 			);
 		} finally {
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			remove_filter( 'jetpack_active_modules', $enable_module );
 			delete_option( Initializer::VISIBILITY_OPTION );
 			delete_option( Canonical_Urls::OPTION );
@@ -361,7 +370,6 @@ class InitializerTest extends TestCase {
 		}
 		$initialized->setValue( null, false );
 
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		if ( $surface_visible ) {
 			update_option( Initializer::VISIBILITY_OPTION, '1' );
 		} else {
@@ -379,7 +387,6 @@ class InitializerTest extends TestCase {
 			Initializer::init();
 			return false !== has_filter( 'wp_sitemaps_enabled', '__return_false' );
 		} finally {
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			remove_filter( 'wp_sitemaps_enabled', '__return_false' );
 			$this->remove_sitemap_toggle_hooks();
 			delete_option( Initializer::VISIBILITY_OPTION );
@@ -440,7 +447,6 @@ class InitializerTest extends TestCase {
 		}
 		$initialized->setValue( null, false );
 
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		update_option( Initializer::VISIBILITY_OPTION, '1' );
 		delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
 		$this->remove_sitemap_toggle_hooks();
@@ -456,7 +462,6 @@ class InitializerTest extends TestCase {
 			do_action( 'jetpack_activate_module_sitemaps' );
 			$this->assertFalse( get_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION, false ) );
 		} finally {
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			$this->remove_sitemap_toggle_hooks();
 			delete_option( Initializer::VISIBILITY_OPTION );
 			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
@@ -479,7 +484,6 @@ class InitializerTest extends TestCase {
 		$initialized->setValue( null, false );
 
 		$modules = array( 'seo-tools', 'verification-tools', 'sitemaps' );
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		if ( $surface_visible ) {
 			update_option( Initializer::VISIBILITY_OPTION, '1' );
 		} else {
@@ -502,7 +506,6 @@ class InitializerTest extends TestCase {
 			foreach ( $modules as $module ) {
 				remove_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 			}
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			$this->remove_sitemap_toggle_hooks();
 			delete_option( Initializer::VISIBILITY_OPTION );
 			$initialized->setValue( null, false );

@@ -16,6 +16,7 @@ import type { VideoSummary } from './use-video-summary';
  */
 export const videoAdapter: SingleReportAdapter< VideoSummary > = {
 	useSummary: useVideoSummary,
+	untitledTitle: () => __( 'Untitled video', 'jetpack-premium-analytics-pkg' ),
 	headerSlots: videoHeaderSlots,
 	notFoundDescription: () => __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ),
 };
