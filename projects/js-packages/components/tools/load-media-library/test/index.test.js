@@ -104,6 +104,19 @@ describe( 'loadMediaLibrary', () => {
 		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( "keeps the page's jQuery when the page loaded it with no id", async () => {
+		const pageJQuery = () => {};
+		window.jQuery = pageJQuery;
+		respondWith(
+			`<script src="/jquery.js" id="jquery-core-js"></script>${ MEDIA_VIEWS }${ TEMPLATES }`
+		);
+
+		await loadMediaLibrary();
+
+		expect( runs[ 'jquery-core-js' ] ).toBeUndefined();
+		delete window.jQuery;
+	} );
+
 	it( 'shares one load between dashboards that bundle their own copy', async () => {
 		respondWith( `${ MEDIA_VIEWS }${ TEMPLATES }` );
 
