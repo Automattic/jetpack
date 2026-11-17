@@ -546,6 +546,30 @@ describe( 'admin shell live-app limit', () => {
 		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
 	} );
 
+	it( 'asks hidden dashboards when the last slot went while an overlay closed', async () => {
+		click( A );
+		await settle();
+		let closeOverlay;
+		require( '../../../src/admin-shell/overlays' ).closeOverlayAround.mockImplementationOnce(
+			() => new Promise( resolve => ( closeOverlay = resolve ) )
+		);
+		click( '/wp-admin/admin.php?page=guest-a2' );
+		click( '/wp-admin/admin.php?page=guest-b' );
+		await settle();
+		mockStay.mockClear();
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		closeOverlay( true );
+		await settle();
+
+		expect( mockStay ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				detail: { page: 'guest-a', url: expect.stringContaining( 'page=guest-a2' ) },
+			} )
+		);
+		expect( stateOf( 'guest-a2' ) ).toBeUndefined();
+		expect( where() ).toBe( '?page=guest-b' );
+	} );
+
 	it.each( [
 		[ 'back to a mounted one', false, '/wp-admin/admin.php?page=host', 'host' ],
 		[ 'to one only prewarmed', true, A, 'guest-a' ],
