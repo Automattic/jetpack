@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin shell: Say in the page-shown event whether the page opened at a different route than it was left on.

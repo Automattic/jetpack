@@ -141,6 +141,16 @@ const click = href => {
 	).click();
 };
 
+// Back/Forward to `url`, as the browser reports it to the shell.
+const popTo = url => {
+	const { isolateRouters } = require( '../../../src/admin-shell/adapter' );
+	const onPopState = isolateRouters.mock.results[ 0 ].value.listen.mock.calls.find(
+		( [ type ] ) => type === 'popstate'
+	)[ 1 ];
+	globalThis.history.replaceState( null, '', url );
+	onPopState( { isTrusted: true } );
+};
+
 const where = () => location.search;
 const stateOf = slug =>
 	document.querySelector( `[data-shell-page="${ slug }"]` )?.dataset.shellState;
@@ -148,16 +158,6 @@ const stateOf = slug =>
 describe( 'admin shell leave guard', () => {
 	const A = '/wp-admin/admin.php?page=guest-a';
 	const B = '/wp-admin/admin.php?page=guest-b';
-
-	// Back/Forward to `url`, as the browser reports it to the shell.
-	const popTo = url => {
-		const { isolateRouters } = require( '../../../src/admin-shell/adapter' );
-		const onPopState = isolateRouters.mock.results[ 0 ].value.listen.mock.calls.find(
-			( [ type ] ) => type === 'popstate'
-		)[ 1 ];
-		globalThis.history.replaceState( null, '', url );
-		onPopState( { isTrusted: true } );
-	};
 
 	beforeEach( async () => {
 		click( `${ A }&p=%2Fone` );
@@ -347,16 +347,51 @@ describe( 'admin shell switch', () => {
 		}
 
 		expect(
-			events.map( ( [ type, { page, previous, next, firstShow } ] ) =>
-				type === 'page-hidden' ? [ type, page, next ] : [ type, page, previous, firstShow ]
+			events.map( ( [ type, { page, previous, next, firstShow, routeChanged } ] ) =>
+				type === 'page-hidden'
+					? [ type, page, next ]
+					: [ type, page, previous, firstShow, routeChanged ]
 			)
 		).toEqual( [
 			[ 'page-hidden', 'host', 'guest-a' ],
-			[ 'page-shown', 'guest-a', 'host', true ],
+			[ 'page-shown', 'guest-a', 'host', true, false ],
 			[ 'page-hidden', 'guest-a', 'guest-b' ],
-			[ 'page-shown', 'guest-b', 'guest-a', true ],
+			[ 'page-shown', 'guest-b', 'guest-a', true, false ],
 			[ 'page-hidden', 'guest-b', 'guest-a' ],
-			[ 'page-shown', 'guest-a', 'guest-b', false ],
+			[ 'page-shown', 'guest-a', 'guest-b', false, false ],
+		] );
+	} );
+
+	it.each( [
+		[ 'a link opens it at another route', true, () => click( `${ A }&p=%2Ftwo` ) ],
+		[ 'Back opens it at another route', true, () => popTo( `${ A }&p=%2Fzero` ) ],
+		[ 'Back returns to the route it was left on', false, () => popTo( `${ A }&p=%2Fone` ) ],
+		[
+			'its unsaved changes keep it on the route it was left on',
+			false,
+			() => {
+				window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+				popTo( `${ A }&p=%2Fzero` );
+			},
+		],
+	] )( 'says whether a kept page changed route when %s', async ( _, expected, reopen ) => {
+		click( `${ A }&p=%2Fone` );
+		await settle();
+		click( B );
+		await settle();
+		const shown = [];
+		const record = event => shown.push( event.detail );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', record );
+
+		try {
+			reopen();
+			await settle();
+		} finally {
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', record );
+		}
+
+		expect( shown ).toEqual( [
+			expect.objectContaining( { page: 'guest-a', firstShow: false, routeChanged: expected } ),
 		] );
 	} );
 
