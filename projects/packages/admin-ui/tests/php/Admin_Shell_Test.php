@@ -663,6 +663,13 @@ class Admin_Shell_Test extends TestCase {
 
 		$this->assertIsString( $html );
 		$this->assertStringContainsString( 'script.js', $html );
+
+		// The bridge must run before the page's router does, and the page's scripts need their mount element.
+		$document = Admin_Shell::frame_document( 'script-page', $html );
+		$bridge   = strpos( $document, 'window.frameElement' );
+		$this->assertNotFalse( $bridge );
+		$this->assertLessThan( strpos( $document, '<div id="wpcom"' ), $bridge );
+		$this->assertLessThan( strpos( $document, 'script.js' ), strpos( $document, '<div id="wpcom"' ) );
 	}
 
 	/**

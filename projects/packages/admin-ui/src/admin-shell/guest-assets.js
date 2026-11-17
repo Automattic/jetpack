@@ -83,14 +83,23 @@ const runInline = async node => {
 	return kept;
 };
 
+const addStylesheet = node =>
+	new Promise( resolve => {
+		const link = node.cloneNode( true );
+		link.onload = link.onerror = resolve;
+		document.head.append( link );
+	} );
+
 /**
- * Fetch the styles and scripts a guest prints on its own page, without adding them.
+ * Fetch a guest's page data and add what the document doesn't already have.
+ *
+ * Resolves after the guest's stylesheets load, so the app never renders unstyled.
  *
  * @param {string} endpoint - Guest endpoint URL, nonce included.
  * @param {string} slug     - Guest page slug.
- * @return {Promise<string>} The HTML.
+ * @return {Promise<object>} How many scripts and styles were added, and how many the page already had.
  */
-export async function fetchGuestAssets( endpoint, slug ) {
+export async function applyGuestAssets( endpoint, slug ) {
 	const url = new URL( endpoint, location.href );
 	url.searchParams.set( 'member', slug );
 	const response = await fetch( url, { credentials: 'same-origin' } );
@@ -98,21 +107,9 @@ export async function fetchGuestAssets( endpoint, slug ) {
 	if ( ! response.ok || ! body?.success ) {
 		throw new Error( `Admin shell: no page data for ${ slug } (HTTP ${ response.status })` );
 	}
-	return body.data.html;
-}
 
-/**
- * Add what a guest's page data has and the document doesn't.
- *
- * Resolves after the guest's stylesheets load, so the app never renders unstyled.
- *
- * @param {string}        html         - From fetchGuestAssets().
- * @param {HTMLElement[]} [styleNodes] - Receives each style node as it is added, so a caller can switch them off mid-way.
- * @return {Promise<object>} How many scripts and styles were added, how many the page already had, and the style nodes added.
- */
-export async function addGuestAssets( html, styleNodes = [] ) {
 	const template = document.createElement( 'template' );
-	template.innerHTML = html;
+	template.innerHTML = body.data.html;
 	// Script modules are already in the host's import map; a second map would be ignored.
 	const nodes = template.content.querySelectorAll(
 		'link[rel="stylesheet"], style, script:not([type="importmap"]):not([type="module"])'
@@ -120,7 +117,7 @@ export async function addGuestAssets( html, styleNodes = [] ) {
 	const stylesheets = [];
 	// Inserted with async=false, external scripts download in parallel and still run in order.
 	let loading = [];
-	const added = { scripts: 0, styles: 0, skipped: 0, keptGlobals: [], styleNodes };
+	const added = { scripts: 0, styles: 0, skipped: 0, keptGlobals: [] };
 	// Inline scripts carry no id when printed without a handle; match those by their text.
 	const inlineTexts = new Set(
 		[ ...document.querySelectorAll( 'script:not([src])' ) ].map( script => script.textContent )
@@ -133,12 +130,11 @@ export async function addGuestAssets( html, styleNodes = [] ) {
 				continue;
 			}
 			added.styles++;
-			const style = node.cloneNode( true );
-			if ( style.tagName === 'LINK' ) {
-				stylesheets.push( new Promise( resolve => ( style.onload = style.onerror = resolve ) ) );
+			if ( node.tagName === 'LINK' ) {
+				stylesheets.push( addStylesheet( node ) );
+			} else {
+				document.head.append( node.cloneNode( true ) );
 			}
-			document.head.append( style );
-			added.styleNodes.push( style );
 			continue;
 		}
 		if ( node.src ? existing : inlineTexts.has( node.textContent ) ) {
@@ -158,15 +154,4 @@ export async function addGuestAssets( html, styleNodes = [] ) {
 	await Promise.all( loading );
 	await Promise.all( stylesheets );
 	return added;
-}
-
-/**
- * Fetch a guest's page data and add what the document doesn't already have.
- *
- * @param {string} endpoint - Guest endpoint URL, nonce included.
- * @param {string} slug     - Guest page slug.
- * @return {Promise<object>} See addGuestAssets().
- */
-export async function applyGuestAssets( endpoint, slug ) {
-	return addGuestAssets( await fetchGuestAssets( endpoint, slug ) );
 }

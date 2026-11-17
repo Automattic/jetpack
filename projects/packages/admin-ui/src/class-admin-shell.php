@@ -41,6 +41,39 @@ class Admin_Shell {
 	const GUEST_ACTION = 'jetpack_admin_shell_guest';
 
 	/**
+	 * Runs first in a script member's frame: tells the shell, through the iframe element, where the
+	 * page's router went and which links it should open itself.
+	 */
+	const FRAME_BRIDGE = <<<'JS'
+( function () {
+	var frame = window.frameElement;
+	if ( ! frame ) {
+		return;
+	}
+	var tell = function ( type, href ) {
+		return frame.dispatchEvent( new CustomEvent( 'jetpack-admin-shell:' + type, { detail: href, cancelable: true } ) );
+	};
+	[ 'pushState', 'replaceState' ].forEach( function ( method ) {
+		var native = history[ method ].bind( history );
+		history[ method ] = function () {
+			var result = native.apply( null, arguments );
+			tell( 'frame-url', location.href );
+			return result;
+		};
+	} );
+	addEventListener( 'popstate', function () {
+		tell( 'frame-url', location.href );
+	} );
+	document.addEventListener( 'click', function ( event ) {
+		var a = event.target.closest && event.target.closest( 'a[href]' );
+		if ( a && ! event.defaultPrevented && event.button === 0 && ! event.metaKey && ! event.ctrlKey && ! event.shiftKey && ! tell( 'frame-link', a.href ) ) {
+			event.preventDefault();
+		}
+	} );
+} )();
+JS;
+
+	/**
 	 * Script module ID of the client.
 	 */
 	const CLIENT_MODULE = '@automattic/jetpack-admin-shell';
@@ -416,7 +449,43 @@ class Admin_Shell {
 		if ( is_int( $html ) ) {
 			wp_send_json_error( null, $html, JSON_UNESCAPED_SLASHES );
 		}
+		if ( isset( $_GET['frame'] ) && self::KIND_SCRIPT === self::get_members()[ $slug ]['kind'] ) {
+			header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+			echo self::frame_document( $slug, $html ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped as it is built.
+			exit;
+		}
 		wp_send_json_success( array( 'html' => $html ), 200, JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * The document a script member boots in, inside the shell's iframe.
+	 *
+	 * @param string $slug A script member's page slug.
+	 * @param string $html From guest_assets().
+	 * @return string
+	 */
+	public static function frame_document( $slug, $html ) {
+		$member = self::get_members()[ $slug ];
+		$color  = get_user_option( 'admin_color' );
+		$body   = array( 'wp-admin', 'wp-core-ui', 'admin-color-' . sanitize_html_class( $color ? $color : 'fresh' ), self::screen_id( $slug ) );
+		ob_start();
+		?>
+<!doctype html>
+<html <?php language_attributes(); ?>>
+<head>
+<meta charset="<?php bloginfo( 'charset' ); ?>">
+<base target="_top">
+<script><?php echo self::FRAME_BRIDGE; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- A constant. ?></script>
+</head>
+<body class="<?php echo esc_attr( implode( ' ', $body ) ); ?>" style="margin: 0; --wp-admin--admin-bar--height: 0px;">
+<div id="<?php echo esc_attr( $member['container']['id'] ); ?>" class="<?php echo esc_attr( $member['container']['class'] ?? '' ); ?>"></div>
+		<?php
+		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Printed by core's script and style printers.
+		?>
+</body>
+</html>
+		<?php
+		return (string) ob_get_clean();
 	}
 
 	/**

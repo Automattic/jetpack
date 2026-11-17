@@ -13,7 +13,8 @@ import {
 import { createApp, whenRendered } from './app';
 import { announcePage, menuLabel, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
-import { addGuestAssets, applyGuestAssets, fetchGuestAssets } from './guest-assets';
+import { mountFrame } from './frame';
+import { applyGuestAssets } from './guest-assets';
 import { configureHeaders, rememberHeader, removeHeader, showHeader, wrapInCopies } from './header';
 import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } from './overlays';
 
@@ -89,10 +90,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		}
 	);
 
-	// Pages that aren't built with wp-build: their own scripts boot them.
+	// Pages that aren't built with wp-build: their own scripts boot them, each in its own frame.
 	const isScript = slug => members[ slug ].kind === 'script';
-	// A script page's header is styled from another origin, so a saved copy would show unstyled.
-	const remember = ( slug, el ) => isScript( slug ) || rememberHeader( slug, el );
+	// Moves a booted script page's router to a URL.
+	const frameGo = {};
 
 	const isMemberUrl = href => {
 		const url = new URL( href, location.href );
@@ -121,14 +122,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		if ( warm[ slug ] ) {
 			return warm[ slug ];
 		}
-		// Its scripts boot it as they run, so only their download can happen ahead of the switch.
+		// Its frame loads on the switch.
 		if ( isScript( slug ) ) {
-			log( 'prewarm', `${ slug }: fetching its scripts (${ reason })` );
-			warm[ slug ] = fetchGuestAssets( guestAssetsUrl, slug ).catch( error => {
-				delete warm[ slug ];
-				throw error;
-			} );
-			return warm[ slug ];
+			return Promise.resolve();
 		}
 		const total = stopwatch();
 		log( 'prewarm', `${ slug }: start (${ reason })` );
@@ -188,9 +184,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	const markReady = app => {
 		app.to( 'ready' );
 		app.place( visible === app.slug );
-		remember( app.slug, app.el );
+		rememberHeader( app.slug, app.el );
 		// Tab bars and actions often render just after the heading.
-		setTimeout( () => visible === app.slug && remember( app.slug, app.el ), 1000 );
+		setTimeout( () => visible === app.slug && rememberHeader( app.slug, app.el ), 1000 );
 	};
 
 	// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
@@ -223,57 +219,67 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		return inner;
 	};
 
-	// Pages whose scripts ran and failed: they can't run again in this document.
-	const failedScripts = new Set();
-
-	// Its container goes in first: the scripts mount into it as soon as they run.
-	const bootScriptGuest = async slug => {
-		if ( failedScripts.has( slug ) ) {
-			throw new Error( `Admin shell: ${ slug } failed to boot before` );
+	// The frame's route, its hash, in the address bar while the page is on screen.
+	const mirror = ( slug, href ) => {
+		const next = new URL( location.href );
+		next.hash = new URL( href ).hash;
+		if ( visible === slug && next.href !== location.href ) {
+			gate.replaceUrl( next.href );
 		}
+	};
+
+	const bootScriptGuest = async ( slug, url ) => {
 		const { el, app, discard } = mountSection( slug );
-		const container = document.createElement( 'div' );
-		container.id = members[ slug ].container.id;
-		container.className = members[ slug ].container.className;
-		stageOf( el ).append( container );
-		let mounted = false;
+		const src = new URL( guestAssetsUrl, location.href );
+		src.searchParams.set( 'member', slug );
+		src.searchParams.set( 'frame', '1' );
+		src.hash = new URL( url, location.href ).hash;
+		const { frame, loaded, go } = mountFrame( stageOf( el ), {
+			src: src.href,
+			title: members[ slug ].title,
+			onUrl: href => mirror( slug, href ),
+			onLink: href => {
+				if ( ! isMemberUrl( href ) || pageOf( href ) === slug ) {
+					return false;
+				}
+				navigate( href, 'link click' );
+				return true;
+			},
+		} );
 		try {
 			const step = stopwatch();
-			const html = await prewarm( slug, 'switch' );
-			if ( visible !== slug ) {
-				// Left before its scripts came; they run on the next visit.
-				log( 'switch', `${ slug }: left before it booted` );
-				discard();
-				return;
+			let timer;
+			await Promise.race( [
+				loaded,
+				new Promise( ( resolve, reject ) => {
+					timer = setTimeout(
+						() => reject( new Error( `Admin shell: ${ slug }'s frame did not load` ) ),
+						RENDER_TIMEOUT
+					);
+				} ),
+			] ).finally( () => clearTimeout( timer ) );
+			const root = frame.contentDocument?.getElementById( members[ slug ].container.id );
+			if ( ! root ) {
+				throw new Error(
+					`Admin shell: ${ slug }'s frame has no #${ members[ slug ].container.id }`
+				);
 			}
-			gate.mount( slug );
-			mounted = true;
-			// Unscoped CSS, such as a global reset, would restyle the other apps while this one is hidden.
-			const added = await oneAtATime( () => addGuestAssets( html, app.styles ) );
-			app.place( visible === slug );
-			log( 'switch', `${ slug }: scripts fetched and run in ${ step() }`, added );
+			log( 'switch', `${ slug }: frame loaded in ${ step() }` );
 			// It may show its own loading state first, with no heading yet: anything it draws counts.
-			await whenRendered( el, RENDER_TIMEOUT, () => container.childElementCount > 0 );
+			await whenRendered( root, RENDER_TIMEOUT, () => root.childElementCount > 0 );
 			log( 'switch', `${ slug }: rendered ${ step() } after the switch` );
+			frameGo[ slug ] = go;
+			app.content = root;
 		} catch ( error ) {
-			delete warm[ slug ];
-			if ( mounted ) {
-				failedScripts.add( slug );
-			}
-			app.styles.forEach( node => node.remove() );
 			discard();
 			throw error;
-		} finally {
-			if ( mounted ) {
-				gate.mounted( slug );
-			}
 		}
 		markReady( app );
 	};
 
 	const bootGuest = async ( slug, url ) => {
 		if ( isScript( slug ) ) {
-			return bootScriptGuest( slug );
+			return bootScriptGuest( slug, url );
 		}
 		const { el, app, discard } = mountSection( slug );
 		const removeStandIn = showHeaderAt( slug, el, url );
@@ -305,6 +311,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		markReady( app );
 	};
 
+	// A frame's router doesn't hear this document's popstate.
+	const tellRouter = ( slug, url ) =>
+		isScript( slug ) ? frameGo[ slug ]?.( url ) : notifyRouters();
+
 	let switches = 0;
 	const show = async ( url, { push, via } ) => {
 		const slug = pageOf( url );
@@ -317,7 +327,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				}
 				gate.pushUrl( url );
 			}
-			notifyRouters();
+			tellRouter( slug, url );
 			return;
 		}
 
@@ -338,7 +348,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		const elapsed = stopwatch();
 		log( 'switch', `${ via }: ${ previous } → ${ slug }`, url );
 		if ( apps.get( previous )?.state === 'visible' ) {
-			remember( previous, apps.get( previous ).el );
+			rememberHeader( previous, apps.get( previous ).el );
 			scrollOf[ previous ] = window.scrollY;
 		}
 		// Hide the outgoing app before the URL changes, so its router never sees the new URL.
@@ -366,8 +376,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				app.place( true );
 				window.scrollTo( 0, scrollOf[ slug ] ?? 0 );
 				// On Back/Forward the browser's own popstate reaches the app; a second one would re-navigate.
-				if ( push ) {
-					notifyRouters();
+				if ( push || isScript( slug ) ) {
+					tellRouter( slug, url );
 				}
 			} else {
 				log( 'switch', `${ slug } has not booted yet` );
@@ -420,13 +430,6 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		}
 		return show( url.href, { push: true, via } );
 	};
-
-	// Hash navigation, which script pages use, doesn't go through the history wrappers.
-	gate.listen( 'hashchange', () => {
-		if ( pageOf( location.href ) === visible ) {
-			lastUrl[ visible ] = location.href;
-		}
-	} );
 
 	// Not gated: the shell itself must hear Back/Forward across pages.
 	gate.listen( 'popstate', event => {
