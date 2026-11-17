@@ -9,7 +9,26 @@
 
 import { __, sprintf } from '@wordpress/i18n';
 import { getLowestVariantPrice, hasVariantPricing } from '../components/variant-builder';
-import { formatPrice } from './currency-symbols';
+import { formatPrice, ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
+
+const DECIMAL_PATTERN = /^(\d+\.?\d*|\.\d+)$/;
+
+/**
+ * A decimal string times `multiplier` over `divisor`, rounded half up to a whole number.
+ *
+ * Multiplies the string's digits as an integer, so 1.005 or 64.6% rounds the same as PayPal.
+ *
+ * @param {string} decimal    - A string DECIMAL_PATTERN matches.
+ * @param {number} multiplier - What to multiply by.
+ * @param {number} divisor    - What to divide by after.
+ * @return {number} The rounded result.
+ */
+function roundDecimal( decimal, multiplier, divisor = 1 ) {
+	const [ whole, fraction = '' ] = decimal.split( '.' );
+	const digits = Number( whole + fraction );
+
+	return Math.round( ( digits * multiplier ) / ( divisor * 10 ** fraction.length ) );
+}
 
 /**
  * The price a link charges, as text.
@@ -40,6 +59,74 @@ export function linkPrice( { price, currencyCode, variantsEnabled, variants } = 
 		__( 'From %s', 'jetpack-paypal-payments' ),
 		formatPrice( lowest, code )
 	);
+}
+
+/**
+ * A price less the link's discount, as text.
+ *
+ * Takes the discount as saved, the way PayPal's builder preview does, so the
+ * result can be $0.00 or negative.
+ *
+ * @param {string}  value                - The price before the discount.
+ * @param {object}  link                 - The link's block attributes.
+ * @param {string}  link.currencyCode    - The ISO currency code.
+ * @param {boolean} link.discountEnabled - Whether the discount is on.
+ * @param {string}  link.discountType    - PERCENTAGE, or anything else for a flat amount.
+ * @param {string}  link.discountValue   - The discount as entered.
+ * @return {string} The formatted price, or an empty string when no discount applies.
+ */
+export function discountedPrice(
+	value,
+	{ currencyCode, discountEnabled, discountType, discountValue } = {}
+) {
+	const amount = `${ value ?? '' }`.trim();
+	const discount = `${ discountValue ?? '' }`.trim();
+	if (
+		! discountEnabled ||
+		! DECIMAL_PATTERN.test( amount ) ||
+		! DECIMAL_PATTERN.test( discount )
+	) {
+		return '';
+	}
+
+	const code = currencyCode || 'USD';
+	const decimals = ZERO_DECIMAL_CURRENCIES.has( code ) ? 0 : 2;
+	const scale = 10 ** decimals;
+	const cents = roundDecimal( amount, scale );
+	// PayPal rounds the discount half up to the currency's smallest unit, then subtracts it.
+	const off =
+		discountType === 'PERCENTAGE'
+			? roundDecimal( discount, cents, 100 )
+			: roundDecimal( discount, scale );
+	const result = cents - off;
+	const formatted = formatPrice( ( Math.abs( result ) / scale ).toFixed( decimals ), code );
+
+	return result < 0 ? `-${ formatted }` : formatted;
+}
+
+/**
+ * The discount tag text, with the value as entered.
+ *
+ * @param {object} link               - The link's block attributes.
+ * @param {string} link.currencyCode  - The ISO currency code.
+ * @param {string} link.discountType  - PERCENTAGE, or anything else for a flat amount.
+ * @param {string} link.discountValue - The discount as entered.
+ * @return {string} "10% discount" or "$2.00 discount".
+ */
+export function discountLabel( { currencyCode, discountType, discountValue } = {} ) {
+	const discount = `${ discountValue ?? '' }`.trim();
+
+	return discountType === 'PERCENTAGE'
+		? sprintf(
+				/* translators: %s: discount percentage, e.g. "10" */
+				__( '%s%% discount', 'jetpack-paypal-payments' ),
+				discount
+			)
+		: sprintf(
+				/* translators: %s: formatted discount amount, e.g. "$2.00" */
+				__( '%s discount', 'jetpack-paypal-payments' ),
+				formatPrice( discount, currencyCode || 'USD' )
+			);
 }
 
 /**

@@ -90,6 +90,7 @@ export {
 	type MonthlyHeatmapProps,
 	type MonthlyHeatmapRow,
 	type MonthlyHeatmapTarget,
+	monthlyHeatmapToCsv,
 } from './monthly-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
 export {

@@ -30,6 +30,10 @@ class Surface_Visibility {
 	 * @return bool
 	 */
 	public static function is_visible() {
+		if ( ! Initializer::is_available() ) {
+			return false;
+		}
+
 		if ( class_exists( 'Automattic\\Jetpack\\Status\\Host' ) && ( new Host() )->is_wpcom_platform() ) {
 			return true;
 		}
@@ -53,10 +57,7 @@ class Surface_Visibility {
 	}
 
 	/**
-	 * Expose whether this install should be offered the SEO opt-in, onto
-	 * `window.JetpackScriptData.seo.optin_available` for other admin surfaces (e.g. the
-	 * legacy Traffic-page banner). Only hooked when the feature flag is on, so the field is
-	 * simply absent otherwise.
+	 * Expose SEO opt-in and surface visibility state to other admin screens.
 	 *
 	 * @param array $data Script data being injected onto the page.
 	 * @return array

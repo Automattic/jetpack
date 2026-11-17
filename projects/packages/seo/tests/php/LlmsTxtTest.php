@@ -56,8 +56,6 @@ class LlmsTxtTest extends SeoTestCase {
 		}
 		$this->post_ids = array();
 
-		\Jetpack_SEO_Posts::$custom_description = '';
-
 		if ( post_type_exists( 'seo_book' ) ) {
 			unregister_post_type( 'seo_book' );
 		}
@@ -541,9 +539,10 @@ class LlmsTxtTest extends SeoTestCase {
 	 */
 	#[DataProvider( 'provide_seo_description_summaries' )]
 	public function test_summary_prefers_seo_description( string $description, array $fields, string $expected ) {
-		\Jetpack_SEO_Posts::$custom_description = $description;
+		$post = $this->insert_post( $fields );
+		update_post_meta( $post->ID, Content_Coverage::META_DESCRIPTION, wp_slash( $description ) );
 
-		$this->assertSame( $expected, $this->summary( $this->insert_post( $fields ) ) );
+		$this->assertSame( $expected, $this->summary( $post ) );
 	}
 
 	/**
