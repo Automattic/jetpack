@@ -371,16 +371,14 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 			lastUrl[ visible ] = location.href;
 		}
 		if ( event.isTrusted && isMemberUrl( location.href ) && pageOf( location.href ) !== visible ) {
-			if ( gate.isMounting() ) {
-				location.reload();
-				return;
-			}
-			if ( ! hasRoomFor( pageOf( location.href ) ) ) {
-				if ( mayUnload( location.href ) ) {
-					location.reload();
-				} else {
-					// Back/Forward can't be called off: keep the visible app, in this same entry.
-					gate.replaceUrl( lastUrl[ visible ] );
+			const mounting = gate.isMounting();
+			if ( mounting || ! hasRoomFor( pageOf( location.href ) ) ) {
+				const target = location.href;
+				// The visible app's router hears this popstate next: hand it back its own URL, in this entry.
+				gate.replaceUrl( lastUrl[ visible ] );
+				// Back/Forward can't be called off, so staying keeps the visible app.
+				if ( mounting || mayUnload( target ) ) {
+					location.replace( target );
 				}
 				return;
 			}
