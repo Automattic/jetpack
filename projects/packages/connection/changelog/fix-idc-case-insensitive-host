@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Identity Crisis: Treat site URLs whose domains differ only in capitalization as the same site.

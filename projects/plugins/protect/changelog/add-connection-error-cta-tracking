@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Pass a tracking context to the connection error notice (internal analytics).
-
-

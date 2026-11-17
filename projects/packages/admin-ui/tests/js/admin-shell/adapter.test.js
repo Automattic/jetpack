@@ -70,6 +70,17 @@ describe( 'isolateRouters', () => {
 		expect( window.history.state ).toMatchObject( { __TSR_index: 5 } );
 		expect( window.history.state.key ).toBe( window.history.state.__TSR_key );
 	} );
+
+	it( 'replaces the current entry in place, keeping its state', () => {
+		window.history.replaceState( { __TSR_index: 4, key: 'k' }, '' );
+		const length = window.history.length;
+
+		gate.replaceUrl( '/wp-admin/admin.php?page=jetpack-forms&p=%2Fforms' );
+
+		expect( location.search ).toBe( '?page=jetpack-forms&p=%2Fforms' );
+		expect( window.history.state ).toEqual( { __TSR_index: 4, key: 'k' } );
+		expect( window.history ).toHaveLength( length );
+	} );
 } );
 
 describe( 'trackViewTransitions', () => {

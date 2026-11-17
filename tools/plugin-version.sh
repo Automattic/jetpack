@@ -13,7 +13,7 @@ function usage {
 	cat <<-EOH
 		usage: $0 <plugin>
 
-		  Print the version from the plguin's header. The <plugin> may be either
+		  Print the version from the plugin's header. The <plugin> may be either
 		  the name of a directory in projects/plugins/, or a path to a plugin
 		  directorty or file.
 

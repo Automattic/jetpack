@@ -108,3 +108,21 @@ export function trackPayoutSave( signedTos: boolean ) {
 export function trackOverviewClick( feature: string, target: 'learn-more' | 'upgrade' | 'open' ) {
 	record( 'jetpack_monetize_overview_click', { feature, target } );
 }
+
+/**
+ * Record an action on the Payments tab.
+ *
+ * @param action     - What was done, e.g. `stripe_connect_click`.
+ * @param properties - Event properties.
+ */
+export function trackPaymentsEvent(
+	action:
+		| 'stripe_connect_click'
+		| 'stripe_disconnect'
+		| 'plan_delete'
+		| 'free_tier_edit_click'
+		| 'free_tier_update',
+	properties: Record< string, unknown > = {}
+) {
+	record( `jetpack_monetize_payments_${ action }`, properties );
+}

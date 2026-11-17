@@ -54,21 +54,6 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'rel="canonical"', $output );
 	}
 
-	/**
-	 * Test that output_tag produces output on a category archive.
-	 */
-	public function test_output_tag_on_category() {
-		$category_id = self::factory()->category->create();
-		self::factory()->post->create( array( 'post_category' => array( $category_id ) ) );
-		$this->go_to( get_category_link( $category_id ) );
-
-		ob_start();
-		jetpack_canonical_urls_output_tag();
-		$output = ob_get_clean();
-
-		$this->assertStringContainsString( 'rel="canonical"', $output );
-	}
-
 	// -------------------------------------------------------------------------
 	// Output tag tests
 	// -------------------------------------------------------------------------

@@ -25,18 +25,22 @@ class Payments_Section_Test extends BaseTestCase {
 	 */
 	public static function provide_routes() {
 		return array(
-			'Stripe status' => array( '/jetpack/v4/monetize/wpcom/v2/memberships/status' ),
-			'earnings'      => array( '/jetpack/v4/monetize/wpcom/v2/memberships/earnings' ),
+			'Stripe status'     => array( '/jetpack/v4/monetize/wpcom/v2/memberships/status', 'GET' ),
+			'Stripe disconnect' => array( '/jetpack/v4/monetize/wpcom/v2/memberships/stripe/disconnect', 'POST' ),
+			'earnings'          => array( '/jetpack/v4/monetize/wpcom/v2/memberships/earnings', 'GET' ),
+			'plans'             => array( '/jetpack/v4/monetize/wpcom/v2/memberships/products', 'GET' ),
+			'plan deletion'     => array( '/jetpack/v4/monetize/wpcom/v2/memberships/product/(?P<id>\\d+)', 'DELETE' ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_routes
 	 *
-	 * @param string $route The route.
+	 * @param string $route  The route.
+	 * @param string $method Its method.
 	 */
 	#[DataProvider( 'provide_routes' )]
-	public function test_registers_a_get_route( $route ) {
+	public function test_registers_the_route( $route, $method ) {
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		$register       = array( new Payments(), 'register_routes' );
@@ -48,6 +52,6 @@ class Payments_Section_Test extends BaseTestCase {
 		$wp_rest_server = null;
 
 		$this->assertArrayHasKey( $route, $routes );
-		$this->assertArrayHasKey( 'GET', $routes[ $route ][0]['methods'] );
+		$this->assertArrayHasKey( $method, $routes[ $route ][0]['methods'] );
 	}
 }

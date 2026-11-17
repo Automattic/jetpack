@@ -1,6 +1,5 @@
 {
 	"name": "@automattic/jetpack-premium-analytics-widget-post-all-time-traffic",
-	"version": "0.1.0-alpha",
 	"private": true,
 	"type": "module"
 }

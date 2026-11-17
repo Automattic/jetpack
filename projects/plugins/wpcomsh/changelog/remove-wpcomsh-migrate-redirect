@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Migration: Stop redirecting wp-admin to the classic migration page during a migration.
