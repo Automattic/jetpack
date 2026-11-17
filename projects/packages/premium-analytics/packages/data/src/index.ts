@@ -109,13 +109,6 @@ export {
 	type DashboardSectionSlug,
 } from './utils/dashboard-sections';
 export {
-	DASHBOARD_ONBOARDING_KEY,
-	DASHBOARD_STORE_ONBOARDING_KEY,
-	getPendingOnboardingFlow,
-	isOnboardingPending,
-	isStoreSectionSlug,
-} from './utils/onboarding';
-export {
 	getLockedFeature,
 	getLockedSection,
 	getLockedWidgetFeature,

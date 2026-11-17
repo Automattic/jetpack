@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import { isStoreSectionSlug } from '@jetpack-premium-analytics/data';
-/**
  * Internal dependencies
  */
 import type { DateFilterOptions, DateFilterSurface } from './date-filter';
@@ -118,13 +114,14 @@ export function isSectionAwaitingSync(
 }
 
 /**
- * Whether the dashboard shows the WooCommerce tab.
+ * Whether the dashboard shows the WooCommerce tab, under its slug or the `store` slug an older
+ * WooCommerce Stats package still registers.
  *
  * @param sections - The available sections.
  * @return Whether one of them is the WooCommerce tab.
  */
 export function hasStoreSection( sections: DashboardSection[] ): boolean {
-	return sections.some( section => isStoreSectionSlug( section.slug ) );
+	return sections.some( section => section.slug === 'woocommerce' || section.slug === 'store' );
 }
 
 /**

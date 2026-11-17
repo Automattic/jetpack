@@ -3,7 +3,7 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
-import { ensureDashboardEntities, isOnboardingPending } from '@jetpack-premium-analytics/data';
+import { ensureDashboardEntities } from '@jetpack-premium-analytics/data';
 import { registerFieldTypes } from '@jetpack-premium-analytics/fields';
 import { resolveWidgetIcon } from '@jetpack-premium-analytics/icons';
 import apiFetch from '@wordpress/api-fetch';
@@ -11,6 +11,10 @@ import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
 import { chartBar } from '@wordpress/icons';
 import { registerIconResolver } from '@wordpress/widget-primitives';
+/**
+ * Internal dependencies
+ */
+import { showWhatsNew } from './whats-new';
 
 // apiFetch middleware registers onto a shared, process-wide chain. Guard so
 // repeated init() calls (re-mount, HMR, a future second boot) don't stack
@@ -78,25 +82,4 @@ export async function init(): Promise< void > {
 	ensureDashboardEntities();
 
 	showWhatsNew();
-}
-
-/**
- * Show the What's new surface with the dashboard's announcements, while its feature flag is on.
- *
- * Imported on demand and never awaited, so the surface stays out of the dashboard's first
- * render. A load that fails leaves the dashboard without it.
- */
-function showWhatsNew(): void {
-	if ( ! getScriptData()?.premium_analytics?.whats_new_enabled ) {
-		return;
-	}
-
-	// Held for this page load: the welcome modal and its tour are about to ask for the same attention.
-	if ( isOnboardingPending() ) {
-		return;
-	}
-
-	import( '@automattic/jetpack-announcements' )
-		.then( ( { mountWhatsNew } ) => mountWhatsNew( { channels: [ 'premium-analytics' ] } ) )
-		.catch( () => undefined );
 }

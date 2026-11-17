@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { getPendingOnboardingFlow } from '@jetpack-premium-analytics/data';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -73,6 +72,28 @@ export function resetOnboardingForTesting() {
 }
 
 /**
+ * The journey a reader has not been through yet: the new Stats, with the
+ * WooCommerce tab when the dashboard shows it, or only the tab for a reader
+ * who already knows the new Stats.
+ *
+ * @param statsSeen       - Whether the reader has been through the Stats journey.
+ * @param storeSeen       - Whether the reader has been through the WooCommerce tab journey.
+ * @param hasStoreSection - Whether the dashboard shows the WooCommerce tab.
+ * @return The journey to show, or null when there is none left.
+ */
+function pendingFlow(
+	statsSeen: boolean,
+	storeSeen: boolean,
+	hasStoreSection: boolean
+): OnboardingFlow | null {
+	if ( ! statsSeen ) {
+		return hasStoreSection ? 'stats-and-store' : 'stats';
+	}
+
+	return hasStoreSection && ! storeSeen ? 'store' : null;
+}
+
+/**
  * Owns the onboarding journey: modal, then tour, then done. It opens once per
  * reader per site the first time the surface is ready, marking the preferences
  * as it opens so the journey never comes back, and records each move to Tracks.
@@ -105,7 +126,7 @@ export function useOnboarding( {
 	);
 	const { set } = useDispatch( preferencesStore ) as unknown as PreferencesActions;
 
-	const pending = getPendingOnboardingFlow( !! completedAt, !! storeCompletedAt, hasStoreSection );
+	const pending = pendingFlow( !! completedAt, !! storeCompletedAt, hasStoreSection );
 
 	const [ phase, setPhase ] = useState< OnboardingPhase >( 'closed' );
 	const [ step, setStep ] = useState( 0 );
