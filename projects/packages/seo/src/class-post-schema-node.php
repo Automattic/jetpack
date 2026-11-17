@@ -61,7 +61,7 @@ class Post_Schema_Node {
 
 	/**
 	 * Default Schema type for a post when the user has not set an override:
-	 * Article for standard posts, none for pages, attachments, or custom types.
+	 * Article for standard posts and post types opted in through the filter.
 	 *
 	 * @param WP_Post $post The post.
 	 * @return string
@@ -78,12 +78,12 @@ class Post_Schema_Node {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string  $default `article`, `faq`, or '' for none.
+		 * @param string  $default `article`, or '' for none.
 		 * @param WP_Post $post    The post.
 		 */
 		$type = apply_filters( 'jetpack_seo_default_schema_type', $default, $post );
 
-		return in_array( $type, array( 'article', 'faq' ), true ) ? $type : '';
+		return 'article' === $type ? 'article' : '';
 	}
 
 	/**
