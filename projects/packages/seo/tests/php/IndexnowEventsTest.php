@@ -160,6 +160,57 @@ class IndexnowEventsTest extends SeoTestCase {
 		);
 	}
 
+	/**
+	 * @dataProvider editor_saves_on_tracked_posts
+	 * @param string $key SEO field saved with the title.
+	 * @param mixed  $value Field value.
+	 * @param bool   $removed Whether the one event is a removal.
+	 */
+	#[DataProvider( 'editor_saves_on_tracked_posts' )]
+	public function test_editor_save_on_a_tracked_post_emits_one_event( $key, $value, $removed ) {
+		$id = wp_insert_post(
+			array(
+				'post_title'  => 'Tracked guide',
+				'post_status' => 'publish',
+			)
+		);
+		$this->assertNotSame( '', get_post_meta( $id, Indexnow_Events::PUBLIC_URL_META, true ) );
+		$url              = get_permalink( $id );
+		$before           = get_post( $id );
+		$this->candidates = array();
+
+		// The REST controller saves the row, then metadata, then fires the after-insert hooks.
+		wp_update_post(
+			array(
+				'ID'         => $id,
+				'post_title' => 'Tracked guide, retitled',
+			),
+			true,
+			false
+		);
+		update_post_meta( $id, $key, $value );
+		wp_after_insert_post( get_post( $id ), true, $before );
+		Indexnow_Events::flush_metadata_changes();
+
+		$this->assertSame(
+			array(
+				array(
+					'url'     => $url,
+					'post'    => $id,
+					'deleted' => $removed,
+				),
+			),
+			$this->candidates
+		);
+	}
+
+	public static function editor_saves_on_tracked_posts() {
+		return array(
+			'title and SEO description' => array( Content_Coverage::META_DESCRIPTION, 'Search description', false ),
+			'title and noindex'         => array( Content_Coverage::META_NOINDEX, true, true ),
+		);
+	}
+
 	public function test_standalone_metadata_reconciliation_ignores_noop_writes() {
 		update_option( Indexnow_Client::ENABLED_OPTION, false );
 		$id = wp_insert_post(
