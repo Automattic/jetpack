@@ -212,12 +212,13 @@ class Settings_Test extends BaseTestCase {
 	 *
 	 * @dataProvider provide_admin_shell_member_cases
 	 *
-	 * @param bool $simple    Whether the site is WordPress.com Simple.
-	 * @param bool $connected Whether the site has a blog token.
-	 * @param bool $expected  Whether Newsletter joins the shell.
+	 * @param bool $simple        Whether the site is WordPress.com Simple.
+	 * @param bool $connected     Whether the site has a blog token.
+	 * @param bool $subscriptions Whether the subscriptions module is active.
+	 * @param bool $expected      Whether Newsletter joins the shell.
 	 */
 	#[DataProvider( 'provide_admin_shell_member_cases' )]
-	public function test_admin_shell_member( $simple, $connected, $expected ) {
+	public function test_admin_shell_member( $simple, $connected, $subscriptions, $expected ) {
 		if ( $connected ) {
 			\Jetpack_Options::update_option( 'id', 1234 );
 			\Jetpack_Options::update_option( 'blog_token', 'test_token.secret' );
@@ -226,7 +227,9 @@ class Settings_Test extends BaseTestCase {
 		if ( $simple ) {
 			\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
 		}
-		add_filter( 'jetpack_active_modules', array( $this, 'mock_subscriptions_active' ) );
+		if ( $subscriptions ) {
+			add_filter( 'jetpack_active_modules', array( $this, 'mock_subscriptions_active' ) );
+		}
 		$this->set_wp_build_index( __FILE__ );
 
 		try {
@@ -241,13 +244,14 @@ class Settings_Test extends BaseTestCase {
 	/**
 	 * Admin shell member cases.
 	 *
-	 * @return array<string, array{bool, bool, bool}>
+	 * @return array<string, array{bool, bool, bool, bool}>
 	 */
 	public static function provide_admin_shell_member_cases() {
 		return array(
-			'connected'        => array( false, true, true ),
-			'not connected'    => array( false, false, false ),
-			'Simple, no token' => array( true, false, true ),
+			'connected'                 => array( false, true, true, true ),
+			'not connected'             => array( false, false, true, false ),
+			'Simple, no token'          => array( true, false, true, true ),
+			'Simple, subscriptions off' => array( true, false, false, false ),
 		);
 	}
 

@@ -330,7 +330,7 @@ class Settings {
 	 * @return array
 	 */
 	public function add_admin_shell_member( $members ) {
-		// The menu's gates, since admin-ajax never builds it: add_wp_admin_submenu() on Simple, with no connection check, add_wp_admin_menu() elsewhere.
+		// The menu's gates, since admin-ajax never builds it; Simple's menu has no connection check.
 		if (
 			! file_exists( self::wp_build_index_path() )
 			|| ! self::is_modernized()
