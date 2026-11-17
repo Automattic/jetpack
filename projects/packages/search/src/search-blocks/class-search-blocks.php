@@ -766,13 +766,13 @@ class Search_Blocks {
 	/**
 	 * On a site that turned off on-demand block assets, load the Search blocks' styles only where they render.
 	 *
-	 * Core enqueues every block's `style` on every page there, but only enqueues a `viewStyle` at render. Running
-	 * before wp_common_block_scripts_and_styles() keeps on-demand sites, and core's placement of these styles, as is.
+	 * Mirrors Automattic\Jetpack\Blocks::load_styles_only_where_blocks_render(), which says why. The search page renders
+	 * these blocks anyway, and a classic theme there can't hoist a late style, so it keeps them in the head.
 	 *
 	 * @since $$next-version$$
 	 */
 	public static function load_block_styles_only_where_rendered() {
-		if ( wp_should_load_block_assets_on_demand() ) {
+		if ( wp_should_load_block_assets_on_demand() || is_search() ) {
 			return;
 		}
 

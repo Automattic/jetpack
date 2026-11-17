@@ -3840,14 +3840,16 @@ class Search_Blocks_Test extends TestCase {
 	 * Register a Search block and run the front-end block style enqueue with on-demand block assets on or off.
 	 *
 	 * @param bool $on_demand Value for the on-demand block asset filters.
+	 * @param bool $is_search Whether the request is a search.
 	 * @return \WP_Block_Type
 	 */
-	private function register_block_and_enqueue_styles( $on_demand ) {
+	private function register_block_and_enqueue_styles( $on_demand, $is_search = false ) {
 		// Core's on-demand checks call is_feed(), which needs a main query.
-		$this->original_wp_query = $GLOBALS['wp_query'] ?? null;
-		$GLOBALS['wp_query']     = new \WP_Query();
-		$GLOBALS['wp_styles']    = new \WP_Styles();
-		$block_type              = register_block_type( dirname( __DIR__, 2 ) . '/src/search-blocks/blocks/powered-by' );
+		$this->original_wp_query        = $GLOBALS['wp_query'] ?? null;
+		$GLOBALS['wp_query']            = new \WP_Query();
+		$GLOBALS['wp_query']->is_search = $is_search;
+		$GLOBALS['wp_styles']           = new \WP_Styles();
+		$block_type                     = register_block_type( dirname( __DIR__, 2 ) . '/src/search-blocks/blocks/powered-by' );
 
 		$filter = $on_demand ? '__return_true' : '__return_false';
 		add_filter( 'should_load_separate_core_block_assets', $filter, 99 );
@@ -3874,23 +3876,45 @@ class Search_Blocks_Test extends TestCase {
 	/**
 	 * A site that turns off on-demand block assets loads a Search block's style only where the block renders.
 	 */
-	public function test_block_style_is_not_loaded_site_wide_when_on_demand_assets_are_off() {
+	public function test_block_style_loads_only_where_block_renders_when_on_demand_assets_are_off() {
 		try {
-			$block_type = $this->register_block_and_enqueue_styles( false );
+			$this->register_block_and_enqueue_styles( false );
 			$this->assertFalse( wp_style_is( 'jetpack-search-powered-by-style', 'enqueued' ) );
-			$this->assertSame( array( 'jetpack-search-powered-by-style' ), $block_type->view_style_handles );
+
+			render_block( array( 'blockName' => 'jetpack-search/powered-by' ) );
+			$this->assertTrue( wp_style_is( 'jetpack-search-powered-by-style', 'enqueued' ) );
 		} finally {
 			$this->unregister_block_and_styles();
 		}
 	}
 
 	/**
-	 * With on-demand block assets, the style stays a block `style` so core keeps hoisting it to the block styles slot.
+	 * Requests where the style stays a block `style`, which keeps it in the head.
+	 *
+	 * @return array<string, array{bool, bool}>
 	 */
-	public function test_block_style_stays_a_block_style_when_on_demand_assets_are_on() {
+	public static function provide_requests_that_keep_block_style() {
+		return array(
+			'on-demand assets on'               => array( true, false ),
+			'search page, on-demand assets off' => array( false, true ),
+		);
+	}
+
+	/**
+	 * With on-demand block assets core hoists the style, and a classic theme's search page can't, so both keep it a block `style`.
+	 *
+	 * @dataProvider provide_requests_that_keep_block_style
+	 *
+	 * @param bool $on_demand Value for the on-demand block asset filters.
+	 * @param bool $is_search Whether the request is a search.
+	 * @dataProvider provide_requests_that_keep_block_style
+	 */
+	#[DataProvider( 'provide_requests_that_keep_block_style' )]
+	public function test_block_style_stays_a_block_style( $on_demand, $is_search ) {
 		try {
-			$block_type = $this->register_block_and_enqueue_styles( true );
+			$block_type = $this->register_block_and_enqueue_styles( $on_demand, $is_search );
 			$this->assertSame( array( 'jetpack-search-powered-by-style' ), $block_type->style_handles );
+			$this->assertSame( array(), $block_type->view_style_handles );
 		} finally {
 			$this->unregister_block_and_styles();
 		}
