@@ -27,12 +27,12 @@ class CLI_Test extends Base_TestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	#[DataProvider( 'drop_in_states' )]
-	public function test_deactivating_page_cache_stops_caching( $drop_in_exists ) {
+	public function test_deactivating_page_cache_stops_caching( $drop_in_signature, $drop_in_remains ) {
 		define( 'WP_CONTENT_DIR', sys_get_temp_dir() . '/boost-cli-' . uniqid() );
 		mkdir( WP_CONTENT_DIR . '/boost-cache', 0755, true );
 		$drop_in = WP_CONTENT_DIR . '/advanced-cache.php';
-		if ( $drop_in_exists ) {
-			file_put_contents( $drop_in, '<?php // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE );
+		if ( null !== $drop_in_signature ) {
+			file_put_contents( $drop_in, '<?php // ' . $drop_in_signature );
 		}
 
 		try {
@@ -44,9 +44,12 @@ class CLI_Test extends Base_TestCase {
 			$cli->module( array( 'deactivate', 'page_cache' ) );
 
 			$this->assertSame(
-				array( false, false ),
+				array( false, $drop_in_remains ),
 				array( $settings->get_enabled(), file_exists( $drop_in ) )
 			);
+			if ( $drop_in_remains ) {
+				$this->assertSame( '<?php // ' . (string) $drop_in_signature, file_get_contents( $drop_in ) );
+			}
 		} finally {
 			foreach ( array( $drop_in, WP_CONTENT_DIR . '/boost-cache/config.php' ) as $file ) {
 				if ( file_exists( $file ) ) {
@@ -60,9 +63,36 @@ class CLI_Test extends Base_TestCase {
 
 	public static function drop_in_states() {
 		return array(
-			'installed'       => array( true ),
-			'already missing' => array( false ),
+			'installed'       => array( Page_Cache::ADVANCED_CACHE_SIGNATURE, false ),
+			'already missing' => array( null, false ),
+			'another plugin'  => array( 'Another Cache Plugin', true ),
 		);
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_deactivating_unconfigured_page_cache_with_read_only_content_directory_succeeds() {
+		define( 'WP_CONTENT_DIR', sys_get_temp_dir() . '/boost-cli-' . uniqid() );
+		mkdir( WP_CONTENT_DIR, 0555, true );
+
+		try {
+			$cli = $this->create_cli();
+			// Reject directory creation even when tests run with elevated filesystem permissions.
+			\Patchwork\redefine( Filesystem_Utils::class . '::create_directory', \Patchwork\always( false ) );
+			Mockery::mock( 'alias:WP_CLI' )->shouldReceive( 'success' )->once()->with( "'page_cache' has been deactivated." );
+
+			$cli->module( array( 'deactivate', 'page_cache' ) );
+
+			$this->assertDirectoryDoesNotExist( WP_CONTENT_DIR . '/boost-cache' );
+			$this->assertFileDoesNotExist( WP_CONTENT_DIR . '/advanced-cache.php' );
+		} finally {
+			chmod( WP_CONTENT_DIR, 0755 );
+			rmdir( WP_CONTENT_DIR );
+		}
 	}
 
 	/**

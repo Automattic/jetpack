@@ -126,10 +126,8 @@ class CLI {
 
 		if ( $module_slug === Page_Cache::get_slug() && ! $status ) {
 			$deactivate_result = $module->on_deactivate();
-			if ( $deactivate_result instanceof Boost_Cache_Error || false === $deactivate_result ) {
-				\WP_CLI::error(
-					$deactivate_result instanceof Boost_Cache_Error ? $deactivate_result->get_error_message() : __( 'Could not deactivate Page Cache.', 'jetpack-boost' )
-				);
+			if ( $deactivate_result instanceof Boost_Cache_Error ) {
+				\WP_CLI::error( $deactivate_result->get_error_message() );
 			}
 		}
 
