@@ -39,7 +39,7 @@ export function minimumPrice( currencies: Currencies, currency: string ): number
 }
 
 /**
- * The name a new plan starts with, matching the payment blocks' defaults.
+ * The name a new plan starts with.
  *
  * @param isTier   - Whether it's a newsletter tier.
  * @param interval - How often it renews.
@@ -55,7 +55,7 @@ export function defaultTitle( isTier: boolean, interval: string ): string {
 		case '1 year':
 			return __( 'Yearly Subscription', 'jetpack-monetize' );
 		default:
-			return __( 'Subscription', 'jetpack-monetize' );
+			return __( 'One time purchase', 'jetpack-monetize' );
 	}
 }
 
