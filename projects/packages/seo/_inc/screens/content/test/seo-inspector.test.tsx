@@ -104,15 +104,52 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 	);
 
 	it.each( [ 'page', 'post', 'kb_article' ] )(
-		'disables inclusion before a %s has editable metadata',
+		'disables the %s inspector until editable metadata is available',
 		postType => {
 			meta = undefined;
-			render( <SeoInspector postId={ 1 } postType={ postType } onClose={ jest.fn() } /> );
-			expect( screen.getByLabelText( LABEL ) ).toBeDisabled();
+			const onClose = jest.fn();
+			const { rerender } = render(
+				<SeoInspector postId={ 1 } postType={ postType } onClose={ onClose } />
+			);
+			const controls = [
+				screen.getByRole( 'textbox', { name: 'SEO title' } ),
+				screen.getByRole( 'textbox', { name: 'Meta description' } ),
+				screen.getByRole( 'combobox', { name: 'Schema type' } ),
+				screen.getByLabelText( 'Hide from search engines' ),
+				screen.getByLabelText( LABEL ),
+			];
+			for ( const control of controls ) {
+				expect( control ).toBeDisabled();
+			}
 			expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
 				'aria-disabled',
 				'true'
 			);
+
+			meta = {
+				jetpack_seo_html_title: 'Saved SEO title',
+				advanced_seo_description: 'Saved description',
+				jetpack_seo_schema_type: 'article',
+				jetpack_seo_noindex: false,
+				jetpack_seo_llms_txt_always_include: true,
+			};
+			rerender( <SeoInspector postId={ 1 } postType={ postType } onClose={ onClose } /> );
+			for ( const control of controls ) {
+				expect( control ).toBeEnabled();
+			}
+			expect( screen.getByRole( 'textbox', { name: 'SEO title' } ) ).toHaveValue(
+				'Saved SEO title'
+			);
+			expect( screen.getByRole( 'textbox', { name: 'Meta description' } ) ).toHaveValue(
+				'Saved description'
+			);
+			expect( screen.getByRole( 'combobox', { name: 'Schema type' } ) ).toHaveValue( 'article' );
+			expect( screen.getByLabelText( LABEL ) ).toBeChecked();
+			expect( screen.getByRole( 'button', { name: 'Save' } ) ).not.toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( mockApiFetch ).not.toHaveBeenCalled();
 		}
 	);
 } );

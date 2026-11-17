@@ -34,7 +34,7 @@ const SCHEMA_OPTIONS: Array< { value: SchemaType; label: string } > = [
 // Pre-resolved for the same reason as SCHEMA_OPTIONS.
 const LLMS_TXT_ALWAYS_INCLUDE_HELP = {
 	shown: __(
-		'While llms.txt is on, lists this content first, even if it isn’t in a menu.',
+		'While llms.txt is on, always lists this content, ahead of the rest of its section.',
 		'jetpack-seo'
 	),
 	hidden: __( 'Content hidden from search engines is left out of llms.txt.', 'jetpack-seo' ),
@@ -132,6 +132,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	// a background refetch changing `editedMeta` identity can't overwrite edits.
 	const hasSeeded = useRef( false );
 	const editedMeta = ( editedRecord as { meta?: Partial< SeoPostMeta > } | undefined )?.meta;
+	const isRecordUnavailable = isResolving || ! editedMeta;
 	useEffect( () => {
 		if ( ! editedMeta || hasSeeded.current ) {
 			return;
@@ -263,7 +264,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					) }
 					value={ local.jetpack_seo_html_title }
 					onChange={ next => setField( { jetpack_seo_html_title: next } ) }
-					disabled={ isResolving }
+					disabled={ isRecordUnavailable }
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 				/>
@@ -273,7 +274,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					value={ local.advanced_seo_description }
 					onChange={ next => setField( { advanced_seo_description: next } ) }
 					rows={ 3 }
-					disabled={ isResolving }
+					disabled={ isRecordUnavailable }
 					__nextHasNoMarginBottom
 				/>
 				<SelectControl
@@ -281,7 +282,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					value={ local.jetpack_seo_schema_type }
 					options={ SCHEMA_OPTIONS }
 					onChange={ next => setField( { jetpack_seo_schema_type: next as SchemaType } ) }
-					disabled={ isResolving }
+					disabled={ isRecordUnavailable }
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 				/>
@@ -299,7 +300,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 							...( next && { jetpack_seo_llms_txt_always_include: false } ),
 						} )
 					}
-					disabled={ isResolving }
+					disabled={ isRecordUnavailable }
 					__nextHasNoMarginBottom
 				/>
 				<ToggleControl
@@ -311,7 +312,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					}
 					checked={ !! local.jetpack_seo_llms_txt_always_include && ! local.jetpack_seo_noindex }
 					onChange={ next => setField( { jetpack_seo_llms_txt_always_include: next } ) }
-					disabled={ isResolving || ! editedMeta || local.jetpack_seo_noindex }
+					disabled={ isRecordUnavailable || local.jetpack_seo_noindex }
 					__nextHasNoMarginBottom
 				/>
 				<SerpPreview
@@ -332,7 +333,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					// resolved): the form still holds EMPTY_META, and saving that would
 					// wipe the post's existing SEO meta. And when the entity config hasn't
 					// resolved, since `baseURL` is the route we save through.
-					disabled={ isSaving || isResolving || ! editedMeta || ! baseURL }
+					disabled={ isSaving || isRecordUnavailable || ! baseURL }
 				>
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>
