@@ -45,6 +45,18 @@ const concatenatedHandles = ( file: string ): string => {
 	return handles.join( ',' );
 };
 
+// Libraries whose second copy would replace the page's, for pages that concatenate scripts some other way.
+const PAGE_GLOBALS: Record< string, () => unknown > = {
+	'jquery-core-js': () => ( window as { jQuery?: unknown } ).jQuery,
+	'underscore-js': () => ( window as { _?: unknown } )._,
+	'backbone-js': () => ( window as { Backbone?: unknown } ).Backbone,
+	'wp-hooks-js': () => ( window as { wp?: { hooks?: unknown } } ).wp?.hooks,
+	'wp-i18n-js': () => ( window as { wp?: { i18n?: unknown } } ).wp?.i18n,
+};
+
+const isOnPage = ( node: HTMLElement ): boolean =>
+	Boolean( node.id && ( document.getElementById( node.id ) || PAGE_GLOBALS[ node.id ]?.() ) );
+
 const isJavaScript = ( script: HTMLScriptElement ): boolean =>
 	! script.type || /^(text|application)\/(java|ecma)script$/i.test( script.type );
 
@@ -98,7 +110,7 @@ async function insert( html: string, added: Element[] ): Promise< void > {
 	for ( const node of template.content.querySelectorAll< HTMLElement >(
 		'link[rel="stylesheet"], style, script'
 	) ) {
-		if ( node.id && document.getElementById( node.id ) ) {
+		if ( isOnPage( node ) ) {
 			continue;
 		}
 		if ( node instanceof HTMLLinkElement ) {
