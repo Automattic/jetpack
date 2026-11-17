@@ -25,7 +25,9 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	transitionSettled: jest.fn( () => Promise.resolve() ),
 } ) );
 jest.mock( '../../../src/admin-shell/app', () => ( {
-	createApp: jest.requireActual( '../../../src/admin-shell/app' ).createApp,
+	createApp: jest.fn( ( ...args ) =>
+		jest.requireActual( '../../../src/admin-shell/app' ).createApp( ...args )
+	),
 	whenRendered: jest.fn( () => Promise.resolve() ),
 } ) );
 jest.mock( '../../../src/admin-shell/guest-assets', () => ( {
@@ -319,6 +321,37 @@ describe( 'admin shell prewarm', () => {
 		await settle();
 
 		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b' } );
+	} );
+} );
+
+describe( 'admin shell switch', () => {
+	const A = '/wp-admin/admin.php?page=guest-a';
+	const B = '/wp-admin/admin.php?page=guest-b';
+
+	it( 'shows a page once when a switch back to it overtakes one still waiting on a dialog', async () => {
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		const { createApp } = require( '../../../src/admin-shell/app' );
+		const { closeDialogsOf } = require( '../../../src/admin-shell/overlays' );
+		const appA = createApp.mock.results.find( ( { value } ) => value.slug === 'guest-a' ).value;
+		const focusHeading = jest.spyOn( appA, 'focusHeading' );
+		const closeDialogs = [];
+		closeDialogsOf.mockImplementation(
+			() => new Promise( resolve => closeDialogs.push( resolve ) )
+		);
+
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		click( A );
+		await settle();
+		closeDialogs.forEach( resolve => resolve() );
+		await settle();
+
+		expect( focusHeading ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
 

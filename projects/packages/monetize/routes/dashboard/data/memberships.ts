@@ -56,6 +56,7 @@ interface StatusResponse {
 	store_context?: string | null;
 	connected_account_default_currency?: string | null;
 	connected_account_minimum_currency?: Record< string, number > | null;
+	connected_account_accepts_charges?: boolean;
 }
 
 export interface StripeStatus {
@@ -68,6 +69,7 @@ export interface StripeStatus {
 	defaultCurrency: string;
 	/** Each supported currency's smallest charge. */
 	minimumAmounts: Record< string, number >;
+	acceptsCharges: boolean;
 }
 
 /**
@@ -91,6 +93,7 @@ export function useStripeStatus() {
 			isSandbox: data.store_context === 'sandbox',
 			defaultCurrency: ( data.connected_account_default_currency ?? '' ).toUpperCase(),
 			minimumAmounts: data.connected_account_minimum_currency ?? {},
+			acceptsCharges: data.connected_account_accepts_charges ?? true,
 		} ),
 	} );
 }

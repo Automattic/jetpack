@@ -3,6 +3,7 @@
  * Tests for /wpcom/v2/external-media endpoints.
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use WpOrg\Requests\Requests;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -311,6 +312,37 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts_Test extends Jetpack_REST_Test
 		$this->assertStringContainsString( 'day_of_year', $clauses['fields'] );
 		$this->assertStringContainsString( 'newest_prompts', $clauses['join'] );
 		$this->assertStringContainsString( 'day_of_year', $clauses['orderby'] );
+	}
+
+	/**
+	 * Tests that a yearless `after` date resolves to its day of the year in `force_year`, whatever the current year.
+	 *
+	 * @param int    $force_year Forced year.
+	 * @param string $after      Yearless `after` date.
+	 * @param int    $expected   Expected SQL day of the year.
+	 *
+	 * @dataProvider provide_force_year_day_of_year
+	 */
+	#[DataProvider( 'provide_force_year_day_of_year' )]
+	public function test_map_date_query_uses_force_year_for_day_of_year( $force_year, $after, $expected ) {
+		$endpoint             = new WPCOM_REST_API_V3_Endpoint_Blogging_Prompts();
+		$endpoint->force_year = $force_year;
+
+		$this->assertNull( $endpoint->map_date_query( array( 'after' => $after ) ) );
+		$this->assertSame( $expected, $endpoint->day_of_year_query );
+	}
+
+	/**
+	 * Data provider for test_map_date_query_uses_force_year_for_day_of_year.
+	 *
+	 * @return array
+	 */
+	public static function provide_force_year_day_of_year() {
+		return array(
+			'non-leap year, Dec 30' => array( 2023, '--12-30', 364 ),
+			'leap year, Dec 30'     => array( 2024, '--12-30', 365 ),
+			'leap year, Feb 29'     => array( 2024, '--02-29', 60 ),
+		);
 	}
 
 	/**

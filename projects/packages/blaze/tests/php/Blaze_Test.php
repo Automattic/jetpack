@@ -669,36 +669,6 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that no temporary migration notice is registered under Tools when the
-	 * standalone plugin owns the menu (we bail before registering anything).
-	 */
-	public function test_no_migration_notice_when_standalone_active() {
-		global $submenu;
-
-		wp_set_current_user( $this->admin_id );
-		add_filter( 'jetpack_blaze_enabled', '__return_true' );
-		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
-		Constants::set_constant( 'IS_WPCOM', true );
-
-		Blaze::enable_blaze_menu();
-
-		$found_notice = false;
-		if ( isset( $submenu['tools.php'] ) ) {
-			foreach ( $submenu['tools.php'] as $item ) {
-				if ( 'advertising-moved' === $item[2] ) {
-					$found_notice = true;
-					break;
-				}
-			}
-		}
-		$this->assertFalse( $found_notice, 'No migration notice should be registered when the standalone plugin owns the menu.' );
-
-		Constants::clear_single_constant( 'IS_WPCOM' );
-		remove_all_filters( 'jetpack_blaze_standalone_active' );
-		add_filter( 'jetpack_blaze_enabled', '__return_false' );
-	}
-
-	/**
 	 * Test that when the standalone plugin is active, BOTH the admin.php and the tools.php
 	 * page=advertising entry points are forwarded to the standalone's wp-blaze page. This
 	 * package handles both itself rather than depending on the standalone shipping its own
@@ -985,10 +955,9 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a migration notice entry is registered under Tools when the menu
-	 * moves to another parent.
+	 * Test that moving the menu out of Tools leaves no entry behind under Tools.
 	 */
-	public function test_migration_notice_added_when_menu_moves() {
+	public function test_no_tools_entry_when_menu_moves() {
 		global $submenu;
 
 		wp_set_current_user( $this->admin_id );
@@ -997,91 +966,11 @@ class Blaze_Test extends BaseTestCase {
 
 		Blaze::enable_blaze_menu();
 
-		$found_notice = false;
-		$notice_label = null;
-		if ( isset( $submenu['tools.php'] ) ) {
-			foreach ( $submenu['tools.php'] as $item ) {
-				if ( 'advertising-moved' === $item[2] ) {
-					$found_notice = true;
-					$notice_label = $item[0];
-					break;
-				}
-			}
-		}
-		$this->assertTrue( $found_notice, 'Expected a migration notice entry under Tools when the menu moves.' );
-		// The temporary entry keeps the old "Advertising" label so users still
-		// recognize it; it must not be renamed to "Blaze Ads".
-		$this->assertSame( 'Advertising', $notice_label );
+		$tools_slugs = array_column( $submenu['tools.php'] ?? array(), 2 );
+		$this->assertNotContains( 'advertising-moved', $tools_slugs, 'No Blaze entry should be registered under Tools when the menu lives elsewhere.' );
 
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
-	}
-
-	/**
-	 * Test that no migration notice is registered when the menu stays under Tools.
-	 */
-	public function test_migration_notice_not_added_when_menu_stays_in_tools() {
-		global $submenu;
-
-		wp_set_current_user( $this->admin_id );
-		add_filter( 'jetpack_blaze_enabled', '__return_true' );
-
-		// Test environment: parent is tools.php (no WooCommerce, WPCOM, or connection).
-		Blaze::enable_blaze_menu();
-
-		$found_notice = false;
-		if ( isset( $submenu['tools.php'] ) ) {
-			foreach ( $submenu['tools.php'] as $item ) {
-				if ( 'advertising-moved' === $item[2] ) {
-					$found_notice = true;
-					break;
-				}
-			}
-		}
-		$this->assertFalse( $found_notice, 'No migration notice should be registered when the menu stays under Tools.' );
-
-		add_filter( 'jetpack_blaze_enabled', '__return_false' );
-	}
-
-	/**
-	 * Test that the migration notice can be disabled via filter.
-	 */
-	public function test_migration_notice_disabled_by_filter() {
-		global $submenu;
-
-		wp_set_current_user( $this->admin_id );
-		add_filter( 'jetpack_blaze_enabled', '__return_true' );
-		add_filter( 'jetpack_blaze_show_migration_notice', '__return_false' );
-		Constants::set_constant( 'IS_WPCOM', true );
-
-		Blaze::enable_blaze_menu();
-
-		$found_notice = false;
-		if ( isset( $submenu['tools.php'] ) ) {
-			foreach ( $submenu['tools.php'] as $item ) {
-				if ( 'advertising-moved' === $item[2] ) {
-					$found_notice = true;
-					break;
-				}
-			}
-		}
-		$this->assertFalse( $found_notice, 'The migration notice should not be registered when disabled via filter.' );
-
-		Constants::clear_single_constant( 'IS_WPCOM' );
-		remove_all_filters( 'jetpack_blaze_show_migration_notice' );
-		add_filter( 'jetpack_blaze_enabled', '__return_false' );
-	}
-
-	/**
-	 * Test that the migration notice renders a link to the new menu location.
-	 */
-	public function test_render_migration_notice_outputs_link() {
-		ob_start();
-		Blaze::render_migration_notice();
-		$output = ob_get_clean();
-
-		$this->assertStringContainsString( 'admin.php?page=advertising', $output );
-		$this->assertStringContainsString( 'Blaze Ads', $output );
 	}
 
 	/**

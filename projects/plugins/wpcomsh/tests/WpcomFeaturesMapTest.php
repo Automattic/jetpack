@@ -214,6 +214,40 @@ class WpcomFeaturesMapTest extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Catches a map entry that drops the sticker requirement for any plan (Commerce included),
+	 * or that widens the plan group below Business or to the plans nested in WPCOM_BUSINESS_PLANS
+	 * that are not a paid Business term (trials, Student).
+	 *
+	 * @dataProvider woo_bundle_extensions_plan_provider
+	 * @param string $slug     Product slug.
+	 * @param bool   $expected Whether the sticker grants the feature.
+	 */
+	#[DataProvider( 'woo_bundle_extensions_plan_provider' )]
+	public function test_woo_bundle_extensions_needs_paid_business_or_commerce_and_the_sticker( $slug, $expected ) {
+		$purchases = array( $this->purchase( $slug ) );
+
+		$this->assertFalse( WPCOM_Features::has_feature( WPCOM_Features::WOO_BUNDLE_EXTENSIONS, $purchases, 'wpcom' ) );
+
+		$this->add_sticker( WPCOM_Features::STICKER_WOO_BUNDLE_EXPERIMENT );
+		$this->assertSame( $expected, WPCOM_Features::has_feature( WPCOM_Features::WOO_BUNDLE_EXTENSIONS, $purchases, 'wpcom' ) );
+	}
+
+	/**
+	 * Plans checked against the Woo bundle experiment sticker.
+	 *
+	 * @return array
+	 */
+	public static function woo_bundle_extensions_plan_provider() {
+		return array(
+			'business'      => array( 'business-bundle', true ),
+			'commerce'      => array( 'ecommerce-bundle', true ),
+			'premium'       => array( 'value_bundle', false ),
+			'hosting trial' => array( 'wp_bundle_hosting_trial_monthly', false ),
+			'student'       => array( 'wp_bundle_student_yearly', false ),
+		);
+	}
+
 	public function test_sticker_not_present_withdraws_the_definition_once_the_sticker_lands() {
 		$map = array(
 			array(

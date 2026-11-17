@@ -749,3 +749,21 @@ describe( 'getCurrencyObject()', () => {
 		} );
 	} );
 } );
+
+describe( 'currency formatting with current ISO 4217 codes', () => {
+	it.each( [ 'BYN', 'MRU', 'SLE', 'SSP', 'STN', 'VES', 'XCG', 'ZWG' ] )(
+		'does not fall back to USD for %s',
+		currency => {
+			const money = getCurrencyObject( {
+				number: 1234.5,
+				currency,
+				browserSafeLocale,
+			} );
+			expect( money.symbol ).not.toBe( '$' );
+			expect( money.symbol ).not.toBe( 'US$' );
+			expect( numberFormatCurrency( { number: 1234.5, currency, browserSafeLocale } ) ).toContain(
+				'1,234.50'
+			);
+		}
+	);
+} );
