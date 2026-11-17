@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Admin_UI;
 
 /**
- * Serves the media library to `loadMediaLibrary()` in `src/media-library.ts`.
+ * Serves the media library to `loadMediaLibrary()` in `@automattic/jetpack-components/tools/load-media-library`.
  */
 class Media_Library {
 
