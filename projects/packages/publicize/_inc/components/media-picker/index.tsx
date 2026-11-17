@@ -1,5 +1,5 @@
-import { loadMediaLibrary } from '@automattic/jetpack-admin-ui/media-library';
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { Fragment, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
