@@ -34,6 +34,11 @@ class Viewer_History {
 	const MAX_SEGMENTS       = 50;
 	const MAX_INTERVALS      = 200;
 	const MAX_PAGE           = 50;
+	const HIDE_LIMIT         = 5000;
+	const PICK_ATTEMPTS      = 12;
+	const PICK_SCAN          = 100;
+	const QUERY_ARG_HIDE     = 'videos-hide';
+	const QUERY_ARG_PICK     = 'videopress_unwatched';
 	const STATUS_WATCHED     = 'watched';
 	const STATUS_IN_PROGRESS = 'in_progress';
 	const STATUS_LEGACY      = 'legacy_seen';
@@ -69,6 +74,8 @@ class Viewer_History {
 		add_filter( 'wp_privacy_personal_data_exporters', array( __CLASS__, 'register_exporter' ) );
 		add_filter( 'wp_privacy_personal_data_erasers', array( __CLASS__, 'register_eraser' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_viewer_script' ) );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_discovery_script' ) );
+		add_action( 'template_redirect', array( __CLASS__, 'maybe_pick_unwatched' ) );
 		add_action( 'deleted_user', array( __CLASS__, 'forget_user' ) );
 	}
 
@@ -580,7 +587,7 @@ class Viewer_History {
 			foreach ( $rows as $row ) {
 				$after = array( $row['updated'], $row['guid'] );
 				if ( self::can_see( $row['guid'] ) ) {
-					$items[] = self::present( $row, $row['guid'] );
+					$items[] = self::present( $row, $row['guid'] ) + array( 'title' => html_entity_decode( get_the_title( Channel::attachment_id( $row['guid'] ) ), ENT_QUOTES, 'UTF-8' ) );
 					$full    = count( $items ) === $per_page;
 					if ( $full ) {
 						break;
@@ -782,6 +789,114 @@ class Viewer_History {
 			'items_retained' => false,
 			'messages'       => array(),
 			'done'           => true,
+		);
+	}
+
+	/**
+	 * GUIDs a viewer has watched ( automatically or by marking them ), most recent first, bounded.
+	 *
+	 * @param int $user_id Viewer.
+	 * @return string[]
+	 */
+	public static function watched_guids( $user_id ) {
+		$store = self::store();
+		if ( ! $store || ! $user_id ) {
+			return array();
+		}
+		$guids = array();
+		foreach ( $store->list_recent( (int) $user_id, self::HIDE_LIMIT ) as $row ) {
+			if ( self::STATUS_WATCHED === self::status( $row ) ) {
+				$guids[] = $row['guid'];
+			}
+		}
+		return $guids;
+	}
+
+	/**
+	 * Whether the current request asks to hide the viewer's watched videos.
+	 *
+	 * @return bool
+	 */
+	public static function hide_watched_requested() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only listing argument.
+		return is_user_logged_in() && self::is_enabled() && isset( $_GET[ self::QUERY_ARG_HIDE ] ) && 'watched' === $_GET[ self::QUERY_ARG_HIDE ];
+	}
+
+	/**
+	 * `?videopress_unwatched=1`: open a random video the viewer has not watched. Random offsets into
+	 * the channel's newest-first order, a bounded number of tries, then a bounded scan; never
+	 * ORDER BY RAND over the archive.
+	 *
+	 * @return void
+	 */
+	public static function maybe_pick_unwatched() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation.
+		if ( empty( $_GET[ self::QUERY_ARG_PICK ] ) || ! Channel::is_enabled() ) {
+			return;
+		}
+		nocache_headers();
+		$watched = array_flip( self::is_enabled() ? self::watched_guids( get_current_user_id() ) : array() );
+		$total   = Channel_Data::video_count();
+		$state   = array(
+			'search' => '',
+			'sort'   => 'newest',
+			'length' => 'any',
+			'terms'  => array(),
+		);
+		$pick    = null;
+		for ( $try = 0; $try < self::PICK_ATTEMPTS && $total > 0 && null === $pick; $try++ ) {
+			$entry = Channel_Data::browse( $state + array( 'page' => wp_rand( 1, $total ) ), 1 )['entries'][0] ?? null;
+			if ( $entry && ! isset( $watched[ $entry['guid'] ] ) ) {
+				$pick = $entry;
+			}
+		}
+		if ( null === $pick && $total > 0 ) {
+			foreach ( Channel_Data::browse( $state + array( 'page' => 1 ), self::PICK_SCAN )['entries'] as $entry ) {
+				if ( ! isset( $watched[ $entry['guid'] ] ) ) {
+					$pick = $entry;
+					break;
+				}
+			}
+		}
+		$url = $pick ? Channel::video_url( (int) $pick['id'] ) : Channel_Data::videos_page_url();
+		wp_safe_redirect( '' !== $url ? $url : home_url( '/' ) );
+		exit;
+	}
+
+	/**
+	 * Load the personal discovery script on channel pages for signed-in viewers: watched badges,
+	 * progress bars, Continue watching shelves and the watched toggle. Pages stay shared and
+	 * cacheable; the script fills them in after load.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_discovery_script() {
+		if ( ! is_user_logged_in() || ! self::is_enabled() ) {
+			return;
+		}
+		$asset_file = __DIR__ . '/../build/lib/viewer-discovery.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+		$asset = require $asset_file;
+		wp_enqueue_script( 'videopress-viewer-discovery', plugins_url( '../build/lib/viewer-discovery.js', __FILE__ ), $asset['dependencies'], $asset['version'], true );
+		wp_set_script_translations( 'videopress-viewer-discovery', 'jetpack-videopress-pkg' );
+		$guid = Channel::is_video_page() ? Channel::queried_guid() : '';
+		wp_add_inline_script(
+			'videopress-viewer-discovery',
+			'window.videoPressViewerDiscovery = ' . wp_json_encode(
+				array(
+					'root'     => rest_url( Rest_Controller::REST_NAMESPACE . '/me/history' ),
+					'nonce'    => wp_create_nonce( 'wp_rest' ),
+					'videoUrl' => add_query_arg( 'v', '__GUID__', home_url( '/' . Channel::ENDPOINT ) ),
+					'startVar' => Channel::START_VAR,
+					'guid'     => $guid,
+					'epoch'    => self::epoch( get_current_user_id() ),
+					'pickUrl'  => add_query_arg( self::QUERY_ARG_PICK, '1', home_url( '/' ) ),
+				),
+				JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
+			) . ';',
+			'before'
 		);
 	}
 
