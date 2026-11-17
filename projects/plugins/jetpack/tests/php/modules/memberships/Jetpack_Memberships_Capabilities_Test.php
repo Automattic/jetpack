@@ -116,9 +116,9 @@ class Jetpack_Memberships_Capabilities_Test extends WP_UnitTestCase {
 	 * A comment sharing its ID with someone else's plan gets the same `edit_comment` result as without the filter.
 	 */
 	public function test_edit_comment_with_plan_id_is_unaffected() {
-		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$plan_id   = self::factory()->post->create(
+		$admin_id   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$author_id  = self::factory()->user->create( array( 'role' => 'author' ) );
+		$plan_id    = self::factory()->post->create(
 			array(
 				'post_type'   => Jetpack_Memberships::$post_type_plan,
 				'post_status' => 'publish',
