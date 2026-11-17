@@ -3,6 +3,7 @@ import {
 	Button,
 	Dialog,
 	InputControl,
+	InputLayout,
 	Notice,
 	SearchableChipSelectControl,
 	SelectControl,
@@ -240,9 +241,11 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							onValueChange={ onCodeChange }
 							maxLength={ 20 }
 							suffix={
-								<Button variant="minimal" tone="neutral" size="compact" onClick={ onGenerateCode }>
-									{ __( 'Generate', 'jetpack-monetize' ) }
-								</Button>
+								<InputLayout.Slot padding="minimal">
+									<Button variant="minimal" tone="neutral" size="small" onClick={ onGenerateCode }>
+										{ __( 'Generate', 'jetpack-monetize' ) }
+									</Button>
+								</InputLayout.Slot>
 							}
 							description={
 								codeError ??
@@ -278,7 +281,11 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 										? __( 'Percentage off', 'jetpack-monetize' )
 										: __( 'Amount off', 'jetpack-monetize' )
 								}
-								suffix={ form.discountType === 'percentage' ? '%' : undefined }
+								suffix={
+									form.discountType === 'percentage' ? (
+										<InputLayout.Slot>%</InputLayout.Slot>
+									) : undefined
+								}
 								value={ form.discount }
 								onValueChange={ onDiscountChange }
 								description={ discountError }
