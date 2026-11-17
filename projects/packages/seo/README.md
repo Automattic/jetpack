@@ -81,18 +81,23 @@ The built JS/CSS lives in `build/` and is included in the vendored Jetpack plugi
 
 ### IndexNow background delivery
 
-Pending notifications use non-autoloaded options, with one stable row per URL. Repeated changes are combined for five minutes before background delivery. Workers recheck visibility, consent, and URL scope, and preserve newer changes when acknowledging older work.
+Pending notifications use non-autoloaded options, with stable records for normal post updates and historical URLs. Repeated changes are combined for five minutes before background delivery. Workers recheck visibility, consent, and URL scope, and preserve newer changes when acknowledging older work. Both new admissions and replacements check the queue generation. Results from a worker that predates a queue reset cannot restore old status or cooldowns.
 
 The following filters accept integers:
 
 - `jetpack_seo_indexnow_batch_size`: maximum URLs per request, default 100, bounded to 1 through 10,000.
-- `jetpack_seo_indexnow_queue_capacity`: maximum pending URLs admitted, default 10,000, bounded to 1 through 50,000.
+- `jetpack_seo_indexnow_queue_capacity`: maximum pending records admitted, default 10,000, bounded to 1 through 50,000.
 
-Lowering capacity preserves existing entries and allows updates to an already pending URL. New URLs are refused while the queue remains above the admission limit. Overflow is reported separately from delivery status.
+Normal updates coalesce by post ID, with the current URL resolved during delivery. Old-address and removal notifications retain the exact URL. Existing URL-based records remain readable, and duplicate resolved URLs are sent only once per batch.
 
-Workers read pages of 250 rows and normally inspect at most 5,000 rows per run. Larger configured batches can increase that scan budget. A 1 MiB stored-payload budget can reduce the actual batch size, and workers check a 20-second processing budget between pages. Scheduler delays can extend delivery time.
+Lowering capacity preserves existing entries and allows updates to an already pending record. New records are refused while the queue remains above the admission limit. Simple also refuses additions or growing replacements that would take estimated serialized options storage above 750,000 bytes, leaving headroom for other settings and delivery bookkeeping. Unchanged or smaller records can still be refreshed. Refused notifications are not saved for later replay; post saving continues normally. Overflow is reported separately from delivery status.
+
+Workers read pages of 250 rows and normally inspect at most 5,000 rows per run. Larger configured batches can increase that scan budget. A 1 MiB payload budget, including resolved URLs and rechecked before delivery, can reduce the actual batch size. Workers check a 20-second processing budget between pages. Scheduler delays can extend delivery time.
+
+Disable IndexNow before reverting to a URL-only worker. Older workers discard ID-only records without submitting them, while remaining URL snapshots are still understood. Keep IndexNow disabled on Simple until a version with the storage bound is restored.
 
 HTTP 202 records receipt with ownership verification pending, without consuming retries. HTTP 429 pauses all site submissions and respects `Retry-After`, with a minimum ten-minute cooldown. Other temporary failures receive bounded backoff, with five retries and a maximum entry age of 48 hours. Receipt does not establish crawling or indexing. Delivery can repeat after an interruption with an ambiguous response.
+
 
 ### IndexNow metadata reconciliation
 

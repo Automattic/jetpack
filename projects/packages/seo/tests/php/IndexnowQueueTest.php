@@ -27,7 +27,7 @@ class IndexnowQueueTest extends SeoTestCase {
 
 	protected function tearDown(): void {
 		Indexnow_Queue::clear();
-		foreach ( array( Indexnow_Client::ENABLED_OPTION, Indexnow_Client::SCOPE_OPTION, Indexnow_Client::KEY_OPTION, Indexnow_Queue::STATUS_OPTION, Indexnow_Queue::ACCEPTED_OPTION, Indexnow_Queue::GENERATION_OPTION, 'jetpack_seo_indexnow_enqueue_error', 'home' ) as $option ) {
+		foreach ( array( Indexnow_Client::ENABLED_OPTION, Indexnow_Client::SCOPE_OPTION, Indexnow_Client::KEY_OPTION, Indexnow_Queue::STATUS_OPTION, Indexnow_Queue::ACCEPTED_OPTION, Indexnow_Queue::GENERATION_OPTION, Indexnow_Queue::ADMISSION_LOCK, 'jetpack_seo_indexnow_enqueue_error', 'home' ) as $option ) {
 			delete_option( $option );
 		}
 		remove_filter( 'rsm_jetpack_seo', '__return_true' );
@@ -455,45 +455,50 @@ class IndexnowQueueTest extends SeoTestCase {
 	}
 
 	public function test_large_batch_filter_keeps_payload_memory_bounded_and_remaining_urls_pending() {
-		add_filter(
-			'jetpack_seo_indexnow_batch_size',
-			static function () {
-				return 10000;
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', false );
+		try {
+			add_filter(
+				'jetpack_seo_indexnow_batch_size',
+				static function () {
+					return 10000;
+				}
+			);
+			for ( $i = 0; $i < 600; ++$i ) {
+				$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/' . str_repeat( 'a', 1900 ) . '/' . $i, 42, true ) );
 			}
-		);
-		for ( $i = 0; $i < 600; ++$i ) {
-			$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/' . str_repeat( 'a', 1900 ) . '/' . $i, 42, true ) );
-		}
-		$after = '';
-		$rows  = Indexnow_Queue::rows( 250, $after );
-		while ( $rows ) {
-			foreach ( $rows as $row ) {
-				$after       = $row['option_name'];
-				$item        = json_decode( $row['option_value'], true );
-				$item['due'] = time() - 1;
-				Indexnow_Queue::compare_and_swap( $row, $item );
+			$after = '';
+			$rows  = Indexnow_Queue::rows( 250, $after );
+			while ( $rows ) {
+				foreach ( $rows as $row ) {
+					$after       = $row['option_name'];
+					$item        = json_decode( $row['option_value'], true );
+					$item['due'] = time() - 1;
+					Indexnow_Queue::compare_and_swap( $row, $item );
+				}
+				$rows = Indexnow_Queue::rows( 250, $after );
 			}
-			$rows = Indexnow_Queue::rows( 250, $after );
+			$sent = array();
+			add_filter(
+				'pre_http_request',
+				static function ( $pre, $args ) use ( &$sent ) {
+					$sent = json_decode( $args['body'], true )['urlList'];
+					return array(
+						'headers'  => array(),
+						'body'     => '',
+						'response' => array( 'code' => 200 ),
+					);
+				},
+				10,
+				2
+			);
+			Indexnow_Queue::work();
+			$this->assertNotEmpty( $sent );
+			$this->assertLessThan( 600, count( $sent ) );
+			$this->assertSame( 600 - count( $sent ), Indexnow_Queue::size() );
+			$this->assertSameSize( $sent, array_unique( $sent ) );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
 		}
-		$sent = array();
-		add_filter(
-			'pre_http_request',
-			static function ( $pre, $args ) use ( &$sent ) {
-				$sent = json_decode( $args['body'], true )['urlList'];
-				return array(
-					'headers'  => array(),
-					'body'     => '',
-					'response' => array( 'code' => 200 ),
-				);
-			},
-			10,
-			2
-		);
-		Indexnow_Queue::work();
-		$this->assertNotEmpty( $sent );
-		$this->assertLessThan( 600, count( $sent ) );
-		$this->assertSame( 600 - count( $sent ), Indexnow_Queue::size() );
-		$this->assertSameSize( $sent, array_unique( $sent ) );
 	}
 	public function test_vip_preserves_saved_work_without_admitting_or_delivering() {
 		$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/retained', 42, true ) );
@@ -935,13 +940,241 @@ class IndexnowQueueTest extends SeoTestCase {
 		try {
 			$this->assertFalse( Indexnow_Queue::enqueue( 'https://example.com/database-failure', 42, true ) );
 			$this->assertSame( 0, Indexnow_Queue::size() );
-			$this->assertFalse( get_option( Indexnow_Queue::ADMISSION_LOCK ) );
 		} finally {
 			remove_filter( 'query', $fail_insert );
 			$wpdb->suppress_errors( $previous_errors );
 		}
 		$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/recovered', 42, true ) );
 	}
+	public function test_normal_updates_coalesce_by_post_without_storing_the_url() {
+		$id = $this->publish();
+		$this->assertTrue( Indexnow_Queue::enqueue( get_permalink( $id ), $id ) );
+		$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/a-new-address/', $id ) );
+		$rows = Indexnow_Queue::rows();
+		$this->assertCount( 1, $rows );
+		$item = json_decode( $rows[0]['option_value'], true );
+		$this->assertSame( $id, $item['post'] );
+		$this->assertArrayNotHasKey( 'url', $item );
+	}
+
+	public function test_url_snapshots_survive_beside_the_normal_post_record() {
+		$id  = $this->publish();
+		$url = get_permalink( $id );
+		$this->assertTrue( Indexnow_Queue::enqueue( $url, $id ) );
+		$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/previous-address/', $id, true ) );
+		$urls = array();
+		$http = static function ( $pre, $args ) use ( &$urls ) {
+			$urls = json_decode( $args['body'], true )['urlList'];
+			return array(
+				'headers'  => array(),
+				'body'     => '',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $http, 10, 2 );
+		$this->make_pending_due();
+		Indexnow_Queue::work();
+		sort( $urls );
+		$expected = array( $url, 'https://example.com/previous-address/' );
+		sort( $expected );
+		$this->assertSame( $expected, $urls );
+		$this->assertSame( 0, Indexnow_Queue::size() );
+	}
+
+	public function test_legacy_and_id_rows_deliver_the_same_url_only_once() {
+		global $wpdb;
+		$id  = $this->publish();
+		$url = get_permalink( $id );
+		$this->assertTrue( Indexnow_Queue::enqueue( $url, $id ) );
+		$item        = json_decode( Indexnow_Queue::rows()[0]['option_value'], true );
+		$item['url'] = $url;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Reproduce a notification persisted by the URL-only worker.
+		$wpdb->insert(
+			$wpdb->options,
+			array(
+				'option_name'  => Indexnow_Queue::PREFIX . hash( 'sha256', $url ),
+				'option_value' => wp_json_encode( $item, JSON_UNESCAPED_SLASHES ),
+				'autoload'     => 'no',
+			)
+		);
+		$this->assertSame( 2, Indexnow_Queue::size() );
+		$http = function ( $pre, $args ) use ( $url ) {
+			$this->assertSame( array( $url ), json_decode( $args['body'], true )['urlList'] );
+			return array(
+				'headers'  => array(),
+				'body'     => '',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $http, 10, 2 );
+		$this->make_pending_due();
+		Indexnow_Queue::work();
+		$this->assertSame( 0, Indexnow_Queue::size() );
+		$this->assertSame( 1, get_option( Indexnow_Queue::STATUS_OPTION )['count'] );
+	}
+
+	public function test_simple_counts_unicode_bytes_and_preserves_unchanged_records_at_capacity() {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		try {
+			$id = $this->publish();
+			$this->assertTrue( Indexnow_Queue::enqueue( get_permalink( $id ), $id ) );
+			update_option( 'indexnow_test_padding', str_repeat( 'é', 380000 ), false );
+			$this->assertFalse( Indexnow_Queue::enqueue( 'https://example.com/another/', $id + 1, true ) );
+			$this->assertTrue( Indexnow_Queue::enqueue( get_permalink( $id ), $id ) );
+			$this->assertSame( 1, Indexnow_Queue::size() );
+			delete_option( 'indexnow_test_padding' );
+			$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/another/', $id + 1, true ) );
+		} finally {
+			delete_option( 'indexnow_test_padding' );
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	public function test_simple_refuses_a_growing_replacement_without_overwriting_it() {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		try {
+			$url = 'https://example.com/removed-address/';
+			$this->assertTrue( Indexnow_Queue::enqueue( $url, 1, true ) );
+			$old = Indexnow_Queue::rows()[0];
+			update_option( 'indexnow_test_padding', str_repeat( 'é', 380000 ), false );
+			$this->assertFalse( Indexnow_Queue::enqueue( $url, 999999999, true ) );
+			$this->assertSame( $old, Indexnow_Queue::rows()[0] );
+		} finally {
+			delete_option( 'indexnow_test_padding' );
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	/**
+	 * @dataProvider simple_admission_interruptions
+	 * @param string $phase Interruption before the admission statement executes.
+	 */
+	#[DataProvider( 'simple_admission_interruptions' )]
+	public function test_simple_admission_uses_current_quota_and_ownership( $phase ) {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		$intercepted = false;
+		$interrupt   = static function ( $query ) use ( &$intercepted, $phase ) {
+			if ( ! $intercepted && ( ( 'quota' === $phase && strpos( $query, 'SELECT COALESCE(SUM(OCTET_LENGTH' ) === 0 ) || ( 'quota' !== $phase && strpos( $query, 'INSERT INTO' ) === 0 && strpos( $query, 'AS queue_owner' ) !== false ) ) ) {
+				$intercepted = true;
+				if ( 'quota' === $phase ) {
+					update_option( 'indexnow_test_padding', str_repeat( 'é', 380000 ), false );
+				} elseif ( 'lock' === $phase ) {
+					update_option(
+						Indexnow_Queue::ADMISSION_LOCK,
+						wp_json_encode(
+							array(
+								'owner'   => 'new-owner',
+								'expires' => time() + 60,
+							),
+							JSON_UNESCAPED_SLASHES
+						),
+						false
+					);
+				} else {
+					Indexnow_Queue::clear();
+				}
+			}
+			return $query;
+		};
+		add_filter( 'query', $interrupt );
+		try {
+			$this->assertFalse( Indexnow_Queue::enqueue( 'https://example.com/interrupted/', 42, true ) );
+			$this->assertTrue( $intercepted );
+			$this->assertSame( 0, Indexnow_Queue::size() );
+			if ( 'generation' === $phase ) {
+				$this->assertFalse( get_option( 'jetpack_seo_indexnow_enqueue_error' ) );
+			}
+		} finally {
+			remove_filter( 'query', $interrupt );
+			delete_option( 'indexnow_test_padding' );
+			delete_option( Indexnow_Queue::ADMISSION_LOCK );
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	public function test_late_permalink_growth_cannot_bypass_the_delivery_byte_budget() {
+		$long    = false;
+		$claimed = 0;
+		$link    = static function ( $url, $post ) use ( &$long ) {
+			return home_url( '/' . ( $long ? str_repeat( 'a', 1900 ) : 'short' ) . '/' . $post->ID );
+		};
+		$grow    = static function ( $query ) use ( &$long, &$claimed ) {
+			if ( strpos( $query, 'SELECT option_name, option_value' ) === 0 && strpos( $query, 'option_name IN (' ) !== false ) {
+				$long    = true;
+				$claimed = substr_count( $query, Indexnow_Queue::PREFIX . 'p_' );
+			}
+			return $query;
+		};
+		add_filter( 'post_link', $link, 10, 2 );
+		add_filter(
+			'jetpack_seo_indexnow_batch_size',
+			static function () {
+				return 10000;
+			}
+		);
+		try {
+			for ( $i = 0; $i < 600; ++$i ) {
+				$id = wp_insert_post(
+					array(
+						'post_title'  => 'Late permalink ' . $i,
+						'post_status' => 'publish',
+					)
+				);
+				$this->assertTrue( Indexnow_Queue::enqueue( get_permalink( $id ), $id ) );
+			}
+			$after = '';
+			$rows  = Indexnow_Queue::rows( 250, $after );
+			while ( $rows ) {
+				foreach ( $rows as $row ) {
+					$after       = $row['option_name'];
+					$item        = json_decode( $row['option_value'], true );
+					$item['due'] = time() - 1;
+					Indexnow_Queue::compare_and_swap( $row, $item );
+				}
+				$rows = Indexnow_Queue::rows( 250, $after );
+			}
+			$sent = array();
+			add_filter(
+				'pre_http_request',
+				function ( $pre, $args ) use ( &$sent ) {
+					$this->assertLessThan( 1048576, strlen( $args['body'] ) );
+					$sent = json_decode( $args['body'], true )['urlList'];
+					return array(
+						'headers'  => array(),
+						'body'     => '',
+						'response' => array( 'code' => 200 ),
+					);
+				},
+				10,
+				2
+			);
+			add_filter( 'query', $grow );
+			Indexnow_Queue::work();
+			$this->assertTrue( $long );
+			$this->assertSame( 600, $claimed );
+			$this->assertNotEmpty( $sent );
+			$this->assertLessThan( 600, count( $sent ) );
+			$this->assertSame( 600 - count( $sent ), Indexnow_Queue::size() );
+		} finally {
+			remove_filter( 'query', $grow );
+			remove_filter( 'post_link', $link, 10 );
+		}
+	}
+
+	public static function simple_admission_interruptions() {
+		return array(
+			'quota fills'  => array( 'quota' ),
+			'lock changes' => array( 'lock' ),
+			'queue resets' => array( 'generation' ),
+		);
+	}
+
 	public static function throttling_headers() {
 		return array(
 			'explicit retry time' => array( array( 'retry-after' => '1200' ), 1200 ),
