@@ -2,7 +2,15 @@
 
 A product-agnostic channel to tell Jetpack users what is new.
 
-A product is a registrant, which publishes announcements, a host, which shows them, or both. The package knows neither.
+A product is a registrant, which publishes announcements, a host, which shows them, or both. The package knows neither, and decides nothing about what is worth announcing.
+
+## Documentation
+
+| Page                                                    | What it covers                                           |
+| ------------------------------------------------------- | -------------------------------------------------------- |
+| [How Jetpack Announcements works](docs/architecture.md) | The three roles, who decides what, and the public API    |
+| [Publishing announcements](docs/registrants.md)         | The registrant's side: the record, the action, its rules |
+| [Hosting What's new](docs/hosts.md)                     | The host's side: mounting, leaving, what the page needs  |
 
 ## Registering an announcement
 
