@@ -8,14 +8,19 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Protect\Sections\Scan;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -61,6 +66,9 @@ class Dashboard_Test extends BaseTestCase {
 		remove_all_filters( 'pre_update_option_' . Scan_Status::OPTION_NAME );
 		remove_all_filters( 'pre_http_request' );
 		Protect_Status::$status = null;
+		Scan_Status::$status    = null;
+		delete_option( Current_Plan::SITE_PRODUCTS_OPTION );
+		Plan::has_required_plan( true );
 		\Automattic\Jetpack\Constants::clear_constants();
 		( new Connection_Manager() )->reset_connection_status();
 		wp_set_current_user( 0 );
@@ -77,9 +85,28 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A menu hover readies the page through the admin shell, which may fetch the report but must not save it.
+	 * Only the admin shell's hover request fetches the report without caching it.
+	 *
+	 * @dataProvider provide_admin_shell_loads
+	 *
+	 * @param bool $is_hover Whether the shell's hover request readies the page, rather than another dashboard's page.
+	 * @param bool $has_plan Whether the site has Scan, which reads Scan's report instead of Protect's.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
-	public function test_admin_shell_guest_fetches_the_report_without_saving_it() {
+	#[DataProvider( 'provide_admin_shell_loads' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_only_the_admin_shell_hover_fetches_the_report_without_caching_it( $is_hover, $has_plan ) {
+		if ( $is_hover ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_GET['action'] = Admin_Shell::GUEST_ACTION;
+		}
+		if ( $has_plan ) {
+			update_option( Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		}
+		Plan::has_required_plan( true );
 		\Automattic\Jetpack\Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		\Jetpack_Options::update_option( 'id', 123 );
 		\Jetpack_Options::update_option( 'blog_token', 'blog.secret' );
@@ -90,6 +117,7 @@ class Dashboard_Test extends BaseTestCase {
 					'response' => array( 'code' => 200 ),
 					'body'     => wp_json_encode(
 						array(
+							'state'        => 'idle',
 							'status'       => 'idle',
 							'last_checked' => '2026-11-01 00:00:00',
 						),
@@ -101,10 +129,27 @@ class Dashboard_Test extends BaseTestCase {
 
 		Dashboard::load_as_admin_shell_guest();
 		$state = ( new Scan() )->get_state();
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		unset( $_GET['action'] );
 
-		$this->assertSame( '2026-11-01 00:00:00', $state['lastChecked'] );
-		$this->assertFalse( get_option( Protect_Status::OPTION_NAME ) );
-		$this->assertFalse( get_option( Protect_Status::OPTION_TIMESTAMP_NAME ) );
+		$this->assertSame( $has_plan, $state['hasPlan'] );
+		$this->assertFalse( $state['error'] );
+		$status = $has_plan ? Scan_Status::class : Protect_Status::class;
+		$this->assertSame( ! $is_hover, false !== get_option( $status::OPTION_NAME ) );
+		$this->assertSame( ! $is_hover, false !== get_option( $status::OPTION_TIMESTAMP_NAME ) );
+	}
+
+	/**
+	 * The shell's hover request, with and without Scan, and another dashboard's page readying Protect for a later switch.
+	 *
+	 * @return array<string, array{bool, bool}>
+	 */
+	public static function provide_admin_shell_loads() {
+		return array(
+			'hover request'           => array( true, false ),
+			'hover request with Scan' => array( true, true ),
+			'another member page'     => array( false, false ),
+		);
 	}
 
 	/**
