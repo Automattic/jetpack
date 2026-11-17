@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 
 export interface IdentityCrisisLayoutProps {
-	/** A string is used as an image URL; anything else renders as given. Defaults to the Jetpack logo. */
-	logo?: ReactNode;
+	/** `identityCrisis.logoUrl` from the connection state: the connected plugins' marks. Defaults to the Jetpack logo. */
+	logoUrl?: string;
 	children: ReactNode;
 	/** Actions the host adds below the content, such as Disconnect on the Connectors card. */
 	hostActions?: ReactNode;

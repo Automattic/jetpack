@@ -12,22 +12,21 @@ import type { ReactNode } from 'react';
  * @return {ReactNode} The layout.
  */
 export default function IdentityCrisisLayout( {
-	logo,
+	logoUrl,
 	children,
 	hostActions,
 }: IdentityCrisisLayoutProps ): ReactNode {
-	let logoElement: ReactNode = logo;
-	if ( typeof logo === 'string' ) {
-		// Decorative: the label next to it names the screen.
-		logoElement = <img src={ logo } alt="" className={ styles.logo } />;
-	} else if ( ! logo ) {
-		logoElement = <JetpackLogo height={ 24 } />;
-	}
+	// Decorative: the label next to it names the screen.
+	const logo = logoUrl ? (
+		<img src={ logoUrl } alt="" className={ styles.logo } />
+	) : (
+		<JetpackLogo height={ 24 } />
+	);
 
 	return (
 		<Stack direction="column" gap="lg">
 			<Stack direction="row" gap="sm" align="center">
-				{ logoElement }
+				{ logo }
 				<Text variant="heading-md">{ __( 'Safe Mode', 'jetpack-connection-js' ) }</Text>
 			</Stack>
 			{ children }
