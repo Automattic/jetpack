@@ -28,7 +28,6 @@ module.exports = {
 		'<rootDir>/_inc/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/3rd-party/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/views/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
-		'<rootDir>/routes/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		...baseConfig.collectCoverageFrom,
 	],
 };
