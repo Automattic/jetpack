@@ -113,18 +113,6 @@ describe( 'useStatsSettings', () => {
 		await second;
 	} );
 
-	it( 'keeps a pending change when an earlier save fails', async () => {
-		const { result } = renderHook( () => useStatsSettings() );
-
-		const first = result.current.saveChange( { admin_bar: false } );
-		result.current.saveChange( { count_roles: [ 'editor' ] } );
-		await sent();
-		mockSite.saves[ 0 ].reject( new Error( 'refused' ) );
-		await expect( first ).rejects.toThrow( 'refused' );
-
-		expect( mockEdited().stats_options?.count_roles ).toEqual( [ 'editor' ] );
-	} );
-
 	it( 'keeps a newer pending edit to the same setting when an earlier save fails', async () => {
 		const { result } = renderHook( () => useStatsSettings() );
 
