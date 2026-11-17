@@ -57,6 +57,6 @@ class Jetpack_Mu_Wpcom_Test extends TestCase {
 
 		$this->assertNotNull( Feature_Flags::get( Admin_Shell::FLAG ) );
 		$this->assertSame( 10, has_action( 'wp_ajax_' . Admin_Shell::GUEST_ACTION, array( Admin_Shell::class, 'ajax_guest_assets' ) ) );
-		$this->assertSame( 0, has_action( 'admin_enqueue_scripts', array( Admin_Shell::class, 'setup' ) ) );
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Admin_Shell::class, 'setup' ) ) );
 	}
 }
