@@ -850,30 +850,33 @@ class Helper {
 	 * Passes all options to the JS app.
 	 */
 	public static function generate_initial_javascript_state() {
-		$prefix = Options::OPTION_PREFIX;
+		$prefix       = Options::OPTION_PREFIX;
+		$is_free_plan = ( new Plan() )->is_free_plan();
+		$option_names = array(
+			self::get_widget_option_name(),
+			$prefix . 'excluded_post_types',
+			$prefix . 'color_theme',
+			$prefix . 'inf_scroll',
+			$prefix . 'filtering_opens_overlay',
+			$prefix . 'show_post_date',
+			$prefix . 'show_product_price',
+			$prefix . 'enable_sort',
+			$prefix . 'highlight_color',
+			$prefix . 'overlay_trigger',
+			$prefix . 'result_format',
+			$prefix . 'default_sort',
+			$prefix . 'fallback_image_url',
+			$prefix . 'enable_fallback_image',
+			$prefix . 'suggestions_enabled',
+			AI_Answers::ENABLED_OPTION,
+		);
+		// Free plans always show "Powered by", so this option is never read for them.
+		if ( ! $is_free_plan ) {
+			$option_names[] = $prefix . 'show_powered_by';
+		}
 
 		// One query for the options read below; a missing or non-autoloaded row costs one query each otherwise.
-		wp_prime_option_caches(
-			array(
-				self::get_widget_option_name(),
-				$prefix . 'excluded_post_types',
-				$prefix . 'color_theme',
-				$prefix . 'inf_scroll',
-				$prefix . 'filtering_opens_overlay',
-				$prefix . 'show_post_date',
-				$prefix . 'show_product_price',
-				$prefix . 'enable_sort',
-				$prefix . 'highlight_color',
-				$prefix . 'overlay_trigger',
-				$prefix . 'result_format',
-				$prefix . 'show_powered_by',
-				$prefix . 'default_sort',
-				$prefix . 'fallback_image_url',
-				$prefix . 'enable_fallback_image',
-				$prefix . 'suggestions_enabled',
-				AI_Answers::ENABLED_OPTION,
-			)
-		);
+		wp_prime_option_caches( $option_names );
 
 		$widget_options = self::get_widgets_from_option();
 		if ( is_array( $widget_options ) ) {
@@ -956,7 +959,7 @@ class Helper {
 				'highlightColor'              => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'              => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
 				'resultFormat'                => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
-				'showPoweredBy'               => ( new Plan() )->is_free_plan() || ( get_option( $prefix . 'show_powered_by', '1' ) === '1' ),
+				'showPoweredBy'               => $is_free_plan || ( get_option( $prefix . 'show_powered_by', '1' ) === '1' ),
 
 				// These options require kicking off a new search.
 				'defaultSort'                 => get_option( $prefix . 'default_sort', 'relevance' ),
@@ -976,7 +979,7 @@ class Helper {
 			'postTypes'                   => $post_type_labels,
 			'webpackPublicPath'           => plugins_url( '/build/instant-search/', __DIR__ ),
 			'isPhotonEnabled'             => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
-			'isFreePlan'                  => ( new Plan() )->is_free_plan(),
+			'isFreePlan'                  => $is_free_plan,
 
 			// config values related to private site support.
 			'apiRoot'                     => esc_url_raw( rest_url() ),
