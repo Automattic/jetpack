@@ -83,7 +83,7 @@ if ( method_exists( 'Automattic\Jetpack\VideoPress\Channel', 'init' ) ) {
 	VideoPress_Pkg_Channel::init();
 }
 
-// Video classification ( types, series, topics, people ) for the same reason.
+// Video classification ( series, topics, people ) for the same reason.
 if ( method_exists( 'Automattic\Jetpack\VideoPress\Classification', 'init' ) ) {
 	\Automattic\Jetpack\VideoPress\Classification::init();
 }

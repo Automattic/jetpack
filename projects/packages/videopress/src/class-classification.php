@@ -1,6 +1,6 @@
 <?php
 /**
- * VideoPress classification: site-local types, series, topics and people on video attachments.
+ * VideoPress classification: site-local series, topics and people on video attachments.
  *
  * @package automattic/jetpack-videopress
  */
@@ -14,9 +14,8 @@ use WP_REST_Server;
 use WP_Term;
 
 /**
- * Registers four taxonomies on VideoPress attachments and the REST contract that edits them.
+ * Registers three taxonomies on VideoPress attachments and the REST contract that edits them.
  *
- * - videopress_type   Format of a recording ( Town Hall, Workshop ). Flat.
  * - videopress_series Recurring program or event. Hierarchical.
  * - videopress_topic  Subject matter. Flat.
  * - videopress_person People appearing in the recording. Flat; not WordPress accounts.
@@ -27,7 +26,6 @@ use WP_Term;
  */
 class Classification {
 
-	const TYPE   = 'videopress_type';
 	const SERIES = 'videopress_series';
 	const TOPIC  = 'videopress_topic';
 	const PERSON = 'videopress_person';
@@ -82,7 +80,7 @@ class Classification {
 	 */
 	public static function is_enabled() {
 		/**
-		 * Filters whether VideoPress classification ( types, series, topics, people ) is enabled.
+		 * Filters whether VideoPress classification ( series, topics, people ) is enabled.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -98,12 +96,6 @@ class Classification {
 	 */
 	public static function taxonomies() {
 		return array(
-			self::TYPE   => array(
-				'hierarchical' => false,
-				'label'        => __( 'Video types', 'jetpack-videopress-pkg' ),
-				'singular'     => __( 'Video type', 'jetpack-videopress-pkg' ),
-				'query_arg'    => 'videos-type',
-			),
 			self::SERIES => array(
 				'hierarchical' => true,
 				'label'        => __( 'Series and events', 'jetpack-videopress-pkg' ),
