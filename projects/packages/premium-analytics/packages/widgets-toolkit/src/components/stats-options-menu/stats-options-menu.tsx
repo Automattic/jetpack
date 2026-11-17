@@ -33,9 +33,11 @@ const SETTINGS_PATH = '/settings';
  * The menu's link to the Settings page, with the report window and the tab to return to.
  * Disabled on the Settings page itself.
  *
+ * @param {object}  props          - The component props.
+ * @param {boolean} props.disabled - Whether the page cannot open from here.
  * @return The menu item.
  */
-function SettingsMenuItem() {
+function SettingsMenuItem( { disabled }: { disabled: boolean } ) {
 	const search = useReportNavigationSearch();
 
 	// The router marks a link to the page on screen with `data-status`, which the hook's type leaves out.
@@ -50,8 +52,8 @@ function SettingsMenuItem() {
 		<Menu.ItemLabel>{ __( 'Settings', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
 	);
 
-	// A link item takes no disabled state, so the page's own entry is a plain item.
-	if ( isCurrentPage ) {
+	// A link item takes no disabled state, so the disabled entry is a plain item.
+	if ( disabled || isCurrentPage ) {
 		return (
 			<Menu.Item disabled prefix={ prefix }>
 				{ label }
@@ -80,6 +82,12 @@ type StatsOptionsMenuProps = {
 	 * The page's tabs, for the reader to arrange; on offer only with two or more.
 	 */
 	tabs?: ArrangeableTabs;
+
+	/*
+	 * Whether the site is connected. Settings and feedback need the connection:
+	 * without it Settings is disabled and feedback is left out.
+	 */
+	isSiteConnected?: boolean;
 };
 
 /**
@@ -93,7 +101,11 @@ type StatsOptionsMenuProps = {
  * @param {StatsOptionsMenuProps} props - The component props.
  * @return The menu, and whichever of its dialogs is open.
  */
-export function StatsOptionsMenu( { onCustomize, tabs }: StatsOptionsMenuProps ) {
+export function StatsOptionsMenu( {
+	onCustomize,
+	tabs,
+	isSiteConnected = true,
+}: StatsOptionsMenuProps ) {
 	const trackEvent = useTrackEvent();
 	const section = useDashboardSection();
 	const [ isFeedbackOpen, setIsFeedbackOpen ] = useState( false );
@@ -104,7 +116,7 @@ export function StatsOptionsMenu( { onCustomize, tabs }: StatsOptionsMenuProps )
 	// The opt-in is a site setting, so switching it off takes the same capability; and it
 	// sends the reader to classic Stats, so there has to be one.
 	const canSwitchOff = currentUserCan( 'manage_options' ) && null !== getClassicStatsUrl();
-	const canGiveFeedback = canSendFeedback();
+	const canGiveFeedback = isSiteConnected && canSendFeedback();
 	// Present only for users who can manage the settings, on sites where the dashboard owns them.
 	const hasSettings = !! getScriptData()?.premium_analytics?.stats_settings;
 
@@ -162,7 +174,7 @@ export function StatsOptionsMenu( { onCustomize, tabs }: StatsOptionsMenuProps )
 						</Menu.Item>
 					) }
 					{ ( onCustomize || canArrangeTabs ) && hasSettings && <Menu.Separator /> }
-					{ hasSettings && <SettingsMenuItem /> }
+					{ hasSettings && <SettingsMenuItem disabled={ ! isSiteConnected } /> }
 					{ ( onCustomize || canArrangeTabs || hasSettings ) &&
 						( canGiveFeedback || canSwitchOff ) && <Menu.Separator /> }
 					{ canGiveFeedback && (

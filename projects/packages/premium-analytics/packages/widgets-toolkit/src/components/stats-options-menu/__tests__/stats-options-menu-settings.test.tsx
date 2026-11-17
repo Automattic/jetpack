@@ -72,12 +72,15 @@ describe( 'stats-options-menu Settings entry', () => {
 		expect( url.searchParams.has( 'section' ) ).toBe( false );
 	} );
 
-	it( 'is disabled on the Settings page', async () => {
+	it.each( [
+		{ where: 'on the Settings page', path: '/settings', isSiteConnected: true },
+		{ where: 'on a site that is not connected', path: '/connect', isSiteConnected: false },
+	] )( 'is disabled $where', async ( { path, isSiteConnected } ) => {
 		jest.mocked( getScriptData ).mockReturnValue( WITH_SETTINGS );
-		setMockRoutePath( '/settings' );
+		setMockRoutePath( path );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		render( <StatsOptionsMenu /> );
+		render( <StatsOptionsMenu isSiteConnected={ isSiteConnected } /> );
 		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 		const settings = await screen.findByRole( 'menuitem', { name: 'Settings' } );

@@ -152,14 +152,19 @@ describe( 'stats-options-menu', () => {
 		} );
 
 		it.each( [
-			[ 'from those who may not read Stats, where it is sent', { can_view_stats: false } ],
-			[ 'once classic Stats is retired', { can_view_stats: true, classic_stats_retired: true } ],
-		] )( 'withholds feedback %s', async ( _case, premiumAnalytics ) => {
+			[ 'from those who may not read Stats, where it is sent', { can_view_stats: false }, true ],
+			[
+				'once classic Stats is retired',
+				{ can_view_stats: true, classic_stats_retired: true },
+				true,
+			],
+			[ 'on a site that is not connected, which it is sent through', {}, false ],
+		] )( 'withholds feedback %s', async ( _case, premiumAnalytics, isSiteConnected ) => {
 			jest.mocked( getScriptData ).mockReturnValue( {
 				premium_analytics: premiumAnalytics,
 			} as ReturnType< typeof getScriptData > );
 			const user = setupUser();
-			render( <StatsOptionsMenu onCustomize={ jest.fn() } /> );
+			render( <StatsOptionsMenu onCustomize={ jest.fn() } isSiteConnected={ isSiteConnected } /> );
 
 			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 			const items = await screen.findAllByRole( 'menuitem' );
