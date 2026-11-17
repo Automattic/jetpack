@@ -20,11 +20,7 @@ import { useCallback, useMemo } from 'react';
  * Internal dependencies
  */
 import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
-import {
-	clearZoomOutParams,
-	hasPrimaryDateDraft,
-	readZoomOutWindow,
-} from '../../search/report-params';
+import { hasPrimaryDateDraft, readZoomOutWindow } from '../../search/report-params';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
@@ -392,15 +388,7 @@ export function useReportDateFilters< TFrom extends string >(
 		[ canStepBackward, canStepForward, onStep ]
 	);
 
-	/*
-	 * The window to zoom back out to, read like the applied one: a preset names
-	 * today's window, and the bucket is the one it was read with. Offered only
-	 * while the applied window is a hand-picked one strictly inside it, so a
-	 * path that moves the window without clearing the params (a section switch
-	 * that lands back on the preset) and a stored window that does not resolve
-	 * offer nothing. The comparison stays as the reader has it now, measured on
-	 * the window zoomed out to, by the preset it had there where it still has one.
-	 */
+	// The window to zoom back out to, read like the applied one; `isZoomedInto` says when it is offered.
 	const zoomOut = useMemo( () => {
 		const origin = readZoomOutWindow( committed as Record< string, unknown > );
 		if ( ! origin ) {
@@ -427,6 +415,7 @@ export function useReportDateFilters< TFrom extends string >(
 						nextPresetId: targetPresetId,
 						exactRange: true,
 						step: origin.step as DateStepId | undefined,
+						// The comparison stays as the reader has it now, by the preset it had there where it still has one.
 						effective: {
 							...effective,
 							compare_preset: target.compare_preset ?? effective.compare_preset,
@@ -434,7 +423,6 @@ export function useReportDateFilters< TFrom extends string >(
 						lockedIntervals,
 					} ),
 					interval: target.interval,
-					...clearZoomOutParams(),
 				} );
 				commit();
 

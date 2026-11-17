@@ -86,7 +86,6 @@ export function dateWindowForSectionSwitch(
 	const policy = getSectionDatePolicy( dashboardSectionOf( id ) );
 
 	// The reader did not ask for that window here, so open as a fresh load would: no redirect, no notice.
-	// Nor is there a window to zoom back out to.
 	if ( adjustsStatsDateWindow( search, policy ) ) {
 		return {
 			...clearZoomOutParams(),
@@ -99,7 +98,12 @@ export function dateWindowForSectionSwitch(
 	// The comparison or bucket the plan strips, which the route would otherwise drop in a second navigation.
 	const limited = limitStatsDateSearch( patched, policy );
 
-	return limited || patch ? pickDateWindow( limited ?? patched ) : undefined;
+	if ( ! limited && ! patch ) {
+		return undefined;
+	}
+
+	// A window the switch moved leaves nothing to zoom back out to.
+	return { ...( patch ? clearZoomOutParams() : {} ), ...pickDateWindow( limited ?? patched ) };
 }
 
 /**

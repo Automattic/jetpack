@@ -142,6 +142,13 @@ describe( 'dateWindowForSectionSwitch', () => {
 			} ),
 			13,
 		],
+		[
+			'an open plan carries a day it zoomed into on Traffic into Insights',
+			[],
+			'insights',
+			{ ...YESTERDAY, preset: 'custom', up_preset: 'last-7-days' },
+			expect.objectContaining( { preset: 'all-time', up_preset: undefined } ),
+		],
 		// Rest, not optional: jest hands `done` to a callback with more params than the row.
 	] )( 'when %s', ( _case, features, section, search, expected, ...[ offset ]: number[] ) => {
 		if ( offset !== undefined ) {

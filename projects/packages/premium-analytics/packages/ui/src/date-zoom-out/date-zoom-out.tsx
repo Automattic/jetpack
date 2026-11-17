@@ -6,7 +6,7 @@ import {
 	type DateRange,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { Button, Tooltip } from '@jetpack-premium-analytics/externals';
+import { IconButton } from '@jetpack-premium-analytics/externals';
 import { formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { levelUp } from '@wordpress/icons';
@@ -49,24 +49,16 @@ export function DateZoomOut( { presetId, range, disabled = false, onZoomOut }: D
 
 	return (
 		<div className={ clsx( 'date-zoom-out', { 'is-disabled': disabled } ) }>
-			<Tooltip.Root>
-				<Tooltip.Trigger
-					render={
-						<Button
-							className="date-zoom-out__button"
-							variant="minimal"
-							tone="neutral"
-							size="small"
-							aria-label={ label }
-							disabled={ disabled }
-							onClick={ onZoomOut }
-						>
-							<Button.Icon icon={ levelUp } />
-						</Button>
-					}
-				/>
-				<Tooltip.Popup>{ label }</Tooltip.Popup>
-			</Tooltip.Root>
+			<IconButton
+				className="date-zoom-out__button"
+				variant="minimal"
+				tone="neutral"
+				size="small"
+				icon={ levelUp }
+				label={ label }
+				disabled={ disabled }
+				onClick={ onZoomOut }
+			/>
 		</div>
 	);
 }
