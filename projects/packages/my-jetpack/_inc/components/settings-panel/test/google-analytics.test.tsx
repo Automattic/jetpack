@@ -9,6 +9,10 @@ const mockRecordEvent = jest.fn();
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
+	combineReducers: () => {},
+	createReduxStore: () => {},
+	createSelector: () => {},
+	register: () => {},
 	useDispatch: () => ( { createErrorNotice: jest.fn(), createSuccessNotice: jest.fn() } ),
 } ) );
 jest.mock( '../../my-jetpack-tab-panel/features/use-main-features', () => ( {

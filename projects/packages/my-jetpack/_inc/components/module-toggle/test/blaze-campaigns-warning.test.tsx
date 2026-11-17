@@ -12,6 +12,10 @@ jest.mock( '@wordpress/api-fetch' );
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: {} } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
+	combineReducers: () => {},
+	createReduxStore: () => {},
+	createSelector: () => {},
+	register: () => {},
 	useDispatch: () => ( {
 		updateJetpackModuleStatus: mockToggleModule,
 		createSuccessNotice: jest.fn(),
