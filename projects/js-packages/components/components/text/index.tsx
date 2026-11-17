@@ -43,18 +43,6 @@ Text.displayName = 'Text';
 export default Text;
 
 /**
- * Heading component - Medium size.
- *
- * @param {TextProps} props - Component props.
- * @return {ReactElement} - JSX.Element
- */
-export const H2: FC< TextProps > = ( { children, ...componentProps } ) => (
-	<Text variant="headline-medium" mb={ 3 } { ...componentProps }>
-		{ children }
-	</Text>
-);
-
-/**
  * Heading component - Small size,
  *
  * @param {H3Props} props - Component props.
