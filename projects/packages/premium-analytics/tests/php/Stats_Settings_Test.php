@@ -219,6 +219,20 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertSame( array( 'opt_in_new_stats' => true ), $stored['notices'] );
 	}
 
+	public function test_write_stores_a_core_setting_sent_beside_the_stats_option() {
+		$this->log_in_as( 'administrator' );
+
+		$this->post_settings(
+			array(
+				'title'                    => 'Renamed site',
+				Stats_Options::OPTION_NAME => array( 'admin_bar' => false ),
+			)
+		);
+
+		$this->assertSame( 'Renamed site', get_option( 'blogname' ) );
+		$this->assertFalse( get_option( Stats_Options::OPTION_NAME )['admin_bar'] );
+	}
+
 	public function test_write_refuses_a_role_the_site_does_not_have() {
 		$this->log_in_as( 'administrator' );
 
