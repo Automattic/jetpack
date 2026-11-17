@@ -4,7 +4,6 @@ import { useNavigate } from '@wordpress/route';
 import { IconButton, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useId, useRef } from 'react';
 import { useRouteSearch } from '../../router-bridge';
-import { getLegacyHashHref } from '../../utils/route-href';
 import {
 	getModuleAvailability,
 	getOverrideReason,
@@ -16,23 +15,6 @@ import { entrySettings, moduleSettings } from './registry';
 import styles from './styles.module.scss';
 import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { KeyboardEvent } from 'react';
-
-// The inspector remounts on every open, so only the page-load URL tells a deep link apart.
-let hasOpened = false;
-
-const openTrigger = ( slug: string ) => {
-	const first = ! hasOpened;
-	hasOpened = true;
-	const entry = performance.getEntriesByType?.( 'navigation' )[ 0 ];
-	if ( ! first || ! entry ) {
-		return 'configure-link';
-	}
-	const url = new URL( entry.name );
-	const route = getLegacyHashHref( url.hash ) ?? url.searchParams.get( 'p' ) ?? '/';
-	return new URL( route, url.origin ).searchParams.get( 'configure' ) === slug
-		? 'deep-link'
-		: 'configure-link';
-};
 
 /**
  * The settings panel the boot inspector shows for the `configure` search value.
@@ -57,11 +39,7 @@ export function SettingsPanel() {
 	const headingRef = useRef< HTMLHeadingElement >( null );
 	const rootRef = useRef< HTMLElement >( null );
 	const openerRef = useRef< HTMLElement | null >( null );
-	const { trackPanelOpen, trackPanelClose } = useSettingsPanelTracking( slug );
-
-	useEffect( () => {
-		trackPanelOpen( openTrigger( slug ) );
-	}, [ slug, trackPanelOpen ] );
+	const { trackPanelClose } = useSettingsPanelTracking( slug );
 
 	const onClose = useCallback( () => {
 		type NavigateOptions = Parameters< typeof navigate >[ 0 ];

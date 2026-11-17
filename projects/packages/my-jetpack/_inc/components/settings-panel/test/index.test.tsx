@@ -67,34 +67,6 @@ afterEach( () => {
 } );
 
 describe( 'SettingsPanel', () => {
-	// Keep first: only the page's first open can be a deep link.
-	it( 'records a deep link for the slug the page loaded with, then a configure link per new slug', () => {
-		// jsdom has no navigation entries.
-		Object.defineProperty( performance, 'getEntriesByType', {
-			configurable: true,
-			value: () => [
-				{
-					name: 'https://example.com/wp-admin/admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dtiled-gallery',
-				},
-			],
-		} );
-		const { rerender } = render( <SettingsPanel /> );
-		mockSearch = { configure: 'likes' };
-		rerender( <SettingsPanel /> );
-
-		expect( mockRecordEvent.mock.calls ).toEqual( [
-			[
-				'jetpack_myjetpack_settings_panel_open',
-				{ feature_slug: 'tiled-gallery', trigger: 'deep-link', event_version: 1 },
-			],
-			[
-				'jetpack_myjetpack_settings_panel_open',
-				{ feature_slug: 'likes', trigger: 'configure-link', event_version: 1 },
-			],
-		] );
-		delete ( performance as Partial< Performance > ).getEntriesByType;
-	} );
-
 	it( 'opens a settings entry without waiting for the modules to load', () => {
 		mockSearch = { configure: 'entry-test' };
 		mockModules = { modules: {}, hasLoaded: false };

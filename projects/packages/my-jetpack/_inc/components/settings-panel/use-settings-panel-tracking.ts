@@ -67,6 +67,7 @@ export function useSettingsPanelTracking( module: string ) {
 		[ recordEvent ]
 	);
 
+	// Any new way to open the panel must send this event.
 	const trackPanelOpen = useCallback(
 		( trigger: 'configure-link' | 'deep-link' ) => {
 			recordEvent( 'jetpack_myjetpack_settings_panel_open', {

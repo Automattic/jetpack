@@ -9,6 +9,7 @@ import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getProtectPageUrl } from '../../../utils/protect-page';
 import { isSettingsConsolidationEnabled } from '../../../utils/settings-consolidation';
 import { getLeavingLinkLabel } from '../../../utils/settings-link-label';
+import { useSettingsPanelTracking } from '../../settings-panel/use-settings-panel-tracking';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
@@ -82,11 +83,14 @@ export function opensInSettingsPanel( url: string ): boolean {
  */
 function PanelConfigureLink( { slug, name }: { slug: string; name: string } ) {
 	const [ searchParams ] = useSearchParams();
+	const { trackPanelOpen } = useSettingsPanelTracking( slug );
+	const onClick = useCallback( () => trackPanelOpen( 'configure-link' ), [ trackPanelOpen ] );
 	const next = new URLSearchParams( searchParams );
 	next.set( 'configure', slug );
 
 	return (
 		<Link
+			onClick={ onClick }
 			render={ <RouterLink to={ { search: `?${ next }` } } replace /> }
 			aria-label={ sprintf(
 				/* translators: %s is the feature name. */
