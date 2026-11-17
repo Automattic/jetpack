@@ -147,7 +147,7 @@ function wpcom_add_hosting_menu() {
 		__( 'Hosting', 'jetpack-mu-wpcom' ),
 		$menu_title,
 		'manage_options',
-		esc_url( "https://wordpress.com/overview/$domain" ),
+		esc_url( "https://my.wordpress.com/sites/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		'dashicons-cloud',
 		2.98

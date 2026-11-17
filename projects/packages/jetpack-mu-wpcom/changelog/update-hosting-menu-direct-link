@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin menu: Link the Hosting menu item straight to the site's Hosting page instead of redirecting through the Overview page.

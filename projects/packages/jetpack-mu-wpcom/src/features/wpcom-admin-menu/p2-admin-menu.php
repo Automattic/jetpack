@@ -41,7 +41,7 @@ function wpcom_remove_menus_for_p2_sites() {
 	remove_submenu_page( 'options-general.php', 'crowdsignal-settings' );
 	remove_submenu_page( 'options-general.php', 'ratingsettings' );
 	remove_submenu_page( 'options-general.php', 'activitypub' );
-	remove_menu_page( "https://wordpress.com/overview/$domain" );
+	remove_menu_page( "https://my.wordpress.com/sites/$domain" );
 
 	require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
 
