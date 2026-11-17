@@ -2,17 +2,14 @@
  * External dependencies
  */
 import {
-	bucketStatsTimeSeries,
 	emailSendWindowParams,
-	isEmailSendWindow,
+	readEmailSendWindow,
 	type EmailSendWindow,
 	toPostId,
 	useStatsEmailClicksTimeSeries,
 	useSiteDay,
 	useStatsEmailOpensTimeSeries,
-	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
-	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { reportingTimeZone, resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import {
@@ -22,7 +19,6 @@ import {
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
-	defaultPeriodForInterval,
 	describeError,
 	metricTabsToCsv,
 	useReportActions,
@@ -50,15 +46,6 @@ type EmailTimeSeriesRenderAttributes = EmailTimeSeriesAttributes & {
 };
 type EmailTimeSeriesWidgetProps = WidgetRenderProps< EmailTimeSeriesRenderAttributes >;
 
-/**
- * The buckets the timeline draws: the ones the endpoint returns (hours, days,
- * months), plus weeks aggregated from days.
- */
-const EMAIL_PERIODS = [
-	'hour',
-	...STATS_CHART_BUCKET_PERIODS,
-] as const satisfies readonly StatsPeriod[];
-
 /** The timeline field each metric charts. */
 const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_count' > = {
 	opens: 'opens_count',
@@ -85,11 +72,8 @@ type EmailTimeSeriesReportProps = {
 	metric: EmailTimeSeriesMetric;
 	/** How the timeline is drawn. `MetricTabsChart` owns the default. */
 	chartType?: EmailTimeSeriesChartType;
-	/**
-	 * The window the chart's own control picked, counted from the host's `from`;
-	 * unset, the host's range and interval stand.
-	 */
-	sendWindow?: EmailSendWindow;
+	/** The window the chart reads, counted from the host's `from`. */
+	sendWindow: EmailSendWindow;
 	/** The send instant, where the host states it: the first 24 hours start there. */
 	sentAt?: unknown;
 };
@@ -112,17 +96,14 @@ function EmailTimeSeriesReport( {
 		// Read again when the site's day turns: a young send's window ends today.
 		void siteDay;
 
-		return chosenWindow
-			? emailSendWindowParams(
-					chosenWindow,
-					{ day: reportParams.from, sentAt },
-					reportingTimeZone()
-				)
-			: undefined;
+		return emailSendWindowParams(
+			chosenWindow,
+			{ day: reportParams.from, sentAt },
+			reportingTimeZone()
+		);
 	}, [ chosenWindow, reportParams.from, sentAt, siteDay ] );
-	const period = sendWindow
-		? sendWindow.interval
-		: defaultPeriodForInterval( reportParams.interval, EMAIL_PERIODS );
+	// Without a readable send day there is no window to count, so the host's range stands.
+	const period = sendWindow?.interval ?? 'day';
 	const queryParams = useMemo(
 		() =>
 			sendWindow
@@ -148,27 +129,10 @@ function EmailTimeSeriesReport( {
 	const report = active.data as StatsEmailTimeSeriesReport | undefined;
 	const field = METRIC_FIELDS[ metric ];
 
-	const chartReport = useMemo( () => {
-		if ( ! report ) {
-			return undefined;
-		}
-
-		if ( period !== 'week' ) {
-			return report;
-		}
-
-		// The endpoint never buckets by week, so weeks aggregate from its days.
-		return bucketStatsTimeSeries( report, period, point => {
-			const value = Number( point[ field ] ?? 0 );
-
-			return { value, [ field ]: value };
-		} );
-	}, [ report, period, field ] );
-
 	// The headline is the window total: buckets are per-period sums, so their sum
 	// is the range's opens/clicks.
 	const metricTabs = useMemo< MetricTab[] >( () => {
-		const points = ( chartReport?.data ?? [] ).flatMap( point => {
+		const points = ( report?.data ?? [] ).flatMap( point => {
 			const date = resolveBucketStamp( point.date_start, active.timezone );
 
 			return date ? [ { date, value: Number( point[ field ] ?? 0 ) } ] : [];
@@ -183,7 +147,7 @@ function EmailTimeSeriesReport( {
 				current: points,
 			},
 		];
-	}, [ chartReport, field, metric, active.timezone ] );
+	}, [ report, field, metric, active.timezone ] );
 
 	const csv = useMemo(
 		() =>
@@ -201,7 +165,7 @@ function EmailTimeSeriesReport( {
 		csv: {
 			...csv,
 			filenamePrefix: `email-${ postId }-${ metric }`,
-			// The file is dated by the window the chart's own control picked, where it picked one.
+			// The file is dated by the window the chart reads, not the host's range.
 			...( sendWindow
 				? { range: { from: sendWindow.from, to: sendWindow.to } }
 				: { hasDateRange: true } ),
@@ -267,9 +231,7 @@ export default function EmailTimeSeries( { attributes = {} }: EmailTimeSeriesWid
 			<EmailTimeSeriesReport
 				metric={ metric }
 				chartType={ chartType }
-				sendWindow={
-					isEmailSendWindow( attributes.sendWindow ) ? attributes.sendWindow : undefined
-				}
+				sendWindow={ readEmailSendWindow( attributes.sendWindow ) }
 				// Read as the host wrote it: `WidgetRoot` keeps only the params every report shares.
 				sentAt={ attributes.reportParams?.sent_at }
 			/>

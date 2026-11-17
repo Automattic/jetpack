@@ -61,18 +61,15 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// The data layer trims buckets to the requested window, so a default
-// (today-relative) preset would trim these fixed July dates away.
+// The chart counts its window from `from`, as the post page pins it to the send day.
 const JULY_WEEK_PARAMS = {
 	...getDefaultQueryParams( false ),
 	preset: undefined,
-	from: '2026-07-01T00:00:00.000+08:00',
-	to: '2026-07-07T23:59:59.999+08:00',
+	from: '2026-07-01T00:00:00.000+00:00',
+	to: '2026-07-07T23:59:59.999+00:00',
 };
 
-// Raw WPCOM `stats_fields=timeline` shape. 2026-07-04/05 fall in one ISO week
-// and 2026-07-06 opens the next, so weekly grouping collapses the three rows
-// into two buckets (15 and 7).
+// Raw WPCOM `stats_fields=timeline` shape.
 const OPENS_TIMELINE_RESPONSE = {
 	timeline: {
 		unit: 'day',
@@ -174,10 +171,10 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'stats/clicks/emails/1234' );
 	} );
 
-	it( 'draws exactly the selected hourly window from a midnight-anchored payload', async () => {
+	it( 'draws exactly the first 24 hours from a midnight-anchored payload', async () => {
 		// The endpoint anchors hourly buckets on the start day's midnight and returns
-		// `quantity` buckets forward, so a last-24-hours window arrives as 33 buckets
-		// from hour 0 and the widget must chart only the 24 in-window ones.
+		// `quantity` buckets forward, so a send at 9 arrives as 33 buckets from hour 0
+		// and the widget must chart only the 24 in-window ones.
 		mockApiFetch.mockResolvedValue( {
 			timeline: {
 				unit: 'hour',
@@ -195,12 +192,13 @@ describe( 'EmailTimeSeriesWidget', () => {
 					reportParams: {
 						...getDefaultQueryParams( false ),
 						preset: undefined,
-						from: '2026-07-04T09:00:00.000+08:00',
-						to: '2026-07-05T08:59:59.999+08:00',
-						interval: 'hour',
+						from: '2026-07-04T00:00:00.000+00:00',
+						to: '2026-08-02T23:59:59.999+00:00',
 						post_id: 1234,
+						sent_at: '2026-07-04T09:00:00.000+00:00',
 					},
 					metric: 'opens',
+					sendWindow: 'first-24-hours',
 				} }
 			/>
 		);
@@ -231,8 +229,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 					reportParams: {
 						...getDefaultQueryParams( false ),
 						preset: undefined,
-						from: '2026-07-01T00:00:00.000+08:00',
-						to: '2026-07-07T23:59:59.999+08:00',
+						from: '2026-07-01T00:00:00.000+00:00',
+						to: '2026-07-07T23:59:59.999+00:00',
 						// The post detail URL carries comparison params through untouched,
 						// but the page renders no comparison, so the widget must neither
 						// fetch a second window nor draw an overlay.
@@ -253,71 +251,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		const requestedDates = mockApiFetch.mock.calls.map( call =>
 			new URLSearchParams( String( call[ 0 ].path ).split( '?' )[ 1 ] ).get( 'date' )
 		);
-		expect( requestedDates ).toEqual( [ '2026-07-01T00:00:00.000+08:00' ] );
-	} );
-
-	it( 'aggregates the daily buckets into ISO weeks when the page interval is weekly', async () => {
-		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
-
-		render(
-			<EmailTimeSeriesWidget
-				attributes={ {
-					// A 35-day window (weekly needs >= 28 days) covering both ISO weeks.
-					reportParams: {
-						...getDefaultQueryParams( false ),
-						preset: undefined,
-						from: '2026-06-08T00:00:00.000+08:00',
-						to: '2026-07-12T23:59:59.999+08:00',
-						interval: 'week',
-						post_id: 1234,
-					},
-					metric: 'opens',
-				} }
-			/>
-		);
-
-		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '15,7' );
-	} );
-
-	it( 'asks for monthly buckets when the page interval is monthly, and draws them as returned', async () => {
-		mockApiFetch.mockResolvedValue( {
-			timeline: {
-				unit: 'month',
-				fields: [ 'date', 'opens_count' ],
-				data: [
-					[ '2026-06-01', 4 ],
-					[ '2026-07-01', 15 ],
-				],
-			},
-		} );
-
-		render(
-			<EmailTimeSeriesWidget
-				attributes={ {
-					// An explicit multi-month window: `WidgetRoot` normalizes report
-					// params through `resolveIntervalForRange`, and the default
-					// 30-day preset would coerce a monthly interval back to daily.
-					reportParams: {
-						...getDefaultQueryParams( false ),
-						preset: undefined,
-						from: '2026-05-01T00:00:00.000+08:00',
-						to: '2026-08-31T23:59:59.999+08:00',
-						interval: 'month',
-						post_id: 1234,
-					},
-					metric: 'opens',
-				} }
-			/>
-		);
-
-		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
-		expect( chart ).toHaveAttribute( 'data-tick-resolution', 'month' );
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'period=month' );
-		expect( requestedPath ).toContain( 'quantity=4' );
-		expect( requestedPath ).toContain( 'date=2026-05-01' );
+		expect( requestedDates ).toEqual( [ '2026-07-01T00:00:00.000+00:00' ] );
 	} );
 
 	it.each( [
@@ -502,48 +436,28 @@ describe( 'EmailTimeSeriesWidget', () => {
 			downloads = undefined;
 		} );
 
-		it.each( [
-			[
-				'daily',
-				OPENS_TIMELINE_RESPONSE,
-				JULY_WEEK_PARAMS,
-				'email-1234-opens-2026-07-01_2026-07-07.csv',
-				[ '"Date","Opens"', '"2026-07-04","10"', '"2026-07-05","5"', '"2026-07-06","7"' ],
-			],
-			[
-				'hourly',
-				{
-					timeline: {
-						unit: 'hour',
-						fields: [ 'date', 'hour', 'opens_count' ],
-						data: Array.from( { length: 24 }, ( _, hour ) => [ '2026-07-04', hour, hour ] ),
-					},
-				},
-				{
-					...JULY_WEEK_PARAMS,
-					from: '2026-07-04T00:00:00.000+08:00',
-					to: '2026-07-04T23:59:59.999+08:00',
-					interval: 'hour',
-				},
-				'email-1234-opens-2026-07-04_2026-07-04.csv',
-				[ '"Date","Opens"', '"2026-07-04 00:00","0"', '"2026-07-04 01:00","1"' ],
-			],
-		] )( 'saves each %s bucket of the timeline', async ( _, response, params, filename, lines ) => {
+		it( 'saves each bucket of the timeline', async () => {
 			downloads = captureCsvDownloads();
-			mockApiFetch.mockResolvedValue( response );
+			mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
 
 			const { findDeclaredAction } = renderWithActionsHost(
 				<EmailTimeSeriesWidget
-					attributes={ { reportParams: { ...params, post_id: 1234 }, metric: 'opens' } }
+					attributes={ { reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 }, metric: 'opens' } }
 				/>
 			);
 			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 
-			expect( downloads.files[ 0 ].filename ).toBe( filename );
-			expect( ( await downloads.lines() ).slice( 0, lines.length ) ).toEqual( lines );
+			// Dated by the default first 30 days, not the host's week.
+			expect( downloads.files[ 0 ].filename ).toBe( 'email-1234-opens-2026-07-01_2026-07-30.csv' );
+			await expect( downloads.lines() ).resolves.toEqual( [
+				'"Date","Opens"',
+				'"2026-07-04","10"',
+				'"2026-07-05","5"',
+				'"2026-07-06","7"',
+			] );
 		} );
 
-		it( 'dates and times the file by the window the chart’s own control picked', async () => {
+		it( 'times the rows of an hourly window', async () => {
 			downloads = captureCsvDownloads();
 			mockApiFetch.mockResolvedValue( {
 				timeline: {

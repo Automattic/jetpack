@@ -1,11 +1,7 @@
 /**
  * Internal dependencies
  */
-import {
-	DEFAULT_EMAIL_SEND_WINDOW,
-	isEmailSendWindow,
-	type EmailSendWindow,
-} from '@jetpack-premium-analytics/data';
+import { readEmailSendWindow, type EmailSendWindow } from '@jetpack-premium-analytics/data';
 import type { ChartDisplayChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -45,7 +41,7 @@ export default {
 		{
 			id: 'sendWindow',
 			getValue: ( { item }: { item: EmailTimeSeriesAttributes } ) =>
-				isEmailSendWindow( item.sendWindow ) ? item.sendWindow : DEFAULT_EMAIL_SEND_WINDOW,
+				readEmailSendWindow( item.sendWindow ),
 		},
 	] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
 	example: {

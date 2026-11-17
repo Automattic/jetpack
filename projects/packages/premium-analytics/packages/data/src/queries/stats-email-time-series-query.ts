@@ -7,7 +7,11 @@ import { getDatePart } from '@jetpack-premium-analytics/datetime';
  */
 import { toStatsBucketWindowParams, windowEndHour } from '../processing/stats';
 import { EMAIL_TIME_SERIES_MAX_MONTHS } from '../utils/email-send-window';
-import { reportParamsToStatsQueryParams, type StatsQueryParams } from '../utils/stats-params';
+import {
+	getPeriodsBetweenInclusive,
+	reportParamsToStatsQueryParams,
+	type StatsQueryParams,
+} from '../utils/stats-params';
 import {
 	statsProxyQuery,
 	type StatsReportParams,
@@ -33,8 +37,7 @@ export type StatsEmailTimeSeriesParams = StatsReportParams;
 const hasValidPostId = ( postId: number ) => Number.isInteger( postId ) && postId > 0;
 
 // The email timeline buckets by hour, day, month or year, never by week
-// (WOOA7S-2067), so a weekly dashboard interval collapses to daily for the
-// widget to aggregate; yearly is never asked for.
+// (WOOA7S-2067), so any other interval reads by the day; yearly is never asked for.
 const toEmailPeriod = ( period?: string ): StatsEmailTimeSeriesPeriod =>
 	period === 'hour' || period === 'month' ? period : 'day';
 
@@ -46,15 +49,11 @@ const hourlyQuantity = ( days: number, endDate?: string ) =>
 // Monthly buckets are asked for from the first of the start month, as the
 // legacy email chart did, and counted by calendar month through the end.
 const firstOfMonth = ( date: string ) => `${ date.slice( 0, 7 ) }-01`;
-const monthlyQuantity = ( startDate: string, endDate: string ) => {
-	const [ startYear, startMonth ] = startDate.split( '-' ).map( Number );
-	const [ endYear, endMonth ] = endDate.split( '-' ).map( Number );
-
-	return Math.min(
+const monthlyQuantity = ( startDate: string, endDate: string ) =>
+	Math.min(
 		EMAIL_TIME_SERIES_MAX_MONTHS,
-		Math.max( 1, ( endYear - startYear ) * 12 + ( endMonth - startMonth ) + 1 )
+		getPeriodsBetweenInclusive( 'month', startDate, endDate )
 	);
-};
 
 // The request's bucket size, count and start for a window. Mirrors Calypso's
 // requestEmailStats. Unlike the other stats endpoints (where `date` is the

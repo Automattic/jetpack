@@ -13,17 +13,12 @@ import { addDays, addHours, addMonths, endOfMonth, startOfHour } from 'date-fns'
  * The windows an email's timeline can be read over, each counted from the send.
  * The values are what a widget saves.
  */
-export const EMAIL_SEND_WINDOWS = [
-	'first-24-hours',
-	'first-week',
-	'first-30-days',
-	'all-time',
-] as const;
+const EMAIL_SEND_WINDOWS = [ 'first-24-hours', 'first-week', 'first-30-days', 'all-time' ] as const;
 
 export type EmailSendWindow = ( typeof EMAIL_SEND_WINDOWS )[ number ];
 
 /** The window read when none is saved: what the legacy Stats email page showed. */
-export const DEFAULT_EMAIL_SEND_WINDOW: EmailSendWindow = 'first-30-days';
+const DEFAULT_EMAIL_SEND_WINDOW: EmailSendWindow = 'first-30-days';
 
 /** The most daily buckets the timeline endpoint answers per request. */
 export const EMAIL_SEND_WINDOW_DAYS = 30;
@@ -49,13 +44,15 @@ type EmailSendWindowRange = {
 };
 
 /**
- * Whether a saved value names one of the windows.
+ * The window a saved value names, or the default one where it names none.
  *
  * @param value - The saved value.
- * @return Whether it is a window.
+ * @return The window.
  */
-export function isEmailSendWindow( value: unknown ): value is EmailSendWindow {
-	return typeof value === 'string' && ( EMAIL_SEND_WINDOWS as readonly string[] ).includes( value );
+export function readEmailSendWindow( value: unknown ): EmailSendWindow {
+	return ( EMAIL_SEND_WINDOWS as readonly unknown[] ).includes( value )
+		? ( value as EmailSendWindow )
+		: DEFAULT_EMAIL_SEND_WINDOW;
 }
 
 /**

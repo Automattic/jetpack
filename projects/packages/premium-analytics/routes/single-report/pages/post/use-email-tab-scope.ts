@@ -4,7 +4,7 @@
 import {
 	EMAIL_SEND_WINDOW_DAYS,
 	emailSendWindowRange,
-	isEmailSendWindow,
+	readEmailSendWindow,
 	type ReportParams,
 	useSiteDay,
 } from '@jetpack-premium-analytics/data';
@@ -28,20 +28,20 @@ export type EmailTabScope = {
 	range: Required< DateRange >;
 	/** The same window as widget report params, replacing the URL's, plus the send instant. */
 	reportParams: ReportParams & { sent_at?: string };
-	/** The window the email chart in a layout draws, once its own control has saved one. */
+	/** The window the email chart in a layout draws: the one its own control saved, or the default. */
 	headerRange: ( layout: readonly SectionWidget[] ) => DateRange | undefined;
 };
 
 const EMAIL_CHART_TYPE = 'jpa/email-time-series';
 
 /**
- * The window the layout's email chart reaches over, from the one its own control saved.
+ * The window the layout's email chart reaches over.
  *
  * @param layout   - The section's widgets.
  * @param day      - The start of the send day.
  * @param sentAt   - The send instant.
  * @param timeZone - The site timezone.
- * @return The chart's window, or undefined when none is saved.
+ * @return The chart's window, or undefined without a readable send day.
  */
 function emailChartRange(
 	layout: readonly SectionWidget[],
@@ -52,9 +52,7 @@ function emailChartRange(
 	const chart = layout.find( widget => widget.type.startsWith( EMAIL_CHART_TYPE ) );
 	const window = ( chart?.attributes as { sendWindow?: unknown } | undefined )?.sendWindow;
 
-	return isEmailSendWindow( window )
-		? emailSendWindowRange( window, { day, sentAt }, timeZone )
-		: undefined;
+	return emailSendWindowRange( readEmailSendWindow( window ), { day, sentAt }, timeZone );
 }
 
 /**
@@ -121,7 +119,7 @@ export function useEmailTabScope(
 				to,
 				// The email chart counts its first 24 hours from here.
 				sent_at: encodeDateToSearchParam( allTimeStart ),
-				// One bucket per day until the chart's own control picks another window.
+				// A fixed bucket in place of the URL's: the chart's own control settles the one it draws.
 				interval: 'day',
 			},
 		};
