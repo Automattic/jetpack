@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+AI: Leave the page's shared REST request setup to WordPress instead of adding a second copy when the AI page loads.
