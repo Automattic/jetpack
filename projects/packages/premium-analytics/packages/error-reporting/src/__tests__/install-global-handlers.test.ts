@@ -111,12 +111,15 @@ describe( 'installGlobalErrorHandlers', () => {
 		expect( addSpy ).not.toHaveBeenCalled();
 	} );
 
-	it( 'installs the listeners only once', async () => {
+	it( 'installs each listener once, however often it is called', async () => {
 		const { install } = await loadFresh();
 
 		install();
 		install();
 
-		expect( addSpy ).toHaveBeenCalledTimes( 2 );
+		expect( addSpy.mock.calls.map( ( [ type ] ) => type ) ).toEqual( [
+			'error',
+			'unhandledrejection',
+		] );
 	} );
 } );

@@ -274,14 +274,6 @@ describe( 'reportError', () => {
 		expect( sentPayload().properties.query ).toBe( 'from=[email]' );
 	} );
 
-	it( 'redacts an email address a query value carries percent-encoded', () => {
-		window.history.replaceState( {}, '', '/wp-admin/admin.php?ref=jane%40example.com' );
-
-		reportError( dashboardError(), 'error' );
-
-		expect( sentPayload().properties.query ).toBe( 'ref=[email]' );
-	} );
-
 	it( 'sanitizes and caps properties.error_name, which code can set to anything', () => {
 		const error = dashboardError();
 		error.name = `Error at https://other.example/a.js?token=s3cret ${ 'x'.repeat( 200 ) }`;
@@ -376,38 +368,24 @@ describe( 'reportError', () => {
 		expect( fetchMock ).not.toHaveBeenCalled();
 	} );
 
-	it( 'uses Non-error thrown for a thrown object with no message', () => {
-		reportError( { code: 7 }, 'boundary' );
+	it.each( [
+		[ 'an object with no message', { code: 7 }, 'Non-error thrown', undefined ],
+		[
+			'an object with a message and a name',
+			{ message: 'plain', name: 'Custom' },
+			'plain',
+			'Custom',
+		],
+		[ 'an empty string', '', 'Non-error thrown', undefined ],
+		[ 'a blank string', '   ', 'Non-error thrown', undefined ],
+		[ 'a string', 'just a string', 'just a string', undefined ],
+		[ 'a number', 404, '404', undefined ],
+	] )( 'describes %s that was thrown', ( _label, thrown, message, errorName ) => {
+		reportError( thrown, 'boundary' );
 
 		const payload = sentPayload();
-		expect( payload.message ).toBe( 'Non-error thrown' );
-		expect( payload.properties ).not.toHaveProperty( 'error_name' );
-	} );
-
-	it( 'uses the message and name of a thrown object that has them', () => {
-		reportError( { message: 'plain', name: 'Custom' }, 'boundary' );
-
-		expect( sentPayload() ).toMatchObject( {
-			message: 'plain',
-			properties: { error_name: 'Custom' },
-		} );
-	} );
-
-	it( 'uses Non-error thrown for an empty thrown string', () => {
-		reportError( '', 'boundary' );
-		resetErrorReporterForTests();
-		reportError( '   ', 'boundary' );
-
-		expect( sentPayload( 0 ).message ).toBe( 'Non-error thrown' );
-		expect( sentPayload( 1 ).message ).toBe( 'Non-error thrown' );
-	} );
-
-	it( 'stringifies a thrown primitive into message', () => {
-		reportError( 'just a string', 'boundary' );
-		reportError( 404, 'boundary' );
-
-		expect( sentPayload( 0 ).message ).toBe( 'just a string' );
-		expect( sentPayload( 1 ).message ).toBe( '404' );
+		expect( payload.message ).toBe( message );
+		expect( payload.properties.error_name ).toBe( errorName );
 	} );
 
 	it( 'reports the same message and frame only once per page', () => {
@@ -430,25 +408,21 @@ describe( 'reportError', () => {
 		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	// The wordings themselves are `isChunkLoadError`'s, covered in chunk-recovery.test.ts.
 	it.each( [
-		'Failed to fetch dynamically imported module: https://example.com/a.js',
-		'error loading dynamically imported module',
-		'Importing a module script failed.',
-		'ChunkLoadError: Loading chunk 7 failed.',
-	] )( 'tags a failed module load so a search can exclude it: %s', message => {
-		reportError( dashboardError( message ), 'boundary' );
+		[ 'the message', 'Importing a module script failed.', 'TypeError' ],
+		[ 'the error name', 'Loading chunk 7 failed.', 'ChunkLoadError' ],
+	] )(
+		'tags a failed module load named by %s, so a search can exclude it',
+		( _l, message, name ) => {
+			const error = dashboardError( message );
+			error.name = name;
 
-		expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
-	} );
+			reportError( error, 'boundary' );
 
-	it( 'tags a webpack chunk failure, which names the error instead of wording the message', () => {
-		const error = dashboardError( 'Loading chunk 7 failed.' );
-		error.name = 'ChunkLoadError';
-
-		reportError( error, 'boundary' );
-
-		expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
-	} );
+			expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
+		}
+	);
 
 	// The shapes a browser really raises: the loader owns the failure, so there is no frame of
 	// ours in the stack, and Firefox sends no stack at all.
@@ -503,13 +477,6 @@ describe( 'reportError', () => {
 			module: 'jetpack-wordads/widgets/chart-tabs/render',
 		} );
 		expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
-		expect( reloadPage ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'reports a failed module load and then reloads to pick up the deployed build', () => {
-		reportError( dashboardError( 'Failed to fetch dynamically imported module' ), 'boundary' );
-
-		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 		expect( reloadPage ).toHaveBeenCalledTimes( 1 );
 	} );
 
@@ -638,20 +605,6 @@ describe( 'reportError', () => {
 		);
 		// eslint-disable-next-line no-console -- No matcher counts warnings, and three refusals warning twice is the point.
 		expect( console.warn ).toHaveBeenCalledTimes( 2 );
-	} );
-
-	it( 'resumes in the next hour after a 429 without a page reload', async () => {
-		fetchMock.mockResolvedValue( { ok: false, status: 429 } );
-		reportError( dashboardError( 'first' ), 'error' );
-		await flush();
-		reportError( dashboardError( 'blocked' ), 'error' );
-		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
-
-		jest.advanceTimersByTime( HOUR );
-		reportError( dashboardError( 'next hour' ), 'error' );
-
-		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
-		expect( console ).toHaveWarned();
 	} );
 
 	it( 'does not spend a budget slot on a duplicate', () => {

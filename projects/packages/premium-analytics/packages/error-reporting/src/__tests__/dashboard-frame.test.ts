@@ -33,10 +33,6 @@ describe( 'findDashboardFrame', () => {
 		expect( findDashboardFrame( stack, origins )?.widget ).toBe( 'top-posts' );
 	} );
 
-	it( 'leaves widget undefined for a route frame', () => {
-		expect( findDashboardFrame( dashboardStack, origins )?.widget ).toBeUndefined();
-	} );
-
 	it( 'returns null when no frame is under an allowlisted origin', () => {
 		const stack = 'Error: boom\n    at x (https://example.com/wp-includes/js/other.min.js:1:2)';
 

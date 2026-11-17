@@ -1,4 +1,4 @@
-import { recoverFromChunkLoad } from '../chunk-recovery';
+import { isChunkLoadError, recoverFromChunkLoad } from '../chunk-recovery';
 import { reloadPage } from '../reload-page';
 
 jest.mock( '../reload-page', () => ( { reloadPage: jest.fn() } ) );
@@ -6,6 +6,25 @@ jest.mock( '../reload-page', () => ( { reloadPage: jest.fn() } ) );
 const ATTEMPT_KEY = 'jetpack-premium-analytics-chunk-retry';
 const START = new Date( '2026-03-01T10:00:00Z' );
 const MINUTE = 60_000;
+
+describe( 'isChunkLoadError', () => {
+	it.each( [
+		'Failed to fetch dynamically imported module: https://example.com/a.js',
+		'error loading dynamically imported module',
+		'Importing a module script failed.',
+		'ChunkLoadError: Loading chunk 7 failed.',
+	] )( 'matches a browser or bundler wording: %s', message => {
+		expect( isChunkLoadError( message ) ).toBe( true );
+	} );
+
+	it( 'matches a webpack failure, which names the error instead of wording the message', () => {
+		expect( isChunkLoadError( 'Loading chunk 7 failed.', 'ChunkLoadError' ) ).toBe( true );
+	} );
+
+	it( 'does not match an ordinary error', () => {
+		expect( isChunkLoadError( 'Cannot read properties of undefined', 'TypeError' ) ).toBe( false );
+	} );
+} );
 
 describe( 'recoverFromChunkLoad', () => {
 	let spies: jest.SpyInstance[] = [];
