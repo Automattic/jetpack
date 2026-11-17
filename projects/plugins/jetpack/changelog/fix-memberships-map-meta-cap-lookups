@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Memberships: Avoid a database query on each comment permission check.
