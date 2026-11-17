@@ -525,6 +525,26 @@ describe( 'admin shell live-app limit', () => {
 	} );
 
 	it.each( [
+		[ 'a click', () => click( '/wp-admin/admin.php?page=guest-a2' ) ],
+		[ 'Back/Forward', () => popTo( '/wp-admin/admin.php?page=guest-a2' ) ],
+	] )( 'stays past the limit when a hidden dashboard keeps its edits, on %s', async ( _, go ) => {
+		await fill( false );
+		mockStay.mockClear();
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		go();
+		await settle();
+
+		expect( mockStay ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				detail: { page: 'guest-a', url: expect.stringContaining( 'page=guest-a2' ) },
+			} )
+		);
+		expect( kept ).not.toBe( false );
+		expect( where() ).toBe( '?page=guest-b' );
+		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
+	} );
+
+	it.each( [
 		[ 'back to a mounted one', false, '/wp-admin/admin.php?page=host', 'host' ],
 		[ 'to one only prewarmed', true, A, 'guest-a' ],
 	] )( 'switches in place at the limit %s', async ( _, prewarmOnly, href, shown ) => {
