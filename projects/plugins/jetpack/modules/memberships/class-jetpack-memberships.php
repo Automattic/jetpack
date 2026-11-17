@@ -308,16 +308,8 @@ class Jetpack_Memberships {
 			return $caps;
 		}
 
-		// Bail before get_post(): $args[0] is not a post ID for caps like `edit_comment`, and missing posts are not cached.
-		$is_plan_cap = false;
-		foreach ( array( self::$post_type_plan, self::$post_type_coupon ) as $post_type_name ) {
-			$post_type_object = get_post_type_object( $post_type_name );
-			if ( $post_type_object && in_array( $cap, array( $post_type_object->cap->edit_post, $post_type_object->cap->delete_post ), true ) ) {
-				$is_plan_cap = true;
-				break;
-			}
-		}
-		if ( ! $is_plan_cap ) {
+		// Bail before get_post(): for other caps $args[0] may be a comment, user or term ID, and missing posts are not cached.
+		if ( 'edit_posts' !== $cap && 'delete_posts' !== $cap ) {
 			return $caps;
 		}
 
