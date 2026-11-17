@@ -4,9 +4,7 @@ import { cleanLocalBusiness } from '../schema-settings-utils';
 import { makeSchemaSettings } from './fixtures/schema-settings-fixtures';
 import type { SchemaSettings } from '../schema-settings-types';
 
-// True-ESM Jest (`--experimental-vm-modules`): register mocks with
-// `jest.unstable_mockModule`, then import the hook dynamically. `@wordpress/element`
-// stays real so the hook's state/refs behave; only the data/REST edges are stubbed.
+// Register ESM mocks before importing the hook; React state stays real.
 const recordSeoEvent = jest.fn();
 jest.unstable_mockModule( '../record-seo-event', () => ( { recordSeoEvent } ) );
 const mockApiFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
@@ -231,6 +229,7 @@ describe( 'useSchemaSettings', () => {
 		const initial = makeSchemaSettings( {
 			localBusiness: {
 				...RESPONSE.localBusiness,
+				enabled: true,
 				address: { ...RESPONSE.localBusiness.address, streetAddress: 'Private address' },
 			},
 		} );
@@ -238,7 +237,9 @@ describe( 'useSchemaSettings', () => {
 		act( () =>
 			result.current.setLocalBusinessField( { address: RESPONSE.localBusiness.address } )
 		);
-		mockApiFetch.mockResolvedValueOnce( RESPONSE );
+		mockApiFetch.mockResolvedValueOnce(
+			makeSchemaSettings( { localBusiness: { ...RESPONSE.localBusiness, enabled: true } } )
+		);
 		act( () => result.current.saveOrganizationEntity() );
 		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
 		expect( recordSeoEvent.mock.calls ).toEqual( [
@@ -248,6 +249,141 @@ describe( 'useSchemaSettings', () => {
 				{ setting: 'schema_localBusiness', verification_service: 'none', setting_value: 'cleared' },
 			],
 		] );
+	} );
+
+	it.each( [
+		[ true, '' ],
+		[ true, 'Private address' ],
+		[ false, '' ],
+		[ false, 'Private address' ],
+	] )(
+		'records LocalBusiness enabled=%s independently of address=%s',
+		async ( enabled, streetAddress ) => {
+			const localBusiness = {
+				...RESPONSE.localBusiness,
+				enabled: ! enabled,
+				address: { ...RESPONSE.localBusiness.address, streetAddress },
+			};
+			const initial = makeSchemaSettings( { localBusiness } );
+			const { result } = renderHook( () => useSchemaSettings( initial ) );
+			act( () => result.current.setLocalBusinessField( { enabled } ) );
+			mockApiFetch.mockResolvedValueOnce(
+				makeSchemaSettings( { localBusiness: { ...localBusiness, enabled } } )
+			);
+			act( () => result.current.saveOrganizationEntity() );
+			await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+			expect( recordSeoEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_seo_setting_updated',
+					'settings',
+					{
+						setting: 'schema_localBusiness_enabled',
+						verification_service: 'none',
+						setting_value: enabled,
+					},
+				],
+			] );
+		}
+	);
+
+	it.each( [ true, false ] )(
+		'records a rejected LocalBusiness enabled=%s save while retaining fields',
+		async enabled => {
+			const localBusiness = {
+				...RESPONSE.localBusiness,
+				enabled: ! enabled,
+				telephone: 'Private telephone',
+			};
+			const { result } = renderHook( () =>
+				useSchemaSettings( makeSchemaSettings( { localBusiness } ) )
+			);
+			act( () => result.current.setLocalBusinessField( { enabled } ) );
+			mockApiFetch.mockRejectedValueOnce( new Error( 'Save refused' ) );
+			act( () => result.current.saveOrganizationEntity() );
+			await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+			expect( result.current.localBusiness.enabled ).toBe( enabled );
+			expect( result.current.isLocalBusinessDirty ).toBe( true );
+			expect( recordSeoEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_seo_setting_update_failed',
+					'settings',
+					{
+						setting: 'schema_localBusiness_enabled',
+						verification_service: 'none',
+						setting_value: enabled,
+					},
+				],
+			] );
+		}
+	);
+
+	it.each( [ 'organization', 'person' ] as const )(
+		'does not count equivalent %s profile URLs as changed',
+		async section => {
+			const initial = makeSchemaSettings( {
+				[ section ]: { ...RESPONSE[ section ], sameAs: [ 'https://example.com' ] },
+			} );
+			const { result } = renderHook( () => useSchemaSettings( initial ) );
+			act( () => {
+				if ( section === 'organization' ) {
+					result.current.setOrganizationField( { name: '   ' } );
+				} else {
+					result.current.setPersonField( { name: '   ' } );
+				}
+			} );
+			mockApiFetch.mockResolvedValueOnce( initial );
+			act( () => {
+				if ( section === 'organization' ) {
+					result.current.saveOrganizationEntity();
+				} else {
+					result.current.savePerson();
+				}
+			} );
+			await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+			expect( recordSeoEvent ).not.toHaveBeenCalled();
+		}
+	);
+
+	it( 'records a failed Person save and its retry without counting an unchanged failed retry', async () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+		act( () => result.current.setPersonField( { name: 'Private person' } ) );
+		mockApiFetch.mockRejectedValueOnce( new Error( 'Save refused' ) );
+		act( () => result.current.savePerson() );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( result.current.person.name ).toBe( 'Private person' );
+		expect( result.current.isPersonDirty ).toBe( true );
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_seo_setting_update_failed',
+				'settings',
+				{ setting: 'schema_person', verification_service: 'none', setting_value: 'set' },
+			],
+		] );
+
+		mockApiFetch.mockResolvedValueOnce(
+			makeSchemaSettings( { person: { ...RESPONSE.person, name: 'Private person' } } )
+		);
+		act( () => result.current.savePerson() );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( result.current.isPersonDirty ).toBe( false );
+		const expected = [
+			[
+				'jetpack_seo_setting_update_failed',
+				'settings',
+				{ setting: 'schema_person', verification_service: 'none', setting_value: 'set' },
+			],
+			[
+				'jetpack_seo_setting_updated',
+				'settings',
+				{ setting: 'schema_person', verification_service: 'none', setting_value: 'set' },
+			],
+		];
+		expect( recordSeoEvent.mock.calls ).toEqual( expected );
+
+		mockApiFetch.mockRejectedValueOnce( new Error( 'Unchanged save refused' ) );
+		act( () => result.current.savePerson() );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( recordSeoEvent.mock.calls ).toEqual( expected );
 	} );
 
 	it( 'does not record unchanged saves or unrelated sections changed by another session', async () => {
@@ -309,7 +445,13 @@ describe( 'useSchemaSettings', () => {
 		// …then reverts to the last-saved value when the save fails.
 		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
 		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
-		expect( recordSeoEvent ).not.toHaveBeenCalled();
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_seo_setting_update_failed',
+				'settings',
+				{ setting: 'schema_breadcrumbList', verification_service: 'none', setting_value: false },
+			],
+		] );
 	} );
 
 	it( 'rolls the site-entity choice back when its auto-save fails', async () => {
@@ -326,7 +468,13 @@ describe( 'useSchemaSettings', () => {
 		// …then reverts so the card can't keep showing an unpersisted entity.
 		expect( result.current.siteRepresents ).toBe( 'organization' );
 		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
-		expect( recordSeoEvent ).not.toHaveBeenCalled();
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_seo_setting_update_failed',
+				'settings',
+				{ setting: 'schema_siteRepresents', verification_service: 'none', setting_value: 'person' },
+			],
+		] );
 	} );
 
 	it( 'reports a failed Organization-entity save and keeps the edits pending', async () => {
@@ -343,7 +491,18 @@ describe( 'useSchemaSettings', () => {
 		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
 
 		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
-		expect( recordSeoEvent ).not.toHaveBeenCalled();
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_seo_setting_update_failed',
+				'settings',
+				{ setting: 'schema_organization', verification_service: 'none', setting_value: 'set' },
+			],
+			[
+				'jetpack_seo_setting_update_failed',
+				'settings',
+				{ setting: 'schema_localBusiness', verification_service: 'none', setting_value: 'set' },
+			],
+		] );
 		// Unlike the auto-saving toggle, explicit field edits are kept so the admin
 		// can retry without retyping.
 		expect( result.current.organization.name ).toBe( 'Acme' );
