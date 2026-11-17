@@ -367,10 +367,13 @@ describe( 'TrafficChart drill-down', () => {
 
 		chartClickHandler()( { date: new Date( '2026-02-14T00:00:00.000Z' ), isComparison: false } );
 
-		expect( openPeriod ).toHaveBeenCalledWith( {
-			from: new Date( '2026-02-01T00:00:00.000Z' ),
-			to: new Date( '2026-02-28T23:59:59.999Z' ),
-		} );
+		expect( openPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2026-02-01T00:00:00.000Z' ),
+				to: new Date( '2026-02-28T23:59:59.999Z' ),
+			},
+			{ step: 'P1M' }
+		);
 	} );
 
 	it( 'opens the quarter a quarter bar drew, declared to the chart as quarters', () => {
@@ -388,13 +391,16 @@ describe( 'TrafficChart drill-down', () => {
 
 		chartClickHandler()( { date: new Date( '2026-02-14T00:00:00.000Z' ), isComparison: false } );
 
-		expect( openPeriod ).toHaveBeenCalledWith( {
-			from: new Date( '2026-01-01T00:00:00.000Z' ),
-			to: new Date( '2026-03-31T23:59:59.999Z' ),
-		} );
+		expect( openPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2026-01-01T00:00:00.000Z' ),
+				to: new Date( '2026-03-31T23:59:59.999Z' ),
+			},
+			{ step: 'P3M' }
+		);
 	} );
 
-	it( 'cuts an edge bar to the window it drew', () => {
+	it( 'cuts an edge bar to the window it drew, leaving its step to the arrows', () => {
 		const openPeriod = jest.fn();
 		render(
 			<ReportScopeProvider openPeriod={ openPeriod }>
@@ -409,10 +415,13 @@ describe( 'TrafficChart drill-down', () => {
 
 		chartClickHandler()( { date: new Date( '2026-02-14T00:00:00.000Z' ), isComparison: false } );
 
-		expect( openPeriod ).toHaveBeenCalledWith( {
-			from: new Date( '2026-02-10T00:00:00.000Z' ),
-			to: new Date( '2026-02-28T23:59:59.999Z' ),
-		} );
+		expect( openPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2026-02-10T00:00:00.000Z' ),
+				to: new Date( '2026-02-28T23:59:59.999Z' ),
+			},
+			{ step: undefined }
+		);
 	} );
 
 	it( 'leaves hourly bars inert, as an hour has nothing smaller to open', () => {
