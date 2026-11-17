@@ -102,7 +102,7 @@ Follow `references/class-skeleton.md`. Three abstract methods must be implemente
 - `get_category_definition(): array` — returns `[ 'label' => ..., 'description' => ... ]`.
 - `get_abilities(): array` — returns a `[ slug => spec ]` map.
 
-Do NOT write an `init()` method. `Registrar::init()` handles the hook lifecycle and the `jetpack_wp_abilities_enabled` gate. Call `<Name>_Abilities::init()` from the bootstrap before WordPress fires `wp_abilities_api_init`, for example on `plugins_loaded`. WordPress rejects registrations after that action, so a later call registers nothing, and no notice says so.
+Do NOT write an `init()` method. `Registrar::init()` handles the hook lifecycle and the `jetpack_wp_abilities_enabled` gate. Call `<Name>_Abilities::init()` from the bootstrap before WordPress fires `wp_abilities_api_categories_init`, for example on `plugins_loaded`. WordPress rejects registrations after that action, so a later call registers nothing, and no notice says so.
 
 ### 6) Write each ability spec
 

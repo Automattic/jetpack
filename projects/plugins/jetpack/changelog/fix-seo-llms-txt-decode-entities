@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-SEO: Show site names, titles, and summaries in llms.txt as plain characters instead of HTML entities.

@@ -49,7 +49,15 @@ export {
 export { formatListMetricCount, getListMetricLabel, type ListMetric } from './list-metrics';
 export { HEADLINE_COUNT_FORMAT } from './headline-count-format';
 export { HOURS_DATA_FORMAT } from './hours-data-format';
-export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
+export {
+	MONTHS_IN_YEAR,
+	daysCovered,
+	isMonthIncomplete,
+	monthOrder,
+	toMonthKey,
+	type DayKey,
+	type MonthKey,
+} from './month-key';
 export {
 	monthlyHeatmapLabels,
 	resolveMonthlyHeatmapMetric,

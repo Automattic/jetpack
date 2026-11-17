@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: Harden the Subscribers list against a numeric display name in the API response.

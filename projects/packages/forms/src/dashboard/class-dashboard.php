@@ -135,7 +135,7 @@ class Dashboard {
 	/**
 	 * Register Forms with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -183,7 +183,7 @@ class Dashboard {
 	/**
 	 * Ready the Forms routes while another dashboard's page is open.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @return void
 	 */

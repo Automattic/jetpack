@@ -1,6 +1,6 @@
 import { useId } from '@wordpress/element';
 import { listView } from '@wordpress/icons';
-import { Badge, Dialog, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
+import { Dialog, Icon, Stack, Text } from '@wordpress/ui';
 import { bringYourAiToolCopy } from './ai-tool-copy.ts';
 import { chatGptIcon } from './connector-icons.tsx';
 import type { Ref } from 'react';
@@ -32,14 +32,12 @@ export default function SetupChoiceStep( { value, onChange, titleRef }: Props ) 
 			title: copy.guideTitle,
 			description: copy.guideDescription,
 			icon: listView,
-			badge: null,
 		},
 		{
 			key: 'ai' as const,
 			title: copy.useAiTitle,
 			description: copy.useAiDescription,
 			icon: chatGptIcon,
-			badge: copy.freeBadge,
 		},
 	];
 
@@ -58,7 +56,6 @@ export default function SetupChoiceStep( { value, onChange, titleRef }: Props ) 
 					const inputId = `${ id }-${ option.key }`;
 					const optionTitleId = `${ inputId }-title`;
 					const optionDescriptionId = `${ inputId }-description`;
-					const optionBadgeId = `${ inputId }-badge`;
 					return (
 						<label
 							key={ option.key }
@@ -75,9 +72,7 @@ export default function SetupChoiceStep( { value, onChange, titleRef }: Props ) 
 								checked={ value === option.key }
 								onChange={ () => onChange( option.key ) }
 								aria-labelledby={ optionTitleId }
-								aria-describedby={
-									option.badge ? `${ optionDescriptionId } ${ optionBadgeId }` : optionDescriptionId
-								}
+								aria-describedby={ optionDescriptionId }
 								className="ai-launchpad-wizard__card-input"
 							/>
 							<Icon icon={ option.icon } size={ 20 } />
@@ -91,25 +86,6 @@ export default function SetupChoiceStep( { value, onChange, titleRef }: Props ) 
 									<Text variant="heading-md" id={ optionTitleId }>
 										{ option.title }
 									</Text>
-									{ option.badge && (
-										// Hover-only, per the design: the tooltip is not announced and does not show on touch.
-										<Tooltip.Root>
-											<Tooltip.Trigger
-												render={
-													<Badge intent="stable" id={ optionBadgeId }>
-														{ option.badge }
-													</Badge>
-												}
-											/>
-											<Tooltip.Popup
-												portal={ <Tooltip.Portal className="ai-launchpad-wizard__portal" /> }
-												positioner={ <Tooltip.Positioner side="top" align="end" /> }
-												className="ai-launchpad-wizard__tooltip"
-											>
-												{ copy.freeTooltip }
-											</Tooltip.Popup>
-										</Tooltip.Root>
-									) }
 								</Stack>
 								<Text
 									variant="body-sm"

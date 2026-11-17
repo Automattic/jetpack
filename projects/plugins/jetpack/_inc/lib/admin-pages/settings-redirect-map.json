@@ -101,8 +101,8 @@
 				{ "destination": "admin.php?page=my-jetpack#/features", "alreadyRedirects": true }
 			],
 			"linkedFrom": [
-				"plugins/jetpack Unavailable_Blocks::get_editor_data(): fixUrl for blocks the Blocks module turned off; wants admin.php?page=my-jetpack#/features?search=blocks",
-				"plugins/wpcomsh feature-moved-to-jetpack-notices.php: the notice on Settings > Writing"
+				"plugins/jetpack Unavailable_Blocks::get_editor_data(): fixUrl for blocks the Blocks module turned off, with the flag off",
+				"plugins/wpcomsh feature-moved-to-jetpack-notices.php: the notice on Settings > Writing, with the flag off"
 			]
 		},
 		{

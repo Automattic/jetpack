@@ -6,6 +6,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import DataViewsContent from '../../src/dashboard/components/dataviews-toolbar';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import CreatePlaylistDialog from '../../src/dashboard/components/playlists/create-playlist-dialog';
 import DeletePlaylistDialog from '../../src/dashboard/components/playlists/delete-playlist-dialog';
@@ -166,8 +167,14 @@ const StageInner = () => {
 				paginationInfo={ paginationInfo }
 				isLoading={ isLoading }
 				defaultLayouts={ defaultLayouts }
-				searchLabel={ __( 'Search playlists', 'jetpack-videopress-pkg' ) }
-			/>
+			>
+				<DataViewsContent
+					view={ view }
+					onChangeView={ onChangeView }
+					defaultLayouts={ defaultLayouts }
+					searchLabel={ __( 'Search playlists', 'jetpack-videopress-pkg' ) }
+				/>
+			</DataViews>
 		);
 	}
 

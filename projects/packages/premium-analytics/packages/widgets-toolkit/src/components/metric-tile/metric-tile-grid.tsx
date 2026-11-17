@@ -135,8 +135,8 @@ function MetricTileValue( {
 }
 
 /**
- * Lays metric tiles out by the size of its own box; the four layouts and their
- * thresholds live in `_metric-tile-layouts.scss`.
+ * Lays metric tiles out by the size of its own box and the number of tiles it
+ * holds; the four layouts and their thresholds live in `_metric-tile-layouts.scss`.
  *
  * The grid is a size container, so it takes no height of its own: render it
  * inside a definite-height flex column (or a `height: 100%` chain) or it

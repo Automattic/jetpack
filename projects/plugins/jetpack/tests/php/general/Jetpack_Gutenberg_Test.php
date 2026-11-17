@@ -151,7 +151,6 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		global $current_screen;
 
 		// Available everywhere but started only where the host boots it, as on WordPress.com.
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		update_option( 'jetpack_seo_surface_visible_v2', true );
 		update_option( 'ai_seo_enhancer_enabled', true );
 		if ( $started ) {
