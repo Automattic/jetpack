@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 import { wpcomFetch } from '../../../data/wpcom-fetch';
 import CouponsCard from '../coupons-card';
 import { getPaymentsState } from '../state';
@@ -58,8 +59,19 @@ describe( 'CouponsCard', () => {
 
 		await expect( screen.findByRole( 'heading', { name: 'SPRING' } ) ).resolves.toBeVisible();
 		expect( screen.getByText( '20% off forever' ) ).toBeVisible();
-		expect( screen.getByText( 'Expires on December 31, 2026' ) ).toBeVisible();
 		expect( screen.getByText( 'Cannot be combined with other coupons' ) ).toBeVisible();
 		expect( Boolean( screen.queryByRole( 'button', { name: 'Delete' } ) ) ).toBe( offered );
+	} );
+
+	it( 'shows the expiry date unshifted in a site timezone behind every browser', async () => {
+		const settings = getSettings();
+		setSettings( { ...settings, timezone: { ...settings.timezone, offset: -12, string: '' } } );
+		try {
+			renderCard( true );
+
+			await expect( screen.findByText( 'Expires on December 31, 2026' ) ).resolves.toBeVisible();
+		} finally {
+			setSettings( settings );
+		}
 	} );
 } );

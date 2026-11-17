@@ -46,7 +46,7 @@ function couponBadges( coupon: Coupon ): string[] {
 			sprintf(
 				/* translators: %s: a date, e.g. December 31, 2026. */
 				__( 'Expires on %s', 'jetpack-monetize' ),
-				dateI18n( getSettings().formats.date, coupon.endDate, undefined )
+				dateI18n( getSettings().formats.date, `${ coupon.endDate }T00:00:00Z`, true )
 			)
 		);
 	}
