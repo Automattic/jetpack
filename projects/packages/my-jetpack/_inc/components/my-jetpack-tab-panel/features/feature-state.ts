@@ -1,5 +1,7 @@
-import CONNECTION_STORE from '@automattic/jetpack-connection/state/store-id';
-import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
+import {
+	CONNECTION_STORE_ID as CONNECTION_STORE,
+	useConnectionErrorNotice,
+} from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { getQueryArg } from '@wordpress/url';

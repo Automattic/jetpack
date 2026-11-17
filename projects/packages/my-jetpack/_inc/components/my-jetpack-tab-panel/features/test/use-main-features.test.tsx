@@ -21,8 +21,9 @@ const mockFetchModules = jest.fn().mockResolvedValue( true );
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
-jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => () => ( {
-	hasConnectionError: false,
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	CONNECTION_STORE_ID: 'jetpack-connection',
+	useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
