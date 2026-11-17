@@ -1868,6 +1868,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'class', $node->meta );
 		$this->assertStringContainsString( 'Jetpack Safe Mode', $node->title );
 		$this->assertStringContainsString( 'jetpack_idc_clear_confirmation=1', $node->href );
+		$this->assertSame( '_self', $node->meta['target'] );
 	}
 
 	/**

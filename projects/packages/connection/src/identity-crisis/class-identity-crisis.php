@@ -278,6 +278,8 @@ class Identity_Crisis {
 			'title'  => $title,
 			'href'   => esc_url( $href ),
 			'parent' => 'top-secondary',
+			// Router-driven dashboards such as Stats would otherwise swallow the click.
+			'meta'   => array( 'target' => '_self' ),
 		);
 
 		$wp_admin_bar->add_node( $menu );
