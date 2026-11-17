@@ -98,15 +98,25 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		);
 	};
 
-	// Pages built from one package share an init module; run each once.
-	const ranInit = new Set( members[ host ].initModules );
+	// Pages built from one package share an init module; run each once, and keep the Jetpack config it set.
+	const configOfInit = new Map(
+		members[ host ].initModules.map( id => [ id, globalThis.jetpackConfig ] )
+	);
 	/*
 	 * One guest's init and route-module imports at a time: an init sets globals such as
 	 * `window.jetpackConfig` that its route modules read when they are evaluated.
+	 * The page's own config is put back after, so a prewarm leaves it as it was.
 	 */
 	let booting = Promise.resolve();
 	const oneAtATime = task => {
-		const run = booting.then( task );
+		const run = booting.then( async () => {
+			const pageConfig = globalThis.jetpackConfig;
+			try {
+				return await task();
+			} finally {
+				globalThis.jetpackConfig = pageConfig;
+			}
+		} );
 		booting = run.catch( () => {} );
 		return run;
 	};
@@ -125,7 +135,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			log( 'prewarm', `${ slug }: page data fetched and applied in ${ step() }`, added );
 			return oneAtATime( async () => {
 				for ( const id of members[ slug ].initModules ) {
-					if ( ! ranInit.has( id ) ) {
+					if ( configOfInit.has( id ) ) {
+						globalThis.jetpackConfig = configOfInit.get( id );
+					} else {
 						step = stopwatch();
 						// Not bundled: wp-build's modules resolve through the page's import map at runtime.
 						const initModule = await import( /* webpackIgnore: true */ id );
@@ -144,7 +156,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 							} ),
 						] ).finally( () => clearTimeout( timer ) );
 						// Only once it succeeded, so a failed init runs again on the next attempt.
-						ranInit.add( id );
+						configOfInit.set( id, globalThis.jetpackConfig );
 						log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
 					}
 				}

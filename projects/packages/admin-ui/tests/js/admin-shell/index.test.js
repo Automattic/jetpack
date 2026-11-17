@@ -65,6 +65,15 @@ jest.mock(
 	{ virtual: true }
 );
 
+jest.mock(
+	'test-guest-a2/route',
+	() => {
+		mockCapturedSlug.a2 = globalThis.jetpackConfig?.consumer_slug;
+		return {};
+	},
+	{ virtual: true }
+);
+
 const member = ( slug, guest, routes = guest ) => ( {
 	mountId: `${ slug }-app`,
 	initModules: guest ? [ `test-guest-${ guest }/init` ] : [],
@@ -88,6 +97,7 @@ beforeEach( () => {
 	mockInits.b.mockReset();
 	delete mockCapturedSlug.a;
 	delete mockCapturedSlug.b;
+	delete mockCapturedSlug.a2;
 	delete globalThis.jetpackConfig;
 	window.history.replaceState( null, '', '/wp-admin/admin.php?page=host' );
 	const config = {
@@ -97,7 +107,7 @@ beforeEach( () => {
 			'guest-a': { ...member( 'guest-a', 'a' ), header: { title: 'Guest A', subtitle: 'Sub' } },
 			'guest-b': member( 'guest-b', 'b' ),
 			// Another page built from guest A's package: same init module.
-			'guest-a2': member( 'guest-a2', 'a', null ),
+			'guest-a2': member( 'guest-a2', 'a', 'a2' ),
 		},
 		guestAssetsUrl: '/wp-admin/admin-ajax.php',
 		headerStorageKey: 'test',
@@ -321,6 +331,25 @@ describe( 'admin shell prewarm', () => {
 		await settle();
 
 		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b' } );
+	} );
+
+	it( "keeps the page's Jetpack config, and gives a page sharing an init module that init's config", async () => {
+		const pageConfig = { consumer_slug: 'host' };
+		globalThis.jetpackConfig = pageConfig;
+		mockInits.a.mockImplementation( () => {
+			globalThis.jetpackConfig = { consumer_slug: 'a' };
+		} );
+		mockInits.b.mockImplementation( () => {
+			globalThis.jetpackConfig = { consumer_slug: 'b' };
+		} );
+
+		for ( const slug of [ 'guest-a', 'guest-b', 'guest-a2' ] ) {
+			hover( slug );
+			await settle();
+		}
+
+		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b', a2: 'a' } );
+		expect( globalThis.jetpackConfig ).toBe( pageConfig );
 	} );
 } );
 
