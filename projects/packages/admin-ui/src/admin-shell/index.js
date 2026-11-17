@@ -11,6 +11,7 @@ import {
 	transitionSettled,
 } from './adapter';
 import { createApp, whenRendered } from './app';
+import { liveAppLimit } from './budget';
 import { announcePage, menuLabel, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
 import { applyGuestAssets } from './guest-assets';
@@ -53,7 +54,7 @@ const routeOf = href => {
 	return url.search + url.hash;
 };
 
-const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
+const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps } ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
 	if ( ! hostEl ) {
 		return;
@@ -111,6 +112,12 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		return run;
 	};
 	const warm = {};
+	const liveLimit = liveAppLimit( maxLiveApps );
+	// Past the limit, opening another dashboard loads the page, which frees every hidden one.
+	const hasRoomFor = slug =>
+		apps.has( slug ) ||
+		Object.hasOwn( warm, slug ) ||
+		new Set( [ ...apps.keys(), ...Object.keys( warm ) ] ).size < liveLimit;
 	// Everything short of mounting: a mounted router would start reading the visible page's URL.
 	const prewarm = ( slug, reason ) => {
 		if ( warm[ slug ] ) {
@@ -352,7 +359,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			lastUrl[ visible ] = location.href;
 		}
 		if ( event.isTrusted && isMemberUrl( location.href ) && pageOf( location.href ) !== visible ) {
-			if ( gate.isMounting() ) {
+			if ( gate.isMounting() || ! hasRoomFor( pageOf( location.href ) ) ) {
 				location.reload();
 				return;
 			}
@@ -387,6 +394,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			log( 'switch', 'an app is still mounting: letting the link load the page' );
 			return;
 		}
+		if ( ! hasRoomFor( pageOf( a.href ) ) ) {
+			log( 'switch', `${ liveLimit } dashboards are live: letting the link load the page` );
+			return;
+		}
 		event.preventDefault();
 		closeOverlayAround( a )
 			.then( closed => closed && transitionSettled() )
@@ -395,7 +406,12 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 
 	document.getElementById( 'adminmenu' )?.addEventListener( 'pointerover', event => {
 		const a = event.target.closest?.( 'a[href]' );
-		if ( a && isMemberUrl( a.href ) && ! apps.has( pageOf( a.href ) ) ) {
+		if (
+			a &&
+			isMemberUrl( a.href ) &&
+			! apps.has( pageOf( a.href ) ) &&
+			hasRoomFor( pageOf( a.href ) )
+		) {
 			prewarm( pageOf( a.href ), 'menu hover' ).catch( () => {} );
 		}
 	} );
@@ -432,6 +448,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		window.jetpackAdminShell = {
 			apps,
 			members,
+			liveLimit,
 			get visible() {
 				return visible;
 			},

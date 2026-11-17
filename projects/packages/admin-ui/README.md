@@ -223,6 +223,16 @@ useEffect( () => {
 
 Neither event fires while the shell is off.
 
+### Admin shell: memory
+
+Every dashboard the shell prewarms or mounts stays in the document until the next page load, since a booted app can't be disposed of. So the shell keeps at most a few dashboards live, the one the page loaded included, and once that many are live, opening another dashboard is a normal page load, which frees the rest. It sizes the limit from the device memory the browser reports: 3 at 2 GB or less, 6 below 8 GB or when the browser doesn't say, and no limit from 8 GB. A site can set it with the `jetpack_admin_shell_max_live_apps` filter:
+
+```PHP
+add_filter( 'jetpack_admin_shell_max_live_apps', fn() => 4 );
+```
+
+Anything but a positive integer leaves it to the device's memory.
+
 ### Admin shell: unsaved changes
 
 With the admin shell on, member dashboards stay mounted while hidden, so switching away keeps an edit. A navigation that would open a member at a different route than where it was left would unmount that view, so first the shell dispatches a cancelable `jetpack-admin-shell:before-leave` event on `window`, with `detail: { page, url }`: the member's admin page slug and the URL about to open.

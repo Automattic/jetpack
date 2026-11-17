@@ -77,6 +77,8 @@ const settle = async () => {
 	}
 };
 
+let mockConfigExtra = {};
+
 const hover = slug =>
 	document
 		.querySelector( `#adminmenu a[href$="page=${ slug }"]` )
@@ -101,6 +103,7 @@ beforeEach( () => {
 		},
 		guestAssetsUrl: '/wp-admin/admin-ajax.php',
 		headerStorageKey: 'test',
+		...mockConfigExtra,
 	};
 	document.body.innerHTML = `
 		<ul id="adminmenu">
@@ -440,5 +443,62 @@ describe( 'admin shell stand-in header', () => {
 		await settle();
 
 		expect( mockShowHeader ).toHaveBeenCalledWith( 'guest-a', expect.anything(), 'A', header );
+	} );
+} );
+
+describe( 'admin shell live-app limit', () => {
+	const A = '/wp-admin/admin.php?page=guest-a';
+	// Whether the shell kept the last click, or left it to load the page.
+	let kept;
+	const keepClick = event => {
+		kept = event.defaultPrevented;
+		event.preventDefault();
+	};
+	const prewarmed = () =>
+		require( '../../../src/admin-shell/guest-assets' ).applyGuestAssets.mock.calls.map(
+			( [ , slug ] ) => slug
+		);
+
+	beforeAll( () => {
+		mockConfigExtra = { maxLiveApps: 2 };
+	} );
+	beforeEach( () => window.addEventListener( 'click', keepClick ) );
+	afterEach( () => window.removeEventListener( 'click', keepClick ) );
+	afterAll( () => {
+		mockConfigExtra = {};
+	} );
+
+	it.each( [
+		[ 'mounted', () => click( A ) ],
+		[ 'only prewarmed', () => hover( 'guest-a' ) ],
+	] )( 'loads the page for a new dashboard once one %s reaches the limit', async ( _, spend ) => {
+		spend();
+		await settle();
+
+		click( '/wp-admin/admin.php?page=guest-b' );
+		await settle();
+
+		expect( kept ).toBe( false );
+		expect( stateOf( 'guest-b' ) ).toBeUndefined();
+		expect( prewarmed() ).toEqual( [ 'guest-a' ] );
+	} );
+
+	it( 'keeps switching between live dashboards at the limit', async () => {
+		click( A );
+		await settle();
+		click( '/wp-admin/admin.php?page=host' );
+		await settle();
+
+		expect( kept ).toBe( true );
+		expect( stateOf( 'host' ) ).toBe( 'visible' );
+	} );
+
+	it( 'skips hover prewarm at the limit', async () => {
+		hover( 'guest-a' );
+		await settle();
+		hover( 'guest-b' );
+		await settle();
+
+		expect( prewarmed() ).toEqual( [ 'guest-a' ] );
 	} );
 } );
