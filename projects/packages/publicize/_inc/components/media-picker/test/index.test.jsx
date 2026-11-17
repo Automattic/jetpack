@@ -1,10 +1,10 @@
-import { loadMediaLibrary } from '@automattic/jetpack-admin-ui/media-library';
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ReactElement } from 'react';
 import MediaPicker from '..';
 
-jest.mock( '@automattic/jetpack-admin-ui/media-library', () => ( {
+jest.mock( '@automattic/jetpack-components/tools/load-media-library', () => ( {
 	loadMediaLibrary: jest.fn(),
 } ) );
 

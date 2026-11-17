@@ -4636,9 +4636,6 @@ importers:
       '@automattic/charts':
         specifier: workspace:*
         version: link:../../js-packages/charts
-      '@automattic/jetpack-admin-ui':
-        specifier: workspace:*
-        version: link:../admin-ui
       '@automattic/jetpack-ai-client':
         specifier: workspace:*
         version: link:../../js-packages/ai-client
