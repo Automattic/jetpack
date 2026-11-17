@@ -509,3 +509,27 @@ it( 'lists the tab again when the filter changes', () => {
 
 	assert.deepEqual( page.browsed, [ 'wpcom' ] );
 } );
+
+it( "names the search box, and keeps core's own attributes on it", () => {
+	const InstallerSearch = { prototype: { attributes: { type: 'search' } } };
+	const config = { sort: 'wpcom', label: 'Marketplace', searchLabel: 'Search themes' };
+	const context = {
+		document: { querySelector: () => null, createElement: node, addEventListener: () => {} },
+		window: {
+			wpcomThemesTab: config,
+			wp: {
+				themes: {
+					view: { Theme: { prototype: { render: () => undefined } }, InstallerSearch },
+				},
+			},
+		},
+	};
+	const file = new URL( './themes-tab.js', import.meta.url ).pathname;
+	vm.createContext( context );
+	new vm.Script( readFileSync( file, 'utf8' ), { filename: file } ).runInContext( context );
+
+	assert.deepEqual( JSON.parse( JSON.stringify( InstallerSearch.prototype.attributes ) ), {
+		type: 'search',
+		placeholder: 'Search themes',
+	} );
+} );

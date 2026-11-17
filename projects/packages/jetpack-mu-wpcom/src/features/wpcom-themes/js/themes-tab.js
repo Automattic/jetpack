@@ -15,11 +15,33 @@
 		const item = document.createElement( 'li' );
 		item.appendChild( link );
 		list.prepend( item );
+
+		// Says which side has tabs scrolled out of view, for the stylesheet to fade.
+		if ( window.ResizeObserver ) {
+			const markClipped = () => {
+				const scrolled = Math.abs( list.scrollLeft );
+				list.classList.toggle( 'is-clipped-start', scrolled > 1 );
+				list.classList.toggle(
+					'is-clipped-end',
+					scrolled + list.clientWidth < list.scrollWidth - 1
+				);
+			};
+			list.addEventListener( 'scroll', markClipped, { passive: true } );
+			new window.ResizeObserver( markClipped ).observe( list );
+		}
 	}
 
 	const views = window.wp && window.wp.themes && window.wp.themes.view;
 	if ( ! views ) {
 		return;
+	}
+
+	// The stylesheet hides core's label to save room, so the search box says what it is for.
+	if ( views.InstallerSearch && config.searchLabel ) {
+		views.InstallerSearch.prototype.attributes = {
+			...views.InstallerSearch.prototype.attributes,
+			placeholder: config.searchLabel,
+		};
 	}
 
 	/**

@@ -116,6 +116,7 @@ function wpcom_themes_tab_enqueue_script() {
 			'allPlans'       => __( 'All plans', 'jetpack-mu-wpcom' ),
 			'included'       => WPCOM_THEMES_TAB_INCLUDED,
 			'includedLabel'  => __( 'Included with my plan', 'jetpack-mu-wpcom' ),
+			'searchLabel'    => __( 'Search themes', 'jetpack-mu-wpcom' ),
 			'products'       => WPCom_Themes_Store::PRODUCTS_URL,
 			/* translators: %s: Price per month, for example $7.20. */
 			'price'          => __( '%s/mo, billed annually', 'jetpack-mu-wpcom' ),
