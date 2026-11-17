@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 
 export type TabValue = 'overview' | 'payments' | 'subscribers' | 'ads' | 'settings';
 
@@ -53,4 +54,17 @@ export function getTabSearch(
 	next: string
 ): Record< string, unknown > {
 	return { ...prev, tab: next === 'overview' ? undefined : next };
+}
+
+/**
+ * The admin URL that opens a tab, as `Dashboard::get_tab_url()` builds it.
+ *
+ * @param tab - The tab.
+ * @return The URL, relative to wp-admin.
+ */
+export function getTabHref( tab: TabValue ): string {
+	return addQueryArgs( 'admin.php', {
+		page: 'jetpack-monetize',
+		...( tab === 'overview' ? {} : { p: `/?tab=${ tab }` } ),
+	} );
 }

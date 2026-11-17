@@ -878,7 +878,7 @@ describe( 'MetricTabsChart', () => {
 
 			pressAndRelease( spy, { date: CLICKED, value: 200 } );
 
-			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED );
+			expect( onDatumClick ).toHaveBeenCalledWith( { date: CLICKED, isComparison: false } );
 		} );
 
 		// Literal on purpose. Importing the component's tolerance would move both
@@ -960,7 +960,34 @@ describe( 'MetricTabsChart', () => {
 
 			recordedProps( spy ).onDatumActivate?.( { datum: { date: CLICKED, value: 200 } } );
 
-			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED );
+			expect( onDatumClick ).toHaveBeenCalledWith( { date: CLICKED, isComparison: false } );
+		} );
+
+		it( 'reports the previous-period bucket for a click on a comparison point, not the current one it is drawn under', () => {
+			const onDatumClick = jest.fn();
+			const previousStart = new Date( '2026-06-02T00:00:00Z' );
+			const previousEnd = new Date( '2026-06-02T23:59:59Z' );
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			pressAndRelease( mockLineSpy, {
+				date: CLICKED,
+				realDate: previousStart,
+				endDate: previousEnd,
+				value: 120,
+			} );
+
+			expect( onDatumClick ).toHaveBeenCalledWith( {
+				date: previousStart,
+				endDate: previousEnd,
+				isComparison: true,
+			} );
 		} );
 
 		it( 'leaves the chart without pointer or keyboard handlers when nothing listens', () => {

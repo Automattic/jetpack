@@ -10,6 +10,7 @@ import { Button, Card, Tooltip } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import RecordVideoButton from '../../src/client/components/video-recording';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import DataViewsContent from '../../src/dashboard/components/dataviews-toolbar';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice, {
 	FREE_TIER_AT_LIMIT_MESSAGE,
@@ -429,7 +430,13 @@ const StageInner = () => {
 			paginationInfo={ paginationInfo }
 			isLoading={ isLoading || ( isTotalLoading && renderedItems.length === 0 ) }
 			defaultLayouts={ defaultLayouts }
-		/>
+		>
+			<DataViewsContent
+				view={ view }
+				onChangeView={ onChangeView }
+				defaultLayouts={ defaultLayouts }
+			/>
+		</DataViews>
 	);
 
 	// The hook defaults its count to zero; only settled, successful reads confirm an empty library.
@@ -541,6 +548,7 @@ const StageInner = () => {
 							</Tooltip.Popup>
 						</Tooltip.Root>
 						<RecordVideoButton
+							size="compact"
 							onRecorded={ file => handleFilesSelected( [ file ] ) }
 							disabled={ isAtLimit }
 						/>

@@ -1,6 +1,6 @@
 const npath = require( 'path' );
 const babel = require( '@babel/core' );
-const webpack = require( 'webpack' );
+const { validateSchema } = require( 'webpack' );
 const GettextEntries = require( './GettextEntries.js' );
 const GettextEntry = require( './GettextEntry.js' );
 const GettextExtractor = require( './GettextExtractor.js' );
@@ -96,7 +96,7 @@ class I18nCheckPlugin {
 	#expectDomain;
 
 	constructor( options = {} ) {
-		webpack.validateSchema( schema, options, {
+		validateSchema( schema, options, {
 			name: PLUGIN_NAME,
 			baseDataPath: 'options',
 		} );
@@ -126,9 +126,9 @@ class I18nCheckPlugin {
 	/**
 	 * Record the resources for an asset.
 	 *
-	 * @param {webpack.Compilation} compilation - Compilation.
-	 * @param {string}              filename    - Asset filename.
-	 * @param {webpack.Module[]}    modules     - Modules in the asset.
+	 * @param {import('webpack').Compilation} compilation - Compilation.
+	 * @param {string}                        filename    - Asset filename.
+	 * @param {import('webpack').Module[]}    modules     - Modules in the asset.
 	 */
 	#recordResourcesForAsset( compilation, filename, modules ) {
 		const resources = new Set();
@@ -189,7 +189,7 @@ class I18nCheckPlugin {
 			compilation.hooks.processAssets.tapPromise(
 				{
 					name: PLUGIN_NAME,
-					stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
+					stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
 					additionalAssets: true,
 				},
 				assets => {
@@ -209,9 +209,9 @@ class I18nCheckPlugin {
 	/**
 	 * Process an asset.
 	 *
-	 * @param {webpack.Compilation} compilation - Compilation.
-	 * @param {string}              filename    - Asset filename.
-	 * @param {Map}                 moduleCache - Cache for processed modules.
+	 * @param {import('webpack').Compilation} compilation - Compilation.
+	 * @param {string}                        filename    - Asset filename.
+	 * @param {Map}                           moduleCache - Cache for processed modules.
 	 */
 	async #processAsset( compilation, filename, moduleCache ) {
 		// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Grabbing current timestamp for timing.

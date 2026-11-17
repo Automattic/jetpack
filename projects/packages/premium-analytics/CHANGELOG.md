@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2026-11-16
+### Added
+- Add Download CSV to the Devices and Top platforms cards. [#54843]
+- Add Download CSV to the post, video and email detail cards. [#54849]
+- Add Download CSV to the Traffic summary card. [#54842]
+- Add Download CSV to the Views over years, Monthly posting activity, Shares and Subscriber summary cards. [#54848]
+- Dashboard: Add an Arrange tabs option to the page options menu, to reorder the tabs and choose the one that opens first. [#54806]
+- Date controls: Add a Last 3 years period to the date menu, charted by years, so traffic can be compared year by year without picking a custom range. [#54667]
+- Date controls: Offer a yearly chart interval on any date range that covers three calendar years. [#54667]
+- Single-report pages: Serve the author page from /report/author/<id>, rendered from its registered record; the old /author/<id> address redirects. [#54184]
+- Single-report pages: Serve the post page from /report/post/<id>, rendered from its registered record with its three sections; the old /post/<id> address redirects. [#54183]
+- Widget SDK: add `useOpenChartBucket`, which opens a clicked chart bucket, from either period, as the dashboard period (2.4.0). [#54573]
+
+### Changed
+- Dashboard: Preload the open screen's code and the first REST responses, so the first widgets appear sooner. [#54730]
+- Dashboard: Request the dashboard sections and widget types while the page is still loading the site details, instead of after. [#54784]
+- Dashboard: Start loading stats without waiting for the site settings when the dashboard opens with no dates in its URL. [#54775]
+- Date controls: Simplify how a period a widget sets is signalled to the date control. [#54727]
+- Date filters: Measure a comparison with one implementation for reading and writing the URL. [#54723]
+- Draw the text inside dashboard widgets at 14px, as classic Stats did, with headline figures in bold, so lists and figures are easier to read. [#54977]
+- Make view counts easier to compare across the heatmaps, so quiet periods can be told apart instead of sharing one pale shade, and mark months the data does not yet fill. [#54838]
+- Settings: Move the Stats settings from a dashboard tab to their own page, reached from the page options menu. [#54801]
+- Show the view options of Top pages, Top platforms, Latest emails sent, All-time traffic and Views over years as one-click toggles instead of a dropdown. [#54927]
+- Single-report pages: Let the VideoPress package register the video page instead of registering it here. [#54185]
+- Single-report pages: Open on the date range of the page that linked to them, instead of All time. [#54783]
+- Stats: Leave a bar chart column empty when its value is zero, instead of drawing a thin bar that looks like a small count. [#54850]
+- Top locations: Show Countries, Regions and Cities as one-click toggles instead of a dropdown. [#54803]
+- Update package dependencies. [#54703]
+
+### Removed
+- Dashboard: Remove the Site overview, Post traffic activity, Total views, Total visitors, Popular days, Popular hours and Hello World widgets, which no layout or widget picker offered. [#54921]
+
+### Fixed
+- Arrange tabs: Keep the place of a tab that is hidden when the order is saved. [#54868]
+- Charts: Let a percentage axis grow with the data once a value passes 100%, so a video's retention rate above 100% stays inside the chart. [#54937]
+- Charts: Stop hourly charts from showing a clickable cursor when a click opens nothing. [#54573]
+- Dates: Keep the month in month labels for Japanese, Chinese and Korean sites, which showed a day marker instead (2021年1日 rather than 2021年1月). [#54793]
+- Dates: Use the locale's default date format when the site's Date Format setting lacks a day, month or year, so chart labels and the date selector stay unambiguous. [#54793]
+- Improve page transitions between reports and detail views. [#54614]
+- Keep the widget title from being cut off beside a toggle, so the toggle folds into the widget controls menu at the same width whichever way the widget is resized. [#54927]
+- Metric tiles: Pick the layout from the size of the tiles' own box, so highlights stay in columns after switching dashboard tabs. [#54683]
+- Open the dashboard for `admin.php?page=stats` on WordPress 7.2, which reports an unregistered page as not found instead of denied. [#54800]
+- Shorten the breadcrumb trail and hide the Customizing badge on phones, instead of letting them cover the header buttons. [#54844]
+- Show metric cards as a list when the card is too narrow for every metric to fit side by side, instead of cutting off the figures. [#54923]
+- Single-report pages: Name an untitled post, author or video in the last breadcrumb as the header does. [#54928]
+- Single-report pages: Show the Jetpack footer on the video page again. [#54183]
+- Stats: Move an old Year to date or All time link to today's window when its saved interval no longer fits, so the address bar matches the charts. [#54722]
+- Stats: Move a preset's dates to the new day when a page is left open past midnight, so the numbers and the date controls include today. [#54721]
+- Stop a long post title from widening the page on desktop, so the header buttons stay in view. [#54847]
+- Widget header toggles: Keep the side padding on the longer of two options, such as Posts & pages on the Top pages card. [#54942]
+
 ## [0.17.0] - 2026-11-09
 ### Added
 - Offer a quarterly interval in the Traffic summary and the WooCommerce tab on ranges of a year or longer. [#54455]
@@ -754,6 +805,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.18.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.17.0...0.18.0
 [0.17.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.16.0...0.17.0
 [0.16.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.15.0...0.16.0
 [0.15.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.14.0...0.15.0

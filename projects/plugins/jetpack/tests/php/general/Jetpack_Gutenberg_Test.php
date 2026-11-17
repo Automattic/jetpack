@@ -5,8 +5,6 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * @covers \Jetpack_Gutenberg
@@ -67,6 +65,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		Constants::clear_single_constant( 'REST_API_REQUEST' );
 
 		Jetpack_Gutenberg::reset();
+		unset( $GLOBALS['wp_scripts'], $GLOBALS['wp_styles'] );
 		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
@@ -105,12 +104,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	/**
 	 * The modules store initializes immediately, so its state must be localized on
 	 * the shared-store handle rather than on a later editor script.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_editor_initial_state_is_localized_on_shared_modules_store() {
 		global $current_screen;
 
@@ -138,20 +132,15 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * The SEO package registers the auto-generate setting for saving when it starts,
 	 * so the editor must not offer or read that setting before then.
 	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 * @dataProvider provide_seo_package_started
 	 *
 	 * @param bool $started Whether the SEO package has started.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	#[DataProvider( 'provide_seo_package_started' )]
 	public function test_seo_auto_enhance_waits_for_the_seo_package( $started ) {
 		global $current_screen;
 
 		// Available everywhere but started only where the host boots it, as on WordPress.com.
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		update_option( 'jetpack_seo_surface_visible_v2', true );
 		update_option( 'ai_seo_enhancer_enabled', true );
 		if ( $started ) {

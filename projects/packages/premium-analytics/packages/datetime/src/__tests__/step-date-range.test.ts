@@ -8,6 +8,7 @@ import { TZDate } from '@date-fns/tz';
 import {
 	endOfStepHorizon,
 	getStepSpan,
+	bucketStepId,
 	measureStepId,
 	parseDateStepId,
 	shiftStep,
@@ -231,5 +232,18 @@ describe( 'endOfStepHorizon', () => {
 
 	it( 'ends the running hour for a window stepping by hours', () => {
 		expect( endOfStepHorizon( now, 'hour' ) ).toEqual( endOfHourAt( 2026, 8, 20, 12 ) );
+	} );
+} );
+
+describe( 'bucketStepId', () => {
+	it.each( [
+		[ 'hour', undefined ],
+		[ 'day', 'P1D' ],
+		[ 'week', 'P7D' ],
+		[ 'month', 'P1M' ],
+		[ 'quarter', 'P3M' ],
+		[ 'year', 'P1Y' ],
+	] as const )( 'steps a %s bucket by its own unit', ( interval, stepId ) => {
+		expect( bucketStepId( interval ) ).toBe( stepId );
 	} );
 } );

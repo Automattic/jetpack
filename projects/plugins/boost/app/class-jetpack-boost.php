@@ -21,6 +21,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
+use Automattic\Jetpack_Boost\Contracts\Sub_Feature;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Cleanup_Transients;
@@ -301,7 +302,17 @@ class Jetpack_Boost {
 			! empty( $active_modules )
 			&& ( new Connection() )->is_connected()
 		) {
+			$available_modules = $modules_setup->get_available_modules_and_submodules();
 			foreach ( $active_modules as $module => $status ) {
+				if ( ! $status ) {
+					continue;
+				}
+
+				$module_instance = $available_modules[ $module ];
+				if ( $module_instance->feature instanceof Sub_Feature && empty( $module_instance->get_active_parent_modules() ) ) {
+					continue;
+				}
+
 				$modules_setup->on_module_status_update( $module, true );
 			}
 		}

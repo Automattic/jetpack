@@ -39,6 +39,7 @@ import type { JSX } from 'react';
 
 export const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
 export const AGENT_SUPPORT_FEATURE = 'ai-sidebar-agent-support';
+export const AGENT_ENABLE_FEATURE = 'ai-sidebar-agent-enable';
 export const PREFERENCE_SCOPE = 'jetpack/ai-assistant';
 export const DISMISSED_PREFERENCE = 'wordpressAgentNoticeDismissed';
 
@@ -123,7 +124,13 @@ export function useWordPressAgentNotice(): { isVisible: boolean; isDismissed: bo
 		return { isVisible: false, isDismissed: false };
 	}
 
-	const isDismissed = isWordPressAgentOn() && hasDismissed;
+	const isAgentOn = isWordPressAgentOn();
+
+	if ( ! isAgentOn && ! getFeatureAvailability( AGENT_ENABLE_FEATURE ) ) {
+		return { isVisible: false, isDismissed: false };
+	}
+
+	const isDismissed = isAgentOn && hasDismissed;
 
 	return { isVisible: ! isDismissed, isDismissed };
 }

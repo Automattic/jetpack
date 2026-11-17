@@ -581,6 +581,30 @@ export function hasBackupPage( state ) {
 }
 
 /**
+ * Whether the Protect page exists, which replaces the Security tab.
+ *
+ * Read from the server, since Jetpack hides the `protect-dashboard` module while the connected Jetpack Protect plugin shows the page.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if the Protect page was registered.
+ */
+export function hasProtectPage( state ) {
+	return state.jetpack.initialState.siteData?.hasProtectPage ?? false;
+}
+
+/**
+ * Whether the Jetpack Social page exists for this user, which Publicize's host, connection and filters decide.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if the Social page was registered.
+ */
+export function hasSocialPage( state ) {
+	return state.jetpack.initialState.siteData?.hasSocialPage ?? false;
+}
+
+/**
  * Get the site's date format, in format accepted by DateTimeInterface::format().
  *
  * @param {object} state - Global state tree

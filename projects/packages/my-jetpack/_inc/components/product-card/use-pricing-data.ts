@@ -1,4 +1,4 @@
-import { getUserConnectionUrl, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -12,6 +12,7 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { getConnectUrl, recommendationsFrom } from '../../utils/connect-url';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
 	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi || {};
@@ -75,7 +76,10 @@ const getFeaturePrimaryAction = (
 		case PRODUCT_STATUSES.ABSENT:
 			return { label: __( 'Install', 'jetpack-my-jetpack' ), onClick: onInstall };
 		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
-			return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: getUserConnectionUrl() };
+			return {
+				label: __( 'Connect', 'jetpack-my-jetpack' ),
+				href: getConnectUrl( recommendationsFrom( detail.slug ) ),
+			};
 		default:
 			return {
 				label: __( 'Manage', 'jetpack-my-jetpack' ),

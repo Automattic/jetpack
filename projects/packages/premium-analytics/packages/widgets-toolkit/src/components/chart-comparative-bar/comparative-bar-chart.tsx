@@ -423,12 +423,17 @@ export function ComparativeBarChart( {
 	);
 
 	/**
-	 * A pinned domain for percentage metrics and all-zero periods. Null lets the
-	 * chart scale to the data.
+	 * A pinned domain for percentage metrics and all-zero periods, read from the
+	 * bars the legend leaves visible. Null lets the chart scale to the data.
 	 */
 	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData ),
-		[ dataFormat.type, isEmptyData ]
+		() =>
+			getFixedYAxis(
+				dataFormat.type,
+				isEmptyData,
+				drawnSeries.filter( item => isSeriesVisible( chartId, item.label ) )
+			),
+		[ dataFormat.type, isEmptyData, drawnSeries, isSeriesVisible, chartId ]
 	);
 
 	const chartOptions = useMemo( () => {
@@ -466,9 +471,6 @@ export function ComparativeBarChart( {
 				maxWidth={ maxWidth }
 				compactWhenShort={ compactWhenShort }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
-				// A zero-value bar has no height, so a quiet day would otherwise read as
-				// missing data. This draws it as a hairline stub instead.
-				showZeroValues
 				showLegend={ false }
 				withTooltips={ hasTooltipRows }
 				renderTooltip={ renderTooltip }

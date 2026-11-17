@@ -2,6 +2,7 @@ import analytics from '@automattic/jetpack-analytics';
 import { renderHook, act } from '@testing-library/react';
 import { mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
+import { VideoMetaSaveError } from '../../utils/video-meta-request';
 import { useUpdateVideoMeta, patchToApi } from '../use-update-video-meta';
 import type { LibraryItemPrivacy } from '../../types/library';
 
@@ -71,37 +72,74 @@ describe( 'useUpdateVideoMeta', () => {
 		] );
 	} );
 
-	it.each< [ string, LibraryItemPrivacy | undefined, LibraryItemPrivacy | undefined, unknown ] >( [
-		[ 'no previous value', undefined, 'private', { code: 'success' } ],
-		[ 'unrelated edit', 'public', undefined, { code: 'success' } ],
-		[ 'unchanged value', 'private', 'private', { code: 'success' } ],
-		[ 'missing acknowledgment', 'public', 'private', {} ],
-		[ 'null acknowledgment', 'public', 'private', null ],
-		[ 'error response', 'public', 'private', { code: 'error' } ],
-		[ 'rejected request', 'public', 'private', new Error( 'Failed' ) ],
-	] )(
-		'does not record a privacy change for %s',
-		async ( _label, previousPrivacy, privacy, response ) => {
-			mockApiFetch( () => {
-				if ( response instanceof Error ) {
-					return Promise.reject( response );
-				}
-				return response;
+	it.each< [ string, LibraryItemPrivacy | undefined, LibraryItemPrivacy | undefined ] >( [
+		[ 'no previous value', undefined, 'private' ],
+		[ 'unrelated edit', 'public', undefined ],
+		[ 'unchanged value', 'private', 'private' ],
+	] )( 'does not record a privacy change for %s', async ( _label, previousPrivacy, privacy ) => {
+		mockApiFetch( () => ( { code: 'success' } ) );
+		const wrapper = createTestWrapper( createTestQueryClient() );
+		const { result } = renderHook( () => useUpdateVideoMeta(), { wrapper } );
+		await act( async () => {
+			await result.current.mutateAsync( {
+				id: 42,
+				patch: { title: 'Edited', privacy },
+				previousPrivacy,
 			} );
-			const wrapper = createTestWrapper( createTestQueryClient() );
-			const { result } = renderHook( () => useUpdateVideoMeta(), { wrapper } );
-			await act( async () => {
-				const pending = result.current.mutateAsync( {
+		} );
+		expect( recordEvent ).not.toHaveBeenCalled();
+	} );
+
+	it.each< [ string, unknown, string, number | undefined ] >( [
+		[ 'an empty 2xx body', {}, 'unacknowledged', undefined ],
+		[ 'a null 2xx body', null, 'unacknowledged', undefined ],
+		[ 'an error sent as 2xx', { code: 'error', message: 'Nope' }, 'error', undefined ],
+		[
+			'a REST error',
+			Object.assign( new Error( 'No route' ), {
+				code: 'rest_no_route',
+				data: { status: 404 },
+			} ),
+			'rest_no_route',
+			404,
+		],
+		[
+			'a non-JSON reply',
+			{ code: 'invalid_json', message: 'Not JSON' },
+			'invalid_json',
+			undefined,
+		],
+	] )( 'rejects, logs and records nothing for %s', async ( _label, response, code, status ) => {
+		mockApiFetch( () =>
+			response instanceof Error || ( response as { code?: string } )?.code === 'invalid_json'
+				? Promise.reject( response )
+				: response
+		);
+		const client = createTestQueryClient();
+		const invalidate = jest.spyOn( client, 'invalidateQueries' );
+		const wrapper = createTestWrapper( client );
+		const { result } = renderHook( () => useUpdateVideoMeta(), { wrapper } );
+		let failure: unknown;
+		await act( async () => {
+			failure = await result.current
+				.mutateAsync( {
 					id: 42,
-					patch: { title: 'Edited', privacy },
-					previousPrivacy,
-				} );
-				const failure = await pending.catch( ( error: unknown ) => error );
-				expect( failure ).toBe( response instanceof Error ? response : undefined );
-			} );
-			expect( recordEvent ).not.toHaveBeenCalled();
-		}
-	);
+					patch: { title: 'Edited', privacy: 'private' },
+					previousPrivacy: 'public',
+				} )
+				.catch( ( error: unknown ) => error );
+		} );
+		expect( failure ).toBeInstanceOf( VideoMetaSaveError );
+		expect( failure ).toMatchObject( { code, status } );
+		expect( console ).toHaveErroredWith( 'VideoPress: video details were not saved.', {
+			id: 42,
+			status,
+			code,
+			message: ( failure as Error ).message,
+		} );
+		expect( recordEvent ).not.toHaveBeenCalled();
+		expect( invalidate ).not.toHaveBeenCalled();
+	} );
 
 	it( 'records the submitted setting only after acknowledgment, including after unmount', async () => {
 		let resolveSave: ( value: unknown ) => void;

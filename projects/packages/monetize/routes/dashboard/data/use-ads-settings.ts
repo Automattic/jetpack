@@ -54,9 +54,10 @@ function parseValues( settings: Record< string, unknown > ): AdsValues {
  *
  * The asked-for value shows until its save settles, and goes back to the stored one if the save fails.
  *
+ * @param onSaved - Called after each successful save.
  * @return The values, load and save state, and the setters.
  */
-export function useAdsSettings() {
+export function useAdsSettings( onSaved?: () => void ) {
 	const [ stored, setStored ] = useState< AdsValues >();
 	const [ requested, setRequested ] = useState< Partial< AdsValues > >( {} );
 	const [ loadError, setLoadError ] = useState( false );
@@ -79,6 +80,7 @@ export function useAdsSettings() {
 			try {
 				await apiFetch( request );
 				setStored( prev => prev && { ...prev, [ key ]: value } );
+				onSaved?.();
 			} catch {
 				setSaveError( true );
 			} finally {
@@ -89,7 +91,7 @@ export function useAdsSettings() {
 				} );
 			}
 		},
-		[]
+		[ onSaved ]
 	);
 
 	const setOption = useCallback(

@@ -13,6 +13,7 @@ use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-themes/wpcom-themes.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-themes/wpcom-themes-tab.php';
 
 /**
@@ -125,7 +126,11 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		Constants::clear_constants();
 		// Host memoizes is_woa_site past clear_constants().
 		Cache::clear();
-		wp_deregister_script( 'wpcom-themes-tab' );
+		// Deregistering leaves a handle in the queue, which wp_script_is( 'enqueued' ) reads.
+		foreach ( array( 'wpcom-themes-tab', 'wpcom-themes-banner' ) as $handle ) {
+			wp_dequeue_script( $handle );
+			wp_deregister_script( $handle );
+		}
 
 		// The shared reader caches in the object cache.
 		wp_cache_flush();
@@ -371,6 +376,63 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Core's Feature Filter, applied on the tab, narrows the tab's catalog as WordPress.org would.
+	 *
+	 * @param string[] $tags   Tags checked in the filter drawer.
+	 * @param string[] $listed Slugs the tab lists.
+	 * @dataProvider provide_feature_filters
+	 */
+	#[DataProvider( 'provide_feature_filters' )]
+	public function test_the_feature_filter_lists_themes_with_every_tag( array $tags, array $listed ) {
+		$this->enable_tab();
+		$this->answer_with_themes(
+			array(
+				array_merge(
+					self::THEME,
+					array(
+						'id'         => 'cafe',
+						'taxonomies' => array(
+							'theme_subject' => array( array( 'slug' => 'restaurant' ) ),
+							'theme_feature' => array( array( 'slug' => 'one-column' ) ),
+						),
+					)
+				),
+				array_merge(
+					self::THEME,
+					array(
+						'id'         => 'diary',
+						'taxonomies' => array( 'theme_feature' => array( array( 'slug' => 'one-column' ) ) ),
+					)
+				),
+				array_merge( self::THEME, array( 'id' => 'plain' ) ),
+			)
+		);
+
+		$result = $this->query(
+			array(
+				'browse' => WPCOM_THEMES_TAB,
+				'tag'    => $tags,
+			)
+		);
+
+		$this->assertSame( $listed, array_column( $result->themes, 'slug' ) );
+		$this->assertSame( count( $listed ), $result->info['results'] );
+	}
+
+	/**
+	 * Feature filters, and what each leaves on the tab.
+	 *
+	 * @return array<string, array>
+	 */
+	public static function provide_feature_filters(): array {
+		return array(
+			'one tag'                                   => array( array( 'one-column' ), array( 'cafe', 'diary' ) ),
+			'every tag, not any of them'                => array( array( 'one-column', 'food-and-drink' ), array( 'cafe' ) ),
+			'a subject named as WordPress.org names it' => array( array( 'food-and-drink' ), array( 'cafe' ) ),
+		);
+	}
+
+	/**
 	 * A second view within the cache window does not call WordPress.com again.
 	 */
 	public function test_caches_the_catalog() {
@@ -438,6 +500,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse( $this->query( array( 'browse' => 'popular' ) ) );
 		$this->assertFalse( $this->query( array( 'search' => 'blog' ) ) );
+		$this->assertFalse( $this->query( array( 'tag' => array( 'blog' ) ) ) );
 		$this->assertFalse( wpcom_themes_tab_serve_themes_api( false, 'theme_information', (object) array( 'slug' => 'organic-stax' ) ) );
 		$this->assertSame( array(), $this->requests );
 	}
@@ -474,6 +537,38 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		wpcom_themes_tab_enqueue_script();
 
 		$this->assertTrue( wp_script_is( 'wpcom-themes-tab', 'enqueued' ) );
+	}
+
+	/**
+	 * The theme showcase banner shows only while the tab is off.
+	 *
+	 * @dataProvider provide_banner_cases
+	 *
+	 * @param bool $tab_on Whether the tab is enabled.
+	 * @param bool $banner Whether the banner is expected.
+	 */
+	#[DataProvider( 'provide_banner_cases' )]
+	public function test_banner_shows_only_without_the_tab( bool $tab_on, bool $banner ) {
+		update_option( 'wpcom_admin_interface', 'wp-admin' );
+		if ( $tab_on ) {
+			$this->enable_tab();
+		}
+
+		wpcom_themes_show_banner();
+
+		$this->assertSame( $banner, wp_script_is( 'wpcom-themes-banner', 'enqueued' ) );
+	}
+
+	/**
+	 * Data provider for test_banner_shows_only_without_the_tab.
+	 *
+	 * @return array
+	 */
+	public static function provide_banner_cases() {
+		return array(
+			'tab off' => array( false, true ),
+			'tab on'  => array( true, false ),
+		);
 	}
 
 	/**

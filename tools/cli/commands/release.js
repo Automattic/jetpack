@@ -207,7 +207,7 @@ export async function scriptRouter( argv ) {
  */
 export async function checkBranchValid( argv ) {
 	const currentBranch = child_process.execSync( 'git branch --show-current' ).toString().trim();
-	let branchPrefix = await readComposerJson( argv.project ).extra[ 'release-branch-prefix' ];
+	const branchPrefix = await readComposerJson( argv.project ).extra[ 'release-branch-prefix' ];
 	if ( ! branchPrefix ) {
 		console.log(
 			chalk.red(
@@ -217,11 +217,7 @@ export async function checkBranchValid( argv ) {
 		process.exit( 1 );
 	}
 
-	if ( ! Array.isArray( branchPrefix ) ) {
-		branchPrefix = [ branchPrefix ];
-	}
-
-	if ( ! branchPrefix.some( prefix => currentBranch.startsWith( `${ prefix }/branch-` ) ) ) {
+	if ( ! currentBranch.startsWith( `${ branchPrefix }/branch-` ) ) {
 		console.log(
 			chalk.red(
 				`Doesn't look like you're on a release branch! Please check out the release branch before amending the changelog.`

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent plugin ZIP uploads from crashing when the WordPress.org lookup fails.

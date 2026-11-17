@@ -5,6 +5,7 @@ import {
 	installShellProbe,
 	openMember,
 	settle,
+	skipUnlessOnSite,
 	switchTo,
 	tracksEvents,
 } from '../../helpers/admin-shell-helper';
@@ -66,20 +67,19 @@ test.describe( 'Admin shell: Tracks page views', () => {
 		test( `the first switch to ${ m.slug } records the page view a full load does`, async ( {
 			page,
 		} ) => {
+			await skipUnlessOnSite( page, m.slug );
 			const expected = await fullLoadViews( page, m.slug );
 			await openMember( page, other );
 			expect( await viewsOnSwitch( page, m.slug ) ).toEqual( expect.arrayContaining( expected ) );
 		} );
 
 		test( `a return switch to ${ m.slug } records the page view again`, async ( { page } ) => {
+			await skipUnlessOnSite( page, m.slug );
 			const expected = await fullLoadViews( page, m.slug );
 			await openMember( page, other );
 			await switchTo( page, m.slug );
 			await switchTo( page, other );
-			const views = await viewsOnSwitch( page, m.slug );
-			// Called here, so a failed switch above is still a real failure.
-			test.fail( true, 'Known gap: a kept-alive app records no page view when shown again.' );
-			expect( views ).toEqual( expect.arrayContaining( expected ) );
+			expect( await viewsOnSwitch( page, m.slug ) ).toEqual( expect.arrayContaining( expected ) );
 		} );
 	}
 

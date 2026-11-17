@@ -26,6 +26,8 @@ return make_phan_config(
 			// Redeclares Protect without has_protect_page(), which would shadow the real class everywhere.
 			'tests/php/stubs/older-protect/',
 			'tests/php/stubs/class-jetpack-gutenberg\.php',
+			'tests/php/stubs/class-ga-manager\.php',
+			'tests/php/stubs/wpcom-site-has-feature\.php',
 		),
 		'parse_file_list'    => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
@@ -42,6 +44,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/3rd-party/class.jetpack-amp-support.php', // class Jetpack_AMP_Support
 			__DIR__ . '/../../../plugins/jetpack/class.jetpack-gutenberg.php',             // class Jetpack_Gutenberg
 			__DIR__ . '/../../../plugins/jetpack/src/class-jetpack-modules-overrides.php', // class Jetpack_Modules_Overrides
+			__DIR__ . '/../../google-analytics/src/class-ga-manager.php',                   // class GA_Manager
 		),
 	)
 );

@@ -13,16 +13,18 @@ import {
 } from '@jetpack-premium-analytics/datetime';
 import {
 	monthlyHeatmapLifeStart,
+	type DayKey,
 	type MonthKey,
 	type MonthlyHeatmapMetric,
 	type MonthlyHeatmapRow,
+	type MonthlyHeatmapTarget,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { format, isValid, parseISO } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildViewsOverYearsRows, type DayKey, type MonthBucket } from './build-views-over-years';
+import { buildViewsOverYearsRows, type MonthBucket } from './build-views-over-years';
 
 // Before any WordPress.com site existed; the endpoint's DB walk stops at the site's registration.
 const EARLIEST_STATS_DATE = '2005-01-01';
@@ -31,11 +33,16 @@ const DATE_FORMAT = 'yyyy-MM-dd';
 
 export interface ViewsOverYearsState {
 	rows: MonthlyHeatmapRow[];
+	/** The months the data does not fill, which the table marks incomplete. */
+	partialMonths: MonthlyHeatmapTarget[];
 	/** Where the site's life starts, which a picked period never precedes. */
 	lifeStartsAt: Date | undefined;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	/** Also a failed first-day request, whose stand-in averages the table still draws. */
+	csvIsError: boolean;
+	isPlaceholderData: boolean;
 	error: unknown;
 	refetch: () => void;
 }
@@ -69,12 +76,21 @@ function buildRows(
 		month: opensAt.getMonth(),
 		day: opensAt.getDate(),
 	};
-	const rows = buildViewsOverYearsRows( buckets, metric, parseISO( today ), opensOn );
+	const { rows, partialMonths } = buildViewsOverYearsRows(
+		buckets,
+		metric,
+		parseISO( today ),
+		opensOn
+	);
 
-	return { rows, lifeStartsAt: monthlyHeatmapLifeStart( rows, opensAt, reportingTimeZone() ) };
+	return {
+		rows,
+		partialMonths,
+		lifeStartsAt: monthlyHeatmapLifeStart( rows, opensAt, reportingTimeZone() ),
+	};
 }
 
-const NO_ROWS = { rows: [], lifeStartsAt: undefined };
+const NO_ROWS = { rows: [], partialMonths: [], lifeStartsAt: undefined };
 
 /**
  * Today on the site's own calendar; one reading, so a render across midnight
@@ -158,13 +174,14 @@ function useSiteViewsOverYears(
 	}, [ firstMonthDays.primary.data ] );
 
 	// Without a response there is no row to draw, not a site without views.
-	const { rows, lifeStartsAt } = useMemo(
+	const { rows, partialMonths, lifeStartsAt } = useMemo(
 		() => ( primary.data ? buildRows( buckets, metric, today, opensAt ) : NO_ROWS ),
 		[ primary.data, buckets, metric, today, opensAt ]
 	);
 
 	// Only the averages wait for the first day, and only until that request first settles:
 	// a failed one refetches on focus with no data, which would pull the rows back into the skeleton.
+	// The totals paint without it and gain the launch month's hatch when it lands (#52311).
 	const awaitingFirstDay =
 		metric === 'average' &&
 		!! firstMonth &&
@@ -173,10 +190,13 @@ function useSiteViewsOverYears(
 
 	return {
 		rows,
+		partialMonths,
 		lifeStartsAt,
 		isLoading: isLoading || awaitingFirstDay,
 		isFetching: isFetching || firstMonthDays.isFetching,
 		isError,
+		csvIsError: isError || ( metric === 'average' && firstMonthDays.isError ),
+		isPlaceholderData: primary.isPlaceholderData,
 		error,
 		refetch,
 	};
@@ -197,12 +217,10 @@ function useAuthorViewsOverYears(
 	enabled: boolean
 ): ViewsOverYearsState {
 	const today = useSiteToday();
-	const { data, isLoading, isFetching, isError, error, refetch } = useStatsAuthorAllTime(
-		authorId,
-		{ enabled: enabled && authorId > 0 }
-	);
+	const { data, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
+		useStatsAuthorAllTime( authorId, { enabled: enabled && authorId > 0 } );
 
-	const { rows, lifeStartsAt } = useMemo( () => {
+	const { rows, partialMonths, lifeStartsAt } = useMemo( () => {
 		if ( ! data ) {
 			return NO_ROWS;
 		}
@@ -216,7 +234,18 @@ function useAuthorViewsOverYears(
 		return buildRows( buckets, metric, today, parseSiteDateTime( data.startDate ?? undefined ) );
 	}, [ data, metric, today ] );
 
-	return { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch };
+	return {
+		rows,
+		partialMonths,
+		lifeStartsAt,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError: isError,
+		isPlaceholderData,
+		error,
+		refetch,
+	};
 }
 
 /**
