@@ -359,6 +359,20 @@ class Admin_UI_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The page leaves the media library to the thumbnail picker, which loads it when clicked.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enqueue_admin_scripts_does_not_load_the_media_library() {
+		Admin_UI::enqueue_admin_scripts();
+
+		$this->assertSame( 0, did_action( 'wp_enqueue_media' ) );
+	}
+
+	/**
 	 * Data provider for test_shell_header_subtitle_drops_the_learn_more_link.
 	 *
 	 * @return array[] Translated dashboard string, expected subtitle.

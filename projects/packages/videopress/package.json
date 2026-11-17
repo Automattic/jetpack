@@ -36,6 +36,7 @@
 	],
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
+		"@automattic/jetpack-admin-ui": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
