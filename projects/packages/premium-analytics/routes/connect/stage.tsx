@@ -5,7 +5,7 @@ import {
 	AnalyticsQueryClientProvider,
 	useStatsYearlyProduct,
 } from '@jetpack-premium-analytics/data';
-import { Button, Icon, JetpackFooter, Notice, Stack } from '@jetpack-premium-analytics/externals';
+import { Button, Icon, JetpackFooter, Notice } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import { StatsOptionsMenu, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -77,7 +77,7 @@ function PlanChoice() {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 			actions={
-				<Stack direction="row" align="center" gap="sm">
+				<>
 					{ ! isOfflineMode && (
 						<Button
 							variant="outline"
@@ -91,7 +91,7 @@ function PlanChoice() {
 					) }
 
 					<StatsOptionsMenu isSiteConnected={ false } />
-				</Stack>
+				</>
 			}
 		>
 			<div className="jetpack-premium-analytics-connect-stage__content">
