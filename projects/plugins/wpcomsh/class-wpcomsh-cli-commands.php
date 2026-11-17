@@ -2010,6 +2010,62 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			WP_CLI::log( '' );
 			WP_CLI::log( WP_CLI::colorize( '%B=== DIAGNOSTICS COMPLETE ===%n' ) );
 		}
+
+		/**
+		 * Rename a user's login, keeping it in step with their WordPress.com username.
+		 *
+		 * `wp user update` cannot do this: WordPress writes user_login on insert only and
+		 * discards it on update.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <user-id>
+		 * : ID of the user on this site.
+		 *
+		 * --from=<old-login>
+		 * : The login the user is expected to currently hold. The rename is skipped when they
+		 * hold something else, so a stale call cannot revert a newer rename.
+		 *
+		 * --to=<new-login>
+		 * : The login to set.
+		 *
+		 * [--porcelain]
+		 * : Print only the outcome: renamed, already_applied or superseded.
+		 *
+		 * ## EXAMPLES
+		 *
+		 *     wp wpcomsh user rename-login 3 --from=ugurlualie72eb35fcd --to=agurlulu
+		 *
+		 * @subcommand user rename-login
+		 *
+		 * @param array $args       Positional arguments.
+		 * @param array $assoc_args Associative arguments.
+		 */
+		public function user_rename_login( $args, $assoc_args = array() ) {
+			$result = wpcomsh_rename_user_login( $args[0], $assoc_args['from'], $assoc_args['to'] );
+
+			if ( is_wp_error( $result ) ) {
+				// The error code is the caller's signal for whether retrying can help, so keep it
+				// machine-readable on the first line.
+				WP_CLI::error( $result->get_error_code() . ': ' . $result->get_error_message() );
+			}
+
+			if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'porcelain', false ) ) {
+				WP_CLI::line( $result );
+				return;
+			}
+
+			switch ( $result ) {
+				case WPCOMSH_USER_LOGIN_ALREADY_APPLIED:
+					WP_CLI::success( sprintf( 'User %d already holds the login %s.', (int) $args[0], $assoc_args['to'] ) );
+					break;
+				case WPCOMSH_USER_LOGIN_SUPERSEDED:
+					WP_CLI::success( sprintf( 'Skipped: user %d no longer holds %s, so a later rename has already landed.', (int) $args[0], $assoc_args['from'] ) );
+					break;
+				default:
+					WP_CLI::success( sprintf( 'Renamed user %d from %s to %s.', (int) $args[0], $assoc_args['from'], $assoc_args['to'] ) );
+			}
+		}
 	}
 }
 
