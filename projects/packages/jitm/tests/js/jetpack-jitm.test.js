@@ -10,13 +10,13 @@ jest.mock(
 		( { path } ) =>
 			new Promise( resolve =>
 				mockPending.push( {
-					messagePath: path.args.message_path,
+					args: path.args,
 					respond: () =>
 						resolve( [
 							{
 								id: path.args.message_path,
 								content: { message: path.args.message_path, classes: '', icon: '', list: [] },
-								CTA: {},
+								CTA: { message: 'Go' },
 								url: '',
 								activate_module: null,
 							},
@@ -30,8 +30,8 @@ const settle = () => new Promise( resolve => setTimeout( resolve, 0 ) );
 const cardIn = page =>
 	document.querySelector( `[data-shell-page="${ page }"] .jitm-card .jitm-banner__title` )
 		?.textContent;
-const show = ( page, previous ) => {
-	window.history.replaceState( null, '', `/wp-admin/admin.php?page=${ page }` );
+const show = ( page, previous, query = '' ) => {
+	window.history.replaceState( null, '', `/wp-admin/admin.php?page=${ page }${ query }` );
 	window.dispatchEvent(
 		new CustomEvent( 'jetpack-admin-shell:page-shown', {
 			detail: { page, previous, firstShow: true, url: location.href },
@@ -54,10 +54,19 @@ it( 'asks for the shown page’s JITMs on an admin shell switch and shows them i
 	await settle();
 	expect( cardIn( 'host' ) ).toBe( 'wp:jetpack_page_host:admin_notices' );
 
-	show( 'guest', 'host' );
-	mockPending.shift().respond();
+	show( 'guest', 'host', '&p=%2Fa%20b' );
+	const guest = mockPending.shift();
+	guest.respond();
 	await settle();
 
+	expect( guest.args ).toMatchObject( {
+		query: encodeURIComponent( 'page=guest,p=%2Fa%20b' ),
+	} );
+	const redirect = encodeURIComponent( '/wp-admin/admin.php?page=guest&p=%2Fa%20b' );
+	expect( document.querySelector( '.jitm-card a[title="Go"]' ) ).toHaveAttribute(
+		'href',
+		`&redirect=${ encodeURIComponent( redirect ) }`
+	);
 	expect( cardIn( 'host' ) ).toBeUndefined();
 	expect( cardIn( 'guest' ) ).toBe( 'wp:jetpack_page_guest:admin_notices' );
 } );
@@ -68,5 +77,17 @@ it( 'drops a response for a page the admin shell has switched away from', async 
 	host.respond();
 	await settle();
 
+	expect( document.querySelector( '.jitm-card' ) ).toBeNull();
+} );
+
+it( 'asks for nothing when the shown app has nowhere to show a JITM', async () => {
+	mockPending.shift().respond();
+	await settle();
+	document.querySelector( '[data-shell-page="guest"] #jp-admin-notices' ).remove();
+
+	show( 'guest', 'host' );
+	await settle();
+
+	expect( mockPending ).toHaveLength( 0 );
 	expect( document.querySelector( '.jitm-card' ) ).toBeNull();
 } );

@@ -399,6 +399,9 @@ domReady( function() {
     // Only the latest fetch places a card: an earlier one may be for a page no longer shown.
     let fetches = 0;
 
+    // Kept from the page load: a card placed in a placeholder's spot replaces it.
+    const placeholders = Array.from(document.querySelectorAll('.jetpack-jitm-message'));
+
     // The page the admin shell switched to, which JITMs are for in place of the page that was loaded.
     let shown = null;
 
@@ -406,7 +409,7 @@ domReady( function() {
         const thisFetch = ++fetches;
         myJetpackRoute = getMyJetpackRoute();
 
-        document.querySelectorAll('.jetpack-jitm-message').forEach(function(el) {
+        placeholders.forEach(function(el) {
             let message_path = el.dataset.messagePath;
             let query = el.dataset.query;
             let redirect = el.dataset.redirect;
