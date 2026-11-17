@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Monetize\Sections;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Monetize\Ads_Wpcom_Settings;
 use Automattic\Jetpack\Monetize\Dashboard;
 use Automattic\Jetpack\Monetize\Dashboard_Section;
@@ -19,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Payout details on WordPress.com, and keeping its copy of the site's Ads settings caught up.
+ * Ad earnings and payouts on WordPress.com, and keeping its copy of the site's Ads settings caught up.
  *
  * @since 0.2.0
  */
@@ -35,16 +36,19 @@ class Ads implements Dashboard_Section {
 	}
 
 	/**
-	 * Whether WordPress.com is behind the site's Ads settings.
+	 * Whether the plan includes WordAds, and whether WordPress.com is behind the site's Ads settings.
 	 *
 	 * @return array
 	 */
 	public function get_state() {
-		return array( 'wpcomOutOfDate' => Ads_Wpcom_Settings::is_out_of_date() );
+		return array(
+			'hasWordAds'     => Current_Plan::supports( 'wordads' ),
+			'wpcomOutOfDate' => Ads_Wpcom_Settings::is_out_of_date(),
+		);
 	}
 
 	/**
-	 * Register the payout and sync routes.
+	 * Register the payout, earnings and sync routes.
 	 *
 	 * @return void
 	 */
@@ -65,6 +69,12 @@ class Ads implements Dashboard_Section {
 				),
 			)
 		);
+
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'wordads/earnings', 'GET' );
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'wordads/payments', 'GET' );
+
+		// Approval and whether WordPress.com considers the site safe for ads.
+		WPCOM_Proxy::register_route( 'rest/v1.1', 'wordads/account', 'GET' );
 
 		register_rest_route(
 			WPCOM_Proxy::REST_NAMESPACE,

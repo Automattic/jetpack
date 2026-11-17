@@ -1,0 +1,34 @@
+.jp-monetize-ads {
+
+	&__figures {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	&__figure-placeholder {
+		inline-size: 6rem;
+		block-size: 1.75rem;
+	}
+
+	&__table-scroll {
+		overflow-x: auto;
+	}
+
+	&__table {
+		inline-size: 100%;
+		border-collapse: collapse;
+
+		th,
+		td {
+			padding-block: var(--wpds-dimension-gap-sm);
+			padding-inline: 0 var(--wpds-dimension-gap-xl);
+			text-align: start;
+			white-space: nowrap;
+		}
+
+		tbody tr {
+			border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		}
+	}
+}
