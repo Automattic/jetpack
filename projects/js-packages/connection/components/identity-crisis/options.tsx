@@ -1,4 +1,5 @@
 import { _x } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import { Children, Fragment } from 'react';
 import styles from './styles.module.scss';
 import type { IdentityCrisisOptionsProps } from './types';
@@ -17,18 +18,18 @@ export default function IdentityCrisisOptions( {
 
 	return (
 		<div className={ styles.options }>
-			<div className={ styles[ 'options-row' ] }>
+			<Stack gap="lg" className={ styles[ 'options-row' ] }>
 				{ options.map( ( option, index ) => (
 					<Fragment key={ index }>
 						{ index > 0 && (
-							<span className={ styles[ 'options-separator' ] }>
+							<Text variant="heading-md" className={ styles[ 'options-separator' ] }>
 								{ _x( 'or', 'Between two Safe Mode options', 'jetpack-connection-js' ) }
-							</span>
+							</Text>
 						) }
 						{ option }
 					</Fragment>
 				) ) }
-			</div>
+			</Stack>
 		</div>
 	);
 }

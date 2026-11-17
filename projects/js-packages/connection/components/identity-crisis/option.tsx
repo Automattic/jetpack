@@ -1,4 +1,4 @@
-import { Button, Text } from '@wordpress/ui';
+import { Button, Card, Stack, Text } from '@wordpress/ui';
 import styles from './styles.module.scss';
 import type { IdentityCrisisOptionProps } from './types';
 import type { ReactNode } from 'react';
@@ -21,25 +21,30 @@ export default function IdentityCrisisOption( {
 	error,
 }: IdentityCrisisOptionProps ): ReactNode {
 	return (
-		<div className={ styles.option }>
-			<Text variant="heading-xl" render={ <h3 /> }>
-				{ title }
-			</Text>
-			<Text variant="body-lg" render={ <div /> }>
-				{ description }
-			</Text>
-			{ visual }
-			{ error }
-			<Button
-				variant={ isPrimary ? 'solid' : 'outline' }
-				onClick={ onClick }
-				loading={ isBusy }
-				// The Button only disables itself while loading when `disabled` is undefined.
-				disabled={ disabled || isBusy }
-				className={ styles[ 'option-button' ] }
+		<Card.Root className={ styles.option }>
+			<Card.Content
+				render={ <Stack direction="column" gap="md" /> }
+				className={ styles[ 'option-content' ] }
 			>
-				{ buttonLabel }
-			</Button>
-		</div>
+				<Text variant="heading-xl" render={ <h3 /> }>
+					{ title }
+				</Text>
+				<Text variant="body-lg" render={ <div /> }>
+					{ description }
+				</Text>
+				{ visual }
+				{ error }
+				<Button
+					variant={ isPrimary ? 'solid' : 'outline' }
+					onClick={ onClick }
+					loading={ isBusy }
+					// The Button only disables itself while loading when `disabled` is undefined.
+					disabled={ disabled || isBusy }
+					className={ styles[ 'option-button' ] }
+				>
+					{ buttonLabel }
+				</Button>
+			</Card.Content>
+		</Card.Root>
 	);
 }

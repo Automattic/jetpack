@@ -31,7 +31,7 @@ export default function IdentityCrisisLayout( {
 		<Stack direction="column" gap="lg">
 			<Stack direction="row" gap="sm" align="center">
 				{ logoElement }
-				<Text variant="body-sm" className={ styles.label }>
+				<Text variant="heading-md">
 					{ renderCustomContent(
 						customContent.headerText,
 						__( 'Safe Mode', 'jetpack-connection-js' ),

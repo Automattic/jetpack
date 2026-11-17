@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, arrowDown, lineSolid } from '@wordpress/icons';
+import { Stack } from '@wordpress/ui';
 import { formatSiteAddress } from '../../helpers/format-site-address';
 import styles from './styles.module.scss';
 import type { IdentityCrisisAddressesProps } from './types';
@@ -34,10 +35,10 @@ export default function IdentityCrisisAddresses( {
 				);
 
 	return (
-		<div className={ styles.addresses } role="img" aria-label={ label }>
+		<Stack direction="column" align="center" gap="xs" role="img" aria-label={ label }>
 			<span className={ styles.address }>{ from }</span>
 			<Icon icon={ variant === 'move' ? arrowDown : lineSolid } size={ 24 } />
 			<span className={ styles.address }>{ to }</span>
-		</div>
+		</Stack>
 	);
 }

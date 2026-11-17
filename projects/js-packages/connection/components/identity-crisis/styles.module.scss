@@ -3,10 +3,6 @@
 	inline-size: auto;
 }
 
-.label {
-	font-weight: var(--wpds-typography-font-weight-emphasis);
-}
-
 .prose {
 	max-inline-size: 70ch;
 }
@@ -17,14 +13,11 @@
 }
 
 .options-row {
-	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-lg);
 }
 
 .options-separator {
 	align-self: center;
-	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
 @container (min-width: 640px) {
@@ -39,27 +32,15 @@
 	}
 }
 
-.option {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-md);
-	padding: var(--wpds-dimension-padding-xl);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-md);
+// Fills the card's height so the button below can sit at the bottom.
+.option-content {
+	flex-grow: 1;
 }
 
 // Pinned to the bottom so buttons line up across options of different heights.
 .option-button {
 	margin-block-start: auto;
 	inline-size: 100%;
-	justify-content: center;
-}
-
-.addresses {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-xs);
 }
 
 .address {
