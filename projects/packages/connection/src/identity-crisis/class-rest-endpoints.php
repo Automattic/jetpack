@@ -269,7 +269,7 @@ class REST_Endpoints {
 		 *
 		 * @param \WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
 		 */
-		return apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, $redirect_uri, '' !== $from ? $from : false ) ) );
+		return apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, $redirect_uri, $from ) ) );
 	}
 
 	/**
