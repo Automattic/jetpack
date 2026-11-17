@@ -34,15 +34,10 @@ class Llms_Txt {
 	const OPTION = 'jetpack_seo_llms_txt_enabled';
 
 	/**
-	 * Max items listed per supported content type, so a large site doesn't dump
-	 * its whole tree. Pages in the main menu are listed even past it.
+	 * Default max items listed per supported content type, so a large site doesn't dump
+	 * its whole tree. Items the owner always includes are listed even past it.
 	 */
 	const MAX_POSTS_PER_TYPE = 50;
-
-	/**
-	 * Max main-menu pages listed, so a mega menu can't list a whole site.
-	 */
-	const MAX_MAIN_MENU_PAGES = 100;
 
 	/**
 	 * Post meta an owner sets to always list supported content in llms.txt.
@@ -414,12 +409,13 @@ class Llms_Txt {
 	 * @return \WP_Post[]
 	 */
 	private static function get_posts_for_type( $post_type ) {
+		$limit = self::get_limit( $post_type );
 		if ( 'page' === $post_type ) {
-			return self::get_pages();
+			return self::get_pages( $limit );
 		}
 
 		$always_included = self::get_always_included_posts( $post_type );
-		$room            = max( 0, self::MAX_POSTS_PER_TYPE - count( $always_included ) );
+		$room            = max( 0, $limit - count( $always_included ) );
 		if ( 0 === $room ) {
 			return $always_included;
 		}
@@ -434,17 +430,40 @@ class Llms_Txt {
 	}
 
 	/**
+	 * How many items to list for a post type.
+	 *
+	 * @param string $post_type Post type slug.
+	 * @return int
+	 */
+	private static function get_limit( $post_type ) {
+		/**
+		 * Filters how many items llms.txt lists for a post type. Items the owner always
+		 * includes are listed even past it.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int    $limit     Max items to list. Default 50.
+		 * @param string $post_type Post type slug.
+		 */
+		$limit = apply_filters( 'jetpack_seo_llms_txt_items_per_type', self::MAX_POSTS_PER_TYPE, $post_type );
+
+		return is_int( $limit ) && $limit >= 0 ? $limit : self::MAX_POSTS_PER_TYPE;
+	}
+
+	/**
 	 * Pages ranked: the ones the owner always includes, then the main menu, then other
 	 * displayed menus, then the rest by {@see get_pages_by_order()}.
 	 *
+	 * @param int $limit Max pages to list, unless more are always included.
 	 * @return \WP_Post[]
 	 */
-	private static function get_pages() {
+	private static function get_pages( $limit ) {
 		$always_included = self::get_always_included_posts( 'page' );
 		$skip            = wp_list_pluck( $always_included, 'ID' );
 		$menus           = Nav_Menu_Pages::get();
-		$main            = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), self::MAX_MAIN_MENU_PAGES );
-		$room            = max( 0, self::MAX_POSTS_PER_TYPE - count( $always_included ) - count( $main ) );
+		$room            = max( 0, $limit - count( $always_included ) );
+		$main            = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), $room );
+		$room           -= count( $main );
 		$other           = self::get_pages_in_order( array_values( array_diff( $menus['other'], $skip ) ), $room );
 		$room           -= count( $other );
 		if ( $room <= 0 ) {
