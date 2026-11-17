@@ -57,7 +57,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-announcements",
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"

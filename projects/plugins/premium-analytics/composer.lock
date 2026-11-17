@@ -210,7 +210,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/announcements",
-                "reference": "b6094e22f4f7ed069bcffc98ced4a772612dea90"
+                "reference": "002853c7b0b879c7c36b57793edb3e878938b441"
             },
             "require": {
                 "php": ">=7.4"
@@ -225,7 +225,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autorelease": true,
                 "mirror-repo": "Automattic/jetpack-announcements",
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
