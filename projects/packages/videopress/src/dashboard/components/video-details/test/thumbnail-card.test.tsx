@@ -1,4 +1,4 @@
-import { loadMediaLibrary } from '@automattic/jetpack-admin-ui/media-library';
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -20,7 +20,7 @@ jest.mock( '../../../utils/select-image-from-media-library', () => ( {
 } ) );
 const mockedSelectImage = selectImageFromMediaLibrary as unknown as jest.Mock;
 
-jest.mock( '@automattic/jetpack-admin-ui/media-library', () => ( {
+jest.mock( '@automattic/jetpack-components/tools/load-media-library', () => ( {
 	loadMediaLibrary: jest.fn(),
 } ) );
 const mockedLoadMediaLibrary = loadMediaLibrary as unknown as jest.Mock;

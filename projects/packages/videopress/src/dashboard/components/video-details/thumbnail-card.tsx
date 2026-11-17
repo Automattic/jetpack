@@ -1,4 +1,4 @@
-import { loadMediaLibrary } from '@automattic/jetpack-admin-ui/media-library';
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { media, upload } from '@wordpress/icons';
