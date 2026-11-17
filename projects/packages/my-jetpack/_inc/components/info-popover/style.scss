@@ -1,3 +1,5 @@
+@use "@wordpress/base-styles/mixins";
+
 .my-jetpack-info-popover {
 	max-inline-size: var(--wpds-dimension-surface-width-sm);
 
@@ -18,8 +20,8 @@
 		}
 
 		&:focus-visible {
-			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
-			outline-offset: 1px;
+
+			@include mixins.outset-ring__focus();
 		}
 
 		&--critical,
