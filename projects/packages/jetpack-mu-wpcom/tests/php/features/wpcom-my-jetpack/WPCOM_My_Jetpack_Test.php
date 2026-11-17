@@ -53,8 +53,21 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'stylesheet' );
+		remove_all_filters( 'jetpack_stats_url' );
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		parent::tear_down();
+	}
+
+	/**
+	 * Gives the current user `view_stats`, which the Stats package maps on a real site.
+	 *
+	 * @param array $allcaps The user's capabilities.
+	 * @return array
+	 */
+	public function grant_view_stats( $allcaps ) {
+		$allcaps['view_stats'] = true;
+		return $allcaps;
 	}
 
 	/**
@@ -187,6 +200,35 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( array( 'wpforms-admin', 'museo-settings', 'forms', 'marketing/traffic', 'protect', '' ), array_column( $tools, 'key' ) );
 		$this->assertSame( array( 'more', 'more', 'content', 'growth', 'security', 'more' ), array_column( $tools, 'section' ) );
+	}
+
+	/**
+	 * Stats, a top-level menu the Jetpack menu walk never sees, leads Growth for a user who can view stats, and goes where the host sends Stats links.
+	 */
+	public function test_tools_lead_with_stats_for_stats_viewers() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		add_filter(
+			'jetpack_stats_url',
+			function ( $url, $args ) {
+				return 'dashboard' === ( $args['view'] ?? null ) ? admin_url( 'admin.php?page=stats-v2' ) : $url;
+			},
+			10,
+			2
+		);
+
+		$tools = WPCOM_My_Jetpack::get_tools();
+
+		$this->assertSame(
+			array(
+				'title'       => 'Stats',
+				'description' => 'See your visitors, views and top posts',
+				'key'         => 'stats',
+				'section'     => 'growth',
+				'url'         => admin_url( 'admin.php?page=stats-v2' ),
+			),
+			$tools[0]
+		);
+		$this->assertCount( 5, $tools );
 	}
 
 	/**

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Admin shell: Fix Activity Log identifying itself as the dashboard it was opened from.

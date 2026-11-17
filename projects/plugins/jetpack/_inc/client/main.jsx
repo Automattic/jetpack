@@ -46,10 +46,10 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	getPluginBaseUrl,
+	hasProtectPage,
 	hasSocialPage,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { hasProtectPage } from 'state/modules';
 import { getRewindStatus } from 'state/rewind';
 import { getSearchTerm } from 'state/search';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';

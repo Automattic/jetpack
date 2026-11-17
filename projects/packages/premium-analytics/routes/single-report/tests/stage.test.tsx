@@ -387,6 +387,7 @@ describe( 'single-report stage', () => {
 		mockAdapters = {
 			video: {
 				useSummary: mockUseSummary,
+				untitledTitle: jest.requireActual( '../pages/video' ).videoAdapter.untitledTitle,
 				headerSlots: jest.requireActual( '../pages/video/video-header-slots' ).videoHeaderSlots,
 				notFoundDescription:
 					jest.requireActual( '../pages/video' ).videoAdapter.notFoundDescription,
@@ -520,6 +521,18 @@ describe( 'single-report stage', () => {
 			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Launch recap' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Page widgets' ) ).toBeInTheDocument();
+	} );
+
+	it( 'titles an untitled entity the same in the crumb and the header', () => {
+		mockSummary( { title: '   ' } );
+
+		render( stage() );
+
+		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+		expect(
+			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Untitled video' } )
+		).toBeInTheDocument();
+		expect( getSummaryHeading( 'Untitled video' ) ).toBeInTheDocument();
 	} );
 
 	it( 'crumbs the referring report instead when the URL names one', () => {
@@ -782,6 +795,7 @@ describe( 'single-report stage', () => {
 			mockAdapters = {
 				post: {
 					useSummary: mockUseSummary,
+					untitledTitle: jest.requireActual( '../pages/post' ).postAdapter.untitledTitle,
 					headerSlots: jest.requireActual( '../pages/post/post-header-slots' ).postHeaderSlots,
 					headerActions: jest.requireActual( '../pages/post/header-actions' ).postHeaderActions,
 					useSections: jest.requireActual( '../pages/post/use-post-sections' ).usePostSections,
@@ -838,6 +852,18 @@ describe( 'single-report stage', () => {
 			expect(
 				screen.getByRole( 'link', { name: 'View page(opens in a new tab)' } )
 			).toBeInTheDocument();
+		} );
+
+		it( 'titles an untitled page for its type, in the crumb and the header', () => {
+			mockSummary( { title: '', type: 'page' } );
+
+			render( stage() );
+
+			const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+			expect(
+				breadcrumbs.getByRole( 'heading', { level: 1, name: 'Untitled page' } )
+			).toBeInTheDocument();
+			expect( getSummaryHeading( 'Untitled page' ) ).toBeInTheDocument();
 		} );
 
 		it( 'holds the traffic tab name while the type loads', () => {

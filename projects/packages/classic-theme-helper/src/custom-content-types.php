@@ -177,7 +177,7 @@ if ( ! function_exists( 'jetpack_cpt_section_callback' ) ) {
 	 * Settings Description
 	 */
 	function jetpack_cpt_section_callback() {
-		if ( class_exists( 'Redirect' ) ) {
+		if ( class_exists( Redirect::class ) ) {
 			?>
 			<p>
 				<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack-classic-theme-helper' ); ?>

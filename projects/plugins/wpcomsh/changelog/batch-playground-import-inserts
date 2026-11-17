@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Playground backup restores for sites with large database tables.
