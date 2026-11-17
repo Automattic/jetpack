@@ -175,18 +175,6 @@ function get_single_report_page_schema() {
 					'key'  => array( 'type' => 'string' ),
 				),
 			),
-			'header'            => array(
-				'type'       => array( 'object', 'null' ),
-				'properties' => array(
-					'title'       => array( 'type' => 'string' ),
-					'media'       => array( 'type' => 'string' ),
-					'description' => array( 'type' => 'string' ),
-					'actions'     => array(
-						'type'  => 'array',
-						'items' => array( 'type' => 'string' ),
-					),
-				),
-			),
 			'path'              => array( 'type' => 'string' ),
 			'label'             => array( 'type' => 'string' ),
 			'dashboard_section' => array( 'type' => array( 'string', 'null' ) ),

@@ -122,7 +122,6 @@ class Single_Report_Page_Test extends BaseTestCase {
 			array(
 				'id'                => 'example/video',
 				'entity'            => null,
-				'header'            => null,
 				'path'              => 'video',
 				'label'             => 'Video',
 				'dashboard_section' => null,
@@ -383,7 +382,6 @@ class Single_Report_Page_Test extends BaseTestCase {
 			),
 			$record['entity']
 		);
-		$this->assertNull( $record['header'] );
 		$this->assertSame( 'page', $record['path'] );
 		$this->assertSame( get_post_type_object( 'page' )->labels->singular_name, $record['label'] );
 		$this->assertSame( 'post_id', $record['scope_param'] );
@@ -413,7 +411,7 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$this->assertSame( 'posts', $page->reports_page );
 	}
 
-	public function test_the_record_keeps_a_valid_entity_and_header_and_drops_the_rest() {
+	public function test_the_record_keeps_a_valid_entity_and_drops_the_rest() {
 		$kept    = register_single_report_page(
 			DASHBOARD_NAME,
 			'example/author',
@@ -424,11 +422,6 @@ class Single_Report_Page_Test extends BaseTestCase {
 					'key'   => 'id',
 					'extra' => 'no',
 				),
-				'header' => array(
-					'title'   => 'name',
-					'media'   => 'Avatar URL',
-					'actions' => array( 'link', 'edit_link' ),
-				),
 			)
 		)->to_array();
 		$dropped = register_single_report_page(
@@ -436,7 +429,6 @@ class Single_Report_Page_Test extends BaseTestCase {
 			'example/video',
 			array(
 				'entity' => array( 'kind' => 'postType' ),
-				'header' => 'title',
 			)
 		)->to_array();
 
@@ -448,51 +440,8 @@ class Single_Report_Page_Test extends BaseTestCase {
 			),
 			$kept['entity']
 		);
-		$this->assertSame(
-			array(
-				'title'   => 'name',
-				'actions' => array( 'link', 'edit_link' ),
-			),
-			$kept['header']
-		);
 		$this->assertNull( $kept['reports_page'] );
 		$this->assertNull( $dropped['entity'] );
-		$this->assertNull( $dropped['header'] );
-	}
-
-	/**
-	 * @param mixed         $declared The declared header actions.
-	 * @param string[]|null $served   The field ids the record serves, or null for none.
-	 *
-	 * @dataProvider provide_declared_header_actions
-	 */
-	#[DataProvider( 'provide_declared_header_actions' )]
-	public function test_the_header_actions_are_a_list_of_field_ids( $declared, $served ) {
-		$record = register_single_report_page( DASHBOARD_NAME, 'example/post', array( 'header' => array( 'actions' => $declared ) ) )->to_array();
-
-		$this->assertSame( $served, $record['header']['actions'] ?? null );
-	}
-
-	/**
-	 * Declared header actions, with the field ids the record serves.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_declared_header_actions() {
-		return array(
-			'a lone field id'                 => array( 'link', array( 'link' ) ),
-			'invalid entries among valid ids' => array(
-				array( 'Not A Field', 'link', array( 'id' => 'view' ) ),
-				array( 'link' ),
-			),
-			'an action declaration'           => array(
-				array(
-					'id'       => 'view',
-					'callback' => '__return_true',
-				),
-				null,
-			),
-		);
 	}
 
 	public function test_an_unknown_post_type_entity_derives_nothing() {

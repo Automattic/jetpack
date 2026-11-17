@@ -46,14 +46,6 @@ class Single_Report_Page {
 	public $entity = null;
 
 	/**
-	 * Header slots, each naming DataViews fields of that entity by id: one for `title`, `media`
-	 * and `description`, a list for `actions`. Null when the page names none.
-	 *
-	 * @var array|null
-	 */
-	public $header = null;
-
-	/**
 	 * URL segment, the public identity of the page: `/report/{path}/{id}`.
 	 *
 	 * @var string
@@ -259,7 +251,6 @@ class Single_Report_Page {
 		return array(
 			'id'                => $this->id,
 			'entity'            => $this->entity,
-			'header'            => $this->header,
 			'path'              => $this->path,
 			'label'             => $this->label,
 			'dashboard_section' => $this->dashboard_section,
@@ -317,10 +308,6 @@ class Single_Report_Page {
 
 		if ( array_key_exists( 'entity', $args ) ) {
 			$this->entity = self::normalize_entity( $args['entity'] );
-		}
-
-		if ( array_key_exists( 'header', $args ) ) {
-			$this->header = self::normalize_header( $args['header'] );
 		}
 	}
 
@@ -385,38 +372,7 @@ class Single_Report_Page {
 	}
 
 	/**
-	 * The header slots that name a valid field id, `actions` as a list of them, or null when none does.
-	 *
-	 * @param mixed $header Declared header.
-	 * @return array|null
-	 */
-	private static function normalize_header( $header ) {
-		if ( ! is_array( $header ) ) {
-			return null;
-		}
-
-		$normalized = array();
-		foreach ( array( 'title', 'media', 'description' ) as $slot ) {
-			if ( self::is_entity_token( $header[ $slot ] ?? null ) ) {
-				$normalized[ $slot ] = $header[ $slot ];
-			}
-		}
-
-		// A lone field id is a list of one; a keyed array is a declaration, not a list of ids.
-		$actions = $header['actions'] ?? array();
-		$actions = is_string( $actions ) ? array( $actions ) : $actions;
-		if ( is_array( $actions ) && wp_is_numeric_array( $actions ) ) {
-			$actions = array_values( array_filter( $actions, array( self::class, 'is_entity_token' ) ) );
-			if ( $actions ) {
-				$normalized['actions'] = $actions;
-			}
-		}
-
-		return $normalized ? $normalized : null;
-	}
-
-	/**
-	 * Whether a value can be a core-data kind, name, key or field id.
+	 * Whether a value can be a core-data kind, name or key.
 	 *
 	 * @param mixed $value Candidate.
 	 * @return bool
