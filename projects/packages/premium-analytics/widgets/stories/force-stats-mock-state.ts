@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { resetForcedStateQueries } from '../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
-type ForcedMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
+export type ForcedMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const stateOverrides = new Map< string, ForcedMockState >();
 

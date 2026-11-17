@@ -1,4 +1,5 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/colors";
 @use "../../../../shared/styles/jetpack-variables";
 
 .wp-block-jetpack-slideshow {
@@ -142,7 +143,7 @@
 		}
 
 		&:focus {
-			outline: thin dotted gb.$white;
+			outline: thin dotted colors.$white;
 			outline-offset: -4px;
 		}
 	}
@@ -208,7 +209,7 @@
 		background-color: rgba(0, 0, 0, 0.5);
 		box-sizing: border-box;
 		bottom: 0;
-		color: gb.$white;
+		color: colors.$white;
 		cursor: text;
 		left: 0;
 		margin: 0 !important;
@@ -289,7 +290,7 @@
 	}
 }
 
-@media ( min-width: gb.$break-small ) {
+@media ( min-width: breakpoints.$break-small ) {
 
 	.wp-block-jetpack-slideshow {
 

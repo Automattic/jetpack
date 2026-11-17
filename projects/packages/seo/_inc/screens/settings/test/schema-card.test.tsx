@@ -14,26 +14,36 @@ import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 // keeps the card test off the network while exercising the real section + card UI.
 const setOrganizationField = jest.fn();
 const commitBreadcrumbList = jest.fn();
+const commitSiteRepresents = jest.fn();
 const setLocalBusinessField = jest.fn();
+const setPersonField = jest.fn();
 const saveOrganizationEntity = jest.fn();
+const savePerson = jest.fn();
 
 // Resettable per test so each can vary the configured state the card reflects.
 let mockForm: SchemaSettingsForm;
 
 const makeForm = ( overrides: Partial< SchemaSettingsForm > = {} ): SchemaSettingsForm => ( {
 	// No stored override; the Site Title / Tagline come through as placeholder defaults.
+	siteRepresents: 'organization',
 	breadcrumbList: { enabled: true },
 	organization: { name: '', description: '', sameAs: [], email: '' },
 	defaults: { name: 'Acme Co', description: 'We make things' },
 	localBusiness: EMPTY_LOCAL_BUSINESS,
 	localBusinessDefaults: EMPTY_LOCAL_BUSINESS_DEFAULTS,
+	person: { name: '', description: '', sameAs: [] },
+	personDefaults: { name: 'Acme Co', description: 'We make things' },
 	isSaving: false,
 	isOrganizationDirty: false,
 	isLocalBusinessDirty: false,
+	isPersonDirty: false,
 	commitBreadcrumbList,
+	commitSiteRepresents,
 	setOrganizationField,
 	setLocalBusinessField,
+	setPersonField,
 	saveOrganizationEntity,
+	savePerson,
 	...overrides,
 } );
 
@@ -88,6 +98,79 @@ describe( 'SchemaCard', () => {
 		mockForm = makeForm();
 	} );
 
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [ 'organization', 'person' ] as const )(
+		'keeps saved %s values visible and disables every editing action during a conflict',
+		siteRepresents => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				seo: { output: { paused: true, conflicting_plugin: 'Yoast SEO' } },
+			};
+			mockForm = makeForm( {
+				siteRepresents,
+				person: {
+					name: 'Saved person',
+					description: 'Saved bio',
+					sameAs: [ 'https://example.test/person' ],
+				},
+				isPersonDirty: true,
+				organization: {
+					name: 'Saved studio',
+					description: 'Saved description',
+					email: 'hello@example.test',
+					sameAs: [ 'https://example.test/studio' ],
+				},
+				localBusiness: { ...EMPTY_LOCAL_BUSINESS, enabled: true },
+				isOrganizationDirty: true,
+			} );
+			render( <SchemaCard initialSettings={ bootstrap } disabled /> );
+			expandCard();
+			expect(
+				screen.getByDisplayValue( siteRepresents === 'person' ? 'Saved person' : 'Saved studio' )
+			).toBeDisabled();
+			expect( screen.getByText( 'Paused', { exact: true } ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'group', { name: 'Schema settings' } )
+			).toHaveAccessibleDescription( 'Paused while Yoast SEO is active.' );
+			for ( const control of [
+				...screen.getAllByRole( 'textbox' ),
+				...screen.getAllByRole( 'checkbox' ),
+				...screen.getAllByRole( 'radio' ),
+			] ) {
+				expect( control ).toBeDisabled();
+			}
+			const saveLabel = siteRepresents === 'person' ? 'Save person' : 'Save schema settings';
+			expect( screen.getByRole( 'button', { name: saveLabel } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: 'Add profile' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: 'Remove profile' } ) ).toBeDisabled();
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'button', { name: saveLabel } ) );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } ) );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click(
+				screen.getByRole( 'radio', {
+					name: siteRepresents === 'person' ? /An organization/ : /A person/,
+				} )
+			);
+			expect( commitSiteRepresents ).not.toHaveBeenCalled();
+			expect( savePerson ).not.toHaveBeenCalled();
+			expect( screen.getByRole( 'button', { name: saveLabel } ) ).toHaveAccessibleDescription(
+				'Paused while Yoast SEO is active.'
+			);
+			expect( saveOrganizationEntity ).not.toHaveBeenCalled();
+			expect( commitBreadcrumbList ).not.toHaveBeenCalled();
+		}
+	);
+
 	it( 'renders one collapsed module, not a card per schema type', () => {
 		renderCard();
 
@@ -100,12 +183,12 @@ describe( 'SchemaCard', () => {
 		// so it must be the trigger's *description*, never part of its name. A loose
 		// /Schema/ would still pass if "Not started" leaked back into the name.
 		expect( headers[ 0 ] ).toHaveAccessibleName( 'Schema' );
-		expect( headers[ 0 ] ).toHaveAccessibleDescription( 'In progress' );
+		expect( headers[ 0 ] ).toHaveAccessibleDescription( 'Incomplete' );
 		// The module header is a real heading, matching the other Settings modules.
 		expect( screen.getByRole( 'heading', { level: 2, name: /Schema/ } ) ).toBeInTheDocument();
 	} );
 
-	it( 'counts the smart defaults as configured — the default state is In progress', () => {
+	it( 'counts the smart defaults as configured — the default state is Incomplete', () => {
 		renderCard();
 
 		const header = screen.getByRole( 'button', { name: /Schema/ } );
@@ -113,7 +196,7 @@ describe( 'SchemaCard', () => {
 		// Name + description are covered by their Site Title / Tagline defaults (the
 		// preferred state), so a site that hasn't added social links reads as In
 		// progress — not Not started.
-		expect( header ).toHaveTextContent( 'In progress' );
+		expect( header ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'shows Not started only when even the smart defaults are empty', () => {
@@ -145,7 +228,7 @@ describe( 'SchemaCard', () => {
 		} );
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'does not count an invalid or duplicate profile link toward completion', () => {
@@ -156,7 +239,7 @@ describe( 'SchemaCard', () => {
 			organization: { name: '', description: '', sameAs: [ 'not a url' ], email: '' },
 		} );
 		const view = renderCard();
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 		view.unmount();
 
 		// A duplicate collapses to one link, so it still counts — once.
@@ -190,7 +273,7 @@ describe( 'SchemaCard', () => {
 		} );
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'counts an explicit value, not just its default', () => {
@@ -203,7 +286,7 @@ describe( 'SchemaCard', () => {
 		} );
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'ignores the contact email in the completion status', () => {
@@ -216,6 +299,93 @@ describe( 'SchemaCard', () => {
 		renderCard();
 
 		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Not started' );
+	} );
+
+	it( 'computes the status from the Person entity when the site represents a person', () => {
+		mockForm = makeForm( {
+			siteRepresents: 'person',
+			person: { name: '', description: '', sameAs: [ 'https://linkedin.com/in/jane' ] },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Complete' );
+	} );
+
+	it( 'does not count an empty Person profile row toward completion', () => {
+		mockForm = makeForm( {
+			siteRepresents: 'person',
+			person: { name: '', description: '', sameAs: [ '' ] },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
+	} );
+
+	it( 'offers an Organization/Person choice with Organization selected by default', () => {
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'radio', { name: /An organization/ } ) ).toBeChecked();
+		expect( screen.getByRole( 'radio', { name: /A person/ } ) ).not.toBeChecked();
+	} );
+
+	it( 'switches the site entity through the hook', () => {
+		renderCard();
+		expandCard();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'radio', { name: /A person/ } ) );
+		expect( commitSiteRepresents ).toHaveBeenCalledWith( 'person' );
+	} );
+
+	it( 'shows the Person fields (and no Organization branch) when Person is selected', () => {
+		mockForm = makeForm( { siteRepresents: 'person' } );
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'textbox', { name: 'Short bio' } ) ).toBeInTheDocument();
+		// No local-business affordance, and no Organization fieldset, on this branch.
+		expect( screen.queryByRole( 'checkbox', { name: /local business/ } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'group', { name: 'Organization details' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'edits and saves Person fields through the hook', () => {
+		mockForm = makeForm( { siteRepresents: 'person', isPersonDirty: true } );
+		renderCard();
+		expandCard();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single controlled change; see note above.
+		fireEvent.change( screen.getByRole( 'textbox', { name: 'Person name' } ), {
+			target: { value: 'Jane Rivera' },
+		} );
+		expect( setPersonField ).toHaveBeenCalledWith( { name: 'Jane Rivera' } );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save person' } ) );
+		expect( savePerson ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'disables saving a Person with an invalid social profile URL', () => {
+		mockForm = makeForm( {
+			siteRepresents: 'person',
+			isPersonDirty: true,
+			person: { name: '', description: '', sameAs: [ 'not a url' ] },
+		} );
+		renderCard();
+		expandCard();
+
+		expect(
+			screen.getByText( 'Enter a valid URL that starts with http:// or https://.' )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Save person' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Save person' } ) ).toHaveAccessibleDescription(
+			'Fix the highlighted fields to save.'
+		);
 	} );
 
 	it( 'renders the Breadcrumbs toggle on and turns it off through the hook', () => {

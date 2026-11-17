@@ -40,8 +40,9 @@ class Store_Currency_Test extends TestCase {
 		$this->assertTrue( $data['premium_analytics']['csv_exports_enabled'] );
 		$this->assertSame(
 			array(
-				'code'   => 'EUR',
-				'symbol' => '€',
+				'code'      => 'EUR',
+				'symbol'    => '€',
+				'precision' => 0,
 			),
 			$data['premium_analytics']['store_currency']
 		);

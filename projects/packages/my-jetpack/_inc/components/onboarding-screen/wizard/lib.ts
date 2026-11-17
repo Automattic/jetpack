@@ -70,13 +70,6 @@ export interface WizardStepMeta {
 }
 
 /*
- * What the connection records as the origin of this registration. Its own
- * value, not the single-screen takeover's 'jetpack-onboarding', so the two
- * flows stay separable in the connection funnel.
- */
-export const CONNECTION_FROM = 'my_jetpack_onboarding';
-
-/*
  * Where WordPress.com sends the user back to once they have authorized. Relative
  * to wp-admin, as every other connection consumer passes it. It carries no step:
  * the wizard works out where to resume from the connection itself.

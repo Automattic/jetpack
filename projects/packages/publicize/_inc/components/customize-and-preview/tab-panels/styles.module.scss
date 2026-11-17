@@ -1,10 +1,12 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/mixins";
+@use "@wordpress/base-styles/variables";
 
 .tab-panel-wrapper {
 	min-height: 0;
 	overflow-y: auto;
 
-	@include gb.break-medium() {
+	@include mixins.break-medium() {
 		display: grid;
 		overflow-y: unset;
 
@@ -14,18 +16,18 @@
 	}
 
 	&[data-plan="paid"] {
-		border-top: 1px solid gb.$gray-200;
+		border-top: 1px solid colors.$gray-200;
 
-		@include gb.break-medium() {
+		@include mixins.break-medium() {
 			overflow: hidden;
 		}
 	}
 
 	[role="tablist"] {
-		padding: gb.$grid-unit-10; // 8px
-		border-block: 1px solid gb.$gray-200;
+		padding: variables.$grid-unit-10; // 8px
+		border-block: 1px solid colors.$gray-200;
 
-		@include gb.break-medium() {
+		@include mixins.break-medium() {
 			border-block-start: none;
 		}
 	}
@@ -40,7 +42,7 @@
 	display: grid;
 	min-height: 0;
 
-	@include gb.break-medium() {
+	@include mixins.break-medium() {
 		grid-template-rows: auto 1fr;
 		height: 100%;
 	}
@@ -54,8 +56,8 @@
 		height: 40px !important; // Core uses !important for tab height.
 
 		&:global(.is-active) {
-			background: gb.$gray-900;
-			border-radius: gb.$radius-medium;
+			background: colors.$gray-900;
+			border-radius: variables.$radius-medium;
 
 			// Hide the default active tab underline.
 			&::after {
@@ -74,7 +76,7 @@
 		width: 12px;
 		height: 12px;
 		border-radius: 50%;
-		border: 2px solid gb.$white;
+		border: 2px solid colors.$white;
 		position: absolute;
 		inset-block-start: 0;
 		inset-inline-start: 0;
@@ -87,7 +89,7 @@
 	grid-template-columns: 1fr;
 	height: 100%;
 
-	@include gb.break-medium() {
+	@include mixins.break-medium() {
 		overflow: hidden;
 	}
 
@@ -101,11 +103,11 @@
 
 		.connection-toggle-wrapper {
 			order: -1;
-			background-color: gb.$white;
+			background-color: colors.$white;
 		}
 	}
 
-	@include gb.break-medium() {
+	@include mixins.break-medium() {
 		// Ensure that it takes full height
 		grid-template-rows: 1fr;
 
@@ -121,7 +123,7 @@
 
 			.connection-toggle-wrapper {
 				order: unset;
-				background: gb.$gray-100;
+				background: colors.$gray-100;
 			}
 		}
 	}
@@ -131,7 +133,7 @@
 	display: flex;
 	flex-direction: column;
 
-	@include gb.break-medium() {
+	@include mixins.break-medium() {
 		overflow-y: auto;
 	}
 
@@ -142,6 +144,6 @@
 }
 
 .connection-toggle-wrapper {
-	background: gb.$gray-100;
+	background: colors.$gray-100;
 	padding: 1rem;
 }

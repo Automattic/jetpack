@@ -1,5 +1,5 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { useNavigate } from '@wordpress/route';
 import DashboardLoadError from '../../_inc/components/dashboard-load-error';
 import DashboardSkeleton from '../../_inc/components/dashboard-skeleton';
@@ -24,21 +24,12 @@ const GeoReady = () => {
 	const form = useGeoForm();
 	const overview = getOverview();
 	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
-	const navigate = useNavigate();
-	const onManageVisibility = useCallback(
-		() => navigate( { href: '/settings?focus=visibility' } ),
-		[ navigate ]
-	);
 	const searchEnginesVisible =
 		settings?.search_engines_visible ?? overview?.site_visibility.search_engines_visible ?? true;
 
 	return (
 		<DashboardPage active="geo">
-			<GeoScreen
-				form={ form }
-				searchEnginesVisible={ searchEnginesVisible }
-				onManageVisibility={ onManageVisibility }
-			/>
+			<GeoScreen form={ form } searchEnginesVisible={ searchEnginesVisible } />
 		</DashboardPage>
 	);
 };

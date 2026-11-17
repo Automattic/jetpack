@@ -93,7 +93,9 @@ fi
 AUTOTAGGER_REPOS=$( jq -r '.extra["mirror-repo"] // empty' projects/*/*/composer.json )
 WPSVN_REPOS=$( jq -r 'select( .extra["wp-svn-autopublish"] ) | .extra["mirror-repo"] // empty' projects/*/*/composer.json )
 E2E_REPOS=$( for f in projects/*/*/composer.json; do
-	[[ -d "${f%composer.json}tests/e2e" ]] && jq -r '.extra["mirror-repo"] // empty' "$f"
+	if [[ -d "${f%composer.json}tests/e2e" ]]; then
+		jq -r '.extra["mirror-repo"] // empty' "$f"
+	fi
 done )
 
 # Maps each secret to the workflow that requires it.

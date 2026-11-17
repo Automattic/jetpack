@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useModuleSurface } from '$features/module/surface';
 import ModernCriticalCssStatus from './modern-critical-css-status';
+import RefusedRegenerateNotice from './refused-regenerate-notice';
 import Status from '../status/status';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
@@ -37,17 +38,21 @@ export default function CriticalCssMeta() {
 
 	if ( stoppedRun ) {
 		return (
-			<Status
-				cssState={ criticalCssErrorState( stoppedRun.message ) }
-				isCloud={ false }
-				showFatalError={ true }
-			/>
+			<>
+				<RefusedRegenerateNotice />
+				<Status
+					cssState={ criticalCssErrorState( stoppedRun.message ) }
+					isCloud={ false }
+					showFatalError={ true }
+				/>
+			</>
 		);
 	}
 
 	if ( isModern && ! showFatalError ) {
 		return (
 			<>
+				<RefusedRegenerateNotice />
 				<ModernCriticalCssStatus
 					cssState={ cssState }
 					isGenerating={ isGenerating }
@@ -83,6 +88,7 @@ export default function CriticalCssMeta() {
 
 	return (
 		<>
+			<RefusedRegenerateNotice />
 			<Status
 				cssState={ cssState }
 				isCloud={ false }

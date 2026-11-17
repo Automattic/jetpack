@@ -1,17 +1,6 @@
 import { __, _x } from '@wordpress/i18n';
-import Card from 'components/card';
-import SettingsCard from 'components/settings-card';
-import SettingsGroup from 'components/settings-group';
+import PointerCard from 'components/pointer-card';
 import { getProtectSettingsUrl } from './protect-page';
-
-const PointerCard = ( { header, href, linkText, children } ) => (
-	<SettingsCard header={ header } hideButton>
-		<SettingsGroup>{ children }</SettingsGroup>
-		<Card compact className="jp-settings-card__configure-link" href={ href }>
-			{ linkText }
-		</Card>
-	</SettingsCard>
-);
 
 /**
  * Search results that send Security tab settings to the pages that now hold them.
@@ -36,7 +25,7 @@ export function MovedSettings( {
 			<h2 className="jp-settings__section-title">{ __( 'Security', 'jetpack' ) }</h2>
 			{ showProtect && (
 				<PointerCard
-					header={ __( 'Security settings', 'jetpack' ) }
+					header={ __( 'Protect settings', 'jetpack' ) }
 					href={ getProtectSettingsUrl( siteAdminUrl ) }
 					linkText={ __( 'Open Protect settings', 'jetpack' ) }
 				>

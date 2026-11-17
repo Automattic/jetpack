@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Make the unreleased non-breaking space marker opt-out win over Gutenberg's rule on WordPress.com, where its editor CSS can load later.
+
+

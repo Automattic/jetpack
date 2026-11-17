@@ -4,12 +4,12 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import {
+	deriveComparisonRange,
 	resolveIntervalForPresetChange,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
+import { PRESET_CUSTOM, type IntervalType } from '@jetpack-premium-analytics/datetime';
 import {
-	deriveComparisonRange,
 	encodeRangeToSearchParams,
 	type ReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
@@ -72,7 +72,7 @@ export function useTrackEvent() {
 /**
  * The page a tracked event came from.
  */
-export type TrackingSurface = 'dashboard' | 'post_detail' | 'author_detail' | 'video_detail';
+export type TrackingSurface = 'dashboard' | `${ string }_detail`;
 
 /**
  * The widgets in one layout whose instances the other lacks, in layout order.
@@ -181,7 +181,18 @@ type DateRangeState = Pick<
 	'presetId' | 'range' | 'interval' | 'comparisonPresetId' | 'appliedComparisonRange'
 >;
 
-type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
+type OnChangeArgs = Parameters< ReportDateFilters[ 'onChange' ] >;
+
+/**
+ * What `onChange` was called with, plus the interval the change committed when
+ * the caller knows it: a step keeps the rendered interval where a preset pick
+ * would reset it.
+ */
+type StagedRange = [
+	range?: OnChangeArgs[ 0 ],
+	presetId?: OnChangeArgs[ 1 ],
+	options?: OnChangeArgs[ 2 ] & { interval?: IntervalType },
+];
 
 /**
  * Records `jetpack_premium_analytics_date_range_apply`. Call `trackedOnChange` beside the date filters'
@@ -236,14 +247,16 @@ export function useTrackedDateRangeApply(
 			...( section ? { section } : {} ),
 			range_type: isCustom ? 'custom' : 'preset',
 			...( isCustom ? {} : { preset: appliedPresetId } ),
-			interval: resolveIntervalForPresetChange(
-				presetId,
-				appliedPresetId,
-				from,
-				to,
-				interval,
-				lockedIntervals
-			),
+			interval:
+				options?.interval ??
+				resolveIntervalForPresetChange(
+					presetId,
+					appliedPresetId,
+					from,
+					to,
+					interval,
+					lockedIntervals
+				),
 			comparison: comparison ?? 'none',
 		} );
 	}, [

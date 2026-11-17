@@ -1,4 +1,6 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/mixins";
+@use "@wordpress/base-styles/variables";
 
 .tab-panel {
 
@@ -18,7 +20,7 @@
 	padding-block-start: 2.5rem;
 	padding-inline: 3rem;
 
-	@media (max-width: gb.$break-medium ) {
+	@media (max-width: breakpoints.$break-medium ) {
 		padding-inline: 1.5rem;
 	}
 
@@ -29,7 +31,7 @@
 
 	h2 {
 
-		@include gb.heading-2x-large;
+		@include mixins.heading-2x-large;
 		margin-top: 0;
 		margin-bottom: 0.5rem;
 	}
@@ -90,7 +92,7 @@
 }
 
 // The shared `.jp-admin-page-tabs` strip: a 48px row plus its divider.
-$pinned-tabs-block-size: calc(#{gb.$grid-unit-60} + var(--wpds-border-width-xs));
+$pinned-tabs-block-size: calc(#{variables.$grid-unit-60} + var(--wpds-border-width-xs));
 
 .my-jetpack-tab-panel--pinned-tabs {
 	--my-jetpack-pinned-tabs-block-size: #{$pinned-tabs-block-size};

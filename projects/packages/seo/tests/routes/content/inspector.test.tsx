@@ -3,10 +3,11 @@ import { render, screen } from '@testing-library/react';
 
 const useSearch = jest.fn();
 const useNavigate = jest.fn();
+const ThemeProvider = jest.fn(
+	( { children }: { children: React.ReactNode; targetDom?: HTMLElement } ) => <>{ children }</>
+);
 
-jest.unstable_mockModule( '@automattic/jetpack-components', () => ( {
-	ThemeProvider: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
-} ) );
+jest.unstable_mockModule( '@automattic/jetpack-components', () => ( { ThemeProvider } ) );
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch,
@@ -37,5 +38,15 @@ describe( 'Content route inspector', () => {
 
 		expect( screen.getByText( 'Post ID: 9' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Post type: gear_review' ) ).toBeInTheDocument();
+	} );
+
+	it( 'themes its own frame instead of letting ThemeProvider add a wrapper', () => {
+		useSearch.mockReturnValue( { postId: '9' } );
+
+		render( <Inspector /> );
+
+		expect( ThemeProvider.mock.lastCall?.[ 0 ].targetDom ).toContainElement(
+			screen.getByText( 'Post ID: 9' )
+		);
 	} );
 } );

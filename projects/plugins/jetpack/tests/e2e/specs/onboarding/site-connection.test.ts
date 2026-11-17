@@ -23,24 +23,22 @@ test( 'Site only connection', async ( { page, admin } ) => {
 	await test.step( 'Verify site connection', async () => {
 		await admin.visitAdminPage( 'admin.php', 'page=my-jetpack' );
 
-		// Find a block which has h2 with text "Connection"
-		const h3 = page.getByRole( 'heading', { level: 3, name: 'Connection' } );
-		const connectionBlock = h3.locator( 'xpath=..' ); // immediate parent
+		await page.getByRole( 'button', { name: 'Connection: Site connected', exact: true } ).click();
+		const connectionPopover = page.getByRole( 'dialog', { name: 'Connection', exact: true } );
 
-		await expect( connectionBlock, {
-			message: 'Should have the text saying the site is connected.',
-		} ).toContainText( 'Site connected' );
-
-		await expect( connectionBlock.getByRole( 'button', { name: 'Site connected' } ), {
-			message: '"Site connected" should be a button.',
+		await expect( connectionPopover.getByText( 'Not connected', { exact: true } ), {
+			message: 'Should show the account is not connected.',
 		} ).toBeVisible();
 
-		await expect( connectionBlock, {
+		await expect( connectionPopover, {
 			message: 'Should have the missing user connection text.',
 		} ).toContainText( 'Connect your account to unlock all the features.' );
 
-		await expect( connectionBlock.getByRole( 'button', { name: 'Connect my account' } ), {
-			message: 'Should have the user connection button.',
-		} ).toBeVisible();
+		await expect(
+			connectionPopover.getByRole( 'link', { name: 'Connect my account', exact: true } ),
+			{
+				message: 'Should have the user connection link.',
+			}
+		).toBeVisible();
 	} );
 } );

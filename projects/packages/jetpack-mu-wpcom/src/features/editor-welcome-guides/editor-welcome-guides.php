@@ -9,15 +9,6 @@
 declare( strict_types = 1 );
 
 /**
- * Whether the feature is enabled for the current site.
- *
- * @return bool
- */
-function wpcom_editor_welcome_guides_is_enabled(): bool {
-	return wpcom_has_blog_sticker( 'editor-welcome-guides-per-user', get_wpcom_blog_id() );
-}
-
-/**
  * The current site's editor preferences meta key.
  *
  * @return string
@@ -26,6 +17,51 @@ function wpcom_editor_welcome_guides_meta_key(): string {
 	global $wpdb;
 
 	return $wpdb->get_blog_prefix() . 'persisted_preferences';
+}
+
+/**
+ * The preferences scope of the editor screen being loaded.
+ *
+ * @return string|null The scope, or null when the request is not an editor screen.
+ */
+function wpcom_editor_welcome_guides_current_editor_scope(): ?string {
+	global $pagenow;
+
+	$scopes = array(
+		'post.php'        => 'core/edit-post',
+		'post-new.php'    => 'core/edit-post',
+		'site-editor.php' => 'core/edit-site',
+		'widgets.php'     => 'core/edit-widgets',
+		'customize.php'   => 'core/customize-widgets',
+	);
+
+	return is_string( $pagenow ) ? $scopes[ $pagenow ] ?? null : null;
+}
+
+/**
+ * Records that a guide was kept from opening because the user dismissed it on another site.
+ *
+ * @param string $scope Preferences scope.
+ * @param string $guide Guide key.
+ * @return void
+ */
+function wpcom_editor_welcome_guides_record_suppressed( string $scope, string $guide ): void {
+	// The preferences are read several times per request; count each guide once.
+	static $recorded = array();
+
+	if ( isset( $recorded[ "$scope/$guide" ] ) ) {
+		return;
+	}
+	$recorded[ "$scope/$guide" ] = true;
+
+	Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_record_tracks_event(
+		'wpcom_editor_welcome_guide_suppressed',
+		array(
+			'scope'    => $scope,
+			'guide'    => $guide,
+			'platform' => ( new Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ? 'simple' : 'atomic',
+		)
+	);
 }
 
 /**
@@ -40,7 +76,7 @@ function wpcom_editor_welcome_guides_meta_key(): string {
 function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta_key ) {
 	static $is_reading = false;
 
-	if ( null !== $value || $is_reading || wpcom_editor_welcome_guides_meta_key() !== $meta_key || ! wpcom_editor_welcome_guides_is_enabled() ) {
+	if ( null !== $value || $is_reading || wpcom_editor_welcome_guides_meta_key() !== $meta_key ) {
 		return $value;
 	}
 
@@ -63,12 +99,19 @@ function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta
 		$preferences = array();
 	}
 
+	// Only a guide of the editor being loaded, for the user loading it, would have opened.
+	$editor_scope = (int) $user_id === get_current_user_id() ? wpcom_editor_welcome_guides_current_editor_scope() : null;
+
 	$changed = false;
 	foreach ( $dismissed as $scope => $guides ) {
 		foreach ( (array) $guides as $guide ) {
 			if ( false !== ( $preferences[ $scope ][ $guide ] ?? null ) ) {
 				$preferences[ $scope ][ $guide ] = false;
 				$changed                         = true;
+
+				if ( $scope === $editor_scope ) {
+					wpcom_editor_welcome_guides_record_suppressed( $scope, (string) $guide );
+				}
 			}
 		}
 	}
@@ -94,7 +137,7 @@ add_filter( 'get_user_metadata', 'wpcom_editor_welcome_guides_filter_preferences
  * @return void
  */
 function wpcom_editor_welcome_guides_record_preferences( $meta_id, $user_id, $meta_key, $value ) {
-	if ( wpcom_editor_welcome_guides_meta_key() !== $meta_key || ! is_array( $value ) || ! wpcom_editor_welcome_guides_is_enabled() ) {
+	if ( wpcom_editor_welcome_guides_meta_key() !== $meta_key || ! is_array( $value ) ) {
 		return;
 	}
 

@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { select, useSelect, useDispatch } from '@wordpress/data';
+import { useState } from 'react';
 import { NewsletterTestEmailModal, NewsletterPreviewModal } from '../email-preview';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -59,6 +60,8 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
 
 // `@wordpress/ui` isn't resolvable in the jest environment; render a plain anchor.
 jest.mock( '@wordpress/ui', () => ( {
+	// components 44 builds its Spinner on this one.
+	Spinner: () => <span data-testid="spinner" />,
 	// Renders its children, so the accessible name still includes the hidden label.
 	VisuallyHidden: ( { children } ) => <span data-testid="visually-hidden">{ children }</span>,
 	Link: ( { children, href, openInNewTab, onClick, 'aria-label': ariaLabel, className } ) => (
@@ -206,6 +209,26 @@ describe( 'Email preview connection errors', () => {
 	} );
 } );
 
+/**
+ * Owns `isOpen` the way the editor does, so dismissing flips it in the same commit that clears
+ * the preview cache -- leaving it open makes the refetch depend on React's flush timing.
+ *
+ * @return The modal, open, with a control to reopen it.
+ */
+function PreviewModalHarness() {
+	const [ isOpen, setIsOpen ] = useState( true );
+	return (
+		<>
+			<button onClick={ () => setIsOpen( true ) }>Reopen</button>
+			<NewsletterPreviewModal
+				isOpen={ isOpen }
+				postId={ 123 }
+				onClose={ () => setIsOpen( false ) }
+			/>
+		</>
+	);
+}
+
 describe( 'Newsletter preview: save before fetching', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -260,20 +283,16 @@ describe( 'Newsletter preview: save before fetching', () => {
 		mockIsPostDirty = true;
 		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
 
-		const { rerender } = render(
-			<NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } />
-		);
+		render( <PreviewModalHarness /> );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
 		expect( saveForPreview ).toHaveBeenCalledTimes( 1 );
 
-		// Dismiss via the modal's  close control, which clears the preview cache…
 		await user.click( screen.getByRole( 'button', { name: /close/i } ) );
-		// Then simulate the parent responding to onClose by unmounting/remounting the open modal.
-		rerender( <NewsletterPreviewModal isOpen={ false } postId={ 123 } onClose={ jest.fn() } /> );
-		rerender( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		// The modal hides the rest of the document while open, so finding Reopen means it closed.
+		await user.click( await screen.findByRole( 'button', { name: 'Reopen' } ) );
 
-		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 2 ) );
-		expect( saveForPreview ).toHaveBeenCalledTimes( 2 );
+		await waitFor( () => expect( saveForPreview ).toHaveBeenCalledTimes( 2 ) );
+		expect( apiFetch ).toHaveBeenCalledTimes( 2 );
 	} );
 } );
 
@@ -529,7 +548,9 @@ describe( 'Newsletter preview: email design link', () => {
 		// The post travels so the design canvas previews it rather than the sample post. NL-1051.
 		expect( link ).toHaveAttribute(
 			'href',
-			`${ DESIGN_URL }&post_id=123&return=${ encodeURIComponent( window.location.href ) }`
+			`${ DESIGN_URL }&post_id=123&return=${ encodeURIComponent(
+				window.location.href
+			) }&source=preview_modal`
 		);
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
@@ -543,7 +564,7 @@ describe( 'Newsletter preview: email design link', () => {
 		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
 
-		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&post_id=123` );
+		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&post_id=123&source=preview_modal` );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
@@ -555,8 +576,22 @@ describe( 'Newsletter preview: email design link', () => {
 
 		expect( link ).toHaveAttribute(
 			'href',
-			`${ DESIGN_URL }&return=${ encodeURIComponent( window.location.href ) }`
+			`${ DESIGN_URL }&return=${ encodeURIComponent( window.location.href ) }&source=preview_modal`
 		);
+	} );
+
+	/**
+	 * Both of the other args drop out here, so without the route this link is indistinguishable
+	 * from someone opening the screen from the Appearance menu. NL-1088.
+	 */
+	it( 'still names the route when it has neither a post nor a way back to send', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+		mockIsPostDirty = true;
+
+		render( <NewsletterPreviewModal isOpen postId={ 0 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+
+		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&source=preview_modal` );
 	} );
 
 	it( 'drops to an icon where the header runs out of room', async () => {

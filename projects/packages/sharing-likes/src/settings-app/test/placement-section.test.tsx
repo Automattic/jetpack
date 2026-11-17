@@ -33,11 +33,25 @@ describe( 'PlacementSection', () => {
 
 	// Unticking Pages here doesn't keep the Sharing Buttons or Like block off pages.
 	it.each( [
-		[ 'sharing', { ...baseStatus, sharing: { state: 'block_call_to_action' } }, true ],
-		[ 'likes', { ...baseStatus, likes: { state: 'block_call_to_action', supported: true } }, true ],
+		[
+			'sharing',
+			{ ...baseStatus, sharing: { ...baseStatus.sharing, state: 'block_call_to_action' } },
+			true,
+		],
+		[
+			'likes',
+			{
+				...baseStatus,
+				likes: { ...baseStatus.likes, state: 'block_call_to_action', supported: true },
+			},
+			true,
+		],
 		[
 			'offline likes',
-			{ ...baseStatus, likes: { state: 'block_call_to_action', supported: false } },
+			{
+				...baseStatus,
+				likes: { ...baseStatus.likes, state: 'block_call_to_action', supported: false },
+			},
 			false,
 		],
 		[ 'no', baseStatus, false ],

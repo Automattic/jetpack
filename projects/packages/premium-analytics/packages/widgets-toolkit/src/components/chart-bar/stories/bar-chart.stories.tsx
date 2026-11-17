@@ -293,7 +293,6 @@ export const ZeroValues: Story = {
 /**
  * ComparisonWithZeroValues: Bar chart comparing current period with zero historical data
  * Demonstrates how charts handle new stores with no prior data to compare against.
- * Zero-value bars render with a small visible height for better UX.
  */
 export const ComparisonWithZeroValues: Story = {
 	args: {
@@ -318,13 +317,12 @@ export const ComparisonWithZeroValues: Story = {
 			{ stroke: '#3858E9' }, // Primary - Blueberry
 			{ stroke: '#66BDFF' }, // Comparison - Blue 30
 		],
-		showZeroValues: true,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'When comparison period has zero values (e.g., new store with no prior data), zero-value bars render with a small visible height. This provides a visual cue and allows users to hover for tooltip confirmation.',
+					'When the comparison period has zero values (e.g., new store with no prior data), no comparison bar is drawn; hovering the column still shows the zero in the tooltip.',
 			},
 		},
 	},

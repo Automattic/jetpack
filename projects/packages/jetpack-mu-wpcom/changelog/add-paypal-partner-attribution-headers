@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+PayPal Payment Buttons: Forward the partner attribution code the site sends on merchant lookups and payment button calls made on its behalf.

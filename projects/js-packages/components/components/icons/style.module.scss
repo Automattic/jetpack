@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .star-icon {
 	fill: #000;
@@ -10,7 +10,7 @@
 }
 
 .socialIcon {
-	fill: gb.$gray-700;
+	fill: colors.$gray-700;
 
 	&.bluesky {
 		fill: var(--jetpack-social-logo-color-bluesky);

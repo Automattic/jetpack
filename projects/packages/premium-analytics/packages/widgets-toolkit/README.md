@@ -167,6 +167,7 @@ type DataFormat = {
 		useMultipliers?: boolean;
 		decimals?: number;
 	};
+	preferExact?: boolean; // Exact figure; compact only where it would be clipped
 };
 ```
 
@@ -302,6 +303,7 @@ type DataFormat = {
 		useMultipliers?: boolean; // Use K, M, B suffixes for large numbers
 		decimals?: number; // Number of decimal places
 	};
+	preferExact?: boolean; // Exact figure; compact only where it would be clipped
 };
 ```
 

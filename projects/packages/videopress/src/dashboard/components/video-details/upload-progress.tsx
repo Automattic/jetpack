@@ -1,6 +1,6 @@
-import { ProgressBar, VisuallyHidden } from '@wordpress/components';
+import { VisuallyHidden } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Text } from '@wordpress/ui';
+import { Button, Progress, Text } from '@wordpress/ui';
 
 export type UploadProgressStatus =
 	'pending' | 'uploading' | 'saving' | 'loading' | 'failed' | 'details-error' | 'loading-error';
@@ -67,11 +67,15 @@ export default function UploadProgress( { status, fileName, progress = 0, onRetr
 				{ message }
 			</Text>
 			{ ! failed && (
-				<ProgressBar
+				<Progress.Root
 					className="vp-video-details__upload-bar"
 					aria-label={ __( 'Upload progress', 'jetpack-videopress-pkg' ) }
-					value={ uploading ? Math.round( progress * 100 ) : undefined }
-				/>
+					value={ uploading ? Math.round( progress * 100 ) : null }
+				>
+					<Progress.Track className="vp-video-details__upload-track">
+						<Progress.Indicator color="#fff" />
+					</Progress.Track>
+				</Progress.Root>
 			) }
 			{ failed && onRetry && (
 				<Button variant="outline" onClick={ onRetry }>

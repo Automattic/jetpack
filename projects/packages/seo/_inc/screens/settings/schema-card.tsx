@@ -1,14 +1,18 @@
+// eslint-disable-next-line @wordpress/use-recommended-components -- Keep the existing breadcrumb control while adding the site entity.
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { code } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard, Fieldset, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import PausedNote from '../../components/paused-note';
 import StatusIndicator from '../../components/status-indicator';
 import { cleanProfileUrls } from '../../data/schema-settings-utils';
 import { useSchemaSettings } from '../../data/use-schema-settings';
+import EntitySelector from './schema-settings/entity-selector';
 import { hasLocalBusinessErrors } from './schema-settings/local-business-fields';
 import LocalBusinessSection from './schema-settings/local-business-section';
 import OrganizationSection from './schema-settings/organization-section';
+import PersonSection from './schema-settings/person-section';
 import { hasProfileUrlErrors } from './schema-settings/profile-url-list';
 import styles from './schema-settings/style.module.scss';
 import type { SettingStatus } from '../../components/status-indicator';
@@ -21,40 +25,36 @@ const SAVE_ERROR_ID = 'jetpack-seo-settings-schema-save-error';
 interface Props {
 	initialSettings: SchemaSettings;
 	onSave?: ( settings: SchemaSettings ) => void;
+	disabled?: boolean;
 }
 
 /**
- * Site-level Schema settings module.
- *
- * One card for everything the site's own schema graph needs: a Breadcrumbs
- * toggle, then the Organization details behind the site. Local-business details
- * are a refinement of the Organization (a sub-toggle under it), not a peer
- * choice — schema.org models LocalBusiness as a kind of Organization. The
- * Author profile (Person / ProfilePage for the signed-in user) is a distinct
- * concern and lives in its own card.
- *
- * Collapsed by default and built from the shared `CollapsibleCard` compound,
- * matching the other Settings modules (Canonical URLs, Title structure, Site
- * verification).
+ * Site-level Breadcrumbs and Organization/Person settings in one collapsible card.
  *
  * @param root0                 - Component props.
  * @param root0.initialSettings - Settings bootstrap from the Settings screen.
  * @param root0.onSave          - Called with the saved schema payload after a successful save.
+ * @param root0.disabled        - Whether editing is locked while Jetpack's SEO output is paused.
  * @return The Schema settings card.
  */
-function SchemaCard( { initialSettings, onSave }: Props ) {
+function SchemaCard( { initialSettings, onSave, disabled = false }: Props ) {
 	const form = useSchemaSettings( initialSettings, onSave );
 	const {
+		siteRepresents,
 		organization,
+		person,
 		defaults,
+		personDefaults,
 		localBusiness,
 		breadcrumbList,
 		isSaving,
 		isOrganizationDirty,
 		isLocalBusinessDirty,
 		commitBreadcrumbList,
+		commitSiteRepresents,
 		saveOrganizationEntity,
 	} = form;
+	const isPerson = siteRepresents === 'person';
 
 	// A field counts as configured when it has a value — including its smart
 	// default (Site Title → name, Tagline → description), because tracking the
@@ -75,26 +75,36 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 	// Trimming the result instead would let a whitespace-only override win the `||`
 	// and collapse to empty, dropping the module out of Complete over a value the
 	// server will discard in favour of the Site Title that was counting before.
+	//
+	// Measured against whichever entity the site currently represents: the other
+	// branch's fields are stored but not in play, so counting them would report a
+	// completeness the visible form can't act on.
+	const entity = isPerson ? person : organization;
+	const entityDefaults = isPerson ? personDefaults : defaults;
 	const configuredFields = [
-		organization.name.trim() || defaults.name.trim(),
-		organization.description.trim() || defaults.description.trim(),
-		cleanProfileUrls( organization.sameAs ).length > 0,
+		entity.name.trim() || entityDefaults.name.trim(),
+		entity.description.trim() || entityDefaults.description.trim(),
+		cleanProfileUrls( entity.sameAs ).length > 0,
 	];
 	const configuredCount = configuredFields.filter( Boolean ).length;
 	let schemaStatus: SettingStatus = 'not-started';
-	if ( configuredCount === configuredFields.length ) {
+	if ( disabled ) {
+		schemaStatus = 'paused';
+	} else if ( configuredCount === configuredFields.length ) {
 		schemaStatus = 'complete';
 	} else if ( configuredCount > 0 ) {
-		schemaStatus = 'in-progress';
+		schemaStatus = 'incomplete';
 	}
 
-	// One Save covers both sections, so an error in either blocks it. Say which
-	// way out there is: the button is focusable while disabled (`@wordpress/ui`
-	// sets `aria-disabled` rather than the native attribute), and the offending
-	// field can be well off screen.
+	// One Save covers the Organization and its local-business refinement, so an
+	// error in either blocks it. Say which way out there is: the button is
+	// focusable while disabled (`@wordpress/ui` sets `aria-disabled` rather than
+	// the native attribute), and the offending field can be well off screen.
 	const hasBlockingErrors =
 		hasProfileUrlErrors( organization.sameAs ) ||
 		( localBusiness.enabled && hasLocalBusinessErrors( form ) );
+
+	const saveDescriptionId = disabled ? 'jetpack-seo-schema-disabled' : SAVE_ERROR_ID;
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -109,10 +119,17 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<Stack direction="column" gap="lg">
+				<Stack
+					direction="column"
+					gap="lg"
+					role="group"
+					aria-label={ __( 'Schema settings', 'jetpack-seo' ) }
+					aria-describedby={ disabled ? 'jetpack-seo-schema-disabled' : undefined }
+				>
+					{ disabled && <PausedNote id="jetpack-seo-schema-disabled" /> }
 					<Text variant="body-md" render={ <p /> }>
 						{ __(
-							'Structured data that tells search engines and AI assistants what your site is and who runs it. Add the details below and Jetpack adds the right markup automatically.',
+							'Structured data that tells search engines and AI assistants what your site is and who runs it. Answer a couple of questions and Jetpack adds the right markup automatically.',
 							'jetpack-seo'
 						) }
 					</Text>
@@ -125,48 +142,68 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 						) }
 						checked={ breadcrumbList.enabled }
 						// eslint-disable-next-line react/jsx-no-bind
-						onChange={ next => commitBreadcrumbList( { enabled: next } ) }
-						disabled={ isSaving }
+						onChange={ next => {
+							if ( ! disabled ) {
+								commitBreadcrumbList( { enabled: next } );
+							}
+						} }
+						disabled={ disabled || isSaving }
 						__nextHasNoMarginBottom
 					/>
 
-					{ /* A real fieldset, so the Organization details and their local-business
-					   refinement stay one named group now that they no longer have a card
-					   header each. The legend is hidden — the group is obvious on screen from
-					   the hairline rule this wrapper draws — but it keeps the grouping in the
-					   accessibility tree, which a bare `Stack` (a plain div) would not. */ }
-					<Fieldset.Root className={ styles.entityGroup }>
-						<Fieldset.Legend hideFromVision>
-							{ __( 'Organization details', 'jetpack-seo' ) }
-						</Fieldset.Legend>
+					{ /* Keep the entity selector and its fields in one visual group. */ }
+					<div className={ styles.entityGroup }>
 						<Stack direction="column" gap="lg">
-							<OrganizationSection form={ form } />
-							<LocalBusinessSection form={ form } />
+							<EntitySelector
+								value={ siteRepresents }
+								onChange={ commitSiteRepresents }
+								disabled={ disabled || isSaving }
+							/>
 
-							{ /* The visible label stays "Save" to match the other modules, but the
-							   accessible name names the module: this tab renders several "Save"
-							   buttons, so a bare one is ambiguous in a screen reader's button list. */ }
-							<Stack direction="row" justify="flex-end" align="center" gap="sm">
-								{ hasBlockingErrors && (
-									<Text variant="body-sm" id={ SAVE_ERROR_ID } className={ styles.saveError }>
-										{ __( 'Fix the highlighted fields to save.', 'jetpack-seo' ) }
-									</Text>
-								) }
-								<Button
-									onClick={ saveOrganizationEntity }
-									disabled={
-										isSaving ||
-										! ( isOrganizationDirty || isLocalBusinessDirty ) ||
-										hasBlockingErrors
-									}
-									aria-label={ __( 'Save schema settings', 'jetpack-seo' ) }
-									aria-describedby={ hasBlockingErrors ? SAVE_ERROR_ID : undefined }
-								>
-									{ __( 'Save', 'jetpack-seo' ) }
-								</Button>
-							</Stack>
+							{ isPerson ? (
+								<PersonSection
+									form={ form }
+									disabled={ disabled }
+									disabledReasonId={ disabled ? 'jetpack-seo-schema-disabled' : undefined }
+								/>
+							) : (
+								/* Name the Organization fields separately from the entity selector. */
+								<Fieldset.Root className={ styles.entityFieldset }>
+									<Fieldset.Legend hideFromVision>
+										{ __( 'Organization details', 'jetpack-seo' ) }
+									</Fieldset.Legend>
+									<Stack direction="column" gap="lg">
+										<OrganizationSection form={ form } disabled={ disabled } />
+										<LocalBusinessSection form={ form } disabled={ disabled } />
+
+										{ /* Qualify the accessible Save label to distinguish it from the other cards. */ }
+										<Stack direction="row" justify="flex-end" align="center" gap="sm">
+											{ hasBlockingErrors && (
+												<Text variant="body-sm" id={ SAVE_ERROR_ID } className={ styles.saveError }>
+													{ __( 'Fix the highlighted fields to save.', 'jetpack-seo' ) }
+												</Text>
+											) }
+											<Button
+												onClick={ saveOrganizationEntity }
+												disabled={
+													disabled ||
+													isSaving ||
+													! ( isOrganizationDirty || isLocalBusinessDirty ) ||
+													hasBlockingErrors
+												}
+												aria-label={ __( 'Save schema settings', 'jetpack-seo' ) }
+												aria-describedby={
+													disabled || hasBlockingErrors ? saveDescriptionId : undefined
+												}
+											>
+												{ __( 'Save', 'jetpack-seo' ) }
+											</Button>
+										</Stack>
+									</Stack>
+								</Fieldset.Root>
+							) }
 						</Stack>
-					</Fieldset.Root>
+					</div>
 				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>

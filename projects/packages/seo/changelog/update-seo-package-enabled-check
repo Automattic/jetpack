@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Own the SEO enabled check and front page description lookup instead of calling the Jetpack plugin; no change in behaviour.
+
+

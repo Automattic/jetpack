@@ -49,8 +49,8 @@ export function VideoTitleLink( {
 			<InternalLink
 				className={ classNames?.internal }
 				title={ title }
-				to="/video/$videoId"
-				params={ { videoId: String( videoId ) } }
+				to="/report/$kind/$id"
+				params={ { kind: 'video', id: String( videoId ) } }
 				search={ search }
 			>
 				{ content }

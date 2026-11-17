@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/variables";
 
 .wp-block-jetpack-simple-payments {
 
@@ -7,8 +7,8 @@
 		grid-template-columns: 200px auto;
 		column-gap: 10px;
 
-		font-family: gb.$default-font;
-		font-size: gb.$default-font-size;
+		font-family: variables.$default-font;
+		font-size: variables.$default-font-size;
 	}
 
 	.simple-payments__field {

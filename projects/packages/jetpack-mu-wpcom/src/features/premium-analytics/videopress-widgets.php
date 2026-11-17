@@ -58,6 +58,24 @@ function wpcom_premium_analytics_seed_videopress_default_layout( $layout, $secti
 	return Analytics_Dashboard::add_default_layout_instance( $layout, $section_id );
 }
 
-// After the package's own registrant (priority 10); the seed runs before the dashboard's policy at 100.
+/**
+ * Register the video single-report page on a site whose plan includes VideoPress.
+ *
+ * @since $$next-version$$
+ *
+ * @param \Automattic\Jetpack\PremiumAnalytics\Single_Report_Page_Registry $registry The registry being hydrated.
+ * @return void
+ */
+function wpcom_premium_analytics_register_videopress_single_report_pages( $registry ) {
+	// An older copy of the package has no page to register.
+	if ( ! wpcom_premium_analytics_site_has_videopress() || ! method_exists( Analytics_Dashboard::class, 'register_single_report_pages' ) ) {
+		return;
+	}
+
+	Analytics_Dashboard::register_single_report_pages( $registry );
+}
+
+// After the package's own registrants (priority 10); the seed runs before the dashboard's policy at 100.
 add_action( 'jetpack_premium_analytics_register_widget_types', 'wpcom_premium_analytics_register_videopress_widget_types', 20 );
+add_action( 'jetpack_premium_analytics_register_single_report_pages', 'wpcom_premium_analytics_register_videopress_single_report_pages', 20 );
 add_filter( 'jetpack_premium_analytics_dashboard_default_layout', 'wpcom_premium_analytics_seed_videopress_default_layout', 10, 2 );

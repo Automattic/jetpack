@@ -16,7 +16,8 @@ export type ViewLiveContent = 'post' | 'video';
  *
  * Only a row whose title opens a detail page inside the dashboard needs a second
  * link out to the live content; a title that links out already is the one link.
- * The URL comes straight from report data, so its scheme is checked here.
+ * The URL comes straight from report data, so its scheme is checked here, and a
+ * wp-admin page is never the live content.
  *
  * @param content - Whether the row's detail page is a post or a video one.
  * @param id      - The row's post, page or video ID.
@@ -34,5 +35,12 @@ export function toViewLiveUrl(
 		return undefined;
 	}
 
-	return safeHttpUrl( link ) ?? undefined;
+	const url = safeHttpUrl( link );
+
+	// `stats/video-plays` sends the media editor as a video's URL (STATS-567).
+	if ( url === null || new URL( url ).pathname.includes( '/wp-admin/' ) ) {
+		return undefined;
+	}
+
+	return url;
 }

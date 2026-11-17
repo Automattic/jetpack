@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Create payment button action to the block settings form, so a payment button is created or saved without saving the post.

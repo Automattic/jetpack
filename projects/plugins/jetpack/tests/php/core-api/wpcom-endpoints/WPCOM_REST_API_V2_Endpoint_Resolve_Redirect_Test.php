@@ -108,6 +108,13 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 	private $requested_urls = array();
 
 	/**
+	 * Request arguments the HTTP layer received, in request order.
+	 *
+	 * @var array[]
+	 */
+	private $requested_args = array();
+
+	/**
 	 * Hosts core's wp_http_validate_url() is told to treat as external.
 	 *
 	 * @var string[]
@@ -130,6 +137,7 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 		parent::set_up();
 
 		$this->requested_urls = array();
+		$this->requested_args = array();
 
 		// The endpoint's permission_callback is is_user_logged_in().
 		wp_set_current_user( static::$user_id );
@@ -145,8 +153,8 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 	/**
 	 * Fails any HTTP request a test did not explicitly mock.
 	 *
-	 * Runs at priority 1 so the per-test mocks still win, and records the URL so a
-	 * rejection test can assert nothing ever reached the HTTP layer.
+	 * Runs at priority 1 so the per-test mocks still win, and records the URL and
+	 * args so a test can assert what reached the HTTP layer.
 	 *
 	 * @param false|array|WP_Error $preempt Short-circuit value (unused).
 	 * @param array                $args    Request args.
@@ -155,6 +163,7 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 	 */
 	public function block_unmocked_request( $preempt, $args, $url ) {
 		$this->record_request( $url );
+		$this->requested_args[] = $args;
 		return $this->unexpected_request( $url );
 	}
 
@@ -625,6 +634,24 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 
 		$this->assertSame( self::PUBLIC_FINAL_URL, $data['url'] );
 		$this->assertSame( 200, $data['status'] );
+	}
+
+	/**
+	 * Every hop of a redirect chain limits the response size.
+	 *
+	 * The value is a literal on purpose, so the constant cannot drift to 0, which WordPress treats as no limit.
+	 */
+	public function test_every_hop_limits_response_size() {
+		$this->resolve_with_mock( 'mock_two_hop_public', self::PUBLIC_START_URL );
+
+		$this->assertSame(
+			array( self::PUBLIC_START_URL, self::PUBLIC_HOP_URL, self::PUBLIC_FINAL_URL ),
+			$this->requested_urls
+		);
+		$this->assertSame(
+			array_fill( 0, 3, 1 ),
+			array_column( $this->requested_args, 'limit_response_size' )
+		);
 	}
 
 	/**

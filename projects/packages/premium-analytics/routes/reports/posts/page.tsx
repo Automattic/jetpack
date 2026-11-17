@@ -5,28 +5,33 @@ import {
 	usePostThumbnails,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
+import { Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportPageLayout,
 	ReportErrorState,
-	ReportPageShell,
 	ReportPageTabs,
 	ReportDrilldownTable,
 	ReportRecordsTable,
 	ExporterCsvAction,
 	archivesCsvExporter,
 	postsPagesCsvExporter,
+	toViewLiveUrl,
 	type ArchiveRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
+import { createViewLiveAction } from '../view-live-action';
 import {
 	getArchivesFields,
 	getPostsFields,
@@ -125,6 +130,14 @@ function PostsReport(): JSX.Element {
 		() => getArchivesFields( records.archives.hasComparison ),
 		[ records.archives.hasComparison ]
 	);
+	const postActions = useMemo(
+		() => [
+			createViewLiveAction< StatsTopPostsComparisonItem >( item =>
+				toViewLiveUrl( 'post', item.id, item.link )
+			),
+		],
+		[]
+	);
 
 	// One element per tab: the two exporters' row types cannot share one generic call.
 	const csvAction =
@@ -163,6 +176,7 @@ function PostsReport(): JSX.Element {
 				isFetching={ records.posts.isFetching }
 				initialView={ POSTS_VIEW }
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+				actions={ postActions }
 				onChangePageItems={ handleVisiblePostRowsChange }
 			/>
 		) : (
@@ -185,8 +199,9 @@ function PostsReport(): JSX.Element {
 	const { getLabel } = REPORTS.posts;
 
 	return (
-		<ReportPageShell
-			visual={ <StatsPageIcon /> }
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={ csvAction }
 		>
@@ -206,13 +221,13 @@ function PostsReport(): JSX.Element {
 					{ recordsTable }
 				</ReportErrorState>
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 
 /**
  * Registry entry point; React Query and error handling come from the
- * `/reports/$report` stage that renders this lazily.
+ * `/reports/$report` stage that renders this.
  *
  * @return {JSX.Element} The Posts & Pages report page.
  */

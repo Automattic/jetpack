@@ -20,6 +20,7 @@ const PERIOD_ORDER = [
 	'day',
 	'week',
 	'month',
+	'quarter',
 	'year',
 ] as const satisfies readonly StatsPeriod[];
 

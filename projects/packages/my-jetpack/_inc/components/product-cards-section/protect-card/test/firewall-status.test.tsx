@@ -49,40 +49,53 @@ describe( 'FirewallStatus', () => {
 	} );
 
 	it.each( [
-		[ 'On', 'a free site with the firewall on', false, { waf_enabled: true }, 'Upgrade' ],
-		[ 'On', 'a paid site without automatic rules', true, {}, 'Turn them on' ],
-		[ 'Off', 'a site with the firewall off', false, { waf_enabled: false }, 'Turn it on' ],
+		[ 'On', 'a free site with the firewall on', false, { waf_enabled: true }, 'Upgrade', 'active' ],
+		[ 'On', 'a paid site without automatic rules', true, {}, 'Turn them on', 'active' ],
+		[ 'Off', 'a site with the firewall off', false, { waf_enabled: false }, 'Turn it on', 'off' ],
 		[
 			'Off',
 			'automatic rules left on with the firewall off',
 			true,
 			{ waf_enabled: false, jetpack_waf_automatic_rules: '1' as const },
 			'Turn it on',
+			'off',
 		],
 		[
 			'Inactive',
-			'a host with its own firewall',
+			'a host where Jetpack’s firewall can’t run',
 			false,
 			{ waf_supported: false, waf_enabled: false },
 			'hosting provider',
+			'inactive',
 		],
-	] )( 'shows %s for %s', async ( status, _, hasPaidPlanForProduct, overrides, explanation ) => {
-		mockUseProduct.mockReturnValue( { detail: { isPluginActive: true, hasPaidPlanForProduct } } );
-		render( <FirewallStatus data={ wafConfig( overrides ) } /> );
+		[
+			'On',
+			'a host that provides its own firewall',
+			false,
+			{ waf_supported: false, waf_enabled: false, waf_provided_by_host: true },
+			'runs a firewall for your site',
+			'host',
+		],
+	] )(
+		'shows %s for %s',
+		async ( status, _, hasPaidPlanForProduct, overrides, explanation, tracksStatus ) => {
+			mockUseProduct.mockReturnValue( { detail: { isPluginActive: true, hasPaidPlanForProduct } } );
+			render( <FirewallStatus data={ wafConfig( overrides ) } /> );
 
-		expect( screen.getByText( status ) ).toBeInTheDocument();
-		await userEvent.click( screen.getByRole( 'button', { name: 'More about Firewall' } ) );
-		const dialog = await screen.findByRole( 'dialog' );
-		expect( dialog ).toHaveTextContent( `Firewall: ${ status }` );
-		expect( dialog ).toHaveTextContent( explanation );
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_protect_card_tooltip_open', {
-			page: 'my-jetpack',
-			feature: 'jetpack-protect',
-			location: 'auto-firewall',
-			status: { On: 'active', Off: 'off', Inactive: 'inactive' }[ status ],
-			has_paid_plan: hasPaidPlanForProduct,
-		} );
-	} );
+			expect( screen.getByText( status ) ).toBeInTheDocument();
+			await userEvent.click( screen.getByRole( 'button', { name: 'More about Firewall' } ) );
+			const dialog = await screen.findByRole( 'dialog' );
+			expect( dialog ).toHaveTextContent( `Firewall: ${ status }` );
+			expect( dialog ).toHaveTextContent( explanation );
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_protect_card_tooltip_open', {
+				page: 'my-jetpack',
+				feature: 'jetpack-protect',
+				location: 'auto-firewall',
+				status: tracksStatus,
+				has_paid_plan: hasPaidPlanForProduct,
+			} );
+		}
+	);
 
 	it.each( [
 		[ 'On', 'automatic rules run', true, true, wafConfig( { jetpack_waf_automatic_rules: '1' } ) ],
@@ -93,7 +106,7 @@ describe( 'FirewallStatus', () => {
 			'a host firewall site is disconnected',
 			true,
 			false,
-			wafConfig( { waf_supported: false, waf_enabled: false } ),
+			wafConfig( { waf_supported: false, waf_enabled: false, waf_provided_by_host: true } ),
 		],
 		[ 'Inactive', 'the firewall data failed to load', true, true, undefined ],
 	] )(

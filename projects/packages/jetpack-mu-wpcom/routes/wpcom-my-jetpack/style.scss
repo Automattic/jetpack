@@ -1,0 +1,98 @@
+// Route-level styles for the Simple My Jetpack page. The layout mixin is
+// included per route because each wp-build route bundles its own CSS.
+
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Scoped to the body class so the layout cannot leak onto other Jetpack pages.
+body.jetpack_page_my-jetpack {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+.wpcom-my-jetpack__body {
+	padding: var(--wpds-dimension-padding-2xl);
+	padding-block-end: 48px;
+}
+
+// The layout mixin lets this scroller's children shrink, which pushes the last
+// cards over its bottom padding. The id outweighs the mixin's selector.
+#wpbody-content .wpcom-my-jetpack__body > * {
+	flex-shrink: 0;
+}
+
+// Wider than HighlightBanner's 520px, up to where its orbs start
+// (56px from the edge, 180px wide).
+.wpcom-my-jetpack__body .jp-highlight-banner .jp-highlight-banner__content {
+	max-inline-size: min(760px, max(520px, calc(100% - 248px)));
+}
+
+// Larger than HighlightBanner's default, which is hard to read on this page.
+.wpcom-my-jetpack__body .jp-highlight-banner .jp-highlight-banner__description {
+	font-size: 15px;
+	line-height: 24px;
+}
+
+.wpcom-my-jetpack__blurb {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// The plan line beside the banner's button, in the banner's own text color.
+.wpcom-my-jetpack__plan {
+	color: #daffdc;
+}
+
+// As many columns as fit, three on a wide screen, down to one on a phone.
+.wpcom-my-jetpack__tools {
+	display: grid;
+	gap: var(--wpds-dimension-gap-md);
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+}
+
+// The card from My Jetpack's Features tab. Link draws the focus ring, and its
+// reset of the radius on hover and focus needs this much specificity to beat.
+.wpcom-my-jetpack__tools a.wpcom-my-jetpack__tool {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
+	display: block;
+	padding: var(--wpds-dimension-padding-lg);
+
+	&:hover {
+		background: var(--wpds-color-background-surface-neutral-weak);
+		border-color: var(--wpds-color-stroke-surface-neutral);
+	}
+}
+
+// The product tile from jetpack.com's menu.
+.wpcom-my-jetpack__tool-icon {
+	align-items: center;
+	background: #073f12;
+	block-size: 2.25rem;
+	border-radius: var(--wpds-border-radius-md);
+	color: #0ced57;
+	display: flex;
+	fill: currentColor;
+	flex: none;
+	inline-size: 2.25rem;
+	justify-content: center;
+}
+
+.wpcom-my-jetpack__tool-text {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+.wpcom-my-jetpack__tool-title {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.wpcom-my-jetpack__tool-description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.wpcom-my-jetpack__tool-arrow {
+	align-self: center;
+	color: var(--wpds-color-foreground-content-neutral);
+	display: flex;
+	flex: none;
+}

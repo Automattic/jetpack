@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reopen a date control on the calendar when the applied range is custom.

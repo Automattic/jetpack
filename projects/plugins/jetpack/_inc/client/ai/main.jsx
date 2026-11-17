@@ -101,7 +101,7 @@ const VIEW_TITLES = {
 const SUB_VIEW_DESCRIPTIONS = {
 	'mcp/read': __( 'View your site’s content.', 'jetpack' ),
 	'mcp/write': __( 'Create, update, and manage content on your site.', 'jetpack' ),
-	'mcp/setup': __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
+	'mcp/setup': __( 'Get instructions for connecting your external AI agent.', 'jetpack' ),
 };
 
 /**

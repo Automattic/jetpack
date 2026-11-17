@@ -6,6 +6,7 @@ import {
 	useReportScope,
 	withoutComparison,
 	useScopeLockedIntervals,
+	useSiteDay,
 } from '@jetpack-premium-analytics/data';
 import { useSearch } from '@wordpress/route';
 import { useMemo } from 'react';
@@ -27,8 +28,10 @@ export function useReportParams() {
 	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
 	const { offersComparison } = useReportScope();
 	const lockedIntervals = useScopeLockedIntervals();
+	const siteDay = useSiteDay();
 
 	return useMemo( () => {
+		void siteDay;
 		const params = normalizeReportParams(
 			search as Parameters< typeof normalizeReportParams >[ 0 ],
 			undefined,
@@ -36,5 +39,5 @@ export function useReportParams() {
 		);
 
 		return offersComparison ? params : withoutComparison( params );
-	}, [ search, offersComparison, lockedIntervals ] );
+	}, [ search, offersComparison, lockedIntervals, siteDay ] );
 }

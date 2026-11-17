@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix hourly Traffic chart times that were an hour off on daylight saving days.

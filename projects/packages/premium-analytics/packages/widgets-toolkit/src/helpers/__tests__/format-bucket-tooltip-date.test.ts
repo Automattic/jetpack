@@ -62,6 +62,14 @@ describe( 'formatBucketTooltipDate', () => {
 		expect( formatBucketTooltipDate( datum, resolution ) ).toBe( expected );
 	} );
 
+	it( 'names the days of a quarter the range cuts to one whole month', () => {
+		const datum = { date: at( '2025-12-01T00:00:00' ), endDate: at( '2025-12-31T23:59:59' ) };
+
+		expect( formatBucketTooltipDate( datum, 'month', 'quarter' ) ).toBe(
+			`December 1${ SEP }31, 2025`
+		);
+	} );
+
 	it( 'marks the hour a fall-back day repeats', () => {
 		const defaults = getSettings();
 

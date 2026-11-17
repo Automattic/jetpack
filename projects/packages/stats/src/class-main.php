@@ -70,6 +70,9 @@ class Main {
 		// Generate the tracking code after wp() has queried for posts.
 		add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ), 1 );
 
+		// Not on template_redirect: the AMP plugin reads its sanitizers on `wp`, which runs first.
+		add_filter( 'amp_content_sanitizers', array( Tracking_Pixel::class, 'add_amp_consent_sanitizer' ) );
+
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'hide_smile_css' ) );
 
 		// Map stats caps.
@@ -170,7 +173,11 @@ class Main {
 
 		add_action( 'wp_enqueue_scripts', array( Tracking_Pixel::class, 'enqueue_stats_script' ), 101 );
 		add_action( 'wp_footer', array( Tracking_Pixel::class, 'add_amp_pixel' ), 101 );
-		add_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ), 101 );
+
+		// Web Stories polyfill amp_is_request() but have no amp-consent and never run AMP_Consent_Sanitizer, so they go uncounted.
+		if ( ! function_exists( 'wp_has_consent' ) ) {
+			add_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ), 101 );
+		}
 	}
 
 	/**

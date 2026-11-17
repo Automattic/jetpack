@@ -8,7 +8,9 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Redirect;
 use WP_Error;
 
@@ -170,11 +172,32 @@ class Scan extends Module_Product {
 	 * @return array
 	 */
 	public static function get_paid_plan_product_slugs() {
-		return array(
-			'jetpack_scan',
-			'jetpack_scan_monthly',
-			'jetpack_scan_bi_yearly',
-		);
+		// Consumers match by substring, so the prefix covers every Scan product. An older Protect Status may lack it.
+		return array( defined( Plan::class . '::SCAN_PRODUCT_PREFIX' ) ? Plan::SCAN_PRODUCT_PREFIX : 'jetpack_scan' );
+	}
+
+	/**
+	 * Whether the site pays for Scan, by the same check as the Protect page.
+	 *
+	 * @return bool
+	 */
+	public static function has_paid_plan_for_product() {
+		return Plan::has_required_plan();
+	}
+
+	/**
+	 * Get the card's status, Expired for a lapsed purchase, as Protect::get_status() does.
+	 *
+	 * @return string
+	 */
+	public static function get_status() {
+		$status = parent::get_status();
+
+		if ( Products::STATUS_CAN_UPGRADE === $status && static::is_paid_plan_expired() ) {
+			return Products::STATUS_EXPIRED;
+		}
+
+		return $status;
 	}
 
 	/**
@@ -203,8 +226,13 @@ class Scan extends Module_Product {
 	 */
 	public static function get_manage_url() {
 		// The Protect page lists Scan's threats.
-		if ( Protect::has_protect_page() ) {
+		// An older plugin's copy of Protect, loaded earlier in the same request, may not have this method.
+		if ( method_exists( Protect::class, 'has_protect_page' ) && Protect::has_protect_page() ) {
 			return admin_url( 'admin.php?page=jetpack-protect' );
+		}
+
+		if ( method_exists( Protect::class, 'get_scan_dashboard_url' ) ) {
+			return Protect::get_scan_dashboard_url();
 		}
 
 		return Redirect::get_url( 'my-jetpack-manage-scan' );

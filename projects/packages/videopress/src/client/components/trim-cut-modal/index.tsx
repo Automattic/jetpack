@@ -47,7 +47,7 @@ function Workspace( {
 	onClose: () => void;
 	onProcessed: () => void;
 } ) {
-	const editor = useEditSession( video, NOTICE_CONTEXT );
+	const editor = useEditSession( video, NOTICE_CONTEXT, 'block_editor' );
 	const transport = usePreviewTransport();
 	const [ sourceReady, setSourceReady ] = useState( false );
 	const [ sourceDuration, setSourceDuration ] = useState( 0 );

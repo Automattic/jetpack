@@ -5,6 +5,7 @@ import type {
 	SeriesData,
 	SeriesChartLegendConfig,
 	SeriesVisibilityProps,
+	CompactWhenShortProps,
 } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { CSSProperties, ReactNode } from 'react';
@@ -19,7 +20,8 @@ export type BandHighlightSelection = {
 	height: number;
 };
 
-export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
+export interface BarChartProps
+	extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps, CompactWhenShortProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */

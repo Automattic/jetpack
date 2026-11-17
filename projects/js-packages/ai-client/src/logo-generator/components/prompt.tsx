@@ -2,9 +2,10 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Tooltip, SelectControl } from '@wordpress/components';
+import { Button, SelectControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
+import { Tooltip } from '@wordpress/ui';
 import debugFactory from 'debug';
 import { useCallback, useEffect, useState, useRef, Dispatch, SetStateAction } from 'react';
 /**
@@ -312,15 +313,15 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 							</>
 						) }
 						&nbsp;
-						<Tooltip
-							text={ __(
-								'Logo generation costs 10 requests; prompt enhancement costs 1 request each',
-								'jetpack-ai-client'
-							) }
-							placement="bottom"
-						>
-							<Icon className="prompt-footer__icon" icon={ info } />
-						</Tooltip>
+						<Tooltip.Root>
+							<Tooltip.Trigger render={ <Icon className="prompt-footer__icon" icon={ info } /> } />
+							<Tooltip.Popup positioner={ <Tooltip.Positioner side="bottom" /> }>
+								{ __(
+									'Logo generation costs 10 requests; prompt enhancement costs 1 request each',
+									'jetpack-ai-client'
+								) }
+							</Tooltip.Popup>
+						</Tooltip.Root>
 					</div>
 				) }
 				{ requireUpgrade && tierPlansEnabled && <UpgradeNudge /> }

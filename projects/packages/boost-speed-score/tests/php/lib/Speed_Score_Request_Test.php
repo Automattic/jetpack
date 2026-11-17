@@ -10,10 +10,13 @@ namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
 use Automattic\Jetpack\Boost_Core\Contracts\Boost_API_Client;
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Durations;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Request;
 use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class Speed_Score_Request_Test
@@ -53,15 +56,26 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	public $api_response = array();
 
 	/**
+	 * The response the stubbed API client returns when the request is dispatched.
+	 *
+	 * @var array
+	 */
+	public $post_response = array();
+
+	/**
 	 * Set up the WordPress and Boost API stubs this test needs.
 	 */
 	protected function set_up() {
 		parent::set_up();
 
-		$this->options      = array();
-		$this->autoload     = array();
-		$this->theme_name   = 'Twenty Twenty-Four';
-		$this->api_response = array();
+		$this->options       = array(
+			'home'    => 'http://example.com',
+			'siteurl' => 'http://example.com',
+		);
+		$this->autoload      = array();
+		$this->theme_name    = 'Twenty Twenty-Four';
+		$this->api_response  = array();
+		$this->post_response = array();
 
 		// Name aware, unlike the stub in Speed_Score_History_Test. This test touches more than
 		// one option, so a single shared value would hide which one was written.
@@ -75,6 +89,14 @@ class Speed_Score_Request_Test extends Base_TestCase {
 			function ( $name, $value, $autoload = null ) {
 				$this->options[ $name ]  = $value;
 				$this->autoload[ $name ] = $autoload;
+
+				return true;
+			}
+		);
+
+		Functions\when( 'delete_option' )->alias(
+			function ( $name ) {
+				unset( $this->options[ $name ] );
 
 				return true;
 			}
@@ -190,7 +212,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 			}
 
 			/**
-			 * Answer a POST with an empty success.
+			 * Answer a POST with the canned dispatch response.
 			 *
 			 * @param string  $path    Request path.
 			 * @param mixed[] $payload Request payload.
@@ -198,7 +220,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 			 * @return mixed
 			 */
 			public function post( $path, $payload = array(), $args = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature is fixed by Boost_API_Client.
-				return array();
+				return $this->test->post_response;
 			}
 		};
 	}
@@ -267,6 +289,17 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
+	 * Call the handler with a stand-in, as WP_REST_Request is not loaded in these tests.
+	 *
+	 * @param mixed  $service The Speed_Score instance.
+	 * @param object $request Anything with get_json_params().
+	 * @return mixed
+	 */
+	private function fetch_with_stand_in_request( $service, $request ) {
+		return $service->fetch_speed_score( $request );
+	}
+
+	/**
 	 * Read a history entry, failing the test if it is missing.
 	 *
 	 * @param Speed_Score_History $history The history to read from.
@@ -287,6 +320,286 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	 */
 	private function stored_history() {
 		return new Speed_Score_History( self::URL );
+	}
+
+	/**
+	 * Provide each spelling of the two records a client can ask for.
+	 *
+	 * @return array[]
+	 */
+	public static function url_spellings() {
+		return array(
+			'slash'              => array( 'http://example.com/', 'http://example.com' ),
+			'no slash'           => array( 'http://example.com', 'http://example.com' ),
+			'subdirectory slash' => array( 'http://example.com/blog/', 'http://example.com/blog' ),
+			'query and slash'    => array( 'http://example.com/?jb-disable-modules=all', 'http://example.com?jb-disable-modules=all' ),
+			'query and no slash' => array( 'http://example.com?jb-disable-modules=all', 'http://example.com?jb-disable-modules=all' ),
+			'slash inside query' => array( 'http://example.com?page=a/', 'http://example.com?page=a/' ),
+		);
+	}
+
+	/**
+	 * Every spelling of a URL lands on one record, without merging in the "without Boost" one.
+	 *
+	 * @dataProvider url_spellings
+	 *
+	 * @param string $spelling  The URL a client sends.
+	 * @param string $canonical The URL the record belongs to.
+	 */
+	#[DataProvider( 'url_spellings' )]
+	public function test_url_spellings_share_one_key( $spelling, $canonical ) {
+		$this->assertSame(
+			hash( Speed_Score_Request::CACHE_KEY_HASH_ALGO, $canonical ),
+			Speed_Score_Request::generate_cache_id_from_url( $spelling )
+		);
+	}
+
+	/**
+	 * Provide the spelling holding the newest old record, and what home_url() says on the first build.
+	 *
+	 * @return array[]
+	 */
+	public static function old_records() {
+		return array(
+			'no slash is newest'             => array( 'http://example.com' ),
+			'slash is newest'                => array( 'http://example.com/' ),
+			'site URL is newest'             => array( 'http://example.com/wp' ),
+			'site URL with slash is newest'  => array( 'http://example.com/wp/' ),
+			'translation filter on home_url' => array( 'http://example.com/', 'http://example.com/fr' ),
+		);
+	}
+
+	/**
+	 * Seed an old record the way earlier versions stored it.
+	 *
+	 * @param string $spelling The exact URL the record was saved under.
+	 * @param array  $scores   Mobile and desktop scores.
+	 * @param int    $age      How long ago it was recorded, in seconds.
+	 */
+	private function seed_old_record( $spelling, array $scores, $age ) {
+		$this->options[ Speed_Score_History::OPTION_PREFIX . md5( $spelling ) ] = array( $this->entry( $scores, time() - $age ) );
+	}
+
+	/**
+	 * The first build moves the newest old record to the new key, removes the old rows and sets the marker.
+	 *
+	 * @dataProvider old_records
+	 *
+	 * @param string $newest_spelling The spelling holding the newest old record.
+	 * @param string $home_url        What home_url() returns during the first build.
+	 */
+	#[DataProvider( 'old_records' )]
+	public function test_first_build_migrates_the_newest_old_record( $newest_spelling, $home_url = 'http://example.com' ) {
+		$this->options['siteurl'] = 'http://example.com/wp';
+		Functions\when( 'home_url' )->justReturn( $home_url );
+
+		$old    = array(
+			'mobile'  => 67,
+			'desktop' => 63,
+		);
+		$newest = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		foreach ( array( 'http://example.com', 'http://example.com/', 'http://example.com/wp', 'http://example.com/wp/' ) as $spelling ) {
+			$this->seed_old_record( $spelling, $spelling === $newest_spelling ? $newest : $old, $spelling === $newest_spelling ? 1000 : 2000 );
+		}
+
+		$this->assertSame( $newest, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
+
+		$this->assertSame( array( 'home', 'siteurl', $this->history_option_name(), Speed_Score_History::LEGACY_MIGRATED_OPTION ), array_keys( $this->options ) );
+		$this->assertTrue( $this->autoload[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] );
+	}
+
+	public function test_filtered_home_recovers_scores_without_dispatching_and_preserves_default_language() {
+		Functions\when( 'home_url' )->justReturn( self::URL . '/fr' );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		Functions\when( 'rest_ensure_response' )->returnArg();
+		Functions\when( 'add_query_arg' )->alias(
+			function ( $key, $value, $url ) {
+				return $url . '?' . $key . '=' . $value;
+			}
+		);
+		$scores  = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		$default = array(
+			'mobile'  => 67,
+			'desktop' => 63,
+		);
+		$this->seed_old_record( self::URL . '/', $default, 2000 );
+		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
+			$this->seed_old_record( self::URL . '/fr/' . $query, $scores, 1000 );
+		}
+
+		$service = $this->getMockBuilder( Speed_Score::class )
+			->setConstructorArgs( array( array(), 'test' ) )
+			->onlyMethods( array( 'dispatch_speed_score_request' ) )
+			->getMock();
+		$service->expects( $this->never() )->method( 'dispatch_speed_score_request' );
+		$request = new class() {
+			public function get_json_params() {
+				return array( 'url' => 'http://example.com/fr/' );
+			}
+		};
+
+		$response = $this->fetch_with_stand_in_request( $service, $request );
+		$this->assertSame( $scores, $response['scores']['current'] );
+		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
+			$this->assertSame( $scores, ( new Speed_Score_History( self::URL . '/fr' . $query ) )->latest_scores() );
+			$this->assertArrayNotHasKey( Speed_Score_History::OPTION_PREFIX . md5( self::URL . '/fr/' . $query ), $this->options );
+		}
+		Functions\when( 'home_url' )->justReturn( self::URL );
+		$this->assertSame( $default, $this->stored_history()->latest_scores() );
+	}
+
+	public function test_filtered_home_leaves_the_default_record_when_the_stored_scheme_differs() {
+		Functions\when( 'home_url' )->justReturn( 'https://example.com/fr' );
+		Functions\when( 'get_site_url' )->justReturn( 'https://example.com' );
+		$scores = array(
+			'mobile'  => 67,
+			'desktop' => 63,
+		);
+		$this->seed_old_record( 'https://example.com', $scores, 1000 );
+
+		$this->assertNull( ( new Speed_Score_History( 'https://example.com/fr' ) )->latest_scores() );
+		$this->assertSame( $scores, ( new Speed_Score_History( 'https://example.com' ) )->latest_scores() );
+	}
+
+	public function test_per_url_marker_is_not_autoloaded() {
+		( new Speed_Score_History( self::URL ) )->count();
+
+		$this->assertFalse( $this->autoload[ $this->history_option_name() . '_legacy_migrated' ] );
+	}
+
+	public function test_empty_home_history_recovers_newest_site_url_spelling() {
+		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
+		Functions\when( 'home_url' )->justReturn( self::URL . '/fr' );
+		Functions\when( 'get_site_url' )->justReturn( self::URL . '/wp' );
+		$scores = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
+			$this->seed_old_record(
+				self::URL . '/fr/' . $query,
+				array(
+					'mobile'  => 60,
+					'desktop' => 70,
+				),
+				2000
+			);
+			$this->seed_old_record( self::URL . '/wp' . $query, $scores, 1000 );
+			$this->seed_old_record( self::URL . '/wp/' . $query, $scores, 1500 );
+			$this->assertSame( $scores, ( new Speed_Score_History( self::URL . '/fr' . $query ) )->latest_scores() );
+			foreach ( array( '/fr/', '/wp', '/wp/' ) as $path ) {
+				$this->assertArrayNotHasKey( Speed_Score_History::OPTION_PREFIX . md5( self::URL . $path . $query ), $this->options );
+			}
+		}
+	}
+
+	/**
+	 * A newer record on the new key survives the migration.
+	 */
+	public function test_migration_keeps_a_newer_canonical_record() {
+		$newer = array(
+			'mobile'  => 91,
+			'desktop' => 92,
+		);
+		$this->seed_old_record( 'http://example.com', $newer, 1000 );
+		$this->seed_old_record(
+			'http://example.com/',
+			array(
+				'mobile'  => 67,
+				'desktop' => 63,
+			),
+			2000
+		);
+
+		$this->assertSame( $newer, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
+		$this->assertArrayNotHasKey( Speed_Score_History::OPTION_PREFIX . md5( 'http://example.com/' ), $this->options );
+	}
+
+	/**
+	 * A first build under cron, with the home URL in http, still moves the record the https admin wrote.
+	 */
+	public function test_migration_covers_the_other_scheme() {
+		$scores = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		$this->seed_old_record( 'https://example.com/', $scores, 1000 );
+
+		( new Speed_Score_History( 'http://example.com' ) )->count();
+
+		$this->assertSame( $scores, ( new Speed_Score_History( 'https://example.com/' ) )->latest_scores() );
+	}
+
+	/**
+	 * Once the marker is set, a build of a populated record reads only that record.
+	 */
+	public function test_populated_history_reads_no_old_keys_once_migrated() {
+		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
+
+		$this->seed_old_record(
+			self::URL,
+			array(
+				'mobile'  => 89,
+				'desktop' => 99,
+			),
+			1000
+		);
+
+		$reads = array();
+		Functions\when( 'get_option' )->alias(
+			function ( $name, $default_value = false ) use ( &$reads ) {
+				$reads[] = $name;
+
+				return $this->options[ $name ] ?? $default_value;
+			}
+		);
+
+		( new Speed_Score_History( 'http://example.com/' ) )->count();
+
+		$this->assertSame( array( Speed_Score_History::LEGACY_MIGRATED_OPTION, $this->history_option_name() ), $reads );
+	}
+
+	/**
+	 * The old "without Boost" record moves too, so dropping the query part can't lose it.
+	 */
+	public function test_migration_moves_the_old_comparison_record() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 60,
+		);
+
+		$this->seed_old_record( 'http://example.com/?jb-disable-modules=all', $scores, 1000 );
+
+		$this->assertSame( $scores, ( new Speed_Score_History( 'http://example.com?jb-disable-modules=all' ) )->latest_scores() );
+	}
+
+	/**
+	 * A run started with My Jetpack's spelling updates what the Boost dashboard reads.
+	 */
+	public function test_run_from_another_client_updates_the_boost_dashboard_record() {
+		$this->options[ Speed_Score_History::OPTION_PREFIX . md5( 'http://example.com/' ) ] = array(
+			$this->entry(
+				array(
+					'mobile'  => 67,
+					'desktop' => 63,
+				),
+				time() - 1000
+			),
+		);
+
+		$scores = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		$this->poll_with_scores( $scores );
+
+		$this->assertSame( $scores, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
 	}
 
 	/**
@@ -551,5 +864,178 @@ class Speed_Score_Request_Test extends Base_TestCase {
 
 		$this->assertSame( 0, $history->count() );
 		$this->assertArrayNotHasKey( $this->history_option_name(), $this->options );
+	}
+
+	/**
+	 * Seconds since the previous poll, and the durations stored once the run finishes.
+	 *
+	 * @return array
+	 */
+	public static function provide_previous_polls() {
+		return array(
+			'watched to the end'                     => array( 5, array( 30 ) ),
+			'left for a subpage and came back later' => array( 60, null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_previous_polls
+	 *
+	 * @param int        $seconds_since_poll Seconds since the previous poll.
+	 * @param array|null $stored             The durations stored afterwards.
+	 */
+	#[DataProvider( 'provide_previous_polls' )]
+	public function test_only_a_run_watched_to_the_end_counts_towards_the_estimate( $seconds_since_poll, $stored ) {
+		$this->api_response = array(
+			'status' => 'success',
+			'scores' => array(
+				'mobile'  => 50,
+				'desktop' => 70,
+			),
+		);
+		$request            = Speed_Score_Request::jsonUnserialize(
+			array(
+				'url'            => self::URL,
+				'active_modules' => array(),
+				'created'        => microtime( true ) - 30,
+				'status'         => 'pending',
+				'error'          => null,
+				'client'         => null,
+				'last_polled'    => microtime( true ) - $seconds_since_poll,
+			)
+		);
+		$this->assertTrue( $request->poll_update() );
+
+		Speed_Score_Durations::record_finished_run( array( $request ) );
+
+		$this->assertSame( $stored, $this->options[ Speed_Score_Durations::OPTION_NAME ] ?? null );
+	}
+
+	public function test_a_pending_poll_keeps_the_request_until_the_result_can_arrive() {
+		$this->api_response = array( 'status' => 'pending' );
+		$request            = new Speed_Score_Request( self::URL );
+		$this->assertTrue( $request->poll_update() );
+
+		$stored = $this->options[ Transient::key( 'jetpack_boost_speed_scores_' . $request->get_cache_id() ) ];
+		$this->assertGreaterThanOrEqual( time() + 3600 - 5, $stored['expire'] );
+	}
+
+	public function test_the_last_poll_survives_reloading_the_request_from_storage() {
+		$this->api_response = array( 'status' => 'pending' );
+		$request            = new Speed_Score_Request( self::URL, array(), microtime( true ) - 30 );
+		$this->assertTrue( $request->poll_update() );
+
+		$this->api_response = array(
+			'status' => 'success',
+			'scores' => array(
+				'mobile'  => 50,
+				'desktop' => 70,
+			),
+		);
+		$reloaded           = Speed_Score_Request::get( $request->get_cache_id() );
+		$this->assertTrue( $reloaded->poll_update() );
+		Speed_Score_Durations::record_finished_run( array( $reloaded ) );
+
+		$this->assertSame( array( 30 ), $this->options[ Speed_Score_Durations::OPTION_NAME ] ?? null );
+	}
+
+	/**
+	 * @dataProvider provide_cloud_progress
+	 *
+	 * @param array $reported What WordPress.com reported on a pending poll.
+	 * @param array $kept     The progress the request keeps.
+	 */
+	#[DataProvider( 'provide_cloud_progress' )]
+	public function test_a_pending_poll_keeps_only_the_progress_the_dashboard_understands( $reported, $kept ) {
+		$this->api_response = array_merge( array( 'status' => 'pending' ), $reported );
+		$request            = new Speed_Score_Request( self::URL );
+		$this->assertTrue( $request->poll_update() );
+
+		$this->assertSame( $kept, $request->get_cloud_progress() );
+	}
+
+	/**
+	 * Progress as WordPress.com reports it, and what the request keeps of it.
+	 *
+	 * @return array
+	 */
+	public static function provide_cloud_progress() {
+		return array(
+			'a finished mobile run' => array(
+				array(
+					'stage'            => 'desktop',
+					'scores'           => array( 'mobile' => 71 ),
+					'estimatedSeconds' => 42,
+				),
+				array(
+					'stage'            => 'desktop',
+					'scores'           => array( 'mobile' => 71 ),
+					'estimatedSeconds' => 42,
+				),
+			),
+			'out-of-range scores'   => array(
+				array(
+					'scores' => array(
+						'mobile'  => 140,
+						'desktop' => -5,
+					),
+				),
+				array(
+					'scores' => array(
+						'mobile'  => 100,
+						'desktop' => 0,
+					),
+				),
+			),
+			'unknown values'        => array(
+				array(
+					'stage'            => 'tablet',
+					'scores'           => array( 'mobile' => 'soon' ),
+					'estimatedSeconds' => 0,
+				),
+				array(),
+			),
+		);
+	}
+
+	public function test_the_estimate_from_dispatch_survives_reloading_the_request() {
+		Functions\when( 'remove_query_arg' )->returnArg( 2 );
+		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
+		$this->post_response = array(
+			'status'           => 'pending',
+			'stage'            => 'queued',
+			'estimatedSeconds' => 42,
+		);
+		$request             = new Speed_Score_Request( self::URL );
+		$request->store();
+		$this->assertTrue( $request->execute() );
+
+		$this->assertSame(
+			array(
+				'stage'            => 'queued',
+				'estimatedSeconds' => 42,
+			),
+			Speed_Score_Request::get( $request->get_cache_id() )->get_cloud_progress()
+		);
+	}
+
+	/**
+	 * A retried run starts again from mobile, so an earlier attempt's mobile score must not linger.
+	 */
+	public function test_each_pending_poll_replaces_the_previous_progress() {
+		$request            = new Speed_Score_Request( self::URL );
+		$this->api_response = array(
+			'status' => 'pending',
+			'stage'  => 'desktop',
+			'scores' => array( 'mobile' => 71 ),
+		);
+		$this->assertTrue( $request->poll_update() );
+		$this->api_response = array(
+			'status' => 'pending',
+			'stage'  => 'mobile',
+		);
+		$this->assertTrue( $request->poll_update() );
+
+		$this->assertSame( array( 'stage' => 'mobile' ), $request->get_cloud_progress() );
 	}
 }

@@ -184,6 +184,7 @@ function PostLikesDashboardStory( {
  * scrolling inside the widget frame's content viewport.
  */
 export const WidgetDashboardWithWidget: StoryObj< PostLikesDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PostLikesDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

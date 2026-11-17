@@ -59,16 +59,21 @@ class Monitor implements Dashboard_Section {
 	}
 
 	/**
-	 * Whether Monitor can run here and is on, the days of uptime shown, and whether the user can reach WordPress.com.
+	 * Whether Monitor can run here and is on, the days of uptime shown, whether the user can reach WordPress.com,
+	 * and the email address of their WordPress.com account, which is where their alerts go (null when unknown).
 	 *
 	 * @return array
 	 */
 	public function get_state() {
+		$manager        = new Connection_Manager();
+		$user_connected = $manager->is_user_connected();
+		$wpcom_user     = $user_connected ? $manager->get_connected_user_data() : false;
 		return array_merge(
 			Dashboard::get_module_state( 'monitor' ),
 			array(
 				'uptimeDays'    => self::UPTIME_DAYS,
-				'userConnected' => ( new Connection_Manager() )->is_user_connected(),
+				'userConnected' => $user_connected,
+				'alertEmail'    => is_array( $wpcom_user ) && is_email( $wpcom_user['email'] ?? '' ) ? $wpcom_user['email'] : null,
 			)
 		);
 	}

@@ -39,7 +39,6 @@ function NetSalesOverTime( { chartType }: { chartType?: ChartDisplayChartType } 
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
 			chartType={ chartType }
-			chartTitle={ __( 'Net sales over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="orders_value_net"
 			label={ __( 'Net sales', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'currency' } }

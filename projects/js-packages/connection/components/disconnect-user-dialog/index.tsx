@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
+import { placementProps, trackConnectionEvent } from '../../helpers/connection-tracking.ts';
 /**
  * Internal dependencies
  */
@@ -12,6 +12,7 @@ import useUnlinkUser from '../../hooks/use-unlink-user';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import useConnection from '../use-connection';
+import type { ConnectionPlacement } from '../../helpers/connection-tracking.ts';
 
 export interface DisconnectUserDialogProps {
 	/** Whether the dialog is open. */
@@ -28,10 +29,12 @@ export interface DisconnectUserDialogProps {
 	onTransferOwnership?: () => void;
 	/**
 	 * The context in which this component is being used, recorded with the dialog's events.
-	 * Deliberately undefined by default: a named fallback would attribute a caller that forgot
-	 * it to the wrong surface, where an absent one is findable in the data.
+	 * Sent as null when omitted, so a caller that forgot it is findable in the data rather than
+	 * attributed to another surface.
 	 */
 	context?: string;
+	/** Where on the page the dialog was opened from, e.g. 'header'. Sent as `placement` when set. */
+	placement?: ConnectionPlacement;
 }
 
 /**
@@ -51,6 +54,7 @@ const DisconnectUserDialog = ( {
 	onUnlinked,
 	onTransferOwnership,
 	context,
+	placement,
 }: DisconnectUserDialogProps ) => {
 	const { isDisconnecting, error: disconnectError, unlink } = useUnlinkUser();
 
@@ -78,9 +82,11 @@ const DisconnectUserDialog = ( {
 	}
 
 	const handleDisconnect = useCallback( () => {
-		jetpackAnalytics.tracks.recordEvent( 'jetpack_manage_connection_dialog_disconnect_user_click', {
+		trackConnectionEvent(
+			'jetpack_manage_connection_dialog_disconnect_user_click',
 			context,
-		} );
+			placementProps( placement )
+		);
 
 		// Separate statements, not a ternary: the minifier folds two `__()` calls in one
 		// expression into a single call with a non-literal argument, which i18n-check rejects.
@@ -101,7 +107,7 @@ const DisconnectUserDialog = ( {
 				onUnlinked?.();
 			}
 		} );
-	}, [ context, isAdmin, onUnlinked, unlink ] );
+	}, [ context, placement, isAdmin, onUnlinked, unlink ] );
 
 	if ( isOwner ) {
 		return (
@@ -113,6 +119,7 @@ const DisconnectUserDialog = ( {
 				onUnlinked={ onUnlinked }
 				onTransferOwnership={ onTransferOwnership }
 				context={ context }
+				placement={ placement }
 			/>
 		);
 	}

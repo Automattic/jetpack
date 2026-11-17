@@ -4,7 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { TemplatePlacements } from '../components/template-placements';
 import { LikeButtonsSection } from '../sections/like-buttons-section';
 import { apiCalls, baseSettings, baseStatus, renderWithData, setScriptData } from './helpers';
-import type { Feature, Settings, Status, TemplatePlacement } from '../types';
+import type { Feature, PlacementTemplate, Settings, Status, TemplatePlacement } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
@@ -12,6 +12,10 @@ const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 const PAGE_TEMPLATE_URL = 'https://example.com/wp-admin/site-editor.php?p=page';
 
 const KEYS = { sharing: 'sharing_buttons_auto_add', likes: 'likes_auto_add' } as const;
+
+const NONE = 'Don’t add it automatically';
+const BEFORE = 'Before the content';
+const AFTER = 'After the content';
 
 /**
  * A promise and the functions that settle it.
@@ -48,13 +52,65 @@ function renderCards(
 }
 
 /**
- * The card's checkbox.
+ * Render the section for a feature whose block some saved templates manage.
  *
- * @param name - Card title.
- * @return Checkbox.
+ * @param feature - Feature.
+ * @param managed - Templates managing the block.
+ * @param pageUrl - Page template URL, empty when the theme has none.
+ * @return Render result.
  */
-function card( name: string ) {
-	return screen.getByRole( 'checkbox', { name } );
+function renderManaged( feature: Feature, managed: PlacementTemplate[], pageUrl: string ) {
+	return renderCards( feature, [ 'after_content' ], {
+		page_template_editor_url: pageUrl,
+		[ feature ]: {
+			...baseStatus[ feature ],
+			state: 'block_call_to_action',
+			managed_templates: managed,
+		},
+	} );
+}
+
+/**
+ * Where the notice's "Edit the … template" links go, post template first.
+ *
+ * @param notice - The notice text.
+ * @return URLs.
+ */
+function noticeLinks( notice: string ): ( string | null )[] {
+	let container: HTMLElement | null = screen.getByText( notice );
+	while ( container && ! within( container ).queryAllByRole( 'link' ).length ) {
+		// eslint-disable-next-line testing-library/no-node-access -- The notice has no role to query it by.
+		container = container.parentElement;
+	}
+	return [ 'post', 'page' ]
+		.map( name =>
+			within( container as HTMLElement ).queryByRole( 'link', {
+				name: `Edit the ${ name } template`,
+			} )
+		)
+		.filter( link => link !== null )
+		.map( link => link.getAttribute( 'href' ) );
+}
+
+/**
+ * A placement's radio.
+ *
+ * @param name - Card title, or the label of the option that adds nothing.
+ * @return Radio.
+ */
+function radio( name: string ) {
+	return screen.getByRole( 'radio', { name } );
+}
+
+/**
+ * The label of the radio that is checked.
+ *
+ * @return Label.
+ */
+function checkedRadio(): string | undefined {
+	return [ NONE, BEFORE, AFTER ].find(
+		name => radio( name ).getAttribute( 'aria-checked' ) === 'true'
+	);
 }
 
 /**
@@ -63,7 +119,7 @@ function card( name: string ) {
  * @return Titles of the cards showing a link.
  */
 function cardsWithPreview(): string[] {
-	return [ 'Before the content', 'After the content' ].filter( title =>
+	return [ BEFORE, AFTER ].filter( title =>
 		within( screen.getByText( title ).parentElement as HTMLElement ).queryByRole( 'link', {
 			name: 'Preview and edit',
 		} )
@@ -81,18 +137,20 @@ afterEach( () => {
 
 describe( 'TemplatePlacements', () => {
 	it.each( [
-		[ 'sharing', [ 'after_content' ], 'Before the content', [ 'before_content' ] ],
-		[ 'likes', [ 'after_content' ], 'After the content', [] ],
-	] as [ Feature, TemplatePlacement[], string, TemplatePlacement[] ][] )(
-		'%s: from %j, clicking "%s" saves and ticks %j',
-		async ( feature, stored, clicked, sent ) => {
+		[ 'sharing', [], NONE, BEFORE, [ 'before_content' ] ],
+		[ 'sharing', [ 'before_content' ], BEFORE, AFTER, [ 'after_content' ] ],
+		[ 'likes', [ 'after_content' ], AFTER, NONE, [] ],
+	] as [ Feature, TemplatePlacement[], string, string, TemplatePlacement[] ][] )(
+		'%s: from %j ("%s"), picking "%s" saves %j',
+		async ( feature, stored, checkedFirst, clicked, sent ) => {
 			const user = userEvent.setup();
 			mockApiFetch.mockImplementation( ( { data } ) =>
 				Promise.resolve( { ...baseSettings, ...( data as Settings ) } )
 			);
 			renderCards( feature, stored );
+			expect( checkedRadio() ).toBe( checkedFirst );
 
-			await user.click( card( clicked ) );
+			await user.click( radio( clicked ) );
 
 			expect( apiCalls( 'PUT' ) ).toEqual( [
 				{
@@ -101,14 +159,7 @@ describe( 'TemplatePlacements', () => {
 					data: { [ KEYS[ feature ] ]: sent },
 				},
 			] );
-			expect( card( 'Before the content' ) ).toHaveAttribute(
-				'aria-checked',
-				String( sent.includes( 'before_content' ) )
-			);
-			expect( card( 'After the content' ) ).toHaveAttribute(
-				'aria-checked',
-				String( sent.includes( 'after_content' ) )
-			);
+			expect( checkedRadio() ).toBe( clicked );
 		}
 	);
 
@@ -120,37 +171,100 @@ describe( 'TemplatePlacements', () => {
 		);
 		renderCards( 'sharing', [ 'after_content' ] );
 
-		expect( cardsWithPreview() ).toEqual( [ 'After the content' ] );
-		await user.click( card( 'Before the content' ) );
+		expect( cardsWithPreview() ).toEqual( [ AFTER ] );
+		await user.click( radio( BEFORE ) );
 
-		expect( card( 'Before the content' ) ).toHaveAttribute( 'aria-checked', 'true' );
-		expect( card( 'After the content' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( checkedRadio() ).toBe( BEFORE );
+		expect( radio( AFTER ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
 		expect( cardsWithPreview() ).toEqual( [] );
 		save.resolve( { ...baseSettings, sharing_buttons_auto_add: [ 'before_content' ] } );
-		await waitFor( () => expect( cardsWithPreview() ).toEqual( [ 'Before the content' ] ) );
+		await waitFor( () => expect( cardsWithPreview() ).toEqual( [ BEFORE ] ) );
 		expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
 			'href',
 			baseStatus.site_editor_url
 		);
 	} );
 
-	it.each( [ PAGE_TEMPLATE_URL, '' ] )(
-		'links the page template only with a URL, keeping the notes: "%s"',
-		url => {
-			renderCards( 'sharing', [], { page_template_editor_url: url } );
+	it.each( [
+		[ 'sharing', 'Sharing Buttons block' ],
+		[ 'likes', 'Like block' ],
+	] as const )( 'says the %s placement covers pages, naming the %s', ( feature, block ) => {
+		renderCards( feature, [], { page_template_editor_url: PAGE_TEMPLATE_URL } );
 
-			// By text: an anchor with an empty href has no link role, so a role query would pass on a broken link.
-			expect( screen.queryByText( 'Edit the page template' )?.getAttribute( 'href' ) ).toBe(
-				url || undefined
+		expect(
+			screen.getByText(
+				`Your choice applies to pages too. To place the ${ block } differently on pages,`,
+				{ exact: false }
+			)
+		).toContainElement( screen.getByText( 'edit the page template' ) );
+	} );
+
+	it.each( [ PAGE_TEMPLATE_URL, '' ] )( 'links the page template only with a URL: "%s"', url => {
+		renderCards( 'sharing', [], { page_template_editor_url: url } );
+
+		// By text: an anchor with an empty href has no link role, so a role query would pass on a broken link.
+		expect( screen.queryByText( 'edit the page template' )?.getAttribute( 'href' ) ).toBe(
+			url || undefined
+		);
+		expect(
+			screen.queryByRole( 'link', { name: 'Edit the post template' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
+			'sharing',
+			[ 'single' ],
+			PAGE_TEMPLATE_URL,
+			'You’ve customized your post template in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
+		],
+		[
+			'likes',
+			[ 'page' ],
+			PAGE_TEMPLATE_URL,
+			'You’ve customized your page template in the Site Editor. Add, move, or remove the Like block there.',
+		],
+		[
+			'sharing',
+			[ 'single', 'page' ],
+			PAGE_TEMPLATE_URL,
+			'You’ve customized your post and page templates in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
+		],
+		[
+			'likes',
+			[ 'single' ],
+			'',
+			'You’ve customized your post template in the Site Editor. Add, move, or remove the Like block there.',
+		],
+	] as [ Feature, PlacementTemplate[], string, string ][] )(
+		'%s managed by %j, page template "%s": only a notice linking to the templates',
+		( feature, managed, pageUrl, notice ) => {
+			renderManaged( feature, managed, pageUrl );
+
+			expect( screen.getByText( notice ) ).toBeInTheDocument();
+			expect( noticeLinks( notice ) ).toEqual(
+				pageUrl ? [ baseStatus.site_editor_url, pageUrl ] : [ baseStatus.site_editor_url ]
 			);
-			expect(
-				screen.getByText( /Once you’ve saved a template in the Site Editor/ )
-			).toBeInTheDocument();
-			expect( screen.getByRole( 'group' ) ).toHaveAccessibleDescription(
-				'Pick one place: before or after the content.'
-			);
+			expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Preview and edit' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /Your choice applies to pages too/ ) ).not.toBeInTheDocument();
 		}
 	);
+
+	it( 'shows no notice and previews the post template while neither template manages the block', () => {
+		renderCards( 'likes', [ 'after_content' ], { page_template_editor_url: PAGE_TEMPLATE_URL } );
+
+		expect(
+			screen.getByRole( 'radiogroup', {
+				name: 'Where should the Like block go on posts and pages?',
+			} )
+		).toBeInTheDocument();
+		expect( screen.queryByText( /customized your/ ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
+			'href',
+			baseStatus.site_editor_url
+		);
+	} );
 
 	it( 'shows the cards disabled, not the Site Editor button, while settings catch up with a switch', async () => {
 		const user = userEvent.setup();
@@ -159,29 +273,32 @@ describe( 'TemplatePlacements', () => {
 			if ( method === 'POST' ) {
 				return Promise.resolve( {
 					...baseStatus,
-					likes: { state: 'block_call_to_action', supported: true },
+					likes: { ...baseStatus.likes, state: 'block_call_to_action', supported: true },
 				} );
 			}
 			return path?.endsWith( '/settings' ) ? settings.promise : Promise.resolve( baseStatus );
 		} );
 		renderWithData( <LikeButtonsSection />, {
-			status: { ...baseStatus, likes: { state: 'configure_with_block_nudge', supported: true } },
+			status: {
+				...baseStatus,
+				likes: { ...baseStatus.likes, state: 'configure_with_block_nudge', supported: true },
+			},
 		} );
 
 		await user.click( screen.getByRole( 'button', { name: 'Switch to the Like block' } ) );
 
-		await waitFor( () => expect( screen.getAllByRole( 'checkbox' ) ).toHaveLength( 2 ) );
+		await waitFor( () => expect( screen.getAllByRole( 'radio' ) ).toHaveLength( 3 ) );
 		screen
-			.getAllByRole( 'checkbox' )
-			.forEach( checkbox => expect( checkbox ).toHaveAttribute( 'aria-disabled', 'true' ) );
-		const group = screen.getByRole( 'group', { name: 'Add the Like block to posts and pages' } );
+			.getAllByRole( 'radio' )
+			.forEach( option => expect( option ).toHaveAttribute( 'aria-disabled', 'true' ) );
+		const group = screen.getByRole( 'radiogroup', {
+			name: 'Where should the Like block go on posts and pages?',
+		} );
 		expect( group ).toHaveAttribute( 'aria-busy', 'true' );
 		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
 
 		settings.resolve( { ...baseSettings, likes_auto_add: [] } );
-		await waitFor( () =>
-			expect( card( 'Before the content' ) ).not.toHaveAttribute( 'aria-disabled', 'true' )
-		);
+		await waitFor( () => expect( radio( BEFORE ) ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
 		expect( group ).toHaveAttribute( 'aria-busy', 'false' );
 	} );
 } );

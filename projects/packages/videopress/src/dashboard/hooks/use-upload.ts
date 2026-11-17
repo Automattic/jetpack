@@ -4,12 +4,15 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { useCallback, useSyncExternalStore } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
+import { createUploadAnalytics } from '../../client/lib/upload-analytics';
 import { syncChapters } from '../../client/utils/video-chapters/sync-chapters';
 import { toLibraryItem } from '../utils/library-item';
 import { startVideoUpload } from '../utils/start-video-upload';
+import { postVideoMeta } from '../utils/video-meta-request';
 import { LIBRARY_QUERY_KEY } from './use-library';
 import { patchToApi } from './use-update-video-meta';
 import type { VideoMediaProps } from '../../client/lib/resumable-file-uploader/types';
+import type { UploadAnalytics, UploadContext } from '../../client/lib/upload-analytics';
 import type { VideoDetailsPatch } from '../types/library';
 import type { ApiMediaItem } from '../utils/library-item';
 import type { QueryClient } from '@tanstack/react-query';
@@ -29,6 +32,7 @@ export type UploadItem = {
 	details?: VideoDetailsPatch;
 	isSavingDetails?: boolean;
 	detailsError?: boolean;
+	analytics?: UploadAnalytics;
 };
 
 const STORE_KEY = '__jetpackVideopressUploadStore' as const;
@@ -116,16 +120,13 @@ async function finishUpload( id: string, client: QueryClient ): Promise< void > 
 		// Save clicks during a request must be applied before the form changes routes.
 		while ( readItem( id )?.details !== saved ) {
 			const details = readItem( id )?.details;
-			await apiFetch( {
-				path: '/wpcom/v2/videopress/meta',
-				method: 'POST',
-				data: { id: initial.media.id, ...patchToApi( details ) },
-			} );
+			await postVideoMeta( { id: initial.media.id, ...patchToApi( details ) } );
 			if ( details.description !== undefined ) {
 				const raw = await apiFetch< ApiMediaItem >( {
 					path: `/wp/v2/media/${ initial.media.id }`,
 				} );
 				await syncChapters( toLibraryItem( raw, isSimpleSite() ), details.description, {
+					source: 'upload_details',
 					onWarning: message =>
 						dispatch( noticesStore ).createWarningNotice( message, { type: 'snackbar' } ),
 				} );
@@ -179,22 +180,26 @@ async function startNextPending( client: QueryClient ): Promise< void > {
 		} );
 		settle();
 	};
-	await startVideoUpload( file, {
-		onProgress: ( sent, total ) => {
-			if ( ! settled && store.activeId === id ) {
-				updateItem( id, { progress: total > 0 ? sent / total : 0, status: 'uploading' } );
-			}
+	await startVideoUpload(
+		file,
+		{
+			onProgress: ( sent, total ) => {
+				if ( ! settled && store.activeId === id ) {
+					updateItem( id, { progress: total > 0 ? sent / total : 0, status: 'uploading' } );
+				}
+			},
+			onSuccess: media => {
+				if ( settled || store.activeId !== id ) {
+					return;
+				}
+				updateItem( id, { progress: 1, status: 'success', mediaId: String( media.id ), media } );
+				settle();
+				void finishUpload( id, client );
+			},
+			onError,
 		},
-		onSuccess: media => {
-			if ( settled || store.activeId !== id ) {
-				return;
-			}
-			updateItem( id, { progress: 1, status: 'success', mediaId: String( media.id ), media } );
-			settle();
-			void finishUpload( id, client );
-		},
-		onError,
-	} );
+		{ analytics: next.analytics }
+	);
 }
 
 /**
@@ -207,10 +212,19 @@ export function useUpload() {
 	const { queue, completed } = useSyncExternalStore( subscribeStore, readSnapshot, readSnapshot );
 
 	const startUpload = useCallback(
-		( file: File ): string => {
+		( file: File, context: UploadContext = {} ): string => {
 			const id = `upload-${ Date.now() }-${ Math.random().toString( 36 ).slice( 2, 10 ) }`;
 			updateSnapshot( {
-				queue: [ ...readSnapshot().queue, { id, file, progress: 0, status: 'pending' } ],
+				queue: [
+					...readSnapshot().queue,
+					{
+						id,
+						file,
+						progress: 0,
+						status: 'pending',
+						analytics: createUploadAnalytics( file, 'dashboard', context ),
+					},
+				],
 			} );
 			void startNextPending( client );
 			return id;

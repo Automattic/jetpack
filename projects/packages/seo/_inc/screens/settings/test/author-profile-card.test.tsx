@@ -43,6 +43,40 @@ describe( 'AuthorProfileCard', () => {
 		jest.clearAllMocks();
 	} );
 
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it( 'keeps the saved author profile visible and disables editing and saving during a conflict', async () => {
+		mockApiFetch.mockResolvedValue( STORED_PROFILE );
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			seo: { output: { paused: true, conflicting_plugin: 'Yoast SEO' } },
+		};
+		render( <AuthorProfileCard disabled /> );
+		expand();
+		await expect( screen.findByDisplayValue( 'Creator' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Paused', { exact: true } ) ).toBeInTheDocument();
+		// One short line; the tab's banner explains the cause.
+		expect(
+			screen.getByRole( 'group', { name: 'Author profile settings' } )
+		).toHaveAccessibleDescription( 'Paused while Yoast SEO is active.' );
+		for ( const control of screen.getAllByRole( 'textbox' ) ) {
+			expect( control ).toBeDisabled();
+		}
+		expect( screen.getByRole( 'button', { name: 'Save author profile' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Add profile' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Remove profile' } ) ).toBeDisabled();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save author profile' } ) );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'renders collapsed by default, without a status while loading', () => {
 		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 		renderCard();

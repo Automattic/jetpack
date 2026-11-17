@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use WP_Error;
 
@@ -172,7 +173,7 @@ class Related_Posts extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return admin_url( 'admin.php?page=jetpack#/traffic?term=related%20posts' );
+		return Initializer::resolve_settings_url( self::$module_name, admin_url( 'admin.php?page=jetpack#/traffic?term=related%20posts' ) );
 	}
 
 	/**

@@ -1,19 +1,29 @@
 /**
  * External dependencies
  */
-import { queryClient, ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_PREFERENCES_SCOPE,
+	queryClient,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
+import { TZDate } from '@date-fns/tz';
 import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch, select } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
 import TrafficChartRender from '../render';
 import useTrafficChart from '../use-traffic-chart';
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import widget, { type TrafficChartAttributes } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
@@ -28,13 +38,21 @@ setSettings( {
 // The chart itself is not this file's subject: `useTrafficChart` resolves the
 // bucket. The stand-in records props so the click handler can be driven.
 const mockMetricTabsChart = jest.fn();
-jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	MetricTabsChart: ( props: unknown ) => {
-		mockMetricTabsChart( props );
-		return null;
-	},
-} ) );
+let mockDrawRealChart = false;
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
+	const actual = jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' );
+	return {
+		...actual,
+		MetricTabsChart: ( props: ComponentProps< typeof actual.MetricTabsChart > ) => {
+			mockMetricTabsChart( props );
+			return mockDrawRealChart ? (
+				<actual.GlobalChartsProvider>
+					<actual.MetricTabsChart { ...props } />
+				</actual.GlobalChartsProvider>
+			) : null;
+		},
+	};
+} );
 
 const mockUseTrafficChart = jest.mocked( useTrafficChart );
 const mockApiFetch = jest.mocked( apiFetch );
@@ -63,7 +81,7 @@ function requestedBucket(): string {
 }
 
 /** The click handler the widget handed the chart on the latest render. */
-function chartClickHandler(): ( date: Date ) => void {
+function chartClickHandler(): ( clicked: { date: Date; isComparison: boolean } ) => void {
 	const calls = mockMetricTabsChart.mock.calls;
 	return calls[ calls.length - 1 ][ 0 ].onDatumClick;
 }
@@ -101,6 +119,9 @@ beforeEach( () => {
 		isLoading: false,
 		isFetching: false,
 		isError: false,
+		csvIsError: false,
+		csvIsPlaceholderData: false,
+		timezone: 'UTC',
 		refetch: jest.fn(),
 	} );
 } );
@@ -197,6 +218,37 @@ describe( 'Traffic chart type switch', () => {
 
 		expect( chartTypeSwitchValue( {} ) ).toBe( 'line' );
 	} );
+
+	function switchChartType( value: 'line' | 'bar' ) {
+		const field = widget.attributes.find( attribute => attribute.id === 'chartType' );
+		return (
+			field as unknown as { setValue: ( args: { item: object; value: string } ) => unknown }
+		 ).setValue( { item: {}, value } );
+	}
+
+	it( 'saves a choice where Stats v1 keeps it, as well as on the widget', () => {
+		expect( switchChartType( 'line' ) ).toEqual( { chartType: 'line' } );
+		expect( window.localStorage.getItem( V1_KEY ) ).toBe( 'line' );
+
+		expect( switchChartType( 'bar' ) ).toEqual( { chartType: 'bar' } );
+		expect( window.localStorage.getItem( V1_KEY ) ).toBe( 'bar' );
+	} );
+
+	it( 'saves a choice on the widget alone when the site id is unknown', () => {
+		window.JetpackScriptData = undefined as unknown as typeof window.JetpackScriptData;
+
+		expect( switchChartType( 'line' ) ).toEqual( { chartType: 'line' } );
+		expect( window.localStorage ).toHaveLength( 0 );
+	} );
+
+	it( 'saves a choice on the widget alone when browser storage cannot be written', () => {
+		jest.spyOn( Storage.prototype, 'setItem' ).mockImplementation( () => {
+			throw new Error( 'blocked' );
+		} );
+
+		expect( switchChartType( 'line' ) ).toEqual( { chartType: 'line' } );
+		jest.restoreAllMocks();
+	} );
 } );
 
 describe( 'Traffic chart interval menu', () => {
@@ -226,6 +278,7 @@ describe( 'TrafficChart bucket size', () => {
 	it.each( [
 		[ 'week', 'day' ],
 		[ 'month', 'week' ],
+		[ 'quarter', 'month' ],
 		[ 'year', 'year' ],
 	] as const )( 'draws the saved bucket: %s', ( chartInterval, range ) => {
 		render(
@@ -312,11 +365,32 @@ describe( 'TrafficChart drill-down', () => {
 			</ReportScopeProvider>
 		);
 
-		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+		chartClickHandler()( { date: new Date( '2026-02-14T00:00:00.000Z' ), isComparison: false } );
 
 		expect( openPeriod ).toHaveBeenCalledWith( {
 			from: new Date( '2026-02-01T00:00:00.000Z' ),
 			to: new Date( '2026-02-28T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'opens the quarter a quarter bar drew, declared to the chart as quarters', () => {
+		const openPeriod = jest.fn();
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<TrafficChartRender
+					attributes={ { reportParams: reportParams( 'month' ), chartInterval: 'quarter' } }
+				/>
+			</ReportScopeProvider>
+		);
+
+		const calls = mockMetricTabsChart.mock.calls;
+		expect( calls[ calls.length - 1 ][ 0 ].tickResolution ).toBe( 'quarter' );
+
+		chartClickHandler()( { date: new Date( '2026-02-14T00:00:00.000Z' ), isComparison: false } );
+
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2026-01-01T00:00:00.000Z' ),
+			to: new Date( '2026-03-31T23:59:59.999Z' ),
 		} );
 	} );
 
@@ -333,7 +407,7 @@ describe( 'TrafficChart drill-down', () => {
 			</ReportScopeProvider>
 		);
 
-		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+		chartClickHandler()( { date: new Date( '2026-02-14T00:00:00.000Z' ), isComparison: false } );
 
 		expect( openPeriod ).toHaveBeenCalledWith( {
 			from: new Date( '2026-02-10T00:00:00.000Z' ),
@@ -341,11 +415,88 @@ describe( 'TrafficChart drill-down', () => {
 		} );
 	} );
 
+	it( 'leaves hourly bars inert, as an hour has nothing smaller to open', () => {
+		render(
+			<ReportScopeProvider openPeriod={ jest.fn() }>
+				<TrafficChartRender attributes={ { reportParams: reportParams( 'hour' ) } } />
+			</ReportScopeProvider>
+		);
+
+		expect( chartClickHandler() ).toBeUndefined();
+	} );
+
 	it( 'leaves the bars inert on a surface with no period to set', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
 
 		expect( chartClickHandler() ).toBeUndefined();
 	} );
+} );
+
+describe( 'TrafficChart previous period', () => {
+	afterEach( () => {
+		mockDrawRealChart = false;
+		dispatch( preferencesStore ).set(
+			DASHBOARD_PREFERENCES_SCOPE,
+			'trafficChartPreviousPeriod',
+			undefined
+		);
+	} );
+
+	it.each( [ false, true ] )(
+		'starts from the saved previous period (%s) and saves a toggle',
+		async saved => {
+			dispatch( preferencesStore ).set(
+				DASHBOARD_PREFERENCES_SCOPE,
+				'trafficChartPreviousPeriod',
+				saved
+			);
+			mockDrawRealChart = true;
+			const points = ( values: number[] ) =>
+				values.map( ( value, index ) => ( {
+					date: new Date( Date.UTC( 2026, 5, index + 1 ) ),
+					value,
+				} ) );
+			mockUseTrafficChart.mockReturnValue( {
+				metrics: [
+					{
+						key: 'views',
+						label: 'Views',
+						value: 300,
+						current: points( [ 100, 200 ] ),
+						previous: points( [ 80, 120 ] ),
+					},
+				],
+				isLoading: false,
+				isFetching: false,
+				isError: false,
+				csvIsError: false,
+				csvIsPlaceholderData: false,
+				timezone: 'UTC',
+				refetch: jest.fn(),
+			} );
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			render(
+				<TrafficChartRender
+					attributes={ {
+						chartType: 'bar',
+						reportParams: {
+							...reportParams( 'day' ),
+							compare_from: '2026-05-01',
+							compare_to: '2026-05-30',
+						} as ReportParams,
+					} }
+				/>
+			);
+			const legendItem = screen.getByLabelText( /^Previous period/ );
+
+			expect( legendItem ).toHaveAttribute( 'aria-pressed', String( saved ) );
+			await user.click( legendItem );
+
+			expect(
+				select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'trafficChartPreviousPeriod' )
+			).toBe( ! saved );
+		}
+	);
 } );
 
 describe( 'TrafficChart with an idle window', () => {
@@ -365,6 +516,9 @@ describe( 'TrafficChart with an idle window', () => {
 			isLoading: false,
 			isFetching: false,
 			isError: false,
+			csvIsError: false,
+			csvIsPlaceholderData: false,
+			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
 		mockApiFetch.mockResolvedValue( posts );
@@ -399,6 +553,9 @@ describe( 'TrafficChart with an idle window', () => {
 			isLoading: false,
 			isFetching: false,
 			isError: false,
+			csvIsError: false,
+			csvIsPlaceholderData: false,
+			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
 		let resolvePosts!: ( value: unknown ) => void;
@@ -427,6 +584,9 @@ describe( 'TrafficChart with an idle window', () => {
 			isLoading: false,
 			isFetching: true,
 			isError: false,
+			csvIsError: false,
+			csvIsPlaceholderData: false,
+			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
 
@@ -451,6 +611,9 @@ describe( 'TrafficChart with an idle window', () => {
 			isLoading: false,
 			isFetching: false,
 			isError: false,
+			csvIsError: false,
+			csvIsPlaceholderData: false,
+			timezone: 'UTC',
 			refetch: jest.fn(),
 		} );
 		mockApiFetch.mockRejectedValue( { code: 'rest_forbidden', data: { status: 403 } } );
@@ -468,5 +631,101 @@ describe( 'TrafficChart with an idle window', () => {
 	it( 'does not check posts when Views has traffic', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'TrafficChart CSV download', () => {
+	const ZONE = 'Asia/Taipei';
+	const day = ( date: number ) => new TZDate( 2026, 5, date, ZONE );
+	const series = ( values: number[] ) =>
+		values.map( ( value, index ) => ( { date: day( index + 1 ), value } ) );
+	const tab = ( key: string, label: string, values: number[], previous?: number[] ) => ( {
+		key,
+		label,
+		value: values.reduce( ( sum, value ) => sum + value, 0 ),
+		current: series( values ),
+		...( previous && { previous: series( previous ), previousValue: 1 } ),
+	} );
+	const SETTLED_STATE = {
+		isLoading: false,
+		isFetching: false,
+		isError: false,
+		csvIsError: false,
+		csvIsPlaceholderData: false,
+		timezone: ZONE,
+		refetch: jest.fn(),
+	};
+	let downloads: ReturnType< typeof captureCsvDownloads >;
+
+	afterEach( () => downloads?.restore() );
+
+	async function downloadLines( interval: string ) {
+		downloads = captureCsvDownloads();
+		const { findDeclaredAction } = renderWithActionsHost(
+			<TrafficChartRender attributes={ { reportParams: reportParams( interval ) } } />
+		);
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+		return { filename: downloads.files[ 0 ].filename, lines: await downloads.lines() };
+	}
+
+	it( 'saves every bucket of the four metrics in the report zone', async () => {
+		mockUseTrafficChart.mockReturnValue( {
+			...SETTLED_STATE,
+			metrics: [
+				tab( 'views', 'Views', [ 10, 0 ] ),
+				tab( 'visitors', 'Visitors', [ 4, 0 ] ),
+				tab( 'comments', 'Comments', [ 1, 0 ] ),
+				tab( 'likes', 'Likes', [ 2, 0 ] ),
+			],
+		} );
+
+		const { filename, lines } = await downloadLines( 'day' );
+
+		expect( filename ).toBe( 'traffic-summary-2026-06-01_2026-06-30.csv' );
+		expect( lines ).toEqual( [
+			'"Date","Views","Visitors","Comments","Likes"',
+			'"2026-06-01","10","4","1","2"',
+			'"2026-06-02","0","0","0","0"',
+		] );
+	} );
+
+	it( 'saves Views alone, with the hour, for hourly buckets', async () => {
+		mockUseTrafficChart.mockReturnValue( {
+			...SETTLED_STATE,
+			metrics: [
+				{
+					key: 'views',
+					label: 'Views',
+					value: 3,
+					current: [ { date: new TZDate( 2026, 5, 29, 14, ZONE ), value: 3 } ],
+				},
+				{ ...tab( 'visitors', 'Visitors', [] ), seriesUnavailable: 'Daily only.' },
+			],
+		} );
+
+		const { lines } = await downloadLines( 'hour' );
+
+		expect( requestedBucket() ).toBe( 'hour' );
+		expect( lines ).toEqual( [ '"Date","Views"', '"2026-06-29 14:00","3"' ] );
+	} );
+
+	it.each( [
+		[
+			'the period has no views, though the previous one has',
+			{ metrics: [ tab( 'views', 'Views', [ 0, 0 ], [ 5, 5 ] ) ] },
+		],
+		[
+			'a refetch failed behind the rows on screen',
+			{ metrics: [ tab( 'views', 'Views', [ 10, 0 ] ) ], csvIsError: true },
+		],
+	] )( 'offers no download when %s', ( _, state ) => {
+		mockUseTrafficChart.mockReturnValue( { ...SETTLED_STATE, ...state } );
+
+		const { declaredAction } = renderWithActionsHost(
+			<TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } />
+		);
+
+		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 } );

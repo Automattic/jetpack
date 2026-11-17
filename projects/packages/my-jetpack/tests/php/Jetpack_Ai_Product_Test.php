@@ -363,9 +363,7 @@ class Jetpack_Ai_Product_Test extends TestCase {
 		try {
 			Initializer::register_feature_flags();
 			activate_plugins( 'jetpack/jetpack.php' );
-			if ( $flag_on ) {
-				add_filter( 'jetpack_feature_flag_enabled_' . Initializer::ACCOUNT_CONNECT_FLAG, '__return_true' );
-			}
+			add_filter( 'jetpack_feature_flag_enabled_' . Initializer::ACCOUNT_CONNECT_FLAG, $flag_on ? '__return_true' : '__return_false' );
 			if ( 'atomic' === $site ) {
 				$this->set_atomic_site();
 			} elseif ( 'atomic internal testing' === $site ) {

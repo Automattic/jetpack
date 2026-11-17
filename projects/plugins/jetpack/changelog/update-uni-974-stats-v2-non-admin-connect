@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Hide Stats v2 from users who cannot connect the site until it is connected, as the Stats menu does, and send them to the Dashboard if they reload the page.

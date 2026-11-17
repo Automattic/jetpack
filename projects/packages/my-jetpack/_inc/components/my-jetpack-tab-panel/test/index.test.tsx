@@ -155,13 +155,43 @@ describe( 'MyJetpackTabPanel', () => {
 		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_HELP }` );
 	} );
 
-	it( 'switches tabs with the arrow keys', async () => {
-		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+	it( 'reports each previous tab when arrow keys switch twice before a re-render', async () => {
+		mockSection = MY_JETPACK_SECTION_HELP;
 
 		render( <MyJetpackTabPanel /> );
-		await userEvent.click( screen.getByRole( 'tab', { name: 'Overview' } ) );
-		await userEvent.keyboard( '{ArrowRight}' );
+		await userEvent.click( screen.getByRole( 'tab', { name: 'Help' } ) );
+		await userEvent.keyboard( '{ArrowLeft}{ArrowLeft}' );
 
+		expect( callsFor( 'jetpack_myjetpack_tab_click' ).map( ( [ , props ] ) => props ) ).toEqual( [
+			expect.objectContaining( {
+				tab_name: MY_JETPACK_SECTION_FEATURES,
+				previous_tab: MY_JETPACK_SECTION_HELP,
+			} ),
+			expect.objectContaining( {
+				tab_name: MY_JETPACK_SECTION_OVERVIEW,
+				previous_tab: MY_JETPACK_SECTION_FEATURES,
+			} ),
+		] );
+		expect( mockNavigate ).toHaveBeenLastCalledWith( `/${ MY_JETPACK_SECTION_OVERVIEW }` );
+	} );
+
+	it( 'switches back to a tab the route left without a tab press, such as on Back', async () => {
+		mockSection = MY_JETPACK_SECTION_FEATURES;
+
+		const { rerender } = render( <MyJetpackTabPanel /> );
+		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+		rerender( <MyJetpackTabPanel /> );
+		await userEvent.click( screen.getByRole( 'tab', { name: 'Features' } ) );
+
+		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toEqual( [
+			[
+				'jetpack_myjetpack_tab_click',
+				expect.objectContaining( {
+					tab_name: MY_JETPACK_SECTION_FEATURES,
+					previous_tab: MY_JETPACK_SECTION_OVERVIEW,
+				} ),
+			],
+		] );
 		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_FEATURES }` );
 	} );
 

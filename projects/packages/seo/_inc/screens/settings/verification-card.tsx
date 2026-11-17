@@ -85,7 +85,7 @@ const VerificationCard: FC< Props > = ( {
 
 	// All five services are optional and almost nobody verifies with more than
 	// one, so a single verified service counts as done rather than a fraction of
-	// five (JETPACK-2051). This module therefore never reports 'in-progress'.
+	// five. This module therefore never reports 'incomplete'.
 	const verificationStatus: SettingStatus =
 		active && verifiedCount > 0 ? 'complete' : 'not-started';
 

@@ -127,7 +127,7 @@ Support documentation for common issues with the PayPal Payment Buttons plugin.
 
 **Steps to fix:**
 1. Open the post. The block shows a "deleted from PayPal" warning
-2. Update the post to create a new payment button, or remove the block
+2. Click **Save payment button** in the block settings, or update the post, to create a new payment button; or remove the block
 
 ### Legacy paste-code button shows "legacy paste-code format"
 

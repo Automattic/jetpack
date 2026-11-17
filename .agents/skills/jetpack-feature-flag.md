@@ -238,7 +238,7 @@ Overrides are **site-wide**, not per-user: they change what the site does for lo
 
 Enabling a name nothing has registered yet succeeds with a warning, so you can set a flag before the code that registers it reaches the site.
 
-`wp companion` does **not** exist in `jp docker`. For the local loop, the two code filters, the Companion settings page, and the Automattician-only screen on WordPress.com Simple and Atomic, read `jetpack-feature-flag/references/controlling-flags.md`.
+`wp companion` does **not** exist in `jp docker`. For the local loop, the two code filters, a no-SSH route through Code Snippets, the Companion settings page, and the Automattician-only screen on WordPress.com Simple and Atomic, read `jetpack-feature-flag/references/controlling-flags.md`.
 
 ## 9. Retire the flag
 
@@ -246,7 +246,7 @@ Flags are temporary. Once the feature ships (or is abandoned), remove it promptl
 
 1. Delete the `register()` call and the name constant.
 2. Collapse `is_enabled()` branches down to the winning path; delete the predicate wrapper and the JS bridge entry.
-3. Drop any `jetpack_feature_flag_enabled*` filters that referenced it, in code and in sandbox/mu-plugin patches.
+3. Drop any `jetpack_feature_flag_enabled*` filters that referenced it, in code, in sandbox/mu-plugin patches, and in Code Snippets on test sites.
 4. Clear stored overrides on sites that have them — `wp companion feature-flag reset <flag>`. A retired flag's override outlives its registration and still resolves.
 5. If nothing else in the project uses the package, drop the composer dependency and regenerate the plugin locks again.
 

@@ -121,6 +121,32 @@ describe( 'UTM report aggregate', () => {
 		expect( rows[ 0 ].id ).not.toBe( rows[ 1 ].id );
 	} );
 
+	it( 'carries the builder values of posts that offer a url-builder action', () => {
+		const withAction = makePost( {
+			actions: [
+				{
+					type: 'url-builder',
+					data: {
+						url: 'https://example.com/landing/',
+						utm_source: 'newsletter',
+						utm_medium: 'email',
+					},
+				},
+			],
+		} );
+		const [ parent, post, plain ] = aggregateUtmRows( [
+			makeUtmItem( { children: [ withAction, makePost( { id: 42 } ) ] } ),
+		] );
+
+		expect( post.urlBuilder ).toEqual( {
+			destination: 'https://example.com/landing/',
+			source: 'newsletter',
+			medium: 'email',
+		} );
+		expect( plain ).not.toHaveProperty( 'urlBuilder' );
+		expect( parent ).not.toHaveProperty( 'urlBuilder' );
+	} );
+
 	it( 'keeps UTM parents that have no posts', () => {
 		expect( aggregateUtmRows( [ makeUtmItem( { children: null } ) ] ) ).toEqual( [
 			expect.objectContaining( {

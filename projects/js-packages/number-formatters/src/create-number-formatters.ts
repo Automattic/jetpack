@@ -260,13 +260,20 @@ function createNumberFormatters(): NumberFormatters {
 	const formatCurrency: FormatCurrency = (
 		number,
 		currency,
-		{ stripZeros = false, isSmallestUnit = false, signForPositive = false, forceLatin = true } = {}
+		{
+			stripZeros = false,
+			decimals,
+			isSmallestUnit = false,
+			signForPositive = false,
+			forceLatin = true,
+		} = {}
 	): string => {
 		return numberFormatCurrency( {
 			number,
 			currency,
 			browserSafeLocale: getBrowserSafeLocale(),
 			stripZeros,
+			decimals,
 			isSmallestUnit,
 			signForPositive,
 			geoLocation: geoLocationState,
@@ -278,13 +285,20 @@ function createNumberFormatters(): NumberFormatters {
 	const getCurrencyObject: GetCurrencyObject = (
 		number,
 		currency,
-		{ stripZeros = false, isSmallestUnit = false, signForPositive = false, forceLatin = true } = {}
+		{
+			stripZeros = false,
+			decimals,
+			isSmallestUnit = false,
+			signForPositive = false,
+			forceLatin = true,
+		} = {}
 	): CurrencyObject => {
 		return getCurrencyObjectFromCurrencyFormatter( {
 			number,
 			currency,
 			browserSafeLocale: getBrowserSafeLocale(),
 			stripZeros,
+			decimals,
 			isSmallestUnit,
 			signForPositive,
 			geoLocation: geoLocationState,

@@ -27,26 +27,6 @@ describe( 'MCP category mapping', () => {
 		}
 	);
 
-	test.each( [
-		'jetpack/search-voice',
-		'jetpack-search-voice',
-		'wpcom-mcp/jetpack-search-voice',
-		'wpcom-mcp-jetpack-search-voice',
-	] )( 'maps %s tool ID to Developer & testing', toolId => {
-		expect( getDisplayCategory( toolId, { category: 'posts' } ) ).toBe(
-			DISPLAY_CATEGORIES.DEVELOPER_TESTING
-		);
-	} );
-
-	test( 'maps search voice ability names to Developer & testing', () => {
-		expect(
-			getDisplayCategory( 'tool-id', {
-				category: 'posts',
-				name: 'wpcom-mcp/jetpack-search-voice',
-			} )
-		).toBe( DISPLAY_CATEGORIES.DEVELOPER_TESTING );
-	} );
-
 	test( 'maps known API categories to their display category', () => {
 		expect( getDisplayCategory( 'tool-id', { category: 'posts' } ) ).toBe(
 			DISPLAY_CATEGORIES.POSTS

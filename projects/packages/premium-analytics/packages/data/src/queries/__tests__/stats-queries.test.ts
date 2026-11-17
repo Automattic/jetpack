@@ -1402,6 +1402,16 @@ describe( 'Stats query factories', () => {
 		} );
 	} );
 
+	it( 'asks visits for quarters, not months, when the interval is a quarter', () => {
+		const query = statsVisitsQuery( {
+			from: '2025-07-01',
+			to: '2026-06-30',
+			interval: 'quarter',
+		} );
+
+		expect( ( query.queryKey[ 5 ] as Record< string, unknown > ).unit ).toBe( 'quarter' );
+	} );
+
 	// Hourly is the one unit whose window needs finer precision than a calendar
 	// day, so these must reach the endpoint with their time of day intact.
 	it( 'carries the hourly range at full precision', () => {

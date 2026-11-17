@@ -1,4 +1,5 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 .wp-block-jetpack-markdown__placeholder {
 	opacity: 0.62; // See https://github.com/WordPress/gutenberg/blob/db7decd27f7c476684bc8edde381ffab4c916cb2/packages/block-editor/src/components/rich-text/style.scss#L72
@@ -51,7 +52,7 @@
 
 		hr {
 			border: none;
-			border-bottom: 2px solid gb.$gray-100;
+			border-bottom: 2px solid colors.$gray-100;
 			margin: 2em auto;
 			max-width: 100px;
 		}
@@ -61,7 +62,7 @@
 		}
 
 		blockquote {
-			border-left: 4px solid gb.$black;
+			border-left: 4px solid colors.$black;
 			margin-left: 0;
 			margin-right: 0;
 			padding-left: 1em;
@@ -88,12 +89,12 @@
 		// See https://github.com/WordPress/gutenberg/blob/db7decd27f7c476684bc8edde381ffab4c916cb2/packages/block-editor/src/components/rich-text/style.scss#L28-L39
 		code,
 		pre {
-			color: gb.$gray-900;
-			font-family: gb.$editor-html-font;
+			color: colors.$gray-900;
+			font-family: variables.$editor-html-font;
 		}
 
 		code {
-			background: gb.$gray-100;
+			background: colors.$gray-100;
 			border-radius: 2px;
 			font-size: inherit; // This is necessary to override upstream CSS.
 			padding: 2px;
@@ -101,8 +102,8 @@
 
 		pre {
 			border-radius: 4px;
-			border: 1px solid gb.$gray-200;
-			font-size: gb.$text-editor-font-size;
+			border: 1px solid colors.$gray-200;
+			font-size: variables.$text-editor-font-size;
 			padding: 0.8em 1em;
 
 			code {
@@ -135,9 +136,9 @@
 .wp-block-jetpack-markdown {
 
 	.wp-block-jetpack-markdown__editor {
-		font-family: gb.$editor-html-font;
-		font-size: gb.$text-editor-font-size;
-		color: gb.$gray-900;
+		font-family: variables.$editor-html-font;
+		font-size: variables.$text-editor-font-size;
+		color: colors.$gray-900;
 
 		&:focus {
 			border-color: transparent;

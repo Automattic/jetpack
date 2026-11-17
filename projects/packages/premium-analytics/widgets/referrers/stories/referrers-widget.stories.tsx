@@ -79,7 +79,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Referrers" widget. Shows the websites and search engines referring visitors to the site as a ranked leaderboard, using the global dashboard date range. Referrer groups drill down into their sources and domains; URL-backed leaf rows (no children) render as outbound links that open in a new tab, while rows that drill down remain buttons.',
+					'The "Referrers" widget. Shows the websites and search engines referring visitors to the site as a ranked leaderboard, using the global dashboard date range. Referrer groups drill down into their sources and domains; URL-backed leaf rows (no children) list the domain with a "View in new tab" action beside it, and rows named after a domain also offer "Mark as spam"; rows that drill down remain buttons.',
 			},
 		},
 	},
@@ -149,6 +149,7 @@ export const Empty: Story = {
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <ReferrersDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

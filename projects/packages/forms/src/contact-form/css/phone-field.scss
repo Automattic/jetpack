@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
 // grunion-field-wrap is a backwards compat class,
 //need to remove this generic classes
 // *-wrap classes are helpers added by backend
@@ -36,9 +36,9 @@
 				text-overflow: ellipsis;
 				white-space: nowrap;
 
-				@media (max-width: #{ (gb.$break-mobile) }) {
+				@media (max-width: #{ (breakpoints.$break-mobile) }) {
 
-					max-width: calc(gb.$break-mobile / 3);
+					max-width: calc(breakpoints.$break-mobile / 3);
 				}
 			}
 		}

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useChartLegendItems } from '../../components/legend/hooks/use-chart-legend-items';
+import { getDrawnSeries } from './private/stack-layout';
 import { useBarColors } from './use-bar-colors';
 import type { ChartLegendOptions } from '../../components/legend/hooks/use-chart-legend-items';
 import type { BaseLegendItem } from '../../components/legend/types';
@@ -58,17 +59,18 @@ function forBarLayout(
 /**
  * Builds legend items that match `BarChart`'s bars in a layout, for a custom legend or a chart's own.
  *
- * @param data        - The series the chart draws.
+ * @param allData     - The chart's series; those the layout does not draw get no item.
  * @param options     - The legend options, and the layout the bars are drawn in.
  * @param legendShape - The shape of the legend swatches.
  * @return The legend items.
  */
 export function useBarLegendItems(
-	data: SeriesData[],
+	allData: SeriesData[],
 	options: BarLegendOptions = {},
 	legendShape?: LegendShape< SeriesData[], number >
 ): BaseLegendItem[] {
 	const { layout } = options;
+	const data = useMemo( () => getDrawnSeries( allData, layout ), [ allData, layout ] );
 	const getBarColors = useBarColors();
 	const seriesColors = useMemo(
 		() => ( layout ? getBarColors( data, { layout } ) : undefined ),

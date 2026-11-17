@@ -25,8 +25,20 @@ import {
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
 import { getAccessDescription } from './newsletter-copy';
-import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import {
+	getPaidAccessState,
+	getPaidPlanLink,
+	getShowMisconfigurationWarning,
+	MisconfigurationWarning,
+} from './utils';
 import type { ReactElement } from 'react';
+
+// The setter writes the whole meta object back, so unlisted keys ride along as unknown.
+type PostMeta = Record< string, unknown > & {
+	[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]?: string;
+	[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]?: number | string | null;
+	[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]?: boolean;
+};
 
 interface ReachForAccessLevelKeyArgs {
 	accessLevel: string;
@@ -58,7 +70,7 @@ export function getReachForAccessLevelKey( {
 
 export function useSetAccess(): ( value: string ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const [ metas, setPostMeta ] = useEntityProp< PostMeta >( 'postType', postType, 'meta' );
 	return value => {
 		// We are removing the tier ID meta
 		delete metas[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
@@ -76,7 +88,7 @@ export function useSetAccess(): ( value: string ) => void {
  */
 export function useSetTier(): ( value: number | string | null ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const [ metas, setPostMeta ] = useEntityProp< PostMeta >( 'postType', postType, 'meta' );
 	return value => {
 		setPostMeta( {
 			...metas,
@@ -128,7 +140,7 @@ function TierSelector() {
 	// Find the current tier meta
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	// Destructure the tierId from the meta (set tierId using the META_NAME_FOR_POST_TIER_ID_SETTINGS constant)
-	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
+	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp< PostMeta >(
 		'postType',
 		postType,
 		'meta'
@@ -277,26 +289,26 @@ export function NewsletterAccessRadioButtons( {
 	postHasPaywallBlock = false,
 	explainPaywallConstraint = true,
 }: NewsletterAccessRadioButtonsProps ) {
-	const isStripeConnected = stripeConnectUrl === null;
 	const { totalSubscribers, paidSubscribers, paidNewsletterSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
+	const isLoading = useSelect( select => select( membershipProductsStore ).isApiStateLoading() );
 
-	// Paid subscribers can only be chosen once Stripe is connected and a tier exists.
-	// Rather than hiding the option, we show it disabled alongside a link to set it up,
-	// so creators discover that paid newsletters are available to them.
-	const isPaidAvailable = isStripeConnected && hasTierPlans;
+	// Show paid disabled with a setup link beside it, so creators discover paid newsletters.
+	const { isPaidAvailable, showPaidAsDisabled, showSetupPrompt } = getPaidAccessState( {
+		stripeConnectUrl,
+		hasTierPlans,
+		isLoading,
+		accessLevel,
+	} );
 	const isPaidSelected = accessLevel === accessOptions.paid_subscribers.key;
-	// Keep the option selectable when it is already the saved value, so a post set to
-	// paid before Stripe was disconnected does not end up with nothing selected.
-	const showPaidAsDisabled = ! isPaidAvailable && ! isPaidSelected;
 
 	// A paywall block splits the post, so "the whole post is public" stops being an
 	// option it can express. The option stays visible and disabled — the same treatment
 	// paid subscribers gets — with a notice saying why, rather than the panel silently
-	// changing shape. The saved-value guard is the same as above: the paywall block
-	// moves the post off "everybody" when it is inserted, but until that lands we must
-	// not leave the group with nothing selected.
+	// changing shape. As with paid in getPaidAccessState, the saved value stays selectable:
+	// the paywall block moves the post off "everybody" when it is inserted, but until that
+	// lands we must not leave the group with nothing selected.
 	const isEverybodySelected = accessLevel === accessOptions.everybody.key;
 	const showEverybodyAsDisabled = !! postHasPaywallBlock && ! isEverybodySelected;
 
@@ -357,7 +369,7 @@ export function NewsletterAccessRadioButtons( {
 			value: accessOptions.paid_subscribers.key,
 			label: withCount( accessOptions.paid_subscribers.label, paidSubscribersReach ),
 			disabled: showPaidAsDisabled,
-			describedBy: showPaidAsDisabled ? setupLinkId : undefined,
+			describedBy: showSetupPrompt ? setupLinkId : undefined,
 		},
 	];
 
@@ -394,7 +406,7 @@ export function NewsletterAccessRadioButtons( {
 					) ) }
 				</div>
 			</fieldset>
-			{ showPaidAsDisabled && (
+			{ showSetupPrompt && (
 				<Link id={ setupLinkId } openInNewTab href={ getPaidPlanLink( hasTierPlans ) }>
 					{ __( 'Turn on paid subscribers', 'jetpack' ) }
 				</Link>
@@ -468,7 +480,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel }: { accessLevel
 export function useSetSendEmail(): ( sendEmail: boolean ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
-	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const [ postMeta, setPostMeta ] = useEntityProp< PostMeta >( 'postType', postType, 'meta' );
 	const postId = useEntityId( 'postType', postType );
 
 	return sendEmail => {

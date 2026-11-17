@@ -29,6 +29,7 @@ The dashboard registers field types for widget attributes under `jpa/`, the name
 | `jpa/select`         | `text`  | A dropdown over `elements`.                                                                |
 | `jpa/toggle-group`   | `text`  | The `elements` as segments of one row; icon segments when every element carries an `icon`. |
 | `jpa/array-checkbox` | `array` | One checkbox per element, writing the checked values as an array.                          |
+| `jpa/report-params`  | `text`  | A date range over the presets in `elements`; a single-report page anchors All time on the item's `allTimeStart`. |
 
 The chart type of a time series widget, as the dashboard's own widgets declare it:
 

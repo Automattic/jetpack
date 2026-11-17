@@ -5,6 +5,7 @@ import { __, _n, sprintf, type TransformedText } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { recordEvent } from '../../data/tracks';
+import { loadHistory } from '../history/store';
 import { getThreatLabel } from './labels';
 import { SCAN_PATH, createStore, editScan, getScan, startRead, startReportRead } from './store';
 import type { ScanState, ScanThreat } from './types';
@@ -12,7 +13,9 @@ import type { ScanState, ScanThreat } from './types';
 type FixStatus = { status: string; error?: string | null; scan?: ScanState };
 
 /** The action running on a threat, if any. */
-export type ThreatActionState = { busy?: 'fixing' | 'ignoring' | 'unignoring' | 'deleting' };
+export type ThreatActionState = {
+	busy?: 'fixing' | 'ignoring' | 'unignoring' | 'deleting' | 'restoring';
+};
 
 const threatPath = ( id: string | number, action: string ) =>
 	`${ SCAN_PATH }/threats/${ id }/${ action }`;
@@ -66,6 +69,11 @@ const SUCCESS_ICON = createElement( Icon, {
 const EMPTY: ThreatActionState = {};
 const NO_ACTIONS: Record< string, ThreatActionState > = {};
 const actionStore = createStore( () => NO_ACTIONS );
+
+/** Forget which threats are busy, so tests start with none. */
+export const resetThreatActions = (): void => {
+	actionStore.reset();
+};
 
 // Every action checks this first, so a second click can't send a duplicate request.
 const isBusy = ( id: string | number ) => !! actionStore.get()[ String( id ) ]?.busy;
@@ -177,16 +185,44 @@ function fail( threat: ScanThreat, e: unknown, template: Template ) {
 const otherThan = ( threat: ScanThreat ) => ( item: ScanThreat ) =>
 	String( item.id ) !== String( threat.id );
 
+let ignoredReadsStarted = 0;
+let ignoredReadApplied = 0;
+
 /**
  * Fetch the threats the site ignored, for the Ignored view.
  *
  * @return Resolves once the list is in the store; failures leave it unloaded.
  */
 export function loadIgnored(): Promise< void > {
+	const read = ++ignoredReadsStarted;
 	const apply = startRead();
 	return apiFetch< ScanThreat[] >( { path: `${ SCAN_PATH }/ignored` } )
-		.then( ignored => apply( { ignored } ) )
+		.then( ignored => {
+			// Resyncs can overlap, so an older answer landing late must not replace a newer list.
+			if ( read > ignoredReadApplied ) {
+				ignoredReadApplied = read;
+				apply( { ignored } );
+			}
+		} )
 		.catch( () => {} );
+}
+
+/**
+ * Fetch the threat lists and history again after an ignore or unignore fails, since WordPress.com may have applied it anyway.
+ * A failed read keeps what the page shows rather than marking the scan failed.
+ */
+function resyncAfterFailure() {
+	const apply = startReportRead();
+	apiFetch< ScanState >( { path: SCAN_PATH } )
+		// The report answers an unreachable WordPress.com with `error: true`, not a rejection.
+		.then( next => {
+			if ( ! next?.error ) {
+				apply( next );
+			}
+		} )
+		.catch( () => {} );
+	loadIgnored();
+	loadHistory( true );
 }
 
 /**
@@ -254,6 +290,7 @@ function setIgnored(
 					: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 						__( 'The threat in %s couldn’t be unignored.', 'jetpack-protect-pkg' )
 			);
+			resyncAfterFailure();
 			return false;
 		} );
 }
@@ -300,6 +337,21 @@ export const ignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 export const unignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 	setIgnored( threat, false, open );
 
+/**
+ * Focus a threat's row when focus was lost, as when the button that started its action goes away.
+ *
+ * @param item - The threat.
+ */
+export function refocusRow( item: ScanThreat ) {
+	const title = Array.from( document.querySelectorAll< HTMLElement >( '[data-threat-id]' ) ).find(
+		element => element.dataset.threatId === String( item.id )
+	);
+	const { activeElement, body } = title?.ownerDocument ?? {};
+	if ( title && ( ! activeElement || activeElement === body ) ) {
+		title.focus();
+	}
+}
+
 /** How a fix ended; `pending` while it may still be running, here or on WordPress.com. */
 export type FixResult = 'fixed' | 'failed' | 'pending';
 
@@ -308,6 +360,62 @@ const isClientError = ( e: unknown ) => {
 	const status = ( e as { data?: { status?: number } } )?.data?.status;
 	return !! status && status >= 400 && status < 500 && status !== 408 && status !== 429;
 };
+
+/**
+ * Whether Scan's fix for the threat deletes the plugin or theme it is in.
+ *
+ * @param threat - The threat.
+ * @return True when the fix deletes the software.
+ */
+export function isDeleteFix( threat: ScanThreat ): boolean {
+	return (
+		threat.signature === 'Vulnerable.WP.Extension' &&
+		!! threat.fixable &&
+		threat.fixable.fixer === 'delete'
+	);
+}
+
+/**
+ * Whether Auto-fix offers the delete fix, so no separate Delete is shown: it already has the slug confirmation.
+ *
+ * @param threat - The threat.
+ * @param canAct - Whether the site's plan can fix threats.
+ * @return True when Auto-fix is the threat's delete.
+ */
+export function offersDeleteFix( threat: ScanThreat, canAct: boolean ): boolean {
+	return (
+		canAct && threat.status !== 'ignored' && threat.status !== 'fixed' && isDeleteFix( threat )
+	);
+}
+
+/**
+ * Whether Scan's fix for the threat updates the plugin or theme it is in.
+ *
+ * @param threat - The threat.
+ * @return True when the fix updates the software.
+ */
+export function isUpdateFix( threat: ScanThreat ): boolean {
+	return !! threat.fixable && threat.fixable.fixer === 'update';
+}
+
+/**
+ * Whether a fix runs when it is one of several, which Scan rules out for some.
+ *
+ * @param threat - The threat.
+ * @return True when the fix can run in a batch.
+ */
+export function isBulkFixable( threat: ScanThreat ): boolean {
+	return ! ( threat.fixable && threat.fixable.extras?.isBulkFixable === false );
+}
+
+/**
+ * The threats a bulk Auto-fix starts: Scan runs some fixes only on their own, so a batch leaves those out.
+ *
+ * @param threats - The threats one bulk Auto-fix is given.
+ * @return The threats it runs.
+ */
+export const getBulkRun = ( threats: ScanThreat[] ): ScanThreat[] =>
+	threats.length > 1 ? threats.filter( isBulkFixable ) : threats;
 
 /**
  * Ask Scan to fix a threat, then follow the fix until it finishes.
@@ -431,7 +539,10 @@ let bulkRuns = 0;
  * @return Resolves once every fix has finished, failed, or run past the time Jetpack waits.
  */
 export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Promise< void > {
-	const idle = threats.filter( threat => ! isBusy( threat.id ) );
+	// A fix that deletes software needs its slug confirmed first, so a batch never starts one.
+	const idle = getBulkRun( threats ).filter(
+		threat => ! isBusy( threat.id ) && ! isDeleteFix( threat )
+	);
 	if ( idle.length < 2 ) {
 		await Promise.all( idle.map( threat => fixThreat( threat, open ) ) );
 		return;
@@ -541,6 +652,9 @@ async function setManyIgnored(
 		idle.map( threat => setIgnored( threat, ignore, open, true ) )
 	);
 	const done = idle.filter( ( _, index ) => results[ index ] );
+	if ( done.length < total ) {
+		resyncAfterFailure();
+	}
 	const undo: NoticeAction = {
 		label: __( 'Undo', 'jetpack-protect-pkg' ),
 		onClick: () => setManyIgnored( done, ! ignore, open ),
@@ -676,4 +790,98 @@ export function deleteSoftware( threat: ScanThreat ): Promise< string | null > {
 				)
 		)
 		.finally( () => ids.forEach( id => setBusy( id ) ) );
+}
+
+/** The database row a threat was found in, read from the site. */
+export type ThreatRow = { columns: Record< string, unknown >; canDelete: boolean };
+
+/**
+ * Read the database row a current threat was found in.
+ *
+ * @param threat - A database threat.
+ * @return The row.
+ */
+export const getThreatRow = ( threat: ScanThreat ): Promise< ThreatRow > =>
+	apiFetch< ThreatRow >( { path: threatPath( threat.id, 'row' ) } );
+
+/**
+ * Delete the option a threat was found in; the site then lists the threat as fixed.
+ *
+ * @param threat - A database threat.
+ * @return Resolves to an error message, or null once deleted.
+ */
+export function deleteThreatRow( threat: ScanThreat ): Promise< string | null > {
+	if ( isBusy( threat.id ) ) {
+		return Promise.resolve(
+			__( 'This threat is busy. Try again once that finishes.', 'jetpack-protect-pkg' )
+		);
+	}
+	setBusy( threat.id, 'deleting' );
+
+	return apiFetch( { path: threatPath( threat.id, 'row' ), method: 'DELETE' } )
+		.then( () => {
+			editScan( current => ( {
+				...current,
+				threats: ( current.threats ?? [] ).filter( item => item.id !== threat.id ),
+			} ) );
+			show(
+				threat,
+				__( 'Deleted the option and marked the threat as fixed.', 'jetpack-protect-pkg' ),
+				'success'
+			);
+			loadHistory( true );
+			return null;
+		} )
+		.catch(
+			( e: { message?: string } ) =>
+				e?.message || __( 'The option couldn’t be deleted.', 'jetpack-protect-pkg' )
+		)
+		.finally( () => setBusy( threat.id ) );
+}
+
+/**
+ * Delete a threat's stray file or restore its core file, which the server refuses if it changed since it was shown.
+ *
+ * @param threat  - The threat.
+ * @param action  - `delete` or `restore`.
+ * @param hash    - The SHA-256 hash of the contents shown.
+ * @param message - The snackbar once done, given how many threats were marked fixed.
+ * @return The threat, now fixed, or why it failed.
+ */
+export function changeThreatFile(
+	threat: ScanThreat,
+	action: 'delete' | 'restore',
+	hash: string,
+	message: ( fixed: number ) => string
+): Promise< { threat?: ScanThreat; error?: string } > {
+	if ( isBusy( threat.id ) ) {
+		return Promise.resolve( {
+			error: __( 'This threat is busy. Try again once that finishes.', 'jetpack-protect-pkg' ),
+		} );
+	}
+	setBusy( threat.id, action === 'delete' ? 'deleting' : 'restoring' );
+
+	return apiFetch< { threat: ScanThreat; others?: ScanThreat[ 'id' ][] } >( {
+		path: threatPath( threat.id, `file/${ action }` ),
+		method: 'POST',
+		data: { hash },
+	} )
+		.then( response => {
+			// Other threats in the same file were marked fixed with it.
+			const fixed = new Set( [ threat.id, ...( response.others ?? [] ) ].map( String ) );
+			const open = ( item: ScanThreat ) => ! fixed.has( String( item.id ) );
+			editScan( current => ( {
+				...current,
+				threats: ( current.threats ?? [] ).filter( open ),
+				ignored: current.ignored?.filter( open ),
+			} ) );
+			show( threat, message( fixed.size ), 'success' );
+			loadHistory( true );
+			return { threat: response.threat };
+		} )
+		.catch( ( e: { message?: string } ) => ( {
+			error:
+				e?.message || __( 'That didn’t work. Try again in a few minutes.', 'jetpack-protect-pkg' ),
+		} ) )
+		.finally( () => setBusy( threat.id ) );
 }

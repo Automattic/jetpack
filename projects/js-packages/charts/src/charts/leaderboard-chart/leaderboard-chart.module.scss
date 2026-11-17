@@ -1,3 +1,6 @@
+// Room for the chevron an interactive row reveals on hover or focus.
+$hover-reserve: var(--wpds-dimension-gap-2xl);
+
 .leaderboardChart {
 	transition:
 		opacity var(--wpds-motion-duration-lg)
@@ -28,6 +31,17 @@
 	}
 }
 
+.grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	row-gap: var(--a8c-charts-dimension-leaderboard-row-gap);
+	column-gap: var(--a8c-charts-dimension-leaderboard-column-gap);
+
+	&--comparison {
+		grid-template-columns: minmax(0, 1fr) auto auto;
+	}
+}
+
 .barWithLabelContainer {
 	display: grid;
 	align-items: center;
@@ -49,7 +63,13 @@
 		}
 
 		.label {
-			padding-left: var(--wpds-dimension-padding-sm);
+			padding-inline-start: var(--a8c-charts-dimension-leaderboard-label-inset);
+		}
+
+		// The bar's 100% height needs a track that fills the row,
+		// not one sized to its content.
+		.barTrack {
+			align-self: stretch;
 		}
 	}
 
@@ -74,6 +94,20 @@
 				var(--a8c-charts-motion-easing-entrance) both;
 		}
 
+		// Grows from zero, which is its inline-end edge.
+		&--negative {
+			transform-origin: right;
+		}
+
+		// transform-origin has no logical keywords, so mirror both origins in RTL.
+		[dir="rtl"] &--animated {
+			transform-origin: right;
+		}
+
+		[dir="rtl"] &--negative {
+			transform-origin: left;
+		}
+
 		@keyframes stretch {
 
 			from {
@@ -85,11 +119,31 @@
 			}
 		}
 	}
+
+	.barTrack {
+		display: grid;
+
+		.bar {
+			grid-column: 2;
+			justify-self: start;
+		}
+
+		.bar--negative {
+			grid-column: 1;
+			justify-self: end;
+		}
+	}
 }
 
+// Spans the row's value and delta tracks and lays its cells out on them, so
+// the values and the deltas each end on their own column edge whatever width
+// the other takes.
 .valueContainer {
+	display: grid;
+	grid-column: 2 / -1;
+	grid-template-columns: subgrid;
 	align-items: center;
-	justify-content: flex-end;
+	justify-items: end;
 }
 
 .deltaValue {
@@ -193,6 +247,33 @@ $focus-ring-width: var(--wpds-border-width-focus);
 			var(--wpds-motion-easing-subtle);
 	}
 
+	.barWithLabelContainer > :not(.bar, .barTrack) {
+		max-inline-size: 100%;
+		transition:
+			max-inline-size var(--wpds-motion-duration-sm)
+			var(--wpds-motion-easing-subtle);
+	}
+
+	// Single-line, so the hover cap below moves the ellipsis instead of
+	// rewrapping the label and growing the row.
+	.label {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// The label stays clear of the slid value on any hover or focus, nested
+	// controls included: lifting it while a trailing action is hovered would
+	// move that action out from under the pointer.
+	&:hover,
+	&:focus-visible,
+	&:has(:focus-visible) {
+
+		.barWithLabelContainer > :not(.bar, .barTrack) {
+			max-inline-size: calc(100% - #{$hover-reserve});
+		}
+	}
+
 	.valueContainer {
 		transition:
 			transform var(--wpds-motion-duration-sm)
@@ -206,7 +287,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 
 		// Fixed reserve for the chevron — the value slides by it in full, and the
 		// bar width inset (see leaderboard-chart.tsx) scales it by the bar's share.
-		--a8c-charts-dimension-leaderboard-bar-hover-inset: var(--wpds-dimension-gap-2xl);
+		--a8c-charts-dimension-leaderboard-bar-hover-inset: #{$hover-reserve};
 
 		.bar {
 			opacity: 0.5;
@@ -303,6 +384,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	.interactiveRow {
 
 		.bar,
+		.barWithLabelContainer > :not(.bar, .barTrack),
 		.valueContainer,
 		.chevron {
 			transition: none;

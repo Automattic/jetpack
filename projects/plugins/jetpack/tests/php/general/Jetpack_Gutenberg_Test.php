@@ -151,7 +151,6 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		global $current_screen;
 
 		// Available everywhere but started only where the host boots it, as on WordPress.com.
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		update_option( 'jetpack_seo_surface_visible_v2', true );
 		update_option( 'ai_seo_enhancer_enabled', true );
 		if ( $started ) {
@@ -269,6 +268,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$this->assertIsArray( $extensions );
 		$this->assertNotEmpty( $extensions );
 		$this->assertContains( 'onion', $extensions );
+		$this->assertSame( array(), get_option( 'jetpack_excluded_extensions', 'missing' ), 'The empty default should be stored so later requests skip the query.' );
 
 		update_option( 'jetpack_excluded_extensions', array( 'onion' ) );
 
@@ -389,8 +389,8 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * Tests whether a URL belonging to a whitelisted list can be used in a block.
 	 */
 	public function test_validate_block_embed_url() {
-		$url           = 'https://wordpress.com/tos/';
-		$allowed_hosts = array( 'wordpress.com' );
+		$url           = 'https://automattic.com/tos/';
+		$allowed_hosts = array( 'automattic.com' );
 
 		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed_hosts );
 
@@ -401,8 +401,8 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * Tests whether a URL matches a specific regex.
 	 */
 	public function test_validate_block_embed_regex() {
-		$url     = 'https://wordpress.com/tos/';
-		$allowed = array( '#^https?:\/\/(www.)?wordpress\.com(\/)?([^\/]+)?(\/)?$#' );
+		$url     = 'https://automattic.com/tos/';
+		$allowed = array( '#^https?:\/\/(www.)?automattic\.com(\/)?([^\/]+)?(\/)?$#' );
 
 		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed, true );
 

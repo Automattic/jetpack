@@ -58,15 +58,38 @@ class Path_Processor {
 	 *
 	 * @param string $file The plugin or theme file to resolve.
 	 * @param array  $directories_to_check The directories we should check for the file if it isn't an absolute path.
+	 * @param bool   $safe_mode Reject `$file` if it appears unsafe.
 	 *
 	 * @return string|false Returns the absolute path to the directory, otherwise false.
 	 */
-	public function find_directory_with_autoloader( $file, $directories_to_check ) {
+	public function find_directory_with_autoloader( $file, $directories_to_check, $safe_mode = false ) {
 		$file = wp_normalize_path( $file );
 
 		if ( ! $this->is_absolute_path( $file ) ) {
 			$file = $this->find_absolute_plugin_path( $file, $directories_to_check );
 			if ( ! isset( $file ) ) {
+				return false;
+			}
+		}
+
+		if ( $safe_mode ) {
+			// Reject if the path (before resolving symlinks) isn't in a checked directory, or possibly tries to traverse out of it.
+			$ok = false;
+			foreach ( $directories_to_check as $directory ) {
+				$directory = wp_normalize_path( trailingslashit( $directory ) );
+				// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions -- If we have wp_normalize_path, we should have WP's polyfills.
+				if ( ! str_starts_with( $file, $directory ) ) {
+					continue;
+				}
+				$slug_part = substr( $file, strlen( $directory ) - 1 );
+				// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions -- If we have wp_normalize_path, we should have WP's polyfills.
+				if ( str_contains( $slug_part, '/../' ) || str_ends_with( $slug_part, '/..' ) ) {
+					continue;
+				}
+				$ok = true;
+				break;
+			}
+			if ( ! $ok ) {
 				return false;
 			}
 		}

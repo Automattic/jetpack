@@ -132,7 +132,7 @@ describe( 'Scan now', () => {
 	} );
 
 	it.each( [
-		[ false, 'true', /Free vulnerability checks run once a day/ ],
+		[ false, 'true', 'Vulnerabilities are checked once a day. Upgrade to Scan to check anytime.' ],
 		[ true, 'false', '' ],
 	] )(
 		'with hasPlan %s, an hour after the last check, sets the header button aria-disabled to %s',

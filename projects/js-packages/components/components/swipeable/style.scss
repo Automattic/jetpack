@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
 
 .swipeable__container {
 	width: 100%;
@@ -19,7 +19,7 @@
 	transition: all 0.5s ease-in-out;
 	transition-property: transform, height;
 
-	@include gb.reduce-motion( "transition" );
+	@include mixins.reduce-motion( "transition" );
 }
 
 .swipeable__page {

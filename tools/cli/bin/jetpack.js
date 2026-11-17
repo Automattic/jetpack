@@ -56,11 +56,14 @@ const { checkCliLocation, compareToolVersions } = await guardedImport(
 	'../helpers/checkEnvironment.js'
 );
 
+// Shell completion (see `jetpack completion`) runs this on every TAB and reads stdout.
+const isCompletion = process.argv.includes( '--get-yargs-completions' );
+
 /**
  * Checks for executing the CLI within a different monorepo checkout.
  */
 try {
-	await checkCliLocation();
+	await checkCliLocation( { quiet: isCompletion } );
 } catch ( error ) {
 	console.error( error );
 	console.error( 'Something unexpected happened. See error above.' );
@@ -73,25 +76,25 @@ try {
 process.chdir( fileURLToPath( new URL( '../../..', import.meta.url ) ) );
 
 /**
- * Checks to make sure we're on the right version of various tools.
+ * Check tool versions and the analytics preference. Skipped for shell completion, which runs on
+ * every TAB and must not spawn pnpm, php and composer or print anything.
  */
-try {
-	if ( ! ( await compareToolVersions() ) && ! process.env.JETPACK_CLI_NONFATAL_VERSION_CHECKS ) {
-		console.error(
-			'(Continue despite the above errors by setting JETPACK_CLI_NONFATAL_VERSION_CHECKS=1)'
-		);
+if ( ! isCompletion ) {
+	try {
+		if ( ! ( await compareToolVersions() ) && ! process.env.JETPACK_CLI_NONFATAL_VERSION_CHECKS ) {
+			console.error(
+				'(Continue despite the above errors by setting JETPACK_CLI_NONFATAL_VERSION_CHECKS=1)'
+			);
+			process.exit( 1 );
+		}
+	} catch ( error ) {
+		console.error( error );
+		console.error( 'Something unexpected happened. See error above.' );
 		process.exit( 1 );
 	}
-} catch ( error ) {
-	console.error( error );
-	console.error( 'Something unexpected happened. See error above.' );
-	process.exit( 1 );
-}
 
-/**
- * Check if the user has been asked to enable analytics tracking.
- */
-await checkAnalyticsEnabled();
+	await checkAnalyticsEnabled();
+}
 
 const cliRouter = await guardedImport( '../cliRouter.js' );
 cliRouter.cli();

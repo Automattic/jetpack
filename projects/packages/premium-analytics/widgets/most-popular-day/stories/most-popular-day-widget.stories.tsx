@@ -139,6 +139,7 @@ function MostPopularDayDashboardStory( dashboardArgs: WidgetDashboardWithWidgetC
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <MostPopularDayDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

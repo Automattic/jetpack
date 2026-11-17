@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2026-11-16
+### Added
+- Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54768]
+- Subscribers: Add Remove all and Remove matching, which remove subscribers in the background after saving a backup. [#54799]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Update package dependencies. [#54703]
+
+### Fixed
+- Clarify that the subscriber sent count includes only newsletters and keep its label readable on narrow screens. [#54899]
+- Settings: Ask before the Jetpack admin shell opens Newsletter at another tab while settings are unsaved. [#54951]
+- Subscribers: Keep the list working when the API returns a display name as a number. [#54700]
+
+## [0.18.5] - 2026-11-09
+### Changed
+- Update package dependencies. [#54391] [#54512]
+
+### Fixed
+- Subscribers: Restore the subscriber wording in the list footer. [#54512]
+
+## [0.18.4] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
+### Fixed
+- Dashboard: Fix "Something went wrong!" on WordPress 7.1 when the site data request fails. [#54396]
+
+## [0.18.3] - 2026-10-28
+### Changed
+- Email design: Tell the design screen which link brought the creator there. [#54167]
+- Overview: Use the same status icons as the AI launchpad checklist. [#54084]
+- Update package dependencies. [#54118]
+
+### Fixed
+- Dashboard: Attribute activity to the correct site on Atomic and Jetpack sites. [#54089]
+- Settings: Ask before switching dashboard tabs with unsaved changes. [#54093]
+- Subscribers: Show a badge for every active comped plan, including comps held alongside a paid plan, and none for expired plans. [#53901]
+
 ## [0.18.2] - 2026-10-26
 ### Changed
 - Settings: Space the settings cards 16px apart, matching the other Jetpack settings screens. [#53692]
@@ -24,8 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Overview: Title the intro card "Jetpack Newsletter", adding "on WordPress.com" only on WordPress.com sites. [#53600]
 - Settings: Use the shared CheckboxCard component for subscription placements. [#53733]
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 
 ## [0.18.0] - 2026-10-12
 ### Added
@@ -127,11 +165,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.7] - 2026-08-25
 ### Changed
-- Update dependencies. [#51423]
+- Update dependencies.
 
 ## [0.12.6] - 2026-08-20
 ### Changed
-- Update dependencies. [#51423]
+- Update dependencies.
 
 ## [0.12.5] - 2026-08-20
 ### Changed
@@ -375,7 +413,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.2] - 2026-03-02
 ### Changed
-- Update dependencies. [#47038]
+- Update dependencies.
 
 ## [0.5.1] - 2026-02-26
 ### Added
@@ -456,6 +494,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.19.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.18.5...v0.19.0
+[0.18.5]: https://github.com/Automattic/jetpack-newsletter/compare/v0.18.4...v0.18.5
+[0.18.4]: https://github.com/Automattic/jetpack-newsletter/compare/v0.18.3...v0.18.4
+[0.18.3]: https://github.com/Automattic/jetpack-newsletter/compare/v0.18.2...v0.18.3
 [0.18.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.18.1...v0.18.2
 [0.18.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.17.3...v0.18.0

@@ -13,6 +13,7 @@ use Automattic\Jetpack\Newsletter\Settings;
 use Automattic\Jetpack\Newsletter\Subscriber_Stats_Controller;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -463,6 +464,37 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tracks events need the Jetpack site ID in `jpTracksContext` before `w.js` loads, on both surfaces.
+	 *
+	 * @dataProvider provide_modernization_states
+	 *
+	 * @param bool $modernized Whether the modernized dashboard is enabled.
+	 */
+	#[DataProvider( 'provide_modernization_states' )]
+	public function test_load_admin_scripts_sets_tracks_blog_id_before_transport( $modernized ) {
+		\Jetpack_Options::update_option( 'id', 987654321 );
+		add_filter( Settings::MODERNIZATION_FILTER, $modernized ? '__return_true' : '__return_false' );
+		wp_deregister_script( 'jp-tracks' );
+
+		( new Settings() )->load_admin_scripts();
+
+		$before = implode( "\n", (array) wp_scripts()->get_data( 'jp-tracks', 'before' ) );
+		$this->assertMatchesRegularExpression( '/window\.jpTracksContext\.blog_id\s*=\s*987654321\b/', $before );
+	}
+
+	/**
+	 * Data provider for the modernized and legacy dashboard surfaces.
+	 *
+	 * @return array
+	 */
+	public static function provide_modernization_states() {
+		return array(
+			'modernized' => array( true ),
+			'legacy'     => array( false ),
+		);
+	}
+
+	/**
 	 * The legacy bundle depends on the `wp-theme` script handle — it imports
 	 * `@wordpress/ui`, which reaches `@wordpress/theme`, and WP Core does not
 	 * register that handle. Only `WP_Build_Polyfills` does, and its full
@@ -790,5 +822,44 @@ class Settings_Test extends BaseTestCase {
 			1,
 			has_action( 'admin_menu', array( Settings::class, 'redirect_retired_subscribers_page' ) )
 		);
+	}
+
+	/**
+	 * Data provider for test_shell_landing_subtitle_is_the_tab_the_dashboard_opens.
+	 *
+	 * @return array[] Subscriber management on, Overview flag on, expected subtitle.
+	 */
+	public static function provide_landing_tabs() {
+		return array(
+			'Settings only' => array( false, true, 'Configure how your newsletter looks, behaves, and reaches subscribers.' ),
+			'Overview'      => array( true, true, 'View a summary of your newsletter.' ),
+			'Subscribers'   => array( true, false, 'Manage everyone subscribed to your site.' ),
+		);
+	}
+
+	/**
+	 * The admin shell's subtitle is that of the tab a bare Newsletter link opens: Settings, Overview, or Subscribers.
+	 *
+	 * @dataProvider provide_landing_tabs
+	 *
+	 * @param bool   $management Whether wp-admin subscriber management is on.
+	 * @param bool   $overview   Whether the Overview feature flag is on.
+	 * @param string $expected   Expected subtitle.
+	 */
+	#[DataProvider( 'provide_landing_tabs' )]
+	public function test_shell_landing_subtitle_is_the_tab_the_dashboard_opens( $management, $overview, $expected ) {
+		Settings::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, $overview ? '__return_true' : '__return_false' );
+		add_filter( 'jetpack_wp_admin_subscriber_management_enabled', $management ? '__return_true' : '__return_false' );
+		$method = new \ReflectionMethod( Settings::class, 'landing_subtitle' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		try {
+			$this->assertSame( $expected, $method->invoke( null ) );
+		} finally {
+			remove_all_filters( 'jetpack_wp_admin_subscriber_management_enabled' );
+		}
 	}
 }

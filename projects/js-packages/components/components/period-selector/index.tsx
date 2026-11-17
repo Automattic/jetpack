@@ -1,4 +1,4 @@
-import { __, isRTL } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { calendar, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Button, IconButton, Menu, Stack } from '@wordpress/ui';
 import type { PeriodSelectorProps } from './types.ts';
@@ -13,14 +13,17 @@ import type { JSX } from 'react';
 export default function PeriodSelector< Value extends string >( {
 	presets,
 	value,
+	label,
 	onChange,
 	onPrevious,
 	onNext,
 	isPreviousDisabled = false,
 	isNextDisabled = false,
+	disabled = false,
 	className,
 }: PeriodSelectorProps< Value > ): JSX.Element {
 	const selected = presets.find( preset => preset.value === value );
+	const selectedLabel = selected?.label ?? __( 'Select period', 'jetpack-components' );
 	const [ previousIcon, nextIcon ] = isRTL()
 		? [ chevronRight, chevronLeft ]
 		: [ chevronLeft, chevronRight ];
@@ -28,11 +31,23 @@ export default function PeriodSelector< Value extends string >( {
 	return (
 		<Stack direction="row" align="center" gap="xs" className={ className }>
 			<Menu.Root>
-				<Menu.Trigger render={ <Button variant="outline" tone="neutral" size="compact" /> }>
+				<Menu.Trigger
+					render={ <Button variant="outline" tone="neutral" size="compact" /> }
+					disabled={ disabled }
+					aria-label={
+						label &&
+						sprintf(
+							/* translators: %1$s: What the control picks, such as "Date range". %2$s: The selected period, such as "Last 30 days". */
+							__( '%1$s: %2$s', 'jetpack-components' ),
+							label,
+							selectedLabel
+						)
+					}
+				>
 					<Button.Icon icon={ calendar } />
-					{ selected?.label ?? __( 'Select period', 'jetpack-components' ) }
+					{ selectedLabel }
 				</Menu.Trigger>
-				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
+				<Menu.Popup positioner={ <Menu.Positioner align="end" /> } aria-label={ label }>
 					<Menu.RadioGroup value={ value } onValueChange={ onChange }>
 						{ presets.map( preset => (
 							<Menu.RadioItem key={ preset.value } value={ preset.value } closeOnClick>
@@ -50,7 +65,7 @@ export default function PeriodSelector< Value extends string >( {
 					icon={ previousIcon }
 					label={ __( 'Previous period', 'jetpack-components' ) }
 					onClick={ onPrevious }
-					disabled={ isPreviousDisabled }
+					disabled={ disabled || isPreviousDisabled }
 				/>
 			) }
 			{ onNext && (
@@ -61,7 +76,7 @@ export default function PeriodSelector< Value extends string >( {
 					icon={ nextIcon }
 					label={ __( 'Next period', 'jetpack-components' ) }
 					onClick={ onNext }
-					disabled={ isNextDisabled }
+					disabled={ disabled || isNextDisabled }
 				/>
 			) }
 		</Stack>

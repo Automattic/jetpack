@@ -66,7 +66,7 @@ export default function SeoOptInBanner() {
 			<div className="jp-seo-optin-banner__content">
 				<p>
 					{ __(
-						'Manage all of your search engine optimization from the redesigned Jetpack SEO dashboard.',
+						'Manage all of your search engine optimization from the redesigned Jetpack SEO dashboard. Switching also enables Jetpack SEO tools if they are off. Your existing settings are kept.',
 						'jetpack'
 					) }
 				</p>

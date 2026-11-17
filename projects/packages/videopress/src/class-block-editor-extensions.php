@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -140,6 +141,24 @@ class Block_Editor_Extensions {
 	}
 
 	/**
+	 * Where the block's "Activate VideoPress" button sends a connected site whose module is off.
+	 *
+	 * The VideoPress page only registers once the module is on, so the switch in Features is the destination.
+	 *
+	 * @return string
+	 */
+	private static function get_activation_url() {
+		if (
+			method_exists( My_Jetpack_Initializer::class, 'is_settings_consolidation_enabled' )
+			&& My_Jetpack_Initializer::is_settings_consolidation_enabled()
+		) {
+			return admin_url( 'admin.php?page=my-jetpack#/features?search=videopress' );
+		}
+
+		return admin_url( 'admin.php?page=jetpack#/settings?term=videopress' );
+	}
+
+	/**
 	 * Enqueues the extensions script.
 	 */
 	public static function enqueue_extensions() {
@@ -156,7 +175,7 @@ class Block_Editor_Extensions {
 			'extensions'                  => $extensions_list,
 			'siteType'                    => $site_type,
 			'myJetpackConnectUrl'         => admin_url( 'admin.php?page=my-jetpack#/connection' ),
-			'jetpackVideoPressSettingUrl' => admin_url( 'admin.php?page=jetpack#/settings?term=videopress' ),
+			'jetpackVideoPressSettingUrl' => self::get_activation_url(),
 			'isVideoPressModuleActive'    => Status::is_jetpack_plugin_and_videopress_module_active(),
 			'isStandaloneActive'          => Status::is_standalone_plugin_active(),
 			'imagesURLBase'               => plugin_dir_url( __DIR__ ) . 'build/images/',

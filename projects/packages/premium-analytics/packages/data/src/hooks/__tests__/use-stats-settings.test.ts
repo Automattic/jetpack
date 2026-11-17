@@ -75,6 +75,27 @@ describe( 'useStatsSettings', () => {
 		mockSite.saves = [];
 	} );
 
+	it.each( [
+		[
+			'loads the Reader setting alone when the site offers only it',
+			{ wpcom_reader_views_enabled: false },
+			[ 'wpcom_reader_views_enabled' ] as const,
+			false,
+		],
+		[
+			'reports an error when the site leaves out a setting it offers',
+			{ wpcom_reader_views_enabled: false },
+			undefined,
+			true,
+		],
+	] )( '%s', ( _title, stored, offered, isError ) => {
+		mockSite.stored = stored;
+
+		const { result } = renderHook( () => useStatsSettings( offered ) );
+
+		expect( result.current.isError ).toBe( isError );
+	} );
+
 	it( 'saves a setting changed back to its stored value while its first save is pending', async () => {
 		const { result } = renderHook( () => useStatsSettings() );
 

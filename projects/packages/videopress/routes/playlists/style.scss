@@ -1,0 +1,85 @@
+@use "sass:meta";
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+.vp-playlists {
+
+	&__viewport {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-height: 0;
+
+		// Flex-grow the single DataViews child so its pagination lands at the bottom.
+		> * {
+			flex: 1;
+			min-height: 0;
+		}
+	}
+
+	&__error {
+		margin: 24px;
+	}
+
+	&__empty-state {
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		padding: 24px;
+		overflow-y: auto;
+	}
+
+	&__empty-card {
+		inline-size: 100%;
+		max-inline-size: 718px;
+	}
+
+	&__thumbnail {
+		position: relative;
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		overflow: hidden;
+		background: #1e1e1e;
+	}
+
+	// Beats wp-build's `:where()`-wrapped `img { height: auto }` reset.
+	&__viewport &__thumbnail &__thumbnail-image {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: cover;
+	}
+
+	&__thumbnail-count {
+		position: absolute;
+		inset-block-end: 8px;
+		inset-inline-end: 8px;
+		padding: 2px 6px;
+		border-radius: 2px;
+		background: rgba(0, 0, 0, 0.75);
+		color: #fff;
+		font-size: 11px;
+		line-height: 16px;
+		white-space: nowrap;
+	}
+
+	// Table rows are too small for the count and status; columns carry them.
+	&__viewport--table &__thumbnail-count,
+	&__viewport--table &__thumbnail-status {
+		display: none;
+	}
+
+	&__title-link,
+	&__description {
+		display: block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__thumbnail-status {
+		position: absolute;
+		inset-block-start: 8px;
+		inset-inline-start: 8px;
+	}
+}

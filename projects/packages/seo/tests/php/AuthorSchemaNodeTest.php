@@ -78,8 +78,8 @@ class AuthorSchemaNodeTest extends TestCase {
 		$user = $this->make_user(
 			array(
 				'display_name' => 'Jane Doe',
-				'first_name'   => 'Jane',
-				'last_name'    => 'Doe',
+				'first_name'   => 'PrivateFirst',
+				'last_name'    => 'PrivateLast',
 				'description'  => 'Writes about search.',
 				'user_url'     => 'https://example.com/jane/',
 			)
@@ -99,10 +99,23 @@ class AuthorSchemaNodeTest extends TestCase {
 		$this->assertSame( 'https://example.test/avatar.jpg', $node['image'] );
 		$this->assertSame( 'Writes about search.', $node['description'] );
 		$this->assertSame( 'https://example.com/jane/', $node['url'] );
-		$this->assertSame( 'Jane', $node['givenName'] );
-		$this->assertSame( 'Doe', $node['familyName'] );
+		$this->assertArrayNotHasKey( 'givenName', $node );
+		$this->assertArrayNotHasKey( 'familyName', $node );
 		$this->assertSame( 'Creator', $node['jobTitle'] );
 		$this->assertSame( array( 'https://twitter.com/jane' ), $node['sameAs'] );
+	}
+
+	/**
+	 * Person text is plain characters even when WordPress stored entities.
+	 */
+	public function test_person_text_decodes_html_entities() {
+		$user = $this->make_user( array( 'display_name' => 'Tom &amp; Jerry' ) );
+		update_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, 'R&amp;D' );
+
+		$node = Author_Schema_Node::build_person( $user );
+
+		$this->assertSame( 'Tom & Jerry', $node['name'] );
+		$this->assertSame( 'R&D', $node['jobTitle'] );
 	}
 
 	/**
@@ -223,6 +236,11 @@ class AuthorSchemaNodeTest extends TestCase {
 			array( 'https://twitter.com/jane', 'https://example.com/jane' ),
 			get_user_meta( $user->ID, Author_Schema_Node::META_SAME_AS, true )
 		);
+
+		// Saving must not decode, or escaped markup would be stored as real tags.
+		$_POST[ Author_Schema_Node::META_JOB_TITLE ] = 'R&amp;D &lt;b&gt;';
+		Author_Schema_Node::save_profile_fields( $user->ID );
+		$this->assertSame( 'R&amp;D &lt;b&gt;', get_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, true ) );
 
 		$_POST = array(
 			'_wpnonce'                         => wp_create_nonce( 'update-user_' . $user->ID ),

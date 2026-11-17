@@ -60,6 +60,11 @@ export { TermsOfService } from '@automattic/jetpack-components';
 export { default as thirdPartyCookiesFallbackHelper } from './helpers/third-party-cookies-fallback';
 export { default as getCalypsoOrigin } from './helpers/get-calypso-origin';
 export * from './helpers/get-user-connection-url.ts';
+export {
+	CONNECTION_FROM,
+	isStandardEntryPoint,
+	isUnifiedConnectionFlow,
+} from './helpers/connection-from.ts';
 export * from './helpers/get-user-connect-kind.ts';
 export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.ts';
 export { getTracksIdentity, initializeTracksIdentity } from './helpers/tracks-identity.ts';

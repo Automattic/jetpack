@@ -1,5 +1,5 @@
-import { ProgressBar } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Progress } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
 import type { StorageUsageLevelName } from '../../data/storage-usage-levels';
 
@@ -30,7 +30,7 @@ type Props = {
 /**
  * The storage usage bar.
  *
- * A presentational shell around `<ProgressBar>`: the caller has already
+ * A presentational shell around `Progress`: the caller has already
  * decided there are figures worth drawing, and the level has already been
  * derived. Percentages above 100 are clamped, because a site can hold
  * more than its limit and a bar cannot be more than full.
@@ -53,10 +53,9 @@ export default function StorageMeter( { storageUsed, storageLimit, usageLevel }:
 		<div className="jpb-storage-meter">
 			{ /*
 			 * Named because nothing else on the card is associated with the
-			 * bar; the legacy dashboard's meter still announces itself as a
-			 * loading indicator. See `tests/progress-bar-names.test.tsx`.
+			 * bar. See `tests/progress-bar-names.test.tsx`.
 			 */ }
-			<ProgressBar
+			<Progress.Root
 				className={ classNames.join( ' ' ) }
 				value={ percent }
 				aria-label={ sprintf(
@@ -64,7 +63,11 @@ export default function StorageMeter( { storageUsed, storageLimit, usageLevel }:
 					__( 'Backup storage used: %d%%', 'jetpack-backup-pkg' ),
 					Math.round( percent )
 				) }
-			/>
+			>
+				<Progress.Track className="jpb-storage-meter__track">
+					<Progress.Indicator className="jpb-storage-meter__indicator" />
+				</Progress.Track>
+			</Progress.Root>
 		</div>
 	);
 }

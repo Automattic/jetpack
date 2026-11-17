@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add an init option that replaces the pre-connection Stats page with this dashboard, and apply options from a later init call.

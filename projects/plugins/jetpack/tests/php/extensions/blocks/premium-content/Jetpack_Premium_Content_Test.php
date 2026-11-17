@@ -155,7 +155,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	private function set_returned_token( $payload ) {
 		// We remove anything else
 		$service = subscription_service();
-		$this->assertTrue( is_a( $service, '\Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service' ) );
+		$this->assertInstanceOf( \Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service::class, $service );
 		$_GET['token'] = JWT::encode( $payload, $service->get_key() );
 	}
 

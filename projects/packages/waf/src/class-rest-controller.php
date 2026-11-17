@@ -174,8 +174,8 @@ class REST_Controller {
 						? 'brute_force_protection_activation_failed'
 						: 'brute_force_protection_deactivation_failed',
 					$enable_brute_force
-						? __( 'Brute force protection could not be activated.', 'jetpack-waf' )
-						: __( 'Brute force protection could not be deactivated.', 'jetpack-waf' ),
+						? __( 'Login protection could not be turned on.', 'jetpack-waf' )
+						: __( 'Login protection could not be turned off.', 'jetpack-waf' ),
 					array( 'status' => 500 )
 				);
 			}

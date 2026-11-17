@@ -112,6 +112,7 @@ TOKEN=
 echo '::endgroup::'
 
 if [[ "$PR_ID" != "trunk" ]]; then
-	# If we pass an empty string, post-message.sh will treat it as "unknown" and grab it via the API, so let's save a call.
-	COVERAGE_STATUS=${COVERAGE_FAILED:-success} COVINFO=$JSON .github/files/coverage-munger/post-message.sh
+	# A failure may be stale from an earlier run attempt, since matrix outputs ignore empty values.
+	# Passing an empty string makes post-message.sh look up the latest status via the API.
+	COVERAGE_STATUS=$( [[ -n "$COVERAGE_FAILED" ]] || echo success ) COVINFO=$JSON .github/files/coverage-munger/post-message.sh
 fi

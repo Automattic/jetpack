@@ -88,6 +88,16 @@ describe( 'getValueScaleDomain', () => {
 		expect( getValueScaleDomain( data, true, isSeriesRendered ) ).toEqual( [ 0, 25 ] );
 	} );
 
+	test.each( [
+		[ 'widens a varying series inside one step', [ 1.2, 1.8 ], [ 1, 2 ] ],
+		[ 'widens a flat series under one step', [ 0.4, 0.4 ], [ 0, 1 ] ],
+		[ 'leaves a varying series holding two steps to visx', [ 1.2, 3.4 ], null ],
+	] )( 'with tickDecimals and zero opted out, %s', ( _, values, expected ) => {
+		expect( getValueScaleDomain( [ series( values ) ], false, allRendered, 0 ) ).toEqual(
+			expected
+		);
+	} );
+
 	test( 'reads visualValue in preference to value', () => {
 		const data: SeriesData[] = [
 			{

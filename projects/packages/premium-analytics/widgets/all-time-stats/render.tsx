@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { useStatsSite } from '@jetpack-premium-analytics/data';
+import { STATS_SITE_SUMMARY_FIELDS, useStatsSite } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
 	summaryCount,
 	WidgetRoot,
 	WidgetState,
-	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -49,11 +49,6 @@ type AllTimeStatsWidgetProps = WidgetRenderProps< AllTimeStatsRenderAttributes >
  */
 type StatsSummary = Record< string, unknown >;
 
-const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-};
-
 /**
  * Render-only icon per metric; the id doubles as the summary field the tile reads.
  */
@@ -72,7 +67,9 @@ type AllTimeStatsTile = {
 };
 
 function AllTimeStatsReport() {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSite( {
+		stat_fields: STATS_SITE_SUMMARY_FIELDS,
+	} );
 
 	const summary = ( data as { stats?: StatsSummary } | undefined )?.stats;
 
@@ -106,7 +103,7 @@ function AllTimeStatsReport() {
 				} }
 				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
-				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+				<MetricTileGrid tiles={ tiles } dataFormat={ HEADLINE_COUNT_FORMAT } />
 			</WidgetState>
 		</div>
 	);

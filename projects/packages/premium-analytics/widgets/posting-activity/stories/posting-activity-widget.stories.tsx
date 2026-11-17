@@ -188,6 +188,7 @@ function PostingActivityDashboardStory( dashboardArgs: WidgetDashboardWithWidget
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PostingActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

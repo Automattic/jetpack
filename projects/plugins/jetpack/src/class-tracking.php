@@ -215,7 +215,7 @@ class Tracking {
 				'error_code'    => $parameters->get_error_code(),
 				'error_message' => $parameters->get_error_message(),
 			);
-		} elseif ( is_a( $parameters, IXR_Error::class ) ) {
+		} elseif ( $parameters instanceof IXR_Error ) {
 			$parameters = array(
 				'error_code'    => $parameters->code,
 				'error_message' => $parameters->message,

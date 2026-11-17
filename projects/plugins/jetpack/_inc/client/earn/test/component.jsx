@@ -1,6 +1,9 @@
 import { getSupportUrl, openWpcomSupportDoc } from 'components/support-link';
 import { render, screen } from 'test/test-utils';
-import { EarnFeatureButton } from '../index';
+import { Earn, EarnFeatureButton } from '../index';
+
+jest.mock( 'components/data/query-site', () => () => null );
+jest.mock( '../ads', () => ( { Ads: () => 'Ads card' } ) );
 
 jest.mock( 'lib/analytics', () => ( {
 	__esModule: true,
@@ -59,5 +62,66 @@ describe( 'EarnFeatureButton', () => {
 
 		cta.click();
 		expect( openWpcomSupportDoc ).toHaveBeenCalledWith( expect.anything(), undefined );
+	} );
+} );
+
+const findsEverything = () => true;
+const findsOnlyEarn = module => module === 'earn';
+
+describe( 'Earn', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it.each( [
+		[ 'keeps', false, true ],
+		[ 'removes', true, false ],
+	] )( '%s the payment cards when the settings flag is %s', ( _verb, flag, shown ) => {
+		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
+
+		render( <Earn active isModuleFound={ findsEverything } hasConnectedOwner /> );
+
+		expect( screen.getByText( 'Ads card' ) ).toBeInTheDocument();
+		expect( Boolean( screen.queryByText( 'Enable payment button' ) ) ).toBe( shown );
+	} );
+
+	it( 'renders nothing for a search that finds only the removed payment cards', () => {
+		window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
+
+		const { container } = render(
+			<Earn searchTerm="paypal" isModuleFound={ findsOnlyEarn } hasConnectedOwner />
+		);
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	describe( 'with the Ads settings moved', () => {
+		const ADS_HOME =
+			'http://example.org/wp-admin/admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dsettings';
+
+		beforeEach( () => {
+			window.JetpackScriptData = {
+				myJetpack: { settingsConsolidation: true },
+				monetize: { adsSettingsUrl: ADS_HOME },
+			};
+		} );
+
+		it( 'points a search to the new home instead of the card', () => {
+			render( <Earn searchTerm="ads" isModuleFound={ findsEverything } hasConnectedOwner /> );
+
+			expect( screen.getByRole( 'link', { name: /Open Ads settings/ } ) ).toHaveAttribute(
+				'href',
+				ADS_HOME
+			);
+			expect( screen.queryByText( 'Ads card' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders nothing outside a search', () => {
+			const { container } = render(
+				<Earn active isModuleFound={ findsEverything } hasConnectedOwner />
+			);
+
+			expect( container ).toBeEmptyDOMElement();
+		} );
 	} );
 } );

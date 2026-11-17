@@ -1025,6 +1025,48 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		Utility::destroy_post_context( $current_post );
 	}
 
+	public function test_write_export_csv_escapes_formulas_in_responses() {
+		$current_post = Utility::create_post_context();
+		$post_ids     = array( Utility::create_legacy_feedback( array( '1_Name' => '=HYPERLINK("http://example.com")' ) ) );
+
+		$plugin = Contact_Form_Plugin::init();
+		$output = fopen( 'php://memory', 'w+' );
+		$count  = $plugin->write_export_csv( $output, $plugin->get_export_rows( $post_ids ) );
+		rewind( $output );
+		$header = fgetcsv( $output, 0, ',', '"', '' );
+		$row    = fgetcsv( $output, 0, ',', '"', '' );
+		fclose( $output );
+
+		$this->assertSame( 1, $count );
+		$this->assertSame( '\'=HYPERLINK("http://example.com")', $row[ array_search( 'Name', $header, true ) ] );
+
+		Utility::destroy_post_context( $current_post );
+	}
+
+	public function test_get_export_feedback_data_includes_fields_first_seen_in_a_later_batch() {
+		$current_post = Utility::create_post_context();
+
+		$post_ids = array();
+		for ( $i = 0; $i < Contact_Form_Plugin::EXPORT_BATCH_SIZE; $i++ ) {
+			$post_ids[] = Utility::create_legacy_feedback( array( '1_Name' => "User $i" ) );
+		}
+		$post_ids[] = Utility::create_legacy_feedback(
+			array(
+				'1_Name'  => 'Late user',
+				'3_Phone' => '123-456-7890',
+			)
+		);
+
+		$result = Contact_Form_Plugin::init()->get_export_feedback_data( $post_ids );
+
+		$this->assertSameSize( $post_ids, $result['Name'] );
+		$this->assertSame( 'Late user', end( $result['Name'] ) );
+		$this->assertSame( '', $result['Phone'][0] );
+		$this->assertSame( '123-456-7890', end( $result['Phone'] ) );
+
+		Utility::destroy_post_context( $current_post );
+	}
+
 	/**
 	 * Test get_export_feedback_data with duplicate field labels (legacy format).
 	 * Ensures that when the same label appears multiple times in a form response,

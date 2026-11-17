@@ -47,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pull in the latest jetpack-podcast package (adds the Podcast Episode block, gated behind the jetpack_podcast_untangle filter; no behavior change while off). [#48546]
 - RTC: Skip unnecessary eligibility checks when real-time collaboration is disabled. [#52146]
 - Update composer.lock files. [#48557] [#48702] [#49415] [#49918] [#50266]
-- Updated package dependencies. [#48735] [#49425] [#49769] [#49793] [#50248] [#50850] [#48064] [#48683] [#49448] [#50436] [#52028] [#53032]
+- Updated package dependencies. [#48064] [#48683] [#48735] [#49425] [#49448] [#49769] [#49793] [#50248] [#50436] [#50850] [#52028] [#53032]
 - WP.com Error Reporting: delegate all decisions to host-specific filters [#50483]
 - WP.com Error Reporting: use direct fetch with no CORS preflight [#50503]
 
@@ -250,8 +250,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Admin dashboard: Disable portfolio toggle if theme supports portfolio and site is WoA [#39508]
 - Only include `wp-polyfill` as a script dependency when needed. [#39629]
-- Updated package dependencies. [#39288]
-- Updated package dependencies. [#39653]
+- Updated package dependencies. [#39288] [#39653]
 - Update Jetpack Scan link [#39619]
 
 ### Removed

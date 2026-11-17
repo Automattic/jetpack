@@ -12,7 +12,7 @@ jest.mock( 'components/search', () => ( {
 	default: () => null,
 } ) );
 
-const buildInitialState = protectPage => ( {
+const buildInitialState = ( protectPage, extraModules = {} ) => ( {
 	jetpack: {
 		initialState: {
 			userData: {
@@ -30,6 +30,7 @@ const buildInitialState = protectPage => ( {
 				sso: { activated: true },
 				stats: { activated: true },
 				waf: { activated: true },
+				...extraModules,
 			},
 		},
 		pluginsData: { items: {} },
@@ -40,6 +41,7 @@ const buildInitialState = protectPage => ( {
 describe( 'SettingsNavTabs', () => {
 	afterEach( () => {
 		delete window.JetpackScriptData;
+		delete window.CUSTOM_CONTENT_TYPE__INITIAL_STATE;
 	} );
 
 	// Atomic keeps the tab for the first release: the Protect page stays off there.
@@ -61,4 +63,69 @@ describe( 'SettingsNavTabs', () => {
 			hasSecurityTab ? 1 : 0
 		);
 	} );
+
+	const performanceModules = {
+		photon: { activated: true },
+		'photon-cdn': { activated: true },
+		search: { activated: true },
+		videopress: { activated: true },
+	};
+
+	it.each( [
+		[ 'shows', 'while the settings flag is off', false, 1 ],
+		[ 'hides', 'once the flag is on, image CDN included', true, 0 ],
+	] )( '%s the Performance tab %s', ( _verb, _when, flag, tabs ) => {
+		window.JetpackScriptData = { site: {}, myJetpack: { settingsConsolidation: flag } };
+
+		render(
+			<MemoryRouter initialEntries={ [ '/traffic' ] }>
+				<SettingsNavTabs />
+			</MemoryRouter>,
+			{ initialState: buildInitialState( true, performanceModules ) }
+		);
+
+		expect( screen.queryAllByRole( 'tab', { name: 'Performance' } ) ).toHaveLength( tabs );
+	} );
+
+	it.each( [
+		[ 'shows', 'Sharing', 'Social', 'publicize', false, 1 ],
+		[ 'hides', 'Sharing', 'Social', 'publicize', true, 0 ],
+		[ 'shows', 'Sharing', 'Sharing buttons', 'sharedaddy', false, 1 ],
+		[ 'hides', 'Sharing', 'Sharing buttons', 'sharedaddy', true, 0 ],
+		[ 'shows', 'Sharing', 'Like buttons', 'likes', false, 1 ],
+		[ 'shows', 'Writing', 'Copy Post', 'copy-post', false, 1 ],
+		[ 'hides', 'Writing', 'Copy Post', 'copy-post', true, 0 ],
+		[ 'shows', 'Writing', 'Markdown', 'markdown', false, 1 ],
+		[ 'hides', 'Writing', 'Markdown', 'markdown', true, 0 ],
+		[ 'hides', 'Writing', 'Post by Email', 'post-by-email', true, 0 ],
+		[ 'hides', 'Writing', 'Infinite Scroll', 'infinite-scroll', true, 0 ],
+		[ 'shows', 'Writing', 'custom content types', null, false, 1 ],
+		[ 'hides', 'Writing', 'custom content types', null, true, 0 ],
+		[ 'shows', 'Discussion', 'Comments', 'comments', false, 1 ],
+		[ 'hides', 'Discussion', 'Comments', 'comments', true, 0 ],
+		[ 'hides', 'Discussion', 'Gravatar Hovercards', 'gravatar-hovercards', true, 0 ],
+		[ 'shows', 'Reader', 'the Reader', 'wpcom-reader', false, 1 ],
+		[ 'hides', 'Reader', 'the Reader', 'wpcom-reader', true, 0 ],
+	] )(
+		'%s a %s tab only %s (%s) would fill with the settings flag %s',
+		( _verb, tab, _name, module, flag, tabs ) => {
+			window.JetpackScriptData = { site: {}, myJetpack: { settingsConsolidation: flag } };
+			// A null module stands for custom content types, which the tab reads from CUSTOM_CONTENT_TYPE__INITIAL_STATE.
+			window.CUSTOM_CONTENT_TYPE__INITIAL_STATE = { active: ! module };
+
+			render(
+				<MemoryRouter initialEntries={ [ '/traffic' ] }>
+					<SettingsNavTabs />
+				</MemoryRouter>,
+				{
+					initialState: buildInitialState(
+						true,
+						module ? { [ module ]: { activated: true } } : {}
+					),
+				}
+			);
+
+			expect( screen.queryAllByRole( 'tab', { name: tab } ) ).toHaveLength( tabs );
+		}
+	);
 } );

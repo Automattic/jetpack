@@ -8,9 +8,10 @@ interface ProvidersProps {
 	children: ReactNode;
 }
 
-const Providers: FC< ProvidersProps > = ( { children } ) => {
-	const queryClient = new QueryClient();
+// One client per page load: a client made in render would drop its cache whenever Providers re-renders.
+export const queryClient = new QueryClient();
 
+const Providers: FC< ProvidersProps > = ( { children } ) => {
 	return (
 		<ThemeProvider>
 			<NoticeContextProvider>

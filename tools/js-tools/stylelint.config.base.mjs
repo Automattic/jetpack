@@ -7,9 +7,9 @@ const baseConfig = {
 	extends: fileURLToPath( import.meta.resolve( '@wordpress/stylelint-config/scss-stylistic' ) ),
 	reportNeedlessDisables: true,
 	plugins: [
-		'@wordpress/theme/stylelint-plugins/no-unknown-ds-tokens',
-		'@wordpress/theme/stylelint-plugins/no-setting-wpds-custom-properties',
-		'@wordpress/theme/stylelint-plugins/no-token-fallback-values',
+		'@wordpress/theme-build-tools/stylelint-plugins/no-unknown-ds-tokens',
+		'@wordpress/theme-build-tools/stylelint-plugins/no-setting-wpds-custom-properties',
+		'@wordpress/theme-build-tools/stylelint-plugins/no-token-fallback-values',
 	],
 	rules: {
 		'plugin-wpds/no-unknown-ds-tokens': true,

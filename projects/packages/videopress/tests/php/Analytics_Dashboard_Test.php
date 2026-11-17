@@ -9,13 +9,16 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
+use Automattic\Jetpack\PremiumAnalytics\Single_Report_Page_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_default_dashboard_sections;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_LIST;
 use const Automattic\Jetpack\PremiumAnalytics\REGISTRABLE_WIDGET_TYPES_FILTER;
 
 // Required by path, like the consumers do: the dashboard API is not autoloaded.
@@ -23,11 +26,12 @@ require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/c
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/class-enablement-setting.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
+require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/single-report-pages.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/widget-types.php';
 require_once __DIR__ . '/mocks/analytics-dashboard-manifest-fixture.php';
 
 /**
- * The package registers its widget type and seeds the Traffic layout when the dashboard hydrates.
+ * The package registers its widget type, seeds the Traffic layout and registers the video page when the dashboard hydrates.
  *
  * @covers \Automattic\Jetpack\VideoPress\Analytics_Dashboard
  */
@@ -49,11 +53,15 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ), 20 );
+		remove_action( Analytics_Dashboard::REGISTER_SINGLE_REPORT_PAGES_ACTION, array( Analytics_Dashboard::class, 'register_single_report_pages' ), 20 );
 		remove_filter( Analytics_Dashboard::DEFAULT_LAYOUT_FILTER, array( Analytics_Dashboard::class, 'add_default_layout_instance' ), 10 );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		remove_filter( REGISTRABLE_WIDGET_TYPES_FILTER, 'jetpack_videopress_test_widget_manifest' );
+		remove_filter( 'jetpack_premium_analytics_videopress_available', '__return_true' );
+		remove_all_filters( 'doing_it_wrong_trigger_error' );
+		remove_all_actions( 'doing_it_wrong_run' );
 
-		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class ) as $class ) {
+		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class, Single_Report_Page_Registry::class ) as $class ) {
 			$instance = new \ReflectionProperty( $class, 'instance' );
 			if ( PHP_VERSION_ID < 80100 ) {
 				$instance->setAccessible( true );
@@ -84,7 +92,64 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::init();
 
 		$this->assertSame( 20, has_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ) ) );
+		$this->assertSame( 20, has_action( Analytics_Dashboard::REGISTER_SINGLE_REPORT_PAGES_ACTION, array( Analytics_Dashboard::class, 'register_single_report_pages' ) ) );
 		$this->assertSame( 10, has_filter( Analytics_Dashboard::DEFAULT_LAYOUT_FILTER, array( Analytics_Dashboard::class, 'add_default_layout_instance' ) ) );
+	}
+
+	/**
+	 * The video page registers under the package's id, on the path the dashboard's adapter serves.
+	 */
+	public function test_registers_the_video_page_scoped_by_post_id() {
+		// The layout names the package's player and the dashboard's video widget types: registered, on a site with VideoPress.
+		add_filter( 'jetpack_premium_analytics_videopress_available', '__return_true' );
+		$layout_types = array(
+			'jpa/video-detail-views-performance'   => 'jpa/widgets/video-detail-views-performance/render',
+			Analytics_Dashboard::VIDEO_PLAYER_TYPE => 'jetpack-videopress/widgets/video-player/render',
+			'jpa/video-detail-embeds'              => 'jpa/widgets/video-detail-embeds/render',
+		);
+		foreach ( $layout_types as $type => $render_module ) {
+			Widget_Type_Registry::get_instance()->register( $type, array( 'render_module' => $render_module ) );
+		}
+		$registry = new Single_Report_Page_Registry();
+
+		Analytics_Dashboard::register_single_report_pages( $registry );
+
+		$page = $registry->get_registered( DASHBOARD_NAME, Analytics_Dashboard::VIDEO_PAGE_ID );
+		$this->assertNotNull( $page );
+		$record = $page->to_array();
+		$this->assertSame( 'video', $record['path'] );
+		$this->assertSame( 'traffic', $record['dashboard_section'] );
+		$this->assertSame( 'videos', $record['feature'] );
+		$this->assertSame( 'post_id', $record['scope_param'] );
+		$this->assertSame( 'jpa/video', $record['icon'] );
+		$this->assertSame( 'videos', $record['reports_page'] );
+		$this->assertSame( 'jetpack-premium-analytics/video-detail', $record['preferences_scope'] );
+		$this->assertSame(
+			array( 'jpa/video-detail-views-performance', Analytics_Dashboard::VIDEO_PLAYER_TYPE, 'jpa/video-detail-embeds' ),
+			array_column( $record['default_layout'], 'type' )
+		);
+	}
+
+	/**
+	 * An older dashboard registers the video page itself: its record keeps the path, and no notice fires.
+	 */
+	public function test_leaves_the_video_path_to_the_dashboard_that_still_registers_it() {
+		$registry = new Single_Report_Page_Registry();
+		$registry->register( DASHBOARD_NAME, 'analytics/video' );
+
+		$notices = array();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) use ( &$notices ) {
+				$notices[] = $function_name;
+			}
+		);
+
+		Analytics_Dashboard::register_single_report_pages( $registry );
+
+		$this->assertSame( array(), $notices );
+		$this->assertSame( 'analytics/video', $registry->get_registered_by_path( DASHBOARD_NAME, 'video' )->id );
 	}
 
 	/**
@@ -96,6 +161,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::init();
 
 		$this->assertFalse( has_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ) ) );
+		$this->assertFalse( has_action( Analytics_Dashboard::REGISTER_SINGLE_REPORT_PAGES_ACTION, array( Analytics_Dashboard::class, 'register_single_report_pages' ) ) );
 		$this->assertFalse( has_filter( Analytics_Dashboard::DEFAULT_LAYOUT_FILTER, array( Analytics_Dashboard::class, 'add_default_layout_instance' ) ) );
 	}
 
@@ -118,6 +184,50 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The player registers from the manifest under the videos plan feature.
+	 */
+	public function test_registers_the_video_player_type_from_the_manifest() {
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$player = $registry->get_registered( Analytics_Dashboard::VIDEO_PLAYER_TYPE );
+		$this->assertNotNull( $player );
+		$this->assertSame( 'jetpack-videopress/widgets/video-player/render', $player->render_module );
+		$this->assertSame( 'full-bleed', $player->presentation );
+		$this->assertSame( 'videos', $player->plan_feature );
+	}
+
+	/**
+	 * A widget type constant matches the `name` its `widget.json` builds, which the fixture manifest would not catch.
+	 *
+	 * @dataProvider get_widget_type_constants
+	 *
+	 * @param string $widget_dir Directory of the widget under `widgets/`.
+	 * @param string $type       The class constant naming its type.
+	 */
+	#[DataProvider( 'get_widget_type_constants' )]
+	public function test_widget_type_constants_match_their_widget_json( $widget_dir, $type ) {
+		$manifest = json_decode( (string) file_get_contents( __DIR__ . '/../../widgets/' . $widget_dir . '/widget.json' ), true );
+
+		$name = is_array( $manifest ) ? ( $manifest['name'] ?? null ) : null;
+
+		$this->assertSame( $name, $type );
+	}
+
+	/**
+	 * Widget directories and the constants naming their types.
+	 *
+	 * @return array[]
+	 */
+	public static function get_widget_type_constants() {
+		return array(
+			'top videos'   => array( 'top-videos', Analytics_Dashboard::TOP_VIDEOS_TYPE ),
+			'video player' => array( 'video-player', Analytics_Dashboard::VIDEO_PLAYER_TYPE ),
+		);
+	}
+
+	/**
 	 * The Traffic section serves the instance where the dashboard used to seed it.
 	 */
 	public function test_seeds_the_top_videos_instance_into_the_traffic_default_layout() {
@@ -132,7 +242,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'width'  => 1,
-				'height' => 2,
+				'height' => DASHBOARD_TILE_LIST,
 				'order'  => 8,
 			),
 			$instances[ Analytics_Dashboard::TOP_VIDEOS_INSTANCE_UUID ]['placement']

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a PeriodSelector component: a dropdown of period presets with optional previous and next buttons.

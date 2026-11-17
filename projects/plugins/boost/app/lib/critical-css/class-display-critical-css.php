@@ -30,7 +30,7 @@ class Display_Critical_CSS {
 	/**
 	 * Register inline output and stylesheet optimization for usable Critical CSS.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.2
 	 */
 	public function register_hooks() {
 		if ( ! $this->css ) {

@@ -42,24 +42,17 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'sharedaddy' );
 
 			const shouldShowSharingBlock = isBlockTheme && hasSharingBlock;
-			const sharingTemplateUrl =
-				siteAdminUrl && this.props.themeStylesheet
-					? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-							this.props.themeStylesheet
-						) }%2F%2Fsingle&canvas=edit`
-					: '';
-			const shouldUseSharingBlockAction = shouldShowSharingBlock && sharingTemplateUrl;
 			const isForcedActive =
 				isActive && this.props.getModule?.( 'sharedaddy' )?.override === 'active';
 			let description = __(
 				'Add sharing buttons so visitors can share your posts and pages on social media with a couple of quick clicks.',
 				'jetpack'
 			);
-			if ( shouldUseSharingBlockAction ) {
+			if ( shouldShowSharingBlock ) {
 				description = isActive
 					? __( 'Legacy sharing buttons cannot be customized on block themes.', 'jetpack' )
 					: _x(
-							'Add the Sharing Buttons block to your theme’s template.',
+							'Choose where the Sharing Buttons block goes on your posts and pages.',
 							'Sharing block migration instruction',
 							'jetpack'
 						);
@@ -67,31 +60,13 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 
 			const sharingModuleSupportUrl = getRedirectUrl( 'jetpack-support-sharing' );
 
-			/**
-			 * Legacy sharing configuration link.
-			 *
-			 * Block themes that ship the Sharing Buttons block get it through moduleAction() instead.
-			 *
-			 * @return {import('react').ReactNode} A card with the sharing configuration link.
-			 */
-			const configCard = () => {
-				return (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						href={ `${ siteAdminUrl }options-general.php?page=sharing` }
-						onClick={ this.trackClickConfigure }
-					>
-						{ __( 'Configure your sharing buttons', 'jetpack' ) }
-					</Card>
-				);
-			};
+			// Settings > Sharing configures legacy sharing while it is on, and the block's placement once it is off.
+			const showConfigCard = shouldShowSharingBlock ? ! isActive : isActive;
 
 			/**
-			 * Use the legacy toggle where needed; otherwise guide block themes through
-			 * deactivating legacy sharing before configuring the Sharing Buttons block.
+			 * Use the legacy toggle where needed; otherwise offer block themes the switch to the Sharing Buttons block.
 			 *
-			 * @return {import('react').ReactNode} The sharing module action.
+			 * @return {import('react').ReactNode} The sharing module action, if any.
 			 */
 			const moduleAction = () => {
 				const toggle = (
@@ -107,29 +82,21 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 					</ModuleToggle>
 				);
 
-				if ( ! shouldUseSharingBlockAction ) {
+				if ( ! shouldShowSharingBlock || isForcedActive ) {
 					return toggle;
 				}
 
-				if ( isForcedActive ) {
-					return toggle;
+				if ( ! isActive ) {
+					return null;
 				}
 
-				if ( isActive ) {
-					const isSwitching = this.props.isSavingAnyOption( 'sharedaddy' );
-
-					return (
-						<Button rna compact disabled={ isSwitching } onClick={ this.switchToSharingBlock }>
-							{ isSwitching
-								? _x( 'Switching…', 'Button caption', 'jetpack' )
-								: __( 'Switch to Sharing Buttons block', 'jetpack' ) }
-						</Button>
-					);
-				}
+				const isSwitching = this.props.isSavingAnyOption( 'sharedaddy' );
 
 				return (
-					<Button rna compact href={ sharingTemplateUrl } onClick={ this.trackClickConfigure }>
-						{ __( 'Open Site Editor', 'jetpack' ) }
+					<Button rna compact disabled={ isSwitching } onClick={ this.switchToSharingBlock }>
+						{ isSwitching
+							? _x( 'Switching…', 'Button caption', 'jetpack' )
+							: __( 'Switch to Sharing Buttons block', 'jetpack' ) }
 					</Button>
 				);
 			};
@@ -159,7 +126,16 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						{ moduleAction() }
 					</SettingsGroup>
 
-					{ isActive && ! shouldUseSharingBlockAction && configCard() }
+					{ showConfigCard && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							href={ `${ siteAdminUrl }options-general.php?page=sharing` }
+							onClick={ this.trackClickConfigure }
+						>
+							{ __( 'Configure your sharing buttons', 'jetpack' ) }
+						</Card>
+					) }
 				</SettingsCard>
 			);
 		}

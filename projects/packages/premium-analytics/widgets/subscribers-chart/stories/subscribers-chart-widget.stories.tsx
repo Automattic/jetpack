@@ -188,6 +188,7 @@ function SubscribersChartDashboardStory( {
  * the host collapses the header controls behind the settings icon.
  */
 export const WidgetDashboardWithWidget: StoryObj< SubscribersChartDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <SubscribersChartDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

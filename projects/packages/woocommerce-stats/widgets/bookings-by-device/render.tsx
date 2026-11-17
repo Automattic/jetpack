@@ -5,7 +5,6 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -35,10 +34,7 @@ export default function BookingsByDeviceRender( {
 }: WidgetRenderProps< BookingsByDeviceRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SalesByDevice
-				filters={ FILTERS }
-				chartTitle={ __( 'Bookings by device', 'jetpack-woocommerce-stats-pkg' ) }
-			/>
+			<SalesByDevice filters={ FILTERS } />
 		</WidgetRoot>
 	);
 }

@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 // --spacing-base is provided by admin-ui's ThemeProvider in some contexts,
 // but not guaranteed here. Define a local fallback.
@@ -25,7 +25,7 @@ $spacing-base: var(--spacing-base, 8px);
 	display: flex;
 	align-items: center;
 	position: relative;
-	border-bottom: 1px solid gb.$gray-100;
+	border-bottom: 1px solid colors.$gray-100;
 	padding-inline: calc(#{$spacing-base} * 3); // 24px — matches admin-ui header
 	background-color: #fff;
 

@@ -18,6 +18,7 @@ const connectionSelectors = {
 	getSiteIsRegistering: state => state.siteIsRegistering || false,
 	getUserIsConnecting: state => state.userIsConnecting || false,
 	getRegistrationError: state => state.registrationError || false,
+	getUserConnectionError: state => state.userConnectionError || false,
 	getAuthorizationUrl: state => state.authorizationUrl || false,
 	getUserConnectionData: state => state.userConnectionData || false,
 	getConnectedPlugins: state => state.connectedPlugins || [],
@@ -33,6 +34,11 @@ const connectionSelectors = {
 	getHasProtectedOwner: state => state.hasProtectedOwner ?? null,
 	getRequiresProtectedOwner: state => state.requiresProtectedOwner ?? null,
 	getUseDefaultProtectedOwnerUi: state => state.useDefaultProtectedOwnerUi ?? null,
+
+	getCanTakeOwnerSlot: state => state.canTakeOwnerSlot ?? null,
+
+	// Null outside Safe Mode, and from a server that predates it.
+	getIdentityCrisis: state => state.identityCrisis ?? null,
 
 	getWpcomUser,
 	getBlogId,

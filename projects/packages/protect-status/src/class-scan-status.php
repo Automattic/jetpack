@@ -57,6 +57,13 @@ class Scan_Status extends Status {
 	const OPTION_EXPIRES_AFTER = 300; // 5 minutes.
 
 	/**
+	 * Where a threat with no severity sorts: just above Low (below 3), as sortThreatSeverity does in js-packages/scan.
+	 *
+	 * @var float
+	 */
+	private const UNRATED_SEVERITY_SORT_VALUE = 2.5;
+
+	/**
 	 * Gets the current status of the Jetpack Protect checks
 	 *
 	 * @param bool $refresh_from_wpcom Refresh the local plan and status cache from wpcom.
@@ -192,6 +199,7 @@ class Scan_Status extends Status {
 				'num_plugins_threats' => 0,
 				'has_unchecked_items' => false,
 				'current_progress'    => $scan_data->current->progress ?? null,
+				'last_scan_failed'    => ! empty( $scan_data->most_recent->error ),
 			)
 		);
 
@@ -284,6 +292,12 @@ class Scan_Status extends Status {
 						continue;
 					}
 
+					// Updated to the fixed version, the vulnerability is gone, though Scan's report shows it until the next scan.
+					if ( 'Vulnerable.WP.Extension' === $threat->signature && ! empty( $threat->fixed_in ) && version_compare( (string) $installed_extension->version, (string) $threat->fixed_in, '>=' ) ) {
+						$installed_extension->checked = false;
+						continue;
+					}
+
 					// Push the threat to the appropriate extension.
 					switch ( $scan_threat->extension->type ) {
 						case 'plugin':
@@ -359,8 +373,11 @@ class Scan_Status extends Status {
 				}
 
 				// ...then by severity...
-				if ( $a->severity !== $b->severity ) {
-					return $a->severity > $b->severity ? -1 : 1;
+				$a_severity  = is_numeric( $a->severity ) ? $a->severity : self::UNRATED_SEVERITY_SORT_VALUE;
+				$b_severity  = is_numeric( $b->severity ) ? $b->severity : self::UNRATED_SEVERITY_SORT_VALUE;
+				$by_severity = $b_severity <=> $a_severity;
+				if ( 0 !== $by_severity ) {
+					return $by_severity;
 				}
 
 				// ...then date added.

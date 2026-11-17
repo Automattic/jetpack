@@ -860,7 +860,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_register_modules_force_replaces_widget_primitives_with_old_gutenberg() {
-		define( 'GUTENBERG_VERSION', '23.8.0' );
+		define( 'GUTENBERG_VERSION', '24.3.1' );
 
 		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/old-gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
@@ -886,7 +886,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_register_modules_does_not_replace_widget_primitives_with_supported_gutenberg() {
-		define( 'GUTENBERG_VERSION', '24.1.0' );
+		define( 'GUTENBERG_VERSION', '24.4.0' );
 
 		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
@@ -903,6 +903,46 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$module = $this->get_module_data( '@wordpress/widget-primitives' );
 		$this->assertNotNull( $module );
 		$this->assertSame( '1.0.0-gutenberg', $module['version'] );
+	}
+
+	/**
+	 * Core registers widget-primitives from WP 7.2, from a Gutenberg branch older than the bundled
+	 * copy, so with no Gutenberg active the bundled copy has to displace it (STATS-620).
+	 */
+	public function test_register_modules_replaces_core_widget_primitives_without_gutenberg() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', includes_url( 'js/dist/script-modules/widget-primitives/index.js' ), array(), '1.0.0-core' );
+
+		$this->invoke_register_modules( $this->make_widget_primitives_build( '0.11.0', 'bundled' ) );
+
+		$this->assert_widget_primitives_from( 'bundled' );
+	}
+
+	/**
+	 * A copy released before the Core check records its version even where Core won the ID, so
+	 * the recorded version says the module is served when Core's copy is what the page gets.
+	 */
+	public function test_register_modules_replaces_core_widget_primitives_despite_a_recorded_version() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', includes_url( 'js/dist/script-modules/widget-primitives/index.js' ), array(), '1.0.0-core' );
+		$GLOBALS[ WP_Build_Polyfills::MODULE_VERSIONS_GLOBAL ] = array( '@wordpress/widget-primitives' => '0.11.0' );
+
+		$this->invoke_register_modules( $this->make_widget_primitives_build( '0.11.0', 'bundled' ) );
+
+		$this->assert_widget_primitives_from( 'bundled' );
+	}
+
+	/**
+	 * Nothing exposes the package version behind a registration, so a copy from outside
+	 * wp-includes could be newer than the bundled one and keeps first-wins.
+	 */
+	public function test_register_modules_keeps_third_party_widget_primitives_without_gutenberg() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/other-plugin-widget-primitives.js', array(), '1.0.0-third-party' );
+
+		$this->invoke_register_modules( $this->make_widget_primitives_build( '0.11.0', 'bundled' ) );
+
+		$this->assert_widget_primitives_from( '1.0.0-third-party' );
 	}
 
 	/**
@@ -959,7 +999,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_register_modules_newer_copy_leaves_supported_gutenberg_copy() {
-		define( 'GUTENBERG_VERSION', '24.1.0' );
+		define( 'GUTENBERG_VERSION', '24.4.0' );
 
 		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );

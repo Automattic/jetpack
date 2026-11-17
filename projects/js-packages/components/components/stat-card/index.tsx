@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
-import { Tooltip } from '@wordpress/components';
+import { Tooltip } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -35,11 +35,16 @@ const StatCard = ( {
 			<div className={ clsx( styles.info ) }>
 				<Text className={ styles.label }>{ label }</Text>
 				{ variant === 'square' ? (
-					<Tooltip text={ formattedValue } placement="top">
-						<Text variant="headline-small" className={ clsx( styles.value ) }>
-							{ hideValue ? '-' : compactValue }
-						</Text>
-					</Tooltip>
+					<Tooltip.Root>
+						<Tooltip.Trigger
+							render={
+								<Text variant="headline-small" className={ clsx( styles.value ) }>
+									{ hideValue ? '-' : compactValue }
+								</Text>
+							}
+						/>
+						<Tooltip.Popup>{ formattedValue }</Tooltip.Popup>
+					</Tooltip.Root>
 				) : (
 					<Text variant="title-medium-semi-bold" className={ clsx( styles.value ) }>
 						{ hideValue ? '-' : formattedValue }

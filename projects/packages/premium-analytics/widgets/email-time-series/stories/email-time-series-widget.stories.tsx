@@ -254,6 +254,7 @@ function EmailTimeSeriesDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< EmailTimeSeriesDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <EmailTimeSeriesDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

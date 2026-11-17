@@ -4,11 +4,27 @@
 	inline-size: 100%;
 }
 
-// The per-post SEO editor, rendered in the route's native inspector sidebar.
-// The framework owns the sidebar panel; this just lays out the editor's
-// contents (header, fields + live preview, actions).
+// The tab is full-bleed, so the paused banner brings back the page padding the
+// other tabs get from their content area.
+.notice {
+	margin: var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-2xl) 0;
+}
+
+// The per-post SEO editor in the route's inspector sidebar, which scrolls it.
+// The frame fills the sidebar so the actions footer can sit at its bottom.
+.inspectorFrame {
+	display: flex;
+	flex-direction: column;
+	min-block-size: 100%;
+}
+
 .inspector {
-	padding: var(--wpds-dimension-padding-md);
+	flex: 1;
+}
+
+// Inline padding matches the title bar's, so the fields line up with its title.
+.inspectorBody {
+	padding: var(--wpds-dimension-padding-2xl);
 }
 
 // Google-style search-result snippet shown live in the inspector.

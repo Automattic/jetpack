@@ -49,7 +49,6 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
 	StatsBreadcrumbs: () => null,
-	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
@@ -75,12 +74,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			{ children }
 		</>
 	),
-	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
-		<>
-			{ actions }
-			{ children }
-		</>
-	),
 	ReportPageTabs: jest.fn( () => null ),
 	// The map and the table have their own tests for what they render; here only
 	// the props the page hands them matter.
@@ -89,6 +82,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<>
+			{ actions }
+			{ children }
+		</>
+	),
 	Breadcrumbs: () => null,
 } ) );
 

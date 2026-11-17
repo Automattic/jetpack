@@ -163,6 +163,35 @@ describe( 'createNumberFormatters()', () => {
 				expect( money ).toBe( '999 Ft' );
 			} );
 		} );
+
+		describe( 'decimals', () => {
+			const formatters = createNumberFormatters();
+			formatters.setLocale( 'en' );
+
+			it.each( [
+				[ 92.4, 'USD', { decimals: 0 }, '$92' ],
+				[ 92, 'JPY', { decimals: 2 }, '¥92.00' ],
+				[ 1.234, 'USD', { decimals: 3 }, '$1.234' ],
+				[ 1025, 'USD', { decimals: 0, isSmallestUnit: true }, '$10' ],
+				[ 1025, 'JPY', { decimals: 2, isSmallestUnit: true }, '¥1,025.00' ],
+				[ 10, 'USD', { decimals: 3, stripZeros: true }, '$10' ],
+				[ 10.5, 'USD', { decimals: 3, stripZeros: true }, '$10.500' ],
+				[ 308087.78, 'USD', { decimals: 10 }, '$308,087.7800000000' ],
+				[ 0.6 + 0.7 + 0.7, 'USD', { stripZeros: true }, '$2' ],
+				[ 92, 'USD', { decimals: -1 }, '$92.00' ],
+				[ 92, 'USD', { decimals: 21 }, '$92.00' ],
+			] )( 'formats %s %s with %o as %s', ( number, currency, options, expected ) => {
+				expect( formatters.formatCurrency( number, currency, options ) ).toBe( expected );
+			} );
+
+			it( 'applies to getCurrencyObject() too', () => {
+				expect( formatters.getCurrencyObject( 1.234, 'USD', { decimals: 3 } ) ).toMatchObject( {
+					integer: '1',
+					fraction: '.234',
+					floatValue: 1.234,
+				} );
+			} );
+		} );
 	} );
 
 	describe( 'getCurrencyObject()', () => {

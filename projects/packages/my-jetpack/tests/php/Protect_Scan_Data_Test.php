@@ -183,6 +183,7 @@ class Protect_Scan_Data_Test extends TestCase {
 				'status'              => 'idle',
 				'last_checked'        => '2026-07-20 12:00:00',
 				'has_unchecked_items' => false,
+				'last_scan_failed'    => true,
 				'num_threats'         => 4,
 				'num_plugins_threats' => 1,
 				'num_themes_threats'  => 1,
@@ -365,7 +366,7 @@ class Protect_Scan_Data_Test extends TestCase {
 	}
 
 	/**
-	 * The counts and timestamps the Protect card renders survive the filtering.
+	 * The counts, timestamps and failed-scan flag the Protect card renders survive the filtering.
 	 *
 	 * @dataProvider provide_non_admin_roles
 	 *
@@ -384,6 +385,7 @@ class Protect_Scan_Data_Test extends TestCase {
 					array( 'severity' => 5 ),
 					array( 'severity' => 2 ),
 				),
+				'last_scan_failed'    => true,
 				'num_threats'         => 4,
 				'num_plugins_threats' => 1,
 				'num_themes_threats'  => 1,

@@ -16,7 +16,7 @@ package itself: `Initial_State::set_connection_script_data()` auto-hooks onto th
 in Composer, this happens for free — no wiring in this package. If it returns
 `undefined` at runtime, the connection package's assets did not boot, or
 `JetpackScriptData` was not emitted on the page (see
-`Analytics::ensure_script_data()`).
+`Analytics::register_script_data()`).
 
 The underlying field is `connection.connectionStatus.isRegistered`. Full shape:
 the connection package's
@@ -24,6 +24,6 @@ the connection package's
 
 ## Gotchas
 
-- **Route guards are synchronous** — they cannot fetch. Use
-  `isPremiumAnalyticsSiteConnected()` rather than reading the field directly;
-  the helper also treats WordPress.com Simple as connected.
+- **Route guards are synchronous** — they cannot fetch. Read connection state
+  through `isPremiumAnalyticsSiteConnected()`; see "Route guards must use the
+  shared site-readiness helpers" in the package `AGENTS.md`.

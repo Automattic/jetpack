@@ -341,6 +341,16 @@ class SquashCommandTest extends CommandTestCase {
 				"# Changelog\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\nPrologue for v1.0.1+alpha\n\n### Added\n- A Stuff.\n- B Stuff.\n- Stuff.\n- Y Stuff.\n- Z Stuff.\n\n### Removed\n- Other stuff.\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-20\n\n- Initial release.\n",
 			),
 
+			'Deduplication merges and sorts PR numbers'   => array(
+				array(),
+				array(
+					'changelog' => "# Changelog\n\n## 1.0.1 - 2021-02-23\n\n### Fixed\n- Fixed a thing. [#2]\n\n## 1.0.1-beta - 2021-02-22\n\n### Fixed\n- Fixed a thing. [#1]\n\n## 1.0.0 - 2021-02-20\n\n- Initial release.\n",
+				),
+				array(),
+				0,
+				array( '/^$/' ),
+				"# Changelog\n\n## 1.0.1 - 2021-02-23\n### Fixed\n- Fixed a thing. [#1] [#2]\n\n## 1.0.0 - 2021-02-20\n\n- Initial release.\n",
+			),
 			'--use-version invalid'                       => array(
 				array( '--use-version' => '2.0' ),
 				array(),

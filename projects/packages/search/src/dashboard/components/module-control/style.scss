@@ -27,13 +27,11 @@
 .jp-form-search-settings-group__toggle {
 
 	&.is-instant-search,
-	&.is-reader-chat,
-	&.is-ai-agent-access {
+	&.is-reader-chat {
 		margin-top: 4em;
 	}
 
-	&.is-reader-chat + &.is-search-suggestions,
-	&.is-ai-agent-access + &.is-search-suggestions {
+	&.is-reader-chat + &.is-search-suggestions {
 		margin-top: 4em;
 	}
 

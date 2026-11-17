@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Fix the connect button staying busy after the connection to WordPress.com fails to start.

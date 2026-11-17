@@ -176,7 +176,7 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'width'  => 2,
-				'height' => 2,
+				'height' => DASHBOARD_TILE_LIST,
 			),
 			$appended['placement']
 		);

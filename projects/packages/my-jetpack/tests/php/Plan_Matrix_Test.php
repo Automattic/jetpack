@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products\Anti_Spam;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\My_Jetpack\Products\Boost;
@@ -15,10 +16,12 @@ use Automattic\Jetpack\My_Jetpack\Products\Crm;
 use Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai;
 use Automattic\Jetpack\My_Jetpack\Products\Jetpack_Forms;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
+use Automattic\Jetpack\My_Jetpack\Products\Scan;
 use Automattic\Jetpack\My_Jetpack\Products\Search;
 use Automattic\Jetpack\My_Jetpack\Products\Social;
 use Automattic\Jetpack\My_Jetpack\Products\Stats;
 use Automattic\Jetpack\My_Jetpack\Products\Videopress;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -35,8 +38,12 @@ use WorDBless\Users as WorDBless_Users;
  * are pinned to a shared vocabulary by Status_Vocabulary_Parity_Test.
  *
  * @covers \Automattic\Jetpack\My_Jetpack\Product::get_status
+ * @covers \Automattic\Jetpack\My_Jetpack\Products\Protect::get_status
+ * @covers \Automattic\Jetpack\My_Jetpack\Products\Scan::get_status
  */
 #[CoversMethod( Product::class, 'get_status' )]
+#[CoversMethod( Protect::class, 'get_status' )]
+#[CoversMethod( Scan::class, 'get_status' )]
 class Plan_Matrix_Test extends TestCase {
 
 	/**
@@ -319,6 +326,13 @@ class Plan_Matrix_Test extends TestCase {
 		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 		delete_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY );
 
+		// Storing a different plan clears Current_Plan's cached copy, which outlives the option.
+		Current_Plan::update_from_site_record(
+			array(
+				'plan'     => array( 'product_slug' => 'jetpack_free' ),
+				'products' => array(),
+			)
+		);
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
@@ -376,6 +390,59 @@ class Plan_Matrix_Test extends TestCase {
 	}
 
 	/**
+	 * A lapsed Scan purchase shows as Expired on the card, while Protect Status still treats the site as without Scan.
+	 *
+	 * @dataProvider provide_lapsed_scan_purchases
+	 *
+	 * @param string $class        Product class name.
+	 * @param string $product_slug The lapsed purchase's product slug.
+	 */
+	#[DataProvider( 'provide_lapsed_scan_purchases' )]
+	public function test_a_lapsed_scan_purchase_shows_as_expired( string $class, string $product_slug ) {
+		$this->apply_state( $class, self::OWNERSHIP_NONE, self::ACTIVATION_ON );
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => array(),
+				'available' => (object) array( 'scan' => array( 'jetpack_security_t1_yearly' ) ),
+			),
+			HOUR_IN_SECONDS
+		);
+		// Keeps get_site_current_plan() from asking wpcom for a refresh.
+		set_transient( Wpcom_Products::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY, 1, HOUR_IN_SECONDS );
+		set_transient(
+			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
+			array(
+				(object) array(
+					'ID'            => 1,
+					'product_slug'  => $product_slug,
+					'expiry_status' => Products::STATUS_EXPIRED,
+					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '-1 week' ) ),
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->assertFalse( Plan::has_required_plan() );
+		$this->assertFalse( $class::has_paid_plan_for_product() );
+		$this->assertSame( Products::STATUS_EXPIRED, $class::get_status() );
+	}
+
+	/**
+	 * Data provider for test_a_lapsed_scan_purchase_shows_as_expired.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_lapsed_scan_purchases() {
+		return array(
+			'Protect, lapsed Scan'     => array( Protect::class, 'jetpack_scan' ),
+			'Protect, lapsed Security' => array( Protect::class, 'jetpack_security_t1_yearly' ),
+			'Scan, lapsed Scan'        => array( Scan::class, 'jetpack_scan' ),
+			'Scan, lapsed Security'    => array( Scan::class, 'jetpack_security_t1_yearly' ),
+		);
+	}
+
+	/**
 	 * Every cell of the plan matrix, with the status the card needs to offer the right action.
 	 *
 	 * @return iterable<string, array{0: string, 1: string, 2: string, 3: string}>
@@ -426,6 +493,7 @@ class Plan_Matrix_Test extends TestCase {
 	private function apply_ownership( string $class, string $ownership ) {
 		if ( self::OWNERSHIP_NONE === $ownership ) {
 			$this->set_site_features( array() );
+			$this->set_synced_plan( array(), array() );
 			return;
 		}
 
@@ -437,6 +505,10 @@ class Plan_Matrix_Test extends TestCase {
 
 		$direct_plans = $class::get_paid_plan_product_slugs();
 		$product_slug = 'pro' === $ownership ? 'jetpack_pro_yearly' : ( self::OWNERSHIP_BUNDLE === $ownership ? 'jetpack_complete' : reset( $direct_plans ) );
+		$this->set_synced_plan(
+			array_filter( array( $class::$feature_identifying_paid_plan ) ),
+			self::OWNERSHIP_DIRECT === $ownership ? array( $product_slug ) : array()
+		);
 
 		set_transient(
 			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
@@ -448,6 +520,24 @@ class Plan_Matrix_Test extends TestCase {
 				),
 			),
 			HOUR_IN_SECONDS
+		);
+	}
+
+	/**
+	 * Seed the plan and products Jetpack syncs from wpcom, which Protect Status reads.
+	 *
+	 * @param string[] $features Feature slugs the plan grants.
+	 * @param string[] $products Product slugs the site owns.
+	 */
+	private function set_synced_plan( array $features, array $products ) {
+		Current_Plan::update_from_site_record(
+			array(
+				'plan'     => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => $features ),
+				),
+				'products' => array_map( fn( $slug ) => array( 'product_slug' => $slug ), $products ),
+			)
 		);
 	}
 

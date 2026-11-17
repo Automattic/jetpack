@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Metric cards: Remove the grey box that appears inside a metric card on hover when a newer version of the WordPress UI library is loaded.

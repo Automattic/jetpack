@@ -9,11 +9,12 @@
  * remounted whenever the committed range changes (via the `resetKey`)
  * so draft edits don't linger across opens.
  */
-import { Dropdown, Tooltip, Button } from '@wordpress/components';
+import { Dropdown, Button } from '@wordpress/components';
 import { useMediaQuery, useInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
-import { useMemo, useState } from 'react';
+import { Tooltip, VisuallyHidden } from '@wordpress/ui';
+import { useId, useMemo, useState } from 'react';
 import { DateRangeContent } from './date-range-content';
 import { parseYmdLocal, formatYmd, formatSiteYmd } from './datetime';
 import { formatLabel } from './utils';
@@ -80,8 +81,8 @@ export function DateRangePicker( {
 		<Dropdown
 			popoverProps={ { className: 'daterange-popover' } }
 			renderToggle={ ( { onToggle, isOpen } ) => (
-				<Tooltip text={ __( 'Select a date range', 'jetpack-activity-log' ) } placement="top">
-					<div className="daterange-input__toggle">
+				<Tooltip.Root>
+					<Tooltip.Trigger render={ <div className="daterange-input__toggle" /> }>
 						<Button
 							type="button"
 							variant="tertiary"
@@ -101,8 +102,9 @@ export function DateRangePicker( {
 								{ label }
 							</span>
 						</Button>
-					</div>
-				</Tooltip>
+					</Tooltip.Trigger>
+					<Tooltip.Popup>{ __( 'Select a date range', 'jetpack-activity-log' ) }</Tooltip.Popup>
+				</Tooltip.Root>
 			) }
 			renderContent={ ( { onClose } ) => (
 				<DateRangePickerInner
@@ -134,9 +136,11 @@ export function DateRangePicker( {
  * @param props.tooltipText - Explains why the picker is unavailable.
  */
 export function DateRangePickerPlaceholder( { tooltipText }: { tooltipText: string } ) {
+	const descriptionId = useId();
+
 	return (
-		<Tooltip text={ tooltipText } placement="top">
-			<div className="daterange-input__toggle">
+		<Tooltip.Root>
+			<Tooltip.Trigger render={ <div className="daterange-input__toggle" /> }>
 				<Button
 					type="button"
 					variant="tertiary"
@@ -145,13 +149,18 @@ export function DateRangePickerPlaceholder( { tooltipText }: { tooltipText: stri
 					className="daterange-input__field daterange-input__field--placeholder"
 					icon={ calendar }
 					iconPosition="right"
+					aria-describedby={ descriptionId }
 				>
 					<span className="daterange-input__text">
 						{ __( 'Select a date range', 'jetpack-activity-log' ) }
 					</span>
 				</Button>
-			</div>
-		</Tooltip>
+				<VisuallyHidden id={ descriptionId } render={ <span /> }>
+					{ tooltipText }
+				</VisuallyHidden>
+			</Tooltip.Trigger>
+			<Tooltip.Popup>{ tooltipText }</Tooltip.Popup>
+		</Tooltip.Root>
 	);
 }
 

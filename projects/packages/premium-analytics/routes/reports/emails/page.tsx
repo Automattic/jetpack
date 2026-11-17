@@ -1,22 +1,27 @@
 /**
  * External dependencies
  */
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	ReportPageLayout,
 	ReportErrorState,
-	ReportPageShell,
 	ReportRecordsTable,
 	emailsCsvExporter,
+	toViewLiveUrl,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
+import { createViewLiveAction } from '../view-live-action';
 import { getEmailsFields, useEmailsReportRecords } from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
@@ -60,12 +65,22 @@ function EmailsReport(): JSX.Element {
 	const records = useEmailsReportRecords();
 	const reportParams = useReportParams();
 	const fields = useMemo( () => getEmailsFields(), [] );
+	const actions = useMemo(
+		() => [
+			// The summary leaves `link` untyped; the URL gate only wants a string.
+			createViewLiveAction< StatsEmailSummaryItem >( email =>
+				toViewLiveUrl( 'post', email.id, typeof email.link === 'string' ? email.link : null )
+			),
+		],
+		[]
+	);
 
 	const { getLabel } = REPORTS.emails;
 
 	return (
-		<ReportPageShell
-			visual={ <StatsPageIcon /> }
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<ExporterCsvAction
@@ -92,10 +107,11 @@ function EmailsReport(): JSX.Element {
 						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
+						actions={ actions }
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats widget: show a skeleton of the widget while it loads, in place of the spinner.

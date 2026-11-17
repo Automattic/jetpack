@@ -4,12 +4,14 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 
 /**
- * Whether the reader may send feedback, which posts to a Stats endpoint.
+ * Whether to offer feedback: only to readers who may see Stats, and only until classic Stats is retired.
  *
- * Defaults to true, so a server that predates the flag keeps the shipped UI.
+ * Defaults to true, so a server that predates either key keeps the shipped UI.
  *
  * @return Whether to offer feedback.
  */
 export function canSendFeedback(): boolean {
-	return getScriptData()?.premium_analytics?.can_view_stats !== false;
+	const data = getScriptData()?.premium_analytics;
+
+	return data?.can_view_stats !== false && data?.classic_stats_retired !== true;
 }

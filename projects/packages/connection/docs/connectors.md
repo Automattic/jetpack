@@ -21,15 +21,17 @@ Depending on connection state, the card surfaces:
 - **Connection / registration status** — whether the site is registered (has a blog token) and connected (registered _and_ has a connected owner), and whether it is in offline mode.
 - **Site details** — blog ID, site URL, and home URL once registered.
 - **Your account** — the viewer's WordPress.com name, login, email, and avatar, and whether they own the connection. Still shown when the owner's token is broken.
-- **Connection owner** — name and avatar, linked to their profile when the viewer can edit that user. When the owner's token is missing or malformed, the store's owner of record is still named (viewers with `jetpack_connect` only), and the card prompts them, or the other admins, to reconnect.
+- **Connection owner** — name and avatar, linked to their profile when the viewer can edit that user. When the owner's token is missing or malformed, the store's owner of record is still named (viewers with `jetpack_connect` only), and the card prompts them to reconnect, while the notice tells other admins what they can do.
 - **Connected plugins** — the plugins currently sharing the connection.
 - **SSO status** — when the Jetpack plugin is connected.
 - **Safe Mode / Identity Crisis** — when the site is in Safe Mode, the status badge swaps to "Safe Mode" and the card renders the resolution options (migrate / start fresh / stay in safe mode).
 - **Hosting context** — `isWoaSite` and `isVipSite` flags.
 - **Auth errors** — any error captured from the last authorization attempt.
-- **Connection errors** — the shared connection error notice (`ConnectionErrorView`, fed by the card's own `useConnectionErrorNotice()` call) at the top of the expanded details, with an error or warning status badge. Hidden in offline mode. While the notice shows, the connect prompt is hidden for every viewer, as in My Jetpack: connecting fails while the site connection is broken, and while the owner's token is broken (which leaves the owner unlinked too) it would take over the owner's slot. The notice decides who acts: it offers the reconnect, or is informational only when ownership is locked. Its reconnect CTA returns to the Connectors page (`connectorsUrl`) rather than My Jetpack.
+- **Connection errors** — the shared connection error notice (`ConnectionErrorView`, fed by the card's own `useConnectionErrorNotice()` call) at the top of the expanded details, with an error or warning status badge. Hidden in offline mode. While the notice shows, the connect prompt is hidden for every viewer, as in My Jetpack: connecting fails while the site connection is broken, and while the owner's token is broken (which leaves the owner unlinked too) connecting can move the owner's slot, which the notice explains first. The notice decides who acts: it offers a connected admin the reconnect, or is informational only for them when ownership is locked, and it offers an unconnected admin Connect your account. Its CTA returns to the Connectors page (`connectorsUrl`) rather than My Jetpack.
 
 Connect and disconnect actions performed from the card go through the package's existing connection REST endpoints. Connecting and disconnecting are disabled while the site is in offline mode.
+
+A link to the Connectors page with `connector=wordpress_com` in its query string, as My Jetpack's **Manage connection** sends, opens the card with its details already expanded: the Safe Mode options while in Safe Mode. Opening it that way sends no `details_open` event.
 
 **Disconnect site** opens the package's shared `DisconnectDialog`, the same one My Jetpack shows: it lists the connected plugins and links to help. The card leaves out the dialog's disconnect survey by not passing `connectedSiteId`. Its Tracks events carry `context: connectors`. The Safe Mode panel's disconnect keeps its own confirmation, which explains that only this site's stale connection is cleared.
 
@@ -46,6 +48,7 @@ The card reads connection state from the `jetpack-connection` store, which `Init
 | Your account              | `getUserConnectionData().currentUser`, with `isUserConnected` from the status. Its local `displayName` and `email` fill in when the WordPress.com lookup fails                                                                                                                            |
 | Connection owner          | `getConnectionOwner()` — only for users with `jetpack_connect`. It comes from the `master_user` option, so the card shows it, and your account, only while the owner's token works (`hasConnectedOwner`). Other viewers get the name alone from `getUserConnectionData().connectionOwner` |
 | Connected plugins         | `getConnectedPlugins()`                                                                                                                                                                                                                                                                   |
+| Connect prompt            | `getCanTakeOwnerSlot()` — so the owner slot is only offered when connecting would take it                                                                                                                                                                                                 |
 
 Everything else is card-only and comes from `Jetpack_Connector::get_connector_data()` through the `script_module_data_@automattic/jetpack-connection-connectors` filter. Some of it stays there because the store has no equivalent:
 
@@ -68,7 +71,7 @@ Every card event carries `context: 'connectors'` and `viewer_connection_type`: `
 | `jetpack_idc_migrate`, `jetpack_idc_start_fresh`, `jetpack_idc_confirm_safe_mode` | A Safe Mode resolution is clicked. Names shared with the standard Identity Crisis screen, so split by `context`. Like that screen, also bumps the `jetpack-idc` MC stat (`migrate`, `start-fresh`, `confirm-safe-mode`), but only when the site allows tracking (`idc.bumpStats`). | `platform`: `woa`, `vip`, `newspack` or `self-hosted`, as on the Identity Crisis screen |
 | `jetpack_idc_disconnect_site` | The Safe Mode panel's disconnect is confirmed, after its `safe_mode_disconnect_site` click. | `platform` |
 
-The shared dialogs track by default, with the `context` their host passes (`trackingContext`, or `context` for the disconnect dialogs) and `null` when it passes none. They send no `viewer_connection_type`:
+The shared dialogs track by default, with the `context` their host passes (`trackingContext`, or `context` for the disconnect dialogs) and `null` when it passes none, plus `placement` when the host renders them in more than one place on a page (My Jetpack's `header` and `connection_card`). The shared header reports the page hosting it as `context`, e.g. `boost` on Boost's dashboard. They send no `viewer_connection_type`:
 
 | Event | Fired when | Extra properties |
 | --- | --- | --- |

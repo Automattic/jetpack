@@ -1,7 +1,7 @@
 /**
  * Podcast Episode block shared styles (editor + front-end).
  */
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 $jetpack-podcast-episode-radius: 6px;
 $jetpack-podcast-episode-gap: 16px;
@@ -13,9 +13,9 @@ $jetpack-podcast-episode-gap: 16px;
 		gap: $jetpack-podcast-episode-gap;
 		align-items: flex-start;
 		padding: $jetpack-podcast-episode-gap;
-		border: 1px solid gb.$gray-200;
+		border: 1px solid colors.$gray-200;
 		border-radius: $jetpack-podcast-episode-radius;
-		background-color: gb.$white;
+		background-color: colors.$white;
 
 		@media (max-width: 600px) {
 			flex-direction: column;
@@ -58,7 +58,7 @@ $jetpack-podcast-episode-gap: 16px;
 		gap: 8px;
 		margin: 0;
 		font-size: 0.85em;
-		color: gb.$gray-700;
+		color: colors.$gray-700;
 		text-transform: uppercase;
 		letter-spacing: 0.03em;
 	}
@@ -72,8 +72,8 @@ $jetpack-podcast-episode-gap: 16px;
 		font-weight: 600;
 		line-height: 1.4;
 		border-radius: 999px;
-		background-color: gb.$gray-100;
-		color: gb.$gray-900;
+		background-color: colors.$gray-100;
+		color: colors.$gray-900;
 	}
 
 	.jetpack-podcast-episode__badge--trailer {
@@ -87,8 +87,8 @@ $jetpack-podcast-episode-gap: 16px;
 	}
 
 	.jetpack-podcast-episode__badge--explicit {
-		background-color: gb.$gray-900;
-		color: gb.$white;
+		background-color: colors.$gray-900;
+		color: colors.$white;
 		font-family: monospace;
 	}
 
@@ -114,7 +114,7 @@ $jetpack-podcast-episode-gap: 16px;
 		gap: 12px;
 		margin: 0;
 		font-size: 0.9em;
-		color: gb.$gray-700;
+		color: colors.$gray-700;
 	}
 
 	.jetpack-podcast-episode__player {
@@ -169,7 +169,7 @@ $jetpack-podcast-episode-gap: 16px;
 	}
 
 	.jetpack-podcast-episode__person-role {
-		color: gb.$gray-700;
+		color: colors.$gray-700;
 		font-size: 0.85em;
 	}
 
@@ -184,7 +184,7 @@ $jetpack-podcast-episode-gap: 16px;
 	.jetpack-podcast-episode__soundbite-time {
 		flex: 0 0 auto;
 		font-variant-numeric: tabular-nums;
-		color: gb.$gray-700;
+		color: colors.$gray-700;
 	}
 
 	// Click-to-seek button wraps the row content. Reset the browser's default

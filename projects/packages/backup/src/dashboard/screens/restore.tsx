@@ -1,6 +1,6 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { speak } from '@wordpress/a11y';
-import { ProgressBar, VisuallyHidden } from '@wordpress/components';
+import { VisuallyHidden } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
@@ -21,6 +21,7 @@ import {
 	Link as ExternalLink,
 	ButtonLink,
 	Notice,
+	Progress,
 	Spinner,
 	Stack,
 	Text,
@@ -57,7 +58,7 @@ const STILL_RUNNING_PHASES = new Set( [ 'checking', 'queued', 'progress' ] );
  * shared item checklist, and a Confirm button. Submit drives a real
  * state machine over the `/jetpack/v4/rewind/to/$rewindId` bridge.
  *
- * Every `ProgressBar` below is given an `aria-label`, for the reason
+ * Every `Progress.Root` below is given an `aria-label`, for the reason
  * recorded in `tests/progress-bar-names.test.tsx`; the `<Text>` beside
  * each one never reaches the bar's accessible name.
  *
@@ -332,10 +333,15 @@ export default function RestoreScreen() {
 								<EmptyState.Visual>
 									<EmptyState.Icon className="jpb-restore__badge" icon={ cloudDownload } />
 								</EmptyState.Visual>
-								<ProgressBar
+								<Progress.Root
 									className="jpb-restore__bar"
+									value={ null }
 									aria-label={ __( 'Waiting for your restore to begin', 'jetpack-backup-pkg' ) }
-								/>
+								>
+									<Progress.Track className="jpb-restore__track">
+										<Progress.Indicator className="jpb-restore__indicator" />
+									</Progress.Track>
+								</Progress.Root>
 								<EmptyState.Title
 									className="jpb-restore__status-title"
 									ref={ stepHeadingRef }
@@ -352,11 +358,15 @@ export default function RestoreScreen() {
 								<EmptyState.Visual>
 									<EmptyState.Icon className="jpb-restore__badge" icon={ cloudDownload } />
 								</EmptyState.Visual>
-								<ProgressBar
+								<Progress.Root
 									className="jpb-restore__bar"
 									value={ state.percent }
 									aria-label={ __( 'Restoring your site', 'jetpack-backup-pkg' ) }
-								/>
+								>
+									<Progress.Track className="jpb-restore__track">
+										<Progress.Indicator className="jpb-restore__indicator" />
+									</Progress.Track>
+								</Progress.Root>
 								{ /*
 								 * Scoped to the title, not the block: the percentage and message
 								 * below change on every 5s poll and would re-announce with it.
@@ -514,10 +524,15 @@ export default function RestoreScreen() {
 										{ state.detail }
 									</Text>
 								) }
-								<ProgressBar
+								<Progress.Root
 									className="jpb-restore__bar"
+									value={ null }
 									aria-label={ __( 'Checking whether your restore started', 'jetpack-backup-pkg' ) }
-								/>
+								>
+									<Progress.Track className="jpb-restore__track">
+										<Progress.Indicator className="jpb-restore__indicator" />
+									</Progress.Track>
+								</Progress.Root>
 							</Stack>
 						) }
 						{ /*

@@ -25,7 +25,7 @@ class Premium_Features {
 	/**
 	 * Record a verified plan baseline when the site connects, without activating Cloud CSS.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.2
 	 */
 	public static function record_cloud_css_baseline() {
 		if ( false !== get_option( self::CLOUD_CSS_BASELINE_OPTION ) ) {
@@ -49,7 +49,7 @@ class Premium_Features {
 	/**
 	 * Enable Cloud CSS once when an observed free site gains the feature.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.2
 	 */
 	public static function enable_cloud_css_after_upgrade() {
 		$verified = null;

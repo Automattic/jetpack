@@ -2,7 +2,9 @@ import { Tabs } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
+import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
+import { getHistoryEntryKey } from '../../hooks/use-go-back';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import { isHeaderControlsEnabled } from '../header-controls/slot';
 import { FullWidthSeparator } from './full-width-separator';
@@ -22,7 +24,8 @@ import type { ReactNode } from 'react';
 export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNode } ) {
 	const params = useParams();
 	const navigate = useNavigate();
-	const { search } = useLocation();
+	const location = useLocation();
+	const { search } = location;
 	const { recordEvent } = useAnalytics();
 	const isNewUser = useIsJetpackUserNew();
 	const tabStartTimeRef = useRef< number >( Date.now() );
@@ -31,11 +34,16 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 
 	// If the tab is not valid, use the default one.
 	const currentTab = useMemo( () => resolveMyJetpackSection( params.section ), [ params.section ] );
+	// Arrow keys can select twice before the route re-renders, leaving `currentTab` a step behind.
+	const lastTabRef = useRef< string >( currentTab );
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
-			// Compare against the resolved `currentTab`, not the raw URL param, so a stale
+			const previousTab = lastTabRef.current;
+			// Compare against the resolved tab, not the raw URL param, so a stale
 			// hash (e.g. `#/overview` on a Simple site) records no phantom click.
-			if ( tabName !== currentTab ) {
+			if ( tabName !== previousTab ) {
+				lastTabRef.current = tabName;
+
 				// Mark this as an internal navigation (user clicked a tab)
 				lastNavigationSourceRef.current = 'internal';
 
@@ -45,7 +53,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 				// Record tab click event
 				recordEvent( 'jetpack_myjetpack_tab_click', {
 					tab_name: tabName,
-					previous_tab: currentTab,
+					previous_tab: previousTab,
 					session_duration: sessionDuration,
 					user_type: isNewUser ? 'new' : 'returning',
 				} );
@@ -56,12 +64,15 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 				navigate( `/${ tabName }` );
 			}
 		},
-		[ navigate, currentTab, recordEvent, isNewUser ]
+		[ navigate, recordEvent, isNewUser ]
 	);
 
 	const pinsTabs = isHeaderControlsEnabled();
 
 	useEffect( () => {
+		// Back/forward and hash edits change the tab without `onTabSelect`.
+		lastTabRef.current = currentTab;
+
 		// Reset navigation source for next change
 		lastNavigationSourceRef.current = 'external';
 
@@ -99,6 +110,11 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] ); // track this only on page load
+
+	const [ , setLastTab ] = useValueStore( 'lastTab', null );
+	useEffect( () => {
+		setLastTab( { path: `/${ currentTab }${ search }`, key: getHistoryEntryKey() } );
+	}, [ currentTab, search, location, setLastTab ] );
 
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 

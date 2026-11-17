@@ -1,21 +1,22 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 // Styling copied from Gutenberg's `@wordpress/block-editor` styling for
 // the Warning component so we can use it on the frontend.
 .block-editor-warning {
-	border: gb.$border-width solid gb.$gray-200;
+	border: variables.$border-width solid colors.$gray-200;
 	padding: 10px 14px;
 
 	.block-editor-warning__message {
-		line-height: gb.$default-line-height;
-		font-family: gb.$default-font;
-		font-size: gb.$default-font-size;
+		line-height: variables.$default-line-height;
+		font-family: variables.$default-font;
+		font-size: variables.$default-font-size;
 	}
 
 	.block-editor-warning__actions {
 
 		.components-button {
-			font-family: gb.$default-font;
+			font-family: variables.$default-font;
 			font-weight: inherit;
 			text-decoration: none;
 		}

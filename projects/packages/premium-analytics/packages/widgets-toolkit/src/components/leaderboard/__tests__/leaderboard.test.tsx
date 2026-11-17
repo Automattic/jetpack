@@ -95,15 +95,15 @@ describe( 'Leaderboard', () => {
 		const dashboardWindow = 'from=2026-06-01&to=2026-06-16&interval=day';
 		expect( screen.getByRole( 'link', { name: 'Walkthrough' } ) ).toHaveAttribute(
 			'href',
-			`/video/101?${ dashboardWindow }`
+			`/report/video/101?${ dashboardWindow }`
 		);
 		expect( screen.getByRole( 'link', { name: 'Hello world' } ) ).toHaveAttribute(
 			'href',
-			`/post/9?${ dashboardWindow }`
+			`/report/post/9?${ dashboardWindow }`
 		);
 		expect( screen.getByRole( 'link', { name: 'Own window' } ) ).toHaveAttribute(
 			'href',
-			'/post/3'
+			'/report/post/3'
 		);
 	} );
 

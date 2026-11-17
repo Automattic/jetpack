@@ -1,14 +1,17 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
+import { Tooltip, VisuallyHidden } from '@wordpress/ui';
 import { useAllSectionsEmpty } from '../hooks/use-drafts';
 import useGenerateAll from '../hooks/use-generate-all';
 import { AI_STORE_NAME } from '../store';
 
 export default function SuggestAllButton() {
 	const { generate, loading, hasFeature } = useGenerateAll();
+	const descriptionId = useId();
 
 	const bannerDismissed = useSelect( select => select( AI_STORE_NAME ).isBannerDismissed(), [] );
 
@@ -32,6 +35,7 @@ export default function SuggestAllButton() {
 			onClick={ generate }
 			disabled={ loading }
 			accessibleWhenDisabled
+			aria-describedby={ hasFeature ? undefined : descriptionId }
 			isBusy={ loading }
 			className="jetpack-content-guidelines-ai__suggest-all-button"
 		>
@@ -41,7 +45,14 @@ export default function SuggestAllButton() {
 
 	if ( ! hasFeature && ! hidden ) {
 		return (
-			<Tooltip text={ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }>{ button }</Tooltip>
+			<Tooltip.Root>
+				<Tooltip.Trigger render={ button } />
+				{ /* The popup is visual-only, so this carries the sentence to screen readers. */ }
+				<VisuallyHidden id={ descriptionId } render={ <span /> }>
+					{ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }
+				</VisuallyHidden>
+				<Tooltip.Popup>{ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }</Tooltip.Popup>
+			</Tooltip.Root>
 		);
 	}
 

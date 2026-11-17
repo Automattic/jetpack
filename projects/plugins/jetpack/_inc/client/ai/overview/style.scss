@@ -249,22 +249,18 @@
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
-	// Doubled class beats the component's runtime-injected rules. ProgressBar
-	// derives its track from the foreground colour (accent at 10%); the frame
-	// wants a neutral track under a rounded brand-coloured fill.
-	&__meter#{&}__meter {
+	&__meter {
 		inline-size: 100%;
-		block-size: 4px;
 		// The frame's meter sits flush under the number's line box, so the
 		// cell's own gap is cancelled here.
 		margin-block-start: calc(-1 * var(--wpds-dimension-gap-sm));
-		border-radius: var(--wpds-border-radius-lg);
-		overflow: hidden;
-		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	}
 
-		> div {
-			background-color: var(--wpds-color-foreground-interactive-brand);
-		}
+	// The frame wants a neutral track under the brand-coloured fill, which
+	// the Indicator's `color` prop sets.
+	&__meter-track {
+		block-size: 4px;
+		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
 	}
 }
 
@@ -280,8 +276,8 @@
 }
 
 // Without an actions row the banner is shorter, which would push the shared
-// shell's bottom sphere up into the copy — sink it so only a rim shows.
-.jetpack-ai-overview__assistant-banner .jetpack-ai-banner__orb--bottom {
+// shell's bottom sphere up into the copy, so hide it.
+.jetpack-ai-overview__assistant-banner .jp-highlight-banner__orb--bottom {
 	display: none;
 }
 

@@ -11,10 +11,11 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
 	title_separator: '-',
 	title_formats_editable: true,
-	conflicting_seo_plugin: '',
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	site_is_private: false,
+	site_is_coming_soon: false,
+	site_visibility_url: '',
 	search_engines_visible: true,
 	sitemap_active: false,
 	sitemap_switchable: true,
@@ -30,6 +31,17 @@ describe( 'buildCorePayload', () => {
 	it( 'returns an empty payload when nothing changed', () => {
 		const baseline = makeSettings();
 		expect( buildCorePayload( baseline, makeSettings() ) ).toEqual( {} );
+	} );
+
+	it.each( [ 42, 0 ] )( 'sends only the default-image choice (%i)', id => {
+		const previous = { id: 1, src: 'https://example.com/old.jpg', alt_text: '' };
+		const next = id ? { id, src: 'https://example.com/new.jpg', alt_text: '' } : null;
+		expect(
+			buildCorePayload(
+				makeSettings( { default_share_image: previous } ),
+				makeSettings( { default_share_image: next } )
+			)
+		).toEqual( { jetpack_seo_default_share_image: id } );
 	} );
 
 	it( 'maps allow-indexing to blog_public = 1', () => {

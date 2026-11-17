@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Fix local video uploads reporting an error instead of inserting the Video block.

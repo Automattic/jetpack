@@ -11,12 +11,15 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import {
+	HEADLINE_COUNT_FORMAT,
 	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
 	type CountLabel,
 	type MetricTab,
@@ -38,11 +41,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type EmailTimeSeriesRenderAttributes = EmailTimeSeriesAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type EmailTimeSeriesWidgetProps = WidgetRenderProps< EmailTimeSeriesRenderAttributes >;
-
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 /** The timeline field each metric charts. */
 const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_count' > = {
@@ -136,6 +134,33 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 		];
 	}, [ chartReport, field, metric, active.timezone ] );
 
+	const csv = useMemo(
+		() =>
+			metricTabsToCsv(
+				metricTabs[ 0 ].current.some( point => ( point.value ?? 0 ) > 0 ) ? metricTabs : [],
+				{
+					zone: active.timezone,
+					// The timeline turns hourly on an hourly page, whatever bucket size the chart keeps.
+					withTime: reportParams.interval === 'hour',
+					dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+				}
+			),
+		[ metricTabs, active.timezone, reportParams.interval ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: `email-${ postId }-${ metric }`,
+			hasDateRange: true,
+			status: {
+				isLoading: active.isLoading,
+				isFetching: active.isFetching,
+				isError: active.isError,
+				isPlaceholderData: active.isPlaceholderData,
+			},
+		},
+	} );
+
 	return (
 		<div className={ styles.root }>
 			<WidgetState
@@ -163,9 +188,8 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
-					chartTitle={ __( 'Email performance', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel
 				/>

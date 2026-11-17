@@ -66,6 +66,10 @@ class Utils {
 			$query_args['posterUrl'] = rawurlencode( $video_press_url_options['poster'] );
 		}
 
+		if ( isset( $video_press_url_options['at'] ) && (int) $video_press_url_options['at'] > 0 ) {
+			$query_args['at'] = (int) $video_press_url_options['at'];
+		}
+
 		$url = 'https://videopress.com/v/' . $guid;
 		return add_query_arg( $query_args, $url );
 	}

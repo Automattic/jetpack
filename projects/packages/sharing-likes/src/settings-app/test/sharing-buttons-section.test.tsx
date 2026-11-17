@@ -129,7 +129,7 @@ describe( 'SharingButtonsSection', () => {
 
 	it( 'does not ask for services unless the section configures', () => {
 		renderWithData( <SharingButtonsSection />, {
-			status: { ...baseStatus, sharing: { state: 'off' } },
+			status: { ...baseStatus, sharing: { ...baseStatus.sharing, state: 'off' } },
 		} );
 
 		expect( apiCalls() ).toEqual( [] );

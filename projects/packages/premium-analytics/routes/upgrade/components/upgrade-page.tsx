@@ -13,13 +13,15 @@ import {
 	Button,
 	ButtonLink,
 	Card,
+	Icon,
 	Notice,
 	Skeleton,
 	Stack,
 	Text,
 } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useDashboardLink } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon, StatsTierSlider } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs, StatsTierSlider } from '@jetpack-premium-analytics/ui';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { speak } from '@wordpress/a11y';
 import { Page } from '@wordpress/admin-ui';
@@ -106,7 +108,6 @@ export function UpgradePage(): JSX.Element {
 		from: 'jetpack_premium_analytics_upsell',
 		redirectUri: upgradePath,
 	} );
-	// The connection store never clears its own "connecting" flag when the flow fails to start.
 	const [ connectState, setConnectState ] = useState< 'idle' | 'connecting' | 'failed' >( 'idle' );
 	const connectUser = useCallback( () => {
 		setConnectState( 'connecting' );
@@ -221,7 +222,7 @@ export function UpgradePage(): JSX.Element {
 
 	return (
 		<Page
-			visual={ <StatsPageIcon /> }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={
 				<StatsBreadcrumbs
 					items={ [ { label: __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) } ] }

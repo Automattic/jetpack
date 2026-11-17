@@ -2,13 +2,18 @@
  * External dependencies
  */
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
+	HEADLINE_COUNT_FORMAT,
 	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
+	getPostTypeCopy,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
@@ -27,11 +32,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type PostViewsRenderAttributes = PostViewsAttributes & Partial< ReportParamsFieldAttributes >;
 type PostViewsWidgetProps = WidgetRenderProps< PostViewsRenderAttributes >;
 
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
-};
-
 type PostViewsInnerProps = {
 	/** How the views series is drawn. `MetricTabsChart` owns the default. */
 	chartType?: PostViewsChartType;
@@ -46,11 +46,8 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 	const postId = toPostId( reportParams.post_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, refetch } = usePostViews(
-		postId,
-		reportParams,
-		period
-	);
+	const { current, postType, isLoading, isFetching, isError, isPlaceholderData, refetch } =
+		usePostViews( postId, reportParams, period );
 
 	// The post detail page has no comparison control, so there is no previous
 	// series, and the headline is just the sum of the window's buckets.
@@ -68,6 +65,24 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 		],
 		[ current ]
 	);
+	const csv = useMemo(
+		() =>
+			metricTabsToCsv( current.some( point => point.value > 0 ) ? metricTabs : [], {
+				zone: reportingTimeZone(),
+				withTime: false,
+				dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+			} ),
+		[ current, metricTabs ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: `post-${ postId }-views`,
+			range: { from: reportParams.from, to: reportParams.to },
+			status: { isLoading, isFetching, isError, isPlaceholderData },
+		},
+	} );
+
 	return (
 		<div className={ styles.root }>
 			<WidgetState
@@ -94,9 +109,9 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
-					chartTitle={ __( 'Post views', 'jetpack-premium-analytics-pkg' ) }
+					chartTitle={ getPostTypeCopy( postType ).views }
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel
 				/>

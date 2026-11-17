@@ -80,4 +80,29 @@ describe( 'FirewallSettingsCard', () => {
 		expect( screen.queryAllByText( 'Standalone mode' ) ).toHaveLength( labels );
 		expect( screen.queryByText( BOOTSTRAP_PATH, { exact: false } ) !== null ).toBe( showsPath );
 	} );
+
+	it.each( [
+		[ true, /Your host provides a firewall/ ],
+		[ false, /isn’t available on your site’s hosting/ ],
+	] )(
+		'offers no settings where Jetpack’s firewall can’t run (host firewall: %s)',
+		( providedByHost, message ) => {
+			render(
+				<FirewallSettingsCard
+					{ ...( {
+						state: { providedByHost },
+						settings: {
+							settings: {},
+							waf: { waf_supported: false },
+							save: jest.fn(),
+							isSaving: () => false,
+						},
+					} as unknown as FirewallContext ) }
+				/>
+			);
+
+			expect( screen.getByText( message ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
+		}
+	);
 } );

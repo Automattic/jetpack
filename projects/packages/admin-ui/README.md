@@ -153,7 +153,6 @@ Keys are fixed strings, so they survive a page's slug changing.
 | `jetpack-podcast` | Podcast, except on WordPress.com Simple and Atomic sites |
 | `jetpack-premium-analytics` | Premium Analytics (top level) |
 | `jetpack-protect` | Protect, from the Jetpack plugin or the Protect plugin |
-| `jetpack-scan` | Scan |
 | `jetpack-scan-cloud` | Scan ↗, the link to Jetpack Cloud |
 | `jetpack-search` | Search |
 | `jetpack-seo` | SEO |
@@ -195,6 +194,22 @@ A gate removes the item wherever it resolves false, so check it holds in every c
 Stats and Premium Analytics register this way, under the keys `jetpack-stats` and `jetpack-premium-analytics`.
 
 Unlike `add_menu()`, the page gets neither the core-notice CSS nor the WPDS design tokens; call `Admin_Menu::hide_core_admin_notices()` or `Admin_Menu::enqueue_design_tokens()` on its own `load-` hook for either. Registering only top level items never builds the Jetpack menu.
+
+### Admin shell: unsaved changes
+
+With the admin shell on, member dashboards stay mounted while hidden, so switching away keeps an edit. A navigation that would open a member at a different route than where it was left would unmount that view, so first the shell dispatches a cancelable `jetpack-admin-shell:before-leave` event on `window`, with `detail: { page, url }`: the member's admin page slug and the URL about to open.
+
+A member with unsaved changes asks the user and calls `preventDefault()` to stay. The user may be looking at another dashboard, so the question should name the member, such as "You have unsaved changes in Newsletter. Discard them?". A click is then cancelled. Back/Forward can't be, so the shell reopens the member where it was left, in the same history entry. When the shell is off, or an older Admin UI is loaded, nothing dispatches the event.
+
+```JS
+window.addEventListener( 'jetpack-admin-shell:before-leave', event => {
+	if ( event.detail?.page === 'my-dashboard' && isDirty && ! window.confirm( message ) ) {
+		event.preventDefault();
+	}
+} );
+```
+
+The shell asks before its own navigation, and a screen that also guards `popstate` hears that navigation in the same task: let it skip its own prompt then, so the user is asked once. Such a guard also hears popstates while its page is hidden, so let it stand down from `jetpack-admin-shell:page-hidden` until `jetpack-admin-shell:page-shown` for its page.
 
 ## Security
 

@@ -85,7 +85,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function user_exists( $user_id ) {
 		$user = get_user_by( 'id', $user_id );
 
-		return false !== $user && is_a( $user, 'WP_User' );
+		return false !== $user && $user instanceof \WP_User;
 	}
 
 	/**

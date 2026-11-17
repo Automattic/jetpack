@@ -11,6 +11,16 @@ inputs:
 runs:
   using: composite
   steps:
+    # The runner image's default Azure Ubuntu mirrors are often much slower than the default ones.
+    # See, for example: https://github.com/actions/runner-images/issues/14823
+    - name: Use upstream Ubuntu mirrors
+      shell: bash
+      run: |
+        if [[ -f /etc/apt/apt-mirrors.txt ]]; then
+          sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt
+          cat /etc/apt/apt-mirrors.txt
+        fi
+
     - name: "Read tool versions"
       id: versions
       shell: bash
@@ -83,12 +93,17 @@ runs:
         cache: true
         runtime: node@${{ steps.versions.outputs.node-version }}
 
-    # https://github.com/pnpm/setup/issues/51
-    - name: Work around pnpm/setup bug
+    - name: Work around pnpm/setup bugs
       if: steps.versions.outputs.node-version != 'false'
       shell: bash
       run: |
+        # https://github.com/pnpm/setup/issues/51
         [[ -f pnpm-lock.yaml ]] && git restore pnpm-lock.yaml
+
+        # https://github.com/pnpm/setup/issues/83
+        echo "::add-matcher::$GITHUB_ACTION_PATH/matchers/eslint-compact.jsonc"
+        echo "::add-matcher::$GITHUB_ACTION_PATH/matchers/eslint-stylish.jsonc"
+        echo "::add-matcher::$GITHUB_ACTION_PATH/matchers/tsc.jsonc"
 
     - name: Configure composer 304-short-circuiting proxy
       if: steps.versions.outputs.php-version != 'false' && steps.versions.outputs.node-version != 'false'

@@ -11,6 +11,10 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Render a page with an iframe to track and redirect user content links in emails.
  *

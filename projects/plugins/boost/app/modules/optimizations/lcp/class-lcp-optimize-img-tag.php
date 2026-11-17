@@ -94,8 +94,8 @@ class LCP_Optimize_Img_Tag {
 			$original_src = (string) $image_url;
 			$image_url    = Image_CDN::strip_image_dimensions_maybe( $original_src );
 
-			// Its -WxH suffix names a WordPress size only if stripping found the original.
-			if ( $image_url !== $original_src ) {
+			// Its -WxH suffix names a WordPress size if stripping found the original, or the attachment lists it.
+			if ( $image_url !== $original_src || $this->is_attachment_size( $buffer_processor, $original_src ) ) {
 				$resized_src = $original_src;
 			}
 		} else {
@@ -129,11 +129,48 @@ class LCP_Optimize_Img_Tag {
 	}
 
 	/**
+	 * Whether the image's attachment lists the src's file as one of its sizes, as when the
+	 * original is offloaded or deleted and there is no file on disk to confirm it.
+	 *
+	 * @param WP_HTML_Tag_Processor $element The image tag.
+	 * @param string                $src     The image src.
+	 * @return bool
+	 */
+	private function is_attachment_size( $element, $src ) {
+		list( $width ) = Image_CDN::parse_dimensions_from_filename( $src );
+		if ( ! $width ) {
+			return false;
+		}
+
+		$attachment_id = 0;
+		foreach ( $element->class_list() ?? array() as $class_name ) {
+			if ( preg_match( '/^wp-image-([1-9][0-9]*)$/', $class_name, $matches ) ) {
+				$attachment_id = (int) $matches[1];
+				break;
+			}
+		}
+
+		$meta = $attachment_id ? wp_get_attachment_metadata( $attachment_id ) : false;
+		if ( ! is_array( $meta ) || empty( $meta['sizes'] ) || ! is_array( $meta['sizes'] ) ) {
+			return false;
+		}
+
+		$file = rawurldecode( wp_basename( (string) wp_parse_url( $src, PHP_URL_PATH ) ) );
+		foreach ( $meta['sizes'] as $size ) {
+			if ( is_array( $size ) && isset( $size['file'] ) && $size['file'] === $file ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Optimize an image tag by adding srcset and sizes attributes.
 	 *
 	 * @param WP_HTML_Tag_Processor $element The original image tag.
 	 * @param string                $image_url The image URL.
-	 * @param string                $resized_src The WordPress-resized src swapped for the original, if any.
+	 * @param string                $resized_src The src, if its -WxH suffix names a WordPress size.
 	 * @return WP_HTML_Tag_Processor The optimized image tag.
 	 *
 	 * @since 4.0.0
@@ -145,7 +182,7 @@ class LCP_Optimize_Img_Tag {
 			return $element;
 		}
 
-		$object_fit = $this->get_marked_object_fit( $element );
+		$object_fit = $this->get_object_fit( $element );
 
 		// Under cover, a file cropped to the box shows the same picture and is smaller.
 		$aspect_ratio = 'cover' === $object_fit ? null : $this->get_aspect_ratio( $element, $resized_src );
@@ -164,11 +201,31 @@ class LCP_Optimize_Img_Tag {
 	}
 
 	/**
-	 * Get the object-fit the markup sets, as core's Featured Image (inline style) and Cover
-	 * (data-object-fit) blocks do. A fit set by a stylesheet is not seen here.
+	 * Get the image's object-fit: the computed one the cloud reports, which sees stylesheets too,
+	 * else the one the markup sets, for reports from before the cloud sent it.
 	 *
 	 * @param WP_HTML_Tag_Processor $element The image tag.
-	 * @return string|null 'cover', 'contain', or null if the markup sets neither.
+	 * @return string|null 'cover', 'contain', or null for any other fit.
+	 */
+	private function get_object_fit( $element ) {
+		$fit = $this->get_marked_object_fit( $element );
+
+		if ( isset( $this->lcp_data['objectFit'] ) && is_string( $this->lcp_data['objectFit'] ) ) {
+			$reported = strtolower( $this->lcp_data['objectFit'] );
+
+			// A template save doesn't redo the analysis, so when the markup disagrees, assume no fit: it never crops.
+			$fit = null === $fit || $fit === $reported ? $reported : null;
+		}
+
+		return in_array( $fit, array( 'cover', 'contain' ), true ) ? $fit : null;
+	}
+
+	/**
+	 * Get the object-fit the markup sets, as core's Featured Image (inline style) and Cover
+	 * (data-object-fit) blocks do.
+	 *
+	 * @param WP_HTML_Tag_Processor $element The image tag.
+	 * @return string|null The fit, lowercased, or null if the markup sets none.
 	 */
 	private function get_marked_object_fit( $element ) {
 		// Inline style first: its last !important declaration, else its last, as CSS applies them.
@@ -176,9 +233,7 @@ class LCP_Optimize_Img_Tag {
 		if ( is_string( $style ) && preg_match_all( '/(?:^|;)\s*object-fit\s*:\s*([a-z-]+)\s*(!important\s*)?(?=;|$)/i', $style, $matches ) ) {
 			$important = array_filter( $matches[2] );
 			$fits      = $important ? array_intersect_key( $matches[1], $important ) : $matches[1];
-			$fit       = strtolower( end( $fits ) );
-
-			return in_array( $fit, array( 'cover', 'contain' ), true ) ? $fit : null;
+			return strtolower( end( $fits ) );
 		}
 
 		if ( 'cover' === $element->get_attribute( 'data-object-fit' ) ) {
@@ -192,7 +247,7 @@ class LCP_Optimize_Img_Tag {
 	 * Get the aspect ratio of the file the page asked for.
 	 *
 	 * @param WP_HTML_Tag_Processor $element     The image tag.
-	 * @param string                $resized_src The WordPress-resized src swapped for the original, if any.
+	 * @param string                $resized_src The src, if its -WxH suffix names a WordPress size.
 	 * @return float|null Width divided by height, or null if neither source gives both.
 	 */
 	private function get_aspect_ratio( $element, $resized_src ) {

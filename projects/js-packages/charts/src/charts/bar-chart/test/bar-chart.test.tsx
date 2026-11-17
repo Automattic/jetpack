@@ -17,6 +17,7 @@ import { useBarChartOptions } from '../private';
 import { useBarColors } from '../use-bar-colors';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -548,6 +549,81 @@ describe( 'BarChart', () => {
 				expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
 			}
 		);
+
+		test.each( [
+			[ 'small amounts', 0, [ 0.4, 1.2, 2.6 ], [ '0', '1', '2' ] ],
+			[ 'amounts under one step', 0, [ 0.31, 0.73 ], [ '0', '1' ] ],
+			[ 'cents', 2, [ 0.4, 1.2, 1.6 ], [ '0.00', '0.50', '1.00', '1.50' ] ],
+		] )( 'holds value ticks to tickDecimals for %s', ( _, tickDecimals, values, expected ) => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: values.map( ( value, i ) => ( { label: `Day ${ i }`, value } ) ),
+					},
+				],
+				options: {
+					axis: {
+						y: { tickDecimals, tickFormat: ( value: number ) => value.toFixed( tickDecimals ) },
+					},
+				},
+			} );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( expected );
+		} );
+
+		test.each( [ 'vertical', 'horizontal' ] as const )(
+			'keeps logarithmic bars unchanged by tickDecimals (%s)',
+			orientation => {
+				const valueAxis = orientation === 'horizontal' ? 'x' : 'y';
+				const barGeometry = ( tickDecimals?: number ) => {
+					const { unmount } = renderWithTheme( {
+						orientation,
+						data: [
+							{
+								label: 'Series A',
+								data: [ 0.31, 0.73 ].map( ( value, i ) => ( { label: `Day ${ i }`, value } ) ),
+							},
+						],
+						options: {
+							[ `${ valueAxis }Scale` ]: { type: 'log', zero: false },
+							axis: { [ valueAxis ]: { tickDecimals } },
+						},
+					} );
+					const geometry = Array.from( getBarRects(), geometryOf );
+					unmount();
+					return geometry;
+				};
+
+				const baseline = barGeometry();
+				expect( baseline ).toHaveLength( 2 );
+				expect( barGeometry( 0 ) ).toEqual( baseline );
+			}
+		);
+
+		test( "leaves a caller's value tickValues axis unwidened by tickDecimals", () => {
+			const barHeights = ( y: { tickValues: number[]; tickDecimals?: number } ) => {
+				const { unmount } = renderWithTheme( {
+					data: [
+						{
+							label: 'Series A',
+							data: [ 0.31, 0.73 ].map( ( value, i ) => ( { label: `Day ${ i }`, value } ) ),
+						},
+					],
+					options: { yScale: { zero: false }, axis: { y } },
+				} );
+				const heights = Array.from( getBarRects(), rect => rect.getAttribute( 'height' ) );
+				unmount();
+				return heights;
+			};
+
+			expect( barHeights( { tickValues: [ 0.4, 0.6 ], tickDecimals: 0 } ) ).toEqual(
+				barHeights( { tickValues: [ 0.4, 0.6 ] } )
+			);
+		} );
 
 		test( "keeps a caller's value tickValues", () => {
 			renderWithTheme( {
@@ -2023,6 +2099,39 @@ describe( 'BarChart', () => {
 				// Both periods are shown, each as "label: value" with a space after the colon.
 				expect( tooltip ).toHaveTextContent( 'This period: 10' );
 				expect( tooltip ).toHaveTextContent( 'Previous period: 15' );
+			} );
+
+			test( 'pairs the comparison value by date when the bars have empty labels', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'This period',
+							group: 'views',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: '' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: '' },
+							],
+						},
+						{
+							label: 'Previous period',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 15, label: '' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: '' },
+							],
+						},
+					],
+				} );
+
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}' );
+
+				const tooltip = screen.getByTestId( 'chart-tooltip-1' );
+				expect( tooltip ).toHaveTextContent( 'This period: 20' );
+				expect( tooltip ).toHaveTextContent( 'Previous period: 25' );
 			} );
 
 			test( 'keyboard navigation past the first slot stays on the primary bar, not the comparison series', async () => {
@@ -3553,6 +3662,87 @@ describe( 'BarChart', () => {
 			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
 			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 		} );
+
+		const labelledViews = [
+			{ label: 'Apr', value: 29 },
+			{ label: 'May', value: 19 },
+		];
+		const april = new Date( '2025-04-01T00:00:00Z' );
+		const may = new Date( '2025-05-01T00:00:00Z' );
+
+		it.each( [
+			{
+				name: 'aligned series',
+				views: labelledViews,
+				visitors: [
+					{ label: 'Apr', value: 112 },
+					{ label: 'May', value: 80 },
+				],
+				presses: 3,
+				rows: [ 'Views=19@1', 'Visitors=80@1' ],
+				nearest: 'Views',
+			},
+			{
+				name: 'ragged series',
+				views: labelledViews,
+				visitors: [ { label: 'May', value: 80 } ],
+				presses: 2,
+				rows: [ 'Views=19@1', 'Visitors=80@0' ],
+				nearest: 'Visitors',
+			},
+			{
+				name: 'dated points with empty labels',
+				views: [
+					{ date: april, label: '', value: 29 },
+					{ date: may, label: '', value: 19 },
+				],
+				visitors: [
+					{ date: april, label: '', value: 112 },
+					{ date: may, label: '', value: 80 },
+				],
+				presses: 3,
+				rows: [ 'Views=19@1', 'Visitors=80@1' ],
+				nearest: 'Views',
+			},
+		] )(
+			'gives the keyboard tooltip only the bars at the selected category: $name',
+			async ( { views, visitors, presses, rows, nearest } ) => {
+				const user = userEvent.setup();
+				const renderTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+					<div>
+						<span data-testid="nearest">{ tooltipData?.nearestDatum?.key }</span>
+						{ Object.entries( tooltipData?.datumByKey ?? {} ).map(
+							( [ key, { datum, index } ] ) => (
+								<span
+									key={ key }
+									data-testid="row"
+								>{ `${ key }=${ datum.value }@${ index }` }</span>
+							)
+						) }
+					</div>
+				);
+
+				renderWithTheme( {
+					withTooltips: true,
+					renderTooltip,
+					data: [
+						{ label: 'Views', data: views, options: {} },
+						{ label: 'Visitors', data: visitors, options: {} },
+					],
+				} );
+
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
+				for ( let i = 0; i < presses; i++ ) {
+					await user.keyboard( '{ArrowRight}' );
+				}
+
+				expect( screen.getAllByTestId( 'row' ).map( row => row.textContent ) ).toEqual(
+					expect.arrayContaining( rows )
+				);
+				expect( screen.getAllByTestId( 'row' ) ).toHaveLength( rows.length );
+				expect( screen.getByTestId( 'nearest' ) ).toHaveTextContent( nearest );
+			}
+		);
 
 		it( 'stops at the last visible slot on a standard chart', async () => {
 			const user = userEvent.setup();

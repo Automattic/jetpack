@@ -17,7 +17,8 @@ export type StatsAppNoticeId =
 	| 'show_floating_user_feedback_panel'
 	| 'tier_upgrade'
 	| 'traffic_page_highlights_module_settings'
-	| 'traffic_page_settings';
+	| 'traffic_page_settings'
+	| 'visitor_consent_setup';
 
 export type StatsAppNotices = Partial< Record< StatsAppNoticeId, boolean > >;
 

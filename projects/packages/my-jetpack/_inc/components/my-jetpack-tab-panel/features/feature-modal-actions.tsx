@@ -62,26 +62,38 @@ type ModuleSwitchProps = {
  * @return The rendered component.
  */
 function ModuleSwitch( { state, module: $module, name }: ModuleSwitchProps ) {
-	const { setModuleActive, isUpdating, isActive } = useModuleActivation( $module, {
-		reload: false,
-	} );
 	const tracking = useFeaturesTracking();
-	const onClick = useCallback( () => {
-		tracking?.trackFeatureAction( {
-			state,
-			action: isActive ? 'deactivate' : 'activate',
-			origin: 'modal',
-		} );
-		setModuleActive( ! isActive );
-	}, [ isActive, setModuleActive, state, tracking ] );
+	const onSwitch = useCallback(
+		( active: boolean ) =>
+			tracking?.trackFeatureAction( {
+				state,
+				action: active ? 'activate' : 'deactivate',
+				origin: 'modal',
+			} ),
+		[ state, tracking ]
+	);
+	const onManageClick = useCallback(
+		() => tracking?.trackManageClick( state, 'campaigns_warning' ),
+		[ state, tracking ]
+	);
+	const { setModuleActive, isUpdating, isActive, confirmation } = useModuleActivation( $module, {
+		reload: false,
+		onSwitch,
+		onManageClick,
+		manageUrl: getFeatureManageUrl( state ),
+	} );
+	const onClick = useCallback( () => setModuleActive( ! isActive ), [ isActive, setModuleActive ] );
 
 	return (
-		<SwitchButton
-			isOn={ isActive }
-			name={ name }
-			disabled={ isUpdating || ! $module.available || !! $module.override }
-			onClick={ onClick }
-		/>
+		<>
+			<SwitchButton
+				isOn={ isActive }
+				name={ name }
+				disabled={ isUpdating || ! $module.available || !! $module.override }
+				onClick={ onClick }
+			/>
+			{ confirmation }
+		</>
 	);
 }
 

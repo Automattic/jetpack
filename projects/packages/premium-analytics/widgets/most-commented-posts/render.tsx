@@ -10,7 +10,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
-	sharePercentage,
 	commentsPostsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -45,8 +44,6 @@ function MostCommentedPostsInner() {
 	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...rows.map( row => row.value ), 0 );
-
 		return rows.map( row => ( {
 			id: row.id,
 			label: (
@@ -58,7 +55,6 @@ function MostCommentedPostsInner() {
 				/>
 			),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxValue ),
 		} ) );
 	}, [ rows ] );
 
@@ -94,7 +90,6 @@ function MostCommentedPostsInner() {
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
-						chartTitle={ __( 'All-time most commented posts', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withOverlayLabel
 						showLegend={ false }
