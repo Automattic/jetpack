@@ -1,8 +1,7 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Notice } from '@wordpress/ui';
-import { getSupportUrl } from './custom-content';
-import type { IdentityCrisisCustomContent } from './types';
+import { getSupportUrl } from './support-url';
 import type {
 	IdentityCrisisAction,
 	IdentityCrisisError,
@@ -55,7 +54,6 @@ interface IdentityCrisisErrorNoticeProps {
 	error: IdentityCrisisError | null;
 	/** Show only a failure of this action, e.g. under that action's option. Omit to show any. */
 	action?: IdentityCrisisAction;
-	customContent?: IdentityCrisisCustomContent;
 }
 
 /**
@@ -67,7 +65,6 @@ interface IdentityCrisisErrorNoticeProps {
 export default function IdentityCrisisErrorNotice( {
 	error,
 	action,
-	customContent = {},
 }: IdentityCrisisErrorNoticeProps ): ReactNode {
 	if ( ! error || ( action && error.action !== action ) ) {
 		return null;
@@ -79,7 +76,7 @@ export default function IdentityCrisisErrorNotice( {
 				{ getIdentityCrisisErrorMessage( error.cause ) }{ ' ' }
 				{ createInterpolateElement(
 					__( '<link>Get help with Safe Mode</link>', 'jetpack-connection-js' ),
-					{ link: <Link href={ getSupportUrl( customContent ) } openInNewTab /> }
+					{ link: <Link href={ getSupportUrl() } openInNewTab /> }
 				) }
 			</Notice.Description>
 		</Notice.Root>

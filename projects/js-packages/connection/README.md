@@ -273,7 +273,7 @@ The pieces the new Safe Mode (identity crisis) screen is built from. They render
 - `IdentityCrisisAddresses` shows the address WordPress.com has on record and this site's, joined by an arrow (`variant="move"`) or a dash (`variant="separate"`). Pass it to an option's `visual` prop.
 - `IdentityCrisisOption`, `IdentityCrisisMigrated`, `IdentityCrisisNonAdmin` and `IdentityCrisisErrorNotice` are the option, the state after Migrate, the view for users who cannot resolve Safe Mode, and a failure message that names the cause. Give the notice an `action` to show only that action's failure, such as under its option.
 
-`IdentityCrisisLayout`, `IdentityCrisisMigrated`, `IdentityCrisisNonAdmin` and `IdentityCrisisErrorNotice` accept `customContent`, the overrides plugins send through the `jetpack_idc_consumers` filter, with the same keys and tags as the earlier screen. The other pieces take their text as props.
+The text and support link overrides that plugins send through the `jetpack_idc_consumers` filter don't apply: every plugin gets the same wording. A host can still pass the plugin's logo to `IdentityCrisisLayout`.
 
 ### Basic Usage
 ```jsx

@@ -2,7 +2,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { formatSiteAddress } from '../../helpers/format-site-address';
-import { renderCustomContent } from './custom-content';
 import styles from './styles.module.scss';
 import type { IdentityCrisisMigratedProps } from './types';
 import type { ReactNode } from 'react';
@@ -17,7 +16,6 @@ import type { ReactNode } from 'react';
 export default function IdentityCrisisMigrated( {
 	wpcomHomeUrl,
 	currentUrl,
-	customContent = {},
 	onDone,
 }: IdentityCrisisMigratedProps ): ReactNode {
 	const from = formatSiteAddress( wpcomHomeUrl );
@@ -26,32 +24,24 @@ export default function IdentityCrisisMigrated( {
 	return (
 		<Stack direction="column" gap="md" align="flex-start" role="status">
 			<Text variant="heading-xl" render={ <h2 /> }>
-				{ renderCustomContent(
-					customContent.migratedTitle,
-					sprintf(
-						/* translators: %s: this site's address, e.g. example.com. */
-						__( 'Moving the connection to %s', 'jetpack-connection-js' ),
-						to
-					),
-					customContent
+				{ sprintf(
+					/* translators: %s: this site's address, e.g. example.com. */
+					__( 'Moving the connection to %s', 'jetpack-connection-js' ),
+					to
 				) }
 			</Text>
 			<Text variant="body-lg" render={ <p /> } className={ styles.prose }>
-				{ renderCustomContent(
-					customContent.migratedBodyText,
-					createInterpolateElement(
-						sprintf(
-							/* translators: %1$s: the address WordPress.com has on record. %2$s: this site's address. */
-							__(
-								'Safe Mode is off for <hostname>%2$s</hostname>. Stats, subscribers and the plan move over from <hostname>%1$s</hostname> the next time your site syncs with WordPress.com.',
-								'jetpack-connection-js'
-							),
-							from,
-							to
+				{ createInterpolateElement(
+					sprintf(
+						/* translators: %1$s: the address WordPress.com has on record. %2$s: this site's address. */
+						__(
+							'Safe Mode is off for <hostname>%2$s</hostname>. Stats, subscribers and the plan move over from <hostname>%1$s</hostname> the next time your site syncs with WordPress.com.',
+							'jetpack-connection-js'
 						),
-						{ hostname: <strong /> }
+						from,
+						to
 					),
-					customContent
+					{ hostname: <strong /> }
 				) }
 			</Text>
 			{ onDone && (

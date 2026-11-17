@@ -1,7 +1,6 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import { renderCustomContent } from './custom-content';
 import styles from './styles.module.scss';
 import type { IdentityCrisisLayoutProps } from './types';
 import type { ReactNode } from 'react';
@@ -14,15 +13,13 @@ import type { ReactNode } from 'react';
  */
 export default function IdentityCrisisLayout( {
 	logo,
-	customContent = {},
 	children,
 	hostActions,
 }: IdentityCrisisLayoutProps ): ReactNode {
 	let logoElement: ReactNode = logo;
 	if ( typeof logo === 'string' ) {
-		logoElement = (
-			<img src={ logo } alt={ customContent.logoAlt || '' } className={ styles.logo } />
-		);
+		// Decorative: the label next to it names the screen.
+		logoElement = <img src={ logo } alt="" className={ styles.logo } />;
 	} else if ( ! logo ) {
 		logoElement = <JetpackLogo height={ 24 } />;
 	}
@@ -31,13 +28,7 @@ export default function IdentityCrisisLayout( {
 		<Stack direction="column" gap="lg">
 			<Stack direction="row" gap="sm" align="center">
 				{ logoElement }
-				<Text variant="heading-md">
-					{ renderCustomContent(
-						customContent.headerText,
-						__( 'Safe Mode', 'jetpack-connection-js' ),
-						customContent
-					) }
-				</Text>
+				<Text variant="heading-md">{ __( 'Safe Mode', 'jetpack-connection-js' ) }</Text>
 			</Stack>
 			{ children }
 			{ hostActions && (
