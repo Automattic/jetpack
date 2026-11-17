@@ -102,10 +102,11 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	const ranInit = new Set( members[ host ].initModules );
 	// The Jetpack config a guest's init set, for another page built from its package.
 	const configOfInit = new Map();
+	const guestConfigs = new Set();
 	/*
 	 * One guest's init and route-module imports at a time: an init sets globals such as
 	 * `window.jetpackConfig` that its route modules read when they are evaluated.
-	 * The page's own config is put back after, so a prewarm leaves it as it was.
+	 * The page's config is put back after, unless the host's own init set a newer one meanwhile.
 	 */
 	let booting = Promise.resolve();
 	const oneAtATime = task => {
@@ -114,7 +115,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			try {
 				return await task();
 			} finally {
-				globalThis.jetpackConfig = pageConfig;
+				if ( guestConfigs.has( globalThis.jetpackConfig ) ) {
+					globalThis.jetpackConfig = pageConfig;
+				}
 			}
 		} );
 		booting = run.catch( () => {} );
@@ -141,16 +144,22 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 						}
 					} else {
 						step = stopwatch();
-						const configBefore = globalThis.jetpackConfig;
 						// Not bundled: wp-build's modules resolve through the page's import map at runtime.
 						const initModule = await import( /* webpackIgnore: true */ id );
+						const configBefore = globalThis.jetpackConfig;
+						const running = initModule.init?.();
+						// Members set it before their first await; a later change may be the host's own init.
+						const ownConfig = globalThis.jetpackConfig;
+						if ( ownConfig !== configBefore ) {
+							guestConfigs.add( ownConfig );
+						}
 						/*
 						 * Bounded, so a hung init can't hold up every guest queued behind it. A timed-out init
 						 * may still finish later and set its globals; it runs again on the next attempt.
 						 */
 						let timer;
 						await Promise.race( [
-							initModule.init?.(),
+							running,
 							new Promise( ( resolve, reject ) => {
 								timer = setTimeout(
 									() => reject( new Error( `Admin shell: ${ id } timed out` ) ),
@@ -160,8 +169,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 						] ).finally( () => clearTimeout( timer ) );
 						// Only once it succeeded, so a failed init runs again on the next attempt.
 						ranInit.add( id );
-						if ( globalThis.jetpackConfig !== configBefore ) {
-							configOfInit.set( id, globalThis.jetpackConfig );
+						if ( ownConfig !== configBefore ) {
+							configOfInit.set( id, ownConfig );
 						}
 						log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
 					}

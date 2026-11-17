@@ -364,6 +364,23 @@ describe( 'admin shell prewarm', () => {
 		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b', a2: 'a', h2: 'host' } );
 		expect( globalThis.jetpackConfig ).toBe( pageConfig );
 	} );
+
+	it( "keeps a Jetpack config the host's init sets while a guest prewarms", async () => {
+		let finishB;
+		mockInits.b.mockImplementation( () => {
+			globalThis.jetpackConfig = { consumer_slug: 'b' };
+			return new Promise( resolve => ( finishB = resolve ) );
+		} );
+
+		hover( 'guest-b' );
+		await settle();
+		const hostConfig = { consumer_slug: 'host' };
+		globalThis.jetpackConfig = hostConfig;
+		finishB();
+		await settle();
+
+		expect( globalThis.jetpackConfig ).toBe( hostConfig );
+	} );
 } );
 
 describe( 'admin shell switch', () => {
