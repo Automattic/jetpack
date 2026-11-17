@@ -47,19 +47,36 @@ export function usePageView( route: ModernRoute, enabled: boolean ): void {
 	}, [ route, enabled ] );
 
 	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	const { name, path } = getPageViewEvent( route );
+	// A ref, so the page the dashboard was hidden on outlives a re-render before it is shown.
+	const hiddenName = useRef( name );
 	useEffect( () => {
 		if ( ! enabled ) {
 			return;
 		}
+		const onHidden = ( event: Event ) => {
+			if ( ( event as CustomEvent ).detail?.page === 'jetpack-boost' ) {
+				hiddenName.current = name;
+			}
+		};
 		const onShown = ( event: Event ) => {
-			const { page, firstShow, routeChanged } = ( event as CustomEvent ).detail ?? {};
-			// A route change that changes the page runs the effect above, which records it.
-			if ( page === 'jetpack-boost' && ! firstShow && ! routeChanged ) {
-				const { name, path } = getPageViewEvent( route );
+			const { page, firstShow, routeChanged, url } = ( event as CustomEvent ).detail ?? {};
+			if ( page !== 'jetpack-boost' || firstShow ) {
+				return;
+			}
+			// The effect above records a return to another page, but not to another URL of the same one.
+			if (
+				! routeChanged ||
+				getPageViewEvent( resolveRoute( url ).route ).name === hiddenName.current
+			) {
 				recordBoostEvent( name, { path } );
 			}
 		};
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
 		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
-		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
-	}, [ route, enabled ] );
+		return () => {
+			window.removeEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		};
+	}, [ name, path, enabled ] );
 }

@@ -8,7 +8,7 @@ import { useEffect } from 'react';
  * @param callback - Called on each return with the event's detail. Memoize it, or it is subscribed again on every render.
  */
 export default function useAdminShellReturn(
-	callback: ( detail: { routeChanged?: boolean } ) => void
+	callback: ( detail: { routeChanged?: boolean; url?: string } ) => void
 ): void {
 	useEffect( () => {
 		const onShown = ( event: Event ) => {

@@ -1,6 +1,31 @@
-import { useCallback, useLayoutEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { matchPath } from 'react-router';
+import { MyJetpackRoutes } from '../../constants';
 import useAdminShellReturn from '../../hooks/use-admin-shell-return';
 import useAnalytics from '../../hooks/use-analytics';
+import { getLegacyHashHref } from '../../utils/route-href';
+import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+
+// Routes that show another screen; `/features` is a section.
+const OTHER_SCREENS = Object.values( MyJetpackRoutes ).filter(
+	route => route !== MyJetpackRoutes.Home && route !== MyJetpackRoutes.Features
+);
+
+/**
+ * The tab a My Jetpack URL shows, as this screen resolves it.
+ *
+ * @param {string} url - The page URL.
+ * @return {string|null} The tab, or null when the URL shows another screen.
+ */
+function tabOf( url ) {
+	const { searchParams, hash } = new URL( url );
+	const href = searchParams.get( 'p' ) || getLegacyHashHref( hash ) || '/';
+	const { pathname } = new URL( href, 'http://route.invalid' );
+	if ( OTHER_SCREENS.some( route => matchPath( route, pathname ) ) ) {
+		return null;
+	}
+	return resolveMyJetpackSection( matchPath( MyJetpackRoutes.Home, pathname )?.params.section );
+}
 
 /**
  * Record `jetpack_myjetpack_page_view` once the red bubble alerts load, on each tab change, and
@@ -42,12 +67,27 @@ export default function usePageView(
 		}
 	}, [ recordPageView, isRedBubbleAlertsLoading, currentTab ] );
 
-	// Recorded as a page load would: with no previous tab. While loading, or when the shell changed
-	// the tab, the effect above records it.
+	// A ref, so the tab the page was hidden on outlives a re-render before the page is shown.
+	const hiddenTabRef = useRef( currentTab );
+	useEffect( () => {
+		const onHidden = event => {
+			if ( event.detail?.page === 'my-jetpack' ) {
+				hiddenTabRef.current = currentTab;
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+	}, [ currentTab ] );
+
+	// Recorded as a page load would: with no previous tab. While loading, or on a return to another
+	// tab, the effect above records it; it records nothing for another URL of the same tab.
 	useAdminShellReturn(
 		useCallback(
-			( { routeChanged } ) => {
-				if ( ! isRedBubbleAlertsLoading && ! routeChanged ) {
+			( { routeChanged, url } ) => {
+				if (
+					! isRedBubbleAlertsLoading &&
+					( ! routeChanged || tabOf( url ) === hiddenTabRef.current )
+				) {
 					recordPageView( null );
 				}
 			},
