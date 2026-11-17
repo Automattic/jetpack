@@ -110,6 +110,12 @@ class Jetpack_Memberships_Capabilities_Test extends WP_UnitTestCase {
 		remove_filter( 'query', $logger );
 
 		$this->assertNotContains( $post_query, $queries );
+
+		add_filter( 'query', $logger );
+		get_post( $missing_id );
+		remove_filter( 'query', $logger );
+
+		$this->assertContains( $post_query, $queries, 'Control: a missing-post lookup should log this query.' );
 	}
 
 	/**
