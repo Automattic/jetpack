@@ -1296,6 +1296,37 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A Free site's wizard read assigns the goals experiment, except when Site Setup opens on the AI tool view.
+	 *
+	 * @param array|null  $query     The read's query params.
+	 * @param string|null $variation The expected goals_variation.
+	 * @dataProvider provide_goals_variation_reads
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[DataProvider( 'provide_goals_variation_reads' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_assigns_the_goals_experiment_unless_started_on_the_ai_tool( $query, $variation ) {
+		define( 'IS_WPCOM', true );
+		add_filter( 'wpcom_ai_launchpad_bring_your_ai_tool_override_is_treatment', '__return_true' );
+
+		$this->assertSame( $variation, $this->call_api( Requests::GET, '', null, $query )->get_data()['goals_variation'] );
+	}
+
+	/**
+	 * Data provider for test_get_assigns_the_goals_experiment_unless_started_on_the_ai_tool.
+	 *
+	 * @return array
+	 */
+	public static function provide_goals_variation_reads() {
+		return array(
+			'plain read'    => array( null, 'bring_your_ai_tool' ),
+			'start=ai-tool' => array( array( 'start' => 'ai-tool' ), null ),
+		);
+	}
+
+	/**
 	 * On a Simple site, which has no wp-admin plugin screens, plugin CTAs (the WooCommerce install task's and a
 	 * catalog task's) route to Calypso. Runs in a separate process so IS_WPCOM does not leak.
 	 *

@@ -4,7 +4,11 @@ import { decodeEntities } from '@wordpress/html-entities';
 import {
 	buildAutoInput,
 	decideInitialView,
+	AI_TOOL_START,
+	asksForAiTool,
 	isAllTasksMode,
+	readPath,
+	startsOnAiTool,
 	type View,
 } from './lib/orchestration.ts';
 import { tailor } from './lib/tailor.ts';
@@ -34,13 +38,14 @@ export function App() {
 	const [ goal, setGoal ] = useState< GoalSlug | undefined >();
 	// Handed to the list so returning users don't refetch the same endpoint.
 	const [ initialData, setInitialData ] = useState< LaunchpadData | undefined >();
+	const [ opensOnAiTool, setOpensOnAiTool ] = useState( false );
 
 	useEffect( () => {
 		let cancelled = false;
+		const search = window.location.search;
 		// Testing aid: ?all_tasks=1 skips the wizard and renders the full catalog.
-		const allTasks = isAllTasksMode( window.location.search );
-		const path = allTasks ? '/wpcom/v2/ai-launchpad?all_tasks=1' : '/wpcom/v2/ai-launchpad';
-		apiFetch< LaunchpadData >( { path } ).then( data => {
+		const allTasks = isAllTasksMode( search );
+		apiFetch< LaunchpadData >( { path: readPath( search ) } ).then( data => {
 			if ( cancelled ) {
 				return;
 			}
@@ -67,6 +72,10 @@ export function App() {
 			}
 
 			const nextView = allTasks ? 'list' : decideInitialView( data );
+			// Tags every event, so a link the page cannot honour (an existing list, an AI-built site) still shows up.
+			if ( asksForAiTool( search ) ) {
+				setTracksContext( { start: AI_TOOL_START } );
+			}
 			const siteCopy = data.site?.copy;
 			const input = nextView === 'auto' ? buildAutoInput( data ) : null;
 			if ( input && siteCopy ) {
@@ -78,6 +87,7 @@ export function App() {
 				setPendingTailor( () => tailoring );
 				setView( 'list' );
 			} else {
+				setOpensOnAiTool( startsOnAiTool( search, nextView ) );
 				setView( nextView );
 			}
 		} );
@@ -107,6 +117,7 @@ export function App() {
 				goalsVariation={ initialData?.goals_variation }
 				mcpDetection={ !! initialData?.mcp_detection }
 				mcpAllowFull={ !! initialData?.mcp_allow_full }
+				startOnAiTool={ opensOnAiTool }
 				onComplete={ ( input, tailoring ) => {
 					setFromWizard( true );
 					setPendingTailor( () => tailoring );

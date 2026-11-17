@@ -3,10 +3,14 @@ import { describe, it } from 'node:test';
 import {
 	aiToolRowStatus,
 	aiToolView,
+	dashboardIntegration,
 	BRING_YOUR_AI_TOOL,
 	buildWizardPayload,
 	canContinue,
 	findNewConnections,
+	firstScreen,
+	footerExit,
+	footerShowsDashboard,
 	isReadOnlyAccess,
 	goalsVariation,
 	isLastStep,
@@ -56,6 +60,41 @@ describe( 'goals step experiment', () => {
 		}
 		assert.equal( goalsVariation( 'bring_your_ai_tool' ), 'bring_your_ai_tool' );
 	} );
+} );
+
+describe( 'opening on the AI tool view', () => {
+	for ( const [ variation, startOnAiTool, screen ] of [
+		[ BRING_YOUR_AI_TOOL, false, 'setup_choice' ],
+		[ 'control', false, 'goal' ],
+		[ BRING_YOUR_AI_TOOL, true, 'ai_tool' ],
+		[ 'control', true, 'ai_tool' ],
+	] as const ) {
+		it( `opens ${ variation } on ${ screen } when startOnAiTool is ${ startOnAiTool }`, () => {
+			assert.equal( firstScreen( variation, startOnAiTool ), screen );
+		} );
+	}
+
+	for ( const [ name, variation, choosing, showAiTool, started, exit ] of [
+		[ 'control goals', 'control', false, false, false, 'skip' ],
+		[ 'treatment setup choice', BRING_YOUR_AI_TOOL, true, false, false, 'skip' ],
+		[ 'treatment goals', BRING_YOUR_AI_TOOL, false, false, false, 'back' ],
+		[ 'treatment AI tool view', BRING_YOUR_AI_TOOL, false, true, false, 'back' ],
+		[ 'AI tool view opened by the URL', 'control', false, true, true, null ],
+	] as const ) {
+		it( `offers ${ exit } on the ${ name }`, () => {
+			assert.equal( footerExit( variation, choosing, showAiTool, started ), exit );
+		} );
+	}
+
+	for ( const [ promptCopied, startOnAiTool, shows ] of [
+		[ false, false, false ],
+		[ true, false, true ],
+		[ false, true, true ],
+	] as const ) {
+		it( `shows Go to my dashboard: ${ shows } (copied ${ promptCopied }, URL ${ startOnAiTool })`, () => {
+			assert.equal( footerShowsDashboard( promptCopied, startOnAiTool ), shows );
+		} );
+	}
 } );
 
 describe( 'AI tool connection', () => {
@@ -187,6 +226,19 @@ describe( 'AI tool row status', () => {
 	} );
 } );
 
+describe( 'dashboard integration', () => {
+	for ( const [ connected, promptCopied, integration ] of [
+		[ [ 'chatgpt', 'claude' ], false, 'claude' ],
+		[ [ 'chatgpt' ], true, 'chatgpt' ],
+		[ [], true, 'other' ],
+		[ [], false, 'none' ],
+	] as const ) {
+		it( `reports ${ integration } with ${ connected.join( '+' ) || 'nothing' } connected, copied ${ promptCopied }`, () => {
+			assert.equal( dashboardIntegration( [ ...connected ], promptCopied ), integration );
+		} );
+	}
+} );
+
 describe( 'viewed step', () => {
 	it( 'reports the setup choice while it is shown', () => {
 		assert.equal( viewedStep( 0, true, false ), 'setup_choice' );
@@ -194,6 +246,10 @@ describe( 'viewed step', () => {
 
 	it( 'reports nothing for the AI tool view, which records its own event', () => {
 		assert.equal( viewedStep( 0, false, true ), null );
+	} );
+
+	it( 'reports the AI tool view when the page opened on it', () => {
+		assert.equal( viewedStep( 0, false, true, true ), 'ai_tool' );
 	} );
 
 	it( 'reports the goal and details steps', () => {

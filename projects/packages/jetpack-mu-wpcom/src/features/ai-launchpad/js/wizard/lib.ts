@@ -116,23 +116,26 @@ export function aiToolRowStatus(
 }
 
 /**
- * The step a `viewed` event reports for the current screen, or null for the AI tool view, which records its own.
+ * The step a `viewed` event reports for the current screen. The AI tool view reports `ai_tool` only when the page
+ * opened on it; otherwise `mcp_screen_viewed` alone covers it.
  *
- * @param step       - The current step index.
- * @param choosing   - Whether the setup choice is shown.
- * @param showAiTool - Whether the AI tool view is shown.
+ * @param step          - The current step index.
+ * @param choosing      - Whether the setup choice is shown.
+ * @param showAiTool    - Whether the AI tool view is shown.
+ * @param startOnAiTool - Whether the wizard opened on the AI tool view.
  * @return The viewed step.
  */
 export function viewedStep(
 	step: WizardStep,
 	choosing: boolean,
-	showAiTool: boolean
+	showAiTool: boolean,
+	startOnAiTool = false
 ): ViewedStep | null {
 	if ( choosing ) {
 		return 'setup_choice';
 	}
 	if ( showAiTool ) {
-		return null;
+		return startOnAiTool ? 'ai_tool' : null;
 	}
 	return 0 === step ? 'goal' : 'site_details';
 }
@@ -199,6 +202,45 @@ export function canContinue( step: WizardStep, state: WizardState ): boolean {
 	return step === 0 ? state.goal !== null : true;
 }
 
+/** The screen the wizard opens on. */
+export type FirstScreen = 'setup_choice' | 'ai_tool' | 'goal';
+
+/**
+ * The screen the wizard opens on: the AI tool view when the URL asks for it, else the setup choice in the treatment.
+ *
+ * @param variation     - The goals step's variation.
+ * @param startOnAiTool - Whether the URL asks to open on the AI tool view.
+ * @return The first screen.
+ */
+export function firstScreen( variation: GoalsVariation, startOnAiTool: boolean ): FirstScreen {
+	if ( startOnAiTool ) {
+		return 'ai_tool';
+	}
+	return showsSetupChoice( variation ) ? 'setup_choice' : 'goal';
+}
+
+/**
+ * The footer's way out: Back towards the setup choice once the treatment has left it, else Skip. None on an AI tool
+ * view the URL opened, since Skip would dismiss Site Setup and there is no choice to go back to.
+ *
+ * @param variation     - The goals step's variation.
+ * @param choosing      - Whether the setup choice is shown.
+ * @param showAiTool    - Whether the AI tool view is shown.
+ * @param startOnAiTool - Whether the wizard opened on the AI tool view.
+ * @return The footer's exit, or null for none.
+ */
+export function footerExit(
+	variation: GoalsVariation,
+	choosing: boolean,
+	showAiTool: boolean,
+	startOnAiTool: boolean
+): 'back' | 'skip' | null {
+	if ( startOnAiTool && showAiTool ) {
+		return null;
+	}
+	return showAiTool || ( showsSetupChoice( variation ) && ! choosing ) ? 'back' : 'skip';
+}
+
 /**
  * Whether the given step is the final one.
  *
@@ -239,4 +281,30 @@ export function buildWizardPayload( goal: GoalSlug, state: WizardState ): Wizard
  */
 export function pickPlaceholder( variants: string[], pick: () => number = Math.random ): string {
 	return variants[ Math.floor( pick() * variants.length ) ];
+}
+
+/**
+ * The `integration` "Go to my dashboard" reports.
+ *
+ * @param connected    - The AI tools shown as connected, in the order they connected.
+ * @param promptCopied - Whether the prompt for another AI tool was copied.
+ * @return The integration.
+ */
+export function dashboardIntegration(
+	connected: AiTool[],
+	promptCopied: boolean
+): AiTool | 'other' | 'none' {
+	return connected[ connected.length - 1 ] ?? ( promptCopied ? 'other' : 'none' );
+}
+
+/**
+ * Whether the AI tool view's footer offers "Go to my dashboard" before any tool connects. On a view the URL opened
+ * it is the only way out, since the wizard cannot be dismissed.
+ *
+ * @param promptCopied  - Whether the prompt for another AI tool was copied.
+ * @param startOnAiTool - Whether the wizard opened on the AI tool view.
+ * @return True when the footer shows the button.
+ */
+export function footerShowsDashboard( promptCopied: boolean, startOnAiTool: boolean ): boolean {
+	return promptCopied || startOnAiTool;
 }

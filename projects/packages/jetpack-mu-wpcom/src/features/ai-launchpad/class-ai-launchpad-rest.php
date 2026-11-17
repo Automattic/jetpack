@@ -338,6 +338,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 							'type'        => 'boolean',
 							'default'     => false,
 						),
+						'start'     => array(
+							'description' => 'The screen Site Setup opens on: `ai-tool` for "Which AI do you use?".',
+							'type'        => 'string',
+						),
 					),
 				),
 				array(
@@ -612,7 +616,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Composite read: wizard payload, AI output, enriched tasks, statuses, and eligibility.
 	 *
-	 * @param WP_REST_Request|null $request Request object (for the `all_tasks` testing param).
+	 * @param WP_REST_Request|null $request Request object (for the `all_tasks` testing param and `start`).
 	 * @return array
 	 */
 	public function get_data( $request = null ) {
@@ -646,7 +650,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		// in js/lib/orchestration.ts). The banner never renders there, so skip the offer and its ExPlat
 		// assignment: a user who sees only the wizard must not count as exposed. The list reads this endpoint
 		// again once the wizard finishes, and that read carries the offer.
-		$shows_wizard = ! is_array( $ai_output ) && ! $all_tasks;
+		$shows_wizard      = ! is_array( $ai_output ) && ! $all_tasks;
+		$starts_on_ai_tool = $request instanceof WP_REST_Request && 'ai-tool' === $request->get_param( 'start' );
 
 		$inferred_input = null;
 		if ( $shows_wizard && current_user_can( 'manage_options' ) ) {
@@ -656,6 +661,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				$wizard         = get_option( self::OPTION_WIZARD );
 			}
 		}
+
+		// An AI-built site skips the wizard, and `start=ai-tool` opens it on the AI tool view instead.
+		$opens_on_goals = $shows_wizard && null === $inferred_input && ! $starts_on_ai_tool;
 
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
@@ -688,8 +696,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			),
 			// The free DIFM offer banner under the task list, or null when it must not show.
 			'difm_offer'         => $shows_wizard ? null : AI_Launchpad_Difm_Offer::get_offer(),
-			// The goals step's experiment variation, assigned only when the wizard opens on it, which an AI-built site skips.
-			'goals_variation'    => $shows_wizard && null === $inferred_input ? AI_Launchpad_Bring_Your_AI_Tool::get_variation() : null,
+			// The goals step's experiment variation, assigned only when the wizard opens on the goals.
+			'goals_variation'    => $opens_on_goals ? AI_Launchpad_Bring_Your_AI_Tool::get_variation() : null,
 			// Whether GET /mcp-connections can see connections, which needs wpcom's helper.
 			'mcp_detection'      => function_exists( 'wpcom_mcp_get_user_connections' ),
 			// Whether POST /mcp-access can allow full access in place, which needs wpcom's helper and a site admin.

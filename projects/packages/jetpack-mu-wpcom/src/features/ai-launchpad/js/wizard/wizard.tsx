@@ -27,12 +27,15 @@ import {
 	AI_TOOL_CHAT_URLS,
 	buildWizardPayload,
 	canContinue,
+	dashboardIntegration,
+	firstScreen,
+	footerExit,
+	footerShowsDashboard,
 	GOAL_SLUGS,
 	goalsVariation,
 	isLastStep,
 	isReadOnlyAccess,
 	MCP_SETTINGS_URL,
-	showsSetupChoice,
 	TOTAL_STEPS,
 	viewedStep,
 	type AiTool,
@@ -65,6 +68,8 @@ interface Props {
 	mcpDetection?: boolean;
 	// Whether "Allow full access" can allow it in place; without it, the button opens the MCP settings.
 	mcpAllowFull?: boolean;
+	// Whether to open on the AI tool view, without the setup choice or a way back to it.
+	startOnAiTool?: boolean;
 	// Fired once Finish completes, with the persisted input and the in-flight
 	// tailor promise, so the host can swap to the tailored list.
 	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
@@ -85,6 +90,7 @@ interface Props {
  * @param props.goalsVariation  - The goals step's ExPlat variation from the server.
  * @param props.mcpDetection    - Whether the AI tool view can detect a new connection.
  * @param props.mcpAllowFull    - Whether "Allow full access" can allow it in place.
+ * @param props.startOnAiTool   - Whether to open on the AI tool view.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
@@ -99,6 +105,7 @@ export function Wizard( {
 	goalsVariation: assignedVariation = null,
 	mcpDetection = false,
 	mcpAllowFull = false,
+	startOnAiTool = false,
 	onComplete,
 }: Props ) {
 	const [ step, setStep ] = useState< WizardStep >( 0 );
@@ -106,11 +113,12 @@ export function Wizard( {
 		() => GOAL_SLUGS.find( slug => slug === initialGoal ) ?? null
 	);
 	const variation = goalsVariation( assignedVariation );
+	const first = firstScreen( variation, startOnAiTool );
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
 	const [ intent, setIntent ] = useState< string >( initialIntent );
 	const [ skipping, setSkipping ] = useState( false );
 	// Whether the "Which AI do you use?" view replaces the goals step. It is not a numbered step.
-	const [ showAiTool, setShowAiTool ] = useState( false );
+	const [ showAiTool, setShowAiTool ] = useState( first === 'ai_tool' );
 	const goalsTitleRef = useRef< HTMLHeadingElement >( null );
 	const aiToolTitleRef = useRef< HTMLHeadingElement >( null );
 	// The AI tools connected from the AI tool view, in the order they connected.
@@ -127,7 +135,7 @@ export function Wizard( {
 	const [ promptCopied, setPromptCopied ] = useState( false );
 	const readOnly = readOnlyAccess && connectedTools.length > 0;
 	// The treatment opens on "Guide me" or "Build with AI" before the goals.
-	const [ choosing, setChoosing ] = useState( showsSetupChoice( variation ) );
+	const [ choosing, setChoosing ] = useState( first === 'setup_choice' );
 	const [ setupChoice, setSetupChoice ] = useState< SetupChoice | null >( null );
 	const choiceTitleRef = useRef< HTMLHeadingElement >( null );
 
@@ -136,7 +144,7 @@ export function Wizard( {
 	// The analytics name of the current step, shared by every event that reports one.
 	const stepName = 0 === step ? 'goal' : 'site_details';
 
-	const viewed = viewedStep( step, choosing, showAiTool );
+	const viewed = viewedStep( step, choosing, showAiTool, startOnAiTool );
 
 	// One viewed event per screen shown, re-firing when Back re-shows the setup choice or goal step.
 	useEffect( () => {
@@ -244,7 +252,7 @@ export function Wizard( {
 	const handleGoToDashboard = () => {
 		trackWizardMcpGoToDashboardClicked( {
 			goals_variation: variation,
-			integration: connectedTools[ connectedTools.length - 1 ] ?? 'other',
+			integration: dashboardIntegration( connectedTools, promptCopied ),
 		} );
 		window.location.assign( 'index.php' );
 	};
@@ -333,17 +341,17 @@ export function Wizard( {
 		window.location.href = 'index.php';
 	};
 
-	// In the treatment, every view after the setup choice leads back towards it instead of skipping.
-	const backReplacesSkip = showAiTool || ( showsSetupChoice( variation ) && ! choosing );
+	const exit = footerExit( variation, choosing, showAiTool, startOnAiTool );
 
 	return (
-		// The wizard cannot be dismissed: Escape and backdrop clicks are ignored, and
-		// "Skip" is the only way out, apart from "Go to my dashboard" once an AI tool is connected.
+		// The wizard cannot be dismissed: Escape and backdrop clicks are ignored.
 		<Dialog.Root open onOpenChange={ () => undefined } disablePointerDismissal>
 			<Dialog.Popup
 				size="medium"
 				className="ai-launchpad-wizard"
-				initialFocus={ choosing ? choiceTitleRef : goalsTitleRef }
+				initialFocus={
+					{ setup_choice: choiceTitleRef, ai_tool: aiToolTitleRef, goal: goalsTitleRef }[ first ]
+				}
 				portal={ <Dialog.Portal className="ai-launchpad-wizard__portal" /> }
 			>
 				<Dialog.Content>
@@ -452,23 +460,29 @@ export function Wizard( {
 						) }
 					</Stack>
 				) : (
-					<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
-						{ backReplacesSkip ? (
+					<Stack
+						render={ <Dialog.Footer /> }
+						align="center"
+						justify={ exit ? 'space-between' : 'flex-end' }
+						gap="md"
+					>
+						{ exit === 'back' && (
 							<Button variant="minimal" onClick={ handleBack }>
 								{ __( 'Back', 'jetpack-mu-wpcom' ) }
 							</Button>
-						) : (
+						) }
+						{ exit === 'skip' && (
 							<Button variant="minimal" onClick={ handleSkip } disabled={ skipping }>
 								{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 							</Button>
 						) }
 						<Stack gap="sm">
-							{ step > 0 && ! backReplacesSkip && (
+							{ step > 0 && exit !== 'back' && (
 								<Button variant="outline" onClick={ handleBack } disabled={ skipping }>
 									{ __( 'Back', 'jetpack-mu-wpcom' ) }
 								</Button>
 							) }
-							{ showAiTool && promptCopied && (
+							{ showAiTool && footerShowsDashboard( promptCopied, startOnAiTool ) && (
 								<Button variant="solid" onClick={ handleGoToDashboard }>
 									{ aiCopy.goToDashboard }
 								</Button>
