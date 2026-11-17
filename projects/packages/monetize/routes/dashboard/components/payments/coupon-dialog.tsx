@@ -1,4 +1,6 @@
+import { dispatch } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import {
 	Button,
 	Dialog,
@@ -197,6 +199,12 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 						editing: isEditing,
 						discount_type: form.discountType,
 					} );
+					const message = isEditing
+						? /* translators: %s: a coupon code. */
+							sprintf( __( 'Coupon “%s” updated.', 'jetpack-monetize' ), form.code )
+						: /* translators: %s: a coupon code. */
+							sprintf( __( 'Coupon “%s” added.', 'jetpack-monetize' ), form.code );
+					dispatch( noticesStore ).createSuccessNotice( message, { type: 'snackbar' } );
 					onClose();
 				},
 			}
@@ -236,13 +244,20 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 				<Dialog.Content>
 					<Stack direction="column" gap="lg">
 						<InputControl
+							disabled={ isPending }
 							label={ __( 'Coupon code', 'jetpack-monetize' ) }
 							value={ form.code }
 							onValueChange={ onCodeChange }
 							maxLength={ 20 }
 							suffix={
 								<InputLayout.Slot padding="minimal">
-									<Button variant="minimal" tone="neutral" size="small" onClick={ onGenerateCode }>
+									<Button
+										variant="minimal"
+										tone="neutral"
+										size="small"
+										onClick={ onGenerateCode }
+										disabled={ isPending }
+									>
 										{ __( 'Generate', 'jetpack-monetize' ) }
 									</Button>
 								</InputLayout.Slot>
@@ -257,6 +272,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 						/>
 						<div className="jp-monetize-payments__prices">
 							<SelectControl
+								disabled={ isPending }
 								label={ __( 'Discount type', 'jetpack-monetize' ) }
 								items={ typeItems }
 								value={ typeItems.find( item => item.value === form.discountType ) ?? null }
@@ -268,10 +284,11 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 									items={ currencyItems }
 									value={ currencyItems.find( item => item.value === form.currency ) ?? null }
 									onValueChange={ onCurrencyChange }
-									disabled={ currencyItems.length < 2 }
+									disabled={ isPending || currencyItems.length < 2 }
 								/>
 							) }
 							<InputControl
+								disabled={ isPending }
 								type="number"
 								min={ 1 }
 								max={ form.discountType === 'percentage' ? 100 : undefined }
@@ -293,6 +310,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 						</div>
 						<div className="jp-monetize-payments__prices">
 							<InputControl
+								disabled={ isPending }
 								type="date"
 								label={ __( 'Start date', 'jetpack-monetize' ) }
 								value={ form.startDate }
@@ -304,6 +322,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 								}
 							/>
 							<InputControl
+								disabled={ isPending }
 								type="date"
 								label={ __( 'Expiration date (optional)', 'jetpack-monetize' ) }
 								value={ form.endDate }
@@ -319,6 +338,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							/>
 						</div>
 						<SelectControl
+							disabled={ isPending }
 							label={ __( 'Duration', 'jetpack-monetize' ) }
 							items={ durationItems }
 							value={ durationItems.find( item => item.value === form.duration ) ?? null }
@@ -329,6 +349,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							) }
 						/>
 						<SearchableChipSelectControl
+							disabled={ isPending }
 							label={ __( 'Plans', 'jetpack-monetize' ) }
 							items={ planItems }
 							value={ selectedPlans }
@@ -354,6 +375,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							}
 						/>
 						<InputControl
+							disabled={ isPending }
 							label={ __( 'Limit to specific emails (optional)', 'jetpack-monetize' ) }
 							value={ form.emails }
 							onValueChange={ onEmailsChange }
@@ -371,6 +393,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							}
 						/>
 						<InputControl
+							disabled={ isPending }
 							type="number"
 							min={ 1 }
 							step={ 1 }
@@ -387,11 +410,13 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							}
 						/>
 						<SwitchControl
+							disabled={ isPending }
 							label={ __( 'Cannot be combined with other coupons', 'jetpack-monetize' ) }
 							checked={ ! form.canBeCombined }
 							onCheckedChange={ onCannotCombineChange }
 						/>
 						<SwitchControl
+							disabled={ isPending }
 							label={ __( 'Eligible for first-time order only', 'jetpack-monetize' ) }
 							checked={ form.firstTimeOnly }
 							onCheckedChange={ onFirstTimeChange }

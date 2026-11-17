@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { select } from '@wordpress/data';
+import { store as noticesStore } from '@wordpress/notices';
 import { toCoupon } from '../../../data/coupons';
 import { wpcomFetch } from '../../../data/wpcom-fetch';
 import CouponDialog from '../coupon-dialog';
@@ -56,6 +58,9 @@ describe( 'CouponDialog', () => {
 			method: 'POST',
 			data: { coupon_code: 'SPRING', discount_type: 'percentage', discount_percentage: 20 },
 		} );
+		expect( select( noticesStore ).getNotices() ).toContainEqual(
+			expect.objectContaining( { type: 'snackbar', content: 'Coupon “SPRING” added.' } )
+		);
 	} );
 
 	it( 'updates an edited coupon in place', async () => {
