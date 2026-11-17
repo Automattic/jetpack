@@ -1,4 +1,4 @@
-import Text, { BOX_MODEL_VALUES, H2, H3, Title, VARIANTS_MAPPING } from '../index.tsx';
+import Text, { BOX_MODEL_VALUES, H3, Title, VARIANTS_MAPPING } from '../index.tsx';
 import styles from './style.module.scss';
 import type { SpacingValue } from '../types.ts';
 
@@ -7,6 +7,14 @@ const SPACING_VALUES: Array< SpacingValue > = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 export default {
 	title: 'JS Packages/Components/Text',
 	component: Text,
+	parameters: {
+		docs: {
+			description: {
+				component:
+					'**Deprecated:** Use `Text` from `@wordpress/ui` instead, with a `heading-*` or `body-*` variant.',
+			},
+		},
+	},
 	argTypes: {
 		...BOX_MODEL_VALUES.reduce(
 			( obj, cur ) => ( {
@@ -25,7 +33,7 @@ export default {
 			options: Object.keys( VARIANTS_MAPPING ),
 		},
 	},
-	subcomponents: { H2, H3, Title },
+	subcomponents: { H3, Title },
 };
 
 const Template = args => <Text { ...args }>{ args.variant ?? 'body' }</Text>;

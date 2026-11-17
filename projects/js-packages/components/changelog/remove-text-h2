@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove the unused `H2` heading component; use `Text` with `variant="headline-medium"` instead.

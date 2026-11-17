@@ -1,4 +1,4 @@
-import { H2, H3 } from '../index.tsx';
+import { H3 } from '../index.tsx';
 import styles from './style.module.scss';
 import type { H3Props } from '../types.ts';
 import type { Component } from 'react';
@@ -7,7 +7,15 @@ const TIPOGRAPHY_WEIGHTS: Array< H3Props[ 'weight' ] > = [ 'regular', 'bold' ];
 
 export default {
 	title: 'JS Packages/Components/Text/Heading',
-	component: H2,
+	component: H3,
+	parameters: {
+		docs: {
+			description: {
+				component:
+					'**Deprecated:** Use `Text` from `@wordpress/ui` instead, with a `heading-*` variant.',
+			},
+		},
+	},
 	argTypes: {
 		children: {
 			control: { type: 'text' },
@@ -36,15 +44,6 @@ function Instance( { children } ) {
 	);
 }
 
-const TemplateH2 = args => (
-	<Instance>
-		<H2 { ...args }>
-			{ args?.children ||
-				'Headline Medium - Manage your Jetpack plan and products all in one place' }
-		</H2>
-	</Instance>
-);
-
 const TemplateH3 = args => (
 	<Instance>
 		<H3 { ...args }>
@@ -53,25 +52,6 @@ const TemplateH3 = args => (
 		</H3>
 	</Instance>
 );
-
-const Template = args => {
-	return (
-		<>
-			<TemplateH2 { ...args } />
-			<TemplateH3 { ...args } />
-		</>
-	);
-};
-
-const DefaultArgs = {};
-export const Default = Template.bind( {} );
-Default.args = DefaultArgs;
-
-export const HeadlineH2 = TemplateH2.bind( {} );
-HeadlineH2.storyName = 'H2';
-HeadlineH2.args = {
-	weight: 'bold',
-} as H3Props;
 
 export const HeadlineH3 = TemplateH3.bind( {} );
 HeadlineH3.storyName = 'H3';
