@@ -1,15 +1,21 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { matchPath } from 'react-router';
 import { MyJetpackRoutes } from '../../constants';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAdminShellReturn from '../../hooks/use-admin-shell-return';
 import useAnalytics from '../../hooks/use-analytics';
 import { getLegacyHashHref } from '../../utils/route-href';
 import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 
-// Routes that show another screen; `/features` is a section.
-const OTHER_SCREENS = Object.values( MyJetpackRoutes ).filter(
-	route => route !== MyJetpackRoutes.Home && route !== MyJetpackRoutes.Features
-);
+// Routes that show another screen: not `/features`, a section, nor `/add-license` while it has no screen.
+const otherScreens = () =>
+	Object.values( MyJetpackRoutes ).filter(
+		route =>
+			route !== MyJetpackRoutes.Home &&
+			route !== MyJetpackRoutes.Features &&
+			( route !== MyJetpackRoutes.AddLicense ||
+				getMyJetpackWindowInitialState().loadAddLicenseScreen )
+	);
 
 /**
  * The tab a My Jetpack URL shows, as this screen resolves it.
@@ -21,7 +27,7 @@ function tabOf( url ) {
 	const { searchParams, hash } = new URL( url );
 	const href = searchParams.get( 'p' ) || getLegacyHashHref( hash ) || '/';
 	const { pathname } = new URL( href, 'http://route.invalid' );
-	if ( OTHER_SCREENS.some( route => matchPath( route, pathname ) ) ) {
+	if ( otherScreens().some( route => matchPath( route, pathname ) ) ) {
 		return null;
 	}
 	return resolveMyJetpackSection( matchPath( MyJetpackRoutes.Home, pathname )?.params.section );
@@ -67,8 +73,8 @@ export default function usePageView(
 		}
 	}, [ recordPageView, isRedBubbleAlertsLoading, currentTab ] );
 
-	// A ref, so the tab the page was hidden on outlives a re-render before the page is shown.
-	const hiddenTabRef = useRef( currentTab );
+	// Unset until hidden: a screen that mounts on a return has its mount count that view.
+	const hiddenTabRef = useRef( undefined );
 	useEffect( () => {
 		const onHidden = event => {
 			if ( event.detail?.page === 'my-jetpack' ) {

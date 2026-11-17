@@ -135,7 +135,6 @@ const Stage = () => {
 
 	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
 	const view = keyOf( { activeTab, pageViewSection, showReport } );
-	// A ref, so the view the page was hidden on outlives a re-render before the page is shown.
 	const hiddenView = useRef( view );
 	const tabList = tabValues.join();
 	useEffect( () => {

@@ -48,7 +48,6 @@ export function usePageView( route: ModernRoute, enabled: boolean ): void {
 
 	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
 	const { name, path } = getPageViewEvent( route );
-	// A ref, so the page the dashboard was hidden on outlives a re-render before it is shown.
 	const hiddenName = useRef( name );
 	useEffect( () => {
 		if ( ! enabled ) {
