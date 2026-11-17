@@ -109,12 +109,16 @@
 		},
 		"source": {
 			"type": "string",
-			"enum": [ "own", "queried", "index" ],
+			"enum": [ "own", "queried", "index", "series" ],
 			"default": "own"
 		},
 		"sourcePlaylistId": {
 			"type": "string",
 			"default": ""
+		},
+		"sourceSeriesId": {
+			"type": "number",
+			"default": 0
 		},
 		"showMeta": {
 			"type": "boolean",

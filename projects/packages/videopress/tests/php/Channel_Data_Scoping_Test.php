@@ -9,6 +9,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\Channel;
 use Automattic\Jetpack\VideoPress\Channel_Data;
+use Automattic\Jetpack\VideoPress\Classification;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_Query;
@@ -172,6 +173,42 @@ class Channel_Data_Scoping_Test extends BaseTestCase {
 		Channel_Data::reset();
 		Channel_Data::videos();
 		$this->assertCount( 2, $this->queries, 'A post change invalidates the list.' );
+	}
+
+	/**
+	 * Classification filters reach SQL before LIMIT, and a term change invalidates the cached filtered list.
+	 */
+	public function test_classification_filters_page_in_sql_and_follow_term_changes() {
+		Classification::register();
+		$this->fake_sql();
+		$state = array(
+			'search' => '',
+			'sort'   => 'newest',
+			'length' => 'any',
+			'page'   => 1,
+			'terms'  => array(
+				Classification::TOPIC  => array( 'search', 'a11y' ),
+				Classification::SERIES => array( 'town-hall' ),
+			),
+		);
+
+		Channel_Data::browse( $state, 2 );
+		$tax_query = $this->queries[0]['tax_query'];
+		$this->assertSame( 2, (int) $this->queries[0]['posts_per_page'] );
+		$this->assertSame( 'AND', $tax_query['relation'] );
+		$this->assertSame( array( 'a11y', 'search' ), $tax_query[1]['terms'] );
+
+		$state['length'] = 'short';
+		Channel_Data::browse( $state, 2 );
+		$this->assertArrayHasKey( 'tax_query', $this->queries[1], 'The full-list fallback filters in SQL too.' );
+		Channel_Data::reset();
+		Channel_Data::browse( $state, 2 );
+		$this->assertCount( 2, $this->queries, 'A new request reads the cached filtered list.' );
+
+		wp_cache_set_terms_last_changed();
+		Channel_Data::reset();
+		Channel_Data::browse( $state, 2 );
+		$this->assertCount( 3, $this->queries, 'A term assignment invalidates the filtered list.' );
 	}
 
 	/**

@@ -154,6 +154,7 @@ class All_Playlists_Block {
 			if ( ! is_array( $record ) ) {
 				continue;
 			}
+			$record      = Series_Playlist_Adapter::resolve( $record );
 			$post_id     = isset( $record['post_id'] ) ? absint( $record['post_id'] ) : 0;
 			$playlists[] = array(
 				'key'         => (string) $key,

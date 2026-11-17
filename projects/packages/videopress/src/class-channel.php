@@ -31,7 +31,7 @@ class Channel {
 	const PLAYLIST_QUERY_VAR = 'videopress_playlist';
 	const LIST_VAR           = 'list';
 	const PLAYLIST_TEMPLATE  = 'videopress-playlist';
-	const PLAYLIST_SOURCES   = array( 'own', 'queried', 'index' );
+	const PLAYLIST_SOURCES   = array( 'own', 'queried', 'index', Series_Playlist_Adapter::SOURCE );
 
 	/**
 	 * Whether the feature has been wired up in this request.
@@ -478,13 +478,20 @@ class Channel {
 	 * @return array
 	 */
 	private static function normalize_record( $key, array $record ) {
-		return array(
+		$record     = Series_Playlist_Adapter::resolve( $record );
+		$normalized = array(
 			'key'         => $key,
 			'title'       => isset( $record['title'] ) && is_string( $record['title'] ) ? $record['title'] : '',
 			'description' => isset( $record['description'] ) && is_string( $record['description'] ) ? $record['description'] : '',
 			'videos'      => Initializer::sanitize_playlist_entries( $record['videos'] ?? null ),
 			'post_id'     => isset( $record['post_id'] ) ? absint( $record['post_id'] ) : 0,
 		);
+		// Series playlists say so, see Series_Playlist_Adapter.
+		if ( Series_Playlist_Adapter::is_series_record( $record ) ) {
+			$normalized['type']   = Series_Playlist_Adapter::TYPE;
+			$normalized['series'] = absint( $record['series'] ?? 0 );
+		}
+		return $normalized;
 	}
 
 	/**
@@ -501,14 +508,18 @@ class Channel {
 	}
 
 	/**
-	 * The playlist a block shows: the queried one, or an indexed one by key
-	 * ( the most recently updated when no key is set ).
+	 * The playlist a block shows: the queried one, an indexed one by key
+	 * ( the most recently updated when no key is set ), or its series.
 	 *
 	 * @param string $source One of PLAYLIST_SOURCES.
 	 * @param string $key    Playlist key for the `index` source.
+	 * @param array  $attrs  Block attributes, for the `series` source.
 	 * @return array|null
 	 */
-	public static function source_playlist( $source, $key = '' ) {
+	public static function source_playlist( $source, $key = '', array $attrs = array() ) {
+		if ( Series_Playlist_Adapter::SOURCE === $source ) {
+			return Series_Playlist_Adapter::block_playlist( $attrs );
+		}
 		if ( 'queried' === $source ) {
 			return self::queried_playlist();
 		}
@@ -563,7 +574,7 @@ class Channel {
 	}
 
 	/**
-	 * A Video Playlist block whose `source` is `queried` or `index` shows that
+	 * A Video Playlist block whose `source` is `queried`, `index` or `series` shows that
 	 * playlist; its entries then open their video pages within the playlist.
 	 * Hooked by Channel_Blocks::register() on every site with the block, channel
 	 * theme or not.
@@ -581,7 +592,7 @@ class Channel {
 			return $parsed_block;
 		}
 
-		$playlist = self::source_playlist( $source, isset( $attrs['sourcePlaylistId'] ) ? (string) $attrs['sourcePlaylistId'] : '' );
+		$playlist = self::source_playlist( $source, isset( $attrs['sourcePlaylistId'] ) ? (string) $attrs['sourcePlaylistId'] : '', $attrs );
 		if ( ! $playlist ) {
 			$parsed_block['attrs']['videos'] = array();
 			return $parsed_block;

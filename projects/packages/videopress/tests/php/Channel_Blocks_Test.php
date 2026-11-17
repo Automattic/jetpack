@@ -362,7 +362,7 @@ class Channel_Blocks_Test extends BaseTestCase {
 		);
 		Channel_Blocks::enqueue_editor_data();
 		$this->assertContains(
-			'window.videopressChannelEditor = {"playlists":[{"key":"dungeons","title":"Classic dungeons","videos":[{"guid":"bbbbbbb2","durationMs":600000,"height":0},{"guid":"ccccccc3","durationMs":600000,"height":0}]}]};',
+			'window.videopressChannelEditor = {"playlists":[{"key":"dungeons","title":"Classic dungeons","videos":[{"guid":"bbbbbbb2","durationMs":600000,"height":0},{"guid":"ccccccc3","durationMs":600000,"height":0}]}],"series":[]};',
 			(array) wp_scripts()->get_data( 'videopress-playlist-editor-test', 'before' )
 		);
 	}

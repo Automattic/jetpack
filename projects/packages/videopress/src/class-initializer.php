@@ -206,6 +206,7 @@ class Initializer {
 		XMLRPC::init();
 		Block_Editor_Content::init();
 		Channel::init();
+		Classification::init();
 		Playlist_Index::init();
 		Analytics_Dashboard::init();
 
