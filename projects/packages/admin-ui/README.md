@@ -239,6 +239,8 @@ With the admin shell on, member dashboards stay mounted while hidden, so switchi
 
 A member with unsaved changes asks the user and calls `preventDefault()` to stay. The user may be looking at another dashboard, so the question should name the member, such as "You have unsaved changes in Newsletter. Discard them?". A click is then cancelled. Back/Forward can't be, so the shell reopens the member where it was left, in the same history entry. When the shell is off, or an older Admin UI is loaded, nothing dispatches the event.
 
+Past the live-app limit, opening another dashboard loads the page, which would drop every hidden member, so the shell first asks each one the same way, with the URL about to load. If one stays, the click is cancelled, and Back/Forward keeps the visible dashboard in the same history entry. The visible member isn't asked: to it, that's an ordinary page load.
+
 ```JS
 window.addEventListener( 'jetpack-admin-shell:before-leave', event => {
 	if ( event.detail?.page === 'my-dashboard' && isDirty && ! window.confirm( message ) ) {

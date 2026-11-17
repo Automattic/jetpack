@@ -37,4 +37,33 @@ test.describe( 'Admin shell: memory budget', () => {
 		// The page load freed the budget.
 		await switchTo( page, 'my-jetpack' );
 	} );
+
+	test( 'past the live-app limit, a hidden dashboard with unsaved changes keeps the page', async ( {
+		page,
+	} ) => {
+		await skipUnlessOnSite( page, 'jetpack-seo', 'jetpack-boost' );
+		await openMember( page, 'my-jetpack' );
+		await switchTo( page, FORMS );
+		await switchTo( page, 'jetpack-seo' );
+		// Stands in for My Jetpack with an unsaved edit whose user chooses to stay.
+		await page.evaluate( () =>
+			window.addEventListener( 'jetpack-admin-shell:before-leave', event => {
+				const { detail } = event as CustomEvent< { page: string; url: string } >;
+				if ( detail.page === 'my-jetpack' ) {
+					( window as unknown as { __askedFor?: string } ).__askedFor = detail.url;
+					event.preventDefault();
+				}
+			} )
+		);
+
+		await markDocument( page );
+		await menuLink( page, 'jetpack-boost' ).click();
+		await expect
+			.poll( () =>
+				page.evaluate( () => ( window as unknown as { __askedFor?: string } ).__askedFor ?? '' )
+			)
+			.toContain( 'page=jetpack-boost' );
+		expect( await sameDocument( page ), 'the page stayed' ).toBe( true );
+		expect( new URL( page.url() ).searchParams.get( 'page' ) ).toBe( 'jetpack-seo' );
+	} );
 } );
