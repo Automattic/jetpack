@@ -251,7 +251,7 @@ class Stats_Links {
 	 * @return string|null
 	 */
 	private static function legacy_day( $value ) {
-		if ( ! is_string( $value ) || ! preg_match( '/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value, $match ) ) {
+		if ( ! is_string( $value ) || ! preg_match( '/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value, $match ) || ! checkdate( (int) $match[2], (int) $match[3], (int) $match[1] ) ) {
 			return null;
 		}
 
