@@ -26,7 +26,8 @@ import {
 import type { Ref } from 'react';
 
 interface Props {
-	variation: GoalsVariation;
+	// The goals_variation the view's events report, or null to leave it out.
+	variation: GoalsVariation | null;
 	// Whether a new connection can be detected. Without it, Connect only opens the AI tool.
 	detectsConnections: boolean;
 	// The AI tools shown as connected, in the order they connected.
@@ -52,7 +53,7 @@ interface Props {
  * the tool as connected.
  *
  * @param props                       - Component props.
- * @param props.variation             - The goals step's experiment variation.
+ * @param props.variation             - The goals_variation the view's events report.
  * @param props.detectsConnections    - Whether a new connection can be detected.
  * @param props.connected             - The AI tools shown as connected.
  * @param props.onConnected           - Called with the AI tool once its new connection shows up.

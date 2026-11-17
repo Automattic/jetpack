@@ -38,7 +38,6 @@ export function App() {
 	const [ goal, setGoal ] = useState< GoalSlug | undefined >();
 	// Handed to the list so returning users don't refetch the same endpoint.
 	const [ initialData, setInitialData ] = useState< LaunchpadData | undefined >();
-	const [ opensOnAiTool, setOpensOnAiTool ] = useState( false );
 
 	useEffect( () => {
 		let cancelled = false;
@@ -72,7 +71,6 @@ export function App() {
 			}
 
 			const nextView = allTasks ? 'list' : decideInitialView( data );
-			// Tags every event, so a link the page cannot honour (an existing list, an AI-built site) still shows up.
 			if ( asksForAiTool( search ) ) {
 				setTracksContext( { start: AI_TOOL_START } );
 			}
@@ -87,7 +85,6 @@ export function App() {
 				setPendingTailor( () => tailoring );
 				setView( 'list' );
 			} else {
-				setOpensOnAiTool( startsOnAiTool( search, nextView ) );
 				setView( nextView );
 			}
 		} );
@@ -117,7 +114,8 @@ export function App() {
 				goalsVariation={ initialData?.goals_variation }
 				mcpDetection={ !! initialData?.mcp_detection }
 				mcpAllowFull={ !! initialData?.mcp_allow_full }
-				startOnAiTool={ opensOnAiTool }
+				startOnAiTool={ startsOnAiTool( window.location.search, view ) }
+				aiToolBackUrl={ initialData?.ai_tool_back_url ?? undefined }
 				onComplete={ ( input, tailoring ) => {
 					setFromWizard( true );
 					setPendingTailor( () => tailoring );

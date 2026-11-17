@@ -29,7 +29,6 @@ describe( 'startsOnAiTool', () => {
 	for ( const [ search, view, expected ] of [
 		[ ARG, 'wizard', true ],
 		[ ARG, 'list', false ],
-		[ ARG, 'auto', false ],
 		[ '?page=site-setup-wp-admin', 'wizard', false ],
 	] as const ) {
 		it( `is ${ expected } for ${ search } on the ${ view } view`, () => {

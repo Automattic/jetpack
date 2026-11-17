@@ -76,6 +76,8 @@ export interface LaunchpadData {
 	mcp_detection?: boolean;
 	// Whether POST /mcp-access can allow full MCP access in place.
 	mcp_allow_full?: boolean;
+	// Calypso's setup chooser, where Back leads when the page opened with `start=ai-tool`; null otherwise.
+	ai_tool_back_url?: string | null;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */

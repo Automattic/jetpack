@@ -8,6 +8,7 @@ import {
 	setTracksContext,
 	trackViewed,
 	trackWizardBackClicked,
+	trackWizardBackToSetupChooser,
 	trackWizardGoalClicked,
 	trackWizardMcpAllowFullAccessClicked,
 	trackWizardMcpConnectedViewed,
@@ -31,6 +32,7 @@ import {
 	firstScreen,
 	footerExit,
 	footerShowsDashboard,
+	trackedVariation,
 	GOAL_SLUGS,
 	goalsVariation,
 	isLastStep,
@@ -68,8 +70,10 @@ interface Props {
 	mcpDetection?: boolean;
 	// Whether "Allow full access" can allow it in place; without it, the button opens the MCP settings.
 	mcpAllowFull?: boolean;
-	// Whether to open on the AI tool view, without the setup choice or a way back to it.
+	// Whether to open on the AI tool view, skipping the setup choice; Back then leaves for aiToolBackUrl.
 	startOnAiTool?: boolean;
+	// Where Back leaves Site Setup for from the AI tool view it opened on; without it, Go to my dashboard shows instead.
+	aiToolBackUrl?: string;
 	// Fired once Finish completes, with the persisted input and the in-flight
 	// tailor promise, so the host can swap to the tailored list.
 	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
@@ -91,6 +95,7 @@ interface Props {
  * @param props.mcpDetection    - Whether the AI tool view can detect a new connection.
  * @param props.mcpAllowFull    - Whether "Allow full access" can allow it in place.
  * @param props.startOnAiTool   - Whether to open on the AI tool view.
+ * @param props.aiToolBackUrl   - Where Back leaves Site Setup for from the AI tool view it opened on.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
@@ -106,6 +111,7 @@ export function Wizard( {
 	mcpDetection = false,
 	mcpAllowFull = false,
 	startOnAiTool = false,
+	aiToolBackUrl,
 	onComplete,
 }: Props ) {
 	const [ step, setStep ] = useState< WizardStep >( 0 );
@@ -114,6 +120,7 @@ export function Wizard( {
 	);
 	const variation = goalsVariation( assignedVariation );
 	const first = firstScreen( variation, startOnAiTool );
+	const reportedVariation = trackedVariation( variation, startOnAiTool );
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
 	const [ intent, setIntent ] = useState< string >( initialIntent );
 	const [ skipping, setSkipping ] = useState( false );
@@ -134,7 +141,7 @@ export function Wizard( {
 	const [ allowFullAccessFailed, setAllowFullAccessFailed ] = useState( false );
 	const [ promptCopied, setPromptCopied ] = useState( false );
 	const readOnly = readOnlyAccess && connectedTools.length > 0;
-	// The treatment opens on "Guide me" or "Build with AI" before the goals.
+	// The treatment opens on "Guide me" or "Build with AI" before the goals, unless the URL opened the AI tool view.
 	const [ choosing, setChoosing ] = useState( first === 'setup_choice' );
 	const [ setupChoice, setSetupChoice ] = useState< SetupChoice | null >( null );
 	const choiceTitleRef = useRef< HTMLHeadingElement >( null );
@@ -166,9 +173,9 @@ export function Wizard( {
 
 	useEffect( () => {
 		if ( showAiTool ) {
-			trackWizardMcpScreenViewed( { goals_variation: variation } );
+			trackWizardMcpScreenViewed( { goals_variation: reportedVariation } );
 		}
-	}, [ showAiTool, variation ] );
+	}, [ showAiTool, reportedVariation ] );
 
 	// The tools that were connected before the AI tool view opened.
 	const alreadyConnected = useRef< AiTool[] >( [] );
@@ -195,21 +202,21 @@ export function Wizard( {
 			.forEach( tool => {
 				connectedTracked.current.push( tool );
 				trackWizardMcpConnectedViewed( {
-					goals_variation: variation,
+					goals_variation: reportedVariation,
 					integration: tool,
 					already_connected: alreadyConnected.current.includes( tool ),
 				} );
 			} );
-	}, [ readOnly, connectedTools, variation ] );
+	}, [ readOnly, connectedTools, reportedVariation ] );
 
 	useEffect( () => {
 		if ( readOnly ) {
 			trackWizardMcpReadOnlyViewed( {
-				goals_variation: variation,
+				goals_variation: reportedVariation,
 				integration: connectedTools[ connectedTools.length - 1 ],
 			} );
 		}
-	}, [ readOnly, connectedTools, variation ] );
+	}, [ readOnly, connectedTools, reportedVariation ] );
 
 	const handleReadOnlyChange = useCallback( ( level: string | null ) => {
 		setAccessLevel( level );
@@ -231,14 +238,14 @@ export function Wizard( {
 			} );
 			fullAccessAllowed.current = true;
 			trackWizardMcpAllowFullAccessClicked( {
-				goals_variation: variation,
+				goals_variation: reportedVariation,
 				integration,
 				result: 'success',
 			} );
 			setReadOnlyAccess( false );
 		} catch {
 			trackWizardMcpAllowFullAccessClicked( {
-				goals_variation: variation,
+				goals_variation: reportedVariation,
 				integration,
 				result: 'error',
 			} );
@@ -251,7 +258,7 @@ export function Wizard( {
 
 	const handleGoToDashboard = () => {
 		trackWizardMcpGoToDashboardClicked( {
-			goals_variation: variation,
+			goals_variation: reportedVariation,
 			integration: dashboardIntegration( connectedTools, promptCopied ),
 		} );
 		window.location.assign( 'index.php' );
@@ -341,7 +348,13 @@ export function Wizard( {
 		window.location.href = 'index.php';
 	};
 
-	const exit = footerExit( variation, choosing, showAiTool, startOnAiTool );
+	const exit = footerExit( {
+		variation,
+		choosing,
+		showAiTool,
+		startOnAiTool,
+		hasBackUrl: !! aiToolBackUrl,
+	} );
 
 	return (
 		// The wizard cannot be dismissed: Escape and backdrop clicks are ignored.
@@ -375,7 +388,7 @@ export function Wizard( {
 					{ showAiTool && (
 						<AiToolStep
 							titleRef={ aiToolTitleRef }
-							variation={ variation }
+							variation={ reportedVariation }
 							detectsConnections={ mcpDetection }
 							connected={ connectedTools }
 							onConnected={ handleConnected }
@@ -442,7 +455,7 @@ export function Wizard( {
 											readOnly
 												? () =>
 														trackWizardMcpAllowFullAccessClicked( {
-															goals_variation: variation,
+															goals_variation: reportedVariation,
 															integration: connectedTools[ connectedTools.length - 1 ],
 															result: 'settings_link',
 														} )
@@ -466,11 +479,20 @@ export function Wizard( {
 						justify={ exit ? 'space-between' : 'flex-end' }
 						gap="md"
 					>
-						{ exit === 'back' && (
-							<Button variant="minimal" onClick={ handleBack }>
-								{ __( 'Back', 'jetpack-mu-wpcom' ) }
-							</Button>
-						) }
+						{ exit === 'back' &&
+							( startOnAiTool && aiToolBackUrl ? (
+								<ButtonLink
+									variant="minimal"
+									href={ aiToolBackUrl }
+									onClick={ trackWizardBackToSetupChooser }
+								>
+									{ __( 'Back', 'jetpack-mu-wpcom' ) }
+								</ButtonLink>
+							) : (
+								<Button variant="minimal" onClick={ handleBack }>
+									{ __( 'Back', 'jetpack-mu-wpcom' ) }
+								</Button>
+							) ) }
 						{ exit === 'skip' && (
 							<Button variant="minimal" onClick={ handleSkip } disabled={ skipping }>
 								{ __( 'Skip', 'jetpack-mu-wpcom' ) }
@@ -482,7 +504,7 @@ export function Wizard( {
 									{ __( 'Back', 'jetpack-mu-wpcom' ) }
 								</Button>
 							) }
-							{ showAiTool && footerShowsDashboard( promptCopied, startOnAiTool ) && (
+							{ showAiTool && footerShowsDashboard( promptCopied, exit ) && (
 								<Button variant="solid" onClick={ handleGoToDashboard }>
 									{ aiCopy.goToDashboard }
 								</Button>

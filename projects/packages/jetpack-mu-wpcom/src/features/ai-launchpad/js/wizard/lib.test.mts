@@ -11,6 +11,7 @@ import {
 	firstScreen,
 	footerExit,
 	footerShowsDashboard,
+	trackedVariation,
 	isReadOnlyAccess,
 	goalsVariation,
 	isLastStep,
@@ -66,7 +67,6 @@ describe( 'opening on the AI tool view', () => {
 	for ( const [ variation, startOnAiTool, screen ] of [
 		[ BRING_YOUR_AI_TOOL, false, 'setup_choice' ],
 		[ 'control', false, 'goal' ],
-		[ BRING_YOUR_AI_TOOL, true, 'ai_tool' ],
 		[ 'control', true, 'ai_tool' ],
 	] as const ) {
 		it( `opens ${ variation } on ${ screen } when startOnAiTool is ${ startOnAiTool }`, () => {
@@ -74,25 +74,38 @@ describe( 'opening on the AI tool view', () => {
 		} );
 	}
 
-	for ( const [ name, variation, choosing, showAiTool, started, exit ] of [
-		[ 'control goals', 'control', false, false, false, 'skip' ],
-		[ 'treatment setup choice', BRING_YOUR_AI_TOOL, true, false, false, 'skip' ],
-		[ 'treatment goals', BRING_YOUR_AI_TOOL, false, false, false, 'back' ],
-		[ 'treatment AI tool view', BRING_YOUR_AI_TOOL, false, true, false, 'back' ],
-		[ 'AI tool view opened by the URL', 'control', false, true, true, null ],
+	for ( const [ name, variation, choosing, showAiTool, startOnAiTool, hasBackUrl, exit ] of [
+		[ 'control goals', 'control', false, false, false, false, 'skip' ],
+		[ 'treatment setup choice', BRING_YOUR_AI_TOOL, true, false, false, false, 'skip' ],
+		[ 'treatment goals', BRING_YOUR_AI_TOOL, false, false, false, false, 'back' ],
+		[ 'treatment AI tool view', BRING_YOUR_AI_TOOL, false, true, false, false, 'back' ],
+		[ 'AI tool view the URL opened, with a Back URL', 'control', false, true, true, true, 'back' ],
+		[ 'AI tool view the URL opened, without one', 'control', false, true, true, false, null ],
 	] as const ) {
 		it( `offers ${ exit } on the ${ name }`, () => {
-			assert.equal( footerExit( variation, choosing, showAiTool, started ), exit );
+			assert.equal(
+				footerExit( { variation, choosing, showAiTool, startOnAiTool, hasBackUrl } ),
+				exit
+			);
 		} );
 	}
 
-	for ( const [ promptCopied, startOnAiTool, shows ] of [
-		[ false, false, false ],
-		[ true, false, true ],
-		[ false, true, true ],
+	for ( const [ variation, startOnAiTool, tracked ] of [
+		[ BRING_YOUR_AI_TOOL, false, BRING_YOUR_AI_TOOL ],
+		[ 'control', true, null ],
 	] as const ) {
-		it( `shows Go to my dashboard: ${ shows } (copied ${ promptCopied }, URL ${ startOnAiTool })`, () => {
-			assert.equal( footerShowsDashboard( promptCopied, startOnAiTool ), shows );
+		it( `tracks goals_variation ${ tracked } for ${ variation } when startOnAiTool is ${ startOnAiTool }`, () => {
+			assert.equal( trackedVariation( variation, startOnAiTool ), tracked );
+		} );
+	}
+
+	for ( const [ promptCopied, exit, shows ] of [
+		[ false, 'back', false ],
+		[ true, 'back', true ],
+		[ false, null, true ],
+	] as const ) {
+		it( `shows Go to my dashboard: ${ shows } (copied ${ promptCopied }, exit ${ exit })`, () => {
+			assert.equal( footerShowsDashboard( promptCopied, exit ), shows );
 		} );
 	}
 } );

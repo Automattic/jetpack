@@ -219,24 +219,36 @@ export function firstScreen( variation: GoalsVariation, startOnAiTool: boolean )
 	return showsSetupChoice( variation ) ? 'setup_choice' : 'goal';
 }
 
+/** The footer's way out, or null for none. */
+export type FooterExit = 'back' | 'skip' | null;
+
 /**
- * The footer's way out: Back towards the setup choice once the treatment has left it, else Skip. None on an AI tool
- * view the URL opened, since Skip would dismiss Site Setup and there is no choice to go back to.
+ * The footer's way out: Back towards the setup choice once the treatment has left it, else Skip. An AI tool view the
+ * URL opened offers Back only with a URL out of Site Setup, since Skip would dismiss Site Setup.
  *
- * @param variation     - The goals step's variation.
- * @param choosing      - Whether the setup choice is shown.
- * @param showAiTool    - Whether the AI tool view is shown.
- * @param startOnAiTool - Whether the wizard opened on the AI tool view.
- * @return The footer's exit, or null for none.
+ * @param state               - The wizard's state.
+ * @param state.variation     - The goals step's variation.
+ * @param state.choosing      - Whether the setup choice is shown.
+ * @param state.showAiTool    - Whether the AI tool view is shown.
+ * @param state.startOnAiTool - Whether the wizard opened on the AI tool view.
+ * @param state.hasBackUrl    - Whether Back has a URL to leave for.
+ * @return The footer's exit.
  */
-export function footerExit(
-	variation: GoalsVariation,
-	choosing: boolean,
-	showAiTool: boolean,
-	startOnAiTool: boolean
-): 'back' | 'skip' | null {
+export function footerExit( {
+	variation,
+	choosing,
+	showAiTool,
+	startOnAiTool,
+	hasBackUrl,
+}: {
+	variation: GoalsVariation;
+	choosing: boolean;
+	showAiTool: boolean;
+	startOnAiTool: boolean;
+	hasBackUrl: boolean;
+} ): FooterExit {
 	if ( startOnAiTool && showAiTool ) {
-		return null;
+		return hasBackUrl ? 'back' : null;
 	}
 	return showAiTool || ( showsSetupChoice( variation ) && ! choosing ) ? 'back' : 'skip';
 }
@@ -298,13 +310,28 @@ export function dashboardIntegration(
 }
 
 /**
- * Whether the AI tool view's footer offers "Go to my dashboard" before any tool connects. On a view the URL opened
- * it is the only way out, since the wizard cannot be dismissed.
+ * Whether the AI tool view's footer offers "Go to my dashboard" before any tool connects. Without another exit it is
+ * the only way out, since the wizard cannot be dismissed.
  *
- * @param promptCopied  - Whether the prompt for another AI tool was copied.
- * @param startOnAiTool - Whether the wizard opened on the AI tool view.
+ * @param promptCopied - Whether the prompt for another AI tool was copied.
+ * @param exit         - The footer's other way out.
  * @return True when the footer shows the button.
  */
-export function footerShowsDashboard( promptCopied: boolean, startOnAiTool: boolean ): boolean {
-	return promptCopied || startOnAiTool;
+export function footerShowsDashboard( promptCopied: boolean, exit: FooterExit ): boolean {
+	return promptCopied || exit === null;
+}
+
+/**
+ * The `goals_variation` the AI tool view's events report: none when the URL opened it, since that read assigns no
+ * variation and reporting `control` would count these visits in the experiment's control group.
+ *
+ * @param variation     - The goals step's variation.
+ * @param startOnAiTool - Whether the wizard opened on the AI tool view.
+ * @return The variation to report, or null to leave it out.
+ */
+export function trackedVariation(
+	variation: GoalsVariation,
+	startOnAiTool: boolean
+): GoalsVariation | null {
+	return startOnAiTool ? null : variation;
 }

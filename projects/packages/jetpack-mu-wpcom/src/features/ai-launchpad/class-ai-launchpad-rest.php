@@ -341,6 +341,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 						'start'     => array(
 							'description' => 'The screen Site Setup opens on: `ai-tool` for "Which AI do you use?".',
 							'type'        => 'string',
+							'enum'        => array( 'ai-tool' ),
 						),
 					),
 				),
@@ -614,6 +615,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
+	 * Calypso's "Let's design your site" page for this site, where Back on the `start=ai-tool` view leads.
+	 *
+	 * @return string
+	 */
+	private function get_ai_tool_back_url() {
+		return esc_url_raw(
+			add_query_arg(
+				'siteSlug',
+				rawurlencode( wpcom_get_site_slug() ),
+				wpcom_get_calypso_origin() . '/setup/onboarding/setup-your-site-ai'
+			)
+		);
+	}
+
+	/**
 	 * Composite read: wizard payload, AI output, enriched tasks, statuses, and eligibility.
 	 *
 	 * @param WP_REST_Request|null $request Request object (for the `all_tasks` testing param and `start`).
@@ -663,7 +679,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		// An AI-built site skips the wizard, and `start=ai-tool` opens it on the AI tool view instead.
-		$opens_on_goals = $shows_wizard && null === $inferred_input && ! $starts_on_ai_tool;
+		$assigns_goals_variation = $shows_wizard && null === $inferred_input && ! $starts_on_ai_tool;
 
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
@@ -696,8 +712,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			),
 			// The free DIFM offer banner under the task list, or null when it must not show.
 			'difm_offer'         => $shows_wizard ? null : AI_Launchpad_Difm_Offer::get_offer(),
-			// The goals step's experiment variation, assigned only when the wizard opens on the goals.
-			'goals_variation'    => $opens_on_goals ? AI_Launchpad_Bring_Your_AI_Tool::get_variation() : null,
+			// The goals step's experiment variation, assigned only when the wizard opens on its own first step.
+			'goals_variation'    => $assigns_goals_variation ? AI_Launchpad_Bring_Your_AI_Tool::get_variation() : null,
+			// Where Back leads from a `start=ai-tool` Site Setup; built here from an allowlisted origin.
+			'ai_tool_back_url'   => $starts_on_ai_tool ? $this->get_ai_tool_back_url() : null,
 			// Whether GET /mcp-connections can see connections, which needs wpcom's helper.
 			'mcp_detection'      => function_exists( 'wpcom_mcp_get_user_connections' ),
 			// Whether POST /mcp-access can allow full access in place, which needs wpcom's helper and a site admin.

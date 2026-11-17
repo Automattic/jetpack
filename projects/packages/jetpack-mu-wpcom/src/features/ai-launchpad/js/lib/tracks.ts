@@ -237,7 +237,7 @@ export function trackWizardSetupChoiceSelected( props: {
  */
 export function trackWizardMcpLinkClicked(
 	tool: 'chatgpt' | 'claude',
-	props: { goals_variation: string }
+	props: { goals_variation: string | null }
 ): void {
 	record( `jetpack_ai_launchpad_wizard_mcp_${ tool }_clicked`, props );
 }
@@ -248,7 +248,7 @@ export function trackWizardMcpLinkClicked(
  * @param props                 - The event properties.
  * @param props.goals_variation - The goals step's experiment variation.
  */
-export function trackWizardMcpScreenViewed( props: { goals_variation: string } ): void {
+export function trackWizardMcpScreenViewed( props: { goals_variation: string | null } ): void {
 	record( 'jetpack_ai_launchpad_wizard_mcp_screen_viewed', props );
 }
 
@@ -260,7 +260,7 @@ export function trackWizardMcpScreenViewed( props: { goals_variation: string } )
  * @param props.integration     - The AI tool it waits for.
  */
 export function trackWizardMcpWaitingViewed( props: {
-	goals_variation: string;
+	goals_variation: string | null;
 	integration: 'chatgpt' | 'claude';
 } ): void {
 	record( 'jetpack_ai_launchpad_wizard_mcp_waiting_viewed', props );
@@ -272,13 +272,13 @@ export function trackWizardMcpWaitingViewed( props: {
  * @param props                 - The event properties.
  * @param props.goals_variation - The goals step's experiment variation.
  */
-export function trackWizardMcpPromptCopied( props: { goals_variation: string } ): void {
+export function trackWizardMcpPromptCopied( props: { goals_variation: string | null } ): void {
 	record( 'jetpack_ai_launchpad_wizard_mcp_prompt_copied', props );
 }
 
-/** The props every event about a connected AI tool carries. */
+/** The props every AI tool view event about an integration carries. */
 interface McpConnectedProps< Extra extends string = never > extends TrackEventProps {
-	goals_variation: string;
+	goals_variation: string | null;
 	// The AI tool that connected, the latest one when both did, or `other` after copying the prompt for another tool.
 	integration: 'chatgpt' | 'claude' | 'other' | Extra;
 }
@@ -357,6 +357,14 @@ export function trackWizardStepSkipped( props: { step: WizardStepName } ): void 
  */
 export function trackWizardBackClicked( props: { step: WizardStepName } ): void {
 	record( 'jetpack_ai_launchpad_wizard_back_clicked', props );
+}
+
+/**
+ * Records Back on an AI tool view the URL opened, which leaves for Calypso's setup chooser. Sent with `use_beacon`
+ * (see trackTailoringAbandoned), since the page unloads right after.
+ */
+export function trackWizardBackToSetupChooser(): void {
+	record( 'jetpack_ai_launchpad_wizard_back_clicked', { step: 'ai_tool', use_beacon: true } );
 }
 
 /**
