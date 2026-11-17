@@ -11,25 +11,21 @@
 const WPCOMSH_USER_LOGIN_RENAMED = 'renamed';
 
 /**
- * The user already held the requested login, so there was nothing to do.
+ * The user already held the requested login.
  */
 const WPCOMSH_USER_LOGIN_ALREADY_APPLIED = 'already_applied';
 
 /**
- * The user holds neither the expected nor the requested login, so a later
- * rename has already landed and this one must not be applied.
+ * The user holds neither login, so a later rename landed and this one must not be applied.
  */
 const WPCOMSH_USER_LOGIN_SUPERSEDED = 'superseded';
 
 /**
  * Renames a user's user_login, provided they still hold the login the caller expects.
  *
- * WordPress cannot do this: wp_insert_user() writes user_login on insert only, so
- * wp_update_user() and `wp user update` silently discard it.
- *
- * Passing the login the caller believes the user currently has makes the write a
- * compare-and-set. A stale rename queued before a newer one therefore reports
- * WPCOMSH_USER_LOGIN_SUPERSEDED instead of reverting the newer login.
+ * WordPress cannot: wp_insert_user() writes user_login on insert only, so wp_update_user()
+ * and `wp user update` silently discard it. $expected_login makes the write a compare-and-set,
+ * so a stale rename reports WPCOMSH_USER_LOGIN_SUPERSEDED rather than reverting a newer login.
  *
  * @since $$next-version$$
  *
@@ -65,11 +61,9 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 		return WPCOMSH_USER_LOGIN_SUPERSEDED;
 	}
 
-	// user_login carries a non-unique index, so the database will not reject a duplicate and
-	// the "is it free" check below would race a second rename of the same login. A named lock
-	// serializes those; it is held per connection, so it survives whatever transaction the
-	// caller is in. It does not cover a plain wp_insert_user() racing us, which carries the
-	// same window WordPress itself has in username_exists().
+	// user_login has a non-unique index, so the database will not reject a duplicate and the
+	// holder check below would race a second rename. The lock serializes those; it does not
+	// cover a plain wp_insert_user(), which races the same window as username_exists().
 	$updated  = false;
 	$db_error = '';
 	$lock     = 'wpcomsh_login_' . md5( $new_login );
@@ -111,8 +105,8 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 		);
 	}
 
-	// $user still holds the old login, so this drops the stale `userlogins` key that
-	// would otherwise keep resolving the old name. Cleaning only the refreshed user misses it.
+	// $user predates the write, so this drops the stale `userlogins` key for the old login.
+	// Cleaning only the refreshed user leaves the old name resolving.
 	clean_user_cache( $user );
 	clean_user_cache( $user_id );
 

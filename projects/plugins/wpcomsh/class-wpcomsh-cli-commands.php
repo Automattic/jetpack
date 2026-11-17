@@ -2045,8 +2045,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			$result = wpcomsh_rename_user_login( $args[0], $assoc_args['from'], $assoc_args['to'] );
 
 			if ( is_wp_error( $result ) ) {
-				// The error code is the caller's signal for whether retrying can help, so keep it
-				// machine-readable on the first line.
+				// Code first: it is how a caller tells a collision from a retryable failure.
 				WP_CLI::error( $result->get_error_code() . ': ' . $result->get_error_message() );
 			}
 

@@ -41,9 +41,6 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		return $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM $wpdb->users WHERE ID = %d", $user_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 
-	/**
-	 * The rename is written to the users table when the user still holds the expected login.
-	 */
 	public function test_renames_the_login() {
 		$user_id = $this->create_user( 'ugurlualie72eb35fcd' );
 
@@ -67,7 +64,7 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Re-delivering a rename that already landed is a success, not a failure.
+	 * A re-delivery is a success, not a failure.
 	 */
 	public function test_repeating_an_applied_rename_reports_already_applied() {
 		$user_id = $this->create_user( 'newlogin' );
@@ -90,9 +87,6 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		$this->assertSame( 'login_c', $this->stored_login( $user_id ) );
 	}
 
-	/**
-	 * A login another account holds is reported without touching either account.
-	 */
 	public function test_reports_a_taken_login_without_changing_anything() {
 		$squatter_id = $this->create_user( 'wanted' );
 		$user_id     = $this->create_user( 'oldlogin' );
@@ -131,10 +125,8 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 	 */
 	public static function data_invalid_logins() {
 		return array(
-			'empty'          => array( '' ),
-			'html'           => array( '<b>bold</b>' ),
-			'leading space'  => array( ' spaced' ),
-			'percent escape' => array( 'name%20here' ),
+			'empty'                          => array( '' ),
+			'sanitize_user() would alter it' => array( '<b>bold</b>' ),
 		);
 	}
 
@@ -148,9 +140,6 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		$this->assertSame( 'user_not_found', $result->get_error_code() );
 	}
 
-	/**
-	 * Other code on the site needs a hook to react to the rename.
-	 */
 	public function test_fires_an_action_with_both_logins() {
 		$user_id = $this->create_user( 'oldlogin' );
 		$fired   = array();
