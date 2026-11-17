@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 56420b40b51c4a73c657887e7855350a1530f4c4.
+ * Stubs automatically generated from WordPress.com commit 16e72d2db93aa2d2c628fcf03c22c916da38563b.
  */
 
 namespace {
@@ -2054,7 +2054,12 @@ namespace WPCOM\Jetpack_AI\Usage {
         public static function get_costs()
         {
         }
-        public static function get_upgrade_url($blog_id)
+        /**
+         * @param int $blog_id
+         * @param string $source
+         * @return string|null
+         */
+        public static function get_upgrade_url($blog_id, string $source = '')
         {
         }
     }

@@ -15,6 +15,8 @@ const useFetchProductsByOwnership = () => {
 		query: {
 			path: REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT,
 		},
+		// Without it, every card mounting after the first response refetches the same data.
+		options: { staleTime: 5 * 60 * 1000 },
 	} );
 
 	return queryResult;

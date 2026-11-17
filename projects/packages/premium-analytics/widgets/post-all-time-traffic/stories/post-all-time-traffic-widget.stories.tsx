@@ -227,6 +227,7 @@ function PostAllTimeTrafficDashboardStory( {
  * Mirrors the production placement (full width × 2 rows).
  */
 export const WidgetDashboardWithWidget: StoryObj< PostAllTimeTrafficDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PostAllTimeTrafficDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

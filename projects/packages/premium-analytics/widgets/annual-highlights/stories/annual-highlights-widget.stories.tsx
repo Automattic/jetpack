@@ -128,6 +128,7 @@ function AnnualHighlightsDashboardStory( dashboardArgs: WidgetDashboardWithWidge
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <AnnualHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

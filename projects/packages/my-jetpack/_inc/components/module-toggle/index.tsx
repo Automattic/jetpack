@@ -1,9 +1,11 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
+import { QueryClientContext, type QueryClient } from '@tanstack/react-query';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { Switch } from '@wordpress/ui';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { Link, Switch } from '@wordpress/ui';
+import { useCallback, useContext, useLayoutEffect, useRef, useState } from 'react';
+import { QUERY_PRODUCT_BY_OWNERSHIP_KEY } from '../../data/constants';
 import {
 	asksBeforeSwitchingOff,
 	mayHaveRunningCampaigns,
@@ -21,6 +23,8 @@ import { getBlockThemeMigration } from '../../utils/block-theme-migration';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
 import { setPendingSuccessNotice } from '../../utils/pending-notice';
 import { reloadPage } from '../../utils/reload-page';
+import { isSettingsConsolidationEnabled } from '../../utils/settings-consolidation';
+import { getLeavingLinkLabel } from '../../utils/settings-link-label';
 import SecondaryButton from '../action-button/secondary-button';
 import { BlazeCampaignsWarning } from './blaze-campaigns-warning';
 
@@ -76,6 +80,8 @@ export function useModuleActivation(
 ) {
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	// Read optionally: not every surface that renders a switch sits inside a QueryClientProvider.
+	const queryClient = useContext( QueryClientContext ) as QueryClient | undefined;
 
 	const storeIsUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -150,6 +156,11 @@ export function useModuleActivation(
 			onSwitch?.( active );
 			const success = await requestModuleSwitch( toggleModule, $module.module, active );
 
+			if ( success ) {
+				// A switch can move the product between the owned and unowned groups.
+				queryClient?.invalidateQueries( { queryKey: [ QUERY_PRODUCT_BY_OWNERSHIP_KEY ] } );
+			}
+
 			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
 				setPendingSuccessNotice(
 					active
@@ -169,7 +180,7 @@ export function useModuleActivation(
 				action: active ? 'activation' : 'deactivation',
 			} );
 		},
-		[ toggleModule, $module, showToggleNotice, reload, onSwitch ]
+		[ toggleModule, $module, showToggleNotice, reload, onSwitch, queryClient ]
 	);
 
 	const setModuleActive = useCallback(
@@ -280,6 +291,17 @@ export function ModuleToggle( {
 					isLoading={ isUpdating }
 					loadingAnnouncement={ blockThemeMigration.switchingAnnouncement }
 				/>
+			);
+		}
+
+		const leaving = isSettingsConsolidationEnabled()
+			? getLeavingLinkLabel( blockThemeMigration.settingsUrl, $module.name )
+			: null;
+		if ( leaving ) {
+			return (
+				<Link href={ blockThemeMigration.settingsUrl } aria-label={ leaving.label }>
+					{ leaving.text }
+				</Link>
 			);
 		}
 

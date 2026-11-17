@@ -156,7 +156,6 @@ export function ReferrersLeaderboard( {
 }: ReferrersLeaderboardProps ) {
 	return (
 		<LeaderboardChart
-			chartTitle={ __( 'Top referrers', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, onDrillDown, onMarkAsSpam ) }
 			withComparison={ withComparison }
 			withOverlayLabel

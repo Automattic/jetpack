@@ -1,5 +1,6 @@
 import { Col, Text } from '@automattic/jetpack-components';
 import {
+	CONNECTION_FROM,
 	ConnectionErrorSupportLink,
 	formatConnectionErrorDetailLine,
 	getReconnectErrorMessage,
@@ -7,6 +8,7 @@ import {
 	type ConnectionErrorNoticeLink,
 	type ConnectionErrorObject,
 } from '@automattic/jetpack-connection';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
@@ -80,6 +82,9 @@ const useConnectionErrorsNotice = (
 		trackingContext: 'my-jetpack',
 		trackingPlacement: 'page_notice',
 		navigate: assignLocation,
+		// `?.` for the older shared copy `NoticeLink` guards against; its reconnect then sends `my-jetpack`.
+		reconnectFrom: CONNECTION_FROM?.myJetpackNoticeReconnect,
+		reconnectRedirectUrl: getMyJetpackUrl(),
 	} );
 
 	// Report the error the CTA belongs to rather than whichever came first in the

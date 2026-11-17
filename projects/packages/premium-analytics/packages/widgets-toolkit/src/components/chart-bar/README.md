@@ -151,7 +151,7 @@ function MyWidget( { chartData } ) {
 | `dataFormat` | `DataFormat`      | Yes      | Format for values (tooltips): currency, number, percentage                          |
 | `styles`     | `BarChartStyle[]` | No       | Styles for each series (by index)                                                   |
 | `className`  | `string`          | No       | CSS class for the chart container                                                   |
-| `chartTitle` | `string`          | No       | What the chart shows, such as the widget title; the chart is named "Chart: <title>" |
+| `chartTitle` | `string`          | No       | What the chart shows, when that is not the widget title; the chart is named "Chart: <title>" |
 
 ## BarChartStyle Type
 

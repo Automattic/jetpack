@@ -320,19 +320,77 @@ export const Loading: Story = {
 
 const onLeaderboardItemClick = action( 'leaderboard-item-click' );
 
-const InteractiveRowLabel = ( { children }: { children: React.ReactNode } ) => (
+const InteractiveRowLabel = ( {
+	children,
+	title,
+}: {
+	children: React.ReactNode;
+	title: string;
+} ) => (
 	<span
+		data-testid="interactive-row-label"
 		style={ {
 			display: 'flex',
 			alignItems: 'center',
 			minHeight: '40px',
+			minWidth: 0,
 			padding: '0 6px',
 			fontSize: '13px',
 		} }
 	>
-		{ children }
+		<span
+			title={ title }
+			style={ { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }
+		>
+			{ children }
+		</span>
 	</span>
 );
+
+const interactiveData: LeaderboardEntry[] = [
+	...sampleData,
+	{
+		id: 'long-campaign',
+		label:
+			'black_friday_early_access_wordpress_hosting_bundle_2026_newsletter_campaign_for_returning_subscribers_in_europe_and_north_america',
+		currentValue: 1500,
+		previousValue: 1200,
+	},
+];
+
+const nearlyFullWidthLabel =
+	'Partner newsletter for returning subscribers in Europe and North America during the holiday sale week of 2026';
+
+export const Interactive: Story = {
+	args: {
+		data: [
+			...sampleData,
+			{ id: 'long-label', label: nearlyFullWidthLabel, currentValue: 1500, previousValue: 1200 },
+		].map( entry => ( { ...entry, onClick: () => onLeaderboardItemClick( entry.id ) } ) ),
+		withComparison: true,
+		containerWidth: '800px',
+	},
+	render: args => <LeaderboardChartUnresponsive { ...args } />,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive rows with plain string labels and comparison bars. A string label on an interactive row stays on one line and ends in an ellipsis, so the narrower label on hover and focus never wraps and the rows below stay put.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const row = within( canvasElement ).getByRole( 'button', {
+			name: name => name.startsWith( nearlyFullWidthLabel ),
+		} );
+		const restingHeight = row.getBoundingClientRect().height;
+
+		row.focus();
+		await Promise.all( row.getAnimations( { subtree: true } ).map( ( { finished } ) => finished ) );
+
+		expect( row.getBoundingClientRect().height ).toBe( restingHeight );
+	},
+};
 
 const onLeaderboardLabelLinkClick = action( 'label-link-click' );
 
@@ -353,11 +411,13 @@ const DemoLabelLink = ( { entry }: { entry: LeaderboardEntry } ) => {
 	);
 };
 
-export const Interactive: Story = {
+export const InteractiveOverlayLabel: Story = {
 	args: {
-		data: sampleData.map( entry => ( {
+		data: interactiveData.map( entry => ( {
 			...entry,
-			label: <InteractiveRowLabel>{ entry.label }</InteractiveRowLabel>,
+			label: (
+				<InteractiveRowLabel title={ String( entry.label ) }>{ entry.label }</InteractiveRowLabel>
+			),
 			onClick: () => onLeaderboardItemClick( entry.id ),
 		} ) ),
 		withComparison: true,
@@ -375,16 +435,32 @@ export const Interactive: Story = {
 			},
 		},
 	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const longLabel = String( interactiveData[ interactiveData.length - 1 ].label );
+		const row = canvas.getByRole( 'button', { name: name => name.startsWith( longLabel ) } );
+		const label = within( row ).getByText( longLabel );
+		const value = within( row ).getByText( '1.5K' );
+		const valueRestingLeft = value.getBoundingClientRect().left;
+
+		row.focus();
+		await Promise.all( row.getAnimations( { subtree: true } ).map( ( { finished } ) => finished ) );
+
+		expect( value.getBoundingClientRect().left ).toBeLessThan( valueRestingLeft );
+		expect( label.getBoundingClientRect().right ).toBeLessThanOrEqual(
+			value.getBoundingClientRect().left
+		);
+	},
 };
 
-export const InteractiveLabel: Story = {
+export const InteractiveOverlayLabelLink: Story = {
 	args: {
 		...sharedThemeArgs,
-		data: sampleData.map( entry => ( {
+		data: interactiveData.map( entry => ( {
 			...entry,
 			// The span fills the label cell, so only the name itself is the link.
 			label: (
-				<InteractiveRowLabel>
+				<InteractiveRowLabel title={ String( entry.label ) }>
 					<DemoLabelLink entry={ entry } />
 				</InteractiveRowLabel>
 			),
@@ -416,6 +492,16 @@ export const InteractiveLabel: Story = {
 		expect( button ).not.toContainElement(
 			canvas.getByRole( 'link', { name: String( sampleData[ 0 ].label ) } )
 		);
+
+		// A focused nested control turns the row's hover inset off, but must not lift the label cap.
+		const longLabel = String( interactiveData[ interactiveData.length - 1 ].label );
+		const label = canvas.getAllByTestId( 'interactive-row-label' ).at( -1 );
+		const restingRight = label.getBoundingClientRect().right;
+
+		canvas.getByRole( 'link', { name: longLabel } ).focus();
+		await Promise.all( document.getAnimations().map( ( { finished } ) => finished ) );
+
+		expect( label.getBoundingClientRect().right ).toBeLessThan( restingRight );
 	},
 };
 
@@ -427,24 +513,28 @@ const MIXED_ROW_KINDS = [
 	'drill-down',
 ] as const;
 
-export const InteractiveMixed: Story = {
+export const InteractiveOverlayLabelMixed: Story = {
 	args: {
 		...sharedThemeArgs,
-		data: sampleData.map( ( entry, index ): LeaderboardEntry => {
+		data: interactiveData.map( ( entry, index ): LeaderboardEntry => {
 			const onClick = () => onLeaderboardItemClick( entry.id );
 
 			switch ( MIXED_ROW_KINDS[ index % MIXED_ROW_KINDS.length ] ) {
 				case 'drill-down':
 					return {
 						...entry,
-						label: <InteractiveRowLabel>{ entry.label }</InteractiveRowLabel>,
+						label: (
+							<InteractiveRowLabel title={ String( entry.label ) }>
+								{ entry.label }
+							</InteractiveRowLabel>
+						),
 						onClick,
 					};
 				case 'drill-down-with-link':
 					return {
 						...entry,
 						label: (
-							<InteractiveRowLabel>
+							<InteractiveRowLabel title={ String( entry.label ) }>
 								<DemoLabelLink entry={ entry } />
 							</InteractiveRowLabel>
 						),
@@ -456,7 +546,7 @@ export const InteractiveMixed: Story = {
 					return {
 						...entry,
 						label: (
-							<InteractiveRowLabel>
+							<InteractiveRowLabel title={ String( entry.label ) }>
 								<DemoLabelLink entry={ entry } />
 							</InteractiveRowLabel>
 						),
@@ -464,7 +554,11 @@ export const InteractiveMixed: Story = {
 				default:
 					return {
 						...entry,
-						label: <InteractiveRowLabel>{ entry.label }</InteractiveRowLabel>,
+						label: (
+							<InteractiveRowLabel title={ String( entry.label ) }>
+								{ entry.label }
+							</InteractiveRowLabel>
+						),
 					};
 			}
 		} ),
@@ -488,12 +582,12 @@ export const InteractiveMixed: Story = {
 
 		// Every entry is a list item; only the plain drill-down ones are a button directly.
 		const rows = grid.querySelectorAll( ':scope > [role="listitem"]' );
-		expect( rows ).toHaveLength( sampleData.length );
+		expect( rows ).toHaveLength( interactiveData.length );
 
 		// The story must actually mix both row types for the rest to mean anything.
 		const interactiveRows = grid.querySelectorAll( ':scope > [role="listitem"] > button' ).length;
 		expect( interactiveRows ).toBeGreaterThan( 0 );
-		expect( interactiveRows ).toBeLessThan( sampleData.length );
+		expect( interactiveRows ).toBeLessThan( interactiveData.length );
 
 		// Interactive and static list items must have the same height.
 		const heights = new Set( [ ...rows ].map( row => row.getBoundingClientRect().height ) );

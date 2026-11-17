@@ -71,3 +71,68 @@
 		display: flex;
 	}
 }
+
+.jp-forms__export-modal-card-status {
+	display: grid;
+
+	> * {
+		grid-area: 1 / 1;
+	}
+
+	> .is-hidden {
+		visibility: hidden;
+	}
+}
+
+.jp-forms__export-modal-card-progress,
+.jp-forms__export-modal-card-done {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+// One line, equal-width digits: the growing byte count shifts nothing.
+.jp-forms__export-modal-card-progress {
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+
+	.components-spinner {
+		flex-shrink: 0;
+		margin: 0;
+	}
+}
+
+// Matches the 16px Spinner it replaces once a percentage is known.
+.jp-forms__export-progress-ring {
+	flex-shrink: 0;
+	overflow: visible;
+	transform: rotate(-90deg);
+
+	circle {
+		fill: none;
+		stroke-width: 1.5px;
+	}
+}
+
+.jp-forms__export-progress-ring-track {
+	stroke: var(--wp-components-color-gray-300, #dbdbdb);
+}
+
+.jp-forms__export-progress-ring-indicator {
+	stroke: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+	stroke-linecap: round;
+	transition: stroke-dasharray 0.3s ease-out;
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+	}
+}
+
+.jp-forms__export-modal-card-done {
+	gap: 0; // The check's padding aligns its text with the spinner's.
+}
+
+.jp-forms__export-modal-card-done svg {
+	flex-shrink: 0;
+	color: #008710; // The check icon is drawn with stroke="currentColor".
+}

@@ -222,7 +222,7 @@ describe( 'MetricTabsChart', () => {
 		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
 
 		expect(
-			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-metric-tabs-columns' )
+			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-card-tabs-columns' )
 		).toBe( columns );
 	} );
 
@@ -512,6 +512,24 @@ describe( 'MetricTabsChart', () => {
 		expect( tabs ).toHaveLength( 2 );
 		for ( const tab of tabs ) {
 			expect( tab ).toBeEnabled();
+		}
+	} );
+
+	it( 'draws each card without block elements, which a button cannot hold', () => {
+		const unavailable = {
+			...METRIC,
+			key: 'likes',
+			label: 'Likes',
+			unavailable: "Hourly data isn't available for this metric.",
+		};
+
+		render( <MetricTabsChart metrics={ [ METRIC, unavailable ] } dataFormat={ DATA_FORMAT } /> );
+
+		const tabs = screen.getAllByRole( 'tab' );
+		expect( tabs ).toHaveLength( 2 );
+		for ( const tab of tabs ) {
+			// eslint-disable-next-line testing-library/no-node-access -- A block element has no role to query by.
+			expect( tab.querySelector( 'div' ) ).toBeNull();
 		}
 	} );
 
@@ -860,7 +878,7 @@ describe( 'MetricTabsChart', () => {
 
 			pressAndRelease( spy, { date: CLICKED, value: 200 } );
 
-			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED );
+			expect( onDatumClick ).toHaveBeenCalledWith( { date: CLICKED, isComparison: false } );
 		} );
 
 		// Literal on purpose. Importing the component's tolerance would move both
@@ -942,7 +960,34 @@ describe( 'MetricTabsChart', () => {
 
 			recordedProps( spy ).onDatumActivate?.( { datum: { date: CLICKED, value: 200 } } );
 
-			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED );
+			expect( onDatumClick ).toHaveBeenCalledWith( { date: CLICKED, isComparison: false } );
+		} );
+
+		it( 'reports the previous-period bucket for a click on a comparison point, not the current one it is drawn under', () => {
+			const onDatumClick = jest.fn();
+			const previousStart = new Date( '2026-06-02T00:00:00Z' );
+			const previousEnd = new Date( '2026-06-02T23:59:59Z' );
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			pressAndRelease( mockLineSpy, {
+				date: CLICKED,
+				realDate: previousStart,
+				endDate: previousEnd,
+				value: 120,
+			} );
+
+			expect( onDatumClick ).toHaveBeenCalledWith( {
+				date: previousStart,
+				endDate: previousEnd,
+				isComparison: true,
+			} );
 		} );
 
 		it( 'leaves the chart without pointer or keyboard handlers when nothing listens', () => {

@@ -33,8 +33,6 @@ describe( 'geo-store', () => {
 			enabled: true,
 			url: SEEDED_GEO.llmsTxt.url,
 			canServe: true,
-			disabled: false,
-			conflictingPlugin: '',
 		};
 		registry.dispatch( geoStore ).setLlmsTxt( next );
 		expect( registry.select( geoStore ).getLlmsTxt() ).toEqual( next );

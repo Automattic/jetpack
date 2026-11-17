@@ -13,6 +13,9 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
 	default: { tracks: { recordEvent: jest.fn() } },
 } ) );
+const recordEvent = analytics.tracks.recordEvent as jest.Mock;
+const getRefusalEvents = () =>
+	recordEvent.mock.calls.filter( ( [ event ] ) => event === 'jetpack_videopress_upload_refused' );
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -302,6 +305,48 @@ describe( 'library stage empty state', () => {
 		expect( mockUpgradeLocation ).toHaveBeenCalledTimes( 1 );
 		expect( mockUpgradeLocation ).toHaveBeenCalledWith( 'library_at_limit' );
 	} );
+
+	it( 'records an empty-library picker refusal once without claiming selected files', async () => {
+		mockLibraryTotal = 0;
+		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
+		render( <Stage /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Select a video to upload' } ) );
+		expect( getRefusalEvents() ).toEqual( [
+			[
+				'jetpack_videopress_upload_refused',
+				{
+					location: 'library_dropzone',
+					reason: 'plan_limit',
+					files_known: false,
+				},
+			],
+		] );
+		expect( mockStartUpload ).not.toHaveBeenCalled();
+	} );
+
+	it( 'records a rejected empty-library drop without passing it to intake', async () => {
+		mockLibraryTotal = 0;
+		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
+		render( <Stage /> );
+		fireEvent.drop( screen.getByText( 'Drag and drop your video here' ), {
+			dataTransfer: { files: [ makeVideoFile( 'a.mp4' ) ] },
+		} );
+		await waitFor( () =>
+			expect( getRefusalEvents() ).toEqual( [
+				[
+					'jetpack_videopress_upload_refused',
+					{
+						location: 'library_dropzone',
+						reason: 'plan_limit',
+						files_known: true,
+						attempted_files: 1,
+						skipped_files: 1,
+					},
+				],
+			] )
+		);
+		expect( mockStartUpload ).not.toHaveBeenCalled();
+	} );
 } );
 
 describe( 'library stage upload hand-off', () => {
@@ -347,7 +392,10 @@ describe( 'library stage upload hand-off', () => {
 			dataTransfer: { files },
 		} );
 		await waitFor( () => expect( mockStartUpload ).toHaveBeenCalledTimes( 2 ) );
-		expect( mockStartUpload.mock.calls ).toEqual( [ [ files[ 0 ] ], [ files[ 1 ] ] ] );
+		expect( mockStartUpload.mock.calls ).toEqual( [
+			[ files[ 0 ], { isFree: false, videoCountBefore: undefined } ],
+			[ files[ 1 ], { isFree: false, videoCountBefore: undefined } ],
+		] );
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 

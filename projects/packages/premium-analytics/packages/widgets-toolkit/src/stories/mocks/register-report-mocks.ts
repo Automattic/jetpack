@@ -27,8 +27,6 @@ import {
 	mockStatsPostData,
 	mockPostCommentsData,
 	mockPostLikesData,
-	mockStatsSummaryData,
-	mockStatsSummaryComparisonData,
 	buildStatsSubscribersCountsData,
 	buildEmailRateResponse,
 	buildEmailTimelineResponse,
@@ -47,8 +45,6 @@ const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/s
 // is matched on its own rather than through routeStatsReport().
 const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/subscribers/counts';
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
-const STATS_VIEWS_BY_HOUR_PATH =
-	'/jetpack-premium-analytics/v1/proxy/v1.1/stats/views-by/hour-of-day';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
 const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
@@ -357,41 +353,6 @@ const VISITS_STEP_DAYS: Record< string, number > = {
 };
 
 /**
- * Build an hour-of-day response over the requested date range.
- */
-function buildHourOfDayResponse( query: URLSearchParams ) {
-	const endDate = parseDateParam( query.get( 'date' ), new Date() );
-	const requestedDays = Number.parseInt( query.get( 'days' ) ?? '', 10 );
-	const fallbackDays = Number.isInteger( requestedDays ) && requestedDays > 0 ? requestedDays : 30;
-	const startDate = parseDateParam(
-		query.get( 'start_date' ),
-		new Date( endDate.getTime() - ( fallbackDays - 1 ) * DAY_MS )
-	);
-	const days = Math.max(
-		1,
-		Math.round( ( endDate.getTime() - startDate.getTime() ) / DAY_MS ) + 1
-	);
-
-	// Two peaks make the distribution easier to read in Storybook.
-	const data = Array.from( { length: 24 }, ( _, hour ) => {
-		const evening = 900 * Math.exp( -( ( hour - 19 ) ** 2 ) / 6 );
-		const morning = 420 * Math.exp( -( ( hour - 10 ) ** 2 ) / 8 );
-
-		return [ String( hour ).padStart( 2, '0' ), Math.round( ( 60 + evening + morning ) * days ) ];
-	} );
-
-	return {
-		date: endDate.toISOString().slice( 0, 10 ),
-		start_date: startDate.toISOString().slice( 0, 10 ),
-		days,
-		dimension: 'hour-of-day',
-		utc_offset: '+00:00',
-		fields: [ 'period', 'views' ],
-		data,
-	};
-}
-
-/**
  * The hourly slice of `stats/visits`: mirrors the real endpoint by packing date
  * and hour into a single `period` string (not split columns), with only Views
  * carrying a number — every other requested field comes back `null`.
@@ -630,6 +591,27 @@ function scaleEmailBreakdown< Fixture extends Record< string, unknown > >(
 }
 
 /**
+ * The site summary narrowed to `stat_fields`, as WPCOM narrows it.
+ *
+ * @param statFields - Comma-separated `stats` keys, or none for every key.
+ * @return The summary response.
+ */
+function siteSummaryForFields( statFields: string | null | undefined ) {
+	const fields = statFields?.split( ',' ).filter( Boolean ) ?? [];
+	if ( ! fields.length ) {
+		return mockSiteSummary;
+	}
+	const stats: Record< string, unknown > = mockSiteSummary.stats;
+
+	return {
+		...mockSiteSummary,
+		stats: Object.fromEntries(
+			fields.filter( key => key in stats ).map( key => [ key, stats[ key ] ] )
+		),
+	};
+}
+
+/**
  * Routes a Stats sub-path to the matching mock generator.
  *
  * @param subPath     - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
@@ -688,13 +670,7 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 	switch ( subPath ) {
 		case '':
 			// Site summary — the bare `/stats` endpoint (all-time totals).
-			return mockSiteSummary;
-		case '/summary':
-			// Period summary — alternates primary/comparison so the Site overview
-			// widget shows a period-over-period delta on each tile.
-			return nextIsComparison( 'stats/summary' )
-				? mockStatsSummaryComparisonData
-				: mockStatsSummaryData;
+			return siteSummaryForFields( getQueryParam( requestPath, 'stat_fields' ) );
 		case '/comments':
 			// All-time report with no comparison period; the same body serves
 			// both the primary and comparison requests.
@@ -1037,18 +1013,6 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			return new Promise< never >( () => {} );
 		}
 		if ( state === 'empty' ) {
-			if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
-				// `sanitizeStatsHourOfDayResponse` throws on any other `dimension`, so the
-				// generic empty payload below would render the error state here instead.
-				return {
-					date: '2026-01-01',
-					start_date: '2025-12-03',
-					days: 30,
-					dimension: 'hour-of-day',
-					fields: [ 'period', 'views' ],
-					data: [],
-				};
-			}
 			// A valid response with no rows across the shapes report sanitizers read
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
@@ -1102,10 +1066,6 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		return buildSubscribersResponse(
 			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
 		);
-	}
-
-	if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
-		return buildHourOfDayResponse( queryParamsOf( requestPath ) );
 	}
 
 	if ( requestPath.startsWith( STATS_VISITS_PATH ) ) {

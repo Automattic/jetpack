@@ -66,8 +66,6 @@ function buildConversionSteps(
 type ConversionFunnelProps = {
 	/** The product types the funnel counts; every type when omitted. */
 	filters?: FilterCondition[];
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
-	chartTitle: string;
 };
 
 /**
@@ -77,7 +75,7 @@ type ConversionFunnelProps = {
  * @param {ConversionFunnelProps} props - The component props.
  * @return {JSX.Element} The funnel, or the loading, error or empty state of its report.
  */
-export function ConversionFunnel( { filters, chartTitle }: ConversionFunnelProps ) {
+export function ConversionFunnel( { filters }: ConversionFunnelProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const params = useMemo(
 		() => ( filters ? { ...reportParams, filters } : reportParams ),
@@ -102,7 +100,6 @@ export function ConversionFunnel( { filters, chartTitle }: ConversionFunnelProps
 
 	return (
 		<Funnel
-			chartTitle={ chartTitle }
 			steps={ steps }
 			status={ {
 				isLoading,

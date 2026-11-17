@@ -101,7 +101,6 @@ export function FileDownloadsLeaderboard( {
 }: FileDownloadsLeaderboardProps ) {
 	return (
 		<LeaderboardChart
-			chartTitle={ __( 'Top downloaded', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows ) }
 			withComparison={ withComparison }
 			withOverlayLabel

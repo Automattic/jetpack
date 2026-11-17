@@ -12,6 +12,7 @@ use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-akismet-admin-chrome.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
@@ -207,6 +208,41 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 		$footer = $render_footer();
 		$this->assertStringNotContainsString( 'page=my-jetpack', $footer );
 		$this->assertStringContainsString( 'class="jp-footer__a8c-logo"', $footer );
+	}
+
+	/**
+	 * The Jetpack admin footer links to Features only for users who can open it.
+	 *
+	 * @dataProvider provide_wrap_ui_footer_roles
+	 *
+	 * @param string $role         Role of the current user.
+	 * @param bool   $has_features Whether the Features link should render.
+	 */
+	#[DataProvider( 'provide_wrap_ui_footer_roles' )]
+	public function test_wrap_ui_footer_links_features_by_role( $role, $has_features ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => $role ) ) );
+
+		$markup = $this->render(
+			static function () {
+				Jetpack_Admin_Page::wrap_ui( '__return_empty_string' );
+			}
+		);
+		$footer = substr( $markup, strpos( $markup, '<div class="jp-footer jp-footer--static">' ) );
+
+		$this->assertSame( $has_features, false !== strpos( $footer, 'page=my-jetpack#/features' ) );
+		$this->assertStringContainsString( 'page=my-jetpack#/help', $footer );
+	}
+
+	/**
+	 * Roles and whether the footer should link them to Features.
+	 *
+	 * @return array
+	 */
+	public static function provide_wrap_ui_footer_roles() {
+		return array(
+			'administrator' => array( 'administrator', true ),
+			'editor'        => array( 'editor', false ),
+		);
 	}
 
 	public function test_wrap_ui_masthead_requires_available_my_jetpack() {

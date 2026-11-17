@@ -58,6 +58,7 @@ describe( 'useRememberAppliedPreset', () => {
 
 	it.each( [
 		[ 'a custom range', undefined ],
+		[ 'a stepped window', 'custom' ],
 		[ 'a year', 'year-2024' ],
 	] as const )( 'keeps the remembered preset when the reader applies %s', ( _label, presetId ) => {
 		const { result } = renderHook( () => useRememberAppliedPreset() );

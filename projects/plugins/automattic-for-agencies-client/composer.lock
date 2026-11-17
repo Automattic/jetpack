@@ -12,12 +12,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "4feb4eda7fca7e17d6887d41b9e021869d22297d"
+                "reference": "0b2f6b5c81e65107b79587b26455791b6d027811"
             },
             "require": {
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -31,7 +32,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "4.1.x-dev"
                 }
             },
             "autoload": {
@@ -64,9 +65,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "f43dba75b5f21db4d2f691b450ee7b70c5f80760"
+                "reference": "114c85c94d30632d5aa4c9b16e39522c8a78e0c9"
             },
             "require": {
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
@@ -114,6 +116,12 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -408,13 +416,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d73078d246517912907d40ecbb53c3318888e935"
+                "reference": "3c1ee1080cbc5f1035282f735539cdb0bedaeb27"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-roles": "@dev",
@@ -444,7 +453,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.16.x-dev"
+                    "dev-trunk": "9.18.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -549,12 +558,69 @@
             }
         },
         {
+            "name": "automattic/jetpack-feature-flags",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/feature-flags",
+                "reference": "98706892a3d976085d1b17c1288f4d0dee73ed83"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "brain/monkey": "^2.6.2",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-feature-flags",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-feature-flags/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.2.x-dev"
+                },
+                "textdomain": "jetpack-feature-flags",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-feature-flags.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared utilities for registering and checking lightweight Jetpack feature flags.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-ip",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "f3b7e33bea8e2522ec56a327788ac13f38204996"
+                "reference": "b9eef465b2f03c2bcb9072ce51c7e17e82607606"
             },
             "require": {
                 "php": ">=7.4"
@@ -574,7 +640,7 @@
                     "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 },
                 "textdomain": "jetpack-ip",
                 "version-constants": {
@@ -902,7 +968,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "d57681a025d25e941b66c0d31377850b340c80d0"
+                "reference": "8445087228e624d0dd71975fb11249796d3f8e60"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -934,7 +1000,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.4.x-dev"
+                    "dev-trunk": "5.6.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1675,16 +1741,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.40",
+            "version": "12.5.43",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "76bd3198f16aeb375a4d5f3626471445aed0966e"
+                "reference": "1d5a4a3c98fa1ca3a51402c74b66c2c8df85e0bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/76bd3198f16aeb375a4d5f3626471445aed0966e",
-                "reference": "76bd3198f16aeb375a4d5f3626471445aed0966e",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1d5a4a3c98fa1ca3a51402c74b66c2c8df85e0bb",
+                "reference": "1d5a4a3c98fa1ca3a51402c74b66c2c8df85e0bb",
                 "shasum": ""
             },
             "require": {
@@ -1753,7 +1819,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.40"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.43"
             },
             "funding": [
                 {
@@ -1761,7 +1827,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-10-16T05:55:07+00:00"
+            "time": "2026-11-02T07:10:00+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -2880,5 +2946,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }

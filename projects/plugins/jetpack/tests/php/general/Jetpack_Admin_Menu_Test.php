@@ -8,7 +8,6 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_WP_Build_Page;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
 use Automattic\Jetpack\Scan\Admin_Sidebar_Link;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
@@ -278,7 +277,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		$this->satisfy_conditional_registrar_gates();
 		Admin_Sidebar_Link::instance()->maybe_add_admin_link();
-		Jetpack_Manage::add_submenu_jetpack();
 		Jetpack_Subscriptions::init()->add_subscribers_menu();
 
 		/*
@@ -377,22 +375,21 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$this->satisfy_conditional_registrar_gates();
 
 		return array(
-			'my-jetpack'     => array( My_Jetpack_Initializer::class, 'add_my_jetpack_menu_item' ),
-			'activity-log'   => array( Jetpack_Activity_Log::class, 'add_wp_admin_submenu' ),
-			'backup'         => array( Jetpack_Backup::class, 'add_wp_admin_submenu' ),
-			'videopress'     => array( Admin_UI::class, 'enable_menu' ),
-			'scan-backup'    => array( Admin_Sidebar_Link::instance(), 'maybe_add_admin_link' ),
-			'jetpack-manage' => array( Jetpack_Manage::class, 'add_submenu_jetpack' ),
-			'subscribers'    => array( Jetpack_Subscriptions::init(), 'add_subscribers_menu' ),
-			'settings'       => array( new Jetpack_Settings_React_Page(), 'get_page_hook' ),
+			'my-jetpack'   => array( My_Jetpack_Initializer::class, 'add_my_jetpack_menu_item' ),
+			'activity-log' => array( Jetpack_Activity_Log::class, 'add_wp_admin_submenu' ),
+			'backup'       => array( Jetpack_Backup::class, 'add_wp_admin_submenu' ),
+			'videopress'   => array( Admin_UI::class, 'enable_menu' ),
+			'scan-backup'  => array( Admin_Sidebar_Link::instance(), 'maybe_add_admin_link' ),
+			'subscribers'  => array( Jetpack_Subscriptions::init(), 'add_subscribers_menu' ),
+			'settings'     => array( new Jetpack_Settings_React_Page(), 'get_page_hook' ),
 		);
 	}
 
 	/**
-	 * Opens the gates on the four registrars that only register under a condition.
+	 * Opens the gates on the three registrars that only register under a condition.
 	 *
-	 * Scan, Backup, Jetpack Manage and Subscribers are the call sites that regressed in the two
-	 * curation PRs before #52003, so leaving them unregistered here would test past the history.
+	 * Scan, Backup and Subscribers are the call sites that regressed in the two curation PRs
+	 * before #52003, so leaving them unregistered here would test past the history.
 	 */
 	private function satisfy_conditional_registrar_gates() {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';

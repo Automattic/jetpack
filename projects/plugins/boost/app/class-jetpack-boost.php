@@ -21,6 +21,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
+use Automattic\Jetpack_Boost\Contracts\Sub_Feature;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Cleanup_Transients;
@@ -187,6 +188,8 @@ class Jetpack_Boost {
 		// Remove this option to prevent the notice from showing up.
 		delete_site_option( 'jetpack_boost_static_minification' );
 
+		jetpack_boost_minify_empty_caches_for_rules();
+
 		// Add upgrade check for Cornerstone Pages.
 		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
 		if ( is_array( $pages ) && in_array( home_url( '' ), $pages, true ) ) {
@@ -299,7 +302,17 @@ class Jetpack_Boost {
 			! empty( $active_modules )
 			&& ( new Connection() )->is_connected()
 		) {
+			$available_modules = $modules_setup->get_available_modules_and_submodules();
 			foreach ( $active_modules as $module => $status ) {
+				if ( ! $status ) {
+					continue;
+				}
+
+				$module_instance = $available_modules[ $module ];
+				if ( $module_instance->feature instanceof Sub_Feature && empty( $module_instance->get_active_parent_modules() ) ) {
+					continue;
+				}
+
 				$modules_setup->on_module_status_update( $module, true );
 			}
 		}
@@ -483,6 +496,7 @@ class Jetpack_Boost {
 		// Delete the last run options for the network-wide cron jobs.
 		delete_site_option( 'jetpack_boost_404_tester_last_run' );
 		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
+		delete_site_option( 'jetpack_boost_minify_cache_rules_applied' );
 
 		// Delete stored Critical CSS and LCP data.
 		( new Critical_CSS_Storage() )->clear();

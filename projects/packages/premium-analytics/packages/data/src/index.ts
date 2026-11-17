@@ -13,8 +13,10 @@ export {
 	postSurface,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
+	type PeriodChange,
 } from './providers/period-change-signal';
 export * from './hooks';
+export { STATS_SITE_SUMMARY_FIELDS } from './queries/stats-site-query';
 export { ensureDashboardEntities } from './entities/dashboard-entities';
 export { latestPostQuery, postContentQuery, postsContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
@@ -74,10 +76,11 @@ export {
 	getApiErrorStatus,
 	findAuthorRow,
 	isAccessDenied,
+	isAnalyticsSchemaOutdated,
+	isAnalyticsTablesNotReady,
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
-	StatsResponseShapeError,
 	toAuthorId,
 	toPostId,
 	useSiteHomeUrl,
@@ -123,16 +126,21 @@ export {
 	isPlanDateLimitedSection,
 	isPresetLockedByPolicy,
 	OPEN_DATE_POLICY,
+	startsBeforePolicy,
 	type DateLimitFeature,
 	type StatsDatePolicy,
 } from './utils/stats-date-policy';
 export {
 	DASHBOARD_PREFERENCES_SCOPE,
+	deriveComparisonRange,
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
+	getSectionOrder,
+	orderSections,
 	rememberComparison,
 	rememberPreset,
+	setSectionOrder,
 	withDefaultComparison,
 } from './defaults';
 export { downloadReport, fetchStatsProxy } from './api';

@@ -8,11 +8,9 @@ import { video as videoIcon } from '@wordpress/icons';
  */
 import TopVideos from '../render';
 import manifest from '../widget.json';
-import type { ReactNode } from 'react';
 
 const mockLeaderboard = jest.fn();
 const mockReportActions = jest.fn();
-const mockWidgetRoot = jest.fn();
 const mockUseStatsVideoPlays = jest.fn();
 const mockDescribeError = jest.fn();
 const mockUseEntityRecords = jest.fn();
@@ -44,6 +42,8 @@ jest.mock( '@wordpress/data', () => ( {
 		} ) ),
 } ) );
 
+const mockPageParams = { from: '2026-06-01', to: '2026-06-16' };
+
 // The SDK has no implementation outside the dashboard, so the suite stands in for it.
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 	Leaderboard: ( props: Record< string, unknown > ) => {
@@ -54,14 +54,14 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		mockReportActions( options );
 		return true;
 	},
-	WidgetRoot: ( { children, ...props }: { children: ReactNode } ) => {
-		mockWidgetRoot( props );
-		return children;
-	},
+	...jest
+		.requireActual< typeof import( '../../../src/dashboard/test-utils/fake-widget-root' ) >(
+			'../../../src/dashboard/test-utils/fake-widget-root'
+		)
+		.fakeWidgetRoot( () => mockPageParams ),
 	describeError: ( ...args: unknown[] ) => mockDescribeError( ...args ),
 	getVideoPosterUrl: ( poster?: string ) => poster && `${ poster }?resize=100%2C56`,
 	useStatsVideoPlays: ( ...args: unknown[] ) => mockUseStatsVideoPlays( ...args ),
-	useWidgetRootContext: () => ( { reportParams: { from: '2026-06-01', to: '2026-06-16' } } ),
 } ) );
 
 jest.mock( '../../../src/dashboard/utils/start-video-upload', () => ( {
@@ -139,13 +139,15 @@ describe( 'Top videos widget', () => {
 		);
 	} );
 
-	it( 'hands the host attributes and error handler to the widget root', () => {
-		const attributes = { reportParams: { from: '2026-06-01', to: '2026-06-16' } };
-		const setError = jest.fn();
+	it( 'requests the window the host names over the page one', () => {
+		render(
+			<TopVideos attributes={ { reportParams: { from: '2026-05-01', to: '2026-05-31' } } } />
+		);
 
-		render( <TopVideos attributes={ attributes } setError={ setError } /> );
-
-		expect( mockWidgetRoot ).toHaveBeenCalledWith( { attributes, setError } );
+		expect( mockUseStatsVideoPlays ).toHaveBeenCalledWith(
+			{ from: '2026-05-01', to: '2026-05-31', max: 10 },
+			{ maxRows: 10 }
+		);
 	} );
 
 	it( 'turns each video into a row that links to its detail page', () => {

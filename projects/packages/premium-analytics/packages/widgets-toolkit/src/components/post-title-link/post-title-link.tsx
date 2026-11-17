@@ -76,7 +76,7 @@ export type PostTitleLinkProps = {
  * link, or plain text.
  *
  * Rows with a post ID, read by someone who can open post details, stay inside
- * the app: they navigate to `/post/{postId}` through the router, so the
+ * the app: they navigate to `/report/post/{postId}` through the router, so the
  * dashboard does not reload. They carry no outbound
  * marker — it marks a destination outside the app, and the detail page holds the
  * link out to the live post. Such a row still passes its public URL along in
@@ -107,8 +107,8 @@ export function PostTitleLink( {
 			<InternalLink
 				className={ classNames?.internal }
 				title={ title }
-				to="/post/$postId"
-				params={ { postId: String( postId ) } }
+				to="/report/$kind/$id"
+				params={ { kind: 'post', id: String( postId ) } }
 				search={ href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search }
 			>
 				{ content }

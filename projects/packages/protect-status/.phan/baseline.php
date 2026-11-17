@@ -15,7 +15,6 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'src/class-status.php' => ['PhanTypeMismatchArgument'],
         'tests/php/Scan_Status_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/Status_Test.php' => ['PhanTypeMismatchArgument'],
     ],

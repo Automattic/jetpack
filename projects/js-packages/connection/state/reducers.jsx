@@ -7,6 +7,8 @@ import {
 	DISCONNECT_USER_SUCCESS,
 	CLEAR_REGISTRATION_ERROR,
 	SET_REGISTRATION_ERROR,
+	CLEAR_USER_CONNECTION_ERROR,
+	SET_USER_CONNECTION_ERROR,
 	SET_AUTHORIZATION_URL,
 	SET_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
@@ -73,6 +75,17 @@ const registrationError = ( state, action ) => {
 			return false;
 		case SET_REGISTRATION_ERROR:
 			return action.registrationError;
+		default:
+			return state;
+	}
+};
+
+const userConnectionError = ( state, action ) => {
+	switch ( action.type ) {
+		case CLEAR_USER_CONNECTION_ERROR:
+			return false;
+		case SET_USER_CONNECTION_ERROR:
+			return action.userConnectionError;
 		default:
 			return state;
 	}
@@ -148,6 +161,10 @@ const requiresProtectedOwner = ( state = null ) => state;
 
 const useDefaultProtectedOwnerUi = ( state = null ) => state;
 
+// Server-decided too, so pass-throughs for the same reason.
+const canTakeOwnerSlot = ( state = null ) => state;
+const identityCrisis = ( state = null ) => state;
+
 const connectionErrors = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_ERRORS:
@@ -172,6 +189,7 @@ const reducers = combineReducers( {
 	siteIsRegistering,
 	userIsConnecting,
 	registrationError,
+	userConnectionError,
 	authorizationUrl,
 	userConnectionData,
 	connectedPlugins,
@@ -179,6 +197,8 @@ const reducers = combineReducers( {
 	hasProtectedOwner,
 	requiresProtectedOwner,
 	useDefaultProtectedOwnerUi,
+	canTakeOwnerSlot,
+	identityCrisis,
 	connectionErrors,
 	isOfflineMode,
 } );

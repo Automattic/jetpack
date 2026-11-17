@@ -957,12 +957,13 @@ function stats_dashboard_widget_controls_html( $intervals, $periods, $options ) 
 /**
  * Jetpack Stats Dashboard Widget.
  *
- * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ * @deprecated 16.5 The dashboard widget renders WP_Dashboard_Odyssey_Widget::render() instead.
  *
  * @access public
  * @return void
  */
 function stats_jetpack_dashboard_widget() {
+	_deprecated_function( __FUNCTION__, 'jetpack-16.5', 'Automattic\\Jetpack\\Stats_Admin\\WP_Dashboard_Odyssey_Widget::render' );
 	?>
 	<form id="stats_dashboard_widget_control" action="<?php echo esc_url( admin_url() ); ?>" method="post">
 		<?php stats_dashboard_widget_control(); ?>

@@ -21,6 +21,10 @@ export type TracksEventName =
 	| 'jetpack_subscribers_comp_modal_confirm'
 	| 'jetpack_subscribers_remove_comp_confirm'
 	| 'jetpack_subscribers_export_downloaded'
+	| 'jetpack_subscribers_bulk_remove_modal_showed'
+	| 'jetpack_subscribers_bulk_remove_modal_dismissed'
+	| 'jetpack_subscribers_bulk_remove_confirmed'
+	| 'jetpack_subscribers_bulk_remove_finished'
 	| 'jetpack_subscribers_add_question'
 	| 'jetpack_subscribers_empty_view_displayed';
 

@@ -160,6 +160,7 @@ function SearchTermsDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< SearchTermsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <SearchTermsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

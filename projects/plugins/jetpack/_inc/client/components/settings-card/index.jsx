@@ -261,7 +261,10 @@ export const SettingsCard = inprops => {
 
 				return (
 					<JetpackBanner
-						title={ __( 'Connect your WordPress.com account to enable Secure Sign-On', 'jetpack' ) }
+						title={ __(
+							'Connect your WordPress.com account to enable WordPress.com login',
+							'jetpack'
+						) }
 						callToAction={ connectLabel() }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SSO ) }
 						feature={ feature }

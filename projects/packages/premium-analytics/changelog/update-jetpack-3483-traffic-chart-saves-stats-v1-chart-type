@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Traffic summary: Save the chart type its switch picks where Stats v1 saved it, so the Stats widget on the wp-admin dashboard draws bars or lines as this chart does.

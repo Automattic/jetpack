@@ -38,7 +38,7 @@ export const getMyJetpackWindowConnectionState = <
 	key?: A
 ): StateReturnType< ConnectionState, A > => {
 	if ( ! key ) {
-		return window?.JP_CONNECTION_INITIAL_STATE as StateReturnType< ConnectionState, A >;
+		return ( window?.JP_CONNECTION_INITIAL_STATE ?? {} ) as StateReturnType< ConnectionState, A >;
 	}
 
 	return ( window?.JP_CONNECTION_INITIAL_STATE?.[ key ] ?? {} ) as StateReturnType<

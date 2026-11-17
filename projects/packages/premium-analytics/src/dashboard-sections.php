@@ -127,6 +127,9 @@ function inject_dashboard_sections_script_data( array $data ): array {
 	// Switching the dashboard off sends the reader to classic Stats, so the client is told where that is.
 	$data['premium_analytics']['classic_stats_url'] = Classic_Stats::page_url();
 
+	// Once classic Stats is retired, Stats v2 stops asking for feedback.
+	$data['premium_analytics']['classic_stats_retired'] = Classic_Stats::is_retired();
+
 	$sections = get_available_dashboard_section_slugs();
 
 	if ( null !== $sections ) {

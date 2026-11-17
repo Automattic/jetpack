@@ -418,6 +418,8 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					isSeriesVisible,
 					chartWidth: width,
 					chartHeight: measuredChartHeight || 0,
+					legendItems,
+					chartType: 'area',
 				} }
 			>
 				<ChartLayout

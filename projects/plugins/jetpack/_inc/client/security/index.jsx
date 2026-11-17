@@ -5,8 +5,8 @@ import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import QuerySite from 'components/data/query-site';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
-import { getSiteId, hasBackupPage } from 'state/initial-state';
-import { getModule, hasProtectPage } from 'state/modules';
+import { getSiteId, hasBackupPage, hasProtectPage } from 'state/initial-state';
+import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { siteHasFeature } from 'state/site';
@@ -123,7 +123,7 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
-				<h1 className="screen-reader-text">{ __( 'Jetpack Security Settings', 'jetpack' ) }</h1>
+				<h1 className="screen-reader-text">{ __( 'Security settings', 'jetpack' ) }</h1>
 				{ isSearchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Security', 'jetpack' ) }</h2>
 				) }

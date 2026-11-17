@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\VideoPress\Stats as VideoPress_Stats;
@@ -218,7 +217,7 @@ class Videopress extends Hybrid_Product {
 	public static function get_manage_url() {
 		if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'should_initialize_admin_ui' ) && \Automattic\Jetpack\VideoPress\Initializer::should_initialize_admin_ui() ) {
 			return \Automattic\Jetpack\VideoPress\Admin_UI::get_admin_page_url();
-		} elseif ( Feature_Flags::is_enabled( \Automattic\Jetpack\My_Jetpack\Initializer::SETTINGS_CONSOLIDATION_FLAG ) ) {
+		} elseif ( \Automattic\Jetpack\My_Jetpack\Initializer::is_settings_consolidation_on_for_site() ) {
 			return admin_url( 'admin.php?page=my-jetpack#/features?search=videopress' );
 		} else {
 			return admin_url( 'admin.php?page=jetpack#/settings?term=videopress' );

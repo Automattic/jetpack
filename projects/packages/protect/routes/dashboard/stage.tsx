@@ -14,6 +14,7 @@ import { REPORT_PARAM, parseThreatIds } from './sections/scan/group-threats';
 import HeaderScanButton from './sections/scan/header-scan-button';
 import ScanStartNotice from './sections/scan/scan-start-notice';
 import { useScanPolling } from './sections/scan/store';
+import { ThreatFileViewer } from './sections/scan/threat-file';
 import ThreatReport from './sections/scan/threat-report';
 import './route.scss';
 
@@ -77,9 +78,19 @@ const Stage = () => {
 			? requestedSection
 			: undefined;
 	useEffect( () => {
-		if ( ! showReport ) {
-			recordPageView( activeTab, pageViewSection );
+		if ( showReport ) {
+			return;
 		}
+		recordPageView( activeTab, pageViewSection );
+		// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+		const onShown = ( event: Event ) => {
+			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
+			if ( page === 'jetpack-protect' && ! firstShow ) {
+				recordPageView( activeTab, pageViewSection );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
 	}, [ activeTab, pageViewSection, showReport ] );
 
 	if ( showReport ) {
@@ -97,6 +108,7 @@ const Stage = () => {
 						openTab={ openTab }
 					/>
 				</div>
+				<ThreatFileViewer />
 			</AdminPage>
 		);
 	}
@@ -138,6 +150,7 @@ const Stage = () => {
 					</Tabs.Panel>
 				</div>
 			</Tabs.Root>
+			<ThreatFileViewer />
 		</AdminPage>
 	);
 };

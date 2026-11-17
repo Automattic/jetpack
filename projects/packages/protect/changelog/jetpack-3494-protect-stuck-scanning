@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Scan: Offer a first scan instead of showing "Scanning…" forever when WordPress.com has no scan on record.

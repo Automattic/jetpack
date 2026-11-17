@@ -117,7 +117,7 @@ class Jetpack_Network {
 	 * @param WP_Site $site the WordPress site object.
 	 **/
 	public function do_automatically_add_new_site( $site ) {
-		if ( is_a( $site, 'WP_Site' ) ) {
+		if ( $site instanceof \WP_Site ) {
 			$this->do_subsiteregister( $site->id );
 		}
 	}
@@ -144,7 +144,7 @@ class Jetpack_Network {
 	 * @return Jetpack_Network
 	 */
 	public static function init() {
-		if ( ! self::$instance || ! is_a( self::$instance, 'Jetpack_Network' ) ) {
+		if ( ! self::$instance || ! self::$instance instanceof \Jetpack_Network ) {
 			self::$instance = new Jetpack_Network();
 		}
 

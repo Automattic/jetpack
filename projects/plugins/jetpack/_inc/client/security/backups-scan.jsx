@@ -24,7 +24,7 @@ class LoadingCard extends Component {
 	render() {
 		return (
 			<SettingsCard
-				header={ _x( 'Backups and security scanning', 'Settings header', 'jetpack' ) }
+				header={ _x( 'Backups and Scan', 'Settings header', 'jetpack' ) }
 				hideButton
 				action="scan"
 			>
@@ -126,7 +126,7 @@ class BackupsScanRewind extends Component {
 			<SettingsCard
 				feature={ 'rewind' }
 				{ ...this.props }
-				header={ _x( 'Backups and security scanning', 'Settings header', 'jetpack' ) }
+				header={ _x( 'Backups and Scan', 'Settings header', 'jetpack' ) }
 				action={ 'rewind' }
 				hideButton
 			>
@@ -180,10 +180,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 						</div>
 					);
 				}
-				return __(
-					'Your site is connected to VaultPress for backups and security scanning.',
-					'jetpack'
-				);
+				return __( 'Your site is connected to VaultPress for backups and scanning.', 'jetpack' );
 			}
 
 			// Only return here if backups are enabled and site doesn't have scan.
@@ -226,7 +223,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				<SettingsCard
 					feature={ FEATURE_SECURITY_SCANNING_JETPACK }
 					{ ...this.props }
-					header={ _x( 'Backups and security scanning', 'Settings header', 'jetpack' ) }
+					header={ _x( 'Backups and Scan', 'Settings header', 'jetpack' ) }
 					action="scan"
 					hideButton
 				>
@@ -252,7 +249,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 							target="_blank"
 							href={ getRedirectUrl( 'vaultpress-dashboard' ) }
 						>
-							{ __( 'Configure your Security Scans', 'jetpack' ) }
+							{ __( 'Configure Scan', 'jetpack' ) }
 						</Card>
 					) }
 				</SettingsCard>

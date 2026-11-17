@@ -10,10 +10,18 @@ export type EditorProps = {
 	labels: EditorLabels;
 	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
 	focus?: () => number;
+	/** The prompt in an empty comment. Empty, Gutenberg's own shows. */
 	placeholder: string;
 	/** Draw embeds and images. Off on the edit-comment screen, where the URL is enough. */
 	previewEmbeds?: boolean;
+	/**
+	 * Asks for an embed's preview, for a host whose preview route needs the request signed in.
+	 * Left out, the editor fetches `labels.embedUrl` without credentials.
+	 */
+	fetchEmbed?: ( url: string ) => Promise< Response >;
 	onChange: ( content: string ) => void;
+	/** The blocks are drawn, before paint, so the caller can swap the editor in without an empty frame. */
+	onReady?: () => void;
 	/** The editor broke; the caller brings its textarea back. */
 	onError: ( error: unknown ) => void;
 };

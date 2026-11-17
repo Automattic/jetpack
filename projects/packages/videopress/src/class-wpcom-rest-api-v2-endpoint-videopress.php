@@ -318,6 +318,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						'type'        => 'integer',
 						'required'    => true,
 					),
+					'source'        => array(
+						'description' => __( 'The entry surface that initiated this promotion.', 'jetpack-videopress-pkg' ),
+						'type'        => 'string',
+						'enum'        => array( 'dashboard_promote', 'block_editor' ),
+					),
 				),
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_promote_attachment' ),
@@ -550,6 +555,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			);
 		}
 
+		// A competing promotion may have finished between the first lookup and acquiring the lock.
+		$info = $this->promote_video_info( $blog_id, $attachment_id );
+		if ( $info && ! empty( $info->guid ) ) {
+			wp_cache_delete( $promote_lock, 'video-info' );
+			return rest_ensure_response(
+				array(
+					'guid'               => $info->guid,
+					'media_id'           => $attachment_id,
+					'already_videopress' => true,
+				)
+			);
+		}
+
 		/*
 		 * Creates the videos-table row (video_create_info()) and enqueues
 		 * the async transcode job. The fresh-upload path sleep(3)s before
@@ -573,6 +591,17 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				array( 'status' => 500 )
 			);
 		}
+
+		/**
+		 * Fires after a new in-process VideoPress registration is verified, before processing completes.
+		 *
+		 * @since 0.62.0
+		 *
+		 * @param object      $info    Canonical video registration.
+		 * @param int         $blog_id Site where the attachment was promoted.
+		 * @param string|null $source  Client-reported entry surface, or null when omitted.
+		 */
+		do_action( 'jetpack_videopress_attachment_promoted', $info, $blog_id, $request->get_param( 'source' ) );
 
 		return rest_ensure_response(
 			array(
@@ -1136,12 +1165,25 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					'data'    => 200,
 				)
 			);
-		} else {
+		} elseif ( is_object( $response_body ) && ! empty( $response_body->code ) && is_string( $response_body->code ) ) {
+			// WP_REST_Server reads the status only from an array; wpcom sends `{ status }` or a bare status code.
+			$error_data = $response_body->data ?? null;
+			if ( is_object( $error_data ) ) {
+				$error_data = (array) $error_data;
+			} elseif ( is_int( $error_data ) ) {
+				$error_data = array( 'status' => $error_data );
+			}
 			return rest_ensure_response(
-				new WP_Error(
-					$response_body->code,
-					$response_body->message,
-					$response_body->data
+				new WP_Error( $response_body->code, $response_body->message ?? '', $error_data )
+			);
+		} else {
+			// An HTML or empty body would otherwise build a WP_Error with no code.
+			return new WP_Error(
+				'videopress_meta_update_failed',
+				__( 'WordPress.com did not confirm the video update.', 'jetpack-videopress-pkg' ),
+				array(
+					'status'          => 502,
+					'upstream_status' => wp_remote_retrieve_response_code( $result ),
 				)
 			);
 		}

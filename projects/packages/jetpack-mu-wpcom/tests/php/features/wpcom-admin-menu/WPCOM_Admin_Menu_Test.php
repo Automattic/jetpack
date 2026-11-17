@@ -363,7 +363,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Simple sites keep the Calypso Activity Log link and hide the native page.
+	 * Simple sites without the Activity Log package keep the Calypso link and hide the native page.
 	 *
 	 * Runs in a separate process because `wpcom_add_jetpack_submenu()` detects Simple
 	 * sites through the real `IS_WPCOM` constant.
@@ -373,7 +373,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_links_activity_log_to_calypso_on_simple_sites() {
+	public function test_jetpack_submenu_links_activity_log_to_calypso_on_simple_sites_without_the_package() {
 		if ( ! defined( 'IS_WPCOM' ) ) {
 			define( 'IS_WPCOM', true );
 		}
@@ -410,7 +410,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Sets up a Simple site with an admin and the native Activity Log flag on.
+	 * Sets up a Simple site with an admin and the bundled Activity Log package.
 	 *
 	 * Callers run in a separate process, because `wpcom_add_jetpack_submenu()` reads the real `IS_WPCOM` constant.
 	 *
@@ -436,20 +436,19 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		require_once __DIR__ . '/fixtures/class-jetpack-activity-log.php';
 		// @phan-suppress-next-line PhanUndeclaredClassStaticProperty -- Declared in a fixture excluded from Phan, as the real package is.
 		\Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::$supports_simple = $package_supports_simple;
-		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_NATIVE_ACTIVITY_LOG_FLAG, '__return_true' );
 
 		return wp_parse_url( home_url(), PHP_URL_HOST );
 	}
 
 	/**
-	 * With the flag on, Simple sites show the native page instead of the Calypso link.
+	 * Simple sites show the native page instead of the Calypso link by default.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_shows_native_activity_log_on_simple_sites_when_flagged() {
+	public function test_jetpack_submenu_shows_native_activity_log_on_simple_sites() {
 		$domain = $this->set_up_simple_site_with_native_activity_log( true );
 
 		wpcom_add_jetpack_submenu();
@@ -461,15 +460,34 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Jetpack deploys separately, so the flag can be on while the bundled package predates Simple support.
+	 * Cases where a Simple site keeps the Calypso Activity Log link.
 	 *
+	 * @return array
+	 */
+	public static function provide_calypso_activity_log_fallback_cases() {
+		return array(
+			// Jetpack deploys separately, so the bundled package can predate Simple support.
+			'package predates Simple support' => array( false, true ),
+			'flag switched off'               => array( true, false ),
+		);
+	}
+
+	/**
+	 * Simple sites fall back to the Calypso link when the native page cannot or should not register.
+	 *
+	 * @dataProvider provide_calypso_activity_log_fallback_cases
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
+	 *
+	 * @param bool $package_supports_simple Whether the bundled package can register the page on Simple.
+	 * @param bool $flag_enabled            Whether the native Activity Log flag is on.
 	 */
+	#[DataProvider( 'provide_calypso_activity_log_fallback_cases' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_falls_back_to_calypso_activity_log_when_the_package_cannot_register() {
-		$domain = $this->set_up_simple_site_with_native_activity_log( false );
+	public function test_jetpack_submenu_falls_back_to_calypso_activity_log( $package_supports_simple, $flag_enabled ) {
+		$domain = $this->set_up_simple_site_with_native_activity_log( $package_supports_simple );
+		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_NATIVE_ACTIVITY_LOG_FLAG, $flag_enabled ? '__return_true' : '__return_false' );
 
 		wpcom_add_jetpack_submenu();
 
@@ -735,11 +753,12 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 * @param string|null $address  Which Settings address the Jetpack plugin registers.
 	 * @param array       $expected Expected submenu titles, top to bottom; a hidden item ends in "(hidden)".
 	 * @param bool        $atomic   Whether to define the Atomic hosting constants.
+	 * @param bool        $page     Whether a My Jetpack page registered.
 	 */
 	#[DataProvider( 'provide_jetpack_menu_environments' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_sorts_alphabetically( $simple, $address, $expected, $atomic = true ) {
+	public function test_jetpack_submenu_sorts_alphabetically( $simple, $address, $expected, $atomic = true, $page = true ) {
 		global $submenu;
 		if ( $simple ) {
 			define( 'IS_WPCOM', true );
@@ -761,6 +780,10 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			array( 'Akismet Anti-spam <span class="awaiting-mod">2</span>', 'manage_options', 'akismet-key-config' ),
 			array( 'Activity Log', 'manage_options', 'jetpack-activity-log' ),
 		);
+		if ( $page ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu['jetpack'][] = array( 'My Jetpack', 'manage_options', 'my-jetpack' );
+		}
 		if ( ! $simple ) {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$submenu['jetpack'][] = array( 'Settings', 'manage_options', $settings_slug );
@@ -837,12 +860,13 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_jetpack_menu_environments() {
 		$atomic = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Scan', 'SEO', 'Social', 'Beta Tester', 'Settings' );
-		$simple = array( 'Activity Log', 'Activity Log (hidden)', 'Abonnés', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Beta Tester' );
+		$simple = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Activity Log (hidden)', 'Beta Tester' );
 
 		return array(
 			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),
 			'Atomic Settings'                    => array( false, 'own', $atomic ),
-			'Simple'                             => array( true, null, $simple ),
+			'Simple with the My Jetpack page'    => array( true, null, $simple ),
+			'Simple without the My Jetpack page' => array( true, null, array( 'Activity Log', 'Activity Log (hidden)', 'Abonnés', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Beta Tester' ), true, false ),
 			'Other host with WordPress.com menu' => array( false, 'own', $atomic, false ),
 		);
 	}

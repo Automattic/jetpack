@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Gifting banner: Keep the "?" and Gift buttons readable under theme button styles, stop long Gift labels being clipped on mobile, and give the "?" button an accessible name.

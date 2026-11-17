@@ -77,6 +77,9 @@ export interface RegistrationError {
 	[ key: string ]: unknown;
 }
 
+/** A failure to register the site or to hand the user off to WordPress.com. */
+export type ConnectError = RegistrationError;
+
 export interface UseConnectionReturn {
 	handleRegisterSite: ( e?: Event | SyntheticEvent ) => Promise< unknown >;
 	handleConnectUser: () => Promise< unknown >;
@@ -86,6 +89,8 @@ export interface UseConnectionReturn {
 	siteIsRegistering: boolean;
 	userIsConnecting: boolean;
 	registrationError: RegistrationError | false;
+	/** Whichever failed: registering the site or the hand-off to WordPress.com. */
+	connectError: ConnectError | false;
 	userConnectionData: UserConnectionData;
 	/** The owner of record; null when unresolvable or withheld from this viewer. */
 	connectionOwner: ConnectionOwner | null;

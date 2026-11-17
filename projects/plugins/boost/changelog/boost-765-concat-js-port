@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Concatenate JS: Fix scripts printed on their own failing to load on sites served from a custom port.

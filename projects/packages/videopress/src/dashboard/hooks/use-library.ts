@@ -215,6 +215,7 @@ export function useLibrary( view: View, { poll = true }: { poll?: boolean } = {}
 	return {
 		items: query.data?.items ?? [],
 		isLoading: query.isLoading,
+		isSuccess: query.isSuccess,
 		paginationInfo: query.data?.paginationInfo ?? { totalItems: 0, totalPages: 0 },
 		isError: query.isError,
 		error: query.error,

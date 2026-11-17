@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Module Name: Downtime Monitor
+ * Module Name: Downtime monitoring
  * Module Description: Get instant alerts if your site goes down and know when it’s back online.
  * Sort Order: 28
  * Recommendation Order: 10
@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Recommended
  * Feature: Security
- * Additional Search Queries: monitor, uptime, downtime, monitoring, maintenance, maintenance mode, offline, site is down, site down, down, repair, error
+ * Additional Search Queries: downtime monitor, monitor, uptime, downtime, monitoring, maintenance, maintenance mode, offline, site is down, site down, down, repair, error
  *
  * @package automattic/jetpack
  */

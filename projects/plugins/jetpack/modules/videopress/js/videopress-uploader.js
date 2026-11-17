@@ -1,4 +1,4 @@
-/* globals plupload, pluploadL10n, error */
+/* globals plupload */
 window.wp = window.wp || {};
 
 ( function ( wp ) {
@@ -6,30 +6,9 @@ window.wp = window.wp || {};
 		originalOptions: {},
 
 		/**
-		 * This is the standard uploader response handler.
-		 */
-		handleStandardResponse: function ( response, file ) {
-			if (
-				response === null ||
-				typeof response !== 'object' ||
-				typeof response.success === 'undefined'
-			) {
-				return error( pluploadL10n.default_error, null, file );
-			} else if ( ! response.success ) {
-				return error( response.data && response.data.message, response.data, file );
-			}
-
-			return response;
-		},
-
-		/**
 		 * Handle response from the WPCOM Rest API.
 		 */
-		handleRestApiResponse: function ( response, file ) {
-			if ( response.media.length !== 1 ) {
-				return error( pluploadL10n.default_error, null, file );
-			}
-
+		handleRestApiResponse: function ( response ) {
 			var media = response.media[ 0 ],
 				mimeParts = media.mime_type.split( '/' ),
 				data = {

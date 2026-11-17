@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Settings: Reset the Reader views setting to its default on a null write, instead of turning it off.

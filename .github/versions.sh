@@ -5,13 +5,13 @@
 
 # Versions of tools to use in CI.
 PHP_VERSION=8.4
-COMPOSER_VERSION=2.10.0
+COMPOSER_VERSION=2.11.1
 NODE_VERSION=24.15.0
 PNPM_VERSION=11.5.2
 
 # Other useful version numbers.
 MIN_PHP_VERSION=7.4
-MAX_PHP_VERSION=8.5
+MAX_PHP_VERSION=8.6
 
 # Minimum supported WordPress version. Keep in sync with the "Requires at least" headers in the plugins.
 # This is deliberately hard-coded rather than detected: near a WP release there's a window where we've

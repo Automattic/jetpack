@@ -257,6 +257,22 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( hubViews() ).toHaveLength( 5 );
 		} );
 
+		test( 'records the tab again when the admin shell shows the page again, not on its first show', async () => {
+			window.history.replaceState( null, '', '#/features' );
+			render( <App /> );
+			await waitFor( () => expect( viewedTabs() ).toEqual( [ 'features' ] ) );
+			const shown = ( page, firstShow ) =>
+				window.dispatchEvent(
+					new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+				);
+
+			shown( 'jetpack-ai', true );
+			shown( 'my-jetpack', false );
+			shown( 'jetpack-ai', false );
+
+			expect( viewedTabs() ).toEqual( [ 'features', 'features' ] );
+		} );
+
 		test( 'records hash and history navigation without counting MCP sub-view changes', async () => {
 			window.history.replaceState( null, '', '#/features' );
 			render( <App /> );

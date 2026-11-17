@@ -34,7 +34,7 @@ function wpcom_register_native_activity_log_flag() {
 	Feature_Flags::register(
 		WPCOM_NATIVE_ACTIVITY_LOG_FLAG,
 		array(
-			'default'     => false,
+			'default'     => true,
 			'description' => 'Show the native wp-admin Activity Log page on Simple sites instead of linking to Calypso.',
 			'owner'       => 'jetpack-mu-wpcom',
 		)
@@ -352,6 +352,16 @@ add_filter(
 );
 
 /**
+ * Whether the Jetpack menu has a My Jetpack entry, whichever page registered it.
+ *
+ * @return bool
+ */
+function wpcom_jetpack_menu_has_my_jetpack() {
+	global $submenu;
+	return in_array( 'my-jetpack', array_column( $submenu['jetpack'] ?? array(), 2 ), true );
+}
+
+/**
  * Whether Jetpack > Backup opens the wp-admin Backup page rather than Calypso.
  *
  * Only meaningful once whatever serves the page has registered it; see WPCOM_WP_Build_Page::REGISTER_PRIORITY.
@@ -516,7 +526,7 @@ function wpcom_add_jetpack_submenu() {
 	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
 	// interface the site uses, and behave like a self-hosted site when that page is
 	// not available: the Calypso Activity Log screen is being retired. Simple sites
-	// get the native page behind a feature flag, and link to wordpress.com/activity-log otherwise.
+	// get the native page too unless its flag is off, and link to wordpress.com/activity-log otherwise.
 	if ( $is_simple_site && ! wpcom_add_native_activity_log_submenu() ) {
 		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
 		add_submenu_page(
@@ -535,8 +545,8 @@ function wpcom_add_jetpack_submenu() {
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
 
 /**
- * Sorts the Jetpack submenu A to Z by title, with My Jetpack (Activity Log on Simple) first;
- * Beta Tester, Settings and the upgrade link go at the bottom, as on self-hosted.
+ * Sorts the Jetpack submenu A to Z by title, with My Jetpack first; Beta Tester, Settings and the
+ * upgrade link go at the bottom, as on self-hosted.
  *
  * WordPress points the top-level Jetpack link at the first item, so a `hide-if-js` item sorts after the visible
  * ones in its tier. Items admin-ui hides only leave on admin_head, so they sort as visible here.
@@ -557,8 +567,8 @@ function wpcom_sort_jetpack_submenu() {
 		admin_url( 'admin.php?page=jetpack#/settings' ) => 998,
 	);
 
-	// Simple has no My Jetpack, so pin Activity Log rather than let the translated A to Z order pick the top link.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	// Without a My Jetpack page, pin Activity Log rather than let the translated A to Z order pick the top link.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! wpcom_jetpack_menu_has_my_jetpack() ) {
 		$named_tiers['jetpack-activity-log'] = -5;
 		$named_tiers[ 'https://wordpress.com/activity-log/' . wp_parse_url( home_url(), PHP_URL_HOST ) ] = -5;
 	}
@@ -836,7 +846,6 @@ function wpcom_add_tools_menu() {
 		'tools.php',
 		array(
 			'tools.php',
-			'advertising-moved',
 			'monetize',
 			'import',
 			'export.php',

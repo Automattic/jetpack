@@ -90,7 +90,9 @@ describe( 'bucketRange', () => {
 	};
 
 	it( 'opens the bucket holding the date', () => {
-		expect( bucketRange( new Date( '2026-07-22T00:00:00Z' ), 'week', window, clock ) ).toEqual( {
+		expect(
+			bucketRange( { date: new Date( '2026-07-22T00:00:00Z' ) }, 'week', window, clock )
+		).toEqual( {
 			from: new Date( '2026-07-20T00:00:00.000Z' ),
 			to: new Date( '2026-07-26T23:59:59.999Z' ),
 		} );
@@ -100,14 +102,24 @@ describe( 'bucketRange', () => {
 		const auckland = { timeZone: 'Pacific/Auckland', now: clock.now };
 
 		// 20:00 UTC on Jul 21 is already Jul 22 in Auckland (UTC+12).
-		expect( bucketRange( new Date( '2026-07-21T20:00:00Z' ), 'day', window, auckland ) ).toEqual( {
+		expect(
+			bucketRange( { date: new Date( '2026-07-21T20:00:00Z' ) }, 'day', window, auckland )
+		).toEqual( {
 			from: new Date( '2026-07-21T12:00:00.000Z' ),
 			to: new Date( '2026-07-22T11:59:59.999Z' ),
 		} );
 	} );
 
-	it( 'opens nothing for an hourly bucket, the finest reading there is', () => {
-		expect( bucketRange( new Date( '2026-07-21T13:00:00Z' ), 'hour', window, clock ) ).toBeNull();
+	it( 'opens the bucket the report cut when it states the end', () => {
+		const sundayWeek = {
+			date: new Date( '2026-10-18T00:00:00Z' ),
+			endDate: new Date( '2026-10-24T23:59:59Z' ),
+		};
+
+		expect( bucketRange( sundayWeek, 'week', window, clock ) ).toEqual( {
+			from: new Date( '2026-10-18T00:00:00.000Z' ),
+			to: new Date( '2026-10-24T23:59:59.999Z' ),
+		} );
 	} );
 
 	it.each( [
@@ -124,7 +136,9 @@ describe( 'bucketRange', () => {
 			'2026-07-22T23:59:59.999Z',
 		],
 	] )( 'cuts a partial %s edge bucket to the window', ( _edge, partial, from, to ) => {
-		expect( bucketRange( new Date( '2026-07-22T00:00:00Z' ), 'week', partial, clock ) ).toEqual( {
+		expect(
+			bucketRange( { date: new Date( '2026-07-22T00:00:00Z' ) }, 'week', partial, clock )
+		).toEqual( {
 			from: new Date( from ),
 			to: new Date( to ),
 		} );
@@ -136,6 +150,8 @@ describe( 'bucketRange', () => {
 			to: localTZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 		};
 
-		expect( bucketRange( new Date( '2026-09-05T00:00:00Z' ), 'day', july, clock ) ).toBeNull();
+		expect(
+			bucketRange( { date: new Date( '2026-09-05T00:00:00Z' ) }, 'day', july, clock )
+		).toBeNull();
 	} );
 } );

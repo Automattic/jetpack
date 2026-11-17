@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Products\Scan;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -34,6 +35,8 @@ class Scan_Product_Test extends TestCase {
 	public function tearDown(): void {
 		deactivate_plugins( 'jetpack/jetpack.php' );
 		unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		delete_option( 'jetpack_site_products' );
 		Constants::clear_constants();
 		StatusCache::clear();
 		parent::tearDown();
@@ -84,5 +87,14 @@ class Scan_Product_Test extends TestCase {
 
 	public function test_post_checkout_url_is_empty_without_jetpack() {
 		$this->assertNull( Scan::get_post_checkout_url() );
+	}
+
+	public function test_a_real_time_scan_purchase_counts_on_the_protect_page_and_in_my_jetpack() {
+		$slug = 'jetpack_scan_realtime_monthly';
+		update_option( 'jetpack_site_products', array( array( 'product_slug' => $slug ) ) );
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array( (object) array( 'product_slug' => $slug ) ), HOUR_IN_SECONDS );
+
+		$this->assertTrue( Plan::has_required_plan() );
+		$this->assertSame( $slug, Scan::get_paid_plan_purchase_for_product()->product_slug ?? null );
 	}
 }

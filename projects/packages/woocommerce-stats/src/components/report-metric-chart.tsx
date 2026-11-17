@@ -4,13 +4,15 @@
 import {
 	buildMetricTab,
 	ChartEmptyState,
+	describeError,
 	MetricTabsChart,
+	useOpenChartBucket,
+	useWidgetRootContext,
 	WidgetState,
 	type ChartDisplayChartType,
 	type DataFormat,
 	type ReportResult,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -36,8 +38,6 @@ type ReportMetricChartProps = {
 	dataFormat: DataFormat;
 	/** How the series is drawn. `MetricTabsChart` owns the default. */
 	chartType?: ChartDisplayChartType;
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
-	chartTitle: string;
 	errorText: string;
 	/** Shown in place of the value when the summary has no reading, e.g. an average over no orders. */
 	noDataLabel?: string;
@@ -56,13 +56,14 @@ export function ReportMetricChart( {
 	countLabel,
 	dataFormat,
 	chartType,
-	chartTitle,
 	errorText,
 	noDataLabel,
 }: ReportMetricChartProps ) {
 	const primary = report.primary.data;
 	const comparison = report.comparison.data;
 	const { hasComparison, timezone, periodStarts } = report;
+	const { reportParams } = useWidgetRootContext();
+	const openBucket = useOpenChartBucket( reportParams.interval );
 
 	const metrics = useMemo(
 		() => [
@@ -99,12 +100,10 @@ export function ReportMetricChart( {
 				// The queries keep the previous range's rows on screen, so an error only shows without them.
 				isError={ report.isError && ! report.hasData }
 				isEmpty={ ! primary?.data?.length }
-				error={ {
-					description: errorText,
-					actions: [
-						{ label: __( 'Retry', 'jetpack-woocommerce-stats-pkg' ), onClick: report.refetch },
-					],
-				} }
+				error={ describeError( report.error, {
+					retryDescription: errorText,
+					onRetry: report.refetch,
+				} ) }
 			>
 				<MetricTabsChart
 					metrics={ metrics }
@@ -112,7 +111,7 @@ export function ReportMetricChart( {
 					chartType={ chartType }
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel
-					chartTitle={ chartTitle }
+					onDatumClick={ openBucket }
 				/>
 			</WidgetState>
 		</div>

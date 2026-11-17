@@ -154,7 +154,7 @@ describe( 'UtmInsightsWidget', () => {
 		const titleLink = screen.getByRole( 'link', { name: 'Jetpack Forms' } );
 		const href = titleLink.getAttribute( 'href' ) ?? '';
 
-		expect( href ).toContain( '/post/12' );
+		expect( href ).toContain( '/report/post/12' );
 		expect( href ).toContain( 'from=2026-06-01' );
 		expect( href ).toContain( 'ref=utm' );
 		expect( href ).toContain( 'ref_section=source-medium' );

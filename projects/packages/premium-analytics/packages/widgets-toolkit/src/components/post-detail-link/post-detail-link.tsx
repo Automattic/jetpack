@@ -60,8 +60,8 @@ export function PostDetailLink( {
 }: PostDetailLinkProps ): JSX.Element {
 	return (
 		<InternalLink
-			to="/post/$postId"
-			params={ { postId: String( postId ) } }
+			to="/report/$kind/$id"
+			params={ { kind: 'post', id: String( postId ) } }
 			search={ createDetailLinkSearch( { report, originSection, extraParams } ) }
 			className={ className }
 			title={ title }

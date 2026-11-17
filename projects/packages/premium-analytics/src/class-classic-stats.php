@@ -51,7 +51,7 @@ final class Classic_Stats {
 	 * Retired wins over the menu, since WordPress.com Simple still registers an older `index.php?page=stats`. Reads
 	 * the menu, not `$admin_page_hooks`, which keys top-level pages only and misses Jetpack's Stats submenu.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 *
 	 * @return string|null
 	 */

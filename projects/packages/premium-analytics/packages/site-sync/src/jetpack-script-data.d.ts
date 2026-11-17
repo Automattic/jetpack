@@ -38,10 +38,14 @@ declare module '@automattic/jetpack-script-data' {
 			can_view_stats?: boolean;
 			// Where switching the dashboard off lands: the classic Stats page, or null while no plugin registers one.
 			classic_stats_url?: string | null;
+			// Whether the classic Stats page is retired, which also retires the feedback prompts.
+			classic_stats_retired?: boolean;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
 			// Slugs of the tabs whose dates follow the plan's Stats limits. Absent with `sections`.
 			plan_date_limited_sections?: string[];
+			// The locale's default date format, used when the site's own lacks a day, month or year.
+			default_date_format?: string;
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
 			store_currency?: { code: string; symbol: string; precision?: number };
 			// The settings the site offers, the roles the Stats settings list, the screen that switches Stats on and off, and the visitor consent setup; absent for users who cannot manage options, or when the host offers no setting.

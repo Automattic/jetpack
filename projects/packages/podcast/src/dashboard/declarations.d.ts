@@ -3,6 +3,7 @@ declare module '@automattic/jetpack-script-data' {
 		podcast?: {
 			has_product_access?: boolean;
 			is_connected?: boolean;
+			is_site_public?: boolean;
 			show_url_hosts?: Record< string, readonly string[] >;
 			show_url_max_length?: number;
 			feed_limit_max?: number;

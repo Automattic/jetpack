@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-11-16
+### Added
+- Add a default share image setting and update social previews when it changes. [#54729]
+- Add a `jetpack_seo_llms_txt` filter so themes and plugins can add their own sections to llms.txt. [#54828]
+- Admin shell: Switch to and from the SEO page without a page load when the shell is on. [#54832]
+- Content: Add an "Always include in llms.txt" switch for pages, which lists a page first in llms.txt even when it is not in a menu. [#54550]
+- Let personal sites identify a person as their publisher in structured data. [#50875]
+- llms.txt: Add the `jetpack_seo_llms_txt_cleared` action so hosts and cache plugins can purge their cached copies when llms.txt changes. [#54773]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- llms.txt: Serve a stored copy that is rebuilt only after content or settings change, and let caches keep it for up to 15 minutes. [#54564]
+- Update package dependencies. [#54703]
+
+### Fixed
+- GEO tab: Group the AI crawler toggles so screen readers announce each group and its description. [#54712]
+- llms.txt: List pages from the main menu first, so they are not cut on sites with more than 50 pages. [#54549]
+- Omit separate first and last profile names from author structured data. [#54726]
+- Show apostrophes, quotes, and ampersands as characters instead of HTML entities in schema markup. [#54717]
+- Show site names, titles, and summaries in llms.txt as plain characters instead of HTML entities. [#54716]
+- Show the XML sitemap switch turned on for WordPress.com Simple sites that search engines can index. [#54715]
+- Stop listing theme and page builder layout post types, such as Kadence Elements, in llms.txt, the SEO page and the SEO columns on post lists. [#54713]
+- Use each post's SEO description for its llms.txt link summary when one is set. [#54714]
+
+## [0.11.0] - 2026-11-09
+### Added
+- GEO: Add more AI crawlers, block every robots.txt name each one uses, and show those names under each toggle. [#54321]
+
+### Changed
+- SEO: Show an "Incomplete" badge instead of "In progress" when the Schema section is only partly filled in. [#54584]
+- Turn SEO tools off from My Jetpack only, and hide the SEO menu while it is off. [#54235]
+- Update package dependencies. [#54512]
+
 ## [0.10.3] - 2026-11-02
 ### Changed
 - Update package dependencies. [#53869]
@@ -242,6 +275,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.12.0]: https://github.com/Automattic/jetpack-seo/compare/0.11.0...0.12.0
+[0.11.0]: https://github.com/Automattic/jetpack-seo/compare/0.10.3...0.11.0
 [0.10.3]: https://github.com/Automattic/jetpack-seo/compare/0.10.2...0.10.3
 [0.10.2]: https://github.com/Automattic/jetpack-seo/compare/0.10.1...0.10.2
 [0.10.1]: https://github.com/Automattic/jetpack-seo/compare/0.10.0...0.10.1

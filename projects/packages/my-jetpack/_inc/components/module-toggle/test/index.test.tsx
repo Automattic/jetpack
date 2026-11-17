@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MyJetpackModule } from '../../../types';
@@ -104,14 +105,23 @@ describe( 'ModuleToggle', () => {
 	} );
 
 	it.each( [
-		[ 'sharedaddy', 'https://example.com/wp-admin/options-general.php?page=sharing' ],
-		[ 'likes', 'https://example.com/wp-admin/options-general.php?page=sharing#likes' ],
-	] )( 'links inactive %s to Settings › Sharing on block themes', ( module, url ) => {
-		render( <ModuleToggle module={ legacyModule( { module } ) } /> );
+		[ 'sharedaddy', false, 'https://example.com/wp-admin/options-general.php?page=sharing' ],
+		[ 'likes', false, 'https://example.com/wp-admin/options-general.php?page=sharing#likes' ],
+		[ 'sharedaddy', true, 'https://example.com/wp-admin/options-general.php?page=sharing' ],
+	] )(
+		'links inactive %s to Settings › Sharing on block themes (settings panel: %s)',
+		( module, panel, url ) => {
+			window.JetpackScriptData.myJetpack.settingsConsolidation = panel;
+			render( <ModuleToggle module={ legacyModule( { module } ) } /> );
 
-		expect( screen.getByRole( 'link', { name: 'Configure' } ) ).toHaveAttribute( 'href', url );
-		expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
-	} );
+			const link = screen.getByRole( 'link', {
+				name: panel ? 'Manage Sharing in Settings' : 'Configure',
+			} );
+			expect( link ).toHaveAttribute( 'href', url );
+			expect( link ).toHaveTextContent( panel ? 'Manage in Settings' : 'Configure' );
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it.each( blockThemeModules )(
 		'deactivates legacy %s when switching to the block',
@@ -321,6 +331,32 @@ describe( 'ModuleToggle', () => {
 		expect( reloadPage ).not.toHaveBeenCalled();
 		expect( setPendingSuccessNotice ).not.toHaveBeenCalled();
 		expect( mockCreateSuccessNotice ).toHaveBeenCalled();
+	} );
+
+	it.each( [
+		[
+			'marks product ownership stale after a switch succeeds',
+			true,
+			[ [ { queryKey: [ 'product ownership' ] } ] ],
+		],
+		[ 'leaves product ownership alone when a switch fails', false, [] ],
+	] )( '%s', async ( _name, succeeded, expectedCalls ) => {
+		mockToggleModule.mockResolvedValueOnce( succeeded );
+		const queryClient = new QueryClient();
+		const invalidate = jest.spyOn( queryClient, 'invalidateQueries' );
+
+		render(
+			<QueryClientProvider client={ queryClient }>
+				<ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } />
+			</QueryClientProvider>
+		);
+		await userEvent.click( screen.getByRole( 'switch' ) );
+
+		// The notice comes last either way, so the switch has settled once it shows.
+		await waitFor( () =>
+			expect( succeeded ? mockCreateSuccessNotice : mockCreateErrorNotice ).toHaveBeenCalled()
+		);
+		expect( invalidate.mock.calls ).toEqual( expectedCalls );
 	} );
 
 	it( 'is named by the element it is pointed at, in place of its own label', () => {

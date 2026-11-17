@@ -38,7 +38,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
 	safeHttpUrl: jest.requireActual( '@jetpack-premium-analytics/ui' ).safeHttpUrl,
 	StatsBreadcrumbs: () => null,
-	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
@@ -54,12 +53,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportErrorState: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.ReportErrorState,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
-		<>
-			{ actions ? <div data-testid="page-actions">{ actions }</div> : null }
-			{ children }
-		</>
-	),
 	ReportPageTabs: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
@@ -67,6 +60,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<>
+			{ actions ? <div data-testid="page-actions">{ actions }</div> : null }
+			{ children }
+		</>
+	),
 	Breadcrumbs: () => null,
 } ) );
 

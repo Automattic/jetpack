@@ -136,6 +136,11 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_scan' ) );
 		}
 
+		// A lightweight My Jetpack page for Simple, which steps aside wherever the real My Jetpack registers.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_my_jetpack' ) );
+		}
+
 		// At mu-plugin scope, because the Jetpack plugin can resolve these filters before plugins_loaded loads the pages.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
@@ -404,6 +409,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/code-editor/class-code-editor.php';
 		require_once __DIR__ . '/features/wpcom-blocks/code/class-code-block.php';
+		require_once __DIR__ . '/features/comment-page-canonical/comment-page-canonical.php';
 		require_once __DIR__ . '/features/css-monkey-patches/index.php';
 		require_once __DIR__ . '/features/editor-polyfills/editor-polyfills.php';
 		require_once __DIR__ . '/features/editor-welcome-guides/editor-welcome-guides.php';
@@ -414,6 +420,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
 		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
+		require_once __DIR__ . '/features/hide-non-breaking-space-markers/hide-non-breaking-space-markers.php';
 		require_once __DIR__ . '/features/holiday-snow/class-holiday-snow.php';
 		require_once __DIR__ . '/features/launch-button/index.php';
 		require_once __DIR__ . '/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
@@ -935,6 +942,13 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Load the lightweight My Jetpack page on WordPress.com Simple sites.
+	 */
+	public static function load_wpcom_my_jetpack() {
+		require_once __DIR__ . '/features/wpcom-my-jetpack/wpcom-my-jetpack.php';
+	}
+
+	/**
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
@@ -985,6 +999,10 @@ class Jetpack_Mu_Wpcom {
 	 * Load the Random Redirect feature.
 	 */
 	public static function load_wpcom_random_redirect() {
+		// WordPress 7.2 handles random content redirects (/random/, ?random) in core; every 7.2 beta includes it.
+		if ( version_compare( $GLOBALS['wp_version'], '7.2-beta', '>=' ) ) {
+			return;
+		}
 		require_once __DIR__ . '/features/random-redirect/random-redirect.php';
 	}
 

@@ -12,6 +12,9 @@ import { prepareProductData } from '../../../data/utils/prepare-product-data';
 import PricingInterstitial from '../pricing-interstitial';
 
 jest.mock( '../../../data/products/use-activate-plugins' );
+jest.mock( '../../product-detail-card/skeleton', () => () => (
+	<span data-testid="offer-skeleton" />
+) );
 jest.mock( '../../../data/products/use-activate-search-free-product' );
 jest.mock( '../../../data/products/use-product' );
 jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
@@ -29,12 +32,17 @@ jest.mock( '../../../hooks/use-interstitials-state', () => ( {
 	useInterstitialsState: () => ( { update: mockUpdateInterstitialsState } ),
 } ) );
 
-jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( {
+const mockUseMyJetpackConnection = jest.fn( () => ( {
 	siteIsRegistering: false,
 	handleRegisterSite: () => Promise.resolve( null ),
 } ) );
+jest.mock(
+	'../../../hooks/use-my-jetpack-connection',
+	() => options => mockUseMyJetpackConnection( options )
+);
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
+	CONNECTION_FROM: jest.requireActual( '@automattic/jetpack-connection' ).CONNECTION_FROM,
 	useProductCheckoutWorkflow: jest.fn(),
 } ) );
 
@@ -160,6 +168,14 @@ describe( 'PricingInterstitial free tier for Search', () => {
 		);
 	} );
 
+	test( 'registers the site with the product name', () => {
+		render( <PricingInterstitial slug="search" /> );
+
+		expect( mockUseMyJetpackConnection ).toHaveBeenCalledWith(
+			expect.objectContaining( { from: 'my_jetpack_products_search' } )
+		);
+	} );
+
 	test( 'keeps every tier button disabled while the grant is still in flight', () => {
 		searchFreeIsPending = true;
 
@@ -185,11 +201,20 @@ it.each( [ 'security', 'growth', 'complete' ] )(
 			[ legacyBundle ]: legacy,
 			pro,
 		};
+		let isLoading = true;
 		useProduct.mockImplementation( slug => ( {
 			detail: products[ slug ] || searchDetail,
-			isLoading: false,
+			isLoading,
 		} ) );
 		const { rerender } = render( <PricingInterstitial slug="search" /> );
+		expect(
+			screen.queryByRole( 'button', { name: `Get ${ legacyBundle }` } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'offer-skeleton' ) ).toBeInTheDocument();
+		isLoading = false;
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.queryByTestId( 'offer-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeEnabled();
 		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
 		pro.pricingForUi = { catalogAvailable: true, available: true };

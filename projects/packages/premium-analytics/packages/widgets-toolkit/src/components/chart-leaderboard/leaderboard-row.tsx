@@ -232,12 +232,6 @@ export function LeaderboardRow( {
 		);
 	}
 
-	// A drill-down row's value slides over the label end on hover; keep the action clear of it.
-	const trailingRowClassName = clsx(
-		rowClassName,
-		action.kind === 'drillDown' && trailing && styles.chevronReserve
-	);
-
 	if ( ( action.kind === 'drillDown' || action.kind === 'static' ) && action.link ) {
 		return (
 			<span className={ styles.row } title={ label }>
@@ -256,7 +250,7 @@ export function LeaderboardRow( {
 	// The label carries the tooltip itself, so each action keeps only its own.
 	if ( action.kind === 'viewLink' || ( action.kind !== 'link' && trailing ) ) {
 		return (
-			<span className={ trailingRowClassName }>
+			<span className={ rowClassName }>
 				<span className={ styles.plainLabel } title={ label }>
 					{ content }
 				</span>

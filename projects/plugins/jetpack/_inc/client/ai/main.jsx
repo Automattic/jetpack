@@ -101,7 +101,7 @@ const VIEW_TITLES = {
 const SUB_VIEW_DESCRIPTIONS = {
 	'mcp/read': __( 'View your site’s content.', 'jetpack' ),
 	'mcp/write': __( 'Create, update, and manage content on your site.', 'jetpack' ),
-	'mcp/setup': __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
+	'mcp/setup': __( 'Get instructions for connecting your external AI agent.', 'jetpack' ),
 };
 
 /**
@@ -278,9 +278,18 @@ export default function App() {
 	const activeTab = view.split( '/' )[ 0 ];
 
 	useEffect( () => {
-		if ( showFeaturesView ) {
-			recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+		if ( ! showFeaturesView ) {
+			return;
 		}
+		recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+		// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+		const onShown = event => {
+			if ( event.detail?.page === 'jetpack-ai' && ! event.detail.firstShow ) {
+				recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
 	}, [ activeTab, showFeaturesView ] );
 
 	useEffect( () => {

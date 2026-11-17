@@ -213,7 +213,7 @@ By default the button's accessible name is derived from its rendered content (th
 
 A label can't hold its own link or button inside the row button, since interactive elements can't be nested. For a row that needs both, set `hasInteractiveLabel: true` with `onClick` and a required `ariaLabel`. The row button then sits behind the row's cells and wraps no text, so it takes its name only from `ariaLabel`; the label's links and buttons sit above it and stay clickable, and Tab reaches them before the row button:
 
-<Canvas of={ LeaderboardChartStories.InteractiveLabel } />
+<Canvas of={ LeaderboardChartStories.InteractiveOverlayLabelLink } />
 
 Configuring what happens on click — for example, drilling down into a sub-view — is the consumer's responsibility, not the chart's:
 

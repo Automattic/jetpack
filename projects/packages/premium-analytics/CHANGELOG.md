@@ -5,6 +5,98 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2026-11-16
+### Added
+- Add Download CSV to the Devices and Top platforms cards. [#54843]
+- Add Download CSV to the post, video and email detail cards. [#54849]
+- Add Download CSV to the Traffic summary card. [#54842]
+- Add Download CSV to the Views over years, Monthly posting activity, Shares and Subscriber summary cards. [#54848]
+- Dashboard: Add an Arrange tabs option to the page options menu, to reorder the tabs and choose the one that opens first. [#54806]
+- Date controls: Add a Last 3 years period to the date menu, charted by years, so traffic can be compared year by year without picking a custom range. [#54667]
+- Date controls: Offer a yearly chart interval on any date range that covers three calendar years. [#54667]
+- Single-report pages: Serve the author page from /report/author/<id>, rendered from its registered record; the old /author/<id> address redirects. [#54184]
+- Single-report pages: Serve the post page from /report/post/<id>, rendered from its registered record with its three sections; the old /post/<id> address redirects. [#54183]
+- Widget SDK: add `useOpenChartBucket`, which opens a clicked chart bucket, from either period, as the dashboard period (2.4.0). [#54573]
+
+### Changed
+- Dashboard: Preload the open screen's code and the first REST responses, so the first widgets appear sooner. [#54730]
+- Dashboard: Request the dashboard sections and widget types while the page is still loading the site details, instead of after. [#54784]
+- Dashboard: Start loading stats without waiting for the site settings when the dashboard opens with no dates in its URL. [#54775]
+- Date controls: Simplify how a period a widget sets is signalled to the date control. [#54727]
+- Date filters: Measure a comparison with one implementation for reading and writing the URL. [#54723]
+- Draw the text inside dashboard widgets at 14px, as classic Stats did, with headline figures in bold, so lists and figures are easier to read. [#54977]
+- Make view counts easier to compare across the heatmaps, so quiet periods can be told apart instead of sharing one pale shade, and mark months the data does not yet fill. [#54838]
+- Settings: Move the Stats settings from a dashboard tab to their own page, reached from the page options menu. [#54801]
+- Show the view options of Top pages, Top platforms, Latest emails sent, All-time traffic and Views over years as one-click toggles instead of a dropdown. [#54927]
+- Single-report pages: Let the VideoPress package register the video page instead of registering it here. [#54185]
+- Single-report pages: Open on the date range of the page that linked to them, instead of All time. [#54783]
+- Stats: Leave a bar chart column empty when its value is zero, instead of drawing a thin bar that looks like a small count. [#54850]
+- Top locations: Show Countries, Regions and Cities as one-click toggles instead of a dropdown. [#54803]
+- Update package dependencies. [#54703]
+
+### Removed
+- Dashboard: Remove the Site overview, Post traffic activity, Total views, Total visitors, Popular days, Popular hours and Hello World widgets, which no layout or widget picker offered. [#54921]
+
+### Fixed
+- Arrange tabs: Keep the place of a tab that is hidden when the order is saved. [#54868]
+- Charts: Let a percentage axis grow with the data once a value passes 100%, so a video's retention rate above 100% stays inside the chart. [#54937]
+- Charts: Stop hourly charts from showing a clickable cursor when a click opens nothing. [#54573]
+- Dates: Keep the month in month labels for Japanese, Chinese and Korean sites, which showed a day marker instead (2021年1日 rather than 2021年1月). [#54793]
+- Dates: Use the locale's default date format when the site's Date Format setting lacks a day, month or year, so chart labels and the date selector stay unambiguous. [#54793]
+- Improve page transitions between reports and detail views. [#54614]
+- Keep the widget title from being cut off beside a toggle, so the toggle folds into the widget controls menu at the same width whichever way the widget is resized. [#54927]
+- Metric tiles: Pick the layout from the size of the tiles' own box, so highlights stay in columns after switching dashboard tabs. [#54683]
+- Open the dashboard for `admin.php?page=stats` on WordPress 7.2, which reports an unregistered page as not found instead of denied. [#54800]
+- Shorten the breadcrumb trail and hide the Customizing badge on phones, instead of letting them cover the header buttons. [#54844]
+- Show metric cards as a list when the card is too narrow for every metric to fit side by side, instead of cutting off the figures. [#54923]
+- Single-report pages: Name an untitled post, author or video in the last breadcrumb as the header does. [#54928]
+- Single-report pages: Show the Jetpack footer on the video page again. [#54183]
+- Stats: Move an old Year to date or All time link to today's window when its saved interval no longer fits, so the address bar matches the charts. [#54722]
+- Stats: Move a preset's dates to the new day when a page is left open past midnight, so the numbers and the date controls include today. [#54721]
+- Stop a long post title from widening the page on desktop, so the header buttons stay in view. [#54847]
+- Widget header toggles: Keep the side padding on the longer of two options, such as Posts & pages on the Top pages card. [#54942]
+
+## [0.17.0] - 2026-11-09
+### Added
+- Offer a quarterly interval in the Traffic summary and the WooCommerce tab on ranges of a year or longer. [#54455]
+- Single-report pages: Serve the video page from /report/video/<id>, rendered from its registered record; the old /video/<id> address redirects. [#54173]
+- Stats: Add previous and next arrows beside the date range picker that step the range by its own length, as classic Stats does. [#54327]
+- Top UTM: Open the Build URL dialog from a post row in the Top UTM card and on the UTM report page, with the post URL and the row's UTM values already filled in. [#54254]
+
+### Changed
+- Dashboard: give each default tile the height its content needs; the Traffic lists open tall enough for their ten entries. [#54603]
+- Dashboard: Let the number of columns follow the width of the page, up to six, and let the full-width rows of the default layouts span every column. [#54427]
+- Dashboard: Stop offering feedback (banner, page options menu item and tour step) once the classic Stats page is retired. [#54678]
+- Metric cards: Draw the cards on their own tabs primitive, taking the design system’s hover, selected and focus states. [#54468]
+- Post detail: Name the traffic tab and the highlights and views cards for the content type, such as Product traffic. [#54395]
+- Register the post and author detail page widget types in PHP, in place of client-side aliases. [#54182]
+- Reports: Load a report's page only when it opens, so the route guards no longer bundle every report page. [#54512]
+- Settings: Explain in the Visitor consent card that views may drop once Stats follows visitor consent. [#54398]
+- Stats links: Open the dashboard on the section and the days a link names, so the admin bar's "View all stats" shows the 7 days its chart does. [#54234]
+- Traffic summary: Save the chart type its switch picks where Stats v1 saved it, so the Stats widget on the wp-admin dashboard draws bars or lines as this chart does. [#54456]
+- Update package dependencies. [#54512]
+- Use the design system tooltip for abbreviated values and earnings statuses. [#54512]
+- When a date range allows only one chart interval, open its menu anyway and say how a longer range adds more. [#54020]
+- Widgets: Load the All-time stats and Most popular day widgets faster by skipping the share counts they never show. [#54528]
+- Widgets: Name each chart after its widget title by default, so the title is translated once. [#54513]
+
+### Removed
+- Remove the include guards and stubs kept for a second copy of the package loading in the same request; the autoloader now serves one copy per request. [#54402]
+
+### Fixed
+- Boot Stats v2 on a site with no connection once classic Stats is retired, so it replaces the pre-connection Stats page. [#54342]
+- Dashboard: Stop screen readers from announcing widget content as dimmed outside edit mode. [#54512]
+- Fix Jetpack icon alignment and spacing in page headers. [#54610]
+- Metric cards: Remove the grey box that appears inside a metric card on hover when a newer version of the WordPress UI library is loaded. [#54385]
+- Report params field: Reopen the period menu on the calendar when the applied range is custom. [#54173]
+- Settings: Reset the Reader views setting to its default on a null write, instead of turning it off. [#54448]
+- Stats: Keep the dashboard under My Home in the admin menu on WordPress.com, where it had dropped below Hosting and Upgrades. [#54626]
+- Stats: List Stats v2 in the WordPress.com sidebar, and once the classic Stats page is retired, open Stats v2 from old Stats links and stop offering to switch back to classic Stats. [#54451]
+- Stats: Read a preset as the window it names today in the date controls, the interval menu and the comparison, as the widgets do, so a bookmark with older dates no longer names last week in the date tooltip and the calendar, or compares this week against the wrong one. [#54545]
+- Stop long row names in cards such as Top UTM from running under the views count on hover, and give drill-down rows with an action their full width when not hovered. [#54511]
+- Store: Stop money charts repeating y-axis labels, such as $1, $1, $2, when the store shows fewer decimals than its amounts carry. [#54399]
+- WooCommerce reports: Keep widgets loading while WordPress.com creates a new store's analytics tables, instead of showing an error, and say when a report waits for the store's next sync. [#54524]
+
 ## [0.16.0] - 2026-11-02
 ### Added
 - Dashboard: Invite sites whose cookie banner Stats cannot read yet to finish the Visitor consent setup in Settings. [#54195]
@@ -713,6 +805,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.18.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.17.0...0.18.0
+[0.17.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.16.0...0.17.0
 [0.16.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.15.0...0.16.0
 [0.15.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.14.0...0.15.0
 [0.14.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.13.0...0.14.0

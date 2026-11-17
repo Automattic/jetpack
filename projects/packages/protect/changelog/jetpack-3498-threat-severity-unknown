@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Don't label vulnerabilities from the free check as Low severity when their severity is unknown.

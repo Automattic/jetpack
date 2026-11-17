@@ -72,7 +72,7 @@ describe( 'EmailsList', () => {
 		const link = screen.getByRole( 'link', { name: 'Monthly newsletter' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/12' );
+		expect( url.pathname ).toBe( '/report/post/12' );
 		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
 		expect( url.searchParams.get( 'section' ) ).toBe( expectedSection );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'emails' );
@@ -222,7 +222,7 @@ describe( 'EmailsList', () => {
 		const link = await screen.findByRole( 'link', { name: 'API newsletter' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/71' );
+		expect( url.pathname ).toBe( '/report/post/71' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/api-newsletter/' );
 		expect( url.searchParams.get( 'section' ) ).toBe( 'email-opens' );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'emails' );

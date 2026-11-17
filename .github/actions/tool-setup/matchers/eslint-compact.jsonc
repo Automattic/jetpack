@@ -1,0 +1,19 @@
+// From https://github.com/actions/setup-node/blob/101b3474143230c3562bd21f0b3c3f8254784571/.github/eslint-compact.json
+{
+	"problemMatcher": [
+		{
+			"owner": "eslint-compact",
+			"pattern": [
+				{
+					"regexp": "^(.+):\\sline\\s(\\d+),\\scol\\s(\\d+),\\s([Ee]rror|[Ww]arning|[Ii]nfo)\\s-\\s(.+)\\s\\((.+)\\)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5,
+					"code": 6
+				}
+			]
+		}
+	]
+}

@@ -18,13 +18,6 @@ jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) 
 const mockCreateErrorNotice = jest.fn();
 const mockFetchModules = jest.fn().mockResolvedValue( true );
 
-jest.mock( '@automattic/jetpack-components', () => ( {
-	useGlobalNotices: () => ( {
-		createSuccessNotice: jest.fn(),
-		createErrorNotice: mockCreateErrorNotice,
-	} ),
-} ) );
-
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
@@ -35,6 +28,8 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		fetchModules: mockFetchModules,
+		createSuccessNotice: jest.fn(),
+		createErrorNotice: mockCreateErrorNotice,
 	} ),
 	useSelect: () => undefined,
 	createReduxStore: jest.fn(),
@@ -311,6 +306,26 @@ describe( 'useFeaturePlugin', () => {
 		expect( mockFetchModules ).not.toHaveBeenCalled();
 	} );
 
+	it.each( [
+		[ 'succeeds', () => Promise.resolve( pageState ) ],
+		[ 'fails', () => Promise.reject( new Error( 'Nope.' ) ) ],
+	] )( 'marks product ownership stale when a switch %s', async ( _, post ) => {
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST' ? post() : Promise.resolve( pageState )
+		);
+		const client = new QueryClient( { defaultOptions: { mutations: { retry: false } } } );
+		const invalidate = jest.spyOn( client, 'invalidateQueries' );
+		const { result } = renderHook( () => useFeaturePlugin( 'akismet', 'Akismet' ), {
+			wrapper: wrapper( client ),
+		} );
+
+		await act( async () => void ( await result.current.run( 'activate' ) ) );
+
+		await waitFor( () =>
+			expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'product ownership' ] } )
+		);
+	} );
+
 	it( 'looks busy while another caller, such as a bulk switch, has asked for the plugin', () => {
 		mockApiFetch.mockImplementation( () => new Promise( () => undefined ) );
 
@@ -390,7 +405,9 @@ describe( 'useFeaturePlugin', () => {
 
 		act( () => void result.current.akismet.run( 'deactivate' ) );
 
-		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'nope' ) );
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'nope', { type: 'snackbar' } )
+		);
 		expect( mockFetchModules ).not.toHaveBeenCalled();
 		expect( result.current.akismet.isBusy ).toBe( true );
 
@@ -424,7 +441,9 @@ describe( 'useFeaturePlugin', () => {
 
 		act( () => void result.current.bulk.run( result.current.states, false ) );
 
-		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Server error.' ) );
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Server error.', { type: 'snackbar' } )
+		);
 		expect( mockFetchModules ).not.toHaveBeenCalled();
 		expect( result.current.bulk.isRunning ).toBe( true );
 

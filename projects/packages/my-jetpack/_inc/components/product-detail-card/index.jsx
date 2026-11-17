@@ -8,7 +8,7 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { formatCurrency, getCurrencyObject } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, check, plus, starFilled } from '@wordpress/icons';
+import { Icon, check, plus } from '@wordpress/icons';
 import { Link, Notice, SelectControl, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { Fragment, useCallback, useState, useEffect } from 'react';
@@ -19,6 +19,7 @@ import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import LoadingBlock from '../loading-block';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailButton from '../product-detail-button';
+import BundleCardHeader from './bundle-card-header';
 import styles from './style.module.scss';
 
 /**
@@ -211,25 +212,17 @@ const ProductDetailCard = ( {
 	// Suppported products icons.
 	const icons = isBundleUpsell
 		? supportedProducts
-				.join( '_plus_' )
-				.split( '_' )
-				.map( ( iconSlug, i ) => {
-					if ( iconSlug === 'plus' ) {
-						return (
-							<Icon
-								className={ styles[ 'plus-icon' ] }
-								key={ `icon-plugs${ i }` }
-								icon={ plus }
-								size={ 14 }
-							/>
-						);
-					}
-
-					const SupportedProductIcon = getIconBySlug( iconSlug === 'jetpack-ai' ? 'ai' : iconSlug );
-					return SupportedProductIcon ? (
-						<SupportedProductIcon key={ iconSlug } size={ 24 } />
-					) : null;
-				} )
+				.map( iconSlug => [
+					iconSlug,
+					getIconBySlug( iconSlug === 'jetpack-ai' ? 'ai' : iconSlug ),
+				] )
+				.filter( ( [ , SupportedProductIcon ] ) => SupportedProductIcon )
+				.map( ( [ iconSlug, SupportedProductIcon ], i ) => (
+					<span key={ iconSlug } className={ styles[ 'product-bundle-icon-item' ] }>
+						{ i > 0 && <Icon className={ styles[ 'plus-icon' ] } icon={ plus } size={ 14 } /> }
+						<SupportedProductIcon size={ 24 } />
+					</span>
+				) )
 		: null;
 
 	let priceDescription;
@@ -347,16 +340,7 @@ const ProductDetailCard = ( {
 				[ styles[ 'is-bundle-card' ] ]: isBundleUpsell,
 			} ) }
 		>
-			{ isBundleUpsell && (
-				<div className={ styles[ 'card-header' ] }>
-					<Icon icon={ starFilled } className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
-					<Text
-						variant="body-sm"
-						style={ { margin: 0 } }
-						render={ <p>{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</p> }
-					></Text>
-				</div>
-			) }
+			{ isBundleUpsell && <BundleCardHeader /> }
 			<div className={ styles.container }>
 				{ isBundleUpsell && <div className={ styles[ 'product-bundle-icons' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />

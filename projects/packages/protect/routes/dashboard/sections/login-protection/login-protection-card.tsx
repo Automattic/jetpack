@@ -3,8 +3,8 @@ import { __ } from '@wordpress/i18n';
 import { key } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import { CardRow, ProtectCard, SettingsErrorRow, Stat } from '../../components/card';
-import SettingToggle from '../../components/settings/setting-toggle';
 import TabLink from '../../components/tab-link';
+import ModuleToggle from './module-toggle';
 import SsoToggle, { getSsoBlocker } from './sso-toggle';
 import type { LoginProtectionContext, LoginProtectionState } from './types';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
@@ -64,16 +64,12 @@ function BruteForceRow( {
 						</TabLink>
 					</Stack>
 				) : (
-					<SettingToggle
+					<ModuleToggle
 						data={ data }
+						login={ login }
 						name="protect"
-						disabled={ ! login.bruteForce.available }
 						label={ __( 'Enable login protection', 'jetpack-protect-pkg' ) }
-						help={
-							login.bruteForce.available
-								? __( 'Block IP addresses that keep failing to log in.', 'jetpack-protect-pkg' )
-								: __( 'Login protection isn’t available on this site.', 'jetpack-protect-pkg' )
-						}
+						help={ __( 'Block IP addresses that keep failing to log in.', 'jetpack-protect-pkg' ) }
 					/>
 				) }
 			</div>
@@ -124,19 +120,15 @@ export default function LoginProtectionCard( {
 			<BruteForceRow data={ data } login={ login } openTab={ openTab } />
 			<CardRow className="jp-protect-card__cells">
 				<div>
-					<SettingToggle
+					<ModuleToggle
 						data={ data }
+						login={ login }
 						name="account-protection"
-						disabled={ ! login.accountProtection.available }
 						label={ __( 'Enable account protection', 'jetpack-protect-pkg' ) }
-						help={
-							login.accountProtection.available
-								? __(
-										'Keep administrator and editor accounts out of attackers’ hands.',
-										'jetpack-protect-pkg'
-									)
-								: __( 'Account protection isn’t available on this site.', 'jetpack-protect-pkg' )
-						}
+						help={ __(
+							'Keep administrator and editor accounts out of attackers’ hands.',
+							'jetpack-protect-pkg'
+						) }
 					/>
 				</div>
 				<Stack direction="column" gap="md" align="start">

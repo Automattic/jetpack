@@ -7,6 +7,7 @@ import { Notice, Stack } from '@wordpress/ui';
  * Internal dependencies
  */
 import CandidateIdentity from './candidate-identity';
+import PlanOwnershipNote from './plan-ownership-note';
 import './style.scss';
 import type { ConnectionOwnerCandidate } from './use-ownership-transfer';
 
@@ -42,6 +43,8 @@ const TransferDoneStep = ( { candidate }: TransferDoneStepProps ) => (
 				) }
 			</Notice.Description>
 		</Notice.Root>
+
+		<PlanOwnershipNote />
 	</Stack>
 );
 

@@ -66,27 +66,22 @@ function ConnectScreen( {
 	skipPricingPage,
 	logo,
 }: Props ) {
-	const {
-		handleRegisterSite,
-		siteIsRegistering,
-		userIsConnecting,
-		registrationError,
-		isOfflineMode,
-	} = useConnection( {
-		registrationNonce,
-		redirectUri,
-		apiRoot,
-		apiNonce,
-		autoTrigger,
-		from,
-		skipUserConnection,
-		skipPricingPage,
-	} );
+	const { handleRegisterSite, siteIsRegistering, userIsConnecting, connectError, isOfflineMode } =
+		useConnection( {
+			registrationNonce,
+			redirectUri,
+			apiRoot,
+			apiNonce,
+			autoTrigger,
+			from,
+			skipUserConnection,
+			skipPricingPage,
+		} );
 
-	const displayButtonError = Boolean( registrationError );
+	const displayButtonError = Boolean( connectError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
-	const errorCode = getRegistrationErrorCode( registrationError );
-	const errorDisplay = getRegistrationErrorDisplay( registrationError, isOfflineMode );
+	const errorCode = getRegistrationErrorCode( connectError );
+	const errorDisplay = getRegistrationErrorDisplay( connectError, isOfflineMode );
 
 	return (
 		<ConnectScreenVisual

@@ -468,6 +468,11 @@ class Block_Editor {
 				continue;
 			}
 
+			// The editor leaves an empty paragraph for each extra Enter, which posts and renders as a gap.
+			if ( 'core/paragraph' === $block['blockName'] && '' === self::inline_to_text( $block['innerHTML'] ) ) {
+				continue;
+			}
+
 			// The markup carries everything these blocks draw, but the editor reads a list's kind, start, and
 			// direction from its attributes alone. Rendering strips delimiters that carry none.
 			$block['attrs'] = null === $render && 'core/list' === $block['blockName'] ? array_intersect_key( $block['attrs'], array_flip( array( 'ordered', 'start', 'reversed' ) ) ) : array();

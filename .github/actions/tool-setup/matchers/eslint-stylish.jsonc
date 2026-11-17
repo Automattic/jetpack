@@ -1,0 +1,23 @@
+// From https://github.com/actions/setup-node/blob/101b3474143230c3562bd21f0b3c3f8254784571/.github/eslint-stylish.json
+{
+	"problemMatcher": [
+		{
+			"owner": "eslint-stylish",
+			"pattern": [
+				{
+					"regexp": "^\\s*([^\\s].*)$",
+					"file": 1
+				},
+				{
+					"regexp": "^\\s+(\\d+):(\\d+)\\s+(error|warning|info)\\s+(.*)\\s\\s+(.*)$",
+					"line": 1,
+					"column": 2,
+					"severity": 3,
+					"message": 4,
+					"code": 5,
+					"loop": true
+				}
+			]
+		}
+	]
+}

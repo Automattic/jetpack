@@ -13,11 +13,11 @@ import { useMemo } from 'react';
 import {
 	resolveSegmentStyles,
 	applyStylesToItems,
-	formatChartName,
 	isEmptyPieChartData,
 	type SegmentStyle,
 } from '../../helpers';
 import { useElementSize } from '../../hooks';
+import { useChartName } from '../../hooks/use-chart-name';
 import { ChartEmptyState } from '../chart-empty-state';
 import { PieChartTooltip } from '../chart-tooltip';
 import { Legend as LegendPure } from '../legend/legend';
@@ -72,7 +72,7 @@ export type DonutChartProps = {
 
 	showLegend?: boolean;
 
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 
 	/**
@@ -142,6 +142,7 @@ export function DonutChart( {
 	tooltipOffsetY,
 	tooltipDataFormat,
 }: DonutChartProps ) {
+	const chartName = useChartName( chartTitle );
 	const hasComparison = comparisonValue !== null && comparisonValue !== undefined;
 
 	const [ containerRef, containerSize ] = useElementSize< HTMLDivElement >();
@@ -207,7 +208,7 @@ export function DonutChart( {
 				<PieChart
 					data={ styledChartData }
 					className={ styles.pieChart }
-					ariaLabel={ formatChartName( chartTitle ) }
+					ariaLabel={ chartName }
 					width={ chartSize }
 					height={ chartSize }
 					thickness={ thickness }

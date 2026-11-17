@@ -208,6 +208,7 @@ function PostDetailHighlightsDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< PostDetailHighlightsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PostDetailHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Record the page view again when the shell shows the Boost page again.

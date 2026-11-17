@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import api from './api';
 import { castToNumber } from './utils/cast-to-number';
 import { castToString } from './utils/cast-to-string';
-import { isJsonObject, JSONObject } from './utils/json-types';
+import { isJsonObject, JSONObject, type JSONValue } from './utils/json-types';
 import pollPromise from './utils/poll-promise';
 import { standardizeError } from './utils/standardize-error';
 
@@ -24,6 +24,8 @@ type SpeedScoresSet = {
 	current: SpeedScores;
 	noBoost: SpeedScores | null;
 	isStale: boolean;
+	// The comparison without Boost is still measuring; noBoost is the previous one until it lands.
+	noBoostPending?: true;
 };
 
 interface ScoreValue {
@@ -63,26 +65,40 @@ interface SpeedHistoryResponse {
 	};
 }
 
+const stages = [ 'queued', 'mobile', 'desktop' ] as const;
+
+export type SpeedScoreStage = ( typeof stages )[ number ];
+
+export type SpeedScoreProgress = {
+	elapsed: number;
+	expected: number;
+	stage?: SpeedScoreStage;
+	scores?: { mobile?: number; desktop?: number };
+};
+
 type ParsedApiResponse = {
 	status: string;
 	scores?: SpeedScoresSet;
+	progress?: SpeedScoreProgress;
 };
 
 type SpeedScoresRequestOptions = {
 	signal?: AbortSignal;
 	onPending?: () => void;
+	onProgress?: ( progress: SpeedScoreProgress ) => void;
 };
 
 /**
  * Request speed scores for this site, polling until completion or cancellation.
  *
- * @param {boolean}     force             - Force regenerate speed scores.
- * @param {string}      rootUrl           - Root URL for the HTTP request.
- * @param {string}      siteUrl           - URL of the site.
- * @param {string}      nonce             - Nonce to use for authentication.
- * @param {object}      options           - Request options.
- * @param {AbortSignal} options.signal    - Stop polling without aborting an in-flight HTTP request.
- * @param {Function}    options.onPending - Called once if the site is still measuring, before polling starts.
+ * @param {boolean}     force              - Force regenerate speed scores.
+ * @param {string}      rootUrl            - Root URL for the HTTP request.
+ * @param {string}      siteUrl            - URL of the site.
+ * @param {string}      nonce              - Nonce to use for authentication.
+ * @param {object}      options            - Request options.
+ * @param {AbortSignal} options.signal     - Stop polling without aborting an in-flight HTTP request.
+ * @param {Function}    options.onPending  - Called once if the site is still measuring, before polling starts.
+ * @param {Function}    options.onProgress - Called with seconds elapsed and expected whenever the site is still measuring.
  * @return {SpeedScoresSet | undefined} Speed scores, or undefined when aborted.
  */
 export function requestSpeedScores(
@@ -126,7 +142,10 @@ export async function requestSpeedScores(
 			return response.scores;
 		}
 		options?.onPending?.();
-		return await pollRequest( rootUrl, siteUrl, nonce, signal );
+		if ( response.progress ) {
+			options?.onProgress?.( response.progress );
+		}
+		return await pollRequest( rootUrl, siteUrl, nonce, signal, options?.onProgress );
 	} catch ( error ) {
 		if ( ! signal?.aborted ) {
 			throw error;
@@ -199,6 +218,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 						}
 					: null,
 				isStale: !! response.scores.isStale,
+				...( response.scores.noBoostPending === true && { noBoostPending: true as const } ),
 			},
 		};
 	}
@@ -210,23 +230,82 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 
 	return {
 		status: requestStatus,
+		...parseProgress( response.progress ),
 	};
+}
+
+/**
+ * Parse the progress of a pending response, keeping only the fields the dashboard understands.
+ *
+ * @param {JSONValue} value - The `progress` member of a response.
+ * @return {object} `{ progress }`, or nothing when there is no usable estimate.
+ */
+function parseProgress( value: JSONValue ): { progress?: SpeedScoreProgress } {
+	const reported = isJsonObject( value ) ? value : {};
+	const elapsed = castToNumber( reported.elapsed );
+	const expected = castToNumber( reported.expected );
+	if ( elapsed === undefined || ! expected ) {
+		return {};
+	}
+
+	const progress: SpeedScoreProgress = { elapsed, expected };
+	const stage = castToString( reported.stage );
+	if ( isSpeedScoreStage( stage ) ) {
+		progress.stage = stage;
+	}
+	const scores = parseDeviceScores( reported.scores );
+	if ( scores ) {
+		progress.scores = scores;
+	}
+
+	return { progress };
+}
+
+/**
+ * Whether a value is one of the stages Boost Cloud reports.
+ *
+ * @param {string|undefined} value - The value to check.
+ * @return {boolean} True for a known stage.
+ */
+function isSpeedScoreStage( value: string | undefined ): value is SpeedScoreStage {
+	return ( stages as readonly string[] ).includes( value ?? '' );
+}
+
+/**
+ * Parse the scores of the devices already measured, keeping only numeric ones.
+ *
+ * @param {JSONValue} value - The `scores` member of a response's progress.
+ * @return {object|undefined} Scores by device, or undefined when there are none.
+ */
+function parseDeviceScores( value: JSONValue ): SpeedScoreProgress[ 'scores' ] {
+	const reported = isJsonObject( value ) ? value : {};
+	const scores: NonNullable< SpeedScoreProgress[ 'scores' ] > = {};
+	for ( const device of [ 'mobile', 'desktop' ] as const ) {
+		const score = castToNumber( reported[ device ] );
+		if ( score !== undefined ) {
+			scores[ device ] = score;
+		}
+	}
+
+	return Object.keys( scores ).length ? scores : undefined;
 }
 
 /**
  * Poll a speed score request for results, timing out if it takes too long.
  *
- * @param {string}      rootUrl - Root URL of the site to request metrics for
- * @param {string}      siteUrl - Site URL to request metrics for
- * @param {string}      nonce   - Nonce to use for authentication
- * @param {AbortSignal} signal  - Signal to stop polling.
+ * @param {string}      rootUrl    - Root URL of the site to request metrics for
+ * @param {string}      siteUrl    - Site URL to request metrics for
+ * @param {string}      nonce      - Nonce to use for authentication
+ * @param {AbortSignal} signal     - Signal to stop polling.
+ * @param {Function}    onProgress - Called with the progress of each pending response.
  * @return {SpeedScoresSet | undefined} Speed scores, or undefined when aborted.
  */
 async function pollRequest(
 	rootUrl: string,
 	siteUrl: string,
 	nonce: string,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	onProgress?: ( progress: SpeedScoreProgress ) => void
 ): Promise< SpeedScoresSet | undefined > {
 	return pollPromise< SpeedScoresSet | undefined >( {
 		timeout: pollTimeout,
@@ -245,6 +324,8 @@ async function pollRequest(
 				resolve( undefined );
 			} else if ( response.scores ) {
 				resolve( response.scores );
+			} else if ( response.progress ) {
+				onProgress?.( response.progress );
 			}
 		},
 	} );

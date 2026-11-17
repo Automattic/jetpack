@@ -134,6 +134,7 @@ function SharesDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls 
  * Renders the real registered widget through the shared dashboard harness.
  */
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <SharesDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

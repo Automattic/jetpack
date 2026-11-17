@@ -25,12 +25,6 @@ jest.mock( '../../../../utils/reload-page', () => ( {
 	leavePageFor: jest.fn(),
 } ) );
 
-// The Features tab sends no `from` yet (CONNECT-571), and the real helper warns about that.
-jest.mock( '@automattic/jetpack-connection', () => ( {
-	...jest.requireActual( '@automattic/jetpack-connection' ),
-	getUserConnectionUrl: jest.fn( () => '/wp-admin/admin.php?connect_url_redirect=1' ),
-} ) );
-
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( { modules: {}, isLoading: false, hasLoaded: true } ),
 } ) );
@@ -73,13 +67,20 @@ const mockStates = [
 			name: 'Stats',
 			description: '',
 			plans: [ { slug: 'complete' } ],
+			groups: [],
 			essential: true,
 		},
 		status: 'active',
 		control: { kind: 'none' },
 	},
 	{
-		feature: { slug: 'boost', name: 'Boost', description: '', plans: [ { slug: 'complete' } ] },
+		feature: {
+			slug: 'boost',
+			name: 'Boost',
+			description: '',
+			plans: [ { slug: 'complete' } ],
+			groups: [],
+		},
 		status: 'inactive',
 		control: { kind: 'none' },
 	},
@@ -166,7 +167,7 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 // A row as the More Features section builds one: a module, carrying no plan.
 const moduleRow = ( slug: string, name: string ): FeatureState =>
 	( {
-		feature: { slug, name, description: '', plans: [], essential: false },
+		feature: { slug, name, description: '', plans: [], groups: [], essential: false },
 		status: 'inactive',
 		control: { kind: 'module', module: { module: slug, name, description: '' } },
 	} ) as unknown as FeatureState;
@@ -384,6 +385,7 @@ describe( 'Feature action tracking', () => {
 		expect( lastEvent( 'jetpack_myjetpack_feature_connection_start' ) ).toMatchObject( {
 			action,
 			origin,
+			from: 'my_jetpack_features_boost',
 			product: 'boost',
 			feature_slug: 'boost',
 			account_needed: true,
@@ -836,7 +838,7 @@ describe( 'A search left behind', () => {
 describe( 'Which list a module was switched from', () => {
 	const moduleState = () =>
 		( {
-			feature: { slug: 'monitor', name: 'Monitor', plans: [] },
+			feature: { slug: 'monitor', name: 'Monitor', plans: [], groups: [] },
 			status: 'inactive',
 			control: { kind: 'module', module: { module: 'monitor', activated: false } },
 		} ) as unknown as FeatureState;

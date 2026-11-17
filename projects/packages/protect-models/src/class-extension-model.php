@@ -97,7 +97,7 @@ class Extension_Model {
 		// convert each provided threat item into an instance of Threat_Model
 		$threats = array_map(
 			function ( $threat ) {
-				if ( is_a( $threat, 'Threat_Model' ) ) {
+				if ( $threat instanceof Threat_Model ) {
 					return $threat;
 				}
 

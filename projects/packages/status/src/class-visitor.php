@@ -25,10 +25,11 @@ class Visitor {
 	 * protection stores which header carries the visitor address, how far back to count in its
 	 * list, and whether that list runs in reverse, all worked out for this site's own proxy
 	 * setup. Once that answer exists it is the answer, including when the request did not carry
-	 * the header — `IP\Utils::get_ip()` falls back to `REMOTE_ADDR` itself in that case. Reading
-	 * the sweep afterwards would let a request that simply omits the trusted header pick its own
-	 * address out of a header it fully controls, and would hand Jetpack two answers for one
-	 * request, since brute force protection resolves the same visitor through `IP\Utils`.
+	 * the header or it held no valid address — `IP\Utils::get_ip()` falls back to `REMOTE_ADDR`
+	 * itself in those cases. Reading the sweep afterwards would let a request that simply omits
+	 * the trusted header pick its own address out of a header it fully controls, and would hand
+	 * Jetpack two answers for one request, since brute force protection resolves the same
+	 * visitor through `IP\Utils`.
 	 *
 	 * That is a guarantee about which source is consulted, not about the address itself: it
 	 * still assumes the proxy named in the stored configuration rewrites the header. A request

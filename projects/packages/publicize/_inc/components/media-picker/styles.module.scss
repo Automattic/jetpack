@@ -6,7 +6,10 @@
 }
 
 .preview-image {
+	display: block;
 	width: auto;
+	max-width: 100%;
+	margin-inline: auto;
 }
 
 .container {
@@ -98,7 +101,7 @@
 	transition: 0.1s ease-in-out background;
 
 	svg {
-		fill: var(--jp-white);
+		color: var(--jp-white);
 	}
 
 	&:hover {

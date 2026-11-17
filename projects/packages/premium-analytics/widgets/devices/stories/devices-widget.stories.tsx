@@ -152,6 +152,7 @@ export const Empty: StoryObj< DevicesStoryControls > = {
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <DevicesDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

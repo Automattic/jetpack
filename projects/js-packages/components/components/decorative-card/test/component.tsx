@@ -49,7 +49,8 @@ describe( 'DecorativeCard', () => {
 	it( 'sets the background image from the image URL', () => {
 		render( <DecorativeCard imageUrl="image.jpg" /> );
 		expect( screen.getByTestId( 'decorative-card_image' ) ).toHaveStyle( {
-			backgroundImage: 'url(image.jpg)',
+			// jsdom v31's getComputedStyle fully qualifies the URL
+			backgroundImage: 'url("http://localhost/image.jpg")',
 		} );
 	} );
 } );

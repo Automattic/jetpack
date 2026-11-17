@@ -635,7 +635,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		 * @return object                A Color object, an increased contrast $this compared against $bg_color
 		 */
 		public function getReadableContrastingColor( $bg_color = null, $min_contrast = 5 ) {
-			if ( ! $bg_color || ! is_a( $bg_color, 'Jetpack_Color' ) ) {
+			if ( ! $bg_color || ! $bg_color instanceof \Jetpack_Color ) {
 				return $this;
 			}
 			// you shouldn't use less than 5, but you might want to.

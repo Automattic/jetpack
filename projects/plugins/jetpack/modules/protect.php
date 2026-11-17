@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Module Name: Brute Force Protection
+ * Module Name: Login protection
  * Module Description: Block malicious login attempts automatically and keep hackers out.
  * Sort Order: 1
  * Recommendation Order: 4
@@ -10,5 +10,5 @@
  * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Security
- * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
+ * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, brute force protection, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
  */

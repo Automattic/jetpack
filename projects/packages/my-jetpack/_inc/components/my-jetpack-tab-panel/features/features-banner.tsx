@@ -1,6 +1,5 @@
-import { Button } from '@wordpress/components';
+import HighlightBanner from '@automattic/jetpack-components/highlight-banner';
 import { __ } from '@wordpress/i18n';
-import { closeSmall } from '@wordpress/icons';
 import { useCallback, useEffect } from 'react';
 import useFeaturesBannerDismissal from '../../../data/use-features-banner-dismissal';
 import useAnalytics from '../../../hooks/use-analytics';
@@ -33,29 +32,15 @@ export function FeaturesBanner() {
 	}
 
 	return (
-		<div className={ styles.banner }>
-			<div className={ styles.banner__content }>
-				<h2 className={ styles.banner__title }>
-					{ __( 'Every Jetpack feature, in one place.', 'jetpack-my-jetpack' ) }
-				</h2>
-				<p className={ styles.banner__description }>
-					{ __(
-						'Activate or deactivate a feature right here. Open one first to see what it does, what it needs, and where to find it once it is on.',
-						'jetpack-my-jetpack'
-					) }
-				</p>
-			</div>
-
-			<Button
-				className={ styles.banner__close }
-				icon={ closeSmall }
-				label={ __( 'Dismiss banner', 'jetpack-my-jetpack' ) }
-				size="small"
-				onClick={ onDismiss }
-			/>
-
-			<div className={ `${ styles.banner__orb } ${ styles[ 'banner__orb--top' ] }` } />
-			<div className={ `${ styles.banner__orb } ${ styles[ 'banner__orb--bottom' ] }` } />
-		</div>
+		<HighlightBanner
+			className={ styles.banner }
+			title={ __( 'Every Jetpack feature, in one place.', 'jetpack-my-jetpack' ) }
+			description={ __(
+				'Activate or deactivate a feature right here. Open one first to see what it does, what it needs, and where to find it once it is on.',
+				'jetpack-my-jetpack'
+			) }
+			onDismiss={ onDismiss }
+			dismissLabel={ __( 'Dismiss banner', 'jetpack-my-jetpack' ) }
+		/>
 	);
 }

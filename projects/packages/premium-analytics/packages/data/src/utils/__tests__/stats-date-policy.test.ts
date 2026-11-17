@@ -192,6 +192,7 @@ describe( 'getPolicyDefaultPreset', () => {
 		[ 'a free plan', 'yesterday', 'yesterday', free ],
 		[ 'a free plan', 'last-30-days', 'last-7-days', free ],
 		[ 'legacy basic', 'last-12-months', 'last-30-days', basic ],
+		[ 'legacy basic', 'last-3-years', 'last-30-days', basic ],
 	] as const )( 'on %s opens %s as %s', ( _name, preset, expected, policy ) => {
 		expect( getPolicyDefaultPreset( policy(), preset ) ).toBe( expected );
 	} );
@@ -207,6 +208,7 @@ describe( 'applyStatsDatePolicy', () => {
 		],
 		[ 'a locked preset', free, { preset: 'last-30-days' }, 'last-7-days' ],
 		[ 'a long preset', basic, { preset: 'last-90-days' }, 'last-30-days' ],
+		[ 'the three-year preset', basic, { preset: 'last-3-years' }, 'last-30-days' ],
 		// Last 30 days allows weeks, so only the plan's locks bring this one back to days.
 		[
 			'a long preset in weeks',

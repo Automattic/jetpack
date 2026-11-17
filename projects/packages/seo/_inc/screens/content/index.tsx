@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Badge, IconButton, Link } from '@wordpress/ui';
+import SeoPausedBanner from '../../components/seo-paused-banner';
 import useSeoPosts from '../../data/use-seo-posts';
 import styles from './style.module.scss';
 import type { ContentRow } from '../../data/content-types';
@@ -38,8 +39,8 @@ const articleLabel = __( 'Article', 'jetpack-seo' );
 const faqLabel = __( 'FAQ', 'jetpack-seo' );
 const setLabel = __( 'Set', 'jetpack-seo' );
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
-const visibleLabel = __( 'Visible', 'jetpack-seo' );
-const hiddenLabel = __( 'Hidden', 'jetpack-seo' );
+const indexingAllowedLabel = __( 'Allowed', 'jetpack-seo' );
+const indexingExcludedLabel = __( 'Excluded', 'jetpack-seo' );
 const noTitleLabel = __( '(no title)', 'jetpack-seo' );
 const editSeoLabel = __( 'Edit SEO', 'jetpack-seo' );
 
@@ -259,21 +260,21 @@ const ContentScreen: FC = () => {
 			},
 			{
 				id: 'searchVisibility',
-				label: __( 'Search', 'jetpack-seo' ),
+				label: __( 'Indexing preference', 'jetpack-seo' ),
 				enableSorting: false,
 				getValue: ( { item } ) => ( item.noindex ? 'hidden' : 'visible' ),
 				render: ( { item } ) => (
 					<Badge intent={ item.noindex ? 'draft' : 'stable' }>
-						{ item.noindex ? hiddenLabel : visibleLabel }
+						{ item.noindex ? indexingExcludedLabel : indexingAllowedLabel }
 					</Badge>
 				),
 			},
 			{
 				id: SEARCH_FIELD,
-				label: __( 'Search visibility', 'jetpack-seo' ),
+				label: __( 'Indexing preference', 'jetpack-seo' ),
 				elements: [
-					{ value: 'visible', label: visibleLabel },
-					{ value: 'hidden', label: hiddenLabel },
+					{ value: 'visible', label: indexingAllowedLabel },
+					{ value: 'hidden', label: indexingExcludedLabel },
 				],
 				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
@@ -305,6 +306,7 @@ const ContentScreen: FC = () => {
 
 	return (
 		<div className={ styles.root }>
+			<SeoPausedBanner className={ styles.notice } />
 			<DataViews
 				data={ data }
 				fields={ fields as Field< unknown >[] }

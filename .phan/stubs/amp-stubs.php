@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from AMP 2.5.5 and AMP for WP 1.1.19
+ * Stubs automatically generated from AMP 2.5.5 and AMP for WP 1.1.20
  * using the definition file `tools/stubs/amp-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -142,6 +142,47 @@ class AMP_Options_Manager
  */
 function amp_add_customizer_link()
 {
+}
+/**
+ * Class AMP_Base_Sanitizer
+ *
+ * @since 0.2
+ */
+abstract class AMP_Base_Sanitizer
+{
+    /**
+     * DOM.
+     *
+     * @var Document An AmpProject\Document representation of an HTML document.
+     *
+     * @since 0.2
+     */
+    protected $dom;
+    /**
+     * AMP_Base_Sanitizer constructor.
+     *
+     * @since 0.2
+     *
+     * @param Document $dom Represents the HTML document to sanitize.
+     * @param array    $args {
+     *      Args.
+     *
+     *      @type int $content_max_width
+     *      @type bool $add_placeholder
+     *      @type bool $require_https_src
+     *      @type string[] $amp_allowed_tags
+     *      @type string[] $amp_globally_allowed_attributes
+     *      @type string[] $amp_layout_allowed_attributes
+     * }
+     */
+    public function __construct($dom, $args = [])
+    {
+    }
+    // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+    /**
+     * Sanitize the HTML contained in the DOMDocument received by the constructor
+     */
+    abstract public function sanitize();
 }
 // AMP endpoint Verifier
 /**

@@ -1,9 +1,5 @@
-@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
-
 .dashboard {
 	min-block-size: 0;
-
-	@include jetpack-admin-page-header;
 
 	/*
 	 * Tweak Card layout to make it fit the screen.
@@ -41,10 +37,7 @@
  * portals outside `.dashboard`. :global — class is not a CSS Module local.
  * TODO: consider adding this upstream to the Card / widget-dashboard picker.
  */
-:global(
-	.toplevel_page_jetpack-premium-analytics-wp-admin
-	.dataviews-picker-wrapper
-) {
+:global(.toplevel_page_jetpack-premium-analytics-wp-admin .dataviews-picker-wrapper) {
 
 	section:first-of-type {
 		--wp-ui-card-padding: var(--wpds-dimension-padding-md);

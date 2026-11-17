@@ -12,7 +12,9 @@ import {
 	WidgetRoot,
 	WidgetState,
 	safeHttpUrl,
+	useReportActions,
 	useWidgetRootContext,
+	type CsvColumn,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -39,6 +41,10 @@ export type VideoDetailEmbedsAttributes = Record< never, never >;
 type VideoDetailEmbedsRenderAttributes = VideoDetailEmbedsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type VideoDetailEmbedsWidgetProps = WidgetRenderProps< VideoDetailEmbedsRenderAttributes >;
+
+const CSV_COLUMNS: CsvColumn< StatsSingleVideoPage >[] = [
+	{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: page => page.link },
+];
 
 type VideoEmbedsListProps = {
 	/**
@@ -89,7 +95,18 @@ function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo( videoId );
+	const { data, isLoading, isFetching, isError, isPlaceholderData, refetch } =
+		useStatsSingleVideo( videoId );
+
+	useReportActions( {
+		csv: {
+			rows: data?.pages ?? [],
+			columns: CSV_COLUMNS,
+			filenamePrefix: `video-${ videoId }-embeds`,
+			hasDateRange: false,
+			status: { isLoading, isFetching, isError, isPlaceholderData },
+		},
+	} );
 
 	let body;
 

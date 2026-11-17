@@ -16,7 +16,7 @@ import type { FC } from 'react';
  * module off (see the Overview route stage), so this stage, reached there only
  * from Settings, needs the tab bar to lead back to it.
  *
- * Enabling SEO tools reloads the page (see `useSeoToolsToggle`), bringing the
+ * Enabling SEO tools reloads the page (see `useEnableSeoTools`), bringing the
  * full surface online.
  *
  * @param props        - Component props.

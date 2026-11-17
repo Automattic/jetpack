@@ -72,6 +72,8 @@ describe( 'drawQrCanvas', () => {
 
 	it( 'swallows a failed draw and leaves the canvas alone', async () => {
 		const canvas = document.createElement( 'canvas' );
+		// toHaveStyle usees getComputedStyle, which needs the element to be in the document.
+		document.body.appendChild( canvas );
 		canvas.style.width = '200px';
 		QRCode.toCanvas.mockRejectedValueOnce( new Error( 'no 2d context' ) );
 

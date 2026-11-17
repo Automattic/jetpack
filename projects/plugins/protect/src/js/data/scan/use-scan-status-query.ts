@@ -35,11 +35,34 @@ export const isRequestedScanNotStarted = ( status: ScanStatus ) => {
 	return true;
 };
 
+/**
+ * Whether Scan reports no scan on record and nothing running, so the site needs a first scan.
+ *
+ * @param status - The scan status.
+ * @return Whether the site has never been scanned.
+ */
+export const isFirstScanNeeded = ( status: ScanStatus ) =>
+	status?.dataSource === 'scan_api' &&
+	! status?.lastChecked &&
+	! status?.error &&
+	! status?.lastScanFailed &&
+	status?.status === SCAN_STATUS_IDLE;
+
+/**
+ * Whether the site owner turned off the free daily vulnerability check, as `Protect_Status::STATUS_DISABLED` reports.
+ *
+ * @param status - The scan status.
+ * @return Whether the check is off.
+ */
+export const isChecksOff = ( status: ScanStatus ) => ( status?.status as string ) === 'disabled';
+
 export const isScanInProgress = ( status: ScanStatus ) => {
 	// If there has never been a scan, and the scan status is idle or unavailable, then we must still be getting set up.
 	const scanIsInitializing =
 		! status?.lastChecked &&
-		[ SCAN_STATUS_IDLE, SCAN_STATUS_UNAVAILABLE ].includes( status?.status );
+		[ SCAN_STATUS_IDLE, SCAN_STATUS_UNAVAILABLE ].includes( status?.status ) &&
+		! status?.lastScanFailed &&
+		! isFirstScanNeeded( status );
 
 	const scanIsInProgress = SCAN_IN_PROGRESS_STATUSES.indexOf( status?.status ) >= 0;
 
@@ -89,8 +112,8 @@ export default function useScanStatusQuery( {
 			// Refetch on a shorter interval for the first few updates.
 			const interval = query.state.dataUpdateCount < 5 ? 5_000 : 15_000;
 
-			// Refetch when scanning.
-			if ( isScanInProgress( query.state.data ) ) {
+			// Refetch when scanning, or until WordPress.com queues a first scan.
+			if ( isScanInProgress( query.state.data ) || isFirstScanNeeded( query.state.data ) ) {
 				return interval;
 			}
 

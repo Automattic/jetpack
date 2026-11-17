@@ -306,7 +306,7 @@ class Admin_Bar {
 		 * Return `$url` unchanged for a view the dashboard has no page for.
 		 *
 		 * @since 0.39.0
-		 * @since $$next-version$$ The `dashboard` view may carry a `section` and a `range`.
+		 * @since 0.40.0 The `dashboard` view may carry a `section` and a `range`.
 		 *
 		 * @param string $url  The Stats URL.
 		 * @param array  $args The page the link opens.

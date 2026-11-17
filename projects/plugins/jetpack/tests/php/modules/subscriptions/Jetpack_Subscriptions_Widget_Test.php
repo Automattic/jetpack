@@ -21,9 +21,20 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 #[CoversClass( Jetpack_Subscriptions_Widget::class )]
 class Jetpack_Subscriptions_Widget_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
-	use Without_WPCOM_Include_Warning;
 
 	const SUBSCRIBER_EMAIL = 'reader@example.org';
+
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		$file = WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
+		if ( ! is_dir( dirname( $file ) ) ) {
+			mkdir( dirname( $file ), 0777, true );
+		}
+		if ( ! file_exists( $file ) ) {
+			file_put_contents( $file, "<?php\n" );
+		}
+	}
 
 	/**
 	 * @runInSeparateProcess
@@ -47,7 +58,7 @@ class Jetpack_Subscriptions_Widget_Test extends WP_UnitTestCase {
 		// On WordPress.com the check ignores ?subscribe=success, so seeding it must not flip the result.
 		$_GET['subscribe'] = 'success';
 
-		$subscribed = $this->run_without_wpcom_include_warning( array( Jetpack_Subscriptions_Widget::class, 'is_current_user_subscribed' ) );
+		$subscribed = Jetpack_Subscriptions_Widget::is_current_user_subscribed();
 
 		$this->assertSame( $expected, $subscribed );
 	}

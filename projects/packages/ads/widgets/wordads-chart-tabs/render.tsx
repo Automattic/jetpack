@@ -65,7 +65,6 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 					chartType={ chartType }
 					tickResolution={ period }
 					groupLabel={ __( 'WordAds metric', 'jetpack-ads-pkg' ) }
-					chartTitle={ __( 'Ads summary', 'jetpack-ads-pkg' ) }
 					// As the classic chart: one hover reads out all three, whichever tab is up.
 					tooltipMetrics="all"
 					empty={ <ChartEmptyState /> }

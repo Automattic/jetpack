@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.7] - 2026-11-16
+### Added
+- Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54768]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Send usage stats without waiting for a response. [#54644]
+- Update package dependencies. [#54703]
+
+### Fixed
+- Distribution: Warn about unlaunched sites and sites hidden from search engines. [#54663]
+- Post-publish podcast promo: Keep the close button visible against the modal's header. [#54812]
+
+## [2.2.6] - 2026-11-09
+### Changed
+- Update package dependencies. [#54391] [#54512]
+
 ## [2.2.5] - 2026-11-02
 ### Changed
 - Update package dependencies. [#53869]
@@ -319,6 +336,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[2.2.7]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.6...v2.2.7
+[2.2.6]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.5...v2.2.6
 [2.2.5]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.4...v2.2.5
 [2.2.4]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.2...v2.2.3

@@ -72,7 +72,7 @@ class Threat_Count {
 			// This runs on every admin page, so a malformed stored status must not take them all down.
 			return null;
 		}
-		return null === $status ? null : count( Dashboard_Threats::without_resolved( $status->threats, $status->last_checked ?? null ) );
+		return null === $status ? null : count( Dashboard_Threats::without_resolved( $status->threats, Dashboard_Threats::get_scanned_at( $status ) ) );
 	}
 
 	/**
@@ -183,7 +183,7 @@ class Threat_Count {
 			);
 		}
 
-		return rest_ensure_response( array( 'count' => count( Dashboard_Threats::without_resolved( $status->threats, $status->last_checked ?? null ) ) ) );
+		return rest_ensure_response( array( 'count' => count( Dashboard_Threats::without_resolved( $status->threats, Dashboard_Threats::get_scanned_at( $status ) ) ) ) );
 	}
 
 	/**

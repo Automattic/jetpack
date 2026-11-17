@@ -17,8 +17,7 @@ import { userCanManageModules } from 'state/initial-state';
 import { getModules } from 'state/modules';
 import { isModuleFound } from 'state/search';
 
-// Module search terms are never translated, so these find JSON API and Notifications in every locale.
-// Forms has no such term in Features, so its link opens the Forms card instead.
+// Features has no search term for Forms, so its link opens the Forms card instead.
 const FEATURES_LINKS = {
 	'contact-form': { feature: 'jetpack-forms' },
 	'json-api': { search: 'json', linksToSettings: false },

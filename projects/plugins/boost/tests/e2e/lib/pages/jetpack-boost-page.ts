@@ -92,7 +92,7 @@ export default class JetpackBoostPage {
 	 * @return {Promise<number>} - The score for the specified platform.
 	 */
 	async getSpeedScore( platform: 'Desktop' | 'Mobile' ): Promise< number > {
-		const meter = this.scoresCard().getByRole( 'progressbar', { name: platform, exact: true } );
+		const meter = this.scoresCard().getByRole( 'meter', { name: platform, exact: true } );
 		await meter.waitFor( {
 			state: 'visible',
 			timeout: 80000,

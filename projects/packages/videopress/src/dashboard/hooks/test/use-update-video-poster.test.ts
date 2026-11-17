@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
@@ -8,6 +9,12 @@ import {
 	POSTER_POLL_INTERVAL_MS,
 	POSTER_POLL_MAX_ATTEMPTS,
 } from '../use-update-video-poster';
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
+const recordEvent = analytics.tracks.recordEvent as jest.Mock;
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -36,6 +43,7 @@ function makeWrapper() {
 afterEach( () => {
 	jest.useRealTimers();
 	mockedApiFetch.mockReset();
+	recordEvent.mockClear();
 } );
 
 describe( 'useUpdateVideoPoster — exported constants', () => {
@@ -71,7 +79,7 @@ describe( 'useUpdateVideoPoster — POST body', () => {
 
 	it( 'sends attachment-mode POST body', async () => {
 		mockedApiFetch.mockResolvedValueOnce( {
-			data: { generating: false, poster: 'https://x/scrubthumb-1.jpg' },
+			data: { status: 'complete', generating: false, poster: 'https://x/scrubthumb-1.jpg' },
 		} );
 		const { wrapper } = makeWrapper();
 		const { result } = renderHook( () => useUpdateVideoPoster(), { wrapper } );
@@ -90,6 +98,9 @@ describe( 'useUpdateVideoPoster — POST body', () => {
 			method: 'POST',
 			data: { poster_attachment_id: 17 },
 		} );
+		expect( recordEvent.mock.calls ).toEqual( [
+			[ 'jetpack_videopress_poster_changed', { method: 'attachment' } ],
+		] );
 	} );
 } );
 
@@ -150,7 +161,7 @@ describe( 'useUpdateVideoPoster — polling until generated', () => {
 		// POST returns generating:true, then two GETs: first still generating,
 		// second returns the final poster URL.
 		mockedApiFetch
-			.mockResolvedValueOnce( { data: { generating: true } } ) // POST /poster
+			.mockResolvedValueOnce( { data: { status: 'complete', generating: true, poster: 'P0' } } ) // POST /poster
 			.mockResolvedValueOnce( { data: { generating: true } } ) // GET poll 1
 			.mockResolvedValueOnce( { data: { generating: false, poster: 'P2' } } ) // GET poll 2
 			.mockResolvedValueOnce( {} ); // POST /meta
@@ -203,6 +214,111 @@ describe( 'useUpdateVideoPoster — polling until generated', () => {
 			[ LIBRARY_QUERY_KEY, 'item', '42' ],
 			expect.any( Function )
 		);
+		expect( recordEvent.mock.calls ).toEqual( [
+			[ 'jetpack_videopress_poster_changed', { method: 'frame' } ],
+		] );
+	} );
+} );
+
+describe( 'useUpdateVideoPoster — outcome metrics', () => {
+	it.each( [
+		{},
+		{ data: { generating: false, poster: 'NEW' } },
+		{ data: { status: 'complete', poster: 'NEW' } },
+		{ data: { status: 'failed', generating: false, poster: 'NEW' } },
+		{ data: { status: 'complete', generating: false, poster: null } },
+		{ data: { status: 'complete', generating: false, poster: ' ' } },
+	] )( 'does not count an unacknowledged attachment outcome: %p', async response => {
+		mockedApiFetch.mockResolvedValueOnce( response );
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useUpdateVideoPoster(), { wrapper } );
+		await act( async () => {
+			await result.current.mutateAsync( {
+				id: '42',
+				guid: 'abc123',
+				source: 'attachment',
+				attachmentId: 17,
+			} );
+		} );
+		expect( recordEvent ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [
+		{ generating: false, poster: 'OLD' },
+		{ generating: true, poster: 'NEW' },
+		{ poster: 'NEW' },
+		{ generating: false, poster: null },
+	] )( 'does not count failed, unfinished or ambiguous frame generation: %p', async pollData => {
+		jest.useFakeTimers();
+		mockedApiFetch
+			.mockResolvedValueOnce( { data: { status: 'complete', generating: true, poster: 'OLD' } } )
+			.mockResolvedValue( { data: pollData } );
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useUpdateVideoPoster(), { wrapper } );
+		let pending: ReturnType< typeof result.current.mutateAsync >;
+		act( () => {
+			pending = result.current.mutateAsync( {
+				id: '42',
+				guid: 'abc123',
+				source: 'frame',
+				atTimeMs: 1000,
+			} );
+		} );
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( POSTER_POLL_INTERVAL_MS * POSTER_POLL_MAX_ATTEMPTS );
+			await pending;
+		} );
+		expect( recordEvent ).not.toHaveBeenCalled();
+	} );
+
+	it( 'records a remote attachment outcome even when the subsequent local metadata save fails', async () => {
+		mockedApiFetch
+			.mockResolvedValueOnce( { data: { status: 'complete', generating: false, poster: 'NEW' } } )
+			.mockRejectedValueOnce( new Error( 'local metadata failed' ) );
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useUpdateVideoPoster(), { wrapper } );
+		await act( async () => {
+			await expect(
+				result.current.mutateAsync( {
+					id: '42',
+					guid: 'abc123',
+					source: 'attachment',
+					attachmentId: 17,
+				} )
+			).rejects.toThrow( 'local metadata failed' );
+		} );
+		expect( recordEvent.mock.calls ).toEqual( [
+			[ 'jetpack_videopress_poster_changed', { method: 'attachment' } ],
+		] );
+	} );
+
+	it( 'records a first frame poster after acknowledgment and unmount, with the original method', async () => {
+		jest.useFakeTimers();
+		mockedApiFetch
+			.mockResolvedValueOnce( { data: { status: 'complete', generating: true, poster: null } } )
+			.mockResolvedValueOnce( { data: { generating: false, poster: 'NEW' } } )
+			.mockResolvedValueOnce( {} );
+		const { wrapper } = makeWrapper();
+		const { result, rerender, unmount } = renderHook( () => useUpdateVideoPoster(), { wrapper } );
+		let pending: ReturnType< typeof result.current.mutateAsync >;
+		await act( async () => {
+			pending = result.current.mutateAsync( {
+				id: '42',
+				guid: 'abc123',
+				source: 'frame',
+				atTimeMs: 1000,
+			} );
+		} );
+		rerender();
+		expect( recordEvent ).not.toHaveBeenCalled();
+		unmount();
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( POSTER_POLL_INTERVAL_MS );
+			await pending;
+		} );
+		expect( recordEvent.mock.calls ).toEqual( [
+			[ 'jetpack_videopress_poster_changed', { method: 'frame' } ],
+		] );
 	} );
 } );
 

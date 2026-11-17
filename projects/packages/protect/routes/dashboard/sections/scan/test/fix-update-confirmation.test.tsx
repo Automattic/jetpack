@@ -6,7 +6,7 @@ import {
 	getUpdateFixTitle,
 	makeFixUpdateModal,
 } from '../fix-update-confirmation';
-import { ignoreThreat } from '../threat-actions';
+import { ignoreThreat, resetThreatActions } from '../threat-actions';
 import type { ScanThreat } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -28,6 +28,11 @@ window.jetpackProtectDashboard = {
 };
 
 describe( 'FixUpdateModal', () => {
+	afterEach( () => {
+		resetThreatActions();
+		( apiFetch as unknown as jest.Mock ).mockReset();
+	} );
+
 	it.each( [
 		[ 'plugins', 'Update this plugin?' ],
 		[ 'themes', 'Update this theme?' ],

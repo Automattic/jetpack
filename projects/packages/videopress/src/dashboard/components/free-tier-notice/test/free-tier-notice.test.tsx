@@ -42,6 +42,20 @@ describe( 'FreeTierNotice', () => {
 		mockedCheckoutWorkflow.mockReturnValue( { run: mockRun } );
 	} );
 
+	it( 'records the notice and its current video count when rendered', async () => {
+		render( <FreeTierNotice location="library_at_limit" videoCount={ 1 } /> );
+		await Promise.resolve();
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
+		expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_videopress_upsell_impression',
+			{
+				location: 'library_at_limit',
+				video_count_known: true,
+				video_count: 1,
+			}
+		);
+	} );
+
 	it( 'drives the shared checkout workflow with the VideoPress product and redirect', () => {
 		render( <FreeTierNotice location="overview" /> );
 
@@ -80,7 +94,12 @@ describe( 'FreeTierNotice', () => {
 			const user = userEvent.setup();
 			const { rerender } = render( <FreeTierNotice location={ location } /> );
 			rerender( <FreeTierNotice location={ location } /> );
-			expect( mockedAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
+			await Promise.resolve();
+			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
+			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledWith(
+				'jetpack_videopress_upsell_impression',
+				{ location, video_count_known: false }
+			);
 
 			await user.click( screen.getByRole( 'link', { name: 'Upgrade' } ) );
 
@@ -88,7 +107,7 @@ describe( 'FreeTierNotice', () => {
 				'jetpack_videopress_upgrade_trigger_link_click',
 				{ location }
 			);
-			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
+			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledTimes( 2 );
 			// `run` is deferred to a microtask; userEvent's await flushes it.
 			expect( mockRun ).toHaveBeenCalledTimes( 1 );
 		}

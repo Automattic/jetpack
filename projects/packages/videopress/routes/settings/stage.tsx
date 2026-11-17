@@ -139,13 +139,17 @@ const StageInner = () => {
 	// Settings has no upload button of its own, but a free user who has used
 	// their upload otherwise reaches this tab with no upgrade path in sight —
 	// surface the same at-limit notice the Library shows (VIDP-311).
-	const { isAtLimit } = useFreeTier();
+	const { isAtLimit, videoCount, videoCountKnown } = useFreeTier();
 
 	return (
 		<DashboardLayout activeTab="settings">
 			<div className="jp-videopress-settings">
 				{ isAtLimit && (
-					<FreeTierNotice location="settings_at_limit" message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+					<FreeTierNotice
+						location="settings_at_limit"
+						message={ FREE_TIER_AT_LIMIT_MESSAGE }
+						videoCount={ videoCountKnown ? videoCount : undefined }
+					/>
 				) }
 				<SettingsForm />
 			</div>

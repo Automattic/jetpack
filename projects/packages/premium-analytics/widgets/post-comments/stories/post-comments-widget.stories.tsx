@@ -153,6 +153,7 @@ function PostCommentsDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< PostCommentsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PostCommentsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

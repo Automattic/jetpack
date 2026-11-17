@@ -57,6 +57,11 @@ class Main_Features {
 	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.15.0';
 
 	/**
+	 * The bundles the Features tab offers as filter pills. Must match `GROUPS` in use-feature-filter.ts.
+	 */
+	private const FILTER_GROUPS = array( 'security', 'growth' );
+
+	/**
 	 * Whether module metadata proves it can run without either connection.
 	 *
 	 * @since 6.10.0
@@ -377,7 +382,7 @@ class Main_Features {
 				'long_description' => __( 'Your WordPress version, plugins and themes are checked daily against a database of known vulnerabilities, with results in your dashboard. Login attacks are blocked automatically, and you can block specific IP addresses yourself.', 'jetpack-my-jetpack' ),
 				'icon'             => 'shield',
 				'product'          => 'protect',
-				// Not `protect`: that module is Brute Force Protection, which has its own row.
+				// Not `protect`: that module is Login protection, which has its own row.
 				'module'           => Products\Protect::DASHBOARD_MODULE_NAME,
 				'essential'        => true,
 				'interstitial'     => '/add-protect',
@@ -927,7 +932,9 @@ class Main_Features {
 	public static function get_module_groups() {
 		return array(
 			array(
-				'label'   => __( 'Security', 'jetpack-my-jetpack' ),
+				'label'   => __( 'Protect', 'jetpack-my-jetpack' ),
+				// The filter pills these modules also show under, like a feature's `groups`.
+				'groups'  => array( 'security' ),
 				'modules' => array( 'account-protection', 'monitor', 'protect', 'sso', 'waf' ),
 			),
 			array(
@@ -971,11 +978,13 @@ class Main_Features {
 			),
 			array(
 				'label'   => __( 'Earn', 'jetpack-my-jetpack' ),
-				'modules' => array( 'wordads' ),
+				'modules' => array( 'monetize', 'wordads' ),
 			),
 			array(
-				'label'   => __( 'Analytics', 'jetpack-my-jetpack' ),
-				'modules' => array( 'woocommerce-analytics' ),
+				'label'    => __( 'Analytics', 'jetpack-my-jetpack' ),
+				'modules'  => array( 'woocommerce-analytics' ),
+				// Settings-only entries listed under this heading when the site has them; see get_settings_entries().
+				'settings' => array( Google_Analytics_Settings::SLUG ),
 			),
 		);
 	}
@@ -1003,16 +1012,28 @@ class Main_Features {
 	 * headings for Jetpack's other modules, and whether the current user may install plugins.
 	 *
 	 * @param bool $local Use the local feature contract documented in get_features().
-	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[]} The state.
+	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[], settings_entries: array} The state.
 	 */
 	public static function get_state( $local = false ) {
 		return array(
-			'jetpack'         => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
-			'features'        => self::get_features( $local ),
-			'module_groups'   => self::get_module_groups(),
-			'plugin_installs' => self::get_install_access(),
-			'hidden_modules'  => self::get_hidden_modules(),
+			'jetpack'          => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
+			'features'         => self::get_features( $local ),
+			'module_groups'    => self::get_module_groups(),
+			'plugin_installs'  => self::get_install_access(),
+			'hidden_modules'   => self::get_hidden_modules(),
+			'settings_entries' => self::get_settings_entries(),
 		);
+	}
+
+	/**
+	 * Settings that have no module but open in the settings panel, for the current user on this site.
+	 *
+	 * @since 6.18.0
+	 *
+	 * @return array[] Entries with `slug`, `name`, `description` and `status` (`active`, `inactive` or `needs-setup`) keys.
+	 */
+	public static function get_settings_entries() {
+		return Google_Analytics_Settings::is_available() ? array( Google_Analytics_Settings::get_entry() ) : array();
 	}
 
 	/**
@@ -1085,6 +1106,8 @@ class Main_Features {
 				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),
 				'screenshot'       => self::get_screenshot_url( $slug ),
 				'plans'            => self::get_plan_badges( $definition, $local ),
+				// The filter pills' categories, kept when those bundles go off sale and drop out of `plans`.
+				'groups'           => array_values( array_intersect( $definition['plans'] ?? array(), self::FILTER_GROUPS ) ),
 				'info_url'         => $definition['info_url'],
 				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live state from the module and plugin it names,

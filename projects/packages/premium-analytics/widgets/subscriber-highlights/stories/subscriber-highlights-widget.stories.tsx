@@ -130,6 +130,7 @@ function SubscriberHighlightsDashboardStory(
 }
 
 export const WidgetDashboardWithWidget: StoryObj< SubscriberHighlightsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <SubscriberHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

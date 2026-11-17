@@ -52,7 +52,6 @@ const renderRows = ( primary: { data?: Record< number, typeof HOODIE >; isError:
 		<ProductLeaderboard
 			filter={ { key: 'product_type', compare: '=', value: 'simple' } }
 			errorText="Could not load products."
-			chartTitle="Top performing products"
 		/>
 	);
 

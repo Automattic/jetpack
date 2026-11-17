@@ -26,7 +26,7 @@ import type { DashboardSectionSlug, StatsFeatureKey } from '@jetpack-premium-ana
 export type ReportDefinition = {
 	/**
 	 * Stable, URL-friendly identifier. Matches the `$report` path segment
-	 * (e.g. `/reports/posts`) and keys the lazy component in the stage.
+	 * (e.g. `/reports/posts`) and keys the component in the stage.
 	 */
 	id: string;
 
@@ -67,8 +67,8 @@ export type ReportDefinition = {
  * The report registry: one entry per report, keyed by its `id`.
  *
  * To add a report, drop a `<id>/` folder under `routes/reports/` that
- * default-exports its page component, add an entry here and its loader to
- * `report-page-loaders.ts`; no new route needed.
+ * default-exports its page component, add an entry here and its component to
+ * `report-pages.ts`; no new route needed.
  */
 export const REPORTS: Record< string, ReportDefinition > = {
 	'annual-insights': {

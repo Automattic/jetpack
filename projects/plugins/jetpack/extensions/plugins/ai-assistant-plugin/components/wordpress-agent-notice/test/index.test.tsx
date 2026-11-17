@@ -27,10 +27,18 @@ let mockIsFeatureAvailable = true;
 let mockIsAgentEnabled = true;
 let mockCanOpenAgent = true;
 let mockSiteFragment: string | null = 'example.wordpress.com';
+let mockCanEnableAgent = true;
 
 jest.mock( '../../../../../blocks/ai-assistant/lib/utils/get-feature-availability', () => ( {
-	getFeatureAvailability: ( feature: string ) =>
-		feature === 'ai-sidebar-agent-support' ? mockIsAgentEnabled : mockIsFeatureAvailable,
+	getFeatureAvailability: ( feature: string ) => {
+		if ( feature === 'ai-sidebar-agent-support' ) {
+			return mockIsAgentEnabled;
+		}
+		if ( feature === 'ai-sidebar-agent-enable' ) {
+			return mockCanEnableAgent;
+		}
+		return mockIsFeatureAvailable;
+	},
 } ) );
 
 jest.mock( '../open-agent', () => ( {
@@ -85,6 +93,7 @@ describe( 'WordPressAgentNotice', () => {
 		mockIsAgentEnabled = true;
 		mockCanOpenAgent = true;
 		mockSiteFragment = 'example.wordpress.com';
+		mockCanEnableAgent = true;
 		// The audience props read these server-injected globals for real.
 		delete ( globalThis as Record< string, unknown > ).agentsManagerData;
 		delete ( globalThis as Record< string, unknown > ).bigSkyInitialState;
@@ -111,6 +120,13 @@ describe( 'WordPressAgentNotice', () => {
 
 		it( 'leaves the AI panel alone where the site has no Agent', () => {
 			expect( stateFor( false, false ) ).toEqual( { isVisible: false, isDismissed: false } );
+		} );
+
+		it( 'leaves the AI panel alone for someone who cannot turn the Agent on', () => {
+			mockIsAgentEnabled = false;
+			mockCanOpenAgent = false;
+			mockCanEnableAgent = false;
+			expect( stateFor( true, false ) ).toEqual( { isVisible: false, isDismissed: false } );
 		} );
 
 		it( 'leaves the AI panel alone where the site lost the Agent after a dismissal', () => {

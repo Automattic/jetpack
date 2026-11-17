@@ -514,6 +514,123 @@ class Scan_Status_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A vulnerability is left out once its plugin or theme is updated to the fixed version, before Scan scans again.
+	 *
+	 * @param string $plugin_version The installed WooCommerce version.
+	 * @param string $theme_version  The installed theme version.
+	 * @param array  $listed         The extension threats still listed.
+	 * @dataProvider updated_extension_data
+	 */
+	#[DataProvider( 'updated_extension_data' )]
+	public function test_get_status_after_extension_update( $plugin_version, $theme_version, $listed ) {
+		$this->mock_connection();
+		$update   = function ( $target ) {
+			return (object) array(
+				'fixer'  => 'update',
+				'target' => $target,
+			);
+		};
+		$response = $this->get_sample_response();
+
+		$response->threats[1]->fixer = $update( '3.0.2' );
+		$response->threats[]         = (object) array(
+			'id'        => 'malware',
+			'signature' => 'PHP.Generic.Malware',
+			'status'    => 'current',
+			'fixer'     => $update( '3.0.2' ),
+			'extension' => (object) array(
+				'type'    => 'plugin',
+				'slug'    => 'woocommerce',
+				'version' => '3.0.0',
+			),
+		);
+		$response->threats[]         = (object) array(
+			'id'        => 'theme',
+			'signature' => 'Vulnerable.WP.Extension',
+			'status'    => 'current',
+			'fixer'     => $update( '1.0.3' ),
+			'extension' => (object) array(
+				'type'    => 'theme',
+				'slug'    => 'theme-1',
+				'version' => '1.0.2',
+			),
+		);
+		$filters                     = array(
+			'pre_http_request'                 => function () use ( $response ) {
+				return array(
+					'body'     => wp_json_encode( $response, JSON_UNESCAPED_SLASHES ),
+					'response' => array( 'code' => 200 ),
+				);
+			},
+			'all_plugins'                      => function () use ( $plugin_version ) {
+				return array(
+					'woocommerce' => array(
+						'Name'    => 'Woocommerce',
+						'Version' => $plugin_version,
+					),
+				);
+			},
+			'jetpack_sync_get_themes_callable' => function () use ( $theme_version ) {
+				return array(
+					'theme-1' => array(
+						'Name'    => 'Sample Theme',
+						'Version' => $theme_version,
+					),
+				);
+			},
+		);
+		foreach ( $filters as $hook => $filter ) {
+			add_filter( $hook, $filter, 11 );
+		}
+
+		$ids = array_column( Scan_Status::get_status()->threats, 'id' );
+		foreach ( $filters as $hook => $filter ) {
+			remove_filter( $hook, $filter, 11 );
+		}
+
+		$this->assertEqualsCanonicalizing( $listed, array_values( array_intersect( $ids, array( '71625245', 'malware', 'theme' ) ) ) );
+	}
+
+	/**
+	 * Data provider for test_get_status_after_extension_update
+	 */
+	public static function updated_extension_data() {
+		return array(
+			'still below the fix' => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ) ),
+			'a rollback'          => array( '2.9', '1.0.2', array( '71625245', 'malware', 'theme' ) ),
+			'plugin at the fix'   => array( '3.0.2', '1.0.2', array( 'malware', 'theme' ) ),
+			'plugin past the fix' => array( '3.1', '1.0.2', array( 'malware', 'theme' ) ),
+			'theme at the fix'    => array( '3.0.0', '1.0.3', array( '71625245', 'malware' ) ),
+		);
+	}
+
+	/**
+	 * Test that a threat with no severity sorts between Low and High.
+	 */
+	public function test_sort_threats_puts_unrated_between_low_and_high() {
+		$threats = array_map(
+			function ( $severity ) {
+				return new Threat_Model(
+					array(
+						'id'             => (string) $severity,
+						'status'         => 'current',
+						'severity'       => $severity,
+						'first_detected' => '2024-01-01T00:00:00.000Z',
+					)
+				);
+			},
+			array( 2, null, 3 )
+		);
+		$sort    = new \ReflectionMethod( Scan_Status::class, 'sort_threats' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$sort->setAccessible( true );
+		}
+
+		$sorted = $sort->invoke( null, $threats );
+		$this->assertSame( array( 3, null, 2 ), array_column( $sorted, 'severity' ) );
+	}
+
+	/**
 	 * Test get total threats
 	 */
 	public function test_get_total_threats() {

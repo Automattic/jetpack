@@ -13,6 +13,7 @@ jest.mock( '@wordpress/data', () => ( {
 	useDispatch: jest.fn(),
 	createReduxStore: jest.fn(),
 	register: jest.fn(),
+	select: jest.fn(),
 } ) );
 
 describe( 'useModuleStatus hook', () => {

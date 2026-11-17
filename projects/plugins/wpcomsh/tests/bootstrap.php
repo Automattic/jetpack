@@ -26,7 +26,9 @@ if ( ! $_core_dir ) {
 	}
 }
 
-define( 'IS_ATOMIC', true );
+if ( ! defined( 'IS_ATOMIC' ) ) {
+	define( 'IS_ATOMIC', true );
+}
 define( 'WPMU_PLUGIN_DIR', "{$_wp_content_dir}/mu-plugins" );
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
@@ -42,6 +44,19 @@ foreach ( new RegexIterator( $lib, '/^.*\.php$/', RegexIterator::GET_MATCH ) as 
 
 // Give access to tests_add_filter() function.
 require_once $_tests_dir . '/includes/functions.php';
+
+// Suppress PHP 8.6 deprecation warnings from WordPress core.
+// @todo: Remove this when resolved in WP core.
+if ( PHP_VERSION_ID >= 80600 ) {
+	set_error_handler(
+		function ( $errno, $errstr, $errfile = '' ) {
+			return E_DEPRECATED === $errno
+				&& $errstr === 'Function spl_object_hash() is deprecated since 8.6, consider using spl_object_id() instead'
+				&& str_ends_with( $errfile, 'tests/phpunit/includes/functions.php' );
+		},
+		E_ALL
+	);
+}
 
 // Speed things up by turning down the password hashing cost.
 tests_add_filter(

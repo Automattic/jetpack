@@ -13,3 +13,8 @@ globalScope.JP_CONNECTION_INITIAL_STATE = {
 };
 globalScope.myJetpackInitialState = {};
 globalScope.myJetpackRest = {};
+
+// Remembered choices, such as the Features tab's layout, would otherwise carry into the next test.
+if ( typeof window !== 'undefined' ) {
+	afterEach( () => window.localStorage.clear() );
+}

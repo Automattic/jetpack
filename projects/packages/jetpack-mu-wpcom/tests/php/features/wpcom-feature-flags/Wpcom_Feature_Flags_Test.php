@@ -797,6 +797,47 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 
 		// Default, then Effective.
 		$this->assertStringContainsString( '<td>Off</td><td>On</td>', $this->compact( $output ) );
+		$this->assertStringNotContainsString( 'Changed by code, not by this screen.', $output );
+	}
+
+	/**
+	 * A platform can set its own default on the generic filter, which leaves State
+	 * at Default and the registered Default Off while the flag is on.
+	 */
+	public function test_admin_page_marks_a_default_changed_by_code() {
+		$this->become_automattician_admin();
+		Feature_Flags::register( 'my-feature', array( 'default' => false ) );
+		Wpcom_Feature_Flags::init();
+		add_filter(
+			'jetpack_feature_flag_enabled',
+			function ( $enabled, $name ) {
+				return 'my-feature' === $name ? true : $enabled;
+			},
+			5,
+			2
+		);
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringContainsString(
+			'<td>Off</td><td>On<pclass="description">Changedbycode,notbythisscreen.</p></td>',
+			$this->compact( $output )
+		);
+	}
+
+	/**
+	 * PHP turns an all-digit array key into an int, which the screen's own override filter skips.
+	 */
+	public function test_admin_page_resolves_an_all_digit_flag_name_like_its_callers() {
+		$this->become_automattician_admin();
+		Feature_Flags::register( '2026', array( 'default' => false ) );
+		Wpcom_Feature_Flags::save_overrides( array( '2026' => true ) );
+		Wpcom_Feature_Flags::init();
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringContainsString( '<td>Off</td><td>On</td>', $this->compact( $output ) );
+		$this->assertStringNotContainsString( 'Changed by code, not by this screen.', $output );
 	}
 
 	/**
@@ -821,7 +862,10 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 			'The control still shows the override this screen set.'
 		);
 		// Default, then Effective — the override says on, the effective value does not.
-		$this->assertStringContainsString( '<td>Off</td><td>Off</td>', $this->compact( $output ) );
+		$this->assertStringContainsString(
+			'<td>Off</td><td>Off<pclass="description">Changedbycode,notbythisscreen.</p></td>',
+			$this->compact( $output )
+		);
 	}
 
 	/**
