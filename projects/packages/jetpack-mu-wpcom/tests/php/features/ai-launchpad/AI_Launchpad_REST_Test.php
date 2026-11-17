@@ -1330,13 +1330,21 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_ai_tool_start_reads() {
 		return array(
-			'plain read'        => array( null, 'bring_your_ai_tool', null ),
-			'start=ai-tool'     => array(
+			'plain read'                        => array( null, 'bring_your_ai_tool', null ),
+			'start=ai-tool'                     => array(
 				array( 'start' => 'ai-tool' ),
 				null,
 				'https://wordpress.com/setup/onboarding/setup-your-site-ai?siteSlug=example.org',
 			),
-			'subdirectory site' => array(
+			'start=ai-tool on the full catalog' => array(
+				array(
+					'start'     => 'ai-tool',
+					'all_tasks' => '1',
+				),
+				null,
+				null,
+			),
+			'subdirectory site'                 => array(
 				array( 'start' => 'ai-tool' ),
 				null,
 				'https://wordpress.com/setup/onboarding/setup-your-site-ai?siteSlug=example.org%3A%3Asub',

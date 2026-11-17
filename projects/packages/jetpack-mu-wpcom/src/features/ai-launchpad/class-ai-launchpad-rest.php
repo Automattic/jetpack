@@ -678,8 +678,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 		}
 
-		// An AI-built site skips the wizard, and `start=ai-tool` opens it on the AI tool view instead.
-		$assigns_goals_variation = $shows_wizard && null === $inferred_input && ! $starts_on_ai_tool;
+		// An AI-built site skips the wizard, and `start=ai-tool` opens it on the AI tool view instead of its first step.
+		$opens_wizard            = $shows_wizard && null === $inferred_input;
+		$opens_on_ai_tool        = $opens_wizard && $starts_on_ai_tool;
+		$assigns_goals_variation = $opens_wizard && ! $starts_on_ai_tool;
 
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
@@ -715,7 +717,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// The goals step's experiment variation, assigned only when the wizard opens on its own first step.
 			'goals_variation'    => $assigns_goals_variation ? AI_Launchpad_Bring_Your_AI_Tool::get_variation() : null,
 			// Where Back leads from a `start=ai-tool` Site Setup; built here from an allowlisted origin.
-			'ai_tool_back_url'   => $starts_on_ai_tool ? $this->get_ai_tool_back_url() : null,
+			'ai_tool_back_url'   => $opens_on_ai_tool ? $this->get_ai_tool_back_url() : null,
 			// Whether GET /mcp-connections can see connections, which needs wpcom's helper.
 			'mcp_detection'      => function_exists( 'wpcom_mcp_get_user_connections' ),
 			// Whether POST /mcp-access can allow full access in place, which needs wpcom's helper and a site admin.
