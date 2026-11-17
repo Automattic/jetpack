@@ -40,7 +40,7 @@ class Initial_State {
 	/**
 	 * Constructor
 	 *
-	 * @param Connection_Manager|null $connection_manager   - Connection mananger instance.
+	 * @param Connection_Manager|null $connection_manager   - Connection manager instance.
 	 * @param Module_Control|null     $module_control       - Module control instance.
 	 * @param bool                    $is_admin_shell_guest - Whether the admin shell is readying the page behind another dashboard.
 	 */

@@ -33,6 +33,8 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 		remove_all_actions( 'admin_enqueue_scripts' );
 		unset( $GLOBALS['jetpack_search_test_wp_build_check_screen_id'], $GLOBALS['current_screen'] );
 		remove_filter( 'jetpack_options', array( $this, 'mock_site_connection_without_users' ), 11 );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		unset( $_GET['action'] );
 		( new Connection_Manager() )->reset_connection_status();
 
 		parent::tearDown();
@@ -175,8 +177,6 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 			$dashboard->admin_init();
 		}
 		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-search' );
-		remove_filter( 'wp_doing_ajax', '__return_true' );
-		unset( $_GET['action'] );
 
 		$this->assertStringContainsString( 'JETPACK_SEARCH_DASHBOARD_INITIAL_STATE', implode( "\n", (array) wp_scripts()->get_data( Dashboard::DATA_SCRIPT_HANDLE, 'before' ) ) );
 		$this->assertSame( ! $is_hover, (bool) Jetpack_Options::get_option( 'purchase_token' ) );
