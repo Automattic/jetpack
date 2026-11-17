@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep showing the Jetpack Safe Mode screen on Jetpack pages that hide core admin notices.
