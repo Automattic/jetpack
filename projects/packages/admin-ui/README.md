@@ -241,10 +241,10 @@ The shell asks before its own navigation, and a screen that also guards `popstat
 
 ### Media library on demand
 
-A dashboard that opens the WordPress media library from one control doesn't need `wp_enqueue_media()` on every page load. Await `loadMediaLibrary()` in that control's click handler instead: the first call fetches the media scripts and templates from admin-ajax and resolves once `wp.media` is ready, and later calls resolve at once. It rejects when the library can't be loaded, so show the user an error, and a later call tries again. The user needs the `upload_files` capability.
+A dashboard that opens the WordPress media library from one control doesn't need `wp_enqueue_media()` on every page load. Await `loadMediaLibrary()` from `@automattic/jetpack-components` in that control's click handler instead: the first call fetches the media scripts and templates from this package's `jetpack_media_library` admin-ajax action and resolves once `wp.media` is ready, and later calls resolve at once. It rejects when the library can't be loaded, so show the user an error, and a later call tries again. The user needs the `upload_files` capability.
 
 ```JS
-import { loadMediaLibrary } from '@automattic/jetpack-admin-ui/media-library';
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 
 const onClick = async () => {
 	setBusy( true );
@@ -259,8 +259,6 @@ const onClick = async () => {
 	window.wp.media( { title, library: { type: 'image' } } ).open();
 };
 ```
-
-Add `"@automattic/jetpack-admin-ui": "workspace:*"` to the dashboard's `package.json`. The page needs `ajaxurl`, which every wp-admin page defines.
 
 The endpoint must be hooked on admin-ajax requests, which never build the admin menu, so call `Media_Library::init()` from the package's own init. `Admin_Shell::init()` calls it too.
 
