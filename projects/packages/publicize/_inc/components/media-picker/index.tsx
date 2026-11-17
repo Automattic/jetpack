@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { Fragment, useCallback, useState } from '@wordpress/element';
+import { Fragment, useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import { Button, Spinner, VisuallyHidden } from '@wordpress/ui';
@@ -57,6 +57,7 @@ export default function MediaPicker( {
 	const isImageLoading = ! sourceUrl || ! width || ! height || ! mime;
 	const [ isLoadingLibrary, setIsLoadingLibrary ] = useState( false );
 	const [ hasLibraryError, setHasLibraryError ] = useState( false );
+	const isLoadingRef = useRef( false );
 
 	// MediaUpload's `open` needs wp.media, which loads on the first click.
 	const clickHandler = useCallback(
@@ -64,6 +65,11 @@ export default function MediaPicker( {
 			// Focus first, to cope with the problem described here:
 			// https://github.com/WordPress/gutenberg/blob/ebad47952fc94ce4324e989691dde2d3d7689f45/packages/block-editor/src/components/inserter/media-tab/media-tab.js#L122
 			e.currentTarget.focus();
+			// The preview button has no disabled state, so a second click must not open it twice.
+			if ( isLoadingRef.current ) {
+				return;
+			}
+			isLoadingRef.current = true;
 			setIsLoadingLibrary( true );
 			setHasLibraryError( false );
 			try {
@@ -72,6 +78,7 @@ export default function MediaPicker( {
 				setHasLibraryError( true );
 				return;
 			} finally {
+				isLoadingRef.current = false;
 				setIsLoadingLibrary( false );
 			}
 			open();
@@ -99,6 +106,7 @@ export default function MediaPicker( {
 					<button
 						className={ styles.preview }
 						onClick={ clickHandler( open ) }
+						aria-busy={ isLoadingLibrary }
 						data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
 					>
 						{ renderVideoPreview ? (
@@ -124,6 +132,7 @@ export default function MediaPicker( {
 		[
 			clickHandler,
 			height,
+			isLoadingLibrary,
 			length,
 			mime,
 			onRemoveMedia,
