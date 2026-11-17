@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for get_wpcom_blog_id().
+ * Tests for get_wpcom_blog_id() and Jetpack_Mu_Wpcom::resolve_logstash_blog_id().
  *
  * Runs in separate processes because get_wpcom_blog_id() reads IS_ATOMIC and IS_WPCOM
  * via defined(), and External_Storage keeps its provider in a static property.
@@ -10,16 +10,20 @@
 
 use Automattic\Jetpack\Connection\External_Storage;
 use Automattic\Jetpack\Connection\Storage_Provider_Interface;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * @covers ::get_wpcom_blog_id
+ * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom::resolve_logstash_blog_id
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
 #[CoversFunction( 'get_wpcom_blog_id' )]
+#[CoversMethod( Jetpack_Mu_Wpcom::class, 'resolve_logstash_blog_id' )]
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
 class Get_Wpcom_Blog_Id_Test extends \WorDBless\BaseTestCase {
@@ -97,6 +101,40 @@ class Get_Wpcom_Blog_Id_Test extends \WorDBless\BaseTestCase {
 		update_option( 'jetpack_options', array( 'id' => 12345 ) );
 
 		$this->assertFalse( get_wpcom_blog_id() );
+	}
+
+	/**
+	 * The logstash blog ID of a migrated Atomic site comes from external storage.
+	 */
+	public function test_logstash_blog_id_reads_the_id_from_external_storage_when_the_row_has_none() {
+		define( 'IS_ATOMIC', true );
+		update_option( 'jetpack_options', array( 'version' => '14.0:1700000000' ) );
+		$this->register_external_storage( array( 'id' => 258563328 ) );
+
+		$this->assertSame( 258563328, $this->resolve_logstash_blog_id() );
+	}
+
+	/**
+	 * With no ID anywhere, the logstash blog ID is 0, not the local blog ID.
+	 */
+	public function test_logstash_blog_id_is_zero_without_any_id() {
+		define( 'IS_ATOMIC', true );
+		update_option( 'jetpack_options', array( 'version' => '14.0:1700000000' ) );
+
+		$this->assertSame( 0, $this->resolve_logstash_blog_id() );
+	}
+
+	/**
+	 * Calls the private Jetpack_Mu_Wpcom::resolve_logstash_blog_id().
+	 *
+	 * @return int
+	 */
+	private function resolve_logstash_blog_id() {
+		$method = new ReflectionMethod( Jetpack_Mu_Wpcom::class, 'resolve_logstash_blog_id' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( null );
 	}
 
 	/**

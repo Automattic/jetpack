@@ -1316,14 +1316,10 @@ class Jetpack_Mu_Wpcom {
 			return (int) get_current_blog_id();
 		}
 		// Atomic / connected Jetpack: `Jetpack_Options` reads the platform's
-		// external storage before the `jetpack_options` row, which can lack
-		// the ID on migrated sites. Read the row directly when the class isn't
-		// loaded, and return 0 — never the local blog ID — when both lack it.
+		// external storage, then the `jetpack_options` row. It returns false
+		// when both lack the ID, and the cast gives 0 — never the local blog ID.
 		if ( class_exists( 'Jetpack_Options' ) ) {
-			$blog_id = (int) \Jetpack_Options::get_option( 'id' );
-			if ( $blog_id > 0 ) {
-				return $blog_id;
-			}
+			return (int) \Jetpack_Options::get_option( 'id' );
 		}
 		$jetpack_options = get_option( 'jetpack_options' );
 		if ( is_array( $jetpack_options ) && ! empty( $jetpack_options['id'] ) ) {
