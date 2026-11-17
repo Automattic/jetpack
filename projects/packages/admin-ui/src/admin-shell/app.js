@@ -21,17 +21,11 @@ export function createApp( slug, el ) {
 	el.dataset.shellPage = slug;
 	el.dataset.shellState = 'loading';
 
-	const setOnScreen = onScreen => {
-		el.style.display = onScreen ? '' : 'none';
-		el.inert = ! onScreen;
-		app.styles.forEach( node => ( node.disabled = ! onScreen ) );
-	};
-
 	const app = {
 		slug,
 		el,
-		// Stylesheets that apply only while the app is on screen.
-		styles: [],
+		// Where its page heading is: inside its iframe for a page that runs in one.
+		content: el,
 		get state() {
 			return el.dataset.shellState;
 		},
@@ -44,26 +38,28 @@ export function createApp( slug, el ) {
 			}
 			el.dataset.shellState = next;
 			// A loading app stays on screen so it fills in where it will be shown.
-			setOnScreen( next !== 'hidden' );
+			el.style.display = next === 'hidden' ? 'none' : '';
+			el.inert = next === 'hidden';
 		},
 		// Before it is ready, an app can only be put on or off screen, not change state.
 		place( onScreen ) {
 			if ( app.state === 'loading' ) {
-				setOnScreen( onScreen );
+				el.style.display = onScreen ? '' : 'none';
+				el.inert = ! onScreen;
 				return;
 			}
 			app.to( onScreen ? 'visible' : 'hidden' );
 		},
 		// After a switch, so keyboard and screen reader users start on the page they opened.
 		focusHeading() {
-			const heading = headingOf( el );
+			const heading = headingOf( app.content );
 			if ( ! heading ) {
 				return;
 			}
 			focusOn( heading );
 			// The route a switch opens can render after this and replace the heading: follow it once.
 			const observer = new MutationObserver( () => {
-				const next = headingOf( el );
+				const next = headingOf( app.content );
 				if ( heading.isConnected || ! next ) {
 					return;
 				}
@@ -78,7 +74,7 @@ export function createApp( slug, el ) {
 				observer.disconnect();
 				clearTimeout( timer );
 			};
-			observer.observe( el, { childList: true, subtree: true } );
+			observer.observe( app.content, { childList: true, subtree: true } );
 		},
 	};
 	return app;
