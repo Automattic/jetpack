@@ -40,6 +40,14 @@ The package therefore serves what it is given. An announcement about something f
 
 `capability` shows the split at work. The registrant declares who may read an announcement, and the package enforces it on every read and every write.
 
+## Tools for consumers
+
+The package may also ship tools that make a consumer's side easier. A tool does not move a decision: it helps a registrant or a host do its own part, and the part stays theirs.
+
+A tool earns its place only when nothing in WordPress core, Gutenberg or another package already does the job. Fetching a feed is `fetch_feed()`, and checking a value against a schema is `rest_validate_value_from_schema()`, so the package wraps neither.
+
+What is left for it is the step only it knows, such as turning an item of a feed into the arguments of an announcement. None ships yet.
+
 ## The life of an announcement
 
 ![An announcement moves through five stages. In PHP, once per request, a registrant passes an array to register_announcement and the registry sanitizes it or refuses it. Over REST, the record is built for the current user: its capability is checked, and seen and seen_at are added from the seen state. In the browser, the surface reads the records through a core-data entity, keeps the ones of the host's channels, and teases the newest unseen one. Opening or dismissing the teaser writes seen back to the record, and the seen state stores when.](diagrams/announcement-flow.svg)
