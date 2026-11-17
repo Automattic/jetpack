@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Include videos beyond the first 1,000 entries when sorting or filtering channel libraries.

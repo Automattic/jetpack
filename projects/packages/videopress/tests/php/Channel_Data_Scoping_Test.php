@@ -9,6 +9,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\Channel;
 use Automattic\Jetpack\VideoPress\Channel_Data;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_Query;
 
@@ -79,11 +80,13 @@ class Channel_Data_Scoping_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Answer attachment queries from $this->posts, like SQL would: ordered, paged and counted.
+	 * Answer attachment queries as ordered, paged SQL results.
+	 *
+	 * @param string[] $guids Video GUIDs in newest-first order.
 	 */
-	private function fake_sql() {
-		for ( $i = 1; $i <= 5; $i++ ) {
-			$this->posts[] = get_post( $this->video( 'video00' . $i ) );
+	private function fake_sql( $guids = array( 'video001', 'video002', 'video003', 'video004', 'video005' ) ) {
+		foreach ( $guids as $guid ) {
+			$this->posts[] = get_post( $this->video( $guid ) );
 		}
 		add_filter(
 			'posts_pre_query',
@@ -231,6 +234,49 @@ class Channel_Data_Scoping_Test extends BaseTestCase {
 			2
 		);
 		$this->assertSame( Channel_Data::MAX_VIDEOS, (int) $this->queries[0]['posts_per_page'] );
+	}
+
+	/**
+	 * @dataProvider large_library_browse_cases
+	 * @param array $state Browsing state.
+	 * @param int   $total Number of matching videos.
+	 */
+	#[DataProvider( 'large_library_browse_cases' )]
+	public function test_browse_includes_videos_after_the_first_query_batch( $state, $total ) {
+		$guids = array_map(
+			static function ( $number ) {
+				return sprintf( 'vid%05d', $number );
+			},
+			range( 1, Channel_Data::MAX_VIDEOS + 1 )
+		);
+		$this->fake_sql( $guids );
+		$last = end( $this->posts );
+		wp_update_attachment_metadata( $last->ID, array( 'length' => 3000 ) );
+		add_filter(
+			'videopress_channel_video_views',
+			static function () use ( $last ) {
+				return array( $last->ID => 100 );
+			}
+		);
+
+		$result = Channel_Data::browse( $state + Channel_Data::browse_request( false, false ), 1 );
+
+		$this->assertSame( array( end( $guids ) ), array_column( $result['entries'], 'guid' ) );
+		$this->assertSame( $total, $result['total'] );
+		$this->assertSame( $total, $result['pages'] );
+		Channel_Data::reset();
+		$this->assertSame( count( $guids ), Channel_Data::video_count() );
+		$this->assertCount( 2, $this->queries, 'The complete list is reused from the object cache.' );
+	}
+
+	/**
+	 * @return array[] Large-library browsing cases.
+	 */
+	public static function large_library_browse_cases() {
+		return array(
+			'popular' => array( array( 'sort' => 'popular' ), Channel_Data::MAX_VIDEOS + 1 ),
+			'long'    => array( array( 'length' => 'long' ), 1 ),
+		);
 	}
 
 	/**
