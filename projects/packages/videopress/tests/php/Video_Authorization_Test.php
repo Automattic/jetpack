@@ -33,6 +33,7 @@ class Video_Authorization_Test extends BaseTestCase {
 	protected function tear_down() {
 		wp_set_current_user( 0 );
 		unset( $_COOKIE[ 'wp-postpass_' . COOKIEHASH ], $GLOBALS['__vp_memberships_access_level'], $GLOBALS['__vp_memberships_has_access'] );
+		unregister_post_type( 'vp_test_unlisted' );
 		\WorDBless\Posts::init()->clear_all_posts();
 		// Clear cached GUID-list transients: post ids are reused across tests once the
 		// posts table is emptied, so a stale videopress_guids_{id} entry from one test
@@ -440,46 +441,84 @@ class Video_Authorization_Test extends BaseTestCase {
 
 	/**
 	 * @dataProvider password_protected_post_provider
-	 * @param string $access_level     Who the post is for, as Jetpack_Memberships reports it.
-	 * @param bool   $entered_password Whether the visitor has entered the post password.
-	 * @param bool   $expected         Whether playback is allowed.
+	 * @param array $post     Overrides for the embedding post: access_level, password, post_type, privacy.
+	 * @param array $visitor  Overrides for the visitor: role (null when logged out), membership, entered_password.
+	 * @param bool  $expected Whether playback is allowed.
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'password_protected_post_provider' )]
-	public function test_password_protected_post_requires_the_password_for_private_video( $access_level, $entered_password, $expected ) {
+	public function test_password_protected_post_requires_the_password_for_private_video( $post, $visitor, $expected ) {
 		require_once __DIR__ . '/mocks/class-jetpack-memberships.php';
+		$post    = array_merge(
+			array(
+				'access_level' => 'everybody',
+				'password'     => 'secret',
+				'post_type'    => 'post',
+				'privacy'      => \VIDEOPRESS_PRIVACY::IS_PRIVATE,
+			),
+			$post
+		);
+		$visitor = array_merge(
+			array(
+				'role'             => 'subscriber',
+				'membership'       => true,
+				'entered_password' => false,
+			),
+			$visitor
+		);
+
 		$guid = 'pAsSwd12';
-		$this->create_private_videopress_attachment( $guid );
+		$this->create_videopress_attachment( $guid, $post['privacy'] );
+		update_option( 'videopress_private_enabled_for_site', true );
+		if ( ! post_type_exists( $post['post_type'] ) ) {
+			register_post_type( $post['post_type'], array( 'public' => false ) );
+		}
 		$embedding = wp_insert_post(
 			array(
 				'post_title'    => 'Password protected',
 				'post_content'  => '[videopress ' . $guid . ']',
 				'post_status'   => 'publish',
-				'post_password' => 'secret',
+				'post_type'     => $post['post_type'],
+				'post_password' => $post['password'],
 			)
 		);
 
-		$GLOBALS['__vp_memberships_access_level'] = $access_level;
-		$GLOBALS['__vp_memberships_has_access']   = true;
-		if ( $entered_password ) {
+		$GLOBALS['__vp_memberships_access_level'] = $post['access_level'];
+		$GLOBALS['__vp_memberships_has_access']   = $visitor['membership'];
+		if ( $visitor['entered_password'] ) {
 			require_once ABSPATH . WPINC . '/class-phpass.php';
 			$_COOKIE[ 'wp-postpass_' . COOKIEHASH ] = ( new \PasswordHash( 8, true ) )->HashPassword( 'secret' );
 		}
-		$this->set_current_user_role( 'subscriber' );
+		if ( null !== $visitor['role'] ) {
+			$this->set_current_user_role( $visitor['role'] );
+		}
 
 		$this->assertSame( $expected, Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
 	}
 
 	/**
-	 * Password states for a post open to everybody and a subscriber-only post.
+	 * Post and visitor states around the post password, for a post open to everybody and a subscriber-only post.
 	 *
 	 * @return array
 	 */
 	public static function password_protected_post_provider() {
+		$subscriber_only = array( 'access_level' => 'subscribers' );
+		$entered         = array( 'entered_password' => true );
 		return array(
-			'open post, password not entered'            => array( 'everybody', false, false ),
-			'open post, password entered'                => array( 'everybody', true, true ),
-			'subscriber-only post, password not entered' => array( 'subscribers', false, false ),
-			'subscriber-only post, password entered'     => array( 'subscribers', true, true ),
+			'open post, password not entered'            => array( array(), array(), false ),
+			'open post, password entered'                => array( array(), $entered, true ),
+			'subscriber-only post, password not entered' => array( $subscriber_only, array(), false ),
+			'subscriber-only post, password entered'     => array( $subscriber_only, $entered, true ),
+			'subscriber-only post without a password, member' => array( $subscriber_only + array( 'password' => '' ), array(), true ),
+			'subscriber-only post, password entered, not member' => array( $subscriber_only, $entered + array( 'membership' => false ), false ),
+			'site-default private video, password not entered' => array( array( 'privacy' => \VIDEOPRESS_PRIVACY::SITE_DEFAULT ), array(), false ),
+			'non-public post type without a password, logged-out member' => array(
+				$subscriber_only + array(
+					'password'  => '',
+					'post_type' => 'vp_test_unlisted',
+				),
+				array( 'role' => null ),
+				true,
+			),
 		);
 	}
 

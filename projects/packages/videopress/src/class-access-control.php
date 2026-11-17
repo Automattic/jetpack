@@ -163,7 +163,7 @@ class Access_Control {
 			}
 		}
 
-		$restriction_details['can_access'] = $restriction_details['can_access'] && $post_admits_visitor;
+		$restriction_details['can_access'] = $restriction_details['can_access'] && ! post_password_required( $post_to_check );
 
 		return $this->check_block_level_access(
 			$restriction_details,
