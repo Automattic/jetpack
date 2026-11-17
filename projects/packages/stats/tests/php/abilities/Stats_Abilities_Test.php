@@ -1405,6 +1405,44 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertArrayHasKey( 'comparison', $result['definitions'] );
 	}
 
+	public function test_get_visits_flags_a_comparison_it_could_not_read(): void {
+		$stub = $this->createStub( WPCOM_Stats::class );
+		$stub->method( 'get_visits' )->willReturnOnConsecutiveCalls(
+			array(
+				'fields' => array( 'period', 'views' ),
+				'data'   => array( array( '2026-04-01', 5 ) ),
+			),
+			new \WP_Error( 'boom', 'bad' )
+		);
+		add_filter(
+			'jetpack_stats_abilities_wpcom_stats',
+			static function () use ( $stub ) {
+				return $stub;
+			}
+		);
+
+		$result = Stats_Abilities::get_visits(
+			array(
+				'date'    => '2026-04-01',
+				'fields'  => array( 'views' ),
+				'compare' => 'previous-period',
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'date'  => '2026-04-01',
+					'views' => 5,
+				),
+			),
+			$result['series']
+		);
+		$this->assertNull( $result['comparison']['series'] );
+		$this->assertTrue( $result['partial'] );
+		$this->assertSame( array( 'comparison' ), $result['errors'] );
+	}
+
 	public function test_get_visits_refuses_to_line_up_months_or_years_by_weekday(): void {
 		$this->filter_wpcom_stats( array( 'get_visits' => array() ) );
 

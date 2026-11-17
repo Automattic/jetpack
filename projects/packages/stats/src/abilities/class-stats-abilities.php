@@ -423,7 +423,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site visits timeseries', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". With `compare`, `comparison.series` holds the same rows for an earlier window, row for row, as in the Stats dashboard\'s Compare menu: `previous-period` (the `num` periods before), `previous-period-match-day-of-week` (daily rows shifted back by whole weeks), `previous-year` (a year earlier; weeks shift 52 weeks), `previous-year-match-day-of-week` (52 weeks earlier). The weekday presets accept only day and week periods. Each row\'s `date` is the first day of its period (weeks start on Monday). Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as negative, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". With `compare`, `comparison.series` holds the same rows for an earlier window, row for row, as in the Stats dashboard\'s Compare menu: `previous-period` (the `num` periods before), `previous-period-match-day-of-week` (daily rows shifted back by whole weeks), `previous-year` (a year earlier; weeks shift 52 weeks), `previous-year-match-day-of-week` (52 weeks earlier). The weekday presets accept only day and week periods. If WordPress.com cannot read the compared window, `comparison.series` is null, `partial` is true and `errors` lists `comparison`. Each row\'s `date` is the first day of its period (weeks start on Monday). Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as negative, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -484,6 +484,8 @@ class Stats_Abilities extends Registrar {
 							'series' => self::visits_series_schema( true ),
 						),
 					),
+					'partial'     => array( 'type' => 'boolean' ),
+					'errors'      => self::errors_schema(),
 					'definitions' => self::definitions_schema(),
 				),
 			),
@@ -1010,6 +1012,10 @@ class Stats_Abilities extends Registrar {
 				'series' => is_wp_error( $compare_raw ) ? null : self::normalize_visits_series( $compare_raw, $fields ),
 			);
 			$out['definitions']['comparison'] = self::definition_texts()['comparison_series'];
+			if ( is_wp_error( $compare_raw ) ) {
+				$out['partial'] = true;
+				$out['errors']  = array( 'comparison' );
+			}
 		}
 
 		return $out;
@@ -1967,7 +1973,7 @@ class Stats_Abilities extends Registrar {
 			'wpcom'               => __( 'WordPress.com users following the site in the Reader, now.', 'jetpack-stats-pkg' ),
 			'comment'             => __( 'People following the comments on every post, now. Following one post\'s comments is not counted.', 'jetpack-stats-pkg' ),
 			'publicize'           => __( 'Followers of each connected social media account, now.', 'jetpack-stats-pkg' ),
-			'comparison_series'   => __( 'The same figures for the window `compare` names, ending on `comparison.date`: row i of `comparison.series` is the earlier period matching row i of `series`. Weeks, months and years shift by whole periods, so a previous year of weeks is 52 weeks earlier, and both last rows end at the same point in their period. `comparison.series` is null when WordPress.com could not be read.', 'jetpack-stats-pkg' ),
+			'comparison_series'   => __( 'The same figures for the window `compare` names, ending on `comparison.date`: row i of `comparison.series` is the earlier period matching row i of `series`. Weeks, months and years shift by whole periods, so a previous year of weeks is 52 weeks earlier, and both last rows end at the same point in their period.', 'jetpack-stats-pkg' ),
 			'comparison_overview' => __( 'The same figures for the windows `compare` names, listed in `comparison.windows`: today, the 7 days and the 30 days, each shifted back. The current figures include today so far while the compared windows are whole days, so early in the day today trails its comparison. A figure is null when WordPress.com did not report every day of its window.', 'jetpack-stats-pkg' ),
 		);
 	}
