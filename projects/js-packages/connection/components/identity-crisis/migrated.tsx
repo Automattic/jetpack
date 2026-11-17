@@ -7,8 +7,8 @@ import type { IdentityCrisisMigratedProps } from './types';
 import type { ReactNode } from 'react';
 
 /**
- * What follows a successful Migrate request. Safe Mode is already off, but WordPress.com
- * moves the data on a later sync, so the wording does not claim the move has happened.
+ * What follows a successful Migrate request. The connection stays the same; WordPress.com updates
+ * the address it has on record when the site next contacts it, so the wording must not say it has finished.
  *
  * @param {IdentityCrisisMigratedProps} props - Component props.
  * @return {ReactNode} The migrated state.
