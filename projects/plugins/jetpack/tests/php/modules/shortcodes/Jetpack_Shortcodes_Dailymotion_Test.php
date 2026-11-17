@@ -32,18 +32,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 	 * @author scotchfield
 	 * @since 3.2
 	 */
-	public function test_shortcodes_dailymotion() {
-		$content = '[dailymotion]';
-
-		$shortcode_content = apply_shortcodes( $content );
-
-		$this->assertNotEquals( $content, $shortcode_content );
-	}
-
-	/**
-	 * @author scotchfield
-	 * @since 3.2
-	 */
 	public function test_shortcodes_dailymotion_id() {
 		$id      = 'x8oma9';
 		$content = '[dailymotion id=' . $id . ']';
@@ -160,32 +148,28 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 		$default_height = 471;
 
 		return array(
-			'no_attribute'            => array(
+			'no_attribute'          => array(
 				'[dailymotion]',
 				'<!--Dailymotion error: bad or missing ID-->',
 			),
-			'plain_id'                => array(
+			'plain_id'              => array(
 				'[dailymotion ' . $id . ']',
 				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '"></amp-dailymotion>',
 			),
-			'id_value_as_attribute'   => array(
+			'id_value_as_attribute' => array(
 				'[dailymotion id=' . $id . ']',
 				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '"></amp-dailymotion>',
 			),
-			'dailymotion_value'       => array(
+			'dailymotion_value'     => array(
 				'[dailymotion=' . $id . ']',
 				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '"></amp-dailymotion>',
 			),
-			'width_in_attributes'     => array(
+			'width_in_attributes'   => array(
 				'[dailymotion ' . $id . ' width=300]',
 				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="300" height="235"></amp-dailymotion>',
 			),
-			'0_width_in_attributes'   => array(
+			'0_width_in_attributes' => array(
 				'[dailymotion ' . $id . ' width=0]',
-				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '"></amp-dailymotion>',
-			),
-			'id_as_dailymotion_value' => array(
-				'[dailymotion=' . $id . ']',
 				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '"></amp-dailymotion>',
 			),
 		);

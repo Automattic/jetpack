@@ -9,32 +9,6 @@ use Automattic\Jetpack\Sync\Settings;
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
 class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
-	public function test_never_queues_if_development() {
-		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
-		// @phan-suppress-next-line PhanPluginUnreachableCode
-		add_filter( 'jetpack_offline_mode', '__return_true' );
-
-		$queue = $this->listener->get_sync_queue();
-		$queue->reset(); // remove any actions that already got queued
-
-		self::factory()->post->create();
-
-		$this->assertSame( 0, $queue->size() );
-	}
-
-	public function test_never_queues_if_staging() {
-		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
-		// @phan-suppress-next-line PhanPluginUnreachableCode
-		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
-
-		$queue = $this->listener->get_sync_queue();
-		$queue->reset(); // remove any actions that already got queued
-
-		self::factory()->post->create();
-
-		$this->assertSame( 0, $queue->size() );
-	}
-
 	public function test_never_queues_if_current_action_is_blacklisted() {
 		$original_sync_actions_blacklist = Settings::get_setting( 'sync_actions_blacklist' );
 		try {
@@ -69,15 +43,15 @@ class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
 		// set max queue size to 2 items
 		Settings::update_settings( array( 'max_queue_size' => 2 ) );
 
-		// set max queue age to 3 seconds
-		Settings::update_settings( array( 'max_queue_lag' => 3 ) );
+		// set max queue age to 1 second
+		Settings::update_settings( array( 'max_queue_lag' => 1 ) );
 
 		$this->listener->set_defaults(); // should pick up new queue size limit
 
 		try {
 
 			$this->assertEquals( 2, $this->listener->get_queue_size_limit() );
-			$this->assertEquals( 3, $this->listener->get_queue_lag_limit() );
+			$this->assertSame( 1, $this->listener->get_queue_lag_limit() );
 			$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
 
 			// now let's try exceeding the new limit.
@@ -95,9 +69,9 @@ class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
 			do_action( 'my_action' );
 			$this->assertEquals( 3, $this->listener->get_sync_queue()->size() );
 
-			// sleep for 3 seconds, so the oldest item in the queue is at least 3 seconds old.
+			// sleep for 1 second, so the oldest item in the queue is at least 1 second old.
 			// now our queue limit should kick in.
-			sleep( 3 );
+			sleep( 1 );
 
 			$this->listener->force_recheck_queue_limit();
 			do_action( 'my_action' );

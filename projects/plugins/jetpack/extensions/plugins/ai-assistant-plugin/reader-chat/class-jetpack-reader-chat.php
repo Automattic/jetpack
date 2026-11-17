@@ -112,7 +112,7 @@ class Jetpack_Reader_Chat {
 	 * The filter is PHP on this site, so wpcom, which answers the chat requests,
 	 * can only enforce it through the synced `reader_chat_query_filter` option.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return void
 	 */
@@ -126,7 +126,7 @@ class Jetpack_Reader_Chat {
 		 *
 		 *   array( 'range' => array( 'date' => array( 'gte' => '2024-01-01' ) ) )
 		 *
-		 * @since $$next-version$$
+		 * @since 16.5
 		 *
 		 * @param array $query_filter Elasticsearch filter clause. Default empty.
 		 */
@@ -141,7 +141,7 @@ class Jetpack_Reader_Chat {
 		if ( false === $encoded || strlen( $encoded ) > READER_CHAT_QUERY_FILTER_MAX_BYTES ) {
 			// Keep the last good filter: clearing it would expose the content the owner hid.
 			$message = __( 'The Site Chat query filter must be an array under 20 KB. The previous filter stays in effect.', 'jetpack' );
-			_doing_it_wrong( 'jetpack_site_chat_query_filter', esc_html( $message ), '$$next-version$$' );
+			_doing_it_wrong( 'jetpack_site_chat_query_filter', esc_html( $message ), '16.5' );
 			return;
 		}
 
@@ -247,7 +247,7 @@ class Jetpack_Reader_Chat {
 		 * - 'idle': once the page has finished loading, or on first interaction if that comes sooner.
 		 * - 'eager': with the page, as a regular script and stylesheet.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.5
 		 *
 		 * @param string $strategy The load strategy.
 		 */

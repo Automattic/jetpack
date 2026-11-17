@@ -63,7 +63,7 @@ class Admin {
 	/**
 	 * Register Boost with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.9.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -91,7 +91,7 @@ class Admin {
 	 *
 	 * Skips admin_init()'s premium feature refresh, since a guest must not write options; Boost's own page load still runs it.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.9.0
 	 *
 	 * @return void
 	 */

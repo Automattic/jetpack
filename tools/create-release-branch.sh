@@ -16,15 +16,14 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 # Instructions
 function usage {
 	cat <<-EOH
-		usage: $0 [options] <prefix|plugin> [<version>]
+		usage: $0 [options] <plugin> [<version>]
 
-		Create a new release branch for the specified prefix or plugin.
-		The <prefix|plugin> should be a release branch prefix used by at least one
-		monorepo plugin, but may also be the name of a directory in projects/plugins/
+		Create a new release branch for the specified plugin.
+		The <plugin> may be the name of a directory in projects/plugins/
 		or a path to a plugin directory or file.
 
 		If no <version> is specified (and we're not non-interactive), you will be
-		prompted. You'll also be prompted if more than one plugin matches the prefix.
+		prompted.
 
 		Options:
 		  --non-interactive  Exit instead of prompting for questionable cases.
@@ -66,44 +65,14 @@ if [[ ${#ARGS[@]} -ne 1 && ${#ARGS[@]} -ne 2 ]]; then
 	usage
 fi
 
-# Collect available prefixes
-declare -A PREFIXES
-TMP=$(jq -r '.extra["release-branch-prefix"] // empty | if type == "array" then .[] else . end | [ ., input_filename ] | @tsv' "$BASE"/projects/plugins/*/composer.json)
-while IFS=$'\t' read -r prefix file; do
-	PREFIXES[$prefix]="${PREFIXES[$prefix]:+${PREFIXES[$prefix]}$'\n'}${file%/composer.json}"
-done <<<"$TMP"
-
-# If <prefix|plugin> is a known prefix, use the corresponding plugins. Otherwise, process it as a plugin arg.
-if [[ -n "${PREFIXES[${ARGS[0]}]}" ]]; then
-	PREFIX=${ARGS[0]}
-	mapfile -t DIRS <<<"${PREFIXES[$PREFIX]}"
-else
-	process_plugin_arg "${ARGS[0]}"
-	PLUGIN_NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
-	PREFIX=$(jq -r '.extra["release-branch-prefix"] // "" | if type == "array" then .[0] else . end' "$PLUGIN_DIR/composer.json")
-	if [[ -z "$PREFIX" ]]; then
-		die "Plugin $PLUGIN_NAME does not have any release branch prefixes defined in composer.json. Aborting."
-	fi
-	DIRS=( "$PLUGIN_DIR" )
-
-	if [[ "${PREFIXES[$PREFIX]}" == *$'\n'* ]]; then
-		info "Plugin $PLUGIN_NAME uses prefix $PREFIX, which is used in multiple plugins:"
-		echo "   ${PREFIXES[$PREFIX]//$'\n'/$'\n   '}"
-		proceed_p '' 'Release all these plugins?' Y
-		mapfile -t DIRS <<<"${PREFIXES[$PREFIX]}"
-	fi
+process_plugin_arg "${ARGS[0]}"
+NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
+PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$PLUGIN_DIR/composer.json")
+if [[ -z "$PREFIX" ]]; then
+	die "Plugin $NAME does not have a release branch prefix defined in composer.json. Aborting."
 fi
-
-NAMES=()
-MIRRORS=()
-for DIR in "${DIRS[@]}"; do
-	NAMES+=( "$(jq --arg n "${DIR##*/}" -r '.name // $n' "$DIR/composer.json")" )
-	TMP=$(jq -r '.extra["mirror-repo"] // ""' "$DIR/composer.json")
-	if [[ -n "$TMP" ]]; then
-		MIRRORS+=( "$TMP" )
-	fi
-done
-info "Releasing plugins: ${NAMES[*]}"
+MIRROR=$(jq -r '.extra["mirror-repo"] // ""' "$PLUGIN_DIR/composer.json")
+info "Releasing plugin: $NAME"
 
 info "Checking working directory status..."
 # shellcheck disable=SC2310
@@ -135,7 +104,7 @@ if [[ -n "$COMMITS" ]]; then
 	fi
 fi
 
-# Figure out the version(s) to use for the plugin(s).
+# Figure out the version to use for the plugin.
 function check_ver {
 	normalize_version_number "$1"
 	if [[ ! "$NORMALIZED_VERSION" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
@@ -143,7 +112,7 @@ function check_ver {
 		return 1
 	fi
 	local CUR_VERSION
-	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "${DIRS[$2]}")
+	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN_DIR")
 	# shellcheck disable=SC2310
 	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION" 1; then
 		proceed_p "Version $NORMALIZED_VERSION < $CUR_VERSION."
@@ -151,76 +120,39 @@ function check_ver {
 	fi
 	return 0
 }
-VERSIONS=()
-if [[ -n "${ARGS[1]}" && ${#DIRS[@]} -gt 1 ]]; then
-	debug "Ignoring specified version since more than one plugin matches."
-	ARGS[1]=
-fi
+VERSION=
 if [[ -n "${ARGS[1]}" ]]; then
-	# Check the version.
-	check_ver "${ARGS[1]}" 0
-	info "Using version number $NORMALIZED_VERSION for plugin ${NAMES[0]}"
-	VERSIONS+=( "$NORMALIZED_VERSION" )
+	check_ver "${ARGS[1]}"
+	info "Using version number $NORMALIZED_VERSION for plugin $NAME"
+	VERSION=$NORMALIZED_VERSION
 else
-	# Prompt for versions.
-	$INTERACTIVE || die "Cannot prompt for versions when running in non-interactive mode!"
-	for ((i=0; i < ${#DIRS[@]}; i++)); do
-		cd "${DIRS[$i]}"
-
-		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
-		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-			PRERELEASE=$(alpha_tag composer.json 0)
-			VER=$(changelogger version next --default-first-version --prerelease="$PRERELEASE") || die "$VER"
-		else
-			VER=$(changelogger version current --default-first-version) || die "$VER"
-		fi
-
-		PROMPT="Version to use for plugin ${NAMES[$i]}:"
-		# shellcheck disable=SC2310
-		if color_supported; then
-			PROMPT=$(FORCE_COLOR=1 prompt "$PROMPT")
-		fi
-		while [[ ${#VERSIONS[@]} -le $i ]]; do
-			IFS= read -e -i "$VER" -p "$PROMPT " -r LINE || die "Aborting!"
-			[[ -z "$LINE" ]] && LINE=$VER
-			# shellcheck disable=SC2310
-			if [[ -n "$LINE" ]] && check_ver "$LINE" "$i"; then
-				VERSIONS+=( "$NORMALIZED_VERSION" )
-			fi
-		done
-	done
-	cd "$BASE"
-fi
-
-# Figure out the release branch, and see if it already exists.
-# - If there's just one plugin using this prefix, just use the version.
-# - Else if the prefix matches a plugin dir name, use that plugin's version.
-# - Else ask.
-if [[ "${PREFIXES[$PREFIX]}" != *$'\n'* ]]; then
-	BRANCH="$PREFIX/branch-${VERSIONS[0]}"
-else
-	BRANCH=
-	for ((i=0; i < ${#DIRS[@]}; i++)); do
-		if [[ "${DIRS[$i]}" == "$BASE/projects/plugins/$PREFIX" ]]; then
-			TMP="${VERSIONS[$i]}"
-			BRANCH="$PREFIX/branch-${TMP%%-*}"
-		fi
-	done
-	# If that didn't work, ask.
-	if [[ -z "$BRANCH" ]]; then
-		PROMPT="Version (or other string) to use for the release branch name:"
-		# shellcheck disable=SC2310
-		if color_supported; then
-			PROMPT=$(FORCE_COLOR=1 prompt "$PROMPT")
-		fi
-		while [[ -z "$BRANCH" ]]; do
-			IFS= read -e -i "$(date +%F)" -p "$PROMPT " -r LINE || die "Aborting!"
-			if [[ -n "$LINE" ]]; then
-				BRANCH="$PREFIX/branch-$LINE"
-			fi
-		done
+	# Prompt for the version.
+	$INTERACTIVE || die "Cannot prompt for a version when running in non-interactive mode!"
+	CHANGES_DIR="$PLUGIN_DIR/$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PLUGIN_DIR/composer.json")"
+	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
+		PRERELEASE=$(cd "$PLUGIN_DIR" && alpha_tag composer.json 0)
+		VER=$(cd "$PLUGIN_DIR" && changelogger version next --default-first-version --prerelease="$PRERELEASE") || die "$VER"
+	else
+		VER=$(cd "$PLUGIN_DIR" && changelogger version current --default-first-version) || die "$VER"
 	fi
+
+	PROMPT="Version to use for plugin $NAME:"
+	# shellcheck disable=SC2310
+	if color_supported; then
+		PROMPT=$(FORCE_COLOR=1 prompt "$PROMPT")
+	fi
+	while [[ -z "$VERSION" ]]; do
+		IFS= read -e -i "$VER" -p "$PROMPT " -r LINE || die "Aborting!"
+		[[ -z "$LINE" ]] && LINE=$VER
+		# shellcheck disable=SC2310
+		if [[ -n "$LINE" ]] && check_ver "$LINE"; then
+			VERSION=$NORMALIZED_VERSION
+		fi
+	done
 fi
+
+# See if the release branch already exists.
+BRANCH="$PREFIX/branch-$VERSION"
 # shellcheck disable=SC2310
 if isnotempty git ls-remote --heads origin "$BRANCH"; then
 	die "Release branch $BRANCH has already been pushed. Aborting."
@@ -233,25 +165,23 @@ BASE_REF="$(git rev-parse --abbrev-ref HEAD)"
 info "Creating release branch $BRANCH based on $BASE_REF..."
 git checkout -b "$BRANCH"
 
-for ((i=0; i < ${#DIRS[@]}; i++)); do
-	info "Updating version numbers for ${NAMES[$i]}..."
-	"$BASE/tools/plugin-version.sh" -v "${VERSIONS[$i]}" "${DIRS[$i]}"
-	# shellcheck disable=SC2310
-	if isnotempty git status --porcelain; then
-		git commit -am "Updated ${NAMES[$i]} version to ${VERSIONS[$i]}"
-	else
-		debug "No version numbers needed updating."
-	fi
+info "Updating version numbers for $NAME..."
+"$BASE/tools/plugin-version.sh" -v "$VERSION" "$PLUGIN_DIR"
+# shellcheck disable=SC2310
+if isnotempty git status --porcelain; then
+	git commit -am "Updated $NAME version to $VERSION"
+else
+	debug "No version numbers needed updating."
+fi
 
-	info "Versioning packages for ${NAMES[$i]}..."
-	"$BASE/tools/version-packages.sh" "${DIRS[$i]}"
-	# shellcheck disable=SC2310
-	if isnotempty git status --porcelain; then
-		git commit -am "Updated package versions for ${NAMES[$i]}"
-	else
-		debug "No packages needed versioning."
-	fi
-done
+info "Versioning packages for $NAME..."
+"$BASE/tools/version-packages.sh" "$PLUGIN_DIR"
+# shellcheck disable=SC2310
+if isnotempty git status --porcelain; then
+	git commit -am "Updated package versions for $NAME"
+else
+	debug "No packages needed versioning."
+fi
 
 info <<-EOM
 Release branch $BRANCH created! When ready, push to GitHub with
@@ -274,18 +204,10 @@ if $INTERACTIVE; then
 	echo ""
 fi
 
-if [[ ${#MIRRORS[@]} -eq 1 ]]; then
-	MIRROR_MSG="and pushed to ${MIRRORS[0]} when (if) it completes successfully"
-elif [[ ${#MIRRORS[@]} -eq 2 ]]; then
-	MIRROR_MSG="and pushed to ${MIRRORS[0]} and ${MIRRORS[1]} when (if) it completes successfully"
-elif [[ ${#MIRRORS[@]} -gt 2 ]]; then
-	MIRRORS[-1]="and ${MIRRORS[-1]}"
-	TMP=$( printf ", %s" "${MIRRORS[@]}" )
-	MIRROR_MSG="and pushed to ${TMP:2} when (if) it completes successfully"
-elif [[ ${#NAMES[@]} -eq 1 ]]; then
-	MIRROR_MSG="although no mirror repo is set up for ${NAMES[0]}"
+if [[ -n "$MIRROR" ]]; then
+	MIRROR_MSG="and pushed to $MIRROR when (if) it completes successfully"
 else
-	MIRROR_MSG="although no mirror repos are set up for any of these plugins"
+	MIRROR_MSG="although no mirror repo is set up for $NAME"
 fi
 fold -s <<-EOM
 Remember that the build will be done by GitHub Actions$PUSH_MSG, $MIRROR_MSG. You'll probably want to watch to make sure that happens. This link should list the build jobs for the branch:

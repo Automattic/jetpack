@@ -21,11 +21,6 @@ export function bringYourAiToolCopy() {
 			'Connect ChatGPT or Claude and build your site by chatting.',
 			'jetpack-mu-wpcom'
 		),
-		freeBadge: __( 'Free 30 days', 'jetpack-mu-wpcom' ),
-		freeTooltip: __(
-			'Using your AI with WordPress.com usually needs a paid plan. It’s free for your site’s first 30 days.',
-			'jetpack-mu-wpcom'
-		),
 		toolName,
 		viewTitle: __( 'Which AI do you use?', 'jetpack-mu-wpcom' ),
 		viewSubtitle: __(

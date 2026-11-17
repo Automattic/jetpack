@@ -54,6 +54,7 @@ interface StatusResponse {
 	connect_url?: string | null;
 	store_context?: string | null;
 	coupons_and_gifts_enabled?: boolean | null;
+	connected_account_accepts_charges?: boolean;
 }
 
 export interface StripeStatus {
@@ -64,6 +65,7 @@ export interface StripeStatus {
 	isSandbox: boolean;
 	/** Whether WordPress.com has coupons turned on for the site; only known once Stripe is connected. */
 	couponsEnabled: boolean;
+	acceptsCharges: boolean;
 }
 
 /**
@@ -86,6 +88,7 @@ export function useStripeStatus() {
 			connectUrl: data.connect_url ?? '',
 			isSandbox: data.store_context === 'sandbox',
 			couponsEnabled: Boolean( data.coupons_and_gifts_enabled ),
+			acceptsCharges: data.connected_account_accepts_charges ?? true,
 		} ),
 	} );
 }

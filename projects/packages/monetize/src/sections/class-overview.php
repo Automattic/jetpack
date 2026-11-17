@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Overview state. Its earnings come from the Payments section's routes.
  *
- * @since $$next-version$$
+ * @since 0.2.0
  */
 class Overview implements Dashboard_Section {
 

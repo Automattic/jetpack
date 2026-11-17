@@ -280,7 +280,7 @@ class Error_Handler {
 	 *
 	 * @since 6.13.10
 	 * @since 9.8.0 Withholds a non-admin's reconnect CTA while a site connection error is on record.
-	 * @since $$next-version$$ Offers `connect_user` to an admin without their own connection viewing an owner error.
+	 * @since 9.18.0 Offers `connect_user` to an admin without their own connection viewing an owner error.
 	 *
 	 * @return array Array of displayable errors with hierarchical structure.
 	 *               Example:
@@ -862,7 +862,7 @@ class Error_Handler {
 	 * Uses the webhook handler, so it works without the Jetpack plugin's page.
 	 * Sends `connection_notice_owner_error` (see CONNECTION_FROM in js-packages/connection) everywhere except Connectors.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @return string
 	 */
@@ -912,7 +912,7 @@ class Error_Handler {
 	/**
 	 * The sentence telling a non-owner viewer that the connection owner has to reconnect.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @param string $owner_name The owner's display name, or '' when the viewer may not see it.
 	 * @return string
@@ -932,7 +932,7 @@ class Error_Handler {
 	 *
 	 * Translatable, since not every language separates sentences with a space.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @param string $lead What is wrong with the owner's connection.
 	 * @param string $next What the viewer can do about it.
@@ -952,7 +952,7 @@ class Error_Handler {
 	 *
 	 * Drives the notice and Restore; the owner claim uses the stricter has_owner_token_rejection().
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @return bool
 	 */
@@ -982,7 +982,7 @@ class Error_Handler {
 	 *
 	 * Incoming errors don't count: an outsider who knows the owner's token key can get one verified.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @return bool
 	 */
@@ -1010,7 +1010,7 @@ class Error_Handler {
 	/**
 	 * Whether connecting or relinking would make the viewer the connection owner.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @param Manager $manager         The connection manager.
 	 * @param int     $viewer_id       The viewer's user ID.

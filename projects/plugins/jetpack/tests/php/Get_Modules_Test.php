@@ -49,7 +49,6 @@ class Get_Modules_Test extends WP_UnitTestCase {
 			'contact-form',
 			'copy-post',
 			'custom-content-types',
-			'google-analytics',
 			'gravatar-hovercards',
 			'infinite-scroll',
 			'json-api',
@@ -84,7 +83,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 			'wordads',
 		);
 
-		$this->assertSame( asort( $expected_modules ), asort( self::$all_modules ) );
+		$this->assertSame( array(), array_values( array_diff( $expected_modules, self::$all_modules ) ), 'Modules missing from get_available_modules().' );
 	}
 
 	/**
