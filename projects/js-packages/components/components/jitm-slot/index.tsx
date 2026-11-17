@@ -46,7 +46,22 @@ const JitmSlot: FC< JitmSlotProps > = ( { className, inset } ) => {
 		element.hidden = false;
 		host.appendChild( element );
 
+		// The admin shell keeps hidden apps mounted: take the element back when this slot's app is shown.
+		const onShown = ( event: Event ) => {
+			const app = host.closest( '[data-shell-page]' );
+			const notices = getNotices();
+			if (
+				app?.getAttribute( 'data-shell-page' ) === ( event as CustomEvent ).detail?.page &&
+				! app.contains( notices )
+			) {
+				notices.hidden = false;
+				host.appendChild( notices );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+
 		return () => {
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
 			// A slot that mounted before this one unmounted may already hold it.
 			if ( element.parentNode === host ) {
 				element.hidden = true;

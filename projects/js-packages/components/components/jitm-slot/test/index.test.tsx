@@ -70,4 +70,28 @@ describe( 'JitmSlot', () => {
 			document.getElementById( 'jp-admin-notices' )
 		);
 	} );
+
+	it( 'takes the element back when the admin shell shows its app again', () => {
+		const inApp = ( page: string ) => {
+			const app = document.createElement( 'section' );
+			app.dataset.shellPage = page;
+			return { container: document.body.appendChild( app ) };
+		};
+		render( <JitmSlot className="host" />, inApp( 'host' ) );
+		render( <JitmSlot className="guest" />, inApp( 'guest' ) );
+		const shown = ( page: string ) =>
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page } } )
+			);
+
+		shown( 'guest' );
+		expect( document.querySelector( '.guest' ) ).toContainElement(
+			document.getElementById( 'jp-admin-notices' )
+		);
+
+		shown( 'host' );
+		expect( document.querySelector( '.host' ) ).toContainElement(
+			document.getElementById( 'jp-admin-notices' )
+		);
+	} );
 } );

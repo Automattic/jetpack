@@ -3378,6 +3378,9 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 7.1.0
         version: 7.1.0
+      jest:
+        specifier: 30.5.2
+        version: 30.5.2
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
