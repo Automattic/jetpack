@@ -1,0 +1,5 @@
+.jp-monetize-subscribers__details {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+	gap: var(--wpds-dimension-gap-lg);
+}
