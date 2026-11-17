@@ -5,6 +5,7 @@
 import {
 	bootFor,
 	isolateRouters,
+	loadPage,
 	notifyRouters,
 	prefetchBoot,
 	trackViewTransitions,
@@ -378,7 +379,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 				gate.replaceUrl( lastUrl[ visible ] );
 				// Back/Forward can't be called off, so staying keeps the visible app.
 				if ( mounting || mayUnload( target ) ) {
-					location.replace( target );
+					loadPage( target, { replace: true } );
 				}
 				return;
 			}
@@ -428,7 +429,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 				// Another switch may have taken the last slot while the overlay closed.
 				hasRoomFor( pageOf( a.href ) )
 					? navigate( a.href, inMenu ? 'menu click' : 'link click' )
-					: mayUnload( a.href ) && location.assign( a.href )
+					: mayUnload( a.href ) && loadPage( a.href )
 			);
 	} );
 
