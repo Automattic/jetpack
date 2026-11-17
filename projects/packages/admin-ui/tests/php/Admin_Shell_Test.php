@@ -717,18 +717,22 @@ class Admin_Shell_Test extends TestCase {
 	 */
 	public function test_guest_assets_keeps_jetpack_script_data() {
 		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
-		$rendered                  = new \ReflectionProperty( Script_Data::class, 'did_render_script_data' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			// @phan-suppress-next-line PhanDeprecatedFunctionInternal -- Required before PHP 8.1, a no-op since.
-			$rendered->setAccessible( true );
-		}
-		$rendered->setValue( null, false );
+		// Script_Data renders once per request.
+		$reset = \Closure::bind(
+			static function () {
+				// @phan-suppress-next-line PhanAccessPropertyPrivate -- Bound to Script_Data's scope.
+				Script_Data::$did_render_script_data = false;
+			},
+			null,
+			Script_Data::class
+		);
+		$reset();
 		Script_Data::register_assets();
 		$this->add_action( 'admin_print_scripts', array( Script_Data::class, 'render_script_data' ), 1 );
 		$this->start_host_page( '__return_null' );
 
 		$html = Admin_Shell::guest_assets( 'guest-page' );
-		$rendered->setValue( null, false );
+		$reset();
 
 		$this->assertIsString( $html );
 		$this->assertMatchesRegularExpression( '/id="jetpack-script-data-js-before">[^<]*window\.JetpackScriptData = /', $html );
