@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Media_Library;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
@@ -80,6 +81,11 @@ class Admin_Page {
 
 		if ( class_exists( Admin_Shell::class ) ) {
 			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
+
+		// The cover image picker loads the media library from this endpoint.
+		if ( method_exists( Media_Library::class, 'init' ) ) {
+			Media_Library::init();
 		}
 
 		// On Simple/Atomic, wpcom-admin-menu.php builds the Jetpack menu at
