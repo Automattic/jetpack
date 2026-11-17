@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Don't prewarm a dashboard on hover when the browser reports Save-Data, low memory or a slow connection.

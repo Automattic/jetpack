@@ -265,6 +265,21 @@ describe( 'admin shell leave guard', () => {
 } );
 
 describe( 'admin shell prewarm', () => {
+	it( 'waits for the click while the user saves data', async () => {
+		Object.defineProperty( navigator, 'connection', {
+			value: { saveData: true },
+			configurable: true,
+		} );
+		try {
+			hover( 'guest-a' );
+			await settle();
+		} finally {
+			delete navigator.connection;
+		}
+
+		expect( mockInits.a ).not.toHaveBeenCalled();
+	} );
+
 	it( "retries a guest's init after it failed, without holding up other guests", async () => {
 		mockInits.a.mockRejectedValueOnce( new Error( 'apiFetch failed' ) );
 
