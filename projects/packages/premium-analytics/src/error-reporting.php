@@ -27,9 +27,8 @@ function is_error_reporting_enabled(): bool {
  * Stands the wp-admin error reporter down on the dashboard screen, where the dashboard reports
  * for itself.
  *
- * The jetpack-mu-wpcom reporter sends every window error of every admin screen to the same
- * endpoint, with the full URL and an unredacted stack. Both reporters on one screen file every
- * error twice.
+ * The jetpack-mu-wpcom reporter sends every window error to the same endpoint with the full URL
+ * and an unredacted stack, so both reporters on one screen file every error twice.
  *
  * @since $$next-version$$
  *

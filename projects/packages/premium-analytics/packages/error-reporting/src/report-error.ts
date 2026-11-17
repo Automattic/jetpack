@@ -237,8 +237,6 @@ function warnRefused( status: number ): void {
 /**
  * Handles the endpoint's answer: name any refusal, and stop reporting for the rest of the hour.
  *
- * Any refusal stops the hour, because a request sent while a ban is active restarts that ban.
- *
  * @param response - The endpoint's response.
  * @param hour     - The current hour bucket.
  */
@@ -324,7 +322,6 @@ function send(
 	frame: DashboardFrame | null,
 	extra?: { componentStack?: string; module?: string }
 ): void {
-	// The raw message can embed the page query string, which changes on every date-range change.
 	const message = sanitizeText( details.message, MESSAGE_LIMIT );
 	const key = `${ message }\n${ frame?.url ?? '' }`;
 	const hour = Math.floor( Date.now() / HOUR_MS );

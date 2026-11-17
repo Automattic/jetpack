@@ -184,10 +184,8 @@ export function widgetModuleBundlePath( moduleId: string ): string | null {
 /**
  * Reports a widget module that failed to load, then lets the failure through.
  *
- * Nothing else sees it: the host renders every widget inside `React.lazy`, which takes the
- * rejection and throws it in render instead, so there is no window `error` for the global
- * handlers and no `unhandledrejection` either. Rethrowing keeps the host's own fallback, and the
- * report is what carries a stale deploy to the chunk-load recovery.
+ * `React.lazy` takes the rejection and throws it in render instead, so no window handler of ours
+ * ever sees it.
  *
  * @param moduleId - The module id that was asked for.
  * @param load     - The pending import.
