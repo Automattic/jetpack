@@ -328,6 +328,35 @@ describe( 'admin shell switch', () => {
 	const A = '/wp-admin/admin.php?page=guest-a';
 	const B = '/wp-admin/admin.php?page=guest-b';
 
+	it( 'names the next page when it hides one, and says whether a shown page is new', async () => {
+		const events = [];
+		const record = event => events.push( [ event.type.split( ':' )[ 1 ], event.detail ] );
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', record );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', record );
+
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		click( A );
+		await settle();
+		window.removeEventListener( 'jetpack-admin-shell:page-hidden', record );
+		window.removeEventListener( 'jetpack-admin-shell:page-shown', record );
+
+		expect(
+			events.map( ( [ type, { page, previous, next, firstShow } ] ) =>
+				type === 'page-hidden' ? [ type, page, next ] : [ type, page, previous, firstShow ]
+			)
+		).toEqual( [
+			[ 'page-hidden', 'host', 'guest-a' ],
+			[ 'page-shown', 'guest-a', 'host', true ],
+			[ 'page-hidden', 'guest-a', 'guest-b' ],
+			[ 'page-shown', 'guest-b', 'guest-a', true ],
+			[ 'page-hidden', 'guest-b', 'guest-a' ],
+			[ 'page-shown', 'guest-a', 'guest-b', false ],
+		] );
+	} );
+
 	it( 'shows a page once when a switch back to it overtakes one still waiting on a dialog', async () => {
 		click( A );
 		await settle();

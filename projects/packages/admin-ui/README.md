@@ -195,6 +195,29 @@ Stats and Premium Analytics register this way, under the keys `jetpack-stats` an
 
 Unlike `add_menu()`, the page gets neither the core-notice CSS nor the WPDS design tokens; call `Admin_Menu::hide_core_admin_notices()` or `Admin_Menu::enqueue_design_tokens()` on its own `load-` hook for either. Registering only top level items never builds the Jetpack menu.
 
+### Admin shell: page events
+
+With the admin shell on, opening a member doesn't load the page, so work a dashboard does once per page load doesn't run again. The shell dispatches two events on `window` instead:
+
+* `jetpack-admin-shell:page-shown` once a member is on screen and its URL is written, with `detail: { page, previous, firstShow, url }`. `previous` is the page that was on screen before, or `null` on a page load. `firstShow` is `true` the first time the app renders in this document and `false` when the shell shows an app it kept mounted.
+* `jetpack-admin-shell:page-hidden` as a member leaves the screen, with `detail: { page, previous: null, next, firstShow: false, url }`. `next` is the page about to be shown, and `url` is still the hidden page’s.
+
+A dashboard that records a Tracks page view when it mounts records it again on `page-shown` for its own page when `firstShow` is `false`: its mount has already counted the first show, and with the shell off every visit is a page load that counts.
+
+```JS
+useEffect( () => {
+	const onShown = event => {
+		if ( event.detail?.page === 'my-dashboard' && ! event.detail.firstShow ) {
+			recordPageView();
+		}
+	};
+	window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+	return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+}, [] );
+```
+
+Neither event fires while the shell is off.
+
 ### Admin shell: unsaved changes
 
 With the admin shell on, member dashboards stay mounted while hidden, so switching away keeps an edit. A navigation that would open a member at a different route than where it was left would unmount that view, so first the shell dispatches a cancelable `jetpack-admin-shell:before-leave` event on `window`, with `detail: { page, url }`: the member's admin page slug and the URL about to open.
