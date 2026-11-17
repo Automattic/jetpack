@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\WooCommerceStats;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Provider_Setting;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Capability;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
@@ -30,6 +31,7 @@ use WP_REST_Server;
  *
  * @covers \Automattic\Jetpack\WooCommerceStats\Api_Proxy_Controller
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Provider_Setting
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry
@@ -39,6 +41,7 @@ use WP_REST_Server;
  */
 #[CoversClass( Api_Proxy_Controller::class )]
 #[CoversClass( Default_Reports::class )]
+#[CoversClass( Provider_Setting::class )]
 #[CoversClass( Report_Definition::class )]
 #[CoversClass( Report_Executor::class )]
 #[CoversClass( Report_Registry::class )]
@@ -92,6 +95,10 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		remove_filter( 'pre_http_request', array( $this, 'answer_as_wordpress_com' ) );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		remove_all_actions( Report_Registry::REGISTER_ACTION );
+		foreach ( array( 'jetpack_woocommerce_stats_report_provider', 'start_of_week', 'woocommerce_excluded_report_order_statuses' ) as $option ) {
+			remove_all_actions( 'add_option_' . $option );
+			remove_all_actions( 'update_option_' . $option );
+		}
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -366,6 +373,65 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->get_report();
 
 		$this->assertCount( 2, $this->requests );
+	}
+
+	/**
+	 * @dataProvider data_option_changes
+	 *
+	 * @param string|null $setting  Stored provider setting, null when unset.
+	 * @param string      $option   Option changed between the two requests.
+	 * @param mixed       $value    Its new value.
+	 * @param int         $requests Requests expected to reach WordPress.com.
+	 */
+	#[DataProvider( 'data_option_changes' )]
+	public function test_a_report_option_change_misses_the_cache_only_on_a_site_serving_locally( $setting, $option, $value, $requests ) {
+		// @phan-suppress-next-line PhanAccessMethodInternal -- The test hooks what the package bootstrap does.
+		Provider_Setting::init();
+		if ( null !== $setting ) {
+			update_option( 'jetpack_woocommerce_stats_report_provider', $setting );
+		}
+
+		$this->get_report();
+		update_option( $option, $value );
+		$this->get_report();
+
+		$this->assertCount( $requests, $this->requests );
+	}
+
+	/**
+	 * @return array<string, array{0: string|null, 1: string, 2: mixed, 3: int}>
+	 */
+	public static function data_option_changes() {
+		return array(
+			'week start, no setting'        => array( null, 'start_of_week', '0', 1 ),
+			'week start, both'              => array( 'both', 'start_of_week', '0', 2 ),
+			'excluded statuses, local'      => array( 'local', 'woocommerce_excluded_report_order_statuses', array( 'pending' ), 2 ),
+			'the provider setting, set'     => array( null, 'jetpack_woocommerce_stats_report_provider', 'both', 2 ),
+			'the provider setting, changed' => array( 'wpcom', 'jetpack_woocommerce_stats_report_provider', 'both', 2 ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_settings_without_woocommerce
+	 *
+	 * @param string $setting Stored provider setting.
+	 * @param int    $status  Expected status.
+	 */
+	#[DataProvider( 'data_settings_without_woocommerce' )]
+	public function test_serves_auto_on_a_site_without_woocommerce( $setting, $status ) {
+		update_option( 'jetpack_woocommerce_stats_report_provider', $setting );
+
+		$this->assertSame( $status, $this->get_report( 'orders/by-date', array( 'provider' => 'auto' ) )->get_status() );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: int}>
+	 */
+	public static function data_settings_without_woocommerce() {
+		return array(
+			'both'  => array( 'both', 200 ),
+			'local' => array( 'local', 422 ),
+		);
 	}
 
 	/**
