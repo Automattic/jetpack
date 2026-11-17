@@ -21,7 +21,8 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 } ) );
 
 const useIdentityCrisisActions = ( await import( '../index' ) ).default;
-const { getIdentityCrisisErrorCause } = await import( '../get-error-cause' );
+const { getIdentityCrisisErrorCause, getIdentityCrisisErrorCode } =
+	await import( '../get-error-cause' );
 
 /**
  * An error shaped like the client's `ApiError`, which carries the REST error body.
@@ -78,7 +79,11 @@ describe( 'useIdentityCrisisActions', () => {
 			await expect( result.current[ method ]() ).resolves.toBe( failed );
 		} );
 
-		expect( result.current.error ).toEqual( { action, cause: 'session' } );
+		expect( result.current.error ).toEqual( {
+			action,
+			cause: 'session',
+			code: 'rest_cookie_invalid_nonce',
+		} );
 		expect( result.current.busyAction ).toBeNull();
 		expect( result.current.isMigrated ).toBe( false );
 	} );
@@ -141,7 +146,11 @@ describe( 'useIdentityCrisisActions', () => {
 				await expect( result.current.startFresh() ).resolves.toBeNull();
 			} );
 
-			expect( result.current.error ).toEqual( { action: 'start-fresh', cause: 'server' } );
+			expect( result.current.error ).toEqual( {
+				action: 'start-fresh',
+				cause: 'server',
+				code: 'InvalidConnectUrl',
+			} );
 			expect( result.current.busyAction ).toBeNull();
 		}
 	);
@@ -172,21 +181,30 @@ describe( 'useIdentityCrisisActions', () => {
 	} );
 } );
 
-describe( 'getIdentityCrisisErrorCause', () => {
+describe( 'getIdentityCrisisErrorCause and getIdentityCrisisErrorCode', () => {
 	it.each( [
-		[ new clientErrors.FetchNetworkError(), 'offline' ],
-		[ new clientErrors.JsonParseError(), 'output' ],
-		[ new clientErrors.JsonParseAfterRedirectError(), 'output' ],
-		[ new clientErrors.Api404Error(), 'blocked' ],
-		[ apiError( 'rest_disabled', 403 ), 'blocked' ],
-		[ apiError( 'rest_cookie_invalid_nonce', 403 ), 'session' ],
-		[ apiError( 'invalid_user_permission_identity_crisis', 403 ), 'permission' ],
-		[ apiError( 'invalid_user_permission_identity_crisis', 401 ), 'session' ],
-		[ apiError( 'some_plugin_error', 403 ), 'permission' ],
-		[ apiError( 'error', 500 ), 'server' ],
-		[ new Error( 'boom' ), 'server' ],
-		[ undefined, 'server' ],
-	] )( '%s is %s', ( error, cause ) => {
+		[ new clientErrors.FetchNetworkError(), 'offline', 'FetchNetworkError' ],
+		[ new clientErrors.JsonParseError(), 'output', 'JsonParseError' ],
+		[ new clientErrors.JsonParseAfterRedirectError(), 'output', 'JsonParseAfterRedirectError' ],
+		[ new clientErrors.Api404Error(), 'blocked', 'Api404Error' ],
+		[ apiError( 'rest_disabled', 403 ), 'blocked', 'rest_disabled' ],
+		[ apiError( 'rest_cookie_invalid_nonce', 403 ), 'session', 'rest_cookie_invalid_nonce' ],
+		[
+			apiError( 'invalid_user_permission_identity_crisis', 403 ),
+			'permission',
+			'invalid_user_permission_identity_crisis',
+		],
+		[
+			apiError( 'invalid_user_permission_identity_crisis', 401 ),
+			'session',
+			'invalid_user_permission_identity_crisis',
+		],
+		[ apiError( 'some_plugin_error', 403 ), 'permission', 'some_plugin_error' ],
+		[ apiError( 'error', 500 ), 'server', 'error' ],
+		[ new Error( 'boom' ), 'server', undefined ],
+		[ undefined, 'server', undefined ],
+	] )( '%s is %s with code %s', ( error, cause, code ) => {
 		expect( getIdentityCrisisErrorCause( error ) ).toBe( cause );
+		expect( getIdentityCrisisErrorCode( error ) ).toBe( code );
 	} );
 } );

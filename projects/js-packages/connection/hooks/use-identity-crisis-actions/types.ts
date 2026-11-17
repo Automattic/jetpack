@@ -8,6 +8,8 @@ export type IdentityCrisisErrorCause =
 export interface IdentityCrisisError {
 	action: IdentityCrisisAction;
 	cause: IdentityCrisisErrorCause;
+	/** The REST error code, or the client error's name, e.g. `rest_cookie_invalid_nonce` or `JsonParseError`. For tracking, not display. */
+	code?: string;
 }
 
 export interface UseIdentityCrisisActionsOptions {

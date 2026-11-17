@@ -1,7 +1,7 @@
 import restApi from '@automattic/jetpack-api';
 import { useCallback, useRef, useState } from 'react';
 import { isHttpUrl } from '../../helpers/is-http-url';
-import { getIdentityCrisisErrorCause } from './get-error-cause';
+import { getIdentityCrisisErrorCause, getIdentityCrisisErrorCode } from './get-error-cause';
 import type {
 	IdentityCrisisAction,
 	IdentityCrisisActions,
@@ -45,7 +45,11 @@ export default function useIdentityCrisisActions( {
 			try {
 				return { response: await request() };
 			} catch ( caught ) {
-				setError( { action, cause: getIdentityCrisisErrorCause( caught ) } );
+				setError( {
+					action,
+					cause: getIdentityCrisisErrorCause( caught ),
+					code: getIdentityCrisisErrorCode( caught ),
+				} );
 				setBusy( null );
 				return null;
 			}
@@ -68,7 +72,9 @@ export default function useIdentityCrisisActions( {
 			const url: unknown = await restApi.startIDCFresh( redirectUri );
 			// The host navigates to it, so anything but a web URL counts as a server failure.
 			if ( ! isHttpUrl( url ) ) {
-				throw new Error( 'Start fresh returned no connect URL' );
+				const invalid = new Error( 'Start fresh returned no connect URL' );
+				invalid.name = 'InvalidConnectUrl';
+				throw invalid;
 			}
 			return url;
 		} );
