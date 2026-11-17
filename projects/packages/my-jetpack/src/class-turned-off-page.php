@@ -184,10 +184,11 @@ class Turned_Off_Page {
 	 * @return void
 	 */
 	public static function set_title() {
-		if ( null === self::$feature ) {
+		$feature = self::$feature;
+		if ( null === $feature ) {
 			return;
 		}
-		$GLOBALS['title'] = self::$feature['name']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Read by admin-header.php.
+		$GLOBALS['title'] = $feature['name']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Read by admin-header.php.
 	}
 
 	/**
