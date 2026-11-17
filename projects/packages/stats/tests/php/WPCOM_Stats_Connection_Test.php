@@ -152,6 +152,10 @@ class WPCOM_Stats_Connection_Test extends StatsBaseTestCase {
 			'subscriber counts' => array( 'get_subscriber_counts', array(), 'https://public-api.wordpress.com/wpcom/v2/sites/1234/subscribers/counts' ),
 			'subscribers'       => array( 'get_subscribers', array( array( 'page' => 2 ) ), 'https://public-api.wordpress.com/wpcom/v2/sites/1234/subscribers?page=2' ),
 			'ad earnings'       => array( 'get_wordads_earnings', array(), 'https://public-api.wordpress.com/rest/v1.1/sites/1234/wordads/earnings' ),
+			'email summary'     => array( 'get_email_summary', array( array( 'quantity' => 5 ) ), 'https://public-api.wordpress.com/rest/v1.1/sites/1234/stats/emails/summary?quantity=5' ),
+			'subscriber series' => array( 'get_subscriber_history', array( array( 'unit' => 'month' ) ), 'https://public-api.wordpress.com/rest/v1.1/sites/1234/stats/subscribers?unit=month' ),
+			'stats usage'       => array( 'get_stats_usage', array(), 'https://public-api.wordpress.com/wpcom/v2/sites/1234/jetpack-stats/usage' ),
+			'ad stats'          => array( 'get_wordads_stats', array( array( 'unit' => 'day' ) ), 'https://public-api.wordpress.com/rest/v1.1/sites/1234/wordads/stats?unit=day' ),
 		);
 	}
 
