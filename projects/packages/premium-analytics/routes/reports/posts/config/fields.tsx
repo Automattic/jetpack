@@ -68,6 +68,7 @@ function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 	return (
 		<PostTitleLink
 			id={ isHomepage ? undefined : item.id }
+			postType={ String( item.type ?? '' ) }
 			label={ title }
 			link={ isHomepage ? homeUrl : item.link }
 			search={ detailSearch }

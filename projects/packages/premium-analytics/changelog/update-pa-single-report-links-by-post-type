@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Single-report pages: Open a page's own report, /report/page/<id>, from the Top posts & pages card and the Posts & pages report.

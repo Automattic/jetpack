@@ -16,6 +16,7 @@ import { getArchivesFields, getPostsFields } from './fields';
 import type { ArchiveRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	getPostReportKind: () => 'post',
 	isPostDetailAvailable: () => true,
 	useSiteHomeUrl: jest.fn(),
 } ) );
