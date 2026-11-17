@@ -54,6 +54,7 @@ class SchemaBuilderTest extends TestCase {
 		remove_all_filters( 'pre_option_show_on_front' );
 		remove_all_filters( 'pre_option_page_on_front' );
 		remove_all_filters( 'home_url' );
+		remove_all_filters( 'jetpack_seo_schema_article_authors' );
 		\WooCommerce::$is_template = false;
 		$this->remove_schema_builder_hooks();
 		$this->remove_woo_schema_hooks();
@@ -567,7 +568,6 @@ class SchemaBuilderTest extends TestCase {
 		add_filter( 'jetpack_seo_schema_article_authors', $filter );
 
 		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
-		remove_filter( 'jetpack_seo_schema_article_authors', $filter );
 
 		$article = $this->node_of_type( $doc, 'Article' );
 		$this->assertSame(
@@ -578,6 +578,66 @@ class SchemaBuilderTest extends TestCase {
 			$article['author']
 		);
 		$this->assertContains( $guest, $doc['@graph'], 'The filtered Person node must be in the graph.' );
+	}
+
+	/**
+	 * An author returned twice is output once, and a single node returned
+	 * instead of a list still counts.
+	 */
+	public function test_article_authors_filter_dedupes_and_accepts_single_node() {
+		$user  = $this->make_user();
+		$guest = array(
+			'@type' => 'Person',
+			'@id'   => 'https://example.test/author/guest/#person',
+			'name'  => 'Guest Author',
+		);
+
+		add_filter(
+			'jetpack_seo_schema_article_authors',
+			static function ( $authors ) use ( $guest ) {
+				return array_merge( $authors, $authors, array( $guest ) );
+			}
+		);
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+		$this->assertCount( 2, $this->node_of_type( $doc, 'Article' )['author'] );
+		$this->assertCount( 2, array_filter( $doc['@graph'], static fn( $node ) => 'Person' === ( $node['@type'] ?? '' ) ) );
+
+		remove_all_filters( 'jetpack_seo_schema_article_authors' );
+		add_filter(
+			'jetpack_seo_schema_article_authors',
+			static function () use ( $guest ) {
+				return $guest;
+			}
+		);
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+		$this->assertSame( array( '@id' => $guest['@id'] ), $this->node_of_type( $doc, 'Article' )['author'] );
+		$this->assertContains( $guest, $doc['@graph'] );
+		$this->assertCount( 1, array_filter( $doc['@graph'], static fn( $node ) => 'Person' === ( $node['@type'] ?? '' ) ) );
+	}
+
+	/**
+	 * Crediting the site's own Person as author references the publisher node
+	 * rather than adding it a second time.
+	 */
+	public function test_article_authors_filter_does_not_duplicate_site_person() {
+		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
+		add_filter(
+			'jetpack_seo_schema_article_authors',
+			static function () {
+				return array(
+					array(
+						'@type' => 'Person',
+						'@id'   => Schema_Node_Ids::site_person(),
+						'name'  => 'Site Owner',
+					),
+				);
+			}
+		);
+
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $this->make_user()->ID ) ) );
+
+		$this->assertSame( array( '@id' => Schema_Node_Ids::site_person() ), $this->node_of_type( $doc, 'Article' )['author'] );
+		$this->assertCount( 1, array_filter( $doc['@graph'], static fn( $node ) => Schema_Node_Ids::site_person() === ( $node['@id'] ?? '' ) ) );
 	}
 
 	/**
@@ -598,7 +658,6 @@ class SchemaBuilderTest extends TestCase {
 		add_filter( 'jetpack_seo_schema_article_authors', $filter );
 
 		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
-		remove_filter( 'jetpack_seo_schema_article_authors', $filter );
 
 		$article = $this->node_of_type( $doc, 'Article' );
 		$this->assertArrayNotHasKey( 'author', $article );
