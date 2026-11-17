@@ -4264,6 +4264,9 @@ importers:
       concurrently:
         specifier: 10.0.5
         version: 10.0.5
+      jest:
+        specifier: 30.5.2
+        version: 30.5.2
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3

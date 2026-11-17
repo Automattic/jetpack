@@ -12,6 +12,10 @@ const product = ( overrides: Partial< MembershipProduct > ): MembershipProduct =
 	type: 'tier',
 	tier: null,
 	isReadOnly: false,
+	welcomeEmailContent: '',
+	buyerCanChangeAmount: false,
+	multiplePerUser: false,
+	subscribeAsSiteSubscriber: false,
 	...overrides,
 } );
 
