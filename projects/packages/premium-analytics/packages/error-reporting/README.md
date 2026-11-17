@@ -16,7 +16,7 @@ The last two are dropped unless the stack has a frame inside a known dashboard s
 
 ## The gate
 
-PHP decides whether reporting is on. The package only reads the boolean `premium_analytics.error_reporting.enabled` from the script data, and does nothing when it is false or missing, the chunk-load reload included. Today only WordPress.com Simple and WoA sites report. Widening that to self-hosted sites is a change to that one PHP condition, with no change here.
+PHP decides whether reporting is on. The package only reads the boolean `premium_analytics.error_reporting.enabled` from the script data, and does nothing when it is false or missing, the chunk-load reload included. Today only WordPress.com Simple sites report, and WoA sites for a reader with a WordPress.com account, which is the scope the logging was approved for (`p2y3YZ-bzB-p2`). Widening that to self-hosted sites is a change to that one PHP condition, with no change here.
 
 ## Script origins
 

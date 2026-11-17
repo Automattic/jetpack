@@ -21,10 +21,12 @@ require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\add_error_reporting_script_data
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\is_error_reporting_enabled
  * @covers ::Automattic\Jetpack\PremiumAnalytics\sanitize_error_reporting_origins
  * @covers ::Automattic\Jetpack\PremiumAnalytics\delegate_wp_admin_error_reporting
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\add_error_reporting_script_data' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_error_reporting_enabled' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\sanitize_error_reporting_origins' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\delegate_wp_admin_error_reporting' )]
 class Error_Reporting_Test extends BaseTestCase {
@@ -37,6 +39,8 @@ class Error_Reporting_Test extends BaseTestCase {
 		Constants::clear_constants();
 		Cache::clear();
 		remove_all_filters( 'jetpack_premium_analytics_error_reporting_script_origins' );
+		\Jetpack_Options::delete_option( 'user_tokens' );
+		wp_set_current_user( 0 );
 
 		// WorDBless restores the hooks but not these two, so a failed assertion would leak them.
 		unset( $GLOBALS['jpa_test_widget_manifest'] );
@@ -54,14 +58,24 @@ class Error_Reporting_Test extends BaseTestCase {
 		$this->assert_version_and_build_origin( $config );
 	}
 
-	public function test_enabled_on_atomic() {
-		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
-		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
-		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/plugins/wpcomsh/wpcomsh.php' );
+	public function test_enabled_on_atomic_for_a_wordpress_com_user() {
+		$this->set_atomic_constants();
+		$user_id = $this->sign_in_administrator();
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
 
 		$config = $this->get_config();
 
 		$this->assertTrue( $config['enabled'] );
+		$this->assert_version_and_build_origin( $config );
+	}
+
+	public function test_disabled_on_atomic_for_a_user_with_no_wordpress_com_account() {
+		$this->set_atomic_constants();
+		$this->sign_in_administrator();
+
+		$config = $this->get_config();
+
+		$this->assertFalse( $config['enabled'] );
 		$this->assert_version_and_build_origin( $config );
 	}
 
@@ -165,6 +179,35 @@ class Error_Reporting_Test extends BaseTestCase {
 		$config = $this->get_config();
 
 		$this->assertContains( 'https://example.com/package/build/', $config['script_origins'] );
+	}
+
+	/**
+	 * Makes the site look like an Atomic one.
+	 *
+	 * @return void
+	 */
+	private function set_atomic_constants() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/plugins/wpcomsh/wpcomsh.php' );
+	}
+
+	/**
+	 * Signs in an administrator, who on an Atomic site may be local or connected.
+	 *
+	 * @return int The user's ID.
+	 */
+	private function sign_in_administrator(): int {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'analytics_reader',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		return $user_id;
 	}
 
 	/**

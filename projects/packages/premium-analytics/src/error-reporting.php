@@ -8,10 +8,14 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Whether the dashboard reports its own uncaught JavaScript errors on this site.
+ * Whether the dashboard reports its own uncaught JavaScript errors on this reader's screen.
+ *
+ * The logging was approved for WordPress.com users on WordPress.com sites (p2y3YZ-bzB-p2), and an
+ * Atomic site can carry a local user with no WordPress.com account, so Atomic asks the connection.
  *
  * @since $$next-version$$
  *
@@ -20,7 +24,11 @@ use Automattic\Jetpack\Status\Host;
 function is_error_reporting_enabled(): bool {
 	$host = new Host();
 
-	return $host->is_wpcom_simple() || $host->is_woa_site();
+	if ( $host->is_wpcom_simple() ) {
+		return true;
+	}
+
+	return $host->is_woa_site() && ( new Connection_Manager() )->is_user_connected();
 }
 
 /**
