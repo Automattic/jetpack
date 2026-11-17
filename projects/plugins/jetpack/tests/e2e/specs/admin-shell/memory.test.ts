@@ -8,6 +8,7 @@ import {
 	skipUnlessOnSite,
 	switchTo,
 	waitForShown,
+	withinDocument,
 } from '../../helpers/admin-shell-helper';
 
 const FORMS = 'jetpack-forms-responses-wp-admin';
@@ -56,14 +57,14 @@ test.describe( 'Admin shell: memory budget', () => {
 			} )
 		);
 
-		await markDocument( page );
-		await menuLink( page, 'jetpack-boost' ).click();
-		await expect
-			.poll( () =>
-				page.evaluate( () => ( window as unknown as { __askedFor?: string } ).__askedFor ?? '' )
-			)
-			.toContain( 'page=jetpack-boost' );
-		expect( await sameDocument( page ), 'the page stayed' ).toBe( true );
+		await withinDocument( page, 'the cancelled page load', async () => {
+			await menuLink( page, 'jetpack-boost' ).click();
+			await expect
+				.poll( () =>
+					page.evaluate( () => ( window as unknown as { __askedFor?: string } ).__askedFor ?? '' )
+				)
+				.toContain( 'page=jetpack-boost' );
+		} );
 		expect( new URL( page.url() ).searchParams.get( 'page' ) ).toBe( 'jetpack-seo' );
 	} );
 } );
