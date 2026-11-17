@@ -15,6 +15,7 @@ jest.mock( 'components/search', () => ( {
 const buildInitialState = ( protectPage, extraModules = {} ) => ( {
 	jetpack: {
 		initialState: {
+			siteData: { hasProtectPage: protectPage },
 			userData: {
 				currentUser: {
 					permissions: { manage_modules: true, publish_posts: true },
@@ -26,7 +27,6 @@ const buildInitialState = ( protectPage, extraModules = {} ) => ( {
 				'account-protection': { activated: true },
 				monitor: { activated: true },
 				protect: { activated: true },
-				'protect-dashboard': { activated: protectPage },
 				sso: { activated: true },
 				stats: { activated: true },
 				waf: { activated: true },

@@ -581,6 +581,17 @@ export function hasBackupPage( state ) {
 }
 
 /**
+ * Whether the wp-admin Protect page exists, which replaces the Security tab. Jetpack's module or the Jetpack Protect plugin registers it.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if the Protect page was registered.
+ */
+export function hasProtectPage( state ) {
+	return state.jetpack.initialState.siteData?.hasProtectPage ?? false;
+}
+
+/**
  * Whether the Jetpack Social page exists for this user, which Publicize's host, connection and filters decide.
  *
  * @param {object} state - Global state tree

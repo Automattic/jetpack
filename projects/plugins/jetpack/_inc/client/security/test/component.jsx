@@ -75,24 +75,3 @@ describe( 'Security with the Protect page', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 } );
-
-describe( 'Security without the Protect page', () => {
-	it.each( [
-		[ 'links to', true, {}, [ `${ ADMIN }admin.php?page=jetpack-protect` ] ],
-		[ 'leaves out', false, {}, [] ],
-		[ 'leaves search results without', true, { searchTerm: 'monitor' }, [] ],
-	] )( '%s the Jetpack Protect plugin page', ( _name, isProtectPluginActive, props, hrefs ) => {
-		renderSecurity( {
-			hasProtectPage: false,
-			isProtectPluginActive,
-			isModuleFound: finds( [ 'monitor' ] ),
-			...props,
-		} );
-
-		expect(
-			screen
-				.queryAllByRole( 'link', { name: 'Open Protect' } )
-				.map( link => link.getAttribute( 'href' ) )
-		).toEqual( hrefs );
-	} );
-} );

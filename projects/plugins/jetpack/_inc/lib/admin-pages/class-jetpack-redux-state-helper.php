@@ -199,6 +199,8 @@ class Jetpack_Redux_State_Helper {
 				'isMultisite'                => is_multisite(),
 				// Set when Jetpack or the standalone plugin registered the Backup page on this request.
 				'hasBackupPage'              => (bool) did_action( 'jetpack_backup_initialized' ),
+				// Set when Jetpack's protect-dashboard module or the connected Jetpack Protect plugin registered the Protect page on this request.
+				'hasProtectPage'             => (bool) did_action( 'jetpack_protect_dashboard_initialized' ),
 				'hasSocialPage'              => self::has_social_page(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
