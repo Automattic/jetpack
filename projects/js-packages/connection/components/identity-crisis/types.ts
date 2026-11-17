@@ -1,3 +1,7 @@
+import type {
+	IdentityCrisisAction,
+	IdentityCrisisError,
+} from '../../hooks/use-identity-crisis-actions/types';
 import type { ReactNode } from 'react';
 
 export interface IdentityCrisisLayoutProps {
@@ -24,4 +28,10 @@ export interface IdentityCrisisAddressesProps {
 	currentUrl?: string;
 	/** `move` for Migrate (an arrow), `separate` for a fresh connection (a dash). */
 	variant: 'move' | 'separate';
+}
+
+export interface IdentityCrisisErrorNoticeProps {
+	error: IdentityCrisisError | null;
+	/** Show only a failure of this action, e.g. next to that action's button. Omit to show any. */
+	action?: IdentityCrisisAction;
 }

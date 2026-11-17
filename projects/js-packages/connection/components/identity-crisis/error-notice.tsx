@@ -1,12 +1,9 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Notice } from '@wordpress/ui';
-import { getSupportUrl } from './support-url';
-import type {
-	IdentityCrisisAction,
-	IdentityCrisisError,
-	IdentityCrisisErrorCause,
-} from '../../hooks/use-identity-crisis-actions/types';
+import { Notice } from '@wordpress/ui';
+import SupportLink from './support-link';
+import type { IdentityCrisisErrorNoticeProps } from './types';
+import type { IdentityCrisisErrorCause } from '../../hooks/use-identity-crisis-actions/types';
 import type { ReactNode } from 'react';
 
 /**
@@ -53,12 +50,6 @@ function getIdentityCrisisErrorMessage( cause: IdentityCrisisErrorCause ): strin
 	}
 }
 
-interface IdentityCrisisErrorNoticeProps {
-	error: IdentityCrisisError | null;
-	/** Show only a failure of this action, e.g. next to that action's button. Omit to show any. */
-	action?: IdentityCrisisAction;
-}
-
 /**
  * The failure of a Safe Mode request, with a link to support.
  *
@@ -79,7 +70,7 @@ export default function IdentityCrisisErrorNotice( {
 				{ getIdentityCrisisErrorMessage( error.cause ) }{ ' ' }
 				{ createInterpolateElement(
 					__( '<link>Get help with Safe Mode</link>', 'jetpack-connection-js' ),
-					{ link: <Link href={ getSupportUrl() } openInNewTab /> }
+					{ link: <SupportLink /> }
 				) }
 			</Notice.Description>
 		</Notice.Root>

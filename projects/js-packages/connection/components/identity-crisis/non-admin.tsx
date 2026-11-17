@@ -1,8 +1,8 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import styles from './styles.module.scss';
-import { getSupportUrl } from './support-url';
+import SupportLink from './support-link';
 import type { ReactNode } from 'react';
 
 /**
@@ -22,7 +22,7 @@ export default function IdentityCrisisNonAdmin(): ReactNode {
 						'This site’s address no longer matches the one WordPress.com has on record, so features that sync with WordPress.com are paused. A site administrator can fix this. <safeModeLink>Learn about Safe Mode</safeModeLink>',
 						'jetpack-connection-js'
 					),
-					{ safeModeLink: <Link href={ getSupportUrl() } openInNewTab /> }
+					{ safeModeLink: <SupportLink /> }
 				) }
 			</Text>
 		</Stack>
