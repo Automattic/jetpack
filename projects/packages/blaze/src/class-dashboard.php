@@ -241,13 +241,20 @@ CSS;
 		return <<<JS
 ( function () {
 	fetch( 'https://widgets.wp.com/blaze-dashboard/common/gridicons-506499ddac13811fee8e.svg' )
-		.then( function ( response ) { return response.text(); } )
+		.then( function ( response ) {
+			if ( ! response.ok ) {
+				throw new Error( 'Blaze: icon sprite HTTP ' + response.status );
+			}
+			return response.text();
+		} )
 		.then( function ( svg ) {
 			var div = document.createElement( 'div' );
 			div.innerHTML = svg;
 			div.style.display = 'none';
 			document.body.insertBefore( div, document.body.firstChild );
-		} );
+		} )
+		// The icons are decoration: the dashboard works without them.
+		.catch( function () {} );
 	var dashboard = document.getElementById( 'wpcom' );
 	dashboard && dashboard.addEventListener( 'click', function ( event ) {
 		var anchor = event.target.closest( 'a[href]' );

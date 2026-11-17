@@ -435,7 +435,9 @@ class Admin_Shell {
 		}
 
 		call_user_func( $members[ $slug ]['load'] );
-		self::run_page_init( $members[ $slug ] );
+		if ( self::KIND_SCRIPT !== $members[ $slug ]['kind'] ) {
+			self::run_page_init( $members[ $slug ] );
+		}
 		$hook_suffix = self::screen_id( $slug );
 		set_current_screen( $hook_suffix );
 		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- One script tag per handle, so the client can skip what the host already has.
@@ -568,10 +570,10 @@ class Admin_Shell {
 		}
 
 		$kind     = $member['kind'] ?? 'wp-build';
-		$required = array(
+		$required = is_string( $kind ) ? ( array(
 			'wp-build'        => self::REQUIRED_STRING_KEYS,
 			self::KIND_SCRIPT => array( 'title' ),
-		)[ $kind ] ?? null;
+		)[ $kind ] ?? null ) : null;
 		if ( null === $required || ( self::KIND_SCRIPT === $kind && ! self::is_valid_container( $member['container'] ?? null ) ) ) {
 			return null;
 		}
