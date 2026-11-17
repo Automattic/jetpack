@@ -32,16 +32,13 @@ export default function IdentityCrisisMigrated( {
 			</Text>
 			<Text variant="body-lg" render={ <p /> } className={ styles.prose }>
 				{ createInterpolateElement(
-					sprintf(
-						/* translators: %1$s: the address WordPress.com has on record. %2$s: this site's address. */
-						__(
-							'Safe Mode is off for <hostname>%2$s</hostname>. Stats, subscribers and the plan move over from <hostname>%1$s</hostname> the next time your site syncs with WordPress.com.',
-							'jetpack-connection-js'
-						),
-						from,
-						to
+					/* translators: <from />: the address WordPress.com has on record. <to />: this site's address. */
+					__(
+						'Safe Mode is off for <to />. Stats, subscribers and the plan move over from <from /> the next time your site syncs with WordPress.com.',
+						'jetpack-connection-js'
 					),
-					{ hostname: <strong /> }
+					// Elements, not formatted text, so nothing in an address is parsed as a tag.
+					{ from: <strong>{ from }</strong>, to: <strong>{ to }</strong> }
 				) }
 			</Text>
 			{ onDone && (
