@@ -47,8 +47,8 @@ class Core_Revenue_Stats_Handler extends Core_Report_Handler {
 	);
 
 	/**
-	 * Core buckets the local date columns it wrote at import, so a store whose timezone changed
-	 * keeps older orders in the zone they were imported under until they are imported again.
+	 * Core filters and groups by the local date columns written at import, so after a timezone change
+	 * older orders stay in the old zone until they are imported again.
 	 *
 	 * @var array<string, string>
 	 */

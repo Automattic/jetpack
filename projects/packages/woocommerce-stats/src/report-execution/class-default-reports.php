@@ -62,7 +62,7 @@ class Default_Reports {
 
 	/**
 	 * WordPress.com groups every row by the store's UTC offset today, so rows on the other side of
-	 * a DST change shift by an hour. Its range bounds follow DST.
+	 * a DST change shift by the size of that change. Its range bounds follow DST.
 	 */
 	private const WPCOM_DEVIATIONS = array(
 		'orders.by_date' => array( 'timezone' => 'current_offset' ),
