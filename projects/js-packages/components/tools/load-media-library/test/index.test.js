@@ -77,7 +77,7 @@ describe( 'loadMediaLibrary', () => {
 	it( 'tells the endpoint which handles the page loaded concatenated, since their tags carry no id', async () => {
 		document.head.innerHTML =
 			'<link rel="stylesheet" href="/wp-admin/load-styles.php?c=0&amp;load%5Bchunk_0%5D=dashicons,buttons" />' +
-			'<script src="/wp-admin/load-scripts.php?c=0&amp;load%5Bchunk_0%5D=jquery-core,underscore&amp;load%5Bchunk_1%5D=backbone"></script>';
+			'<script src="/wp-admin/load-scripts.php?c=0&amp;load%5Bchunk_0%5D=jquery-core,unders&amp;load%5Bchunk_1%5D=core,backbone"></script>';
 		respondWith( `${ MEDIA_VIEWS }${ TEMPLATES }` );
 
 		await loadMediaLibrary();
