@@ -30,6 +30,24 @@ describe( 'useTabView', () => {
 		] );
 	} );
 
+	it( 'records one view when the admin shell shows the page again at another tab', () => {
+		const { rerender } = renderHook( ( { tab }: { tab: SocialTab } ) => useTabView( tab ), {
+			initialProps: { tab: 'overview' },
+		} );
+		recordEvent.mockClear();
+
+		rerender( { tab: 'settings' } );
+		window.dispatchEvent(
+			new CustomEvent( 'jetpack-admin-shell:page-shown', {
+				detail: { page: 'jetpack-social', firstShow: false, routeChanged: true },
+			} )
+		);
+
+		expect( recordEvent.mock.calls ).toEqual( [
+			[ 'jetpack_social_tab_view', { tab: 'settings' } ],
+		] );
+	} );
+
 	it( 'records the tab again when the admin shell shows the page again, not on its first show', () => {
 		renderHook( () => useTabView( 'settings' ) );
 

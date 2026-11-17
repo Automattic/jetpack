@@ -284,7 +284,9 @@ export default function App() {
 		recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
 		// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
 		const onShown = event => {
-			if ( event.detail?.page === 'jetpack-ai' && ! event.detail.firstShow ) {
+			// A route change that changes the tab runs this effect again, which records it.
+			const { page, firstShow, routeChanged } = event.detail ?? {};
+			if ( page === 'jetpack-ai' && ! firstShow && ! routeChanged ) {
 				recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
 			}
 		};

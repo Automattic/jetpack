@@ -22,8 +22,9 @@ export default function useTabView( activeTab: SocialTab ): void {
 	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
 	useEffect( () => {
 		const onShown = ( event: Event ) => {
-			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
-			if ( page === 'jetpack-social' && ! firstShow ) {
+			const { page, firstShow, routeChanged } = ( event as CustomEvent ).detail ?? {};
+			// A route change that changes the tab runs the effect above, which records it.
+			if ( page === 'jetpack-social' && ! firstShow && ! routeChanged ) {
 				analytics.tracks.recordEvent( 'jetpack_social_tab_view', { tab: activeTab } );
 			}
 		};

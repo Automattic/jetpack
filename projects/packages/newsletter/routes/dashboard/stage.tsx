@@ -135,8 +135,9 @@ const Stage = () => {
 	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
 	useEffect( () => {
 		const onShown = ( event: Event ) => {
-			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
-			if ( page === 'jetpack-newsletter' && ! firstShow ) {
+			const { page, firstShow, routeChanged } = ( event as CustomEvent ).detail ?? {};
+			// A route change that changes the tab runs the effect above, which records it.
+			if ( page === 'jetpack-newsletter' && ! firstShow && ! routeChanged ) {
 				analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
 					site_type: getSiteType(),
 					tab: activeTab,

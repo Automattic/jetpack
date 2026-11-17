@@ -100,7 +100,9 @@ export class Main extends Component {
 
 	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
 	onShellPageShown = event => {
-		if ( event.detail?.page === 'jetpack-settings' && ! event.detail.firstShow ) {
+		// A route change that changes the path makes componentDidUpdate record it.
+		const { page, firstShow, routeChanged } = event.detail ?? {};
+		if ( page === 'jetpack-settings' && ! firstShow && ! routeChanged ) {
 			this.recordPageView();
 		}
 	};
