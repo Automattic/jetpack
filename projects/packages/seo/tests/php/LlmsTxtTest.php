@@ -865,8 +865,8 @@ class LlmsTxtTest extends SeoTestCase {
 
 	/**
 	 * @dataProvider provide_filtered_limits
-	 * @param string $post_type Post type the filter changes.
-	 * @param int    $limit     Limit the filter returns for it.
+	 * @param string     $post_type Post type the filter changes.
+	 * @param int|string $limit     Limit the filter returns for it.
 	 */
 	#[DataProvider( 'provide_filtered_limits' )]
 	public function test_limit_filter_changes_only_its_post_type( $post_type, $limit ) {
@@ -883,13 +883,16 @@ class LlmsTxtTest extends SeoTestCase {
 		add_filter( 'jetpack_seo_llms_txt_items_per_type', $filter, 10, 2 );
 
 		$counts = array();
-		foreach ( $types as $type ) {
-			$counts[ $type ] = count( $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', $type ) );
+		try {
+			foreach ( $types as $type ) {
+				$counts[ $type ] = count( $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', $type ) );
+			}
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt_items_per_type', $filter, 10 );
 		}
-		remove_filter( 'jetpack_seo_llms_txt_items_per_type', $filter, 10 );
 
 		$expected               = array_fill_keys( $types, 5 );
-		$expected[ $post_type ] = $limit;
+		$expected[ $post_type ] = (int) $limit;
 		$this->assertSame( $expected, $counts );
 	}
 
@@ -898,10 +901,11 @@ class LlmsTxtTest extends SeoTestCase {
 	 */
 	public static function provide_filtered_limits(): array {
 		return array(
-			'pages'         => array( 'page', 3 ),
-			'posts'         => array( 'post', 3 ),
-			'custom posts'  => array( 'seo_book', 3 ),
-			'pages at zero' => array( 'page', 0 ),
+			'pages'                 => array( 'page', 3 ),
+			'posts'                 => array( 'post', 3 ),
+			'custom posts'          => array( 'seo_book', 3 ),
+			'pages at zero'         => array( 'page', 0 ),
+			'posts as numeric text' => array( 'post', '3' ),
 		);
 	}
 
@@ -918,9 +922,11 @@ class LlmsTxtTest extends SeoTestCase {
 			return $limit;
 		};
 		add_filter( 'jetpack_seo_llms_txt_items_per_type', $filter );
-
-		$posts = $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', 'post' );
-		remove_filter( 'jetpack_seo_llms_txt_items_per_type', $filter );
+		try {
+			$posts = $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', 'post' );
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt_items_per_type', $filter );
+		}
 
 		$this->assertCount( Llms_Txt::MAX_POSTS_PER_TYPE, $posts );
 	}

@@ -35,7 +35,7 @@ class Llms_Txt {
 
 	/**
 	 * Default max items listed per supported content type, so a large site doesn't dump
-	 * its whole tree. Items the owner always includes are listed even past it.
+	 * its whole tree.
 	 */
 	const MAX_POSTS_PER_TYPE = 50;
 
@@ -446,26 +446,31 @@ class Llms_Txt {
 		 * @param string $post_type Post type slug.
 		 */
 		$limit = apply_filters( 'jetpack_seo_llms_txt_items_per_type', self::MAX_POSTS_PER_TYPE, $post_type );
+		$limit = filter_var( $limit, FILTER_VALIDATE_INT, array( 'options' => array( 'min_range' => 0 ) ) );
 
-		return is_int( $limit ) && $limit >= 0 ? $limit : self::MAX_POSTS_PER_TYPE;
+		return false === $limit ? self::MAX_POSTS_PER_TYPE : $limit;
 	}
 
 	/**
 	 * Pages ranked: the ones the owner always includes, then the main menu, then other
 	 * displayed menus, then the rest by {@see get_pages_by_order()}.
 	 *
-	 * @param int $limit Max pages to list, unless more are always included.
+	 * @param int $limit Max pages to list.
 	 * @return \WP_Post[]
 	 */
 	private static function get_pages( $limit ) {
 		$always_included = self::get_always_included_posts( 'page' );
-		$skip            = wp_list_pluck( $always_included, 'ID' );
-		$menus           = Nav_Menu_Pages::get();
-		$room            = max( 0, $limit - count( $always_included ) );
-		$main            = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), $room );
-		$room           -= count( $main );
-		$other           = self::get_pages_in_order( array_values( array_diff( $menus['other'], $skip ) ), $room );
-		$room           -= count( $other );
+		$room            = $limit - count( $always_included );
+		if ( $room <= 0 ) {
+			return $always_included;
+		}
+
+		$skip  = wp_list_pluck( $always_included, 'ID' );
+		$menus = Nav_Menu_Pages::get();
+		$main  = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), $room );
+		$room -= count( $main );
+		$other = self::get_pages_in_order( array_values( array_diff( $menus['other'], $skip ) ), $room );
+		$room -= count( $other );
 		if ( $room <= 0 ) {
 			return array_merge( $always_included, $main, $other );
 		}
