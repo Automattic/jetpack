@@ -27,7 +27,7 @@ final class Dashboard_Section_Registry {
 	const REGISTER_ACTION = 'jetpack_premium_analytics_register_dashboard_sections';
 
 	/**
-	 * Slugs the dashboard stage uses for its own tabs, which a section may not take.
+	 * Slugs a section may not take: the dashboard redirects `?section=settings` to the Settings page.
 	 *
 	 * @var string[]
 	 */

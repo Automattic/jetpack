@@ -10,9 +10,11 @@ namespace Automattic\Jetpack\WooCommerceStats;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Capability;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Handler;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Provider;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Request;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Forward_Handler;
@@ -444,7 +446,282 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertSame( array( 'x-wp-total' => '42' ), $this->get_report()->get_headers() );
+		$this->assertSame(
+			array(
+				'x-wp-total'                => '42',
+				'X-Jetpack-Report-Provider' => 'wpcom',
+				'X-Jetpack-Report-Contract' => 'orders.by_date@1',
+			),
+			$this->get_report()->get_headers()
+		);
+	}
+
+	/**
+	 * @dataProvider data_plain_reports
+	 *
+	 * @param string $route    Route requested.
+	 * @param string $contract Expected contract header.
+	 */
+	#[DataProvider( 'data_plain_reports' )]
+	public function test_names_the_provider_and_contract_without_changing_the_body( $route, $contract ) {
+		$body           = '{"summary":{"orders_no":3},"intervals":[]}';
+		$this->upstream = $this->upstream_response( 200, $body );
+
+		$fresh  = $this->get_report( $route );
+		$cached = $this->get_report( $route );
+
+		$this->assertCount( 1, $this->requests );
+		foreach ( array( $fresh, $cached ) as $response ) {
+			$this->assertEquals( json_decode( $body, false ), $response->get_data() );
+			$this->assertSame( 'wpcom', $response->get_headers()['X-Jetpack-Report-Provider'] );
+			$this->assertSame( $contract, $response->get_headers()['X-Jetpack-Report-Contract'] );
+		}
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function data_plain_reports() {
+		return array(
+			'a described report'    => array( 'orders/by-date', 'orders.by_date@1' ),
+			'an undescribed one'    => array( 'products', 'products@0' ),
+			'with a trailing slash' => array( 'coupons/', 'coupons@0' ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_unreadable_fields
+	 *
+	 * @param string $route  Route requested.
+	 * @param string $fields The `report_fields` param.
+	 * @param string $code   Expected error code.
+	 */
+	#[DataProvider( 'data_unreadable_fields' )]
+	public function test_refuses_fields_the_contract_does_not_list( $route, $fields, $code ) {
+		$response = $this->get_report( $route, array( 'report_fields' => $fields ) );
+
+		$this->assertSame( 422, $response->get_status() );
+		$this->assertSame( $code, $response->get_data()['code'] );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string, 2: string}>
+	 */
+	public static function data_unreadable_fields() {
+		return array(
+			'an unknown field'         => array( 'orders/by-date', 'orders_no,orders_count', 'unknown_field' ),
+			'no field at all'          => array( 'orders/by-date', ' , ', 'unknown_field' ),
+			'fields of another report' => array( 'sessions/by-device', 'orders_no', 'unknown_field' ),
+			'an undescribed report'    => array( 'products', 'orders_no', 'fields_not_described' ),
+		);
+	}
+
+	public function test_forwards_the_fields_param_of_wordpress_com() {
+		$response = $this->get_report(
+			'taxes/breakdown',
+			array(
+				'fields'        => 'tax_rate,total_tax',
+				'force_refresh' => '1',
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString( 'fields=tax_rate%2Ctotal_tax', $this->requests[0]['url'] );
+	}
+
+	public function test_never_forwards_report_fields() {
+		$this->upstream = $this->upstream_response( 200, '{"summary":{"orders_no":3}}' );
+
+		$this->get_report( 'orders/by-date', array( 'report_fields' => 'orders_no' ) );
+
+		$this->assertStringNotContainsString( 'report_fields', $this->requests[0]['url'] );
+	}
+
+	/**
+	 * @dataProvider data_named_fields
+	 *
+	 * @param array $params Query params.
+	 * @param int   $status Expected status.
+	 */
+	#[DataProvider( 'data_named_fields' )]
+	public function test_refuses_an_answer_without_a_named_field( array $params, $status ) {
+		$this->upstream = $this->upstream_response( 200, '{"summary":{"orders_no":3}}' );
+
+		$response = $this->get_report( 'orders/by-date', $params );
+
+		$this->assertSame( $status, $response->get_status() );
+		if ( 502 === $status ) {
+			$this->assertSame( 'contract_violation', $response->get_data()['code'] );
+		}
+	}
+
+	/**
+	 * @return array<string, array{0: array, 1: int}>
+	 */
+	public static function data_named_fields() {
+		return array(
+			'a named field missing'   => array( array( 'report_fields' => 'orders_no,total_sales' ), 502 ),
+			'named fields present'    => array( array( 'report_fields' => 'orders_no' ), 200 ),
+			'no fields named'         => array( array(), 200 ),
+			'only wpcom fields named' => array( array( 'fields' => 'total_sales' ), 200 ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_uncovered_requests
+	 *
+	 * @param array       $params Query params, with `provider=local`.
+	 * @param int         $status Expected status.
+	 * @param string|null $code Expected error code.
+	 */
+	#[DataProvider( 'data_uncovered_requests' )]
+	public function test_refuses_a_forced_provider_that_cannot_cover_the_request( array $params, $status, $code ) {
+		$this->register_partial_local_handler();
+
+		$response = $this->get_report( 'orders/by-date', array( 'provider' => 'local' ) + $params );
+
+		$this->assertSame( $status, $response->get_status() );
+		if ( null !== $code ) {
+			$this->assertSame( $code, $response->get_data()['code'] );
+		}
+	}
+
+	/**
+	 * @return array<string, array{0: array, 1: int, 2: string|null}>
+	 */
+	public static function data_uncovered_requests() {
+		return array(
+			'the whole contract'        => array( array(), 422, 'unsupported_fields' ),
+			'an uncovered field'        => array( array( 'report_fields' => 'orders_no,total_sales' ), 422, 'unsupported_fields' ),
+			'an uncovered param'        => array(
+				array(
+					'report_fields' => 'orders_no',
+					'filters'       => 'status',
+				),
+				422,
+				'unsupported_parameter',
+			),
+			'covered fields and params' => array(
+				array(
+					'report_fields' => 'orders_no',
+					'from'          => '2026-01-01',
+				),
+				200,
+				null,
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider data_handler_bodies
+	 *
+	 * @param bool $as_object Whether the handler answers with an object, as decoded JSON is.
+	 */
+	#[DataProvider( 'data_handler_bodies' )]
+	public function test_lists_the_contract_fields_a_partial_handler_leaves_out( $as_object ) {
+		$this->register_partial_local_handler( $as_object );
+
+		$response = $this->get_report(
+			'orders/by-date',
+			array(
+				'provider'      => 'local',
+				'report_fields' => 'orders_no',
+			)
+		);
+
+		$data = (array) $response->get_data();
+		$this->assertContains( 'total_sales', $data['unsupported_fields'] );
+		$this->assertNotContains( 'orders_no', $data['unsupported_fields'] );
+		$this->assertSame( 3, ( (array) $data['summary'] )['orders_no'] );
+		$this->assertSame( 'local', $response->get_headers()['X-Jetpack-Report-Provider'] );
+	}
+
+	/**
+	 * @return array<string, array{0: bool}>
+	 */
+	public static function data_handler_bodies() {
+		return array(
+			'an array body'  => array( false ),
+			'an object body' => array( true ),
+		);
+	}
+
+	/**
+	 * Register a `local` provider whose `orders.by_date` handler serves only `orders_no`, by `from` and `to`.
+	 *
+	 * @param bool $as_object Whether the handler answers with an object.
+	 */
+	private function register_partial_local_handler( $as_object = false ) {
+		add_action(
+			Report_Registry::REGISTER_ACTION,
+			function ( Report_Registry $registry ) use ( $as_object ) {
+				$registry->register_provider(
+					'local',
+					// @phan-suppress-next-line PhanAccessClassInternal -- The test stands in for step 3's local provider.
+					new class() implements Report_Provider {
+						/**
+						 * Always ready.
+						 *
+						 * @return true
+						 */
+						public function check_ready() {
+							return true;
+						}
+					}
+				);
+				$registry->register_handler(
+					'orders.by_date',
+					'local',
+					// @phan-suppress-next-line PhanAccessClassInternal -- The test stands in for step 3's local handler.
+					new class( $as_object ) implements Report_Handler, Report_Capability {
+						/**
+						 * Whether to answer with an object.
+						 *
+						 * @var bool
+						 */
+						private $as_object;
+
+						/**
+						 * Constructor.
+						 *
+						 * @param bool $as_object Whether to answer with an object.
+						 */
+						public function __construct( $as_object ) {
+							$this->as_object = $as_object;
+						}
+
+						/**
+						 * Serves `orders_no` only.
+						 *
+						 * @return array
+						 */
+						public function get_capability() {
+							return array(
+								'fields' => array( 'orders_no' ),
+								'params' => array( 'from', 'to' ),
+							);
+						}
+
+						/**
+						 * Answer with the one field.
+						 *
+						 * @param Report_Request $request The request.
+						 * @return array
+						 */
+						public function run( Report_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+							$summary = array( 'orders_no' => 3 );
+
+							return array(
+								'data'    => $this->as_object ? (object) array( 'summary' => (object) $summary ) : array( 'summary' => $summary ),
+								'status'  => 200,
+								'headers' => array(),
+							);
+						}
+					}
+				);
+			}
+		);
 	}
 
 	/**

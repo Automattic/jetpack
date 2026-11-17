@@ -4,7 +4,11 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { dispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { DASHBOARD_PREFERENCES_SCOPE, getStatsDatePolicy } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_PREFERENCES_SCOPE,
+	getStatsDatePolicy,
+	setSectionOrder,
+} from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -27,6 +31,7 @@ beforeEach( () => {
 afterEach( () => {
 	jest.useRealTimers();
 	dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+	setSectionOrder( DASHBOARD_PREFERENCES_SCOPE );
 } );
 
 describe( 'limitStatsDateSearch', () => {
@@ -70,6 +75,16 @@ describe( 'dashboardSectionOf', () => {
 		[ 'unknown-tab', [ 'traffic' ], 'traffic' ],
 	] )( 'resolves %p among %p to %p', ( section, sections, expected ) => {
 		setLocks( [ 'recent-7-days' ], sections );
+
+		expect( dashboardSectionOf( section ) ).toBe( expected );
+	} );
+
+	it.each( [
+		[ 'the first tab of the order the reader arranged', [ 'store' ], undefined, 'store' ],
+		[ 'past a tab the server does not list', [ 'ads', 'store' ], undefined, 'store' ],
+		[ 'the tab the URL names all the same', [ 'store' ], 'traffic', 'traffic' ],
+	] )( 'opens on %s', ( _case, order, section, expected ) => {
+		setSectionOrder( DASHBOARD_PREFERENCES_SCOPE, order );
 
 		expect( dashboardSectionOf( section ) ).toBe( expected );
 	} );

@@ -353,7 +353,7 @@ const PieChartInternal = ( {
 	);
 
 	return (
-		<ChartInstanceContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId, legendItems, chartType: 'pie' } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -563,7 +563,7 @@ const PieChart = attachSubComponents( PieChartWithProvider, {
 
 // Create responsive PieChart with composition API
 const PieChartResponsive = attachSubComponents(
-	withResponsive< PieChartProps >( PieChartWithProvider ),
+	withResponsive< PieChartProps >( PieChartWithProvider, { derivesOwnHeight: true } ),
 	{
 		Legend: Legend,
 		SVG: ChartSVG,

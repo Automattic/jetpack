@@ -22,6 +22,7 @@ require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
 require_once __DIR__ . '/class-ai-launchpad-difm-offer.php';
+require_once __DIR__ . '/class-ai-launchpad-bring-your-ai-tool.php';
 require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
@@ -64,6 +65,8 @@ class AI_Launchpad {
 			return;
 		}
 
+		// WordPress 7.2 answers an unregistered page on wp_admin_page_not_found and never reaches admin_page_access_denied.
+		add_action( 'wp_admin_page_not_found', array( __CLASS__, 'redirect_to_dashboard' ) );
 		add_action( 'admin_page_access_denied', array( __CLASS__, 'redirect_to_dashboard' ) );
 
 		self::load_wp_build();

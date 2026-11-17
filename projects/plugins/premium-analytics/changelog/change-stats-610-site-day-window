@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Move a preset's dates to the new day when a page is left open past midnight, so the numbers and the date controls include today.

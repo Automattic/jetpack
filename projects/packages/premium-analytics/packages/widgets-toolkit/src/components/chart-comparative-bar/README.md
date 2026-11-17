@@ -71,5 +71,5 @@ unreadable. A previous period whose bars are hidden still gives its values, as t
 ## Y-axis domain
 
 Percentage metrics are pinned to 0%–100% and an all-zero period gets a readable axis instead of a
-flat baseline, both via the shared `getFixedYAxis` helper. Zero-value bars are drawn as hairline
-stubs (`showZeroValues`) so a quiet day reads as zero rather than missing data.
+flat baseline, both via the shared `getFixedYAxis` helper. Once a visible bar passes 100%, as a
+replayed video's retention rate does, the axis scales to the data instead.

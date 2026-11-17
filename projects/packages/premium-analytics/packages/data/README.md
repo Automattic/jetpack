@@ -94,7 +94,7 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 **Validation:** Ensures required fields are present for API calls; a `step` the arrows set is kept with a hand-picked window only, so a link from a widget steps the way the dashboard did
 
-**Presets:** A computable preset is the window it names today, whatever `from`/`to` the URL kept (all time keeps its `from`), and its `compare_preset` is measured again from that window, falling back to the previous period where the window no longer offers it. A hand-picked window is its dates, and so is its comparison.
+**Presets:** A computable preset is the window it names today, whatever `from`/`to` the URL kept (all time keeps its `from`), and its `compare_preset` is measured again from that window, falling back to the previous period where the window no longer offers it. A hand-picked window is its dates, and so is its comparison. The clock is read on each call, so a memoized caller adds `useSiteDay()` to its dependencies to move to the new day at the site's midnight.
 
 ### `getDefaultIntervalForPeriod( preset, from, to )`
 
@@ -167,7 +167,9 @@ bucket lands in one list only.
 ### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
 Returns whether report date params are incomplete or the interval is invalid
-for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
+for the window the report reads (`from` / `to` / `interval` missing, or
+`interval` not allowed). A preset's window is the one it names today, not the
+saved `from` / `to`.
 
 **Parameters:**
 
@@ -237,17 +239,25 @@ The date controls read it through `useReportScope()`; absent where the host appl
 ### Period changes a widget sets
 
 A widget never writes the surface's window itself. It calls `openPeriod` from `useReportScope()`,
-which the host built with `usePeriodHost()` (routing package). That call raises a period-change
-signal (`PeriodChangeSignalProvider`, mounted once per stage) and commits the range to the URL in
-one history entry. Once the host's control shows the applied range, `useSettlePeriodChange()`
-matches the pending signal to the surface and hands out an `attentionId` for 1.6 seconds, then
-drops it; a signal whose navigation landed elsewhere, or older than 5 seconds, is dropped unused,
-so a period the reader picked, a tab switch or Customize never replay it.
+which the host built with `usePeriodHost()` (routing package), or `useOpenSectionRange()` to open
+another dashboard section. Either call raises a period-change signal (`PeriodChangeSignalProvider`,
+mounted once per stage) naming the surface and the range, and commits the range to the URL in one
+history entry. `useSettlePeriodChange()` fires the signal as soon as it names the host's surface
+and the host's control shows, so a change on the same surface fires at once and one for another
+section waits for that section. It hands out the `PeriodChange` (`id` and `range`) for 1.6
+seconds, or until the control hides, the surface moves on, or the reader moves the applied range
+away from the one raised; a signal whose surface lands elsewhere, or older than 5 seconds, is
+dropped unused, so a period the reader picked, a tab switch or Customize never replay it.
 
-The host passes `attentionId` to the date control (`DatePeriodDropdown` draws a fading fill),
-to `PeriodChangeStatus` (the live region reads the new range out) and, on a detail page, to the
-layout's `returnToTopKey`. A host that renders its control through the `jpa/report-params` field
-puts `attentionId` on `ReportScopeProvider` next to `openPeriod`, and the field reads it there.
+The host passes the change's `id` to the date control (`DatePeriodDropdown` draws a fading fill)
+and, on a detail page, to the layout's `returnToTopKey`, and the change itself to
+`PeriodChangeStatus`, whose live region reads the range out. `ReportScope` also carries an
+`attentionId` for the `jpa/report-params` field to read; the stages in this package hand the `id`
+straight to their date control instead.
+
+A range the surface's plan will move (one starting before `dateLimits.earliestDate`) is committed
+but not signalled: the route redirects to the plan's window and explains it, and the control never
+draws attention to a period it does not show.
 
 ## Architecture
 
@@ -279,25 +289,22 @@ Timezone-aware date helpers live in `@jetpack-premium-analytics/datetime`.
 
 ### `ensureCoreSettingsReady()`
 
-Ensures the WordPress core `site` and `general settings` records are
-resolved, so components reading them (e.g. `useSiteHomeUrl`) render with a
-warm cache.
+Starts loading the WordPress core `site` record.
+Route guards call it without awaiting, so a page never waits on the settings
+request; components reading the record (e.g. `useSiteHomeUrl`) must handle
+`undefined` while they load.
 
 ```typescript
-// In route loaders or beforeLoad hooks
-await ensureCoreSettingsReady();
+// In route beforeLoad hooks
+ensureCoreSettingsReady().catch( () => {} );
 ```
 
-**Returns:** `Promise<void>` - Resolves when settings are loaded
+**Returns:** `Promise<void>` - Resolves when settings are loaded, rejects on failure
 
 **Features:**
 
 - Memoizes the promise to avoid duplicate requests
-- Prevents race conditions during navigation
-- Essential for route prefetching and hover preloading
-
-These functions automatically use the WordPress site's timezone settings
-and provide consistent date handling across the analytics interface.
+- Resolves at once for readers without `manage_options`
 
 ## Complete API Exports
 
@@ -312,6 +319,7 @@ This package exports the following public API:
 - `useReport` - Run a report query with comparison support
 - `useStats*` - One hook per Stats endpoint (`useStatsTopPosts`, `useStatsReferrers`, `useStatsVisits`, …)
 - `useScopeLockedIntervals` - The buckets the nearest report scope's plan locks; none where it sets no date limits
+- `useSiteDay` - The start of the site's current day, which changes at the site's midnight; a memo dependency for anything that reads a preset's window
 
 ### Functions
 
@@ -321,7 +329,8 @@ This package exports the following public API:
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
 - `intervalMenuOptions` - The open, withheld and locked buckets an interval menu lists
 - `getDaysBetweenInclusive` - The calendar days a range spans, both ends counted
-- `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
+- `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the window the report reads
+- `deriveComparisonRange` - The comparison window a range offers for a comparison preset, else its previous period
 - `getStatsDatePolicy` - The date limits the site's plan sets
 - `getSectionDatePolicy` - The date limits a dashboard section follows
 - `isPlanDateLimitedSection` - Whether a dashboard section's dates follow the plan

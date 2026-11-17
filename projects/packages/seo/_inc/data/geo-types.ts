@@ -50,7 +50,7 @@ export interface GeoState {
 		searchEnginesVisible: boolean;
 		/** Whether the site is on a crawl-restricted `*.wpcomstaging.com` subdomain. */
 		restrictedSubdomain: boolean;
-		/** Whether a static robots.txt file exists in the WordPress installation directory. */
+		/** Whether a static robots.txt file exists in the site's public directory. */
 		staticRobotsTxt: boolean;
 		/** Whether WordPress.com's site-wide data-sharing opt-out overrides per-bot settings. */
 		dataSharingOptOut: boolean;

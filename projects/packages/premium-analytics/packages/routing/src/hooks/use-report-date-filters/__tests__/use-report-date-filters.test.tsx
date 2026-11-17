@@ -530,8 +530,7 @@ describe( 'useReportDateFilters', () => {
 
 	it( 'lists and checks the buckets of the window a preset names today, not of the dates the URL kept', () => {
 		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
-		// Bookmarked three days into the year with the day bucket those dates allowed, so the route
-		// guard lets the URL through; the widgets draw the grown window by weeks.
+		// Bookmarked three days into the year with the day bucket those dates allowed.
 		const { result } = renderDateFilters( {
 			from: '2026-01-01T00:00:00.000+00:00',
 			to: '2026-01-03T23:59:59.999+00:00',
@@ -921,9 +920,8 @@ describe( 'useReportDateFilters', () => {
 		expect( mockSearch.to ).toBe( '2026-09-14T15:30:00.000+00:00' );
 	} );
 
-	// A card raises the signal with the range it computed, so the range it then
-	// commits must round-trip to the same instants for the two to match.
-	it( 'lands a raised period change when a card commits its range exactly', () => {
+	// The cue fires before the range lands, and is let go if the landed range differs from it.
+	it( 'keeps a raised period change once a card commits its range exactly', () => {
 		const wrapper = ( { children }: { children: ReactNode } ) => (
 			<PeriodChangeSignalProvider>{ children }</PeriodChangeSignalProvider>
 		);
@@ -944,14 +942,14 @@ describe( 'useReportDateFilters', () => {
 			to: new TZDate( '2026-09-14T15:30:00.000Z', 'UTC' ),
 		};
 
+		act( () => result.current.raise( 'post:1', currentMonth ) );
 		act( () => {
-			result.current.raise( 'post:1', currentMonth );
 			result.current.filters.onChange( currentMonth, 'custom', { exactRange: true } );
 			result.current.filters.onApply();
 		} );
 		rerender();
 
-		expect( result.current.control ).toEqual( expect.any( Number ) );
+		expect( result.current.control?.id ).toEqual( expect.any( Number ) );
 	} );
 
 	it( 'steps a to-date preset by whole months and compares it with the months before', () => {
@@ -1045,6 +1043,31 @@ describe( 'useReportDateFilters', () => {
 		rerender();
 
 		expect( result.current.stepping.canStepForward ).toBe( true );
+	} );
+
+	it( "moves a preset's window, applied and edited, to the new day after the site's midnight", () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T23:59:30.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-08-14T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-7-days',
+		} );
+		expect( result.current.appliedRange.to?.getTime() ).toBe(
+			Date.parse( '2026-08-20T23:59:59.999Z' )
+		);
+
+		act( () => {
+			jest.advanceTimersByTime( 60 * 1000 );
+		} );
+
+		const newWeek = {
+			from: Date.parse( '2026-08-15T00:00:00.000Z' ),
+			to: Date.parse( '2026-08-21T23:59:59.999Z' ),
+		};
+		expect( result.current.appliedRange.from?.getTime() ).toBe( newWeek.from );
+		expect( result.current.appliedRange.to?.getTime() ).toBe( newWeek.to );
+		expect( result.current.range.from?.getTime() ).toBe( newWeek.from );
+		expect( result.current.range.to?.getTime() ).toBe( newWeek.to );
 	} );
 
 	it( 'binds to the route it is given', () => {

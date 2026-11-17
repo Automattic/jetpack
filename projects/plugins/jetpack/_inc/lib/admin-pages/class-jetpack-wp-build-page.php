@@ -39,29 +39,34 @@ class Jetpack_WP_Build_Page {
 	 *
 	 * @param string $page_id The route's page id. It must not be the menu slug: the generated
 	 *                        standalone page.php intercepts `admin_init` for its own id and exits.
+	 * @param bool   $alias   Whether to alias the screen ID. Pass false to ready the page's routes on another page, which must not boot it.
 	 * @return bool Whether the build output exists and can render the page.
 	 */
-	public static function load( $page_id ) {
+	public static function load( $page_id, $alias = true ) {
 		$build_index = JETPACK__PLUGIN_DIR . 'build/build.php';
 		if ( ! file_exists( $build_index ) ) {
 			return false;
 		}
 
-		self::$page_id = $page_id;
-
 		// Hooked on either side of the require, so the alias holds only for the generated
 		// enqueue check it registers at the same priority.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
+		if ( $alias ) {
+			self::$page_id = $page_id;
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
+		}
 		require_once $build_index;
 
 		// A stale or partial build can't render the page, so don't swap core's scripts for it.
-		if ( ! function_exists( 'jetpack_plugin_' . str_replace( '-', '_', $page_id ) . '_wp_admin_render_page' ) ) {
+		$renders = function_exists( 'jetpack_plugin_' . str_replace( '-', '_', $page_id ) . '_wp_admin_render_page' );
+		if ( $alias && $renders ) {
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
+		} elseif ( $alias ) {
 			remove_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
 			self::$page_id = null;
+		}
+		if ( ! $renders ) {
 			return false;
 		}
-
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
 
 		// wp-build hooks module registration to wp_default_scripts, which has already fired by

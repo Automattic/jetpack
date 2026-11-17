@@ -23,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.17.0';
+	const PACKAGE_VERSION = '0.18.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -389,6 +389,10 @@ class Analytics {
 
 		require_once __DIR__ . '/assets-url.php';
 		configure_assets_url();
+
+		// The locale's default date format, for site formats the dashboard cannot shorten.
+		require_once __DIR__ . '/date-format.php';
+		configure_date_format();
 
 		// Temporary: carries a default layout move into layouts readers customized before it.
 		Stored_Layout_Move::register();

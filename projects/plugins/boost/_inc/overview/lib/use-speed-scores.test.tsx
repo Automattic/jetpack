@@ -1,4 +1,5 @@
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import type { SpeedScoreProgress } from '@automattic/jetpack-boost-score-api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
@@ -550,7 +551,7 @@ test( 'keeps the latest reported progress during a run and drops it when scores 
 	const { result } = renderHook( () => useSpeedScores(), { wrapper } );
 	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
 	const nextScores = { current: { mobile: 88, desktop: 95 }, noBoost: null, isStale: false };
-	let report!: ( progress: { elapsed: number; expected: number } ) => void;
+	let report!: ( progress: SpeedScoreProgress ) => void;
 	let resolveRequest!: ( scores: typeof nextScores ) => void;
 	jest.mocked( requestSpeedScores ).mockImplementationOnce(
 		( _force, _root, _url, _nonce, options ) =>
@@ -564,8 +565,9 @@ test( 'keeps the latest reported progress during a run and drops it when scores 
 	act( () => {
 		request = result.current[ 1 ]( true );
 	} );
-	act( () => report( { elapsed: 12, expected: 40 } ) );
-	expect( result.current[ 0 ].progress ).toMatchObject( { elapsed: 12, expected: 40 } );
+	const reported = { elapsed: 12, expected: 40, stage: 'desktop', scores: { mobile: 71 } } as const;
+	act( () => report( reported ) );
+	expect( result.current[ 0 ].progress ).toMatchObject( reported );
 	await act( async () => {
 		resolveRequest( nextScores );
 		await request;

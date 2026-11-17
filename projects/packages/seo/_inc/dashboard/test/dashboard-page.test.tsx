@@ -27,6 +27,9 @@ jest.unstable_mockModule( '../dashboard-nav', () => ( {
 jest.unstable_mockModule( '../../data/record-seo-event', () => ( {
 	recordScreenViewOnce: jest.fn(),
 } ) );
+jest.unstable_mockModule( '../../components/search-visibility-notice', () => ( {
+	default: () => null,
+} ) );
 
 const { default: DashboardPage } = await import( '../dashboard-page' );
 

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-11-16
+### Changed
+- Send batched server-side stats without waiting for a response, and add `do_server_side_stat_without_waiting()` to send a single stat the same way. [#54644]
+
 ## [4.0.1] - 2026-10-20
 ### Changed
 - Internal updates.
@@ -199,6 +203,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Creates the MC Stats package
 
+[4.1.0]: https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v4.0.1...v4.1.0
 [4.0.1]: https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v3.0.10...v4.0.0
 [3.0.10]: https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v3.0.9...v3.0.10

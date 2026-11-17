@@ -1,6 +1,5 @@
 {
 	"name": "@automattic/jetpack-port-verification",
-	"version": "1.0.0",
 	"private": true,
 	"description": "JETPACK-2685: script the geometry and network-panel checks from the wp-build port verification rule (JETPACK-2573)",
 	"license": "GPL-2.0-or-later",

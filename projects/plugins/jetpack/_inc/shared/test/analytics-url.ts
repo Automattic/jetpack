@@ -80,6 +80,7 @@ describe( 'getAnalyticsUrl', () => {
 	it.each( [
 		[ { view: 'dashboard' }, '/' ],
 		[ { view: 'post', id: 42 }, '/post/42' ],
+		[ { view: 'settings' }, '/settings' ],
 		[ { view: 'dashboard', section: 'traffic' }, '/?section=traffic' ],
 		[ { view: 'dashboard', section: 'insights' }, '/?section=insights' ],
 		[ { view: 'dashboard', section: 'subscribers' }, '/?section=subscribers' ],

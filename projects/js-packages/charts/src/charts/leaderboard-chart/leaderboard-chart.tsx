@@ -444,7 +444,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	);
 
 	return (
-		<ChartInstanceContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId, legendItems, chartType: 'leaderboard' } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -654,7 +654,9 @@ const LeaderboardChart = attachSubComponents( LeaderboardChartWithProvider, {
 
 // Create responsive LeaderboardChart with composition API
 const LeaderboardChartResponsive = attachSubComponents(
-	withResponsive< LeaderboardChartProps >( LeaderboardChartWithProvider ),
+	withResponsive< LeaderboardChartProps >( LeaderboardChartWithProvider, {
+		waitForSize: false,
+	} ),
 	{
 		Legend: Legend,
 	}

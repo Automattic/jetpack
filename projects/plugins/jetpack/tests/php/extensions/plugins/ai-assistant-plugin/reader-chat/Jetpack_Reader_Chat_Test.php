@@ -64,6 +64,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_reader_chat_enabled' );
 		remove_all_filters( 'jetpack_reader_chat_enqueue_enabled' );
 		remove_all_filters( 'jetpack_reader_chat_has_ai_features' );
+		remove_all_filters( 'jetpack_site_chat_query_filter' );
+		delete_option( 'reader_chat_query_filter' );
 		remove_all_filters( 'jetpack_reader_chat_has_search_plan_access' );
 		remove_all_filters( 'jetpack_reader_chat_load_strategy' );
 		remove_filter( 'wp_resource_hints', array( Jetpack_Reader_Chat::class, 'add_resource_hints' ) );
@@ -242,6 +244,69 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertNotFalse(
 			has_action( 'wp_footer', array( Jetpack_Reader_Chat::class, 'render_mount_div' ) ),
 			'render_mount_div should be hooked when feature is enabled.'
+		);
+	}
+
+	/**
+	 * The Site Chat content filter is stored for wpcom to read.
+	 */
+	public function test_sync_query_filter_option_stores_filter() {
+		$query_filter = array( 'bool' => array( 'must_not' => array( array( 'range' => array( 'date' => array( 'lt' => '2020-01-01' ) ) ) ) ) );
+		add_filter(
+			'jetpack_site_chat_query_filter',
+			function () use ( $query_filter ) {
+				return $query_filter;
+			}
+		);
+
+		Jetpack_Reader_Chat::sync_query_filter_option();
+
+		$this->assertSame( $query_filter, get_option( 'reader_chat_query_filter' ) );
+	}
+
+	/**
+	 * Removing the filter stores an empty array, so old exclusions do not linger.
+	 */
+	public function test_sync_query_filter_option_clears_stored_value_when_filter_is_removed() {
+		update_option( 'reader_chat_query_filter', array( 'term' => array( 'post_type' => 'page' ) ) );
+
+		Jetpack_Reader_Chat::sync_query_filter_option();
+
+		$this->assertSame( array(), get_option( 'reader_chat_query_filter', false ) );
+	}
+
+	/**
+	 * A broken filter must not widen what Site Chat can see, so the last good value stays.
+	 *
+	 * @param mixed $value Value returned by the filter.
+	 * @dataProvider provide_unusable_query_filters
+	 */
+	#[DataProvider( 'provide_unusable_query_filters' )]
+	public function test_sync_query_filter_option_keeps_stored_value_when_filter_is_unusable( $value ) {
+		$stored = array( 'term' => array( 'post_type' => 'page' ) );
+		update_option( 'reader_chat_query_filter', $stored );
+		add_filter(
+			'jetpack_site_chat_query_filter',
+			function () use ( $value ) {
+				return $value;
+			}
+		);
+		$this->setExpectedIncorrectUsage( 'jetpack_site_chat_query_filter' );
+
+		Jetpack_Reader_Chat::sync_query_filter_option();
+
+		$this->assertSame( $stored, get_option( 'reader_chat_query_filter' ) );
+	}
+
+	/**
+	 * Values the filter may return that must not be stored.
+	 *
+	 * @return array
+	 */
+	public static function provide_unusable_query_filters() {
+		return array(
+			'not an array' => array( 'term' ),
+			'oversized'    => array( array( 'terms' => array( 'post_id' => range( 1, 20000 ) ) ) ),
 		);
 	}
 
@@ -962,6 +1027,59 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			'currentPost',
 			$config,
 			'currentPost should not be present when no post is available.'
+		);
+	}
+
+	/**
+	 * Test that gated posts do not put their body in the page config.
+	 *
+	 * @dataProvider provide_gated_posts
+	 *
+	 * @param array $post_args Extra wp_insert_post arguments.
+	 * @param array $meta      Post meta to set.
+	 */
+	#[DataProvider( 'provide_gated_posts' )]
+	public function test_config_no_current_post_for_gated_posts( array $post_args, array $meta = array() ) {
+		$post_id = self::factory()->post->create(
+			array_merge(
+				array(
+					'post_title'   => 'Gated post',
+					'post_content' => 'Subscriber-only body.',
+					'post_status'  => 'publish',
+				),
+				$post_args
+			)
+		);
+		foreach ( $meta as $key => $value ) {
+			update_post_meta( $post_id, $key, $value );
+		}
+
+		$this->go_to( get_permalink( $post_id ) );
+		$this->assertTrue( is_singular(), 'Should be on a singular view.' );
+
+		$config = $this->get_enqueued_config();
+
+		$this->assertArrayNotHasKey( 'currentPost', $config, 'currentPost should be omitted for gated posts.' );
+		$this->assertStringNotContainsString( 'Subscriber-only body', wp_json_encode( $config, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Data provider for gated posts.
+	 *
+	 * @return array
+	 */
+	public static function provide_gated_posts() {
+		return array(
+			'subscribers'       => array( array(), array( '_jetpack_newsletter_access' => 'subscribers' ) ),
+			'paid_subscribers'  => array( array(), array( '_jetpack_newsletter_access' => 'paid_subscribers' ) ),
+			'paid_content'      => array( array(), array( '_jetpack_memberships_contains_paid_content' => '1' ) ),
+			'paywalled_content' => array( array(), array( '_jetpack_memberships_contains_paywalled_content' => '1' ) ),
+			'paywall_block'     => array(
+				array( 'post_content' => "Public teaser.\n<!-- wp:jetpack/paywall /-->\nSubscriber-only body." ),
+			),
+			'premium_content'   => array(
+				array( 'post_content' => "<!-- wp:premium-content/container -->\nSubscriber-only body.\n<!-- /wp:premium-content/container -->" ),
+			),
 		);
 	}
 

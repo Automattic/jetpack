@@ -59,7 +59,7 @@ export interface UseSeoPostsReturn {
 /**
  * Coerce a stored schema-type meta value to the allowed union. Anything
  * unexpected falls back to '' (no override), matching the server-side
- * sanitize in `Jetpack_SEO_Posts::sanitize_schema_type`.
+ * sanitize in `Post_Seo::sanitize_schema_type`.
  *
  * @param value - The raw `jetpack_seo_schema_type` meta value.
  * @return A valid {@link SchemaType}.
