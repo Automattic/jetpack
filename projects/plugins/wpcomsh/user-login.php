@@ -53,20 +53,10 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 		return new WP_Error( 'user_not_found', sprintf( 'No user with ID %d on this site.', $user_id ) );
 	}
 
-	if ( $user->user_login === $new_login ) {
-		return WPCOMSH_USER_LOGIN_ALREADY_APPLIED;
-	}
-
-	if ( $user->user_login !== (string) $expected_login ) {
-		return WPCOMSH_USER_LOGIN_SUPERSEDED;
-	}
-
 	// user_login has a non-unique index, so the database will not reject a duplicate and the
 	// holder check below would race a second rename. The lock serializes those; it does not
 	// cover a plain wp_insert_user(), which races the same window as username_exists().
-	$updated  = false;
-	$db_error = '';
-	$lock     = 'wpcomsh_login_' . md5( $new_login );
+	$lock = 'wpcomsh_login_' . md5( $new_login );
 	if ( '1' !== (string) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 10)', $lock ) ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		return new WP_Error(
 			'update_failed',
@@ -74,35 +64,12 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 		);
 	}
 
-	$holder = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->users WHERE user_login = %s", $new_login ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-
-	if ( null === $holder ) {
-		$updated  = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->users,
-			array( 'user_login' => $new_login ),
-			array(
-				'ID'         => $user_id,
-				'user_login' => $expected_login,
-			)
-		);
-		$db_error = $wpdb->last_error;
-	}
+	$result = wpcomsh_write_user_login( $user_id, (string) $expected_login, $new_login );
 
 	$wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $lock ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
-	if ( null !== $holder ) {
-		return new WP_Error(
-			'login_taken',
-			sprintf( 'User %d on this site already holds the login %s.', (int) $holder, $new_login ),
-			array( 'holder_user_id' => (int) $holder )
-		);
-	}
-
-	if ( ! $updated ) {
-		return new WP_Error(
-			'update_failed',
-			sprintf( 'Could not write the new login for user %d: %s', $user_id, $db_error )
-		);
+	if ( WPCOMSH_USER_LOGIN_RENAMED !== $result ) {
+		return $result;
 	}
 
 	// $user predates the write, so this drops the stale `userlogins` key for the old login.
@@ -122,4 +89,82 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 	do_action( 'wpcomsh_user_login_renamed', $user_id, $expected_login, $new_login );
 
 	return WPCOMSH_USER_LOGIN_RENAMED;
+}
+
+/**
+ * Performs the compare-and-set, with every state read taken while the caller holds the lock.
+ *
+ * Reading before the lock is what produced wrong outcomes under concurrency: a second worker
+ * renaming to the same login saw its own user as the holder and reported `login_taken`, and a
+ * lost compare-and-set reported `update_failed` with an empty database error.
+ *
+ * @since $$next-version$$
+ *
+ * @param int    $user_id        ID of the user to rename.
+ * @param string $expected_login Login the caller expects the user to currently hold.
+ * @param string $new_login      Login to set.
+ * @return string|WP_Error A WPCOMSH_USER_LOGIN_* outcome, or WP_Error `login_taken`/`update_failed`.
+ */
+function wpcomsh_write_user_login( $user_id, $expected_login, $new_login ) {
+	global $wpdb;
+
+	$current = $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM $wpdb->users WHERE ID = %d", $user_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+	if ( null === $current ) {
+		return new WP_Error( 'user_not_found', sprintf( 'No user with ID %d on this site.', $user_id ) );
+	}
+
+	if ( $current === $new_login ) {
+		return WPCOMSH_USER_LOGIN_ALREADY_APPLIED;
+	}
+
+	if ( $current !== $expected_login ) {
+		return WPCOMSH_USER_LOGIN_SUPERSEDED;
+	}
+
+	$holder = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->users WHERE user_login = %s", $new_login ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+	if ( null !== $holder ) {
+		// Our own row holding it means another worker applied this same rename.
+		if ( (int) $holder === $user_id ) {
+			return WPCOMSH_USER_LOGIN_ALREADY_APPLIED;
+		}
+
+		return new WP_Error(
+			'login_taken',
+			sprintf( 'User %d on this site already holds the login %s.', (int) $holder, $new_login ),
+			array( 'holder_user_id' => (int) $holder )
+		);
+	}
+
+	$updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->users,
+		array( 'user_login' => $new_login ),
+		array(
+			'ID'         => $user_id,
+			'user_login' => $expected_login,
+		)
+	);
+
+	if ( $updated ) {
+		return WPCOMSH_USER_LOGIN_RENAMED;
+	}
+
+	$db_error = $wpdb->last_error;
+	$current  = $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM $wpdb->users WHERE ID = %d", $user_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+	// Zero rows means either a database error or the row moving under us, which are not the
+	// same outcome to the caller: one is worth retrying, the other must not be.
+	if ( $current === $new_login ) {
+		return WPCOMSH_USER_LOGIN_ALREADY_APPLIED;
+	}
+
+	if ( $current !== $expected_login ) {
+		return WPCOMSH_USER_LOGIN_SUPERSEDED;
+	}
+
+	return new WP_Error(
+		'update_failed',
+		sprintf( 'Could not write the new login for user %d: %s', $user_id, $db_error )
+	);
 }

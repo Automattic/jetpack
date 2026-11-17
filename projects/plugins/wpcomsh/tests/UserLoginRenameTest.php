@@ -41,6 +41,19 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		return $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM $wpdb->users WHERE ID = %d", $user_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 
+	/**
+	 * Writes user_login straight to the database, standing in for a competing worker.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $login   Login to set.
+	 */
+	private function set_login( $user_id, $login ) {
+		global $wpdb;
+
+		$wpdb->update( $wpdb->users, array( 'user_login' => $login ), array( 'ID' => $user_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		clean_user_cache( $user_id );
+	}
+
 	public function test_renames_the_login() {
 		$user_id = $this->create_user( 'ugurlualie72eb35fcd' );
 
@@ -98,6 +111,35 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		$this->assertSame( $squatter_id, $result->get_error_data()['holder_user_id'] );
 		$this->assertSame( 'oldlogin', $this->stored_login( $user_id ) );
 		$this->assertSame( 'wanted', $this->stored_login( $squatter_id ) );
+	}
+
+	/**
+	 * Two workers racing the same rename: the second must not report its own row as a collision.
+	 */
+	public function test_our_own_row_holding_the_target_is_already_applied() {
+		$user_id = $this->create_user( 'oldlogin' );
+
+		// Stand in for the other worker finishing between our read and our write.
+		$this->set_login( $user_id, 'newlogin' );
+
+		$result = wpcomsh_write_user_login( $user_id, 'oldlogin', 'newlogin' );
+
+		$this->assertSame( WPCOMSH_USER_LOGIN_ALREADY_APPLIED, $result );
+		$this->assertSame( 'newlogin', $this->stored_login( $user_id ) );
+	}
+
+	/**
+	 * A lost compare-and-set is a superseded rename, not a database error worth retrying.
+	 */
+	public function test_losing_the_compare_and_set_is_superseded() {
+		$user_id = $this->create_user( 'oldlogin' );
+
+		$this->set_login( $user_id, 'login_c' );
+
+		$result = wpcomsh_write_user_login( $user_id, 'oldlogin', 'newlogin' );
+
+		$this->assertSame( WPCOMSH_USER_LOGIN_SUPERSEDED, $result );
+		$this->assertSame( 'login_c', $this->stored_login( $user_id ) );
 	}
 
 	/**
