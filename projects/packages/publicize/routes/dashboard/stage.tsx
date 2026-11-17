@@ -101,8 +101,12 @@ const Stage = () => {
 
 	const socialOff = canToggleSocialModule() && ( ! isModuleActive || isEnabling );
 
-	const activeTab: SocialTab =
-		socialOff || ( canManageOptions && search.tab === 'settings' ) ? 'settings' : 'overview';
+	const resolveTab = useCallback(
+		( tab: unknown ): SocialTab =>
+			socialOff || ( canManageOptions && tab === 'settings' ) ? 'settings' : 'overview',
+		[ socialOff, canManageOptions ]
+	);
+	const activeTab = resolveTab( search.tab );
 
 	const actions = activeTab === 'overview' ? <AddAccountAction /> : null;
 
@@ -115,7 +119,7 @@ const Stage = () => {
 		}
 	}, [] );
 
-	useTabView( activeTab );
+	useTabView( activeTab, resolveTab );
 
 	// Social off → the lone turn-on surface; admins → the two tab panels;
 	// non-admins → the bare Overview (connection management) the shell hands us.
