@@ -4,15 +4,20 @@
  */
 import { log } from './debug';
 
+// A stalled check fails open, like a failed one; turning a feature on can take a while longer.
+const CHECK_TIMEOUT = 5000;
+const TURN_ON_TIMEOUT = 30000;
+
 const request = ( url, slug, gate, gateNonce, body ) => {
 	const target = new URL( url, location.href );
 	const params = new URLSearchParams( { member: slug, ...gate, gate_nonce: gateNonce ?? '' } );
+	const signal = AbortSignal.timeout?.( body ? TURN_ON_TIMEOUT : CHECK_TIMEOUT );
 	if ( body ) {
 		params.set( 'activate', '1' );
-		return fetch( target, { method: 'POST', credentials: 'same-origin', body: params } );
+		return fetch( target, { method: 'POST', credentials: 'same-origin', body: params, signal } );
 	}
 	params.forEach( ( value, key ) => target.searchParams.set( key, value ) );
-	return fetch( target, { credentials: 'same-origin' } );
+	return fetch( target, { credentials: 'same-origin', signal } );
 };
 
 /**
@@ -48,7 +53,7 @@ export async function checkFeature( url, slug, gate, gateNonce ) {
  * @param {string}      options.url       - The feature endpoint.
  * @param {object}      options.strings   - Translated copy, from the shell config.
  * @param {string}      options.card      - My Jetpack's card for the feature, the same one its page prints. Empty for the plain panel.
- * @return {HTMLElement} The panel.
+ * @return {HTMLElement} The panel, its heading focusable but not focused.
  */
 export function showFeatureOff( { after, slug, title, gate, gateNonce, url, strings, card } ) {
 	const panel = document.createElement( 'section' );
@@ -69,7 +74,6 @@ export function showFeatureOff( { after, slug, title, gate, gateNonce, url, stri
 			inert.replaceWith( script );
 		} );
 		panel.querySelector( 'h1' )?.setAttribute( 'tabindex', '-1' );
-		panel.querySelector( 'h1' )?.focus( { preventScroll: true } );
 		log( 'feature', `${ slug }: showing the site's turned-off card` );
 		return panel;
 	}
@@ -109,7 +113,6 @@ export function showFeatureOff( { after, slug, title, gate, gateNonce, url, stri
 
 	panel.append( heading, error, text, form );
 	after.after( panel );
-	heading.focus( { preventScroll: true } );
 	log( 'feature', `${ slug }: showing the turned-off panel` );
 	return panel;
 }

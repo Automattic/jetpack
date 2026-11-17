@@ -178,6 +178,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, featureUrl, f
 		members[ slug ].gate && featureUrl
 			? checkFeature( featureUrl, slug, members[ slug ].gate, members[ slug ].gateNonce )
 			: Promise.resolve( { on: true, card: '' } );
+	// Places the panel only: the switch that opened the page moves focus and announces it.
 	const showOff = ( slug, card ) => {
 		if ( offPanels.has( slug ) ) {
 			return;
@@ -197,7 +198,6 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, featureUrl, f
 				card,
 			} )
 		);
-		announcePage( members[ slug ].adminTitle );
 	};
 	const hideOff = slug => {
 		offPanels.get( slug )?.remove();
@@ -213,7 +213,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, featureUrl, f
 		setTimeout( () => onScreen( app.slug ) && rememberHeader( app.slug, app.el ), 1000 );
 	};
 
-	const bootGuest = async ( slug, url ) => {
+	// Registered and given its stand-in header at once, so a second visit finds it while the check is out.
+	const bootGuest = async ( slug, url, feature ) => {
 		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
 		const el = document.createElement( 'section' );
 		el.id = members[ slug ].mountId;
@@ -228,6 +229,13 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, featureUrl, f
 		const removeStandIn = showHeaderAt( slug, el, url );
 
 		try {
+			// After the check, so a page whose feature is off downloads nothing.
+			if ( ! ( await feature ).on ) {
+				log( 'switch', `${ slug }: its feature is off, not booting it` );
+				removeStandIn();
+				discard();
+				return;
+			}
 			const waited = stopwatch();
 			const boot = await prewarm( slug, 'switch' );
 			log( 'switch', `${ slug }: waited ${ waited() } for prewarm` );
@@ -321,23 +329,24 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, featureUrl, f
 				if ( push ) {
 					notifyRouters();
 				}
-				// Shown at once, as it usually is still on; swapped for the panel if not.
-				feature.then( ( { on, card } ) => ! on && visible === slug && showOff( slug, card ) );
 			} else {
 				log( 'switch', `${ slug } has not booted yet` );
 				window.scrollTo( 0, 0 );
-				prewarm( slug, 'switch' ).catch( () => {} );
-				const { on, card } = await feature;
-				if ( on ) {
-					await bootGuest( slug, url );
-				} else if ( visible === slug ) {
-					showOff( slug, card );
-				}
+				await bootGuest( slug, url, feature );
+			}
+			// A booted page shows at once, as it usually is still on; swapped for the panel if not.
+			const { on, card } = await feature;
+			if ( ! on && visible === slug ) {
+				showOff( slug, card );
 			}
 			// Focus and speech inside a closing modal's `aria-hidden` would go unheard.
 			await dialogsClosed;
 			// A later switch, even back to this page, takes over its focus and announcement.
-			if ( thisSwitch === switches && apps.get( slug )?.state === 'visible' ) {
+			const current = thisSwitch === switches;
+			if ( current && offPanels.has( slug ) ) {
+				offPanels.get( slug ).querySelector( 'h1' )?.focus( { preventScroll: true } );
+				announcePage( members[ slug ].adminTitle );
+			} else if ( current && apps.get( slug )?.state === 'visible' ) {
 				log(
 					'switch',
 					`${ slug } on screen ${ elapsed() } after the switch started`,
@@ -441,8 +450,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, featureUrl, f
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
 	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
+	// The page load already said its feature is off, and sent the card with the config.
 	if ( members[ host ].featureOn === false ) {
-		featureOf( host ).then( ( { on, card } ) => ! on && visible === host && showOff( host, card ) );
+		showOff( host, members[ host ].featureCard ?? '' );
 	}
 	gate.mount( host );
 	log( 'host', `${ host } boots from the page load` );
@@ -451,7 +461,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, featureUrl, f
 			log( 'host', `${ host } rendered its first route` );
 			removeHostHeader();
 			markReady( hostApp );
-			if ( visible === host ) {
+			if ( onScreen( host ) ) {
 				emit( 'page-shown', { page: host, previous: null, firstShow: true, url: location.href } );
 			}
 		} )

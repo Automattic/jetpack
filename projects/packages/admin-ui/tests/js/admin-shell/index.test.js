@@ -402,19 +402,79 @@ describe( 'admin shell stand-in header', () => {
 
 describe( 'admin shell turned-off features', () => {
 	const panel = () => document.querySelector( '.jetpack-admin-shell-feature-off' );
-	const booted = slug =>
-		require( '../../../src/admin-shell/app' ).createApp.mock.calls.some(
-			( [ page ] ) => page === slug
-		);
 
-	it( 'shows the turn-on panel instead of booting a page whose feature is off', async () => {
+	const shownEvents = [];
+	const recordShown = event => shownEvents.push( event.detail.page );
+	beforeEach( () => {
+		shownEvents.length = 0;
+		window.addEventListener( 'jetpack-admin-shell:page-shown', recordShown );
+	} );
+	afterEach( () => window.removeEventListener( 'jetpack-admin-shell:page-shown', recordShown ) );
+
+	// Holds the next feature checks for guest B until released.
+	const holdChecks = () => {
+		const answer = global.fetch.getMockImplementation();
+		const held = [];
+		global.fetch.mockImplementation( ( url, options ) =>
+			String( url ).includes( 'member=guest-b' ) && ! options?.method
+				? new Promise( resolve => held.push( () => resolve( answer( url, options ) ) ) )
+				: answer( url, options )
+		);
+		return () => held.splice( 0 ).forEach( release => release() );
+	};
+
+	it( 'shows the turn-on panel instead of a page whose feature is off, without downloading the page', async () => {
 		mockFeature.on = false;
 
 		open( 'guest-b' );
 		await settle();
 
 		expect( panel()?.querySelector( 'h1' ).textContent ).toBe( 'B is turned off' );
-		expect( booted( 'guest-b' ) ).toBe( false );
+		expect( panel().querySelector( 'h1' ) ).toHaveFocus();
+		const { applyGuestAssets } = require( '../../../src/admin-shell/guest-assets' );
+		expect( applyGuestAssets ).not.toHaveBeenCalledWith( expect.anything(), 'guest-b' );
+	} );
+
+	it( 'boots a page once when it is opened again before its first check came back', async () => {
+		const release = holdChecks();
+
+		open( 'guest-b' );
+		await settle();
+		open( 'host' );
+		await settle();
+		open( 'guest-b' );
+		await settle();
+		release();
+		await settle();
+
+		const { createApp } = require( '../../../src/admin-shell/app' );
+		expect( createApp.mock.calls.filter( ( [ page ] ) => page === 'guest-b' ) ).toHaveLength( 1 );
+		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
+	} );
+
+	it( 'shows the stand-in header while the check is out, and boots the page when the check stalls', async () => {
+		const stall = new AbortController();
+		const timeout = AbortSignal.timeout;
+		AbortSignal.timeout = () => stall.signal;
+		const answer = global.fetch.getMockImplementation();
+		// The check never answers; only its timeout ends it.
+		global.fetch.mockImplementation( ( url, options ) =>
+			String( url ).includes( 'member=guest-b' )
+				? new Promise( ( resolve, reject ) =>
+						options?.signal?.addEventListener( 'abort', () => reject( options.signal.reason ) )
+					)
+				: answer( url, options )
+		);
+
+		open( 'guest-b' );
+		await settle();
+		expect( mockShowHeader ).toHaveBeenCalledWith( 'guest-b', expect.anything(), 'B', undefined );
+		stall.abort();
+		await settle();
+		AbortSignal.timeout = timeout;
+
+		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
+		expect( panel() ).toBeNull();
 	} );
 
 	it( 'checks again on every visit and swaps a booted page for the panel once it is off', async () => {
@@ -434,18 +494,59 @@ describe( 'admin shell turned-off features', () => {
 		expect( panel() ).toBeNull();
 	} );
 
+	it( 'says a booted page was shown only once its check says it is still on', async () => {
+		open( 'guest-b' );
+		await settle();
+		open( 'host' );
+		await settle();
+		const release = holdChecks();
+		mockFeature.on = false;
+
+		open( 'guest-b' );
+		await settle();
+		release();
+		await settle();
+
+		expect( shownEvents.filter( page => page === 'guest-b' ) ).toHaveLength( 1 );
+		expect( panel().querySelector( 'h1' ) ).toHaveFocus();
+	} );
+
+	it( 'moves focus to the panel only once a closing dialog is gone', async () => {
+		const { closeDialogsOf } = require( '../../../src/admin-shell/overlays' );
+		let closeDialog;
+		closeDialogsOf.mockImplementation( () => new Promise( resolve => ( closeDialog = resolve ) ) );
+		mockFeature.on = false;
+
+		open( 'guest-b' );
+		await settle();
+		expect( panel().querySelector( 'h1' ) ).not.toHaveFocus();
+		closeDialog();
+		await settle();
+
+		expect( panel().querySelector( 'h1' ) ).toHaveFocus();
+	} );
+
 	it( 'shows the panel over the host page when it loads with its feature off', async () => {
 		const data = document.getElementById( 'wp-script-module-data-@automattic/jetpack-admin-shell' );
 		const config = JSON.parse( data.textContent );
-		config.members.host = { ...config.members.host, gate: { module: 'h' }, featureOn: false };
+		config.members.host = {
+			...config.members.host,
+			gate: { module: 'h' },
+			featureOn: false,
+			featureCard: '<div class="site-card"><h1>Host card</h1></div>',
+		};
 		data.textContent = JSON.stringify( config );
-		mockFeature.on = false;
 
 		jest.resetModules();
 		require( '../../../src/admin-shell/index' );
 		await settle();
 
 		expect( panel()?.dataset.shellPage ).toBe( 'host' );
+		expect( panel().querySelector( '.site-card h1' ) ).toHaveTextContent( 'Host card' );
+		expect( global.fetch.mock.calls.map( ( [ url ] ) => String( url ) ).join() ).not.toContain(
+			'member=host'
+		);
+		expect( shownEvents ).not.toContain( 'host' );
 	} );
 
 	it( 'shows no panel for a page the user left before its check came back', async () => {

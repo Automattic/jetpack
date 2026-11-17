@@ -380,6 +380,10 @@ class Admin_Shell {
 				// Guests are checked when they are opened; the host is on screen already.
 				'featureOn'   => $slug !== $host || null === $gate || ! self::stands_in( $gate ),
 			);
+			// So the host shows its card without asking again.
+			if ( false === $config['members'][ $slug ]['featureOn'] ) {
+				$config['members'][ $slug ]['featureCard'] = self::feature_off_card( $slug );
+			}
 		}
 		return $config;
 	}
@@ -430,17 +434,27 @@ class Admin_Shell {
 		}
 		$data = array( 'on' => $result );
 		if ( ! $result ) {
-			/**
-			 * Filters the HTML the shell shows in place of a member page whose feature is off. Empty for the shell's plain panel.
-			 *
-			 * @since $$next-version$$
-			 *
-			 * @param string $html Card HTML.
-			 * @param string $slug Admin page slug of the member.
-			 */
-			$data['card'] = (string) apply_filters( 'jetpack_admin_shell_feature_off_card', '', $slug );
+			$data['card'] = self::feature_off_card( $slug );
 		}
 		wp_send_json_success( $data, 200, JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * The HTML the shell shows in place of a member page whose feature is off.
+	 *
+	 * @param string $slug Admin page slug of the member.
+	 * @return string Empty for the shell's plain panel.
+	 */
+	private static function feature_off_card( $slug ) {
+		/**
+		 * Filters the HTML the shell shows in place of a member page whose feature is off. Empty for the shell's plain panel.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $html Card HTML.
+		 * @param string $slug Admin page slug of the member.
+		 */
+		return (string) apply_filters( 'jetpack_admin_shell_feature_off_card', '', $slug );
 	}
 
 	/**

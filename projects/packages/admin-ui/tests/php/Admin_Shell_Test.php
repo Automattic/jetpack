@@ -515,11 +515,15 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
-	 * The host page says whether its own feature is on; guests are asked when they are opened.
+	 * The host page says whether its own feature is on, with the card to show when it is off; guests are asked when they are opened.
 	 *
 	 * @return void
 	 */
 	public function test_setup_reports_the_host_feature_and_each_gate() {
+		$card = static function ( $html, $slug ) {
+			return 'card for ' . $slug;
+		};
+		add_filter( 'jetpack_admin_shell_feature_off_card', $card, 10, 2 );
 		Admin_Menu::add_menu( 'Host', 'Host', 'manage_options', 'host-page', '__return_null', null, array( 'module' => 'host-module' ) );
 		Admin_Menu::add_menu( 'Guest', 'Guest', 'manage_options', 'guest-page', '__return_null', null, array( 'product' => 'guest-product' ) );
 		Admin_Menu::set_visibility_resolver( '__return_false' );
@@ -533,8 +537,11 @@ class Admin_Shell_Test extends TestCase {
 		Admin_Shell::setup();
 
 		$members = apply_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE, array() )['members'];
+		remove_filter( 'jetpack_admin_shell_feature_off_card', $card );
 		$this->assertSame( array( 'module' => 'host-module' ), $members['host-page']['gate'] );
 		$this->assertFalse( $members['host-page']['featureOn'] );
+		$this->assertSame( 'card for host-page', $members['host-page']['featureCard'] );
+		$this->assertArrayNotHasKey( 'featureCard', $members['guest-page'] );
 		$this->assertSame( array( 'product' => 'guest-product' ), $members['guest-page']['gate'] );
 		$this->assertTrue( $members['guest-page']['featureOn'] );
 

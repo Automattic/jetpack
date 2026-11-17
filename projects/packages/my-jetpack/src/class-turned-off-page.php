@@ -260,8 +260,12 @@ class Turned_Off_Page {
 		if ( null === $feature || ! Menu_Visibility::can_offer( $feature['gate'] ) ) {
 			return $html;
 		}
-		// The shell asks over admin-ajax, so a failed Turn on's error is only in the page URL it was asked from.
-		parse_str( (string) wp_parse_url( (string) wp_get_raw_referer(), PHP_URL_QUERY ), $query );
+		// Over admin-ajax, a failed Turn on's error is only in the URL of the page that asked.
+		if ( wp_doing_ajax() ) {
+			parse_str( (string) wp_parse_url( (string) wp_get_raw_referer(), PHP_URL_QUERY ), $query );
+		} else {
+			$query = wp_unslash( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks the error to show.
+		}
 		$error = isset( $query['page'] ) && isset( $query[ self::ERROR_ARG ] ) && $page === $query['page'] && is_string( $query[ self::ERROR_ARG ] ) ? sanitize_key( $query[ self::ERROR_ARG ] ) : '';
 		return self::get_card_html( $feature, admin_url( 'admin.php?page=' . $page ), $error, 'admin_shell' );
 	}

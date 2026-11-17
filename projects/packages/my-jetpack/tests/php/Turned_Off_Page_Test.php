@@ -197,28 +197,43 @@ class Turned_Off_Page_Test extends TestCase {
 	/**
 	 * Data provider for test_shell_card_shows_the_error_of_its_own_page.
 	 *
-	 * @return array[] Page the shell asked from, whether the card shows the error.
+	 * @return array[] Whether the shell asked over admin-ajax, the page whose URL carries the error, whether the card shows it.
 	 */
 	public static function provide_shell_referers() {
 		return array(
-			'its own page'    => array( 'jetpack-activity-log', true ),
-			'some other page' => array( 'jetpack-newsletter', false ),
+			'asked from its own page'    => array( true, 'jetpack-activity-log', true ),
+			'asked from some other page' => array( true, 'jetpack-newsletter', false ),
+			// The shell's host page prints its card with the page load.
+			'printed with its own page'  => array( false, 'jetpack-activity-log', true ),
 		);
 	}
 
 	/**
-	 * The shell's card shows a failed Turn on's error, which only the page URL the shell asked from carries.
+	 * The shell's card shows a failed Turn on's error, which only the URL of the page that asked carries.
 	 *
 	 * @dataProvider provide_shell_referers
 	 *
-	 * @param string $page     Page the shell asked from.
+	 * @param bool   $ajax     Whether the shell asked over admin-ajax.
+	 * @param string $page     Page whose URL carries the error.
 	 * @param bool   $expected Whether the card shows the error.
 	 */
 	#[DataProvider( 'provide_shell_referers' )]
-	public function test_shell_card_shows_the_error_of_its_own_page( $page, $expected ) {
-		$_SERVER['HTTP_REFERER'] = admin_url( 'admin.php?page=' . $page . '&' . Turned_Off_Page::ERROR_ARG . '=failed' );
+	public function test_shell_card_shows_the_error_of_its_own_page( $ajax, $page, $expected ) {
+		$query = array(
+			'page'                     => $page,
+			Turned_Off_Page::ERROR_ARG => 'failed',
+		);
+		if ( $ajax ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_SERVER['HTTP_REFERER'] = add_query_arg( $query, admin_url( 'admin.php' ) );
+		} else {
+			$_GET = $query;
+		}
 
 		$html = Turned_Off_Page::filter_admin_shell_card( '', 'jetpack-activity-log' );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		$_GET = array();
+		unset( $_SERVER['HTTP_REFERER'] );
 
 		$this->assertStringContainsString( 'features/images/activity-log.webp', $html );
 		$this->assertSame( $expected, str_contains( $html, 'class="jetpack-feature-off__error"' ) );
