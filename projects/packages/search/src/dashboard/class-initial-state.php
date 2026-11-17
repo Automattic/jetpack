@@ -40,9 +40,9 @@ class Initial_State {
 	/**
 	 * Constructor
 	 *
-	 * @param Connection_Manager $connection_manager   - Connection mananger instance.
-	 * @param Module_Control     $module_control       - Module control instance.
-	 * @param bool               $is_admin_shell_guest - Whether the admin shell is readying the page behind another dashboard.
+	 * @param Connection_Manager|null $connection_manager   - Connection mananger instance.
+	 * @param Module_Control|null     $module_control       - Module control instance.
+	 * @param bool                    $is_admin_shell_guest - Whether the admin shell is readying the page behind another dashboard.
 	 */
 	public function __construct( $connection_manager = null, $module_control = null, $is_admin_shell_guest = false ) {
 		$this->connection_manager   = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
