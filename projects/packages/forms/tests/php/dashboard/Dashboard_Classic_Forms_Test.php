@@ -44,7 +44,23 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 	protected function tear_down() {
 		$this->remove_query_stubs();
 		delete_option( self::OPTION_NAME );
+		$this->set_static( 'is_admin_shell_guest', false );
+		$this->set_static( 'wp_build_index', null );
 		parent::tear_down();
+	}
+
+	/**
+	 * Set a private static property of the Dashboard.
+	 *
+	 * @param string $name  Property name.
+	 * @param mixed  $value Value.
+	 */
+	private function set_static( $name, $value ) {
+		$property = new \ReflectionProperty( Dashboard::class, $name );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $value );
 	}
 
 	/**
@@ -115,6 +131,20 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 
 		$this->assertEquals( self::STATE_CLASSIC, $state );
 		$this->assertEquals( self::STATE_CLASSIC, get_option( self::OPTION_NAME ) );
+	}
+
+	/**
+	 * Test that the admin shell readying Forms on a menu hover detects the state without saving it.
+	 */
+	public function test_admin_shell_guest_does_not_save_the_detected_state() {
+		$this->simulate_classic_forms_detected();
+		$this->set_static( 'wp_build_index', __DIR__ . '/../fixtures/build-entry/build.php' );
+
+		Dashboard::load_as_admin_shell_guest();
+		$state = ( new Dashboard() )->get_classic_forms_state();
+
+		$this->assertEquals( self::STATE_CLASSIC, $state );
+		$this->assertFalse( get_option( self::OPTION_NAME ) );
 	}
 
 	/**
