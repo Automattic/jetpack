@@ -470,13 +470,15 @@ class Help_Center {
 		}
 
 		/*
-		* Atomic sites have the WP.com blog ID stored as a Jetpack option. This code deliberately
-		* doesn't use `Jetpack_Options::get_option` so it works even when Jetpack has not been loaded.
-		*/
-		$jetpack_options = get_option( 'jetpack_options' );
-		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
-			$site = (int) $jetpack_options['id'];
-		} else {
+		 * Use the WP.com blog ID of wpcomsh or WP.com when it is loaded. Otherwise, read it through
+		 * `Jetpack_Options`, which reads the platform's external storage before the `jetpack_options`
+		 * row. After a site migration onto Atomic, the row can lack the ID.
+		 */
+		$site = function_exists( '_wpcom_get_current_blog_id' ) ? (int) \_wpcom_get_current_blog_id() : 0;
+		if ( ! $site && class_exists( 'Jetpack_Options' ) ) {
+			$site = (int) \Jetpack_Options::get_option( 'id' );
+		}
+		if ( ! $site ) {
 			$site = get_current_blog_id();
 		}
 

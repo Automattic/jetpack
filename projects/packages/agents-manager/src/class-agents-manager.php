@@ -683,20 +683,21 @@ class Agents_Manager {
 	 * Get current site data for the agents manager.
 	 *
 	 * Returns minimal site data needed by AgentsManager (ID and domain only).
-	 * Uses jetpack_options['id'] on Atomic sites for the wpcom blog ID.
+	 * Uses the WP.com blog ID on Atomic sites, not the local blog ID.
 	 *
 	 * @return array Site data with ID and domain.
 	 */
 	private function get_current_site() {
 		/*
-		 * Atomic sites have the WP.com blog ID stored as a Jetpack option.
-		 * This code deliberately doesn't use `Jetpack_Options::get_option`
-		 * so it works even when Jetpack has not been loaded.
+		 * Use the WP.com blog ID of wpcomsh or WP.com when it is loaded. Otherwise, read it through
+		 * `Jetpack_Options`, which reads the platform's external storage before the `jetpack_options`
+		 * row. After a site migration onto Atomic, the row can lack the ID.
 		 */
-		$jetpack_options = get_option( 'jetpack_options' );
-		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
-			$site_id = (int) $jetpack_options['id'];
-		} else {
+		$site_id = function_exists( '_wpcom_get_current_blog_id' ) ? (int) \_wpcom_get_current_blog_id() : 0;
+		if ( ! $site_id && class_exists( 'Jetpack_Options' ) ) {
+			$site_id = (int) \Jetpack_Options::get_option( 'id' );
+		}
+		if ( ! $site_id ) {
 			$site_id = get_current_blog_id();
 		}
 
