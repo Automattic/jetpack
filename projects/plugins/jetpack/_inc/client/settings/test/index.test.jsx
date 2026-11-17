@@ -6,7 +6,7 @@ jest.mock( 'discussion', () => () => null );
 jest.mock( 'earn', () => () => null );
 jest.mock( 'newsletter', () => () => null );
 jest.mock( 'performance', () => () => null );
-jest.mock( 'privacy', () => () => null );
+jest.mock( 'privacy', () => () => <div data-testid="privacy-card" /> );
 jest.mock( 'reader', () => () => null );
 jest.mock( 'searchable-modules', () => () => null );
 jest.mock( 'security', () => () => null );
@@ -77,5 +77,27 @@ describe( 'Settings search for Google Analytics', () => {
 		);
 
 		expect( Boolean( screen.queryByText( 'No matching settings' ) ) ).toBe( isEmpty );
+	} );
+} );
+
+describe( 'Settings Privacy card', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it.each( [
+		[ 'shows', false, true ],
+		[ 'drops', true, false ],
+	] )( '%s the card with the settings flag %s', ( _verb, flag, isShown ) => {
+		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
+
+		render(
+			<MemoryRouter>
+				<Settings searchTerm="privacy" userCanManageModules />
+			</MemoryRouter>,
+			{ initialState: buildState( 'stats' ) }
+		);
+
+		expect( Boolean( screen.queryByTestId( 'privacy-card' ) ) ).toBe( isShown );
 	} );
 } );

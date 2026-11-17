@@ -91,6 +91,15 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'sends #/privacy to the WordPress.com privacy settings with the settings flag on', () => {
+		isSettingsConsolidationEnabled.mockReturnValue( true );
+		renderAt( '/privacy', false );
+
+		expect( getAdminUrl ).not.toHaveBeenCalled();
+		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
+		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
+	} );
+
 	it.each( [
 		'/performance',
 		'/sharing',
@@ -99,6 +108,7 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		'/discussion',
 		'/traffic',
 		'/settings',
+		'/privacy',
 	] )( 'keeps %s on Settings with the settings flag off', route => {
 		renderAt( route, false );
 
@@ -118,7 +128,6 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		[ '/traffic', 'while the Traffic tab is left', [ 'traffic' ], '' ],
 		[ '/settings', 'while a tab is left', [ 'security' ], '' ],
 		[ '/settings', 'for a search', [], '?term=sso' ],
-		[ '/privacy', 'with no tab left', [], '' ],
 	] )( 'keeps %s on Settings %s', ( pathname, _when, remainingTabs, search ) => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );
 		renderAt( pathname, false, { remainingTabs, location: { pathname, search } } );

@@ -9,7 +9,11 @@ import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
 import Discussion from 'discussion';
 import Earn from 'earn';
-import { getMovedOutModules, searchFindsGoogleAnalytics } from 'lib/settings-consolidation';
+import {
+	getMovedOutModules,
+	isSettingsConsolidationEnabled,
+	searchFindsGoogleAnalytics,
+} from 'lib/settings-consolidation';
 import Subscriptions from 'newsletter';
 import Performance from 'performance';
 import Privacy from 'privacy';
@@ -120,7 +124,9 @@ class Settings extends Component {
 						}
 						{ ...commonProps }
 					/>
-					<Privacy active={ '/privacy' === pathname } { ...commonProps } />
+					{ ! isSettingsConsolidationEnabled() && (
+						<Privacy active={ '/privacy' === pathname } { ...commonProps } />
+					) }
 					<Subscriptions siteAdminUrl={ siteAdminUrl } searchTerm={ searchTerm } />
 					<SearchableModules searchTerm={ searchTerm } />
 				</div>

@@ -352,6 +352,11 @@ export class Main extends Component {
 				}
 			// Falls through.
 			case '/privacy':
+				// Usage tracking is a WordPress.com account setting, so it is managed there once settings move out.
+				if ( '/privacy' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace( 'https://wordpress.com/me/privacy' );
+					break;
+				}
 				pageComponent = (
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
