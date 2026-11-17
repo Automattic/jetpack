@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a getIdentityCrisis selector for the Safe Mode state.

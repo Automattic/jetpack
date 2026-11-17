@@ -14,6 +14,7 @@
 		"capability": "The user has this capability.",
 		"host": "\"atomic\" for a WoA site.",
 		"moduleActive": "This Jetpack module is active.",
+		"protectPage": "did_action( 'jetpack_protect_dashboard_initialized' ) (siteData.hasProtectPage): the protect-dashboard module or the connected Jetpack Protect plugin registered the Protect page. Not Automattic\\Jetpack\\My_Jetpack\\Products\\Protect::has_protect_page(), which is also true while the plugin shows its own page.",
 		"socialPage": "Publicize registered admin.php?page=jetpack-social for this user (siteData.hasSocialPage), which its host, connection and jetpack_publicize_should_load filter decide.",
 		"adsSettingsHome": "Jetpack_Ads_Settings_Home::is_moved_off_settings(): settings consolidation is on and the Monetize page shows the Ads settings.",
 		"seoSurfaceVisible": "Automattic\\Jetpack\\SEO\\Initializer::is_seo_surface_visible().",
@@ -28,7 +29,7 @@
 		{ "when": { "error": true }, "pending": [ "error-notice-home" ] }
 	],
 	"moduleTerms": "Every module slug below is also linked by Jetpack::module_configuration_url(), the Configure link in Features and the classic Modules list, unless the module filters that URL.",
-	"protectTerms": "The waf, protect, account-protection, sso and monitor destinations copy Automattic\\Jetpack\\Protect\\Dashboard::get_module_settings_urls(); call it rather than hard-coding them.",
+	"protectTerms": "The waf, protect, account-protection, sso and monitor destinations copy Automattic\\Jetpack\\Protect\\Dashboard::get_module_settings_urls(); call it rather than hard-coding them. Without the Protect page, they and /security open the Protect card on Features, which turns the page on.",
 	"routes": [
 		{
 			"source": "/settings",
@@ -42,13 +43,8 @@
 					"destination": "admin.php?page=jetpack-social"
 				},
 				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
-				{
-					"when": { "moduleActive": "protect-dashboard" },
-					"destination": "admin.php?page=my-jetpack#/features"
-				},
-				{ "pending": [ "JETPACK-3035" ], "destination": "admin.php?page=my-jetpack#/features" }
+				{ "destination": "admin.php?page=my-jetpack#/features" }
 			],
-			"note": "Without the Protect page, /settings shows admins the Security tab, so it waits on /security.",
 			"linkedFrom": [
 				"plugins/jetpack Jetpack_Settings_React_Page::get_page_hook(): the Jetpack > Settings menu item, with no hash",
 				"plugins/jetpack Jetpack::plugin_action_links(): the Plugins screen's Settings link",
@@ -68,11 +64,11 @@
 			"source": "/security",
 			"rules": [
 				{
-					"when": { "moduleActive": "protect-dashboard" },
+					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings",
 					"alreadyRedirects": true
 				},
-				{ "pending": [ "JETPACK-3035" ] }
+				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			],
 			"outsideRepo": [ "wpcom: Jetpack onboarding emails", "wpcom: help search key" ]
 		},
@@ -420,20 +416,20 @@
 			"source": "waf",
 			"rules": [
 				{
-					"when": { "moduleActive": "protect-dashboard" },
+					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3Dfirewall"
 				},
-				{ "pending": [ "JETPACK-3035" ] }
+				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			]
 		},
 		{
 			"source": "protect",
 			"rules": [
 				{
-					"when": { "moduleActive": "protect-dashboard" },
+					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3DloginProtection"
 				},
-				{ "pending": [ "JETPACK-3035" ] }
+				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			],
 			"outsideRepo": [ "wpcom: Jetpack report emails, 'Start blocking attacks' button" ]
 		},
@@ -441,30 +437,30 @@
 			"source": "account-protection",
 			"rules": [
 				{
-					"when": { "moduleActive": "protect-dashboard" },
+					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3DloginProtection"
 				},
-				{ "pending": [ "JETPACK-3035" ] }
+				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			]
 		},
 		{
 			"source": "sso",
 			"rules": [
 				{
-					"when": { "moduleActive": "protect-dashboard" },
+					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3DloginProtection"
 				},
-				{ "pending": [ "JETPACK-3035" ] }
+				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			]
 		},
 		{
 			"source": "monitor",
 			"rules": [
 				{
-					"when": { "moduleActive": "protect-dashboard" },
+					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3Dmonitor"
 				},
-				{ "pending": [ "JETPACK-3035" ] }
+				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			],
 			"outsideRepo": [ "wpcom: Jetpack report emails, 'Enable Monitor' button" ]
 		}

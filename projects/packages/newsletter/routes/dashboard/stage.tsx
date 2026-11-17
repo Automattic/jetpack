@@ -132,6 +132,21 @@ const Stage = () => {
 		} );
 	}, [ activeTab ] );
 
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	useEffect( () => {
+		const onShown = ( event: Event ) => {
+			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
+			if ( page === 'jetpack-newsletter' && ! firstShow ) {
+				analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
+					site_type: getSiteType(),
+					tab: activeTab,
+				} );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+	}, [ activeTab ] );
+
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<SubscribersBody

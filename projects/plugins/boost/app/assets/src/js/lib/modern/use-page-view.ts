@@ -45,4 +45,20 @@ export function usePageView( route: ModernRoute, enabled: boolean ): void {
 		lastRecorded.current = name;
 		recordBoostEvent( name, { path } );
 	}, [ route, enabled ] );
+
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	useEffect( () => {
+		if ( ! enabled ) {
+			return;
+		}
+		const onShown = ( event: Event ) => {
+			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
+			if ( page === 'jetpack-boost' && ! firstShow ) {
+				const { name, path } = getPageViewEvent( route );
+				recordBoostEvent( name, { path } );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+	}, [ route, enabled ] );
 }

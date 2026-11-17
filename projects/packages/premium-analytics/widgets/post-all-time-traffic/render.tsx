@@ -93,11 +93,11 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 		return ( { year, month }: MonthlyHeatmapTarget ) => {
 			const bounds = { lifeStartsAt, timeZone };
 			// The year's roll-up opens the whole year.
-			const range =
+			const opened =
 				month === undefined ? yearRange( year, bounds ) : monthRange( { year, month }, bounds );
 
-			if ( range ) {
-				openPeriod( range );
+			if ( opened ) {
+				openPeriod( opened.range, { step: opened.step } );
 			}
 		};
 	}, [ lifeStartsAt, timeZone, openPeriod ] );

@@ -20,13 +20,13 @@ const buildInitialState = ( protectPage, extraModules = {} ) => ( {
 					permissions: { manage_modules: true, publish_posts: true },
 				},
 			},
+			siteData: { hasProtectPage: protectPage },
 		},
 		modules: {
 			items: {
 				'account-protection': { activated: true },
 				monitor: { activated: true },
 				protect: { activated: true },
-				'protect-dashboard': { activated: protectPage },
 				sso: { activated: true },
 				stats: { activated: true },
 				waf: { activated: true },

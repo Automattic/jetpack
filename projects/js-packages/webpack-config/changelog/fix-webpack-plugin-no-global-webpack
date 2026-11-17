@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use the compilation's `webpack` instance in internal plugins, rather than requiring our own copy. This reduces the risk of duplicate classes and such with pnpm-style peer dependencies.

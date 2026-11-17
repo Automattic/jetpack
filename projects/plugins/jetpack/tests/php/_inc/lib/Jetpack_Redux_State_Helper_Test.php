@@ -91,6 +91,27 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The Protect page flag follows Dashboard::init()'s action, which the Protect plugin fires with the module off.
+	 */
+	public function test_has_protect_page_follows_the_protect_dashboard_action() {
+		$fired = $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] ?? null;
+		unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		try {
+			$this->assertFalse( Jetpack::is_module_active( 'protect-dashboard' ) );
+			$this->assertFalse( Jetpack_Redux_State_Helper::get_initial_state()['siteData']['hasProtectPage'] );
+
+			do_action( 'jetpack_protect_dashboard_initialized' );
+
+			$this->assertTrue( Jetpack_Redux_State_Helper::get_initial_state()['siteData']['hasProtectPage'] );
+		} finally {
+			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+			if ( null !== $fired ) {
+				$GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] = $fired;
+			}
+		}
+	}
+
+	/**
 	 * A registered site with no connected user reports its blog ID and no user.
 	 */
 	public function test_plugins_page_state_for_a_site_without_a_connected_user() {

@@ -1,5 +1,6 @@
 import {
 	isolateRouters,
+	renameBootStore,
 	trackViewTransitions,
 	transitionSettled,
 } from '../../../src/admin-shell/adapter';
@@ -106,5 +107,30 @@ describe( 'trackViewTransitions', () => {
 		expect( settled ).toBe( true );
 		expect( unhandled ).not.toHaveBeenCalled();
 		process.off( 'unhandledRejection', unhandled );
+	} );
+} );
+
+describe( 'renameBootStore', () => {
+	const unlock = 'warn(`…will break in the next version of WordPress.`,`@wordpress/boot`)';
+
+	it.each( [
+		[ 'esbuild', `const n="wordpress/boot",s=createReduxStore(n);${ unlock }` ],
+		[
+			'rolldown (Gutenberg plugin)',
+			`const Hl=\`wordpress/boot\`,Ul=createReduxStore(Hl);${ unlock }`,
+		],
+		[ 'unminified (single-quoted)', `const n='wordpress/boot';${ unlock }` ],
+	] )( 'renames the store in a %s build and leaves the module id alone', ( _, source ) => {
+		const renamed = renameBootStore( source, 'jetpack-forms' );
+		expect( renamed ).toContain( '"wordpress/boot--jetpack-forms"' );
+		expect( renamed ).not.toMatch( /["'`]wordpress\/boot["'`]/ );
+		expect( renamed ).toContain( '`@wordpress/boot`' );
+	} );
+
+	it.each( [
+		[ 'missing', `const n="wordpress/booted";${ unlock }` ],
+		[ 'named twice', `const a="wordpress/boot",b=\`wordpress/boot\`;${ unlock }` ],
+	] )( 'refuses a build whose store name is %s', ( _, source ) => {
+		expect( () => renameBootStore( source, 'jetpack-forms' ) ).toThrow( 'exactly once' );
 	} );
 } );
