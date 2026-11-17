@@ -83,6 +83,27 @@ describe( 'useIdentityCrisisActions', () => {
 		expect( result.current.isMigrated ).toBe( false );
 	} );
 
+	it( 'sends no second request while an action is in flight', async () => {
+		let resolve: ( value: unknown ) => void = () => {};
+		migrateIDC.mockReturnValue( new Promise( r => ( resolve = r ) ) );
+		const { result } = renderHook( () => useIdentityCrisisActions() );
+
+		let first: Promise< boolean > = Promise.resolve( false );
+		let second: Promise< boolean > = Promise.resolve( true );
+		act( () => {
+			first = result.current.migrate();
+			second = result.current.migrate();
+		} );
+
+		await act( async () => {
+			resolve( {} );
+			await expect( first ).resolves.toBe( true );
+			await expect( second ).resolves.toBe( false );
+		} );
+		expect( migrateIDC ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.error ).toBeNull();
+	} );
+
 	it( 'returns the connect URL from Start fresh and stays busy while the host leaves', async () => {
 		startIDCFresh.mockResolvedValue( 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
 		const { result } = renderHook( () =>

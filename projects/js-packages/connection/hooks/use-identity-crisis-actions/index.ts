@@ -1,5 +1,5 @@
 import restApi from '@automattic/jetpack-api';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { isHttpUrl } from '../../helpers/is-http-url';
 import { getIdentityCrisisErrorCause } from './get-error-cause';
 import type {
@@ -24,23 +24,33 @@ export default function useIdentityCrisisActions( {
 	const [ busyAction, setBusyAction ] = useState< IdentityCrisisAction | null >( null );
 	const [ error, setError ] = useState< IdentityCrisisError | null >( null );
 	const [ isMigrated, setIsMigrated ] = useState( false );
+	// State updates on the next render, so a second call in the same tick would still see it unset.
+	const busyRef = useRef< IdentityCrisisAction | null >( null );
+
+	const setBusy = useCallback( ( action: IdentityCrisisAction | null ) => {
+		busyRef.current = action;
+		setBusyAction( action );
+	}, [] );
 
 	const run = useCallback(
 		async < T >(
 			action: IdentityCrisisAction,
 			request: () => Promise< T >
 		): Promise< { response: T } | null > => {
-			setBusyAction( action );
+			if ( busyRef.current ) {
+				return null;
+			}
+			setBusy( action );
 			setError( null );
 			try {
 				return { response: await request() };
 			} catch ( caught ) {
 				setError( { action, cause: getIdentityCrisisErrorCause( caught ) } );
-				setBusyAction( null );
+				setBusy( null );
 				return null;
 			}
 		},
-		[]
+		[ setBusy ]
 	);
 
 	const migrate = useCallback( async () => {
@@ -48,10 +58,10 @@ export default function useIdentityCrisisActions( {
 		if ( ! result ) {
 			return false;
 		}
-		setBusyAction( null );
+		setBusy( null );
 		setIsMigrated( true );
 		return true;
-	}, [ run ] );
+	}, [ run, setBusy ] );
 
 	const startFresh = useCallback( async () => {
 		const result = await run( 'start-fresh', async () => {

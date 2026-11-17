@@ -24,7 +24,10 @@ export interface IdentityCrisisActions {
 	confirmSafeMode: () => Promise< boolean >;
 	/** Forgets the last failure, e.g. when the user moves to another step. */
 	clearError: () => void;
-	/** The action in progress. `start-fresh` and `confirm-safe-mode` stay set after success, because the host leaves or reloads the page. */
+	/**
+	 * The action in progress. `start-fresh` and `confirm-safe-mode` stay set after success, because the host leaves or reloads the page.
+	 * While it is set, the actions send no request and resolve as a failure, without setting `error`.
+	 */
 	busyAction: IdentityCrisisAction | null;
 	error: IdentityCrisisError | null;
 	/** Whether `migrate` has succeeded. */
