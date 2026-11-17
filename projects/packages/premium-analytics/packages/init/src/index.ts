@@ -3,7 +3,7 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
-import { ensureDashboardEntities } from '@jetpack-premium-analytics/data';
+import { ensureDashboardEntities, isOnboardingPending } from '@jetpack-premium-analytics/data';
 import { registerFieldTypes } from '@jetpack-premium-analytics/fields';
 import { resolveWidgetIcon } from '@jetpack-premium-analytics/icons';
 import apiFetch from '@wordpress/api-fetch';
@@ -88,6 +88,11 @@ export async function init(): Promise< void > {
  */
 function showWhatsNew(): void {
 	if ( ! getScriptData()?.premium_analytics?.whats_new_enabled ) {
+		return;
+	}
+
+	// Held for this page load: the welcome modal and its tour are about to ask for the same attention.
+	if ( isOnboardingPending() ) {
 		return;
 	}
 
