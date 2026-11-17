@@ -23,7 +23,7 @@ class Initial_State_Test extends TestCase {
 		parent::tearDown();
 
 		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens', 'safe_mode_confirmed', 'blog_token', 'id', 'sync_error_idc', Protected_Owner::OPTION ) );
-		Identity_Crisis::$is_safe_mode_confirmed = null;
+		Identity_Crisis::$is_safe_mode_confirmed = false;
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
 		remove_all_filters( 'jetpack_sync_error_idc_validation' );
