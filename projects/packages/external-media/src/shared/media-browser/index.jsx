@@ -1,7 +1,7 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Composite } from '@wordpress/components';
 import { useCallback, useState, useRef, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Spinner, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import MediaBrowserSelectButton from './media-browser-select-button';
@@ -9,7 +9,7 @@ import MediaItem from './media-item';
 import usePageSource from './use-page-source';
 import './style.scss';
 
-const MAX_SELECTED = 10;
+const MAX_SELECTED = 50;
 
 /**
  * MediaBrowser component
@@ -57,10 +57,12 @@ function MediaBrowser( {
 			if ( newlySelected.type === 'folder' ) {
 				setPath( newlySelected.ID );
 			} else if ( multiple ) {
-				newSelected = selected.slice( 0, MAX_SELECTED - 1 ).concat( newlySelected );
-
 				if ( selected.find( item => newlySelected.ID === item.ID ) ) {
 					newSelected = selected.filter( item => item.ID !== newlySelected.ID );
+				} else if ( selected.length >= MAX_SELECTED ) {
+					return;
+				} else {
+					newSelected = selected.concat( newlySelected );
 				}
 			} else if ( selected.length === 1 && newlySelected.ID === selected[ 0 ].ID ) {
 				newSelected = [];
@@ -81,6 +83,13 @@ function MediaBrowser( {
 
 		onCopy( selected );
 	}, [ tracks, pageSource, mediaSource, selected, multiple, onCopy ] );
+
+	const isAtLimit = multiple && selected.length >= MAX_SELECTED;
+	const limitMessage = sprintf(
+		/* translators: %d: maximum number of media items that can be selected at once. */
+		__( 'You can select up to %d items at a time.', 'jetpack-external-media' ),
+		MAX_SELECTED
+	);
 
 	const hasMediaItems = media.filter( item => item.type !== 'folder' ).length > 0;
 
@@ -166,6 +175,7 @@ function MediaBrowser( {
 				<MediaBrowserSelectButton
 					label={ getSelectButtonLabel() }
 					isLoading={ isCopying }
+					limitMessage={ isAtLimit ? limitMessage : null }
 					disabled={ selected.length === 0 || isCopying }
 					onClick={ onCopyAndInsert }
 				/>

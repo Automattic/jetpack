@@ -120,7 +120,12 @@
 		inset-inline: 0;
 		height: 76px;
 		padding-inline: var(--wpds-dimension-padding-3xl);
+		gap: var(--wpds-dimension-gap-lg);
 		background: var(--wpds-color-background-surface-neutral);
+	}
+
+	.jetpack-external-media-browser__media__limit {
+		margin: 0;
 	}
 
 	.jetpack-external-media-browser__loading {
