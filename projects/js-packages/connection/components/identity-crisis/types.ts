@@ -10,18 +10,18 @@ export interface IdentityCrisisLayoutProps {
 
 export interface IdentityCrisisMigratedProps {
 	/** The address WordPress.com has on record. */
-	wpcomHomeUrl: string;
+	wpcomHomeUrl?: string;
 	/** This site's address. */
-	currentUrl: string;
+	currentUrl?: string;
 	/** Omit to show no button, for hosts that move on by themselves. */
 	onDone?: () => void;
 }
 
 export interface IdentityCrisisAddressesProps {
 	/** The address WordPress.com has on record. */
-	wpcomHomeUrl: string;
+	wpcomHomeUrl?: string;
 	/** This site's address. */
-	currentUrl: string;
+	currentUrl?: string;
 	/** `move` for Migrate (an arrow), `separate` for a fresh connection (a dash). */
 	variant: 'move' | 'separate';
 }

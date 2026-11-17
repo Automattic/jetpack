@@ -8,12 +8,20 @@ describe( 'IdentityCrisisAddresses', () => {
 	] as const )( 'names the WordPress.com address first for %s', ( variant, label ) => {
 		render(
 			<IdentityCrisisAddresses
-				wpcomHomeUrl="https://old.example/"
-				currentUrl="https://new.example"
+				wpcomHomeUrl="old.example/"
+				currentUrl="new.example/"
 				variant={ variant }
 			/>
 		);
 
 		expect( screen.getByRole( 'img', { name: label } ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders nothing without both addresses', () => {
+		const { container } = render(
+			<IdentityCrisisAddresses wpcomHomeUrl="old.example/" variant="move" />
+		);
+
+		expect( container ).toBeEmptyDOMElement();
 	} );
 } );

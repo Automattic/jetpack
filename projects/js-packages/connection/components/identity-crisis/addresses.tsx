@@ -10,7 +10,7 @@ import type { ReactNode } from 'react';
  * The address WordPress.com has on record and this site's, joined by what an action does to them.
  *
  * @param {IdentityCrisisAddressesProps} props - Component props.
- * @return {ReactNode} The diagram.
+ * @return {ReactNode} The diagram, or null without both addresses.
  */
 export default function IdentityCrisisAddresses( {
 	wpcomHomeUrl,
@@ -19,6 +19,10 @@ export default function IdentityCrisisAddresses( {
 }: IdentityCrisisAddressesProps ): ReactNode {
 	const from = formatSiteAddress( wpcomHomeUrl );
 	const to = formatSiteAddress( currentUrl );
+	if ( ! from || ! to ) {
+		return null;
+	}
+
 	const label =
 		variant === 'move'
 			? sprintf(
