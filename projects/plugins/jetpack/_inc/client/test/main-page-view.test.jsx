@@ -1,6 +1,6 @@
 import { MemoryRouter, useLocation, useNavigate } from 'react-router';
 import analytics from 'lib/analytics';
-import { render, screen } from 'test/test-utils';
+import { act, render, screen } from 'test/test-utils';
 import { Main } from '../main';
 
 jest.mock( 'components/admin-notices', () => () => null );
@@ -31,41 +31,58 @@ function RoutedMain( props ) {
 	return <Main { ...props } location={ useLocation() } navigate={ useNavigate() } />;
 }
 
-const shown = ( page, firstShow ) =>
-	window.dispatchEvent(
-		new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
-	);
+const shellEvent = ( type, detail ) =>
+	window.dispatchEvent( new CustomEvent( `jetpack-admin-shell:${ type }`, { detail } ) );
+const shown = ( page, firstShow ) => shellEvent( 'page-shown', { page, firstShow } );
 
-describe( 'Main page views', () => {
-	it( 'records the page view again when the admin shell shows Settings again, not on its first show', async () => {
-		render(
-			<MemoryRouter initialEntries={ [ '/settings' ] }>
-				<RoutedMain
-					setInitialState={ jest.fn() }
-					clearUnsavedSettingsFlag={ jest.fn() }
-					setConnectionStatus={ jest.fn() }
-					siteConnectionStatus={ true }
-					isSiteConnected={ true }
-					currentVersion="1.0"
-					userCanManageModules={ true }
-				/>
-			</MemoryRouter>,
-			{
-				initialState: {
-					jetpack: {
-						connection: {
-							status: { siteConnected: { isActive: true, offlineMode: { isActive: false } } },
-						},
-						initialState: {
-							userData: {
-								currentUser: { permissions: { edit_posts: true, manage_modules: true } },
-							},
+let navigateTo;
+/**
+ * Exposes the router's navigate to the test.
+ *
+ * @return {null} Nothing.
+ */
+function Navigator() {
+	navigateTo = useNavigate();
+	return null;
+}
+
+const renderSettings = async () => {
+	render(
+		<MemoryRouter initialEntries={ [ '/settings' ] }>
+			<Navigator />
+			<RoutedMain
+				setInitialState={ jest.fn() }
+				clearUnsavedSettingsFlag={ jest.fn() }
+				setConnectionStatus={ jest.fn() }
+				siteConnectionStatus={ true }
+				isSiteConnected={ true }
+				currentVersion="1.0"
+				userCanManageModules={ true }
+			/>
+		</MemoryRouter>,
+		{
+			initialState: {
+				jetpack: {
+					connection: {
+						status: { siteConnected: { isActive: true, offlineMode: { isActive: false } } },
+					},
+					initialState: {
+						userData: {
+							currentUser: { permissions: { edit_posts: true, manage_modules: true } },
 						},
 					},
 				},
-			}
-		);
-		await expect( screen.findByText( 'Settings sections' ) ).resolves.toBeInTheDocument();
+			},
+		}
+	);
+	await expect( screen.findByText( 'Settings sections' ) ).resolves.toBeInTheDocument();
+};
+
+beforeEach( () => analytics.tracks.recordEvent.mockClear() );
+
+describe( 'Main page views', () => {
+	it( 'records the page view again when the admin shell shows Settings again, not on its first show', async () => {
+		await renderSettings();
 
 		shown( 'jetpack-settings', true );
 		shown( 'my-jetpack', false );
@@ -74,4 +91,28 @@ describe( 'Main page views', () => {
 		const view = [ 'jetpack_wpa_page_view', { path: '/settings', current_version: '1.0' } ];
 		expect( analytics.tracks.recordEvent.mock.calls ).toEqual( [ view, view ] );
 	} );
+
+	it.each( [
+		[ 'another path', '/security', '/security' ],
+		[ 'the same path with another search term', '/settings?term=ads', '/settings' ],
+	] )(
+		'records one page view when the admin shell reopens Settings at %s',
+		async ( _, route, path ) => {
+			await renderSettings();
+			analytics.tracks.recordEvent.mockClear();
+
+			shellEvent( 'page-hidden', { page: 'jetpack-settings', next: 'my-jetpack' } );
+			act( () => navigateTo( route ) );
+			shellEvent( 'page-shown', {
+				page: 'jetpack-settings',
+				firstShow: false,
+				routeChanged: true,
+				url: `https://example.com/wp-admin/admin.php?page=jetpack-settings#${ route }`,
+			} );
+
+			expect( analytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[ 'jetpack_wpa_page_view', { path, current_version: '1.0' } ],
+			] );
+		}
+	);
 } );

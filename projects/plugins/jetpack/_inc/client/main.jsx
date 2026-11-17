@@ -83,10 +83,12 @@ export class Main extends Component {
 	}
 
 	componentDidMount() {
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', this.onShellPageHidden );
 		window.addEventListener( 'jetpack-admin-shell:page-shown', this.onShellPageShown );
 	}
 
 	componentWillUnmount() {
+		window.removeEventListener( 'jetpack-admin-shell:page-hidden', this.onShellPageHidden );
 		window.removeEventListener( 'jetpack-admin-shell:page-shown', this.onShellPageShown );
 	}
 
@@ -99,8 +101,22 @@ export class Main extends Component {
 	}
 
 	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	hiddenPathname = this.props.location.pathname;
+
+	onShellPageHidden = event => {
+		if ( event.detail?.page === 'jetpack-settings' ) {
+			this.hiddenPathname = this.props.location.pathname;
+		}
+	};
+
 	onShellPageShown = event => {
-		if ( event.detail?.page === 'jetpack-settings' && ! event.detail.firstShow ) {
+		const { page, firstShow, routeChanged, url } = event.detail ?? {};
+		if ( page !== 'jetpack-settings' || firstShow ) {
+			return;
+		}
+		// componentDidUpdate records a new path, but not a new `?term=` in the same path.
+		const pathname = new URL( url ?? '', location.href ).hash.slice( 1 ).split( '?' )[ 0 ] || '/';
+		if ( ! routeChanged || pathname === this.hiddenPathname ) {
 			this.recordPageView();
 		}
 	};

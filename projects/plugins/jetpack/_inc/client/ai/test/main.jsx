@@ -273,6 +273,40 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( viewedTabs() ).toEqual( [ 'features', 'features' ] );
 		} );
 
+		test.each( [
+			[ 'another tab', 'features', 'mcp', [ 'features', 'mcp' ] ],
+			[ 'the same tab at another view', 'mcp', 'mcp/read', [ 'mcp', 'mcp' ] ],
+		] )(
+			'records one view when the admin shell shows the page again at %s',
+			async ( _, from, view, tabs ) => {
+				window.history.replaceState( null, '', '#/' + from );
+				render( <App /> );
+				await waitFor( () => expect( viewedTabs() ).toEqual( [ tabs[ 0 ] ] ) );
+
+				window.dispatchEvent(
+					new CustomEvent( 'jetpack-admin-shell:page-hidden', {
+						detail: { page: 'jetpack-ai', next: 'my-jetpack' },
+					} )
+				);
+				await act( async () => {
+					window.history.replaceState( null, '', '#/' + view );
+					window.dispatchEvent( new Event( 'popstate' ) );
+				} );
+				window.dispatchEvent(
+					new CustomEvent( 'jetpack-admin-shell:page-shown', {
+						detail: {
+							page: 'jetpack-ai',
+							firstShow: false,
+							routeChanged: true,
+							url: window.location.href,
+						},
+					} )
+				);
+
+				expect( viewedTabs() ).toEqual( tabs );
+			}
+		);
+
 		test( 'records hash and history navigation without counting MCP sub-view changes', async () => {
 			window.history.replaceState( null, '', '#/features' );
 			render( <App /> );
