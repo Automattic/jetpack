@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
 use WP_Post;
+use WP_Term;
 
 /**
  * Reads what the channel blocks show: the VideoPress videos in the media
@@ -460,7 +461,7 @@ class Channel_Data {
 	 * @param bool   $read_page    Whether the page comes from the request ( numbered pagination ).
 	 * @param string $default_sort The block's own order.
 	 *
-	 * @return array{search: string, sort: string, length: string, page: int}
+	 * @return array{search: string, sort: string, length: string, page: int, terms: array<string, string[]>}
 	 */
 	public static function browse_request( $read_filters, $read_page, $default_sort = 'newest' ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only listing arguments, like core's paged and s.
@@ -472,6 +473,7 @@ class Channel_Data {
 			'sort'   => in_array( $default_sort, self::BROWSE_SORTS, true ) ? $default_sort : 'newest',
 			'length' => 'any',
 			'page'   => self::DEFAULT_BROWSE_PAGE,
+			'terms'  => array(),
 		);
 
 		if ( $read_filters ) {
@@ -485,6 +487,14 @@ class Channel_Data {
 			if ( in_array( $length, self::BROWSE_LENGTHS, true ) ) {
 				$state['length'] = $length;
 			}
+			$selected = array();
+			foreach ( Classification::taxonomies() as $taxonomy => $shape ) {
+				$value = isset( $_GET[ $shape['query_arg'] ] ) ? wp_unslash( $_GET[ $shape['query_arg'] ] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- normalize_selection() keeps only sanitized slugs.
+				if ( is_string( $value ) || is_array( $value ) ) {
+					$selected[ $taxonomy ] = $value;
+				}
+			}
+			$state['terms'] = Classification::normalize_selection( $selected );
 		}
 		if ( $read_page ) {
 			$state['page'] = max( 1, absint( $get( self::QUERY_ARG_PAGE ) ) );
@@ -699,6 +709,32 @@ class Channel_Data {
 		 * @param string $handle "@" plus the first label of the site's host; empty for none.
 		 */
 		return (string) apply_filters( 'videopress_channel_handle', $label ? self::DEFAULT_HANDLE_PREFIX . $label : '' );
+	}
+
+	/**
+	 * The page listing the channel's videos, optionally filtered by one classification term.
+	 *
+	 * @param WP_Term|null $term A classification term to filter by.
+	 *
+	 * @return string
+	 */
+	public static function videos_page_url( $term = null ) {
+		$page = get_page_by_path( 'videos' );
+		$url  = $page instanceof WP_Post && 'publish' === $page->post_status ? get_permalink( $page ) : home_url( '/videos/' );
+
+		/**
+		 * Filters the URL of the channel's Videos page, where classification chips link to.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $url The `videos` page, or /videos/ when there is none.
+		 */
+		$url        = (string) apply_filters( 'videopress_channel_videos_page_url', $url );
+		$taxonomies = Classification::taxonomies();
+		if ( $term instanceof WP_Term && isset( $taxonomies[ $term->taxonomy ] ) ) {
+			$url = add_query_arg( $taxonomies[ $term->taxonomy ]['query_arg'], $term->slug, $url );
+		}
+		return $url;
 	}
 
 	/**
