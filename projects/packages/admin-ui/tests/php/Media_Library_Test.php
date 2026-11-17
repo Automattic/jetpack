@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Admin_UI;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -79,6 +81,29 @@ class Media_Library_Test extends TestCase {
 		$this->assertStringContainsString( 'id="media-views-js"', $html );
 		$this->assertStringNotContainsString( 'id="jquery-core-js"', $html );
 		$this->assertStringNotContainsString( 'id="buttons-css"', $html );
+	}
+
+	/**
+	 * Output from another plugin's wp_enqueue_media callback, such as a notice, is not sent ahead of the JSON.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @return void
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_html_leaves_out_output_from_wp_enqueue_media_callbacks() {
+		add_action(
+			'wp_enqueue_media',
+			static function () {
+				echo 'Notice: something went wrong';
+			}
+		);
+
+		ob_start();
+		Media_Library::get_html();
+		$this->assertSame( '', ob_get_clean() );
 	}
 
 	/**
