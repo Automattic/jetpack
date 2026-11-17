@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Abilities: Followers and settings readers no longer fail with a PHP error when the input carries a key.

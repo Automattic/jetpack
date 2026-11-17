@@ -250,6 +250,22 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		}
 	}
 
+	/**
+	 * Regression: with `properties` as an object, core validation threw "Cannot use object of type stdClass as
+	 * array" for any input with a key, before the ability ran. An empty array would list as `[]`, so there is none.
+	 */
+	public function test_input_with_an_unexpected_key_fails_validation_instead_of_throwing(): void {
+		$abilities = Stats_Abilities::get_abilities();
+
+		foreach ( array( 'jetpack-stats/get-followers', 'jetpack-stats/get-settings' ) as $slug ) {
+			$schema = $abilities[ $slug ]['input_schema'];
+
+			$this->assertInstanceOf( \WP_Error::class, rest_validate_value_from_schema( array( 'unexpected' => '1' ), $schema, 'input' ), "{$slug} must refuse an unexpected key." );
+			$this->assertTrue( rest_validate_value_from_schema( array(), $schema, 'input' ), "{$slug} must accept an empty input." );
+			$this->assertStringNotContainsString( '"properties":[]', wp_json_encode( $schema ), "{$slug} must not list properties as a JSON array." );
+		}
+	}
+
 	public function test_every_ability_opts_into_mcp_as_public_tool(): void {
 		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
 			$this->assertSame( true, $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
