@@ -18,7 +18,7 @@ import { ReadinessFields, readinessSummary, type StatsFeedbackReadiness } from '
 // from …"), so it has to name the surface without any further context.
 const PRODUCT_NAME = 'Jetpack Stats v2';
 
-export type FeedbackSource = 'menu' | 'banner';
+type FeedbackSource = 'menu' | 'banner';
 
 type FeedbackModalProps = {
 	/**

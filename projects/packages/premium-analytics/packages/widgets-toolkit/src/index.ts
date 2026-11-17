@@ -129,7 +129,6 @@ export {
 	type DetailPageCustomize,
 	canSendFeedback,
 	FeedbackModal,
-	type FeedbackSource,
 	PageEmptyState,
 	type PageEmptyStateProps,
 	LockedPage,
