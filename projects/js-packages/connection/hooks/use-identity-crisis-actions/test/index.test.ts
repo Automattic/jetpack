@@ -110,7 +110,7 @@ describe( 'useIdentityCrisisActions', () => {
 		expect( result.current.busyAction ).toBe( 'confirm-safe-mode' );
 	} );
 
-	it.each( [ false, 'javascript:alert(1)' ] )(
+	it.each( [ false, 'javascript:alert(1)', 'https://', 'https://example.com:invalid/' ] )(
 		'treats a Start fresh response of %j as a server failure',
 		async response => {
 			startIDCFresh.mockResolvedValue( response );
