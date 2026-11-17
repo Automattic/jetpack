@@ -122,6 +122,10 @@ class CLI {
 
 		$module->update( $status );
 
+		if ( $module_slug === 'page_cache' && ! $status ) {
+			$module->on_deactivate();
+		}
+
 		if ( $module_slug === 'page_cache' && $status ) {
 			$setup_result = Page_Cache_Setup::enable();
 			if ( is_wp_error( $setup_result ) ) {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: Fix cached pages still being served after disabling Page Cache with WP-CLI.
