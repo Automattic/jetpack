@@ -277,7 +277,6 @@ export default function App() {
 	// parent tab (MCP and Connectors) selected.
 	const activeTab = view.split( '/' )[ 0 ];
 
-	// A ref, so the tab the page was hidden on outlives a re-render before the page is shown.
 	const hiddenTab = useRef( activeTab );
 	useEffect( () => {
 		if ( ! showFeaturesView ) {

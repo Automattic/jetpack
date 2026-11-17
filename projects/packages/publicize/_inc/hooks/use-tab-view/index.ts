@@ -35,7 +35,6 @@ export default function useTabView(
 	}, [ activeTab ] );
 
 	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
-	// A ref, so the tab the page was hidden on outlives a re-render before the page is shown.
 	const hiddenTab = useRef( activeTab );
 	useEffect( () => {
 		const onHidden = ( event: Event ) => {

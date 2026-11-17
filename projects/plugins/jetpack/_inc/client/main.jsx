@@ -101,6 +101,8 @@ export class Main extends Component {
 	}
 
 	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	hiddenPathname = this.props.location.pathname;
+
 	onShellPageHidden = event => {
 		if ( event.detail?.page === 'jetpack-settings' ) {
 			this.hiddenPathname = this.props.location.pathname;

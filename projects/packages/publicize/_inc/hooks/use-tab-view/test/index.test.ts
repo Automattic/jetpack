@@ -36,36 +36,44 @@ describe( 'useTabView', () => {
 	} );
 
 	it.each( [
-		[ 'another tab', '/?tab=settings', 'settings' ],
-		[ 'the same tab at another URL', '/?tab=connections', 'overview' ],
-	] )( 'records one view when the admin shell shows the page again at %s', ( _, route, tab ) => {
-		const { rerender } = renderHook(
-			( { tab: current }: { tab: SocialTab } ) => useTabView( current, resolveTab ),
-			{ initialProps: { tab: 'overview' } }
-		);
-		recordEvent.mockClear();
+		[ 'another tab', '/?tab=settings', 'settings', true ],
+		[ 'another tab, before the route renders', '/?tab=settings', 'settings', false ],
+		[ 'the same tab at another URL', '/?tab=connections', 'overview', true ],
+	] )(
+		'records one view when the admin shell shows the page again at %s',
+		( _, route, tab, rendersFirst ) => {
+			const { rerender } = renderHook(
+				( { tab: current }: { tab: SocialTab } ) => useTabView( current, resolveTab ),
+				{ initialProps: { tab: 'overview' } }
+			);
+			recordEvent.mockClear();
 
-		window.dispatchEvent(
-			new CustomEvent( 'jetpack-admin-shell:page-hidden', {
-				detail: { page: 'jetpack-social', next: 'my-jetpack' },
-			} )
-		);
-		rerender( { tab: tab as SocialTab } );
-		window.dispatchEvent(
-			new CustomEvent( 'jetpack-admin-shell:page-shown', {
-				detail: {
-					page: 'jetpack-social',
-					firstShow: false,
-					routeChanged: true,
-					url: `https://example.com/wp-admin/admin.php?page=jetpack-social&p=${ encodeURIComponent(
-						route
-					) }`,
-				},
-			} )
-		);
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-hidden', {
+					detail: { page: 'jetpack-social', next: 'my-jetpack' },
+				} )
+			);
+			if ( rendersFirst ) {
+				rerender( { tab: tab as SocialTab } );
+			}
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', {
+					detail: {
+						page: 'jetpack-social',
+						firstShow: false,
+						routeChanged: true,
+						url: `https://example.com/wp-admin/admin.php?page=jetpack-social&p=${ encodeURIComponent(
+							route
+						) }`,
+					},
+				} )
+			);
 
-		expect( recordEvent.mock.calls ).toEqual( [ [ 'jetpack_social_tab_view', { tab } ] ] );
-	} );
+			rerender( { tab: tab as SocialTab } );
+
+			expect( recordEvent.mock.calls ).toEqual( [ [ 'jetpack_social_tab_view', { tab } ] ] );
+		}
+	);
 
 	it( 'records the tab again when the admin shell shows the page again, not on its first show', () => {
 		renderHook( () => useTabView( 'settings', resolveTab ) );
