@@ -5,6 +5,7 @@ import { entrySettings, moduleSettings } from '../registry';
 import type { MyJetpackModule } from '../../../types';
 
 const mockNavigate = jest.fn();
+const mockRecordEvent = jest.fn();
 let mockSearch: Record< string, unknown > = {};
 let mockModules: { modules: Record< string, MyJetpackModule >; hasLoaded: boolean };
 
@@ -20,7 +21,7 @@ jest.mock( '../../my-jetpack-tab-panel/features/use-main-features', () => ( {
 } ) );
 jest.mock( '../../../hooks/use-analytics', () => ( {
 	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
+	default: () => ( { recordEvent: mockRecordEvent } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
@@ -208,11 +209,18 @@ describe( 'SettingsPanel', () => {
 		[
 			'the close button',
 			() => userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) ),
+			'close-button',
 		],
-		[ 'Escape', () => userEvent.keyboard( '{Escape}' ) ],
-	] )( 'closes on %s, dropping only the configure param', async ( _name, close ) => {
+		[ 'Escape', () => userEvent.keyboard( '{Escape}' ), 'escape' ],
+	] )( 'closes on %s, dropping only the configure param', async ( _name, close, method ) => {
 		render( <SettingsPanel /> );
 		await close();
+
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith( 'jetpack_myjetpack_settings_panel_close', {
+			feature_slug: 'tiled-gallery',
+			method,
+			event_version: 1,
+		} );
 
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ];
