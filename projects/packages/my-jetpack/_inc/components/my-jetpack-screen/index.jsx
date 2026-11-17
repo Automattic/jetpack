@@ -7,7 +7,7 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useContext, useEffect, useLayoutEffect, useRef } from 'react';
+import { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation, useParams } from 'react-router';
 /*
  * Internal dependencies
@@ -19,6 +19,7 @@ import useRedBubbleQuery from '../../data/use-red-bubble-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
 import resetJetpackOptions from '../../data/utils/reset-jetpack-options';
+import useAdminShellReturn from '../../hooks/use-admin-shell-return';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -127,32 +128,30 @@ export default function MyJetpackScreen() {
 	// Determine current tab
 	const currentTab = resolveMyJetpackSection( params.section );
 
-	useLayoutEffect( () => {
-		let customTracksData = {};
-
-		if ( ! isRedBubbleAlertsError && Object.keys( redBubbleAlerts )?.length ) {
-			customTracksData = {
-				red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
-			};
-		}
-
-		if ( ! isRedBubbleAlertsLoading ) {
+	const recordPageView = useCallback(
+		previousTab => {
 			recordEvent( 'jetpack_myjetpack_page_view', {
-				...customTracksData,
+				...( ! isRedBubbleAlertsError && Object.keys( redBubbleAlerts )?.length
+					? { red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ) }
+					: {} ),
 				tab_name: currentTab,
-				previous_tab: previousTabRef.current,
+				previous_tab: previousTab,
 			} );
+		},
+		[ recordEvent, redBubbleAlerts, isRedBubbleAlertsError, currentTab ]
+	);
+
+	useLayoutEffect( () => {
+		if ( ! isRedBubbleAlertsLoading ) {
+			recordPageView( previousTabRef.current );
 
 			// Update previous tab for next navigation
 			previousTabRef.current = currentTab;
 		}
-	}, [
-		recordEvent,
-		redBubbleAlerts,
-		isRedBubbleAlertsError,
-		isRedBubbleAlertsLoading,
-		currentTab,
-	] );
+	}, [ recordPageView, isRedBubbleAlertsLoading, currentTab ] );
+
+	// As a page load does: it has no previous tab.
+	useAdminShellReturn( useCallback( () => recordPageView( null ), [ recordPageView ] ) );
 
 	const { pathname: routePath, search: routeSearch } = routeLocation;
 	const shouldReload = new URLSearchParams( routeSearch ).get( 'reload' ) === 'true';
