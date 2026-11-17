@@ -90,9 +90,7 @@ class Payments implements Dashboard_Section {
 			)
 		);
 
-		// Coupons, which WordPress.com only serves when it has them turned on for the site.
 		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupons', 'GET' );
-
 		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupon/(?P<id>\d+)', 'DELETE' );
 	}
 }

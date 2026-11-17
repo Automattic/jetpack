@@ -1,10 +1,12 @@
+import { dateI18n, getSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import { useCoupons } from '../../data/coupons';
 import { useStripeStatus } from '../../data/memberships';
 import { discountLabel } from './coupons';
 import DeleteCouponDialog from './delete-coupon-dialog';
+import ListRow from './list-row';
 import { getPaymentsState } from './state';
 import type { Coupon } from '../../data/coupons';
 
@@ -40,8 +42,13 @@ function DeleteButton( {
 function couponBadges( coupon: Coupon ): string[] {
 	const badges = [ discountLabel( coupon ) ];
 	if ( coupon.endDate ) {
-		/* translators: %s: a date, e.g. 2026-12-31. */
-		badges.push( sprintf( __( 'Expires on %s', 'jetpack-monetize' ), coupon.endDate ) );
+		badges.push(
+			sprintf(
+				/* translators: %s: a date, e.g. December 31, 2026. */
+				__( 'Expires on %s', 'jetpack-monetize' ),
+				dateI18n( getSettings().formats.date, coupon.endDate, undefined )
+			)
+		);
 	}
 	if ( ! coupon.canBeCombined ) {
 		badges.push( __( 'Cannot be combined with other coupons', 'jetpack-monetize' ) );
@@ -91,28 +98,9 @@ function Coupons() {
 		content = (
 			<Stack direction="column" gap="lg">
 				{ coupons.map( coupon => (
-					<Stack
-						key={ coupon.id }
-						direction="row"
-						gap="md"
-						align="center"
-						justify="space-between"
-						className="jp-monetize-payments__plan"
-					>
-						<Stack direction="column" gap="xs">
-							<Text variant="heading-sm" render={ <h3 /> }>
-								{ coupon.code }
-							</Text>
-							<Stack direction="row" gap="xs" wrap="wrap">
-								{ couponBadges( coupon ).map( badge => (
-									<Badge key={ badge } intent="informational">
-										{ badge }
-									</Badge>
-								) ) }
-							</Stack>
-						</Stack>
+					<ListRow key={ coupon.id } title={ coupon.code } badges={ couponBadges( coupon ) }>
 						{ canManagePlans && <DeleteButton coupon={ coupon } onDelete={ setDeleting } /> }
-					</Stack>
+					</ListRow>
 				) ) }
 			</Stack>
 		);

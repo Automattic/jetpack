@@ -1,83 +1,15 @@
-import { safeHTML } from '@wordpress/dom';
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import { useFreeTier } from '../../data/free-tier';
 import { useMembershipProducts } from '../../data/memberships';
 import { trackPaymentsEvent } from '../../data/tracking';
 import DeletePlanDialog from './delete-plan-dialog';
 import FreeTierDialog from './free-tier-dialog';
+import ListRow from './list-row';
 import { groupPlans, isTier, planPriceLabel } from './plans';
 import { getPaymentsState } from './state';
 import type { Plan } from './plans';
-import type { ReactNode } from 'react';
-
-/**
- * One row of the list.
- *
- * @param props                 - Component props.
- * @param props.title           - The plan's name.
- * @param props.description     - Its description, as typed.
- * @param props.descriptionHtml - Its description rendered from Markdown, shown in place of the typed one when present.
- * @param props.price           - Its price.
- * @param props.badges          - Its badges.
- * @param props.children        - Its actions.
- * @return The row.
- */
-function PlanRow( {
-	title,
-	description = '',
-	descriptionHtml = '',
-	price,
-	badges,
-	children,
-}: {
-	title: string;
-	description?: string;
-	descriptionHtml?: string;
-	price: string;
-	badges: string[];
-	children?: ReactNode;
-} ) {
-	return (
-		<Stack
-			direction="row"
-			gap="md"
-			align="center"
-			justify="space-between"
-			className="jp-monetize-payments__plan"
-		>
-			<Stack direction="column" gap="xs">
-				<Text variant="heading-sm" render={ <h3 /> }>
-					{ title }
-				</Text>
-				{ descriptionHtml ? (
-					<Text variant="body-sm" render={ <div /> }>
-						<div
-							className="jp-monetize-payments__description"
-							// WordPress.com renders it with an allowlist of tags; safeHTML is a second pass.
-							// eslint-disable-next-line react/no-danger
-							dangerouslySetInnerHTML={ { __html: safeHTML( descriptionHtml ) } }
-						/>
-					</Text>
-				) : (
-					description && <Text variant="body-sm">{ description }</Text>
-				) }
-				<Text variant="body-sm">{ price }</Text>
-				{ badges.length > 0 && (
-					<Stack direction="row" gap="xs">
-						{ badges.map( badge => (
-							<Badge key={ badge } intent="informational">
-								{ badge }
-							</Badge>
-						) ) }
-					</Stack>
-				) }
-			</Stack>
-			{ children }
-		</Stack>
-	);
-}
 
 /**
  * Opens the delete dialog for one plan.
@@ -152,7 +84,7 @@ export default function PlansCard() {
 					}
 
 					return (
-						<PlanRow
+						<ListRow
 							key={ plan.product.id }
 							title={ plan.product.title }
 							{ ...( isTier( plan ) && {
@@ -166,11 +98,11 @@ export default function PlansCard() {
 							{ canManagePlans && ! isReadOnly && (
 								<DeleteButton plan={ plan } onDelete={ setDeleting } />
 							) }
-						</PlanRow>
+						</ListRow>
 					);
 				} ) }
 				{ hasTier && freeTier && (
-					<PlanRow
+					<ListRow
 						title={ __( 'Free', 'jetpack-monetize' ) }
 						description={ freeTier.description }
 						descriptionHtml={ freeTier.descriptionHtml }
@@ -185,7 +117,7 @@ export default function PlansCard() {
 								{ __( 'Edit', 'jetpack-monetize' ) }
 							</Button>
 						) }
-					</PlanRow>
+					</ListRow>
 				) }
 			</Stack>
 		);

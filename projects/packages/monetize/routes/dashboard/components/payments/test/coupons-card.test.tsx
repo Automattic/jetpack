@@ -58,7 +58,7 @@ describe( 'CouponsCard', () => {
 
 		await expect( screen.findByRole( 'heading', { name: 'SPRING' } ) ).resolves.toBeVisible();
 		expect( screen.getByText( '20% off forever' ) ).toBeVisible();
-		expect( screen.getByText( 'Expires on 2026-12-31' ) ).toBeVisible();
+		expect( screen.getByText( 'Expires on December 31, 2026' ) ).toBeVisible();
 		expect( screen.getByText( 'Cannot be combined with other coupons' ) ).toBeVisible();
 		expect( Boolean( screen.queryByRole( 'button', { name: 'Delete' } ) ) ).toBe( offered );
 	} );
