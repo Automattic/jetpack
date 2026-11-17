@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Currency formatting: Add the current ISO 4217 codes BYN, MRU, SLE, SSP, STN, VES, XCG and ZWG so they no longer fall back to USD.
