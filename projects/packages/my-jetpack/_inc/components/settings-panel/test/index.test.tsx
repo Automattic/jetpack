@@ -5,6 +5,7 @@ import { entrySettings, moduleSettings } from '../registry';
 import type { MyJetpackModule } from '../../../types';
 
 const mockNavigate = jest.fn();
+const mockRecordEvent = jest.fn();
 let mockSearch: Record< string, unknown > = {};
 let mockModules: { modules: Record< string, MyJetpackModule >; hasLoaded: boolean };
 
@@ -20,7 +21,7 @@ jest.mock( '../../my-jetpack-tab-panel/features/use-main-features', () => ( {
 } ) );
 jest.mock( '../../../hooks/use-analytics', () => ( {
 	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
+	default: () => ( { recordEvent: mockRecordEvent } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
@@ -66,6 +67,34 @@ afterEach( () => {
 } );
 
 describe( 'SettingsPanel', () => {
+	// Keep first: only the page's first open can be a deep link.
+	it( 'records a deep link for the slug the page loaded with, then a configure link per new slug', () => {
+		// jsdom has no navigation entries.
+		Object.defineProperty( performance, 'getEntriesByType', {
+			configurable: true,
+			value: () => [
+				{
+					name: 'https://example.com/wp-admin/admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dtiled-gallery',
+				},
+			],
+		} );
+		const { rerender } = render( <SettingsPanel /> );
+		mockSearch = { configure: 'likes' };
+		rerender( <SettingsPanel /> );
+
+		expect( mockRecordEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_myjetpack_settings_panel_open',
+				{ feature_slug: 'tiled-gallery', trigger: 'deep-link', event_version: 1 },
+			],
+			[
+				'jetpack_myjetpack_settings_panel_open',
+				{ feature_slug: 'likes', trigger: 'configure-link', event_version: 1 },
+			],
+		] );
+		delete ( performance as Partial< Performance > ).getEntriesByType;
+	} );
+
 	it( 'opens a settings entry without waiting for the modules to load', () => {
 		mockSearch = { configure: 'entry-test' };
 		mockModules = { modules: {}, hasLoaded: false };
@@ -208,11 +237,18 @@ describe( 'SettingsPanel', () => {
 		[
 			'the close button',
 			() => userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) ),
+			'close-button',
 		],
-		[ 'Escape', () => userEvent.keyboard( '{Escape}' ) ],
-	] )( 'closes on %s, dropping only the configure param', async ( _name, close ) => {
+		[ 'Escape', () => userEvent.keyboard( '{Escape}' ), 'escape' ],
+	] )( 'closes on %s, dropping only the configure param', async ( _name, close, method ) => {
 		render( <SettingsPanel /> );
 		await close();
+
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith( 'jetpack_myjetpack_settings_panel_close', {
+			feature_slug: 'tiled-gallery',
+			method,
+			event_version: 1,
+		} );
 
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ];

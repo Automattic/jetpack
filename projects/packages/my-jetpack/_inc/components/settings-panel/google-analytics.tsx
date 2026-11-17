@@ -28,7 +28,7 @@ const CODE_PATTERN = /^(|UA-\d+-\d+|G-[A-Z0-9]+)$/i;
  */
 export function GoogleAnalyticsSettings() {
 	const { settings, isError, isSaving, save } = useGoogleAnalyticsSettings();
-	const { trackSettingToggle } = useSettingsPanelTracking( 'google-analytics' );
+	const { trackSettingToggle, trackSettingChange } = useSettingsPanelTracking( 'google-analytics' );
 	const { detail: stats } = useProduct( PRODUCT_SLUGS.STATS );
 	// The ID as typed, until it is saved; null shows the stored one.
 	const [ draft, setDraft ] = useState< string | null >( null );
@@ -55,10 +55,11 @@ export function GoogleAnalyticsSettings() {
 		if ( draft === null || ! isValid || value === settings?.code ) {
 			return;
 		}
+		trackSettingChange( 'code' );
 		if ( await save( { code: value } ) ) {
 			setDraft( null );
 		}
-	}, [ code, draft, isValid, save, settings?.code ] );
+	}, [ code, draft, isValid, save, settings?.code, trackSettingChange ] );
 
 	if ( isError ) {
 		return (

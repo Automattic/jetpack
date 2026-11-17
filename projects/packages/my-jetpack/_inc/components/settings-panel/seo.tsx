@@ -14,7 +14,7 @@ import type { ModuleSettingsProps } from './registry';
 export function SeoSettings( { module: $module, disabled }: ModuleSettingsProps ) {
 	return (
 		<Stack direction="column" gap="lg">
-			<SeoOptInCard />
+			<SeoOptInCard surface="settings-panel" />
 			<FallbackSettings module={ $module } disabled={ disabled } />
 		</Stack>
 	);
