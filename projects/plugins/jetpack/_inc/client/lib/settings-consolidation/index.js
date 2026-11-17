@@ -123,6 +123,26 @@ export function isDeprecatedInFeatures( state, module ) {
 }
 
 /**
+ * Whether a search matches the Privacy card's search terms.
+ *
+ * @param {string} searchTerm - The search term.
+ * @return {boolean} True on a match.
+ */
+export const searchFindsPrivacy = searchTerm =>
+	!! searchTerm &&
+	[
+		_x( 'privacy', 'Search term.', 'jetpack' ),
+		_x( 'tracks', 'Search term.', 'jetpack' ),
+		_x( 'data', 'Search term.', 'jetpack' ),
+		_x( 'gdpr', 'Search term.', 'jetpack' ),
+		_x( 'tos', 'Search term.', 'jetpack' ),
+		_x( 'terms of service', 'Search term.', 'jetpack' ),
+	]
+		.join( ' ' )
+		.toLowerCase()
+		.includes( searchTerm.toLowerCase() );
+
+/**
  * Whether a search names Google Analytics, in English or the site's language.
  *
  * @param {string} searchTerm - The search term.

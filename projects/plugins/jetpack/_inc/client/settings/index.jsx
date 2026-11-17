@@ -13,10 +13,12 @@ import {
 	getMovedOutModules,
 	isSettingsConsolidationEnabled,
 	searchFindsGoogleAnalytics,
+	searchFindsPrivacy,
 } from 'lib/settings-consolidation';
 import Subscriptions from 'newsletter';
 import Performance from 'performance';
 import Privacy from 'privacy';
+import { PrivacyMoved } from 'privacy/privacy-moved';
 import Reader from 'reader';
 import SearchableModules from 'searchable-modules';
 import Security from 'security';
@@ -52,7 +54,8 @@ class Settings extends Component {
 		const showEmptySearchState =
 			!! searchTerm &&
 			! hasAnyMatchingModule &&
-			! ( isWoASite() && searchFindsGoogleAnalytics( searchTerm ) );
+			! ( isWoASite() && searchFindsGoogleAnalytics( searchTerm ) ) &&
+			! ( isSettingsConsolidationEnabled() && searchFindsPrivacy( searchTerm ) );
 
 		return (
 			<ThemeProvider>
@@ -124,7 +127,9 @@ class Settings extends Component {
 						}
 						{ ...commonProps }
 					/>
-					{ ! isSettingsConsolidationEnabled() && (
+					{ isSettingsConsolidationEnabled() ? (
+						<PrivacyMoved searchTerm={ searchTerm } />
+					) : (
 						<Privacy active={ '/privacy' === pathname } { ...commonProps } />
 					) }
 					<Subscriptions siteAdminUrl={ siteAdminUrl } searchTerm={ searchTerm } />

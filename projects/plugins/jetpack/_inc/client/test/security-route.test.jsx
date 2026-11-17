@@ -82,20 +82,12 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		[ '/discussion', 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments' ],
 		[ '/traffic', 'admin.php?page=my-jetpack#/features' ],
 		[ '/settings', 'admin.php?page=my-jetpack#/features' ],
+		[ '/privacy', 'profile.php#jetpack-privacy' ],
 	] )( 'sends %s to %s with the settings flag on and no tab left', ( route, destination ) => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );
 		renderAt( route, false, { remainingTabs: [] } );
 
 		expect( getAdminUrl ).toHaveBeenCalledWith( destination );
-		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
-		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'sends #/privacy to the WordPress.com privacy settings with the settings flag on', () => {
-		isSettingsConsolidationEnabled.mockReturnValue( true );
-		renderAt( '/privacy', false );
-
-		expect( getAdminUrl ).not.toHaveBeenCalled();
 		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
 		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
 	} );
