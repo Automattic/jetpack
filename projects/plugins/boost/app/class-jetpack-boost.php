@@ -431,7 +431,7 @@ class Jetpack_Boost {
 	/**
 	 * Queue a fresh `boost_modules` snapshot when a module status option changes.
 	 *
-	 * Sync checks callables only when something else is queued, so a toggle alone can leave WP.com stale.
+	 * Sync sends callables only when something else triggers a send, so a toggle alone can leave WP.com stale.
 	 *
 	 * @param string $option Option name.
 	 */
