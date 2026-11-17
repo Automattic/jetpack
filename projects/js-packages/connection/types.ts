@@ -64,6 +64,27 @@ export interface WpcomUser {
 	user_currency?: string;
 }
 
+interface IdentityCrisisBase {
+	/** Whether the `connection-idc-screen` feature flag is on. */
+	useNewScreen: boolean;
+	isSafeModeConfirmed: boolean;
+}
+
+/** Safe Mode state for the shared Safe Mode screen. Only a viewer who can resolve Safe Mode gets its details. */
+export type IdentityCrisisState =
+	| ( IdentityCrisisBase & { canResolve: false } )
+	| ( IdentityCrisisBase & {
+			canResolve: true;
+			/** Host and path without a scheme, e.g. `example.com/`; empty when no stored error has one. Show as text, not a link. */
+			wpcomHomeUrl: string;
+			/** Same format as `wpcomHomeUrl`. */
+			currentUrl: string;
+			isDevelopmentSite: boolean;
+			possibleDynamicSiteUrlDetected: boolean;
+			/** Jetpack mark, combined with the marks of the other plugin families that use the connection. */
+			logoUrl: string;
+	  } );
+
 export type ConnectionScriptData = {
 	apiRoot: string;
 	apiNonce: string;
@@ -156,6 +177,8 @@ export type ConnectionScriptData = {
 	requiresProtectedOwner: boolean | null;
 	/** Whether the package renders its own protected owner UI. Null as above. */
 	useDefaultProtectedOwnerUi: boolean | null;
+	/** Null outside Safe Mode. Absent from a server that predates it. */
+	identityCrisis?: IdentityCrisisState | null;
 	/**
 	 * Absolute URL of the package's committed images, with a trailing slash. Optional because
 	 * only the admin script data carries it, not `JP_CONNECTION_INITIAL_STATE`.

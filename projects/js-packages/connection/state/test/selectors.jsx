@@ -72,3 +72,15 @@ describe( 'protected owner selectors', () => {
 		expect( store.getUseDefaultProtectedOwnerUi() ).toBeNull();
 	} );
 } );
+
+describe( 'getIdentityCrisis', () => {
+	it.each( [
+		[ 'the Safe Mode state', { useNewScreen: true, canResolve: false, isSafeModeConfirmed: true } ],
+		[ 'null outside Safe Mode', null ],
+		[ 'null from a server that predates it', undefined ],
+	] )( 'reads %s', ( _, identityCrisis ) => {
+		const store = storeWith( { identityCrisis }, `test/idc-${ String( identityCrisis ) }` );
+
+		expect( store.getIdentityCrisis() ).toEqual( identityCrisis ?? null );
+	} );
+} );
