@@ -454,6 +454,7 @@ class Admin_Shell_Test extends TestCase {
 		return array(
 			'unfiltered'   => array( null, null ),
 			'a limit'      => array( 4, 4 ),
+			'a string'     => array( '4', 4 ),
 			'zero'         => array( 0, null ),
 			'not a number' => array( 'four', null ),
 		);

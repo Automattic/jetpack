@@ -460,45 +460,70 @@ describe( 'admin shell live-app limit', () => {
 		);
 
 	beforeAll( () => {
-		mockConfigExtra = { maxLiveApps: 2 };
+		mockConfigExtra = { maxLiveApps: 3 };
 	} );
-	beforeEach( () => window.addEventListener( 'click', keepClick ) );
+	beforeEach( () => {
+		kept = undefined;
+		window.addEventListener( 'click', keepClick );
+	} );
 	afterEach( () => window.removeEventListener( 'click', keepClick ) );
 	afterAll( () => {
 		mockConfigExtra = {};
 	} );
 
-	it.each( [
-		[ 'mounted', () => click( A ) ],
-		[ 'only prewarmed', () => hover( 'guest-a' ) ],
-	] )( 'loads the page for a new dashboard once one %s reaches the limit', async ( _, spend ) => {
-		spend();
+	// Fill the limit: the host, guest A mounted or only prewarmed, and guest B mounted.
+	const fill = async prewarmOnly => {
+		if ( prewarmOnly ) {
+			hover( 'guest-a' );
+		} else {
+			click( A );
+		}
 		await settle();
-
 		click( '/wp-admin/admin.php?page=guest-b' );
 		await settle();
+		kept = undefined;
+	};
 
-		expect( kept ).toBe( false );
-		expect( stateOf( 'guest-b' ) ).toBeUndefined();
-		expect( prewarmed() ).toEqual( [ 'guest-a' ] );
-	} );
+	it.each( [
+		[ 'mounted', false ],
+		[ 'only prewarmed', true ],
+	] )(
+		'loads the page for a new dashboard once the limit is reached with one %s',
+		async ( _, prewarmOnly ) => {
+			await fill( prewarmOnly );
+			click( '/wp-admin/admin.php?page=guest-a2' );
+			await settle();
 
-	it( 'keeps switching between live dashboards at the limit', async () => {
-		click( A );
-		await settle();
-		click( '/wp-admin/admin.php?page=host' );
+			expect( kept ).toBe( false );
+			expect( stateOf( 'guest-a2' ) ).toBeUndefined();
+			expect( prewarmed() ).toEqual( [ 'guest-a', 'guest-b' ] );
+		}
+	);
+
+	it.each( [
+		[ 'back to a mounted one', false, '/wp-admin/admin.php?page=host', 'host' ],
+		[ 'to one only prewarmed', true, A, 'guest-a' ],
+	] )( 'switches in place at the limit %s', async ( _, prewarmOnly, href, shown ) => {
+		await fill( prewarmOnly );
+		click( href );
 		await settle();
 
 		expect( kept ).toBe( true );
-		expect( stateOf( 'host' ) ).toBe( 'visible' );
+		expect( stateOf( shown ) ).toBe( 'visible' );
 	} );
 
-	it( 'skips hover prewarm at the limit', async () => {
+	it( 'keeps the last slot for a click rather than a hover', async () => {
 		hover( 'guest-a' );
 		await settle();
 		hover( 'guest-b' );
 		await settle();
 
 		expect( prewarmed() ).toEqual( [ 'guest-a' ] );
+
+		click( '/wp-admin/admin.php?page=guest-b' );
+		await settle();
+
+		expect( kept ).toBe( true );
+		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
 	} );
 } );

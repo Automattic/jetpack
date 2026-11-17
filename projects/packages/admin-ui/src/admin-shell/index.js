@@ -114,10 +114,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 	const warm = {};
 	const liveLimit = liveAppLimit( maxLiveApps );
 	// Past the limit, opening another dashboard loads the page, which frees every hidden one.
-	const hasRoomFor = slug =>
+	const hasRoomFor = ( slug, spare = 0 ) =>
 		apps.has( slug ) ||
 		Object.hasOwn( warm, slug ) ||
-		new Set( [ ...apps.keys(), ...Object.keys( warm ) ] ).size < liveLimit;
+		new Set( [ ...apps.keys(), ...Object.keys( warm ) ] ).size < liveLimit - spare;
 	// Everything short of mounting: a mounted router would start reading the visible page's URL.
 	const prewarm = ( slug, reason ) => {
 		if ( warm[ slug ] ) {
@@ -401,18 +401,20 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 		event.preventDefault();
 		closeOverlayAround( a )
 			.then( closed => closed && transitionSettled() )
-			.then( () => navigate( a.href, inMenu ? 'menu click' : 'link click' ) );
+			.then( () =>
+				// Another switch may have taken the last slot while the overlay closed.
+				hasRoomFor( pageOf( a.href ) )
+					? navigate( a.href, inMenu ? 'menu click' : 'link click' )
+					: location.assign( a.href )
+			);
 	} );
 
 	document.getElementById( 'adminmenu' )?.addEventListener( 'pointerover', event => {
 		const a = event.target.closest?.( 'a[href]' );
-		if (
-			a &&
-			isMemberUrl( a.href ) &&
-			! apps.has( pageOf( a.href ) ) &&
-			hasRoomFor( pageOf( a.href ) )
-		) {
-			prewarm( pageOf( a.href ), 'menu hover' ).catch( () => {} );
+		const slug = a && isMemberUrl( a.href ) ? pageOf( a.href ) : null;
+		// Keep the last slot for a click: passing over links on the way shouldn't spend it.
+		if ( slug && ! apps.has( slug ) && hasRoomFor( slug, 1 ) ) {
+			prewarm( slug, 'menu hover' ).catch( () => {} );
 		}
 	} );
 

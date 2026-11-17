@@ -1,7 +1,4 @@
-/*
- * How much of the device's memory the shell may spend keeping dashboards live.
- * A live dashboard is prewarmed or mounted: prewarm alone is about two thirds of its heap.
- */
+// How much of the device's memory the shell may spend keeping dashboards live, prewarmed or mounted.
 
 /**
  * How many dashboards may be live in one document, the host included.

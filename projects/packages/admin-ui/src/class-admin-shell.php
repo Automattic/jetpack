@@ -372,7 +372,7 @@ class Admin_Shell {
 		 * @param int|null $max_live_apps A positive limit, counting the page that loaded; null sizes it from the device's memory.
 		 */
 		$max_live_apps = apply_filters( 'jetpack_admin_shell_max_live_apps', null );
-		return is_int( $max_live_apps ) && $max_live_apps > 0 ? $max_live_apps : null;
+		return is_numeric( $max_live_apps ) && (int) $max_live_apps > 0 ? (int) $max_live_apps : null;
 	}
 
 	/**
