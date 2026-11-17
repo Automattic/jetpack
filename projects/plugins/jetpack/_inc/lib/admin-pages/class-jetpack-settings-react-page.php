@@ -133,6 +133,23 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 			foreach ( array( 'sharing-options', 'monitor_receive_notifications' . $user_id, 'post_by_email_address' . $user_id ) as $option ) {
 				add_filter( 'pre_update_option_' . $option, $keep_stored, 10, 2 );
 			}
+			// The purchase token lives among the connection tokens, so hold back only that key.
+			add_filter(
+				'pre_update_option_jetpack_private_options',
+				static function ( $value, $old_value ) {
+					if ( ! is_array( $value ) ) {
+						return $value;
+					}
+					if ( is_array( $old_value ) && isset( $old_value['purchase_token'] ) ) {
+						$value['purchase_token'] = $old_value['purchase_token'];
+					} else {
+						unset( $value['purchase_token'] );
+					}
+					return $value;
+				},
+				10,
+				2
+			);
 		}
 
 		$this->is_wp_build_loaded = Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID, false );
