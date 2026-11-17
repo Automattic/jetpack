@@ -166,7 +166,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 
 		// 1. Replace the URLs.
 		$this->log( "Replace siteurl '{$prev_siteurl}' with '{$this->site_url}'" );
-		$this->search_replace( $prev_siteurl, esc_url_raw( $this->site_url ), $this->tmp_prefix . '*' );
+		$this->replace_url( $prev_siteurl, esc_url_raw( $this->site_url ) );
 
 		$prev_home = $wpdb->get_var( sprintf( $query, 'home' ) );
 
@@ -177,7 +177,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 		if ( $prev_home !== $prev_siteurl ) {
 			// 2. Replace the (home) URLs.
 			$this->log( "Replace home '{$prev_home}' with '{$this->home_url}'" );
-			$this->search_replace( $prev_home, esc_url_raw( $this->home_url ), $this->tmp_prefix . '*' );
+			$this->replace_url( $prev_home, esc_url_raw( $this->home_url ) );
 		}
 
 		$app_scope = $this->get_app_scope();
@@ -186,10 +186,21 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 			$scope = self::PLAYGROUND_SCOPED_URL . $app_scope;
 			// 3. Replace the app scope.
 			$this->log( "Replace app scope '{$scope}' with '{$this->site_url}'" );
-			$this->search_replace( $scope, esc_url_raw( $this->site_url ), $this->tmp_prefix . '*' );
+			$this->replace_url( $scope, esc_url_raw( $this->site_url ) );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Replace plain and JSON-escaped URLs in the temporary tables.
+	 *
+	 * @param string $old_url The old URL.
+	 * @param string $new_url The new URL.
+	 */
+	private function replace_url( string $old_url, string $new_url ): void {
+		$this->search_replace( $old_url, $new_url, $this->tmp_prefix . '*' );
+		$this->search_replace( str_replace( '/', '\\/', $old_url ), str_replace( '/', '\\/', $new_url ), $this->tmp_prefix . '*' );
 	}
 
 	/**

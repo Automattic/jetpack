@@ -109,6 +109,51 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Replace URLs in plain text and JSON without losing backslashes in command arguments.
+	 */
+	public function test_replace_urls_in_plain_text_and_json(): void {
+		global $wpdb;
+
+		$processor = $this->getMockBuilder( SQL_Postprocessor::class )
+			->setConstructorArgs( array( 'https://example.com', 'https://example.com/wp', self::TEMPORARY_PREFIX ) )
+			->onlyMethods( array( 'run_command', 'get_app_scope' ) )
+			->getMock();
+		$processor->method( 'get_app_scope' )->willReturn( 'test-scope' );
+		$commands = array();
+		$processor->method( 'run_command' )->willReturnCallback(
+			static function ( $command ) use ( &$commands ) {
+				$commands[] = $command;
+				return true;
+			}
+		);
+
+		$tmp_options = $processor->tmp_table_name( 'options' );
+		foreach ( array( 'http://localhost:8881/wp', 'http://localhost:8881' ) as $home ) {
+			$wpdb->update( $tmp_options, array( 'option_value' => 'http://localhost:8881/wp' ), array( 'option_name' => 'siteurl' ) );
+			$wpdb->update( $tmp_options, array( 'option_value' => $home ), array( 'option_name' => 'home' ) );
+			$commands = array();
+			$this->assertTrue( $processor->replace_urls() );
+
+			$pairs = array( array( 'http://localhost:8881/wp', 'https://example.com/wp' ) );
+			if ( 'http://localhost:8881/wp' !== $home ) {
+				$pairs[] = array( $home, 'https://example.com' );
+			}
+			$pairs[]  = array( SQL_Postprocessor::PLAYGROUND_SCOPED_URL . 'test-scope', 'https://example.com/wp' );
+			$expected = array();
+			foreach ( $pairs as list( $old, $new ) ) {
+				foreach ( array( '/', '\\/' ) as $slash ) {
+					$expected[] = sprintf(
+						"search-replace '%s' '%s' 'playground_*' --all-tables --precise --no-report --format=count",
+						str_replace( '/', $slash, $old ),
+						str_replace( '/', $slash, $new )
+					);
+				}
+			}
+			$this->assertSame( $expected, $commands );
+		}
+	}
+
+	/**
 	 * Open a database without the valid temporary tables.
 	 */
 	public function test_error_open_database_without_valid_tables(): void {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playground: Fix images and links in JSON data retaining their old URLs after a restore.
