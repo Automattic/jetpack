@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin shell: Name the page about to be shown in the page-hidden event, and document the page events.

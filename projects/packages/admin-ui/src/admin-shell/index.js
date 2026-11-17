@@ -268,7 +268,13 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		apps.get( previous )?.place( false );
 		const dialogsClosed = closeDialogsOf( previous );
 		showOverlaysOf( slug );
-		emit( 'page-hidden', { page: previous, previous: null, firstShow: false, url: location.href } );
+		emit( 'page-hidden', {
+			page: previous,
+			previous: null,
+			next: slug,
+			firstShow: false,
+			url: location.href,
+		} );
 		if ( push ) {
 			gate.pushUrl( url );
 		}
