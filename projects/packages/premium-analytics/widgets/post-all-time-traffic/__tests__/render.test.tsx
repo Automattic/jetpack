@@ -163,7 +163,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 				from: new Date( '2025-11-10T00:00:00.000Z' ),
 				to: new Date( '2025-12-31T23:59:59.999Z' ),
 			},
-			{ step: 'P1Y' }
+			{ step: undefined }
 		);
 	} );
 
@@ -173,7 +173,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 
 		await user.click( screen.getByRole( 'gridcell', { name: /^Nov 2025: 10/ } ) );
 
-		expect( mockOpenPeriod ).toHaveBeenCalledWith( NOVEMBER_2025, { step: 'P1M' } );
+		expect( mockOpenPeriod ).toHaveBeenCalledWith( NOVEMBER_2025, { step: undefined } );
 	} );
 
 	it( 'shows the scopeless empty state without a post', () => {

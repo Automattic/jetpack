@@ -400,7 +400,7 @@ describe( 'TrafficChart drill-down', () => {
 		);
 	} );
 
-	it( 'cuts an edge bar to the window it drew', () => {
+	it( 'cuts an edge bar to the window it drew, leaving its step to the arrows', () => {
 		const openPeriod = jest.fn();
 		render(
 			<ReportScopeProvider openPeriod={ openPeriod }>
@@ -420,7 +420,7 @@ describe( 'TrafficChart drill-down', () => {
 				from: new Date( '2026-02-10T00:00:00.000Z' ),
 				to: new Date( '2026-02-28T23:59:59.999Z' ),
 			},
-			{ step: 'P1M' }
+			{ step: undefined }
 		);
 	} );
 

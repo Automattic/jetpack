@@ -29,15 +29,15 @@ export type DateLimits = Pick<
 	intervalUpsell?: DateLimitUpsellCopy;
 };
 
-/**
- * What the surface a widget or table is rendering on offers.
- */
 /** What a widget says about the period it opens. */
 export type OpenPeriodOptions = {
 	/** How the date arrows step it: the bucket's own unit, so a bar opened today steps whole. */
 	step?: DateStepId;
 };
 
+/**
+ * What the surface a widget or table is rendering on offers.
+ */
 export type ReportScope = {
 	offersComparison: boolean;
 

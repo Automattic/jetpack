@@ -217,7 +217,9 @@ describe( 'ViewsOverYears widget', () => {
 
 		await user.click( screen.getByRole( 'gridcell', { name: /^Nov 2025: 300/ } ) );
 		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 920' } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: 'Dec 2025: 620' } ) );
 
+		// A month or year cut to the first day with views leaves its step to the arrows.
 		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith(
 			1,
 			'traffic',
@@ -225,7 +227,7 @@ describe( 'ViewsOverYears widget', () => {
 				from: new Date( '2025-11-24T00:00:00.000Z' ),
 				to: new Date( '2025-11-30T23:59:59.999Z' ),
 			},
-			{ step: 'P1M' }
+			{ step: undefined }
 		);
 		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith(
 			2,
@@ -234,7 +236,16 @@ describe( 'ViewsOverYears widget', () => {
 				from: new Date( '2025-11-24T00:00:00.000Z' ),
 				to: new Date( '2025-12-31T23:59:59.999Z' ),
 			},
-			{ step: 'P1Y' }
+			{ step: undefined }
+		);
+		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith(
+			3,
+			'traffic',
+			{
+				from: new Date( '2025-12-01T00:00:00.000Z' ),
+				to: new Date( '2025-12-31T23:59:59.999Z' ),
+			},
+			{ step: 'P1M' }
 		);
 	} );
 
@@ -278,7 +289,7 @@ describe( 'ViewsOverYears widget', () => {
 				from: new Date( '2025-11-24T00:00:00.000Z' ),
 				to: new Date( '2025-11-30T23:59:59.999Z' ),
 			},
-			{ step: 'P1M' }
+			{ step: undefined }
 		);
 		expect( mockOpenSectionRange ).not.toHaveBeenCalled();
 	} );

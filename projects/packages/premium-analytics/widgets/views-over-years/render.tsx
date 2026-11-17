@@ -66,19 +66,18 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 	const openMonth = useCallback(
 		( { year, month }: MonthlyHeatmapTarget ) => {
 			const bounds = { lifeStartsAt, timeZone };
-			const range =
+			const opened =
 				month === undefined ? yearRange( year, bounds ) : monthRange( { year, month }, bounds );
 
-			if ( ! range?.from || ! range.to ) {
+			if ( ! opened ) {
 				return;
 			}
 
-			// The cell's own unit, so the running month or year steps whole.
-			const step = month === undefined ? 'P1Y' : 'P1M';
+			const { range, step } = opened;
 			if ( authorScoped ) {
 				openPeriod?.( range, { step } );
 			} else {
-				openSectionRange( TRAFFIC_SECTION, { from: range.from, to: range.to }, { step } );
+				openSectionRange( TRAFFIC_SECTION, range, { step } );
 			}
 		},
 		[ authorScoped, lifeStartsAt, timeZone, openPeriod, openSectionRange ]
