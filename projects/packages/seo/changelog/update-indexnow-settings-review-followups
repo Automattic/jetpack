@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Tidy the unreleased search engine notification status and warnings; the owner-facing entry ships with the opt-in.
