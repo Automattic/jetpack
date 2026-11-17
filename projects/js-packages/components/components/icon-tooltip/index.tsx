@@ -232,22 +232,25 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		hideTooltip,
 	] );
 
-	// Focus may have moved away from the trigger, e.g. into a caller's own field that
-	// closeOnClickOutside={false} or closeOnClickOutsideExceptRef lets the visitor use while the
-	// tooltip stays open, so Escape is watched directly here too.
+	// Hover, or a press in closeOnClickOutsideExceptRef, leaves focus off the trigger, so Escape
+	// is watched directly to keep the content dismissible.
 	useEffect( () => {
-		if ( ! isVisible ) {
+		if ( ! isVisible || ! ( openedByHover.current || closeOnClickOutsideExceptRef ) ) {
 			return;
 		}
 		const doc = wrapperRef.current?.ownerDocument;
 		const handleKeyDown = ( event: globalThis.KeyboardEvent ) => {
-			if ( event.key === 'Escape' ) {
+			// With an except-ref field, skip an Escape something else handled or that dismisses an
+			// IME candidate list; other tooltips keep closing on any Escape.
+			const leftToField =
+				closeOnClickOutsideExceptRef && ( event.defaultPrevented || event.isComposing );
+			if ( event.key === 'Escape' && ! leftToField ) {
 				hideTooltip();
 			}
 		};
 		doc?.addEventListener( 'keydown', handleKeyDown );
 		return () => doc?.removeEventListener( 'keydown', handleKeyDown );
-	}, [ isVisible, hideTooltip ] );
+	}, [ isVisible, closeOnClickOutsideExceptRef, hideTooltip ] );
 
 	useEffect( () => {
 		if ( isForcedToShow || isVisible ) {

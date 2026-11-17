@@ -106,13 +106,25 @@ const renderMeta = ( row: boolean ) =>
 		)
 	);
 
+// The exceptions live behind the Except panel on the modern surface, Show Options on the other.
+const openExamples = ( row: boolean ) => {
+	renderMeta( row );
+	fireEvent.click( screen.getByRole( 'button', { name: row ? 'Except None' : 'Show Options' } ) );
+	const trigger = screen.getByRole( 'button', { name: 'See examples' } );
+	fireEvent.click( trigger );
+	return trigger;
+};
+
+const focusExceptions = () => {
+	const exceptions = screen.getByRole( 'textbox' );
+	fireEvent.pointerDown( exceptions );
+	exceptions.focus();
+	return exceptions;
+};
+
 describe( 'Page Cache example tooltip', () => {
 	it.each( [ false, true ] )( 'opens from the trigger and closes with Escape (row: %s)', row => {
-		renderMeta( row );
-		// The exceptions live behind the Except panel on the modern surface, Show Options on the other.
-		fireEvent.click( screen.getByRole( 'button', { name: row ? 'Except None' : 'Show Options' } ) );
-		const trigger = screen.getByRole( 'button', { name: 'See examples' } );
-		fireEvent.click( trigger );
+		const trigger = openExamples( row );
 		expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
 		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
 		fireEvent.keyDown( trigger, { key: 'Escape' } );
@@ -120,35 +132,28 @@ describe( 'Page Cache example tooltip', () => {
 		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
 	} );
 
-	it( 'stays open when the Exceptions field is clicked', () => {
-		renderMeta( false );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
-		fireEvent.click( screen.getByRole( 'button', { name: 'See examples' } ) );
-		const exceptions = screen.getByRole( 'textbox' );
-		fireEvent.pointerDown( exceptions );
-		exceptions.focus();
+	it.each( [ false, true ] )( 'stays open when the Exceptions field is clicked (row: %s)', row => {
+		openExamples( row );
+		focusExceptions();
 		expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
 	} );
 
-	it( 'closes when something else is clicked', () => {
-		renderMeta( false );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
-		fireEvent.click( screen.getByRole( 'button', { name: 'See examples' } ) );
-		const elsewhere = screen.getByRole( 'button', { name: 'Clear Cache' } );
+	it.each( [ false, true ] )( 'closes when something else is clicked (row: %s)', row => {
+		openExamples( row );
+		const elsewhere = screen.getByRole( 'button', { name: /^Clear cache$/i } );
 		fireEvent.pointerDown( elsewhere );
 		elsewhere.focus();
 		expect( screen.queryByText( 'Examples:' ) ).toBeNull();
 	} );
 
-	it( 'still closes with Escape once focus has moved into the Exceptions field', () => {
-		renderMeta( false );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
-		fireEvent.click( screen.getByRole( 'button', { name: 'See examples' } ) );
-		const exceptions = screen.getByRole( 'textbox' );
-		fireEvent.pointerDown( exceptions );
-		exceptions.focus();
-		expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
-		fireEvent.keyDown( exceptions, { key: 'Escape' } );
-		expect( screen.queryByText( 'Examples:' ) ).toBeNull();
-	} );
+	it.each( [ false, true ] )(
+		'still closes with Escape once focus has moved into the Exceptions field (row: %s)',
+		row => {
+			openExamples( row );
+			const exceptions = focusExceptions();
+			expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
+			fireEvent.keyDown( exceptions, { key: 'Escape' } );
+			expect( screen.queryByText( 'Examples:' ) ).toBeNull();
+		}
+	);
 } );
