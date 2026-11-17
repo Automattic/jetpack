@@ -1,17 +1,16 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { useDispatch } from '@wordpress/data';
 import useActivateSearchFreeProduct from '../products/use-activate-search-free-product';
 import type { FC, ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
-jest.mock( '@automattic/jetpack-components', () => ( {
-	useGlobalNotices: jest.fn(),
-} ) );
+jest.mock( '@wordpress/data', () => ( { useDispatch: jest.fn() } ) );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.MockedFunction< typeof apiFetch >;
-const mockUseGlobalNotices = useGlobalNotices as jest.MockedFunction< typeof useGlobalNotices >;
+const mockUseDispatch = useDispatch as unknown as jest.Mock;
 
 const createErrorNotice = jest.fn();
 let sendToCheckout: jest.Mock;
@@ -41,9 +40,7 @@ const restError = ( code: string, data: Record< string, unknown > ) => ( {
 beforeEach( () => {
 	jest.clearAllMocks();
 	sendToCheckout = jest.fn();
-	mockUseGlobalNotices.mockReturnValue( {
-		createErrorNotice,
-	} as unknown as ReturnType< typeof useGlobalNotices > );
+	mockUseDispatch.mockReturnValue( { createErrorNotice } );
 } );
 
 describe( 'useActivateSearchFreeProduct', () => {
@@ -93,7 +90,9 @@ describe( 'useActivateSearchFreeProduct', () => {
 		act( () => result.current.run() );
 
 		await waitFor( () =>
-			expect( createErrorNotice ).toHaveBeenCalledWith( 'Activation refused.' )
+			expect( createErrorNotice ).toHaveBeenCalledWith( 'Activation refused.', {
+				type: 'snackbar',
+			} )
 		);
 		expect( sendToCheckout ).not.toHaveBeenCalled();
 	} );

@@ -102,7 +102,7 @@ class Admin_Shell {
 		/**
 		 * Filters whether Jetpack dashboards share one wp-admin page.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.14.15
 		 *
 		 * @param bool $enabled Whether the shell is on. Defaults to the `jetpack-admin-shell` feature flag.
 		 */
@@ -130,7 +130,7 @@ class Admin_Shell {
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
 		 * - media (bool)            Optional, default false. Whether the page opens the media library: the endpoint then prints it and its templates too.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.14.15
 		 *
 		 * @param array $members Member definitions keyed by admin page slug.
 		 */
@@ -145,7 +145,7 @@ class Admin_Shell {
 			if ( null === $normalized ) {
 				$message = sprintf( 'Admin shell member "%s" is missing a required key or has one of the wrong type, so it was skipped.', $slug );
 				// Keep on one line: the release tooling only replaces the version in a single-line call.
-				_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
+				_doing_it_wrong( __METHOD__, esc_html( $message ), '0.14.15' );
 				continue;
 			}
 			$valid[ $slug ] = $normalized;
@@ -580,7 +580,7 @@ class Admin_Shell {
 			$member['header'] = null;
 			$message          = sprintf( 'Admin shell member "%s" has a header without a title and subtitle, so the header was skipped.', $slug );
 			// Keep on one line: the release tooling only replaces the version in a single-line call.
-			_doing_it_wrong( __CLASS__ . '::get_members', esc_html( $message ), '$$next-version$$' );
+			_doing_it_wrong( __CLASS__ . '::get_members', esc_html( $message ), '0.14.15' );
 		}
 
 		return $member;

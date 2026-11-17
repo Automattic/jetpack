@@ -10,10 +10,7 @@ const {
 	getFullChunkName,
 	getUsedChunkIds,
 } = require( 'webpack/lib/ids/IdHelpers' );
-const { compareChunksNatural } = require( 'webpack/lib/util/comparators' );
 const { fixPnpmPaths } = require( './pnpm-fix-paths.js' );
-
-/** @typedef {import("webpack/lib/Compiler")} Compiler */
 
 const PLUGIN_NAME = 'PnpmDeterministicChunkIdsPlugin';
 
@@ -24,10 +21,12 @@ class PnpmDeterministicChunkIdsPlugin {
 
 	/**
 	 * Applies the plugin by registering its hooks on the compiler.
-	 * @param {Compiler} compiler - the compiler instance
+	 * @param {import('webpack').Compiler} compiler - the compiler instance
 	 * @return {void}
 	 */
 	apply( compiler ) {
+		const { compareChunksNatural } = compiler.webpack.util.comparators;
+
 		compiler.hooks.compilation.tap( PLUGIN_NAME, compilation => {
 			compilation.hooks.chunkIds.tap( PLUGIN_NAME, chunks => {
 				const chunkGraph = compilation.chunkGraph;

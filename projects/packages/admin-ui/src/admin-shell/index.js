@@ -220,6 +220,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		markReady( app );
 	};
 
+	let switches = 0;
 	const show = async ( url, { push, via } ) => {
 		const slug = pageOf( url );
 		const previous = visible;
@@ -248,6 +249,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			gate.replaceUrl( url );
 		}
 
+		const thisSwitch = ++switches;
 		const elapsed = stopwatch();
 		log( 'switch', `${ via }: ${ previous } → ${ slug }`, url );
 		if ( apps.get( previous )?.state === 'visible' ) {
@@ -289,7 +291,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			}
 			// Focus and speech inside a closing modal's `aria-hidden` would go unheard.
 			await dialogsClosed;
-			if ( visible === slug && apps.get( slug )?.state === 'visible' ) {
+			// A later switch, even back to this page, takes over its focus and announcement.
+			if ( thisSwitch === switches && apps.get( slug )?.state === 'visible' ) {
 				log(
 					'switch',
 					`${ slug } on screen ${ elapsed() } after the switch started`,

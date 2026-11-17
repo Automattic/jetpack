@@ -16,6 +16,7 @@ import type { AuthorSummary } from './use-author-summary';
  */
 export const authorAdapter: SingleReportAdapter< AuthorSummary > = {
 	useSummary: useAuthorSummary,
+	untitledTitle: () => __( 'Unnamed author', 'jetpack-premium-analytics-pkg' ),
 	headerSlots: authorHeaderSlots,
 	notFoundDescription: () => __( "We couldn't find this author.", 'jetpack-premium-analytics-pkg' ),
 };
