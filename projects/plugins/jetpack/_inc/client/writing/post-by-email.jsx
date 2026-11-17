@@ -1,18 +1,21 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __, _x } from '@wordpress/i18n';
+import { ClipboardIconButton, getRedirectUrl } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
-import ClipboardButtonInput from 'components/clipboard-button-input';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { FEATURE_POST_BY_EMAIL } from '../lib/plans/constants';
+
+import './post-by-email.scss';
 
 class PostByEmail extends Component {
 	regeneratePostByEmailAddress = event => {
@@ -90,22 +93,24 @@ class PostByEmail extends Component {
 					) }
 					<FormFieldset>
 						{ ( this.props.userCanManageModules || emailAddress ) && (
-							<FormLabel>
-								<FormLegend>
-									{ __( 'Send your new posts to this email address:', 'jetpack' ) }
-								</FormLegend>
-								<ClipboardButtonInput
-									value={ emailAddress }
+							<Stack className="jp-pbe-address" direction="row" align="end" gap="sm">
+								<FormLabel className="jp-pbe-address__field">
+									<FormLegend>
+										{ __( 'Send your new posts to this email address:', 'jetpack' ) }
+									</FormLegend>
+									<TextInput
+										value={ emailAddress }
+										disabled={ ! isPbeActive || disabledControls }
+										type="text"
+										selectOnFocus
+										readOnly
+									/>
+								</FormLabel>
+								<ClipboardIconButton
+									text={ emailAddress }
 									disabled={ ! isPbeActive || disabledControls }
-									copy={ _x( 'Copy', 'verb', 'jetpack' ) }
-									copied={ __( 'Copied!', 'jetpack' ) }
-									prompt={ __(
-										'Highlight and copy the following text to your clipboard:',
-										'jetpack'
-									) }
-									rna
 								/>
-							</FormLabel>
+							</Stack>
 						) }
 						<Button
 							rna

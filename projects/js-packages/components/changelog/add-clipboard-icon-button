@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a ClipboardIconButton component: an IconButton that copies text, shows a check or error icon, and announces the result.

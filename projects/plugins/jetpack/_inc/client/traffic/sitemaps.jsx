@@ -1,11 +1,10 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ClipboardIconButton, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
+import { InputControl, InputLayout, Link, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import ClipboardButtonInput from 'components/clipboard-button-input';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -14,15 +13,21 @@ import analytics from 'lib/analytics';
 import { getSiteAdminUrl, isSiteVisibleToSearchEngines } from 'state/initial-state';
 
 export class Sitemaps extends Component {
-	renderSitemapRow = ( sitemap, sitemapTrack ) => {
+	renderSitemapRow = ( sitemap, sitemapTrack, label ) => {
 		const trackSitemapUrl = () => analytics.tracks.recordJetpackClick( sitemapTrack );
 		return (
-			<span className="jp-sitemap-row">
-				<ClipboardButtonInput
+			<Stack className="jp-sitemap-row" direction="row" align="end" gap="sm">
+				<InputControl
+					className="jp-sitemap-row__input"
+					label={ label }
 					value={ sitemap }
-					copy={ _x( 'Copy', 'verb', 'jetpack' ) }
-					copied={ __( 'Copied!', 'jetpack' ) }
-					prompt={ __( 'Highlight and copy the following text to your clipboard:', 'jetpack' ) }
+					readOnly
+					dir="ltr"
+					suffix={
+						<InputLayout.Slot padding="minimal">
+							<ClipboardIconButton text={ sitemap } size="small" />
+						</InputLayout.Slot>
+					}
 				/>
 				<Link
 					openInNewTab
@@ -31,7 +36,7 @@ export class Sitemaps extends Component {
 					rel="noopener noreferrer"
 					href={ sitemap }
 				/>
-			</span>
+			</Stack>
 		);
 	};
 
@@ -75,14 +80,22 @@ export class Sitemaps extends Component {
 					</ModuleToggle>
 					{ this.props.isSiteVisibleToSearchEngines ? (
 						this.props.getOptionValue( 'sitemaps' ) && (
-							<p className="jp-form-setting-explanation">
+							<div className="jp-form-setting-explanation">
 								{ __(
 									'Good news: Jetpack is sending your sitemap automatically to all major search engines for indexing.',
 									'jetpack'
 								) }
-								{ this.renderSitemapRow( sitemap_url, 'sitemap-url-link' ) }
-								{ this.renderSitemapRow( news_sitemap_url, 'sitemap-news-url-link' ) }
-							</p>
+								{ this.renderSitemapRow(
+									sitemap_url,
+									'sitemap-url-link',
+									__( 'Sitemap', 'jetpack' )
+								) }
+								{ this.renderSitemapRow(
+									news_sitemap_url,
+									'sitemap-news-url-link',
+									__( 'News sitemap', 'jetpack' )
+								) }
+							</div>
 						)
 					) : (
 						<p className={ searchEngineVisibilityClasses }>

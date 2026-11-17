@@ -1,7 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import AnchorCopyButton from '../anchor-copy-button';
 import McpGroupCard from '../mcp-group-card';
+
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 const renderCard = props =>
 	render(
@@ -44,7 +47,7 @@ describe( 'McpGroupCard', () => {
 } );
 
 describe( 'AnchorCopyButton', () => {
-	test( 'copies a link with the anchor in the hash path and shows Copied', async () => {
+	test( 'copies a link with the anchor in the hash path and announces it', async () => {
 		const writeText = jest.fn().mockResolvedValue();
 		Object.defineProperty( window.navigator, 'clipboard', {
 			value: { writeText },
@@ -57,6 +60,6 @@ describe( 'AnchorCopyButton', () => {
 		expect( writeText ).toHaveBeenCalledWith(
 			expect.stringMatching( /#\/mcp\/read\/wpcom-mcp\/posts-list$/ )
 		);
-		await expect( screen.findByRole( 'button', { name: 'Copied' } ) ).resolves.toBeInTheDocument();
+		await waitFor( () => expect( speak ).toHaveBeenCalledWith( 'Copied to clipboard' ) );
 	} );
 } );
