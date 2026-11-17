@@ -48,9 +48,9 @@ class Identity_Crisis_Test extends BaseTestCase {
 			$instance->setAccessible( true );
 		}
 		$instance->setValue( null, null );
+		Identity_Crisis::$is_safe_mode_confirmed = false;
 		$this->reset_connection_status();
 
-		Identity_Crisis::$is_safe_mode_confirmed = null;
 		Jetpack_Options::delete_option( 'safe_mode_confirmed' );
 		$_GET = array();
 		wp_set_current_user( 0 );
