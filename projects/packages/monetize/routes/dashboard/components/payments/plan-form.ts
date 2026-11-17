@@ -39,6 +39,18 @@ export function minimumPrice( currencies: Currencies, currency: string ): number
 }
 
 /**
+ * The currency a new plan or coupon starts in: the account's own when Stripe supports it, else USD.
+ *
+ * @param currencies - The Stripe account's currencies.
+ * @return The currency.
+ */
+export function defaultCurrency( currencies: Currencies ): string {
+	return currencies.defaultCurrency in currencies.minimumAmounts
+		? currencies.defaultCurrency
+		: 'USD';
+}
+
+/**
  * The name a new plan starts with.
  *
  * @param isTier   - Whether it's a newsletter tier.
@@ -86,8 +98,7 @@ export function initialForm( plan: Plan | null, currencies: Currencies, isTier =
 		};
 	}
 
-	const currency =
-		currencies.defaultCurrency in currencies.minimumAmounts ? currencies.defaultCurrency : 'USD';
+	const currency = defaultCurrency( currencies );
 	const price = minimumPrice( currencies, currency );
 	return {
 		isTier,
