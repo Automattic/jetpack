@@ -355,7 +355,7 @@ function afterAllResolved( lockfile ) {
 		return lockfile;
 	}
 
-	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
+	for ( const k of Object.keys( lockfile.packages ) ) {
 		// Forbid `@wordpress/scripts`. Brings in too many different versions of deps, like (as of March 2025) eslint 8 when we've already updated to eslint 9.
 		if ( k.startsWith( '@wordpress/scripts@' ) ) {
 			throw new Error(
@@ -397,14 +397,6 @@ function afterAllResolved( lockfile ) {
 			throw new Error(
 				// prettier-ignore
 				`We've moved to React 19. Something you've done has tried to install \`${ k }\`, which would be likely to cause problems.`
-			);
-		}
-
-		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
-		// https://github.com/pnpm/pnpm/issues/3935
-		if ( k.startsWith( 'webpack@' ) && ! v.optionalDependencies?.[ 'webpack-cli' ] ) {
-			throw new Error(
-				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report.\n"
 			);
 		}
 	}

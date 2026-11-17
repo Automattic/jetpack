@@ -25,12 +25,12 @@ done
 
 for FILE in $(git -c core.quotepath=off ls-files 'pnpm-lock.yaml' '**/pnpm-lock.yaml'); do
 	cd "$(dirname "$FILE")"
-	echo "::group::$FILE - pnpm install"
-	pnpm install --no-frozen-lockfile --resolution-only
+	echo "::group::$FILE - pnpm dedupe"
+	pnpm dedupe --no-frozen-lockfile --lockfile-only
 	echo "::endgroup::"
 	if ! git diff --exit-code pnpm-lock.yaml; then
 		echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-		echo "::error file=$FILE::$FILE is not up to date!%0AYou can probably fix this by running \`pnpm install\`.%0AIf that doesn't do it, try \`pnpm install --resolution-only\`."
+		echo "::error file=$FILE::$FILE is not up to date!%0AYou can probably fix this by running \`pnpm dedupe\`."
 		echo "---"
 		EXIT=1
 	fi
