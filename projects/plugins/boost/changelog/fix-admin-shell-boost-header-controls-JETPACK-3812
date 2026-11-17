@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Admin shell: Show the account control in Boost's header when Boost is opened from My Jetpack, when the admin shell flag is on.
+Dashboard: Show the account control in Boost's header when opening Boost from My Jetpack in the Jetpack admin shell.
