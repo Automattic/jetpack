@@ -356,6 +356,60 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * @dataProvider provide_admin_shell_loads
+	 *
+	 * @param bool $is_hover Whether the shell's hover request readies the page, rather than another dashboard's page.
+	 */
+	#[DataProvider( 'provide_admin_shell_loads' )]
+	public function test_only_the_admin_shell_hover_builds_the_state_without_saving_options( $is_hover ) {
+		if ( $is_hover ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_GET['action'] = \Automattic\Jetpack\Admin_UI\Admin_Shell::GUEST_ACTION;
+		}
+		$user_id = get_current_user_id();
+		$options = array( 'sharing-options', "monitor_receive_notifications$user_id", "post_by_email_address$user_id" );
+		// Monitor and Post by Email read the user's values from WordPress.com over XML-RPC.
+		$reply = static function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '<?xml version="1.0"?><methodResponse><params><param><value><string>pbe@example.com</string></value></param></params></methodResponse>',
+			);
+		};
+		add_filter( 'pre_http_request', $reply );
+
+		$page = $this->page_on_wp_build();
+		$page->load_as_admin_shell_guest();
+		$page->page_admin_scripts();
+		remove_filter( 'pre_http_request', $reply );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		unset( $_GET['action'] );
+
+		$saved = array();
+		foreach ( $options as $option ) {
+			remove_all_filters( "pre_update_option_$option" );
+			$saved[ $option ] = get_option( $option );
+		}
+
+		$this->assertStringContainsString( 'pbe@example.com', implode( '', (array) wp_scripts()->get_data( 'react-plugin', 'before' ) ) );
+		$this->assertSame( ! $is_hover, (bool) array_filter( $saved ) );
+		foreach ( $options as $option ) {
+			delete_option( $option );
+		}
+	}
+
+	/**
+	 * The shell's hover request, and another dashboard's page readying Settings for a later switch.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function provide_admin_shell_loads() {
+		return array(
+			'hover request'       => array( true ),
+			'another member page' => array( false ),
+		);
+	}
+
 	public function test_wp_build_page_carries_the_state_without_the_bundle() {
 		$page = $this->page_on_wp_build();
 		$page->page_admin_scripts();
