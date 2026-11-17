@@ -26,5 +26,10 @@
 		&--critical:hover {
 			color: var(--jp-red-50);
 		}
+
+		&--warning,
+		&--warning:hover {
+			color: var(--jp-yellow-50);
+		}
 	}
 }
