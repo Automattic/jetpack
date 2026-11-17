@@ -250,6 +250,9 @@ const onClick = async () => {
 	setBusy( true );
 	try {
 		await loadMediaLibrary();
+	} catch {
+		showError( __( 'The media library could not be loaded. Try again.' ) );
+		return;
 	} finally {
 		setBusy( false );
 	}
@@ -258,6 +261,8 @@ const onClick = async () => {
 ```
 
 Add `"@automattic/jetpack-admin-ui": "workspace:*"` to the dashboard's `package.json`. The page needs `ajaxurl`, which every wp-admin page defines.
+
+The endpoint must be hooked on admin-ajax requests, which never build the admin menu, so call `Media_Library::init()` from the package's own init. `Admin_Shell::init()` calls it too.
 
 ## Security
 
