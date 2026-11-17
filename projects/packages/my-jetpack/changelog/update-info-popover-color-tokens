@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use WordPress Design System tokens for the info popover trigger styles.
