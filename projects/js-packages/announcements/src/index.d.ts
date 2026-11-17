@@ -16,6 +16,10 @@ export type WhatsNewOptions = {
 /**
  * Mounts the What's new surface on the page, or updates the one already mounted.
  *
+ * A page has one surface. A later call takes it over, and the function an earlier call
+ * returned does nothing from then on.
+ *
  * @param {WhatsNewOptions} options - The options.
+ * @return {() => void} The function that takes the surface off the page.
  */
-export declare function mountWhatsNew( options: WhatsNewOptions ): void;
+export declare function mountWhatsNew( options: WhatsNewOptions ): () => void;

@@ -63,6 +63,38 @@ describe( 'mountWhatsNew', () => {
 		expect( loadTranslations ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'takes the surface off the page with the function it returns', async () => {
+		const unmount = await act( async () => mountWhatsNew( { channels: [ 'my-plugin' ] } ) );
+
+		await act( async () => unmount() );
+
+		expect( document.getElementById( 'jetpack-whats-new' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the surface of a later mount when an earlier one unmounts', async () => {
+		const unmountFirst = await act( async () => mountWhatsNew( { channels: [ 'my-plugin' ] } ) );
+		await act( async () => mountWhatsNew( { channels: [ 'another-plugin' ] } ) );
+
+		await act( async () => unmountFirst() );
+
+		expect( document.getElementById( 'jetpack-whats-new' ) ).toHaveTextContent( 'another-plugin' );
+	} );
+
+	it( 'renders nothing for a host that unmounts while the translations load', async () => {
+		let finishLoading: () => void = () => {};
+		loadTranslations.mockReturnValue(
+			new Promise< void >( resolve => {
+				finishLoading = resolve;
+			} )
+		);
+
+		const unmount = await act( async () => mountWhatsNew( { channels: [ 'my-plugin' ] } ) );
+		unmount();
+		await act( async () => finishLoading() );
+
+		expect( document.getElementById( 'jetpack-whats-new' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'registers the entity once the translations are loaded, and renders after that', async () => {
 		let finishLoading: () => void = () => {};
 		loadTranslations.mockReturnValue(

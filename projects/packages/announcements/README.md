@@ -50,6 +50,8 @@ const { mountWhatsNew } = await import( '@automattic/jetpack-announcements' );
 mountWhatsNew( { channels: [ 'my-plugin' ] } );
 ```
 
+The call returns the function that takes the surface off the page. A page has one surface: a later mount takes it over.
+
 The module reads WordPress scripts from their globals, core-data among them, and does not enqueue them. A wp-build page provides them all.
 
 The teaser shows one announcement at a time, and never an older one once the newest is seen. Opening or dismissing it marks it as seen.
