@@ -1,6 +1,6 @@
 <?php
 /**
- * The Payments section: Stripe, plans and the commission WordPress.com takes.
+ * The Payments section: Stripe, plans, coupons and the commission WordPress.com takes.
  *
  * @package automattic/jetpack-monetize
  */
@@ -92,6 +92,9 @@ class Payments implements Dashboard_Section {
 				'cancel_subscriptions' => array( 'type' => 'boolean' ),
 			)
 		);
+
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupons', 'GET' );
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupon/(?P<id>\d+)', 'DELETE' );
 	}
 
 	/**

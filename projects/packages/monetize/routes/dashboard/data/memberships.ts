@@ -54,6 +54,7 @@ interface StatusResponse {
 	connected_account_description?: string | null;
 	connect_url?: string | null;
 	store_context?: string | null;
+	coupons_and_gifts_enabled?: boolean | null;
 	connected_account_default_currency?: string | null;
 	connected_account_minimum_currency?: Record< string, number > | null;
 	connected_account_accepts_charges?: boolean;
@@ -65,6 +66,8 @@ export interface StripeStatus {
 	accountDescription: string;
 	connectUrl: string;
 	isSandbox: boolean;
+	/** Whether WordPress.com has coupons turned on for the site; only known once Stripe is connected. */
+	couponsEnabled: boolean;
 	/** The Stripe account's currency, upper-cased. */
 	defaultCurrency: string;
 	/** Each supported currency's smallest charge. */
@@ -91,6 +94,7 @@ export function useStripeStatus() {
 			accountDescription: data.connected_account_description ?? '',
 			connectUrl: data.connect_url ?? '',
 			isSandbox: data.store_context === 'sandbox',
+			couponsEnabled: Boolean( data.coupons_and_gifts_enabled ),
 			defaultCurrency: ( data.connected_account_default_currency ?? '' ).toUpperCase(),
 			minimumAmounts: data.connected_account_minimum_currency ?? {},
 			acceptsCharges: data.connected_account_accepts_charges ?? true,

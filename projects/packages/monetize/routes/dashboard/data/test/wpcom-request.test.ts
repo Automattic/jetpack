@@ -58,6 +58,13 @@ describe( 'toWpcomApiError', () => {
 			403,
 		],
 		[ 'a thrown Error', new Error( 'Boom.' ), 'error', 'Boom.', undefined ],
+		[
+			'an error status with the error nested',
+			{ error: { code: 'validation_error', message: 'Taken.' } },
+			'validation_error',
+			'Taken.',
+			undefined,
+		],
 	] )( 'wraps %s', ( _kind, rejection, code, message, status ) => {
 		const error = toWpcomApiError( rejection );
 

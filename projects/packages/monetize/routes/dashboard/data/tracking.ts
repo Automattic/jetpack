@@ -124,7 +124,8 @@ export function trackPaymentsEvent(
 		| 'plan_save'
 		| 'plan_delete'
 		| 'free_tier_edit_click'
-		| 'free_tier_update',
+		| 'free_tier_update'
+		| 'coupon_delete',
 	properties: Record< string, unknown > = {}
 ) {
 	record( `jetpack_monetize_payments_${ action }`, properties );

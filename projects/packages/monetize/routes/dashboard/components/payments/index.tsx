@@ -1,11 +1,12 @@
 import { Stack } from '@wordpress/ui';
+import CouponsCard from './coupons-card';
 import PlansCard from './plans-card';
 import ReturnNotice from './return-notice';
 import StripeCard from './stripe-card';
 import './style.scss';
 
 /**
- * The Payments tab: the Stripe connection and the site's payment plans.
+ * The Payments tab: the Stripe connection, the site's payment plans and its coupons.
  *
  * @return The tab.
  */
@@ -15,6 +16,7 @@ export default function Payments() {
 			<ReturnNotice />
 			<StripeCard />
 			<PlansCard />
+			<CouponsCard />
 		</Stack>
 	);
 }
