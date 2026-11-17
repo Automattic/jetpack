@@ -174,10 +174,12 @@ export function transitionSettled( timeout = 500 ) {
 
 /**
  * Tell the visible app's router to read the URL again.
+ *
+ * Without state: TanStack reads `history` itself, and page.js-style routers (Calypso's) re-read the URL on a null state but throw on another router's.
  */
 export function notifyRouters() {
 	log( 'router', 'synthetic popstate so the visible router reads the URL' );
-	window.dispatchEvent( new PopStateEvent( 'popstate', { state: history.state } ) );
+	window.dispatchEvent( new PopStateEvent( 'popstate', { state: null } ) );
 }
 
 const importMapUrl = id =>

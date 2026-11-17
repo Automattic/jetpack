@@ -21,9 +21,17 @@ export function createApp( slug, el ) {
 	el.dataset.shellPage = slug;
 	el.dataset.shellState = 'loading';
 
+	const setOnScreen = onScreen => {
+		el.style.display = onScreen ? '' : 'none';
+		el.inert = ! onScreen;
+		app.styles.forEach( node => ( node.disabled = ! onScreen ) );
+	};
+
 	const app = {
 		slug,
 		el,
+		// Stylesheets that apply only while the app is on screen.
+		styles: [],
 		get state() {
 			return el.dataset.shellState;
 		},
@@ -36,14 +44,12 @@ export function createApp( slug, el ) {
 			}
 			el.dataset.shellState = next;
 			// A loading app stays on screen so it fills in where it will be shown.
-			el.style.display = next === 'hidden' ? 'none' : '';
-			el.inert = next === 'hidden';
+			setOnScreen( next !== 'hidden' );
 		},
 		// Before it is ready, an app can only be put on or off screen, not change state.
 		place( onScreen ) {
 			if ( app.state === 'loading' ) {
-				el.style.display = onScreen ? '' : 'none';
-				el.inert = ! onScreen;
+				setOnScreen( onScreen );
 				return;
 			}
 			app.to( onScreen ? 'visible' : 'hidden' );
@@ -91,14 +97,14 @@ const focusOn = heading => {
 };
 
 /**
- * Resolve once the app has rendered its first route: a page heading in its container.
+ * Resolve once the app has rendered its first route: by default, a page heading in its container.
  *
- * @param {HTMLElement} el      - The app's mount element.
- * @param {number}      timeout - Milliseconds before giving up.
+ * @param {HTMLElement} el         - The app's mount element.
+ * @param {number}      timeout    - Milliseconds before giving up.
+ * @param {Function}    [rendered] - Whether the app counts as rendered.
  * @return {Promise<void>} Resolves when rendered, rejects on timeout.
  */
-export function whenRendered( el, timeout ) {
-	const rendered = () => !! headingOf( el );
+export function whenRendered( el, timeout, rendered = () => !! headingOf( el ) ) {
 	if ( rendered() ) {
 		return Promise.resolve();
 	}

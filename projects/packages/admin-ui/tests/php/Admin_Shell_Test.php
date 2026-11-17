@@ -156,6 +156,22 @@ class Admin_Shell_Test extends TestCase {
 				),
 			),
 			'every key set'      => array( $set + self::valid_member(), $set ),
+			'script member'      => array(
+				array(
+					'kind'      => Admin_Shell::KIND_SCRIPT,
+					'title'     => 'Forms',
+					'load'      => '__return_null',
+					'container' => array( 'id' => 'wpcom' ),
+				),
+				array(
+					'init_modules' => array(),
+					'default_path' => null,
+					'capability'   => 'manage_options',
+					'handles'      => array(),
+					'media'        => false,
+					'header'       => null,
+				),
+			),
 		);
 	}
 
@@ -172,7 +188,7 @@ class Admin_Shell_Test extends TestCase {
 	public function test_get_members_fills_in_only_missing_keys( $member, $optional ) {
 		$this->add_members( array( 'jetpack-forms-admin' => $member ) );
 
-		$expected = $optional + self::valid_member();
+		$expected = $optional + $member + array( 'kind' => 'wp-build' );
 		$actual   = Admin_Shell::get_members()['jetpack-forms-admin'] ?? array();
 		ksort( $expected );
 		ksort( $actual );
@@ -205,6 +221,15 @@ class Admin_Shell_Test extends TestCase {
 			'empty capability'       => array( 'jetpack-forms', array( 'capability' => '' ) + $valid ),
 			'default_path not text'  => array( 'jetpack-forms', array( 'default_path' => 1 ) + $valid ),
 			'media not a boolean'    => array( 'jetpack-forms', array( 'media' => 'yes' ) + $valid ),
+			'unknown kind'           => array( 'jetpack-forms', array( 'kind' => 'iframe' ) + $valid ),
+			'kind not text'          => array( 'jetpack-forms', array( 'kind' => array( 'script' ) ) + $valid ),
+			'script without id'      => array(
+				'jetpack-forms',
+				array(
+					'kind'      => Admin_Shell::KIND_SCRIPT,
+					'container' => array( 'class' => 'jp-blaze-dashboard' ),
+				) + $valid,
+			),
 		);
 	}
 
@@ -610,6 +635,34 @@ class Admin_Shell_Test extends TestCase {
 		$this->assertStringContainsString( 'dep.js', $html, 'dependencies of a member handle come along' );
 		$this->assertStringContainsString( 'init.js', $html, 'what its page init action registers comes along' );
 		$this->assertStringNotContainsString( 'other.js', $html );
+	}
+
+	/**
+	 * A script member has no wp-build page to initialize: the endpoint prints its handles without warnings.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_serves_a_script_member() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$this->start_host_page( '__return_null' );
+		wp_register_script( 'shell-test-script', 'https://example.com/script.js', array(), '1', true );
+		$this->add_members(
+			array(
+				'host-page'   => array( 'build_page' => 'host-page' ) + self::valid_member(),
+				'script-page' => array(
+					'kind'      => Admin_Shell::KIND_SCRIPT,
+					'title'     => 'Blaze Ads',
+					'load'      => '__return_null',
+					'handles'   => array( 'shell-test-script' ),
+					'container' => array( 'id' => 'wpcom' ),
+				),
+			)
+		);
+
+		$html = Admin_Shell::guest_assets( 'script-page' );
+
+		$this->assertIsString( $html );
+		$this->assertStringContainsString( 'script.js', $html );
 	}
 
 	/**
