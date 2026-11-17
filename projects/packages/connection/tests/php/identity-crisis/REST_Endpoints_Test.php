@@ -8,10 +8,13 @@ use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
+use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
 /**
  * Unit tests for the REST API endpoints.
@@ -186,6 +189,143 @@ class REST_Endpoints_Test extends TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * The Safe Mode screens follow the bare URL string this returns, so the redirect must come back inside it.
+	 */
+	public function test_start_fresh_returns_authorize_url() {
+		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'jetpack_disconnect' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/start-fresh' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'redirect_uri' => 'admin.php?page=my-jetpack' ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$user->remove_cap( 'jetpack_disconnect' );
+		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertIsString( $data );
+		$this->assertStringStartsWith( 'https://jetpack.wordpress.com/jetpack.authorize/', $data );
+
+		// The redirect rides inside the authorize webhook's own redirect_uri.
+		parse_str( (string) wp_parse_url( $data, PHP_URL_QUERY ), $authorize_query );
+		parse_str( (string) wp_parse_url( $authorize_query['redirect_uri'], PHP_URL_QUERY ), $webhook_query );
+		$this->assertSame( admin_url( 'admin.php?page=my-jetpack' ), $webhook_query['redirect'] );
+	}
+
+	/**
+	 * A failed registration must come back as an error, or the screens would follow a URL that isn't one.
+	 */
+	public function test_start_fresh_registration_failure() {
+		add_filter( 'pre_http_request', array( $this, 'fail_register_request' ), 10, 3 );
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'jetpack_disconnect' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/start-fresh' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response = $this->server->dispatch( $request );
+
+		$user->remove_cap( 'jetpack_disconnect' );
+		remove_filter( 'pre_http_request', array( $this, 'fail_register_request' ), 10 );
+
+		$this->assertTrue( $response->is_error() );
+	}
+
+	/**
+	 * Repeating an action that already took effect, such as a retry after a dropped response, still succeeds.
+	 *
+	 * @dataProvider provide_already_applied_actions
+	 *
+	 * @param string $route  Endpoint path.
+	 * @param string $option Jetpack option the action sets.
+	 */
+	#[DataProvider( 'provide_already_applied_actions' )]
+	public function test_action_already_applied_succeeds( $route, $option ) {
+		Jetpack_Options::update_option( $option, true );
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'jetpack_disconnect' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/' . $route );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$user->remove_cap( 'jetpack_disconnect' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'success', $data['code'] );
+	}
+
+	/**
+	 * Data provider for test_action_already_applied_succeeds.
+	 *
+	 * @return array
+	 */
+	public static function provide_already_applied_actions() {
+		return array(
+			'stay in Safe Mode' => array( 'confirm-safe-mode', 'safe_mode_confirmed' ),
+			'migrate'           => array( 'migrate', 'migrate_for_idc' ),
+		);
+	}
+
+	/**
+	 * Answer the `jetpack.register` request to WordPress.com with a successful registration.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args     The request arguments.
+	 * @param string     $url      The request URL.
+	 *
+	 * @return bool|array
+	 */
+	public function intercept_register_request( $response, $args, $url ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
+			return $response;
+		}
+
+		return array(
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'body'     => wp_json_encode(
+				array(
+					'jetpack_id'                  => '12345',
+					'jetpack_secret'              => 'sample_secret',
+					'allow_inplace_authorization' => false,
+					'alternate_authorization_url' => '',
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+		);
+	}
+
+	/**
+	 * Fail the `jetpack.register` request to WordPress.com.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args     The request arguments.
+	 * @param string     $url      The request URL.
+	 *
+	 * @return bool|array|WP_Error
+	 */
+	public function fail_register_request( $response, $args, $url ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
+			return $response;
+		}
+
+		return new WP_Error( 'http_request_failed', 'Connection timed out.' );
 	}
 
 	/**
