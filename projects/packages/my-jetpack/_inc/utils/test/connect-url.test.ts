@@ -1,7 +1,6 @@
 import {
 	connectionScreenRoute,
 	getConnectUrl,
-	overviewFrom,
 	productsFrom,
 	recommendationsFrom,
 } from '../connect-url';
@@ -43,13 +42,6 @@ describe( 'productsFrom', () => {
 describe( 'recommendationsFrom', () => {
 	it( "is the recommendation's name", () => {
 		expect( recommendationsFrom( 'newsletter' ) ).toBe( 'my_jetpack_recommendations_newsletter' );
-	} );
-} );
-
-describe( 'overviewFrom', () => {
-	it( "is the Overview item's name, with My Jetpack's slug overrides", () => {
-		expect( overviewFrom( 'stats' ) ).toBe( 'my_jetpack_overview_stats' );
-		expect( overviewFrom( 'jetpack-ai' ) ).toBe( 'my_jetpack_overview_ai' );
 	} );
 } );
 
