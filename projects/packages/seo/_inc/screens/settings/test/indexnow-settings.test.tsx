@@ -8,14 +8,9 @@ const { default: IndexnowSettings } = await import( '../indexnow-settings' );
 
 const status = {
 	enabled: false,
-	operational: false,
-	site_public: true,
 	pending: 0,
 	latest: { state: 'idle' },
 	pause_reason: '',
-	next_worker: false,
-	next_recovery: false,
-	cooldown_until: 0,
 	cooldown_active: false,
 	scheduling_delayed: false,
 	enqueue_error: null,
@@ -45,7 +40,7 @@ it( 'keeps the opt-in off after a rejected save, then permits a retry', async ()
 		)
 	).resolves.not.toHaveLength( 0 );
 	expect( toggle ).not.toBeChecked();
-	apiFetch.mockResolvedValueOnce( { ...status, enabled: true, operational: true } );
+	apiFetch.mockResolvedValueOnce( { ...status, enabled: true } );
 	// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing settings tests.
 	fireEvent.click( toggle );
 	await waitFor( () => expect( toggle ).toBeChecked() );
@@ -60,7 +55,6 @@ it( 'allows opting out on a private site', async () => {
 	apiFetch.mockResolvedValueOnce( {
 		...status,
 		enabled: true,
-		site_public: false,
 		pause_reason: 'not_public',
 	} );
 	const toggle = await openSettings();
@@ -68,7 +62,7 @@ it( 'allows opting out on a private site', async () => {
 	expect(
 		screen.getByText( /Notifications are paused while this site is private/ )
 	).toBeInTheDocument();
-	apiFetch.mockResolvedValueOnce( { ...status, site_public: false, pause_reason: 'not_public' } );
+	apiFetch.mockResolvedValueOnce( { ...status, pause_reason: 'not_public' } );
 	// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing settings tests.
 	fireEvent.click( toggle );
 	await waitFor( () => expect( toggle ).not.toBeChecked() );
@@ -79,7 +73,6 @@ it.each( [
 	[
 		{
 			latest: { state: 'http_429' },
-			cooldown_until: Date.now() / 1000 + 3600,
 			cooldown_active: true,
 		},
 		/limited requests/,
@@ -103,7 +96,7 @@ it.each( [
 	[ { pause_reason: 'address_changed' }, /Turn notifications off and on again/ ],
 	[ { pause_reason: 'provider' }, /paused by another SEO plugin or your hosting provider/ ],
 ] )( 'explains delivery state %j without extra controls', async ( extra, expected ) => {
-	apiFetch.mockResolvedValueOnce( { ...status, enabled: true, operational: true, ...extra } );
+	apiFetch.mockResolvedValueOnce( { ...status, enabled: true, ...extra } );
 	await openSettings();
 	expect( screen.getAllByText( expected ).length ).toBeGreaterThan( 0 );
 	expect( screen.getAllByRole( 'switch' ) ).toHaveLength( 1 );
@@ -114,7 +107,6 @@ it( 'does not label a 202 receipt as successful verification or indexing', async
 	apiFetch.mockResolvedValueOnce( {
 		...status,
 		enabled: true,
-		operational: true,
 		latest: {
 			state: 'verification_pending',
 			accepted: { state: 'verification_pending', time: 1700000000, count: 2 },
@@ -131,7 +123,6 @@ it( 'retains the last acceptance alongside a newer delivery error', async () => 
 	apiFetch.mockResolvedValueOnce( {
 		...status,
 		enabled: true,
-		operational: true,
 		latest: {
 			state: 'transport_failure',
 			accepted: { state: 'accepted', time: 1700000000, count: 2 },
@@ -148,11 +139,12 @@ it( 'does not promise retries for rejected notifications', async () => {
 	apiFetch.mockResolvedValueOnce( {
 		...status,
 		enabled: true,
-		operational: true,
 		latest: { state: 'http_404', dropped: 2, retrying: 0 },
 	} );
 	await openSettings();
-	expect( screen.getAllByText( /will not be retried automatically/ ).length ).toBeGreaterThan( 0 );
+	expect(
+		screen.getAllByText( /Check the receiving service and site configuration/ ).length
+	).toBeGreaterThan( 0 );
 	expect(
 		screen.getAllByText( /Missed notifications are not automatically replayed/ ).length
 	).toBeGreaterThan( 0 );
@@ -163,7 +155,6 @@ it( 'only promises retries when the backend retained retryable notifications', a
 	apiFetch.mockResolvedValueOnce( {
 		...status,
 		enabled: true,
-		operational: true,
 		pending: 2,
 		latest: { state: 'transport_failure', retrying: 2 },
 	} );
@@ -173,32 +164,20 @@ it( 'only promises retries when the backend retained retryable notifications', a
 	);
 } );
 
-it( 'uses server timing decisions instead of the browser clock', async () => {
+it( 'shows only the pause reason while delivery is paused', async () => {
 	apiFetch.mockResolvedValueOnce( {
 		...status,
 		enabled: true,
-		operational: true,
-		pending: 1,
-		cooldown_until: 9999999999,
-		cooldown_active: false,
-		next_worker: 1,
-		scheduling_delayed: false,
-	} );
-	await openSettings();
-	expect( screen.queryByText( /limited requests/ ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( /Delivery is waiting/ ) ).not.toBeInTheDocument();
-} );
-
-it( 'hides previous-address receipts while delivery is paused', async () => {
-	apiFetch.mockResolvedValueOnce( {
-		...status,
-		enabled: true,
-		operational: false,
 		pause_reason: 'address_changed',
+		pending: 2,
+		enqueue_error: { state: 'queue_full_or_busy' },
 		latest: { state: 'accepted', accepted: { state: 'accepted', time: 1700000000, count: 1 } },
 	} );
-	await openSettings();
+	const toggle = await openSettings();
+	expect( toggle ).toHaveAccessibleDescription( /The site address changed/ );
+	expect( screen.queryByText( /waiting for delivery/ ) ).not.toBeInTheDocument();
 	expect( screen.queryByText( /Last accepted:/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /Missed notifications/ ) ).not.toBeInTheDocument();
 } );
 
 it.each( [
@@ -224,7 +203,6 @@ it( 'formats receipt dates in the site timezone', async () => {
 		apiFetch.mockResolvedValueOnce( {
 			...status,
 			enabled: true,
-			operational: true,
 			latest: { state: 'accepted', accepted: { state: 'accepted', time: 1700000000, count: 1 } },
 		} );
 		await openSettings();
@@ -234,19 +212,10 @@ it( 'formats receipt dates in the site timezone', async () => {
 	}
 } );
 
-it( 'recognizes the recovery schedule without falsely reporting unscheduled work', async () => {
-	apiFetch.mockResolvedValueOnce( {
-		...status,
-		enabled: true,
-		operational: true,
-		pending: 300,
-		next_recovery: Date.now() / 1000 + 3600,
-	} );
+it( 'shows how many notifications are waiting', async () => {
+	apiFetch.mockResolvedValueOnce( { ...status, enabled: true, pending: 300 } );
 	await openSettings();
 	expect( screen.getByText( '300 notifications waiting for delivery.' ) ).toBeInTheDocument();
-	expect(
-		screen.queryByText( /Delivery is waiting for WordPress scheduled tasks/ )
-	).not.toBeInTheDocument();
 } );
 
 it( 'does not let an older background read undo a saved preference', async () => {
@@ -260,7 +229,7 @@ it( 'does not let an older background read undo a saved preference', async () =>
 			} )
 	);
 	fireEvent( window, new Event( 'focus' ) );
-	apiFetch.mockResolvedValueOnce( { ...status, enabled: true, operational: true } );
+	apiFetch.mockResolvedValueOnce( { ...status, enabled: true } );
 	// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing settings tests.
 	fireEvent.click( toggle );
 	await waitFor( () => expect( toggle ).toBeChecked() );
@@ -273,7 +242,7 @@ it( 'does not let an older background read undo a saved preference', async () =>
 it.each( [ false, true ] )(
 	'refreshes readiness after a parent save settles (indexing allowed: %s)',
 	async allowed => {
-		apiFetch.mockResolvedValueOnce( { ...status, enabled: true, operational: true } );
+		apiFetch.mockResolvedValueOnce( { ...status, enabled: true } );
 		const { rerender } = render( <IndexnowSettings isSaving={ false } /> );
 		const toggle = await screen.findByRole( 'switch', {
 			name: 'Notify search engines when content changes',
@@ -284,8 +253,6 @@ it.each( [ false, true ] )(
 		apiFetch.mockResolvedValueOnce( {
 			...status,
 			enabled: true,
-			operational: allowed,
-			site_public: allowed,
 			pause_reason: allowed ? '' : 'not_public',
 		} );
 		rerender( <IndexnowSettings isSaving={ false } /> );
@@ -311,7 +278,6 @@ it( 'discards a status read started before a visibility save', async () => {
 	apiFetch.mockResolvedValueOnce( {
 		...status,
 		enabled: true,
-		site_public: false,
 		pause_reason: 'not_public',
 	} );
 	rerender( <IndexnowSettings isSaving={ false } /> );
@@ -319,7 +285,7 @@ it( 'discards a status read started before a visibility save', async () => {
 		screen.findByText( /Notifications are paused while this site is private/ )
 	).resolves.toBeInTheDocument();
 	await act( async () => {
-		resolveOld( { ...status, enabled: true, operational: true } );
+		resolveOld( { ...status, enabled: true } );
 	} );
 	expect(
 		screen.getByText( /Notifications are paused while this site is private/ )
@@ -327,7 +293,7 @@ it( 'discards a status read started before a visibility save', async () => {
 } );
 
 it( 'explains the prerequisite without calling a never-enabled feature paused', async () => {
-	apiFetch.mockResolvedValueOnce( { ...status, site_public: false, pause_reason: 'not_public' } );
+	apiFetch.mockResolvedValueOnce( { ...status, pause_reason: 'not_public' } );
 	const toggle = await openSettings();
 	expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
 	expect(

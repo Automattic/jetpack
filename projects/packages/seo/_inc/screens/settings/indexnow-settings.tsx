@@ -12,13 +12,8 @@ import { Link, Notice, Stack, SwitchControl, Text } from '@wordpress/ui';
 
 interface Status {
 	enabled: boolean;
-	operational: boolean;
-	site_public: boolean;
 	pause_reason: string;
 	pending: number;
-	next_worker: number | false;
-	next_recovery: number | false;
-	cooldown_until: number;
 	cooldown_active?: boolean;
 	scheduling_delayed?: boolean;
 	latest: {
@@ -109,15 +104,10 @@ function deliveryWarning( status: Status ) {
 				'jetpack-seo'
 			);
 		}
-		return status.latest.dropped || status.latest.exhausted
-			? __(
-					'Some notifications could not be delivered and will not be retried automatically.',
-					'jetpack-seo'
-				)
-			: __(
-					'There was a delivery problem. Check the receiving service and site configuration.',
-					'jetpack-seo'
-				);
+		return __(
+			'There was a delivery problem. Check the receiving service and site configuration.',
+			'jetpack-seo'
+		);
 	}
 	if ( status.scheduling_delayed ) {
 		return __(
@@ -293,7 +283,7 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 									) }
 						</Text>
 					) }
-					{ status.enabled && lost && (
+					{ status.enabled && ! paused && lost && (
 						<Notice.Root intent="warning">
 							<Notice.Description>
 								{ __(

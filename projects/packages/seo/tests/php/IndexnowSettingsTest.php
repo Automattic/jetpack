@@ -190,7 +190,7 @@ class IndexnowSettingsTest extends SeoTestCase {
 		add_filter( 'jetpack_seo_indexnow_can_notify', '__return_false' );
 		$this->assertSame( 'provider', Indexnow::status()['pause_reason'] );
 		$this->assertTrue( Indexnow::status()['enabled'] );
-		$this->assertFalse( Indexnow::status()['operational'] );
+		$this->assertFalse( Indexnow_Client::enabled() );
 	}
 
 	public function test_opt_out_remains_available_on_a_private_site_and_clears_pending_work() {
@@ -212,11 +212,13 @@ class IndexnowSettingsTest extends SeoTestCase {
 			$_SERVER['HTTPS'] = 'on';
 			$request          = new WP_REST_Request( 'POST' );
 			$request->set_param( 'enabled', true );
-			$this->assertTrue( Indexnow::save( $request )['operational'] );
+			Indexnow::save( $request );
+			$this->assertTrue( Indexnow_Client::enabled() );
 			$this->assertTrue( Indexnow_Queue::enqueue( 'https://example.com/blog/removed/', 42, true ) );
 			$_SERVER['HTTPS'] = 'off';
-			$this->assertTrue( Indexnow::status()['operational'] );
-			$this->assertTrue( Indexnow::save( $request )['operational'] );
+			$this->assertTrue( Indexnow_Client::enabled() );
+			Indexnow::save( $request );
+			$this->assertTrue( Indexnow_Client::enabled() );
 			$this->assertSame( 1, Indexnow_Queue::size() );
 			$this->assertSame( 'http://example.com/blog/', get_option( Indexnow_Client::SCOPE_OPTION ) );
 		} finally {
@@ -229,22 +231,44 @@ class IndexnowSettingsTest extends SeoTestCase {
 		}
 	}
 
-	public function test_status_uses_server_time_and_a_grace_period_for_scheduled_delivery() {
+	public function test_status_reports_cooldown_from_server_time_without_scheduler_internals() {
+		update_option( Indexnow_Queue::COOLDOWN_OPTION, time() + 1200, false );
+		$status = Indexnow::status();
+		$this->assertTrue( $status['cooldown_active'] );
+		$this->assertEqualsCanonicalizing( array( 'enabled', 'pending', 'latest', 'enqueue_error', 'cooldown_active', 'scheduling_delayed', 'pause_reason' ), array_keys( $status ) );
+	}
+
+	/**
+	 * @dataProvider delivery_schedules
+	 * @param int|null $worker Worker run relative to now, or null when unscheduled.
+	 * @param int|null $recovery Recovery run relative to now, or null when unscheduled.
+	 * @param bool     $delayed Expected delay report.
+	 */
+	#[DataProvider( 'delivery_schedules' )]
+	public function test_status_reports_delayed_delivery_after_an_hour_of_scheduler_delay( $worker, $recovery, $delayed ) {
 		$request = new WP_REST_Request( 'POST' );
 		$request->set_param( 'enabled', true );
 		Indexnow::save( $request );
 		$this->assertTrue( Indexnow_Queue::enqueue( home_url( '/pending' ), 42, true ) );
 		wp_clear_scheduled_hook( Indexnow_Queue::HOOK );
 		wp_clear_scheduled_hook( Indexnow_Queue::RECOVERY_HOOK );
-		wp_schedule_single_event( time() - 600, Indexnow_Queue::HOOK );
-		update_option( Indexnow_Queue::COOLDOWN_OPTION, time() + 1200, false );
-		$status = Indexnow::status();
-		$this->assertFalse( $status['scheduling_delayed'] );
-		$this->assertTrue( $status['cooldown_active'] );
-		$this->assertArrayNotHasKey( 'key_location', $status );
-		wp_clear_scheduled_hook( Indexnow_Queue::HOOK );
-		wp_schedule_single_event( time() - 2 * HOUR_IN_SECONDS, Indexnow_Queue::HOOK );
-		$this->assertTrue( Indexnow::status()['scheduling_delayed'] );
+		if ( null !== $worker ) {
+			wp_schedule_single_event( time() + $worker, Indexnow_Queue::HOOK );
+		}
+		if ( null !== $recovery ) {
+			wp_schedule_single_event( time() + $recovery, Indexnow_Queue::RECOVERY_HOOK );
+		}
+		$this->assertSame( $delayed, Indexnow::status()['scheduling_delayed'] );
+	}
+
+	public static function delivery_schedules() {
+		return array(
+			'worker overdue within the grace period' => array( -600, null, false ),
+			'worker overdue past the grace period'   => array( -2 * HOUR_IN_SECONDS, null, true ),
+			'only recovery scheduled'                => array( null, HOUR_IN_SECONDS, false ),
+			'recovery overdue past the grace period' => array( HOUR_IN_SECONDS, -2 * HOUR_IN_SECONDS, true ),
+			'nothing scheduled'                      => array( null, null, true ),
+		);
 	}
 
 	public function test_settings_opt_out_rotates_the_queue_only_once_when_the_write_hook_is_loaded() {

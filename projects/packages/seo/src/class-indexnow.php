@@ -60,22 +60,14 @@ class Indexnow {
 		if ( is_array( $accepted ) ) {
 			$latest['accepted'] = $accepted;
 		}
-		$pending  = Indexnow_Queue::size();
-		$worker   = wp_next_scheduled( Indexnow_Queue::HOOK );
-		$recovery = wp_next_scheduled( Indexnow_Queue::RECOVERY_HOOK );
-		$cooldown = (int) get_option( Indexnow_Queue::COOLDOWN_OPTION, 0 );
-		$runs     = array_filter( array( $worker, $recovery ), 'is_int' );
+		$pending = Indexnow_Queue::size();
+		$runs    = array_filter( array( wp_next_scheduled( Indexnow_Queue::HOOK ), wp_next_scheduled( Indexnow_Queue::RECOVERY_HOOK ) ), 'is_int' );
 		return array(
 			'enabled'            => (bool) get_option( Indexnow_Client::ENABLED_OPTION, false ),
-			'operational'        => Indexnow_Client::enabled(),
-			'site_public'        => Indexnow_Client::site_is_public(),
 			'pending'            => $pending,
 			'latest'             => $latest,
 			'enqueue_error'      => get_option( 'jetpack_seo_indexnow_enqueue_error', null ),
-			'next_worker'        => $worker,
-			'next_recovery'      => $recovery,
-			'cooldown_until'     => $cooldown,
-			'cooldown_active'    => $cooldown > time(),
+			'cooldown_active'    => (int) get_option( Indexnow_Queue::COOLDOWN_OPTION, 0 ) > time(),
 			'scheduling_delayed' => $pending > 0 && ( ! $runs || min( $runs ) < time() - HOUR_IN_SECONDS ),
 			'pause_reason'       => self::pause_reason(),
 		);
