@@ -293,6 +293,27 @@ describe( 'Stats time-series normalizer', () => {
 		).toThrow( new StatsResponseShapeError( 'Email timeline came back by hour, not by month.' ) );
 	} );
 
+	it( 'clips the edge months of a monthly timeline to the requested range', () => {
+		const result = sanitizeStatsEmailTimeSeriesResponse(
+			{
+				timeline: {
+					unit: 'month',
+					fields: [ 'date', 'opens_count' ],
+					data: [
+						[ '2026-06-01', 4 ],
+						[ '2026-07-01', 15 ],
+					],
+				},
+			},
+			{ period: 'month', start_date: '2026-06-22', end_date: '2026-07-10' }
+		);
+
+		expect( result.data.map( point => [ point.date_start, point.date_end ] ) ).toEqual( [
+			[ '2026-06-22T00:00:00', '2026-06-30T23:59:59' ],
+			[ '2026-07-01T00:00:00', '2026-07-10T23:59:59' ],
+		] );
+	} );
+
 	it( 'trims buckets outside a window_start/window_end window and sums only the rest', () => {
 		// The last-24-hours shape: hourly buckets are anchored on the start day's
 		// midnight, so leading pre-09:00 buckets arrive and must not be summed.

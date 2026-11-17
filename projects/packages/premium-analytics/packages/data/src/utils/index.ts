@@ -10,6 +10,7 @@ export {
 } from './api-error';
 export {
 	DEFAULT_EMAIL_SEND_WINDOW,
+	EMAIL_SEND_WINDOW_DAYS,
 	EMAIL_SEND_WINDOWS,
 	emailSendWindowParams,
 	emailSendWindowRange,

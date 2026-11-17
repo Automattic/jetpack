@@ -453,9 +453,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 	} );
 
 	it( 'shows the error state with a Retry action when the fetch fails', async () => {
-		// A non-retryable 403 so React Query surfaces the error immediately
-		// instead of after the retry backoff.
-		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+		// A 404 is not retried automatically, so the error surfaces without the backoff.
+		mockApiFetch.mockRejectedValue( { status: 404, message: 'Not found' } );
 
 		render(
 			<EmailTimeSeriesWidget
@@ -470,5 +469,26 @@ describe( 'EmailTimeSeriesWidget', () => {
 			screen.findByText( /couldn't load this email's timeline/ )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers no Retry for a timeline in another unit than asked, which a retry would get again', async () => {
+		mockApiFetch.mockResolvedValue( {
+			timeline: { ...OPENS_TIMELINE_RESPONSE.timeline, unit: 'month' },
+		} );
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'This data is unavailable right now.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+		expect( console ).toHaveWarned();
 	} );
 } );

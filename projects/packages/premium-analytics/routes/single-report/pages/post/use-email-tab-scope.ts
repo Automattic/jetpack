@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	EMAIL_SEND_WINDOW_DAYS,
 	emailSendWindowRange,
 	isEmailSendWindow,
 	type ReportParams,
@@ -17,13 +18,6 @@ import { encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
 import { useMemo } from '@wordpress/element';
 import { addDays } from 'date-fns';
 import type { SectionWidget } from '../adapter';
-
-/**
- * How many days after the send the email tabs' timeline covers, the send day
- * included. Matches the per-post email timeline endpoint's cap of 30 daily
- * buckets per request, and the window the legacy Stats email page shows.
- */
-export const EMAIL_SEND_WINDOW_DAYS = 30;
 
 /**
  * The window the email tabs report over, and the report params that carry it
@@ -127,8 +121,7 @@ export function useEmailTabScope(
 				to,
 				// The email chart counts its first 24 hours from here.
 				sent_at: encodeDateToSearchParam( allTimeStart ),
-				// One bucket per day: the window is at most 30 days, and the
-				// endpoint only offers hourly or daily buckets.
+				// One bucket per day until the chart's own control picks another window.
 				interval: 'day',
 			},
 		};

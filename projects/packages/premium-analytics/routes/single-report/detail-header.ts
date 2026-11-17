@@ -25,6 +25,21 @@ export function formatPublishedDate( publishedDate: string | undefined ): string
 }
 
 /**
+ * Both bounds of a range as the header writes them.
+ *
+ * @param range - The range.
+ * @return The two dates, or undefined when either is missing or unparseable.
+ */
+function formatBounds( range: DateRange | undefined ): [ string, string ] | undefined {
+	// Doubles as the validity check: an unparseable bound would otherwise reach
+	// `formatDate` and render as "Invalid date".
+	const from = parseSiteDateTime( range?.from );
+	const to = parseSiteDateTime( range?.to );
+
+	return from && to ? [ formatDate( from, 'compact' ), formatDate( to, 'compact' ) ] : undefined;
+}
+
+/**
  * States the window every widget below the header reflects.
  *
  * @param range - The committed report date range. Both bounds render in the
@@ -33,19 +48,45 @@ export function formatPublishedDate( publishedDate: string | undefined ): string
  * @return The sentence, or undefined when either bound is missing or unparseable.
  */
 export function performanceSentence( range: DateRange | undefined ): string | undefined {
-	// Doubles as the validity check: an unparseable bound would otherwise reach
-	// `formatDate` and render as "Invalid date".
-	const from = parseSiteDateTime( range?.from );
-	const to = parseSiteDateTime( range?.to );
+	const bounds = formatBounds( range );
 
-	if ( ! from || ! to ) {
+	return (
+		bounds &&
+		sprintf(
+			/* translators: %1$s and %2$s: the report range bounds, e.g. "Jul 9, 2026". */
+			__( 'Performance from %1$s to %2$s', 'jetpack-premium-analytics-pkg' ),
+			...bounds
+		)
+	);
+}
+
+/**
+ * States the window a page's chart draws, apart from the all-time figures around it.
+ *
+ * @param range - The window the chart covers.
+ * @return The sentence, or undefined when either bound is missing or unparseable.
+ */
+export function chartWindowSentence( range: DateRange | undefined ): string | undefined {
+	const bounds = formatBounds( range );
+	if ( ! bounds ) {
 		return undefined;
 	}
 
-	return sprintf(
-		/* translators: %1$s and %2$s: the report range bounds, e.g. "Jul 9, 2026". */
-		__( 'Performance from %1$s to %2$s', 'jetpack-premium-analytics-pkg' ),
-		formatDate( from, 'compact' ),
-		formatDate( to, 'compact' )
-	);
+	const [ first, last ] = bounds;
+
+	return first === last
+		? sprintf(
+				/* translators: %s: the one day the chart covers, e.g. "Jul 9, 2026". */
+				__( 'The chart covers %s; the totals are all-time.', 'jetpack-premium-analytics-pkg' ),
+				first
+			)
+		: sprintf(
+				/* translators: %1$s and %2$s: the first and last day the chart covers, e.g. "Jul 9, 2026". */
+				__(
+					'The chart covers %1$s to %2$s; the totals are all-time.',
+					'jetpack-premium-analytics-pkg'
+				),
+				first,
+				last
+			);
 }

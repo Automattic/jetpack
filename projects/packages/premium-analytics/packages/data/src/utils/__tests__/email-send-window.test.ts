@@ -46,6 +46,17 @@ describe( 'emailSendWindowParams', () => {
 		expect( iso( params?.to ) ).toBe( to );
 	} );
 
+	it( 'reads a send written without an offset as the wall time of the site', () => {
+		const params = emailSendWindowParams(
+			'first-24-hours',
+			{ day: '2026-06-22 00:00:00', sentAt: '2026-06-22 14:16:17' },
+			'America/New_York',
+			NOW
+		);
+
+		expect( iso( params?.from ) ).toBe( '2026-06-22T18:00:00.000Z' );
+	} );
+
 	it( 'ends today for a send younger than the reach', () => {
 		const params = emailSendWindowParams(
 			'all-time',

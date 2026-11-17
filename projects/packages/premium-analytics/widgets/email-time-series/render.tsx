@@ -23,6 +23,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
+	describeError,
 	useWidgetRootContext,
 	type CountLabel,
 	type MetricTab,
@@ -190,13 +191,13 @@ function EmailTimeSeriesReport( {
 				isError={ active.isError }
 				// The timeline zero-fills every bucket of a window without opens or clicks, so that emptiness is judged inside the chart; only a missing email empties the widget.
 				isEmpty={ ! hasSelection }
-				error={ {
-					description: __(
+				error={ describeError( active.error, {
+					retryDescription: __(
 						"We couldn't load this email's timeline. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: retry } ],
-				} }
+					onRetry: retry,
+				} ) }
 				empty={ {
 					description: __(
 						'Open an email report to see its timeline here.',

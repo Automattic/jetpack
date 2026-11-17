@@ -5,7 +5,7 @@ import { act, renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { EMAIL_SEND_WINDOW_DAYS, useEmailTabScope } from './use-email-tab-scope';
+import { useEmailTabScope } from './use-email-tab-scope';
 
 const POST_ID = 91;
 const TIME_ZONE = 'UTC';
@@ -18,10 +18,6 @@ describe( 'useEmailTabScope', () => {
 
 	afterEach( () => {
 		jest.useRealTimers();
-	} );
-
-	it( 'matches the timeline endpoint cap of 30 daily buckets', () => {
-		expect( EMAIL_SEND_WINDOW_DAYS ).toBe( 30 );
 	} );
 
 	it( 'pins the range to the first 30 days after an older send', () => {

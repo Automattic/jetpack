@@ -74,6 +74,7 @@ export {
 	getApiErrorCode,
 	getApiErrorStatus,
 	DEFAULT_EMAIL_SEND_WINDOW,
+	EMAIL_SEND_WINDOW_DAYS,
 	EMAIL_SEND_WINDOWS,
 	emailSendWindowParams,
 	emailSendWindowRange,

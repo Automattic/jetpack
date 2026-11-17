@@ -25,8 +25,8 @@ export type EmailSendWindow = ( typeof EMAIL_SEND_WINDOWS )[ number ];
 /** The window read when none is saved: what the legacy Stats email page showed. */
 export const DEFAULT_EMAIL_SEND_WINDOW: EmailSendWindow = 'first-30-days';
 
-// The most daily buckets the timeline endpoint answers per request.
-const EMAIL_SEND_WINDOW_DAYS = 30;
+/** The most daily buckets the timeline endpoint answers per request. */
+export const EMAIL_SEND_WINDOW_DAYS = 30;
 
 /**
  * The most monthly buckets the timeline endpoint answers per request: ten years,
@@ -66,11 +66,14 @@ export function isEmailSendWindow( value: unknown ): value is EmailSendWindow {
  * @return The date, or undefined when the value names none.
  */
 function readDate( value: unknown, timeZone: string ): TZDate | undefined {
-	const isReadable = typeof value === 'string' || value instanceof Date;
+	if ( typeof value !== 'string' && ! ( value instanceof Date ) ) {
+		return undefined;
+	}
 
-	return isReadable && ! Number.isNaN( new Date( value ).getTime() )
-		? toLocalTZ( new Date( value ), timeZone )
-		: undefined;
+	// A string goes in as written: `toLocalTZ` reads one without an offset as the site's wall time.
+	const date = toLocalTZ( value, timeZone );
+
+	return Number.isNaN( date.getTime() ) ? undefined : date;
 }
 
 /**
