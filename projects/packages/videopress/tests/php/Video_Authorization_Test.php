@@ -32,6 +32,7 @@ class Video_Authorization_Test extends BaseTestCase {
 	 */
 	protected function tear_down() {
 		wp_set_current_user( 0 );
+		unset( $_COOKIE[ 'wp-postpass_' . COOKIEHASH ], $GLOBALS['__vp_memberships_access_level'], $GLOBALS['__vp_memberships_has_access'] );
 		\WorDBless\Posts::init()->clear_all_posts();
 		// Clear cached GUID-list transients: post ids are reused across tests once the
 		// posts table is emptied, so a stale videopress_guids_{id} entry from one test
@@ -435,6 +436,51 @@ class Video_Authorization_Test extends BaseTestCase {
 		$this->set_current_user_role( 'subscriber' );
 
 		$this->assertTrue( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
+	 * @dataProvider password_protected_post_provider
+	 * @param string $access_level     Who the post is for, as Jetpack_Memberships reports it.
+	 * @param bool   $entered_password Whether the visitor has entered the post password.
+	 * @param bool   $expected         Whether playback is allowed.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'password_protected_post_provider' )]
+	public function test_password_protected_post_requires_the_password_for_private_video( $access_level, $entered_password, $expected ) {
+		require_once __DIR__ . '/mocks/class-jetpack-memberships.php';
+		$guid = 'pAsSwd12';
+		$this->create_private_videopress_attachment( $guid );
+		$embedding = wp_insert_post(
+			array(
+				'post_title'    => 'Password protected',
+				'post_content'  => '[videopress ' . $guid . ']',
+				'post_status'   => 'publish',
+				'post_password' => 'secret',
+			)
+		);
+
+		$GLOBALS['__vp_memberships_access_level'] = $access_level;
+		$GLOBALS['__vp_memberships_has_access']   = true;
+		if ( $entered_password ) {
+			require_once ABSPATH . WPINC . '/class-phpass.php';
+			$_COOKIE[ 'wp-postpass_' . COOKIEHASH ] = ( new \PasswordHash( 8, true ) )->HashPassword( 'secret' );
+		}
+		$this->set_current_user_role( 'subscriber' );
+
+		$this->assertSame( $expected, Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
+	 * Password states for a post open to everybody and a subscriber-only post.
+	 *
+	 * @return array
+	 */
+	public static function password_protected_post_provider() {
+		return array(
+			'open post, password not entered'            => array( 'everybody', false, false ),
+			'open post, password entered'                => array( 'everybody', true, true ),
+			'subscriber-only post, password not entered' => array( 'subscribers', false, false ),
+			'subscriber-only post, password entered'     => array( 'subscribers', true, true ),
+		);
 	}
 
 	/**

@@ -163,6 +163,8 @@ class Access_Control {
 			}
 		}
 
+		$restriction_details['can_access'] = $restriction_details['can_access'] && $post_admits_visitor;
+
 		return $this->check_block_level_access(
 			$restriction_details,
 			$guid,
