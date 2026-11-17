@@ -34,6 +34,7 @@
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/charts": "workspace:*",
+		"@automattic/jetpack-admin-ui": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
@@ -76,6 +77,9 @@
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@babel/core": "7.29.13",
 		"@babel/runtime": "7.29.13",
+		"@testing-library/dom": "10.4.2",
+		"@testing-library/react": "16.3.3",
+		"@testing-library/user-event": "14.6.8",
 		"@types/canvas-confetti": "1.9.0",
 		"@types/react": "19.3.0",
 		"@wordpress/base-styles": "15.0.0",

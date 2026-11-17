@@ -4122,6 +4122,9 @@ importers:
       '@automattic/charts':
         specifier: workspace:*
         version: link:../../js-packages/charts
+      '@automattic/jetpack-admin-ui':
+        specifier: workspace:*
+        version: link:../admin-ui
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -4243,6 +4246,15 @@ importers:
       '@babel/runtime':
         specifier: 7.29.13
         version: 7.29.13
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      '@testing-library/react':
+        specifier: 16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@testing-library/user-event':
+        specifier: 14.6.8
+        version: 14.6.8(@testing-library/dom@10.4.2)
       '@types/canvas-confetti':
         specifier: 1.9.0
         version: 1.9.0

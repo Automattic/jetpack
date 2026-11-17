@@ -39,7 +39,6 @@ class Admin_Page_Test extends BaseTestCase {
 	protected function tearDown(): void {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
-		remove_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_tracks_transport' ) );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) );
 		wp_dequeue_script( 'wp-jp-i18n-loader' );
@@ -382,6 +381,12 @@ class Admin_Page_Test extends BaseTestCase {
 		Admin_Page::admin_init();
 
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) ) );
+	}
+
+	public function test_admin_init_leaves_the_media_library_to_the_cover_picker() {
+		Admin_Page::admin_init();
+
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', 'wp_enqueue_media' ) );
 	}
 
 	public function test_enqueue_i18n_loader_enqueues_the_loader_when_it_is_registered() {

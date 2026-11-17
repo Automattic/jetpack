@@ -5,6 +5,7 @@
 // center-crops to the source's *smaller* dimension, so a 3000×1000 source
 // still produces a 1000×1000 cover — too small for podcast directories).
 
+import { loadMediaLibrary } from '@automattic/jetpack-admin-ui/media-library';
 import { Button } from '@wordpress/components';
 import { useCallback, useId, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -26,6 +27,42 @@ interface MediaUploadAttachment {
 }
 
 const COVER_MIN_PX = 1400;
+
+interface OpenLibraryButtonProps {
+	open: () => void;
+	label: string;
+	disabled?: boolean;
+	onLoadError: () => void;
+}
+
+// MediaUpload's `open` needs wp.media, which loads on the first click.
+const OpenLibraryButton = ( { open, label, disabled, onLoadError }: OpenLibraryButtonProps ) => {
+	const [ isLoading, setIsLoading ] = useState( false );
+	const onClick = useCallback( async () => {
+		setIsLoading( true );
+		try {
+			await loadMediaLibrary();
+		} catch {
+			onLoadError();
+			return;
+		} finally {
+			setIsLoading( false );
+		}
+		open();
+	}, [ open, onLoadError ] );
+
+	return (
+		<Button
+			variant="secondary"
+			onClick={ onClick }
+			disabled={ disabled || isLoading }
+			isBusy={ isLoading }
+			accessibleWhenDisabled
+		>
+			{ label }
+		</Button>
+	);
+};
 
 const CoverImageControl = ( {
 	imageUrl,
@@ -64,13 +101,22 @@ const CoverImageControl = ( {
 		[ onSelect ]
 	);
 
+	const onLoadError = useCallback(
+		() =>
+			setWarning( __( 'The media library could not be loaded. Try again.', 'jetpack-podcast' ) ),
+		[]
+	);
+
 	const renderTrigger = useCallback(
 		( { open }: { open: () => void } ) => (
-			<Button variant="secondary" onClick={ open } disabled={ disabled } accessibleWhenDisabled>
-				{ triggerLabel }
-			</Button>
+			<OpenLibraryButton
+				open={ open }
+				label={ triggerLabel }
+				disabled={ disabled }
+				onLoadError={ onLoadError }
+			/>
 		),
-		[ disabled, triggerLabel ]
+		[ disabled, onLoadError, triggerLabel ]
 	);
 
 	return (
