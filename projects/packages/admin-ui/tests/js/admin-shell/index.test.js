@@ -73,6 +73,14 @@ jest.mock(
 	},
 	{ virtual: true }
 );
+jest.mock(
+	'test-guest-h2/route',
+	() => {
+		mockCapturedSlug.h2 = globalThis.jetpackConfig?.consumer_slug;
+		return {};
+	},
+	{ virtual: true }
+);
 
 const member = ( slug, guest, routes = guest ) => ( {
 	mountId: `${ slug }-app`,
@@ -98,16 +106,19 @@ beforeEach( () => {
 	delete mockCapturedSlug.a;
 	delete mockCapturedSlug.b;
 	delete mockCapturedSlug.a2;
+	delete mockCapturedSlug.h2;
 	delete globalThis.jetpackConfig;
 	window.history.replaceState( null, '', '/wp-admin/admin.php?page=host' );
 	const config = {
 		host: 'host',
 		members: {
-			host: member( 'host' ),
+			host: { ...member( 'host' ), initModules: [ 'test-guest-h/init' ] },
 			'guest-a': { ...member( 'guest-a', 'a' ), header: { title: 'Guest A', subtitle: 'Sub' } },
 			'guest-b': member( 'guest-b', 'b' ),
 			// Another page built from guest A's package: same init module.
 			'guest-a2': member( 'guest-a2', 'a', 'a2' ),
+			// Built from the host's package: the host page already ran its init.
+			'guest-h2': member( 'guest-h2', 'h', 'h2' ),
 		},
 		guestAssetsUrl: '/wp-admin/admin-ajax.php',
 		headerStorageKey: 'test',
@@ -117,6 +128,7 @@ beforeEach( () => {
 			<li><a href="/wp-admin/admin.php?page=guest-a">A</a></li>
 			<li><a href="/wp-admin/admin.php?page=guest-b">B</a></li>
 			<li><a href="/wp-admin/admin.php?page=guest-a2">A2</a></li>
+			<li><a href="/wp-admin/admin.php?page=guest-h2">H2</a></li>
 		</ul>
 		<div id="host-app"></div>
 		<script type="application/json" id="wp-script-module-data-@automattic/jetpack-admin-shell">${ JSON.stringify(
@@ -334,6 +346,7 @@ describe( 'admin shell prewarm', () => {
 	} );
 
 	it( "keeps the page's Jetpack config, and gives a page sharing an init module that init's config", async () => {
+		// Set after the shell starts, as the host's own init does on DOMContentLoaded.
 		const pageConfig = { consumer_slug: 'host' };
 		globalThis.jetpackConfig = pageConfig;
 		mockInits.a.mockImplementation( () => {
@@ -343,12 +356,12 @@ describe( 'admin shell prewarm', () => {
 			globalThis.jetpackConfig = { consumer_slug: 'b' };
 		} );
 
-		for ( const slug of [ 'guest-a', 'guest-b', 'guest-a2' ] ) {
+		for ( const slug of [ 'guest-a', 'guest-b', 'guest-a2', 'guest-h2' ] ) {
 			hover( slug );
 			await settle();
 		}
 
-		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b', a2: 'a' } );
+		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b', a2: 'a', h2: 'host' } );
 		expect( globalThis.jetpackConfig ).toBe( pageConfig );
 	} );
 } );
