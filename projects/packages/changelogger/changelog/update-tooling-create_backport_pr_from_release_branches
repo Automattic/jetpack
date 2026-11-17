@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add --ref option to read version from a given git ref.
