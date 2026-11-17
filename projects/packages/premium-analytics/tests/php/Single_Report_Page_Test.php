@@ -495,7 +495,7 @@ class Single_Report_Page_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_an_unknown_post_type_entity_is_registered_and_not_offered() {
+	public function test_an_unknown_post_type_entity_derives_nothing() {
 		$page = register_single_report_page(
 			DASHBOARD_NAME,
 			'example/not-a-type',
@@ -507,24 +507,13 @@ class Single_Report_Page_Test extends BaseTestCase {
 			)
 		);
 
-		$this->set_admin_user();
-
 		$this->assertSame( 'not-a-type', $page->path );
 		$this->assertSame( 'example/not-a-type', $page->label );
 		$this->assertNull( $page->reports_page );
-		$this->assertFalse( $page->is_available() );
-		$this->assertNotContains( 'example/not-a-type', array_column( get_available_single_report_page_records(), 'id' ) );
 	}
 
-	public function test_a_post_type_without_rest_is_registered_and_not_offered() {
-		register_post_type(
-			'jpa-hidden',
-			array(
-				'public'       => true,
-				'show_in_rest' => false,
-				'labels'       => array( 'singular_name' => 'Hidden' ),
-			)
-		);
+	public function test_a_post_type_page_is_offered_without_its_type_in_rest() {
+		register_post_type( 'jpa-hidden', array( 'show_in_rest' => false ) );
 
 		try {
 			$page = register_single_report_page(
@@ -540,11 +529,8 @@ class Single_Report_Page_Test extends BaseTestCase {
 
 			$this->set_admin_user();
 
-			$this->assertSame( 'jpa-hidden', $page->path );
-			$this->assertSame( 'Hidden', $page->label );
-			$this->assertSame( 'posts', $page->reports_page );
-			$this->assertFalse( $page->is_available() );
-			$this->assertNotContains( 'example/jpa-hidden', array_column( get_available_single_report_page_records(), 'id' ) );
+			// The post adapter reads the entry from Stats, so its type need not be in REST.
+			$this->assertTrue( $page->is_available() );
 		} finally {
 			unregister_post_type( 'jpa-hidden' );
 		}

@@ -179,16 +179,9 @@ class Single_Report_Page {
 	/**
 	 * Whether the page is available to the current reader.
 	 *
-	 * A `postType` entity is unavailable unless that type exists with `show_in_rest`,
-	 * because core-data loads only those.
-	 *
 	 * @return bool
 	 */
 	public function is_available() {
-		if ( ! $this->post_type_entity_is_in_rest() ) {
-			return false;
-		}
-
 		if ( null === $this->is_available ) {
 			return Capabilities::current_user_can_view_stats();
 		}
@@ -360,21 +353,6 @@ class Single_Report_Page {
 
 		$this->scope_param  = 'post_id';
 		$this->reports_page = 'posts';
-	}
-
-	/**
-	 * Whether a `postType` entity is one core-data can load. A page with no such entity passes.
-	 *
-	 * @return bool
-	 */
-	private function post_type_entity_is_in_rest() {
-		if ( ! is_array( $this->entity ) || 'postType' !== ( $this->entity['kind'] ?? '' ) ) {
-			return true;
-		}
-
-		$post_type = get_post_type_object( $this->entity['name'] );
-
-		return $post_type instanceof \WP_Post_Type && ! empty( $post_type->show_in_rest );
 	}
 
 	/**
