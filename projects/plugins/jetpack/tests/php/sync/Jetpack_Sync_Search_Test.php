@@ -90,10 +90,10 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 * @return string[][]
 	 */
 	public static function get_random_allowed_taxonomies() {
-		$params = array();
+		$params = array( 'post_format' => array( 'post_format' ) );
 		$keys   = Modules\Search::get_all_taxonomies();
 		foreach ( array_rand( $keys, 10 ) as $k ) {
-			$params[] = array( $keys[ $k ] );
+			$params[ $keys[ $k ] ] = array( $keys[ $k ] );
 		}
 
 		return $params;
@@ -211,15 +211,18 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 */
 	#[DataProvider( 'get_random_allowed_taxonomies' )]
 	public function test_add_taxonomy( $taxonomy ) {
-		register_taxonomy(
-			$taxonomy,
-			'post',
-			array(
-				'label'        => __( 'Taxonomy Test', 'jetpack' ),
-				'rewrite'      => array( 'slug' => $taxonomy ),
-				'hierarchical' => true,
-			)
-		);
+		$original_taxonomy = get_taxonomy( $taxonomy );
+		if ( ! $original_taxonomy ) {
+			register_taxonomy(
+				$taxonomy,
+				'post',
+				array(
+					'label'        => __( 'Taxonomy Test', 'jetpack' ),
+					'rewrite'      => array( 'slug' => $taxonomy ),
+					'hierarchical' => true,
+				)
+			);
+		}
 
 		$term = md5( (string) wp_rand() );
 		if ( 'post_format' === $taxonomy ) {
@@ -245,7 +248,10 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 
 		// clean up - speeds up tests.
 		wp_remove_object_terms( $this->post_id, array( $term_obj['term_id'] ), $taxonomy );
-		unregister_taxonomy( $taxonomy );
+		if ( ! $original_taxonomy ) {
+			unregister_taxonomy( $taxonomy );
+		}
+		$this->assertSame( $original_taxonomy, get_taxonomy( $taxonomy ), 'Existing taxonomy registrations must be preserved.' );
 	}
 
 	/**
