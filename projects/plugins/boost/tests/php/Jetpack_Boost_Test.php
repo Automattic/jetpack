@@ -8,10 +8,13 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_Common;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 // Include the main plugin file to load all functions and classes
@@ -41,13 +44,29 @@ class Jetpack_Boost_Test extends BaseTestCase {
 		Jetpack_Boost::activate();
 
 		$this->assertSame( 1, did_action( 'jetpack_boost_page_output_changed' ) - $activation_count );
-		$this->assertFalse( ( new Status( Minify_JS::get_slug() ) )->get() );
 	}
 
-	public function test_activation_skips_subfeatures_without_an_enabled_parent() {
+	public function test_activation_keeps_critical_css_off_when_cloud_css_is_disabled() {
 		add_filter( 'jetpack_boost_connection_bypass', '__return_true' );
-		( new Status( Minify_CSS::get_slug() ) )->set( false );
-		( new Status( Minify_JS::get_slug() ) )->set( false );
+		add_filter( 'jetpack_boost_has_feature_cloud-critical-css', '__return_true' );
+		add_filter( 'jetpack_boost_can_module_run', '__return_false' );
+		( new Status( Cloud_CSS::get_slug() ) )->set( false );
+		( new Status( Critical_CSS::get_slug() ) )->set( false );
+
+		Jetpack_Boost::activate();
+
+		$this->assertFalse( ( new Status( Critical_CSS::get_slug() ) )->get() );
+	}
+
+	/**
+	 * @dataProvider provide_parent_module_status
+	 * @param bool $parents_enabled Whether both minify parents are enabled.
+	 */
+	#[DataProvider( 'provide_parent_module_status' )]
+	public function test_activation_only_runs_subfeatures_with_an_enabled_parent( $parents_enabled ) {
+		add_filter( 'jetpack_boost_connection_bypass', '__return_true' );
+		( new Status( Minify_CSS::get_slug() ) )->set( $parents_enabled );
+		( new Status( Minify_JS::get_slug() ) )->set( $parents_enabled );
 		add_filter(
 			'jetpack_boost_can_module_run',
 			function ( $can_run, $module ) {
@@ -60,7 +79,14 @@ class Jetpack_Boost_Test extends BaseTestCase {
 
 		Jetpack_Boost::activate();
 
-		$this->assertFalse( wp_next_scheduled( 'jetpack_boost_minify_cron_cache_cleanup' ) );
+		$this->assertSame( $parents_enabled, false !== wp_next_scheduled( 'jetpack_boost_minify_cron_cache_cleanup' ) );
+	}
+
+	public static function provide_parent_module_status() {
+		return array(
+			'parents disabled' => array( false ),
+			'parents enabled'  => array( true ),
+		);
 	}
 
 	/**
