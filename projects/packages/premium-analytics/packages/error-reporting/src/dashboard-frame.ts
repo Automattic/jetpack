@@ -8,7 +8,7 @@ export interface DashboardFrame {
 
 const POSITION = /:(\d+):(\d+)$/;
 const FRAME_LINE = /^\s*at\s|^[^:]*@/;
-const WIDGET_PATH = /^widgets\/([^/]+)\//;
+const WIDGET_PATH = /\/widgets\/([^/]+)\//;
 const QUERY_OR_HASH = /[?#]/;
 const URL_START = /[\s(@]/;
 
@@ -51,7 +51,9 @@ function parseFrame( line: string, origin: string, start: number ): DashboardFra
 	return {
 		url,
 		path,
-		widget: WIDGET_PATH.exec( path )?.[ 1 ],
+		// Read from the origin and the path together, not the path alone: a sibling package
+		// publishes its `build/widgets/` as the origin, so the name can sit the other side of it.
+		widget: WIDGET_PATH.exec( origin + path )?.[ 1 ],
 		line: position ? Number( position[ 1 ] ) : undefined,
 		column: position ? Number( position[ 2 ] ) : undefined,
 	};

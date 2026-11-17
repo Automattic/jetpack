@@ -2,6 +2,8 @@ import { findDashboardFrame } from '../dashboard-frame';
 
 const base =
 	'https://example.com/wp-content/plugins/jetpack/jetpack_vendor/automattic/jetpack-premium-analytics/build/';
+const adsBuild =
+	'https://example.com/wp-content/plugins/jetpack/jetpack_vendor/automattic/jetpack-ads/build/';
 const origins = [ base ];
 const dashboardStack = `Error: boom\n    at render (${ base }routes/dashboard/content.min.js:3:4)`;
 
@@ -27,10 +29,24 @@ describe( 'findDashboardFrame', () => {
 		} );
 	} );
 
-	it( 'reads the widget name from a widgets/<name>/ path', () => {
-		const stack = `Error: boom\n    at render (${ base }widgets/top-posts/render.min.js:3:4)`;
+	it.each( [
+		[ "this package's build", base, `${ base }widgets/top-posts/render.min.js`, 'top-posts' ],
+		[
+			"a sibling package's widget build",
+			`${ adsBuild }widgets/`,
+			`${ adsBuild }widgets/wordads/render.min.js`,
+			'wordads',
+		],
+	] )( 'reads the widget name of a frame served from %s', ( _label, origin, url, widget ) => {
+		const stack = `Error: boom\n    at render (${ url }:3:4)`;
 
-		expect( findDashboardFrame( stack, origins )?.widget ).toBe( 'top-posts' );
+		expect( findDashboardFrame( stack, [ origin ] )?.widget ).toBe( widget );
+	} );
+
+	it( 'leaves the widget unnamed for a frame in a package module, which is not a widget', () => {
+		const stack = `Error: boom\n    at render (${ adsBuild }modules/ads/index.min.js:3:4)`;
+
+		expect( findDashboardFrame( stack, [ `${ adsBuild }modules/` ] )?.widget ).toBeUndefined();
 	} );
 
 	it( 'returns null when no frame is under an allowlisted origin', () => {
