@@ -115,7 +115,7 @@ class Dashboard {
 	private static $wp_build_index = null;
 
 	/**
-	 * Whether the admin shell is readying Forms behind another dashboard, where nothing may be saved.
+	 * Whether the admin shell's hover request is readying Forms behind another dashboard, where nothing may be saved.
 	 *
 	 * @var bool
 	 */
@@ -235,7 +235,8 @@ class Dashboard {
 	 * @return void
 	 */
 	public static function load_as_admin_shell_guest() {
-		self::$is_admin_shell_guest = true;
+		// The shell also runs this on other dashboards' pages, to ready Forms for a switch.
+		self::$is_admin_shell_guest = self::is_admin_shell_guest_request();
 
 		$wp_build_index = self::wp_build_index_path();
 		require_once $wp_build_index;
@@ -244,6 +245,16 @@ class Dashboard {
 		if ( function_exists( 'jetpack_forms_register_script_modules' ) ) {
 			jetpack_forms_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined in the generated build/modules.php.
 		}
+	}
+
+	/**
+	 * Whether this is the admin shell's hover request, which readies Forms behind another dashboard.
+	 *
+	 * @return bool
+	 */
+	private static function is_admin_shell_guest_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared only; the shell checks the nonce.
+		return wp_doing_ajax() && isset( $_GET['action'] ) && Admin_Shell::GUEST_ACTION === wp_unslash( $_GET['action'] );
 	}
 
 	/**
