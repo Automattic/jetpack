@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Layout Grid usage tracking: Stop labelling inserts with a migration origin, which could no longer occur.

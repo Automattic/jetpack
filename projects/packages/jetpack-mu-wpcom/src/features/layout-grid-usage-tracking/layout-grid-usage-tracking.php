@@ -4,9 +4,9 @@
  * block is inserted or first rendered on a WoA site. The payload carries the
  * active theme, active plugins, request-context flags, an `origin` label that
  * separates an explicit editor insert (the expected, noisy case) from the
- * arrivals we actually want to surface — migration, import, XML-RPC, WP-CLI,
- * cron, a headless REST or AJAX write, a programmatic write with no user behind
- * it, or a theme/template render — and a sanitized backtrace so the source can
+ * arrivals we actually want to surface — import, XML-RPC, WP-CLI, cron, a
+ * headless REST or AJAX write, a programmatic write with no user behind it, or
+ * a theme/template render — and a sanitized backtrace so the source can
  * be attributed to a responsible plugin or theme rather than just the candidate
  * set. Events ship to the `atomic_layout_grid_block` logstash bucket.
  *
@@ -143,11 +143,6 @@ function wpcom_layout_grid_usage_context_transient_key( $is_importing, $is_cron 
  * logged-in user adding the block in the editor — can be told apart from the
  * arrivals worth investigating. Checked in priority order:
  *
- *  - `migration`:    the WoA transfer is mid-flight — the block came over with
- *                    the site. Checked before `import` because migration runs
- *                    also set `WP_IMPORTING`, and "arrived during transfer" is
- *                    the more specific (and, post-conditional-activation, the
- *                    more interesting) answer.
  *  - `import`:       a `WP_IMPORTING` run (an importer plugin, a WXR import).
  *  - `xmlrpc`:       a remote publishing client (legacy apps, some migration
  *                    tools) writing over XML-RPC.
@@ -170,13 +165,9 @@ function wpcom_layout_grid_usage_context_transient_key( $is_importing, $is_cron 
  * Used for the insert surfaces; the render backstop sets its own `origin` since
  * by render time the context is gone.
  *
- * @return string One of: migration, import, xmlrpc, cli, cron, editor, rest, ajax, programmatic.
+ * @return string One of: import, xmlrpc, cli, cron, editor, rest, ajax, programmatic.
  */
 function wpcom_layout_grid_usage_classify_origin() {
-	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcomsh-provided; present on WoA, guarded by function_exists.
-	if ( function_exists( 'wpcomsh_is_migration_in_progress' ) && wpcomsh_is_migration_in_progress() ) {
-		return 'migration';
-	}
 	if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 		return 'import';
 	}

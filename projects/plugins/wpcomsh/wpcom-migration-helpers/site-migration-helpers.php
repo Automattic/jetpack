@@ -6,33 +6,6 @@
  */
 
 /**
- * Checks if there's an active site migration happening for the current site.
- *
- * The current site is the destination site for the migration.
- *
- * @return bool
- */
-function wpcomsh_is_migration_in_progress() {
-	return get_option( 'wpcomsh_site_migration_status', false ) === '1';
-}
-
-/**
- * Allow setting the `site_migration_status` from WPCOM to the target site through Jetpack.
- *
- * @param array $options List of allowed Jetpack options.
- *
- * @return array
- */
-function wpcomsh_allow_migration_option( $options ) {
-	// For storing AT options.
-	$options[] = 'wpcomsh_site_migration_status';
-
-	return $options;
-}
-
-add_filter( 'jetpack_options_whitelist', 'wpcomsh_allow_migration_option' );
-
-/**
  * Logs the start and end of an AIOWP migration import and any errors that occur during the import.
  */
 function aiowp_migration_logging_helper() {

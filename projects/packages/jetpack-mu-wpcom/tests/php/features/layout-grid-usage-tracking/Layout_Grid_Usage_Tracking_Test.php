@@ -431,10 +431,10 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Origin classification: a request with a logged-in user and none of the
 	 * batch / transport contexts reads as `editor`; with no user it falls
-	 * through to `programmatic`. The context-driven branches (migration, import,
-	 * xmlrpc, cli, cron, rest, ajax) aren't exercised here — they hinge on
-	 * request constants or the wpcomsh migration helper, neither of which can be
-	 * toggled without leaking into the rest of the phpunit process.
+	 * through to `programmatic`. The context-driven branches (import, xmlrpc,
+	 * cli, cron, rest, ajax) aren't exercised here — they hinge on request
+	 * constants, which can't be toggled without leaking into the rest of the
+	 * phpunit process.
 	 */
 	public function test_classify_origin_separates_editor_from_programmatic() {
 		wp_set_current_user( 0 );
