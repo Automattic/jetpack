@@ -6,6 +6,7 @@ import {
 	openMember,
 	settle,
 	waitForShown,
+	withinDocument,
 } from '../../helpers/admin-shell-helper';
 
 /* JETPACK-3728: on a first visit, every member's stand-in header shows its real title and subtitle. */
@@ -102,7 +103,9 @@ function expectHeldHeader( slug: string, header: Declared[ 'header' ], frames: H
 			.toEqual( [ app.title, app.titleTop ] );
 		expect.soft( frame.subtitleTop, `${ at }: subtitle position` ).toBe( app.subtitleTop );
 		if ( header.subtitle ) {
-			expect.soft( app.subtitle ?? '', `${ at }: subtitle text` ).toContain( frame.subtitle );
+			expect
+				.soft( app.subtitle ?? '', `${ at }: subtitle text` )
+				.toContain( frame.subtitle ?? '-' );
 		}
 	}
 }
@@ -126,9 +129,11 @@ async function firstVisit( page: Page, slug: string ): Promise< HeaderFrame[] > 
 	await expect.poll( () => hasSavedHeader( page, HOST ) ).toBe( true );
 
 	await record( page, slug );
-	await menuLink( page, slug ).click();
-	await waitForShown( page, slug );
-	await settle( page, 1000 );
+	await withinDocument( page, `switching to ${ slug }`, async () => {
+		await menuLink( page, slug ).click();
+		await waitForShown( page, slug );
+	} );
+	await settle( page, 500 );
 	return recorded( page );
 }
 
@@ -155,6 +160,7 @@ test.describe( 'Admin shell: stand-in header', () => {
 		const members = await membersOf( page );
 		const guests = await inMenu( page, Object.keys( members ) );
 		expect( guests.length, 'other members in the menu' ).toBeGreaterThan( 0 );
+		test.info().annotations.push( { type: 'members', description: guests.join( ', ' ) } );
 
 		for ( const slug of guests ) {
 			await test.step( slug, async () => {
