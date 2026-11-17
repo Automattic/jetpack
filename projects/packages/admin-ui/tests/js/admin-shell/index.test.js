@@ -393,6 +393,31 @@ describe( 'admin shell prewarm', () => {
 
 		expect( mockCapturedSlug ).toEqual( { a: 'old', a2: 'host' } );
 	} );
+
+	it.each( [
+		[
+			'throws',
+			() => {
+				throw new Error( 'init failed' );
+			},
+		],
+		[ 'rejects', () => Promise.reject( new Error( 'init failed' ) ) ],
+	] )(
+		"puts the page's Jetpack config back when a guest's init %s after setting its own",
+		async ( _, fail ) => {
+			const pageConfig = { consumer_slug: 'host' };
+			globalThis.jetpackConfig = pageConfig;
+			mockInits.a.mockImplementationOnce( () => {
+				globalThis.jetpackConfig = { consumer_slug: 'a' };
+				return fail();
+			} );
+
+			hover( 'guest-a' );
+			await settle();
+
+			expect( globalThis.jetpackConfig ).toBe( pageConfig );
+		}
+	);
 } );
 
 describe( 'admin shell switch', () => {
