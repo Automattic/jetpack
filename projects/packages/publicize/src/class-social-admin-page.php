@@ -155,7 +155,7 @@ class Social_Admin_Page {
 	/**
 	 * Register Jetpack Social with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -206,7 +206,7 @@ class Social_Admin_Page {
 	/**
 	 * Ready the Jetpack Social routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @return void
 	 */
@@ -221,7 +221,7 @@ class Social_Admin_Page {
 	/**
 	 * Hydrate the connection store on a script of its own: the prerequisites script only exists on the Social page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @return void
 	 */

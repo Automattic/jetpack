@@ -34,12 +34,8 @@ class Indexnow_Client {
 	public static function key() {
 		$key = get_option( self::KEY_OPTION, '' );
 		if ( ! is_string( $key ) || ! preg_match( '/^[a-f0-9]{32}$/', $key ) ) {
-			add_option( self::KEY_OPTION, str_replace( '-', '', wp_generate_uuid4() ), '', false );
-			$key = get_option( self::KEY_OPTION, '' );
-			if ( ! is_string( $key ) || ! preg_match( '/^[a-f0-9]{32}$/', $key ) ) {
-				$key = str_replace( '-', '', wp_generate_uuid4() );
-				update_option( self::KEY_OPTION, $key, false );
-			}
+			$key = bin2hex( random_bytes( 16 ) );
+			update_option( self::KEY_OPTION, $key, false );
 		}
 		return $key;
 	}
@@ -59,10 +55,9 @@ class Indexnow_Client {
 		$allowed = (bool) apply_filters( 'jetpack_seo_indexnow_can_notify', true );
 		return (bool) get_option( self::ENABLED_OPTION, false )
 			&& $allowed
-			&& get_option( self::SCOPE_OPTION, '' ) === home_url( '/' )
-			&& ! ( new Host() )->is_vip_site()
+			&& get_option( self::SCOPE_OPTION, '' ) === self::scope()
 			&& Initializer::is_available() && ( new Modules() )->is_active( 'seo-tools' )
-			&& self::site_is_public()
+			&& ! ( new Host() )->is_vip_site() && self::site_is_public()
 			&& ! Seo_Tools::is_disabled();
 	}
 
@@ -83,11 +78,21 @@ class Indexnow_Client {
 	 * @return string
 	 */
 	public static function key_location() {
-		return home_url( '/' . self::key() . '.txt' );
+		return self::scope() . self::key() . '.txt';
 	}
 
 	/**
-	 * Restrict notifications to this site's host, scheme and home path.
+	 * Site scope independent of the current request's transport.
+	 *
+	 * @since $$next-version$$
+	 * @return string
+	 */
+	public static function scope() {
+		return home_url( '/', wp_parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
+	}
+
+	/**
+	 * Restrict HTTP(S) notifications to this site's host and home path.
 	 *
 	 * @param string $url Candidate URL.
 	 * @return bool
@@ -96,12 +101,12 @@ class Indexnow_Client {
 		if ( ! is_string( $url ) || strlen( $url ) > 2048 || preg_match( '/[\x00-\x20\x7f]/', $url ) ) {
 			return false;
 		}
-		$home   = wp_parse_url( home_url( '/' ) );
+		$home   = wp_parse_url( self::scope() );
 		$target = wp_parse_url( $url );
 		if ( ! is_array( $target ) || isset( $target['user'] ) || isset( $target['pass'] ) || isset( $target['fragment'] ) ) {
 			return false;
 		}
-		if ( ! in_array( $target['scheme'] ?? '', array( 'http', 'https' ), true ) || ( $target['scheme'] ?? '' ) !== ( $home['scheme'] ?? '' ) || strtolower( $target['host'] ?? '' ) !== strtolower( $home['host'] ?? '' ) || ( $target['port'] ?? null ) !== ( $home['port'] ?? null ) ) {
+		if ( ! in_array( $target['scheme'] ?? '', array( 'http', 'https' ), true ) || strtolower( $target['host'] ?? '' ) !== strtolower( $home['host'] ?? '' ) || ( $target['port'] ?? null ) !== ( $home['port'] ?? null ) ) {
 			return false;
 		}
 		$path = rawurldecode( $target['path'] ?? '/' );
@@ -117,11 +122,8 @@ class Indexnow_Client {
 		if ( ! in_array( $method, array( 'GET', 'HEAD' ), true ) ) {
 			return;
 		}
-		if ( ! self::enabled() || ! preg_match( '/^[a-f0-9]{32}$/', self::key() ) ) {
-			return;
-		}
 		$path = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ), PHP_URL_PATH );
-		if ( wp_parse_url( self::key_location(), PHP_URL_PATH ) !== $path ) {
+		if ( ! is_string( $path ) || ! preg_match( '~/[a-f0-9]{32}\.txt$~', $path ) || ! self::enabled() || wp_parse_url( self::key_location(), PHP_URL_PATH ) !== $path ) {
 			return;
 		}
 		nocache_headers();
@@ -156,7 +158,7 @@ class Indexnow_Client {
 	 * @return array
 	 */
 	public static function submit( $urls ) {
-		if ( ! self::enabled() || ! is_array( $urls ) || ! $urls || count( $urls ) > self::batch_size() ) {
+		if ( ! self::enabled() || ! is_array( $urls ) || ! $urls ) {
 			return array(
 				'state' => 'disabled_or_invalid',
 				'retry' => false,
@@ -176,6 +178,13 @@ class Indexnow_Client {
 				);
 			}
 		}
+		$urls = array_values( array_unique( $urls ) );
+		if ( count( $urls ) > self::batch_size() ) {
+			return array(
+				'state' => 'disabled_or_invalid',
+				'retry' => false,
+			);
+		}
 		$response = wp_safe_remote_post(
 			self::ENDPOINT,
 			array(
@@ -184,10 +193,10 @@ class Indexnow_Client {
 				'headers'     => array( 'Content-Type' => 'application/json; charset=utf-8' ),
 				'body'        => wp_json_encode(
 					array(
-						'host'        => wp_parse_url( home_url(), PHP_URL_HOST ),
+						'host'        => wp_parse_url( self::scope(), PHP_URL_HOST ),
 						'key'         => self::key(),
 						'keyLocation' => self::key_location(),
-						'urlList'     => array_values( array_unique( $urls ) ),
+						'urlList'     => $urls,
 					),
 					JSON_UNESCAPED_SLASHES
 				),
@@ -201,7 +210,8 @@ class Indexnow_Client {
 		}
 		$code        = wp_remote_retrieve_response_code( $response );
 		$retry       = 429 === $code || $code >= 500;
-		$retry_after = (string) wp_remote_retrieve_header( $response, 'retry-after' );
+		$retry_after = wp_remote_retrieve_header( $response, 'retry-after' );
+		$retry_after = is_string( $retry_after ) ? $retry_after : '';
 		$retry_after = ctype_digit( $retry_after ) ? (int) $retry_after : max( 0, (int) strtotime( $retry_after ) - time() );
 		return array(
 			'state'       => 200 === $code ? 'accepted' : ( 202 === $code ? 'verification_pending' : 'http_' . $code ),

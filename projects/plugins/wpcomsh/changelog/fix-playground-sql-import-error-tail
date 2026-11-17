@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playground backup restores: read back only the end of mysql's output, so a large echoed dump cannot exhaust PHP memory and the reported error is mysql's ERROR line.

@@ -1753,4 +1753,58 @@ class Contact_Form_Field_Test extends BaseTestCase {
 			substr_count( $field->render(), 'class="jetpack-field-rating__input' )
 		);
 	}
+
+	/**
+	 * A group's fieldset points at its error message, and that id is emitted exactly once.
+	 *
+	 * @param string $type       Field type.
+	 * @param array  $attributes Extra field attributes.
+	 * @param string $style      Form style, empty for the default.
+	 * @dataProvider group_fieldset_style_provider
+	 */
+	#[DataProvider( 'group_fieldset_style_provider' )]
+	public function test_group_fieldset_references_its_error_message( $type, $attributes, $style ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'type'     => $type,
+					'id'       => 'g1-x',
+					'label'    => 'Thing',
+					'required' => '1',
+				),
+				$attributes
+			),
+			$style
+		);
+
+		$html = $field->render();
+
+		$this->assertSame( 1, preg_match( '/<fieldset[^>]*aria-describedby=[\'"]([^\'"]+)[\'"]/', $html, $matches ) );
+		$this->assertStringStartsWith( 'g1-x-', $matches[1] );
+		$this->assertStringEndsWith( '-error-message', $matches[1] );
+		$this->assertSame( 1, substr_count( $html, 'id="' . $matches[1] . '"' ) );
+	}
+
+	/**
+	 * Grouped field types in the default style and both inset-label styles.
+	 *
+	 * @return array
+	 */
+	public static function group_fieldset_style_provider() {
+		$types                 = self::data_grouped_field_types();
+		$image_option          = array(
+			'letter' => 'A',
+			'label'  => 'A',
+		);
+		$types['image-select'] = array( 'image-select', array( 'optionsdata' => wp_json_encode( array( $image_option ), JSON_UNESCAPED_SLASHES ) ) );
+
+		$cases = array();
+		foreach ( $types as $name => $args ) {
+			foreach ( array( '', 'outlined', 'animated' ) as $style ) {
+				$cases[ $name . ', ' . ( $style ? $style : 'default' ) ] = array_merge( $args, array( $style ) );
+			}
+		}
+
+		return $cases;
+	}
 } // end class

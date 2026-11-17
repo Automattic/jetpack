@@ -13,20 +13,21 @@ use Automattic\Jetpack\Status\Host;
  * Stores pending URLs independently of caches and scheduler availability.
  */
 class Indexnow_Queue {
-	const PREFIX            = 'jetpack_seo_indexnow_q_';
-	const CAPACITY          = 10000;
-	const HOOK              = 'jetpack_seo_indexnow_worker';
-	const RECOVERY_HOOK     = 'jetpack_seo_indexnow_recovery';
-	const STATUS_OPTION     = 'jetpack_seo_indexnow_status';
-	const ACCEPTED_OPTION   = 'jetpack_seo_indexnow_last_accepted';
-	const GENERATION_OPTION = 'jetpack_seo_indexnow_generation';
-	const CURSOR_OPTION     = 'jetpack_seo_indexnow_cursor';
-	const COOLDOWN_OPTION   = 'jetpack_seo_indexnow_cooldown';
-	const ADMISSION_LOCK    = 'jetpack_seo_indexnow_admission_lock';
-	const WORKER_LOCK       = 'jetpack_seo_indexnow_worker_lock';
-	const PAGE_SIZE         = 250;
-	const SCAN_LIMIT        = 5000;
-	const BATCH_BYTES       = 1048576;
+	const PREFIX               = 'jetpack_seo_indexnow_q_';
+	const CAPACITY             = 10000;
+	const HOOK                 = 'jetpack_seo_indexnow_worker';
+	const RECOVERY_HOOK        = 'jetpack_seo_indexnow_recovery';
+	const STATUS_OPTION        = 'jetpack_seo_indexnow_status';
+	const ACCEPTED_OPTION      = 'jetpack_seo_indexnow_last_accepted';
+	const GENERATION_OPTION    = 'jetpack_seo_indexnow_generation';
+	const CURSOR_OPTION        = 'jetpack_seo_indexnow_cursor';
+	const COOLDOWN_OPTION      = 'jetpack_seo_indexnow_cooldown';
+	const ADMISSION_LOCK       = 'jetpack_seo_indexnow_admission_lock';
+	const WORKER_LOCK          = 'jetpack_seo_indexnow_worker_lock';
+	const PAGE_SIZE            = 250;
+	const SCAN_LIMIT           = 5000;
+	const BATCH_BYTES          = 1048576;
+	const SIMPLE_OPTIONS_BYTES = 750000;
 
 	/** Register hooks without selecting a site or scheduling work. */
 	public static function init() {
@@ -34,8 +35,8 @@ class Indexnow_Queue {
 		add_action( 'jetpack_seo_indexnow_post_restricted', array( __CLASS__, 'discard_post' ) );
 		add_action( self::HOOK, array( __CLASS__, 'work' ) );
 		add_action( self::RECOVERY_HOOK, array( __CLASS__, 'work' ) );
-		add_action( 'jetpack_deactivate_module_seo-tools', array( __CLASS__, 'clear' ) );
-		add_action( 'update_option_home', array( __CLASS__, 'clear' ) );
+		add_action( 'jetpack_deactivate_module_seo-tools', array( __CLASS__, 'clear_if_used' ) );
+		add_action( 'update_option_home', array( __CLASS__, 'clear_if_used' ) );
 		add_action( 'update_option_' . Indexnow_Client::ENABLED_OPTION, array( __CLASS__, 'preference_changed' ), 10, 2 );
 	}
 
@@ -108,7 +109,7 @@ class Indexnow_Queue {
 	 *
 	 * @param array       $row Observed durable row.
 	 * @param array|null  $next Replacement, or null to delete.
-	 * @param string|null $generation Required queue generation for an admission replacement.
+	 * @param string|null $generation Required queue generation for a replacement.
 	 * @return bool
 	 */
 	public static function compare_and_swap( $row, $next, $generation = null ) {
@@ -179,10 +180,21 @@ class Indexnow_Queue {
 			}
 		} else {
 			global $wpdb;
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Other requests cannot invalidate a nonpersistent option cache.
-			$inserted = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s, 'no')", $name, $json ) );
+			if ( self::ADMISSION_LOCK === $name ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Avoid shared duplicate-key locks when writers concurrently create the lease.
+				$inserted = $wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s, 'no') ON DUPLICATE KEY UPDATE option_name = option_name", $name, $json ) );
+			} else {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Other requests cannot invalidate a nonpersistent option cache.
+				$inserted = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s, 'no')", $name, $json ) );
+			}
 			wp_cache_delete( $name, 'options' );
 			if ( 1 !== $inserted ) {
+				return null;
+			}
+			if ( self::ADMISSION_LOCK === $name && self::row( $name ) !== array(
+				'option_name'  => $name,
+				'option_value' => $json,
+			) ) {
 				return null;
 			}
 		}
@@ -206,6 +218,41 @@ class Indexnow_Queue {
 	}
 
 	/**
+	 * Bound growing Simple records while holding the admission lock.
+	 *
+	 * @param string     $name Option name.
+	 * @param string     $value Encoded notification.
+	 * @param array|null $old Previous durable row.
+	 * @param array      $lock Admission lock.
+	 * @param string     $generation Current queue generation.
+	 * @return bool
+	 */
+	private static function admit_simple( $name, $value, $old, $lock, $generation ) {
+		global $wpdb;
+		$delta = strlen( $name ) + strlen( $value ) + strlen( (string) strlen( $name ) ) + strlen( (string) strlen( $value ) ) + 12;
+		if ( $old ) {
+			$delta -= strlen( $name ) + strlen( $old['option_value'] ) + strlen( (string) strlen( $name ) ) + strlen( (string) strlen( $old['option_value'] ) ) + 12;
+		}
+		// Keep the scan read-only; queue writers serialize on the admission lock.
+		// The estimate includes string serialization and a conservative array header.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Measure options without caching their values.
+		$storage = $wpdb->get_row( $wpdb->prepare( "SELECT COALESCE(SUM(OCTET_LENGTH(option_name) + OCTET_LENGTH(option_value) + OCTET_LENGTH(OCTET_LENGTH(option_name)) + OCTET_LENGTH(OCTET_LENGTH(option_value)) + 12), 0) + 64 AS bytes, COALESCE(SUM(option_name LIKE %s), 0) AS pending FROM $wpdb->options", $wpdb->esc_like( self::PREFIX ) . '%' ), ARRAY_A );
+		if ( ! $storage || $storage['bytes'] + $delta > self::SIMPLE_OPTIONS_BYTES || ( ! $old && $storage['pending'] >= self::capacity() ) ) {
+			return false;
+		}
+		$fence = $wpdb->prepare( "EXISTS (SELECT 1 FROM (SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1) AS queue_owner WHERE queue_owner.option_value = %s) AND EXISTS (SELECT 1 FROM (SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1) AS queue_generation WHERE queue_generation.option_value = %s)", self::ADMISSION_LOCK, $lock['option_value'], self::GENERATION_OPTION, $generation );
+		if ( $old ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Fences contain bound values and prevent a stale size check from surviving another queue writer or reset.
+			$changed = $wpdb->query( $wpdb->prepare( "UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s AND option_value = %s AND $fence", $value, $name, $old['option_value'] ) );
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Verify ownership in the same statement as the admission without locking unrelated options.
+			$changed = $wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) SELECT %s, %s, 'no' FROM DUAL WHERE $fence", $name, $value ) );
+		}
+		wp_cache_delete( $name, 'options' );
+		return 1 === $changed;
+	}
+
+	/**
 	 * Admit or replace a URL without scanning pending payloads.
 	 *
 	 * @param string $url Public URL.
@@ -214,31 +261,37 @@ class Indexnow_Queue {
 	 * @return bool
 	 */
 	public static function enqueue( $url, $post_id, $deleted = false ) {
-		if ( ! Indexnow_Client::enabled() || ! Indexnow_Client::in_scope( $url ) ) {
+		$post_id = (int) $post_id;
+		if ( $post_id < 1 || ! Indexnow_Client::enabled() || ! Indexnow_Client::in_scope( $url ) ) {
 			return false;
 		}
 		$generation = self::generation();
 		if ( null === $generation ) {
 			return false;
 		}
-		$name = self::PREFIX . hash( 'sha256', $url );
+		$name = self::PREFIX . ( $deleted ? hash( 'sha256', $url ) : 'p_' . $post_id );
 		$item = array(
 			'generation' => $generation,
 			'url'        => $url,
-			'post'       => (int) $post_id,
+			'post'       => $post_id,
 			'deleted'    => (bool) $deleted,
-			'scope'      => home_url( '/' ),
+			'scope'      => Indexnow_Client::scope(),
 			'version'    => wp_generate_uuid4(),
 			'due'        => time() + 300,
 			'attempt'    => 0,
 			'created'    => time(),
 		);
+		if ( ! $deleted ) {
+			unset( $item['url'] );
+		}
+		$json   = wp_json_encode( $item, JSON_UNESCAPED_SLASHES );
+		$simple = ( new Host() )->is_wpcom_simple();
 		for ( $attempt = 0; $attempt < 40; ++$attempt ) {
 			if ( $attempt && self::generation() !== $generation ) {
 				return false;
 			}
 			$old = self::row( $name );
-			if ( $old ) {
+			if ( $old && ( ! $simple || strlen( $json ) <= strlen( $old['option_value'] ) ) ) {
 				if ( ! self::compare_and_swap( $old, $item, $generation ) ) {
 					continue;
 				}
@@ -249,21 +302,38 @@ class Indexnow_Queue {
 					continue;
 				}
 				try {
-					if ( self::row( $name ) ) {
-						continue;
-					}
-					if ( self::size() >= self::capacity() ) {
-						break;
-					}
-					global $wpdb;
+					if ( $simple ) {
+						$old = self::row( $name );
+						if ( ! self::admit_simple( $name, $json, $old, $lock, $generation ) ) {
+							if ( self::generation() !== $generation || ! Indexnow_Client::enabled() ) {
+								return false;
+							}
+							break;
+						}
+					} else {
+						if ( self::row( $name ) ) {
+							continue;
+						}
+						if ( self::size() >= self::capacity() ) {
+							break;
+						}
+						global $wpdb;
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Fence inserts against replacement of an expired admission lock.
-					$added = $wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) SELECT %s, %s, 'no' WHERE EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s) AND EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s)", $name, wp_json_encode( $item, JSON_UNESCAPED_SLASHES ), $lock['option_name'], $lock['option_value'], self::GENERATION_OPTION, $generation ) );
-					wp_cache_delete( $name, 'options' );
-					if ( 1 !== $added ) {
-						continue;
+						$added = $wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) SELECT %s, %s, 'no' FROM DUAL WHERE EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s) AND EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s)", $name, wp_json_encode( $item, JSON_UNESCAPED_SLASHES ), $lock['option_name'], $lock['option_value'], self::GENERATION_OPTION, $generation ) );
+						wp_cache_delete( $name, 'options' );
+						if ( 1 !== $added ) {
+							continue;
+						}
 					}
 				} finally {
-					self::compare_and_swap( $lock, null );
+					// Reuse the row to avoid duplicate-key gap-lock deadlocks during parallel admissions.
+					self::compare_and_swap(
+						$lock,
+						array(
+							'owner'   => '',
+							'expires' => 0,
+						)
+					);
 				}
 			}
 			self::ensure_recovery();
@@ -273,8 +343,9 @@ class Indexnow_Queue {
 		update_option(
 			'jetpack_seo_indexnow_enqueue_error',
 			array(
-				'state' => 'queue_full_or_busy',
-				'time'  => time(),
+				'state'   => 'queue_full_or_busy',
+				'time'    => time(),
+				'version' => wp_generate_uuid4(),
 			),
 			false
 		);
@@ -325,6 +396,17 @@ class Indexnow_Queue {
 		}
 	}
 
+	/**
+	 * Avoid queue work for passive site changes before the first admission.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function clear_if_used() {
+		if ( self::row( self::GENERATION_OPTION ) ) {
+			self::clear();
+		}
+	}
+
 	/** Discard pending work without depending on the current admission limit. */
 	public static function clear() {
 		if ( ( new Host() )->is_vip_site() || ! Initializer::is_available() ) {
@@ -350,8 +432,21 @@ class Indexnow_Queue {
 			}
 			$rows = self::rows( self::PAGE_SIZE, $after );
 		}
-		foreach ( array( self::CURSOR_OPTION, self::COOLDOWN_OPTION ) as $option ) {
-			delete_option( $option );
+		$history = array();
+		foreach ( array( self::CURSOR_OPTION, self::COOLDOWN_OPTION, self::STATUS_OPTION, self::ACCEPTED_OPTION, 'jetpack_seo_indexnow_enqueue_error' ) as $option ) {
+			$row = self::row( $option );
+			if ( ! $row ) {
+				continue;
+			}
+			$receipt = maybe_unserialize( $row['option_value'] );
+			if ( self::ACCEPTED_OPTION === $option && is_array( $receipt ) && 'accepted' === ( $receipt['state'] ?? '' ) && get_option( Indexnow_Client::SCOPE_OPTION, '' ) === Indexnow_Client::scope() ) {
+				continue;
+			}
+			$history[] = $row;
+		}
+		if ( $history ) {
+			self::delete_rows( $history, $generation );
+			self::invalidate_summary_cache( array_column( $history, 'option_name' ) );
 		}
 		wp_clear_scheduled_hook( self::HOOK );
 		wp_clear_scheduled_hook( self::RECOVERY_HOOK );
@@ -392,11 +487,22 @@ class Indexnow_Queue {
 	private static function store_status_option( $name, $value, $generation ) {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- The same-statement fence prevents a reset from being followed by an obsolete status write.
-		$wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) SELECT %s, %s, 'no' WHERE EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s) ON DUPLICATE KEY UPDATE option_value = VALUES(option_value), autoload = 'no'", $name, maybe_serialize( $value ), self::GENERATION_OPTION, $generation ) );
+		$wpdb->query( $wpdb->prepare( "INSERT INTO $wpdb->options (option_name, option_value, autoload) SELECT %s, %s, 'no' FROM DUAL WHERE EXISTS (SELECT 1 FROM $wpdb->options WHERE option_name = %s AND option_value = %s) ON DUPLICATE KEY UPDATE option_value = VALUES(option_value), autoload = 'no'", $name, maybe_serialize( $value ), self::GENERATION_OPTION, $generation ) );
 		wp_cache_delete( $name, 'options' );
 		wp_cache_delete( 'notoptions', 'options' );
-		// Some hosts also cache non-autoloaded options in alloptions.
-		wp_cache_delete( 'alloptions', 'options' );
+		self::invalidate_summary_cache( array( $name ) );
+	}
+
+	/**
+	 * Preserve the shared cache on hosts that cache only autoloaded options.
+	 *
+	 * @param string[] $names Changed summary options.
+	 */
+	private static function invalidate_summary_cache( $names ) {
+		$cached = wp_cache_get( 'alloptions', 'options' );
+		if ( ( new Host() )->is_wpcom_simple() || array_intersect_key( (array) $cached, array_fill_keys( $names, true ) ) ) {
+			wp_cache_delete( 'alloptions', 'options' );
+		}
 	}
 
 	/** Process a bounded sweep with an expiring worker lock. */
@@ -449,7 +555,7 @@ class Indexnow_Queue {
 						$expired += self::compare_and_swap( $row, null ) ? 1 : 0;
 						continue;
 					}
-					if ( ( $item['scope'] ?? '' ) !== home_url( '/' ) || ! Indexnow_Client::in_scope( $item['url'] ?? '' ) ) {
+					if ( ( $item['scope'] ?? '' ) !== Indexnow_Client::scope() || ( isset( $item['url'] ) && ! Indexnow_Client::in_scope( $item['url'] ) ) ) {
 						self::compare_and_swap( $row, null );
 						continue;
 					}
@@ -457,15 +563,17 @@ class Indexnow_Queue {
 					if ( $item['due'] > time() ) {
 						continue;
 					}
-					if ( ( $item['generation'] ?? '0' ) !== $generation || ! self::eligible( $item ) ) {
+					$resolved = self::resolve( $item );
+					if ( ( $item['generation'] ?? '0' ) !== $generation || ! $resolved ) {
 						self::compare_and_swap( $row, null );
 						continue;
 					}
-					if ( $claimed_bytes + strlen( $row['option_value'] ) > self::BATCH_BYTES ) {
+					$bytes = self::notification_bytes( $row['option_value'], $item, $resolved );
+					if ( $claimed_bytes + $bytes > self::BATCH_BYTES ) {
 						$cursor = $previous_cursor;
 						break 2;
 					}
-					$claimed_bytes += strlen( $row['option_value'] );
+					$claimed_bytes += $bytes;
 					$claimed[]      = $row;
 					++$claimed_count;
 					if ( count( $claimed ) >= Indexnow_Client::batch_size() ) {
@@ -481,28 +589,48 @@ class Indexnow_Queue {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Only placeholders are interpolated; names are bound below.
 				$fresh    = $wpdb->get_results( $wpdb->prepare( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name IN ($placeholders)", $names ), ARRAY_A );
 				$versions = array_column( is_array( $fresh ) ? $fresh : array(), 'option_value', 'option_name' );
-				$claimed  = array_values(
-					array_filter(
-						$claimed,
-						static function ( $row ) use ( $versions, $generation ) {
-							return ( $versions[ $row['option_name'] ] ?? null ) === $row['option_value'] && ( json_decode( $row['option_value'], true )['generation'] ?? '0' ) === $generation && self::eligible( json_decode( $row['option_value'], true ) );
+				$valid    = array();
+				$bytes    = 0;
+				foreach ( $claimed as $row ) {
+					$item = json_decode( $row['option_value'], true );
+					if ( ( $versions[ $row['option_name'] ] ?? null ) === $row['option_value'] && ( $item['generation'] ?? '0' ) === $generation ) {
+						$url = self::resolve( $item );
+						if ( $url ) {
+							$size = self::notification_bytes( $row['option_value'], $item, $url );
+							if ( $bytes + $size > self::BATCH_BYTES ) {
+								break;
+							}
+							$bytes              += $size;
+							$row['resolved_url'] = $url;
+							$valid[]             = $row;
 						}
-					)
-				);
+					}
+				}
+				$claimed = $valid;
 			}
 			if ( $claimed && Indexnow_Client::enabled() && self::row( self::WORKER_LOCK ) === $lock && self::generation() === $generation ) {
-				$urls   = array_map(
-					static function ( $row ) {
-						$item = (array) json_decode( $row['option_value'], true );
-						return $item['url'];
-					},
-					$claimed
+				$urls          = array_values(
+					array_unique(
+						array_map(
+							static function ( $row ) {
+								return $row['resolved_url'];
+							},
+							$claimed
+						)
+					)
 				);
-				$result = Indexnow_Client::submit( $urls );
+				$enqueue_error = self::row( 'jetpack_seo_indexnow_enqueue_error' );
+				$result        = Indexnow_Client::submit( $urls );
 				if ( self::generation() !== $generation || ! Indexnow_Client::enabled() ) {
 					return;
 				}
 				$exhausted = 0;
+				$retrying  = 0;
+				$dropped   = 0;
+				if ( $enqueue_error && in_array( $result['state'], array( 'accepted', 'verification_pending' ), true ) ) {
+					self::delete_rows( array( $enqueue_error ), $generation );
+					self::invalidate_summary_cache( array( 'jetpack_seo_indexnow_enqueue_error' ) );
+				}
 				if ( 'http_429' === $result['state'] ) {
 					self::store_status_option( self::COOLDOWN_OPTION, time() + max( 600, $result['retry_after'] ?? 0 ), $generation );
 				}
@@ -512,19 +640,21 @@ class Indexnow_Queue {
 						++$item['attempt'];
 						$item['due']  = time() + max( $result['retry_after'] ?? 0, min( 43200, 60 * pow( 4, $item['attempt'] ) ), 'http_429' === $result['state'] ? 600 : 0 );
 						$earliest_due = min( $earliest_due, $item['due'] );
-						self::compare_and_swap( $row, $item );
-					} else {
-						$exhausted += $result['retry'] ? 1 : 0;
-						self::compare_and_swap( $row, null );
+						$retrying    += self::compare_and_swap( $row, $item, $generation ) ? 1 : 0;
+					} elseif ( self::compare_and_swap( $row, null ) ) {
+							$exhausted += $result['retry'] ? 1 : 0;
+							$dropped   += ! $result['retry'] && ! in_array( $result['state'], array( 'accepted', 'verification_pending' ), true ) ? 1 : 0;
 					}
 				}
 				self::record_status(
 					array(
 						'state'     => $result['state'],
 						'time'      => time(),
-						'count'     => count( $claimed ),
+						'count'     => count( $urls ),
 						'expired'   => $expired,
 						'exhausted' => $exhausted,
+						'retrying'  => $retrying,
+						'dropped'   => $dropped,
 					),
 					$generation
 				);
@@ -549,13 +679,36 @@ class Indexnow_Queue {
 	}
 
 	/**
-	 * Check current discovery or removal eligibility.
+	 * Include a resolved URL in the worker's retained-payload budget.
+	 *
+	 * @param string $value Encoded notification.
+	 * @param array  $item Decoded notification.
+	 * @param string $url Resolved public URL.
+	 * @return int
+	 */
+	private static function notification_bytes( $value, $item, $url ) {
+		return strlen( $value ) + ( isset( $item['url'] ) ? 0 : strlen( wp_json_encode( $url, JSON_UNESCAPED_SLASHES ) ) + 7 );
+	}
+
+	/**
+	 * Resolve a currently eligible discovery or removal URL.
 	 *
 	 * @param array $item Stored notification.
-	 * @return bool
+	 * @return string
 	 */
-	private static function eligible( $item ) {
-		$post = get_post( $item['post'] );
-		return $item['deleted'] ? Indexnow_Events::removal_allowed( $post ) : Indexnow_Events::eligible( $post, $item['url'] );
+	private static function resolve( $item ) {
+		$post_id = (int) ( $item['post'] ?? 0 );
+		if ( $post_id < 1 ) {
+			return '';
+		}
+		$post = get_post( $post_id );
+		if ( ! empty( $item['deleted'] ) ) {
+			return Indexnow_Events::removal_allowed( $post ) ? ( $item['url'] ?? '' ) : '';
+		}
+		if ( ! Indexnow_Events::eligible( $post, $item['url'] ?? '' ) ) {
+			return '';
+		}
+		$url = $item['url'] ?? get_permalink( $post );
+		return Indexnow_Client::in_scope( $url ) ? $url : '';
 	}
 }

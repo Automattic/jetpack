@@ -12,6 +12,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 /**
  * Internal dependencies
  */
+import { useTrackEvent } from '../../hooks/use-track-event';
 import styles from './arrange-tabs-dialog.module.scss';
 
 export type ArrangeableTab = {
@@ -45,6 +46,8 @@ export type ArrangeableTabs = {
 };
 
 type Step = -1 | 1;
+
+type Outcome = 'save' | 'unchanged' | 'reset' | 'cancel' | 'dismiss';
 
 type Move = {
 	/*
@@ -209,6 +212,10 @@ export function ArrangeTabsDialog( { scope, items, onPreview, onClose }: Arrange
 	const [ tabs, setTabs ] = useState( items );
 	const hasOwnOrder = useSelect( select => getSectionOrder( scope, select ).length > 0, [ scope ] );
 	const reducedMotion = useReducedMotion();
+	const trackEvent = useTrackEvent();
+	const moveCount = useRef( 0 );
+	// The tabs the reader moved themselves, not the ones a move shifted.
+	const movedSlugs = useRef( new Set< string >() );
 	const listRef = useRef< HTMLOListElement >( null );
 	// The move the rows have yet to show: read once they are back in the document.
 	const movedRef = useRef< Move | undefined >( undefined );
@@ -243,6 +250,8 @@ export function ArrangeTabsDialog( { scope, items, onPreview, onClose }: Arrange
 			);
 
 			next.splice( index + step, 0, tab );
+			moveCount.current += 1;
+			movedSlugs.current.add( tab.slug );
 			movedRef.current = { index: index + step, step, tops };
 			setTabs( next );
 			onPreview?.( next.map( nextTab => nextTab.slug ) );
@@ -259,25 +268,66 @@ export function ArrangeTabsDialog( { scope, items, onPreview, onClose }: Arrange
 		[ onPreview, tabs ]
 	);
 
+	const trackExit = useCallback(
+		( outcome: Outcome ) =>
+			trackEvent( 'jetpack_premium_analytics_arrange_tabs_exit', {
+				outcome,
+				move_count: moveCount.current,
+			} ),
+		[ trackEvent ]
+	);
+
 	const save = useCallback( () => {
 		// Nothing moved: the reader keeps the order they had, their own or the default.
-		if ( tabs.some( ( tab, index ) => tab !== items[ index ] ) ) {
-			setSectionOrder(
-				scope,
-				tabs.map( tab => tab.slug )
-			);
+		if ( tabs.every( ( tab, index ) => tab === items[ index ] ) ) {
+			trackExit( 'unchanged' );
+			return;
 		}
-	}, [ items, scope, tabs ] );
 
-	const reset = useCallback( () => setSectionOrder( scope ), [ scope ] );
+		const order = tabs.map( tab => tab.slug );
+
+		setSectionOrder( scope, order );
+		trackEvent( 'jetpack_premium_analytics_arrange_tabs_save', {
+			order: order.join( ',' ),
+			tab_count: order.length,
+		} );
+
+		items.forEach( ( tab, index ) => {
+			const position = order.indexOf( tab.slug );
+
+			if ( movedSlugs.current.has( tab.slug ) && position !== index ) {
+				trackEvent( 'jetpack_premium_analytics_arrange_tabs_tab_move', {
+					tab: tab.slug,
+					from_position: index + 1,
+					to_position: position + 1,
+					has_custom_order: hasOwnOrder,
+				} );
+			}
+		} );
+		trackExit( 'save' );
+	}, [ hasOwnOrder, items, scope, tabs, trackEvent, trackExit ] );
+
+	const reset = useCallback( () => {
+		setSectionOrder( scope );
+		trackEvent( 'jetpack_premium_analytics_arrange_tabs_reset' );
+		trackExit( 'reset' );
+	}, [ scope, trackEvent, trackExit ] );
+
+	const cancel = useCallback( () => trackExit( 'cancel' ), [ trackExit ] );
 
 	const handleOpenChange = useCallback(
-		( nextOpen: boolean ) => {
-			if ( ! nextOpen ) {
-				onClose();
+		( nextOpen: boolean, eventDetails?: { reason?: string } ) => {
+			if ( nextOpen ) {
+				return;
 			}
+
+			// The footer actions record their own exit.
+			if ( eventDetails?.reason !== 'close-press' ) {
+				trackExit( 'dismiss' );
+			}
+			onClose();
 		},
-		[ onClose ]
+		[ onClose, trackExit ]
 	);
 
 	// The first tab cannot move up, so the dialog opens on the first button that does something.
@@ -325,7 +375,7 @@ export function ArrangeTabsDialog( { scope, items, onPreview, onClose }: Arrange
 							{ __( 'Reset order', 'jetpack-premium-analytics-pkg' ) }
 						</Dialog.Action>
 					) }
-					<Dialog.Action variant="minimal">
+					<Dialog.Action variant="minimal" onClick={ cancel }>
 						{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
 					</Dialog.Action>
 					<Dialog.Action onClick={ save }>
