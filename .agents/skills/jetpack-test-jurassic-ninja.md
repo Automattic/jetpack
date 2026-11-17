@@ -346,6 +346,8 @@ RSYNC_RSH='ssh -o BatchMode=yes' pnpm jetpack rsync {plugin} {domain}@ssh.atomic
 
 No `--password` flag — SSH keys handle auth.
 
+If rsync stops on untracked files, stage them with `git add -N <file>` (or pass `--ignore-untracked` if they shouldn't ship). If it stops on a project with no build output, build it (`jetpack build --deps plugins/{plugin}`) rather than passing `--allow-unbuilt`, which deletes that output on the site.
+
 **If `SSH_OK=false`** (falling back to the password fetched in Check 6):
 
 ```bash
