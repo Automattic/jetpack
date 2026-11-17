@@ -104,6 +104,8 @@ class Llms_Txt {
 	 * @return void
 	 */
 	public static function register_always_include() {
+		// Core REST saves meta in registration order; noindex must be written first.
+		unregister_meta_key( 'post', self::META_ALWAYS_INCLUDE );
 		register_meta(
 			'post',
 			self::META_ALWAYS_INCLUDE,
@@ -119,6 +121,7 @@ class Llms_Txt {
 		foreach ( array( 'added_post_meta', 'updated_post_meta' ) as $hook ) {
 			add_action( $hook, array( __CLASS__, 'clear_always_include_if_hidden' ), 10, 4 );
 		}
+		add_action( 'rest_api_init', array( __CLASS__, 'register_always_include' ), 0 );
 	}
 
 	/**

@@ -724,16 +724,17 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Core REST always saves noindex first, whatever the order of the request's fields.
+	 * REST save results must not depend on metadata registration order.
 	 *
 	 * @param array[] $saves    Meta for each REST save, in order.
 	 * @param bool    $expected Whether "Always include" is on after the last save.
 	 * @param string  $post_type Post type slug.
+	 * @param bool    $include_first Whether inclusion is registered before noindex.
 	 * @return void
 	 * @dataProvider provide_rest_saves
 	 */
 	#[DataProvider( 'provide_rest_saves' )]
-	public function test_rest_saves_only_turn_always_include_on_for_visible_content( array $saves, bool $expected, $post_type ) {
+	public function test_rest_saves_only_turn_always_include_on_for_visible_content( array $saves, bool $expected, $post_type, bool $include_first ) {
 		$this->register_book_type();
 		$page    = $this->insert_post( array( 'post_type' => $post_type ) );
 		$user_id = wp_insert_user(
@@ -745,20 +746,28 @@ class LlmsTxtTest extends SeoTestCase {
 		);
 		$this->assertIsInt( $user_id );
 		wp_set_current_user( $user_id );
-		register_meta(
-			'post',
-			Content_Coverage::META_NOINDEX,
-			array(
-				'type'         => 'boolean',
-				'single'       => true,
-				'show_in_rest' => true,
-			)
-		);
+		unregister_meta_key( 'post', Content_Coverage::META_NOINDEX );
+		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
 
 		$responses = array();
 		try {
 			$this->with_write_hooks(
-				static function () use ( $page, $saves, &$responses, $post_type ) {
+				static function () use ( $page, $saves, &$responses, $post_type, $include_first ) {
+					if ( ! $include_first ) {
+						unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
+					}
+					register_meta(
+						'post',
+						Content_Coverage::META_NOINDEX,
+						array(
+							'type'         => 'boolean',
+							'single'       => true,
+							'show_in_rest' => true,
+						)
+					);
+					if ( ! $include_first ) {
+						Llms_Txt::register_always_include();
+					}
 					foreach ( $saves as $meta ) {
 						$request = new WP_REST_Request( 'POST', '/wp/v2/' . get_post_type_object( $post_type )->rest_base . '/' . $page->ID );
 						$request->set_body_params( array( 'meta' => $meta ) );
@@ -783,10 +792,10 @@ class LlmsTxtTest extends SeoTestCase {
 	/**
 	 * REST saves, and whether "Always include" ends up on.
 	 *
-	 * @return array<string, array{array[], bool, string}>
+	 * @return array<string, array{array[], bool, string, bool}>
 	 */
 	public static function provide_rest_saves(): array {
-		$saves = array(
+		$saves               = array(
 			'hide and include together, then un-hide' => array(
 				array(
 					array(
@@ -808,10 +817,16 @@ class LlmsTxtTest extends SeoTestCase {
 				true,
 			),
 		);
-		$cases = array();
+		$registration_orders = array(
+			'noindex first'   => false,
+			'inclusion first' => true,
+		);
+		$cases               = array();
 		foreach ( array( 'page', 'post', 'seo_book' ) as $post_type ) {
 			foreach ( $saves as $name => $case ) {
-				$cases[ $post_type . ': ' . $name ] = array_merge( $case, array( $post_type ) );
+				foreach ( $registration_orders as $order => $include_first ) {
+					$cases[ $post_type . ': ' . $name . ', ' . $order ] = array_merge( $case, array( $post_type, $include_first ) );
+				}
 			}
 		}
 		return $cases;
