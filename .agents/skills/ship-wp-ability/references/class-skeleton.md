@@ -135,6 +135,7 @@ class <Name>_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'mcp'          => array(
 						'public' => true,
 						'type'   => 'tool',
@@ -181,6 +182,7 @@ class <Name>_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'mcp'          => array(
 						'public' => true,
 						'type'   => 'tool',

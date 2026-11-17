@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Abilities: Mark abilities as public with the `meta.public` flag.

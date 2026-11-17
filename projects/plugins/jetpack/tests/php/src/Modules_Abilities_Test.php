@@ -143,6 +143,9 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 	public function test_both_abilities_opt_into_mcp_as_public_tool() {
 		foreach ( array( 'jetpack/get-modules', 'jetpack/set-module-status' ) as $slug ) {
 			$spec = Modules_Abilities::get_abilities()[ $slug ];
+			$this->assertArrayHasKey( 'public', $spec['meta'], "{$slug} must declare meta.public." );
+			$this->assertSame( true, $spec['meta']['public'], "{$slug} must be marked public." );
+			$this->assertSame( true, $spec['meta']['show_in_rest'], "{$slug} must be exposed through the Abilities REST API." );
 			$this->assertSame( true, $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
 			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
 		}

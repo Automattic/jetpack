@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add the `public` meta flag and the `mcp` block to the README example.
+
