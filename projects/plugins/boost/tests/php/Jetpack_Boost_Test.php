@@ -6,8 +6,12 @@ use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
+use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_Common;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use WorDBless\BaseTestCase;
 
 // Include the main plugin file to load all functions and classes
@@ -19,6 +23,45 @@ require_once dirname( __DIR__, 2 ) . '/jetpack-boost.php';
  * @package Automattic\Jetpack_Boost\Tests
  */
 class Jetpack_Boost_Test extends BaseTestCase {
+
+	public function test_activation_runs_enabled_modules_and_skips_disabled_modules() {
+		add_filter( 'jetpack_boost_connection_bypass', '__return_true' );
+		( new Status( Minify_CSS::get_slug() ) )->set( true );
+		( new Status( Minify_JS::get_slug() ) )->set( false );
+		add_filter(
+			'jetpack_boost_can_module_run',
+			function ( $can_run, $module ) {
+				return in_array( $module->get_slug(), array( Minify_CSS::get_slug(), Minify_JS::get_slug() ), true );
+			},
+			10,
+			2
+		);
+		$activation_count = did_action( 'jetpack_boost_page_output_changed' );
+
+		Jetpack_Boost::activate();
+
+		$this->assertSame( 1, did_action( 'jetpack_boost_page_output_changed' ) - $activation_count );
+		$this->assertFalse( ( new Status( Minify_JS::get_slug() ) )->get() );
+	}
+
+	public function test_activation_skips_subfeatures_without_an_enabled_parent() {
+		add_filter( 'jetpack_boost_connection_bypass', '__return_true' );
+		( new Status( Minify_CSS::get_slug() ) )->set( false );
+		( new Status( Minify_JS::get_slug() ) )->set( false );
+		add_filter(
+			'jetpack_boost_can_module_run',
+			function ( $can_run, $module ) {
+				return $module->get_slug() === Minify_Common::get_slug();
+			},
+			10,
+			2
+		);
+		wp_clear_scheduled_hook( 'jetpack_boost_minify_cron_cache_cleanup' );
+
+		Jetpack_Boost::activate();
+
+		$this->assertFalse( wp_next_scheduled( 'jetpack_boost_minify_cron_cache_cleanup' ) );
+	}
 
 	/**
 	 * Test that handle_version_change removes empty string from cornerstone_pages_list
