@@ -1,0 +1,77 @@
+{
+	"name": "automattic/jetpack-announcements",
+	"description": "A product-agnostic channel to tell Jetpack users what is new.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.4"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/jetpack-test-environment": "@dev",
+		"automattic/phpunit-select-config": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
+	"autoload": {
+		"files": [
+			"actions.php"
+		],
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-development": "pnpm run build",
+		"build-production": "pnpm run build-production",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		],
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"test-php-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-js-coverage": [
+			"pnpm run test-coverage"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-announcements",
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"textdomain": "jetpack-announcements",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-announcements.php"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-announcements/compare/v${old}...v${new}"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	}
+}
