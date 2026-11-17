@@ -750,7 +750,7 @@ describe( 'getCurrencyObject()', () => {
 	} );
 } );
 
-describe( 'numberFormatCurrency() with current ISO 4217 codes', () => {
+describe( 'currency formatting with current ISO 4217 codes', () => {
 	it.each( [ 'BYN', 'MRU', 'SLE', 'SSP', 'STN', 'VES', 'XCG', 'ZWG' ] )(
 		'does not fall back to USD for %s',
 		currency => {

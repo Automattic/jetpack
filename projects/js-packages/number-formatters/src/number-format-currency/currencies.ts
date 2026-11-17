@@ -398,7 +398,7 @@ export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
 		symbol: '$',
 	},
 	SSP: {
-		symbol: 'SSP',
+		symbol: '£',
 	},
 	STD: {
 		symbol: 'Db',
@@ -506,6 +506,6 @@ export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
 		symbol: '₩',
 	},
 	ZWG: {
-		symbol: 'ZiG',
+		symbol: 'ZWG',
 	},
 };
