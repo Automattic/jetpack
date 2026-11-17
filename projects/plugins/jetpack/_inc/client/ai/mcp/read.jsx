@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { getGroupDomId } from './anchors';
 import { isWriteTool } from './categories';
-import { getOverridesToMatch } from './group-intents';
+import { getOverridesToMatch, isBulkEnabled } from './group-intents';
 import { groupToolsByGroup } from './groups';
 import McpGroupCard, { McpToolSections } from './mcp-group-card';
 import McpToolbar from './mcp-toolbar';
@@ -27,6 +27,7 @@ import useToolSearch from './use-tool-search';
 import {
 	getAccountMcpAbilities,
 	getGroupDescriptors,
+	getRemoteAbilitiesDefaultEnabled,
 	getSiteContextToolIds,
 	getSiteLevelEnabled,
 	getSiteMcpAbilities,
@@ -98,7 +99,7 @@ export default function McpRead( {
 		[ blogId, onUpdate ]
 	);
 
-	const pageAllEnabled = readTools.length > 0 && readTools.every( ( [ , t ] ) => t.enabled );
+	const pageAllEnabled = isBulkEnabled( readTools );
 	const isSavingAny = readTools.some( ( [ id ] ) => savingToolIds.has( id ) );
 
 	const handlePageToggle = useCallback(
@@ -174,7 +175,7 @@ export default function McpRead( {
 								anchorToolId={ groupTools.some( ( [ id ] ) => id === anchor ) ? anchor : null }
 								label={ label }
 								description={ descriptor?.description }
-								allEnabled={ groupTools.every( ( [ , t ] ) => t.enabled ) }
+								allEnabled={ isBulkEnabled( groupTools ) }
 								isSaving={ groupTools.some( ( [ id ] ) => savingToolIds.has( id ) ) }
 								group={ { name: descriptor?.name ?? null, tools: groupTools } }
 								onEnableAll={ handleGroupEnableAll }
@@ -207,7 +208,7 @@ export default function McpRead( {
 					mcpAbilities={ mcpAbilities }
 					blogId={ blogId }
 					remoteAbilities={ remoteAbilities }
-					defaultEnabled={ pageAllEnabled }
+					defaultEnabled={ getRemoteAbilitiesDefaultEnabled( readTools ) }
 					query={ query }
 					anchor={ anchor }
 					savingToolIds={ savingToolIds }

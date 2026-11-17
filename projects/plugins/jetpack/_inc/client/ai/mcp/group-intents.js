@@ -34,3 +34,16 @@ export function getOverridesToMatch( scopedTools, enabled ) {
 	} );
 	return Object.keys( overrides ).length > 0 ? overrides : undefined;
 }
+
+/**
+ * Whether a bulk toggle can disable the tools it controls.
+ *
+ * @param {Array<[string, object]>} scopedTools - Tools in the bulk toggle's scope.
+ * @return {boolean} True when all tools eligible for bulk enabling are on.
+ */
+export function isBulkEnabled( scopedTools ) {
+	return (
+		scopedTools.some( ( [ , tool ] ) => tool.enabled ) &&
+		scopedTools.every( ( [ , tool ] ) => tool.enabled || tool.requires_opt_in === true )
+	);
+}

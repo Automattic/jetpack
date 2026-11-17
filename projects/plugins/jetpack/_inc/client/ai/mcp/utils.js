@@ -132,6 +132,16 @@ export function isRemoteAbilityEnabled(
 }
 
 /**
+ * Default remote access follows any enabled tool in the same category.
+ *
+ * @param {Array<[string, object]>} scopedTools - Tools in the Read or Write category.
+ * @return {boolean} Whether unsaved remote abilities are enabled.
+ */
+export function getRemoteAbilitiesDefaultEnabled( scopedTools ) {
+	return scopedTools.some( ( [ , tool ] ) => tool.enabled );
+}
+
+/**
  * Merge account-level abilities with site-level overrides.
  *
  * @param {Record<string, Object>}  accountAbilities - Account-level tool definitions.
