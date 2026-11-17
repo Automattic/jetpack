@@ -75,7 +75,7 @@ function getLocation( threat: ScanThreat ): string {
 }
 
 /**
- * Whether a threat is a current plugin or theme vulnerability whose report names no fixed version.
+ * Whether a threat is an open plugin or theme vulnerability whose report names no fixed version.
  * Only the free check's `fixedIn` comes from the vulnerability data; Scan sets it from an update fixer.
  *
  * @param threat - The threat.
@@ -86,7 +86,8 @@ function lacksFixedVersion( threat: ScanThreat ): boolean {
 		! threat.filename &&
 		! threat.database &&
 		! threat.fixedIn &&
-		threat.status === 'current' &&
+		threat.status !== 'fixed' &&
+		threat.status !== 'ignored' &&
 		( threat.extension?.type === 'plugins' || threat.extension?.type === 'themes' )
 	);
 }
