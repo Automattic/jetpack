@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Media_Library;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
@@ -84,6 +85,11 @@ class Social_Admin_Page {
 
 		if ( class_exists( Admin_Shell::class ) ) {
 			add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
+		}
+
+		// The default image picker loads the media library from this endpoint.
+		if ( method_exists( Media_Library::class, 'init' ) ) {
+			Media_Library::init();
 		}
 	}
 

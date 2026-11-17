@@ -167,6 +167,20 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The picker's endpoint is hooked without the admin menu, which admin-ajax never builds.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Social_Admin_Page::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_jetpack_media_library' ) );
+	}
+
+	/**
 	 * The wp-build dashboard owns its own enqueue pipeline, so the enqueue step
 	 * never registers a legacy admin script.
 	 */
