@@ -93,6 +93,7 @@ class Page_Cache implements Feature, Has_Deactivate, Has_Data_Sync, Optimization
 	public static function deactivate() {
 		Garbage_Collection::deactivate();
 		$settings_result = true;
+		// No settings file means caching defaults to disabled, so there is nothing to write.
 		if ( file_exists( WP_CONTENT_DIR . '/boost-cache/config.php' ) ) {
 			$settings_result = Boost_Cache_Settings::get_instance()->set( array( 'enabled' => false ) );
 		}
