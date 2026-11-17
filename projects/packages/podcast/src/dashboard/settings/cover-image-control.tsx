@@ -32,24 +32,25 @@ interface OpenLibraryButtonProps {
 	open: () => void;
 	label: string;
 	disabled?: boolean;
-	onLoadError: () => void;
+	onLoad: ( failed: boolean ) => void;
 }
 
 // MediaUpload's `open` needs wp.media, which loads on the first click.
-const OpenLibraryButton = ( { open, label, disabled, onLoadError }: OpenLibraryButtonProps ) => {
+const OpenLibraryButton = ( { open, label, disabled, onLoad }: OpenLibraryButtonProps ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const onClick = useCallback( async () => {
 		setIsLoading( true );
 		try {
 			await loadMediaLibrary();
 		} catch {
-			onLoadError();
+			onLoad( true );
 			return;
 		} finally {
 			setIsLoading( false );
 		}
+		onLoad( false );
 		open();
-	}, [ open, onLoadError ] );
+	}, [ open, onLoad ] );
 
 	return (
 		<Button
@@ -72,6 +73,7 @@ const CoverImageControl = ( {
 	disabled,
 }: CoverImageControlProps ) => {
 	const [ warning, setWarning ] = useState< string | null >( null );
+	const [ loadFailed, setLoadFailed ] = useState( false );
 	const labelId = useId();
 
 	const hasImage = !! imageUrl || imageId > 0;
@@ -101,22 +103,16 @@ const CoverImageControl = ( {
 		[ onSelect ]
 	);
 
-	const onLoadError = useCallback(
-		() =>
-			setWarning( __( 'The media library could not be loaded. Try again.', 'jetpack-podcast' ) ),
-		[]
-	);
-
 	const renderTrigger = useCallback(
 		( { open }: { open: () => void } ) => (
 			<OpenLibraryButton
 				open={ open }
 				label={ triggerLabel }
 				disabled={ disabled }
-				onLoadError={ onLoadError }
+				onLoad={ setLoadFailed }
 			/>
 		),
-		[ disabled, onLoadError, triggerLabel ]
+		[ disabled, triggerLabel ]
 	);
 
 	return (
@@ -151,6 +147,11 @@ const CoverImageControl = ( {
 					</Button>
 				) }
 			</div>
+			{ loadFailed && (
+				<p className="podcast__cover-warning" role="alert">
+					{ __( 'The media library could not be loaded. Try again.', 'jetpack-podcast' ) }
+				</p>
+			) }
 			{ warning && (
 				<p className="podcast__cover-warning" role="alert">
 					{ warning }
