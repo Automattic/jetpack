@@ -211,6 +211,25 @@ class IndexnowEventsTest extends SeoTestCase {
 		);
 	}
 
+	public function test_never_public_content_is_not_announced_as_a_removal() {
+		$id = wp_insert_post(
+			array(
+				'post_title'  => 'Subscriber guide',
+				'post_status' => 'publish',
+				'meta_input'  => array( Content_Gate::META_NEWSLETTER_ACCESS => 'subscribers' ),
+			)
+		);
+		Indexnow_Events::flush_metadata_changes();
+		$this->assertSame( array(), $this->candidates );
+
+		// Standalone writes in one request: the post is eligible only between them.
+		delete_post_meta( $id, Content_Gate::META_NEWSLETTER_ACCESS );
+		update_post_meta( $id, Content_Coverage::META_NOINDEX, true );
+		Indexnow_Events::flush_metadata_changes();
+
+		$this->assertSame( array(), $this->candidates );
+	}
+
 	public function test_standalone_metadata_reconciliation_ignores_noop_writes() {
 		update_option( Indexnow_Client::ENABLED_OPTION, false );
 		$id = wp_insert_post(
