@@ -7,7 +7,7 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react';
+import { useContext, useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
 /*
  * Internal dependencies
@@ -19,7 +19,6 @@ import useRedBubbleQuery from '../../data/use-red-bubble-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
 import resetJetpackOptions from '../../data/utils/reset-jetpack-options';
-import useAdminShellReturn from '../../hooks/use-admin-shell-return';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -35,6 +34,7 @@ import { getModulesManagementUrl, resolveMyJetpackSection } from '../my-jetpack-
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
+import usePageView from './use-page-view';
 
 // Named export for testability: it has its own mount effect (Tracks view event) worth
 // covering without mounting the whole screen.
@@ -121,37 +121,15 @@ export default function MyJetpackScreen() {
 	const { recordEvent } = useAnalytics();
 	const params = useParams();
 	const routeLocation = useLocation();
-	const previousTabRef = useRef( null );
 
-	// useLayoutEffect gets called before useEffect.
-	// We are using it here to ensure the `page_view` event gets triggered first.
 	// Determine current tab
 	const currentTab = resolveMyJetpackSection( params.section );
 
-	const recordPageView = useCallback(
-		previousTab => {
-			recordEvent( 'jetpack_myjetpack_page_view', {
-				...( ! isRedBubbleAlertsError && Object.keys( redBubbleAlerts )?.length
-					? { red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ) }
-					: {} ),
-				tab_name: currentTab,
-				previous_tab: previousTab,
-			} );
-		},
-		[ recordEvent, redBubbleAlerts, isRedBubbleAlertsError, currentTab ]
-	);
-
-	useLayoutEffect( () => {
-		if ( ! isRedBubbleAlertsLoading ) {
-			recordPageView( previousTabRef.current );
-
-			// Update previous tab for next navigation
-			previousTabRef.current = currentTab;
-		}
-	}, [ recordPageView, isRedBubbleAlertsLoading, currentTab ] );
-
-	// As a page load does: it has no previous tab.
-	useAdminShellReturn( useCallback( () => recordPageView( null ), [ recordPageView ] ) );
+	usePageView( currentTab, {
+		redBubbleAlerts,
+		isRedBubbleAlertsLoading,
+		isRedBubbleAlertsError,
+	} );
 
 	const { pathname: routePath, search: routeSearch } = routeLocation;
 	const shouldReload = new URLSearchParams( routeSearch ).get( 'reload' ) === 'true';
