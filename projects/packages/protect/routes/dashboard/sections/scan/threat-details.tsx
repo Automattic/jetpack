@@ -10,7 +10,7 @@ import { FixDeleteConfirmation, getDeleteFixTitle } from './fix-delete-confirmat
 import { FixUpdateConfirmation, getUpdateFixTitle } from './fix-update-confirmation';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import SeverityBadge from './severity-badge';
-import { THREAT_PARAM, useCanIgnore, useCanViewFiles, useSearchParam } from './store';
+import { THREAT_PARAM, useCanIgnore, useCanViewFiles, useScan, useSearchParam } from './store';
 import {
 	deleteThreatRow,
 	fixThreat,
@@ -75,7 +75,25 @@ function getLocation( threat: ScanThreat ): string {
 }
 
 /**
- * What to do about vulnerable software that no release fixes yet, given whether the site uses it.
+ * Whether a threat is an open plugin or theme vulnerability whose report names no fixed version.
+ * Only the free check's `fixedIn` comes from the vulnerability data; Scan sets it from an update fixer.
+ *
+ * @param threat - The threat.
+ * @return Whether it is.
+ */
+function lacksFixedVersion( threat: ScanThreat ): boolean {
+	return (
+		! threat.filename &&
+		! threat.database &&
+		! threat.fixedIn &&
+		threat.status !== 'fixed' &&
+		threat.status !== 'ignored' &&
+		( threat.extension?.type === 'plugins' || threat.extension?.type === 'themes' )
+	);
+}
+
+/**
+ * What to do about vulnerable software whose report names no fixed version, given whether the site uses it.
  *
  * @param type  - The threat's type, from getThreatType().
  * @param state - Whether the plugin or theme is active, inactive, or the active theme's parent.
@@ -84,38 +102,32 @@ function getLocation( threat: ScanThreat ): string {
 function getNoFixAdvice( type: string | null, state?: string | null ): string | null {
 	if ( type === 'core' ) {
 		return __(
-			'No version of WordPress fixes this vulnerability yet. Update as soon as a release fixes it.',
+			'Until a fixed version is confirmed, update WordPress as soon as a new release is available.',
 			'jetpack-protect-pkg'
 		);
 	}
 	if ( type === 'plugins' ) {
 		return state === 'active'
 			? __(
-					'No version of this plugin fixes this vulnerability yet. Deactivate and delete it, or replace it with another plugin, until an update fixes it.',
+					'Until a fixed version is confirmed, deactivate and delete this plugin, or replace it with another one.',
 					'jetpack-protect-pkg'
 				)
-			: __(
-					'No version of this plugin fixes this vulnerability yet. Delete it until an update fixes it.',
-					'jetpack-protect-pkg'
-				);
+			: __( 'Until a fixed version is confirmed, delete this plugin.', 'jetpack-protect-pkg' );
 	}
 	if ( type === 'themes' && state === 'active' ) {
 		return __(
-			'No version of this theme fixes this vulnerability yet. Switch to another theme and delete this one until an update fixes it.',
+			'Until a fixed version is confirmed, switch to another theme and delete this one.',
 			'jetpack-protect-pkg'
 		);
 	}
 	if ( type === 'themes' && state === 'parent' ) {
 		return __(
-			'No version of this theme fixes this vulnerability yet. Your active theme is built on it, so switch to a theme that isn’t, then delete this one until an update fixes it.',
+			'Your active theme is built on this one. Until a fixed version is confirmed, switch to a theme that isn’t, then delete this one.',
 			'jetpack-protect-pkg'
 		);
 	}
 	if ( type === 'themes' ) {
-		return __(
-			'No version of this theme fixes this vulnerability yet. Delete it until an update fixes it.',
-			'jetpack-protect-pkg'
-		);
+		return __( 'Until a fixed version is confirmed, delete this theme.', 'jetpack-protect-pkg' );
 	}
 	return null;
 }
@@ -553,6 +565,7 @@ export default function ThreatDetails( {
 	const context = threat.context ?? [];
 	const { row, rowError } = useThreatRow( threat, canAct );
 	const canViewFile = useCanViewFiles();
+	const explainNoFix = ! useScan()?.hasPlan && lacksFixedVersion( threat );
 
 	return (
 		<div className="jp-protect-threat-details">
@@ -666,6 +679,14 @@ export default function ThreatDetails( {
 									) }
 						</Text>
 					) }
+					{ explainNoFix && (
+						<Text variant="body-md" className="jp-protect-card__muted">
+							{ __(
+								'No fixed version has been reported, so Jetpack treats your version as affected.',
+								'jetpack-protect-pkg'
+							) }
+						</Text>
+					) }
 				</Section>
 			) }
 
@@ -673,6 +694,19 @@ export default function ThreatDetails( {
 				<Text variant="body-md" className="jp-protect-card__muted">
 					{ getResolution( threat, !! row?.canDelete ) }
 				</Text>
+				{ explainNoFix && (
+					<Text variant="body-md" className="jp-protect-card__muted">
+						{ threat.extension?.type === 'themes'
+							? __(
+									'If you believe this is a false positive, contact the theme’s developer and share the vulnerability details with them so they can address it.',
+									'jetpack-protect-pkg'
+								)
+							: __(
+									'If you believe this is a false positive, contact the plugin’s developer and share the vulnerability details with them so they can address it.',
+									'jetpack-protect-pkg'
+								) }
+					</Text>
+				) }
 				<SoftwareActions threat={ threat } canAct={ canAct } />
 			</Section>
 			{ canAct && <ThreatFooter threat={ threat } /> }
