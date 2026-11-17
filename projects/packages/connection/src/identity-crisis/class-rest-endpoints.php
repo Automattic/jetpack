@@ -248,14 +248,6 @@ class REST_Endpoints {
 			return $result;
 		}
 
-		if ( ! $result ) {
-			return new WP_Error(
-				'start_fresh_registration_failed',
-				esc_html__( 'Jetpack could not register this site with WordPress.com.', 'jetpack-connection' ),
-				array( 'status' => 500 )
-			);
-		}
-
 		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
 
 		/**

@@ -245,10 +245,11 @@ class REST_Endpoints_Test extends TestCase {
 	 *
 	 * @dataProvider provide_invalid_connection_urls
 	 *
-	 * @param mixed $filtered What the `jetpack_idc_authorization_url` filter returns.
+	 * @param mixed  $filtered      What the `jetpack_idc_authorization_url` filter returns.
+	 * @param string $expected_code Error code the endpoint returns.
 	 */
 	#[DataProvider( 'provide_invalid_connection_urls' )]
-	public function test_start_fresh_invalid_connection_url( $filtered ) {
+	public function test_start_fresh_invalid_connection_url( $filtered, $expected_code ) {
 		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
 		$replace_url = function () use ( $filtered ) {
 			return $filtered;
@@ -268,7 +269,7 @@ class REST_Endpoints_Test extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
 
 		$this->assertTrue( $response->is_error() );
-		$this->assertSame( 'start_fresh_missing_connection_url', $response->get_data()['code'] );
+		$this->assertSame( $expected_code, $response->get_data()['code'] );
 	}
 
 	/**
@@ -278,8 +279,9 @@ class REST_Endpoints_Test extends TestCase {
 	 */
 	public static function provide_invalid_connection_urls() {
 		return array(
-			'no URL'        => array( new \WP_REST_Response( false ) ),
-			'not a web URL' => array( 'false&from=idc-notice' ),
+			'no URL'        => array( new \WP_REST_Response( false ), 'start_fresh_missing_connection_url' ),
+			'not a web URL' => array( 'false&from=idc-notice', 'start_fresh_missing_connection_url' ),
+			'filter error'  => array( new \WP_Error( 'filter_error' ), 'filter_error' ),
 		);
 	}
 
