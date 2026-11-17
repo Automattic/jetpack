@@ -269,19 +269,18 @@ The pieces the new Safe Mode (identity crisis) screen is built from. They render
 
 - `useIdentityCrisisActions( { redirectUri } )` calls the `migrate`, `start-fresh` and `confirm-safe-mode` endpoints through `@automattic/jetpack-api`, whose root and nonce the connection store sets from the initial state. It returns those three actions plus `busyAction`, `isMigrated`, `error` (`{ action, cause }`) and `clearError()`, for a host that moves the user to another step after a failure. It never navigates or tracks: `startFresh()` resolves with the connect URL for the host to open, or fails with a `server` error when the response isn't an `http(s)` URL. It and `confirmSafeMode()` stay busy after success, because the host is expected to leave or reload the page, so no button can be clicked in the meantime.
 - `IdentityCrisisLayout` holds the logo (an image URL or element, Jetpack's by default), the "Safe Mode" label, its children and a `hostActions` slot for actions only that host offers.
-- `IdentityCrisisOptions` lays options out side by side with "or" between them, and stacks them when its own container is narrow, such as in the My Jetpack window.
-- `IdentityCrisisAddresses` shows the address WordPress.com has on record and this site's, joined by an arrow (`variant="move"`) or a dash (`variant="separate"`). Pass it to an option's `visual` prop.
-- `IdentityCrisisOption`, `IdentityCrisisMigrated`, `IdentityCrisisNonAdmin` and `IdentityCrisisErrorNotice` are the option, the state after Migrate, the view for users who cannot resolve Safe Mode, and a failure message that names the cause. Give the notice an `action` to show only that action's failure, such as under its option.
+- `IdentityCrisisAddresses` shows the address WordPress.com has on record and this site's, joined by an arrow (`variant="move"`) or a dash (`variant="separate"`). It shows what an action does to the two addresses.
+- `IdentityCrisisMigrated`, `IdentityCrisisNonAdmin` and `IdentityCrisisErrorNotice` are the state after Migrate, the view for users who cannot resolve Safe Mode, and a failure message that names the cause. Give the notice an `action` to show only that action's failure, such as next to its button.
 
 The text and support link overrides that plugins send through the `jetpack_idc_consumers` filter don't apply: every plugin gets the same wording. A host can still pass the plugin's logo to `IdentityCrisisLayout`.
 
 ### Basic Usage
 ```jsx
+import { Button } from '@wordpress/ui';
 import {
 	IdentityCrisisErrorNotice,
 	IdentityCrisisLayout,
 	IdentityCrisisMigrated,
-	IdentityCrisisOption,
 	useIdentityCrisisActions,
 } from '@automattic/jetpack-connection';
 
@@ -291,15 +290,12 @@ const { migrate, isMigrated, busyAction, error } = useIdentityCrisisActions();
 	{ isMigrated ? (
 		<IdentityCrisisMigrated wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
 	) : (
-		<IdentityCrisisOption
-			title={ title }
-			description={ description }
-			buttonLabel={ label }
-			isBusy={ busyAction === 'migrate' }
-			disabled={ !! busyAction }
-			onClick={ migrate }
-			error={ <IdentityCrisisErrorNotice error={ error } action="migrate" /> }
-		/>
+		<>
+			<IdentityCrisisErrorNotice error={ error } action="migrate" />
+			<Button loading={ busyAction === 'migrate' } disabled={ !! busyAction } onClick={ migrate }>
+				{ label }
+			</Button>
+		</>
 	) }
 </IdentityCrisisLayout>
 ```

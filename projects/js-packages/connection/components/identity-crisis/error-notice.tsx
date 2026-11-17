@@ -52,7 +52,7 @@ function getIdentityCrisisErrorMessage( cause: IdentityCrisisErrorCause ): strin
 
 interface IdentityCrisisErrorNoticeProps {
 	error: IdentityCrisisError | null;
-	/** Show only a failure of this action, e.g. under that action's option. Omit to show any. */
+	/** Show only a failure of this action, e.g. next to that action's button. Omit to show any. */
 	action?: IdentityCrisisAction;
 }
 

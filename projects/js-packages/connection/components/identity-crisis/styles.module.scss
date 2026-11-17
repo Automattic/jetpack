@@ -7,42 +7,6 @@
 	max-inline-size: 70ch;
 }
 
-// A container query: the My Jetpack window is narrower than the screen.
-.options {
-	container-type: inline-size;
-}
-
-.options-row {
-	flex-direction: column;
-}
-
-.options-separator {
-	align-self: center;
-}
-
-@container (min-width: 640px) {
-
-	.options-row {
-		flex-direction: row;
-	}
-
-	.options-row > .option {
-		flex: 1 1 0;
-		min-inline-size: 0;
-	}
-}
-
-// Fills the card's height so the button below can sit at the bottom.
-.option-content {
-	flex-grow: 1;
-}
-
-// Pinned to the bottom so buttons line up across options of different heights.
-.option-button {
-	margin-block-start: auto;
-	inline-size: 100%;
-}
-
 .address {
 	inline-size: 100%;
 	box-sizing: border-box;

@@ -7,7 +7,7 @@ import type { IdentityCrisisAddressesProps } from './types';
 import type { ReactNode } from 'react';
 
 /**
- * The address WordPress.com has on record and this site's, joined by what the option does to them.
+ * The address WordPress.com has on record and this site's, joined by what an action does to them.
  *
  * @param {IdentityCrisisAddressesProps} props - Component props.
  * @return {ReactNode} The diagram.
