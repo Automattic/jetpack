@@ -10,7 +10,6 @@
 
 namespace Automattic\Jetpack\Publicize\Abilities;
 
-use Automattic\Jetpack\Publicize\Publicize_Base;
 use Automattic\Jetpack\Publicize\Publicize_Utils;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use WP_Error;
@@ -436,13 +435,7 @@ class Social_Abilities extends Registrar {
 	 * @return bool
 	 */
 	private static function post_type_is_shareable( string $post_type ): bool {
-		global $publicize;
-
-		if ( $publicize instanceof Publicize_Base ) {
-			return $publicize->post_type_is_publicizeable( $post_type );
-		}
-
-		// Same rule as Publicize_Base::post_type_is_publicizeable(), for when Publicize is not set up.
+		// Same rule as Publicize_Base::post_type_is_publicizeable(); reading the global $publicize here widens Phan's type for it.
 		return 'post' === $post_type || post_type_supports( $post_type, 'publicize' );
 	}
 
