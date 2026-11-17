@@ -32,7 +32,8 @@ describe( 'renderCustomContent', () => {
 		);
 
 		expect( screen.getByText( 'shop.example' ).tagName ).toBe( 'STRONG' );
-		expect( screen.getByRole( 'link', { name: 'Help' } ) ).toHaveAttribute(
+		// The accessible name carries the new-tab marker the external-link icon stands for.
+		expect( screen.getByRole( 'link', { name: /^Help.*new tab/ } ) ).toHaveAttribute(
 			'href',
 			'https://example.com/help'
 		);

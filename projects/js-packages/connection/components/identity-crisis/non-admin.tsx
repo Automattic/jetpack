@@ -17,14 +17,14 @@ export default function IdentityCrisisNonAdmin( {
 }: IdentityCrisisNonAdminProps ): ReactNode {
 	return (
 		<Stack direction="column" gap="md">
-			<Text variant="heading-md" render={ <h2 /> }>
+			<Text variant="heading-xl" render={ <h2 /> }>
 				{ renderCustomContent(
 					customContent.nonAdminTitle,
 					__( 'Jetpack is in Safe Mode', 'jetpack-connection-js' ),
 					customContent
 				) }
 			</Text>
-			<Text variant="body-md" render={ <p /> } className={ styles.prose }>
+			<Text variant="body-lg" render={ <p /> } className={ styles.prose }>
 				{ renderCustomContent(
 					customContent.nonAdminBodyText,
 					createInterpolateElement(

@@ -1,5 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { useCallback, useState } from 'react';
+import { isHttpUrl } from '../../helpers/is-http-url';
 import { getIdentityCrisisErrorCause } from './get-error-cause';
 import type {
 	IdentityCrisisAction,
@@ -25,10 +26,10 @@ export default function useIdentityCrisisActions( {
 	const [ isMigrated, setIsMigrated ] = useState( false );
 
 	const run = useCallback(
-		async (
+		async < T >(
 			action: IdentityCrisisAction,
-			request: () => Promise< unknown >
-		): Promise< { response: unknown } | null > => {
+			request: () => Promise< T >
+		): Promise< { response: T } | null > => {
 			setBusyAction( action );
 			setError( null );
 			try {
@@ -53,23 +54,23 @@ export default function useIdentityCrisisActions( {
 	}, [ run ] );
 
 	const startFresh = useCallback( async () => {
-		const result = await run( 'start-fresh', () => restApi.startIDCFresh( redirectUri ) );
-		if ( ! result ) {
-			return null;
-		}
-		if ( typeof result.response !== 'string' || ! result.response ) {
-			setError( { action: 'start-fresh', cause: 'server' } );
-			setBusyAction( null );
-			return null;
-		}
-		return result.response;
+		const result = await run( 'start-fresh', async () => {
+			const url: unknown = await restApi.startIDCFresh( redirectUri );
+			// The host navigates to it, so anything but a web URL counts as a server failure.
+			if ( ! isHttpUrl( url ) ) {
+				throw new Error( 'Start fresh returned no connect URL' );
+			}
+			return url;
+		} );
+		return result ? result.response : null;
 	}, [ run, redirectUri ] );
 
 	const confirmSafeMode = useCallback( async () => {
 		const result = await run( 'confirm-safe-mode', () => restApi.confirmIDCSafeMode() );
-		setBusyAction( null );
 		return Boolean( result );
 	}, [ run ] );
 
-	return { migrate, startFresh, confirmSafeMode, busyAction, error, isMigrated };
+	const clearError = useCallback( () => setError( null ), [] );
+
+	return { migrate, startFresh, confirmSafeMode, clearError, busyAction, error, isMigrated };
 }

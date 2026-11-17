@@ -50,7 +50,7 @@ export interface IdentityCrisisOptionProps {
 	isBusy?: boolean;
 	disabled?: boolean;
 	isPrimary?: boolean;
-	/** Shown above the button, e.g. an `IdentityCrisisErrorNotice` for this option's action. */
+	/** Shown above the button, e.g. `<IdentityCrisisErrorNotice error={ error } action="migrate" />`. */
 	error?: ReactNode;
 }
 

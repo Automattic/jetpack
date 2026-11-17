@@ -25,7 +25,7 @@ export default function IdentityCrisisMigrated( {
 
 	return (
 		<Stack direction="column" gap="md" align="flex-start" role="status">
-			<Text variant="heading-md" render={ <h2 /> }>
+			<Text variant="heading-xl" render={ <h2 /> }>
 				{ renderCustomContent(
 					customContent.migratedTitle,
 					sprintf(
@@ -36,7 +36,7 @@ export default function IdentityCrisisMigrated( {
 					customContent
 				) }
 			</Text>
-			<Text variant="body-md" render={ <p /> } className={ styles.prose }>
+			<Text variant="body-lg" render={ <p /> } className={ styles.prose }>
 				{ renderCustomContent(
 					customContent.migratedBodyText,
 					createInterpolateElement(

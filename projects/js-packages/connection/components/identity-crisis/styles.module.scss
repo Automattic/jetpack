@@ -4,7 +4,7 @@
 }
 
 .label {
-	font-weight: 600;
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
 .prose {
@@ -24,7 +24,7 @@
 
 .options-separator {
 	align-self: center;
-	font-weight: 600;
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
 @container (min-width: 640px) {
@@ -68,7 +68,7 @@
 	padding: var(--wpds-dimension-padding-md);
 	border-radius: var(--wpds-border-radius-lg);
 	background: var(--wpds-color-background-surface-neutral-weak);
-	font-weight: 600;
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 	text-align: center;
 	overflow-wrap: anywhere;
 }

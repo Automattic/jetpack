@@ -1,5 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
+import { Link } from '@wordpress/ui';
+import { isHttpUrl } from '../../helpers/is-http-url';
 import type { IdentityCrisisCustomContent } from './types';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -12,9 +14,7 @@ import type { ReactElement, ReactNode } from 'react';
 export function getSupportUrl( customContent: IdentityCrisisCustomContent = {} ): string {
 	// Widened: it comes from a PHP filter, so the declared string type is not guaranteed.
 	const supportURL: unknown = customContent.supportURL;
-	return typeof supportURL === 'string' && /^https?:\/\//i.test( supportURL )
-		? supportURL
-		: getRedirectUrl( 'jetpack-support-safe-mode' );
+	return isHttpUrl( supportURL ) ? supportURL : getRedirectUrl( 'jetpack-support-safe-mode' );
 }
 
 /**
@@ -41,9 +41,7 @@ export function renderCustomContent(
 			em: <em />,
 			strong: <strong />,
 			hostname: <strong />,
-			safeModeLink: (
-				<a href={ getSupportUrl( customContent ) } target="_blank" rel="noopener noreferrer" />
-			),
+			safeModeLink: <Link href={ getSupportUrl( customContent ) } openInNewTab />,
 			...extraTags,
 		} );
 	} catch {

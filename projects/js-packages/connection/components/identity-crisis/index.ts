@@ -4,8 +4,5 @@ export { default as IdentityCrisisOptions } from './options';
 export { default as IdentityCrisisAddresses } from './addresses';
 export { default as IdentityCrisisMigrated } from './migrated';
 export { default as IdentityCrisisNonAdmin } from './non-admin';
-export {
-	default as IdentityCrisisErrorNotice,
-	getIdentityCrisisErrorMessage,
-} from './error-notice';
+export { default as IdentityCrisisErrorNotice } from './error-notice';
 export * from './types';

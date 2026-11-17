@@ -4,6 +4,7 @@ import { Link, Notice } from '@wordpress/ui';
 import { getSupportUrl } from './custom-content';
 import type { IdentityCrisisCustomContent } from './types';
 import type {
+	IdentityCrisisAction,
 	IdentityCrisisError,
 	IdentityCrisisErrorCause,
 } from '../../hooks/use-identity-crisis-actions/types';
@@ -15,7 +16,7 @@ import type { ReactNode } from 'react';
  * @param cause - Why it failed.
  * @return The message.
  */
-export function getIdentityCrisisErrorMessage( cause: IdentityCrisisErrorCause ): string {
+function getIdentityCrisisErrorMessage( cause: IdentityCrisisErrorCause ): string {
 	switch ( cause ) {
 		case 'offline':
 			return __(
@@ -52,6 +53,8 @@ export function getIdentityCrisisErrorMessage( cause: IdentityCrisisErrorCause )
 
 interface IdentityCrisisErrorNoticeProps {
 	error: IdentityCrisisError | null;
+	/** Show only a failure of this action, e.g. under that action's option. Omit to show any. */
+	action?: IdentityCrisisAction;
 	customContent?: IdentityCrisisCustomContent;
 }
 
@@ -59,13 +62,14 @@ interface IdentityCrisisErrorNoticeProps {
  * The failure of a Safe Mode request, with a link to support.
  *
  * @param {IdentityCrisisErrorNoticeProps} props - Component props.
- * @return {ReactNode} The notice, or null without an error.
+ * @return {ReactNode} The notice, or null without a matching error.
  */
 export default function IdentityCrisisErrorNotice( {
 	error,
+	action,
 	customContent = {},
 }: IdentityCrisisErrorNoticeProps ): ReactNode {
-	if ( ! error ) {
+	if ( ! error || ( action && error.action !== action ) ) {
 		return null;
 	}
 

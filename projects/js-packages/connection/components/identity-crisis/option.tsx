@@ -22,10 +22,10 @@ export default function IdentityCrisisOption( {
 }: IdentityCrisisOptionProps ): ReactNode {
 	return (
 		<div className={ styles.option }>
-			<Text variant="heading-lg" render={ <h3 /> }>
+			<Text variant="heading-xl" render={ <h3 /> }>
 				{ title }
 			</Text>
-			<Text variant="body-md" render={ <div /> }>
+			<Text variant="body-lg" render={ <div /> }>
 				{ description }
 			</Text>
 			{ visual }

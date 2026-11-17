@@ -99,17 +99,31 @@ describe( 'useIdentityCrisisActions', () => {
 		expect( result.current.busyAction ).toBe( 'start-fresh' );
 	} );
 
-	it( 'treats a Start fresh response without a URL as a server failure', async () => {
-		startIDCFresh.mockResolvedValue( false );
+	it( 'stays busy after Stay in Safe Mode succeeds, while the host reloads', async () => {
+		confirmIDCSafeMode.mockResolvedValue( {} );
 		const { result } = renderHook( () => useIdentityCrisisActions() );
 
 		await act( async () => {
-			await expect( result.current.startFresh() ).resolves.toBeNull();
+			await expect( result.current.confirmSafeMode() ).resolves.toBe( true );
 		} );
 
-		expect( result.current.error ).toEqual( { action: 'start-fresh', cause: 'server' } );
-		expect( result.current.busyAction ).toBeNull();
+		expect( result.current.busyAction ).toBe( 'confirm-safe-mode' );
 	} );
+
+	it.each( [ false, 'javascript:alert(1)' ] )(
+		'treats a Start fresh response of %j as a server failure',
+		async response => {
+			startIDCFresh.mockResolvedValue( response );
+			const { result } = renderHook( () => useIdentityCrisisActions() );
+
+			await act( async () => {
+				await expect( result.current.startFresh() ).resolves.toBeNull();
+			} );
+
+			expect( result.current.error ).toEqual( { action: 'start-fresh', cause: 'server' } );
+			expect( result.current.busyAction ).toBeNull();
+		}
+	);
 
 	it( 'clears the previous error when an action is retried', async () => {
 		confirmIDCSafeMode
@@ -122,6 +136,18 @@ describe( 'useIdentityCrisisActions', () => {
 
 		await act( () => result.current.confirmSafeMode() );
 		expect( result.current.error ).toBeNull();
+	} );
+
+	it( 'clears the error on request, without retrying', async () => {
+		migrateIDC.mockRejectedValue( new clientErrors.FetchNetworkError() );
+		const { result } = renderHook( () => useIdentityCrisisActions() );
+
+		await act( () => result.current.migrate() );
+		expect( result.current.error ).not.toBeNull();
+
+		act( () => result.current.clearError() );
+		expect( result.current.error ).toBeNull();
+		expect( migrateIDC ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
 

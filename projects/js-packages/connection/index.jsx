@@ -95,7 +95,6 @@ export { default as useProductCheckoutWorkflow } from './hooks/use-product-check
 export { default as useRestoreConnection } from './hooks/use-restore-connection';
 export { default as useConnectionErrorNotice } from './hooks/use-connection-error-notice';
 export { default as useIdentityCrisisActions } from './hooks/use-identity-crisis-actions';
-export { getIdentityCrisisErrorCause } from './hooks/use-identity-crisis-actions/get-error-cause';
 export * from './hooks/use-identity-crisis-actions/types.ts';
 export {
 	isOtherUsersConnectionError,
