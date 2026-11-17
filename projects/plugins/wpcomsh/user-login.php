@@ -94,10 +94,6 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 /**
  * Performs the compare-and-set, with every state read taken while the caller holds the lock.
  *
- * Reading before the lock is what produced wrong outcomes under concurrency: a second worker
- * renaming to the same login saw its own user as the holder and reported `login_taken`, and a
- * lost compare-and-set reported `update_failed` with an empty database error.
- *
  * @since $$next-version$$
  *
  * @param int    $user_id        ID of the user to rename.
@@ -122,14 +118,9 @@ function wpcomsh_write_user_login( $user_id, $expected_login, $new_login ) {
 		return WPCOMSH_USER_LOGIN_SUPERSEDED;
 	}
 
-	$holder = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->users WHERE user_login = %s", $new_login ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	$holder = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->users WHERE user_login = %s AND ID <> %d", $new_login, $user_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 	if ( null !== $holder ) {
-		// Our own row holding it means another worker applied this same rename.
-		if ( (int) $holder === $user_id ) {
-			return WPCOMSH_USER_LOGIN_ALREADY_APPLIED;
-		}
-
 		return new WP_Error(
 			'login_taken',
 			sprintf( 'User %d on this site already holds the login %s.', (int) $holder, $new_login ),

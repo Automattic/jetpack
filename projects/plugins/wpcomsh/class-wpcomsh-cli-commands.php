@@ -2262,7 +2262,7 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
  *
  * ## EXAMPLES
  *
- *     wp wpcomsh user rename-login 3 --from=ugurlualie72eb35fcd --to=agurlulu
+ *     wp wpcomsh user rename-login 3 --from=oldlogin --to=newlogin
  *
  * @param array $args       Positional arguments.
  * @param array $assoc_args Associative arguments.

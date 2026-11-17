@@ -55,12 +55,12 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 	}
 
 	public function test_renames_the_login() {
-		$user_id = $this->create_user( 'ugurlualie72eb35fcd' );
+		$user_id = $this->create_user( 'oldlogin' );
 
-		$result = wpcomsh_rename_user_login( $user_id, 'ugurlualie72eb35fcd', 'agurlulu' );
+		$result = wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
 
 		$this->assertSame( WPCOMSH_USER_LOGIN_RENAMED, $result );
-		$this->assertSame( 'agurlulu', $this->stored_login( $user_id ) );
+		$this->assertSame( 'newlogin', $this->stored_login( $user_id ) );
 	}
 
 	/**
