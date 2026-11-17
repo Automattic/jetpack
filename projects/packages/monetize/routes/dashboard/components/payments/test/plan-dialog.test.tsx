@@ -57,4 +57,14 @@ describe( 'PlanDialog', () => {
 
 		expect( screen.queryByText( /existing subscribers/ ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'leaves a cleared price blank and asks for the minimum', async () => {
+		openDialog( null );
+		const amount = screen.getByRole( 'spinbutton', { name: 'Amount' } );
+
+		await userEvent.clear( amount );
+
+		expect( amount ).toHaveValue( null );
+		expect( screen.getByText( 'Enter a price of at least $0.50.' ) ).toBeVisible();
+	} );
 } );

@@ -41,6 +41,46 @@ type Props = {
 
 const toAmount = ( value: string ) => Number( value ) || 0;
 
+type PriceInputProps = {
+	label: string;
+	value: number;
+	onChange: ( value: number ) => void;
+	description?: string;
+};
+
+/**
+ * A price field that keeps what the user typed, so clearing it leaves it blank rather than 0.
+ *
+ * @param props             - Component props.
+ * @param props.label       - The field's label.
+ * @param props.value       - The starting price.
+ * @param props.onChange    - Called with the price, 0 when blank.
+ * @param props.description - Help or error text.
+ * @return The field.
+ */
+function PriceInput( { label, value, onChange, description }: PriceInputProps ) {
+	const [ text, setText ] = useState( () => String( value ) );
+	const onValueChange = useCallback(
+		( next: string ) => {
+			setText( next );
+			onChange( toAmount( next ) );
+		},
+		[ onChange ]
+	);
+
+	return (
+		<InputControl
+			type="number"
+			min={ 0 }
+			step="any"
+			label={ label }
+			value={ text }
+			onValueChange={ onValueChange }
+			description={ description }
+		/>
+	);
+}
+
 /**
  * Adds or edits a payment plan, including a newsletter tier's monthly and annual prices.
  *
@@ -117,12 +157,9 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 		( item: { value: string | null } | null ) => item?.value && update( { currency: item.value } ),
 		[ update ]
 	);
-	const onPriceChange = useCallback(
-		( value: string ) => update( { price: toAmount( value ) } ),
-		[ update ]
-	);
+	const onPriceChange = useCallback( ( price: number ) => update( { price } ), [ update ] );
 	const onAnnualPriceChange = useCallback(
-		( value: string ) => update( { annualPrice: toAmount( value ) } ),
+		( annualPrice: number ) => update( { annualPrice } ),
 		[ update ]
 	);
 	const onWelcomeChange = useCallback(
@@ -266,27 +303,21 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 							disabled={ currencyItems.length < 2 }
 						/>
 						<div className="jp-monetize-payments__prices">
-							<InputControl
-								type="number"
-								min={ 0 }
-								step="any"
+							<PriceInput
 								label={
 									form.isTier
 										? __( 'Monthly price', 'jetpack-monetize' )
 										: __( 'Amount', 'jetpack-monetize' )
 								}
-								value={ String( form.price ) }
-								onValueChange={ onPriceChange }
+								value={ form.price }
+								onChange={ onPriceChange }
 								description={ errors.includes( 'price' ) ? priceError : undefined }
 							/>
 							{ form.isTier && (
-								<InputControl
-									type="number"
-									min={ 0 }
-									step="any"
+								<PriceInput
 									label={ __( 'Annual price', 'jetpack-monetize' ) }
-									value={ String( form.annualPrice ) }
-									onValueChange={ onAnnualPriceChange }
+									value={ form.annualPrice }
+									onChange={ onAnnualPriceChange }
 									description={
 										errors.includes( 'annualPrice' )
 											? __(
