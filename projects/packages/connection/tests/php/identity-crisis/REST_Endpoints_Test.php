@@ -241,6 +241,49 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * A filtered connection URL that isn't a web address comes back as an error, not as somewhere to send the browser.
+	 *
+	 * @dataProvider provide_invalid_connection_urls
+	 *
+	 * @param mixed $filtered What the `jetpack_idc_authorization_url` filter returns.
+	 */
+	#[DataProvider( 'provide_invalid_connection_urls' )]
+	public function test_start_fresh_invalid_connection_url( $filtered ) {
+		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
+		$replace_url = function () use ( $filtered ) {
+			return $filtered;
+		};
+		add_filter( 'jetpack_idc_authorization_url', $replace_url );
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'jetpack_disconnect' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/start-fresh' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response = $this->server->dispatch( $request );
+
+		$user->remove_cap( 'jetpack_disconnect' );
+		remove_filter( 'jetpack_idc_authorization_url', $replace_url );
+		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
+
+		$this->assertTrue( $response->is_error() );
+		$this->assertSame( 'start_fresh_missing_connection_url', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Filter results that aren't a web address.
+	 *
+	 * @return array
+	 */
+	public static function provide_invalid_connection_urls() {
+		return array(
+			'no URL'        => array( new \WP_REST_Response( false ) ),
+			'not a web URL' => array( 'false&from=idc-notice' ),
+		);
+	}
+
+	/**
 	 * Repeating an action that already took effect, such as a retry after a dropped response, still succeeds.
 	 *
 	 * @dataProvider provide_already_applied_actions
