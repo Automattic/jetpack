@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import { act, renderHook } from '@testing-library/react';
 
 const migrateIDC = jest.fn< () => Promise< unknown > >();
-const startIDCFresh = jest.fn< ( redirectUri?: string ) => Promise< unknown > >();
+const startIDCFresh = jest.fn< ( redirectUri?: string, from?: string ) => Promise< unknown > >();
 const confirmIDCSafeMode = jest.fn< () => Promise< unknown > >();
 const errorClass = ( name: string ) =>
 	class extends Error {
@@ -112,7 +112,10 @@ describe( 'useIdentityCrisisActions', () => {
 	it( 'returns the connect URL from Start fresh and stays busy while the host leaves', async () => {
 		startIDCFresh.mockResolvedValue( 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
 		const { result } = renderHook( () =>
-			useIdentityCrisisActions( { redirectUri: 'admin.php?page=jetpack' } )
+			useIdentityCrisisActions( {
+				redirectUri: 'admin.php?page=jetpack',
+				from: 'connection_safe_mode_notice',
+			} )
 		);
 
 		await act( async () => {
@@ -121,7 +124,10 @@ describe( 'useIdentityCrisisActions', () => {
 			);
 		} );
 
-		expect( startIDCFresh ).toHaveBeenCalledWith( 'admin.php?page=jetpack' );
+		expect( startIDCFresh ).toHaveBeenCalledWith(
+			'admin.php?page=jetpack',
+			'connection_safe_mode_notice'
+		);
 		expect( result.current.busyAction ).toBe( 'start-fresh' );
 	} );
 

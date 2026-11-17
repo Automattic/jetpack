@@ -24,6 +24,13 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 class REST_Endpoints_Test extends TestCase {
 
 	/**
+	 * Body of the last `jetpack.register` request intercept_register_request() answered.
+	 *
+	 * @var array|null
+	 */
+	private $register_body;
+
+	/**
 	 * REST Server object.
 	 *
 	 * @var WP_REST_Server
@@ -90,6 +97,15 @@ class REST_Endpoints_Test extends TestCase {
 
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		$this->reset_connection_status();
+
+		// Static on Manager, so a `from` would otherwise reach every later registration in the run.
+		$extra_params = new \ReflectionProperty( Manager::class, 'extra_register_params' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$extra_params->setAccessible( true );
+		}
+		$extra_params->setValue( null, array() );
+		$this->register_body = null;
 	}
 
 	/**
@@ -193,16 +209,26 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * The Safe Mode screens follow the bare URL string this returns, so the redirect must come back inside it.
+	 *
+	 * @dataProvider provide_start_fresh_from
+	 *
+	 * @param string|null $from The `from` sent, or null for none.
 	 */
-	public function test_start_fresh_returns_authorize_url() {
+	#[DataProvider( 'provide_start_fresh_from' )]
+	public function test_start_fresh_returns_authorize_url( $from ) {
 		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
 
 		$user = wp_get_current_user();
 		$user->add_cap( 'jetpack_disconnect' );
 
+		$body = array( 'redirect_uri' => 'admin.php?page=my-jetpack' );
+		if ( null !== $from ) {
+			$body['from'] = $from;
+		}
+
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/start-fresh' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'redirect_uri' => 'admin.php?page=my-jetpack' ), JSON_UNESCAPED_SLASHES ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -218,6 +244,21 @@ class REST_Endpoints_Test extends TestCase {
 		parse_str( (string) wp_parse_url( $data, PHP_URL_QUERY ), $authorize_query );
 		parse_str( (string) wp_parse_url( $authorize_query['redirect_uri'], PHP_URL_QUERY ), $webhook_query );
 		$this->assertSame( admin_url( 'admin.php?page=my-jetpack' ), $webhook_query['redirect'] );
+
+		$this->assertSame( $from, $authorize_query['from'] ?? null );
+		$this->assertSame( $from, $this->register_body['from'] ?? null );
+	}
+
+	/**
+	 * Data provider for test_start_fresh_returns_authorize_url.
+	 *
+	 * @return array
+	 */
+	public static function provide_start_fresh_from() {
+		return array(
+			'with from'    => array( 'connection_safe_mode_notice' ),
+			'without from' => array( null ),
+		);
 	}
 
 	/**
@@ -292,6 +333,8 @@ class REST_Endpoints_Test extends TestCase {
 		if ( ! str_contains( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
+
+		$this->register_body = $args['body'];
 
 		return array(
 			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
