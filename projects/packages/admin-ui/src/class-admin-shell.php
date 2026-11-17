@@ -413,17 +413,33 @@ class Admin_Shell {
 			return 403;
 		}
 
+		$snapshot = self::hook_snapshot();
 		call_user_func( $members[ $slug ]['load'] );
 		self::run_page_init( $members[ $slug ] );
+		$own         = self::added_keys( $snapshot );
 		$hook_suffix = self::screen_id( $slug );
 		set_current_screen( $hook_suffix );
 		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- One script tag per handle, so the client can skip what the host already has.
+
+		// What the media library's listeners hook (VideoPress's templates, for one) belongs to the member that opens it.
+		$media_start = static function () use ( &$snapshot ) {
+			$snapshot = self::hook_snapshot();
+		};
+		$media_end   = static function () use ( &$snapshot, &$own ) {
+			foreach ( self::added_keys( $snapshot ) as $hook => $keys ) {
+				$own[ $hook ] += $keys;
+			}
+		};
+		add_action( 'wp_enqueue_media', $media_start, PHP_INT_MIN );
+		add_action( 'wp_enqueue_media', $media_end, PHP_INT_MAX );
 
 		ob_start();
 		do_action( 'admin_enqueue_scripts', $hook_suffix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
 		if ( $members[ $slug ]['media'] ) {
 			wp_enqueue_media();
 		}
+		remove_action( 'wp_enqueue_media', $media_start, PHP_INT_MIN );
+		remove_action( 'wp_enqueue_media', $media_end, PHP_INT_MAX );
 		$handles = self::printed_handles( $members[ $slug ] );
 		// Only the member's own handles, and what they depend on, go back to the page. Printing them
 		// even when nothing enqueued them: a page can rely on another script pulling one in.
@@ -432,11 +448,10 @@ class Admin_Shell {
 		}
 		self::guard_api_fetch_setup();
 		wp_print_styles();
-		// The print hooks attach data to handles (Script_Data does), so they run in full.
-		do_action( 'admin_print_scripts' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
+		self::fire_print_hook( 'admin_print_scripts', $own['admin_print_scripts'] );
 		print_head_scripts();
 		print_footer_scripts();
-		do_action( 'admin_print_footer_scripts' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
+		self::fire_print_hook( 'admin_print_footer_scripts', $own['admin_print_footer_scripts'] );
 		// Core prints these on admin_footer, which the endpoint doesn't run.
 		if ( $members[ $slug ]['media'] ) {
 			wp_print_media_templates();
@@ -462,6 +477,85 @@ class Admin_Shell {
 			}
 		}
 		wp_scripts()->add_data( 'wp-api-fetch', 'after', $after );
+	}
+
+	/**
+	 * Fire a print hook, discarding what callbacks print unless the member added them or core defines them.
+	 *
+	 * Other plugins' callbacks still run, so data they attach to the member's handles is printed; what they echo already ran on the host page.
+	 *
+	 * @param string             $hook Hook name.
+	 * @param array<string,true> $own  Callbacks the member's loader added, keyed as hook_snapshot() keys them.
+	 * @return void
+	 */
+	private static function fire_print_hook( $hook, array $own ) {
+		global $wp_filter;
+		$wrapped = array();
+		foreach ( isset( $wp_filter[ $hook ] ) ? $wp_filter[ $hook ]->callbacks : array() as $priority => $by_id ) {
+			foreach ( $by_id as $id => $callback ) {
+				if ( isset( $own[ $priority . '|' . $id ] ) || self::is_core_callback( $callback['function'] ) ) {
+					continue;
+				}
+				$function                    = $callback['function'];
+				$wrapped[ $priority ][ $id ] = $function;
+				$wp_filter[ $hook ]->callbacks[ $priority ][ $id ]['function'] = static function ( ...$args ) use ( $function ) {
+					ob_start();
+					try {
+						call_user_func_array( $function, $args );
+					} finally {
+						ob_end_clean();
+					}
+				};
+			}
+		}
+
+		try {
+			do_action( $hook ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- A core print hook.
+		} finally {
+			foreach ( $wrapped as $priority => $by_id ) {
+				foreach ( $by_id as $id => $function ) {
+					if ( isset( $wp_filter[ $hook ]->callbacks[ $priority ][ $id ] ) ) {
+						$wp_filter[ $hook ]->callbacks[ $priority ][ $id ]['function'] = $function;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Whether a callback is defined in WordPress core, which prints the member's handles and script module data.
+	 *
+	 * The Gutenberg plugin counts as core: it can replace core's script module printers.
+	 *
+	 * @param callable $callback Callback.
+	 * @return bool
+	 */
+	private static function is_core_callback( $callback ) {
+		static $core_dirs = null;
+		if ( null === $core_dirs ) {
+			$core_dirs = array();
+			foreach ( array( ABSPATH . WPINC, ABSPATH . 'wp-admin', WP_PLUGIN_DIR . '/gutenberg' ) as $dir ) {
+				$real = realpath( $dir );
+				if ( false !== $real ) {
+					$core_dirs[] = trailingslashit( wp_normalize_path( $real ) );
+				}
+			}
+		}
+		try {
+			$file = ( new \ReflectionFunction( \Closure::fromCallable( $callback ) ) )->getFileName();
+		} catch ( \Throwable $e ) {
+			return false;
+		}
+		if ( ! is_string( $file ) ) {
+			return false;
+		}
+		$file = wp_normalize_path( $file );
+		foreach ( $core_dirs as $dir ) {
+			if ( 0 === strpos( $file, $dir ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -491,6 +585,20 @@ class Admin_Shell {
 			}
 		}
 		return $snapshot;
+	}
+
+	/**
+	 * Keys of the callbacks added to the deferred hooks since the snapshot.
+	 *
+	 * @param array<string, array<string, true>> $snapshot From hook_snapshot().
+	 * @return array<string, array<string, true>> Keyed by every deferred hook.
+	 */
+	private static function added_keys( $snapshot ) {
+		$added = array();
+		foreach ( self::hook_snapshot() as $hook => $keys ) {
+			$added[ $hook ] = array_diff_key( $keys, $snapshot[ $hook ] );
+		}
+		return $added;
 	}
 
 	/**
