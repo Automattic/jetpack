@@ -77,6 +77,25 @@ class Jetpack_Subscription_Site_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An anchor block without innerBlocks must not break the filter.
+	 */
+	public function test_navigation_anchor_without_inner_blocks_does_not_error() {
+		$hooked_block = array(
+			'blockName' => 'jetpack/subscriptions',
+			'attrs'     => array(),
+		);
+		$result       = apply_filters(
+			'hooked_block_jetpack/subscriptions',
+			$hooked_block,
+			'jetpack/subscriptions',
+			'last_child',
+			array( 'blockName' => 'core/navigation' ),
+			null
+		);
+		$this->assertSame( 'jetpack/subscriptions', $result['blockName'] );
+	}
+
+	/**
 	 * @dataProvider data_navigation_post_types
 	 *
 	 * @param string $post_type Post type containing the navigation.
@@ -109,6 +128,11 @@ class Jetpack_Subscription_Site_Test extends WP_UnitTestCase {
 
 		$content = get_post( $post->ID )->post_content;
 		$this->assertStringContainsString( $subscribe, $content );
+		if ( 'wp_navigation' === $post_type ) {
+			$this->assertContains( 'jetpack/subscriptions', (array) json_decode( get_post_meta( $post->ID, '_wp_ignored_hooked_blocks', true ), true ) );
+		} else {
+			$this->assertStringContainsString( '"ignoredHookedBlocks":["jetpack/subscriptions"]', $content );
+		}
 		wp_update_post(
 			wp_slash(
 				array(
