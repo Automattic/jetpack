@@ -45,6 +45,7 @@ class Announcements_Test extends BaseTestCase {
 		Announcements::register_script_module( $this->asset_file );
 
 		$module = wp_script_modules()->get_registered( '@automattic/jetpack-announcements' );
+		$this->assertNotNull( $module );
 		$this->assertSame( plugins_url( 'index.min.js', $this->asset_file ), $module['src'] );
 		$this->assertSame( '1a2b3c', $module['version'] );
 		$this->assertSame( array( '@wordpress/a11y' ), array_column( $module['dependencies'], 'id' ) );
