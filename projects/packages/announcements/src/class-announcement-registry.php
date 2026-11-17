@@ -166,18 +166,17 @@ final class Announcement_Registry {
 	 * @return array|null The record, or null when a required field is missing or unusable.
 	 */
 	private static function sanitize( $id, array $args ) {
-		$utc      = new \DateTimeZone( 'UTC' );
-		$date     = is_string( $args['date'] ?? null ) && preg_match( '/^\d{4}-\d{2}-\d{2}/', $args['date'] ) ? date_create( $args['date'], $utc ) : false;
+		$date     = self::sanitize_date( $args['date'] ?? null );
 		$title    = self::sanitize_text( $args['title'] ?? '' );
 		$channels = array_values( array_unique( array_filter( array_map( 'sanitize_key', (array) ( $args['channels'] ?? array() ) ) ) ) );
 
-		if ( ! $date || '' === $title || ! $channels ) {
+		if ( '' === $date || '' === $title || ! $channels ) {
 			return null;
 		}
 
 		return array(
 			'id'         => $id,
-			'date'       => $date->setTimezone( $utc )->format( DATE_ATOM ),
+			'date'       => $date,
 			'title'      => $title,
 			'excerpt'    => self::sanitize_text( $args['excerpt'] ?? '' ),
 			'content'    => is_string( $args['content'] ?? null ) ? wp_kses_post( $args['content'] ) : '',
@@ -186,6 +185,29 @@ final class Announcement_Registry {
 			'channels'   => $channels,
 			'capability' => is_string( $args['capability'] ?? null ) ? $args['capability'] : '',
 		);
+	}
+
+	/**
+	 * Sanitizes the date of an announcement.
+	 *
+	 * @param mixed $value The value a registrant passed.
+	 * @return string The date in UTC, or an empty string unless it starts with a calendar date that exists.
+	 */
+	private static function sanitize_date( $value ) {
+		if ( ! is_string( $value ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}/', $value ) ) {
+			return '';
+		}
+
+		$utc    = new \DateTimeZone( 'UTC' );
+		$date   = date_create( $value, $utc );
+		$errors = \DateTime::getLastErrors();
+
+		// An impossible date parses with a warning and rolls over: 2026-02-30 would become March 2.
+		if ( ! $date || ( $errors && $errors['warning_count'] ) ) {
+			return '';
+		}
+
+		return $date->setTimezone( $utc )->format( DATE_ATOM );
 	}
 
 	/**

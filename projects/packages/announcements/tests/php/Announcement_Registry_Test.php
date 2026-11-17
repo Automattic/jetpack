@@ -126,6 +126,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 			'id that is no string'   => array( 12, self::VALID_ARGS ),
 			'no date'                => array( 'a/b', array_diff_key( self::VALID_ARGS, array( 'date' => 1 ) ) ),
 			'date that is no date'   => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => 'tomorrow' ) ) ),
+			'date that never comes'  => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => '2026-02-30' ) ) ),
 			'no title'               => array( 'a/b', array_merge( self::VALID_ARGS, array( 'title' => ' ' ) ) ),
 			'no channels'            => array( 'a/b', array_merge( self::VALID_ARGS, array( 'channels' => array() ) ) ),
 			'args that are no array' => array( 'a/b', 'Arrange your tabs' ),
