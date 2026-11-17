@@ -177,26 +177,41 @@ describe( 'ModernApp', () => {
 		] );
 	} );
 
-	it( 'records the route again when the admin shell shows the page again, not on its first show or a route change', () => {
+	it( 'records the route again when the admin shell shows the page again, not on its first show', () => {
 		renderApp();
 		goTo( '#/cache-debug-log' );
-		const shown = ( page: string, firstShow: boolean, routeChanged = false ) =>
+		const shown = ( page: string, firstShow: boolean ) =>
 			act( () => {
 				window.dispatchEvent(
-					new CustomEvent( 'jetpack-admin-shell:page-shown', {
-						detail: { page, firstShow, routeChanged },
-					} )
+					new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
 				);
 			} );
 
 		shown( 'jetpack-boost', true );
 		shown( 'my-jetpack', false );
-		shown( 'jetpack-boost', false, true );
 		shown( 'jetpack-boost', false );
 
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 			'page_view_overview',
 			'page_view_cache_debug_log',
+			'page_view_cache_debug_log',
+		] );
+	} );
+
+	it( 'records one view when the admin shell shows the page again at another route', () => {
+		renderApp();
+		mockRecordBoostEvent.mockClear();
+
+		goTo( '#/cache-debug-log' );
+		act( () => {
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', {
+					detail: { page: 'jetpack-boost', firstShow: false, routeChanged: true },
+				} )
+			);
+		} );
+
+		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 			'page_view_cache_debug_log',
 		] );
 	} );

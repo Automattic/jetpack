@@ -271,25 +271,38 @@ describe( 'Protect dashboard stage', () => {
 		expect( search( { threats: '5' } ) ).toEqual( {} );
 	} );
 
-	it( 'records the tab again when the admin shell shows the page again, not on its first show or a route change', () => {
+	it( 'records the tab again when the admin shell shows the page again, not on its first show', () => {
 		mockUseSearch.mockReturnValue( { tab: 'settings', section: 'monitor' } );
 		render( <Stage /> );
-		const shown = ( page: string, firstShow: boolean, routeChanged = false ) =>
+		const shown = ( page: string, firstShow: boolean ) =>
 			window.dispatchEvent(
-				new CustomEvent( 'jetpack-admin-shell:page-shown', {
-					detail: { page, firstShow, routeChanged },
-				} )
+				new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
 			);
 
 		shown( 'jetpack-protect', true );
 		shown( 'my-jetpack', false );
-		shown( 'jetpack-protect', false, true );
 		shown( 'jetpack-protect', false );
 
 		expect( ( recordPageView as jest.Mock ).mock.calls ).toEqual( [
 			[ 'settings', 'monitor' ],
 			[ 'settings', 'monitor' ],
 		] );
+	} );
+
+	it( 'records one view when the admin shell shows the page again at another tab', () => {
+		mockUseSearch.mockReturnValue( { tab: 'overview' } );
+		const { rerender } = render( <Stage /> );
+		( recordPageView as jest.Mock ).mockClear();
+
+		mockUseSearch.mockReturnValue( { tab: 'settings' } );
+		rerender( <Stage /> );
+		window.dispatchEvent(
+			new CustomEvent( 'jetpack-admin-shell:page-shown', {
+				detail: { page: 'jetpack-protect', firstShow: false, routeChanged: true },
+			} )
+		);
+
+		expect( ( recordPageView as jest.Mock ).mock.calls ).toEqual( [ [ 'settings', undefined ] ] );
 	} );
 
 	it( 'leaving the threat report records the Overview view', () => {
