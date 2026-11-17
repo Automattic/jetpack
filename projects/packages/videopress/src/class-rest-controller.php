@@ -62,6 +62,7 @@ class Rest_Controller {
 		Transcript_Index::register_rest_routes();
 		Video_Query::register_rest_routes();
 		Playlist_Manager::register_add_matching_route();
+		Viewer_History::register_rest_routes();
 	}
 
 	/**

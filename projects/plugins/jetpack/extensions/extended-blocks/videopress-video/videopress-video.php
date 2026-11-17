@@ -93,6 +93,11 @@ if ( method_exists( 'Automattic\Jetpack\VideoPress\Transcript_Index', 'init' ) )
 	\Automattic\Jetpack\VideoPress\Transcript_Index::init();
 }
 
+// Viewer history; on WordPress.com it stays off until the host supplies a history store.
+if ( method_exists( 'Automattic\Jetpack\VideoPress\Viewer_History', 'init' ) ) {
+	\Automattic\Jetpack\VideoPress\Viewer_History::init();
+}
+
 // Register the `v6-video-frame-poster` extension.
 add_action(
 	'jetpack_register_gutenberg_extensions',
