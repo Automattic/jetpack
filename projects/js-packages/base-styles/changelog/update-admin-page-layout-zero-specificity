@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin page layout: make the scrolling middle's default flex rules zero-specificity, so consumer overrides always win.
