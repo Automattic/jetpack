@@ -206,7 +206,11 @@ class GA_Manager {
 			}
 		}
 
-		if ( $wga !== $stored && ! update_option( $option_name, $wga ) ) {
+		if ( $wga === $stored ) {
+			return $wga;
+		}
+
+		if ( ! update_option( $option_name, $wga ) ) {
 			return new WP_Error(
 				'google_analytics_not_saved',
 				__( 'Google Analytics settings could not be saved.', 'jetpack-google-analytics' )

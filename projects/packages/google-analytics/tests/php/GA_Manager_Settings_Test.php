@@ -199,7 +199,9 @@ class GA_Manager_Settings_Test extends BaseTestCase {
 			'is_active' => true,
 		);
 		update_option( 'wga', $stored );
+		$bumps = did_action( 'jetpack_bump_stats_extras' );
 
 		$this->assertSame( $stored, GA_Manager::get_instance()->update_google_analytics_settings( array( 'code' => 'G-ABC123' ) ) );
+		$this->assertSame( $bumps, did_action( 'jetpack_bump_stats_extras' ) );
 	}
 }
