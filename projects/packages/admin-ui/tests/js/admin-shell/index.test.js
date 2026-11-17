@@ -522,6 +522,8 @@ describe( 'admin shell live-app limit', () => {
 
 		expect( stateOf( 'guest-a2' ) ).toBeUndefined();
 		expect( prewarmed() ).toEqual( [ 'guest-a', 'guest-b' ] );
+		// The visible app's router, which hears the popstate next, still reads its own URL.
+		expect( where() ).toBe( '?page=guest-b' );
 	} );
 
 	it.each( [
