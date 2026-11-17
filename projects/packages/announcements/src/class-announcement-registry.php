@@ -135,9 +135,9 @@ final class Announcement_Registry {
 			return;
 		}
 
-		// Latching this early would drop every registrant hooked later, so the read skips the action.
-		if ( ! did_action( 'init' ) ) {
-			$message = __( 'Announcements are read after init. A read before it answers only what was registered directly.', 'jetpack-announcements' );
+		// Latching before init ends would drop every registrant hooked later, so the read skips the action.
+		if ( ! did_action( 'init' ) || doing_action( 'init' ) ) {
+			$message = __( 'Announcements are read after init. An earlier read answers only what was registered directly.', 'jetpack-announcements' );
 			_doing_it_wrong( __CLASS__, esc_html( $message ), 'jetpack-announcements-$$next-version$$' );
 			return;
 		}
