@@ -3,8 +3,9 @@
 // a slash and at the delimiters of a query string, so an address written into a URL path or a
 // parameter value costs that one segment and not the path around it. Every part stays bounded and
 // the domain is matched label by label: unbounded, a long run of text holding no address backtracks
-// quadratically.
-const EMAIL = /[^\s<>()[\]{}",;:@&=/]{1,64}@(?:[A-Za-z0-9-]{1,63}\.){1,8}[A-Za-z]{2,24}/g;
+// quadratically. The last label starts with a letter, so the host of an IP address is not one.
+const EMAIL =
+	/[^\s<>()[\]{}",;:@&=/]{1,64}@(?:[A-Za-z0-9-]{1,63}\.){1,8}[A-Za-z][A-Za-z0-9-]{1,23}/g;
 
 export const EMAIL_MASK = '[email]';
 
