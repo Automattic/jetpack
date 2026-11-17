@@ -27,15 +27,18 @@ export default function useGlobalStyleNoticeActions( { isSiteEditor, context = '
 	const setShowHelpCenter = helpCenterDispatch?.setShowHelpCenter;
 	const setShowSupportDoc = helpCenterDispatch?.setShowSupportDoc;
 
-	const upgradePlan = useCallback( () => {
-		window.open( wpcomGlobalStyles.upgradeUrl, '_blank' ).focus();
-
+	const trackUpgradeClick = useCallback( () => {
 		if ( context === 'view_canvas' ) {
 			trackEvent( 'calypso_global_styles_notice_view_canvas_upgrade_click', isSiteEditor );
 		} else {
 			trackEvent( 'calypso_global_styles_gating_notice_upgrade_click', isSiteEditor );
 		}
 	}, [ context, isSiteEditor ] );
+
+	const upgradePlan = useCallback( () => {
+		window.open( wpcomGlobalStyles.upgradeUrl, '_blank' ).focus();
+		trackUpgradeClick();
+	}, [ trackUpgradeClick ] );
 
 	const resetGlobalStyles = useCallback( () => {
 		if ( ! globalStylesId ) {
@@ -73,6 +76,7 @@ export default function useGlobalStyleNoticeActions( { isSiteEditor, context = '
 	}, [ context, isSiteEditor, setShowHelpCenter, setShowSupportDoc ] );
 
 	return {
+		trackUpgradeClick,
 		learnMore: {
 			label: __( 'Learn more', 'jetpack-mu-wpcom' ),
 			onClick: openLearnMoreAboutStylesDialog,

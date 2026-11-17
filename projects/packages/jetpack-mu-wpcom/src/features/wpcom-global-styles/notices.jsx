@@ -1,10 +1,11 @@
 /* global wpcomGlobalStyles */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createRoot, useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { ThemeProvider } from '@wordpress/theme';
+import { ButtonLink, Notice } from '@wordpress/ui';
 import { wpcomTrackEvent } from '../../common/tracks';
 import { useCanvas } from './use-canvas';
 import { useGlobalStylesConfig } from './use-global-styles-config';
@@ -27,7 +28,7 @@ const trackEvent = ( eventName, isSiteEditor = true ) =>
  * @return {import('react').JSX.Element} The component to render.
  */
 function GlobalStylesWarningNotice() {
-	const { upgrade, reset, learnMore } = useGlobalStyleNoticeActions( {
+	const { trackUpgradeClick, reset, learnMore } = useGlobalStyleNoticeActions( {
 		isSiteEditor: true,
 		context: 'view_canvas',
 	} );
@@ -38,23 +39,47 @@ function GlobalStylesWarningNotice() {
 
 	const planName = wpcomGlobalStyles.planName;
 
-	return (
-		<Notice
-			actions={ [ upgrade, reset, learnMore ] }
-			status="warning"
-			isDismissible={ false }
-			className="wpcom-global-styles-notice"
-		>
-			{ sprintf(
-				/* translators: %s is the short-form Premium plan name */
-				__(
-					'Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.',
-					'jetpack-mu-wpcom'
-				),
-				planName
-			) }
-		</Notice>
+	const notice = (
+		<div className="wpcom-global-styles-notice-surround">
+			<Notice.Root intent="warning" className="wpcom-global-styles-notice">
+				<Notice.Description>
+					{ sprintf(
+						/* translators: %s is the short-form Premium plan name */
+						__(
+							'Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.',
+							'jetpack-mu-wpcom'
+						),
+						planName
+					) }
+				</Notice.Description>
+				<Notice.Actions>
+					<ButtonLink
+						variant="solid"
+						size="compact"
+						href={ wpcomGlobalStyles.upgradeUrl }
+						onClick={ trackUpgradeClick }
+						openInNewTab
+					>
+						{ __( 'Upgrade now', 'jetpack-mu-wpcom' ) }
+					</ButtonLink>
+					<Notice.ActionButton variant="outline" onClick={ reset.onClick }>
+						{ reset.label }
+					</Notice.ActionButton>
+					<Notice.ActionButton variant="minimal" onClick={ learnMore.onClick }>
+						{ learnMore.label }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			</Notice.Root>
+		</div>
 	);
+
+	// Core's `wp-theme` script may not expose `ThemeProvider`.
+	if ( ! ThemeProvider ) {
+		return notice;
+	}
+
+	// Tunes the notice for the dark site editor sidebar it renders in.
+	return <ThemeProvider color={ { background: '#1e1e1e' } }>{ notice }</ThemeProvider>;
 }
 
 /**
