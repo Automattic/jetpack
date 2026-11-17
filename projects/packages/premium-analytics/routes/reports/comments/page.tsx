@@ -7,11 +7,11 @@ import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
-	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ReportPageTabs,
 	ReportRecordsTable,
+	StatsOptionsMenu,
 	commentsAuthorsCsvExporter,
 	commentsPostsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -77,7 +77,7 @@ function CommentsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ReportPageActions>
+				<>
 					<ExporterCsvAction
 						exporter={
 							activeTab === 'posts' ? commentsPostsCsvExporter : commentsAuthorsCsvExporter
@@ -86,7 +86,8 @@ function CommentsReport(): JSX.Element {
 						status={ records }
 						reportParams={ reportParams }
 					/>
-				</ReportPageActions>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout

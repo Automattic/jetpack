@@ -6,11 +6,11 @@ import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
-	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ReportRecordsTable,
 	ExporterCsvAction,
+	StatsOptionsMenu,
 	searchTermsCsvExporter,
 	type SearchTermRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -71,14 +71,15 @@ export default function SearchTermsReportPage(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ReportPageActions>
+				<>
 					<ExporterCsvAction
 						exporter={ searchTermsCsvExporter }
 						items={ records.table.rows }
 						status={ records.table }
 						reportParams={ reportParams }
 					/>
-				</ReportPageActions>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters } withAllTime>

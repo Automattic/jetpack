@@ -10,12 +10,12 @@ import {
 	ExporterCsvAction,
 	LOCATIONS_GEO_MODES,
 	ReportLocationsMap,
-	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ReportPageTabs,
 	ReportRecordsTable,
 	LockedPage,
+	StatsOptionsMenu,
 	locationsCsvExporter,
 	supportsLocationsCountryFilter,
 	type LocationsGeoRow,
@@ -170,7 +170,7 @@ export default function LocationsReportPage(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ReportPageActions>
+				<>
 					{ ! tabLocked && (
 						<ExporterCsvAction
 							exporter={ csvExporter }
@@ -179,7 +179,8 @@ export default function LocationsReportPage(): JSX.Element {
 							reportParams={ reportParams }
 						/>
 					) }
-				</ReportPageActions>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout

@@ -7,12 +7,12 @@ import { jetpack } from '@jetpack-premium-analytics/icons';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
-	ReportPageActions,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportErrorState,
 	ReportRecordsTable,
 	ReportCsvAction,
+	StatsOptionsMenu,
 	useReportCsvExport,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -97,11 +97,12 @@ function CommentFollowersReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ReportPageActions>
+				<>
 					{ canExport && (
 						<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 					) }
-				</ReportPageActions>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>

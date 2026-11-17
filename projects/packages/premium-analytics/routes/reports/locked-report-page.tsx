@@ -6,8 +6,8 @@ import { jetpack } from '@jetpack-premium-analytics/icons';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	LockedPage,
-	ReportPageActions,
 	ReportPageLayout,
+	StatsOptionsMenu,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 /**
@@ -38,7 +38,7 @@ export function LockedReportPage( { label, feature }: LockedReportPageProps ): J
 			className={ reportPageStyles.page }
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
-			actions={ <ReportPageActions /> }
+			actions={ <StatsOptionsMenu /> }
 		>
 			<ReportPageLayout title={ label }>
 				<LockedPage feature={ feature } />

@@ -7,10 +7,10 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
-	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ExporterCsvAction,
+	StatsOptionsMenu,
 	clicksCsvExporter,
 	type ClickRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -87,14 +87,15 @@ function ClicksReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ReportPageActions>
+				<>
 					<ExporterCsvAction
 						exporter={ clicksCsvExporter }
 						items={ records.rows }
 						status={ records }
 						reportParams={ reportParams }
 					/>
-				</ReportPageActions>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters } withAllTime>

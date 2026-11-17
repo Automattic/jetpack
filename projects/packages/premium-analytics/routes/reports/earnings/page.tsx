@@ -7,11 +7,11 @@ import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
-	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ReportPageTabs,
 	ReportRecordsTable,
+	StatsOptionsMenu,
 	getEarningsStatus,
 	getWordAdsHistoryFields,
 	useReportCsvExport,
@@ -136,11 +136,12 @@ function EarningsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ReportPageActions>
+				<>
 					{ canExport && (
 						<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 					) }
-				</ReportPageActions>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			{ /* No date filters: the `wordads/earnings` endpoint is all-time, and the Ads tab has no global date controls. */ }

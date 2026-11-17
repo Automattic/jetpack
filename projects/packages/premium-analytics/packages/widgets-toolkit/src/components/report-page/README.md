@@ -12,7 +12,12 @@ const label = __( 'All pages' );
 	className={ reportPageStyles.page }
 	visual={ <Icon icon={ jetpack } /> }
 	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
-	actions={ <ReportPageActions>{ downloadButton }</ReportPageActions> }
+	actions={
+		<>
+			{ downloadButton }
+			<StatsOptionsMenu />
+		</>
+	}
 >
 	<ReportPageLayout title={ getTabLabel( activeTab ) } dateFilters={ dateFilters }>
 		<ReportRecordsTable
@@ -26,8 +31,6 @@ const label = __( 'All pages' );
 </Page>;
 ```
 
-- **`ReportPageActions`** — the header's actions slot: the report's own actions,
-  then the Stats options menu. A report with no action of its own still renders it.
 - **`ReportPageLayout`** — the scroll area below the page header: optional
   internal tabs, the section header pinned at its top, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.

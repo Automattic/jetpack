@@ -7,11 +7,11 @@ import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
-	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ReportRecordsTable,
 	ExporterCsvAction,
+	StatsOptionsMenu,
 	fileDownloadsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
@@ -71,14 +71,15 @@ function DownloadsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ReportPageActions>
+				<>
 					<ExporterCsvAction
 						exporter={ fileDownloadsCsvExporter }
 						items={ records.rows }
 						status={ records }
 						reportParams={ reportParams }
 					/>
-				</ReportPageActions>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters } withAllTime>

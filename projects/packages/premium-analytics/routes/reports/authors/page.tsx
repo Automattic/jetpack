@@ -8,9 +8,9 @@ import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ExporterCsvAction,
-	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
+	StatsOptionsMenu,
 	authorsCsvExporter,
 	type AuthorRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -82,14 +82,15 @@ function AuthorsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ReportPageActions>
+				<>
 					<ExporterCsvAction
 						exporter={ authorsCsvExporter }
 						items={ records.rows }
 						status={ records }
 						reportParams={ reportParams }
 					/>
-				</ReportPageActions>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters } withAllTime>

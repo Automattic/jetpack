@@ -10,13 +10,13 @@ import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
-	ReportPageActions,
 	ReportPageLayout,
 	ReportErrorState,
 	ReportPageTabs,
 	ReportDrilldownTable,
 	ReportRecordsTable,
 	ExporterCsvAction,
+	StatsOptionsMenu,
 	archivesCsvExporter,
 	postsPagesCsvExporter,
 	toViewLiveUrl,
@@ -204,7 +204,12 @@ function PostsReport(): JSX.Element {
 			className={ reportPageStyles.page }
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			actions={ <ReportPageActions>{ csvAction }</ReportPageActions> }
+			actions={
+				<>
+					{ csvAction }
+					<StatsOptionsMenu />
+				</>
+			}
 		>
 			<ReportPageLayout
 				title={ getTabLabel( activeTab ) }
