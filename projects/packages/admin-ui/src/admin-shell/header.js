@@ -278,9 +278,8 @@ const retitle = ( copy, { title, subtitle }, own ) => {
 	const row = copy.querySelector( '[class*="__header-subtitle"]' );
 	// Picked as the page renders: keep the page's own row, or hold a blank line for it.
 	if ( subtitle === null ) {
-		const target = own && row ? null : ( row ?? subtitleRow( copy ) );
-		if ( target ) {
-			target.textContent = '\u00a0';
+		if ( ! ( own && row ) ) {
+			( row ?? subtitleRow( copy ) )?.replaceChildren( '\u00a0' );
 		}
 		return;
 	}

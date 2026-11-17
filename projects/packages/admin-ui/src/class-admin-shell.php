@@ -123,7 +123,7 @@ class Admin_Shell {
 		 * - build_page (string)     The wp-build page name.
 		 * - init_modules (string[]) Script modules to import before the app boots.
 		 * - title (string)          Document title while the page is shown.
-		 * - header (array|false)    Optional. `title` and `subtitle` of the view a bare menu link opens, as the dashboard renders them, shown while it opens. `subtitle` is '' for none, or null when the dashboard picks it as it renders. False shows no stand-in, for a view without the standard page header. A malformed one is dropped, not the member.
+		 * - header (array|false)    Optional. `title` and `subtitle` of the view a bare menu link opens, as the dashboard renders them, shown while it opens. `subtitle` is '' for none, or null when the dashboard picks it as it renders. False shows no stand-in on any of its views, for a page whose landing view has no standard page header. A malformed one is dropped, not the member.
 		 * - default_path (string)   Optional. The `p` a bare menu link opens.
 		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.

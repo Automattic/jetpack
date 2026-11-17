@@ -62,7 +62,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	members[ host ].adminTitle = document.title;
 	configureHeaders( headerStorageKey, members );
 	trackViewTransitions();
-	// A member declares the header of the view its bare menu link opens; other views only get a title.
+	// A member declares the header of the view its bare menu link opens; other views only get its title.
 	const showHeaderAt = ( slug, el, url ) => {
 		const { header, defaultPath, title } = members[ slug ];
 		if ( header === false ) {
