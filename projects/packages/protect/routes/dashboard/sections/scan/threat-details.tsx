@@ -75,7 +75,7 @@ function getLocation( threat: ScanThreat ): string {
 }
 
 /**
- * Whether a threat is an open plugin or theme vulnerability whose report names no fixed version.
+ * Whether a threat is a current plugin or theme vulnerability whose report names no fixed version.
  * Only the free check's `fixedIn` comes from the vulnerability data; Scan sets it from an update fixer.
  *
  * @param threat - The threat.
@@ -86,7 +86,7 @@ function lacksFixedVersion( threat: ScanThreat ): boolean {
 		! threat.filename &&
 		! threat.database &&
 		! threat.fixedIn &&
-		threat.status !== 'fixed' &&
+		threat.status === 'current' &&
 		( threat.extension?.type === 'plugins' || threat.extension?.type === 'themes' )
 	);
 }
@@ -101,7 +101,7 @@ function lacksFixedVersion( threat: ScanThreat ): boolean {
 function getNoFixAdvice( type: string | null, state?: string | null ): string | null {
 	if ( type === 'core' ) {
 		return __(
-			'This report doesn’t name a version of WordPress that fixes this vulnerability. Update as soon as a release does.',
+			'Until a fixed version is confirmed, update WordPress as soon as a new release is available.',
 			'jetpack-protect-pkg'
 		);
 	}
@@ -265,7 +265,7 @@ function DeleteOptionButton( { threat, name }: { threat: ScanThreat; name: strin
 function useThreatRow( threat: ScanThreat, canAct: boolean ) {
 	const [ row, setRow ] = useState< ThreatRow | null >( null );
 	const [ rowError, setRowError ] = useState< string | null >( null );
-	const canRead = canAct && threat.status === 'current' && !! threat.database;
+	const canRead = canAct && threat.status !== 'fixed' && !! threat.database;
 
 	useEffect( () => {
 		setRow( null );
@@ -681,7 +681,7 @@ export default function ThreatDetails( {
 					{ explainNoFix && (
 						<Text variant="body-md" className="jp-protect-card__muted">
 							{ __(
-								'This report doesn’t name a version that fixes this vulnerability, so Jetpack treats your version as affected.',
+								'No fixed version has been reported, so Jetpack treats your version as affected.',
 								'jetpack-protect-pkg'
 							) }
 						</Text>
@@ -697,11 +697,11 @@ export default function ThreatDetails( {
 					<Text variant="body-md" className="jp-protect-card__muted">
 						{ threat.extension?.type === 'themes'
 							? __(
-									'If you believe this is a false positive, contact the theme’s developer and share this vulnerability report with them so they can address it.',
+									'If you believe this is a false positive, contact the theme’s developer and share the vulnerability details with them so they can address it.',
 									'jetpack-protect-pkg'
 								)
 							: __(
-									'If you believe this is a false positive, contact the plugin’s developer and share this vulnerability report with them so they can address it.',
+									'If you believe this is a false positive, contact the plugin’s developer and share the vulnerability details with them so they can address it.',
 									'jetpack-protect-pkg'
 								) }
 					</Text>

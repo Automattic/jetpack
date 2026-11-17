@@ -127,7 +127,7 @@ describe( 'ThreatDetails', () => {
 			undefined,
 			undefined,
 			'current',
-			'Update as soon as a release does',
+			'update WordPress as soon as',
 		],
 		[
 			'a fixed plugin',
@@ -198,7 +198,15 @@ describe( 'ThreatDetails', () => {
 				true,
 				null,
 			],
-			[ 'an ignored plugin', 'plugins', 'Extension', undefined, 'ignored', true, null ],
+			[
+				'an ignored plugin, which needs no explanation even on the free check',
+				'plugins',
+				'Extension',
+				undefined,
+				'ignored',
+				false,
+				null,
+			],
 		] as const )(
 			'explains it and suggests the developer for %s: %p',
 			( _name, type, signature, fixedIn, status, hasPlan, developer ) => {
@@ -219,7 +227,7 @@ describe( 'ThreatDetails', () => {
 						?.textContent ?? null
 				).toBe(
 					developer &&
-						`If you believe this is a false positive, contact the ${ developer }’s developer and share this vulnerability report with them so they can address it.`
+						`If you believe this is a false positive, contact the ${ developer }’s developer and share the vulnerability details with them so they can address it.`
 				);
 			}
 		);
