@@ -49,6 +49,17 @@ describe( 'PlanDialog', () => {
 		);
 	} );
 
+	it( 'saves once when Save is clicked twice', async () => {
+		( wpcomFetch as jest.Mock ).mockReset().mockReturnValue( new Promise( () => {} ) );
+		openDialog( null );
+		const save = screen.getByRole( 'button', { name: 'Save' } );
+
+		await userEvent.click( save );
+		await userEvent.click( save );
+
+		expect( wpcomFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it.each( [
 		[ 'a tier', TIER ],
 		[ 'a tier with no annual product', { product: TIER.product } ],

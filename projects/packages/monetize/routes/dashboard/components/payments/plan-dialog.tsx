@@ -410,7 +410,11 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 					<Button variant="outline" tone="neutral" onClick={ onClose } disabled={ isPending }>
 						{ __( 'Cancel', 'jetpack-monetize' ) }
 					</Button>
-					<Button onClick={ onSave } disabled={ errors.length > 0 } loading={ isPending }>
+					<Button
+						onClick={ onSave }
+						disabled={ errors.length > 0 || isPending }
+						loading={ isPending }
+					>
 						{ __( 'Save', 'jetpack-monetize' ) }
 					</Button>
 				</Dialog.Footer>
