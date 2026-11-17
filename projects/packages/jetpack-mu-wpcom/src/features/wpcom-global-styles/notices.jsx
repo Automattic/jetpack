@@ -1,10 +1,12 @@
 /* global wpcomGlobalStyles */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createRoot, useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { external } from '@wordpress/icons';
+import { ThemeProvider } from '@wordpress/theme';
+import { Button, Notice } from '@wordpress/ui';
 import { wpcomTrackEvent } from '../../common/tracks';
 import { useCanvas } from './use-canvas';
 import { useGlobalStylesConfig } from './use-global-styles-config';
@@ -14,6 +16,9 @@ import { usePreview } from './use-preview';
 import './notice.scss';
 
 const GLOBAL_STYLES_VIEW_NOTICE_SELECTOR = 'wpcom-global-styles-notice-container';
+
+// Matches the site editor's dark navigation sidebar, so the notice's tokens are tuned for it.
+const SIDEBAR_THEME_COLOR = { background: '#1e1e1e' };
 
 const trackEvent = ( eventName, isSiteEditor = true ) =>
 	wpcomTrackEvent( eventName, {
@@ -38,23 +43,47 @@ function GlobalStylesWarningNotice() {
 
 	const planName = wpcomGlobalStyles.planName;
 
-	return (
-		<Notice
-			actions={ [ upgrade, reset, learnMore ] }
-			status="warning"
-			isDismissible={ false }
-			className="wpcom-global-styles-notice"
-		>
-			{ sprintf(
-				/* translators: %s is the short-form Premium plan name */
-				__(
-					'Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.',
-					'jetpack-mu-wpcom'
-				),
-				planName
-			) }
-		</Notice>
+	const notice = (
+		<div className="wpcom-global-styles-notice">
+			<Notice.Root intent="warning">
+				<Notice.Description>
+					{ sprintf(
+						/* translators: %s is the short-form Premium plan name */
+						__(
+							'Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.',
+							'jetpack-mu-wpcom'
+						),
+						planName
+					) }
+				</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionButton variant="solid" onClick={ upgrade.onClick }>
+						{ upgrade.label }
+						<Button.Icon icon={ external } />
+					</Notice.ActionButton>
+					<Notice.ActionButton variant="outline" onClick={ reset.onClick }>
+						{ reset.label }
+					</Notice.ActionButton>
+					<Notice.ActionLink
+						href={ wpcomGlobalStyles.learnMoreAboutStylesUrl }
+						onClick={ event => {
+							event.preventDefault();
+							learnMore.onClick();
+						} }
+					>
+						{ learnMore.label }
+					</Notice.ActionLink>
+				</Notice.Actions>
+			</Notice.Root>
+		</div>
 	);
+
+	// Undefined while core's `wp-theme` exposes only private APIs.
+	if ( ! ThemeProvider ) {
+		return notice;
+	}
+
+	return <ThemeProvider color={ SIDEBAR_THEME_COLOR }>{ notice }</ThemeProvider>;
 }
 
 /**
