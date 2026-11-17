@@ -1,7 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { InputControl, Link, Stack, SwitchControl, Text } from '@wordpress/ui';
+import { InputControl, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useCallback, useId, useState } from 'react';
+import { LearnMoreLink } from './learn-more-link';
 import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleOption, useModuleSetting } from './use-module-option';
@@ -50,13 +51,12 @@ export function CommentsSettings( { module: $module, disabled }: ModuleSettingsP
 					'jetpack-my-jetpack'
 				) }
 			</Text>
-			<Link
+			<LearnMoreLink
+				module={ $module.module }
 				href={ getRedirectUrl( 'jetpack-support-comments' ) }
-				target="_blank"
-				rel="noopener noreferrer"
 			>
 				{ __( 'Learn more about Comments', 'jetpack-my-jetpack' ) }
-			</Link>
+			</LearnMoreLink>
 
 			<Stack
 				direction="row"

@@ -3,10 +3,11 @@ import { speak } from '@wordpress/a11y';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { __, _x } from '@wordpress/i18n';
 import { check, copy, error } from '@wordpress/icons';
-import { Button, InputControl, InputLayout, Link, Stack, Text } from '@wordpress/ui';
+import { Button, InputControl, InputLayout, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useId, useState } from 'react';
 import { moduleSwitchKey, useRequestedSwitch } from '../../data/requested-switch-state';
 import { useAccountConnected } from '../my-jetpack-tab-panel/features/feature-state';
+import { LearnMoreLink } from './learn-more-link';
 import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleSetting } from './use-module-option';
@@ -83,13 +84,12 @@ export function PostByEmailSettings( { module: $module, disabled }: ModuleSettin
 					'jetpack-my-jetpack'
 				) }
 			</Text>
-			<Link
+			<LearnMoreLink
+				module={ $module.module }
 				href={ getRedirectUrl( 'jetpack-support-post-by-email' ) }
-				target="_blank"
-				rel="noopener noreferrer"
 			>
 				{ __( 'Learn more about Post by Email', 'jetpack-my-jetpack' ) }
-			</Link>
+			</LearnMoreLink>
 
 			<Stack
 				direction="row"

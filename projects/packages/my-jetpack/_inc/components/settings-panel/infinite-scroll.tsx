@@ -3,6 +3,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Link, Notice, RadioGroupControl, Stack, Text } from '@wordpress/ui';
 import { useCallback, useId } from 'react';
+import { LearnMoreLink } from './learn-more-link';
 import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleSetting } from './use-module-option';
@@ -74,13 +75,12 @@ export function InfiniteScrollSettings( { module: $module, disabled }: ModuleSet
 					'jetpack-my-jetpack'
 				) }
 			</Text>
-			<Link
+			<LearnMoreLink
+				module={ $module.module }
 				href={ getRedirectUrl( 'jetpack-support-infinite-scroll' ) }
-				target="_blank"
-				rel="noopener noreferrer"
 			>
 				{ __( 'Learn more about Infinite Scroll', 'jetpack-my-jetpack' ) }
-			</Link>
+			</LearnMoreLink>
 
 			<Stack
 				direction="row"

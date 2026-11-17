@@ -1,7 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Link, SelectControl, Stack, SwitchControl, Text } from '@wordpress/ui';
+import { SelectControl, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useCallback, useId } from 'react';
+import { LearnMoreLink } from './learn-more-link';
 import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleOption, useModuleSetting } from './use-module-option';
@@ -56,13 +57,12 @@ export function CarouselSettings( { module: $module, disabled }: ModuleSettingsP
 					'jetpack-my-jetpack'
 				) }
 			</Text>
-			<Link
+			<LearnMoreLink
+				module={ $module.module }
 				href={ getRedirectUrl( 'jetpack-support-carousel' ) }
-				target="_blank"
-				rel="noopener noreferrer"
 			>
 				{ __( 'Learn more about Carousel', 'jetpack-my-jetpack' ) }
-			</Link>
+			</LearnMoreLink>
 
 			<Stack
 				direction="row"

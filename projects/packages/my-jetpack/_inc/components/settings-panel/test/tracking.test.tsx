@@ -1,7 +1,13 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { CarouselSettings } from '../carousel';
+import { CommentsSettings } from '../comments';
+import { GoogleAnalyticsSettings } from '../google-analytics';
+import { InfiniteScrollSettings } from '../infinite-scroll';
+import { MarkdownSettings } from '../markdown';
+import { PostByEmailSettings } from '../post-by-email';
 import type { MyJetpackModule } from '../../../types';
 
 const mockRecordEvent = jest.fn();
@@ -15,6 +21,9 @@ jest.mock( '@wordpress/data', () => ( {
 		createErrorNotice: jest.fn(),
 		createSuccessNotice: jest.fn(),
 	} ),
+} ) );
+jest.mock( '../../my-jetpack-tab-panel/features/feature-state', () => ( {
+	useAccountConnected: () => true,
 } ) );
 jest.mock( '../../../hooks/use-analytics', () => ( {
 	__esModule: true,
@@ -104,4 +113,53 @@ describe( 'Settings panel tracking', () => {
 			value: 'white',
 		} );
 	} );
+
+	const panel = ( module: string ) => ( { ...$module, module, options: {} } ) as MyJetpackModule;
+
+	it.each( [
+		[
+			'Carousel',
+			() => <CarouselSettings module={ panel( 'carousel' ) } disabled={ false } />,
+			'carousel',
+		],
+		[
+			'Comments',
+			() => <CommentsSettings module={ panel( 'comments' ) } disabled={ false } />,
+			'comments',
+		],
+		[ 'Google Analytics', () => <GoogleAnalyticsSettings />, 'google-analytics' ],
+		[
+			'Infinite Scroll',
+			() => <InfiniteScrollSettings module={ panel( 'infinite-scroll' ) } disabled={ false } />,
+			'infinite-scroll',
+		],
+		[
+			'Markdown',
+			() => <MarkdownSettings module={ panel( 'markdown' ) } disabled={ false } />,
+			'markdown',
+		],
+		[
+			'Post by Email',
+			() => <PostByEmailSettings module={ panel( 'post-by-email' ) } disabled={ false } />,
+			'post-by-email',
+		],
+	] )(
+		'records the %s Learn more link as the old Settings screen did',
+		async ( name, settings, feature ) => {
+			render(
+				<QueryClientProvider client={ new QueryClient() }>{ settings() }</QueryClientProvider>
+			);
+			await userEvent.click(
+				await screen.findByRole( 'link', { name: new RegExp( `^Learn more about ${ name }` ) } )
+			);
+
+			expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_wpa_click', {
+				target: 'learn-more',
+				feature,
+				origin,
+				event_version: 1,
+			} );
+		}
+	);
 } );
