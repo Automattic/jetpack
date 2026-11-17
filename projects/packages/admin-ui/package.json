@@ -13,6 +13,9 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"exports": {
+		"./media-library": "./src/media-library.ts"
+	},
 	"scripts": {
 		"build": "pnpm run clean && webpack --config webpack.config.js",
 		"build-production": "pnpm run clean && NODE_ENV=production BABEL_ENV=production webpack --config webpack.config.js && pnpm run validate",

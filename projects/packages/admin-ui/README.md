@@ -239,6 +239,26 @@ window.addEventListener( 'jetpack-admin-shell:before-leave', event => {
 
 The shell asks before its own navigation, and a screen that also guards `popstate` hears that navigation in the same task: let it skip its own prompt then, so the user is asked once. Such a guard also hears popstates while its page is hidden, so let it stand down from `jetpack-admin-shell:page-hidden` until `jetpack-admin-shell:page-shown` for its page.
 
+### Media library on demand
+
+A dashboard that opens the WordPress media library from one control doesn't need `wp_enqueue_media()` on every page load. Await `loadMediaLibrary()` in that control's click handler instead: the first call fetches the media scripts and templates from admin-ajax and resolves once `wp.media` is ready, and later calls resolve at once. It rejects when the library can't be loaded, so show the user an error, and a later call tries again. The user needs the `upload_files` capability.
+
+```JS
+import { loadMediaLibrary } from '@automattic/jetpack-admin-ui/media-library';
+
+const onClick = async () => {
+	setBusy( true );
+	try {
+		await loadMediaLibrary();
+	} finally {
+		setBusy( false );
+	}
+	window.wp.media( { title, library: { type: 'image' } } ).open();
+};
+```
+
+Add `"@automattic/jetpack-admin-ui": "workspace:*"` to the dashboard's `package.json`. The page needs `ajaxurl`, which every wp-admin page defines.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).

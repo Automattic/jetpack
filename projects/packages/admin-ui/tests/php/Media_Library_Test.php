@@ -1,0 +1,96 @@
+<?php
+/**
+ * Media_Library tests.
+ *
+ * @package automattic/jetpack-admin-ui
+ */
+
+namespace Automattic\Jetpack\Admin_UI;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
+
+/**
+ * Media_Library tests.
+ *
+ * @covers \Automattic\Jetpack\Admin_UI\Media_Library
+ */
+#[CoversClass( Media_Library::class )]
+class Media_Library_Test extends TestCase {
+
+	/**
+	 * Remove what the tests hooked.
+	 *
+	 * @return void
+	 */
+	protected function tearDown(): void {
+		remove_all_actions( 'print_media_templates' );
+		remove_all_filters( 'wp_doing_ajax' );
+		remove_all_filters( 'wp_die_ajax_handler' );
+		wp_set_current_user( 0 );
+		parent::tearDown();
+	}
+
+	/**
+	 * The scripts come first, so a template callback's inline script finds wp.media, even when a plugin already ran wp_enqueue_media().
+	 *
+	 * @return void
+	 */
+	public function test_get_html_prints_the_scripts_before_the_templates() {
+		add_action(
+			'print_media_templates',
+			static function () {
+				echo '<script id="media-library-test-after-templates">wp.media.view;</script>';
+			}
+		);
+		wp_enqueue_media();
+
+		$html = Media_Library::get_html();
+
+		$scripts   = strpos( $html, 'id="media-views-js"' );
+		$templates = strpos( $html, 'id="tmpl-media-modal"' );
+		$this->assertNotFalse( $scripts );
+		$this->assertNotFalse( $templates );
+		$this->assertGreaterThan( $scripts, $templates );
+		$this->assertGreaterThan( $templates, strpos( $html, 'id="media-library-test-after-templates"' ) );
+	}
+
+	/**
+	 * Only users who can upload files get the library.
+	 *
+	 * @return void
+	 */
+	public function test_ajax_refuses_users_who_cannot_upload_files() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'media-library-subscriber-' . wp_rand(),
+					'user_pass'  => wp_generate_password(),
+					'role'       => 'subscriber',
+				)
+			)
+		);
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter(
+			'wp_die_ajax_handler',
+			static function () {
+				// Stands in for wp_die(), which never returns.
+				return /** @return never */ static function () {
+					throw new RuntimeException( 'wp_die' );
+				};
+			}
+		);
+
+		ob_start();
+		try {
+			Media_Library::ajax_media_library();
+		} catch ( RuntimeException $e ) {
+			// wp_send_json_error() ends the request.
+			unset( $e );
+		}
+		$response = json_decode( (string) ob_get_clean(), true );
+
+		$this->assertSame( array( 'success' => false ), $response );
+	}
+}

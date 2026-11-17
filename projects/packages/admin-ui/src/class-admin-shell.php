@@ -47,7 +47,7 @@ class Admin_Shell {
 	/**
 	 * The script and style handles wp_enqueue_media() enqueues, printed for members that set `media`.
 	 */
-	const MEDIA_HANDLES = array( 'media-editor', 'media-audiovideo', 'mce-view', 'image-edit', 'media-views', 'imgareaselect' );
+	const MEDIA_HANDLES = Media_Library::HANDLES;
 
 	/**
 	 * Whether init() has run.

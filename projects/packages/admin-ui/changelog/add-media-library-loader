@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add loadMediaLibrary(), which loads the media library when a dashboard first opens it instead of on every page load.
