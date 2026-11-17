@@ -769,6 +769,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		newestByMetric.size > warmingUp.length;
 
 	// ---- Block Kit ----
+	const namesUnavailable = METRIC_IDS_OVERRIDE.length > 0 && Boolean( discoveryError );
 	// Joined lists fit complete rows and an overflow notice inside one Slack text object.
 	const MAX_JOINED = 8; // Also enforce 3000 characters including the heading and overflow notice.
 	const joinRows = ( items, rowFn, heading ) => {
@@ -822,6 +823,12 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		},
 	];
 
+	if ( namesUnavailable )
+		blocks.push(
+			section(
+				':warning: Metric names could not be read (/metrics lookup failed), so page weight could not be identified.'
+			)
+		);
 	if ( discoveryFailed ) {
 		blocks.push(
 			section(
@@ -1057,6 +1064,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	// blocks, so the regressions themselves are named here too (bounded).
 	const summaryParts = [];
 	const diagnosticSummary = [];
+	if ( namesUnavailable ) summaryParts.push( 'METRIC NAME LOOKUP FAILURE' );
 	if ( discoveryFailed ) summaryParts.push( 'METRIC DISCOVERY FAILURE' );
 	else if ( allFailed ) summaryParts.push( 'DATA READ FAILURE' );
 	else {
@@ -1069,7 +1077,9 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			const headlineNames = headline.slice( 0, limit ).map( summaryName );
 			const diagnosticNames = diagnostics
 				.slice( 0, Math.max( 0, limit - headline.length ) )
-				.map( r => `${ older ? 'Older confirmed (may repeat): ' : '' }${ summaryName( r ) }` );
+				.map( summaryName );
+			if ( older && diagnosticNames.length > 0 )
+				diagnosticNames[ 0 ] = `Older confirmed (may repeat): ${ diagnosticNames[ 0 ] }`;
 			if ( headlineNames.length < headline.length ) headlineNames.push( '…' );
 			if ( diagnosticNames.length < diagnostics.length ) diagnosticNames.push( '…' );
 			diagnosticSummary.push( ...diagnosticNames );
@@ -1098,6 +1108,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		if ( invalidBaselines.size > 0 ) summaryParts.push( 'UNUSABLE LEVEL BASELINE' );
 		if ( staleInfo.length > 0 ) summaryParts.push( 'DATA STALE' );
 	}
+	const notificationDiagnostics = diagnosticSummary.filter( name => name !== '…' );
+	if ( diagnosticSummary.includes( '…' ) ) notificationDiagnostics.push( '…' );
 	const payload = {
 		channel: CHANNEL,
 		// mrkdwn:false turns off formatting and auto-link parsing on the notification fallback:
@@ -1110,7 +1122,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		unfurl_media: false,
 		text: `${ esc( repoTitle ) } CodeVitals weekly digest — ${ summaryParts.join( ', ' ) }${
 			! discoveryFailed && ! allFailed
-				? `\nDiagnostics — ${ TIMING_CAVEAT }${ diagnosticSummary.length > 0 ? `\n${ diagnosticSummary.join( ', ' ) }` : '' }`
+				? `\nDiagnostics — ${ TIMING_CAVEAT }${ notificationDiagnostics.length > 0 ? `\n${ notificationDiagnostics.join( ', ' ) }` : '' }`
 				: ''
 		}`,
 		blocks,

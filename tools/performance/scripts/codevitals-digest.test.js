@@ -168,6 +168,16 @@ const SCENARIOS = {
 		fixture.metrics = fixture.metrics.filter( metric => metric.id !== 402 );
 		return fixture;
 	},
+	crowdedNotification: () => {
+		const fixture = SCENARIOS.latecrowd();
+		for ( let i = 0; i < 4; i++ ) {
+			const id = 501 + i;
+			fixture.metrics.push( metricRow( id, `Current timing ${ i }`, `current-timing-${ i }` ) );
+			fixture.series[ id ] = spikeSeries( false );
+		}
+		return fixture;
+	},
+	firstKeptFlag: () => ( { series: { 301: [ pt( 0.5, 115, 'firstflag', true, 15 ) ] } } ),
 	backend: () => ( {
 		metrics: [
 			{ ...metricRow( 401, 'PHP total', 'admin-wp-total-staging' ), unit: 'ms' },
@@ -1409,18 +1419,16 @@ async function runDigest( scenario, envOverrides = {}, opts = {} ) {
 	}
 }
 
-test( 'unreadable page weight has a qualified headline', async () => {
-	const result = await runDigest( 'pageWeightUnreadable' );
-	assert.equal( result.code, 1, result.err );
-	assert.ok( result.out.includes( 'Page weight could not be fully read this week.' ), result.out );
-	assert.ok( ! result.out.includes( 'No page-weight alerts in this digest.' ), result.out );
-} );
-
-test( 'stale page weight has a qualified headline', async () => {
-	const result = await runDigest( 'pageWeightStale' );
-	assert.equal( result.code, 1, result.err );
-	assert.ok( result.out.includes( 'Page weight could not be fully read this week.' ), result.out );
-	assert.ok( ! result.out.includes( 'No page-weight alerts in this digest.' ), result.out );
+test( 'incomplete page-weight data has a qualified headline', async () => {
+	for ( const scenario of [ 'pageWeightUnreadable', 'pageWeightStale' ] ) {
+		const result = await runDigest( scenario );
+		assert.equal( result.code, 1, result.err );
+		assert.ok(
+			result.out.includes( 'Page weight could not be fully read this week.' ),
+			result.out
+		);
+		assert.ok( ! result.out.includes( 'No page-weight alerts in this digest.' ), result.out );
+	}
 } );
 
 test( 'an override cannot claim quiet page weight without metric discovery', async () => {
@@ -1436,6 +1444,26 @@ test( 'an override cannot claim quiet page weight without metric discovery', asy
 				texts.indexOf( '*Diagnostics*' )
 		);
 	}
+} );
+
+test( 'an override lookup failure is visible without changing its exit code', async () => {
+	const result = await runDigest( 'digestQuiet', { METRIC_IDS: '401,402' }, { discoFail: true } );
+	assert.equal( result.code, 0, result.err );
+	const payload = JSON.parse( result.out );
+	const warnings = payload.blocks
+		.map( b => b.text?.text ?? '' )
+		.filter( text => text.includes( '/metrics lookup failed' ) );
+	assert.equal( warnings.length, 1, result.out );
+	assert.match(
+		warnings[ 0 ],
+		/Metric names could not be read.*page weight could not be identified/
+	);
+	assert.ok( payload.text.indexOf( 'METRIC NAME LOOKUP FAILURE' ) >= 0, payload.text );
+	assert.ok(
+		payload.text.indexOf( 'METRIC NAME LOOKUP FAILURE' ) <
+			payload.text.indexOf( '0 sustained regression(s)' ),
+		payload.text
+	);
 } );
 
 test( 'timing quiet-state messages qualify stale, unreadable and malformed reads', async () => {
@@ -1496,6 +1524,23 @@ test( 'notification truncation follows the list of timing names it cuts', async 
 	}
 } );
 
+test( 'crowded diagnostic notifications group older names and end with one truncation marker', async () => {
+	const result = await runDigest( 'crowdedNotification' );
+	assert.equal( result.code, 0, result.err );
+	const line = JSON.parse( result.out ).text.split( '\n' ).at( -1 );
+	assert.equal( ( line.match( /Older confirmed \(may repeat\):/g ) ?? [] ).length, 1, line );
+	assert.equal( ( line.match( /…/g ) ?? [] ).length, 1, line );
+	assert.ok( line.endsWith( ', …' ), line );
+	for ( const name of [
+		'Current timing 0',
+		'Current timing 1',
+		'Current timing 2',
+		'Metric 401',
+		'Metric 402',
+	] )
+		assert.ok( line.includes( name ), line );
+} );
+
 test( 'Forms and My Jetpack page weight lead the digest and notification', async () => {
 	const result = await runDigest( 'digestLayout' );
 	assert.equal( result.code, 0, result.err );
@@ -1548,6 +1593,7 @@ test( 'alerts describe observed comparison ranges and label flags as observation
 		[ 'adjacentSteps', 'p7c10', 'p7c31' ],
 		[ 'diprecovery', 'level0', 'level20' ],
 		[ 'nanpctPending', 'c10', 'q4' ],
+		[ 'firstKeptFlag', 'firstflag', 'firstflag' ],
 	] ) {
 		const result = await runDigest( scenario );
 		assert.equal( result.code, 0, result.err );
@@ -1562,10 +1608,10 @@ test( 'alerts describe observed comparison ranges and label flags as observation
 		assert.deepEqual( range?.slice( 1 ), [ hx( start ), hx( end ) ], text );
 		assert.equal(
 			text.includes( 'observed between' ),
-			! [ 'shorttail', 'diprecovery', 'nanpctPending' ].includes( scenario ),
+			! [ 'shorttail', 'diprecovery', 'nanpctPending', 'firstKeptFlag' ].includes( scenario ),
 			text
 		);
-		if ( [ 'shorttail', 'diprecovery' ].includes( scenario ) )
+		if ( [ 'shorttail', 'diprecovery', 'firstKeptFlag' ].includes( scenario ) )
 			assert.ok( text.includes( '(single pair) within the comparison window' ), text );
 		if ( scenario === 'nanpctPending' )
 			assert.ok(
