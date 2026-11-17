@@ -65,7 +65,8 @@ export default function IdentityCrisisErrorNotice( {
 	}
 
 	return (
-		<Notice.Root intent="error" politeness="assertive">
+		// `politeness` only takes effect inside `Notice.List`; an alert is announced when it appears.
+		<Notice.Root intent="error" role="alert">
 			<Notice.Description>
 				{ getIdentityCrisisErrorMessage( error.cause ) }{ ' ' }
 				{ createInterpolateElement(

@@ -14,6 +14,6 @@ describe( 'IdentityCrisisErrorNotice', () => {
 			/>
 		);
 
-		expect( screen.queryByText( /couldn’t complete the request/ ) !== null ).toBe( shown );
+		expect( screen.queryByRole( 'alert' ) !== null ).toBe( shown );
 	} );
 } );
