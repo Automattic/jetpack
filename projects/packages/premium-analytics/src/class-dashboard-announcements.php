@@ -84,15 +84,40 @@ class Dashboard_Announcements {
 			return;
 		}
 
-		register_announcement(
-			'premium-analytics/arrange-tabs',
-			array(
+		// The dashboard's own rule: what shipped before a user arrived is no news to them.
+		foreach ( self::get_announcements() as $id => $announcement ) {
+			if ( ! self::predates_current_user( $announcement['date'] ) ) {
+				register_announcement( $id, $announcement );
+			}
+		}
+	}
+
+	/**
+	 * The announcements of the dashboard, as `$id => $args` pairs.
+	 *
+	 * @return array[]
+	 */
+	private static function get_announcements() {
+		return array(
+			'premium-analytics/arrange-tabs' => array(
 				'date'     => '2026-11-12',
 				'title'    => __( 'Arrange your tabs', 'jetpack-premium-analytics-pkg' ),
 				'excerpt'  => __( 'Reorder the dashboard tabs and choose the one that opens first.', 'jetpack-premium-analytics-pkg' ),
 				'content'  => '<p>' . esc_html__( 'Open the page options menu and choose Arrange tabs to reorder the tabs and to choose the one that opens first.', 'jetpack-premium-analytics-pkg' ) . '</p>',
 				'channels' => array( self::CHANNEL ),
-			)
+			),
 		);
+	}
+
+	/**
+	 * Whether a date is older than the current user's registration.
+	 *
+	 * @param string $date Date of an announcement.
+	 * @return bool
+	 */
+	private static function predates_current_user( $date ) {
+		$registered = strtotime( wp_get_current_user()->user_registered . ' +0000' );
+
+		return false !== $registered && strtotime( $date ) < $registered;
 	}
 }
