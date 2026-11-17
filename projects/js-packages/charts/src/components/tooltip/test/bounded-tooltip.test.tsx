@@ -204,7 +204,7 @@ describe( 'BoundedTooltip', () => {
 				content
 			</BoundedTooltip>
 		);
-		expect( screen.getByTestId( 'box' ) ).toHaveStyle( { background: 'red' } );
+		expect( screen.getByTestId( 'box' ) ).toHaveStyle( { background: 'rgb(255, 0, 0)' } );
 	} );
 
 	test( 'keeps the box inside an overflow-hidden ancestor that is wider than the wrapper', () => {

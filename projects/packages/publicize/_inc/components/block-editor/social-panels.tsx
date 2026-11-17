@@ -2,6 +2,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { PostTypeSupportCheck } from '@wordpress/editor';
 import { getSocialScriptData } from '../../utils/script-data';
 import { GlobalModals } from '../global-modals';
+import { LinkPreviewMenuItem } from './link-preview-menu-item';
 import PostPublishPanels from './post-publish-panels';
 import PrePublishPanels from './pre-publish-panels';
 
@@ -20,6 +21,7 @@ export function SocialPanels() {
 				<PrePublishPanels />
 				<PostPublishPanels />
 				<GlobalModals />
+				<LinkPreviewMenuItem />
 			</ThemeProvider>
 		</PostTypeSupportCheck>
 	);

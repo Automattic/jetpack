@@ -25,7 +25,8 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		return <div />;
 	},
 	MetricTabsChartSkeleton: () => <div />,
-	useWidgetRootContext: () => ( { reportParams: {} } ),
+	useOpenChartBucket: ( interval: string ) => ( { opensBucketsOf: interval } ),
+	useWidgetRootContext: () => ( { reportParams: { interval: 'week' } } ),
 	WidgetRoot: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	WidgetState: ( props: { children: ReactNode } ) => {
 		mockWidgetState( props );
@@ -83,6 +84,13 @@ it.each( [ 'line', 'bar' ] as const )( 'draws the %s chart the widget saved', ch
 
 	const calls = mockMetricTabsChart.mock.calls;
 	expect( calls[ calls.length - 1 ][ 0 ] ).toEqual( expect.objectContaining( { chartType } ) );
+} );
+
+it( 'opens the clicked bucket at the interval the reports were requested in', () => {
+	render( <StorePerformanceRender attributes={ {} } /> );
+
+	const calls = mockMetricTabsChart.mock.calls;
+	expect( calls[ calls.length - 1 ][ 0 ].onDatumClick ).toEqual( { opensBucketsOf: 'week' } );
 } );
 
 it( 'shows the failed report error as describeError words it, not a fixed retryable message', () => {

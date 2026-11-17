@@ -45,6 +45,7 @@ class Stats_Links_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_all_filters( 'jetpack_stats_url' );
 		remove_all_actions( 'admin_page_access_denied' );
+		remove_all_actions( 'wp_admin_page_not_found' );
 		remove_all_filters( 'wp_redirect' );
 		unset( $_GET['page'], $_GET[ Stats_Links::ROUTE_QUERY_ARG ], $GLOBALS['_parent_pages']['stats'] );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
@@ -67,6 +68,7 @@ class Stats_Links_Test extends BaseTestCase {
 
 		$this->assertSame( 10, has_filter( 'jetpack_stats_url', array( Stats_Links::class, 'filter_url' ) ) );
 		$this->assertSame( 10, has_action( 'admin_page_access_denied', array( Stats_Links::class, 'open_retired_stats_page' ) ) );
+		$this->assertSame( 10, has_action( 'wp_admin_page_not_found', array( Stats_Links::class, 'open_retired_stats_page' ) ) );
 	}
 
 	public function test_dashboard_view_points_at_the_dashboard() {
@@ -298,11 +300,21 @@ class Stats_Links_Test extends BaseTestCase {
 		return array(
 			'no route'             => array( '', '%2F' ),
 			'traffic period'       => array( '#!/stats/day/123', '%2F%3Fsection%3Dtraffic' ),
+			'traffic by the hour'  => array( '#!/stats/hour/123', '%2F%3Fsection%3Dtraffic%26preset%3Dtoday' ),
+			'summary'              => array( '#!/stats/day/referrers/123?startDate=2026-10-01', '%2Freports%2Freferrers' ),
+			'summary, other name'  => array( '#!/stats/year/searchterms/123', '%2Freports%2Fsearch-terms' ),
+			'summary, downloads'   => array( '#!/stats/day/filedownloads/123', '%2Freports%2Fdownloads' ),
+			'summary, annual'      => array( '#!/stats/annualstats/123', '%2Freports%2Fannual-insights' ),
+			'summary by the hour'  => array( '#!/stats/hour/countryviews/123', '%2Freports%2Flocations' ),
+			'summary, no period'   => array( '#!/stats/videoplays/123', '%2Freports%2Fvideos' ),
+			'summary, no report'   => array( '#!/stats/day/devices/123', '%2F%3Fsection%3Dtraffic' ),
+			'emails'               => array( '#!/stats/day/emails/123', '%2Freports%2Femails' ),
+			'comment followers'    => array( '#!/stats/follows/comment/2/123', '%2Freports%2Fcomment-followers' ),
 			'insights'             => array( '#!/stats/insights/example.org', '%2F%3Fsection%3Dinsights' ),
 			'subscribers'          => array( '#!/stats/subscribers/example.org', '%2F%3Fsection%3Dsubscribers' ),
 			'store'                => array( '#!/stats/store/orders/day/example.org', '%2F%3Fsection%3Dwoocommerce' ),
 			'ads'                  => array( '#!/stats/ads/day/example.org', '%2F%3Fsection%3Dads' ),
-			'settings'             => array( '#!/stats/settings', '%2F%3Fsection%3Dsettings' ),
+			'settings'             => array( '#!/stats/settings', '%2Fsettings' ),
 			'post'                 => array( '#!/stats/post/29/123', '%2Fpost%2F29' ),
 			'post without an ID'   => array( '#!/stats/post/0/123', '%2F' ),
 			'email opens'          => array( '#!/stats/email/opens/day/29/123', '%2Fpost%2F29%3Fsection%3Demail-opens' ),

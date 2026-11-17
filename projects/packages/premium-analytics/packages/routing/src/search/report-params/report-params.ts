@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { hasComparisonEnabled, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	deriveComparisonRange,
+	hasComparisonEnabled,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
 	isComparisonPresetId,
@@ -11,7 +15,6 @@ import {
 /**
  * Internal dependencies
  */
-import { deriveComparisonRange } from '../comparison';
 import { DASHBOARD_ORIGIN_PARAM, pickDashboardOriginParams } from '../dashboard-origin';
 
 type NormalizeInput = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
@@ -67,6 +70,12 @@ export function pickReportDateParams(
  * the page can open on its own range while its way back restores the original.
  */
 const ORIGIN_WINDOW_PREFIX = 'ref_';
+
+/**
+ * The origin preset of a page opened without a window: its links out carry none,
+ * so the destination seeds its own default.
+ */
+const NO_ORIGIN_WINDOW = 'none';
 
 /**
  * Prefix of the params a surface keeps the window a widget zoomed in from under, so the
@@ -147,11 +156,18 @@ function readOriginWindow(
 			origin[ key ] = value;
 		}
 	}
-	return Object.keys( origin ).length ? expandOriginWindow( origin ) : undefined;
+	if ( ! Object.keys( origin ).length ) {
+		return undefined;
+	}
+	if ( origin.preset === NO_ORIGIN_WINDOW ) {
+		delete origin.preset;
+	}
+	return expandOriginWindow( origin );
 }
 
 /**
  * Store the linking page's window under the origin-window params, for a detail page's way back.
+ * A linking page without a window stores `NO_ORIGIN_WINDOW`, so the way back can tell an origin from none.
  *
  * @param search - The search params the detail page was linked with.
  * @return The origin-window params.
@@ -159,7 +175,12 @@ function readOriginWindow(
 export function toReportOriginWindowParams(
 	search: Record< string, unknown > | undefined
 ): Record< string, unknown > {
-	return storeOriginWindow( search, ORIGIN_WINDOW_PREFIX );
+	const stored = storeOriginWindow( search, ORIGIN_WINDOW_PREFIX );
+	const { preset, from, to } = pickReportDateParams( search ) as NormalizeInput;
+	if ( preset === undefined && from === undefined && to === undefined ) {
+		stored[ ORIGIN_WINDOW_PREFIX + 'preset' ] = NO_ORIGIN_WINDOW;
+	}
+	return stored;
 }
 
 /**
@@ -256,8 +277,9 @@ export function pickReportOriginWindowParams(
 }
 
 /**
- * Pick the window a link out of the current page returns to: on a detail page
- * (scoped by `post_id`), the one it was opened from; elsewhere, the page's own.
+ * Pick the window a link out of the current page returns to: on a page whose seed
+ * stored an origin window under the `ref_*` params, that window, whichever param
+ * scopes the page; elsewhere, the page's own.
  *
  * @param search - The current route search params.
  * @return The unprefixed report-window params to carry.
@@ -265,11 +287,7 @@ export function pickReportOriginWindowParams(
 function pickReturnDateParams(
 	search: Record< string, unknown > | undefined
 ): Record< string, unknown > {
-	if ( search?.post_id === undefined ) {
-		return pickReportDateParams( search );
-	}
-
-	return readOriginWindow( search, ORIGIN_WINDOW_PREFIX ) ?? {};
+	return readOriginWindow( search, ORIGIN_WINDOW_PREFIX ) ?? pickReportDateParams( search );
 }
 
 /**

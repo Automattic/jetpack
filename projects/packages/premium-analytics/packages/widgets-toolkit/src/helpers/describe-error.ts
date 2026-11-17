@@ -6,7 +6,6 @@ import {
 	isAccessDenied,
 	isAnalyticsSchemaOutdated,
 	isAnalyticsTablesNotReady,
-	StatsResponseShapeError,
 } from '@jetpack-premium-analytics/data';
 /**
  * WordPress dependencies
@@ -37,12 +36,6 @@ export function describeError(
 	error: unknown,
 	{ retryDescription, onRetry }: DescribeErrorOptions
 ): WidgetStateError {
-	if ( error instanceof StatsResponseShapeError ) {
-		return {
-			description: __( 'This data is unavailable right now.', 'jetpack-premium-analytics-pkg' ),
-		};
-	}
-
 	// `stats/author/<id>` refuses an author past its post limit; a retry gets the same answer.
 	if ( getApiErrorCode( error ) === 'too_many_posts' ) {
 		return {

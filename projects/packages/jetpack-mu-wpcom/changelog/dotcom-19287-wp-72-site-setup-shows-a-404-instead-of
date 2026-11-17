@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: Send a Site Setup visit to the Dashboard instead of a "page does not exist" error on WordPress 7.2.

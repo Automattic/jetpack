@@ -273,7 +273,7 @@ function installApi() {
 		if ( path.startsWith( '/wp/v2/media/' ) ) {
 			return media;
 		}
-		return {};
+		return { code: 'success' };
 	} );
 }
 
@@ -403,7 +403,9 @@ describe( 'video stage', () => {
 		const media = makeRawMedia();
 		media.title.rendered = 'Queued title';
 		media.media_details.videopress.finished = false;
-		mockApiFetch( ( { path } ) => ( path.startsWith( '/wp/v2/media/' ) ? media : {} ) );
+		mockApiFetch( ( { path } ) =>
+			path.startsWith( '/wp/v2/media/' ) ? media : { code: 'success' }
+		);
 		const { uploadResult } = await renderUploadingStage();
 		const user = userEvent.setup();
 		const title = screen.getByLabelText( 'Title' );
@@ -452,13 +454,13 @@ describe( 'video stage', () => {
 				savedTitle = ( data as { title: string } ).title;
 				if ( savedTitle === 'First save' ) {
 					return new Promise( resolve => {
-						resolveSave = () => resolve( {} );
+						resolveSave = () => resolve( { code: 'success' } );
 					} );
 				}
 			}
 			return path.startsWith( '/wp/v2/media/' )
 				? { ...makeRawMedia(), title: { rendered: savedTitle } }
-				: {};
+				: { code: 'success' };
 		} );
 		await renderUploadingStage();
 		const user = userEvent.setup();
@@ -515,7 +517,7 @@ describe( 'video stage', () => {
 				? new Promise( resolve => {
 						resolveMedia = resolve;
 					} )
-				: Promise.resolve( {} )
+				: Promise.resolve( { code: 'success' } )
 		);
 		const { rerender } = await renderUploadingStage();
 		const user = userEvent.setup();
@@ -600,7 +602,7 @@ describe( 'video stage', () => {
 		mockApiFetch( ( { path } ) =>
 			path.startsWith( '/wp/v2/media/' )
 				? Promise.reject( new Error( 'Offline' ) )
-				: Promise.resolve( {} )
+				: Promise.resolve( { code: 'success' } )
 		);
 		await renderUploadingStage();
 		const title = screen.getByLabelText( 'Title' );
@@ -629,7 +631,7 @@ describe( 'video stage', () => {
 		mockApiFetch( ( { path } ) =>
 			path.startsWith( '/wp/v2/media/' )
 				? { ...makeRawMedia(), jetpack_videopress: undefined, media_details: {} }
-				: {}
+				: { code: 'success' }
 		);
 		await renderUploadingStage();
 		await act( async () =>
@@ -684,41 +686,49 @@ describe( 'video stage', () => {
 		).toBeInTheDocument();
 	} );
 
-	it.each( [ 'upload', 'details' ] )(
-		'retries a failed %s in the player area with edits intact',
-		async failure => {
-			await renderUploadingStage();
-			const user = userEvent.setup();
-			const title = screen.getByLabelText( 'Title' );
-			await user.clear( title );
-			await user.type( title, 'Keep me' );
-			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-			if ( failure === 'upload' ) {
-				await act( async () =>
-					mockResumable.mock.calls[ 0 ][ 0 ].onError( new Error( 'Offline' ) )
-				);
-			} else {
-				jest.mocked( apiFetch ).mockRejectedValueOnce( new Error( 'Offline' ) );
-				await act( async () =>
-					mockResumable.mock.calls[ 0 ][ 0 ].onSuccess( {
-						id: 42,
-						guid: GUID,
-						src: 'https://example.com/clip.mp4',
-					} )
-				);
-			}
-			const retry = within( screen.getByRole( 'region', { name: 'Video preview' } ) ).getByRole(
-				'button',
-				{
-					name: failure === 'upload' ? 'Retry upload' : 'Retry saving details',
-				}
+	/**
+	 * Fail the upload or its details save, retry it from the player area, and check the edits survive.
+	 *
+	 * @param failure - Which step fails.
+	 */
+	async function retryKeepsEdits( failure: 'upload' | 'details' ) {
+		await renderUploadingStage();
+		const user = userEvent.setup();
+		const title = screen.getByLabelText( 'Title' );
+		await user.clear( title );
+		await user.type( title, 'Keep me' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		if ( failure === 'upload' ) {
+			await act( async () => mockResumable.mock.calls[ 0 ][ 0 ].onError( new Error( 'Offline' ) ) );
+		} else {
+			jest.mocked( apiFetch ).mockRejectedValueOnce( new Error( 'Offline' ) );
+			await act( async () =>
+				mockResumable.mock.calls[ 0 ][ 0 ].onSuccess( {
+					id: 42,
+					guid: GUID,
+					src: 'https://example.com/clip.mp4',
+				} )
 			);
-			await user.click( retry );
-			expect( title ).toHaveValue( 'Keep me' );
-			expect( screen.getByLabelText( 'Title' ) ).toBe( title );
-			expect( mockResumable ).toHaveBeenCalledTimes( failure === 'upload' ? 2 : 1 );
 		}
-	);
+		const retry = within( screen.getByRole( 'region', { name: 'Video preview' } ) ).getByRole(
+			'button',
+			{ name: failure === 'upload' ? 'Retry upload' : 'Retry saving details' }
+		);
+		await user.click( retry );
+		expect( title ).toHaveValue( 'Keep me' );
+		expect( screen.getByLabelText( 'Title' ) ).toBe( title );
+		expect( mockResumable ).toHaveBeenCalledTimes( failure === 'upload' ? 2 : 1 );
+	}
+
+	it( 'retries a failed upload in the player area with edits intact', async () => {
+		await retryKeepsEdits( 'upload' );
+		expect( console ).not.toHaveErrored();
+	} );
+
+	it( 'retries a failed details save in the player area with edits intact', async () => {
+		await retryKeepsEdits( 'details' );
+		expect( console ).toHaveErrored();
+	} );
 
 	it( 'renders a missing temporary upload as not found without requesting an attachment', async () => {
 		mockVideoId = 'upload-missing';

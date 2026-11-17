@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	deriveComparisonRange,
 	normalizeReportParams,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
@@ -17,7 +18,6 @@ import {
 /**
  * Internal dependencies
  */
-import { deriveComparisonRange } from '../../search/comparison';
 import { encodeRangeToSearchParams } from '../../search/date-range';
 import {
 	clearZoomOutParams,

@@ -14,7 +14,7 @@ jest.mock( '@wordpress/route', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { PeriodChangeSignalProvider, type LockableInterval } from '@jetpack-premium-analytics/data';
+import { PeriodChangeSignalProvider, type DateLimits } from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -44,11 +44,14 @@ const wrapper = ( { children }: { children: ReactNode } ) => (
 );
 
 // A stage: its date control reads the URL, and its widgets set the period through the host.
-function renderStage( lockedIntervals?: readonly LockableInterval[], withZoomOut = false ) {
+function renderStage(
+	dateLimits?: Pick< DateLimits, 'lockedIntervals' | 'earliestDate' >,
+	withZoomOut = false
+) {
 	return renderHook(
 		() => {
 			const dateFilters = useReportDateFilters( '/' );
-			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, lockedIntervals, {
+			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, dateLimits, {
 				withZoomOut,
 			} );
 
@@ -84,11 +87,10 @@ describe( 'usePeriodHost', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'draws the date control to a period a widget set, once it lands', () => {
-		const { result, rerender } = renderStage();
+	it( 'draws the date control to a period a widget set, with the range it set', () => {
+		const { result } = renderStage();
 
 		act( () => result.current.host.openPeriod( WEEK ) );
-		rerender();
 
 		expect( mockSearch ).toMatchObject( {
 			from: '2026-09-21T00:00:00.000+00:00',
@@ -96,14 +98,17 @@ describe( 'usePeriodHost', () => {
 			preset: 'custom',
 			interval: 'day',
 		} );
-		expect( result.current.host.attentionId ).toEqual( expect.any( Number ) );
+		expect( result.current.host.attention ).toEqual( {
+			id: expect.any( Number ),
+			range: WEEK,
+		} );
 	} );
 
 	it.each( [
 		[ 'carries the interval over', undefined, 'week' ],
 		[ 'skips a locked interval', [ 'week', 'month', 'year' ] as const, 'day' ],
 	] )( '%s to a period a widget set', ( _name, lockedIntervals, interval ) => {
-		const { result } = renderStage( lockedIntervals );
+		const { result } = renderStage( lockedIntervals && { lockedIntervals } );
 
 		act( () => result.current.host.openPeriod( MONTH ) );
 
@@ -120,6 +125,18 @@ describe( 'usePeriodHost', () => {
 		rerender();
 
 		expect( result.current.dateFilters.zoomOut?.presetId ).toBe( presetId );
+	} );
+
+	it( 'commits a period the plan will move away from without drawing the control to it', () => {
+		const { result } = renderStage( {
+			lockedIntervals: [],
+			earliestDate: new TZDate( '2026-09-22T00:00:00.000+00:00', 'UTC' ),
+		} );
+
+		act( () => result.current.host.openPeriod( WEEK ) );
+
+		expect( mockSearch ).toMatchObject( { from: '2026-09-21T00:00:00.000+00:00' } );
+		expect( result.current.host.attention ).toBeUndefined();
 	} );
 
 	it( 'leaves the calendar on the new period when the picker closes after it', () => {

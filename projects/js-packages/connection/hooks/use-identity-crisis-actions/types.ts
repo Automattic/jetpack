@@ -1,0 +1,37 @@
+/** A Safe Mode resolution, named after its REST endpoint under `jetpack/v4/identity-crisis/`. */
+export type IdentityCrisisAction = 'migrate' | 'start-fresh' | 'confirm-safe-mode';
+
+/** Why a Safe Mode request failed; `getIdentityCrisisErrorCause()` says what each covers. */
+export type IdentityCrisisErrorCause =
+	'offline' | 'blocked' | 'output' | 'session' | 'permission' | 'server';
+
+export interface IdentityCrisisError {
+	action: IdentityCrisisAction;
+	cause: IdentityCrisisErrorCause;
+	/** The REST error code, or the client error's name, e.g. `rest_cookie_invalid_nonce` or `JsonParseError`. For tracking, not display. */
+	code?: string;
+}
+
+export interface UseIdentityCrisisActionsOptions {
+	/** Admin path, relative to `wp-admin/`, to return to after a fresh connection. */
+	redirectUri?: string;
+}
+
+export interface IdentityCrisisActions {
+	/** Moves the connection to this site's address. Resolves true on success. */
+	migrate: () => Promise< boolean >;
+	/** Starts a fresh connection. Resolves with the URL to send the user to, or null on failure. */
+	startFresh: () => Promise< string | null >;
+	/** Keeps the site in Safe Mode. Resolves true on success. */
+	confirmSafeMode: () => Promise< boolean >;
+	/** Forgets the last failure, e.g. when the user moves to another step. */
+	clearError: () => void;
+	/**
+	 * The action in progress. `start-fresh` and `confirm-safe-mode` stay set after success, because the host leaves or reloads the page.
+	 * While it is set, the actions send no request and resolve as a failure, without setting `error`.
+	 */
+	busyAction: IdentityCrisisAction | null;
+	error: IdentityCrisisError | null;
+	/** Whether `migrate` has succeeded. */
+	isMigrated: boolean;
+}

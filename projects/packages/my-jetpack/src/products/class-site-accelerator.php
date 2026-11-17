@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use WP_Error;
 
@@ -115,7 +116,7 @@ class Site_Accelerator extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Draw your readers from one post to another', 'jetpack-my-jetpack' );
+		return __( "Speed up your site with Jetpack's global CDN", 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -124,7 +125,7 @@ class Site_Accelerator extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Draw your readers from one post to another, increasing overall traffic on your site', 'jetpack-my-jetpack' );
+		return __( "Speed up your site by serving its images and static files, like CSS and JavaScript, from Jetpack's global CDN", 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -172,6 +173,10 @@ class Site_Accelerator extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		if ( Initializer::is_settings_consolidation_on_for_site() ) {
+			return admin_url( 'admin.php?page=my-jetpack#/features?search=cdn' );
+		}
+
 		return admin_url( 'admin.php?page=jetpack#/settings?term=site%20accelerator' );
 	}
 

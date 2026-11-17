@@ -12,27 +12,40 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react';
 // bundle read the same context instance.
 const DashboardSectionContext = createContext< string | undefined >( undefined );
 
+type DashboardSectionProviderProps = {
+	/**
+	 * The resolved active dashboard section.
+	 */
+	section?: string;
+
+	/**
+	 * The section's tree.
+	 */
+	children: ReactNode;
+};
+
 /**
  * Declare the dashboard tab rendering the tree below, so links out of it can
  * name the tab to return to.
  *
- * @param props          - Provider props.
- * @param props.section  - The resolved active dashboard section.
- * @param props.children - The section's tree.
+ * @param {DashboardSectionProviderProps} props - Provider props.
  * @return The provider.
  */
-export function DashboardSectionProvider( {
-	section,
-	children,
-}: {
-	section: string;
-	children: ReactNode;
-} ) {
+export function DashboardSectionProvider( { section, children }: DashboardSectionProviderProps ) {
 	return (
 		<DashboardSectionContext.Provider value={ section }>
 			{ children }
 		</DashboardSectionContext.Provider>
 	);
+}
+
+/**
+ * The dashboard tab rendering the tree, when the tree is on the dashboard.
+ *
+ * @return The section slug.
+ */
+export function useDashboardSection(): string | undefined {
+	return useContext( DashboardSectionContext );
 }
 
 /**
@@ -42,7 +55,7 @@ export function DashboardSectionProvider( {
  * @return The dashboard origin param, when one is known.
  */
 export function useDashboardOriginSearch(): Record< string, string > {
-	const dashboardSection = useContext( DashboardSectionContext );
+	const dashboardSection = useDashboardSection();
 	let search: Record< string, unknown > | undefined;
 
 	// `useSearch` throws outside a matched route (e.g. Storybook).
