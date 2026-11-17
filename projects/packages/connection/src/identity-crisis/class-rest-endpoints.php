@@ -12,7 +12,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack_Options;
 use Jetpack_XMLRPC_Server;
 use WP_Error;
-use WP_REST_Response;
+use WP_HTTP_Response;
 use WP_REST_Server;
 
 /**
@@ -264,8 +264,8 @@ class REST_Endpoints {
 		}
 
 		// The Safe Mode screens send the browser to whatever comes back, so it must be a web address.
-		$url = $response instanceof WP_REST_Response ? $response->get_data() : $response;
-		if ( ! is_string( $url ) || ! in_array( wp_parse_url( $url, PHP_URL_SCHEME ), array( 'http', 'https' ), true ) ) {
+		$url = $response instanceof WP_HTTP_Response ? $response->get_data() : $response;
+		if ( ! is_string( $url ) || ! in_array( strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) ), array( 'http', 'https' ), true ) ) {
 			return new WP_Error(
 				'start_fresh_missing_connection_url',
 				esc_html__( 'Jetpack could not get the address to connect this site to WordPress.com.', 'jetpack-connection' ),

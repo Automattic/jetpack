@@ -281,6 +281,7 @@ class REST_Endpoints_Test extends TestCase {
 		return array(
 			'no URL'        => array( new \WP_REST_Response( false ), 'start_fresh_missing_connection_url' ),
 			'not a web URL' => array( 'false&from=idc-notice', 'start_fresh_missing_connection_url' ),
+			'script URL'    => array( 'javascript:alert(1)', 'start_fresh_missing_connection_url' ),
 			'filter error'  => array( new \WP_Error( 'filter_error' ), 'filter_error' ),
 		);
 	}
