@@ -1,9 +1,9 @@
-import { loadMediaLibrary } from '@automattic/jetpack-admin-ui/media-library';
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CoverImageControl from '../../src/dashboard/settings/cover-image-control';
 
-jest.mock( '@automattic/jetpack-admin-ui/media-library', () => ( {
+jest.mock( '@automattic/jetpack-components/tools/load-media-library', () => ( {
 	loadMediaLibrary: jest.fn(),
 } ) );
 const mockedLoadMediaLibrary = loadMediaLibrary as unknown as jest.Mock;

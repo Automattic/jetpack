@@ -5,7 +5,7 @@
 // center-crops to the source's *smaller* dimension, so a 3000×1000 source
 // still produces a 1000×1000 cover — too small for podcast directories).
 
-import { loadMediaLibrary } from '@automattic/jetpack-admin-ui/media-library';
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 import { Button } from '@wordpress/components';
 import { useCallback, useId, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
