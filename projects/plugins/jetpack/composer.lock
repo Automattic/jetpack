@@ -3145,7 +3145,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "7f60fbf10ad66e5eea9ba5e026767489a3dde91d"
+                "reference": "0c816b7f3e9035bbcda6d1bd6943cbcb3cec5aa9"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -3205,6 +3205,9 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "test-php": [
                     "@composer phpunit"
