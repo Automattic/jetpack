@@ -7,6 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { ThemeProvider } from '@wordpress/theme';
 import { ButtonLink, Notice } from '@wordpress/ui';
 import { wpcomTrackEvent } from '../../common/tracks';
+import { getSidebarThemeColor } from './sidebar-theme-color';
 import { useCanvas } from './use-canvas';
 import { useGlobalStylesConfig } from './use-global-styles-config';
 import useGlobalStyleNoticeActions from './use-global-styles-notice-actions';
@@ -15,9 +16,6 @@ import { usePreview } from './use-preview';
 import './notice.scss';
 
 const GLOBAL_STYLES_VIEW_NOTICE_SELECTOR = 'wpcom-global-styles-notice-container';
-
-// Site editor sidebar background. `ThemeProvider` needs an opaque color, not a CSS variable.
-const SITE_EDITOR_SIDEBAR_BACKGROUND = '#1e1e1e';
 
 const trackEvent = ( eventName, isSiteEditor = true ) =>
 	wpcomTrackEvent( eventName, {
@@ -28,9 +26,11 @@ const trackEvent = ( eventName, isSiteEditor = true ) =>
 /**
  * Limited GS notice for the view canvas of the site editor.
  *
+ * @param {object} props            - Component props.
+ * @param {object} props.themeColor - `ThemeProvider` color seeds matching the sidebar.
  * @return {import('react').JSX.Element} The component to render.
  */
-function GlobalStylesWarningNotice() {
+function GlobalStylesWarningNotice( { themeColor } ) {
 	const { trackUpgradeClick, reset, learnMore } = useGlobalStyleNoticeActions( {
 		isSiteEditor: true,
 		context: 'view_canvas',
@@ -81,9 +81,7 @@ function GlobalStylesWarningNotice() {
 		return notice;
 	}
 
-	return (
-		<ThemeProvider color={ { background: SITE_EDITOR_SIDEBAR_BACKGROUND } }>{ notice }</ThemeProvider>
-	);
+	return <ThemeProvider color={ themeColor }>{ notice }</ThemeProvider>;
 }
 
 /**
@@ -112,7 +110,7 @@ function GlobalStylesViewNotice() {
 		saveHub.parentNode.insertBefore( noticeContainer, saveHub );
 
 		const root = createRoot( noticeContainer );
-		root.render( <GlobalStylesWarningNotice /> );
+		root.render( <GlobalStylesWarningNotice themeColor={ getSidebarThemeColor( saveHub ) } /> );
 
 		return () => {
 			root.unmount();
