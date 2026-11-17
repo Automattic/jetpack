@@ -7,37 +7,47 @@ const TEMPLATES =
 
 let loadMediaLibrary;
 let failing;
+let runs;
 
-const respondWith = ( html, status = 200 ) =>
+const freshCopy = () => {
+	let copy;
+	jest.isolateModules( () => {
+		( { loadMediaLibrary: copy } = require( '../../src/media-library' ) );
+	} );
+	return copy;
+};
+
+const respondWith = ( html, status = 200, success = true ) =>
 	jest.spyOn( global, 'fetch' ).mockResolvedValue( {
 		ok: status === 200,
 		status,
-		json: () => Promise.resolve( status === 200 ? { success: true, data: { html } } : {} ),
+		json: () => Promise.resolve( status === 200 ? { success, data: { html } } : {} ),
 	} );
 
 beforeEach( () => {
 	document.head.innerHTML = '';
 	document.body.innerHTML = '';
 	delete window.wp;
+	delete window[ Symbol.for( 'jetpack.admin-ui.media-library' ) ];
 	window.ajaxurl = '/wp-admin/admin-ajax.php';
 	window.mediaLibraryTestOrder = [];
 	failing = new Set();
-	jest.isolateModules( () => {
-		( { loadMediaLibrary } = require( '../../src/media-library' ) );
-	} );
+	runs = {};
+	loadMediaLibrary = freshCopy();
 	// jsdom doesn't download scripts: "run" media-views and report the load once it is added.
 	const append = document.head.append.bind( document.head );
 	jest.spyOn( document.head, 'append' ).mockImplementation( node => {
 		append( node );
 		const url = node.src || node.href;
 		if ( url ) {
+			runs[ node.id ] = ( runs[ node.id ] ?? 0 ) + 1;
 			setTimeout( () => {
-				if ( failing.has( node.getAttribute( 'src' ) ) ) {
+				if ( failing.has( node.getAttribute( 'src' ) || node.getAttribute( 'href' ) ) ) {
 					node.dispatchEvent( new Event( 'error' ) );
 					return;
 				}
 				if ( node.id === 'media-views-js' ) {
-					window.wp = { media: () => {} };
+					window.wp = { media: Object.assign( () => {}, { view: { MediaFrame: {} } } ) };
 				}
 				node.dispatchEvent( new Event( 'load' ) );
 			} );
@@ -59,9 +69,23 @@ describe( 'loadMediaLibrary', () => {
 
 		expect( window.mediaLibraryTestOrder ).toEqual( [ 'function' ] );
 		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
-		expect( String( global.fetch.mock.calls[ 0 ][ 0 ] ) ).toBe(
-			'http://localhost/wp-admin/admin-ajax.php?action=jetpack_media_library'
-		);
+	} );
+
+	it( 'tells the endpoint which handles the page loaded concatenated, since their tags carry no id', async () => {
+		document.head.innerHTML =
+			'<link rel="stylesheet" href="/wp-admin/load-styles.php?c=0&amp;load%5Bchunk_0%5D=dashicons,buttons" />' +
+			'<script src="/wp-admin/load-scripts.php?c=0&amp;load%5Bchunk_0%5D=jquery-core,underscore&amp;load%5Bchunk_1%5D=backbone"></script>';
+		respondWith( `${ MEDIA_VIEWS }${ TEMPLATES }` );
+
+		await loadMediaLibrary();
+
+		const url = new URL( String( global.fetch.mock.calls[ 0 ][ 0 ] ) );
+		expect( url.pathname ).toBe( '/wp-admin/admin-ajax.php' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			action: 'jetpack_media_library',
+			scripts: 'jquery-core,underscore,backbone',
+			styles: 'dashicons,buttons',
+		} );
 	} );
 
 	it( 'skips what the page already has, and fetches nothing once the library is ready', async () => {
@@ -70,30 +94,58 @@ describe( 'loadMediaLibrary', () => {
 			`<script src="/jquery.js" id="jquery-core-js"></script>${ MEDIA_VIEWS }${ TEMPLATES }`
 		);
 
-		await Promise.all( [ loadMediaLibrary(), loadMediaLibrary() ] );
+		await loadMediaLibrary();
 		await loadMediaLibrary();
 
 		expect( document.querySelectorAll( '#jquery-core-js' ) ).toHaveLength( 1 );
 		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'rejects when a script fails to load, and loads it on the next call', async () => {
-		failing.add( '/media-views.js' );
+	it( 'shares one load between dashboards that bundle their own copy', async () => {
 		respondWith( `${ MEDIA_VIEWS }${ TEMPLATES }` );
+
+		await Promise.all( [ loadMediaLibrary(), freshCopy()() ] );
+
+		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
+		expect( runs[ 'media-views-js' ] ).toBe( 1 );
+	} );
+
+	it( 'rejects when a script fails to load, and runs every script again on the next call', async () => {
+		failing.add( '/media-views.js' );
+		respondWith( `<script src="/utils.js" id="utils-js"></script>${ MEDIA_VIEWS }${ TEMPLATES }` );
 
 		await expect( loadMediaLibrary() ).rejects.toThrow( 'could not load /media-views.js' );
 
 		failing.clear();
 		await expect( loadMediaLibrary() ).resolves.toBeUndefined();
-		expect( document.querySelectorAll( '#media-views-js' ) ).toHaveLength( 1 );
+		expect( runs ).toEqual( { 'utils-js': 2, 'media-views-js': 2 } );
+		expect( document.querySelectorAll( '#utils-js' ) ).toHaveLength( 1 );
+	} );
+
+	it( 'loads the library even when a stylesheet fails', async () => {
+		failing.add( '/media-views.css' );
+		respondWith(
+			`<link rel="stylesheet" id="media-views-css" href="/media-views.css" />${ MEDIA_VIEWS }${ TEMPLATES }`
+		);
+
+		await expect( loadMediaLibrary() ).resolves.toBeUndefined();
 	} );
 
 	it.each( [
-		[ 'the endpoint fails', 403, `${ MEDIA_VIEWS }${ TEMPLATES }`, 'HTTP 403' ],
-		[ 'the scripts leave wp.media undefined', 200, TEMPLATES, 'wp.media is not defined' ],
-	] )( 'rejects when %s', async ( _, status, html, message ) => {
-		respondWith( html, status );
+		[ 'the endpoint fails', 403, true, `${ MEDIA_VIEWS }${ TEMPLATES }`, 'HTTP 403' ],
+		[ 'the endpoint reports failure', 200, false, '', 'HTTP 200' ],
+		[ 'the scripts leave wp.media undefined', 200, true, TEMPLATES, 'wp.media is not defined' ],
+	] )( 'rejects when %s', async ( _, status, success, html, message ) => {
+		respondWith( html, status, success );
 
 		await expect( loadMediaLibrary() ).rejects.toThrow( message );
+	} );
+
+	it( 'refuses an ajaxurl on another origin, whose scripts would run on this page', async () => {
+		respondWith( `${ MEDIA_VIEWS }${ TEMPLATES }` );
+		window.ajaxurl = 'https://example.com/wp-admin/admin-ajax.php';
+
+		await expect( loadMediaLibrary() ).rejects.toThrow( 'another origin' );
+		expect( global.fetch ).not.toHaveBeenCalled();
 	} );
 } );
