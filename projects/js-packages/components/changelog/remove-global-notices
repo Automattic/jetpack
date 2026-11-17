@@ -1,4 +1,0 @@
-Significance: major
-Type: removed
-
-Remove the deprecated `GlobalNotices` component, `useGlobalNotices` hook and `globalNoticesStore`; use `@wordpress/notices` directly.

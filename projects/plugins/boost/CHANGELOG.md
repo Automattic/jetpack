@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.9.0-beta] - 2026-11-17
+### Added
+- Dashboard: Open Boost from other Jetpack dashboards without a page load when the Jetpack admin shell is on. [#54917]
+- Dashboard: Show roughly how far along a speed test is, based on how long recent tests on the site took. [#54357]
+
+### Changed
+- Dashboard: Remove the "Jetpack" link to My Jetpack from the page header. [#54857]
+- Dashboard: Return to the Boost dashboard after you connect your account or restore the connection from the header, and show the WordPress.com connection screen made for your site's plugins. [#54748]
+- Dashboard: Show new speed scores without waiting for the comparison test that runs without Boost. [#54364]
+- Dashboard: Show speed scores as meters, and use the standard progress bar while a speed test runs. [#54791]
+- Dashboard: Show which step a speed test is on, and the mobile score as soon as it is measured. [#54758]
+- My Jetpack: Highlight expiring and expired plans in the account panel under your avatar, list them first with a renew link, and show other plans as active until their renewal date. [#54781]
+- My Jetpack: On sites with Jetpack Pro, replace "Purchase a plan" with "Upgrade to Complete", which goes straight to checkout. [#54862]
+- My Jetpack: Remember whether you last picked the grid or the list layout on the Features tab, and open the tab in that layout next time. [#54925]
+- My Jetpack: Return to the license screen after you connect your account from "Activate a license", and show the WordPress.com connection screen made for your site's plugins. [#54697]
+- My Jetpack: Show the WordPress.com connection screen made for your site's plugins when you connect your account from the Features tab. [#54867]
+- Update package dependencies. [#54666] [#54703] [#54706]
+
+### Fixed
+- Abilities: Set up the page cache when the set-module-status ability turns it on, report a setup failure, and pass on its notices, such as WP Super Cache being switched off. [#53558]
+- Connection: Keep the progress indicator on screen after clicking Restore Connection until the redirect to WordPress.com. [#54744]
+- Connection: Let a second administrator fix a broken connection owner by connecting their own account, which makes them the new owner. [#54469]
+- Connection: Stop showing a connection error notice for a request signature mismatch, which reconnecting rarely fixes. [#54469]
+- My Jetpack: Fill checked checkboxes in the Features list with the selected filter's color, show their focus ring only for keyboard focus, and show one focus ring per control instead of two. [#54608]
+- My Jetpack: Fix the Overview showing a product's old status after a feature is switched on or off on the Features tab. [#54311]
+- My Jetpack: Fix the Security and Growth filters on the Features tab showing no features. [#54496]
+- My Jetpack: Keep the Jetpack Pro card on the upgrade screen inside phone screens. [#54841]
+- My Jetpack: Show what went wrong and let users retry when the onboarding connection to WordPress.com fails. [#54613]
+- Stop the upgrade screen from briefly offering Jetpack Complete before Jetpack Pro. [#54839]
+
 ## [4.8.2] - 2026-11-06
 ### Added
 - Connection: Add a Connected view to the Users page, show connection errors on the Connectors card, and transfer connection ownership to another administrator without leaving your site, with a note that moving a Jetpack plan is an additional step. [#53150] [#53359] [#53581] [#53596] [#54527]
@@ -1117,6 +1147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.9.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.8.2...4.9.0-beta
 [4.8.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.8.1...4.8.2
 [4.8.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.8.0...4.8.1
 [4.8.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.7.1...4.8.0
