@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+MCP: Preserve individual tool opt-in when enabling access or tools in bulk.

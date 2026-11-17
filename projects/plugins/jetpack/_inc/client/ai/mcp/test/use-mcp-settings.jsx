@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { useMcpSettings } from '../use-mcp-settings';
+import { normalizeWpcomMcpSettings, useMcpSettings } from '../use-mcp-settings';
+import { mergeSiteMcpAbilities } from '../utils';
 
 jest.mock( '@wordpress/api-fetch' );
 
@@ -93,6 +94,40 @@ describe( 'useMcpSettings with the native WordPress.com API', () => {
 		expect( result.current.hasMcpAccess ).toBe( false );
 		expect( result.current.mcpAbilities ).toEqual( {} );
 	} );
+
+	test.each( [
+		{ siteEnabled: true, backendEnabled: false, overrides: {}, expected: false },
+		{ siteEnabled: false, backendEnabled: true, overrides: {}, expected: true },
+		{ siteEnabled: true, backendEnabled: false, overrides: { opt_in: true }, expected: true },
+		{ siteEnabled: true, backendEnabled: true, overrides: { opt_in: false }, expected: false },
+	] )(
+		'preserves opt-in state from the native response unless explicitly overridden: %j',
+		( { siteEnabled, backendEnabled, overrides, expected } ) => {
+			const { mcp_abilities: settings } = normalizeWpcomMcpSettings(
+				{
+					has_mcp_plan: true,
+					site_level_enabled: siteEnabled,
+					abilities: [
+						{ name: 'opt_in', enabled: backendEnabled, requires_opt_in: true },
+						{ name: 'ordinary', enabled: ! siteEnabled },
+					],
+					user_overrides: { abilities: overrides },
+				},
+				123
+			);
+
+			expect(
+				mergeSiteMcpAbilities(
+					settings.account,
+					settings.sites[ 0 ].abilities,
+					settings.sites[ 0 ].site_level_enabled
+				)
+			).toEqual( {
+				opt_in: { name: 'opt_in', enabled: expected, requires_opt_in: true },
+				ordinary: { name: 'ordinary', enabled: siteEnabled },
+			} );
+		}
+	);
 } );
 
 describe( 'useMcpSettings with skip', () => {

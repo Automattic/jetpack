@@ -19,6 +19,7 @@ export function groupIntentKey( category, groupName ) {
  * toggle always wins. So an "Enable all" action must also force-write an
  * explicit override for any tool in scope whose current state disagrees with
  * the new value, or a previously-toggled tool would silently stay stuck.
+ * Tools requiring opt-in can only be enabled individually.
  *
  * @param {Array<[string, object]>} scopedTools - Tools to evaluate, each as [toolId, ability].
  * @param {boolean}                 enabled     - Target enabled state.
@@ -27,7 +28,7 @@ export function groupIntentKey( category, groupName ) {
 export function getOverridesToMatch( scopedTools, enabled ) {
 	const overrides = {};
 	scopedTools.forEach( ( [ toolId, tool ] ) => {
-		if ( tool.enabled !== enabled ) {
+		if ( tool.enabled !== enabled && ( ! enabled || tool.requires_opt_in !== true ) ) {
 			overrides[ toolId ] = enabled;
 		}
 	} );
