@@ -357,8 +357,8 @@ class Local_Report_Test extends BaseTestCase {
 	/**
 	 * @dataProvider data_settings
 	 *
-	 * @param string|null $option   Stored setting, null when unset.
-	 * @param string|null $filtered What the filter returns, null when unfiltered.
+	 * @param string|null $option   Stored provider names, null when unset.
+	 * @param mixed       $filtered What the filter returns, null when unfiltered.
 	 * @param array       $params   Params replacing `provider=auto` and the local defaults; null removes one.
 	 * @param int         $status   Expected status.
 	 * @param string      $answer   Expected provider header, or error code.
@@ -366,10 +366,10 @@ class Local_Report_Test extends BaseTestCase {
 	#[DataProvider( 'data_settings' )]
 	public function test_serves_auto_from_the_providers_the_site_setting_allows( $option, $filtered, array $params, $status, $answer ) {
 		if ( null !== $option ) {
-			update_option( 'jetpack_woocommerce_stats_report_provider', $option );
+			update_option( 'jetpack_woocommerce_stats_report_providers', $option );
 		}
 		if ( null !== $filtered ) {
-			add_filter( 'jetpack_woocommerce_stats_report_provider', static fn() => $filtered );
+			add_filter( 'jetpack_woocommerce_stats_report_providers', static fn() => $filtered );
 		}
 
 		$response = $this->get_local( $params + array( 'provider' => 'auto' ) );
@@ -379,26 +379,69 @@ class Local_Report_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @return array<string, array{0: string|null, 1: string|null, 2: array, 3: int, 4: string}>
+	 * @return array<string, array{0: string|null, 1: mixed, 2: array, 3: int, 4: string}>
 	 */
 	public static function data_settings() {
 		return array(
 			'no setting'                             => array( null, null, array(), 200, 'wpcom' ),
 			'local'                                  => array( 'local', null, array(), 200, 'local' ),
 			'local, the whole contract'              => array( 'local', null, array( 'report_fields' => null ), 422, 'unsupported_fields' ),
-			'both, fields local serves'              => array( 'both', null, array(), 200, 'local' ),
-			'both, the whole contract'               => array( 'both', null, array( 'report_fields' => null ), 200, 'wpcom' ),
-			'both, over the interval cap'            => array( 'both', null, self::range( '2025-01-01', '2026-05-16' ), 200, 'wpcom' ),
-			'the filter over the option'             => array( 'local', 'wpcom', array(), 200, 'wpcom' ),
-			'an unknown setting'                     => array( null, 'mars', array(), 200, 'wpcom' ),
+			'local then wpcom, fields local serves'  => array( 'local,wpcom', null, array(), 200, 'local' ),
+			'local then wpcom, the whole contract'   => array( 'local,wpcom', null, array( 'report_fields' => null ), 200, 'wpcom' ),
+			'local then wpcom, over the cap'         => array( 'local,wpcom', null, self::range( '2025-01-01', '2026-05-16' ), 200, 'wpcom' ),
+			'wpcom then local'                       => array( 'wpcom,local', null, array(), 200, 'wpcom' ),
+			'the filter over the option, as a list'  => array( 'local', array( 'wpcom' ), array(), 200, 'wpcom' ),
+			'an unregistered provider first'         => array( 'mars,local', null, array(), 200, 'local' ),
+			'unregistered first, local refuses'      => array( 'mars,local', null, array( 'report_fields' => null ), 422, 'unsupported_fields' ),
+			'only an unregistered provider'          => array( 'mars', null, array(), 422, 'unsupported_provider' ),
 			'no provider on a local site'            => array( 'local', null, array( 'provider' => null ), 200, 'wpcom' ),
 			'provider=wpcom on a local site'         => array( 'local', null, array( 'provider' => 'wpcom' ), 200, 'wpcom' ),
 			'provider=local on a WordPress.com site' => array( 'wpcom', null, array( 'provider' => 'local' ), 200, 'local' ),
 		);
 	}
 
-	public function test_both_does_not_fall_back_when_local_data_cannot_be_served() {
-		update_option( 'jetpack_woocommerce_stats_report_provider', 'both' );
+	/**
+	 * @dataProvider data_option_changes
+	 *
+	 * @param string|null $setting       Stored provider names, null when unset.
+	 * @param string      $option        Option changed between the two requests.
+	 * @param mixed       $value         Its new value.
+	 * @param int         $requests      Requests expected to reach WordPress.com.
+	 * @param int         $invalidations Expected invalidations of core's report cache.
+	 */
+	#[DataProvider( 'data_option_changes' )]
+	public function test_a_report_option_change_drops_both_caches_only_on_a_site_with_a_provider_setting( $setting, $option, $value, $requests, $invalidations ) {
+		require_once __DIR__ . '/mocks/woocommerce-reports-cache-mock.php';
+		// @phan-suppress-next-line PhanAccessMethodInternal -- The test hooks what the package bootstrap does.
+		Provider_Setting::init();
+		if ( null !== $setting ) {
+			update_option( 'jetpack_woocommerce_stats_report_providers', $setting );
+		}
+		$GLOBALS['woocommerce_stats_mock_cache_invalidations'] = 0;
+
+		$this->get_report( array() );
+		update_option( $option, $value );
+		$this->get_report( array() );
+
+		$this->assertCount( $requests, $this->wpcom_requests );
+		$this->assertSame( $invalidations, $GLOBALS['woocommerce_stats_mock_cache_invalidations'] );
+	}
+
+	/**
+	 * @return array<string, array{0: string|null, 1: string, 2: mixed, 3: int, 4: int}>
+	 */
+	public static function data_option_changes() {
+		return array(
+			'week start, no setting'        => array( null, 'start_of_week', '0', 1, 0 ),
+			'week start, local then wpcom'  => array( 'local,wpcom', 'start_of_week', '0', 2, 1 ),
+			'excluded statuses, local'      => array( 'local', 'woocommerce_excluded_report_order_statuses', array( 'pending' ), 2, 1 ),
+			'the provider setting, set'     => array( null, 'jetpack_woocommerce_stats_report_providers', 'local,wpcom', 2, 1 ),
+			'the provider setting, changed' => array( 'wpcom', 'jetpack_woocommerce_stats_report_providers', 'local,wpcom', 2, 1 ),
+		);
+	}
+
+	public function test_auto_does_not_fall_back_to_the_next_provider_when_the_chosen_one_is_not_ready() {
+		update_option( 'jetpack_woocommerce_stats_report_providers', 'local,wpcom' );
 		$GLOBALS['woocommerce_stats_mock_analytics_off'] = true;
 
 		$response = $this->get_local( array( 'provider' => 'auto' ) );

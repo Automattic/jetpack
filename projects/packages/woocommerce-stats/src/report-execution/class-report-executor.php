@@ -23,7 +23,7 @@ class Report_Executor {
 	const PROVIDERS = array( 'local', 'wpcom' );
 
 	/**
-	 * `provider` value that follows the site's `Provider_Setting`.
+	 * `provider` value that follows the site's `Provider_Setting`, or the default provider without one.
 	 */
 	const AUTO = 'auto';
 
@@ -97,7 +97,12 @@ class Report_Executor {
 				return self::unsupported_provider( $name );
 			}
 		} else {
-			$chosen = $this->choose( self::AUTO === $provider ? Provider_Setting::get_candidates() : array( $provider ), $request );
+			$names = self::AUTO === $provider ? Provider_Setting::get_providers() : array( $provider );
+			if ( ! $names ) {
+				$names = array( self::DEFAULT_PROVIDER );
+			}
+
+			$chosen = $this->choose( $names, $request );
 			if ( is_wp_error( $chosen ) ) {
 				return $chosen;
 			}
@@ -134,16 +139,15 @@ class Report_Executor {
 	 * The first provider whose handler covers and supports the request. Readiness is checked after
 	 * the choice and never fallen back from, so a request's provider doesn't depend on the site's state.
 	 *
-	 * @param string[]       $names   Provider names, in order of preference.
-	 * @param Report_Request $request The request.
-	 * @return array{0: string, 1: Report_Handler}|WP_Error The provider name and its handler, or the first provider's refusal.
+	 * @param non-empty-array<string> $names   Provider names, in order of preference.
+	 * @param Report_Request          $request The request.
+	 * @return array{0: string, 1: Report_Handler}|WP_Error The provider name and its handler, or the first registered provider's refusal.
 	 */
 	private function choose( array $names, Report_Request $request ) {
-		$refusal = null;
+		$refusals = array();
 		foreach ( $names as $name ) {
 			$handler = $this->registry->get_handler( $request->definition->id, $name );
 			if ( null === $handler ) {
-				$refusal ??= self::unsupported_provider( $name );
 				continue;
 			}
 
@@ -154,10 +158,10 @@ class Report_Executor {
 			if ( true === $covered ) {
 				return array( $name, $handler );
 			}
-			$refusal ??= $covered;
+			$refusals[] = $covered;
 		}
 
-		return $refusal ?? self::unsupported_provider( self::AUTO );
+		return $refusals[0] ?? self::unsupported_provider( $names[0] );
 	}
 
 	/**

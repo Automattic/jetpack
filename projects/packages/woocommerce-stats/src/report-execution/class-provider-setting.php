@@ -1,6 +1,6 @@
 <?php
 /**
- * The site's choice of report provider.
+ * The site's choice of report providers.
  *
  * @package automattic/jetpack-woocommerce-stats
  */
@@ -11,37 +11,23 @@ use Automattic\Jetpack\WooCommerceStats\Api_Proxy_Controller;
 use Automattic\WooCommerce\Admin\API\Reports\Cache as Reports_Cache;
 
 /**
- * Which providers a `provider=auto` request may use: `wpcom`, `local`, or `both` (local first).
+ * The registered providers a `provider=auto` request may use, in order of preference.
  *
- * @internal Not a stable contract yet: the values may change before a settings UI exists.
+ * @internal Not a stable contract yet: the format may change before a settings UI exists.
  *
  * @since $$next-version$$
  */
 class Provider_Setting {
 
 	/**
-	 * Option holding the site's setting. Not autoloaded: only report requests read it.
+	 * Option holding the provider names, as a list or comma-separated. Write it with autoload off: only report requests read it.
 	 */
-	const OPTION = 'jetpack_woocommerce_stats_report_provider';
+	const OPTION = 'jetpack_woocommerce_stats_report_providers';
 
 	/**
 	 * Filter overriding the option.
 	 */
-	const FILTER = 'jetpack_woocommerce_stats_report_provider';
-
-	/**
-	 * Providers to try for each setting, in order.
-	 */
-	private const CANDIDATES = array(
-		'wpcom' => array( 'wpcom' ),
-		'local' => array( 'local' ),
-		'both'  => array( 'local', 'wpcom' ),
-	);
-
-	/**
-	 * Setting of a site that has none, or an unknown one.
-	 */
-	private const DEFAULT_SETTING = 'wpcom';
+	const FILTER = 'jetpack_woocommerce_stats_report_providers';
 
 	/**
 	 * Options that change what a report counts or how it groups weeks, but not core's report cache key.
@@ -63,31 +49,22 @@ class Provider_Setting {
 	}
 
 	/**
-	 * The site's setting.
-	 *
-	 * @return string `wpcom`, `local` or `both`.
-	 */
-	public static function get() {
-		/**
-		 * Filters which providers a store report requested with `provider=auto` may use. Experimental:
-		 * the values may change before a settings UI exists.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string $setting `wpcom`, `local`, or `both` for local where it serves the whole request and WordPress.com otherwise.
-		 */
-		$setting = apply_filters( self::FILTER, get_option( self::OPTION, self::DEFAULT_SETTING ) );
-
-		return is_string( $setting ) && isset( self::CANDIDATES[ $setting ] ) ? $setting : self::DEFAULT_SETTING;
-	}
-
-	/**
-	 * Providers to try, in order, for a `provider=auto` request.
+	 * Provider names to try, in order, for a `provider=auto` request; none when the site has no setting.
 	 *
 	 * @return string[]
 	 */
-	public static function get_candidates() {
-		return self::CANDIDATES[ self::get() ];
+	public static function get_providers() {
+		/**
+		 * Filters the providers a store report requested with `provider=auto` may use, in order of
+		 * preference. Experimental: the format may change before a settings UI exists.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[]|string $providers Registered provider names, such as `wpcom` or `local`, as a list or comma-separated.
+		 */
+		$providers = apply_filters( self::FILTER, get_option( self::OPTION, array() ) );
+
+		return array_values( array_unique( array_filter( wp_parse_list( $providers ), 'is_string' ) ) );
 	}
 
 	/**
@@ -103,12 +80,12 @@ class Provider_Setting {
 	}
 
 	/**
-	 * Drop cached reports after a report option changes, on a site that serves reports locally.
+	 * Drop cached reports after a report option changes, on a site with a provider setting.
 	 *
 	 * @return void
 	 */
 	public static function maybe_clear_report_caches() {
-		if ( in_array( 'local', self::get_candidates(), true ) ) {
+		if ( self::get_providers() ) {
 			self::clear_report_caches();
 		}
 	}
