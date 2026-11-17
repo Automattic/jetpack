@@ -250,7 +250,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							onValueChange={ onCodeChange }
 							maxLength={ 20 }
 							suffix={
-								<InputLayout.Slot padding="minimal">
+								<InputLayout.Slot padding="minimal" className="jp-monetize-payments__input-action">
 									<Button
 										variant="minimal"
 										tone="neutral"
