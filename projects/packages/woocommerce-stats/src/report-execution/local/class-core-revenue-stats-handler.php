@@ -45,4 +45,14 @@ class Core_Revenue_Stats_Handler extends Core_Report_Handler {
 		'coupons'             => 'coupons',
 		'refunds'             => 'refunds',
 	);
+
+	/**
+	 * Core buckets the local date columns it wrote at import, so a store whose timezone changed
+	 * keeps older orders in the zone they were imported under until they are imported again.
+	 *
+	 * @var array<string, string>
+	 */
+	protected $deviations = array(
+		'timezone' => 'zone_at_import',
+	);
 }

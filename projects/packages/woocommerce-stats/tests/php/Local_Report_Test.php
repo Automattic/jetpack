@@ -13,8 +13,10 @@ use Automattic\Jetpack\WooCommerceStats\Report_Execution\Core_Report_Handler;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Core_Revenue_Stats_Handler;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Local_Report_Provider;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Deviations;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Forward_Handler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -31,6 +33,7 @@ use WP_REST_Server;
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Core_Revenue_Stats_Handler
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Local_Report_Provider
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Forward_Handler
  *
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
@@ -39,6 +42,7 @@ use WP_REST_Server;
 #[CoversClass( Core_Revenue_Stats_Handler::class )]
 #[CoversClass( Local_Report_Provider::class )]
 #[CoversClass( Report_Executor::class )]
+#[CoversClass( Wpcom_Forward_Handler::class )]
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
 class Local_Report_Test extends BaseTestCase {
@@ -349,6 +353,34 @@ class Local_Report_Test extends BaseTestCase {
 		$this->assertSame( 'wpcom', $response->get_headers()['X-Jetpack-Report-Provider'] );
 		$this->assertCount( 1, $this->wpcom_requests );
 		$this->assertSame( array(), $this->core_queries );
+	}
+
+	/**
+	 * @dataProvider data_deviations
+	 *
+	 * @param string $provider   Provider name.
+	 * @param array  $deviations Expected deviations.
+	 */
+	#[DataProvider( 'data_deviations' )]
+	public function test_declares_deviations_from_the_orders_semantics( $provider, array $deviations ) {
+		$registry   = Report_Registry::create();
+		$definition = $registry->get_definition_for_route( 'orders/by-date' );
+		$handler    = $registry->get_handler( 'orders.by_date', $provider );
+
+		$this->assertInstanceOf( Report_Deviations::class, $handler );
+		// @phan-suppress-next-line PhanAccessMethodInternal -- The test reads the declarations.
+		$this->assertSame( $deviations, $handler->get_deviations( $definition ) );
+		$this->assertSame( array(), array_diff_key( $deviations, $definition->semantics ) );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: array<string, string>}>
+	 */
+	public static function data_deviations() {
+		return array(
+			'WordPress.com' => array( 'wpcom', array( 'timezone' => 'current_offset' ) ),
+			'local'         => array( 'local', array( 'timezone' => 'zone_at_import' ) ),
+		);
 	}
 
 	/**

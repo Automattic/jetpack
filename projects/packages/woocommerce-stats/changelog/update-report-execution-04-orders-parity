@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Reports: Declare where WordPress.com and the store's own data place orders in a different time zone in the orders by date report.

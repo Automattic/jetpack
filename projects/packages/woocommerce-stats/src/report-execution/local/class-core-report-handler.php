@@ -22,7 +22,7 @@ use WP_REST_Response;
  *
  * @since $$next-version$$
  */
-abstract class Core_Report_Handler implements Report_Handler, Report_Capability, Report_Support, Report_Readiness {
+abstract class Core_Report_Handler implements Report_Handler, Report_Capability, Report_Support, Report_Readiness, Report_Deviations {
 
 	/**
 	 * Date types the `date_type` param accepts, as core names them.
@@ -70,6 +70,13 @@ abstract class Core_Report_Handler implements Report_Handler, Report_Capability,
 	protected $fields = array();
 
 	/**
+	 * Where core departs from the report's semantics, as `Report_Deviations` declares them.
+	 *
+	 * @var array<string, string>
+	 */
+	protected $deviations = array();
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function get_capability() {
@@ -77,6 +84,15 @@ abstract class Core_Report_Handler implements Report_Handler, Report_Capability,
 			'fields' => array_keys( $this->fields ),
 			'params' => array( 'from', 'to', 'interval', 'date_type' ),
 		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param Report_Definition $definition The report.
+	 */
+	public function get_deviations( Report_Definition $definition ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- One handler class serves one report.
+		return $this->deviations;
 	}
 
 	/**

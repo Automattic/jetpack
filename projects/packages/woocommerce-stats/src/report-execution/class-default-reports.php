@@ -51,12 +51,21 @@ class Default_Reports {
 	);
 
 	/**
-	 * What an orders report counts, and by which calendar.
+	 * What an orders report counts, and by which calendar. `site` is the store's own setting:
+	 * WordPress.com reads its synced copy, so a change applies there once it has synced.
 	 */
 	private const ORDER_SEMANTICS = array(
 		'population' => 'analytics_statuses',
 		'week_start' => 'site',
 		'timezone'   => 'site',
+	);
+
+	/**
+	 * WordPress.com groups every row by the store's UTC offset today, so rows on the other side of
+	 * a DST change shift by an hour. Its range bounds follow DST.
+	 */
+	private const WPCOM_DEVIATIONS = array(
+		'orders.by_date' => array( 'timezone' => 'current_offset' ),
 	);
 
 	/**
@@ -95,7 +104,7 @@ class Default_Reports {
 		}
 
 		$registry->register_provider( 'wpcom', new Wpcom_Report_Provider() );
-		$registry->register_handler( Report_Registry::ANY_REPORT, 'wpcom', new Wpcom_Forward_Handler( new Api_Proxy_Controller() ) );
+		$registry->register_handler( Report_Registry::ANY_REPORT, 'wpcom', new Wpcom_Forward_Handler( new Api_Proxy_Controller(), self::WPCOM_DEVIATIONS ) );
 		if ( Analytics_Dashboard::is_woocommerce_available() ) {
 			$registry->register_provider( 'local', new Local_Report_Provider() );
 			$registry->register_handler( 'orders.by_date', 'local', new Core_Revenue_Stats_Handler() );
