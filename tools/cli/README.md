@@ -37,7 +37,7 @@ echo 'source ~/.jetpack-completion.sh' >> ~/.zshrc   # or ~/.bashrc
 
 zsh users can instead save it as `_jetpack` in a directory on their `fpath`.
 
-Then `jetpack bu<TAB>` completes the command, `jetpack build <TAB>` offers the project types, and `jetpack build pack<TAB>` the packages. The script holds no data: every TAB asks the CLI of the checkout you are in, so new projects show up as soon as they exist, and in a git worktree you get that worktree's projects.
+Then `jetpack bu<TAB>` completes the command, `jetpack build <TAB>` offers the project types, and `jetpack build pack<TAB>` the packages. A word that matches no type lists every project whose name contains it: `jetpack build sdk<TAB>` offers `js-packages/premium-analytics-sdk`. The script holds no project list: every TAB asks the CLI of the checkout you are in, so new projects show up as soon as they exist, and in a git worktree you get that worktree's projects. Save the script again after updating the CLI.
 
 ## Available Commands
 

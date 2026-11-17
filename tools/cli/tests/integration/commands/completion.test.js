@@ -30,6 +30,8 @@ describe( 'completion command', () => {
 			env: { SHELL: shell },
 		} );
 		expect( stdout ).toMatch( expected );
+		const kept = shell.endsWith( 'zsh' ) ? "compadd -U -M ''" : 'COMPREPLY=("${type_list[@]}")';
+		expect( stdout ).toContain( kept );
 	} );
 } );
 
@@ -47,6 +49,18 @@ describe( 'completion', () => {
 		await expect( complete( 'build', '--' ) ).resolves.toContain( '--deps' );
 		await expect( complete( 'build', 'packages/conn' ) ).resolves.toContain(
 			'packages/connection'
+		);
+		const byName = await complete( 'build', 'premium' );
+		expect( byName ).toEqual(
+			expect.arrayContaining( [
+				'js-packages/premium-analytics-sdk',
+				'packages/premium-analytics',
+				'plugins/premium-analytics',
+			] )
+		);
+		expect( byName ).not.toContain( 'packages/connection' );
+		await expect( complete( 'build', 'sdk' ) ).resolves.toContain(
+			'js-packages/premium-analytics-sdk'
 		);
 	} );
 	test( 'completes positionals of nested commands', async () => {

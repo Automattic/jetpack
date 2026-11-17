@@ -19,7 +19,8 @@ import { releaseDefine } from './commands/release.js';
 import { rsyncDefine } from './commands/rsync.js';
 import * as testCommand from './commands/test.js';
 import { watchDefine } from './commands/watch.js';
-import { completionHook } from './helpers/completion.js';
+import { COMPLETION_COMMAND, completionHook } from './helpers/completion.js';
+import { completionScript } from './helpers/completionScript.js';
 
 /**
  * The main CLI router function.
@@ -42,7 +43,10 @@ export async function cli() {
 	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
 	// The hook completes positionals by name; a builder registers its own the same way.
-	argv.completion( 'completion', 'Generate a shell completion script', completionHook( argv ) ); // Placed here to keep things alphabetical.
+	argv.completion( COMPLETION_COMMAND, false, completionHook( argv ) ); // Placed here to keep things alphabetical.
+	argv.command( 'completion', 'Generate a shell completion script', {}, () => {
+		console.log( completionScript() );
+	} );
 	argv.command( composerCommand );
 	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );

@@ -85,6 +85,21 @@ describe( 'completeProject', () => {
 	test( 'offers nothing for an unknown type', () => {
 		expect( completeProject( 'nope/' ) ).toEqual( [] );
 	} );
+	test( 'lists every project whose name contains the word, across types', () => {
+		const matches = completeProject( 'premium' );
+		expect( matches ).toEqual(
+			expect.arrayContaining( [
+				'js-packages/premium-analytics-sdk',
+				'packages/premium-analytics',
+				'plugins/premium-analytics',
+			] )
+		);
+		expect( matches ).not.toContain( 'packages/connection' );
+		expect(
+			matches.every( project => project.slice( project.indexOf( '/' ) + 1 ).includes( 'premium' ) )
+		).toBe( true );
+		expect( completeProject( 'sdk' ) ).toContain( 'js-packages/premium-analytics-sdk' );
+	} );
 } );
 
 describe( 'completionHook', () => {
@@ -109,6 +124,22 @@ describe( 'completionHook', () => {
 			'packages/',
 			'plugins/',
 		] );
+	} );
+	test( 'keeps a project-name match that does not start with the typed word', async () => {
+		const list = await run( build, 'premium', [ 'jetpack', 'build', 'premium' ], [] );
+		expect( list ).toEqual(
+			expect.arrayContaining( [
+				'js-packages/premium-analytics-sdk',
+				'packages/premium-analytics',
+				'plugins/premium-analytics',
+			] )
+		);
+		expect( list ).not.toContain( 'packages/connection' );
+	} );
+	test( 'keeps a match that sits at the end of the project name', async () => {
+		const list = await run( build, 'sdk', [ 'jetpack', 'build', 'sdk' ], [] );
+		expect( list ).toContain( 'js-packages/premium-analytics-sdk' );
+		expect( list ).not.toContain( 'packages/connection' );
 	} );
 	test( 'filters by the typed prefix and skips projects already listed', async () => {
 		const list = await run( build, 'plugins/', [

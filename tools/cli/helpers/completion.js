@@ -1,27 +1,33 @@
-import { allProjectsByType, dirs, projectTypes } from './projectHelpers.js';
+import { allProjects, allProjectsByType, dirs, projectTypes } from './projectHelpers.js';
 
 /**
- * Name under which a builder registers its own completers: `completion` is the root's script
- * command, and the NUL keeps this one off the command line.
+ * Hidden name for a builder's completers. The NUL keeps it off the command line.
  */
 export const COMPLETION_COMMAND = '\0yargs-completion';
 
 /**
- * Complete a `type/name` project: the types while more than one matches, then that type's projects.
+ * Complete a `type/name` project: the types, then that type's projects, or every
+ * project whose name contains the word when it matches no type.
  *
  * @param {string} current - The word being completed.
  * @return {string[]} Candidates.
  */
 export function completeProject( current ) {
 	const slash = current.indexOf( '/' );
-	const types =
-		slash < 0
-			? projectTypes.filter( type => type.startsWith( current ) )
-			: [ current.slice( 0, slash ) ];
-	if ( types.length !== 1 ) {
+	if ( slash >= 0 ) {
+		const type = current.slice( 0, slash );
+		return projectTypes.includes( type ) ? allProjectsByType( type ) : [];
+	}
+	const types = projectTypes.filter( type => type.startsWith( current ) );
+	if ( types.length > 1 ) {
 		return types.map( type => `${ type }/` );
 	}
-	return projectTypes.includes( types[ 0 ] ) ? allProjectsByType( types[ 0 ] ) : [];
+	if ( types.length === 1 ) {
+		return allProjectsByType( types[ 0 ] );
+	}
+	return allProjects().filter( project =>
+		project.slice( project.indexOf( '/' ) + 1 ).includes( current )
+	);
 }
 
 /**
@@ -79,7 +85,7 @@ export function positionalFor( command, words, depth ) {
  * @param {object} completers - The command's own completers, see `completionHook()`.
  * @param {string} current    - The word being completed.
  * @param {object} argv       - Parsed arguments.
- * @return {string[]} Candidates, filtered to the typed prefix.
+ * @return {string[]} Candidates that match the word being completed.
  */
 function positionalCompletions( yargs, completers, current, argv ) {
 	// The resolved command chain is only exposed through yargs' internal context; the integration
@@ -105,8 +111,29 @@ function positionalCompletions( yargs, completers, current, argv ) {
 	// Escaped for every shell but fish, as yargs does with `choices`.
 	const isFish = ( process.env.SHELL ?? '' ).includes( 'fish' );
 	return candidates
-		.filter( c => c.startsWith( current ) && ! ( positional.variadic && earlier.includes( c ) ) )
-		.map( c => ( isFish ? c : c.replace( /[\\:]/g, '\\$&' ) ) );
+		.filter(
+			candidate =>
+				matchesCurrent( candidate, current ) &&
+				! ( positional.variadic && earlier.includes( candidate ) )
+		)
+		.map( candidate => ( isFish ? candidate : candidate.replace( /[\\:]/g, '\\$&' ) ) );
+}
+
+/**
+ * Whether a candidate matches the word being completed.
+ *
+ * The name in `type/name` matches anywhere in it: `sdk` selects `js-packages/premium-analytics-sdk`.
+ *
+ * @param {string} candidate - One completion candidate.
+ * @param {string} current   - The word being completed.
+ * @return {boolean} Whether the candidate matches.
+ */
+function matchesCurrent( candidate, current ) {
+	if ( candidate.startsWith( current ) ) {
+		return true;
+	}
+	const slash = candidate.indexOf( '/' );
+	return slash > 0 && candidate.slice( slash + 1 ).includes( current );
 }
 
 /**
