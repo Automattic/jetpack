@@ -425,6 +425,19 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$this->assertSame( 'asdasd.123123', Jetpack_Options::get_option( 'blog_token' ), 'The other private options are untouched.' );
 	}
 
+	public function test_admin_shell_hover_holds_back_only_the_purchase_token() {
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		$_GET['action'] = \Automattic\Jetpack\Admin_UI\Admin_Shell::GUEST_ACTION;
+		Jetpack_Options::update_option( 'purchase_token', 'stored' );
+
+		$this->page_on_wp_build()->load_as_admin_shell_guest();
+		Jetpack_Options::update_option( 'purchase_token', 'replaced' );
+		Jetpack_Options::update_option( 'blog_token', 'new.token' );
+
+		$this->assertSame( 'stored', Jetpack_Options::get_option( 'purchase_token' ) );
+		$this->assertSame( 'new.token', Jetpack_Options::get_option( 'blog_token' ) );
+	}
+
 	/**
 	 * Fail every outgoing request, so building the page state stays offline.
 	 *
