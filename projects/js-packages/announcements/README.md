@@ -22,6 +22,8 @@ mountWhatsNew( { channels: [ 'my-plugin' ] } );
 
 A dynamic import keeps the surface out of the host's critical path.
 
+The call returns the function that takes the surface off the page, for a host that leaves it without a page load. A page has one surface: a later mount takes it over, and the function of an earlier one does nothing from then on.
+
 With wp-build, add the `automattic` scope to `wpPlugin.externalNamespaces`. wp-build finds the package installed, sees it declared as a script module (`wpScriptModuleExports`), and leaves the import external; the page import map resolves it to the module the Jetpack Announcements package registers.
 
 The host's build then names that module as a dependency. WordPress does not print a script module with a dependency that is not registered, so the PHP package that requires this one also requires `automattic/jetpack-announcements`.
