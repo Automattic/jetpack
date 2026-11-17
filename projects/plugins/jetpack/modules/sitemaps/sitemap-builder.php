@@ -1360,11 +1360,15 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				JP_NEWS_SITEMAP_MAX_ITEMS
 			);
 
-			$posts = $this->librarian->query_most_recent_posts( $item_limit );
+			$posts  = $this->librarian->query_most_recent_posts( $item_limit );
+			$expiry = JP_NEWS_SITEMAP_INTERVAL;
 			if ( empty( $posts ) ) {
 				$buffer->append( array( 'url' => array( 'loc' => home_url( '/' ) ) ) );
 			} else {
 				foreach ( $posts as $post ) {
+					// Expire the cache when the oldest entry turns 48 hours old.
+					$post_gmt = '0000-00-00 00:00:00' !== $post->post_date_gmt ? $post->post_date_gmt : get_gmt_from_date( $post->post_date );
+					$expiry   = min( $expiry, max( 1, strtotime( $post_gmt . ' UTC' ) + 2 * DAY_IN_SECONDS - time() ) );
 					$current_item = $this->post_to_news_sitemap_item( $post );
 
 					if ( $current_item['xml'] !== null && false === $buffer->append( $current_item['xml'] ) ) {
@@ -1382,7 +1386,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			set_transient(
 				'jetpack_news_sitemap_xml',
 				$the_stored_news_sitemap,
-				JP_NEWS_SITEMAP_INTERVAL
+				$expiry
 			);
 		} // End if.
 

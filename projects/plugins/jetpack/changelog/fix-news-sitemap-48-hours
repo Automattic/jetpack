@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: Limit the News sitemap to posts published within the last 48 hours, and expire its cache when the oldest entry ages out.
