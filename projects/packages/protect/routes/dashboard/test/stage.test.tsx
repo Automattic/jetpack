@@ -271,16 +271,19 @@ describe( 'Protect dashboard stage', () => {
 		expect( search( { threats: '5' } ) ).toEqual( {} );
 	} );
 
-	it( 'records the tab again when the admin shell shows the page again, not on its first show', () => {
+	it( 'records the tab again when the admin shell shows the page again, not on its first show or a route change', () => {
 		mockUseSearch.mockReturnValue( { tab: 'settings', section: 'monitor' } );
 		render( <Stage /> );
-		const shown = ( page: string, firstShow: boolean ) =>
+		const shown = ( page: string, firstShow: boolean, routeChanged = false ) =>
 			window.dispatchEvent(
-				new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+				new CustomEvent( 'jetpack-admin-shell:page-shown', {
+					detail: { page, firstShow, routeChanged },
+				} )
 			);
 
 		shown( 'jetpack-protect', true );
 		shown( 'my-jetpack', false );
+		shown( 'jetpack-protect', false, true );
 		shown( 'jetpack-protect', false );
 
 		expect( ( recordPageView as jest.Mock ).mock.calls ).toEqual( [

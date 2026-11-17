@@ -177,18 +177,21 @@ describe( 'ModernApp', () => {
 		] );
 	} );
 
-	it( 'records the route again when the admin shell shows the page again, not on its first show', () => {
+	it( 'records the route again when the admin shell shows the page again, not on its first show or a route change', () => {
 		renderApp();
 		goTo( '#/cache-debug-log' );
-		const shown = ( page: string, firstShow: boolean ) =>
+		const shown = ( page: string, firstShow: boolean, routeChanged = false ) =>
 			act( () => {
 				window.dispatchEvent(
-					new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+					new CustomEvent( 'jetpack-admin-shell:page-shown', {
+						detail: { page, firstShow, routeChanged },
+					} )
 				);
 			} );
 
 		shown( 'jetpack-boost', true );
 		shown( 'my-jetpack', false );
+		shown( 'jetpack-boost', false, true );
 		shown( 'jetpack-boost', false );
 
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [

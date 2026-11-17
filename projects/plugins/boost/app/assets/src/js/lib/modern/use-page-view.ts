@@ -52,8 +52,9 @@ export function usePageView( route: ModernRoute, enabled: boolean ): void {
 			return;
 		}
 		const onShown = ( event: Event ) => {
-			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
-			if ( page === 'jetpack-boost' && ! firstShow ) {
+			const { page, firstShow, routeChanged } = ( event as CustomEvent ).detail ?? {};
+			// On a route change, the effect above records the new route.
+			if ( page === 'jetpack-boost' && ! firstShow && ! routeChanged ) {
 				const { name, path } = getPageViewEvent( route );
 				recordBoostEvent( name, { path } );
 			}

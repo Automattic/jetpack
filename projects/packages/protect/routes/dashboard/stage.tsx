@@ -84,8 +84,9 @@ const Stage = () => {
 		recordPageView( activeTab, pageViewSection );
 		// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
 		const onShown = ( event: Event ) => {
-			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
-			if ( page === 'jetpack-protect' && ! firstShow ) {
+			const { page, firstShow, routeChanged } = ( event as CustomEvent ).detail ?? {};
+			// On a route change, this effect runs again and records the view.
+			if ( page === 'jetpack-protect' && ! firstShow && ! routeChanged ) {
 				recordPageView( activeTab, pageViewSection );
 			}
 		};

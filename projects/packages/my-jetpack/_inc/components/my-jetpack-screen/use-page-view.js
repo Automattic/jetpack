@@ -42,12 +42,16 @@ export default function usePageView(
 		}
 	}, [ recordPageView, isRedBubbleAlertsLoading, currentTab ] );
 
-	// Recorded as a page load would: with no previous tab. While loading, the effect above records it.
+	// Recorded as a page load would: with no previous tab. While loading, or when the shell changed
+	// the tab, the effect above records it.
 	useAdminShellReturn(
-		useCallback( () => {
-			if ( ! isRedBubbleAlertsLoading ) {
-				recordPageView( null );
-			}
-		}, [ recordPageView, isRedBubbleAlertsLoading ] )
+		useCallback(
+			( { routeChanged } ) => {
+				if ( ! isRedBubbleAlertsLoading && ! routeChanged ) {
+					recordPageView( null );
+				}
+			},
+			[ recordPageView, isRedBubbleAlertsLoading ]
+		)
 	);
 }
