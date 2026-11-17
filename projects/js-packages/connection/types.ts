@@ -65,15 +65,17 @@ export interface WpcomUser {
 }
 
 /**
- * Safe Mode state for the shared Safe Mode screen. Everything after `isSafeModeConfirmed` is sent
+ * Safe Mode state for the shared Safe Mode screen. Everything after `canResolve` is sent
  * only to a viewer who can resolve Safe Mode.
  */
 export interface IdentityCrisisState {
 	/** Whether the `connection-idc-screen` feature flag is on. */
 	useNewScreen: boolean;
 	canResolve: boolean;
-	isSafeModeConfirmed: boolean;
+	isSafeModeConfirmed?: boolean;
+	/** Host and path without a scheme, e.g. `example.com/`; empty when no stored error has one. Show as text, not a link. */
 	wpcomHomeUrl?: string;
+	/** Same format as `wpcomHomeUrl`. */
 	currentUrl?: string;
 	isDevelopmentSite?: boolean;
 	possibleDynamicSiteUrlDetected?: boolean;

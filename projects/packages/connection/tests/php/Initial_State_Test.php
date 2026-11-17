@@ -17,6 +17,13 @@ use PHPUnit\Framework\TestCase;
 class Initial_State_Test extends TestCase {
 
 	/**
+	 * Manager whose capability mapping a test hooked.
+	 *
+	 * @var Manager|null
+	 */
+	private $caps_manager;
+
+	/**
 	 * Cleans up the test environment after each test.
 	 */
 	protected function tearDown(): void {
@@ -26,7 +33,14 @@ class Initial_State_Test extends TestCase {
 		Identity_Crisis::$is_safe_mode_confirmed = false;
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
-		remove_all_filters( 'jetpack_sync_error_idc_validation' );
+		remove_filter( 'jetpack_options', array( Identity_Crisis::class, 'reverse_wpcom_urls_for_idc' ) );
+		delete_transient( 'jetpack_idc_local' );
+		remove_all_filters( 'jetpack_sync_home_url' );
+		remove_all_filters( 'jetpack_sync_site_url' );
+		if ( $this->caps_manager ) {
+			remove_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1 );
+			$this->caps_manager = null;
+		}
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG );
 		Feature_Flags::reset();
 		Cache::clear();
@@ -310,36 +324,26 @@ class Initial_State_Test extends TestCase {
 	}
 
 	/**
-	 * Only a viewer who can resolve Safe Mode gets the site's addresses; everyone learns it was confirmed.
+	 * Only a viewer who can resolve Safe Mode gets its details.
 	 *
 	 * @dataProvider provide_identity_crisis_viewers
 	 *
-	 * @param string $role          Role of the viewer.
-	 * @param bool   $can_resolve   Whether the viewer can resolve Safe Mode.
-	 * @param array  $expected_keys Keys the viewer receives.
+	 * @param string    $role               Role of the viewer.
+	 * @param bool      $confirmed          Whether an admin confirmed Safe Mode.
+	 * @param bool|null $expected_confirmed The isSafeModeConfirmed the viewer receives, null when withheld.
+	 * @param array     $expected_keys      Keys the viewer receives.
 	 */
 	#[DataProvider( 'provide_identity_crisis_viewers' )]
-	public function test_get_data_identity_crisis_details_follow_the_viewer( $role, $can_resolve, $expected_keys ) {
+	public function test_get_data_identity_crisis_details_follow_the_viewer( $role, $confirmed, $expected_confirmed, $expected_keys ) {
 		self::enter_safe_mode();
-		\Jetpack_Options::update_option( 'safe_mode_confirmed', true );
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'initial_state_idc_' . $role,
-				'user_pass'  => 'password',
-				'role'       => $role,
-			)
-		);
-		if ( $can_resolve ) {
-			get_user_by( 'id', $user_id )->add_cap( 'jetpack_disconnect' );
-		}
-		wp_set_current_user( $user_id );
+		\Jetpack_Options::update_option( 'safe_mode_confirmed', $confirmed );
+		$this->act_as( $role );
 
 		$identity_crisis = self::get_data()['identityCrisis'];
 
 		$this->assertEqualsCanonicalizing( $expected_keys, array_keys( $identity_crisis ) );
-		$this->assertSame( $can_resolve, $identity_crisis['canResolve'] );
-		$this->assertTrue( $identity_crisis['isSafeModeConfirmed'] );
+		$this->assertSame( 'administrator' === $role, $identity_crisis['canResolve'] );
+		$this->assertSame( $expected_confirmed, $identity_crisis['isSafeModeConfirmed'] ?? null );
 	}
 
 	/**
@@ -348,51 +352,40 @@ class Initial_State_Test extends TestCase {
 	 * @return array
 	 */
 	public static function provide_identity_crisis_viewers() {
-		$shared = array( 'useNewScreen', 'canResolve', 'isSafeModeConfirmed' );
+		$shared   = array( 'useNewScreen', 'canResolve' );
+		$resolver = array_merge( $shared, array( 'isSafeModeConfirmed', 'wpcomHomeUrl', 'currentUrl', 'isDevelopmentSite', 'possibleDynamicSiteUrlDetected', 'logoUrl' ) );
 
 		return array(
-			'can resolve'    => array(
-				'administrator',
-				true,
-				array_merge( $shared, array( 'wpcomHomeUrl', 'currentUrl', 'isDevelopmentSite', 'possibleDynamicSiteUrlDetected', 'logoUrl' ) ),
-			),
-			'cannot resolve' => array( 'contributor', false, $shared ),
+			'admin, confirmed'     => array( 'administrator', true, true, $resolver ),
+			'admin, not confirmed' => array( 'administrator', false, false, $resolver ),
+			'contributor'          => array( 'contributor', true, null, $shared ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_identity_crisis_errors
 	 *
-	 * @param string $error_code    The stored error code.
-	 * @param string $expected_wpcom The expected wpcomHomeUrl.
-	 * @param string $expected_local The expected currentUrl.
+	 * @param array|null $response        The WordPress.com response the error is stored from, null for none.
+	 * @param bool       $reversal_filter Whether Identity_Crisis::init() attached the URL reversal filter.
+	 * @param string     $expected_wpcom  The expected wpcomHomeUrl.
+	 * @param string     $expected_local  The expected currentUrl.
 	 */
 	#[DataProvider( 'provide_identity_crisis_errors' )]
-	public function test_get_data_identity_crisis_urls_survive_confirmation( $error_code, $expected_wpcom, $expected_local ) {
+	public function test_get_data_identity_crisis_urls_once_confirmed( $response, $reversal_filter, $expected_wpcom, $expected_local ) {
 		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
 		\Jetpack_Options::update_option( 'id', 12345 );
-		\Jetpack_Options::update_option(
-			'sync_error_idc',
-			array(
-				'error_code'    => $error_code,
-				'home'          => 'https://local.example',
-				'siteurl'       => 'https://local.example/wp',
-				'wpcom_home'    => 'https://wpcom.example',
-				'wpcom_siteurl' => 'https://wpcom.example/wp',
-			)
-		);
-		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
+		// WorDBless can't serve the raw URLs Urls reads.
+		add_filter( 'jetpack_sync_home_url', fn () => 'https://www.Local.example' );
+		add_filter( 'jetpack_sync_site_url', fn () => 'https://www.Local.example/wp' );
+		if ( $response ) {
+			\Jetpack_Options::update_option( 'sync_error_idc', Identity_Crisis::get_sync_error_idc_option( $response ) );
+		}
+		if ( $reversal_filter ) {
+			add_filter( 'jetpack_options', array( Identity_Crisis::class, 'reverse_wpcom_urls_for_idc' ) );
+		}
 		Identity_Crisis::$is_safe_mode_confirmed = true;
 		self::enter_safe_mode();
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'initial_state_' . $error_code,
-				'user_pass'  => 'password',
-				'role'       => 'administrator',
-			)
-		);
-		get_user_by( 'id', $user_id )->add_cap( 'jetpack_disconnect' );
-		wp_set_current_user( $user_id );
+		$this->act_as( 'administrator' );
 
 		$identity_crisis = self::get_data()['identityCrisis'];
 
@@ -401,14 +394,40 @@ class Initial_State_Test extends TestCase {
 	}
 
 	/**
-	 * Data provider for test_get_data_identity_crisis_urls_survive_confirmation.
+	 * Data provider for test_get_data_identity_crisis_urls_once_confirmed.
 	 *
 	 * @return array
 	 */
 	public static function provide_identity_crisis_errors() {
+		$response = array(
+			'wpcom_home'    => 'https://www.WPCOM.example',
+			'wpcom_siteurl' => 'https://wpcom.example/wp',
+		);
+
 		return array(
-			'site URL mismatch' => array( 'jetpack_site_url_mismatch', 'https://wpcom.example/wp', 'https://local.example/wp' ),
-			'home URL mismatch' => array( 'jetpack_home_url_mismatch', 'https://wpcom.example', 'https://local.example' ),
+			'site URL mismatch, without init()' => array( array( 'error_code' => 'jetpack_site_url_mismatch' ) + $response, false, 'wpcom.example/wp/', 'local.example/wp/' ),
+			'home URL mismatch, after init()'   => array( array( 'error_code' => 'jetpack_home_url_mismatch' ) + $response, true, 'wpcom.example/', 'local.example/' ),
+			'no stored error'                   => array( null, false, '', 'local.example/' ),
+		);
+	}
+
+	/**
+	 * Create a user with the role, map the connection capabilities as configure() does, and act as that user.
+	 *
+	 * @param string $role The role.
+	 */
+	private function act_as( $role ) {
+		$this->caps_manager = new Manager();
+		add_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'initial_state_idc_' . wp_generate_password( 8, false ),
+					'user_pass'  => 'password',
+					'role'       => $role,
+				)
+			)
 		);
 	}
 

@@ -116,9 +116,8 @@ class Initial_State {
 
 		$can_resolve = current_user_can( 'jetpack_disconnect' );
 		$data        = array(
-			'useNewScreen'        => Identity_Crisis::is_new_screen_enabled(),
-			'canResolve'          => $can_resolve,
-			'isSafeModeConfirmed' => (bool) Identity_Crisis::safe_mode_is_confirmed(),
+			'useNewScreen' => Identity_Crisis::is_new_screen_enabled(),
+			'canResolve'   => $can_resolve,
 		);
 
 		// This state is printed for any logged-in user who loads connection scripts.
@@ -129,8 +128,9 @@ class Initial_State {
 		$idc_urls = self::get_mismatched_urls();
 
 		return $data + array(
+			'isSafeModeConfirmed'            => (bool) Identity_Crisis::safe_mode_is_confirmed(),
 			'wpcomHomeUrl'                   => $idc_urls ? $idc_urls['wpcom_url'] : '',
-			'currentUrl'                     => $idc_urls ? $idc_urls['current_url'] : home_url(),
+			'currentUrl'                     => $idc_urls ? $idc_urls['current_url'] : self::get_normalized_home_url(),
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
 			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
 			'logoUrl'                        => Jetpack_Connector::get_connector_logo_url(),
@@ -138,37 +138,40 @@ class Initial_State {
 	}
 
 	/**
-	 * Get the mismatched URLs, including after an admin confirms Safe Mode.
-	 *
-	 * Identity_Crisis::get_mismatched_urls() returns false once Safe Mode is confirmed.
+	 * Get the mismatched URLs, including once Safe Mode is confirmed.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array{wpcom_url: string, current_url: string}|null
+	 * @return array{wpcom_url: string, current_url: string}|false
 	 */
 	private static function get_mismatched_urls() {
-		$error = Identity_Crisis::check_identity_crisis();
-		if ( ! is_array( $error ) ) {
-			return null;
+		$idc_urls = Identity_Crisis::get_stored_mismatched_urls();
+		if ( ! $idc_urls ) {
+			return false;
 		}
 
-		foreach ( array( 'error_code', 'wpcom_home', 'home', 'wpcom_siteurl', 'siteurl' ) as $key ) {
-			if ( ! isset( $error[ $key ] ) ) {
-				return null;
+		// The WordPress.com URLs are stored reversed, and only the filter Identity_Crisis::init() adds turns them back.
+		if ( false === has_filter( 'jetpack_options', array( Identity_Crisis::class, 'reverse_wpcom_urls_for_idc' ) ) ) {
+			$error = \Jetpack_Options::get_option( 'sync_error_idc' );
+			if ( is_array( $error ) && ! empty( $error['reversed_url'] ) ) {
+				$idc_urls['wpcom_url'] = strrev( $idc_urls['wpcom_url'] );
 			}
 		}
 
-		if ( 'jetpack_site_url_mismatch' === $error['error_code'] ) {
-			return array(
-				'wpcom_url'   => $error['wpcom_siteurl'],
-				'current_url' => $error['siteurl'],
-			);
-		}
+		return $idc_urls;
+	}
 
-		return array(
-			'wpcom_url'   => $error['wpcom_home'],
-			'current_url' => $error['home'],
-		);
+	/**
+	 * Get the home URL in the format the stored URLs use: no scheme, no `www.`, with a trailing slash.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	private static function get_normalized_home_url() {
+		$home_url = Identity_Crisis::normalize_url_protocol_agnostic( Urls::home_url() );
+
+		return is_wp_error( $home_url ) ? '' : $home_url;
 	}
 
 	/**

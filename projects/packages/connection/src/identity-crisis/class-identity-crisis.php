@@ -898,7 +898,7 @@ class Identity_Crisis {
 	 *
 	 * @return void
 	 */
-	public static function register_feature_flags() {
+	private static function register_feature_flags() {
 		Feature_Flags::register(
 			self::NEW_SCREEN_FLAG,
 			array(
@@ -926,10 +926,21 @@ class Identity_Crisis {
 	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, in safe mode, or the IDC error is not valid.
 	 */
 	public static function get_mismatched_urls() {
-		if ( ! static::has_identity_crisis() ) {
+		if ( static::$is_safe_mode_confirmed ) {
 			return false;
 		}
 
+		return static::get_stored_mismatched_urls();
+	}
+
+	/**
+	 * Returns the mismatched URLs from the stored Safe Mode error, including once Safe Mode is confirmed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, or the IDC error is not valid.
+	 */
+	public static function get_stored_mismatched_urls() {
 		$data = static::check_identity_crisis();
 
 		if ( ! $data ||
