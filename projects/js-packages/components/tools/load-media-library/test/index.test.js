@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals';
+
 // jsdom has no fetch to spy on.
 global.fetch ??= () => Promise.reject( new Error( 'Not mocked' ) );
 
@@ -9,10 +11,11 @@ let loadMediaLibrary;
 let failing;
 let runs;
 
-const freshCopy = () => {
+// Each dashboard bundles its own copy of the module.
+const freshCopy = async () => {
 	let copy;
-	jest.isolateModules( () => {
-		( { loadMediaLibrary: copy } = require( '../../src/media-library' ) );
+	await jest.isolateModulesAsync( async () => {
+		( { loadMediaLibrary: copy } = await import( '../index.ts' ) );
 	} );
 	return copy;
 };
@@ -24,16 +27,16 @@ const respondWith = ( html, status = 200, success = true ) =>
 		json: () => Promise.resolve( status === 200 ? { success, data: { html } } : {} ),
 	} );
 
-beforeEach( () => {
+beforeEach( async () => {
 	document.head.innerHTML = '';
 	document.body.innerHTML = '';
 	delete window.wp;
-	delete window[ Symbol.for( 'jetpack.admin-ui.media-library' ) ];
+	delete window[ Symbol.for( 'jetpack.media-library' ) ];
 	window.ajaxurl = '/wp-admin/admin-ajax.php';
 	window.mediaLibraryTestOrder = [];
 	failing = new Set();
 	runs = {};
-	loadMediaLibrary = freshCopy();
+	loadMediaLibrary = await freshCopy();
 	// jsdom doesn't download scripts: "run" media-views and report the load once it is added.
 	const append = document.head.append.bind( document.head );
 	jest.spyOn( document.head, 'append' ).mockImplementation( node => {
@@ -104,7 +107,8 @@ describe( 'loadMediaLibrary', () => {
 	it( 'shares one load between dashboards that bundle their own copy', async () => {
 		respondWith( `${ MEDIA_VIEWS }${ TEMPLATES }` );
 
-		await Promise.all( [ loadMediaLibrary(), freshCopy()() ] );
+		const otherCopy = await freshCopy();
+		await Promise.all( [ loadMediaLibrary(), otherCopy() ] );
 
 		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 		expect( runs[ 'media-views-js' ] ).toBe( 1 );

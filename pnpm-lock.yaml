@@ -4122,9 +4122,6 @@ importers:
       '@automattic/charts':
         specifier: workspace:*
         version: link:../../js-packages/charts
-      '@automattic/jetpack-admin-ui':
-        specifier: workspace:*
-        version: link:../admin-ui
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -5438,9 +5435,6 @@ importers:
       '@automattic/charts':
         specifier: workspace:*
         version: link:../../js-packages/charts
-      '@automattic/jetpack-admin-ui':
-        specifier: workspace:*
-        version: link:../admin-ui
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
