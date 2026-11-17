@@ -44,6 +44,40 @@ class Jetpack_Currencies_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that get_number_format() reports the separators format_price() uses.
+	 */
+	public function test_get_number_format_matches_format_price() {
+		global $wp_locale;
+		$previous_number_format   = $wp_locale->number_format;
+		$wp_locale->number_format = array(
+			'thousands_sep' => '-',
+			'decimal_point' => '|',
+		);
+		$pln                      = Jetpack_Currencies::get_number_format( 'PLN' );
+		$usd                      = Jetpack_Currencies::get_number_format( 'USD' );
+		$jpy                      = Jetpack_Currencies::get_number_format( 'JPY' );
+		$wp_locale->number_format = $previous_number_format;
+
+		$this->assertSame(
+			array(
+				'decimal'   => '|',
+				'grouping'  => '-',
+				'precision' => 2,
+			),
+			$pln
+		);
+		$this->assertSame(
+			array(
+				'decimal'   => '.',
+				'grouping'  => ',',
+				'precision' => 2,
+			),
+			$usd
+		);
+		$this->assertSame( 0, $jpy['precision'] );
+	}
+
+	/**
 	 * Test that no currency symbol is displayed when specified.
 	 */
 	public function test_format_price_no_currency_symbol() {
