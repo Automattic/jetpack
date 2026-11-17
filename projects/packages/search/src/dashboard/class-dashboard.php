@@ -87,7 +87,7 @@ class Dashboard {
 	protected $search_menu_priority = 1;
 
 	/**
-	 * Whether the admin shell is readying Search behind another dashboard, where nothing may be saved.
+	 * Whether the admin shell's hover request is readying Search behind another dashboard, where nothing may be saved.
 	 *
 	 * @var bool
 	 */
@@ -172,10 +172,21 @@ class Dashboard {
 	 * @return void
 	 */
 	public function load_as_admin_shell_guest() {
-		$this->is_admin_shell_guest = true;
+		// The shell also runs this on other dashboards' pages, to ready Search for a switch.
+		$this->is_admin_shell_guest = self::is_admin_shell_guest_request();
 		if ( $this->load_wp_build( false ) ) {
 			$this->admin_init();
 		}
+	}
+
+	/**
+	 * Whether this is the admin shell's hover request, which readies Search behind another dashboard.
+	 *
+	 * @return bool
+	 */
+	private static function is_admin_shell_guest_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared only; the shell checks the nonce.
+		return wp_doing_ajax() && isset( $_GET['action'] ) && Admin_Shell::GUEST_ACTION === wp_unslash( $_GET['action'] );
 	}
 
 	/**

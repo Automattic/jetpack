@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use Jetpack_Options;
@@ -145,10 +146,15 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 	 *
 	 * @dataProvider provide_page_loads
 	 *
-	 * @param bool $is_guest Whether the admin shell readies the page.
+	 * @param bool $is_guest Whether the admin shell readies the page through its member loader.
+	 * @param bool $is_hover Whether this is the shell's hover request.
 	 */
 	#[DataProvider( 'provide_page_loads' )]
-	public function test_only_the_page_itself_creates_the_purchase_token( $is_guest ) {
+	public function test_only_the_admin_shell_hover_skips_creating_the_purchase_token( $is_guest, $is_hover ) {
+		if ( $is_hover ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_GET['action'] = Admin_Shell::GUEST_ACTION;
+		}
 		wp_set_current_user( $this->admin_id );
 		set_current_screen( 'jetpack_page_jetpack-search' );
 		// A site connection with no connected user, the only state that gets a purchase token.
@@ -169,8 +175,11 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 			$dashboard->admin_init();
 		}
 		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-search' );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		unset( $_GET['action'] );
 
-		$this->assertSame( ! $is_guest, (bool) Jetpack_Options::get_option( 'purchase_token' ) );
+		$this->assertStringContainsString( 'JETPACK_SEARCH_DASHBOARD_INITIAL_STATE', implode( "\n", (array) wp_scripts()->get_data( Dashboard::DATA_SCRIPT_HANDLE, 'before' ) ) );
+		$this->assertSame( ! $is_hover, (bool) Jetpack_Options::get_option( 'purchase_token' ) );
 	}
 
 	/**
@@ -185,14 +194,15 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 	}
 
 	/**
-	 * The page's own load, and the admin shell readying it.
+	 * The page's own load, the shell's hover request, and another dashboard's page readying Search for a later switch.
 	 *
-	 * @return array<string, array{bool}>
+	 * @return array<string, array{bool, bool}>
 	 */
 	public static function provide_page_loads() {
 		return array(
-			'page load'         => array( false ),
-			'admin shell guest' => array( true ),
+			'page load'           => array( false, false ),
+			'hover request'       => array( true, true ),
+			'another member page' => array( true, false ),
 		);
 	}
 
