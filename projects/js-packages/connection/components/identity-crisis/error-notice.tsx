@@ -17,21 +17,24 @@ import type { ReactNode } from 'react';
  */
 function getIdentityCrisisErrorMessage( cause: IdentityCrisisErrorCause ): string {
 	switch ( cause ) {
+		// The offline, blocked and session strings match `getConnectScreenErrorMessage()`, so they translate once.
 		case 'offline':
 			return __(
-				'Your site couldn’t be reached. Check your internet connection and try again.',
+				'Your browser couldn’t complete the request to your site. A firewall, CDN or redirect may be interfering. Reload the page and try again.',
 				'jetpack-connection-js'
 			);
 		case 'blocked':
 			return __(
-				'Your site’s REST API didn’t respond. A security plugin, firewall or server rule may be blocking it.',
+				'Your site’s REST API couldn’t be reached. A security plugin or server rule may be blocking it.',
+				'jetpack-connection-js'
+			);
+		case 'output':
+			return __(
+				'Your site sent an unexpected response. Another plugin or a PHP error may be adding extra output; your site’s error log, or temporarily deactivating other plugins, can show which.',
 				'jetpack-connection-js'
 			);
 		case 'session':
-			return __(
-				'Your login session has expired. Reload the page and try again.',
-				'jetpack-connection-js'
-			);
+			return __( 'Your session expired. Reload the page and try again.', 'jetpack-connection-js' );
 		case 'permission':
 			return __(
 				'You don’t have permission to do this. Ask a site administrator.',

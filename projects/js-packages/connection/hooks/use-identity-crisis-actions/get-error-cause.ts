@@ -20,12 +20,15 @@ function isObject( value: unknown ): value is Record< string, unknown > {
  */
 export function getIdentityCrisisErrorCause( error: unknown ): IdentityCrisisErrorCause {
 	switch ( error instanceof Error ? error.name : undefined ) {
-		// The request never reached the site.
+		// Reads these the way `getConnectScreenErrorMessage()` does; keep the two in step.
+		// The request never completed: no connection, or a firewall, CDN or redirect in the way.
 		case 'FetchNetworkError':
 			return 'offline';
-		// A non-JSON answer or a missing route comes from a firewall, a security plugin or a PHP fatal, not the REST API.
+		// A non-JSON answer: something, usually a plugin or a PHP error, printed extra output.
 		case 'JsonParseError':
 		case 'JsonParseAfterRedirectError':
+			return 'output';
+		// The REST route is missing, so a security plugin or server rule is blocking it.
 		case 'Api404Error':
 		case 'Api404AfterRedirectError':
 			return 'blocked';

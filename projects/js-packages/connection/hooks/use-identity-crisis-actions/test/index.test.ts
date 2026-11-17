@@ -154,8 +154,8 @@ describe( 'useIdentityCrisisActions', () => {
 describe( 'getIdentityCrisisErrorCause', () => {
 	it.each( [
 		[ new clientErrors.FetchNetworkError(), 'offline' ],
-		[ new clientErrors.JsonParseError(), 'blocked' ],
-		[ new clientErrors.JsonParseAfterRedirectError(), 'blocked' ],
+		[ new clientErrors.JsonParseError(), 'output' ],
+		[ new clientErrors.JsonParseAfterRedirectError(), 'output' ],
 		[ new clientErrors.Api404Error(), 'blocked' ],
 		[ apiError( 'rest_disabled', 403 ), 'blocked' ],
 		[ apiError( 'rest_cookie_invalid_nonce', 403 ), 'session' ],
