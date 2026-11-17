@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize\Abilities;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_Error;
 use WP_REST_Request;
@@ -245,6 +246,7 @@ class Social_Abilities_Test extends BaseTestCase {
 			),
 			$result
 		);
+		$this->assertTrue( $this->requests[0]->get_param( 'test_connections' ), 'Untested connections all have a null status.' );
 		$request = $this->requests[1];
 		$this->assertSame( 'POST', $request->get_method() );
 		$this->assertSame( '/wpcom/v2/publicize/share-post/' . $post_id, $request->get_route() );
@@ -388,6 +390,42 @@ class Social_Abilities_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 'jetpack_social_not_published', $result->get_error_code() );
+		$this->assertSame( array( 'status' => 400 ), $result->get_error_data() );
+		$this->assertCount( 0, $this->requests );
+	}
+
+	/**
+	 * Posts that Publicize never auto-shares.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function provide_unshareable_posts(): array {
+		return array(
+			'password-protected post' => array( array( 'post_password' => 'secret' ), 'jetpack_social_password_protected' ),
+			'page'                    => array( array( 'post_type' => 'page' ), 'jetpack_social_post_type_not_shareable' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_unshareable_posts
+	 *
+	 * @param array  $postarr Extra post fields.
+	 * @param string $code    Expected error code.
+	 */
+	#[DataProvider( 'provide_unshareable_posts' )]
+	public function test_share_post_refuses_posts_publicize_does_not_share( array $postarr, string $code ): void {
+		$this->login( 'administrator' );
+		$post_id = (int) wp_insert_post(
+			array(
+				'post_title'  => 'A post',
+				'post_status' => 'publish',
+			) + $postarr
+		);
+		$this->fake_share_rest( array() );
+
+		$result = Social_Abilities::share_post( array( 'post_id' => $post_id ) );
+
+		$this->assertSame( $code, $result->get_error_code() );
 		$this->assertSame( array( 'status' => 400 ), $result->get_error_data() );
 		$this->assertCount( 0, $this->requests );
 	}

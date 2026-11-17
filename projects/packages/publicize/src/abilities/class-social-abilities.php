@@ -10,6 +10,7 @@
 
 namespace Automattic\Jetpack\Publicize\Abilities;
 
+use Automattic\Jetpack\Publicize\Publicize_Base;
 use Automattic\Jetpack\Publicize\Publicize_Utils;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use WP_Error;
@@ -119,7 +120,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/get-connections'   => array(
 				'label'               => __( 'Get social connections', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'List the social network accounts connected to this site through Jetpack Social. Shape: { total, connections: [ { connection_id, service_name, service_label, display_name, external_handle, profile_link, shared, status } ] }. `status` is ok, broken or must_reauth; a connection that is not ok cannot publish until it is reconnected in the Jetpack Social settings. `shared` is true when every author on the site can use the connection. Filter by `service_name` (for example facebook or linkedin). Set `test_connections` to check each connection against its network, which is slower. Returns an empty list when nothing is connected. Use connection_id with jetpack-social/delete-connection. On a Jetpack site the current user must be connected to WordPress.com.',
+					'List the social network accounts connected to this site through Jetpack Social. Shape: { total, connections: [ { connection_id, service_name, service_label, display_name, external_handle, profile_link, shared, status } ] }. `shared` is true when every author on the site can use the connection. Filter by `service_name` (for example facebook or linkedin). Set `test_connections` to check each connection against its network, which is slower; `status` is then ok, broken or must_reauth, and is null without it. A connection that is not ok cannot publish until it is reconnected in the Jetpack Social settings. Returns an empty list when nothing is connected. Use connection_id with jetpack-social/delete-connection. On a Jetpack site the current user must be connected to WordPress.com.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
@@ -164,7 +165,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/share-post'        => array(
 				'label'               => __( 'Share a post to social networks', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, queued, connections }, where connections counts the working accounts the share goes to. Returns an error when no working connection would receive it. The shares are queued and go out in the background, so the call returns before they are posted. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is optional text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com.',
+					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, queued, connections }, where connections counts the working accounts the share goes to. Each connection is checked against its network first, and the call returns an error when no working connection would receive the share. The shares are queued and go out in the background, so the call returns before they are posted. Each call publishes again, so repeating it posts a duplicate. Only published posts without a password can be shared, and only post types that Jetpack Social supports (posts by default). `message` is optional text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
@@ -339,6 +340,12 @@ class Social_Abilities extends Registrar {
 		if ( 'publish' !== $post->post_status ) {
 			return new WP_Error( 'jetpack_social_not_published', __( 'Only published posts can be shared.', 'jetpack-publicize-pkg' ), array( 'status' => 400 ) );
 		}
+		if ( '' !== $post->post_password ) {
+			return new WP_Error( 'jetpack_social_password_protected', __( 'Password-protected posts cannot be shared.', 'jetpack-publicize-pkg' ), array( 'status' => 400 ) );
+		}
+		if ( ! self::post_type_is_shareable( $post->post_type ) ) {
+			return new WP_Error( 'jetpack_social_post_type_not_shareable', __( 'Jetpack Social does not share this post type.', 'jetpack-publicize-pkg' ), array( 'status' => 400 ) );
+		}
 
 		$body = array(
 			'message' => $message,
@@ -348,8 +355,11 @@ class Social_Abilities extends Registrar {
 			$body['skipped_connections'] = array_map( 'absint', $input['skipped_connections'] );
 		}
 
+		// Without test_connections the route reports every status as null, so broken accounts would count as working.
 		$skipped = $body['skipped_connections'] ?? array();
-		$items   = self::dispatch( new WP_REST_Request( 'GET', self::CONNECTIONS_ROUTE ) );
+		$list    = new WP_REST_Request( 'GET', self::CONNECTIONS_ROUTE );
+		$list->set_param( 'test_connections', true );
+		$items = self::dispatch( $list );
 		if ( is_wp_error( $items ) ) {
 			return $items;
 		}
@@ -417,6 +427,23 @@ class Social_Abilities extends Registrar {
 			'deleted'       => true,
 			'connection_id' => $connection_id,
 		);
+	}
+
+	/**
+	 * Does Jetpack Social share posts of this type?
+	 *
+	 * @param string $post_type Post type.
+	 * @return bool
+	 */
+	private static function post_type_is_shareable( string $post_type ): bool {
+		global $publicize;
+
+		if ( $publicize instanceof Publicize_Base ) {
+			return $publicize->post_type_is_publicizeable( $post_type );
+		}
+
+		// Same rule as Publicize_Base::post_type_is_publicizeable(), for when Publicize is not set up.
+		return 'post' === $post_type || post_type_supports( $post_type, 'publicize' );
 	}
 
 	/**
