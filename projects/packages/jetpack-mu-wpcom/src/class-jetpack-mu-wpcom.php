@@ -87,6 +87,8 @@ class Jetpack_Mu_Wpcom {
 		 */
 		require_once __DIR__ . '/features/wpcom-feature-flags/class-wpcom-feature-flags.php';
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Feature_Flags::init();
+		require_once __DIR__ . '/features/wpcom-feature-flags/class-wpcom-admin-shell-rollout.php';
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Admin_Shell_Rollout::init();
 
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
