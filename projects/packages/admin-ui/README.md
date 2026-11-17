@@ -199,7 +199,7 @@ Unlike `add_menu()`, the page gets neither the core-notice CSS nor the WPDS desi
 
 With the admin shell on, opening a member doesn't load the page, so work a dashboard does once per page load doesn't run again. The shell dispatches two events on `window` instead:
 
-* `jetpack-admin-shell:page-shown` once a member is on screen and its URL is written, with `detail: { page, previous, firstShow, routeChanged, url }`. `previous` is the page the shell switched from, or `null` on a page load. `firstShow` is `true` the first time the app renders in this document and `false` when the shell shows an app it kept mounted. `routeChanged` is `true` only when the shell reopened a kept-mounted app at a URL whose query or hash differs from where it was left, such as through a link or Back, so the app's router has already seen a navigation. It is `false` on a first show, on a return to the route the app was left on, and when unsaved changes kept the app where it was.
+* `jetpack-admin-shell:page-shown` once a member is on screen and its URL is written, with `detail: { page, previous, firstShow, routeChanged, hiddenFor, stale, url }`. `previous` is the page the shell switched from, or `null` on a page load. `firstShow` is `true` the first time the app renders in this document and `false` when the shell shows an app it kept mounted. `routeChanged` is `true` only when the shell reopened a kept-mounted app at a URL whose query or hash differs from where it was left, such as through a link or Back, so the app's router has already seen a navigation. It is `false` on a first show, on a return to the route the app was left on, and when unsaved changes kept the app where it was. `hiddenFor` is how many milliseconds a kept-mounted app was hidden since its last `page-shown`, and `0` on a first show. `stale` is `true` once that reaches five minutes.
 * `jetpack-admin-shell:page-hidden` as a member leaves the screen, with `detail: { page, previous: null, next, firstShow: false, url }`. `next` is the page the shell is switching to. `page` can be a page that never finished rendering, if the user moved on before it did.
 
 Don't pair the two events: a switch dispatches no `page-shown` when another switch overtakes it before its page renders, or when it returns to a page still rendering from an earlier switch. A later `page-shown` can name a page that never rendered as `previous`. If `next` fails to open while the user is still waiting on it, the shell falls back to loading it.
@@ -220,6 +220,8 @@ useEffect( () => {
 	return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
 }, [] );
 ```
+
+A hidden dashboard isn't remounted when it's shown again, so data it fetched before it was hidden stays on screen. On `page-shown` for its own page with `stale` set, a dashboard refetches its queries, such as with `queryClient.invalidateQueries()`, rather than remounting.
 
 Neither event fires while the shell is off.
 
