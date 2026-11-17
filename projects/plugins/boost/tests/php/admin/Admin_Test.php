@@ -538,6 +538,7 @@ class Admin_Test extends Base_TestCase {
 		$this->assertArrayHasKey( 'my-jetpack', $members );
 		if ( $joins ) {
 			$this->assertSame( array( $admin, 'load_as_admin_shell_guest' ), $members[ JETPACK_BOOST_SLUG ]['load'] );
+			$this->assertContains( 'my-jetpack-header-controls', $members[ JETPACK_BOOST_SLUG ]['handles'] );
 		}
 	}
 
