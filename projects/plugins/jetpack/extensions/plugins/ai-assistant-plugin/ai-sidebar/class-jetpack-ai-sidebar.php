@@ -315,7 +315,9 @@ class Jetpack_AI_Sidebar {
 	 * @return bool
 	 */
 	private static function is_seo_suggestions_enabled(): bool {
+		// Another plugin may load an SEO package predating the enhancer entitlement check.
 		return class_exists( Ai_Seo::class )
+			&& Current_Plan::supports( 'ai-seo-enhancer' )
 			&& Ai_Seo::is_available()
 			&& \Jetpack_AI_Settings::is_ai_seo_enabled();
 	}

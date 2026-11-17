@@ -310,7 +310,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			return false;
 		}
 
-		return Ai_Seo::has_reachable_surface();
+		return Current_Plan::supports( 'ai-seo-enhancer' ) && Ai_Seo::has_reachable_surface();
 	}
 
 	/**

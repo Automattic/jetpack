@@ -212,7 +212,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 * satisfied the row is available.
 	 *
 	 * Positive-entitlement is asserted on the self-hosted flavor only. On
-	 * WordPress.com Atomic (wpcomsh) `advanced-seo` is a registered wpcom
+	 * WordPress.com Atomic (wpcomsh) `ai-seo-enhancer` is a registered wpcom
 	 * feature, so Current_Plan::supports() resolves it through the real
 	 * wpcom_site_has_feature() purchase lookup rather than the
 	 * `jetpack_active_plan` filter set here; forcing a matching purchase would
@@ -265,17 +265,20 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Input 3 on a free plan: entitled to AI SEO, but neither surface it governs
-	 * can run here — no sidebar off WordPress.com, and the editor's generation
-	 * needs `ai-seo-enhancer`. A control over nothing is not offered.
+	 * Manual SEO eligibility does not make the AI SEO settings row available.
 	 */
-	public function test_seo_row_unavailable_on_a_free_plan_without_a_surface() {
+	public function test_seo_row_requires_enhancer_even_with_a_sidebar_host() {
 		wp_set_current_user( self::$admin_id );
 
 		self::set_seo_tools_active( true );
 		self::set_plan( 'jetpack_free' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true', 99 );
 
-		$this->assertFalse( $this->get_seo_available() );
+		try {
+			$this->assertFalse( $this->get_seo_available() );
+		} finally {
+			remove_filter( 'jetpack_ai_sidebar_enabled', '__return_true', 99 );
+		}
 	}
 
 	/**
