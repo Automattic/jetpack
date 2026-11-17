@@ -199,8 +199,8 @@ Unlike `add_menu()`, the page gets neither the core-notice CSS nor the WPDS desi
 
 With the admin shell on, opening a member doesn't load the page, so work a dashboard does once per page load doesn't run again. The shell dispatches two events on `window` instead:
 
-* `jetpack-admin-shell:page-shown` once a member is on screen and its URL is written, with `detail: { page, previous, firstShow, url }`. `previous` is the page that was on screen before, or `null` on a page load. `firstShow` is `true` the first time the app renders in this document and `false` when the shell shows an app it kept mounted.
-* `jetpack-admin-shell:page-hidden` as a member leaves the screen, with `detail: { page, previous: null, next, firstShow: false, url }`. `next` is the page about to be shown, and `url` is still the hidden page’s.
+* `jetpack-admin-shell:page-shown` once a member is on screen and its URL is written, with `detail: { page, previous, firstShow, url }`. `previous` is the page the shell switched from, or `null` on a page load. `firstShow` is `true` the first time the app renders in this document and `false` when the shell shows an app it kept mounted.
+* `jetpack-admin-shell:page-hidden` as a member leaves the screen, with `detail: { page, previous: null, next, firstShow: false, url }`. `next` is the page the shell is switching to. If it fails to open, the shell falls back to loading it, and no `page-shown` follows in this document.
 
 A dashboard that records a Tracks page view when it mounts records it again on `page-shown` for its own page when `firstShow` is `false`: its mount has already counted the first show, and with the shell off every visit is a page load that counts.
 

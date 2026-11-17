@@ -334,14 +334,17 @@ describe( 'admin shell switch', () => {
 		window.addEventListener( 'jetpack-admin-shell:page-hidden', record );
 		window.addEventListener( 'jetpack-admin-shell:page-shown', record );
 
-		click( A );
-		await settle();
-		click( B );
-		await settle();
-		click( A );
-		await settle();
-		window.removeEventListener( 'jetpack-admin-shell:page-hidden', record );
-		window.removeEventListener( 'jetpack-admin-shell:page-shown', record );
+		try {
+			click( A );
+			await settle();
+			click( B );
+			await settle();
+			click( A );
+			await settle();
+		} finally {
+			window.removeEventListener( 'jetpack-admin-shell:page-hidden', record );
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', record );
+		}
 
 		expect(
 			events.map( ( [ type, { page, previous, next, firstShow } ] ) =>
