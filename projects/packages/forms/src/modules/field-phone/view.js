@@ -241,7 +241,13 @@ const { actions } = store( NAMESPACE, {
 				return;
 			}
 			if ( event.key === 'Escape' ) {
+				event.preventDefault();
 				context.comboboxOpen = false;
+				// Hiding the dropdown while the search input has focus would drop focus to <body>.
+				event.target
+					?.closest?.( '.jetpack-custom-combobox' )
+					?.querySelector( '.jetpack-combobox-trigger' )
+					?.focus?.();
 			} else if ( event.key === 'Enter' ) {
 				event.preventDefault();
 				// Select either the currently selected country or the first filtered option if available
