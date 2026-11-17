@@ -17,7 +17,18 @@ require_once __DIR__ . '/class-protected-owner-error-handler.php';
  * Initialize Jetpack Connection handlers.
  */
 function wpcomsh_init_connection_handlers() {
-	wpcomsh_init_external_storage();
+	/*
+	 * Register the external storage provider on `jetpack_external_storage_init`, which fires on
+	 * the first read of external storage. Then the provider does not depend on when the connection
+	 * package loads. Reads before this hook is in place do not get external storage, so load this
+	 * file before code that reads the connection options. If a read already fired the action, it
+	 * does not fire again, so register the provider now.
+	 */
+	add_action( 'jetpack_external_storage_init', 'wpcomsh_init_external_storage' );
+	if ( did_action( 'jetpack_external_storage_init' ) ) {
+		wpcomsh_init_external_storage();
+	}
+
 	wpcomsh_init_protected_owner_handler();
 }
 
@@ -51,14 +62,4 @@ function wpcomsh_init_protected_owner_handler() {
 	}
 }
 
-/*
- * Register the external storage provider on the first read of external storage, so that the
- * load order of the plugins does not matter. If a read happened before this file loaded, the
- * action does not fire again, so register the provider now.
- */
-add_action( 'jetpack_external_storage_init', 'wpcomsh_init_external_storage' );
-if ( did_action( 'jetpack_external_storage_init' ) ) {
-	wpcomsh_init_external_storage();
-}
-
-wpcomsh_init_protected_owner_handler();
+wpcomsh_init_connection_handlers();
