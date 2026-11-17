@@ -222,6 +222,9 @@ class Stats_Settings_Test extends BaseTestCase {
 	public function test_write_stores_a_core_setting_sent_beside_the_stats_option() {
 		$this->log_in_as( 'administrator' );
 
+		// Other tests in the suite can leave core's settings unregistered.
+		register_initial_settings();
+
 		$this->post_settings(
 			array(
 				'title'                    => 'Renamed site',
