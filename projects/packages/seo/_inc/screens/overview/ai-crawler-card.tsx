@@ -34,7 +34,7 @@ const cantCrawlIndexingLabel = __(
 	'jetpack-seo'
 );
 const staticRobotsLabel = __(
-	"Crawler settings can't apply while a static robots.txt file exists in the WordPress installation directory.",
+	"Crawler settings can't apply while a static robots.txt file exists in your site's public directory.",
 	'jetpack-seo'
 );
 const dataSharingOptOutLabel = __(

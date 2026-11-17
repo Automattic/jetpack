@@ -129,7 +129,7 @@ class Admin_Page {
 	/**
 	 * Register Podcast with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.2.7
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -145,6 +145,10 @@ class Admin_Page {
 			'init_modules' => array( '@jetpack-podcast/init' ),
 			/** "Podcast" is a product name, do not translate. */
 			'title'        => 'Podcast',
+			'header'       => array(
+				'title'    => 'Podcast',
+				'subtitle' => __( 'Publish a podcast and reach your fans, anywhere they listen.', 'jetpack-podcast' ),
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
 			'media'        => true,
@@ -156,7 +160,7 @@ class Admin_Page {
 	/**
 	 * Ready the Podcast routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.2.7
 	 *
 	 * @return void
 	 */

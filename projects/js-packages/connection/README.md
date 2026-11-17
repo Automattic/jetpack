@@ -264,6 +264,42 @@ import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 />
 ```
 
+## Safe Mode building blocks
+The pieces the new Safe Mode (identity crisis) screen is built from. They render no frame of their own and take all site data as props; the host supplies the frame and decides what happens after each action.
+
+- `useIdentityCrisisActions( { redirectUri } )` calls the `migrate`, `start-fresh` and `confirm-safe-mode` endpoints through `@automattic/jetpack-api`, whose root and nonce the connection store sets from the initial state. It returns those three actions plus `busyAction`, `isMigrated`, `error` (`{ action, cause, code }`, where `code` is the REST error code or the client error's name, for tracking) and `clearError()`, for a host that moves the user to another step after a failure. It never navigates or tracks: `startFresh()` resolves with the connect URL for the host to open, or fails with a `server` error when the response isn't an `http(s)` URL. It and `confirmSafeMode()` stay busy after success, because the host is expected to leave or reload the page, so no button can be clicked in the meantime. While an action is busy, calling any of them sends no request and resolves as a failure (`false`, or `null` from `startFresh()`) without setting `error`, so a double click sends one request even if the host doesn't disable its buttons.
+- `IdentityCrisisLayout` holds the logo from `logoUrl` (the connected plugins' marks, from the Safe Mode state; Jetpack's by default), the "Safe Mode" label, its children and a `hostActions` slot for actions only that host offers.
+- `IdentityCrisisAddresses` shows the address WordPress.com has on record and this site's, joined by an arrow (`variant="move"`) or a dash (`variant="separate"`). It shows what an action does to the two addresses, and renders nothing unless it has both. The address props are optional, like `wpcomHomeUrl` and `currentUrl` in the Safe Mode state, so a host can pass the state straight through.
+- `IdentityCrisisMigrated`, `IdentityCrisisNonAdmin` and `IdentityCrisisErrorNotice` are the state after Migrate, the view for users who cannot resolve Safe Mode, and a failure message that names the cause. Give the notice an `action` to show only that action's failure, such as next to its button.
+
+The text and support link overrides that plugins send through the `jetpack_idc_consumers` filter don't apply: every plugin gets the same wording.
+
+### Basic Usage
+```jsx
+import { Button } from '@wordpress/ui';
+import {
+	IdentityCrisisErrorNotice,
+	IdentityCrisisLayout,
+	IdentityCrisisMigrated,
+	useIdentityCrisisActions,
+} from '@automattic/jetpack-connection';
+
+const { migrate, isMigrated, busyAction, error } = useIdentityCrisisActions();
+
+<IdentityCrisisLayout>
+	{ isMigrated ? (
+		<IdentityCrisisMigrated wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
+	) : (
+		<>
+			<IdentityCrisisErrorNotice error={ error } action="migrate" />
+			<Button loading={ busyAction === 'migrate' } disabled={ !! busyAction } onClick={ migrate }>
+				{ label }
+			</Button>
+		</>
+	) }
+</IdentityCrisisLayout>
+```
+
 ## Tracking connection events
 `ProtectedOwnerConfirmation`, `ProtectedOwnerRelease`, `TransferConnectionOwnership` and the transfer link in `DisconnectUserDialog` record Tracks events by default. The `trackingContext` prop (`context` for `DisconnectUserDialog`) is sent as the event's `context` property, or `null` when omitted. `context` names the page; when one page renders the same component in more than one place, `trackingPlacement` (`placement` for the dialogs) names which, and is left out of the event otherwise. Placements are a closed `ConnectionPlacement` type: add a new one there before passing it.
 

@@ -313,7 +313,7 @@ class Jetpack_Backup {
 	 *
 	 * The page is added whenever the package is initialized; only the modernized dashboard is a wp-build page.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.2.5
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -333,6 +333,10 @@ class Jetpack_Backup {
 			'init_modules' => array( '@jetpack-backup/init' ),
 			// "Backup" is a product name, do not translate.
 			'title'        => 'Backup',
+			'header'       => array(
+				'title'    => 'VaultPress Backup',
+				'subtitle' => __( 'Save changes and restore quickly with one-click recovery.', 'jetpack-backup-pkg' ),
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( 'jetpack-script-data', 'jp-tracks-functions', 'wp-jp-i18n-loader' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
@@ -343,7 +347,7 @@ class Jetpack_Backup {
 	/**
 	 * Ready the Backup routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.2.5
 	 *
 	 * @return void
 	 */

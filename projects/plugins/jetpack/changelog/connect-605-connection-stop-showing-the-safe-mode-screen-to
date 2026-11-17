@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Safe Mode: Stop showing the Safe Mode screen to non-admins once an admin has chosen to stay in Safe Mode.

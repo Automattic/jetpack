@@ -38,6 +38,26 @@ export function recommendationsFrom( slug: string ): string {
 }
 
 /**
+ * The name a Features tab card's Connect or Install sends, such as `my_jetpack_features_newsletter`.
+ *
+ * @param slug - The Features tab's feature slug.
+ * @return The name.
+ */
+export function featuresFrom( slug: string ): string {
+	return CONNECTION_FROM?.myJetpackFeatures( slug ) ?? 'my-jetpack';
+}
+
+/**
+ * The name an Overview item's connect links send, such as `my_jetpack_overview_stats`.
+ *
+ * @param slug - My Jetpack's product slug.
+ * @return The name.
+ */
+export function overviewFrom( slug: string ): string {
+	return CONNECTION_FROM?.myJetpackOverview( slug ) ?? 'my-jetpack';
+}
+
+/**
  * The route to the connection screen, with `from` in its query.
  *
  * @param from                - The entry-point name, such as `my_jetpack_products_backup`.
