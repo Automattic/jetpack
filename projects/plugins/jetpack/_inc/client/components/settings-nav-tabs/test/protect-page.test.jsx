@@ -18,13 +18,13 @@ const buildInitialState = protectPage => ( {
 			userData: {
 				currentUser: { permissions: { manage_modules: true, publish_posts: true } },
 			},
+			siteData: { hasProtectPage: protectPage },
 		},
 		modules: {
 			items: {
 				protect: { activated: true },
 				sso: { activated: true },
 				stats: { activated: true },
-				...( protectPage && { 'protect-dashboard': { activated: true } } ),
 			},
 		},
 		pluginsData: { items: {} },

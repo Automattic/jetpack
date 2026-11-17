@@ -28,8 +28,12 @@ class Payments_Section_Test extends BaseTestCase {
 			'Stripe status'     => array( '/jetpack/v4/monetize/wpcom/v2/memberships/status', 'GET' ),
 			'Stripe disconnect' => array( '/jetpack/v4/monetize/wpcom/v2/memberships/stripe/disconnect', 'POST' ),
 			'earnings'          => array( '/jetpack/v4/monetize/wpcom/v2/memberships/earnings', 'GET' ),
+			'plan creation'     => array( '/jetpack/v4/monetize/wpcom/v2/memberships/product', 'POST' ),
+			'plan update'       => array( '/jetpack/v4/monetize/wpcom/v2/memberships/product/(?P<id>\\d+)', 'POST' ),
 			'plans'             => array( '/jetpack/v4/monetize/wpcom/v2/memberships/products', 'GET' ),
 			'plan deletion'     => array( '/jetpack/v4/monetize/wpcom/v2/memberships/product/(?P<id>\\d+)', 'DELETE' ),
+			'coupons'           => array( '/jetpack/v4/monetize/wpcom/v2/memberships/coupons', 'GET' ),
+			'coupon deletion'   => array( '/jetpack/v4/monetize/wpcom/v2/memberships/coupon/(?P<id>\\d+)', 'DELETE' ),
 		);
 	}
 
@@ -52,6 +56,7 @@ class Payments_Section_Test extends BaseTestCase {
 		$wp_rest_server = null;
 
 		$this->assertArrayHasKey( $route, $routes );
-		$this->assertArrayHasKey( $method, $routes[ $route ][0]['methods'] );
+		$methods = array_merge( ...array_map( 'array_keys', array_column( $routes[ $route ], 'methods' ) ) );
+		$this->assertContains( $method, $methods );
 	}
 }

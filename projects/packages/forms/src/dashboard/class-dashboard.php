@@ -62,6 +62,46 @@ class Dashboard {
 				WP_Build_Polyfills::MODULE_IDS
 			)
 		);
+
+		add_filter( 'jetpack-forms-responses-wp-admin_boot_dependencies', array( __CLASS__, 'preload_landing_route' ) );
+	}
+
+	/**
+	 * Makes the opening route's code a static boot dependency, so it is modulepreloaded with the page.
+	 *
+	 * Otherwise the browser asks for it only after the app boots. Other routes stay dynamic.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $dependencies Boot script-module dependencies, each with an `id` and an `import` type.
+	 * @return array
+	 */
+	public static function preload_landing_route( $dependencies ) {
+		if ( ! is_array( $dependencies ) ) {
+			return $dependencies;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$path = isset( $_GET['p'] ) ? sanitize_text_field( wp_unslash( $_GET['p'] ) ) : '/';
+
+		if ( preg_match( '#^/(forms|responses|response)(/|$)#', $path, $matches ) ) {
+			$route = $matches[1];
+		} elseif ( '/' === $path || '' === $path ) {
+			$route = 'forms' === self::landing_tab() ? 'forms' : 'responses';
+		} else {
+			return $dependencies;
+		}
+
+		// Matches the handle prefix the wp-build routes registration generates.
+		$module = 'jetpack-forms/routes/' . $route . '/content';
+
+		foreach ( $dependencies as $key => $dependency ) {
+			if ( is_array( $dependency ) && ( $dependency['id'] ?? null ) === $module ) {
+				$dependencies[ $key ]['import'] = 'static';
+			}
+		}
+
+		return $dependencies;
 	}
 
 	/**
@@ -135,7 +175,7 @@ class Dashboard {
 	/**
 	 * Register Forms with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -183,7 +223,7 @@ class Dashboard {
 	/**
 	 * Ready the Forms routes while another dashboard's page is open.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @return void
 	 */

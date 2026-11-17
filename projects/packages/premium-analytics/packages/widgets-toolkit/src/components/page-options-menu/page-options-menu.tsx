@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
+import { getSectionOrder } from '@jetpack-premium-analytics/data';
 import { Icon, IconButton, Menu } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import {
@@ -17,6 +18,7 @@ import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { useDashboardSection } from '../../hooks/use-dashboard-origin-search';
 import { useReportNavigationSearch } from '../../hooks/use-report-navigation-search';
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { ArrangeTabsDialog, type ArrangeableTabs } from './arrange-tabs-dialog';
@@ -93,6 +95,7 @@ type PageOptionsMenuProps = {
  */
 export function PageOptionsMenu( { onCustomize, tabs }: PageOptionsMenuProps ) {
 	const trackEvent = useTrackEvent();
+	const section = useDashboardSection();
 	const [ isFeedbackOpen, setIsFeedbackOpen ] = useState( false );
 	const [ isSwitchOffOpen, setIsSwitchOffOpen ] = useState( false );
 	const [ isArrangingTabs, setIsArrangingTabs ] = useState( false );
@@ -113,7 +116,16 @@ export function PageOptionsMenu( { onCustomize, tabs }: PageOptionsMenuProps ) {
 	const closeFeedback = useCallback( () => setIsFeedbackOpen( false ), [] );
 	const openSwitchOff = useCallback( () => setIsSwitchOffOpen( true ), [] );
 	const closeSwitchOff = useCallback( () => setIsSwitchOffOpen( false ), [] );
-	const openArrangeTabs = useCallback( () => setIsArrangingTabs( true ), [] );
+	const openArrangeTabs = useCallback( () => {
+		if ( tabs ) {
+			trackEvent( 'jetpack_premium_analytics_arrange_tabs_open', {
+				...( section ? { section } : {} ),
+				tab_count: tabs.items.length,
+				has_custom_order: getSectionOrder( tabs.scope ).length > 0,
+			} );
+		}
+		setIsArrangingTabs( true );
+	}, [ section, tabs, trackEvent ] );
 	const closeArrangeTabs = useCallback( () => setIsArrangingTabs( false ), [] );
 
 	if ( ! onCustomize && ! canArrangeTabs && ! hasSettings && ! canGiveFeedback && ! canSwitchOff ) {

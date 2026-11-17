@@ -2,7 +2,7 @@ import analytics from '@automattic/jetpack-analytics';
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import { Button, Tabs } from '@wordpress/ui';
@@ -10,6 +10,7 @@ import OverviewTab from '../../_inc/components/overview-tab';
 import SettingsTab from '../../_inc/components/settings-tab';
 import { TurnOnSocialProvider } from '../../_inc/components/settings-tab/turn-on-social-context';
 import SocialPage, { type SocialTab } from '../../_inc/components/social-page';
+import useTabView from '../../_inc/hooks/use-tab-view';
 import { store as socialStore } from '../../_inc/social-store';
 import { canToggleSocialModule } from '../../_inc/utils/misc';
 import { hasAdminUiV2 } from '../../_inc/utils/script-data';
@@ -100,8 +101,12 @@ const Stage = () => {
 
 	const socialOff = canToggleSocialModule() && ( ! isModuleActive || isEnabling );
 
-	const activeTab: SocialTab =
-		socialOff || ( canManageOptions && search.tab === 'settings' ) ? 'settings' : 'overview';
+	const resolveTab = useCallback(
+		( tab: unknown ): SocialTab =>
+			socialOff || ( canManageOptions && tab === 'settings' ) ? 'settings' : 'overview',
+		[ socialOff, canManageOptions ]
+	);
+	const activeTab = resolveTab( search.tab );
 
 	const actions = activeTab === 'overview' ? <AddAccountAction /> : null;
 
@@ -114,20 +119,7 @@ const Stage = () => {
 		}
 	}, [] );
 
-	// Record a tab-view event on initial mount and whenever the active tab
-	// changes. The `lastTrackedTab` ref dedupes React 18 StrictMode's
-	// dev-only mount/cleanup/remount cycle — refs persist across the
-	// simulated remount, so the second setup invocation finds the current
-	// tab already recorded and bails out. Production sees one fire per tab
-	// change either way.
-	const lastTrackedTab = useRef< SocialTab | null >( null );
-	useEffect( () => {
-		if ( lastTrackedTab.current === activeTab ) {
-			return;
-		}
-		lastTrackedTab.current = activeTab;
-		analytics.tracks.recordEvent( 'jetpack_social_tab_view', { tab: activeTab } );
-	}, [ activeTab ] );
+	useTabView( activeTab, resolveTab );
 
 	// Social off → the lone turn-on surface; admins → the two tab panels;
 	// non-admins → the bare Overview (connection management) the shell hands us.

@@ -96,7 +96,7 @@ class Jetpack_AI_Page {
 	/**
 	 * Register Jetpack AI with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -131,7 +131,7 @@ class Jetpack_AI_Page {
 	/**
 	 * Ready the AI Hub routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return void
 	 */
@@ -592,7 +592,7 @@ class Jetpack_AI_Page {
 	 *
 	 * A host that removes the page on `admin_menu` isn't seen here.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return bool
 	 */

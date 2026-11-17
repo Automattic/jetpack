@@ -4,6 +4,7 @@ import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import useConnectSite from '../../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import { overviewFrom } from '../../../utils/connect-url';
 import useProductStatusAction from '../../action-button/use-product-status-action';
 import type { OverviewItemLink } from '.';
 
@@ -22,8 +23,13 @@ const useStatusAction = (
 ) => {
 	const { detail, refetch } = useProduct( slug );
 	const { isRegistered } = useMyJetpackConnection();
+	const connectFrom = overviewFrom( slug );
 	const { connectSite } = useConnectSite( {
-		tracksInfo: { event: 'jetpack_myjetpack_product_card_fix_site_connection', properties: {} },
+		tracksInfo: {
+			event: 'jetpack_myjetpack_product_card_fix_site_connection',
+			properties: { from: connectFrom },
+		},
+		from: connectFrom,
 	} );
 	const primaryActionOverride = useMemo(
 		() => ( {
@@ -36,6 +42,7 @@ const useStatusAction = (
 		primaryActionOverride,
 		fixSiteConnectionHandler: connectSite,
 		tracksIdentifier: 'product_card',
+		from: connectFrom,
 	} );
 
 	// Matches the product card, which refetches its product once the site is registered.

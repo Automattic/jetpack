@@ -441,15 +441,34 @@ it( 'stops marking a theme once it renders outside the tab', () => {
 /**
  * Loads the script on a page with core's filter bar and theme collection.
  *
- * @return The pricing filter, and what core's collection and installer were asked for.
+ * @return The pricing filter, ways to drive core's installer, and what its collection was asked for.
  */
 function pricingPage() {
 	const list = node( 'ul' );
 	const requests: unknown[] = [];
-	const browsed: string[] = [];
 	const Collection = {
 		prototype: { query: ( request: unknown ) => void requests.push( request ) },
 	};
+	// Core's installer view, trimmed to how it asks the collection for themes.
+	const Installer = {
+		prototype: {
+			checked: [] as string[],
+			filtersChecked() {
+				return this.checked.length ? this.checked : false;
+			},
+			applyFilters() {
+				const tags = this.filtersChecked();
+				if ( tags ) {
+					Collection.prototype.query.call( {}, { tag: tags } );
+				}
+			},
+			browse( section: string ) {
+				Collection.prototype.query.call( {}, { browse: section } );
+			},
+		},
+	};
+	// Inherits from the prototype the script wraps, as core's running view does.
+	const installer = Object.create( Installer.prototype );
 	const config = { sort: 'wpcom', label: 'Marketplace', included: 'included' };
 	const context = {
 		document: { querySelector: () => list, createElement: node, addEventListener: () => {} },
@@ -457,9 +476,9 @@ function pricingPage() {
 			wpcomThemesTab: config,
 			wp: {
 				themes: {
-					view: { Theme: { prototype: { render: () => undefined } } },
+					view: { Theme: { prototype: { render: () => undefined } }, Installer },
 					Collection,
-					RunInstaller: { view: { browse: ( section: string ) => void browsed.push( section ) } },
+					RunInstaller: { view: installer },
 				},
 			},
 		},
@@ -476,9 +495,13 @@ function pricingPage() {
 		pricing,
 		select: pricing.children[ 1 ],
 		query: ( request: Record< string, unknown > ) => Collection.prototype.query.call( {}, request ),
+		check: ( tags: string[] ) => void ( installer.checked = tags ),
+		applyFilters: ( tags: string[] ) => {
+			installer.checked = tags;
+			installer.applyFilters();
+		},
 		// The script builds some requests in the vm's realm, which a strict deepEqual tells apart.
 		requests: () => JSON.parse( JSON.stringify( requests ) ),
-		browsed,
 	};
 }
 
@@ -507,5 +530,56 @@ it( 'lists the tab again when the filter changes', () => {
 	const page = pricingPage();
 	page.select.listeners.change();
 
-	assert.deepEqual( page.browsed, [ 'wpcom' ] );
+	assert.deepEqual( page.requests(), [ { browse: 'wpcom' } ] );
+} );
+
+it( 'keeps a feature filter applied on the tab there, and leaves other tabs to core', () => {
+	const page = pricingPage();
+	page.query( { browse: 'wpcom' } );
+	page.select.value = 'included';
+	page.applyFilters( [ 'blog' ] );
+	assert.equal( page.pricing.hidden, false );
+	// Applied again from the drawer, once core has taken the tab's highlight away.
+	page.applyFilters( [ 'blog', 'one-column' ] );
+
+	page.query( { browse: 'popular' } );
+	page.applyFilters( [ 'blog' ] );
+	page.query( { browse: 'wpcom' } );
+	// The Block Themes tab, which core lists by tag rather than by `browse`.
+	page.query( { tag: 'full-site-editing' } );
+
+	assert.deepEqual( page.requests(), [
+		{ browse: 'wpcom' },
+		{ tag: [ 'blog' ], browse: 'wpcom', wpcom_pricing: 'included' },
+		{ tag: [ 'blog', 'one-column' ], browse: 'wpcom', wpcom_pricing: 'included' },
+		{ browse: 'popular' },
+		{ tag: [ 'blog' ] },
+		{ browse: 'wpcom', wpcom_pricing: 'included' },
+		{ tag: 'full-site-editing' },
+	] );
+} );
+
+it( 'keeps the feature filter when the pricing filter changes on a filtered tab', () => {
+	const page = pricingPage();
+	page.query( { browse: 'wpcom' } );
+	page.applyFilters( [ 'blog' ] );
+	page.select.value = 'included';
+	page.select.listeners.change();
+
+	assert.deepEqual( page.requests().pop(), {
+		tag: [ 'blog' ],
+		browse: 'wpcom',
+		wpcom_pricing: 'included',
+	} );
+} );
+
+it( 'lists the whole tab when the pricing filter changes after every box is unchecked', () => {
+	const page = pricingPage();
+	page.query( { browse: 'wpcom' } );
+	page.applyFilters( [ 'blog' ] );
+	page.check( [] );
+	page.select.value = 'included';
+	page.select.listeners.change();
+
+	assert.deepEqual( page.requests().pop(), { browse: 'wpcom', wpcom_pricing: 'included' } );
 } );

@@ -201,6 +201,55 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test preload_landing_route makes only the opening route's content module static.
+	 *
+	 * @dataProvider provide_landing_route_paths
+	 *
+	 * @param string      $path     Value of the `p` query arg.
+	 * @param string|null $expected Route whose content module should become static, or null for none.
+	 */
+	#[DataProvider( 'provide_landing_route_paths' )]
+	public function test_preload_landing_route( $path, $expected ) {
+		$_GET['p'] = $path;
+		$routes    = array( 'forms', 'responses', 'response' );
+		$deps      = array(
+			array(
+				'import' => 'static',
+				'id'     => '@wordpress/boot',
+			),
+		);
+		foreach ( $routes as $route ) {
+			$deps[] = array(
+				'import' => 'dynamic',
+				'id'     => "jetpack-forms/routes/$route/content",
+			);
+		}
+
+		$static = array();
+		foreach ( Dashboard::preload_landing_route( $deps ) as $dep ) {
+			if ( 'static' === $dep['import'] && '@wordpress/boot' !== $dep['id'] ) {
+				$static[] = $dep['id'];
+			}
+		}
+
+		$this->assertSame( null === $expected ? array() : array( "jetpack-forms/routes/$expected/content" ), $static );
+	}
+
+	/**
+	 * Paths and the route each one should preload.
+	 *
+	 * @return array<string, array{0: string, 1: string|null}>
+	 */
+	public static function provide_landing_route_paths() {
+		return array(
+			'forms tab'       => array( '/forms', 'forms' ),
+			'responses view'  => array( '/responses/spam', 'responses' ),
+			'single response' => array( '/response/12', 'response' ),
+			'unknown path'    => array( '/settings', null ),
+		);
+	}
+
+	/**
 	 * Route paths the standalone Forms page can be opened with.
 	 *
 	 * @return array<string, array{0: string|null}>

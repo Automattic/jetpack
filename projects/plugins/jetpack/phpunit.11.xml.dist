@@ -126,6 +126,9 @@
 		<testsuite name="carousel">
 			<directory suffix="Test.php">tests/php/modules/carousel</directory>
 		</testsuite>
+		<testsuite name="tiled-gallery">
+			<directory suffix="Test.php">tests/php/modules/tiled-gallery</directory>
+		</testsuite>
 		<testsuite name="copy-post">
 			<directory suffix="Test.php">tests/php/modules/copy-post</directory>
 		</testsuite>

@@ -19,7 +19,6 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	/** @var \Automattic\Jetpack\Sync\Modules\Full_Sync */
 	private $full_sync;
 
-	private $full_sync_end_checksum;
 	private $full_sync_end_range;
 	private $full_sync_start_config;
 	private $synced_user_ids;
@@ -1101,23 +1100,6 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		$this->full_sync->start( $custom_config );
 
 		$this->assertEquals( $custom_config, $this->full_sync_start_config );
-	}
-
-	public function test_full_sync_end_sends_checksums() {
-		$this->markTestSkipped( "We don't send checksums in this version" );
-		// @phan-suppress-next-line PhanPluginUnreachableCode
-		add_action( 'jetpack_full_sync_end', array( $this, 'record_full_sync_end_checksum' ), 10, 1 );
-
-		$this->full_sync->start();
-		$this->sender->do_full_sync();
-		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
-		$this->sender->do_full_sync();
-		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
-		$this->sender->do_full_sync();
-
-		$this->assertTrue( isset( $this->full_sync_end_checksum ) );
-		$this->assertTrue( isset( $this->full_sync_end_checksum['posts'] ) );
-		$this->assertTrue( isset( $this->full_sync_end_checksum['comments'] ) );
 	}
 
 	public function test_full_sync_end_sends_range() {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop the upgrade and details screens from briefly offering Jetpack Security before Jetpack Pro.

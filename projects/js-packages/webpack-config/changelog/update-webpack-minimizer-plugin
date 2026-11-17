@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Replace `TerserPlugin` and `CssMinimizerPlugin` with `MinimizerPlugin`, following corresponding changes to the upstream packages.
