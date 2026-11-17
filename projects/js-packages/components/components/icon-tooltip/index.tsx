@@ -241,9 +241,11 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		const doc = wrapperRef.current?.ownerDocument;
 		const handleKeyDown = ( event: globalThis.KeyboardEvent ) => {
 			// With an except-ref field, skip an Escape something else handled or that dismisses an
-			// IME candidate list; other tooltips keep closing on any Escape.
+			// IME candidate list (keyCode 229 covers Safari, which can send it with isComposing false);
+			// other tooltips keep closing on any Escape.
 			const leftToField =
-				closeOnClickOutsideExceptRef && ( event.defaultPrevented || event.isComposing );
+				closeOnClickOutsideExceptRef &&
+				( event.defaultPrevented || event.isComposing || event.keyCode === 229 );
 			if ( event.key === 'Escape' && ! leftToField ) {
 				hideTooltip();
 			}

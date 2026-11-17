@@ -271,6 +271,7 @@ describe( 'IconTooltip', () => {
 		it.each( [
 			[ 'already handled', { cancelable: true }, true ],
 			[ 'part of IME composition', { isComposing: true }, false ],
+			[ 'part of IME composition in Safari', { isComposing: false, keyCode: 229 }, false ],
 		] )(
 			'ignores an Escape in closeOnClickOutsideExceptRef that is %s',
 			async ( _label, init, handled ) => {
