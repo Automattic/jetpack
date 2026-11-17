@@ -67,18 +67,6 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * Read the `is_gated` flag the way the dashboard does — off the injected script
-	 * data — so the gate is exercised through its public surface.
-	 *
-	 * @return bool
-	 */
-	private function read_is_gated() {
-		$data = Admin_Page::inject_script_data( array() );
-
-		return $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['is_gated'];
-	}
-
-	/**
 	 * Every tab reads whether SEO output is paused from the same script data.
 	 */
 	public function test_script_data_reports_the_output_state() {
@@ -100,98 +88,6 @@ class AdminPageTest extends TestCase {
 			),
 			$data[ Initializer::SCRIPT_DATA_KEY ]['output']
 		);
-	}
-
-	/**
-	 * Simulate a WordPress.com entitlement lookup.
-	 *
-	 * @param bool $entitled Whether the site has the legacy SEO entitlement.
-	 */
-	private function simulate_wpcom_site( $entitled ) {
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
-
-		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
-		\Wpcom_Test_Features::$entitled = $entitled ? array( 'advanced-seo' ) : array();
-	}
-
-	/**
-	 * Undo {@see self::simulate_wpcom_site()}.
-	 */
-	private function reset_wpcom_site() {
-		\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
-		\Wpcom_Test_Features::reset();
-	}
-
-	/**
-	 * Self-hosted sites retain access to the complete SEO dashboard.
-	 */
-	public function test_is_gated_is_false_on_self_hosted() {
-		$this->assertFalse( $this->read_is_gated() );
-	}
-
-	/**
-	 * WordPress.com sites retain the full dashboard without an entitlement.
-	 */
-	public function test_is_gated_is_false_on_wpcom_without_advanced_seo() {
-		$this->simulate_wpcom_site( false );
-
-		try {
-			$this->assertFalse( $this->read_is_gated() );
-		} finally {
-			$this->reset_wpcom_site();
-		}
-	}
-
-	/**
-	 * On WordPress.com, a site entitled to `advanced-seo` (Premium and above) keeps
-	 * the full dashboard — the upsell must never show to someone already paying.
-	 */
-	public function test_is_gated_is_false_on_wpcom_with_advanced_seo() {
-		$this->simulate_wpcom_site( true );
-
-		try {
-			$this->assertFalse( $this->read_is_gated() );
-		} finally {
-			$this->reset_wpcom_site();
-		}
-	}
-
-	public function test_no_upsell_url_without_advanced_seo() {
-		$this->simulate_wpcom_site( false );
-
-		try {
-			$data = Admin_Page::inject_script_data( array() );
-			$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['is_gated'] );
-			$this->assertSame( '', $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['upsell_url'] );
-		} finally {
-			$this->reset_wpcom_site();
-		}
-	}
-
-	/**
-	 * An ungated site carries no upsell URL — it's never shown, so the site-suffix
-	 * lookup that builds it is skipped.
-	 */
-	public function test_upsell_url_is_empty_when_not_gated() {
-		$data = Admin_Page::inject_script_data( array() );
-
-		$this->assertSame( '', $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['upsell_url'] );
-	}
-
-	/**
-	 * Missing entitlement metadata cannot hide ordinary SEO settings.
-	 */
-	public function test_is_not_gated_when_wpcom_does_not_register_advanced_seo() {
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
-		// Platform present, but it doesn't gate `advanced-seo` at all.
-		\Wpcom_Test_Features::$known    = array();
-		\Wpcom_Test_Features::$entitled = array();
-
-		try {
-			$this->assertFalse( $this->read_is_gated() );
-		} finally {
-			$this->reset_wpcom_site();
-		}
 	}
 
 	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
@@ -494,7 +390,7 @@ class AdminPageTest extends TestCase {
 		try {
 			$html = Admin_Shell::guest_assets( Admin_Page::MENU_SLUG );
 			$data = apply_filters( 'jetpack_admin_js_script_data', array() );
-			$this->assertArrayHasKey( 'gating', $data[ Initializer::SCRIPT_DATA_KEY ] ?? array() );
+			$this->assertArrayHasKey( 'output', $data[ Initializer::SCRIPT_DATA_KEY ] ?? array() );
 			$this->assertIsString( $html );
 			$this->assertStringContainsString( '"consumer_slug":"jetpack-seo"', $html );
 		} finally {

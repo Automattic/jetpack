@@ -190,13 +190,10 @@ export const SEO = withModuleSettingsFormHelpers(
 					frontPageMetaDescription.length < this.constants.frontPageMetaMaxLength,
 			} );
 
-			// Destructure feature out to ensure our explicit prop takes precedence
-			const { feature: _ignoredFeature, ...restProps } = this.props;
 			return (
 				<SettingsCard
-					{ ...restProps }
+					{ ...this.props }
 					header={ _x( 'Search engine optimization', 'Settings header', 'jetpack' ) }
-					feature={ false }
 					module={ seo.module }
 					saveDisabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
 					hideButton={ hasConflictingSeoPlugin || ! hasSeoTools }

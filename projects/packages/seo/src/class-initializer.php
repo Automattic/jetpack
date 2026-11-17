@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
@@ -236,24 +235,6 @@ class Initializer {
 	 */
 	public static function is_optin_available() {
 		return Surface_Visibility::is_optin_available();
-	}
-
-	/**
-	 * Compatibility accessor for integrations using the former plan gate.
-	 *
-	 * @return bool
-	 */
-	public static function is_gated() {
-		return false;
-	}
-
-	/**
-	 * Compatibility accessor for integrations using the former upgrade link.
-	 *
-	 * @return string
-	 */
-	public static function get_upsell_url() {
-		return '';
 	}
 
 	/**

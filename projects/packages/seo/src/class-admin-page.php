@@ -436,12 +436,6 @@ class Admin_Page {
 		$data[ Initializer::SCRIPT_DATA_KEY ]['site']          = Dashboard_Data::get_site_data();
 		$data[ Initializer::SCRIPT_DATA_KEY ]['output']        = Dashboard_Data::get_output_data();
 
-		// Older dashboard bundles still read this slice during deployment.
-		$data[ Initializer::SCRIPT_DATA_KEY ]['gating'] = array(
-			'is_gated'   => false,
-			'upsell_url' => '',
-		);
-
 		return $data;
 	}
 

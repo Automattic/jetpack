@@ -7,10 +7,6 @@ import type { ReactElement, ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
-jest.unstable_mockModule( '../../../data/is-gated', () => ( {
-	isGated: () => false,
-	getUpsellUrl: () => 'https://wordpress.com/checkout/example.com/value_bundle',
-} ) );
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
