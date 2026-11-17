@@ -249,16 +249,16 @@ class Admin_Shell_Test extends TestCase {
 	 */
 	public static function provide_invalid_headers() {
 		return array(
-			'not an array'      => array( 'Forms' ),
-			'true'              => array( true ),
-			'no subtitle'       => array( array( 'title' => 'Forms' ) ),
-			'subtitle not text' => array(
+			'not an array'                => array( 'Forms' ),
+			'true, not the false opt-out' => array( true ),
+			'no subtitle'                 => array( array( 'title' => 'Forms' ) ),
+			'subtitle not text'           => array(
 				array(
 					'title'    => 'Forms',
 					'subtitle' => 1,
 				),
 			),
-			'empty title'       => array(
+			'empty title'                 => array(
 				array(
 					'title'    => '',
 					'subtitle' => 'Sub',
