@@ -2,13 +2,15 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_ONBOARDING_KEY,
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_STORE_ONBOARDING_KEY,
+} from '@jetpack-premium-analytics/data';
 import { select } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 
-// Mirrors of what the dashboard's onboarding hook reads and writes, which this package cannot import.
-const ONBOARDING_KEY = 'onboardingCompletedAt';
-const STORE_ONBOARDING_KEY = 'storeOnboardingCompletedAt';
+// The WooCommerce tab, under its slug or the one an older WooCommerce Stats package registers.
 const STORE_SECTIONS = [ 'woocommerce', 'store' ];
 
 type PreferencesSelectors = {
@@ -29,7 +31,10 @@ function isOnboardingPending(): boolean {
 	const hasStoreSection =
 		Array.isArray( sections ) && sections.some( slug => STORE_SECTIONS.includes( slug ) );
 
-	return ! hasSeen( ONBOARDING_KEY ) || ( hasStoreSection && ! hasSeen( STORE_ONBOARDING_KEY ) );
+	return (
+		! hasSeen( DASHBOARD_ONBOARDING_KEY ) ||
+		( hasStoreSection && ! hasSeen( DASHBOARD_STORE_ONBOARDING_KEY ) )
+	);
 }
 
 /**

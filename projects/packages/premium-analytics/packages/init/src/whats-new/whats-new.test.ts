@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { mountWhatsNew } from '@automattic/jetpack-announcements';
-import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_ONBOARDING_KEY,
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_STORE_ONBOARDING_KEY,
+} from '@jetpack-premium-analytics/data';
 import { dispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 /**
@@ -42,8 +46,8 @@ const showAndSettle = async (): Promise< void > => {
 };
 
 afterEach( () => {
-	setPreference( 'onboardingCompletedAt', undefined );
-	setPreference( 'storeOnboardingCompletedAt', undefined );
+	setPreference( DASHBOARD_ONBOARDING_KEY, undefined );
+	setPreference( DASHBOARD_STORE_ONBOARDING_KEY, undefined );
 	delete window.JetpackScriptData;
 	jest.mocked( mountWhatsNew ).mockClear();
 } );
@@ -63,8 +67,8 @@ describe( 'showWhatsNew', () => {
 		[ 'mounts once both journeys are done', SEEN, SEEN, [ 'traffic', 'woocommerce' ], 1 ],
 		[ 'mounts when no list of tabs was published', SEEN, undefined, undefined, 1 ],
 	] )( '%s', async ( _case, statsSeen, storeSeen, sections, mounts ) => {
-		setPreference( 'onboardingCompletedAt', statsSeen );
-		setPreference( 'storeOnboardingCompletedAt', storeSeen );
+		setPreference( DASHBOARD_ONBOARDING_KEY, statsSeen );
+		setPreference( DASHBOARD_STORE_ONBOARDING_KEY, storeSeen );
 		setScriptData( { whats_new_enabled: true, sections } );
 
 		await showAndSettle();
@@ -73,7 +77,7 @@ describe( 'showWhatsNew', () => {
 	} );
 
 	it( 'mounts nothing while the flag is off', async () => {
-		setPreference( 'onboardingCompletedAt', SEEN );
+		setPreference( DASHBOARD_ONBOARDING_KEY, SEEN );
 		setScriptData( { whats_new_enabled: false, sections: [ 'traffic' ] } );
 
 		await showAndSettle();
