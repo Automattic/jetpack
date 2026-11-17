@@ -1,4 +1,4 @@
-<svg viewBox="0 0 880 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three roles and two seams. The registrant owns the content: it decides what is news, where it is published, who may read it, and whether to register it at all, and it registers on the jetpack_register_announcements action. The host owns the page: it decides which channels it shows, when the surface mounts, when it leaves the page, and what the page provides, and it mounts the surface through the @automattic/jetpack-announcements module. The package sits between them and decides nothing about relevance: it sanitizes and stores the records, serves them over REST, keeps the seen state of each user, and renders the teaser and the reader, the same for every consumer.">
+<svg viewBox="0 0 880 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three roles and two seams. The registrant owns the content: it decides what is news, where it is published, who may read it, and whether to register it at all, and it registers on the jetpack_register_announcements action. The host owns the page: it decides which channels it shows, when the surface mounts, when it leaves the page, and what the page provides, and it mounts the surface through the @automattic/jetpack-announcements module. The package sits between them and decides nothing about relevance: it sanitizes and stores the records, serves them over REST, and renders the teaser and the reader, which keep what a user has seen in that user's WordPress preferences, the same for every consumer.">
   <defs>
     <marker id="arrow-roles" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 1 L 8 5 L 0 9 z" fill="#94a3b8"/>
@@ -48,13 +48,11 @@
   <text x="334" y="182" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#334155">REST routes and entity</text>
   <text x="334" y="199" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#64748b">wpcom/v2/jetpack-announcements</text>
 
-  <rect x="322" y="222" width="236" height="54" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
-  <text x="334" y="244" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#334155">seen state</text>
-  <text x="334" y="261" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#64748b">per user · storage is private</text>
-
-  <rect x="322" y="284" width="236" height="54" rx="5" fill="#ffffff" stroke="#1d6b5a" stroke-width="1.4"/>
-  <text x="334" y="306" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#1d6b5a">surface</text>
-  <text x="334" y="323" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#64748b">teaser of the newest unseen · reader</text>
+  <rect x="322" y="222" width="236" height="116" rx="5" fill="#ffffff" stroke="#1d6b5a" stroke-width="1.4"/>
+  <text x="334" y="244" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#1d6b5a">surface</text>
+  <text x="334" y="261" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#64748b">teaser of the newest unseen · reader</text>
+  <text x="334" y="290" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#64748b">what a user has seen is kept in their</text>
+  <text x="334" y="304" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#64748b">WordPress preferences, for every host</text>
 
   <text x="440" y="358" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#94a3b8">the same for every consumer</text>
 

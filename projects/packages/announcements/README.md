@@ -64,16 +64,16 @@ The module reads WordPress scripts from their globals, core-data among them, and
 
 The teaser shows one announcement at a time, and never an older one once the newest is seen. Opening or dismissing it marks it as seen.
 
+What a user has seen is kept in their WordPress preferences, so every host on the site shares it.
+
 ## REST routes
 
-| Route                                             | Methods      | Purpose                                          |
-| ------------------------------------------------- | ------------ | ------------------------------------------------ |
-| `/wpcom/v2/jetpack-announcements`                 | `GET`        | The announcements the current user may see.      |
-| `/wpcom/v2/jetpack-announcements/<vendor>/<slug>` | `GET`, `PUT` | One announcement. The write accepts `seen` only. |
+| Route                                             | Method | Purpose                                     |
+| ------------------------------------------------- | ------ | ------------------------------------------- |
+| `/wpcom/v2/jetpack-announcements`                 | `GET`  | The announcements the current user may see. |
+| `/wpcom/v2/jetpack-announcements/<vendor>/<slug>` | `GET`  | One announcement.                           |
 
 Both routes require a logged-in user. An announcement that names a `capability` is left out for users without it.
-
-`seen` and `seen_at`, the date the user saw the announcement, are computed for the current user. Where they are stored is private to the package.
 
 ## Using this package in your WordPress plugin
 

@@ -25,8 +25,6 @@ const unseen: Announcement = {
 	media: null,
 	link: '',
 	channels: CHANNELS,
-	seen: false,
-	seen_at: null,
 };
 
 describe( 'WhatsNew', () => {
@@ -83,7 +81,7 @@ describe( 'WhatsNew', () => {
 
 		// What the hook answers once the announcement is seen: nothing to tease.
 		jest.mocked( useAnnouncements ).mockReturnValue( {
-			announcements: [ { ...unseen, seen: true, seen_at: '2026-11-21T09:00:00+00:00' } ],
+			announcements: [ unseen ],
 			teaser: null,
 			markSeen,
 		} );

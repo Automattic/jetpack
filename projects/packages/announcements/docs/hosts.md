@@ -2,7 +2,7 @@
 
 A host is a page that shows announcements. It mounts the surface and decides when; the surface does the rest. This page is the host's side of the package. [How Jetpack Announcements works](architecture.md) has the whole picture.
 
-![The host imports mountWhatsNew from its own JavaScript and calls it with its channels. The page provides what the surface needs: the import map that resolves the import to the module the PHP package registered, the WordPress scripts the surface reads from their globals, and #wpbody, the box the surface hangs from. The surface, one per page, teases the newest unseen announcement of those channels and marks it seen when it is opened or dismissed, the same in every host. The call returns the function that unmounts the surface. A later mount takes the surface over, and the function of an earlier one then does nothing.](diagrams/host-mount.svg)
+![The host imports mountWhatsNew from its own JavaScript and calls it with its channels. The page provides what the surface needs: the import map that resolves the import to the module the PHP package registered, the WordPress scripts the surface reads from their globals, and #wpbody, the box the surface hangs from. The surface, one per page, teases the newest unseen announcement of those channels and, when it is opened or dismissed, marks it seen in the user's WordPress preferences, the same in every host. The call returns the function that unmounts the surface. A later mount takes the surface over, and the function of an earlier one then does nothing.](diagrams/host-mount.svg)
 
 ## Mounting
 
@@ -32,7 +32,7 @@ The PHP package of the host requires `automattic/jetpack-announcements`. WordPre
 
 ### A wp-admin page with the WordPress scripts
 
-The surface reads the WordPress scripts from their globals, core-data among them, and does not enqueue them. A wp-build page loads them all.
+The surface reads the WordPress scripts from their globals, core-data and preferences among them, and does not enqueue them. A wp-build page loads them all.
 
 ## One surface per page
 
@@ -74,5 +74,7 @@ A host that lasts the whole page load never needs to. A host inside an applicati
 The teaser shows one announcement: the newest of the host's channels, while the user has not seen it. An older one is never teased once the newest is seen.
 
 Opening the teaser shows the announcement in a dialog, the reader. Opening or dismissing it marks the announcement as seen.
+
+What is seen is kept in the user's WordPress preferences, under one key for every host. A teaser closed in one host does not come back in another on the same site.
 
 The teaser sits at the bottom inline-start corner of `#wpbody`. A host does not place it, style it, or change its rule.

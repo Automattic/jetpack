@@ -2072,6 +2072,9 @@ importers:
       '@wordpress/icons':
         specifier: 20.0.0
         version: 20.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/preferences':
+        specifier: 5.1.0
+        version: 5.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/ui':
         specifier: 0.26.0
         version: 0.26.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

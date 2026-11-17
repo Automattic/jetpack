@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { getAnnouncementsForChannels, selectTeaser } from './select-announcements';
-import type { Announcement } from '../../types';
+import type { Announcement, SeenDates } from '../../types';
 
 const announcement = ( overrides: Partial< Announcement > ): Announcement => ( {
 	id: 'my-plugin/newest',
@@ -13,8 +13,6 @@ const announcement = ( overrides: Partial< Announcement > ): Announcement => ( {
 	media: null,
 	link: '',
 	channels: [ 'my-plugin' ],
-	seen: false,
-	seen_at: null,
 	...overrides,
 } );
 
@@ -40,22 +38,22 @@ describe( 'getAnnouncementsForChannels', () => {
 } );
 
 describe( 'selectTeaser', () => {
-	it.each< [ string, Announcement[], string[], string | null ] >( [
-		[ 'the newest one while it is unseen', [ announcement( {} ), older ], [], 'my-plugin/newest' ],
+	it.each< [ string, Announcement[], SeenDates, string | null ] >( [
+		[ 'the newest one while it is unseen', [ announcement( {} ), older ], {}, 'my-plugin/newest' ],
 		[
 			'nothing once the newest is seen, whatever is older',
-			[ announcement( { seen: true, seen_at: '2026-11-21T09:00:00+00:00' } ), older ],
-			[],
+			[ announcement( {} ), older ],
+			{ 'my-plugin/newest': '2026-11-21T09:00:00.000Z' },
 			null,
 		],
 		[
-			'nothing once the newest is marked in this page load',
+			'the newest one when only an older one is seen',
 			[ announcement( {} ), older ],
-			[ 'my-plugin/newest' ],
-			null,
+			{ 'my-plugin/older': '2026-11-02T09:00:00.000Z' },
+			'my-plugin/newest',
 		],
-		[ 'nothing without announcements', [], [], null ],
-	] )( 'teases %s', ( _case, announcements, markedIds, expected ) => {
-		expect( selectTeaser( announcements, new Set( markedIds ) )?.id ?? null ).toBe( expected );
+		[ 'nothing without announcements', [], {}, null ],
+	] )( 'teases %s', ( _case, announcements, seen, expected ) => {
+		expect( selectTeaser( announcements, seen )?.id ?? null ).toBe( expected );
 	} );
 } );

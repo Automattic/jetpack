@@ -14,10 +14,10 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * Serves the announcements the current user may see, and writes their seen state.
+ * Serves the announcements the current user may see.
  *
  * The routes give a core-data entity what it needs: a collection of records that carry
- * their key, and an item route whose write answers the full record.
+ * their key, and an item route.
  */
 class REST_Controller extends WP_REST_Controller {
 
@@ -68,18 +68,6 @@ class REST_Controller extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_item' ),
 					'permission_callback' => array( $this, 'permissions_check' ),
 				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_item' ),
-					'permission_callback' => array( $this, 'permissions_check' ),
-					'args'                => array(
-						'seen' => array(
-							'description' => __( 'Whether the current user has seen the announcement.', 'jetpack-announcements' ),
-							'type'        => 'boolean',
-							'required'    => true,
-						),
-					),
-				),
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
@@ -111,12 +99,11 @@ class REST_Controller extends WP_REST_Controller {
 	public function get_items( $request ) {
 		unset( $request );
 
-		$seen_dates = Seen_State::get_dates( get_current_user_id() );
-		$records    = array();
+		$records = array();
 
 		foreach ( Announcement_Registry::get_instance()->get_all_registered() as $announcement ) {
 			if ( self::is_visible( $announcement ) ) {
-				$records[] = self::to_record( $announcement, $seen_dates );
+				$records[] = self::to_record( $announcement );
 			}
 		}
 
@@ -135,25 +122,7 @@ class REST_Controller extends WP_REST_Controller {
 			return $announcement;
 		}
 
-		return rest_ensure_response( self::to_record( $announcement, Seen_State::get_dates( get_current_user_id() ) ) );
-	}
-
-	/**
-	 * Writes the seen state of one announcement and answers the full record.
-	 *
-	 * @param WP_REST_Request $request Request carrying the id and `seen`.
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function update_item( $request ) {
-		$announcement = self::get_visible_announcement( $request );
-		if ( is_wp_error( $announcement ) ) {
-			return $announcement;
-		}
-
-		$user_id = get_current_user_id();
-		Seen_State::set( $user_id, $announcement['id'], (bool) $request['seen'] );
-
-		return rest_ensure_response( self::to_record( $announcement, Seen_State::get_dates( $user_id ) ) );
+		return rest_ensure_response( self::to_record( $announcement ) );
 	}
 
 	/**
@@ -226,16 +195,6 @@ class REST_Controller extends WP_REST_Controller {
 					'items'       => array( 'type' => 'string' ),
 					'readonly'    => true,
 				),
-				'seen'     => array(
-					'description' => __( 'Whether the current user has seen the announcement.', 'jetpack-announcements' ),
-					'type'        => 'boolean',
-				),
-				'seen_at'  => array(
-					'description' => __( 'The date the current user saw the announcement, as GMT, or null.', 'jetpack-announcements' ),
-					'type'        => array( 'string', 'null' ),
-					'format'      => 'date-time',
-					'readonly'    => true,
-				),
 			),
 		);
 
@@ -249,7 +208,7 @@ class REST_Controller extends WP_REST_Controller {
 	 * @return array|WP_Error The announcement, or a 404 error.
 	 */
 	private static function get_visible_announcement( $request ) {
-		// Read from the URL alone: the body of a write carries an id too, and body params win.
+		// Read from the URL alone: a query parameter of the same name would win.
 		$id           = $request->get_url_params()['id'] ?? '';
 		$announcement = Announcement_Registry::get_instance()->get_registered( $id );
 
@@ -275,18 +234,13 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Builds the record a client receives: the announcement minus its capability, plus `seen` and `seen_at`.
+	 * Builds the record a client receives: the announcement minus its capability.
 	 *
-	 * @param array             $announcement A registered announcement.
-	 * @param array<string,int> $seen_dates   When the current user saw each announcement, by id.
+	 * @param array $announcement A registered announcement.
 	 * @return array
 	 */
-	private static function to_record( array $announcement, array $seen_dates ) {
+	private static function to_record( array $announcement ) {
 		unset( $announcement['capability'] );
-
-		$seen_at                 = $seen_dates[ $announcement['id'] ] ?? null;
-		$announcement['seen']    = null !== $seen_at;
-		$announcement['seen_at'] = null === $seen_at ? null : gmdate( DATE_ATOM, $seen_at );
 
 		return $announcement;
 	}

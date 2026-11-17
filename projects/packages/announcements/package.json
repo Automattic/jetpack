@@ -36,6 +36,7 @@
 		"@wordpress/element": "10.1.0",
 		"@wordpress/i18n": "7.1.0",
 		"@wordpress/icons": "20.0.0",
+		"@wordpress/preferences": "5.1.0",
 		"@wordpress/ui": "0.26.0",
 		"react": "19.3.0",
 		"react-dom": "19.3.0"

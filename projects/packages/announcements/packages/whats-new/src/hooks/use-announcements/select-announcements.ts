@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import type { Announcement } from '../../types';
+import type { Announcement, SeenDates } from '../../types';
 
 /**
  * Keeps the announcements a host shows, newest first.
@@ -25,14 +25,14 @@ export function getAnnouncementsForChannels(
  * Older unseen announcements are never teased, so a new user gets one teaser and not a backlog.
  *
  * @param announcements - The announcements of the host, newest first.
- * @param markedIds     - Ids marked as seen in this page load, whatever their write answered.
+ * @param seen          - When the user saw each announcement, by id.
  * @return The announcement to tease, or null.
  */
 export function selectTeaser(
 	announcements: Announcement[],
-	markedIds: ReadonlySet< string >
+	seen: SeenDates
 ): Announcement | null {
 	const [ newest ] = announcements;
 
-	return newest && ! newest.seen && ! markedIds.has( newest.id ) ? newest : null;
+	return newest && seen[ newest.id ] === undefined ? newest : null;
 }

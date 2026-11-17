@@ -106,34 +106,26 @@ class REST_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Send a request to the announcements routes.
+	 * Read from the announcements routes.
 	 *
-	 * @param string     $method HTTP method.
-	 * @param string     $id     Announcement id, or an empty string for the collection.
-	 * @param array|null $body   JSON body.
+	 * @param string $id Announcement id, or an empty string for the collection.
 	 * @return WP_REST_Response
 	 */
-	private function request( $method, $id = '', $body = null ) {
-		$request = new WP_REST_Request( $method, self::ROUTE . ( '' === $id ? '' : '/' . $id ) );
-		if ( null !== $body ) {
-			$request->set_header( 'content-type', 'application/json' );
-			$request->set_body( (string) wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
-		}
-
-		return rest_do_request( $request );
+	private function request( $id = '' ) {
+		return rest_do_request( new WP_REST_Request( 'GET', self::ROUTE . ( '' === $id ? '' : '/' . $id ) ) );
 	}
 
 	public function test_refuses_a_logged_out_request() {
-		$this->assertSame( 401, $this->request( 'GET' )->get_status() );
-		$this->assertSame( 401, $this->request( 'PUT', 'my-plugin/for-everyone', array( 'seen' => true ) )->get_status() );
+		$this->assertSame( 401, $this->request()->get_status() );
+		$this->assertSame( 401, $this->request( 'my-plugin/for-everyone' )->get_status() );
 	}
 
 	public function test_lists_the_records_a_user_may_see_without_their_capability() {
 		wp_set_current_user( $this->subscriber_id );
-		$for_subscriber = $this->request( 'GET' )->get_data();
+		$for_subscriber = $this->request()->get_data();
 
 		wp_set_current_user( $this->admin_id );
-		$for_admin = $this->request( 'GET' )->get_data();
+		$for_admin = $this->request()->get_data();
 
 		$this->assertSame(
 			array(
@@ -146,8 +138,6 @@ class REST_Controller_Test extends BaseTestCase {
 					'media'    => null,
 					'link'     => '',
 					'channels' => array( 'my-plugin' ),
-					'seen'     => false,
-					'seen_at'  => null,
 				),
 			),
 			$for_subscriber
@@ -156,62 +146,25 @@ class REST_Controller_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'capability', $for_admin[1] );
 	}
 
-	public function test_a_write_marks_the_announcement_of_the_url_seen_for_that_user_only() {
-		wp_set_current_user( $this->admin_id );
-
-		// core-data sends the record id in the body too. The URL names the announcement.
-		$response = $this->request(
-			'PUT',
-			'my-plugin/for-everyone',
-			array(
-				'id'   => 'my-plugin/for-administrators',
-				'seen' => true,
-			)
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( 'my-plugin/for-everyone', $response->get_data()['id'] );
-		$this->assertTrue( $response->get_data()['seen'] );
-		$this->assertNotNull( $response->get_data()['seen_at'] );
-		$this->assertSame( 'For everyone', $response->get_data()['title'] );
-		$this->assertSame( array( true, false ), array_column( $this->request( 'GET' )->get_data(), 'seen' ) );
-
-		wp_set_current_user( $this->subscriber_id );
-		$this->assertFalse( $this->request( 'GET', 'my-plugin/for-everyone' )->get_data()['seen'] );
-	}
-
-	public function test_serves_the_date_an_announcement_was_seen_as_gmt() {
-		update_user_meta( $this->admin_id, Seen_State::META_KEY, array( 'my-plugin/for-everyone' => 1700000000 ) );
-		wp_set_current_user( $this->admin_id );
-
-		$record = $this->request( 'GET', 'my-plugin/for-everyone' )->get_data();
-
-		$this->assertTrue( $record['seen'] );
-		$this->assertSame( '2023-11-14T22:13:20+00:00', $record['seen_at'] );
-	}
-
 	/**
-	 * @dataProvider provide_refused_writes
+	 * @dataProvider provide_item_reads
 	 *
 	 * @param string $id     Announcement id.
-	 * @param array  $body   JSON body.
 	 * @param int    $status Expected status.
 	 */
-	#[DataProvider( 'provide_refused_writes' )]
-	public function test_refuses_a_write_from_a_subscriber( $id, $body, $status ) {
+	#[DataProvider( 'provide_item_reads' )]
+	public function test_serves_one_announcement_to_a_subscriber_who_may_see_it( $id, $status ) {
 		wp_set_current_user( $this->subscriber_id );
 
-		$this->assertSame( $status, $this->request( 'PUT', $id, $body )->get_status() );
-		$this->assertSame( array(), Seen_State::get_dates( $this->subscriber_id ) );
+		$this->assertSame( $status, $this->request( $id )->get_status() );
 	}
 
-	public static function provide_refused_writes() {
+	public static function provide_item_reads() {
 		return array(
-			'no seen in the body'           => array( 'my-plugin/for-everyone', array(), 400 ),
-			'seen that is no boolean'       => array( 'my-plugin/for-everyone', array( 'seen' => 'yes please' ), 400 ),
-			'an unknown announcement'       => array( 'my-plugin/unknown', array( 'seen' => true ), 404 ),
-			'one the user is not shown'     => array( 'my-plugin/for-administrators', array( 'seen' => true ), 404 ),
-			'an id the route does not take' => array( 'my-plugin', array( 'seen' => true ), 404 ),
+			'one for everyone'              => array( 'my-plugin/for-everyone', 200 ),
+			'an unknown announcement'       => array( 'my-plugin/unknown', 404 ),
+			'one the user is not shown'     => array( 'my-plugin/for-administrators', 404 ),
+			'an id the route does not take' => array( 'my-plugin', 404 ),
 		);
 	}
 }

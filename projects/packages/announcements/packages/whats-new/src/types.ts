@@ -58,14 +58,9 @@ export type Announcement = {
 	 * The channels it is published to.
 	 */
 	channels: string[];
-
-	/*
-	 * Whether the current user has seen it. The only writable field.
-	 */
-	seen: boolean;
-
-	/*
-	 * When the current user saw it: ISO 8601, GMT. Null while unseen.
-	 */
-	seen_at: string | null;
 };
+
+/*
+ * When the current user saw each announcement, by id: ISO 8601, GMT.
+ */
+export type SeenDates = Record< string, string >;

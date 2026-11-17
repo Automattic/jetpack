@@ -18,8 +18,6 @@ const announcement = ( overrides: Partial< Announcement > = {} ): Announcement =
 	media: null,
 	link: 'https://example.com/whats-new/tabs',
 	channels: [ 'my-plugin' ],
-	seen: true,
-	seen_at: '2026-11-21T09:00:00+00:00',
 	...overrides,
 } );
 

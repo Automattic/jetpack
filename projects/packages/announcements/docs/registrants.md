@@ -44,17 +44,17 @@ The helper returns the record as the registry stored it, or `false` when the reg
 
 ## The record
 
-| Field        | Required | What it is                                              | What the package does with it                          |
-| ------------ | -------- | ------------------------------------------------------- | ------------------------------------------------------ |
-| `id`         | yes      | `vendor/slug`, in lowercase letters, digits and hyphens | Refuses anything else, and a duplicate                 |
-| `date`       | yes      | When it was published. GMT unless it carries an offset  | Stores it as ISO 8601, GMT                             |
-| `title`      | yes      | Plain text                                              | `sanitize_text_field()`                                |
-| `channels`   | yes      | The labels it is published to                           | `sanitize_key()` on each, duplicates dropped           |
-| `excerpt`    | no       | Plain text, one or two sentences                        | `sanitize_text_field()`                                |
-| `content`    | no       | The body, as HTML                                       | `wp_kses_post()`                                       |
-| `media`      | no       | `type` (`image` or `video`), `url` and `alt`            | Drops an unknown type or an empty URL                  |
-| `link`       | no       | URL of the full article                                 | `esc_url_raw()`                                        |
-| `capability` | no       | Who may read it                                         | Checks it on every read and write, and never serves it |
+| Field        | Required | What it is                                              | What the package does with it                |
+| ------------ | -------- | ------------------------------------------------------- | -------------------------------------------- |
+| `id`         | yes      | `vendor/slug`, in lowercase letters, digits and hyphens | Refuses anything else, and a duplicate       |
+| `date`       | yes      | When it was published. GMT unless it carries an offset  | Stores it as ISO 8601, GMT                   |
+| `title`      | yes      | Plain text                                              | `sanitize_text_field()`                      |
+| `channels`   | yes      | The labels it is published to                           | `sanitize_key()` on each, duplicates dropped |
+| `excerpt`    | no       | Plain text, one or two sentences                        | `sanitize_text_field()`                      |
+| `content`    | no       | The body, as HTML                                       | `wp_kses_post()`                             |
+| `media`      | no       | `type` (`image` or `video`), `url` and `alt`            | Drops an unknown type or an empty URL        |
+| `link`       | no       | URL of the full article                                 | `esc_url_raw()`                              |
+| `capability` | no       | Who may read it                                         | Checks it on every read, and never serves it |
 
 The id is the first argument of `register_announcement()`. The rest travel in the array.
 
