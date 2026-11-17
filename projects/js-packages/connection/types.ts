@@ -64,24 +64,26 @@ export interface WpcomUser {
 	user_currency?: string;
 }
 
-/**
- * Safe Mode state for the shared Safe Mode screen. Everything after `isSafeModeConfirmed` is sent
- * only to a viewer who can resolve Safe Mode.
- */
-export interface IdentityCrisisState {
+interface IdentityCrisisBase {
 	/** Whether the `connection-idc-screen` feature flag is on. */
 	useNewScreen: boolean;
-	canResolve: boolean;
 	isSafeModeConfirmed: boolean;
-	/** Host and path without a scheme, e.g. `example.com/`; empty when no stored error has one. Show as text, not a link. */
-	wpcomHomeUrl?: string;
-	/** Same format as `wpcomHomeUrl`. */
-	currentUrl?: string;
-	isDevelopmentSite?: boolean;
-	possibleDynamicSiteUrlDetected?: boolean;
-	/** Jetpack mark, combined with the marks of the other plugin families that use the connection. */
-	logoUrl?: string;
 }
+
+/** Safe Mode state for the shared Safe Mode screen. Only a viewer who can resolve Safe Mode gets its details. */
+export type IdentityCrisisState =
+	| ( IdentityCrisisBase & { canResolve: false } )
+	| ( IdentityCrisisBase & {
+			canResolve: true;
+			/** Host and path without a scheme, e.g. `example.com/`; empty when no stored error has one. Show as text, not a link. */
+			wpcomHomeUrl: string;
+			/** Same format as `wpcomHomeUrl`. */
+			currentUrl: string;
+			isDevelopmentSite: boolean;
+			possibleDynamicSiteUrlDetected: boolean;
+			/** Jetpack mark, combined with the marks of the other plugin families that use the connection. */
+			logoUrl: string;
+	  } );
 
 export type ConnectionScriptData = {
 	apiRoot: string;
