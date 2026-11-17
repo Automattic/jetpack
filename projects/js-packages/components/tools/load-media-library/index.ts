@@ -36,11 +36,12 @@ const concatenatedHandles = ( file: string ): string => {
 		if ( ! url.pathname.endsWith( `/${ file }` ) ) {
 			continue;
 		}
-		for ( const [ key, value ] of url.searchParams ) {
-			if ( key.startsWith( 'load' ) ) {
-				handles.push( ...value.split( ',' ) );
-			}
-		}
+		// Core cuts the handle list into fixed-length chunks, which can split a handle in two.
+		const list = [ ...url.searchParams ]
+			.filter( ( [ key ] ) => key.startsWith( 'load' ) )
+			.map( ( [ , value ] ) => value )
+			.join( '' );
+		handles.push( ...list.split( ',' ).filter( Boolean ) );
 	}
 	return handles.join( ',' );
 };
